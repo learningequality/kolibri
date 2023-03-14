@@ -1,16 +1,11 @@
 import socket
 from contextlib import closing
+from contextlib import contextmanager
 
 from . import errors
-from .client import device_info_defaults
 from .client import NetworkClient
 from .urls import parse_address_into_components
-from kolibri.core.utils.cache import process_cache
-from kolibri.core.utils.nothing import Nothing
-
-
-INVALID_DEVICE_INFO = Nothing("invalid device info")
-FAILED_TO_CONNECT = Nothing("failed to connect")
+from kolibri.core.discovery.models import ConnectionStatus
 
 
 def check_if_port_open(base_url, timeout=1):
@@ -29,103 +24,112 @@ def check_if_port_open(base_url, timeout=1):
         return False
 
 
-def check_device_info(base_url):
-    """ try to get device info for a Kolibri instance at `base_url` """
-    try:
-        info = NetworkClient(base_url=base_url).info
-        if info["application"] in ["studio", "kolibri"]:
-            complete_info = device_info_defaults.copy()
-            complete_info.update(info)
-            return complete_info
-        return INVALID_DEVICE_INFO
-    except (errors.NetworkClientError, errors.NetworkLocationNotFound):
-        return FAILED_TO_CONNECT
-    except KeyError:
-        return INVALID_DEVICE_INFO
-
-
-DEVICE_INFO_TIMEOUT = 3
-
-DEVICE_PORT_TIMEOUT = 60
-
+DEVICE_INFO_EXPIRY = 3
+DEVICE_PORT_EXPIRY = 60
 DEVICE_INFO_CACHE_KEY = "device_info_cache_{url}"
-
 DEVICE_PORT_CACHE_KEY = "device_port_cache_{url}"
 
 
-class CachedDeviceConnectionChecker(object):
-    def __init__(self, base_url):
-        self.base_url = base_url
+def capture_network_state(network_location, client):
+    """
+    Captures the state of the `NetworkClient` for after it has made a successful connection, in
+    order to save the exact base_url, IP address, and device information
 
-    def check_device_info(self):
-        from kolibri.core.discovery.models import NetworkLocation
+    :param network_location: The NetworkLocation model for capturing network state
+    :type network_location: kolibri.core.discovery.models.NetworkLocation
+    :param client: The NetworkClient which successfully connected to the location
+    :type client: NetworkClient
+    """
+    from kolibri.core.device.utils import DEVICE_INFO_VERSION
+    from kolibri.core.device.utils import device_info_keys
 
-        info = check_device_info(self.base_url)
-
-        if info:
-            # Update the underlying model at the same time as the cache
-            NetworkLocation.objects.filter(instance_id=info.get("instance_id")).update(
-                **info
-            )
-            process_cache.set(
-                DEVICE_INFO_CACHE_KEY.format(url=self.base_url),
-                info,
-                DEVICE_INFO_TIMEOUT,
-            )
-
-        return info
-
-    @property
-    def device_info(self):
-        return process_cache.get(DEVICE_INFO_CACHE_KEY.format(url=self.base_url))
-
-    @property
-    def valid_device_info(self):
-        if (
-            self.device_info != INVALID_DEVICE_INFO
-            and self.device_info != FAILED_TO_CONNECT
-        ):
-            return self.device_info
-
-    @property
-    def invalid_device_info(self):
-        return self.device_info == INVALID_DEVICE_INFO
-
-    def failed_to_connect(self):
-        return self.device_info == FAILED_TO_CONNECT
-
-    @property
-    def device_port_open(self):
-        """ check to see if a port is open at a given `base_url` """
-
-        cached = process_cache.get(DEVICE_PORT_CACHE_KEY.format(url=self.base_url))
-
-        if cached:
-            return cached
-
-        result = check_if_port_open(self.base_url)
-        process_cache.set(
-            DEVICE_PORT_CACHE_KEY.format(url=self.base_url), result, DEVICE_PORT_TIMEOUT
-        )
-
-        return result
-
-    @property
-    def connection_info(self):
-        if self.device_info and self.device_port_open:
-            return self.device_info
-        elif self.invalid_device_info and self.device_port_open:
-            return None
-        elif self.failed_to_connect and self.device_port_open:
-            self.check_device_info()
-            return self.device_info
-        elif not self.device_info and self.device_port_open:
-            self.check_device_info()
-            return self.device_info
-
-        return None
+    # having validated the base URL, we can save that
+    network_location.base_url = client.base_url
+    # save the IP address for static locations
+    if not network_location.dynamic:
+        network_location.last_known_ip = client.remote_ip
+    # update all device info
+    for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
+        setattr(network_location, key, client.device_info.get(key))
 
 
-def check_connection_info(base_url):
+@contextmanager
+def capture_connection_state(network_location):
+    """
+    Intended to wrap contexts with usage of `NetworkClient` for a given `NetworkLocation`.
+    If a `NetworkClientError` is raised during yielded context, the appropriate connection status is
+    saved to the `NetworkLocation` and the number of `connection_faults` is incremented.
 
-    return CachedDeviceConnectionChecker(base_url).connection_info
+    :param network_location: The NetworkLocation model for capturing connection state
+    :type network_location: kolibri.core.discovery.models.NetworkLocation
+    """
+    try:
+        # yield for context processing
+        yield
+        # finally confirm status is OKAY
+        network_location.connection_status = ConnectionStatus.Okay
+    except (errors.NetworkLocationConnectionFailure, errors.NetworkLocationNotFound):
+        network_location.connection_status = ConnectionStatus.ConnectionFailure
+    except errors.NetworkLocationResponseFailure:
+        network_location.connection_status = ConnectionStatus.ResponseFailure
+    except errors.NetworkLocationResponseTimeout:
+        network_location.connection_status = ConnectionStatus.ResponseTimeout
+    except errors.NetworkLocationInvalidResponse:
+        network_location.connection_status = ConnectionStatus.InvalidResponse
+    except errors.NetworkLocationConflict:
+        network_location.connection_status = ConnectionStatus.Conflict
+
+    # reset connection faults if it was successful
+    if network_location.connection_status == ConnectionStatus.Okay:
+        network_location.connection_faults = 0
+    else:
+        # increment the number of faulty connection attempts
+        network_location.connection_faults += 1
+
+    network_location.save()
+
+
+def update_network_location(network_location):
+    """
+    Perform a connection check that the network location is contactable and the instance ID matches
+    what we expect, or if there was a previous conflict from an instance ID mismatch, we'll check
+    the facilities as the final source of truth
+
+    :param network_location: The network location modal
+    :type network_location: kolibri.core.discovery.models.NetworkLocation
+    """
+    from kolibri.core.auth.models import Facility
+
+    prior_status = network_location.connection_status
+
+    with capture_connection_state(network_location):
+        with NetworkClient.build_from_network_location(network_location) as client:
+            client.connect()
+            # if the last connection attempt resulted in a conflict, likely from instance ID
+            # mismatch, then we fall back to checking the facilities
+            if prior_status == ConnectionStatus.Conflict:
+                response = client.get("api/public/v1/facility")
+                network_location_facilities = response.json()
+                network_location_facility_ids = [
+                    f.get("id") for f in network_location_facilities
+                ]
+
+                if not Facility.objects.filter(
+                    id__in=network_location_facility_ids
+                ).exists():
+                    raise errors.NetworkLocationConflict(
+                        "Instance does not have matching facility"
+                    )
+            elif (
+                network_location.instance_id
+                and network_location.instance_id
+                != client.device_info.get("instance_id")
+            ):
+                raise errors.NetworkLocationConflict(
+                    "Instances do not match | {} != {}".format(
+                        network_location.instance_id,
+                        client.device_info.get("instance_id"),
+                    )
+                )
+            # finally, capture the location's network state (ip, url, etc)
+            capture_network_state(network_location, client)

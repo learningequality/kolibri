@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('profile')"
+    :label="coreString('profileLabel')"
     :link="url"
     icon="profile"
   />
@@ -14,6 +14,7 @@
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
 
   const component = {
@@ -21,12 +22,7 @@
     components: {
       CoreMenuOption,
     },
-    $trs: {
-      profile: {
-        message: 'Profile',
-        context: 'Option in the sidebar menu for the user to open the page with their profile.',
-      },
-    },
+    mixins: [commonCoreStrings],
     computed: {
       url() {
         return urls['kolibri:kolibri.plugins.user_profile:user_profile']();

@@ -1,10 +1,11 @@
 <template>
 
   <KModal
-    :title="$attrs.title || $tr('header')"
+    :title="$attrs.title || getCommonSyncString('selectNetworkAddressTitle')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
+    :submitDisabled="formDisabled || submitDisabled"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -12,7 +13,7 @@
       <p v-if="filterLODAvailable">
         {{ $tr('lodSubHeader') }}
       </p>
-      <p v-if="initialFetchingComplete && !combinedAddresses.length">
+      <p v-if="hasFetched && !devices.length">
         {{ $tr('noDeviceText') }}
       </p>
       <UiAlert
@@ -23,51 +24,51 @@
       >
         {{ uiAlertProps.text }}
         <KButton
-          v-if="requestsFailed"
+          v-if="fetchFailed || deletingFailed"
           appearance="basic-link"
           :text="$tr('refreshDevicesButtonLabel')"
-          @click="refreshSavedAddressList"
+          @click="forceFetch"
         />
       </UiAlert>
 
-      <!-- Static Addresses -->
-      <template v-for="(a, idx) in savedAddresses">
+      <!-- Static Devices -->
+      <template v-for="(d, idx) in savedDevices">
         <div :key="`div-${idx}`">
           <KRadioButton
             :key="idx"
-            v-model="selectedAddressId"
+            v-model="selectedDeviceId"
             class="radio-button"
-            :value="a.id"
-            :label="a.nickname"
-            :description="a.base_url"
-            :disabled="formDisabled || !isAddressAvailable(a.id)"
+            :value="d.id"
+            :label="d.nickname"
+            :description="d.base_url"
+            :disabled="formDisabled || !isDeviceAvailable(d.id)"
           />
           <KButton
-            v-if="!hideSavedAddresses"
             :key="`forget-${idx}`"
-            :text="$tr('forgetDeviceButtonLabel')"
+            :text="coreString('removeAction')"
+            class="remove-device-button"
             appearance="basic-link"
-            @click="removeSavedAddress(a.id)"
+            @click="removeSavedDevice(d.id)"
           />
         </div>
       </template>
 
       <hr
-        v-if="!hideSavedAddresses && discoveredAddresses.length > 0"
+        v-if="savedDevices.length > 0 && discoveredDevices.length > 0"
         :style="{ border: 0, borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
 
-      <!-- Dynamic Addresses -->
-      <template v-for="d in discoveredAddresses">
+      <!-- Dynamic Devices -->
+      <template v-for="d in discoveredDevices">
         <div :key="`div-${d.id}`">
           <KRadioButton
             :key="d.id"
-            v-model="selectedAddressId"
+            v-model="selectedDeviceId"
             class="radio-button"
             :value="d.instance_id"
             :label="formatNameAndId(d.device_name, d.id)"
-            :description="formatBaseAddress(d)"
-            :disabled="formDisabled || discoveryFailed || !isAddressAvailable(d.id)"
+            :description="formatBaseDevice(d)"
+            :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
           />
         </div>
       </template>
@@ -79,7 +80,7 @@
       <KFixedGrid class="actions" numCols="4">
         <KFixedGridItem span="1">
           <transition name="spinner-fade">
-            <div v-if="discoveringPeers">
+            <div v-if="isFetching || isChecking">
               <KLabeledIcon>
                 <template #icon>
                   <KCircularLoader :size="16" :stroke="6" class="loader" />
@@ -93,7 +94,7 @@
             <KButton
               :text="coreString('cancelAction')"
               appearance="flat-button"
-              :disabled="formDisabled"
+              :disabled="formDisabled || isSubmitChecking"
               @click="$emit('cancel')"
             />
             <KButton
@@ -108,13 +109,12 @@
     </template>
 
     <KButton
-      v-show="!newAddressButtonDisabled && !formDisabled"
-      class="new-address-button"
-      :text="$tr('newDeviceButtonLabel')"
+      v-show="!newDeviceButtonDisabled && !formDisabled"
+      class="new-device-button"
+      :text="getCommonSyncString('addNewAddressAction')"
       appearance="basic-link"
       @click="$emit('click_add_address')"
     />
-
 
   </KModal>
 
@@ -124,13 +124,19 @@
 <script>
 
   import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { useLocalStorage } from '@vueuse/core';
+  import { useLocalStorage, get } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import useDynamicAddresses from './useDynamicAddresses.js';
-  import useSavedAddresses from './useSavedAddresses.js';
+  import { UnreachableConnectionStatuses } from './constants';
+  import useDeviceDeletion from './useDeviceDeletion.js';
+  import useDevices, {
+    useDevicesWithChannel,
+    useDevicesWithFacility,
+    useDevicesForLearnOnlyDevice,
+  } from './useDevices.js';
+  import useConnectionChecker from './useConnectionChecker.js';
 
   export default {
     name: 'SelectDeviceForm',
@@ -139,53 +145,69 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
-      const {
-        addresses: discoveredAddresses,
-        discoveringPeers,
-        discoveryFailed,
-        discoveredAddressesInitiallyFetched,
-      } = useDynamicAddresses(props);
+      // We don't have a use case for combining these at the moment
+      if (
+        (props.filterByChannelId !== null && props.filterByFacilityId !== null) ||
+        ((props.filterByChannelId !== null || props.filterByFacilityId !== null) &&
+          props.filterLODAvailable)
+      ) {
+        throw new Error('Filtering for LOD and having channel or facility is not implemented');
+      }
+
+      let useDevicesResult = null;
+      if (props.filterByChannelId !== null) {
+        useDevicesResult = useDevicesWithChannel(props.filterByChannelId);
+      } else if (props.filterByFacilityId !== null) {
+        // This is inherently filtered to full-facility devices
+        useDevicesResult = useDevicesWithFacility(props.filterByFacilityId);
+      } else if (props.filterLODAvailable) {
+        useDevicesResult = useDevicesForLearnOnlyDevice();
+      } else {
+        useDevicesResult = useDevices();
+      }
 
       const {
-        addresses: savedAddresses,
-        removeSavedAddress,
-        refreshSavedAddressList,
-        savedAddressesInitiallyFetched,
-        requestsFailed,
-        deletingAddress,
-        fetchingAddresses,
-      } = useSavedAddresses(props, context);
+        devices: _devices,
+        isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+      } = useDevicesResult;
 
-      const combinedAddresses = computed(() => {
-        return [...savedAddresses.value, ...discoveredAddresses.value];
-      });
+      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
+        _devices,
+        context
+      );
 
-      const initialFetchingComplete = computed(() => {
-        return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
-      });
+      const { isChecking, doCheck } = useConnectionChecker(devices);
 
-      const storageAddressId = useLocalStorage('kolibri-lastSelectedNetworkLocationId', '');
+      const storageDeviceId = useLocalStorage('kolibri-lastSelectedNetworkLocationId', '');
+
+      const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
+      const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
 
       return {
-        combinedAddresses,
-        initialFetchingComplete,
-        discoveredAddresses,
-        discoveringPeers,
-        discoveryFailed,
-        discoveredAddressesInitiallyFetched,
-        savedAddresses,
-        savedAddressesInitiallyFetched,
-        removeSavedAddress,
-        refreshSavedAddressList,
-        requestsFailed,
-        deletingAddress,
-        fetchingAddresses,
-        storageAddressId,
+        // useDevices
+        devices,
+        isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+        // useDeviceDeletion
+        isDeleting,
+        hasDeleted,
+        deletingFailed,
+        doDelete,
+        // useConnectionChecker
+        isChecking,
+        doCheck,
+        // internal
+        discoveredDevices,
+        savedDevices,
+        storageDeviceId,
       };
     },
     props: {
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
-      discoverySpinnerTime: { type: Number, default: 2500 },
       // Facility filter only needed on SyncFacilityModalGroup
       // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByFacilityId: {
@@ -198,12 +220,12 @@
         type: String,
         default: null,
       },
-      // Hides "New address" button and other saved locations
-      hideSavedAddresses: {
+      // When this device is a Learn Only Device
+      filterLODAvailable: {
         type: Boolean,
         default: false,
       },
-      // If an ID is provided, that address's radio button will be automatically selected
+      // If an ID is provided, that device's radio button will be automatically selected
       selectedId: {
         type: String,
         default: null,
@@ -213,67 +235,73 @@
         type: Boolean,
         default: false,
       },
-      filterLODAvailable: {
-        type: Boolean,
-        default: false,
-      },
     },
     data() {
       return {
-        availableAddressIds: [],
-        selectedAddressId: '',
+        selectedDeviceId: '',
         showUiAlerts: false,
+        uiAlertText: null,
+        isSubmitChecking: false,
       };
     },
     computed: {
-      isAddressAvailable() {
-        return function(addressId) {
-          return Boolean(this.availableAddressIds.find(id => id === addressId));
+      availableDeviceIds() {
+        return this.devices
+          .filter(
+            device =>
+              device.available &&
+              (device.application === 'kolibri' || this.$route.path === '/content')
+          )
+          .map(device => device.id);
+      },
+      isDeviceAvailable() {
+        return function(deviceId) {
+          return Boolean(this.availableDeviceIds.find(id => id === deviceId));
         };
       },
       submitDisabled() {
         return Boolean(
-          this.selectedAddressId === '' ||
-            this.fetchingAddresses & !this.filterLODAvailable ||
-            this.deletingAddress ||
-            this.discoveryFailed ||
-            this.availableAddressIds.length === 0
+          this.selectedDeviceId === '' ||
+            this.isDeleting ||
+            this.fetchFailed ||
+            this.isSubmitChecking ||
+            this.availableDeviceIds.length === 0
         );
       },
-      newAddressButtonDisabled() {
-        return this.filterLODAvailable || this.hideSavedAddresses || this.fetchingAddresses;
+      newDeviceButtonDisabled() {
+        return !this.hasFetched;
       },
       uiAlertProps() {
         let text;
-        if (this.fetchingFailed) {
+        if (this.uiAlertText) {
+          text = this.uiAlertText;
+        } else if (this.fetchFailed) {
           text = this.$tr('fetchingFailedText');
-        }
-        if (this.discoveryFailed) {
-          text = this.$tr('fetchingFailedText');
-        }
-        if (this.deletingFailed) {
+        } else if (this.deletingFailed) {
           text = this.$tr('deletingFailedText');
+        } else {
+          const unreachable = this.devices.find(d =>
+            UnreachableConnectionStatuses.includes(d.connection_status)
+          );
+          if (unreachable) {
+            text = this.getCommonSyncString('devicesUnreachable');
+          }
         }
         return text ? { text, type: 'error' } : null;
       },
     },
     watch: {
-      selectedAddressId(newVal) {
-        this.storageAddressId = newVal;
+      selectedDeviceId(newVal) {
+        this.storageDeviceId = newVal;
       },
-      combinedAddresses(addrs) {
-        this.availableAddressIds = addrs
-          .filter(
-            address =>
-              address.available &&
-              (this.$route.path === '/content' || address.application === 'kolibri')
-          )
-          .map(address => address.id);
-        if (!this.availableAddressIds.includes(this.selectedAddressId)) {
-          this.selectedAddressId = '';
+      availableDeviceIds() {
+        if (!this.availableDeviceIds.includes(this.selectedDeviceId)) {
+          this.selectedDeviceId = '';
         }
-        if (!this.selectedAddressId) {
-          this.resetSelectedAddress();
+      },
+      devices() {
+        if (!this.selectedDeviceId) {
+          this.resetSelectedDevice();
         }
       },
     },
@@ -285,7 +313,7 @@
       }, 100);
     },
     methods: {
-      formatBaseAddress(device) {
+      formatBaseDevice(device) {
         const url = device.base_url;
         if (this.filterLODAvailable) {
           const version = device.kolibri_version
@@ -295,21 +323,38 @@
           return `${url}, Kolibri ${version}`;
         } else return url;
       },
-      resetSelectedAddress() {
-        if (this.availableAddressIds.length !== 0) {
-          const selectedId = this.selectedId || this.storageAddressId || this.selectedAddressId;
-          this.selectedAddressId =
-            this.availableAddressIds.find(id => id === selectedId) || this.availableAddressIds[0];
+      resetSelectedDevice() {
+        if (this.availableDeviceIds.length !== 0) {
+          const selectedId = this.selectedId || this.storageDeviceId || this.selectedDeviceId;
+          this.selectedDeviceId =
+            this.availableDeviceIds.find(id => id === selectedId) || this.availableDeviceIds[0];
         } else {
-          this.selectedAddressId = '';
+          this.selectedDeviceId = '';
         }
       },
       handleSubmit() {
-        if (this.selectedAddressId) {
-          const match = find(this.combinedAddresses, { id: this.selectedAddressId });
-          match.isDynamic = Boolean(find(this.discoveredAddresses, { id: this.selectedAddressId }));
-          this.$emit('submit', match);
+        if (!this.selectedDeviceId) {
+          return;
         }
+
+        const match = find(this.devices, { id: this.selectedDeviceId });
+        if (!match) {
+          this.uiAlertText = this.$tr('fetchingFailedText');
+          return this.forceFetch();
+        }
+
+        this.uiAlertText = null;
+        this.isSubmitChecking = true;
+
+        // TODO: implement `DeviceConnectingModal`
+        this.doCheck(match.id).then(device => {
+          this.$emit('submit', device);
+        });
+      },
+      removeSavedDevice(id) {
+        return this.doDelete(id).then(() => {
+          this.$emit('removed_address');
+        });
       },
     },
     $trs: {
@@ -322,21 +367,6 @@
         message: 'There was a problem getting the available devices',
         context:
           'Error message that displays when an admin attempts to find a device, but the device is not found.',
-      },
-      forgetDeviceButtonLabel: {
-        message: 'Remove',
-        context:
-          'Removes a device from the list of devices which have been registered in the Device > Facilities section.',
-      },
-      header: {
-        message: 'Select device',
-        context:
-          "In the Device > Facilities section, you select the 'SYNC' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
-      },
-      newDeviceButtonLabel: {
-        message: 'Add new device',
-        context:
-          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
@@ -361,13 +391,14 @@
 
 <style lang="scss" scoped>
 
-  .new-address-button {
-    margin: 0 0 1em;
-  }
-
   .radio-button {
     display: inline-block;
     width: 75%;
+  }
+
+  .radio-button,
+  .remove-device-button {
+    vertical-align: middle;
   }
 
   .spinner-fade-leave-active,

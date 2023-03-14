@@ -17,7 +17,7 @@
       <KCheckbox
         :checked="confirmationChecked"
         :label="$tr('makePrimary')"
-        :description="$tr('labelPrimary')"
+        :description="deviceString('primaryStorageLabel')"
         @change="confirmationChecked = $event"
       />
     </div>
@@ -120,10 +120,6 @@
       makePrimary: {
         message: 'Make this the primary storage location',
         context: 'Checkbox to make primary storage location.',
-      },
-      labelPrimary: {
-        message: 'Newly downloaded resources will be added to the primary storage location',
-        context: 'Label for primary storage location.',
       },
     },
   };

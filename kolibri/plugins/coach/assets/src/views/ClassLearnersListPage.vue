@@ -24,7 +24,7 @@
         v-if="displayTroubleshootModal"
         :title="$tr('howToTroubleshootModalHeader')"
         size="medium"
-        :submitText="$tr('close')"
+        :submitText="coreString('closeAction')"
         @submit="displayTroubleshootModal = false"
       >
         <div
@@ -207,10 +207,6 @@
         message: 'Information about sync statuses',
         context:
           'Link to open additional information about statuses. It shows descriptions of what each status means.',
-      },
-      close: {
-        message: 'Close',
-        context: 'ClassLearnersListPage.close\n\n-- CONTEXT --',
       },
     },
   };

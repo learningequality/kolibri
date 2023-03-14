@@ -170,7 +170,7 @@ class RemoteImportMixin(with_metaclass(serializers.SerializerMetaclass)):
             },
         )
         try:
-            baseurl = NetworkClient(address=peer["base_url"]).base_url
+            baseurl = NetworkClient.build_for_address(peer["base_url"]).base_url
             peer["base_url"] = baseurl
         except NetworkLocationNotFound:
             raise ResourceGoneError()
@@ -274,14 +274,16 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
             },
         )
         try:
-            client = NetworkClient(address=peer["base_url"])
-            if client.info["application"] == "kolibri" and not version_matches_range(
-                client.info["kolibri_version"], MIN_RESOURCE_IMPORT_VERSION
+            client = NetworkClient.build_for_address(peer["base_url"])
+            if client.device_info[
+                "application"
+            ] == "kolibri" and not version_matches_range(
+                client.device_info["kolibri_version"], MIN_RESOURCE_IMPORT_VERSION
             ):
                 raise IncompatibleVersionError(
                     "Remote Kolibri instance must be 0.16.0 or higher"
                 )
-            peer["base_url"] = client.baseurl
+            peer["base_url"] = client.base_url
         except NetworkLocationNotFound:
             raise ResourceGoneError()
         job_data["extra_metadata"].update(dict(peer_id=peer["id"]))

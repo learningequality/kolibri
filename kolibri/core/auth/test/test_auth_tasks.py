@@ -240,7 +240,7 @@ class FacilityTasksAPITestCase(APITestCase):
             device_id=device.id,
         )
 
-        network_client = NetworkClient.return_value
+        network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
 
         response = self.client.post(
@@ -305,7 +305,7 @@ class FacilityTasksAPITestCase(APITestCase):
             device_id=device.id,
         )
 
-        network_client = NetworkClient.return_value
+        network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
 
         response = self.client.post(
@@ -477,7 +477,7 @@ class FacilityTaskHelperTestCase(TestCase):
             password="mypassword",
         )
 
-        network_client = NetworkClient.return_value
+        network_client = NetworkClient.build_for_address.return_value
         network_client.base_url = "https://some.server.test/"
 
         network_connection = Mock()
@@ -571,7 +571,7 @@ class FacilityTaskHelperTestCase(TestCase):
             username="tester",
             password="mypassword",
         )
-        NetworkClient.side_effect = NetworkLocationNotFound()
+        NetworkClient.build_for_address.side_effect = NetworkLocationNotFound()
         with self.assertRaises(ResourceGoneError):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 

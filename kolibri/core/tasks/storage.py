@@ -363,6 +363,18 @@ class Storage(object):
         else:
             self.mark_job_as_canceling(job_id)
 
+    def cancel_if_exists(self, job_id):
+        """
+        Mark a job as canceling, but only if it exists and
+        does not raise 'JobNotFound' if it doesn't
+
+        :param job_id: the job_id of the Job to cancel.
+        """
+        try:
+            self.cancel(job_id)
+        except JobNotFound:
+            pass
+
     def clear(self, queue=None, job_id=None, force=False):
         """
         Clear the queue and the job data.

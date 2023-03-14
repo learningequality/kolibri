@@ -28,10 +28,10 @@
     </tr>
     <tr>
       <th>
-        {{ $tr('questionsCorrectLabel') }}
+        {{ coreString('questionsCorrectLabel') }}
       </th>
       <td>
-        {{ $tr('questionsCorrectValue', {
+        {{ coreString('questionsCorrectValue', {
           correct: maxQuestionsCorrect, total: totalQuestions
         }) }}
       </td>
@@ -151,16 +151,6 @@
         message: 'Best score time',
         context:
           'When there have been multiple attempts on a practice quiz, it indicates to the learner how long the attempt with the best score has taken',
-      },
-      questionsCorrectLabel: {
-        message: 'Questions answered correctly',
-        context:
-          "In a report, learners can see how many questions they have got correct in a quiz.\n\nThe 'Questions answered correctly' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
-      },
-      questionsCorrectValue: {
-        message: '{correct, number} out of {total, number}',
-        context:
-          "When a learner views their report they can see how many questions they answered correctly in a quiz.\n\nThe 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
       },
       practiceQuizReportFasterSuggestedLabel: {
         message:

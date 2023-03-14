@@ -13,7 +13,7 @@
       {{ deviceDescription }}
     </p>
     <div v-if="noUsersImported">
-      {{ $tr('warningFirstImportedIsSuperuser') }}
+      {{ getCommonSyncString('warningFirstImportedIsSuperuser') }}
     </div>
     <PaginatedListContainer
       :items="learners"
@@ -229,12 +229,6 @@
         message: 'Select a user',
         context:
           'Descriptive text which appears in the title of this page to select users to sync.',
-      },
-      warningFirstImportedIsSuperuser: {
-        message:
-          'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
-        context:
-          'A note at the top of the page for importing a user explaining that the first user imported will be given the permissions of a superuser',
       },
     },
   };

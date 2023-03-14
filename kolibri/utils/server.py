@@ -299,19 +299,13 @@ class ZeroConfPlugin(Monitor):
             build_broadcast_instance,
             KolibriBroadcast,
         )
-        from kolibri.core.discovery.utils.network.search import (
-            DynamicNetworkLocationListener,
-            SoUDClientListener,
-            SoUDServerListener,
-        )
+        from kolibri.core.discovery.utils.network.search import NetworkLocationListener
 
         instance = build_broadcast_instance(self.port)
 
         if self.broadcast is None:
             self.broadcast = KolibriBroadcast(instance, interfaces=self.interfaces)
-            self.broadcast.add_listener(DynamicNetworkLocationListener)
-            self.broadcast.add_listener(SoUDClientListener)
-            self.broadcast.add_listener(SoUDServerListener)
+            self.broadcast.add_listener(NetworkLocationListener)
             self.broadcast.start_broadcast()
         else:
             self.broadcast.update_broadcast(

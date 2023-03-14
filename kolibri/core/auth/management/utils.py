@@ -159,27 +159,27 @@ def is_portal_sync(baseurl):
     return baseurl == DATA_PORTAL_SYNCING_BASE_URL
 
 
-def get_baseurl(baseurl):
+def get_baseurl(address):
     # if url matches data portal, no need to validate it
-    if is_portal_sync(baseurl):
-        return baseurl
+    if is_portal_sync(address):
+        return address
 
     # validate base url
     try:
-        return NetworkClient(address=baseurl).base_url
+        return NetworkClient.build_for_address(address).base_url
     except URLParseError:
         raise CommandError(
             "Base URL/IP: {} is not valid. Please retry command and enter a valid URL/IP.".format(
-                baseurl
+                address
             )
         )
     except NetworkLocationNotFound:
-        raise CommandError("Unable to connect to: {}".format(baseurl))
+        raise CommandError("Unable to connect to: {}".format(address))
 
 
-def get_network_connection(baseurl):
+def get_network_connection(address):
     controller = MorangoProfileController(PROFILE_FACILITY_DATA)
-    network_connection = controller.create_network_connection(get_baseurl(baseurl))
+    network_connection = controller.create_network_connection(get_baseurl(address))
 
     # validate instance IDs are differemt, which would mean this device is trying to sync with itself
     if (

@@ -11,7 +11,6 @@ from .api import DeviceSettingsView
 from .api import DriveInfoViewSet
 from .api import FreeSpaceView
 from .api import PathPermissionView
-from .api import RemoteFacilitiesViewset
 from .api import UserSyncStatusViewSet
 
 router = routers.SimpleRouter()
@@ -34,8 +33,5 @@ urlpatterns = [
     url(r"^devicesettings/", DeviceSettingsView.as_view(), name="devicesettings"),
     url(r"^devicename/", DeviceNameView.as_view(), name="devicename"),
     url(r"^devicerestart/", DeviceRestartView.as_view(), name="devicerestart"),
-    url(
-        r"^remotefacilities", RemoteFacilitiesViewset.as_view(), name="remotefacilities"
-    ),
     url(r"^pathpermission/", PathPermissionView.as_view(), name="pathpermission"),
 ]
