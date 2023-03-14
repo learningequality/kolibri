@@ -9,13 +9,13 @@ from rest_framework.viewsets import GenericViewSet
 
 from kolibri.core.content import models
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
-from kolibri.core.content.constants.schema_versions import VERSION_5
+from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.core.content.utils.sqlalchemybridge import BASES
 
 
 class ImportMetadataViewset(GenericViewSet):
     default_content_schema = CONTENT_SCHEMA_VERSION
-    min_content_schema = VERSION_5
+    min_content_schema = MIN_CONTENT_SCHEMA_VERSION
 
     def _error_message(self, low):
         error = "Schema version is too "
