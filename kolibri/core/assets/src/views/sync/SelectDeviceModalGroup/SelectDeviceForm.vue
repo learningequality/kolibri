@@ -129,7 +129,7 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { ConnectionStatus, UnreachableConnectionStatuses } from './constants';
+  import { UnreachableConnectionStatuses } from './constants';
   import useDeviceDeletion from './useDeviceDeletion.js';
   import useDevices, {
     useDevicesWithChannel,
@@ -284,7 +284,7 @@
             UnreachableConnectionStatuses.includes(d.connection_status)
           );
           if (unreachable) {
-            text = this.$tr('locationUnreachable');
+            text = this.getCommonSyncString('devicesUnreachable');
           }
         }
         return text ? { text, type: 'error' } : null;
@@ -339,32 +339,16 @@
 
         const match = find(this.devices, { id: this.selectedDeviceId });
         if (!match) {
-          this.uiAlertText = this.$tr('genericConnectionError');
+          this.uiAlertText = this.$tr('fetchingFailedText');
           return this.forceFetch();
         }
 
         this.uiAlertText = null;
         this.isSubmitChecking = true;
+
+        // TODO: implement `DeviceConnectingModal`
         this.doCheck(match.id).then(device => {
-          if (device.available) {
-            this.$emit('submit', device);
-          } else {
-            this.isSubmitChecking = false;
-            switch (device.connection_status) {
-              case ConnectionStatus.Unknown:
-              case ConnectionStatus.ConnectionFailure:
-                this.uiAlertText = this.$tr('connectionFailure');
-                break;
-              case ConnectionStatus.ResponseTimeout:
-                this.uiAlertText = this.$tr('connectionTimedOut');
-                break;
-              case ConnectionStatus.InvalidResponse:
-                this.uiAlertText = this.$tr('locationIsNotKolibri');
-                break;
-              default:
-                this.uiAlertText = this.$tr('genericConnectionError');
-            }
-          }
+          this.$emit('submit', device);
         });
       },
       removeSavedDevice(id) {
@@ -398,30 +382,6 @@
         message: 'Refresh devices',
         context:
           'This message displays if there was a problem getting the devices. It allows the user to refresh the application to be able to see all the devices available.',
-      },
-      locationUnreachable: {
-        message: 'Some devices are not responding. Please check the connection and try again.',
-        context: "Error message shown when an existing static network location isn't reachable",
-      },
-      connectionFailure: {
-        message: 'Unable to connect. Try checking if Firewall is blocking the connection.',
-        context: 'Error message shown when',
-      },
-      locationIsNotKolibri: {
-        message:
-          'Another program is already using this network device. Please close that program and try again.',
-        context: 'Error message shown when',
-      },
-      connectionTimedOut: {
-        message:
-          'The connection is taking too long to respond. Please check the connection and try again.',
-        context:
-          'Error message shown when requests to a network location or device time out with out a response',
-      },
-      genericConnectionError: {
-        message: 'Something went wrong. Please try again later.',
-        context:
-          'Error message shown when an unspecified error occurred during connection attempts to a network location or device',
       },
     },
   };
