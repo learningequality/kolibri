@@ -1174,7 +1174,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   totalSizeMyDownloads: {
-    message: 'Total size of my downloads: {size}',
+    message: 'Total size of my downloads',
     context:
       'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
   },
