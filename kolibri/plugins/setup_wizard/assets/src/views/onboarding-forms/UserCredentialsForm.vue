@@ -82,6 +82,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -93,7 +94,7 @@
       PasswordTextbox,
       PrivacyLinkAndModal,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     inject: ['wizardService'],
     props: {
       disabled: {
@@ -169,7 +170,7 @@
       },
       description() {
         return this.adminUserLabels
-          ? this.getCommonSyncString('superAdminPermissionsDecription')
+          ? this.getCommonSyncString('superAdminPermissionsDescription')
           : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
       },
       selectedFacilityName() {
