@@ -55,7 +55,7 @@
           :title="channel.name"
           :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
-          :link="{}"
+          :link="genContentLinkBackLinkCurrentPage(channel.id)"
           :version="channel.version"
         />
       </KGridItem>
@@ -69,6 +69,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
   import { PageNames } from '../../constants';
 
@@ -79,9 +80,11 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
+        genContentLinkBackLinkCurrentPage,
         windowIsSmall,
       };
     },
