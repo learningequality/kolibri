@@ -28,10 +28,10 @@
     </tr>
     <tr v-if="!isSurvey && correctDefined && !masteryModel" data-test="try-questions-correct">
       <th>
-        {{ $tr('questionsCorrectLabel') }}
+        {{ coreString('questionsCorrectLabel') }}
       </th>
       <td>
-        {{ $tr('questionsCorrectValue', {
+        {{ coreString('questionsCorrectValue', {
           correct: currentTry.correct, total: totalQuestions
         }) }}
         <br>
@@ -147,7 +147,7 @@
         if (this.currentTry.complete) {
           return this.coreString('completedLabel');
         } else if (this.currentTry.complete !== null) {
-          return this.$tr('inProgress');
+          return this.coreString('inProgressLabel');
         } else {
           return this.$tr('notStartedLabel');
         }
@@ -216,21 +216,6 @@
       attemptedLabel: {
         message: 'Attempted',
         context: 'This verb will be used to indicate when a learner last attempted a quiz',
-      },
-      questionsCorrectLabel: {
-        message: 'Questions answered correctly',
-        context:
-          "In a report, learners can see how many questions they have got correct in a quiz.\n\nThe 'Questions answered correctly' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
-      },
-      questionsCorrectValue: {
-        message: '{correct, number} out of {total, number}',
-        context:
-          "When a learner views their report they can see how many questions they answered correctly in a quiz.\n\nThe 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
-      },
-      inProgress: {
-        message: 'In progress',
-        context:
-          "When a learner starts doing an exercise, viewing a video, or reading a document, this will be marked with the 'In progress' icon.\n\nThe text 'In progress' appears if the learner moves their mouse over the icon.",
       },
       notStartedLabel: {
         message: 'Not started',

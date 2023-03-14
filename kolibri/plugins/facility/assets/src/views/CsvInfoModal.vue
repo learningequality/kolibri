@@ -3,7 +3,7 @@
   <!-- eslint-disable max-len -->
   <KModal
     :title="$tr('csvDetails')"
-    :submitText="$tr('close')"
+    :submitText="coreString('closeAction')"
     size="large"
     @cancel="closeModal"
     @submit="closeModal"
@@ -139,8 +139,11 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'CsvInfoModal',
+    mixins: [commonCoreStrings],
     computed: {
       label() {
         return { color: this.$themeTokens.annotation };
@@ -161,10 +164,6 @@
         message:
           'A CSV spreadsheet should use the first row as a header, and contain the following columns:',
         context: 'Description on CSV details window.',
-      },
-      close: {
-        message: 'Close',
-        context: 'Button to close the spreadsheet format reference window.',
       },
       required: {
         message: 'Required',

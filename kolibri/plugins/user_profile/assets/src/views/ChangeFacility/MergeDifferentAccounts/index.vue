@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ profileString('mergeAccounts') }}</h1>
     <p class="fullname" data-test="fullName">
       {{ fullName }}
     </p>
@@ -55,17 +55,18 @@
   import { computed, inject, ref } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
   import { remoteFacilityUsers } from '../../../composables/useRemoteFacility';
+  import commonProfileStrings from '../../commonProfileStrings';
 
   export default {
     name: 'MergeDifferentAccounts',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: { BottomAppBar },
 
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -115,10 +116,6 @@
       };
     },
     $trs: {
-      documentTitle: {
-        message: 'Merge Accounts',
-        context: 'Title of this step for the change facility page.',
-      },
       mergeAccountUserInfo: {
         message: 'Enter the username of the account you want to merge your account into.',
         context:

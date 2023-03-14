@@ -9,7 +9,7 @@
     <KPageContainer>
       <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
       <p v-if="table.length && table.length > 0 " class="total-size">
-        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
+        {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
 
       <ReportsControls @export="exportCSV">
@@ -77,13 +77,13 @@
       </CoreTable>
       <KModal
         v-if="showLessonIsVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonVisibleTitle')"
+        :title="coachString('makeLessonVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @submit="handleToggleVisibility(activeLesson)"
         @cancel="showLessonIsVisibleModal = false"
       >
-        <p>{{ $tr('makeLessonVisibleText') }}</p>
+        <p>{{ coachString('makeLessonVisibleText') }}</p>
         <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
@@ -94,13 +94,13 @@
 
       <KModal
         v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonNotVisibleTitle')"
+        :title="coachString('makeLessonNotVisibleTitle')"
         :submitText="coreString('continueAction')"
         :cancelText="coreString('cancelAction')"
         @submit="handleToggleVisibility(activeLesson)"
         @cancel="showLessonIsNotVisibleModal = false"
       >
-        <p>{{ $tr('makeLessonNotVisibleText') }}</p>
+        <p>{{ coachString('makeLessonNotVisibleText') }}</p>
         <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
         <KCheckbox
           :checked="dontShowAgainChecked"
@@ -156,7 +156,7 @@
           return this.$tr('noVisibleLessons');
         }
         if (this.filter.value === 'lessonsNotVisible') {
-          return this.$tr('noLessonsNotVisble');
+          return this.$tr('lessonsNotVisible');
         }
 
         return '';
@@ -288,37 +288,13 @@
       },
     },
     $trs: {
-      visibleLessons: 'Visile lessons',
+      visibleLessons: 'Visible lessons',
       lessonsNotVisible: 'Lessons not visible',
       noVisibleLessons: 'No visible lessons',
-      noLessonsNotVisble: 'No lessons not visible',
       printLabel: {
         message: '{className} Lessons',
         context:
           "Title that displays on a printed copy of the 'Reports' > 'Lessons' page. This shows if the user uses the 'Print' option by clicking on the printer icon.",
-      },
-      totalLessonsSize: {
-        message: 'Total size of lessons visible to learners: {size}',
-        context:
-          "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
-      },
-      makeLessonVisibleTitle: {
-        message: 'Make lesson visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonVisibleText: {
-        message:
-          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleTitle: {
-        message: 'Make lesson not visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleText: {
-        message:
-          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
       },
     },
   };

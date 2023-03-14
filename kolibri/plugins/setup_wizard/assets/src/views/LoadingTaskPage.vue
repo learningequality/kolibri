@@ -50,6 +50,7 @@
 
   import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
   import { DeviceTypePresets, LodTypePresets, SoudQueue, FooterMessageTypes } from '../constants';
@@ -62,7 +63,7 @@
       OnboardingStepBase,
     },
     inject: ['wizardService'],
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     props: {
       footerMessageType: {
         type: String,
@@ -132,7 +133,9 @@
           : 'facility_task';
       },
       header() {
-        return this.isSoud ? this.$tr('loadUserTitle') : this.$tr('importFacilityTitle');
+        return this.isSoud
+          ? this.$tr('loadUserTitle')
+          : this.getCommonSyncString('importFacilityAction');
       },
     },
     beforeMount() {
@@ -220,11 +223,6 @@
       loadUserTitle: {
         message: 'Load user account',
         context: 'Title of a page where user is waiting for a user to be imported',
-      },
-      importFacilityTitle: {
-        message: 'Import learning facility',
-        context:
-          'Title of a page where user will sign in to a remote facility to begin the syncing process',
       },
     },
   };

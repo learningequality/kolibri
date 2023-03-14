@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ profileString('mergeAccounts') }}</h1>
     <p>{{ $tr('confirmMergeInfoLine') }}</p>
     <div class="confirm">
       <KCheckbox
@@ -44,17 +44,18 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { inject, ref } from 'kolibri.lib.vueCompositionApi';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'ConfirmMerge',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: { BottomAppBar },
 
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
 
     setup() {
       const changeFacilityService = inject('changeFacilityService');
@@ -80,13 +81,9 @@
     },
 
     $trs: {
-      documentTitle: {
-        message: 'Merge accounts',
-        context: 'Title of this step for the change facility page.',
-      },
       confirmMergeInfoLine: {
         message:
-          'You are about to merge all progress data from two different accounts. Progress data includes your interactions with resources, time spent, and points. This cannot be undone.',
+          'You are about to merge two accounts and their progress data. Progress data includes your interactions with resources, time spent, and points. This cannot be undone.',
         context: 'Text explaining the consequences merging will have.',
       },
       consequences: {

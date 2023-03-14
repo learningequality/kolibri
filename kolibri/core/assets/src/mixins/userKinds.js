@@ -18,7 +18,7 @@ export default {
   computed: {
     typeDisplayMap() {
       return {
-        [UserKinds.SUPERUSER]: this.coreString('superUserLabel'),
+        [UserKinds.SUPERUSER]: this.coreString('superAdminLabel'),
         [UserKinds.ADMIN]: this.coreString('adminLabel'),
         [UserKinds.COACH]: this.distinguishCoachTypes
           ? this.coreString('facilityCoachLabel')

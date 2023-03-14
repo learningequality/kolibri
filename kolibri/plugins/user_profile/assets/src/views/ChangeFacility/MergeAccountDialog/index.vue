@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ $tr('documentTitle') }}</h1>
+    <h1>{{ profileString('mergeAccounts') }}</h1>
     <p class="fullname" data-test="fullName">
       {{ fullName }}
     </p>
@@ -40,7 +40,7 @@
       {{ $tr('doNotKnowPassword') }}
       <KButton
         data-test="useAdminAccount"
-        :text="$tr('useAdminAccount')"
+        :text="profileString('useAdminAccount')"
         appearance="basic-link"
         @click="useAdminAccount"
       />
@@ -77,17 +77,18 @@
   import { computed, inject, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
   import remoteFacilityUserData from '../../../composables/useRemoteFacility';
+  import commonProfileStrings from '../../commonProfileStrings';
 
   export default {
     name: 'MergeAccountDialog',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('mergeAccounts'),
       };
     },
     components: { BottomAppBar },
 
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonProfileStrings],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -194,30 +195,22 @@
       };
     },
     $trs: {
-      documentTitle: {
-        message: 'Merge Accounts',
-        context: 'Title of this step for the change facility page.',
-      },
       mergeAccountUserInfo: {
         message:
-          'Enter the password of the account ‘{username}’ in ‘{target_facility}’ learning facility that you want to merge your account with.',
+          "Enter the password of the account '{username}' in '{target_facility}' learning facility that you want to merge your account with.",
         context:
           'Line of text asking for the password of the user to be merged in the target facility.',
       },
       mergeAccountUsingAdminAccount: {
         message:
-          'Enter the username and password of a facility admin or a super admin for ‘{target_facility}’ learning facility.',
+          "Enter the username and password of a facility admin or a super admin for '{target_facility}' learning facility.",
         context:
           'Line of text asking for the credentials of an admin account in the target facility.',
       },
       doNotKnowPassword: {
-        message: 'Don’t know the password?',
+        message: "Don't know the password?",
         context:
           'Giving an option if the user does not know the password for this user in the target facility',
-      },
-      useAdminAccount: {
-        message: 'Use an admin account',
-        context: 'Link to use an admin account for the target facility to do the merge',
       },
       incorrectPasswordError: {
         message: 'Incorrect password',

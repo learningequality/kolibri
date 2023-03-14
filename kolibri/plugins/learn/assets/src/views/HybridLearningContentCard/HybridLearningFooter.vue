@@ -207,7 +207,7 @@
       },
       removeFromMyLibraryInfo: {
         message:
-          'You will no longer be able to use this resource, but you can download it again later when it’s available around you.',
+          "You will no longer be able to use this resource, but you can download it again later when it's available around you.",
         context:
           'Information given to a user when confirming that they are removing a resource from their library.',
       },

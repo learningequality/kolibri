@@ -53,6 +53,9 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             "password": data["password"],
             "facility": facility,
         }
+        for f in ["gender", "birth_year", "id_number", "full_name"]:
+            if getattr(data["local_user_id"], f, "NOT_SPECIFIED") != "NOT_SPECIFIED":
+                user_data[f] = getattr(data["local_user_id"], f, None)
         public_signup_url = reverse_remote(baseurl, "kolibri:core:publicsignup-list")
         response = requests.post(public_signup_url, data=user_data)
         if response.status_code != HTTP_201_CREATED:

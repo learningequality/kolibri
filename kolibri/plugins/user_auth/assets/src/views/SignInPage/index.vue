@@ -13,7 +13,7 @@
         <KRouterLink
           v-if="hasMultipleFacilities && !showPasswordForm"
           icon="back"
-          :text="$tr('changeFacility')"
+          :text="coreString('changeLearningFacility')"
           :to="backToFacilitySelectionRoute"
           style="margin-top: 24px; margin-left: -4px;"
         />
@@ -535,11 +535,6 @@
         message: 'Change user',
         context:
           'Link to change the user account which the user uses to sign in if they have more than one account.\n',
-      },
-      changeFacility: {
-        message: 'Change learning facility',
-        context:
-          'Users can change the facility to sign in to when the device has more than one facility.\n',
       },
     },
   };

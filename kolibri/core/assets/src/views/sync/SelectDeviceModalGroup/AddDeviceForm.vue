@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('header')"
+    :title="coreString('newAddresTitle')"
     :submitText="$tr('submitButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -158,11 +158,6 @@
         message: 'Please enter a valid IP address, URL, or hostname',
         context:
           'This is an error validation message that an admin will see when they do not enter a valid network address.',
-      },
-      header: {
-        message: 'New device',
-        context:
-          'The title of the section that an admin accesses when they select the "Add new device" link in the Device > Facilities section.\n\nThey use this screen to add a new device.',
       },
       nameDesc: {
         message: 'Choose a name for this device so you can remember it later:',

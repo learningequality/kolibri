@@ -95,7 +95,7 @@
               appearance="basic-link"
               @click="handleShowMoreResources"
             >
-              {{ $tr('showMore') }}
+              {{ coreString('showMoreAction') }}
             </KButton>
             <div v-else-if="topicMore" class="end-button-block">
               <KButton
@@ -703,10 +703,6 @@
       documentTitleForTopic: {
         message: '{ topicTitle } - { channelTitle }',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
-      },
-      showMore: {
-        message: 'Show more',
-        context: 'Clickable link which allows to load more resources.',
       },
     },
   };

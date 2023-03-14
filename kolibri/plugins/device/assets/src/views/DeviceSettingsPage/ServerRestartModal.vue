@@ -17,7 +17,7 @@
       <KCheckbox
         :checked="confirmationChecked"
         :label="$tr('makePrimary')"
-        :description="$tr('labelPrimary')"
+        :description="deviceString('primaryStorageLabel')"
         @change="confirmationChecked = $event"
       />
     </div>
@@ -89,7 +89,7 @@
       },
       newPrimaryLocationRestartDescription: {
         message:
-          'The server will restart. Anyone using Kolibri on this server at this time will be temporarily disconnected.',
+          'Server needs to restart to add a new storage location. Anyone using Kolibri on this server at this time will temporarily be unable to access it.',
         context: 'Reason to restart the server.',
       },
       removeLocationRestartDescription: {
@@ -120,10 +120,6 @@
       makePrimary: {
         message: 'Make this the primary storage location',
         context: 'Checkbox to make primary storage location.',
-      },
-      labelPrimary: {
-        message: 'Newly downloaded resources will be added to the primary storage location',
-        context: 'Label for primary storage location.',
       },
     },
   };

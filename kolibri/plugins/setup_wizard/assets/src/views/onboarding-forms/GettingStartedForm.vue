@@ -1,14 +1,14 @@
 <template>
 
   <OnboardingForm
-    :header="$tr('gettingStarted')"
+    :header="getCommonSyncString('howAreYouUsingKolibri')"
     @submit="handleSubmit"
   >
     <KRadioButton
       v-model="selected"
       :value="Options.PERSONAL"
       :label="$tr('quickStartLabel')"
-      :description="$tr('quickStartDescription')"
+      :description="getCommonSyncString('onMyOwn')"
     />
     <KRadioButton
       v-model="selected"
@@ -23,6 +23,7 @@
 
 <script>
 
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { Presets } from '../../constants';
   import OnboardingForm from './OnboardingForm';
 
@@ -36,6 +37,7 @@
     components: {
       OnboardingForm,
     },
+    mixins: [commonSyncElements],
     data() {
       let selected;
       const { preset } = this.$store.state.onboardingData;
@@ -65,18 +67,9 @@
       },
     },
     $trs: {
-      gettingStarted: {
-        message: 'How are you using Kolibri?',
-        context: 'Page title for the device setup step.',
-      },
       quickStartLabel: {
         message: 'Quick start',
         context: 'Label for the radio button option in the device setup.',
-      },
-      quickStartDescription: {
-        message: 'For homeschooling and other personal use.',
-
-        context: "Option description text for 'Quick start'.",
       },
       advancedSetupLabel: {
         message: 'Advanced setup',

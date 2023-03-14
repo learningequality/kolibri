@@ -16,7 +16,7 @@
       <KButtonGroup>
         <KButton
           v-if="!isPageNotFound"
-          :text="$tr('pageReloadPrompt')"
+          :text="coreString('refresh')"
           :primary="true"
           @click="reloadPage"
         />
@@ -53,6 +53,7 @@
 
   import get from 'lodash/get';
   import { mapActions } from 'vuex';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ReportErrorModal from './ReportErrorModal';
 
   export default {
@@ -60,6 +61,7 @@
     components: {
       ReportErrorModal,
     },
+    mixins: [commonCoreStrings],
     data() {
       return {
         showDetailsModal: false,
@@ -129,11 +131,6 @@
         message: 'Back to home',
         context:
           'If Kolibri produces an unexpected error, this link appears which take the user back to the homepage.',
-      },
-      pageReloadPrompt: {
-        message: 'Refresh',
-        context:
-          'Button which allows the user to refresh the application if an error has occurred.',
       },
       defaultErrorMessage: {
         message: 'We care about your experience on Kolibri and are working hard to fix this issue',

@@ -107,7 +107,7 @@
           'Users can send an email to the Kolibri development team indicating details about an error if they see one.',
       },
       emailDescription: {
-        message: 'Contact the support team with your error details and we’ll do our best to help.',
+        message: "Contact the support team with your error details and we'll do our best to help.",
         context:
           'This is a message that a user sees if they provoke an error in Kolibri. They can send an email to the Kolibri development team indicating further details about the error.',
       },

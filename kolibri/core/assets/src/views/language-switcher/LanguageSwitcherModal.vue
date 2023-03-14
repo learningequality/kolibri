@@ -6,7 +6,7 @@
   >
 
     <KModal
-      :title="$tr('changeLanguageModalHeader')"
+      :title="coreString('changeLanguageOption')"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
       :size="600"
@@ -83,13 +83,6 @@
       },
       cancel() {
         this.$emit('cancel');
-      },
-    },
-    $trs: {
-      changeLanguageModalHeader: {
-        message: 'Change language',
-        context:
-          "Option to change the Kolibri interface language on the  'Change language' screen.",
       },
     },
   };

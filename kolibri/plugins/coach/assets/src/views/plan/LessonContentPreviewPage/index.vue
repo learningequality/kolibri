@@ -78,7 +78,7 @@
               </template>
             </HeaderTableRow>
             <HeaderTableRow
-              :keyText="$tr('suggestedTimeToCompleteHeader')"
+              :keyText="coreString('suggestedTime')"
             >
               <template #value>
                 {{ currentContentNode.duration || 'Not available' }}
@@ -282,11 +282,6 @@
       totalQuestionsHeader: {
         message: 'Total questions',
         context: 'Refers to the total number of questions in a quiz.',
-      },
-      suggestedTimeToCompleteHeader: {
-        message: 'Suggested time',
-        context:
-          'Refers to the recommended time it takes to complete a quiz.\n\nDuration is set by whoever made the quiz originally.',
       },
     },
   };
