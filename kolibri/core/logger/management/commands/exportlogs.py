@@ -8,6 +8,7 @@ from django.core.management.base import CommandError
 from django.utils import translation
 
 from kolibri.core.auth.constants.commands_errors import FILE_WRITE_ERROR
+from kolibri.core.auth.constants.commands_errors import INVALID
 from kolibri.core.auth.constants.commands_errors import MESSAGES
 from kolibri.core.auth.constants.commands_errors import NO_FACILITY
 from kolibri.core.auth.models import Facility
@@ -67,14 +68,14 @@ class Command(AsyncCommand):
             action="store",
             dest="start_date",
             type=str,
-            help="Start date for date range selection of log files",
+            help="Start date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
         parser.add_argument(
             "--end_date",
             action="store",
             dest="end_date",
             type=str,
-            help="End date for date range selection of log files",
+            help="End date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
 
     def get_facility(self, options):
@@ -85,6 +86,12 @@ class Command(AsyncCommand):
 
         return default_facility
 
+    def validate_date(self, date_str):
+        try:
+            return bool(parser.parse(date_str))
+        except ValueError:
+            return False
+
     def handle_async(self, *args, **options):
 
         # set language for the translation of the messages
@@ -93,18 +100,23 @@ class Command(AsyncCommand):
         self.overall_error = ""
         job = get_current_job()
 
+        start_date = options["start_date"]
+        end_date = options["end_date"]
+
         facility = self.get_facility(options)
         if not facility:
             self.overall_error = str(MESSAGES[NO_FACILITY])
+
+        elif not self.validate_date(start_date):
+            self.overall_error = str(MESSAGES[INVALID]).format("start_date")
+
+        elif not self.validate_date(end_date):
+            self.overall_error = str(MESSAGES[INVALID]).format("end_date")
 
         else:
             log_type = options["log_type"]
 
             log_info = classes_info[log_type]
-
-            start_date = options["start_date"]
-
-            end_date = options["end_date"]
 
             if options["output_file"] is None:
                 filename = log_info["filename"].format(

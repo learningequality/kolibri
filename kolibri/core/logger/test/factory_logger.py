@@ -26,3 +26,12 @@ class UserSessionLogFactory(factory.DjangoModelFactory):
         model = models.UserSessionLog
 
     user = factory.SubFactory(FacilityUserFactory)
+
+
+class GenerateCSVLogRequestFactory(factory.DjangoModelFactory):
+    class Meta:
+        model = models.GenerateCSVLogRequest
+
+    selected_start_date = local_now()
+    selected_end_date = local_now()
+    date_requested = local_now()
