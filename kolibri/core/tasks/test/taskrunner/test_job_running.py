@@ -4,6 +4,7 @@ import uuid
 import pytest
 
 from kolibri.core.tasks.compat import Event
+from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
@@ -241,6 +242,14 @@ class TestJobStorage(object):
         assert (
             storage_fixture.get_job(enqueued_job.job_id).job_id == enqueued_job.job_id
         )
+
+    def test_cancel_if_exists(self, storage_fixture):
+        try:
+            storage_fixture.cancel_if_exists("does not exist")
+        except JobNotFound as e:
+            pytest.fail("Raised 'JobNotFound' error | {}".format(e))
+        except Exception as e:
+            pytest.fail("Raised unexpected error | {}".format(e))
 
     def test_can_cancel_a_job(self, storage_fixture):
         job_id = storage_fixture.enqueue_job(Job(cancelable_job, cancellable=True))

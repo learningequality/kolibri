@@ -144,9 +144,9 @@ class ValidateRemoteImportTaskTestCase(TestCase):
             }
         )
 
-        network_client_mock.return_value.base_url = conf.OPTIONS["Urls"][
-            "CENTRAL_CONTENT_BASE_URL"
-        ]
+        network_client_mock.build_for_address.return_value.base_url = conf.OPTIONS[
+            "Urls"
+        ]["CENTRAL_CONTENT_BASE_URL"]
 
         validator.is_valid(raise_exception=True)
 
@@ -177,7 +177,9 @@ class ValidateRemoteImportTaskTestCase(TestCase):
                 "peer": self.network_location.id,
             }
         )
-        network_client_mock.return_value.base_url = self.network_location.base_url
+        network_client_mock.build_for_address.return_value.base_url = (
+            self.network_location.base_url
+        )
 
         validator.is_valid(raise_exception=True)
 

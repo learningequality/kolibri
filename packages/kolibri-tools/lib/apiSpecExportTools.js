@@ -103,6 +103,7 @@ const distSpecFilePath = path.resolve(__dirname, '../dist/apiSpec.json');
 try {
   apiSpec = specModule(specFilePath);
 } catch (e) {
+  console.error(e);
   apiSpec = require(distSpecFilePath);
 }
 

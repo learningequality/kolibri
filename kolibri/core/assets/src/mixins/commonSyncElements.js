@@ -1,6 +1,6 @@
 import client from 'kolibri.client';
 import urls from 'kolibri.urls';
-import { StaticNetworkLocationResource, TaskResource } from 'kolibri.resources';
+import { TaskResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 
 // Strings that might be shared among syncing-related UIs across plugins.
@@ -87,12 +87,6 @@ export default {
     formatNameAndId(name, id) {
       // TODO switch to using the last 4 characters
       return this.getCommonSyncString('nameWithIdFragment', { name, id: id.slice(0, 4) });
-    },
-    createStaticNetworkLocation({ base_url, device_name }) {
-      return StaticNetworkLocationResource.createModel({
-        base_url,
-        nickname: device_name,
-      }).save();
     },
     fetchNetworkLocationFacilities(locationId) {
       return client({

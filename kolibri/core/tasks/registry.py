@@ -282,7 +282,7 @@ class RegisteredTask(object):
 
         return job, enqueue_args_serializer.validated_data
 
-    def enqueue(self, job=None, retry_interval=None, **job_kwargs):
+    def enqueue(self, job=None, retry_interval=None, priority=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method.
 
@@ -291,7 +291,7 @@ class RegisteredTask(object):
         return job_storage.enqueue_job(
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
-            priority=self.priority,
+            priority=priority or self.priority,
             retry_interval=retry_interval,
         )
 
@@ -302,6 +302,7 @@ class RegisteredTask(object):
         repeat=0,
         retry_interval=None,
         job=None,
+        priority=None,
         **job_kwargs
     ):
         """
@@ -317,7 +318,7 @@ class RegisteredTask(object):
             delta_time,
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
-            priority=self.priority,
+            priority=priority or self.priority,
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,
@@ -330,6 +331,7 @@ class RegisteredTask(object):
         repeat=0,
         retry_interval=None,
         job=None,
+        priority=None,
         **job_kwargs
     ):
         """
@@ -345,7 +347,7 @@ class RegisteredTask(object):
             datetime,
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
-            priority=self.priority,
+            priority=priority or self.priority,
             interval=interval,
             repeat=repeat,
             retry_interval=retry_interval,

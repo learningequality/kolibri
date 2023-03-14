@@ -53,7 +53,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import { createAddress } from './api';
+  import { createDevice } from './api';
 
   const Statuses = {
     COULD_NOT_CONNECT: 'COULD_NOT_CONNECT',
@@ -108,7 +108,7 @@
           return Promise.resolve();
         }
         this.attemptingToConnect = true;
-        return createAddress({
+        return createDevice({
           base_url: this.address,
           nickname: this.name,
         })
