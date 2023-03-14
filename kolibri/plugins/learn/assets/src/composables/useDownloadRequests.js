@@ -7,7 +7,7 @@ import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
 
-const translator = createTranslator('DownloadRequests', {
+const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
     message: 'Download requested',
     context: 'A message shown to indicate that a download request has been created',
@@ -119,11 +119,18 @@ export default function useDownloadRequests(store) {
       status: 'QUEUED',
       date_added: new Date(),
     };
+    // TODO: Remove and replace by real progress implementation
+    // as soon as backend can provide it. `complete` is just a mock field
+    // that may not reflect precisely they way backend will inform fronted
+    // about progress. Also see `isDownloadingByLearner` and `isDownloadedByLearner`.
+    requestData.complete = false;
+    setTimeout(() => (requestData.complete = true), 1000);
+
     console.log(requestData);
     set(downloadRequestMap, requestData.node_id, requestData);
     store.commit('CORE_CREATE_SNACKBAR', {
-      text: translator.$tr('downloadStartedLabel'),
-      actionText: translator.$tr('goToDownloadsPage'),
+      text: downloadRequestsTranslator.$tr('downloadStartedLabel'),
+      actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
       actionCallback: navigateToDownloads,
       backdrop: false,
       forceReuse: true,
@@ -146,6 +153,39 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
+  function isDownloadingByLearner(content) {
+    if (!content || !content.id) {
+      return false;
+    }
+    const downloadRequest = downloadRequestMap.downloads[this.content.id];
+    // TODO: Get real progress from `downloadRequest` as soon as backend is ready
+    // and determine whether the content is downloading according to that instead
+    // of using the `complete` mock.
+    // `isDownloadingByLearner` is expected to be reactive by components that use it
+    // and return accurate information as the progress changes. After updating to real
+    // progress, check that related logic in components that use `isDownloadingByLearner`
+    // still makes sense and all features are working as expected.
+    return downloadRequest && !downloadRequest.complete;
+  }
+
+  // Note that backend filters out download requests that correspond to content that was
+  // removed after being downloaded, therefore the presence of a completed download request
+  // means that the content is downloaded on the device.
+  function isDownloadedByLearner(content) {
+    if (!content || !content.id) {
+      return false;
+    }
+    const downloadRequest = downloadRequestMap.downloads[this.content.id];
+    // TODO: Get real progress from `downloadRequest` as soon as backend is ready
+    // and determine whether the content finished downloading according to that instead
+    // of using the `complete` mock.
+    // `isDownloadedByLearner` is expected to be reactive by components that use it
+    // and return accurate information as the progress changes. After updating to real
+    // progress, check that related logic in components that use `isDownloadedByLearner`
+    // still makes sense and all features are working as expected.
+    return downloadRequest && downloadRequest.complete;
+  }
+
   return {
     fetchUserDownloadRequests,
     fetchDownloadsStorageInfo,
@@ -153,5 +193,8 @@ export default function useDownloadRequests(store) {
     addDownloadRequest,
     removeDownloadRequest,
     removeDownloadsRequest,
+    downloadRequestsTranslator,
+    isDownloadingByLearner,
+    isDownloadedByLearner,
   };
 }

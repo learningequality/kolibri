@@ -41,6 +41,8 @@ export function showTopicsContent(store, id, deviceId = null) {
   if (deviceId) {
     return setCurrentDevice(deviceId).then(device => {
       const baseurl = device.base_url;
+      const { fetchUserDownloadRequests } = useDownloadRequests(store);
+      fetchUserDownloadRequests();
       return fetchChannels({ baseurl }).then(() => {
         return _loadTopicsContent(store, id, baseurl);
       });

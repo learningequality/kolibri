@@ -32,6 +32,21 @@
       </template>
 
       <template #actions>
+        <template v-if="showDownloadingLoader">
+          <KCircularLoader
+            ref="downloadingLoader"
+            data-test="downloadingLoader"
+            :size="24"
+            :style="{ margin: '10px 4px 0px 4px' }"
+          />
+          <KTooltip
+            reference="downloadingLoader"
+            :refs="$refs"
+          >
+            {{ downloadingLoaderTooltip }}
+          </KTooltip>
+        </template>
+
         <KIconButton
           v-if="isQuiz && !showingReportState"
           ref="timerButton"
@@ -172,6 +187,7 @@
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
+     * - `download` on 'Download' click
      */
     props: {
       resourceTitle: {
@@ -279,6 +295,31 @@
         required: false,
         default: true,
       },
+      /**
+       * Shows the download button when truthy
+       */
+      showDownloadButton: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+       * Shows the downloading loader when truthy
+       */
+      showDownloadingLoader: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+       * Tooltip text for the downloading loader.
+       * Applies only when `showDownloadingLoader` truthy.
+       */
+      downloadingLoaderTooltip: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     data() {
       return {
@@ -317,6 +358,15 @@
             event: 'toggleBookmark',
             disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
+          });
+        }
+        if (this.showDownloadButton) {
+          actions.push({
+            id: 'download',
+            icon: 'download',
+            label: this.coreString('downloadAction'),
+            event: 'download',
+            dataTest: 'downloadButton',
           });
         }
         if (this.showMarkComplete) {
