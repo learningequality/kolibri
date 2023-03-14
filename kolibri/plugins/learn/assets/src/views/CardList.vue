@@ -2,7 +2,6 @@
 
   <div
     class="card container drop-shadow"
-    :class="{ 'mobile-card': isMobile }"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
     <router-link
@@ -16,7 +15,6 @@
     >
       <div
         class="card"
-        :class="{ 'mobile-card': isMobile }"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <KFixedGrid numCols="4">
@@ -315,11 +313,5 @@
   .text-area {
     margin-bottom: $footer-height;
   }
-
-  @media only screen and (max-width: 720px) {
-    .text-area {
-      margin-bottom: 0;
-    }
-}
 
 </style>
