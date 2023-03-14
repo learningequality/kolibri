@@ -72,6 +72,11 @@ const syncStrings = createTranslator('CommonSyncStrings', {
       'This super admin account allows you to manage all facilities, resources, and users on this device.',
     context: 'Explanation of what the super admin account is used for on device.',
   },
+  devicesUnreachable: {
+    message: 'Some devices are not responding. Please check the connection and try again.',
+    context:
+      "Error message that displays when some devices aren't reachable and their selection is disabled",
+  },
 });
 
 export default {
