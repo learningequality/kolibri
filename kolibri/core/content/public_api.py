@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
@@ -117,7 +119,17 @@ class ImportMetadataViewset(GenericViewSet):
             # we want to avoid that being coerced to Python objects.
             cursor.execute(*qs.query.sql_with_params())
             data[qs.model._meta.db_table] = [
-                dict(zip(raw_fields, row)) for row in cursor
+                # Coerce any UUIDs to their hex representation, as Postgres raw values will be UUIDs
+                dict(
+                    zip(
+                        raw_fields,
+                        (
+                            value.hex if isinstance(value, UUID) else value
+                            for value in row
+                        ),
+                    )
+                )
+                for row in cursor
             ]
 
         data["schema_version"] = content_schema
