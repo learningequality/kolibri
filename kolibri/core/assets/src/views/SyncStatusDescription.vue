@@ -47,11 +47,11 @@
       },
       unableOrNoSyncDescription: {
         message:
-          'The problem could be that the device is connected to the server but hasn’t recently synced. Or syncing was attempted but failed for some reason.',
+          "The problem could be that the device is connected to the server but hasn't recently synced. Or syncing was attempted but failed for some reason.",
         context: 'Description of the device syncing status.',
       },
       notConnectedDescription: {
-        message: 'The device isn’t connected to a server it can be synced with.',
+        message: "The device isn't connected to a server it can be synced with.",
         context: 'Description of the device syncing status.',
       },
       insufficientStorageDescription: {

@@ -2,7 +2,6 @@
 
   <div
     class="card container drop-shadow"
-    :class="{ 'mobile-card': isMobile }"
     :style="{ backgroundColor: $themeTokens.surface }"
   >
     <router-link
@@ -16,7 +15,6 @@
     >
       <div
         class="card"
-        :class="{ 'mobile-card': isMobile }"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
         <KFixedGrid numCols="4">
@@ -246,7 +244,6 @@
 
   .card {
     position: relative;
-    min-height: 246px;
     vertical-align: top;
     border-radius: 8px;
     transition: box-shadow $core-time ease;
@@ -261,10 +258,6 @@
     display: block;
     width: 100%;
     text-decoration: none;
-  }
-
-  .mobile-card {
-    min-height: 400px;
   }
 
   .metadata-info {

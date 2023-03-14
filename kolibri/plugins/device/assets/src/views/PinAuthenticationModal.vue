@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('title')"
+    :title="coreString('enterPinPlaceholder')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     @submit="submit"
@@ -71,10 +71,6 @@
       },
     },
     $trs: {
-      title: {
-        message: 'Enter PIN',
-        context: 'Title for the PIN modal.',
-      },
       incorrectPin: {
         message: 'Incorrect PIN, please try again',
         context: 'Error message displayed when an incorrect PIN is input',

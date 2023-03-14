@@ -922,7 +922,7 @@
         context: 'This refers to the page you reach when you click "Learn" in the main side nav.',
       },
       unlistedChannels: {
-        message: 'Allow other computers on this network to import my unlisted channels',
+        message: 'Allow other devices on this network to view and import my unlisted channels',
         context: "Option on 'Device settings' page.",
       },
       configureFacilitySettingsHeader: {
@@ -1002,7 +1002,7 @@
       },
       allowLearnersDownloadDescription: {
         message:
-          'Allow users to mark resources for Kolibri to download when available in their network.',
+          "Allow users to explore resources they don't have, and mark them for Kolibri to automatically download when available in their network.",
         context:
           "Description for 'Allow learners to download resources' option under 'Auto-download' section.",
       },

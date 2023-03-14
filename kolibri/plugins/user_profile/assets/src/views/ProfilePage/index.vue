@@ -18,7 +18,7 @@
           >
             <h1>
               <KRouterLink
-                :text="$tr('editAction')"
+                :text="coreString('editAction')"
                 appearance="raised-button"
                 :primary="true"
                 :to="profileEditRoute"
@@ -305,10 +305,6 @@
         message: 'Learn',
         context:
           'Link to open a modal window explaining what changing to another learning facility represents.',
-      },
-      editAction: {
-        message: 'Edit',
-        context: 'Button which allows the user to modify some information on their profile.',
       },
       isSuperuser: {
         message: 'Super admin permissions ',

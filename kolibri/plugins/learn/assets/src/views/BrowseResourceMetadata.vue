@@ -74,7 +74,7 @@
       data-test="grade-levels"
     >
       <span class="label">
-        {{ learnString('level') }}:
+        {{ coreString('levelLabel') }}:
       </span>
       <span>
         {{ levels(content.grade_levels) }}
@@ -83,7 +83,7 @@
 
     <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
-        {{ learnString('language') }}:
+        {{ coreString('language') }}:
       </span>
       <span>
         {{ content.lang.lang_name }}

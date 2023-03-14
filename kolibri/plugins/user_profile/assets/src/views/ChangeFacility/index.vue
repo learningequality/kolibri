@@ -29,7 +29,7 @@
     name: 'ChangeFacility',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.coreString('changeLearningFacility'),
       };
     },
     components: { NotificationsRoot, ImmersivePage },
@@ -125,12 +125,6 @@
         );
         this.service.send('RESET');
         this.previousMachineStateName = machineState.value;
-      },
-    },
-    $trs: {
-      documentTitle: {
-        message: 'Change learning facility',
-        context: 'Title of the change facility page.',
       },
     },
   };

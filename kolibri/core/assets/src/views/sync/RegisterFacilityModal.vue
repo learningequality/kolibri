@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('registerFacility')"
+    :title="coreString('registerFacility')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
@@ -70,10 +70,6 @@
       },
     },
     $trs: {
-      registerFacility: {
-        message: 'Register facility',
-        context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
-      },
       enterToken: {
         message: 'Enter a project token from Kolibri Data Portal',
         context:
