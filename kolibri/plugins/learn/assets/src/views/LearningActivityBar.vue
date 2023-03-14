@@ -167,6 +167,7 @@
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
+     * - `download` on 'Download' click
      */
     props: {
       resourceTitle: {
@@ -274,6 +275,14 @@
         required: false,
         default: true,
       },
+      /**
+      Should the download button be displayed?
+      */
+      showDownload: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
@@ -308,6 +317,15 @@
             event: 'toggleBookmark',
             disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
+          });
+        }
+        if (this.showDownload) {
+          actions.push({
+            id: 'download',
+            icon: 'download',
+            label: this.coreString('downloadAction'),
+            event: 'download',
+            dataTest: 'downloadButton',
           });
         }
         if (this.showMarkComplete) {

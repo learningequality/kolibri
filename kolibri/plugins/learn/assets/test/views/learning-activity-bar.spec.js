@@ -252,5 +252,33 @@ describe('LearningActivityBar', () => {
         expect(wrapper.emitted().viewInfo.length).toBe(1);
       });
     });
+
+    describe(`download`, () => {
+      it(`doesn't show the download button by default`, () => {
+        const wrapper = makeWrapper();
+        expect(wrapper.find("[data-test='bar_downloadButton']").exists()).toBeFalsy();
+      });
+
+      describe(`when the download option should be displayed`, () => {
+        let wrapper;
+
+        beforeEach(() => {
+          wrapper = makeWrapper({
+            propsData: {
+              showDownload: true,
+            },
+          });
+        });
+
+        it(`shows the download button`, () => {
+          expect(wrapper.find("[data-test='bar_downloadButton']").exists()).toBeTruthy();
+        });
+
+        it(`clicking the download button emits the 'download' event`, () => {
+          wrapper.find("[data-test='bar_downloadButton']").trigger('click');
+          expect(wrapper.emitted().download.length).toBe(1);
+        });
+      });
+    });
   });
 });
