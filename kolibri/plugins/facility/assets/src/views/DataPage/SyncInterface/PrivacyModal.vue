@@ -2,7 +2,7 @@
 
   <KModal
     :title="$tr('syncToKDP')"
-    :submitText="$tr('close')"
+    :submitText="coreString('closeAction')"
     size="medium"
     @cancel="closeModal"
     @submit="closeModal"
@@ -16,8 +16,11 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'PrivacyModal',
+    mixins: [commonCoreStrings],
     methods: {
       closeModal() {
         this.$emit('cancel');
@@ -34,11 +37,6 @@
           'By syncing this facility with the Kolibri Data Portal, you are granting access to your data to organization admins on Kolibri Data Portal. It will be uploaded to cloud servers operated by Learning Equality, who will also have access to this data.',
         context:
           "Text description on the 'Usage and privacy' pop-up window in the Facility > Data section.\n",
-      },
-      close: {
-        message: 'Close',
-        context:
-          "Refers to the 'Close' button on the 'Usage and privacy' pop-up window in the Facility > Data section.",
       },
     },
   };

@@ -169,7 +169,7 @@
       },
       description() {
         return this.adminUserLabels
-          ? this.$tr('adminAccountCreationDescription')
+          ? this.getCommonSyncString('superAdminPermissionsDecription')
           : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
       },
       selectedFacilityName() {
@@ -258,11 +258,6 @@
         message: 'Create super admin',
         context:
           "The title of the 'Create a super admin account' section. A super admin can manage all the content and all other Kolibri users on the device.",
-      },
-      adminAccountCreationDescription: {
-        message:
-          'This super admin account allows you to manage all facilities, resources, and users on this device.',
-        context: "Description of the 'Create super admin account' page.",
       },
       learnerAccountCreationHeader: {
         message: 'Create your account',

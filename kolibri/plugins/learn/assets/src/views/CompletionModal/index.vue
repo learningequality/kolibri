@@ -130,8 +130,8 @@
             ref="closeButton"
             class="close-button"
             icon="close"
-            :ariaLabel="$tr('close')"
-            :tooltip="$tr('close')"
+            :ariaLabel="coreString('closeAction')"
+            :tooltip="coreString('closeAction')"
             @click="$emit('close')"
           />
         </FocusTrap>
@@ -150,6 +150,7 @@
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useDevices from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
@@ -177,7 +178,7 @@
       ResourceItem,
       UiAlert,
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings],
+    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     setup() {
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
@@ -456,10 +457,6 @@
       keepUpTheGreatProgress: {
         message: 'Keep up the great progress!',
         context: 'Message of encouragement which displays when learner has completed a resource.',
-      },
-      close: {
-        message: 'Close',
-        context: "Indicates the 'X' button to close the window.",
       },
       moveOnTitle: {
         message: 'Keep going',

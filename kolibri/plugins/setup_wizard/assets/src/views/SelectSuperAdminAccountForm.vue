@@ -6,7 +6,7 @@
     :step="step"
     :steps="steps"
     :header="$tr('header')"
-    :description="$tr('description')"
+    :description="getCommonSyncString('superAdminPermissionsDescription')"
     :uniqueUsernameValidator="uniqueUsernameValidator"
     :selectedUser="selectedImportedUser"
     :noBackAction="true"
@@ -48,6 +48,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { FacilityImportResource } from '../api';
   import { FooterMessageTypes } from '../constants';
   import UserCredentialsForm from './onboarding-forms/UserCredentialsForm';
@@ -59,7 +60,7 @@
     components: {
       UserCredentialsForm,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     inject: ['wizardService'],
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
@@ -204,12 +205,6 @@
       header: {
         message: 'Select super admin',
         context: 'Page title,',
-      },
-      description: {
-        message:
-          'This super admin account allows you to manage all facilities, resources, and users on this device.',
-
-        context: 'Explanation of what the super admin account is used for on device.',
       },
       chooseAdminPrompt: {
         message: "Choose an admin from '{facility}' learning facility or create a new super admin.",

@@ -2,7 +2,7 @@
 
   <div>
     <span class="headercontainer">
-      <h1>{{ $tr('documentTitle') }}</h1>
+      <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
 
       <transition name="spinner-fade">
 
@@ -40,7 +40,7 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          :text="$tr('newDeviceButtonLabel')"
+          :text="coreString('addNewAddressAction')"
           appearance="basic-link"
           @click="showAddAddressModal = true"
         />
@@ -88,7 +88,7 @@
     name: 'SelectFacility',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('documentTitle'),
       };
     },
     components: { AddDeviceForm, BottomAppBar },
@@ -249,19 +249,10 @@
         message: 'Successfully added device',
         context: 'This message appears if a device has been added correctly.',
       },
-      documentTitle: {
-        message: 'Select learning facility',
-        context: 'Title of this step for the change facility page.',
-      },
       doNotSeeYourFacility: {
         message: "Don't see your learning facility?",
         context:
           'This text appears next to the "Add new address" link. This option allows you to add a new network address from which to sync data.',
-      },
-      newDeviceButtonLabel: {
-        message: 'Add new device',
-        context:
-          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       noFacilitiesText: {
         message: 'No learning facilities found',

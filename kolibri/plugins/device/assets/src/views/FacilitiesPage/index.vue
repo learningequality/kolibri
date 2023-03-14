@@ -17,7 +17,7 @@
               @click="showSyncAllModal = true"
             />
             <KButton
-              :text="$tr('importFacilityAction')"
+              :text="getCommonSyncString('importFacilityAction')"
               primary
               style="margin-top: 16px; margin-bottom: -16px;"
               @click="showImportModal = true"
@@ -343,10 +343,6 @@
         message: 'Sync all',
         context:
           'Label for a button used to synchronize all facilities at once with the data portal',
-      },
-      importFacilityAction: {
-        message: 'Import learning facility',
-        context: 'Label for a button used to import a facility on the device',
       },
       facilityRemovedSnackbar: {
         message: "Removed '{facilityName}' from this device",

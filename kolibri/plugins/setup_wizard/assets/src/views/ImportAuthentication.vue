@@ -1,7 +1,7 @@
 <template>
 
   <OnboardingStepBase
-    :title="$tr('importFacilityTitle')"
+    :title="getCommonSyncString('importFacilityAction')"
     :eventOnGoBack="backEvent"
     :footerMessageType="footerMessageType"
     :step="step"
@@ -22,12 +22,14 @@
 <script>
 
   import { FacilityAdminCredentialsForm } from 'kolibri.coreVue.componentSets.sync';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { FooterMessageTypes } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
     name: 'ImportAuthentication',
     components: { FacilityAdminCredentialsForm, OnboardingStepBase },
+    mixins: [commonSyncElements],
     inject: ['wizardService'],
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_FACILITY;
@@ -97,13 +99,6 @@
             this.formDisabled = false;
           }
         });
-      },
-    },
-    $trs: {
-      importFacilityTitle: {
-        message: 'Import learning facility',
-        context:
-          'Title of a page where user will sign in to a remote facility to begin the syncing process',
       },
     },
   };

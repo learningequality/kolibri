@@ -49,6 +49,29 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context:
       'When two facilities have the same name but different IDs, they will just sync in parallel and not be integrated with each other in any way.',
   },
+  warningFirstImportedIsSuperuser: {
+    message:
+      'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
+    context:
+      'A note at the top of the page for importing a user explaining that the first user imported will be given the permissions of a superuser',
+  },
+  howAreYouUsingKolibri: {
+    message: 'How are you using Kolibri?',
+    context: 'Page title for the device setup step.',
+  },
+  onMyOwn: {
+    message: 'For homeschooling and other personal use.',
+    context: "Option description text for 'Quick start'.",
+  },
+  changeLater: {
+    message: 'You can change this in your learning facility settings later',
+    context: '',
+  },
+  superAdminPermissionsDescription: {
+    message:
+      'This super admin account allows you to manage all facilities, resources, and users on this device.',
+    context: 'Explanation of what the super admin account is used for on device.',
+  },
 });
 
 export default {

@@ -2,7 +2,7 @@
 
   <KModal
     :title="modalTitle"
-    :submitText="$tr('close')"
+    :submitText="coreString('closeAction')"
     size="medium"
     @cancel="closeModal"
     @submit="closeModal"
@@ -17,8 +17,11 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
   export default {
     name: 'LearnMoreModal',
+    mixins: [commonCoreStrings],
     props: {
       logType: {
         type: String,
@@ -61,11 +64,6 @@
           'When a user views a resource, we record how long they spend and the progress they make. Each row in this file records a single visit a user made to a specific resource. This includes anonymous usage, when no user is signed in.',
         context:
           "Text description on the 'Learn More' pop-up window in the Facility > Data > Export usage data section.\n",
-      },
-      close: {
-        message: 'Close',
-        context:
-          "Refers to the 'Close' button on the 'Learn More' pop-up window in the Facility > Data > Export usage data section.",
       },
     },
   };

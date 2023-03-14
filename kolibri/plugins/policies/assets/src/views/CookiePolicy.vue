@@ -21,7 +21,7 @@
 
         <table>
           <tr>
-            <th>{{ $tr('cookieNameTableHeader') }}</th>
+            <th>{{ coreString('name') }}</th>
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
@@ -49,7 +49,7 @@
         <p>{{ $tr('statisticsCookiesP1') }}</p>
         <table>
           <tr>
-            <th>{{ $tr('cookieNameTableHeader') }}</th>
+            <th>{{ coreString('name') }}</th>
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
@@ -106,9 +106,6 @@
       cookieP5: {
         message:
           'Necessary cookies help make a website usable by enabling basic functions like page navigation and access to its secure areas. The website cannot function properly without these cookies.',
-      },
-      cookieNameTableHeader: {
-        message: 'Name',
       },
       cookiePurposeTableHeader: {
         message: 'Purpose',

@@ -25,8 +25,8 @@
         <KIconButton
           icon="back"
           data-test="backButton"
-          :tooltip="$tr('goBack')"
-          :ariaLabel="$tr('goBack')"
+          :tooltip="coreString('goBackAction')"
+          :ariaLabel="coreString('goBackAction')"
           @click="onBackButtonClick"
         />
       </template>
@@ -452,10 +452,6 @@
       },
     },
     $trs: {
-      goBack: {
-        message: 'Go back',
-        context: 'Link to go back to the previous screen.',
-      },
       moreOptions: {
         message: 'More options',
         context: 'Tooltip text.',

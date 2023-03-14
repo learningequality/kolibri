@@ -24,7 +24,7 @@
       :value="false"
     />
     <p class="description">
-      {{ $tr('changeLater') }}
+      {{ getCommonSyncString('changeLater') }}
     </p>
 
   </OnboardingStepBase>
@@ -34,6 +34,7 @@
 
 <script>
 
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import OnboardingStepBase from '../OnboardingStepBase';
   import { Presets, FooterMessageTypes } from '../../constants';
 
@@ -42,6 +43,7 @@
     components: {
       OnboardingStepBase,
     },
+    mixins: [commonSyncElements],
     data() {
       let setting = this.wizardService.state.context['learnerCanCreateAccount'];
       if (setting === null) {
@@ -81,10 +83,6 @@
         message: 'No. Admins must create an account for them to join this facility.',
         context:
           "Possible answer to the 'Allow anyone to create their own learner account?' question.",
-      },
-      changeLater: {
-        message: 'You can change this in your learning facility settings later',
-        context: '',
       },
     },
   };

@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$attrs.title || $tr('header')"
+    :title="$attrs.title || getCommonSyncString('selectNetworkAddressTitle')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -45,7 +45,7 @@
           <KButton
             v-if="!hideSavedAddresses"
             :key="`forget-${idx}`"
-            :text="$tr('forgetDeviceButtonLabel')"
+            :text="coreString('removeAction')"
             appearance="basic-link"
             @click="removeSavedAddress(a.id)"
           />
@@ -110,7 +110,7 @@
     <KButton
       v-show="!newAddressButtonDisabled && !formDisabled"
       class="new-address-button"
-      :text="$tr('newDeviceButtonLabel')"
+      :text="coreString('addNewAddressAction')"
       appearance="basic-link"
       @click="$emit('click_add_address')"
     />
@@ -322,21 +322,6 @@
         message: 'There was a problem getting the available devices',
         context:
           'Error message that displays when an admin attempts to find a device, but the device is not found.',
-      },
-      forgetDeviceButtonLabel: {
-        message: 'Remove',
-        context:
-          'Removes a device from the list of devices which have been registered in the Device > Facilities section.',
-      },
-      header: {
-        message: 'Select device',
-        context:
-          "In the Device > Facilities section, you select the 'SYNC' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
-      },
-      newDeviceButtonLabel: {
-        message: 'Add new device',
-        context:
-          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',

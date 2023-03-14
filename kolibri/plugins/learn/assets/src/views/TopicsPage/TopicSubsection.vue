@@ -46,7 +46,7 @@
       appearance="basic-link"
       @click="$emit('showMore', topic.id)"
     >
-      {{ $tr('showMore') }}
+      {{ coreString('showMoreAction') }}
     </KButton>
     <KRouterLink v-else-if="topic.viewAll" class="more-after-grid" :to="topic.viewAll">
       {{ coreString('viewAll') }}
@@ -93,12 +93,6 @@
         type: Boolean,
         default: false,
         required: false,
-      },
-    },
-    $trs: {
-      showMore: {
-        message: 'Show more',
-        context: 'Clickable link which allows to load more resources.',
       },
     },
   };
