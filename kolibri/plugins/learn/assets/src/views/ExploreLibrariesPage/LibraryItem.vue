@@ -36,9 +36,10 @@
         :layout8="{ span: 2, alignment: 'right' }"
         :layout4="{ span: 4, alignment: 'right' }"
       >
-        <KButton
+        <KRouterLink
+          appearance="raised-button"
           :text="coreString('explore')"
-          :primary="false"
+          :to="libraryPageRoute"
         />
       </KGridItem>
     </div>
@@ -69,6 +70,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import ChannelCard from '../ChannelCard';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'LibraryItem',
@@ -84,6 +86,10 @@
       };
     },
     props: {
+      deviceId: {
+        type: String,
+        default: null,
+      },
       deviceName: {
         type: String,
         required: false,
@@ -115,6 +121,16 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+    },
+    computed: {
+      libraryPageRoute() {
+        return {
+          name: PageNames.LIBRARY,
+          params: {
+            deviceId: this.deviceId,
+          },
+        };
       },
     },
     $trs: {
