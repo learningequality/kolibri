@@ -7,6 +7,7 @@ import time
 from django.core.exceptions import ValidationError
 from django.db.utils import OperationalError
 
+from kolibri.core.device.task_notifications import status_fn
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.discovery.models import ConnectionStatus
@@ -186,7 +187,7 @@ def _enqueue_network_location_update_with_backoff(network_location):
     )
 
 
-@register_task(priority=Priority.REGULAR)
+@register_task(priority=Priority.REGULAR, status_fn=status_fn)
 def perform_network_location_update(network_location_id):
     """
     Updates the connection status for the network location, and dispatches hooks if applicable
@@ -217,7 +218,7 @@ def perform_network_location_update(network_location_id):
         _enqueue_network_location_update_with_backoff(network_location)
 
 
-@register_task(priority=Priority.HIGH)
+@register_task(priority=Priority.HIGH, status_fn=status_fn)
 @hydrate_instance
 def add_dynamic_network_location(broadcast_id, instance):
     """
@@ -256,7 +257,7 @@ def add_dynamic_network_location(broadcast_id, instance):
     )
 
 
-@register_task(priority=Priority.HIGH)
+@register_task(priority=Priority.HIGH, status_fn=status_fn)
 @hydrate_instance
 def remove_dynamic_network_location(broadcast_id, instance):
     """
@@ -277,7 +278,9 @@ def remove_dynamic_network_location(broadcast_id, instance):
     network_location.delete()
 
 
-@register_task(job_id=CONNECTION_RESET_JOB_ID, priority=Priority.HIGH)
+@register_task(
+    job_id=CONNECTION_RESET_JOB_ID, priority=Priority.HIGH, status_fn=status_fn
+)
 def reset_connection_states(broadcast_id):
     """
     Handles resetting all connection states when a network change occurs
