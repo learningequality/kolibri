@@ -1612,33 +1612,33 @@ class DuplicateUsernameTestCase(APITestCase):
     def setUpTestData(cls):
         cls.facility = FacilityFactory.create()
         cls.user = FacilityUserFactory.create(facility=cls.facility, username="user")
-        cls.url = reverse("kolibri:core:usernameexists")
+        cls.url = reverse("kolibri:core:usernameavailable")
         provision_device()
 
     def test_check_duplicate_username_with_unique_username(self):
-        response = self.client.get(
+        response = self.client.post(
             self.url,
-            {"username": "new_user", "facility": self.facility.id},
+            data={"username": "new_user", "facility": self.facility.id},
             format="json",
         )
-        expected = {"username_exists": False}
-        self.assertDictEqual(response.data, expected)
+        self.assertEqual(response.data, True)
 
     def test_check_duplicate_username_with_existing_username(self):
-        response = self.client.get(
+        response = self.client.post(
             self.url,
-            {"username": self.user.username, "facility": self.facility.id},
+            data={"username": self.user.username, "facility": self.facility.id},
             format="json",
         )
-        expected = {"username_exists": True}
-        self.assertDictEqual(response.data, expected)
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(
+            response.data[0]["id"], error_constants.USERNAME_ALREADY_EXISTS
+        )
 
     def test_check_duplicate_username_with_existing_username_other_facility(self):
         other_facility = FacilityFactory.create()
-        response = self.client.get(
+        response = self.client.post(
             self.url,
-            {"username": self.user.username, "facility": other_facility.id},
+            data={"username": self.user.username, "facility": other_facility.id},
             format="json",
         )
-        expected = {"username_exists": False}
-        self.assertDictEqual(response.data, expected)
+        self.assertEqual(response.data, True)
