@@ -17,6 +17,14 @@ export const PageNames = {
   EXPLORE_LIBRARIES: 'EXPLORE_LIBRARIES',
 };
 
+export const ExternalPageNames = {
+  MY_DOWNLOADS: 'MY_DOWNLOADS',
+};
+
+export const ExternalPagePaths = {
+  [ExternalPageNames.MY_DOWNLOADS]: '/my-downloads',
+};
+
 // switch between modes
 export const PageModes = {
   TOPICS: 'TOPICS',

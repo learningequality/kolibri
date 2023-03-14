@@ -49,10 +49,10 @@
                 {{ formattedTime(download) }}
               </td>
               <td class="resource-action">
-                <KButton
+                <KExternalLink
                   :text="coreString('viewAction')"
                   appearance="flat-button"
-                  @click="viewResource(download.node_id)"
+                  :href="genExternalContentURLBackLinkCurrentPage(download.node_id)"
                 />
               </td>
               <td class="resource-action">
@@ -76,7 +76,7 @@
       v-if="resourcesToDelete.length"
       :resourcesToDelete="resourcesToDelete"
       @cancel="resourcesToDelete = []"
-      @success="resourcesToDelete = []"
+      @success="removeResources"
     />
   </form>
 
@@ -92,6 +92,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import { LearningActivityToIconMap } from '../../../constants';
+  import useContentLink from '../../../composables/useContentLink';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';
 
@@ -104,6 +105,13 @@
       PaginatedListContainerWithBackend,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { genExternalContentURLBackLinkCurrentPage } = useContentLink();
+
+      return {
+        genExternalContentURLBackLinkCurrentPage,
+      };
+    },
     props: {
       downloads: {
         type: Object,
@@ -162,14 +170,20 @@
     },
     watch: {
       selectedDownloads(newVal, oldVal) {
+        if (newVal.length === 0) {
+          this.selectedDownloadsSize = 0;
+          return;
+        }
         const addedDownloads = newVal.filter(id => !oldVal.includes(id));
         const removedDownloads = oldVal.filter(id => !newVal.includes(id));
         const addedDownloadsSize = addedDownloads.reduce(
-          (acc, id) => acc + this.downloads[id].resource_metadata.file_size,
+          (acc, id) =>
+            acc + (this.downloads[id] ? this.downloads[id].resource_metadata.file_size : 0),
           0
         );
         const removedDownloadsSize = removedDownloads.reduce(
-          (acc, id) => acc + this.downloads[id].resource_metadata.file_size,
+          (acc, id) =>
+            acc + (this.downloads[id] ? this.downloads[id].resource_metadata.file_size : 0),
           0
         );
         this.selectedDownloadsSize += addedDownloadsSize - removedDownloadsSize;
@@ -197,12 +211,15 @@
       resourceIsSelected(id) {
         return this.selectedDownloads.indexOf(id) !== -1;
       },
-      viewResource(id) {
-        window.location.replace('/en/learn/#/topics/c/1c5a63eb626f4aa883eaef0cfe37634f');
-        console.log('view resource', id);
-      },
       removeResource(id) {
         this.resourcesToDelete = [id];
+      },
+      removeResources() {
+        this.$emit('removeResources', this.resourcesToDelete);
+        this.selectedDownloads = this.selectedDownloads.filter(
+          resourceId => !this.resourcesToDelete.includes(resourceId)
+        );
+        this.resourcesToDelete = [];
       },
       getIcon(download) {
         return LearningActivityToIconMap[download.resource_metadata.learning_activities[0]];

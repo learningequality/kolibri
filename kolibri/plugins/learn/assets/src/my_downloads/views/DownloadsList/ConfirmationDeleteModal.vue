@@ -36,7 +36,6 @@
     },
     methods: {
       removeResources() {
-        console.log('Removing', this.resourcesToDelete);
         this.$emit('success');
       },
     },

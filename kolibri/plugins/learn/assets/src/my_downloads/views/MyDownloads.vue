@@ -50,6 +50,7 @@
         :downloads="downloads || {}"
         :totalDownloads="totalDownloads"
         :totalPageNumber="totalPageNumber"
+        @removeResources="removeResources"
       />
     </KPageContainer>
   </AppBarPage>
@@ -84,6 +85,8 @@
         downloadRequestMap,
         fetchUserDownloadRequests,
         fetchDownloadsStorageInfo,
+        removeDownloadRequest,
+        removeDownloadsRequest,
       } = useDownloadRequests();
 
       const store = getCurrentInstance().proxy.$store;
@@ -134,11 +137,20 @@
         totalPageNumber,
         storage,
         storageLoading,
+        removeDownloadRequest,
+        removeDownloadsRequest,
       };
     },
     methods: {
       formattedSize(size) {
         return bytesForHumans(size);
+      },
+      removeResources(resources) {
+        if (resources.length === 1) {
+          this.removeDownloadRequest({ id: resources[0] });
+        } else {
+          this.removeDownloadsRequest(resources.map(resource => ({ id: resource })));
+        }
       },
     },
   };
