@@ -14,7 +14,7 @@
       <KTabsList
         ref="tabsList"
         :tabsId="PLAN_TABS_ID"
-        ariaLabel="Coach plan"
+        :ariaLabel="$tr('coachPlan')"
         :activeTabId="activeTabId"
         :tabs="tabs"
         :style="{ position: 'relative', top: '5px' }"
@@ -102,6 +102,10 @@
       planYourClassDescription: {
         message: 'Create and manage your lessons, quizzes, and groups',
         context: "Description of the 'Plan your class' section.",
+      },
+      coachPlan: {
+        message: 'Coach plan',
+        context: 'Labels the coach plan tab for screen reader users',
       },
     },
   };
