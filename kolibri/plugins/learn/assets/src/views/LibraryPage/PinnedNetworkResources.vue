@@ -2,23 +2,25 @@
 
   <KGrid>
     <KGridItem
-      v-for="group in groups"
-      :key="group.id"
+      v-for="device in pinnedDevices"
+      :key="device.id"
     >
       <KGridItem>
         <h2>
-          <KIcon :icon="getDeviceIcon(group)" />
-          <span class="device-name">{{ group.deviceName }}</span>
+          <KIcon :icon="getDeviceIcon(device.operating_system)" />
+          <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
       <KGridItem
-        v-for="item in group.content"
+        v-for="item in device.channels"
         :key="item.id"
         :layout="{ span: cardColumnSpan, alignment: 'auto' }"
       >
-        <CardContent
-          :content="item.title"
-          :body="item.body"
+        <ChannelCard
+          :title="item.name"
+          :tagline="item.tagline || item.description"
+          :thumbnail="item.thumbnail"
+          :link="{}"
         />
       </KGridItem>
     </KGridItem>
@@ -32,61 +34,27 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useDevices from './../../composables/useDevices';
   import useChannels from './../../composables/useChannels';
-  import CardContent from './CardContent';
+  import ChannelCard from './../ChannelCard';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
-      CardContent,
+      ChannelCard,
     },
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const { fetchDevices } = useDevices();
+      const { baseurl, fetchDevices } = useDevices();
       const { fetchChannels } = useChannels();
       return {
         windowBreakpoint,
-        fetchDevices,
         fetchChannels,
+        fetchDevices,
+        baseurl,
       };
     },
     data() {
       return {
-        groups: [
-          {
-            id: 1,
-            deviceName: 'Samson`s MacBook-Pro',
-            operating_system: 'linux',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 2,
-            deviceName: 'Marcella MBP',
-            operating_system: 'Android',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-            ],
-          },
-        ],
+        pinnedDevices: [],
       };
     },
     computed: {
@@ -99,24 +67,17 @@
     },
     created() {
       this.fetchDevices().then(devices => {
-        console.log(devices);
-        for (const device of devices) {
-          const baseurl = device.base_url;
-          this.fetchChannels({ baseurl })
-            .then(channels => {
-              this.setNetworkDeviceChannels(device, channels.slice(0, 4), channels.length);
-            })
-            .catch(() => {
-              this.setNetworkDeviceChannels(device, [], 0);
-            });
-        }
+        const device = devices.filter(d => d.available);
+        device.forEach(element => {
+          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
+            this.$set(element, 'channels', channel);
+            this.pinnedDevices.push(element);
+          });
+        });
+        console.log(this.pinnedDevices);
       });
     },
     methods: {
-      setNetworkDeviceChannels(device, channels, total) {
-        this.$set(device, 'channels', channels.slice(0, 4));
-        this.$set(device, 'total_channels', total);
-      },
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Darwin') {
           return 'laptop';

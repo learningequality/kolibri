@@ -48,7 +48,6 @@
       :value="numCoachContents"
       :isTopic="true"
     />
-
     <div
       v-if="version"
       class="version-wrapper"
