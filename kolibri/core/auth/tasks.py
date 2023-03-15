@@ -835,7 +835,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
 
 @register_task(
     validator=PeerImportSingleSyncJobValidator,
-    cancellable=True,
+    cancellable=False,
     track_progress=True,
     queue=soud_sync_queue,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
