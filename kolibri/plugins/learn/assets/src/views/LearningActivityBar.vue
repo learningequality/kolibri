@@ -502,6 +502,18 @@
     min-width: 0;
   }
 
+  /deep/ .ui-toolbar__left {
+    overflow-x: hidden;
+  }
+
+  /deep/ .ui-toolbar__right {
+    display: flex;
+  }
+
+  /deep/ .ui-toolbar__nav-icon {
+    margin-left: -0.7rem; // prevents icon cutoff
+  }
+
   /deep/ .ui-toolbar__body {
     flex-grow: 0; // make sure that the completion icon is right next to the title
     align-items: center;
