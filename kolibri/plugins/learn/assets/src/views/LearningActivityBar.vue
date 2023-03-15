@@ -503,6 +503,7 @@
   }
 
   /deep/ .ui-toolbar__left {
+    margin-left: 10px;
     overflow-x: hidden;
   }
 
@@ -511,7 +512,7 @@
   }
 
   /deep/ .ui-toolbar__nav-icon {
-    margin-left: -0.7rem; // prevents icon cutoff
+    margin-left: 0; // prevents icon cutoff
   }
 
   /deep/ .ui-toolbar__body {
