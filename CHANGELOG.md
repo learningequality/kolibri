@@ -11,6 +11,9 @@ List of the most important changes for each release.
 ### Changed
 * Updated PID file when the zipcontent server starts
 
+### Fixed
+* Ensure `startremotecontentimport` and `startdiskcontentimport` pass through the `fail_on_error` option to the importcontent command
+
 
 ## 0.15.11
 
