@@ -110,10 +110,10 @@
       </CoreTable>
       <KModal
         v-if="deviceModal"
-        :title="coreString('selectNetworkAddressTitle')"
+        :title="getCommonSyncString('selectNetworkAddressTitle')"
         size="medium"
         :submitText="coreString('continueAction')"
-        :cancelText="coreSrring('cancelAction')"
+        :cancelText="coreString('cancelAction')"
         @cancel="closeModal"
         @submit="submitModal(radioBtnValue)"
       >
@@ -185,6 +185,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
   import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
@@ -196,7 +197,7 @@
       AddDeviceForm,
     },
     extends: ImmersivePage,
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
         deviceModal: false,

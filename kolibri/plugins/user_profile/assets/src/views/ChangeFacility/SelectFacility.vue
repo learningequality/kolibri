@@ -40,7 +40,7 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          :text="coreString('addNewAddressAction')"
+          :text="getCommonSyncString('addNewAddressAction')"
           appearance="basic-link"
           @click="showAddAddressModal = true"
         />
@@ -80,6 +80,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
   import { AddDeviceForm, useDevices, useDeviceDeletion } from 'kolibri.coreVue.componentSets.sync';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'SelectFacility',
@@ -90,7 +91,7 @@
     },
     components: { AddDeviceForm, BottomAppBar },
 
-    mixins: [commonCoreStrings, commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements, commonProfileStrings],
     setup() {
       const {
         devices: _devices,
