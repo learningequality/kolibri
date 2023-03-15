@@ -15,6 +15,7 @@ from django.db.utils import ProgrammingError
 
 import kolibri
 from kolibri.core.auth.constants.facility_presets import mappings
+from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.utils.android import ANDROID_PLATFORM_SYSTEM_VALUE
 from kolibri.utils.android import on_android
 
@@ -392,9 +393,18 @@ device_info_keys = {
         "operating_system",
         "subset_of_users_device",
     ],
+    "3": [
+        "application",
+        "kolibri_version",
+        "instance_id",
+        "device_name",
+        "operating_system",
+        "subset_of_users_device",
+        "min_content_schema_version",
+    ],
 }
 
-DEVICE_INFO_VERSION = "2"
+DEVICE_INFO_VERSION = "3"
 
 
 def get_device_info(version=DEVICE_INFO_VERSION):
@@ -428,6 +438,7 @@ def get_device_info(version=DEVICE_INFO_VERSION):
         if on_android()
         else platform.system(),
         "subset_of_users_device": subset_of_users_device,
+        "min_content_schema_version": MIN_CONTENT_SCHEMA_VERSION,
     }
 
     info = {}

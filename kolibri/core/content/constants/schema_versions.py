@@ -33,3 +33,10 @@ CONTENT_SCHEMA_VERSION = VERSION_5
 # The version name for the current content schema,
 # which may have schema modifications not present in the export schema
 CURRENT_SCHEMA_VERSION = "current"
+
+# The minimum content schema version that we are able to provide import metadata for
+# from the Kolibri content app database tables.
+# This should be updated if we make a change to the content schema that it would be
+# exceptionally difficult for us to backfill, such as deleting a model field that
+# we cannot meaningfully infer the content of from other metadata.
+MIN_CONTENT_SCHEMA_VERSION = VERSION_5

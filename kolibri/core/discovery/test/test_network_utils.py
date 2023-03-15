@@ -309,7 +309,12 @@ class NetworkClientTestCase(TestCase):
             self.assertTrue(nc.connect())
             self.assertEqual(nc.base_url, "https://url.qqq/")
             self.assertEqual(
-                nc.device_info, dict(subset_of_users_device=False, **mock_device_info)
+                nc.device_info,
+                dict(
+                    min_content_schema_version=None,
+                    subset_of_users_device=False,
+                    **mock_device_info
+                ),
             )
 
     @mock.patch.object(
@@ -320,7 +325,12 @@ class NetworkClientTestCase(TestCase):
             self.assertTrue(nc.connect())
             self.assertEqual(nc.base_url, "https://url.qqq/prefix/")
             self.assertEqual(
-                nc.device_info, dict(subset_of_users_device=False, **mock_device_info)
+                nc.device_info,
+                dict(
+                    min_content_schema_version=None,
+                    subset_of_users_device=False,
+                    **mock_device_info
+                ),
             )
 
     @mock.patch.object(requests.Session, "request", mock_not_found())
