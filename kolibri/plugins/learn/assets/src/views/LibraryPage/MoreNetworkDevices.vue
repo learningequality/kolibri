@@ -63,7 +63,6 @@
           });
         });
       });
-      console.log(this.devices);
     },
   };
 
