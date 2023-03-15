@@ -218,7 +218,7 @@
                 class="download-limit-textbox"
                 :disabled="notEnoughFreeSpace || isRemoteContent"
                 type="number"
-                label="GB"
+                :label="$tr('sizeInGigabytesLabel')"
                 :min="0"
                 :max="freeSpace"
                 :invalid="notEnoughFreeSpace"
@@ -1009,6 +1009,11 @@
       setStorageLimit: {
         message: 'Set storage limit for auto-download and learner-initiated downloads',
         context: "Option on 'Device settings' page.",
+      },
+      sizeInGigabytesLabel: {
+        message: 'GB',
+        context:
+          'Indicates the gigabyte unit of digital information when referring to the storage space available on a device.\n\nSee https://en.wikipedia.org/wiki/Gigabyte',
       },
       setStorageLimitDescription: {
         message:

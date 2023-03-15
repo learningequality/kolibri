@@ -385,7 +385,7 @@
         context: "Description of 'Summary logs'.",
       },
       LearnMore: {
-        message: 'Learn More',
+        message: 'Learn more',
         context: 'Message that displays session or summary log information\n',
       },
       submitText: {

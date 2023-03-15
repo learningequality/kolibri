@@ -163,7 +163,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Refers to QUIZ. Option in the selector used to filter and display only the ended quizzes.',
   },
   filterQuizNotStarted: {
-    message: 'Not Started',
+    message: 'Not started',
     context:
       'Refers to QUIZ. Option in the selector used to filter and display only the quizes not started. ',
   },

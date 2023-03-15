@@ -24,7 +24,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="selectArray"
-                label="Repeat"
+                :label="$tr('frequency')"
               />
             </KGridItem>
 
@@ -40,7 +40,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="getDays"
-                label="On"
+                :label="$tr('day')"
               />
 
             </KGridItem>
@@ -56,7 +56,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="SyncTime"
-                label="At"
+                :label="$tr('time')"
               />
             </KGridItem>
           </KGrid>
@@ -358,6 +358,18 @@
       removeDeviceLabel: {
         message: 'Remove device from sync schedule',
         context: 'Button label for removing the device from the sync schedule',
+      },
+      frequency: {
+        message: 'Frequence',
+        context: 'Indicates often the scheduled sync occurs',
+      },
+      day: {
+        message: 'Day',
+        context: 'Indicates the day of the week on which the scheduled sync occurs',
+      },
+      time: {
+        message: 'Time',
+        context: 'Indicates the time of day at which the scheduled sync occurs',
       },
     },
   };
