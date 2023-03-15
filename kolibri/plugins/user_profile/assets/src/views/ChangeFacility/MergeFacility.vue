@@ -311,7 +311,7 @@
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       userAdminError: {
         message:
-          "User '{username}' already exists in '{target_facility}' is not a learner. Please choose a different username.",
+          "User '{username}' already exists in '{target_facility}' and is not a learner. Please choose a different username.",
         context: 'Error message for a user being other than a learner in the target facility.',
       },
       // eslint-disable-next-line kolibri/vue-no-unused-translations
