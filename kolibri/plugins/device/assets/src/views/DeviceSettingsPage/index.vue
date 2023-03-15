@@ -1024,7 +1024,7 @@
         context: 'Menu option for storage paths',
       },
       addLocation: {
-        message: 'Add Location',
+        message: 'Add location',
         context: 'Label for a button used to add storage location',
       },
       changeLocation: {

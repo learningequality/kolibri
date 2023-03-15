@@ -125,7 +125,7 @@
           v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
             !notStartedExams.length"
         >
-          {{ $tr('noExamsNotStarted') }}
+          {{ coreString('noResults') }}
         </p>
         <p
           v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
@@ -343,11 +343,6 @@
         message: 'No ended quizzes',
         context:
           'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
-      },
-      noExamsNotStarted: {
-        message: 'No quizzes not started',
-        context:
-          'Message displayed when there are no quizes not started. Quizzes not started are those that are not in progress and have not been started yet.',
       },
       newQuiz: {
         message: 'Create new quiz',

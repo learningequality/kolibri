@@ -389,6 +389,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'No users exist',
     context: 'Displays when there are no users in the facility.',
   },
+  noResultsLabel: {
+    message: 'No results',
+    context: 'Displays when there are no matching search results',
+  },
   optionsLabel: {
     message: 'Options',
     context:

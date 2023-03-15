@@ -180,10 +180,10 @@
           return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'startedQuizzes') {
-          return this.$tr('noStartedExams');
+          return this.coreString('noResults');
         }
         if (this.filter.value === 'quizzesNotStarted') {
-          return this.$tr('noExamsNotStarted');
+          return this.coreString('noResults');
         }
         if (this.filter.value === 'endedQuizzes') {
           return this.$tr('noEndedExams');
@@ -320,13 +320,11 @@
       },
     },
     $trs: {
-      noStartedExams: 'No started quizzes',
       noEndedExams: {
         message: 'No ended quizzes',
         context:
           'Message displayed when there are no ended quizes. Ended quizzes are those that are no longer in progress.',
       },
-      noExamsNotStarted: 'No quizzes not started',
       printLabel: {
         message: '{className} Quizzes',
         context:
