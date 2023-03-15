@@ -138,7 +138,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Refers to LESSON. Default option in the selector used to filter and display lessons by status.',
   },
   filterLessonNotVisible: {
-    message: 'Not Visible',
+    message: 'Not visible',
     context:
       'Refers to LESSON. Option in the selector used to filter and display only the lessons not visible  to learners.',
   },
