@@ -2,11 +2,11 @@
 
   <div>
     <span class="headercontainer">
-      <h1>{{ $tr('documentTitle') }}</h1>
+      <h1>{{ getCommonSyncString('selectFacilityTitle') }}</h1>
 
       <transition name="spinner-fade">
 
-        <div v-if="discoveringPeers">
+        <div v-if="isFetching">
           <KLabeledIcon>
             <template #icon>
               <KCircularLoader :size="16" :stroke="6" />
@@ -16,7 +16,7 @@
       </transition>
 
     </span>
-    <p v-if="initialFetchingComplete && !availableFacilities.length">
+    <p v-if="hasFetched && !availableFacilities.length">
       {{ $tr('noFacilitiesText') }}
     </p>
     <div v-for="f in availableFacilities" :key="`div-${f.id}`">
@@ -40,7 +40,7 @@
       <KGridItem>{{ $tr('doNotSeeYourFacility') }}</KGridItem>
       <KGridItem>
         <KButton
-          :text="$tr('newDeviceButtonLabel')"
+          :text="getCommonSyncString('addNewAddressAction')"
           appearance="basic-link"
           @click="showAddAddressModal = true"
         />
@@ -72,65 +72,138 @@
 
 <script>
 
-  import { useLocalStorage } from '@vueuse/core';
-  import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, useMemoize, computedAsync, get } from '@vueuse/core';
+  import { computed, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
+  import { NetworkLocationResource } from 'kolibri.resources';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import useSavedAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useSavedAddresses.js';
-  import useDynamicAddresses from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/useDynamicAddresses.js';
-  import AddDeviceForm from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm';
-  import useMinimumKolibriVersion from '../../../../../../core/assets/src/composables/useMinimumKolibriVersion';
+  import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+  import { AddDeviceForm, useDevices, useDeviceDeletion } from 'kolibri.coreVue.componentSets.sync';
+  import commonProfileStrings from '../commonProfileStrings';
 
   export default {
     name: 'SelectFacility',
     metaInfo() {
       return {
-        title: this.$tr('documentTitle'),
+        title: this.profileString('documentTitle'),
       };
     },
     components: { AddDeviceForm, BottomAppBar },
 
-    mixins: [commonCoreStrings, commonSyncElements],
-    setup(props, context) {
+    mixins: [commonCoreStrings, commonSyncElements, commonProfileStrings],
+    setup() {
       const {
-        addresses: discoveredAddresses,
-        discoveringPeers,
-        discoveryFailed,
-        discoveredAddressesInitiallyFetched,
-      } = useDynamicAddresses(props);
-      const {
-        addresses: savedAddresses,
-        refreshSavedAddressList,
-        savedAddressesInitiallyFetched,
-      } = useSavedAddresses(props, context);
-      const combinedAddresses = computed(() => {
-        return [...savedAddresses.value, ...discoveredAddresses.value];
+        devices: _devices,
+        isFetching: _isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+      } = useDevices({
+        subset_of_users_device: false,
       });
-      const initialFetchingComplete = computed(() => {
-        return savedAddressesInitiallyFetched.value && discoveredAddressesInitiallyFetched.value;
-      });
+
+      const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
+        _devices
+      );
+
       const storageFacilityId = useLocalStorage('kolibri-lastSelectedFacilityId', '');
 
       // data:
-      const availableAddressIds = ref([]);
-      const availableFacilities = ref([]);
       const selectedFacilityId = ref('');
       const showAddAddressModal = ref(false);
+      const isLoading = ref(false);
       const $store = getCurrentInstance().proxy.$store;
 
+      const fetchDeviceFacilities = useMemoize(
+        async device => {
+          try {
+            const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
+
+            return facilities.map(facility => {
+              return {
+                id: facility.id,
+                name: facility.name,
+                base_url: device.base_url,
+                address_id: device.id,
+                learner_can_sign_up: facility.learner_can_sign_up,
+                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+                kolibri_version: device.kolibri_version,
+              };
+            });
+          } catch (e) {
+            return [];
+          }
+        },
+        {
+          getKey: device => device.id,
+        }
+      );
+
       // computed properties (functions):
-      const { isMinimumKolibriVersion } = useMinimumKolibriVersion();
+      const isFetching = computed(() => get(_isFetching) || get(isLoading));
+      const availableAddressIds = computed(() =>
+        get(devices)
+          .filter(d => d.available)
+          .map(d => d.id)
+      );
+      const availableFacilities = computedAsync(
+        async () => {
+          // Extract available devices, and sort to most recently accessed so when we dedupe
+          // facilities across two+ devices, the most recently connected device's facility is shown
+          const _devices = get(devices)
+            .filter(d => get(availableAddressIds).includes(d.id))
+            .sort((deviceA, deviceB) => deviceA.since_last_accessed - deviceB.since_last_accessed);
+          const facilitiesFromDevices = await Promise.all(
+            _devices.map(d => fetchDeviceFacilities(d))
+          );
+          const facilities = {};
+          // Promise.all will resolve with an array of arrays
+          for (const deviceFacilities of facilitiesFromDevices) {
+            for (const facility of deviceFacilities) {
+              // deduplicate the same facility across more than one device
+              if (!facility[facility.id]) {
+                facilities[facility.id] = facility;
+              }
+            }
+          }
+          // Sort alphabetically for predictable ordering
+          return Object.values(facilities).sort((facilityA, facilityB) => {
+            if (facilityA.name < facilityB.name) {
+              return -1;
+            }
+            if (facilityA.name > facilityB.name) {
+              return 1;
+            }
+            return 0;
+          });
+        },
+        [],
+        isLoading
+      );
+
+      const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
       const facilityDisabled = computed(() => {
         return function(facility) {
           return (
-            discoveryFailed.value ||
-            availableAddressIds.value.find(id => id == facility.address_id) === undefined ||
-            !isMinimumKolibriVersion.value(facility.kolibri_version, 0, 16, 0)
+            get(fetchFailed) ||
+            get(availableAddressIds).find(id => id === facility.address_id) === undefined ||
+            !isMinimumKolibriVersion(facility.kolibri_version)
           );
         };
+      });
+
+      watch(availableFacilities, availableFacilities => {
+        if (
+          !get(availableFacilities)
+            .map(f => f.id)
+            .includes(selectedFacilityId.value)
+        ) {
+          selectedFacilityId.value = '';
+        }
+        if (!selectedFacilityId.value) {
+          resetSelectedAddress();
+        }
       });
 
       // methods:
@@ -139,14 +212,14 @@
       }
 
       function handleAddedAddress() {
-        refreshSavedAddressList();
+        forceFetch();
         createSnackbar(this.$tr('addDeviceSnackbarText'));
         this.showAddAddressModal = false;
       }
 
       function resetSelectedAddress() {
         const enabledFacilities = availableFacilities.value.filter(f =>
-          isMinimumKolibriVersion.value(f.kolibri_version, 0, 16)
+          isMinimumKolibriVersion(f.kolibri_version)
         );
         if (enabledFacilities.length !== 0) {
           const selectedId = storageFacilityId.value || selectedFacilityId.value;
@@ -164,14 +237,23 @@
       }
 
       return {
-        combinedAddresses,
-        initialFetchingComplete,
-        discoveredAddresses,
-        discoveringPeers,
-        savedAddresses,
-        storageFacilityId,
-        availableAddressIds,
+        // useDevices
+        devices,
+        isFetching,
+        hasFetched,
+        fetchFailed,
+        forceFetch,
+        // useDeviceDeletion
+        isDeleting,
+        hasDeleted,
+        deletingFailed,
+        doDelete,
+
+        // internal
+        fetchDeviceFacilities,
         availableFacilities,
+        availableAddressIds,
+        storageFacilityId,
         selectedFacilityId,
         showAddAddressModal,
         facilityDisabled,
@@ -197,71 +279,16 @@
           },
         });
       },
-      combinedAddresses(addrs) {
-        const availableDevices = addrs.filter(
-          address =>
-            address.available &&
-            address.application === 'kolibri' &&
-            !address.subset_of_users_device
-        );
-        const newDevices = availableDevices.filter(
-          address => !this.availableAddressIds.includes(address.id)
-        );
-        newDevices.forEach(address => {
-          client({
-            url: urls['kolibri:core:remotefacilities'](),
-            params: { baseurl: address.base_url },
-          }).then(response => {
-            response.data.forEach(facility => {
-              const newFacility = {
-                id: facility.id,
-                name: facility.name,
-                base_url: address.base_url,
-                address_id: address.id,
-                learner_can_sign_up: facility.learner_can_sign_up,
-                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
-                kolibri_version: address.kolibri_version,
-              };
-              if (!this.availableFacilities.find(f => f.id === facility.id))
-                this.availableFacilities.push(newFacility);
-            });
-          });
-          this.availableAddressIds = availableDevices.map(address => address.id);
-
-          if (address.facility_name) {
-            this.availableFacilities.push({
-              id: address.id,
-              name: address.facility_name,
-            });
-          }
-        });
-
-        if (!this.availableFacilities.map(f => f.id).includes(this.selectedFacilityId)) {
-          this.selectedFacilityId = '';
-        }
-        if (!this.selectedFacilityId) {
-          this.resetSelectedAddress();
-        }
-      },
     },
     $trs: {
       addDeviceSnackbarText: {
         message: 'Successfully added device',
         context: 'This message appears if a device has been added correctly.',
       },
-      documentTitle: {
-        message: 'Select learning facility',
-        context: 'Title of this step for the change facility page.',
-      },
       doNotSeeYourFacility: {
-        message: 'Don’t see your learning facility?',
+        message: "Don't see your learning facility?",
         context:
           'This text appears next to the "Add new address" link. This option allows you to add a new network address from which to sync data.',
-      },
-      newDeviceButtonLabel: {
-        message: 'Add new device',
-        context:
-          'The "Add new device" link appears in the \'Select device\' screen. This option allows you to add a new device from which to sync data.',
       },
       noFacilitiesText: {
         message: 'No learning facilities found',
@@ -270,7 +297,7 @@
       },
       /* eslint-disable kolibri/vue-no-unused-translations */
       noPermissionToJoinFacility: {
-        message: 'You don’t have permission to join this learning facility',
+        message: "You don't have permission to join this learning facility",
         context: '',
       },
       /* eslint-enable kolibri/vue-no-unused-translations */

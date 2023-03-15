@@ -2,142 +2,143 @@
 
   <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
     <KPageContainer>
-      <PlanHeader />
-      <p v-if="lessons.length && lessons.length > 0">
-        {{ $tr('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
-      </p>
-      <div class="filter-and-button">
-        <KSelect
-          v-model="filterSelection"
-          class="select"
-          :label="coachString('filterLessonStatus')"
-          :options="filterOptions"
-          :inline="true"
-        />
-        <KRouterLink
-          :primary="true"
-          appearance="raised-button"
-          :text="coachString('newLessonAction')"
-          :to="newLessonRoute"
-        />
-      </div>
-
-      <CoreTable>
-        <template #headers>
-          <th>{{ coachString('titleLabel') }}</th>
-          <th>{{ $tr('size') }}</th>
-          <th>{{ coachString('recipientsLabel') }}</th>
-          <th>{{ coachString('lessonVisibleLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="lesson in sortedLessons" v-show="showLesson(lesson)" :key="lesson.id">
-              <td>
-                <KRouterLink
-                  :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
-                  :text="lesson.title"
-                  icon="lesson"
-                />
-              </td>
-              <td>
-                {{
-                  coachString('resourcesAndSize', {
-                    value: lesson.resources.length,
-                    size: lessonSize(lesson.id),
-                  })
-                }}
-              </td>
-              <td>
-                <Recipients
-                  :groupNames="getRecipientNamesForLesson(lesson)"
-                  :hasAssignments="
-                    lesson.lesson_assignments.length > 0 || lesson.learner_ids.length > 0
-                  "
-                />
-              </td>
-              <td>
-                <KSwitch
-                  name="toggle-lesson-visibility"
-                  label=""
-                  :checked="lesson.is_active"
-                  :value="lesson.is_active"
-                  @change="toggleModal(lesson)"
-                />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
-
-      <p v-if="!lessons.length">
-        {{ $tr('noLessons') }}
-      </p>
-      <p v-else-if="!hasVisibleLessons">
-        {{ $tr('noVisibleLessons') }}
-      </p>
-      <p v-else-if="!hasLessonsNotVisible">
-        {{ $tr('noLessonsNotVisible') }}
-      </p>
-
-      <KModal
-        v-if="showLessonIsVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonVisibleTitle')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @submit="handleToggleVisibility(activeLesson)"
-        @cancel="showLessonIsVisibleModal = false"
+      <PlanHeader :activeTabId="PlanTabs.LESSONS" />
+      <KTabsPanel
+        :tabsId="PLAN_TABS_ID"
+        :activeTabId="PlanTabs.LESSONS"
       >
-        <p>{{ $tr('makeLessonVisibleText') }}</p>
-        <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
-        <KCheckbox
-          :checked="dontShowAgainChecked"
-          :label="$tr('dontShowAgain')"
-          @change="dontShowAgainChecked = $event"
-        />
-      </KModal>
+        <p v-if="lessons.length && lessons.length > 0">
+          {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
+        </p>
+        <div class="filter-and-button">
+          <KSelect
+            v-model="filterSelection"
+            class="select"
+            :label="coachString('filterLessonStatus')"
+            :options="filterOptions"
+            :inline="true"
+          />
+          <KRouterLink
+            :primary="true"
+            appearance="raised-button"
+            :text="coachString('newLessonAction')"
+            :to="newLessonRoute"
+          />
+        </div>
 
-      <KModal
-        v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
-        :title="$tr('makeLessonNotVisibleTitle')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @submit="handleToggleVisibility(activeLesson)"
-        @cancel="showLessonIsNotVisibleModal = false"
-      >
-        <p>{{ $tr('makeLessonNotVisibleText') }}</p>
-        <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
-        <KCheckbox
-          :checked="dontShowAgainChecked"
-          :label="$tr('dontShowAgain')"
-          @change="dontShowAgainChecked = $event"
-        />
-      </KModal>
+        <CoreTable>
+          <template #headers>
+            <th>{{ coachString('titleLabel') }}</th>
+            <th>{{ $tr('size') }}</th>
+            <th>{{ coachString('recipientsLabel') }}</th>
+            <th>{{ coachString('lessonVisibleLabel') }}</th>
+          </template>
+          <template #tbody>
+            <transition-group tag="tbody" name="list">
+              <tr v-for="lesson in sortedLessons" v-show="showLesson(lesson)" :key="lesson.id">
+                <td>
+                  <KRouterLink
+                    :to="lessonSummaryLink({ lessonId: lesson.id, classId })"
+                    :text="lesson.title"
+                    icon="lesson"
+                  />
+                </td>
+                <td>
+                  {{
+                    coachString('resourcesAndSize', {
+                      value: lesson.resources.length,
+                      size: lessonSize(lesson.id),
+                    })
+                  }}
+                </td>
+                <td>
+                  <Recipients
+                    :groupNames="getRecipientNamesForLesson(lesson)"
+                    :hasAssignments="
+                      lesson.lesson_assignments.length > 0 || lesson.learner_ids.length > 0
+                    "
+                  />
+                </td>
+                <td>
+                  <KSwitch
+                    name="toggle-lesson-visibility"
+                    label=""
+                    :checked="lesson.is_active"
+                    :value="lesson.is_active"
+                    @change="toggleModal(lesson)"
+                  />
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
 
-      <KModal
-        v-if="showModal"
-        :title="coachString('createLessonAction')"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        :submitDisabled="detailsModalIsDisabled"
-        :cancelDisabled="detailsModalIsDisabled"
-        @cancel="showModal = false"
-        @submit="$refs.detailsModal.submitData()"
-      >
-        <AssignmentDetailsModal
-          ref="detailsModal"
-          assignmentType="new_lesson"
-          :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-          :submitErrorMessage="coachString('saveLessonError')"
-          :initialDescription="''"
-          :initialTitle="''"
-          :initialSelectedCollectionIds="[classId]"
-          :classId="classId"
-          :groups="learnerGroups"
-          :disabled="detailsModalIsDisabled"
-          @submit="handleDetailsModalContinue"
+        <p v-if="!lessons.length">
+          {{ $tr('noLessons') }}
+        </p>
+        <p v-else-if="!hasVisibleLessons">
+          {{ $tr('noVisibleLessons') }}
+        </p>
+        <KModal
+          v-if="showLessonIsVisibleModal && !userHasDismissedModal"
+          :title="coachString('makeLessonVisibleTitle')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @submit="handleToggleVisibility(activeLesson)"
+          @cancel="showLessonIsVisibleModal = false"
+        >
+          <p>{{ coachString('makeLessonVisibleText') }}</p>
+          <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+          <KCheckbox
+            :checked="dontShowAgainChecked"
+            :label="$tr('dontShowAgain')"
+            @change="dontShowAgainChecked = $event"
+          />
+        </KModal>
+
+        <KModal
+          v-if="showLessonIsNotVisibleModal && !userHasDismissedModal"
+          :title="coachString('makeLessonNotVisibleTitle')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          @submit="handleToggleVisibility(activeLesson)"
+          @cancel="showLessonIsNotVisibleModal = false"
+        >
+          <p>{{ coachString('makeLessonNotVisibleText') }}</p>
+          <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+          <KCheckbox
+            :checked="dontShowAgainChecked"
+            :label="$tr('dontShowAgain')"
+            @change="dontShowAgainChecked = $event"
+          />
+        </KModal>
+
+        <KModal
+          v-if="showModal"
+          :title="coachString('createLessonAction')"
+          :submitText="coreString('continueAction')"
+          :cancelText="coreString('cancelAction')"
+          :submitDisabled="detailsModalIsDisabled"
+          :cancelDisabled="detailsModalIsDisabled"
           @cancel="showModal = false"
-        />
-      </KModal>
+          @submit="$refs.detailsModal.submitData()"
+        >
+          <AssignmentDetailsModal
+            ref="detailsModal"
+            assignmentType="new_lesson"
+            :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
+            :submitErrorMessage="coachString('saveLessonError')"
+            :initialDescription="''"
+            :initialTitle="''"
+            :initialSelectedCollectionIds="[classId]"
+            :classId="classId"
+            :groups="learnerGroups"
+            :disabled="detailsModalIsDisabled"
+            @submit="handleDetailsModalContinue"
+            @cancel="showModal = false"
+          />
+        </KModal>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -160,6 +161,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import commonCoach from '../../common';
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
@@ -176,6 +178,8 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
+        PLAN_TABS_ID,
+        PlanTabs,
         showModal: false,
         showLessonIsVisibleModal: false,
         showLessonIsNotVisibleModal: false,
@@ -210,11 +214,6 @@
       hasVisibleLessons() {
         return !(
           !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
-        );
-      },
-      hasLessonsNotVisible() {
-        return !(
-          !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
         );
       },
       calcTotalSizeOfVisibleLessons() {
@@ -270,7 +269,6 @@
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
-
         const promise = LessonResource.saveModel({
           id: lesson.id,
           data: {
@@ -278,9 +276,7 @@
           },
           exists: true,
         });
-
         this.manageModalVisibilityAndPreferences();
-
         return promise.then(() => {
           this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
           this.$store.dispatch('createSnackbar', snackbarMessage);
@@ -326,36 +322,12 @@
         context:
           "'Size' is a column name in the 'Lessons' section. It refers to the number or learning resources there are in a specific lesson and the file size of these resources.",
       },
-      totalLessonsSize: {
-        message: 'Total size of lessons visible to learners: {size}',
-        context:
-          "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
-      },
       noLessons: {
         message: 'You do not have any lessons',
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
       noVisibleLessons: 'No visible lessons',
-      noLessonsNotVisible: 'No lessons not visible',
-      makeLessonVisibleTitle: {
-        message: 'Make lesson visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonVisibleText: {
-        message:
-          'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleTitle: {
-        message: 'Make lesson not visible',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
-      makeLessonNotVisibleText: {
-        message:
-          'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
-        context: 'Informational prompt for coaches when updating lesson visibility to learners',
-      },
       dontShowAgain: {
         message: "Don't show this message again",
         context: 'Option for a check box to not be prompted again with an informational modal',

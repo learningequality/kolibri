@@ -11,6 +11,7 @@ from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
 from kolibri.core.device.utils import LANDING_PAGE_LEARN
+from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
@@ -88,6 +89,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
             "learnerNeeds": label_metadata["learner_needs"],
+            "studio_baseurl": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
         }
 
 
@@ -108,3 +110,38 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
                 + kind_slug
                 + node.id
             )
+
+
+def _learner_ids():
+    from kolibri.core.auth.models import FacilityUser
+
+    return FacilityUser.objects.all().values_list("id", flat=True)
+
+
+@register_hook
+class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
+    def on_connect(self, network_location):
+        """
+        :type network_location: kolibri.core.discovery.models.NetworkLocation
+        """
+        from kolibri.core.auth.tasks import begin_request_soud_sync
+
+        if (
+            get_device_setting("subset_of_users_device", default=False)
+            and not network_location.subset_of_users_device
+        ):
+            for user_id in _learner_ids():
+                begin_request_soud_sync(network_location.base_url, user_id)
+
+    def on_disconnect(self, network_location):
+        """
+        :type network_location: kolibri.core.discovery.models.NetworkLocation
+        """
+        from kolibri.core.auth.tasks import stop_request_soud_sync
+
+        if (
+            get_device_setting("subset_of_users_device", default=False)
+            and not network_location.subset_of_users_device
+        ):
+            for user_id in _learner_ids():
+                stop_request_soud_sync(network_location.base_url, user_id)

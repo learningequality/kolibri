@@ -64,7 +64,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     expect(wrapper.find('[data-test="usernameTextbox"]').exists()).toBe(false);
     expect(wrapper.find('[data-test="passwordTextbox"]').exists()).toBe(true);
     expect(wrapper.text()).toContain(
-      'Enter the password of the account ‘test2’ in ‘Test Facility’ learning facility that you want to merge your account with'
+      "Enter the password of the account 'test2' in 'Test Facility' learning facility that you want to merge your account with"
     );
   });
 

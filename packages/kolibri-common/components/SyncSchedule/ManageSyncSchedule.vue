@@ -1,14 +1,14 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="$tr('toolbarHeader')"
+    :appBarTitle="$tr('syncSchedules')"
     :route="goBack"
   >
     <KPageContainer>
       <KGrid gutter="48">
 
         <KGridItem>
-          <h1>{{ $tr('manageSyncTitle') }}</h1>
+          <h1>{{ $tr('syncSchedules') }}</h1>
 
         </KGridItem>
 
@@ -43,9 +43,9 @@
         <template #tbody>
           <tbody v-if="savedDevices.length > 0">
             <tr>
-              <th>{{ $tr('deviceName') }}</th>
+              <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
-              <th>{{ $tr('Status') }}</th>
+              <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
             <tr v-for="device in savedDevices" :key="device.id">
@@ -89,7 +89,7 @@
                   class="right"
                   @click="editButton(device.id)"
                 >
-                  {{ $tr('editBtn') }}
+                  {{ coreString('editAction') }}
                 </KButton>
               </td>
             </tr>
@@ -97,9 +97,9 @@
 
           <tbody v-else>
             <tr>
-              <th>{{ $tr('deviceName') }}</th>
+              <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
-              <th>{{ $tr('Status') }}</th>
+              <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
             <tr>
@@ -113,10 +113,10 @@
       </CoreTable>
       <KModal
         v-if="deviceModal"
-        :title="$tr('selectDevices')"
+        :title="getCommonSyncString('selectNetworkAddressTitle')"
         size="medium"
-        :submitText="$tr('continueText')"
-        :cancelText="$tr('cancelText')"
+        :submitText="coreString('continueAction')"
+        :cancelText="coreString('cancelAction')"
         @cancel="closeModal"
         @submit="submitModal(radioBtnValue)"
       >
@@ -188,6 +188,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
   import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
@@ -199,7 +200,7 @@
       AddDeviceForm,
     },
     extends: ImmersivePage,
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
         deviceModal: false,
@@ -273,54 +274,26 @@
     },
 
     $trs: {
-      toolbarHeader: {
-        message: 'Sync Schedules',
-        context: "Heading for 'manage sync schedule' page.",
-      },
-      manageSyncTitle: {
-        message: 'Sync Schedules',
-        context: 'Title for the manage sync page',
+      syncSchedules: {
+        message: 'Sync schedules',
+        context: "Heading or title for 'manage sync schedule' page.",
       },
       introduction: {
         message:
-          'Set a schedule for Kolibri to automatically try syncing with other Kolibri devices that share this facility. Devices must be connected to the same network at the scheduled sync time.',
+          'Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.',
         context: 'Introduction on the manage sync schedule',
       },
       addDevice: {
         message: 'Add device',
         context: 'Add device button',
       },
-      deviceName: {
-        message: 'Device name',
-        context: 'Device name label',
-      },
       Schedule: {
         message: 'Schedule',
         context: 'Schedule label',
       },
-      Status: {
-        message: 'Status',
-        context: 'Status label',
-      },
-      selectDevices: {
-        message: 'Select device',
-        context: 'select devices label',
-      },
-      continueText: {
-        message: 'continue',
-        context: 'Continue button',
-      },
-      cancelText: {
-        message: 'cancel',
-        context: 'Cancel button',
-      },
       forgetText: {
         message: 'Forget',
         context: 'Forget device button',
-      },
-      editBtn: {
-        message: 'edit',
-        context: 'Edit device button',
       },
       connected: {
         message: 'Connected',

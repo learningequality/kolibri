@@ -7,11 +7,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       "Each time a learner signs in to Kolibri, the first thing they see is the  'Learn' page with the list of all the classes they are enrolled to.",
   },
-  libraryLabel: {
-    message: 'Library',
-    context:
-      "The 'Library' section displays channels available on Kolibri server, and allows learners to browse, explore and filter topics and resources on their own.",
-  },
   resumeLabel: {
     message: 'Resume',
     context: 'Label for links that go to content that has been started and can be resumed',
@@ -41,10 +36,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     message: 'Next steps',
     context: 'Label for links that go to post-requisites for content that has been completed.',
   },
-  multipleLearningActivitiesLabel: {
-    message: 'Multiple learning activities',
-    context: 'Label that indicates the user has selected learning activities of multiple types.',
-  },
   exploreResources: {
     message: 'Explore resources',
     context: "Heading in the 'Learn' section where users can view learning resources.\n",
@@ -60,7 +51,7 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
       'Message when the user successfully finishes a resource or marks a resource as complete',
   },
   dontShowThisAgainLabel: {
-    message: 'Don’t show this again',
+    message: "Don't show this again",
     context:
       'Option that allows the user to prevent this resource from displaying in the future while using category search',
   },
@@ -69,23 +60,21 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Title of the modal window where a user will confirm or cancel marking a resource as complete manually.',
   },
-  resourceHidden: {
-    message: 'Resource hidden',
-    context:
-      'Notification message indicating the resource has been marked as hidden for future category searches.',
-  },
-  suggestedTimeToComplete: {
-    message: 'Suggested time to complete',
-    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
-  },
   multipleLearningActivities: {
     message: 'Multiple learning activities',
     context: 'Label indicating the resource contains several different learning activities.',
   },
-
   suggestedTime: {
     message: 'Suggested time',
     context: 'Time suggested by coach for how long an independent practice quiz should take',
+  },
+  exploreLibraries: {
+    message: 'Explore libraries',
+    context: 'Title for Explore Libraries page',
+  },
+  kolibriLibrary: {
+    message: 'Kolibri Library',
+    context: 'Title for Kolibri Libraries',
   },
 
   // Resource Metadata strings
@@ -109,14 +98,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
     context:
       'Indicates who holds the copyright of that specific learning resource. For example, "Copyright holder: Ubongo Media".',
   },
-  language: {
-    message: 'Language',
-    context: 'Users can filter learning resources by language (e.g. Spanish, German)',
-  },
-  level: {
-    message: 'Level',
-    context: 'Refers to the level of education to which the resource is directed at.',
-  },
   estimatedTime: {
     message: 'Estimated time',
     context: 'Refers to the expected time it will take the learner to complete a resource.',
@@ -137,10 +118,6 @@ export const learnStrings = createTranslator('CommonLearnStrings', {
   viewResource: {
     message: 'View resource',
     context: 'Refers to a button where the user can view all the details for a resource.',
-  },
-  showMore: {
-    message: 'Show more',
-    context: '',
   },
   showLess: {
     message: 'Show less',

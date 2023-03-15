@@ -22,6 +22,7 @@ def __job_storage():
 
 # This storage instance should be used to access job_storage db.
 job_storage = SimpleLazyObject(__job_storage)
+""" :type: Storage """
 
 
 def initialize_workers():

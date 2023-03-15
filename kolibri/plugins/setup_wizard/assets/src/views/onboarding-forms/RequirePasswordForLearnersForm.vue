@@ -23,7 +23,7 @@
       :value="false"
     />
     <p class="description">
-      {{ $tr('changeLater') }}
+      {{ getCommonSyncString('changeLater') }}
     </p>
 
   </OnboardingStepBase>
@@ -33,6 +33,7 @@
 
 <script>
 
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { Presets, FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
@@ -41,6 +42,7 @@
     components: {
       OnboardingStepBase,
     },
+    mixins: [commonSyncElements],
     inject: ['wizardService'],
     data() {
       let setting = this.wizardService.state.context['requirePassword'];
@@ -80,10 +82,6 @@
         message: 'No. Learners can sign in with just a username.',
         context:
           "Option on the 'Enable passwords for learners' screen. The admin selects this option if they don't want to enable passwords for learner accounts.",
-      },
-      changeLater: {
-        message: 'You can change this in your learning facility settings later',
-        context: '',
       },
     },
   };

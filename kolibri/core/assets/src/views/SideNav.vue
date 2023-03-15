@@ -80,7 +80,7 @@
                   :key="component.name"
                 />
                 <CoreMenuOption
-                  :label="$tr('languageSwitchMenuOption')"
+                  :label="coreString('changeLanguageOption')"
                   icon="language"
                   class="pointer"
                   @select="handleShowLanguageModal()"
@@ -387,11 +387,6 @@
         message: 'Device status',
         context:
           "Label in the side navigation menu. Indicates the status of an individual learner's device.",
-      },
-      languageSwitchMenuOption: {
-        message: 'Change language',
-        context:
-          'General user setting where a user can choose the language they want to view the Kolibri interface in.',
       },
     },
   };

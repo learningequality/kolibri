@@ -69,7 +69,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
       fullName: 'Test User',
     });
     expect(wrapper.text()).toContain(
-      'New account for ‘Test User’ in ‘Test Facility’ learning facility'
+      "New account for 'Test User' in 'Test Facility' learning facility"
     );
   });
 

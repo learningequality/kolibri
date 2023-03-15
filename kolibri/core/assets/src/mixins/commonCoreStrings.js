@@ -95,6 +95,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Manage sync schedule',
     context: 'Action for managing sync schedule',
   },
+  whenAvailable: {
+    message: 'When available',
+    context: '',
+  },
   retryAction: {
     message: 'Retry',
     context:
@@ -143,6 +147,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Sync',
     context:
       "The 'Sync facility' feature is located in the Device > Facilities dashboard.\n\nBy pressing the 'SYNC' button, an admin can, for example, synchronize facility data (classes, groups, learner progress) with a device from which they previously imported it from.",
+  },
+  justNow: {
+    message: 'Just now',
+    context: 'This is used to indicate when an event occurred.',
   },
   updateAction: {
     message: 'Update',
@@ -403,6 +411,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Question { questionNumber, number }',
     context: 'Indicates the question number in a quiz that a learner could be taking.',
   },
+  questionsCorrectLabel: {
+    message: 'Questions answered correctly',
+    context:
+      "In a report, learners can see how many questions they have got correct in a quiz.\n\nThe 'Questions answered correctly' label will indicate something like 4 out of 5, or 8 out of 10, for example.",
+  },
+  questionsCorrectValue: {
+    message: '{correct, number} out of {total, number}',
+    context:
+      "When a learner views their report they can see how many questions they answered correctly in a quiz.\n\nThe 'Questions correct' label will indicate something like 4 out of 5, or 8 out of 10, for example. That's to say, the number of correct answers as well as the total number of questions.",
+  },
   quizzesLabel: {
     message: 'Quizzes',
     context:
@@ -477,11 +495,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Users',
     context:
       'A user is any person who has access to a facility in Kolibri. There are  four main types of users in Kolibri: Learners, Coaches, Admins and Super admins.',
-  },
-  superUserLabel: {
-    message: 'Super admin',
-    context:
-      'An account type that can manage the device. Super admin accounts also have permission to do everything that admins, coaches, and learners can do.',
   },
   uncountedAdditionalResults: {
     message: 'More than { num, number } results',
@@ -573,6 +586,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   explore: {
     message: 'Explore',
     context: 'Resource and filter label for the type of learning activity. Translate as a VERB',
+  },
+  activityType: {
+    message: 'Activity type',
+    context: 'Indicate the kind of learning activity, such as: reading, listening, watching, etc.',
   },
 
   // Library Categories
@@ -960,11 +977,6 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Browse channel',
     context: 'Heading on page where a user can browse the content within a channel',
   },
-  topicLabel: {
-    message: 'Folder',
-    context:
-      'A collection of resources and other subfolders within a channel. Nested folders allow a channel to be organized as a tree or hierarchy.',
-  },
   readReference: {
     message: 'Reference',
     context:
@@ -1174,7 +1186,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   totalSizeMyDownloads: {
-    message: 'Total size of my downloads: {size}',
+    message: 'Total size of my downloads',
     context:
       'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
   },
@@ -1237,6 +1249,9 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   addToLibrary: {
     message: 'Add to library',
     context: '',
+  },
+  selectADevice: {
+    message: 'Select a device from your network',
   },
   //
   sortBy: {
@@ -1316,6 +1331,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Time spent',
     context: 'The time a learner has spent on a quiz.',
   },
+  suggestedTimeToComplete: {
+    message: 'Suggested time to complete',
+    context: 'Tooltip label indicating the approximate time needed to complete the resource.',
+  },
+  suggestedTime: {
+    message: 'Suggested time',
+    context: 'Time suggested by coach for how long an independent practice quiz should take',
+  },
   statusLabel: {
     message: 'Status',
     context:
@@ -1350,12 +1373,16 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Error message indicating a user has entered characters other than numbers as their PIN',
   },
+  wrongNumberOfDigits: {
+    message: 'Please enter a 4-digit number',
+    context: 'Error message indicating a user has entered the wrong number of digits as their PIN',
+  },
   noEmptyField: {
     message: 'The field cannot be empty',
     context: 'Error message indicating a user has not added their PIN to the form field',
   },
 
-  // preferred learning language
+  // preferred learning language and UI language
   preferredLanguage: {
     message: 'Preferred language',
     context:
@@ -1370,6 +1397,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'Channels in the preferred language will be displayed first',
     context:
       'Explanatory text for the setting where a user can select the language that they would like to learn in',
+  },
+  changeLanguageOption: {
+    message: 'Change language',
+    context: "Option to change the Kolibri interface language on the  'Change language' screen.",
   },
   // getting started, pre-and-post-setup-wizard misc.
 
@@ -1443,7 +1474,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   dontKnowUserName: {
-    message: 'Don’t know the username?',
+    message: "Don't know the username?",
     context: '',
   },
   editAccountDetails: {

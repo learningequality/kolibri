@@ -1,12 +1,11 @@
 import uuid
-from datetime import datetime
 
 from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils import timezone
 
-from .utils.network.connections import check_connection_info
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
+from kolibri.utils.data import ChoicesEnum
+from kolibri.utils.time_utils import local_now
 
 
 def _filter_out_unsupported_fields(fields):
@@ -17,13 +16,27 @@ def _uuid_string():
     return str(uuid.uuid4().hex)
 
 
+class ConnectionStatus(ChoicesEnum):
+    Unknown = "Unknown"
+    # Connection failed at the lowest level, unable to establish socket connection
+    ConnectionFailure = "ConnectionFailure"
+    # Connection was established but timed out waiting for response
+    ResponseTimeout = "ResponseTimeout"
+    # Connection was established but the response is a server error (5xx)
+    ResponseFailure = "ResponseFailure"
+    # Connection was established but the response isn't right and isn't a server error
+    InvalidResponse = "InvalidResponse"
+    # Connection was established but the response didn't match information stored on our end
+    Conflict = "Conflict"
+    # A reachable Kolibri instance
+    Okay = "Okay"
+
+
 class NetworkLocation(models.Model):
     """
     ``NetworkLocation`` stores information about a network address through which an instance of Kolibri can be accessed,
     which can be used to sync content or data.
     """
-
-    NEVER = datetime(1000, 4, 1, 0, 0, 0, 0, tzinfo=timezone.utc)
 
     class Meta:
         ordering = ["added"]
@@ -37,6 +50,20 @@ class NetworkLocation(models.Model):
 
     base_url = models.CharField(max_length=100)
     nickname = models.CharField(max_length=100, blank=True)
+    # the last known IP when we successfully connected to the instance, specifically for static
+    # locations, so we have information on whether it's local or on the internet
+    last_known_ip = models.GenericIPAddressField(null=True, blank=True)
+    # field to associate instances with a unique ID corresponding to a network that they were added
+    broadcast_id = models.CharField(max_length=36, blank=True, null=True)
+
+    # fields to track if the instance was contactable and the # of attempts or issues encountered
+    connection_status = models.CharField(
+        max_length=32,
+        blank=False,
+        choices=ConnectionStatus.choices(),
+        default=ConnectionStatus.Unknown,
+    )
+    connection_faults = models.IntegerField(null=False, default=0)
 
     # these properties strictly mirror the info given by the device
     application = models.CharField(max_length=32, blank=True)
@@ -45,21 +72,28 @@ class NetworkLocation(models.Model):
     device_name = models.CharField(max_length=100, blank=True)
     operating_system = models.CharField(max_length=32, blank=True)
     subset_of_users_device = models.BooleanField(default=False)
+    min_content_schema_version = models.CharField(max_length=32, blank=True)
 
     # dates and times
     added = models.DateTimeField(auto_now_add=True, db_index=True)
     last_accessed = models.DateTimeField(auto_now=True)
 
     @property
+    def since_last_accessed(self):
+        """
+        :return: The number of seconds since the location was last accessed
+        """
+        return (local_now() - self.last_accessed).seconds
+
+    @property
     def available(self):
         """
-        If this connection was checked recently, report that result,
-        otherwise do a fresh check.
+        If this connection was checked recently, report that result
         """
         if not self.base_url:
             return False
-        connection_info = check_connection_info(self.base_url)
-        return bool(connection_info)
+
+        return self.connection_status == ConnectionStatus.Okay
 
     @classmethod
     def has_field(cls, field):

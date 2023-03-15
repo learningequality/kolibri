@@ -13,7 +13,7 @@
         <KRouterLink
           v-if="hasMultipleFacilities && !showPasswordForm"
           icon="back"
-          :text="$tr('changeFacility')"
+          :text="coreString('changeLearningFacility')"
           :to="backToFacilitySelectionRoute"
           style="margin-top: 24px; margin-left: -4px;"
         />
@@ -169,7 +169,6 @@
   import AuthBase from '../AuthBase';
   import UsersList from '../UsersList';
   import commonUserStrings from '../commonUserStrings';
-  import { getUsernameExists } from '../../apiResource';
   import SignInHeading from './SignInHeading';
 
   const MAX_USERS_FOR_LISTING_VIEW = 16;
@@ -450,20 +449,7 @@
         if (!this.isNextButtonEnabled) {
           return;
         }
-
-        // Check if user is in the facility
-        return getUsernameExists({
-          username: this.username,
-          facilityId: this.selectedFacility.id,
-        }).then(usernameExists => {
-          if (usernameExists) {
-            this.createSession();
-          } else {
-            // If username is not found, focus and select the field so user can try again
-            this.loginError = LoginErrors.USER_NOT_FOUND;
-            this.$refs.username.$refs.textbox.$refs.input.select();
-          }
-        });
+        return this.createSession();
       },
       createSession() {
         this.busy = true;
@@ -486,10 +472,10 @@
                   name: ComponentMap.NEW_PASSWORD,
                   query: sessionPayload,
                 });
+              } else if (err === LoginErrors.PASSWORD_MISSING) {
+                this.usernameSubmittedWithoutPassword = true;
               } else {
-                // Otherwise, only show errors when we've submitted a password
-                this.usernameSubmittedWithoutPassword = !this.password;
-                this.loginError = this.usernameSubmittedWithoutPassword ? null : err;
+                this.loginError = err;
               }
             }
 
@@ -535,11 +521,6 @@
         message: 'Change user',
         context:
           'Link to change the user account which the user uses to sign in if they have more than one account.\n',
-      },
-      changeFacility: {
-        message: 'Change learning facility',
-        context:
-          'Users can change the facility to sign in to when the device has more than one facility.\n',
       },
     },
   };

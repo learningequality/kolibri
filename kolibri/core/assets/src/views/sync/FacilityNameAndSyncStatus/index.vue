@@ -60,11 +60,10 @@
 
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
-  import { PageNames } from '../../../../../../plugins/facility/assets/src/constants';
-
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   export default {
     name: 'FacilityNameAndSyncStatus',
-    mixins: [taskStrings],
+    mixins: [taskStrings, commonCoreStrings],
     props: {
       facility: {
         type: Object,
@@ -107,7 +106,7 @@
     methods: {
       formattedTime(datetime) {
         if (this.now - new Date(datetime) < 10000) {
-          return this.$tr('justNow');
+          return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
       },
@@ -126,15 +125,17 @@
         context:
           'This is associated with the label "Last successful sync:", and the subject is the Facility.',
       },
-      lastSync: {
-        message: 'Last successful sync: {relativeTime}',
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      nextSync: {
+        message: 'Next sync: {relativeTime}',
         context:
-          'Used to indicate a time period when the last successful sync took place. For example, the value of last successful sync could be something like "2 months ago".\'\n',
+          'Used to indicate the next scheduled sync of facility data. For example, "in 5 days".\'\n',
       },
-      justNow: {
-        message: 'Just now',
+      /* eslint-enable kolibri/vue-no-unused-translations */
+      lastSync: {
+        message: 'Last synced: {relativeTime}',
         context:
-          'This is used to indicate when an event occurred. It\'s associated with the label "Last successful sync:"',
+          'Used to indicate a time period when the last sync took place. For example, the value of last successful sync could be something like "2 months ago".\'\n',
       },
       syncFailed: {
         message: 'Most recent sync failed',

@@ -28,7 +28,7 @@
       <KButton
         id="select-address-button"
         appearance="basic-link"
-        :text="$tr('addNewDeviceAction')"
+        :text="getCommonSyncString('addNewAddressAction')"
         @click="showSelectAddressModal = true"
       />
 
@@ -133,11 +133,6 @@
         message: "Don't see your learning facility?",
         context:
           'A label shown above a link that will open a modal to select a different network location from which to select a facility',
-      },
-      addNewDeviceAction: {
-        message: 'Add new device',
-        context:
-          'The text for a link that will open a modal that allows the user to add or select a new device from which to import a facility',
       },
     },
   };

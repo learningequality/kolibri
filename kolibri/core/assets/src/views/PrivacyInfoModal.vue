@@ -104,7 +104,7 @@
       },
       kolibriUsersP3: {
         message:
-          'Please contact your local Kolibri administrator to understand what personal information of yours might be stored, who it’s visible to, how to update or delete it, or if you believe your account has been compromised.',
+          "Please contact your local Kolibri administrator to understand what personal information of yours might be stored, who it's visible to, how to update or delete it, or if you believe your account has been compromised.",
         context:
           'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
       },
@@ -132,8 +132,7 @@
       },
       kolibriUsersL4: {
         message:
-          'Intentionally interfere with or damage the operation of Kolibri or any user’s enjoyment of it, by any means',
-
+          "Intentionally interfere with or damage the operation of Kolibri or any user's enjoyment of it, by any means",
         context: 'Part of the "Usage and privacy" recommendations.',
       },
       kolibriUsersP5: {
@@ -161,7 +160,7 @@
       },
       kolibriOwnersP2: {
         message:
-          'You should also follow best information security practices for protecting your users’ data. This includes keeping the device physically secure, encrypting the hard drive, using strong and unique passwords, keeping the operating system up-to-date, and having a properly-configured firewall.',
+          "You should also follow best information security practices for protecting your users' data. This includes keeping the device physically secure, encrypting the hard drive, using strong and unique passwords, keeping the operating system up-to-date, and having a properly-configured firewall.",
         context:
           'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
       },
@@ -184,7 +183,7 @@
       },
       kolibriAboutP1: {
         message:
-          'The Kolibri software is built by Foundation for Learning Equality, Inc. More information, including Kolibri’s Terms of Service and Privacy Policy, can be found at:',
+          "The Kolibri software is built by Foundation for Learning Equality, Inc. More information, including Kolibri's Terms of Service and Privacy Policy, can be found at:",
         context:
           'This text forms part of the \'Usage and privacy\' information panel in Kolibri. You can access the full text via the "Usage and privacy" link in the left navigation bar.',
       },

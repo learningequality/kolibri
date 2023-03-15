@@ -7,48 +7,56 @@
   >
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <ReportsControls @export="exportCSV" />
-      <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coachString('groupsLabel') }}</th>
-          <th>{{ coachString('avgScoreLabel') }}</th>
-          <th>{{ coachString('exercisesCompletedLabel') }}</th>
-          <th>{{ coachString('resourcesViewedLabel') }}</th>
-          <th>{{ coachString('lastActivityLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="tableRow in table"
-              :key="tableRow.id"
+      <ReportsHeader
+        :activeTabId="ReportsTabs.LEARNERS"
+        :title="$isPrint ? $tr('printLabel', { className }) : null"
+      />
+      <KTabsPanel
+        :tabsId="REPORTS_TABS_ID"
+        :activeTabId="ReportsTabs.LEARNERS"
+      >
+        <ReportsControls @export="exportCSV" />
+        <CoreTable :emptyMessage="coachString('learnerListEmptyState')">
+          <template #headers>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coachString('groupsLabel') }}</th>
+            <th>{{ coachString('avgScoreLabel') }}</th>
+            <th>{{ coachString('exercisesCompletedLabel') }}</th>
+            <th>{{ coachString('resourcesViewedLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
             >
-              <td>
-                <KRouterLink
-                  :text="tableRow.name"
-                  :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
-                  icon="person"
-                />
-              </td>
-              <td>
-                <TruncatedItemList :items="tableRow.groups" />
-              </td>
-              <td>
-                <Score :value="tableRow.avgScore" />
-              </td>
-              <td>{{ $formatNumber(tableRow.exercises) }}</td>
-              <td>{{ $formatNumber(tableRow.resources) }}</td>
-              <td>
-                <ElapsedTime :date="tableRow.lastActivity" />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+              <tr
+                v-for="tableRow in table"
+                :key="tableRow.id"
+              >
+                <td>
+                  <KRouterLink
+                    :text="tableRow.name"
+                    :to="classRoute('ReportsLearnerReportPage', { learnerId: tableRow.id })"
+                    icon="person"
+                  />
+                </td>
+                <td>
+                  <TruncatedItemList :items="tableRow.groups" />
+                </td>
+                <td>
+                  <Score :value="tableRow.avgScore" />
+                </td>
+                <td>{{ $formatNumber(tableRow.exercises) }}</td>
+                <td>{{ $formatNumber(tableRow.resources) }}</td>
+                <td>
+                  <ElapsedTime :date="tableRow.lastActivity" />
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -60,6 +68,7 @@
   import sortBy from 'lodash/sortBy';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoach from '../common';
+  import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -75,6 +84,12 @@
       ElapsedTime,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        REPORTS_TABS_ID,
+        ReportsTabs,
+      };
+    },
     computed: {
       table() {
         const sorted = sortBy(this.learners, ['name']);

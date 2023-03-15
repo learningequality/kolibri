@@ -26,10 +26,10 @@ logger = logging.getLogger(__name__)
 
 
 def _merge_user_models(source_user, target_user):
-    for f in ["gender", "birth_year", "id_number"]:
+    for f in ["gender", "birth_year", "id_number", "full_name"]:
         source_value = getattr(source_user, f, None)
         target_value = getattr(target_user, f, None)
-        if not target_value and source_value:
+        if not target_value and source_value is not None:
             setattr(target_user, f, source_value)
     target_user.save()
 

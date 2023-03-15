@@ -33,11 +33,15 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
       'Not enough space available on your device. Free up disk space or select fewer resources',
 
     context:
-      'Warning that appears when there is not enough space on the user’s device for the selected resources',
+      "Warning that appears when there is not enough space on the user's device for the selected resources",
   },
   permissionsLabel: {
     message: 'Permissions',
     context: "Title of tab in 'Device' section.",
+  },
+  primaryStorageLabel: {
+    message: 'Newly downloaded resources will be added to the primary storage location',
+    context: 'Label for primary storage location.',
   },
 });
 

@@ -18,7 +18,7 @@
           >
             <h1>
               <KRouterLink
-                :text="$tr('editAction')"
+                :text="coreString('editAction')"
                 appearance="raised-button"
                 :primary="true"
                 :to="profileEditRoute"
@@ -149,7 +149,7 @@
             <span>{{ $tr('changeLearningFacilityDescription') }}</span>
             <span><KButton
               appearance="basic-link"
-              :text="$tr('learn')"
+              :text="$tr('learnMore')"
               class="learn"
               @click="showLearnModal = true"
             /></span>
@@ -301,14 +301,10 @@
         message: 'Move your account and progress data to another learning facility.',
         context: 'Explanation of what change a learning facility means',
       },
-      learn: {
-        message: 'Learn',
+      learnMore: {
+        message: 'Learn more',
         context:
           'Link to open a modal window explaining what changing to another learning facility represents.',
-      },
-      editAction: {
-        message: 'Edit',
-        context: 'Button which allows the user to modify some information on their profile.',
       },
       isSuperuser: {
         message: 'Super admin permissions ',

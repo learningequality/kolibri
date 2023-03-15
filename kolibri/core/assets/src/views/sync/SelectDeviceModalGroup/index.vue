@@ -1,23 +1,22 @@
 <template>
 
   <div>
+    <AddDeviceForm
+      v-if="addingAddress"
+      @cancel="goToSelectAddress"
+      @added_address="handleAddedAddress"
+    />
     <SelectDeviceForm
-      v-if="stage === Stages.SELECT_ADDRESS"
+      v-else
       :filterByChannelId="filterByChannelId"
       :filterByFacilityId="filterByFacilityId"
       :filterLODAvailable="filterLODAvailable"
       :selectedId="addedAddressId"
       :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
-      @click_search_address="goToSearchAddress"
       @removed_address="handleRemovedAddress"
       @cancel="handleCancel"
       @submit="handleSelectAddressSubmit"
-    />
-    <AddDeviceForm
-      v-if="stage === Stages.ADD_ADDRESS"
-      @cancel="goToSelectAddress"
-      @added_address="handleAddedAddress"
     />
   </div>
 
@@ -28,11 +27,6 @@
 
   import AddDeviceForm from './AddDeviceForm';
   import SelectDeviceForm from './SelectDeviceForm';
-
-  const Stages = Object.freeze({
-    ADD_ADDRESS: 'ADD_ADDRESS',
-    SELECT_ADDRESS: 'SELECT_ADDRESS',
-  });
 
   export default {
     name: 'SelectDeviceModalGroup',
@@ -58,9 +52,8 @@
     },
     data() {
       return {
-        stage: Stages.SELECT_ADDRESS,
+        addingAddress: false,
         addedAddressId: '',
-        Stages,
       };
     },
     methods: {
@@ -69,13 +62,10 @@
       },
       goToAddAddress() {
         this.addedAddressId = '';
-        this.stage = Stages.ADD_ADDRESS;
-      },
-      goToSearchAddress() {
-        this.stage = Stages.SEARCH_ADDRESS;
+        this.addingAddress = true;
       },
       goToSelectAddress() {
-        this.stage = Stages.SELECT_ADDRESS;
+        this.addingAddress = false;
       },
       handleAddedAddress(addressId) {
         this.addedAddressId = addressId;
