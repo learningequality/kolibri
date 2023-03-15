@@ -2,7 +2,6 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import ClassroomViewSet
-from .api import ExistingUsernameView
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -13,6 +12,7 @@ from .api import RoleViewSet
 from .api import SessionViewSet
 from .api import SetNonSpecifiedPasswordView
 from .api import SignUpViewSet
+from .api import UsernameAvailableView
 from kolibri.core.api import KolibriDataPortalViewSet
 from kolibri.core.routers import BulkDeleteRouter
 
@@ -45,9 +45,9 @@ urlpatterns = (
             name="setnonspecifiedpassword",
         ),
         url(
-            r"^usernameexists$",
-            ExistingUsernameView.as_view(),
-            name="usernameexists",
+            r"^usernameavailable$",
+            UsernameAvailableView.as_view(),
+            name="usernameavailable",
         ),
     ]
 )
