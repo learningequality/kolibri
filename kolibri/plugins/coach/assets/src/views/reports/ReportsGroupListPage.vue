@@ -7,52 +7,60 @@
   >
 
     <KPageContainer>
-      <ReportsHeader :title="$isPrint ? $tr('printLabel', { className }) : null" />
-      <ReportsControls @export="exportCSV" />
-      <CoreTable :emptyMessage="coachString('groupListEmptyState')">
-        <template #headers>
-          <th>{{ coachString('groupNameLabel') }}</th>
-          <th>{{ coreString('lessonsLabel') }}</th>
-          <th>{{ coreString('quizzesLabel') }}</th>
-          <th>{{ coreString('learnersLabel') }}</th>
-          <th>{{ coachString('avgScoreLabel') }}</th>
-          <th>{{ coachString('lastActivityLabel') }}</th>
-        </template>
-        <template #tbody>
-          <transition-group
-            tag="tbody"
-            name="list"
-          >
-            <tr
-              v-for="tableRow in table"
-              :key="tableRow.id"
+      <ReportsHeader
+        :activeTabId="ReportsTabs.GROUPS"
+        :title="$isPrint ? $tr('printLabel', { className }) : null"
+      />
+      <KTabsPanel
+        :tabsId="REPORTS_TABS_ID"
+        :activeTabId="ReportsTabs.GROUPS"
+      >
+        <ReportsControls @export="exportCSV" />
+        <CoreTable :emptyMessage="coachString('groupListEmptyState')">
+          <template #headers>
+            <th>{{ coachString('groupNameLabel') }}</th>
+            <th>{{ coreString('lessonsLabel') }}</th>
+            <th>{{ coreString('quizzesLabel') }}</th>
+            <th>{{ coreString('learnersLabel') }}</th>
+            <th>{{ coachString('avgScoreLabel') }}</th>
+            <th>{{ coachString('lastActivityLabel') }}</th>
+          </template>
+          <template #tbody>
+            <transition-group
+              tag="tbody"
+              name="list"
             >
-              <td>
-                <KRouterLink
-                  :text="tableRow.name"
-                  :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
-                  icon="group"
-                />
-              </td>
-              <td>
-                {{ $formatNumber(tableRow.numLessons) }}
-              </td>
-              <td>
-                {{ $formatNumber(tableRow.numQuizzes) }}
-              </td>
-              <td>
-                {{ $formatNumber(tableRow.numLearners) }}
-              </td>
-              <td>
-                <Score :value="tableRow.avgScore" />
-              </td>
-              <td>
-                <ElapsedTime :date="tableRow.lastActivity" />
-              </td>
-            </tr>
-          </transition-group>
-        </template>
-      </CoreTable>
+              <tr
+                v-for="tableRow in table"
+                :key="tableRow.id"
+              >
+                <td>
+                  <KRouterLink
+                    :text="tableRow.name"
+                    :to="classRoute('ReportsGroupReportPage', { groupId: tableRow.id })"
+                    icon="group"
+                  />
+                </td>
+                <td>
+                  {{ $formatNumber(tableRow.numLessons) }}
+                </td>
+                <td>
+                  {{ $formatNumber(tableRow.numQuizzes) }}
+                </td>
+                <td>
+                  {{ $formatNumber(tableRow.numLearners) }}
+                </td>
+                <td>
+                  <Score :value="tableRow.avgScore" />
+                </td>
+                <td>
+                  <ElapsedTime :date="tableRow.lastActivity" />
+                </td>
+              </tr>
+            </transition-group>
+          </template>
+        </CoreTable>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -64,6 +72,7 @@
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import sortBy from 'lodash/sortBy';
+  import { REPORTS_TABS_ID, ReportsTabs } from '../../constants/tabsConstants';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
@@ -80,6 +89,12 @@
       ElapsedTime,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        REPORTS_TABS_ID,
+        ReportsTabs,
+      };
+    },
     computed: {
       table() {
         const sorted = sortBy(this.groups, ['name']);
