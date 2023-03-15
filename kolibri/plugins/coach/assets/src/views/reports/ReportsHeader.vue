@@ -16,7 +16,7 @@
       <KTabsList
         ref="tabsList"
         :tabsId="REPORTS_TABS_ID"
-        ariaLabel="Coach reports"
+        :ariaLabel="$tr('coachReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
         :style="{ position: 'relative', top: '5px' }"
@@ -107,6 +107,10 @@
       description: {
         message: 'View reports for your learners and class materials',
         context: "Description for the 'Reports' section.",
+      },
+      coachReports: {
+        message: 'Coach reports',
+        context: 'Labels the coach reports for screen reader users',
       },
     },
   };

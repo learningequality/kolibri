@@ -295,7 +295,7 @@
         context: 'Connected device',
       },
       disconnected: {
-        message: 'Not Connected',
+        message: 'Not connected',
         context: 'Disconnected device',
       },
       NoSync: {

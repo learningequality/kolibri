@@ -164,10 +164,10 @@
           return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'visibleLessons') {
-          return this.$tr('noVisibleLessons');
+          return this.coreString('noResults');
         }
         if (this.filter.value === 'lessonsNotVisible') {
-          return this.$tr('lessonsNotVisible');
+          return this.coreString('noResults');
         }
         return '';
       },
@@ -295,8 +295,6 @@
     },
     $trs: {
       visibleLessons: 'Visible lessons',
-      lessonsNotVisible: 'Lessons not visible',
-      noVisibleLessons: 'No visible lessons',
       printLabel: {
         message: '{className} Lessons',
         context:
