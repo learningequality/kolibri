@@ -62,18 +62,20 @@
 
               <td v-if="data && data.length > 0">
                 <div v-for="ids in data" :key="ids.id">
-                  <span v-if="ids.id === device.id">
-                    <KIcon
-                      icon="onDevice"
-                    />
-                    <span>{{ $tr('connected') }}</span>
-                  </span>
-                  <span v-else>
-                    <KIcon
-                      icon="disconnected"
-                    />
-                    <span>{{ $tr('disconnected') }}</span>
-                  </span>
+                  <div v-if="ids.base_url === device.extra_metadata.baseurl">
+                    <span v-if="ids.available">
+                      <KIcon
+                        icon="onDevice"
+                      />
+                      <span>{{ $tr('connected') }}</span>
+                    </span>
+                    <span v-else>
+                      <KIcon
+                        icon="disconnected"
+                      />
+                      <span>{{ $tr('disconnected') }}</span>
+                    </span>
+                  </div>
                 </div>
               </td>
               <td v-else>
@@ -231,11 +233,13 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
+          console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.savedDevices = tasks;
+          console.log(this.savedDevices);
 
           if (this.isPolling) {
             setTimeout(() => {

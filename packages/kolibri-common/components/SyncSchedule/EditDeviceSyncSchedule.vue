@@ -76,7 +76,6 @@
           </p>
           <p>
             <KButton
-              v-if="removeBtn"
               appearance="basic-link"
               class="spacing"
               @click="removeDeviceModal = true"
@@ -205,11 +204,11 @@
       },
       selectArray() {
         return [
-          { label: this.$tr('everyHour'), value: 0 },
-          { label: this.$tr('everyDay'), value: 1 },
-          { label: this.$tr('everyWeek'), value: 2 },
-          { label: this.$tr('everyTwoWeeks'), value: 3 },
-          { label: this.$tr('everyMonth'), value: 4 },
+          { label: this.$tr('everyHour'), value: 3600 },
+          { label: this.$tr('everyDay'), value: 86400 },
+          { label: this.$tr('everyWeek'), value: 604800 },
+          { label: this.$tr('everyTwoWeeks'), value: 1209600 },
+          { label: this.$tr('everyMonth'), value: 2592000 },
         ];
       },
       getDays() {
@@ -260,8 +259,9 @@
         this.removeDeviceModal = false;
       },
       handleDeleteDevice() {
+        console.log(this.$route.params.deviceId);
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.$route.query.id })
+        NetworkLocationResource.deleteModel({ id: this.$route.params.deviceId })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             history.back();
@@ -274,12 +274,18 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
+            const date = new Date(this.serverTime);
+            const equeue_param = date.toISOString();
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
               device_id: this.device.id,
               baseurl: this.baseurl,
-              enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
+              enqueue_args: {
+                enqueue_at: equeue_param,
+                repeat_interval: this.selectedItem.value,
+                repeat: 2,
+              },
             })
               .then(() => {
                 history.back();
@@ -305,7 +311,7 @@
                 task.extra_metadata.device_id === device.id &&
                 task.facility_id === this.$store.getters.activeFacilityId
             );
-            if (this.tasks.length != 0) {
+            if (this.tasks) {
               this.removeBtn = true;
             }
           });
