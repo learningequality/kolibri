@@ -116,7 +116,6 @@ def mergeuser(command, **kwargs):
         call_command(command, **kwargs)
     except MorangoError:
         # error syncing with the server, probably a networking issue
-        job.storage.mark_job_as_failed(job.job_id, MorangoError, "")
         raise
 
     remote_user = FacilityUser.objects.get(id=kwargs["user"])
