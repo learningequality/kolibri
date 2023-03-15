@@ -20,7 +20,7 @@ export function cancelTask(store, taskId) {
         TaskResource.clear(taskId).then(resolve);
       }
     );
-    TaskResource.cancelTask(taskId);
+    TaskResource.cancel(taskId);
   });
 }
 

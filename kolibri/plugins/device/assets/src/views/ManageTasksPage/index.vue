@@ -129,7 +129,7 @@
         });
       },
       handleClickCancel(task) {
-        TaskResource.cancelTask(task.id);
+        TaskResource.cancel(task.id);
       },
       handleClickClearAll() {
         TaskResource.clearAll();
