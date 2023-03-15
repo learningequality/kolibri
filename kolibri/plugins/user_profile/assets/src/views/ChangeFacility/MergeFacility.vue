@@ -182,7 +182,6 @@
                     isTaskRequested = false;
                   })
                   .catch(error => {
-                    console.log('-- error starting task', error);
                     if (error.response.status === 400) {
                       const message = get(error.response, 'data[0].metadata.message', '');
                       if (
@@ -194,6 +193,11 @@
                       } else {
                         // if the request is bad, we can't do anything
                         changeFacilityService.send('TASKERROR');
+                      }
+                    } else if (error.response.status == 500) {
+                      const message = error.response.data;
+                      if (message.includes('ConnectionError')) {
+                        taskError.value = true;
                       }
                     }
                   });
@@ -269,7 +273,7 @@
           const targetUsername = get(state, 'value.targetAccount.username', '');
           const currentUsername = get(state, 'value.username', '');
           let errorString = 'failedTaskError';
-          if (get(task, 'value.status', '') !== TaskStatuses.FAILED) {
+          if (task.value !== null && get(task, 'value.status', '') !== TaskStatuses.FAILED) {
             errorString = targetUsername !== currentUsername ? 'userExistsError' : 'userAdminError';
           }
           return this.$tr(errorString, {
