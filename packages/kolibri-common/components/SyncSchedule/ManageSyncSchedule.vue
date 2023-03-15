@@ -234,7 +234,7 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          console.log(this.data);
+          // console.log(this.data);
         });
       },
       pollFacilityTasks() {
