@@ -28,7 +28,7 @@
       <KButton
         id="select-address-button"
         appearance="basic-link"
-        :text="coreString('addNewAddressAction')"
+        :text="getCommonSyncString('addNewAddressAction')"
         @click="showSelectAddressModal = true"
       />
 
