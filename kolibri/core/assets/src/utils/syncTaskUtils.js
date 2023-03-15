@@ -230,5 +230,7 @@ export function importLodTaskDisplayInfo(task) {
       fullname: task.extra_metadata.username,
     });
   }
+  info.canRetry = false;
+  info.canClear = false;
   return info;
 }

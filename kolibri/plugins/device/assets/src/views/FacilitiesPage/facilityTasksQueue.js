@@ -30,17 +30,6 @@ export default {
         }
       });
     },
-    manageFacilityTask(action, task) {
-      if (action === 'cancel') {
-        return TaskResource.cancel(task.id);
-      } else if (action === 'clear') {
-        return TaskResource.clear(task.id);
-      } else if (action === 'retry') {
-        return TaskResource.restart(task.id);
-      } else {
-        return Promise.resolve();
-      }
-    },
     clearCompletedFacilityTasks() {
       return TaskResource.clearAll('facility_task');
     },
