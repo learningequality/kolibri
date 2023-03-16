@@ -128,6 +128,9 @@ export default [
   },
   {
     path: '/:facility_id?/managesync',
+    props: route => {
+      return { facility_id: route.params.facility_id || store.getters.currentFacilityId };
+    },
     component: ManageSyncSchedule,
     name: PageNames.MANAGE_SYNC_SCHEDULE,
   },

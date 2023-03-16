@@ -201,6 +201,12 @@
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
+    props: {
+      facilityId: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         deviceModal: false,
@@ -222,14 +228,11 @@
       this.fetchFacility();
       this.fetchAddressesForLOD();
     },
-
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-          }
-        );
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+          this.facility = { ...facility };
+        });
       },
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
