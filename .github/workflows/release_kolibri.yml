@@ -65,19 +65,23 @@ jobs:
     needs: [whl, pex, dmg, deb, exe]
     steps:
       - uses: actions/checkout@v3
+      - name: Download all artifacts
+        uses: actions/download-artifact@v3
+        with:
+          path: dist
       - uses: actions/github-script@v6
         with:
           script: |
             const utils = require('./.github/githubUtils.js')
             const filesToUpload = [
-              '${{ needs.whl.outputs.whl-file-name }}',
-              '${{ needs.pex.outputs.pex-file-name }}',
-              '${{ needs.dmg.outputs.dmg-file-name }}',
-              '${{ needs.deb.outputs.deb-file-name }}',
-              '${{ needs.exe.outputs.exe-file-name }}',
+              'dist/${{ needs.whl.outputs.whl-file-name }}',
+              'dist/${{ needs.pex.outputs.pex-file-name }}',
+              'dist/${{ needs.dmg.outputs.dmg-file-name }}',
+              'dist/${{ needs.deb.outputs.deb-file-name }}',
+              'dist/${{ needs.exe.outputs.exe-file-name }}',
             ]
-            for (let filename of filesToUpload) {
-              await utils.uploadReleaseAsset(github, context, filename, '${{ github.event.release.release_id }}')
+            for (let filePath of filesToUpload) {
+              await utils.uploadReleaseAsset(github, context, filePath, '${{ github.event.release.release_id }}')
             }
   block_release_step:
   # This step ties to the release environment which requires manual approval
