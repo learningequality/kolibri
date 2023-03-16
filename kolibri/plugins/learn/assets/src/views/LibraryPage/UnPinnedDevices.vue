@@ -21,7 +21,7 @@
         </span>
       </h2>
       <p class="channels">
-        {{ channels }} channel(s)
+        {{ channels }} {{ $tr('channels') }}
       </p>
     </KRouterLink>
   </div>
@@ -88,6 +88,12 @@
         }
       },
     },
+    $trs: {
+      channels: {
+        message: 'channels',
+        context: 'Indicates the number of channels',
+      },
+    },
   };
 
 </script>
@@ -128,7 +134,8 @@
   }
 
   .channels {
-    width: auto;
+    justify-content: center;
+    width: 100%;
     color: #616161;
     text-align: center;
   }
