@@ -5,8 +5,8 @@ from datetime import timedelta
 import pytest
 
 from kolibri.core.tasks.compat import Event
-from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
