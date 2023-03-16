@@ -11,18 +11,11 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
-      <KGridItem
-        v-for="item in device.channels"
-        :key="item.id"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-      >
-        <ChannelCard
-          :title="item.name"
-          :tagline="item.tagline || item.description"
-          :thumbnail="item.thumbnail"
-          :link="{}"
-        />
-      </KGridItem>
+      <ChannelCardGroupGrid
+        data-test="channel-cards"
+        class="grid"
+        :contents="device.channels"
+      />
     </KGridItem>
   </KGrid>
 
@@ -34,12 +27,12 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useDevices from './../../composables/useDevices';
   import useChannels from './../../composables/useChannels';
-  import ChannelCard from './../ChannelCard';
+  import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
-      ChannelCard,
+      ChannelCardGroupGrid,
     },
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
@@ -56,14 +49,6 @@
       return {
         pinnedDevices: [],
       };
-    },
-    computed: {
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
-      },
     },
     created() {
       this.fetchDevices().then(devices => {
