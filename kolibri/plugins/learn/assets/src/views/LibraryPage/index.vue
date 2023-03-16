@@ -89,8 +89,8 @@
               </div>
             </KGridItem>
           </KGrid>
-          <PinnedNetworkResources />
         </div>
+        <PinnedNetworkResources />
         <!-- More  -->
         <div>
           <h2>{{ $tr('moreLibraries') }}</h2>
