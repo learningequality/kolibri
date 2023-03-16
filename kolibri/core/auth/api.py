@@ -71,6 +71,7 @@ from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
+from kolibri.core.auth.permissions.general import DenyAll
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -154,6 +155,14 @@ class KolibriAuthPermissions(permissions.BasePermission):
         return False
 
 
+class IsPINValidPermissions(DenyAll):
+    def has_permission(self, request, view):
+        return request.user.is_superuser or request.user.can_manage_content
+
+    def has_object_permission(self, request, view, obj):
+        return self.has_permission(request, view)
+
+
 class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -219,8 +228,11 @@ class FacilityDatasetViewSet(ValuesViewset):
         except FacilityDataset.DoesNotExist:
             raise Http404("Facility not found")
 
-    @decorators.action(methods=["post"], detail=True, url_path="is-pin-valid")
-    def is_pin_valid(self, request, pk):
+
+class IsPINValidView(views.APIView):
+    permission_classes = (IsPINValidPermissions,)
+
+    def post(self, request, pk):
         serializer = ExtraFieldsSerializer(data=request.data)
         if not serializer.is_valid() or serializer.data.get("pin_code") is None:
             return HttpResponseBadRequest("Invalid pin input")
