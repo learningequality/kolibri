@@ -503,8 +503,8 @@
   }
 
   /deep/ .ui-toolbar__left {
-    margin-left: 10px;
-    overflow-x: hidden;
+    margin-left: 5px;
+    overflow-x: clip;
   }
 
   /deep/ .ui-toolbar__right {
