@@ -292,7 +292,10 @@
         } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
         } else if (option === Options.MANAGESYNC) {
-          this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
+          this.$router.push({
+            name: PageNames.MANAGE_SYNC_SCHEDULE,
+            params: { facility_id: facility.id },
+          });
         }
       },
       fetchFacilites() {
