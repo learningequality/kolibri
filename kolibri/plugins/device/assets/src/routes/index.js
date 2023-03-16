@@ -79,7 +79,7 @@ const routes = [
   {
     name: PageNames.MANAGE_SYNC_SCHEDULE,
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
-    path: '/facilities/managesync',
+    path: '/facilities/:facility_id?/managesync',
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false });
     },
