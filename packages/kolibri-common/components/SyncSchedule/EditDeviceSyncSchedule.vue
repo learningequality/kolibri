@@ -30,8 +30,8 @@
 
           </KGrid>
           <KGrid
-            v-if="selectedItem.value !== 0
-              && selectedItem.value !== 1"
+            v-if="selectedItem.value !== 3600
+              && selectedItem.value !== 86400"
             class=""
           >
             <KGridItem>
@@ -47,7 +47,7 @@
 
           </KGrid>
           <KGrid
-            v-if="selectedItem.value !== 0"
+            v-if="selectedItem.value !== 3600"
             class=""
           >
             <KGridItem>
@@ -259,7 +259,6 @@
         this.removeDeviceModal = false;
       },
       handleDeleteDevice() {
-        console.log(this.$route.params.deviceId);
         this.removeDeviceModal = false;
         NetworkLocationResource.deleteModel({ id: this.$route.params.deviceId })
           .then(() => {

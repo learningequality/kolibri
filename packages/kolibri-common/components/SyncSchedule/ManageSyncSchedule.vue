@@ -234,13 +234,11 @@
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
           this.data = locations;
-          // console.log(this.data);
         });
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.savedDevices = tasks;
-          console.log(this.savedDevices);
 
           if (this.isPolling) {
             setTimeout(() => {
