@@ -11,6 +11,7 @@
       ref="pinFocus"
       v-model="pin"
       input="number"
+      type="password"
       :label="$tr('pinPlaceholder')"
       :maxlength="4"
       :invalid="showErrorText"
