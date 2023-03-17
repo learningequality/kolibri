@@ -6,6 +6,7 @@ import pytest
 import pytz
 from mock import patch
 
+from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.job import Job
@@ -15,6 +16,7 @@ from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.utils import stringify_func
+from kolibri.utils.time_utils import local_now
 
 
 QUEUE = "pytest"
@@ -189,6 +191,73 @@ class TestBackend:
         assert len(defaultbackend.get_all_jobs(repeating=True)) == 3
         assert len(defaultbackend.get_all_jobs(repeating=False)) == 1
         assert len(defaultbackend.get_all_jobs(repeating=True, queue="forever")) == 1
+
+    def test_get_running_jobs(self, defaultbackend):
+        # Schedule jobs
+        schedule_time = local_now() + datetime.timedelta(hours=1)
+        job1 = defaultbackend.schedule(schedule_time, Job(id))
+        job2 = defaultbackend.schedule(schedule_time, Job(id))
+        job3 = defaultbackend.schedule(schedule_time, Job(id), QUEUE)
+
+        # mark jobs as running
+        defaultbackend.mark_job_as_running(job1)
+        defaultbackend.mark_job_as_running(job2)
+        defaultbackend.mark_job_as_running(job3)
+
+        # don't mark this as running to test the method only returns running jobs
+        defaultbackend.schedule(schedule_time, Job(id))
+
+        assert len(defaultbackend.get_running_jobs()) == 3
+        assert len(defaultbackend.get_running_jobs(queues=[DEFAULT_QUEUE])) == 2
+        assert len(defaultbackend.get_running_jobs(queues=[QUEUE])) == 1
+        assert len(defaultbackend.get_running_jobs(queues=[DEFAULT_QUEUE, QUEUE])) == 3
+
+    def test_get_canceling_jobs(self, defaultbackend):
+        # Schedule jobs
+        schedule_time = local_now() + datetime.timedelta(hours=1)
+        job1 = defaultbackend.schedule(schedule_time, Job(id))
+        job2 = defaultbackend.schedule(schedule_time, Job(id))
+        job3 = defaultbackend.schedule(schedule_time, Job(id), QUEUE)
+
+        # mark jobs as canceling
+        defaultbackend.mark_job_as_canceling(job1)
+        defaultbackend.mark_job_as_canceling(job2)
+        defaultbackend.mark_job_as_canceling(job3)
+
+        # don't mark this as canceling to test the method only returns canceling jobs
+        defaultbackend.schedule(schedule_time, Job(id))
+
+        assert len(defaultbackend.get_canceling_jobs()) == 3
+        assert len(defaultbackend.get_canceling_jobs(queues=[DEFAULT_QUEUE])) == 2
+        assert len(defaultbackend.get_canceling_jobs(queues=[QUEUE])) == 1
+        assert (
+            len(defaultbackend.get_canceling_jobs(queues=[DEFAULT_QUEUE, QUEUE])) == 3
+        )
+
+    def test_get_jobs_by_state(self, defaultbackend):
+        # Schedule jobs
+        schedule_time = local_now() + datetime.timedelta(hours=1)
+        defaultbackend.schedule(schedule_time, Job(id))
+        job2 = defaultbackend.schedule(schedule_time, Job(id))
+        job3 = defaultbackend.schedule(schedule_time, Job(id), QUEUE)
+
+        # mark jobs status
+        defaultbackend.mark_job_as_canceling(job2)
+        defaultbackend.mark_job_as_running(job3)
+
+        assert len(defaultbackend.get_jobs_by_state(state=State.QUEUED)) == 1
+        assert len(defaultbackend.get_jobs_by_state(state=State.RUNNING)) == 1
+        assert len(defaultbackend.get_jobs_by_state(state=State.CANCELING)) == 1
+        assert (
+            len(defaultbackend.get_jobs_by_state(state=State.RUNNING, queues=[QUEUE]))
+            == 1
+        )
+        assert (
+            len(
+                defaultbackend.get_jobs_by_state(state=State.RUNNING, queues=["random"])
+            )
+            == 0
+        )
 
     def test_schedule_error_on_wrong_repeat(self, defaultbackend, simplejob):
         tz_aware_now = datetime.datetime.now(tz=pytz.utc)
