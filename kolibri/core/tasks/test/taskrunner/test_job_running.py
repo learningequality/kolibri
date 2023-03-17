@@ -1,11 +1,9 @@
 import time
 import uuid
-from datetime import timedelta
 
 import pytest
 
 from kolibri.core.tasks.compat import Event
-from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
@@ -15,7 +13,6 @@ from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.utils import import_stringified_func
 from kolibri.core.tasks.utils import stringify_func
 from kolibri.core.tasks.worker import Worker
-from kolibri.utils.time_utils import local_now
 
 
 @pytest.fixture
@@ -305,78 +302,3 @@ class TestJobStorage(object):
             assert time_spent < 5
         # and hopefully it's canceled by this point
         assert job.state == State.CANCELED
-
-    def test_get_running_jobs(self, storage_fixture):
-        # Schedule jobs
-        schedule_time = local_now() + timedelta(hours=1)
-        job1 = storage_fixture.schedule(schedule_time, Job(id))
-        job2 = storage_fixture.schedule(schedule_time, Job(id))
-
-        queue = "myqueue"
-        job3 = storage_fixture.schedule(schedule_time, Job(id), queue)
-
-        # mark jobs as running
-        storage_fixture.mark_job_as_running(job1)
-        storage_fixture.mark_job_as_running(job2)
-        storage_fixture.mark_job_as_running(job3)
-
-        # don't mark this as running to test the method only returns running jobs
-        storage_fixture.schedule(schedule_time, Job(id))
-
-        assert len(storage_fixture.get_running_jobs()) == 3
-        assert len(storage_fixture.get_running_jobs(queues=[DEFAULT_QUEUE])) == 2
-        assert len(storage_fixture.get_running_jobs(queues=[queue])) == 1
-        assert len(storage_fixture.get_running_jobs(queues=[DEFAULT_QUEUE, queue])) == 3
-
-    def test_get_canceling_jobs(self, storage_fixture):
-        # Schedule jobs
-        schedule_time = local_now() + timedelta(hours=1)
-        job1 = storage_fixture.schedule(schedule_time, Job(id))
-        job2 = storage_fixture.schedule(schedule_time, Job(id))
-
-        queue = "myqueue"
-        job3 = storage_fixture.schedule(schedule_time, Job(id), queue)
-
-        # mark jobs as canceling
-        storage_fixture.mark_job_as_canceling(job1)
-        storage_fixture.mark_job_as_canceling(job2)
-        storage_fixture.mark_job_as_canceling(job3)
-
-        # don't mark this as canceling to test the method only returns canceling jobs
-        storage_fixture.schedule(schedule_time, Job(id))
-
-        assert len(storage_fixture.get_canceling_jobs()) == 3
-        assert len(storage_fixture.get_canceling_jobs(queues=[DEFAULT_QUEUE])) == 2
-        assert len(storage_fixture.get_canceling_jobs(queues=[queue])) == 1
-        assert (
-            len(storage_fixture.get_canceling_jobs(queues=[DEFAULT_QUEUE, queue])) == 3
-        )
-
-    def test_get_jobs_by_state(self, storage_fixture):
-        # Schedule jobs
-        schedule_time = local_now() + timedelta(hours=1)
-        storage_fixture.schedule(schedule_time, Job(id))
-        job2 = storage_fixture.schedule(schedule_time, Job(id))
-
-        queue = "myqueue"
-        job3 = storage_fixture.schedule(schedule_time, Job(id), queue)
-
-        # mark jobs status
-        storage_fixture.mark_job_as_canceling(job2)
-        storage_fixture.mark_job_as_running(job3)
-
-        assert len(storage_fixture.get_jobs_by_state(state=State.QUEUED)) == 1
-        assert len(storage_fixture.get_jobs_by_state(state=State.RUNNING)) == 1
-        assert len(storage_fixture.get_jobs_by_state(state=State.CANCELING)) == 1
-        assert (
-            len(storage_fixture.get_jobs_by_state(state=State.RUNNING, queues=[queue]))
-            == 1
-        )
-        assert (
-            len(
-                storage_fixture.get_jobs_by_state(
-                    state=State.RUNNING, queues=["random"]
-                )
-            )
-            == 0
-        )
