@@ -13,19 +13,11 @@
         >
           <table>
             <tr>
-              <th> {{ coreString('totalSizeMyDownloads', { size: '' }) }} </th>
+              <th> {{ coreString('totalSizeMyDownloads') }} </th>
               <td
                 v-if="!storageLoading.value"
               >
                 {{ formattedSize(storage.value.myDownloadsSize) }}
-              </td>
-            </tr>
-            <tr>
-              <th>Total size of my library</th>
-              <td
-                v-if="!storageLoading.value"
-              >
-                {{ formattedSize(storage.value.myLibrarySize) }}
               </td>
             </tr>
             <tr>
@@ -50,6 +42,7 @@
         :downloads="downloads || {}"
         :totalDownloads="totalDownloads"
         :totalPageNumber="totalPageNumber"
+        :loading="downloadsLoading.value"
         @removeResources="removeResources"
       />
     </KPageContainer>
@@ -94,7 +87,7 @@
       const query = computed(() => get(route).query);
 
       const pageNumber = computed(() => Number(query.value.page || 1));
-      const pageSizeNumber = computed(() => Number(query.value.page_size || 30));
+      const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort || 'newest');
 
