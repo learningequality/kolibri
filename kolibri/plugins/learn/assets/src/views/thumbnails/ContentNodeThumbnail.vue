@@ -28,6 +28,7 @@
 
   import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
   import LearningActivityIcon from '../LearningActivityIcon';
+  import useChannels from '../../composables/useChannels';
   import Thumbnail from './Thumbnail';
 
   /**
@@ -43,6 +44,12 @@
       LearningActivityIcon,
       Thumbnail,
     },
+    setup() {
+      const { getChannelThumbnail } = useChannels();
+      return {
+        getChannelThumbnail,
+      };
+    },
     props: {
       contentNode: {
         type: Object,
@@ -56,7 +63,14 @@
     },
     computed: {
       thumbnailUrl() {
-        return getContentNodeThumbnail(this.contentNode);
+        const thumbnail = getContentNodeThumbnail(this.contentNode);
+        if (!thumbnail) {
+          const parent = this.contentNode.parent;
+          if (!parent) {
+            return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
+          }
+        }
+        return thumbnail;
       },
     },
   };
