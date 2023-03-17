@@ -504,7 +504,7 @@
 
   /deep/ .ui-toolbar__left {
     margin-left: 5px;
-    overflow-x: clip;
+    overflow: hidden;
   }
 
   /deep/ .ui-toolbar__right {
