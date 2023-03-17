@@ -439,7 +439,7 @@ class Storage(object):
                 if state is not None:
                     orm_job.state = job.state = state
                     if state == State.FAILED and orm_job.retry_interval is not None:
-                        orm_job.state = State.QUEUED
+                        orm_job.state = job.state = State.QUEUED
                         orm_job.scheduled_time = naive_utc_datetime(
                             self._now() + timedelta(seconds=orm_job.retry_interval)
                         )
@@ -450,7 +450,7 @@ class Storage(object):
                                 if orm_job.repeat is not None
                                 else None
                             )
-                            orm_job.state = State.QUEUED
+                            orm_job.state = job.state = State.QUEUED
                             orm_job.scheduled_time = naive_utc_datetime(
                                 self._now() + timedelta(seconds=orm_job.interval)
                             )
