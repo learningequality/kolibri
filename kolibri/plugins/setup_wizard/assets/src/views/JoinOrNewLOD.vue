@@ -3,6 +3,7 @@
   <OnboardingStepBase
     :title="$tr('setUpFacilityTitle')"
     :description="$tr('setUpFacilityDescription')"
+    :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
     <KRadioButton
@@ -46,6 +47,11 @@
         selected: Options.JOIN,
         showSelectAddressModal: false,
       };
+    },
+    computed: {
+      backEvent() {
+        return { type: 'BACK_LOD' };
+      },
     },
     methods: {
       handleContinueImport(address) {

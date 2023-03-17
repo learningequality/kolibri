@@ -123,6 +123,52 @@ const setLearnerCanCreateAccount = assign({
 const setRequirePassword = assign({
   requirePassword: (_, event) => event.value,
 });
+
+const setSelectedImportDeviceFacility = assign({
+  selectedFacility: (_, event) => {
+    return event.value.selectedFacility;
+  },
+  importDevice: (_, event) => {
+    return event.value.importDevice;
+  },
+  facilitiesOnDeviceCount: (_, event) => {
+    return event.value.facilitiesCount;
+  },
+});
+
+const setLodType = assign({
+  lodImportOrJoin: (_, event) => event.value.importOrJoin,
+  importDeviceId: (_, event) => event.value.importDeviceId,
+});
+
+const setRemoteUsers = assign({
+  remoteUsers: (_, event) => event.value.users,
+});
+
+const setLodAdmin = assign({
+  // Used when setting the Admin user for multiple import
+  lodAdmin: (_, event) => {
+    return {
+      username: event.value.adminUsername,
+      password: event.value.adminPassword,
+      id: event.value.id,
+    };
+  },
+});
+const setLodSuperAdmin = assign({
+  // Sets the super admin to be set as the device super admin -- the first LOD user imported
+  superuser: (ctx, event) => {
+    if (!ctx.superuser) {
+      return {
+        username: event.value.username,
+        password: event.value.password,
+      };
+    } else {
+      return ctx.superuser;
+    }
+  },
+});
+
 const states = {
   // This state will be the start so the machine won't progress until
   // the setCanGetOsUser is run to set the context.canGetOsUser value
@@ -352,25 +398,18 @@ const states = {
       selectFacilityForm: {
         meta: { route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
         on: {
-          BACK: {
-            // #<name> points to a state w/ an `id` property; wizard is the root
-            target: '#wizard.fullDeviceNewOrImportFacility',
-            actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
-          },
           CONTINUE: {
             target: 'importAuthentication',
-            actions: 'setSelectedImportDeviceFacility',
+            actions: [
+              setSelectedImportDeviceFacility,
+              send({ type: 'PUSH_HISTORY', value: 'selectFacilityForm' }),
+            ],
           },
         },
       },
       importAuthentication: {
         meta: { route: { name: 'IMPORT_AUTHENTICATION' } },
         on: {
-          BACK: { target: 'selectFacilityForm' },
-          BACK_SKIP_FACILITY_FORM: {
-            target: '#wizard.fullDeviceNewOrImportFacility',
-            actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
-          },
           // THE POINT OF NO RETURN
           CONTINUE: { target: 'loadingTaskPage' },
         },
@@ -387,21 +426,25 @@ const states = {
           CONTINUE: {
             target: 'personalDataConsentForm',
             nextEvent: 'FINISH',
-            actions: 'setSuperuser',
+            actions: [
+              setSuperuser,
+              send({ type: 'PUSH_HISTORY', value: 'selectSuperAdminAccountForm' }),
+            ],
           },
         },
       },
       personalDataConsentForm: {
         meta: { route: { name: 'IMPORT_DATA_CONSENT' }, nextEvent: 'FINISH' },
-        on: {
-          BACK: 'selectSuperAdminAccountForm',
-        },
       },
     },
     // Listener on the importFacility state; typically this would be above `states` but
     // putting it here flows more with the above as this is the state after the final step
     on: {
       FINISH: 'finalizeSetup',
+      BACK_SKIP_FACILITY_FORM: {
+        target: '#wizard.fullDeviceNewOrImportFacility',
+        actions: ['clearSelectedSetupType', 'revertFullDeviceImport'],
+      },
     },
   },
 
@@ -413,10 +456,10 @@ const states = {
         meta: { route: { name: 'LOD_SETUP_TYPE' } },
         on: {
           // #<name> points to a state w/ an `id` property; wizard is the root
-          BACK: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
+          BACK_LOD: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
           CONTINUE: {
             target: 'selectLodFacility',
-            actions: 'setLodType',
+            actions: [setLodType, send({ type: 'PUSH_HISTORY', value: 'selectLodSetupType' })],
           },
         },
       },
@@ -424,7 +467,6 @@ const states = {
       selectLodFacility: {
         meta: { route: { name: 'LOD_SELECT_FACILITY' } },
         on: {
-          BACK: 'selectLodSetupType',
           CONTINUE: {
             target: 'lodProceedJoinOrNew',
             actions: 'setSelectedImportDeviceFacility',
@@ -448,11 +490,17 @@ const states = {
       lodImportUserAuth: {
         meta: { route: { name: 'LOD_IMPORT_USER_AUTH' } },
         on: {
-          BACK: 'selectLodSetupType',
-          CONTINUE: { target: 'lodLoading', actions: 'setLodSuperAdmin' },
+          CONTINUE: {
+            target: 'lodLoading',
+            actions: [setLodSuperAdmin, send({ type: 'PUSH_HISTORY', value: 'lodImportUserAuth' })],
+          },
           CONTINUEADMIN: {
             target: 'lodImportAsAdmin',
-            actions: ['setRemoteUsers', 'setLodAdmin'],
+            actions: [
+              setRemoteUsers,
+              setLodAdmin,
+              send({ type: 'PUSH_HISTORY', value: 'lodImportUserAuth' }),
+            ],
           },
         },
       },
@@ -469,7 +517,6 @@ const states = {
       lodImportAsAdmin: {
         meta: { route: { name: 'LOD_IMPORT_AS_ADMIN' } },
         on: {
-          BACK: 'lodImportUserAuth',
           LOADING: 'lodLoading',
           SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
         },
@@ -488,7 +535,6 @@ const states = {
       lodJoinFacility: {
         meta: { route: { name: 'LOD_CREATE_USER_FORM' } },
         on: {
-          BACK: 'selectLodSetupType',
           CONTINUE: 'lodJoinLoading',
         },
       },
@@ -538,17 +584,6 @@ export const wizardMachine = createMachine(
       // is the current context and event refers to the event sent to the machine to initiate a
       // transition.
 
-      setSelectedImportDeviceFacility: assign({
-        selectedFacility: (_, event) => {
-          return event.value.selectedFacility;
-        },
-        importDevice: (_, event) => {
-          return event.value.importDevice;
-        },
-        facilitiesOnDeviceCount: (_, event) => {
-          return event.value.facilitiesCount;
-        },
-      }),
       clearSelectedSetupType: assign({
         facilityNewOrImport: () => null,
       }),
@@ -562,10 +597,6 @@ export const wizardMachine = createMachine(
         importDeviceId: () => null,
       }),
 
-      setLodType: assign({
-        lodImportOrJoin: (_, event) => event.value.importOrJoin,
-        importDeviceId: (_, event) => event.value.importDeviceId,
-      }),
       setLodImportDeviceId: assign({
         importDeviceId: (_, event) => event.value,
       }),
@@ -579,32 +610,7 @@ export const wizardMachine = createMachine(
       setFirstLodUser: assign({
         firstImportedLodUser: (_, event) => event.value,
       }),
-      setLodAdmin: assign({
-        // Used when setting the Admin user for multiple import
-        lodAdmin: (_, event) => {
-          return {
-            username: event.value.adminUsername,
-            password: event.value.adminPassword,
-            id: event.value.id,
-          };
-        },
-      }),
-      setLodSuperAdmin: assign({
-        // Sets the super admin to be set as the device super admin -- the first LOD user imported
-        superuser: (ctx, event) => {
-          if (!ctx.superuser) {
-            return {
-              username: event.value.username,
-              password: event.value.password,
-            };
-          } else {
-            return ctx.superuser;
-          }
-        },
-      }),
-      setRemoteUsers: assign({
-        remoteUsers: (_, event) => event.value.users,
-      }),
+
       /**
        * Assigns the machine to have the initial context again while maintaining the value of
        * canGetOsUser.

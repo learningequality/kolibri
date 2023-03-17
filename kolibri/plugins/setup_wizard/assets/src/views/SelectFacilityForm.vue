@@ -6,6 +6,7 @@
   <OnboardingStepBase
     :title="loading ? '' : header"
     :footerMessageType="loading ? null : footerMessageType"
+    :eventOnGoBack="backEvent"
     :step="loading ? null : 1"
     :steps="loading ? null : 5"
     @continue="handleContinue"
@@ -85,6 +86,9 @@
       },
       selectedFacility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
+      },
+      backEvent() {
+        return { type: 'BACK_SKIP_FACILITY_FORM' };
       },
     },
     beforeMount() {
