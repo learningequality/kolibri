@@ -597,9 +597,6 @@ export const wizardMachine = createMachine(
         importDeviceId: () => null,
       }),
 
-      setLodImportDeviceId: assign({
-        importDeviceId: (_, event) => event.value,
-      }),
       addImportedUser: assign({
         importedUsers: (ctx, event) => {
           const users = ctx.importedUsers;
