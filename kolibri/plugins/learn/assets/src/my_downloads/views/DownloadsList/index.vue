@@ -16,7 +16,7 @@
               class="select-all"
               :label="coreString('nameLabel')"
               :checked="areAllSelected"
-              :disabled="!downloads || Object.keys(downloads).length === 0"
+              :disabled="!downloads || !Object.keys(downloads).length"
               :style="{ color: $themeTokens.annotation }"
               @change="selectAll($event)"
             />
@@ -66,6 +66,9 @@
           </tbody>
         </template>
       </CoreTable>
+      <p v-if="!loading && (!downloads || !Object.keys(downloads).length)">
+        {{ coreString('noResourcesDownloaded') }}
+      </p>
     </PaginatedListContainerWithBackend>
     <SelectionBottomBar
       :count="selectedDownloads.length"
@@ -125,6 +128,10 @@
         type: Number,
         required: true,
       },
+      loading: {
+        type: Boolean,
+        required: false,
+      },
     },
     data() {
       return {
@@ -151,7 +158,7 @@
       },
       itemsPerPage: {
         get() {
-          return Number(this.$route.query.page_size || 30);
+          return Number(this.$route.query.page_size || 25);
         },
         set(value) {
           this.$router.push({

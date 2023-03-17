@@ -4,7 +4,7 @@
     class="selector"
     :style="selectorStyle"
     :inline="windowIsLarge"
-    label="Activity type"
+    :label="coreString('activityType')"
     :options="activityTypes"
     :value="selected"
     @change="handleActivityTypeChange($event.value)"

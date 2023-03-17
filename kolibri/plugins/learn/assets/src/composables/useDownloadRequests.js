@@ -94,7 +94,6 @@ export default function useDownloadRequests(store) {
     const dummyStorageInfo = {
       freeDiskSize: 13340000000,
       myDownloadsSize: 23200000,
-      myLibrarySize: 4300000,
     };
     setTimeout(() => {
       set(storageInfo, dummyStorageInfo);
