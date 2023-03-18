@@ -1,5 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
+import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';
@@ -80,6 +81,15 @@ const routes = [
     name: PageNames.MANAGE_SYNC_SCHEDULE,
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
     path: '/facilities/:facility_id/managesync',
+    props: true,
+    handler: ({ name }) => {
+      store.dispatch('preparePage', { name, isAsync: false });
+    },
+  },
+  {
+    name: PageNames.EDIT_SYNC_SCHEDULE,
+    component: withAuthMessage(EditDeviceSyncSchedule, 'superuser'),
+    path: '/facilities/:device_id/editdevice',
     props: true,
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false });

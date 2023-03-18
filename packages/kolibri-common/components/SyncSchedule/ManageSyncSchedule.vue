@@ -189,7 +189,8 @@
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  // import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  import { PageNames } from '../../../../kolibri/plugins/device/assets/src/constants';
   import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
   export default {
@@ -201,12 +202,12 @@
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
-    props: {
-      facilityId: {
-        type: String,
-        required: true,
-      },
-    },
+    // props: {
+    //   facility_id: {
+    //     type: String,
+    //     required: true,
+    //   },
+    // },
     data() {
       return {
         deviceModal: false,
@@ -230,7 +231,7 @@
     },
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+        FacilityResource.fetchModel({ id: this.facility_id, force: true }).then(facility => {
           this.facility = { ...facility };
         });
       },
@@ -267,7 +268,7 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE });
         } else {
           return window.location.href;
         }
