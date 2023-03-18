@@ -151,8 +151,8 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
-
+  import { PageNames } from '../../../../kolibri/plugins/device/assets/src/constants';
+  // import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
   export default {
     name: 'EditDeviceSyncSchedule',
     components: {
@@ -260,7 +260,7 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.$route.params.deviceId })
+        NetworkLocationResource.deleteModel({ id: this.deviceId })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             history.back();
