@@ -151,6 +151,7 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
             for user_id in _learner_ids():
                 stop_request_soud_sync(network_location.base_url, user_id)
 
+
 @register_hook
 class MyDownloadsNavAction(NavigationHook):
     bundle_id = "my_downloads_side_nav"

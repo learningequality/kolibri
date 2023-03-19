@@ -33,11 +33,19 @@
   import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { LearningActivityToIconMap, LearningActivityToLabelMap } from '../../../constants';
+  import useLearningActivities from '../../../composables/useLearningActivities';
 
   export default {
     name: 'ActivityFilter',
     mixins: [commonCoreStrings, responsiveWindowMixin],
+    setup() {
+      const { getLearningActivityLabel, getLearningActivityIcon } = useLearningActivities();
+
+      return {
+        getLearningActivityLabel,
+        getLearningActivityIcon,
+      };
+    },
     data() {
       return {
         activityTypes: [
@@ -55,9 +63,9 @@
             LearningActivities.CREATE,
             LearningActivities.EXPLORE,
           ].map(activity => ({
-            label: LearningActivityToLabelMap[activity],
+            label: this.getLearningActivityLabel(activity),
             value: activity,
-            icon: LearningActivityToIconMap[activity],
+            icon: this.getLearningActivityIcon(activity),
           })),
         ],
       };

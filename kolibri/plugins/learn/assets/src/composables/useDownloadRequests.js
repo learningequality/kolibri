@@ -143,7 +143,6 @@ export default function useDownloadRequests(store) {
     contentList.forEach(content => {
       Vue.delete(downloadRequestMap.downloads, content.id);
     });
-    console.log('downloadRequestMap', downloadRequestMap);
     return Promise.resolve();
   }
 
