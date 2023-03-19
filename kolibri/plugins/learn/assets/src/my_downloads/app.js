@@ -1,4 +1,3 @@
-// import router from 'kolibri.coreVue.router';
 import PageRoot from 'kolibri.coreVue.components.PageRoot';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';

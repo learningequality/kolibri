@@ -94,8 +94,8 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import { LearningActivityToIconMap } from '../../../constants';
   import useContentLink from '../../../composables/useContentLink';
+  import useLearningActivities from '../../../composables/useLearningActivities';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';
 
@@ -110,8 +110,10 @@
     mixins: [commonCoreStrings],
     setup() {
       const { genExternalContentURLBackLinkCurrentPage } = useContentLink();
+      const { getLearningActivityIcon } = useLearningActivities();
 
       return {
+        getLearningActivityIcon,
         genExternalContentURLBackLinkCurrentPage,
       };
     },
@@ -229,12 +231,12 @@
         this.resourcesToDelete = [];
       },
       getIcon(download) {
-        return LearningActivityToIconMap[download.resource_metadata.learning_activities[0]];
+        return this.getLearningActivityIcon(download.resource_metadata.learning_activities[0]);
       },
       formattedTime(download) {
         const datetime = download.date_added;
         if (this.now - datetime < 10000) {
-          return this.$tr('justNow');
+          return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
       },
@@ -243,12 +245,6 @@
       },
       formattedSelectedSize() {
         return bytesForHumans(this.selectedDownloadsSize);
-      },
-    },
-    $trs: {
-      justNow: {
-        message: 'Just now',
-        context: 'This is used to indicate that a download was added to the list very recently',
       },
     },
   };

@@ -24,6 +24,16 @@ export default function useLearningActivities(contentNode) {
     [LearningActivities.EXPLORE]: coreStrings.$tr('explore'),
   };
 
+  const _LearningActivityToIconMap = {
+    [LearningActivities.CREATE]: 'createSolid',
+    [LearningActivities.LISTEN]: 'listenSolid',
+    [LearningActivities.REFLECT]: 'reflectSolid',
+    [LearningActivities.PRACTICE]: 'practiceSolid',
+    [LearningActivities.READ]: 'readSolid',
+    [LearningActivities.WATCH]: 'watchSolid',
+    [LearningActivities.EXPLORE]: 'interactSolid',
+  };
+
   /**
    * @returns {Boolean} Does the content node have exactly
    *                    one learning activity associated with it?
@@ -130,6 +140,14 @@ export default function useLearningActivities(contentNode) {
     return _LearningActivityToLabelMap[learningActivity];
   }
 
+  /**
+   * @param {String} learningActivity A learning activity constant
+   * @returns {String} An icon for the learning activity
+   */
+  function getLearningActivityIcon(learningActivity) {
+    return _LearningActivityToIconMap[learningActivity];
+  }
+
   return {
     ReferenceLabel,
     hasSingleActivity,
@@ -141,5 +159,6 @@ export default function useLearningActivities(contentNode) {
     durationInSeconds,
     durationEstimation,
     getLearningActivityLabel,
+    getLearningActivityIcon,
   };
 }
