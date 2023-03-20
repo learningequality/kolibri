@@ -14,6 +14,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import classes_info
 from kolibri.core.logger.csv_export import csv_file_generator
 from kolibri.core.logger.models import GenerateCSVLogRequest
+from kolibri.core.logger.tasks import log_exports_cleanup
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.utils.time_utils import local_now
@@ -157,3 +158,4 @@ class Command(AsyncCommand):
                 "date_requested": local_now(),
             },
         )
+        log_exports_cleanup.enqueue()

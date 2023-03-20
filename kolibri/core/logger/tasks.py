@@ -5,6 +5,7 @@ from rest_framework import serializers
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
+from kolibri.core.logger.models import GenerateCSVLogRequest
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.validation import JobValidator
@@ -23,6 +24,25 @@ def get_filepath(log_type, facility_id, start_date, end_date):
         ),
     )
     return filepath
+
+
+def get_valid_filenames():
+    """
+    Returns a set of valid filenames that should exist
+    based on the objects stored in GenerateCSVLogRequest.
+    Any other files except these filenames should be removed.
+    """
+    valid_filenames_set = set()
+    log_requests = GenerateCSVLogRequest.objects.all()
+    for log_request in log_requests:
+        full_path = get_filepath(
+            log_request.log_type,
+            log_request.facility_id,
+            log_request.selected_start_date.strftime("%Y-%m-%d"),
+            log_request.selected_end_date.strftime("%Y-%m-%d"),
+        )
+        valid_filenames_set.add(os.path.basename(full_path))
+    return valid_filenames_set
 
 
 class ExportLogCSVValidator(JobValidator):
@@ -116,3 +136,18 @@ def exportsummarylogcsv(facility_id, **kwargs):
         kwargs.get("end_date"),
         kwargs.get("locale"),
     )
+
+
+@register_task()
+def log_exports_cleanup():
+    """
+    Cleanup log_exports csv files that does not have
+    related reocord in GenerateCSVLogRequest model
+    """
+    logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
+    if not os.path.isdir(logs_dir):
+        return
+    valid_filenames_set = get_valid_filenames()
+    for filename in os.listdir(logs_dir):
+        if filename not in valid_filenames_set:
+            os.remove(os.path.join(logs_dir, filename))
