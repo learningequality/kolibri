@@ -135,7 +135,7 @@
         return [
           { label: this.$tr('allPermissionsFilterLabel'), value: ALL_FILTER },
           { label: this.$tr('canManageContentLabel'), value: PermissionTypes.LIMITED_PERMISSIONS },
-          { label: this.$tr('superAdminLabel'), value: PermissionTypes.SUPERUSER },
+          { label: this.coreString('superAdminLabel'), value: PermissionTypes.SUPERUSER },
           {
             label: this.$tr('noDevicePermissionsLabel'),
             value: PermissionTypes.NO_DEVICE_PERMISSIONS,
@@ -269,10 +269,6 @@
         message: 'Can manage resources',
         context:
           "One of the options in the 'Permissions' filter on the Device permissions page. Type of permission that allows users to import, export and manage channels and resources in Kolibri.",
-      },
-      superAdminLabel: {
-        message: 'Super admin',
-        context: 'Type of permission that can be given to a user.\n',
       },
       noDevicePermissionsLabel: {
         message: 'No device permissions',

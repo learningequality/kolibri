@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="$tr('toolbarHeader')"
+    :appBarTitle="$tr('editSyncScheduleTitle')"
     :route="backRoute"
     :icon="icon"
   >
@@ -9,7 +9,7 @@
       <KGrid gutter="48" class="edit-sync-schedule">
 
         <KGridItem>
-          <h1>{{ $tr('editSyncScheduleSubTitle') }}</h1>
+          <h1>{{ $tr('editSyncScheduleTitle') }}</h1>
         </KGridItem>
 
         <KGridItem>
@@ -24,7 +24,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="selectArray"
-                label="Repeat"
+                :label="$tr('frequency')"
               />
             </KGridItem>
 
@@ -40,7 +40,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="getDays"
-                label="On"
+                :label="$tr('day')"
               />
 
             </KGridItem>
@@ -56,7 +56,7 @@
                 class="selector"
                 :style="selectorStyle"
                 :options="SyncTime"
-                label="At"
+                :label="$tr('time')"
               />
             </KGridItem>
           </KGrid>
@@ -71,7 +71,7 @@
 
           <p class="spacing">
             <KCheckbox>
-              {{ $tr('checboxlabel') }}
+              {{ $tr('checkboxLabel') }}
             </KCheckbox>
           </p>
           <p>
@@ -95,12 +95,12 @@
     <BottomAppBar>
       <KButtonGroup>
         <KButton
-          :text="$tr('cancelBtn')"
+          :text="coreString('cancelAction')"
           appearance="flat-button"
           @click="cancelBtn"
         />
         <KButton
-          :text="$tr('saveBtn')"
+          :text="coreString('saveAction')"
           :primary="true"
           @click="handleSaveSchedule"
         />
@@ -112,8 +112,8 @@
       v-if="removeDeviceModal"
       :title="$tr('removeDevice')"
       size="medium"
-      :submitText="$tr('removeText')"
-      :cancelText="$tr('cancelText')"
+      :submitText="coreString('removeAction')"
+      :cancelText="coreString('cancelAction')"
       @cancel="closeModal"
       @submit="handleDeleteDevice"
     >
@@ -311,11 +311,7 @@
       },
     },
     $trs: {
-      toolbarHeader: {
-        message: 'Edit device sync schedule',
-        context: 'Heading for edit schedule page.',
-      },
-      editSyncScheduleSubTitle: {
+      editSyncScheduleTitle: {
         message: 'Edit device sync schedule',
         context: 'Subtitle for the edit sync schedule page',
       },
@@ -323,8 +319,8 @@
         message: 'Server time:',
         context: 'Server time label',
       },
-      checboxlabel: {
-        message: 'If scheduled sync fails, retry until the next scheduled sync',
+      checkboxLabel: {
+        message: 'If scheduled sync fails, keep trying',
         context: 'Label for checkbox',
       },
       removeDevice: {
@@ -339,14 +335,6 @@
         message: 'This device is not currently connected to your network.',
         context: 'Message showing that the device is no longer on the network',
       },
-      saveBtn: {
-        message: 'Save',
-        context: 'Save button on bottomAppBar',
-      },
-      cancelBtn: {
-        message: 'Cancel',
-        context: 'Cancel buttton on the bottomAppBar',
-      },
       everyHour: {
         message: 'Every hour',
         context: 'Period for scheduling the sync between devices every hour',
@@ -356,7 +344,7 @@
         context: 'Period for scheduling the sync between devices every day',
       },
       everyWeek: {
-        message: 'Every Week',
+        message: 'Every week',
         context: 'Period for scheduling the sync between devices every week',
       },
       everyMonth: {
@@ -364,20 +352,24 @@
         context: 'Period for scheduling the sync between devices every month',
       },
       everyTwoWeeks: {
-        message: 'Every Two Weeks',
+        message: 'Every two weeks',
         context: 'Period for scheduling the sync between devices every two weeks',
-      },
-      removeText: {
-        message: 'Remove',
-        context: 'Label for remove button on the remove device modal',
-      },
-      cancelText: {
-        message: 'Cancel',
-        context: 'Label for cancel button on the remove device modal',
       },
       removeDeviceLabel: {
         message: 'Remove device from sync schedule',
         context: 'Button label for removing the device from the sync schedule',
+      },
+      frequency: {
+        message: 'Frequence',
+        context: 'Indicates often the scheduled sync occurs',
+      },
+      day: {
+        message: 'Day',
+        context: 'Indicates the day of the week on which the scheduled sync occurs',
+      },
+      time: {
+        message: 'Time',
+        context: 'Indicates the time of day at which the scheduled sync occurs',
       },
     },
   };

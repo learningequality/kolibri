@@ -1,17 +1,5 @@
 import { Resource } from 'kolibri.lib.apiResource';
 
-export const NetworkLocationResource = new Resource({
-  name: 'networklocation',
-});
-
-export const StaticNetworkLocationResource = new Resource({
-  name: 'staticnetworklocation',
-});
-
-export const DynamicNetworkLocationResource = new Resource({
-  name: 'dynamicnetworklocation',
-});
-
 export const BookmarksResource = new Resource({
   name: 'bookmarks',
 });
@@ -42,3 +30,8 @@ export { default as PingbackNotificationResource } from './pingbackNotification'
 export { default as PingbackNotificationDismissedResource } from './pingbackNotificationDismissed';
 export { default as PortalResource } from './portal';
 export { default as GenerateCSVLogRequestResource } from './generateCSVLogRequest';
+export {
+  NetworkLocationResource,
+  StaticNetworkLocationResource,
+  DynamicNetworkLocationResource,
+} from './networkLocation';

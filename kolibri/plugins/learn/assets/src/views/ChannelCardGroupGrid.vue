@@ -8,7 +8,7 @@
     >
       <ChannelCard
         :isMobile="windowIsSmall"
-        :title="content.title"
+        :title="content.title || content.name"
         :thumbnail="content.thumbnail"
         :tagline="getTagLine(content)"
         :numCoachContents="content.num_coach_contents"

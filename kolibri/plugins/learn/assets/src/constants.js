@@ -41,3 +41,5 @@ export const pageNameToModuleMap = {
   [PageNames.TOPICS_TOPIC]: 'topicsTree',
   [PageNames.TOPICS_TOPIC_SEARCH]: 'topicsTree',
 };
+
+export const KolibriStudioId = 'kolibri-studio';

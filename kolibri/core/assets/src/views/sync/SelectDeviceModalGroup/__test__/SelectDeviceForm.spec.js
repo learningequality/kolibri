@@ -1,90 +1,85 @@
 import { mount } from '@vue/test-utils';
 import SelectDeviceForm from '../SelectDeviceForm';
-// import makeStore from '../../../../../test/utils/makeStore';
-import { fetchStaticAddresses, fetchDynamicAddresses } from '../api';
+import { fetchDevices, updateConnectionStatus } from '../api';
 
-const addresses = [
+jest.mock('../api.js', () => ({
+  fetchDevices: jest.fn(),
+  deleteDevice: jest.fn().mockResolvedValue(),
+  updateConnectionStatus: jest.fn(),
+}));
+
+const devices = [
   {
     id: '1',
     instance_id: '1',
     nickname: 'Available Server',
     base_url: 'http://localhost:8000',
+    application: 'kolibri',
     available: true,
-    hasContent: true,
   },
   {
     id: '2',
     instance_id: '2',
     nickname: 'Unavailable Server',
     base_url: 'http://localhost:8001',
+    application: 'kolibri',
     available: false,
-    hasContent: true,
   },
   {
     id: '3',
     instance_id: '3',
     nickname: 'Content-less Server',
     base_url: 'http://localhost:8001',
+    application: 'kolibri',
     available: true,
-    hasContent: false,
   },
 ];
 
-jest.mock('../api.js', () => ({
-  fetchStaticAddresses: jest.fn(),
-  fetchDynamicAddresses: jest.fn(),
-  deleteAddress: jest.fn().mockResolvedValue(),
-}));
+const staticDevices = devices.map(a => ({ ...a, dynamic: false }));
+const dynamicDevices = devices.map(a => ({ ...a, dynamic: true }));
 
 function makeWrapper() {
-  const store = {};
-  const wrapper = mount(SelectDeviceForm, {
-    store,
-  });
+  const wrapper = mount(SelectDeviceForm);
   // prettier-ignore
   const els = {
-    KModal: () => wrapper.find({ name: 'KModal' }),
-    newAddressButton: () => wrapper.find('a.new-address-button'),
+    KModal: () => wrapper.findComponent({ name: 'KModal' }),
+    newDeviceButton: () => wrapper.find('a.new-device-button'),
     uiAlert: () => wrapper.find({ name: 'ui-alert' }),
-    radioButtons: () => wrapper.findAll({ name: 'KRadioButton' }),
+    radioButtons: () => wrapper.findAllComponents({ name: 'KRadioButton' }),
     horizontalLine: () => wrapper.findAll('hr'),
   };
-  return { store, wrapper, els };
+  return { wrapper, els };
 }
 
-xdescribe('SelectDeviceForm', () => {
+describe('SelectDeviceForm', () => {
   beforeEach(() => {
-    fetchStaticAddresses.mockReset();
-    fetchStaticAddresses.mockResolvedValue(addresses);
-    fetchDynamicAddresses.mockReset();
-    fetchDynamicAddresses.mockResolvedValue(addresses);
+    fetchDevices.mockReset();
+    fetchDevices.mockResolvedValue(staticDevices.concat(dynamicDevices));
   });
 
-  it('shows one address for each one fetched', async () => {
+  it('shows one device for each one fetched', async () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
+    expect(wrapper.vm.hasFetched).toBe(true);
     expect(els.radioButtons()).toHaveLength(6);
     const server1 = els.radioButtons().at(0);
     expect(server1.props().label).toEqual('Available Server');
     expect(server1.props().description).toEqual('http://localhost:8000');
-    // For some reason, KModal's props are not correct
     expect(wrapper.vm.submitDisabled).toEqual(false);
-    // expect(els.KModal().props().submitDisabled).toEqual(false);
   });
 
-  it('if there are no addresses, it shows an empty message', async () => {
-    fetchStaticAddresses.mockResolvedValue([]);
-    fetchDynamicAddresses.mockResolvedValue([]);
+  it('if there are no devices, it shows an empty message', async () => {
+    fetchDevices.mockResolvedValue([]);
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
-    expect(wrapper.text()).toContain('There are no addresses yet');
+    expect(wrapper.text()).toContain('There are no devices yet');
     expect(els.KModal().props().submitDisabled).toEqual(true);
   });
 
-  it('if an address is (un)available, it is (dis)enabled', async () => {
+  it('if an device is (un)available, it is (dis)enabled', async () => {
     const { els, wrapper } = makeWrapper();
     function radioButtonNIsDisabled(n) {
       return els
@@ -96,20 +91,23 @@ xdescribe('SelectDeviceForm', () => {
     await wrapper.vm.$nextTick();
     expect(radioButtonNIsDisabled(0)).toEqual(false);
     expect(radioButtonNIsDisabled(1)).toEqual(true);
-    expect(radioButtonNIsDisabled(2)).toEqual(true);
+    expect(radioButtonNIsDisabled(2)).toEqual(false);
   });
 
-  it('clicking "forget" next to an address triggers a forgetting action', async () => {
+  it('clicking "forget" next to an device triggers a forgetting action', async () => {
     const { wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
-    await wrapper.vm.removeSavedAddress();
+    await wrapper.vm.removeSavedDevice();
     expect(wrapper.emitted().removed_address).toHaveLength(1);
   });
 
   it('clicking "continue" emits a "submit" event with the selected location ID', async () => {
     const { wrapper, els } = makeWrapper();
     await wrapper.vm.$nextTick();
+    updateConnectionStatus.mockResolvedValue(staticDevices[0]);
     els.KModal().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.emitted().submit[0][0].id).toEqual('1');
   });
 
@@ -121,7 +119,7 @@ xdescribe('SelectDeviceForm', () => {
   });
 
   it('does not show a horizontal line when there are no discovered addresses', async () => {
-    fetchDynamicAddresses.mockResolvedValue([]);
+    fetchDevices.mockResolvedValue(staticDevices);
     const { wrapper, els } = makeWrapper();
     await wrapper.vm.$nextTick();
     expect(els.horizontalLine().exists()).toBe(false);

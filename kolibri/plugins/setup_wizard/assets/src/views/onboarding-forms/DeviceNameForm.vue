@@ -1,7 +1,7 @@
 <template>
 
   <OnboardingStepBase
-    :title="$tr('deviceNameTitle')"
+    :title="coreString('deviceNameLabel')"
     :description="$tr('deviceNameDescription')"
     @continue="handleContinue"
   >
@@ -63,10 +63,6 @@
       },
     },
     $trs: {
-      deviceNameTitle: {
-        message: 'Device name',
-        context: '',
-      },
       deviceNameDescription: {
         message:
           'Give this device a name that can be easily recognized by you and others you connect with.',

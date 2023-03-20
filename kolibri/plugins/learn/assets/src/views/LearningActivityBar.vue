@@ -25,8 +25,8 @@
         <KIconButton
           icon="back"
           data-test="backButton"
-          :tooltip="$tr('goBack')"
-          :ariaLabel="$tr('goBack')"
+          :tooltip="coreString('goBackAction')"
+          :ariaLabel="coreString('goBackAction')"
           @click="onBackButtonClick"
         />
       </template>
@@ -452,10 +452,6 @@
       },
     },
     $trs: {
-      goBack: {
-        message: 'Go back',
-        context: 'Link to go back to the previous screen.',
-      },
       moreOptions: {
         message: 'More options',
         context: 'Tooltip text.',
@@ -504,6 +500,19 @@
   /deep/ .ui-toolbar__body,
   /deep/ .labeled-icon-wrapper {
     min-width: 0;
+  }
+
+  /deep/ .ui-toolbar__left {
+    margin-left: 5px;
+    overflow: hidden;
+  }
+
+  /deep/ .ui-toolbar__right {
+    display: flex;
+  }
+
+  /deep/ .ui-toolbar__nav-icon {
+    margin-left: 0; // prevents icon cutoff
   }
 
   /deep/ .ui-toolbar__body {

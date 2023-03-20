@@ -128,7 +128,7 @@ export default createTranslator('NotificationStrings', {
       'A confirmation message indicating that the PIN provided for authentication is correct',
   },
   syncAdded: {
-    message: 'Sync Schedule added',
+    message: 'Sync schedule added',
     context: 'Snackbar message for adding the sync schedule',
   },
   deviceRemove: {

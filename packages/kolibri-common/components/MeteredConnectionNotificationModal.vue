@@ -53,21 +53,21 @@
     $trs: {
       /* Second-person perspective: "You ..." */
       modalTitle: {
-        message: 'Use metered data?',
+        message: 'Use mobile data?',
         context:
-          'Title of a modal that permits a user to continue with or without using a metered data connection',
+          'Title of a modal that permits a user to continue with or without using a mobile data connection',
       },
       modalDescription: {
         message:
-          'You are using a metered connection. If you are on a limited data plan, you may have to pay extra charges.',
+          'You may have a limited amount of data on your mobile plan. Allowing Kolibri to download resources via mobile data may use up your entire plan and/or incur extra charges.',
         context: 'Information in a modal informing a user about their connection status.',
       },
       doNotUseMetered: {
-        message: 'No, do not use metered data',
+        message: 'Do not allow Kolibri to use mobile data',
         context: 'An option that a user can select in a form',
       },
       useMetered: {
-        message: 'Yes, use metered data',
+        message: 'Allow Kolibri to use mobile data',
         context: 'An option that a user can select in a form',
       },
     },

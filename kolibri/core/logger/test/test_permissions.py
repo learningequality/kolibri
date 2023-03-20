@@ -7,6 +7,7 @@ from django.test import TestCase
 
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
+from .factory_logger import GenerateCSVLogRequestFactory
 from .factory_logger import UserSessionLogFactory
 from kolibri.core.auth.test.helpers import create_dummy_facility_data
 
@@ -141,3 +142,35 @@ class UserSessionLogPermissionsTestCase(TestCase):
         self.assertTrue(learner.can_read(self.data["session_log"]))
         self.assertTrue(learner.can_update(self.data["session_log"]))
         self.assertTrue(learner.can_delete(self.data["session_log"]))
+
+
+class GenerateCSVLogRequestPermissionsTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.data = create_dummy_facility_data()
+        cls.data["log_request"] = GenerateCSVLogRequestFactory.create(
+            facility=cls.data["facility"],
+            log_type="summary",
+        )
+
+    def test_facility_admin_and_superuser_generatecsvlogrequest_permissions(self):
+        """ Facility admins and superusers can create, read, update, or delete CSV Log Requests """
+        for user in [
+            self.data["superuser"],
+            self.data["facility_admin"],
+        ]:
+            self.assertTrue(user.can_create_instance(self.data["log_request"]))
+            self.assertTrue(user.can_read(self.data["log_request"]))
+            self.assertTrue(user.can_update(self.data["log_request"]))
+            self.assertTrue(user.can_delete(self.data["log_request"]))
+
+    def test_facility_users_generatecsvlogrequest_permissions(self):
+        """ Facility coaches and members cannot create, read, update, or delete CSV Log Requests """
+        for user in [
+            self.data["facility_coach"],
+            self.data["learners_one_group"][0][1],
+        ]:
+            self.assertFalse(user.can_create_instance(self.data["log_request"]))
+            self.assertFalse(user.can_read(self.data["log_request"]))
+            self.assertFalse(user.can_update(self.data["log_request"]))
+            self.assertFalse(user.can_delete(self.data["log_request"]))

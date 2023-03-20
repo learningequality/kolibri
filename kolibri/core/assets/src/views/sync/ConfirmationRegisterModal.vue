@@ -57,7 +57,7 @@
           : this.coreString('cancelAction');
       },
       registerText() {
-        return this.alreadyRegistered ? null : this.$tr('register');
+        return this.alreadyRegistered ? null : this.coreString('register');
       },
     },
     methods: {
@@ -94,10 +94,6 @@
     $trs: {
       registerFacility: {
         message: 'Register facility',
-        context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
-      },
-      register: {
-        message: 'Register',
         context: "An action that describes 'registering' a facility to the Kolibri Data Portal.",
       },
       registerWith: {

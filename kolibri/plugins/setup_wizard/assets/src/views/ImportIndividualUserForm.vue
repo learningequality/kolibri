@@ -13,7 +13,7 @@
     @continue="handleSubmit"
   >
     <div v-if="noUsersImported">
-      {{ $tr('warningFirstImportedIsSuperuser') }}
+      {{ getCommonSyncString('warningFirstImportedIsSuperuser') }}
     </div>
 
     <KCircularLoader v-if="!facility" />
@@ -45,7 +45,7 @@
       <p>
         {{ $tr('doNotHaveUserCredentials') }}
         <KButton
-          :text=" $tr('useAdmin')"
+          :text="profileString('useAdminAccount')"
           appearance="basic-link"
           @click="openAdminCredentialsForm"
         />
@@ -62,7 +62,7 @@
 
       <KModal
         v-if="useAdmin"
-        :title="$tr('headerAdmin') "
+        :title="profileString('useAdminAccount')"
         :cancelText="coreString('cancelAction')"
         :submitText="coreString('continueAction')"
         @cancel="closeModal"
@@ -104,7 +104,10 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { FacilityImportResource } from '../api';
   import { FooterMessageTypes } from '../constants';
+  import commonProfileStrings from '../../../../user_profile/assets/src/views/commonProfileStrings';
   import OnboardingStepBase from './OnboardingStepBase';
+
+  commonProfileStrings;
 
   export default {
     name: 'ImportIndividualUserForm',
@@ -112,7 +115,7 @@
       OnboardingStepBase,
       PasswordTextbox,
     },
-    mixins: [commonSyncElements, commonCoreStrings],
+    mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings],
     data() {
       const footerMessageType = FooterMessageTypes.IMPORT_INDIVIDUALS;
       return {
@@ -320,12 +323,6 @@
       },
     },
     $trs: {
-      warningFirstImportedIsSuperuser: {
-        message:
-          'Please note: The first user you choose to import will be given super admin permissions on this device, and be able to manage all channels and device settings.',
-        context:
-          'A note at the top of the page for importing a user explaining that the first user imported will be given the permissions of a superuser',
-      },
       commaSeparatedPair: {
         message: '{first}, {second}',
         context: 'DO NOT TRANSLATE\nCopy the source string.',
@@ -361,17 +358,9 @@
           "'{full_name} ({username})' is an admin on '{device}'. This device is limited to features for learners only. Features for coaches and admins will not be available.",
       },
       /* eslint-enable */
-      headerAdmin: {
-        message: 'Use an admin account',
-        context: 'Modal form to introduce admin account credentials.',
-      },
       doNotHaveUserCredentials: {
         message: "Don't have the user credentials?",
         context: "'Credentials' refers to learner's username and password.",
-      },
-      useAdmin: {
-        message: 'Use an admin account',
-        context: 'Modal form to introduce admin account credentials.',
       },
     },
   };

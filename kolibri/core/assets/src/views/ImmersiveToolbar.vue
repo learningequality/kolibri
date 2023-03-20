@@ -139,4 +139,17 @@
     outline-offset: -4px;
   }
 
+  /deep/ .ui-toolbar__left {
+    margin-left: 5px;
+    overflow: hidden;
+  }
+
+  /deep/ .ui-toolbar__nav-icon {
+    margin-left: 0;
+  }
+
+  /deep/ .ui-toolbar__title {
+    text-overflow: ellipsis;
+  }
+
 </style>

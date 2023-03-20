@@ -8,7 +8,7 @@
     @cancel="$emit('cancel')"
   >
     <p class="description">
-      {{ $tr('primaryLocationChangeDescription') }}
+      {{ deviceString('primaryStorageLabel') }}
     </p>
     <KRadioButton
       v-for="path in storageLocations"
@@ -25,10 +25,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   export default {
     name: 'PrimaryStorageLocationModal',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     props: {
       storageLocations: {
         type: Array,
@@ -57,10 +58,6 @@
       changePrimaryLocation: {
         message: 'Change primary storage location',
         context: 'Prompt for changing the primary storage location.',
-      },
-      primaryLocationChangeDescription: {
-        message: 'Newly downloaded resources will be added to the primary storage location',
-        context: 'Description of primary storage location change message.',
       },
     },
   };

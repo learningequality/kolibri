@@ -36,9 +36,10 @@
         :layout8="{ span: 2, alignment: 'right' }"
         :layout4="{ span: 4, alignment: 'right' }"
       >
-        <KButton
+        <KRouterLink
+          appearance="raised-button"
           :text="coreString('explore')"
-          :primary="false"
+          :to="libraryPageRoute"
         />
       </KGridItem>
     </div>
@@ -54,7 +55,7 @@
           :title="channel.name"
           :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
-          :link="{}"
+          :link="genContentLinkBackLinkCurrentPage(channel.root)"
           :version="channel.version"
         />
       </KGridItem>
@@ -68,7 +69,9 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
+  import { PageNames } from '../../constants';
 
   export default {
     name: 'LibraryItem',
@@ -77,13 +80,19 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
+        genContentLinkBackLinkCurrentPage,
         windowIsSmall,
       };
     },
     props: {
+      deviceId: {
+        type: String,
+        default: null,
+      },
       deviceName: {
         type: String,
         required: false,
@@ -115,6 +124,16 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+    },
+    computed: {
+      libraryPageRoute() {
+        return {
+          name: PageNames.LIBRARY,
+          params: {
+            deviceId: this.deviceId,
+          },
+        };
       },
     },
     $trs: {

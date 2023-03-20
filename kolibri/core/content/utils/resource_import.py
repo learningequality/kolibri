@@ -374,7 +374,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
                     .values("base_url", "id")
                     .get(id=peer_id)
                 )
-                baseurl = NetworkClient(address=peer["base_url"]).base_url
+                baseurl = NetworkClient.build_for_address(peer["base_url"]).base_url
             except (NetworkLocation.DoesNotExist, NetworkLocationNotFound):
                 raise LocationError(
                     "The network location with the id {} does not exist".format(peer_id)

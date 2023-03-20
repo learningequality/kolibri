@@ -12,7 +12,7 @@
           width="125"
           height="125"
         >
-          <title id="kolibri-loader">Kolibri Loader</title>
+          <title id="kolibri-loader">{{ $tr('kolibriLoading') }}</title>
           <use xlink:href="#body" />
           <use xlink:href="#right-wing-inner" class="wing-inner" />
           <use xlink:href="#right-wing-middle" class="wing-middle" />
@@ -208,6 +208,12 @@
 
   export default {
     name: 'KolibriLoadingSnippet',
+    $trs: {
+      kolibriLoading: {
+        message: 'Kolibri loading',
+        context: 'Indicates Kolibri is loading',
+      },
+    },
   };
 
 </script>

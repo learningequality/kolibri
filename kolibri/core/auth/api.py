@@ -403,10 +403,10 @@ class FacilityUserViewSet(ValuesViewset):
             update_session_auth_hash(self.request, instance)
 
 
-class ExistingUsernameView(views.APIView):
-    def get(self, request):
-        username = request.GET.get("username")
-        facility_id = request.GET.get("facility")
+class UsernameAvailableView(views.APIView):
+    def post(self, request):
+        username = request.data.get("username")
+        facility_id = request.data.get("facility")
 
         if not username or not facility_id:
             return Response(
@@ -424,9 +424,20 @@ class ExistingUsernameView(views.APIView):
 
         try:
             FacilityUser.objects.get(username__iexact=username, facility=facility_id)
-            return Response({"username_exists": True}, status=status.HTTP_200_OK)
+            return Response(
+                [
+                    {
+                        "id": error_constants.USERNAME_ALREADY_EXISTS,
+                        "metadata": {
+                            "field": "username",
+                            "message": "Username already exists.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         except ObjectDoesNotExist:
-            return Response({"username_exists": False}, status=status.HTTP_200_OK)
+            return Response(True, status=status.HTTP_200_OK)
 
 
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
@@ -822,7 +833,18 @@ class SessionViewSet(viewsets.ViewSet):
                 username__iexact=username, facility=facility_id
             )
         except ObjectDoesNotExist:
-            unauthenticated_user = None
+            return Response(
+                [
+                    {
+                        "id": error_constants.NOT_FOUND,
+                        "metadata": {
+                            "field": "username",
+                            "message": "Username not found.",
+                        },
+                    }
+                ],
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
@@ -830,10 +852,7 @@ class SessionViewSet(viewsets.ViewSet):
             login(request, user)
             # Success!
             return self.get_session_response(request)
-        if (
-            unauthenticated_user is not None
-            and unauthenticated_user.password == NOT_SPECIFIED
-        ):
+        if unauthenticated_user.password == NOT_SPECIFIED:
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.

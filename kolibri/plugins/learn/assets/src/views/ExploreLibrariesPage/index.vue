@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="$tr('exploreLibraries')"
+    :appBarTitle="learnString('exploreLibraries')"
     :route="backRoute"
     :primary="false"
   >
@@ -18,8 +18,9 @@
     </div>
     <LibraryItem
       v-if="showKolibriLibrary"
-      :key="$tr('kolibriLibrary')"
-      :deviceName="$tr('kolibriLibrary')"
+      :key="kolibriStudioId"
+      :deviceId="kolibriStudioId"
+      :deviceName="learnString('kolibriLibrary')"
       deviceIcon="cloud"
       :channels="kolibriLibraryChannels"
       :showDescription="true"
@@ -29,6 +30,7 @@
     <LibraryItem
       v-for="device in pinnedDevices"
       :key="device['instance_id']"
+      :deviceId="device['instance_id']"
       :deviceName="device['device_name']"
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
@@ -46,6 +48,7 @@
       <LibraryItem
         v-for="device in moreDevices"
         :key="device['instance_id']"
+        :deviceId="device['instance_id']"
         :deviceName="device['device_name']"
         :deviceIcon="getDeviceIcon(device)"
         :channels="device.channels"
@@ -73,7 +76,7 @@
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useDevices from '../../composables/useDevices';
-  import { PageNames } from '../../constants';
+  import { PageNames, KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
   export default {
@@ -116,6 +119,9 @@
         return (
           this.moreDevices.length > 0 && this.moreDevices.length < this.unpinnedDevices?.length
         );
+      },
+      kolibriStudioId() {
+        return KolibriStudioId;
       },
       networkDevicesWithChannels() {
         return this.networkDevices.filter(device => device.channels?.length > 0);
@@ -195,10 +201,6 @@
         message: 'All libraries',
         context: 'A header for Explore Libraries page',
       },
-      exploreLibraries: {
-        message: 'Explore libraries',
-        context: 'Title for Explore Libraries page',
-      },
       showingLibraries: {
         message: 'Showing libraries on other devices around you',
         continue: 'Description of the kind of devices displayed',
@@ -209,14 +211,6 @@
       allResources: {
         message: 'All resources',
         context: 'A filter option to show all resources',
-      },
-      kolibriLibrary: {
-        message: 'Kolibri Library',
-        context: 'Title for Kolibri Libraries',
-      },
-      libraryOf: {
-        message: 'Library of {device}',
-        context: 'A header for a device Library',
       },
       myDownloadsOnly: {
         message: 'My downloads only',

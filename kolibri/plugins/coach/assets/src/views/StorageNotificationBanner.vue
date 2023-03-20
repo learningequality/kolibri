@@ -2,7 +2,7 @@
 
   <div class="alert" :style="{ backgroundColor: $themePalette.red.v_50, display: displayBanner }">
     <h1 style="display: none">
-      Insufficient learner storage notification
+      {{ $tr('insufficientStorageHeader') }}
     </h1>
     <div style="display:flex">
       <div>
@@ -84,6 +84,10 @@
       closeNotification: {
         message: 'Close notification',
         context: 'Label for a button used to close a notification.',
+      },
+      insufficientStorageHeader: {
+        message: 'Insufficient learner storage notification',
+        context: 'Extra label describing notification for screen reader users',
       },
     },
   };

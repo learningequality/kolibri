@@ -12,7 +12,7 @@ from kolibri.core.utils.urls import reverse_remote
 
 class OnMyOwnSetupViewset(APIView):
     """
-    Viewset to determine if the facility has been setup as an "On my own setup" facoñotu.
+    Viewset to determine if the facility has been setup as an "On my own setup" facility.
     """
 
     def get(self, request, format=None):

@@ -1,3 +1,5 @@
+from uuid import UUID
+
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
@@ -7,11 +9,29 @@ from rest_framework.viewsets import GenericViewSet
 
 from kolibri.core.content import models
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
+from kolibri.core.content.constants.schema_versions import MIN_CONTENT_SCHEMA_VERSION
 from kolibri.core.content.utils.sqlalchemybridge import BASES
 
 
 class ImportMetadataViewset(GenericViewSet):
     default_content_schema = CONTENT_SCHEMA_VERSION
+    min_content_schema = MIN_CONTENT_SCHEMA_VERSION
+
+    def _error_message(self, low):
+        error = "Schema version is too "
+        if low:
+            error += "low"
+        else:
+            error += "high"
+        if self.default_content_schema == self.min_content_schema:
+            error += ", exports only suported for version {}".format(
+                self.default_content_schema
+            )
+        else:
+            error += ", exports only suported for versions {} to {}".format(
+                self.min_content_schema, self.default_content_schema
+            )
+        return error
 
     def retrieve(self, request, pk=None):
         """
@@ -23,13 +43,15 @@ class ImportMetadataViewset(GenericViewSet):
         :return: an object with keys for each content metadata table and a schema_version key
         """
 
-        content_schema = request.data.get("schema_version", self.default_content_schema)
+        content_schema = request.query_params.get(
+            "schema_version", self.default_content_schema
+        )
 
         try:
             if int(content_schema) > int(self.default_content_schema):
-                return HttpResponseBadRequest(
-                    "Schema version is too high, not supported by this version of Kolibri"
-                )
+                return HttpResponseBadRequest(self._error_message(False))
+            if int(content_schema) < int(self.min_content_schema):
+                return HttpResponseBadRequest(self._error_message(True))
             base = BASES[content_schema]
         except ValueError:
             return HttpResponseBadRequest(
@@ -41,7 +63,7 @@ class ImportMetadataViewset(GenericViewSet):
             )
 
         # Get the model for the target node here - we do this so that we trigger a 404 immediately if the node
-        # does not exist (or exists but is not available).
+        # does not exist.
         node = get_object_or_404(models.ContentNode.objects.all(), pk=pk)
 
         nodes = node.get_ancestors(include_self=True)
@@ -97,7 +119,17 @@ class ImportMetadataViewset(GenericViewSet):
             # we want to avoid that being coerced to Python objects.
             cursor.execute(*qs.query.sql_with_params())
             data[qs.model._meta.db_table] = [
-                dict(zip(raw_fields, row)) for row in cursor
+                # Coerce any UUIDs to their hex representation, as Postgres raw values will be UUIDs
+                dict(
+                    zip(
+                        raw_fields,
+                        (
+                            value.hex if isinstance(value, UUID) else value
+                            for value in row
+                        ),
+                    )
+                )
+                for row in cursor
             ]
 
         data["schema_version"] = content_schema

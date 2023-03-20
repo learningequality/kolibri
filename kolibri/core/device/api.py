@@ -1,7 +1,6 @@
 from datetime import timedelta
 from sys import version_info
 
-import requests
 from django.conf import settings
 from django.contrib.auth import login
 from django.db.models import Max
@@ -22,7 +21,6 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 
 import kolibri
@@ -44,7 +42,6 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
-from kolibri.core.device.permissions import IsNotAnonymous
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.core.device.utils import get_device_setting
@@ -57,7 +54,6 @@ from kolibri.core.public.constants.user_sync_statuses import RECENTLY_SYNCED
 from kolibri.core.public.constants.user_sync_statuses import SYNCING
 from kolibri.core.public.constants.user_sync_statuses import UNABLE_TO_SYNC
 from kolibri.core.utils.drf_utils import swagger_auto_schema_available
-from kolibri.core.utils.urls import reverse_remote
 from kolibri.plugins.utils import initialize_kolibri_plugin
 from kolibri.plugins.utils import iterate_plugins
 from kolibri.plugins.utils import PluginDoesNotExist
@@ -412,28 +408,6 @@ class DriveInfoViewSet(viewsets.ViewSet):
 
     def retrieve(self, request, pk):
         return Response(get_mounted_drive_by_id(pk)._asdict())
-
-
-class RemoteFacilitiesViewset(views.APIView):
-    """
-    Api to retrieve facilities information from a remote device
-    :param str baseurl: url of the server, including port to connect
-    :return : json object containing the list of facilities of the device, with their id, name, learner_can_sign_up and learner_can_login_with_no_password info
-    """
-
-    permission_classes = (IsNotAnonymous,)
-
-    def get(self, request):
-        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
-        url = reverse_remote(baseurl, "kolibri:core:publicfacility-list")
-        try:
-            response = requests.get(url)
-            if response.status_code == 200:
-                return Response(response.json())
-            else:
-                return Response({})
-        except Exception as e:
-            raise ValidationError(detail=str(e))
 
 
 class PathPermissionView(views.APIView):

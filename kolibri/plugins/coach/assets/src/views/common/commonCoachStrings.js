@@ -138,7 +138,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Refers to LESSON. Default option in the selector used to filter and display lessons by status.',
   },
   filterLessonNotVisible: {
-    message: 'Not Visible',
+    message: 'Not visible',
     context:
       'Refers to LESSON. Option in the selector used to filter and display only the lessons not visible  to learners.',
   },
@@ -163,7 +163,7 @@ const coachStrings = createTranslator('CommonCoachStrings', {
       'Refers to QUIZ. Option in the selector used to filter and display only the ended quizzes.',
   },
   filterQuizNotStarted: {
-    message: 'Not Started',
+    message: 'Not started',
     context:
       'Refers to QUIZ. Option in the selector used to filter and display only the quizes not started. ',
   },
@@ -214,6 +214,29 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     message: 'Lessons assigned',
     context:
       'Indicates which lessons have been assigned to a learner or a group in the reports section.',
+  },
+  makeLessonVisibleTitle: {
+    message: 'Make lesson visible',
+    context: 'Informational prompt for coaches when updating lesson visibility to learners',
+  },
+  makeLessonNotVisibleTitle: {
+    message: 'Make lesson not visible',
+    context: 'Informational prompt for coaches when updating lesson visibility to learners',
+  },
+  makeLessonVisibleText: {
+    message:
+      'Learners will be able to see this lesson and use its resources. Resource files in this lesson will be downloaded to learn-only devices that are set up to sync with this server.',
+    context: 'Informational prompt for coaches when updating lesson visibility to learners',
+  },
+  makeLessonNotVisibleText: {
+    message:
+      'Learners will no longer be able to see this lesson. Resource files in this lesson will be removed from learn-only devices that are set up to sync with this server.',
+    context: 'Informational prompt for coaches when updating lesson visibility to learners',
+  },
+  totalLessonsSize: {
+    message: 'Total size of lessons visible to learners: {size}',
+    context:
+      "Descriptive text at the top of the table that displays the calculated file size of all lessons' resources (i.e. 120 MB)",
   },
   membersLabel: {
     message: 'Members',
