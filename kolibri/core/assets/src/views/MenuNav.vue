@@ -167,6 +167,18 @@
       </div>
     </transition>
 
+    <div
+      v-if="isAppContext"
+      class="bottom-bar"
+      :style="{ backgroundColor: $themeTokens.textInverted }"
+    >
+      <component
+        :is="component"
+        v-for="component in bottomMenuOptions"
+        :key="component.name"
+      />
+    </div>
+
     <Backdrop
       v-show="navShown"
       :transitions="true"
@@ -210,7 +222,6 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import navComponentsMixin from '../mixins/nav-components';
-  import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import logout from './LogoutSideNavEntry';
@@ -229,7 +240,7 @@
   ];
 
   export default {
-    name: 'SideNav',
+    name: 'MenuNav',
     components: {
       Backdrop,
       CoreMenu,
@@ -270,7 +281,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind']),
+      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -294,6 +305,9 @@
         return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
           this.filterByRole
         );
+      },
+      bottomMenuOptions() {
+        return navComponents.filter(component => component.bottomBar === true);
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
@@ -537,6 +551,20 @@
   .logo {
     max-width: 100%;
     height: auto;
+  }
+
+  .bottom-bar {
+    @extend %dropshadow-4dp;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-around;
+    height: 50px;
   }
 
 </style>

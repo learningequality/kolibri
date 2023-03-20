@@ -1,41 +1,10 @@
 <template>
 
-  <div>
-    <CoreMenuOption
-      :label="$tr('device')"
-      :iconAfter="iconAfter"
-      :link="isAppContext ? null : url"
-      icon="device"
-      @select="visibleSubMenu = !visibleSubMenu"
-    />
-    <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in routes" :key="key" class="link-container">
-        <a
-          :href="nestedObject.route"
-          class="link"
-          :class="$computedClass(subpathStyles(nestedObject.route))"
-          @click="handleNav(nestedObject.route)"
-        >
-          {{ nestedObject.text }}
-        </a>
-      </div>
-      <!-- routes supported for "general" device permissions, for non-LOD configurations -->
-      <div v-if="!isSubsetOfUsersDevice">
-        <div v-for="(nestedObject, key) in generalDeviceRoutes" :key="key" class="link-container">
-          <a
-            :href="nestedObject.route"
-            class="link"
-            :class="$computedClass(subpathStyles(nestedObject.route))"
-            @click="handleNav(nestedObject.route)"
-          >
-            {{ nestedObject.text }}
-          </a>
-        </div>
-
-      </div>
-
-    </div>
-  </div>
+  <CoreMenuOption
+    :label="$tr('device')"
+    icon="device"
+    :subRoutes="isSubsetOfUsersDevice ? routes : generalDeviceRoutes"
+  />
 
 </template>
 
@@ -43,7 +12,6 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { mapGetters } from 'vuex';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
@@ -61,15 +29,10 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        visibleSubMenu: false,
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
       };
     },
-    mounted() {
-      this.submenuShouldBeOpen();
-    },
     computed: {
-      ...mapGetters(['isAppContext']),
       url() {
         return urls['kolibri:kolibri.plugins.device:device_management']();
       },
@@ -101,47 +64,10 @@
           },
         };
       },
-      iconAfter() {
-        if (this.isAppContext) {
-          return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
-        }
-      },
     },
     methods: {
       generateNavRoute(route) {
         return generateNavRoute(this.url, route, baseRoutes);
-      },
-      toggleAndroidMenu() {
-        this.$emit('toggleAndroidMenu');
-      },
-      isActiveLink(route) {
-        return route.includes(this.$router.currentRoute.path);
-      },
-      submenuShouldBeOpen() {
-        // which plugin are we currently in?
-        this.visibleSubMenu = window.location.pathname.includes(this.url);
-      },
-      subpathStyles(route) {
-        if (this.isActiveLink(route)) {
-          console.log('active');
-          return {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          };
-        }
-        return {
-          color: this.$themeTokens.text,
-          textDecoration: 'none',
-          ':hover': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':focus': this.$coreOutline,
-        };
-      },
-      handleNav(route) {
-        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
     },
     $trs: {

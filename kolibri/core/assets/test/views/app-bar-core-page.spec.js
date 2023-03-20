@@ -51,7 +51,7 @@ describe('AppBarPage', () => {
     it('should hide the side nav when the AppBar.toggleSideNav event is emitted', async () => {
       const wrapper = createWrapper();
       await wrapper.setData({ navShown: true });
-      await wrapper.vm.$refs.sideNav.$emit('toggleSideNav');
+      await wrapper.vm.$refs.menuNav.$emit('toggleSideNav');
       expect(wrapper.findComponent({ name: 'SideNav' }).vm.navShown).toBe(false);
     });
   });

@@ -58,7 +58,7 @@
     methods: {
       findFirstEl() {
         this.$nextTick(() => {
-          this.$refs.sideNav.focusFirstEl();
+          this.$refs.menuNav.focusFirstEl();
         });
       },
     },

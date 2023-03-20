@@ -1,28 +1,10 @@
 <template>
 
-  <div>
-    <CoreMenuOption
-      :label="coreString('coachLabel')"
-      :link="isAppContext ? null : url"
-      :iconAfter="iconAfter"
-      icon="coach"
-      @select="handleMenu()"
-    />
-    <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in coachRoutes" :key="key">
-        <div class="link-container">
-          <a
-            :href="nestedObject.route"
-            class="link"
-            :class="$computedClass(subpathStyles(nestedObject.route))"
-            @click="handleNav(nestedObject.route)"
-          >
-            {{ nestedObject.text }}
-          </a>
-        </div>
-      </div>
-    </div>
-  </div>
+  <CoreMenuOption
+    :label="coreString('coachLabel')"
+    icon="coach"
+    :subRoutes="coachRoutes"
+  />
 
 </template>
 
@@ -30,7 +12,6 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import { mapGetters } from 'vuex';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
@@ -47,16 +28,7 @@
       CoreMenuOption,
     },
     mixins: [commonCoach, commonCoreStrings, coachStringsMixin],
-    data() {
-      return {
-        visibleSubMenu: false,
-      };
-    },
-    mounted() {
-      this.submenuShouldBeOpen();
-    },
     computed: {
-      ...mapGetters(['isAppContext']),
       url() {
         return urls['kolibri:kolibri.plugins.coach:coach']();
       },
@@ -76,11 +48,6 @@
           },
         };
       },
-      iconAfter() {
-        if (this.isAppContext) {
-          return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
-        }
-      },
     },
     methods: {
       generateNavRoute(route) {
@@ -99,43 +66,6 @@
             route
           );
         }
-      },
-      handleMenu() {
-        // in the app, and there is an active class ID
-        if (this.isAppContext) {
-          this.visibleSubMenu = !this.visibleSubMenu;
-        }
-      },
-      toggleAndroidMenu() {
-        this.$emit('toggleAndroidMenu');
-      },
-      isActiveLink(route) {
-        return route.includes(this.$router.currentRoute.path);
-      },
-      submenuShouldBeOpen() {
-        // which plugin are we currently in?
-        this.visibleSubMenu = window.location.pathname.includes(this.url);
-      },
-      subpathStyles(route) {
-        if (this.isActiveLink(route)) {
-          return {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          };
-        }
-        return {
-          color: this.$themeTokens.text,
-          textDecoration: 'none',
-          ':hover': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':focus': this.$coreOutline,
-        };
-      },
-      handleNav(route) {
-        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
     },
     role: UserKinds.COACH,

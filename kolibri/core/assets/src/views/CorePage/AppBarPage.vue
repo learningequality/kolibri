@@ -11,7 +11,7 @@
         @toggleSideNav="navShown = !navShown"
         @showLanguageModal="languageModalShown = true"
       >
-        <template v-if="!isAppContext" #sub-nav>
+        <template #sub-nav>
           <slot name="subNav"></slot>
         </template>
       </AppBar>
@@ -31,8 +31,8 @@
       <slot></slot>
     </div>
 
-    <SideNav
-      ref="sideNav"
+    <MenuNav
+      ref="menuNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
       @shouldFocusFirstEl="findFirstEl()"
@@ -44,13 +44,6 @@
       @cancel="languageModalShown = false"
     />
 
-    <AppBottomBar
-      v-if="isAppContext"
-      ref="sideNav"
-      class="android-nav-bottom-bar"
-      :navShown="true"
-    />
-
   </div>
 
 </template>
@@ -58,13 +51,11 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
-  import SideNav from 'kolibri.coreVue.components.SideNav';
+  import MenuNav from 'kolibri.coreVue.components.MenuNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AppBottomBar from '../AppBottomBar';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
@@ -72,7 +63,14 @@
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, AppBottomBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
+    components: {
+      AppBar,
+      LanguageSwitcherModal,
+      ScrollingHeader,
+      MenuNav,
+      StorageNotification,
+    },
+    mixins: [commonCoreStrings],
     setup() {
       let userDeviceStatus = null;
       if (plugin_data.isSubsetOfUsersDevice) {
@@ -82,7 +80,6 @@
         userDeviceStatus,
       };
     },
-    mixins: [commonCoreStrings],
     props: {
       title: {
         type: String,
@@ -106,7 +103,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext']),
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides
@@ -135,7 +131,7 @@
       findFirstEl() {
         this.$nextTick(() => {
           if (this.navShown) {
-            this.$refs.sideNav.focusFirstEl();
+            this.$refs.menuNav.focusFirstEl();
           }
         });
       },

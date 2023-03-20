@@ -1,26 +1,10 @@
 <template>
 
-  <div>
-    <CoreMenuOption
-      :label="coreString('facilityLabel')"
-      :link="isAppContext ? null : url"
-      :iconAfter="iconAfter"
-      icon="facility"
-      @select="visibleSubMenu = !visibleSubMenu"
-    />
-    <div v-if="isAppContext && visibleSubMenu">
-      <div v-for="(nestedObject, key) in facilityRoutes" :key="key" class="link-container">
-        <a
-          :href="nestedObject.route"
-          class="link"
-          :class="$computedClass(subpathStyles(nestedObject.route))"
-          @click="handleNav(nestedObject.route)"
-        >
-          {{ nestedObject.text }}
-        </a>
-      </div>
-    </div>
-  </div>
+  <CoreMenuOption
+    :label="coreString('facilityLabel')"
+    icon="facility"
+    :subRoutes="facilityRoutes"
+  />
 
 </template>
 
@@ -32,7 +16,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { mapGetters } from 'vuex';
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import baseRoutes from '../baseRoutes';
   import { PageNames as FacilityPageNames } from '../constants';
@@ -43,16 +26,7 @@
     components: {
       CoreMenuOption,
     },
-    data() {
-      return {
-        visibleSubMenu: false,
-      };
-    },
-    mounted() {
-      this.submenuShouldBeOpen();
-    },
     computed: {
-      ...mapGetters(['isAppContext']),
       url() {
         return urls['kolibri:kolibri.plugins.facility:facility_management']();
       },
@@ -76,11 +50,6 @@
           },
         };
       },
-      iconAfter() {
-        if (this.isAppContext) {
-          return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
-        }
-      },
     },
     methods: {
       generateNavRoute(route) {
@@ -90,37 +59,6 @@
           params = { facilityId: this.$store.getters.currentFacilityId };
           return generateNavRoute(this.url, route, baseRoutes, params);
         }
-      },
-      toggleAndroidMenu() {
-        this.$emit('toggleAndroidMenu');
-      },
-      isActiveLink(route) {
-        return route.includes(this.$router.currentRoute.path);
-      },
-      submenuShouldBeOpen() {
-        // which plugin are we currently in?
-        this.visibleSubMenu = window.location.pathname.includes(this.url);
-      },
-      subpathStyles(route) {
-        if (this.isActiveLink(route)) {
-          return {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          };
-        }
-        return {
-          color: this.$themeTokens.text,
-          textDecoration: 'none',
-          ':hover': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':focus': this.$coreOutline,
-        };
-      },
-      handleNav(route) {
-        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
     },
     role: UserKinds.ADMIN,
