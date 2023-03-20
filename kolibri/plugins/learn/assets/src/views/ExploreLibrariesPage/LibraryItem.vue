@@ -55,7 +55,7 @@
           :title="channel.name"
           :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
-          :link="genContentLinkBackLinkCurrentPage(channel.id)"
+          :link="genContentLinkBackLinkCurrentPage(channel.root)"
           :version="channel.version"
         />
       </KGridItem>
