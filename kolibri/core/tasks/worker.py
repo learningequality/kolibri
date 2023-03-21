@@ -24,6 +24,8 @@ def execute_job(job_id):
 
     job = storage.get_job(job_id)
 
+    storage.mark_job_as_running(job_id)
+
     job.execute()
 
     connection.dispose()
@@ -162,8 +164,6 @@ class Worker(object):
 
         :return future:
         """
-        self.storage.mark_job_as_running(job.job_id)
-
         future = self.workers.submit(
             execute_job,
             job_id=job.job_id,
