@@ -15,8 +15,7 @@
 --presplash assets/icon.png
 --presplash-color #FFFFFF
 --icon assets/icon.png
---fileprovider-paths src/fileprovider_paths.xml
 --add-asset assets/_load.html:_load.html
 --whitelist ./allowlist.txt
 --blacklist ./blocklist.txt
---add-source src/java/
+--storage-dir ./python-for-android

@@ -43,11 +43,12 @@ jobs:
         # This is where python for android puts its intermediary build
         # files - we cache this to improve build performance, but be
         # aggressive in clearing the cache whenever any file changes
-        # in the repository.
-        path: ~/.local
-        key: ${{ runner.os }}-local-${{ hashFiles('*') }}
+        # in the repository, especially as we commit files to this folder
+        # too, so we don't want the cache to override these files.
+        path: ./python-for-android
+        key: ${{ runner.os }}-python-for-android-${{ hashFiles('*') }}
         restore-keys: |
-          ${{ runner.os }}-local-
+          ${{ runner.os }}-python-for-android-
     - uses: actions/cache@v2
       with:
         path: ~/.cache/pip
