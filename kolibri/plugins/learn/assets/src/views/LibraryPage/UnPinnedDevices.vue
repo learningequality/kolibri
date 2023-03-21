@@ -23,7 +23,7 @@
         </span>
       </h2>
       <p class="channels">
-        {{ channels }} {{ $tr('channels') }}
+        {{ $tr('channels', { count: channels }) }}
       </p>
     </KRouterLink>
   </div>
@@ -81,6 +81,7 @@
         };
       },
     },
+
     methods: {
       getDeviceIcon() {
         if (this.operatingSystem === 'Android') {
@@ -92,9 +93,10 @@
         }
       },
     },
+   
     $trs: {
       channels: {
-        message: 'channels',
+        message: '{count, plural, one {channel} other {channels}',
         context: 'Indicates the number of channels',
       },
     },

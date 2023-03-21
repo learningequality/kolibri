@@ -157,17 +157,17 @@
           'Shown to the learner when learning materials were automatically removed to make space for new materials',
       },
       goToDownloads: {
-        message: 'Go To My Downloads',
+        message: 'Go to My Downloads',
         context:
           'Text for a button that takes the learner to a page where they can remove downloaded materials',
       },
       manageChannels: {
-        message: 'Manage Channels',
+        message: 'Manage channels',
         context:
           'Text for a button that takes the admin to a page where they can remove imported channels',
       },
       bannerHeading: {
-        message: 'Storage Notification',
+        message: 'Storage notification',
         context: 'Visually hidden heading of the storage notification banner',
       },
     },

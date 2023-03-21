@@ -109,8 +109,8 @@ class Storage(object):
         """
         Returns the number of jobs currently in the storage.
         """
-        with self.session_scope() as session:
-            return session.query(ORMJob).count()
+        with self.engine.connect() as conn:
+            return conn.execute(func.count(ORMJob.id)).scalar()
 
     def __contains__(self, item):
         """
@@ -120,10 +120,11 @@ class Storage(object):
         job_id = item
         if isinstance(item, Job):
             job_id = item.job_id
-        with self.session_scope() as session:
-            return session.query(
-                session.query(ORMJob).filter_by(id=job_id).exists()
-            ).scalar()
+        with self.engine.connect() as connection:
+            return (
+                connection.execute(select(ORMJob).where(ORMJob.id == job_id)).fetchone()
+                is not None
+            )
 
     def recreate_tables(self):
         self.Base.metadata.drop_all(self.engine)
@@ -250,40 +251,36 @@ class Storage(object):
             return job
 
     def get_canceling_jobs(self, queues=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.CANCELING)
-
-            if queues:
-                q = q.filter(ORMJob.queue.in_(queues))
-
-            jobs = q.order_by(ORMJob.time_created).all()
-
-            return [self._orm_to_job(job) for job in jobs]
+        return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
 
     def get_running_jobs(self, queues=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob).filter(ORMJob.state == State.RUNNING)
+        return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
+
+    def get_jobs_by_state(self, state, queues=None):
+        with self.engine.connect() as conn:
+            q = select(ORMJob).where(ORMJob.state == state)
 
             if queues:
-                q = q.filter(ORMJob.queue.in_(queues))
+                q = q.where(ORMJob.queue.in_(queues))
 
-            jobs = q.order_by(ORMJob.time_created).all()
+            q = q.order_by(ORMJob.time_created)
+            jobs = conn.execute(q)
 
             return [self._orm_to_job(job) for job in jobs]
 
     def get_all_jobs(self, queue=None, repeating=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
+        with self.engine.connect() as conn:
+            q = select(ORMJob)
 
             if queue:
-                q = q.filter(ORMJob.queue == queue)
+                q = q.where(ORMJob.queue == queue)
 
             if repeating is True:
-                q = q.filter(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
+                q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
             elif repeating is False:
-                q = q.filter(ORMJob.repeat == 0)
+                q = q.where(ORMJob.repeat == 0)
 
-            orm_jobs = q.all()
+            orm_jobs = conn.execute(q)
 
             return [self._orm_to_job(o) for o in orm_jobs]
 
@@ -291,24 +288,14 @@ class Storage(object):
         """
         Do a quick query to raise errors if the database is unusable.
         """
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
-
+        with self.engine.connect() as conn:
+            q = conn.execute(select(ORMJob))
             q.first()
 
-    def count_all_jobs(self, queue=None):
-        with self.session_scope() as s:
-            q = s.query(ORMJob)
-
-            if queue:
-                q = q.filter(ORMJob.queue == queue)
-
-            return q.count()
-
     def get_job(self, job_id):
-        with self.session_scope() as session:
-            job, _ = self._get_job_and_orm_job(job_id, session)
-            return job
+        orm_job = self.get_orm_job(job_id)
+        job = self._orm_to_job(orm_job)
+        return job
 
     def get_orm_job(self, job_id):
         with self.engine.connect() as connection:
@@ -329,10 +316,8 @@ class Storage(object):
         Raises `JobNotRestartable` exception if the job with id = job_id state is
         not in CANCELED or FAILED.
         """
-        with self.session_scope() as session:
-            job_to_restart, orm_job = self._get_job_and_orm_job(job_id, session)
-            queue = orm_job.queue
-            priority = orm_job.priority
+        orm_job = self.get_orm_job(job_id)
+        job_to_restart = self._orm_to_job(orm_job)
 
         if job_to_restart.state in [State.CANCELED, State.FAILED]:
             self.clear(job_id=job_to_restart.job_id, force=False)
@@ -340,7 +325,7 @@ class Storage(object):
                 job_to_restart,
                 job_id=job_to_restart.job_id,
             )
-            return self.enqueue_job(job, queue=queue, priority=priority)
+            return self.enqueue_job(job, queue=orm_job.queue, priority=orm_job.priority)
         else:
             raise JobNotRestartable(
                 "Cannot restart job with state={}".format(job_to_restart.state)
@@ -454,7 +439,7 @@ class Storage(object):
                 if state is not None:
                     orm_job.state = job.state = state
                     if state == State.FAILED and orm_job.retry_interval is not None:
-                        orm_job.state = State.QUEUED
+                        orm_job.state = job.state = State.QUEUED
                         orm_job.scheduled_time = naive_utc_datetime(
                             self._now() + timedelta(seconds=orm_job.retry_interval)
                         )
@@ -465,7 +450,7 @@ class Storage(object):
                                 if orm_job.repeat is not None
                                 else None
                             )
-                            orm_job.state = State.QUEUED
+                            orm_job.state = job.state = State.QUEUED
                             orm_job.scheduled_time = naive_utc_datetime(
                                 self._now() + timedelta(seconds=orm_job.interval)
                             )

@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 
 const file_manifest = {
@@ -128,8 +129,9 @@ async function findComment(github, context, issue_number) {
   }
 }
 
-async function uploadReleaseAsset(github, context, name, release_id) {
-  const extension = name.split('.').pop()
+async function uploadReleaseAsset(github, context, filePath, release_id) {
+  const name = path.basename(filePath);
+  const extension = path.extname(name)
   const label = (file_manifest[extension] || {}).description || name
   await github.rest.repos.uploadReleaseAsset({
     owner: context.repo.owner,
@@ -137,7 +139,7 @@ async function uploadReleaseAsset(github, context, name, release_id) {
     release_id,
     name,
     label,
-    data: fs.readFileSync(name),
+    data: fs.readFileSync(filePath),
   });
 }
 

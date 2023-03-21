@@ -218,7 +218,7 @@
                 class="download-limit-textbox"
                 :disabled="notEnoughFreeSpace || isRemoteContent"
                 type="number"
-                label="GB"
+                :label="$tr('sizeInGigabytesLabel')"
                 :min="0"
                 :max="freeSpace"
                 :invalid="notEnoughFreeSpace"
@@ -947,27 +947,27 @@
         context: 'Label for device settings controlling how Kolibri interacts with other devices.',
       },
       allowDownloadOnMeteredConnection: {
-        message: 'Download on metered connection',
+        message: 'Download on mobile connection',
         context:
-          'Label for device setting that allows user to determine whether or not to download data on metered connections',
+          'Label for device setting that allows user to determine whether or not to download data on mobile connections',
       },
       DownloadOnMeteredConnectionDescription: {
         message:
-          'If users on this device are using Kolibri with a limited data plan, they may have to pay extra charges on a metered connection.',
+          'If users on this device are using Kolibri with a limited data plan, they may have to pay extra charges on a mobile connection.',
         context:
           'Warns the user of potential extra charges if using Kolibri with a limited data plan.',
       },
       doNotAllowDownload: {
-        message: 'Do not allow download on a metered connection',
-        context: 'Option to not allow downloads on metered connections.',
+        message: 'Do not allow download on a mobile connection',
+        context: 'Option to not allow downloads on mobile connections.',
       },
       allowDownload: {
-        message: 'Allow download on a metered connection',
-        context: 'Option to allow downloads on metered connections.',
+        message: 'Allow download on a mobile connection',
+        context: 'Option to allow downloads on mobile connections.',
       },
       primaryStorage: {
         message: 'Primary storage location',
-        context: 'Option to allow downloads on metered connections.',
+        context: 'Option to allow downloads on mobile connections.',
       },
       primaryStorageDescription: {
         message:
@@ -1010,6 +1010,11 @@
         message: 'Set storage limit for auto-download and learner-initiated downloads',
         context: "Option on 'Device settings' page.",
       },
+      sizeInGigabytesLabel: {
+        message: 'GB',
+        context:
+          'Indicates the gigabyte unit of digital information when referring to the storage space available on a device.\n\nSee https://en.wikipedia.org/wiki/Gigabyte',
+      },
       setStorageLimitDescription: {
         message:
           'Kolibri will not auto-download more than a set amount of remaining storage on the device',
@@ -1024,7 +1029,7 @@
         context: 'Menu option for storage paths',
       },
       addLocation: {
-        message: 'Add Location',
+        message: 'Add location',
         context: 'Label for a button used to add storage location',
       },
       changeLocation: {

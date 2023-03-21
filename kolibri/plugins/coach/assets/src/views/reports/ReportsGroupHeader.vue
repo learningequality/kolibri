@@ -18,7 +18,7 @@
       <KTabsList
         ref="tabsList"
         :tabsId="REPORTS_GROUP_TABS_ID"
-        ariaLabel="Group reports"
+        :ariaLabel="$tr('groupReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
         :style="{ position: 'relative', top: '5px' }"
@@ -104,6 +104,10 @@
         message: 'All groups',
         context:
           "Refers to a link that takes the user back to the 'Groups' tab in the 'Reports' section where they can see a list of all the groups in a class.",
+      },
+      groupReports: {
+        message: 'Group reports',
+        context: 'Labels the group reports for screen reader users',
       },
     },
   };
