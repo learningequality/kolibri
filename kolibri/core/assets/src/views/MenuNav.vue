@@ -6,12 +6,13 @@
     tabindex="0"
     @keyup.esc="toggleNav"
   >
-    <transition name="side-nav">
+    <transition :name="isAppContext ? 'bottom-nav' : 'side-nav'">
       <div
         v-show="navShown"
         class="side-nav"
+        :class="isAppContext ? 'bottom-offset' : ''"
         :style="{
-          width: `${width}px`,
+          width: `${width}`,
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
         }"
@@ -25,7 +26,7 @@
 
           <div
             class="side-nav-scrollable-area"
-            :style="{ top: `${topBarHeight}px`, width: `${width}px` }"
+            :style="{ top: `${topBarHeight}px`, width: `${width}` }"
           >
             <img
               v-if="themeConfig.sideNav.topLogo"
@@ -70,7 +71,7 @@
             <CoreMenu
               ref="coreMenu"
               role="navigation"
-              :style="{ backgroundColor: $themeTokens.surface }"
+              :style="{ backgroundColor: $themeTokens.surface, width: width }"
               :aria-label="$tr('navigationLabel')"
             >
               <template #options>
@@ -141,10 +142,11 @@
             </div>
           </div>
           <div
+            v-if="!isAppContext"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
-              width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+              width: `${width}`, paddingTop: windowIsSmall ? '4px' : '8px',
               backgroundColor: $themeTokens.appBar,
             }"
           >
@@ -172,15 +174,43 @@
       class="bottom-bar"
       :style="{ backgroundColor: $themeTokens.textInverted }"
     >
-      <component
-        :is="component"
-        v-for="component in bottomMenuOptions"
-        :key="component.name"
-      />
+      <span v-for="(link, key) in bottomMenuOptions" :key="key">
+        <a
+          v-if="isUserLoggedIn"
+          :href="link.route"
+          tabindex="-1"
+          class="nav-menu-item"
+          :style="{ textDecoration: 'none' }"
+          @click="handleNav(link.route)"
+        >
+          <div>
+            <KIconButton
+              :icon="link.icon"
+              :color="$themeTokens.primary"
+              :ariaLabel="link.text"
+            />
+          </div>
+          <p
+            class="nav-menu-label"
+            :style="{ color: $themeTokens.primary }"
+          >
+            {{ link.text }}
+          </p>
+        </a>
+      </span>
+      <span class="nav-menu-item">
+        <KIconButton
+          icon="menu"
+          :ariaLabel="coreString('menuLabel')"
+          :color="$themeTokens.primary"
+          @click="toggleNav"
+        />
+        <p :style="{ color: $themeTokens.primary }">{{ coreString('menuLabel') }}</p>
+      </span>
     </div>
 
     <Backdrop
-      v-show="navShown"
+      v-show="navShown && !isAppContext"
       :transitions="true"
       class="side-nav-backdrop"
       @click="toggleNav"
@@ -287,7 +317,7 @@
         fullName: state => state.core.session.full_name,
       }),
       width() {
-        return this.topBarHeight * 4;
+        return this.isAppContext ? '100vw' : `${this.topBarHeight * 4}px`;
       },
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
@@ -307,7 +337,9 @@
         );
       },
       bottomMenuOptions() {
-        return navComponents.filter(component => component.bottomBar === true);
+        const bottomComponents = navComponents.filter(component => component.bottomBarRoutes)[0]
+          .bottomBarRoutes;
+        return bottomComponents;
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
@@ -339,9 +371,18 @@
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
     },
+
     methods: {
+      isActiveLink(route) {
+        return route.includes(this.$router.currentRoute.path);
+      },
       toggleNav() {
         this.$emit('toggleSideNav');
+      },
+      handleNav(route) {
+        if (this.isActiveLink(route)) {
+          this.toggleNav();
+        }
       },
       handleShowLanguageModal() {
         this.languageModalShown = true;
@@ -479,7 +520,6 @@
 
   .side-nav-scrollable-area {
     position: fixed;
-    bottom: 0;
     left: 0;
     padding-top: 4px;
     overflow: auto;
@@ -539,6 +579,7 @@
 
   /* keen menu */
   /deep/ .ui-menu {
+    max-width: none;
     max-height: none;
     padding: 0;
     border: 0;
@@ -560,7 +601,7 @@
     right: 0;
     bottom: 0;
     left: 0;
-    z-index: 12;
+    z-index: 20;
     display: flex;
     align-items: flex-start;
     justify-content: space-around;

@@ -37,12 +37,6 @@ function validateComponent(component) {
 }
 
 navComponents.register = component => {
-  // take a secondary argument, undefined or array of configuration options
-  // component, keyed by component name
-  // this is the place where we read the bottom bar and the urls
-  // follow the lookup in coremenu option for current state (which elements should we be looking at)
-  // app bar page is responsible for if we should show the bottom bar or not
-  // the actual bottom bar just worries about showing the components
   if (!navComponents.includes(component)) {
     if (validateComponent(component)) {
       navComponents.push(component);

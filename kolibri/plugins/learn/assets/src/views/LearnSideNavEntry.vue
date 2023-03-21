@@ -3,8 +3,8 @@
   <CoreMenuOption
     ref="firstMenu"
     :label="learnString('learnLabel')"
-    icon="learn"
     :subRoutes="learnRoutes"
+    icon="learn"
   />
 
 </template>
@@ -21,6 +21,7 @@
   import baseRoutes from '../routes/baseRoutes';
   import commonLearnStrings from './commonLearnStrings';
 
+  const url = urls['kolibri:kolibri.plugins.learn:learn']();
   const component = {
     name: 'LearnSideNavEntry',
     mixins: [commonLearnStrings, commonCoreStrings],
@@ -28,36 +29,50 @@
       CoreMenuOption,
     },
     computed: {
-      url() {
-        return urls['kolibri:kolibri.plugins.learn:learn']();
-      },
       learnRoutes() {
         return {
           home: {
             text: this.coreString('homeLabel'),
             icon: 'dashboard',
-            route: LearnPageNames.HOME,
+            route: generateNavRoute(url, LearnPageNames.HOME, baseRoutes),
           },
           library: {
-            text: this.learnString('libraryLabel'),
+            text: this.coreString('libraryLabel'),
             icon: 'library',
-            route: LearnPageNames.LIBRARY,
+            route: generateNavRoute(url, LearnPageNames.LIBRARY, baseRoutes),
           },
           bookmarks: {
             text: this.coreString('bookmarksLabel'),
             icon: 'bookmark',
-            route: LearnPageNames.BOOKMARKS,
+            route: generateNavRoute(url, LearnPageNames.BOOKMARKS, baseRoutes),
           },
         };
       },
     },
     methods: {
       generateNavRoute(route) {
-        return generateNavRoute(this.url, route, baseRoutes);
+        return generateNavRoute(url, route, baseRoutes);
       },
     },
     priority: 10,
     bottomBar: true,
+    bottomBarRoutes: [
+      {
+        text: 'homeLabel',
+        icon: 'dashboard',
+        route: generateNavRoute(url, LearnPageNames.HOME, baseRoutes),
+      },
+      {
+        text: 'libraryLabel',
+        icon: 'library',
+        route: generateNavRoute(url, LearnPageNames.LIBRARY, baseRoutes),
+      },
+      {
+        text: 'bookmarksLabel',
+        icon: 'bookmark',
+        route: generateNavRoute(url, LearnPageNames.BOOKMARKS, baseRoutes),
+      },
+    ],
   };
 
   navComponents.register(component);
