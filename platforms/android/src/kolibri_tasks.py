@@ -3,7 +3,9 @@ from datetime import timedelta
 
 from jnius import autoclass
 
+Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
+PythonWorker = autoclass("org.kivy.android.PythonWorker")
 
 
 def queue_task(
@@ -42,6 +44,22 @@ def queue_task(
 
 def task_updates(job, orm_job, state=None, **kwargs):
     from kolibri.core.tasks.job import State
+
+    currentLocale = Locale.getDefault().toLanguageTag()
+
+    status = job.status(currentLocale)
+
+    if status:
+        print(status.title, status.text)
+        PythonWorker.mWorker.updateNotificationText(status.title, status.text)
+
+    if job.total_progress:
+        PythonWorker.mWorker.updateNotificationProgress(
+            job.progress, job.total_progress
+        )
+
+    if status:
+        PythonWorker.mWorker.showNotification()
 
     if state is not None and orm_job.repeat is None or orm_job.repeat > 0:
         if state in {State.COMPLETED, State.CANCELED} or (
