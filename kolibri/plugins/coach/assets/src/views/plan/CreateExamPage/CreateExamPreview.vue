@@ -99,19 +99,30 @@
         :selectedExercises="selectedExercises"
       />
 
-      <BottomAppBar style="z-index: 1062;">
-        <KButtonGroup>
-          <KRouterLink
-            appearance="flat-button"
-            :text="$tr('previousStep')"
-            :to="toolbarRoute"
-          />
-          <KButton
-            :text="coreString('finishAction')"
-            :disabled="loadingNewQuestions"
-            primary
-            @click="submit"
-          />
+      <BottomAppBar
+        style="z-index: 1062;"
+      >
+        <KButtonGroup
+          class="align-btn"
+        >
+          <div class="align-btn">
+            <div class="div">
+              <KRouterLink
+                appearance="flat-button"
+                :text="$tr('previousStep')"
+                :to="toolbarRoute"
+              />
+            </div>
+            <div class="div">
+              <KButton
+                :text="coreString('finishAction')"
+                :disabled="loadingNewQuestions"
+                primary
+                @click="submit"
+              />
+            </div>
+          </div>
+
         </KButtonGroup>
       </BottomAppBar>
     </KPageContainer>
@@ -328,6 +339,13 @@
 
   .sortable-ghost * {
     visibility: hidden;
+  }
+  .align-btn {
+    display: flex;
+    float: right;
+  }
+  .align-btn .div {
+    margin-left: 20px;
   }
 
 </style>
