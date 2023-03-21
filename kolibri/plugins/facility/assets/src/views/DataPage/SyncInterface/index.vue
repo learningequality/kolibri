@@ -130,7 +130,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from './../../../constants';
+  import { PageNames } from '../../../../../../device/assets/src/constants';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({

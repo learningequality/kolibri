@@ -260,7 +260,7 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.deviceId })
+        NetworkLocationResource.deleteModel({ id: this.$route.params.deviceId })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             history.back();

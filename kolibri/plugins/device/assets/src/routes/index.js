@@ -89,7 +89,7 @@ const routes = [
   {
     name: PageNames.EDIT_SYNC_SCHEDULE,
     component: withAuthMessage(EditDeviceSyncSchedule, 'superuser'),
-    path: '/facilities/:device_id/editdevice',
+    path: '/facilities/:device_id/:facility_id/editdevice',
     props: true,
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false });

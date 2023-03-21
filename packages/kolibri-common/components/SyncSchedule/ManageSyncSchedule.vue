@@ -87,7 +87,7 @@
               <td>
                 <KButton
                   class="right"
-                  @click="editButton(device.id)"
+                  @click="editButton(device.extra_metadata.device_id)"
                 >
                   {{ coreString('editAction') }}
                 </KButton>
@@ -221,7 +221,8 @@
     },
     computed: {
       goBack() {
-        return { name: PageNames.DATA_EXPORT_PAGE };
+        // return { name: PageNames.DATA_EXPORT_PAGE };
+        return { name: PageNames.FACILITIES_PAGE };
       },
     },
     beforeMount() {
@@ -268,7 +269,7 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
         } else {
           return window.location.href;
         }

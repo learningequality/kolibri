@@ -95,6 +95,9 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     component: DataPage,
     path: '/:facility_id?/data',
+    props: route => {
+      return { isFromFacility: route.params.isFromFacility };
+    },
     handler: () => {
       store.dispatch('preparePage', { isAsync: false });
     },
