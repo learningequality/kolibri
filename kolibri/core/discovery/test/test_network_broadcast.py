@@ -9,7 +9,6 @@ from zeroconf import NonUniqueNameException
 from zeroconf import ServiceInfo
 from zeroconf import Zeroconf
 
-from ..utils.network.broadcast import EVENT_UPDATE_INSTANCE
 from ..utils.network.broadcast import KolibriBroadcast
 from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.broadcast import KolibriInstanceListener
@@ -225,27 +224,6 @@ class KolibriInstanceListenerTestCase(SimpleTestCase):
 
     def assertHasNoListener(self, event):
         self.assertEqual(len(self.events.listeners.get(event)), 0)
-
-    def test_partial_unsubscribe(self):
-        self.listener.subscribe()
-        for event in ALL_EVENTS:
-            self.assertHasListener(event)
-        self.listener.partial_unsubscribe([EVENT_UPDATE_INSTANCE])
-        for event in ALL_EVENTS:
-            if event == EVENT_UPDATE_INSTANCE:
-                self.assertHasNoListener(event)
-            else:
-                self.assertHasListener(event)
-
-    def test_partial_subscribe(self):
-        for event in ALL_EVENTS:
-            self.assertHasNoListener(event)
-        self.listener.partial_subscribe([EVENT_UPDATE_INSTANCE])
-        for event in ALL_EVENTS:
-            if event == EVENT_UPDATE_INSTANCE:
-                self.assertHasListener(event)
-            else:
-                self.assertHasNoListener(event)
 
 
 class KolibriBroadcastTestCase(SimpleTestCase):

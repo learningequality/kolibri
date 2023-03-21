@@ -1086,6 +1086,7 @@ class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
     """
 
     permission_classes = (KolibriAuthPermissions,)
+    filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = GenerateCSVLogRequest.objects.all()
     serializer_class = GenerateCSVLogRequestSerializer
     filter_class = GenerateCSVLogRequestFilter

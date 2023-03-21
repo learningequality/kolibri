@@ -8,47 +8,52 @@
 
     <KPageContainer>
 
-      <ReportsGroupHeader />
-
-      <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
-          <ul class="list">
-            <li
-              v-for="lesson in lessonsList"
-              :key="lesson.id"
-            >
-              <KRouterLink
-                :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
-                :text="lesson.title"
-                icon="lesson"
-              />
-            </li>
-          </ul>
-          <p v-if="lessonsList.length === 0">
-            {{ coachString('lessonListEmptyState') }}
-          </p>
-        </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
-          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <ul class="list">
-            <li
-              v-for="exam in examsList"
-              :key="exam.id"
-            >
-              <KRouterLink
-                :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
-                :text="exam.title"
-                icon="quiz"
-              />
-            </li>
-          </ul>
-          <p v-if="examsList.length === 0">
-            {{ coachString('quizListEmptyState') }}
-          </p>
-        </KGridItem>
-      </KGrid>
-
+      <ReportsGroupHeader
+        :activeTabId="ReportsGroupTabs.REPORTS"
+      />
+      <KTabsPanel
+        :tabsId="REPORTS_GROUP_TABS_ID"
+        :activeTabId="ReportsGroupTabs.REPORTS"
+      >
+        <KGrid>
+          <KGridItem :layout12="{ span: 6 }">
+            <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+            <ul class="list">
+              <li
+                v-for="lesson in lessonsList"
+                :key="lesson.id"
+              >
+                <KRouterLink
+                  :to="classRoute('ReportsGroupReportLessonPage', { lessonId: lesson.id })"
+                  :text="lesson.title"
+                  icon="lesson"
+                />
+              </li>
+            </ul>
+            <p v-if="lessonsList.length === 0">
+              {{ coachString('lessonListEmptyState') }}
+            </p>
+          </KGridItem>
+          <KGridItem :layout12="{ span: 6 }">
+            <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+            <ul class="list">
+              <li
+                v-for="exam in examsList"
+                :key="exam.id"
+              >
+                <KRouterLink
+                  :to="classRoute('ReportsGroupReportQuizLearnerListPage', { quizId: exam.id })"
+                  :text="exam.title"
+                  icon="quiz"
+                />
+              </li>
+            </ul>
+            <p v-if="examsList.length === 0">
+              {{ coachString('quizListEmptyState') }}
+            </p>
+          </KGridItem>
+        </KGrid>
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -59,6 +64,7 @@
 
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import { REPORTS_GROUP_TABS_ID, ReportsGroupTabs } from '../../constants/tabsConstants';
   import ReportsGroupHeader from './ReportsGroupHeader';
 
   export default {
@@ -68,6 +74,12 @@
       ReportsGroupHeader,
     },
     mixins: [commonCoach],
+    data() {
+      return {
+        REPORTS_GROUP_TABS_ID,
+        ReportsGroupTabs,
+      };
+    },
     computed: {
       lessonsList() {
         const filtered = this.lessons.filter(lesson => this.isAssigned(lesson.groups));

@@ -22,6 +22,9 @@
         </QuizLessonDetailsHeader>
       </KGridItem>
       <KGridItem :layout12="{ span: 4 }">
+        <h2 class="visuallyhidden">
+          {{ coachString('generalInformationLabel') }}
+        </h2>
         <LessonStatus
           :className="className"
           :lesson="currentLesson"

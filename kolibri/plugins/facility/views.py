@@ -52,7 +52,7 @@ def _get_log_request(log_type, facility_id):
             log_type=log_type, facility=facility_id
         )
     except GenerateCSVLogRequest.DoesNotExist:
-        log_request = {}
+        log_request = None
     return log_request
 
 
@@ -107,7 +107,7 @@ def exported_csv_info(request, facility_id):
     for log_type in CSV_EXPORT_FILENAMES:
         if log_type in ("summary", "session"):
             log_request = _get_log_request(log_type, facility_id)
-            if log_request:
+            if log_request is not None:
                 start = log_request.selected_start_date.isoformat()
                 end = log_request.selected_end_date.isoformat()
             else:

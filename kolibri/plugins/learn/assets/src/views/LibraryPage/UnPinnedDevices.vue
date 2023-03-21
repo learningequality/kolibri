@@ -17,7 +17,7 @@
         </span>
       </h2>
       <p class="channels">
-        {{ channels }} channel(s)
+        {{ $tr('channels', { count: channels }) }}
       </p>
     </div>
   </div>
@@ -63,6 +63,12 @@
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
+      },
+    },
+    $trs: {
+      channels: {
+        message: '{count, plural, one {channel} other {channels}',
+        context: 'Indicates the number of channels',
       },
     },
   };

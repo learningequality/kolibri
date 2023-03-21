@@ -1,5 +1,6 @@
 import requests
 from django.core.management import call_command
+from morango.errors import MorangoError
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.status import HTTP_201_CREATED
@@ -10,6 +11,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
+from kolibri.core.device.utils import set_device_settings
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
@@ -106,17 +108,32 @@ def mergeuser(command, **kwargs):
 
     local_user_id = kwargs.pop("local_user_id")
     local_user = FacilityUser.objects.get(id=local_user_id)
+    job = get_current_job()
+
     # Sync with the server to get the remote user:
     kwargs["no_push"] = True
-    call_command(command, **kwargs)
+    try:
+        call_command(command, **kwargs)
+    except MorangoError:
+        # error syncing with the server, probably a networking issue
+        raise
 
     remote_user = FacilityUser.objects.get(id=kwargs["user"])
     merge_users(local_user, remote_user)
+    set_device_settings(subset_of_users_device=True)
 
     # Resync with the server to update the merged records
-    kwargs["no_pull"] = True
     del kwargs["no_push"]
-    call_command("sync", **kwargs)
+
+    try:
+        call_command(command, **kwargs)
+    except MorangoError:
+        # error syncing with the server, probably a networking issue
+        # syncing will happen later in scheduled syncs
+        from kolibri.core.auth.tasks import begin_request_soud_sync
+
+        begin_request_soud_sync(kwargs["baseurl"], remote_user.id)
+
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id:
         new_superuser = FacilityUser.objects.get(id=new_superuser_id)
@@ -126,7 +143,6 @@ def mergeuser(command, **kwargs):
             user=new_superuser, is_superuser=True, can_manage_content=True
         )
 
-    job = get_current_job()
     # create token to validate user in the new facility
     # after it's deleted in the current facility:
     remote_user_pk = job.kwargs["user"]

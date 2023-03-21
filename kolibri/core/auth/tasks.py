@@ -317,8 +317,7 @@ class PeerSyncJobValidator(SyncJobValidator):
             except NetworkLocation.DoesNotExist:
                 pass
         try:
-            address = data["baseurl"]
-            baseurl = NetworkClient(address=address).base_url
+            baseurl = NetworkClient.build_for_address(data["baseurl"]).base_url
         except NetworkLocationNotFound:
             raise ResourceGoneError()
 
@@ -761,13 +760,15 @@ def queue_soud_sync_cleanup(*sync_session_ids):
     return soud_sync_cleanup.enqueue(kwargs=dict(pk__in=sync_session_ids))
 
 
-def queue_soud_server_sync_cleanup(client_ip):
+def queue_soud_server_sync_cleanup(client_instance_id):
     """
     A server oriented cleanup of active SoUD sessions
 
-    :param client_ip: The IP address of the client
+    :param client_instance_id: The Kolibri instance ID of the client
     """
-    return soud_sync_cleanup.enqueue(kwargs=dict(client_ip=client_ip, is_server=True))
+    return soud_sync_cleanup.enqueue(
+        kwargs=dict(client_instance_id=client_instance_id, is_server=True)
+    )
 
 
 class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):

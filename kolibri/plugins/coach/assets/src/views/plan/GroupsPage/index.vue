@@ -6,61 +6,65 @@
     :showSubNav="true"
   >
     <KPageContainer>
-      <PlanHeader />
-      <div class="ta-r">
-        <KButton
-          :text="$tr('newGroupAction')"
-          :primary="true"
-          @click="openCreateGroupModal"
+      <PlanHeader :activeTabId="PlanTabs.GROUPS" />
+      <KTabsPanel
+        :tabsId="PLAN_TABS_ID"
+        :activeTabId="PlanTabs.GROUPS"
+      >
+        <div class="ta-r">
+          <KButton
+            :text="$tr('newGroupAction')"
+            :primary="true"
+            @click="openCreateGroupModal"
+          />
+        </div>
+
+        <CoreTable>
+          <template #headers>
+            <th>{{ coachString('nameLabel') }}</th>
+            <th>{{ coreString('learnersLabel') }}</th>
+            <th></th>
+          </template>
+          <template #tbody>
+            <tbody>
+              <GroupRowTr
+                v-for="group in sortedGroups"
+                :key="group.id"
+                :group="group"
+                @rename="openRenameGroupModal"
+                @delete="openDeleteGroupModal"
+              />
+            </tbody>
+          </template>
+        </CoreTable>
+
+        <p v-if="!sortedGroups.length">
+          {{ $tr('noGroups') }}
+        </p>
+
+        <CreateGroupModal
+          v-if="showCreateGroupModal"
+          :groups="sortedGroups"
+          @submit="handleSuccessCreateGroup"
+          @cancel="closeModal"
         />
-      </div>
 
-      <CoreTable>
-        <template #headers>
-          <th>{{ coachString('nameLabel') }}</th>
-          <th>{{ coreString('learnersLabel') }}</th>
-          <th></th>
-        </template>
-        <template #tbody>
-          <tbody>
-            <GroupRowTr
-              v-for="group in sortedGroups"
-              :key="group.id"
-              :group="group"
-              @rename="openRenameGroupModal"
-              @delete="openDeleteGroupModal"
-            />
-          </tbody>
-        </template>
-      </CoreTable>
+        <RenameGroupModal
+          v-if="showRenameGroupModal"
+          :groupName="selectedGroup.name"
+          :groupId="selectedGroup.id"
+          :groups="sortedGroups"
+          @cancel="closeModal"
+        />
 
-      <p v-if="!sortedGroups.length">
-        {{ $tr('noGroups') }}
-      </p>
-
-      <CreateGroupModal
-        v-if="showCreateGroupModal"
-        :groups="sortedGroups"
-        @submit="handleSuccessCreateGroup"
-        @cancel="closeModal"
-      />
-
-      <RenameGroupModal
-        v-if="showRenameGroupModal"
-        :groupName="selectedGroup.name"
-        :groupId="selectedGroup.id"
-        :groups="sortedGroups"
-        @cancel="closeModal"
-      />
-
-      <DeleteGroupModal
-        v-if="showDeleteGroupModal"
-        :groupName="selectedGroup.name"
-        :groupId="selectedGroup.id"
-        @submit="handleSuccessDeleteGroup"
-        @cancel="closeModal"
-      />
-
+        <DeleteGroupModal
+          v-if="showDeleteGroupModal"
+          :groupName="selectedGroup.name"
+          :groupId="selectedGroup.id"
+          @submit="handleSuccessDeleteGroup"
+          @cancel="closeModal"
+        />
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -78,6 +82,7 @@
   import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
+  import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import CreateGroupModal from './CreateGroupModal';
   import GroupRowTr from './GroupRow';
   import RenameGroupModal from './RenameGroupModal';
@@ -102,6 +107,8 @@
       });
 
       return {
+        PLAN_TABS_ID,
+        PlanTabs,
         selectedGroup,
         setSelectedGroup(name, id) {
           selectedGroup.value = { name, id };

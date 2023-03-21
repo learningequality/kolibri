@@ -103,6 +103,7 @@ import sortLanguages from '../utils/sortLanguages';
 import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
 import NotificationsRoot from '../views/NotificationsRoot';
+import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -227,6 +228,7 @@ export default {
     },
     composables: {
       useKResponsiveWindow,
+      useMinimumKolibriVersion,
     },
   },
   resources,

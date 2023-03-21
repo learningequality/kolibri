@@ -389,6 +389,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     message: 'No users exist',
     context: 'Displays when there are no users in the facility.',
   },
+  noResultsLabel: {
+    message: 'No results',
+    context: 'Displays when there are no matching search results',
+  },
   optionsLabel: {
     message: 'Options',
     context:
@@ -1186,7 +1190,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context: '',
   },
   totalSizeMyDownloads: {
-    message: 'Total size of my downloads: {size}',
+    message: 'Total size of my downloads',
     context:
       'A lable explaining the size (i.e. in MB) of the resources a user has downloaded to their library',
   },

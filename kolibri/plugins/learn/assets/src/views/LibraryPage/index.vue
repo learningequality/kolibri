@@ -1,9 +1,11 @@
 <template>
 
   <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
+    :appBarTitle="appBarTitle"
     :appearanceOverrides="{}"
     :loading="loading"
+    :deviceId="deviceId"
+    :route="backRoute"
   >
     <main
       class="main-grid"
@@ -31,7 +33,7 @@
         :delay="false"
       />
       <div v-else-if="!displayingSearchResults">
-        <h2>{{ coreString('channelsLabel') }}</h2>
+        <h2>{{ channelsLabel }}</h2>
         <ChannelCardGroupGrid
           v-if="rootNodes.length"
           data-test="channel-cards"
@@ -47,7 +49,7 @@
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
         <!-- Other Libraires -->
-        <div>
+        <div v-if="!deviceId">
           <KGrid gutter="12">
             <KGridItem :layout="{ span: 6 }">
               <span>
@@ -57,14 +59,15 @@
               </span>
             </KGridItem>
             <KGridItem :layout="{ span: 6, alignment: 'right' }">
-              <p v-if="searching" style="padding-top:20px">
+              <p
+                v-if="searching"
+                style="padding-top:20px"
+              >
                 {{ $tr('searchingOtherLibrary') }}
                 <KButton appearance="basic-link">
                   {{ coreString('refresh') }}
                 </KButton>
-                <KIcon
-                  icon="disconnected"
-                />
+                <KIcon icon="disconnected" />
               </p>
               <p v-else>
                 {{ coreString('viewMoreAction') }}
@@ -78,7 +81,7 @@
           <PinnedNetworkResources />
         </div>
         <!-- More  -->
-        <div>
+        <div v-if="!deviceId">
           <h2>
             {{ $tr('moreLibraries') }}
           </h2>
@@ -140,7 +143,10 @@
       @closePanel="metadataSidePanelContent = null"
       @shouldFocusFirstEl="findFirstEl()"
     >
-      <template v-if="metadataSidePanelContent.learning_activities.length" #header>
+      <template
+        v-if="metadataSidePanelContent.learning_activities.length"
+        #header
+      >
         <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
             multiple chips - not a common thing but just in case -->
         <div
@@ -179,6 +185,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
+  import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useDevices from '../../composables/useDevices';
   import useSearch from '../../composables/useSearch';
@@ -250,7 +257,7 @@
 
       const { currentCardViewStyle } = useCardViewStyle();
 
-      const { baseurl, fetchDevices } = useDevices();
+      const { baseurl, deviceName, fetchDevices } = useDevices();
 
       return {
         displayingSearchResults,
@@ -274,6 +281,7 @@
         currentCardViewStyle,
         baseurl,
         fetchDevices,
+        deviceName,
       };
     },
     props: {
@@ -297,6 +305,23 @@
     computed: {
       ...mapState(['rootNodes']),
       ...mapGetters(['isUserLoggedIn']),
+      appBarTitle() {
+        return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
+      },
+      backRoute() {
+        return { name: PageNames.EXPLORE_LIBRARIES };
+      },
+      channelsLabel() {
+        if (this.deviceId) {
+          if (this.deviceId === KolibriStudioId) {
+            return this.learnString('kolibriLibrary');
+          } else {
+            return this.$tr('libraryOf', { device: this.deviceName });
+          }
+        } else {
+          return this.coreString('channelsLabel');
+        }
+      },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -341,6 +366,10 @@
       },
     },
     $trs: {
+      libraryOf: {
+        message: 'Library of {device}',
+        context: 'A header for a device Library',
+      },
       otherLibraries: {
         message: 'Other libraries',
         context: 'Header for viewing other remote content Library',

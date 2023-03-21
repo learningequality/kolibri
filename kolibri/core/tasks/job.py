@@ -83,11 +83,12 @@ class Priority(object):
     channel metadata.
     """
 
+    LOW = 15
     REGULAR = 10
     HIGH = 5
 
     # A set of all valid priorities
-    Priorities = {HIGH, REGULAR}
+    Priorities = {HIGH, REGULAR, LOW}
 
 
 JobStatus = namedtuple("Status", ("title", "text"))
