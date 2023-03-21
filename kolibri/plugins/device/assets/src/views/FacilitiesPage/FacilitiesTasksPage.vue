@@ -27,7 +27,9 @@
           class="task-panel"
           :style="{ borderBottomColor: $themePalette.grey.v_200 }"
           :task="task"
-          @click="handlePanelClick($event, task)"
+          @cancel="cancel(task)"
+          @clear="clear(task)"
+          @retry="retry(task)"
         />
       </div>
     </KPageContainer>
@@ -38,6 +40,7 @@
 
 <script>
 
+  import { TaskResource } from 'kolibri.resources';
   import { FacilityTaskPanel } from 'kolibri.coreVue.componentSets.sync';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
@@ -84,10 +87,14 @@
       handleClickClearAll() {
         this.clearCompletedFacilityTasks();
       },
-      handlePanelClick(action, task) {
-        this.manageFacilityTask(action, task).catch(() => {
-          // handle errors silently
-        });
+      cancel(task) {
+        return TaskResource.cancel(task.id);
+      },
+      clear(task) {
+        return TaskResource.clear(task.id);
+      },
+      retry(task) {
+        return TaskResource.restart(task.id);
       },
     },
     $trs: {
