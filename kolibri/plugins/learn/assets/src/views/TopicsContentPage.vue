@@ -27,6 +27,7 @@
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
+      @download="handleRemoteDownloadRequest"
       @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
       @completionModal="openCompletionModal"
@@ -208,7 +209,7 @@
       const { fetchLesson } = useLearnerResources();
       const { back } = useContentLink();
       const { baseurl } = useDevices();
-      const { downloadRequestMap } = useDownloadRequests();
+      const { addDownloadRequest, downloadRequestMap } = useDownloadRequests();
       return {
         baseurl,
         canDownload,
@@ -217,6 +218,7 @@
         fetchContentNodeTreeProgress,
         fetchLesson,
         back,
+        addDownloadRequest,
         downloadRequestMap,
       };
     },
@@ -508,6 +510,9 @@
         if (this.$refs.contentPage) {
           this.$refs.contentPage.displayCompletionModal();
         }
+      },
+      handleRemoteDownloadRequest() {
+        this.addDownloadRequest(this.content);
       },
     },
     $trs: {
