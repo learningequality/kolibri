@@ -10,6 +10,7 @@
         :deviceName="device.device_name"
         :channels="device.channels"
         :allDevices="device"
+        :operatingSystem="device.operatingSystem"
       />
     </KGridItem>
   </KGrid>

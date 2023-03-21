@@ -4,6 +4,7 @@
     class="card-main-wrapper"
     :style="cardStyle"
   >
+
     <KRouterLink
       v-if="allDevices !== null"
       :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
@@ -12,7 +13,7 @@
     >
       <h2 class="device-name">
         <span>
-          <KIcon :icon="getDeviceIcon(allDevices)" />
+          <KIcon :icon="getDeviceIcon()" />
         </span>
         <span>
           <TextTruncator
@@ -62,6 +63,11 @@
         type: Object,
         required: true,
       },
+      operatingSystem: {
+        type: String,
+        required: false,
+        default: null,
+      },
     },
 
     computed: {
@@ -76,12 +82,10 @@
       },
     },
     methods: {
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Darwin') {
-          return 'laptop';
-        } else if (device['operating_system'] === 'Android') {
+      getDeviceIcon() {
+        if (this.operatingSystem === 'Android') {
           return 'device';
-        } else if (!device['subset_of_users_device']) {
+        } else if (!this.allDevices.subset_of_users_device) {
           return 'cloud';
         } else {
           return 'laptop';

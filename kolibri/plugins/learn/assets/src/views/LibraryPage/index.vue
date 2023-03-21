@@ -90,7 +90,10 @@
             </KGridItem>
           </KGrid>
         </div>
-        <PinnedNetworkResources />
+        <PinnedNetworkResources
+          v-if="pinnedDevices"
+          :pinnedDevices="pinnedDevices"
+        />
         <!-- More  -->
         <div>
           <h2>{{ $tr('moreLibraries') }}</h2>
@@ -182,6 +185,7 @@
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
+  import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
@@ -245,6 +249,8 @@
 
       const { baseurl, fetchDevices } = useDevices();
 
+      const { fetchChannels } = useChannels();
+
       return {
         displayingSearchResults,
         searchTerms,
@@ -267,6 +273,7 @@
         currentCardViewStyle,
         baseurl,
         fetchDevices,
+        fetchChannels,
       };
     },
     props: {
@@ -285,6 +292,7 @@
         mobileSidePanelIsOpen: false,
         devices: [],
         searching: true,
+        pinnedDevices: [],
       };
     },
     computed: {
@@ -324,6 +332,16 @@
           this.devices = devices.filter(d => d.available);
         });
       }
+
+      this.fetchDevices().then(devices => {
+        const device = devices.filter(d => d.available);
+        device.forEach(element => {
+          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
+            this.$set(element, 'channels', channel);
+            this.pinnedDevices.push(element);
+          });
+        });
+      });
     },
     methods: {
       findFirstEl() {
