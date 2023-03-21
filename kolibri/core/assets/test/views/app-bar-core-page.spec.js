@@ -7,6 +7,7 @@ localVue.use(Vuex);
 const store = new Vuex.Store({
   getters: {
     isUserLoggedIn: jest.fn(),
+    isAppContext: jest.fn(),
   },
 });
 
@@ -43,16 +44,16 @@ describe('AppBarPage', () => {
     // Instead, this tests that the internal state is passed to the SideNav component as expected
     it('should show the side nav when the AppBar.toggleSideNav event is emitted', async () => {
       const wrapper = createWrapper();
-      expect(wrapper.findComponent({ name: 'SideNav' }).vm.navShown).toBe(false);
+      expect(wrapper.findComponent({ name: 'MenuNav' }).vm.navShown).toBe(false);
       await wrapper.vm.$refs.appBar.$emit('toggleSideNav');
-      expect(wrapper.findComponent({ name: 'SideNav' }).vm.navShown).toBe(true);
+      expect(wrapper.findComponent({ name: 'MenuNav' }).vm.navShown).toBe(true);
     });
 
     it('should hide the side nav when the AppBar.toggleSideNav event is emitted', async () => {
       const wrapper = createWrapper();
       await wrapper.setData({ navShown: true });
       await wrapper.vm.$refs.menuNav.$emit('toggleSideNav');
-      expect(wrapper.findComponent({ name: 'SideNav' }).vm.navShown).toBe(false);
+      expect(wrapper.findComponent({ name: 'MenuNav' }).vm.navShown).toBe(false);
     });
   });
 
