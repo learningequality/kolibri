@@ -34,6 +34,7 @@ os.environ["LC_ALL"] = "en_US.UTF-8"
 
 os.environ["KOLIBRI_CHERRYPY_THREAD_POOL"] = "2"
 os.environ["KOLIBRI_SCHEDULE_HOOKS"] = "kolibri_tasks.queue_task"
+os.environ["KOLIBRI_UPDATE_HOOKS"] = "kolibri_tasks.task_updates"
 
 Secure = autoclass("android.provider.Settings$Secure")
 
