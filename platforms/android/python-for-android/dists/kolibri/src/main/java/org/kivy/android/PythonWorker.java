@@ -1,10 +1,7 @@
 package org.kivy.android;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.Context;
-import android.os.Build;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -12,17 +9,16 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.ForegroundInfo;
-import androidx.work.multiprocess.RemoteListenableWorker;
 import androidx.work.WorkerParameters;
+import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.learningequality.Kolibri.R;
+
 import java.io.File;
-import java.lang.System;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-
-import org.learningequality.Kolibri.R;
 
 public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
@@ -147,23 +143,6 @@ public class PythonWorker extends RemoteListenableWorker {
         String pythonServiceArgument
     );
 
-    private void createNotificationChannel() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is not in the Support Library.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Context context = getApplicationContext();
-            CharSequence name = context.getString(R.string.notification_channel_title);
-            String channelId = context.getString(R.string.notification_channel_id);
-            int importance = NotificationManager.IMPORTANCE_DEFAULT;
-            NotificationChannel channel = new NotificationChannel(channelId, name, importance);
-            // Register the channel with the system. You can't change the importance
-            // or other notification behaviors after this.
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            notificationManager.createNotificationChannel(channel);
-        }
-    }
-
-
     private void setNotificationId() {
         if (notificationId == 0) {
             notificationId = ThreadLocalRandom.current().nextInt(1, 65537);
@@ -172,11 +151,10 @@ public class PythonWorker extends RemoteListenableWorker {
 
     private Notification createNotification() {
         setNotificationId();
-        createNotificationChannel();
         Context context = getApplicationContext();
         String channelId = context.getString(R.string.notification_channel_id);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.icon)
+                .setSmallIcon(R.drawable.ic_stat_kolibri_notification)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setContentTitle(notificationTitle);
         if (notificationText != null) {
@@ -206,6 +184,10 @@ public class PythonWorker extends RemoteListenableWorker {
 
     public ForegroundInfo getForegroundInfo() {
         return new ForegroundInfo(notificationId, createNotification());
+    }
+
+    public void runAsForeground() {
+        setForegroundAsync(getForegroundInfo());
     }
 
     @Override
