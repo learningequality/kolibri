@@ -5,6 +5,7 @@
     :style="cardStyle"
   >
     <KRouterLink
+      v-if="allDevices !== null"
       :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
       :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
       style="text-decoration:none;"
@@ -59,8 +60,7 @@
       },
       allDevices: {
         type: Object,
-        required: false,
-        default: null,
+        required: true,
       },
     },
 
