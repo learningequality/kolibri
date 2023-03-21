@@ -22,7 +22,8 @@
       :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
       :contentKind="content.kind"
-      :showBookmark="isUserLoggedIn"
+      :showBookmark="allowBookmark"
+      :showDownload="allowRemoteDownload"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
@@ -156,6 +157,7 @@
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useDevices from '../composables/useDevices';
+  import useDownloadRequests from '../composables/useDownloadRequests';
   import useLearnerResources from '../composables/useLearnerResources';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
@@ -206,6 +208,7 @@
       const { fetchLesson } = useLearnerResources();
       const { back } = useContentLink();
       const { baseurl } = useDevices();
+      const { downloadRequestMap } = useDownloadRequests();
       return {
         baseurl,
         canDownload,
@@ -214,6 +217,7 @@
         fetchContentNodeTreeProgress,
         fetchLesson,
         back,
+        downloadRequestMap,
       };
     },
     props: {
@@ -229,6 +233,10 @@
         default: true,
       },
       authorizedRole: {
+        type: String,
+        default: null,
+      },
+      deviceId: {
         type: String,
         default: null,
       },
@@ -301,6 +309,26 @@
       },
       missingLessonResources() {
         return this.lesson && this.lesson.resources.some(c => !c.contentnode);
+      },
+      isRemoteContent() {
+        return Boolean(this.deviceId);
+      },
+      isDownloadedRemoteContent() {
+        return this.isRemoteContent && Boolean(this.downloadRequestMap[this.content.id]);
+      },
+      allowRemoteDownload() {
+        return (
+          this.isUserLoggedIn &&
+          this.isRemoteContent &&
+          !this.isDownloadedRemoteContent &&
+          !this.content.admin_imported
+        );
+      },
+      allowBookmark() {
+        return (
+          this.isUserLoggedIn &&
+          (!this.isRemoteContent || this.isDownloadedRemoteContent || this.content.admin_imported)
+        );
       },
     },
     watch: {
