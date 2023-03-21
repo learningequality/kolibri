@@ -92,4 +92,5 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Rishi Kejriwal | Kej-r03 |
 | Siddhanth Rathod | siddhanthrathod |
 | Akila Induranga | akila-i |
+| Sahajpreet Singh | photon0205 |
 | Nishant Shrivastva | shrinishant  |
