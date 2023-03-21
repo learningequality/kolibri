@@ -59,16 +59,13 @@
             this.pinnedDevices.push(element);
           });
         });
-        console.log(this.pinnedDevices);
       });
     },
     methods: {
       getDeviceIcon(device) {
-        if (device['operating_system'] === 'Darwin') {
-          return 'laptop';
-        } else if (device['operating_system'] === 'Android') {
+        if (device['operating_system'] === 'Android') {
           return 'device';
-        } else if (device.subset_of_users_device) {
+        } else if (!device['subset_of_users_device']) {
           return 'cloud';
         } else {
           return 'laptop';
