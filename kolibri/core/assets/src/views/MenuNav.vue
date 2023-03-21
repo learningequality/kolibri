@@ -25,8 +25,10 @@
 
 
           <div
-            class="side-nav-scrollable-area"
-            :style="{ top: `${topBarHeight}px`, width: `${width}` }"
+            :class="isAppContext ? 'bottom-nav-scrollable-area' : 'side-nav-scrollable-area'"
+            :style="isAppContext ?
+              { width: `${width}` } :
+              { top: `${topBarHeight}px`, width: `${width}` }"
           >
             <img
               v-if="themeConfig.sideNav.topLogo"
@@ -317,7 +319,7 @@
         fullName: state => state.core.session.full_name,
       }),
       width() {
-        return this.isAppContext ? '100vw' : `${this.topBarHeight * 4}px`;
+        return this.isAppContext ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
@@ -520,13 +522,27 @@
 
   .side-nav-scrollable-area {
     position: fixed;
+    bottom: 0;
     left: 0;
     padding-top: 4px;
     overflow: auto;
+    overflow-x: hidden;
+  }
+
+  .bottom-nav-scrollable-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 95vw;
+    height: 100%;
+    padding-top: 4px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .side-nav-scrollable-area-footer {
     padding: 16px;
+    margin-bottom: 40px;
   }
 
   .side-nav-scrollable-area-footer-logo {
@@ -581,7 +597,7 @@
   /deep/ .ui-menu {
     max-width: none;
     max-height: none;
-    padding: 0;
+    padding: 0 12px;
     border: 0;
   }
 
