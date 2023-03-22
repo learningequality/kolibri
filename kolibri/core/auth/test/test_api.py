@@ -1273,15 +1273,6 @@ class FacilityDatasetAPITestCase(APITestCase):
             payload,
         )
 
-    def is_pin_valid(self, payload):
-        return self.client.post(
-            reverse(
-                "kolibri:core:facilitydataset-is-pin-valid",
-                kwargs={"pk": self.facility.dataset_id},
-            ),
-            payload,
-        )
-
     def test_return_all_datasets_for_an_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.get(reverse("kolibri:core:facilitydataset-list"))
@@ -1477,6 +1468,35 @@ class FacilityDatasetAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.data["extra_fields"]["pin_code"], None)
+
+
+class IsPINValidAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.admin = FacilityUserFactory.create(facility=cls.facility)
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+        cls.facility.add_admin(cls.admin)
+
+    def update_pin(self, payload):
+        return self.client.post(
+            reverse(
+                "kolibri:core:facilitydataset-update-pin",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            payload,
+        )
+
+    def is_pin_valid(self, payload):
+        return self.client.post(
+            reverse(
+                "kolibri:core:ispinvalid",
+                kwargs={"pk": self.facility.dataset_id},
+            ),
+            payload,
+        )
 
     def test_facility_admin_can_check_is_pin_valid_correct_pin(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
