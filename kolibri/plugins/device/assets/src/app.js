@@ -27,7 +27,7 @@ class DeviceManagementModule extends KolibriApp {
     const isSuperuser = store.getters.isSuperuser;
     const isFacilityAdmin = store.getters.isFacilityAdmin;
     const userCanManageContent = store.getters.canManageContent;
-    if (!isLearnOnlyDevice && isFacilityAdmin && (isSuperuser || userCanManageContent)) {
+    if (isLearnOnlyDevice && !isFacilityAdmin && (isSuperuser || userCanManageContent)) {
       //While browsing within the device plugin, prevent expiry.
       //On page refresh within plugin, show pin prompt if cookie has expired.
       viewPlugin = viewPlugin ? viewPlugin : this.isPinAuthenticated;
