@@ -629,6 +629,10 @@
         this.toggleFolderSearchSidePanel();
       },
       tabPositionCalculation() {
+        // the component this function is referencing is also undefined in the DOM upon initial navigation to the page,
+        // but is not presenting any errors/issues
+        // tried to replicate the logic found here in the stickyCalculation() but with no/limited success
+
         const tabBottom = this.$refs.sidePanel
           ? this.$refs.sidePanel.$el.getBoundingClientRect().top
           : 0;
@@ -647,12 +651,46 @@
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
+
+        // // IDEA: first determine we are in the right location/page (since created/mounted is getting called earlier
+        // if we navigate to this page rather than starting on it) tried using presence of a class belonging to another
+        // DOM element on the page or another signifier to ensure page is rendered before header existence is assessed
+
+
+        // OLD CODE replaced 2 months ago -- because header const did not include this.$refs.header.$el,
+        // getBoundingClientRect() couldn't be validly called on it and the function quietly failed and errored out in
+        // the console. until it was addressed, this error coincidentally stopped the "crazy jumping page" bug from
+        // occurring.
+        // const header = this.$refs.header
+
         const header = this.$refs.header && this.$refs.header.$el;
-        if (!header) {
-          return;
-        }
+
+        // // code below is potentially being removed by this PR - removal of this return statement eliminates initial
+        // bug -- headers for certain folders [e.g. Kolibri QA Channel > HTML5 > African Story Books] being cut off, BUT also results (when devtools is not open &
+        // `windowIsShort` prop is false) in jumping scroll behavior and flashing screen.
+        // if (!header) {
+        //   return;
+        // }
+
         const topbar = document.querySelector('.scrolling-header');
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+
+
+        // // causes FREAK OUT (afr story books, LSAT prep)
+        // const header = this.$refs.header
+        // const headerBottom = header ? header.$el.getBoundingClientRect().bottom : 0;
+        //
+
+        // // SAME EFFECT
+        // const header = this.$refs.header
+        // const headerBottom = (header && header.$el) ? header.$el.getBoundingClientRect().bottom : 0;
+
+
+        // // SAME EFFECT
+        //  const header = document.querySelector('.test-class')
+        // // tried it instead of targeting w refs bc ¯\_(ツ)_/¯
+
+
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
         if (headerBottom < Math.max(topbarBottom, 0)) {
