@@ -5,6 +5,7 @@
     :footerMessageType="footerMessageType"
     :step="step"
     :steps="step"
+    :noBackAction="true"
     :description="$tr('description')"
     @continue="handleContinue"
   >
