@@ -1,3 +1,3 @@
 cython
 virtualenv
-git+https://github.com/learningequality/python-for-android@e0772e46d73a0291bb7909383ad1f47cba9e01e0#egg=python-for-android
+git+https://github.com/learningequality/python-for-android@8c840fb1b859b66fcba45e9c146b0ef08de8dfc2#egg=python-for-android
