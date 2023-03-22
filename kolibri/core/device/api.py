@@ -1,3 +1,4 @@
+import logging
 from datetime import timedelta
 from sys import version_info
 
@@ -70,6 +71,8 @@ from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
 
+logger = logging.getLogger(__name__)
+
 
 class DevicePermissionsViewSet(viewsets.ModelViewSet):
     queryset = DevicePermissions.objects.all()
@@ -93,6 +96,14 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         if APP_KEY_COOKIE_NAME in request.COOKIES:
             app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
             response_data["app_key"] = app_key
+
+        # Restart zeroconf before moving along when we're a SoUD
+        if response_data["is_soud"]:
+            logger.info("Updating our Kolibri instance on the Zeroconf network now")
+            from kolibri.utils.server import update_zeroconf_broadcast
+
+            update_zeroconf_broadcast()
+
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
