@@ -89,7 +89,7 @@ p4a_android_project: p4a_android_distro src/kolibri needs-version
 	@git stash push --quiet --include-untracked -- python-for-android
 
 .PHONY: update_project_from_p4a
-p4a_android_project: p4a_android_distro src/kolibri needs-version
+update_project_from_p4a: p4a_android_distro src/kolibri needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 
 .PHONY: needs-version
