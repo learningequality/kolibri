@@ -83,7 +83,7 @@ const routes = [
     path: '/facilities/:facility_id/managesync',
     props: true,
     handler: ({ name }) => {
-      store.dispatch('preparePage', { name, isAsync: false });
+      store.dispatch('preparePage', { name, isAsync: false, isDevicePlugin: true });
     },
   },
   {

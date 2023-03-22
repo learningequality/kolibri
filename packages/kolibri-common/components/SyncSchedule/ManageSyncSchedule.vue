@@ -184,13 +184,14 @@
 
 <script>
 
+  import { mapState } from 'vuex';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  // import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
-  import { PageNames } from '../../../../kolibri/plugins/device/assets/src/constants';
+  import { PageNames as PageNamesFacility } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  import { PageNames as PageNamesDevice } from '../../../../kolibri/plugins/device/assets/src/constants';
   import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
   export default {
@@ -220,9 +221,13 @@
       };
     },
     computed: {
+      ...mapState(['isDevicePlugin']),
       goBack() {
-        // return { name: PageNames.DATA_EXPORT_PAGE };
-        return { name: PageNames.FACILITIES_PAGE };
+        return {
+          name: this.isDevicePlugin
+            ? PageNamesDevice.FACILITIES_PAGE
+            : PageNamesFacility.DATA_EXPORT_PAGE,
+        };
       },
     },
     beforeMount() {
@@ -259,7 +264,10 @@
         this.deviceModal = false;
         if (id !== ' ') {
           this.deviceIds.push(id);
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: id } });
+          this.$router.push({
+            name: PageNamesFacility.EDIT_SYNC_SCHEDULE,
+            params: { deviceId: id },
+          });
         } else {
           return window.location.href;
         }
@@ -269,7 +277,10 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
+          this.$router.push({
+            name: PageNamesFacility.EDIT_SYNC_SCHEDULE,
+            params: { deviceId: value },
+          });
         } else {
           return window.location.href;
         }
