@@ -8,9 +8,9 @@
     :step="1"
     :steps="2"
     :doNotContinue="true"
-    :uniqueUsernameValidator="() => true"
     :adminUserLabels="false"
     :noBackAction="false"
+    :errors.sync="caughtErrors"
     @submit="handleClickNext"
   />
 
@@ -39,8 +39,7 @@
       return {
         loading: false,
         footerMessageType,
-        shouldValidate: false,
-        usernameIsUniqueFn: () => true,
+        caughtErrors: [],
       };
     },
     computed: {
@@ -50,7 +49,6 @@
     },
     methods: {
       handleClickNext() {
-        this.shouldValidate = true;
         const { baseurl, id } = this.wizardService.state.context.importDevice;
 
         const user = {
@@ -83,7 +81,7 @@
           } else {
             const errorData = JSON.parse(data);
             if (errorData.find(error => error.id === ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
-              this.usernameIsUniqueFn = () => false;
+              this.caughtErrors = [ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS];
             }
             this.loading = false;
           }

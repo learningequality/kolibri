@@ -38,7 +38,7 @@
     </template>
 
     <p v-if="importedUserIsSelected">
-      {{ $tr('enterPasswordPrompt', { username: selected.label }) }}
+      {{ $tr('enterPasswordPrompt', { username: selected.label, facility_name: facility.name }) }}
     </p>
   </UserCredentialsForm>
 
