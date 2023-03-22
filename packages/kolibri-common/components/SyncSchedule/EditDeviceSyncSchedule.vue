@@ -245,6 +245,8 @@
     },
     beforeMount() {
       this.fetchDevice();
+      console.log(this.deviceId);
+      console.log(this.facility_id);
     },
     mounted() {
       this.serverTime = setInterval(() => {
