@@ -44,7 +44,7 @@ needs-android-dirs:
 
 # Clear out apks
 clean:
-	- rm -rf dist/*.apk src/kolibri tmpenv
+	- rm -rf dist/*.apk src/kolibri tmpenv src/*.pyc
 
 deepclean: clean
 	$(PYTHON_FOR_ANDROID) clean_dists
@@ -72,9 +72,25 @@ src/kolibri: clean
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
 	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' src/kolibri/dist/django/db/migrations/loader.py
 
+.PHONY: check-android-clean
+check-android-clean:
+	@git diff --quiet --exit-code python-for-android || (echo "python-for-android directory has uncommitted changes in the working tree" && exit 1)
+
 .PHONY: p4a_android_distro
-p4a_android_distro: needs-android-dirs
+p4a_android_distro: needs-android-dirs check-android-clean
 	$(P4A) create $(ARCH_OPTIONS)
+# Stash any changes to our python-for-android directory
+	@git stash push --quiet --include-untracked -- python-for-android
+
+.PHONY: p4a_android_project
+p4a_android_project: p4a_android_distro src/kolibri needs-version
+	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+# Stash any changes to our python-for-android directory
+	@git stash push --quiet --include-untracked -- python-for-android
+
+.PHONY: update_project_from_p4a
+p4a_android_project: p4a_android_distro src/kolibri needs-version
+	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 
 .PHONY: needs-version
 needs-version:
@@ -83,38 +99,35 @@ needs-version:
 
 .PHONY: kolibri.apk
 # Build the signed version of the apk
-# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
-kolibri.apk: p4a_android_distro src/kolibri needs-version
+kolibri.apk: p4a_android_project
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build APK"
-	$(P4A) apk --release --sign $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	cd python-for-android/dists/kolibri && ./gradlew clean assembleRelease
 	mkdir -p dist
-	mv kolibri-release-$(APK_VERSION).apk dist/kolibri-release-$(APK_VERSION).apk
+	cp python-for-android/dists/kolibri/build/outputs/apk/release/kolibri-release.apk dist/kolibri-release-$(APK_VERSION).apk
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
-# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
-kolibri.apk.unsigned: p4a_android_distro src/kolibri needs-version
+kolibri.apk.unsigned: p4a_android_project
 	@echo "--- :android: Build APK (unsigned)"
-	$(P4A) apk $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	cd python-for-android/dists/kolibri && ./gradlew clean assembleDebug
 	mkdir -p dist
-	mv kolibri-debug-$(APK_VERSION).apk dist/kolibri-debug-$(APK_VERSION).apk
+	cp python-for-android/dists/kolibri/build/outputs/apk/debug/kolibri-debug.apk dist/kolibri-debug-$(APK_VERSION).apk
 
 .PHONY: kolibri.aab
 # Build the signed version of the aab
-# For some reason, p4a defauls to adding a final '-' to the filename, so we remove it in the final step.
-kolibri.aab: p4a_android_distro src/kolibri needs-version
+kolibri.aab: p4a_android_project
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS
 	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
 	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build AAB"
-	$(P4A) aab --release --sign $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+	cd python-for-android/dists/kolibri && ./gradlew clean bundleRelease
 	mkdir -p dist
-	mv kolibri-release-$(APK_VERSION).aab dist/kolibri-release-$(APK_VERSION).aab
+	cp python-for-android/dists/kolibri/build/outputs/bundle/release/kolibri-release.aab dist/kolibri-release-$(APK_VERSION).aab
 
 # DOCKER BUILD
 
