@@ -140,7 +140,6 @@ class TestServerServices(object):
             from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
             from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
 
-            print(job_storage.get_all_jobs())
             assert len(job_storage) == 4
             assert job_storage.get_job(test1) is not None
             assert job_storage.get_job(test2) is not None

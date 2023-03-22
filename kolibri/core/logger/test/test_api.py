@@ -32,6 +32,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.csv_export import labels
 from kolibri.core.logger.tasks import get_filepath
 from kolibri.core.logger.tasks import log_exports_cleanup
+from kolibri.core.tasks.main import job_storage
 from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 
@@ -206,6 +207,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         )
         assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
         assert expected_users_csv_file_path in os.listdir(logs_dir)
+        job_storage.clear(force=True)
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
@@ -402,6 +404,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         )
         assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
         assert expected_users_csv_file_path in os.listdir(logs_dir)
+        job_storage.clear(force=True)
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
