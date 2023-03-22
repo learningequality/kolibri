@@ -42,7 +42,15 @@
       :noPadding="true"
     >
 
-      <div class="content">
+      <div v-if="coreError" style="padding: 2em;">
+        <h2>{{ coreError }}</h2>
+        <KButton
+          :text="coreString('startOverAction')"
+          :primary="true"
+          @click="startOver"
+        />
+      </div>
+      <div v-else class="content">
         <!-- Optional back arrow to show at the top for longer content views -->
         <KIconButton
           v-if="showBackArrow"
@@ -208,8 +216,15 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
+      coreError() {
+        return this.$store.state.core.error;
+      },
     },
     methods: {
+      startOver() {
+        this.wizardService.send('START_OVER');
+        this.$store.dispatch('clearError');
+      },
       /* If the user is focused on a form element and hits enter, continue */
       handleEnterKey(e) {
         e.preventDefault();
