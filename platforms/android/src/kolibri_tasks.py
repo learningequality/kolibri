@@ -50,7 +50,6 @@ def task_updates(job, orm_job, state=None, **kwargs):
     status = job.status(currentLocale)
 
     if status:
-        print(status.title, status.text)
         PythonWorker.mWorker.updateNotificationText(status.title, status.text)
 
     if job.total_progress:
@@ -60,6 +59,11 @@ def task_updates(job, orm_job, state=None, **kwargs):
 
     if status:
         PythonWorker.mWorker.showNotification()
+
+    if job.long_running and state == State.RUNNING:
+        # This is a long running job and it has just started running
+        # Set to running as foreground
+        PythonWorker.mWorker.runAsForeground()
 
     if state is not None and orm_job.repeat is None or orm_job.repeat > 0:
         if state in {State.COMPLETED, State.CANCELED} or (
