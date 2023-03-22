@@ -60,9 +60,6 @@
         return this.wizardService.state.context.importDevice;
       },
     },
-    mounted() {
-      console.log('ImportAuthentication', this.wizardService.state);
-    },
     methods: {
       callSubmitCredentials() {
         const $credentialsForm = this.$refs.credentialsForm;
