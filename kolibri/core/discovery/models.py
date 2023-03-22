@@ -2,7 +2,10 @@ import uuid
 
 from django.core.exceptions import ValidationError
 from django.db import models
+from django.utils import timezone
 
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -207,3 +210,20 @@ class NetworkLocationRouter(object):
             return False
         # No opinion for all other scenarios
         return None
+
+
+class PinnedDevice(models.Model):
+
+    user = models.ForeignKey(FacilityUser, blank=False)
+    device_id = models.UUIDField(blank=False)
+    created = models.DateTimeField(default=timezone.now, db_index=True)
+
+    permissions = IsOwn()
+
+    class Meta:
+        # Ensures that we do not save duplicates, otherwise raises a
+        # django.db.utils.IntegrityError
+        unique_together = (
+            "user",
+            "device_id",
+        )

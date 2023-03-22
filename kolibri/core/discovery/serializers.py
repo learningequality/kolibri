@@ -3,10 +3,12 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from rest_framework import serializers
+from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import ValidationError
 
 from .models import ConnectionStatus
 from .models import NetworkLocation
+from .models import PinnedDevice
 from .utils.network import errors
 from .utils.network.client import NetworkClient
 
@@ -62,3 +64,12 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
         info = {k: v for (k, v) in client.device_info.items() if v is not None}
         data.update(info)
         return super(NetworkLocationSerializer, self).validate(data)
+
+
+class PinnedDeviceSerializer(ModelSerializer):
+    class Meta:
+        model = PinnedDevice
+        fields = (
+            "device_id",
+            "user",
+        )

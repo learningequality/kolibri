@@ -6,6 +6,8 @@ import mock
 import requests
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_201_CREATED
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -102,3 +104,42 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         for location in response.data:
             self.assertFalse(location["subset_of_users_device"])
+
+
+class PinnedDeviceAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory(facility=cls.facility)
+        cls.network_location = models.NetworkLocation.objects.create(
+            base_url="https://kolibrihappyurl.qqq/"
+        )
+
+    def setUp(self):
+        self.client.login(
+            username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility
+        )
+
+    def test_add_pinned_device(self):
+        response = self.client.post(
+            reverse("kolibri:core:pinned_devices-list"),
+            data={"user": self.user.id, "device_id": self.network_location.id}
+        )
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_fetch_pinned_devices(self):
+        my_pin = models.PinnedDevice.objects.create(
+            user=self.user,
+            device_id=self.network_location.id
+        )
+        response = self.client.get(
+            reverse("kolibri:core:pinned_devices-list"),
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data), 1)
+        # TODO - Get this working
+        #      - Discuss & write any more tasks
+        #      - Start onto the frontend
+        #self.assertEqual(response.data[0]['device_id'], my_pin.device_id)
+        #self.assertTrue(my_pin in response.data)
