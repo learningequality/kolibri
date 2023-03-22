@@ -65,7 +65,6 @@
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
-  import { FinishSoUDSyncingResource } from '../../api';
   import { DeviceTypePresets, UsePresets } from '../../constants';
 
   export default {
@@ -195,9 +194,6 @@
         return this.wizardService.state.context[key];
       },
       provisionDevice() {
-        // Restart ZeroConf (needs to be done before provisioning)
-        FinishSoUDSyncingResource.postListEndpoint('restart');
-
         client({
           url: urls['kolibri:core:deviceprovision'](),
           method: 'POST',

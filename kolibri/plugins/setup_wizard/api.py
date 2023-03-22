@@ -163,22 +163,3 @@ class FacilityImportViewSet(ViewSet):
             raise PermissionDenied()
         students = [u for u in facility_info["users"] if not u["roles"]]
         return Response({"students": students, "admin": facility_info["user"]})
-
-
-class SetupWizardRestartZeroconf(ViewSet):
-    """
-    An utility endpoint to restart zeroconf after setup is finished
-    in case this is a SoUD
-    """
-
-    permission_classes = [HasPermissionDuringSetup | HasPermissionDuringLODSetup]
-
-    @decorators.action(methods=["post"], detail=False)
-    def restart(self, request):
-        import logging
-        from kolibri.utils.server import update_zeroconf_broadcast
-
-        logger = logging.getLogger(__name__)
-        logger.info("Updating our Kolibri instance on the Zeroconf network now")
-        update_zeroconf_broadcast()
-        return Response({})

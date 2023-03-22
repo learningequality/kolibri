@@ -46,8 +46,3 @@ export const FacilityImportResource = new Resource({
     });
   },
 });
-
-export const FinishSoUDSyncingResource = new Resource({
-  name: 'restartzeroconf',
-  namespace: 'kolibri.plugins.setup_wizard',
-});

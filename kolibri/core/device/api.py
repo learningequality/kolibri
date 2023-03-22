@@ -97,6 +97,14 @@ class DeviceProvisionView(viewsets.GenericViewSet):
         if APP_KEY_COOKIE_NAME in request.COOKIES:
             app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
             response_data["app_key"] = app_key
+
+        # Restart zeroconf before moving along
+        import logging
+        from kolibri.utils.server import update_zeroconf_broadcast
+
+        logger = logging.getLogger(__name__)
+        logger.info("Updating our Kolibri instance on the Zeroconf network now")
+        update_zeroconf_broadcast()
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 
