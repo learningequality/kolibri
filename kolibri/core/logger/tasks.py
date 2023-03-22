@@ -3,6 +3,9 @@ import os
 from django.core.management import call_command
 from rest_framework import serializers
 
+from kolibri.core.auth.management.commands.bulkexportusers import (
+    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
+)
 from kolibri.core.auth.models import Facility
 from kolibri.core.logger.csv_export import CSV_EXPORT_FILENAMES
 from kolibri.core.logger.models import GenerateCSVLogRequest
@@ -26,7 +29,7 @@ def get_filepath(log_type, facility_id, start_date, end_date):
     return filepath
 
 
-def get_valid_filenames():
+def get_valid_logs_csv_filenames():
     """
     Returns a set of valid filenames that should exist
     based on the objects stored in GenerateCSVLogRequest.
@@ -43,6 +46,36 @@ def get_valid_filenames():
         )
         valid_filenames_set.add(os.path.basename(full_path))
     return valid_filenames_set
+
+
+def get_valid_users_csv_filenames():
+    """
+    Returns a set of valid filenames that should exist
+    based on the objects stored in Facility.
+    """
+    valid_filenames_set = set()
+    facilities = Facility.objects.values("id", "name").all()
+    for facility in facilities:
+        file_name = USER_CSV_EXPORT_FILENAMES["user"].format(
+            facility["name"], facility["id"][:4]
+        )
+        valid_filenames_set.add(file_name)
+    return valid_filenames_set
+
+
+def get_valid_filenames():
+    """
+    Returns a union set of valid filenames
+    for log exports and users csv exports.
+    These filenames are valid and will not be
+    cleaned from log_exports_cleanup.
+    """
+    valid_filenames = set()
+    valid_logs_filenames = get_valid_logs_csv_filenames()
+    valid_users_filenames = get_valid_users_csv_filenames()
+    valid_filenames = valid_filenames.union(valid_logs_filenames)
+    valid_filenames = valid_filenames.union(valid_users_filenames)
+    return valid_filenames
 
 
 class ExportLogCSVValidator(JobValidator):

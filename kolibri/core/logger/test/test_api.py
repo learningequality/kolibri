@@ -22,6 +22,9 @@ from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
 from .helpers import EvaluationMixin
+from kolibri.core.auth.management.commands.bulkexportusers import (
+    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
+)
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ChannelMetadata
@@ -173,13 +176,21 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             start_date=start_date_2,
             end_date=end_date_2,
         )
+        # generate users csv
+        call_command(
+            "bulkexportusers",
+            facility=self.facility.id,
+            overwrite=True,
+        )
         # execute cleanup
         # latest should persist and the old one should be deleted
         log_exports_cleanup()
 
         logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-        assert len(os.listdir(logs_dir)) == 1
-        assert os.listdir(logs_dir)[0] == os.path.basename(filepath_2)
+        # currently there are two file. logs export and users csv export
+        assert len(os.listdir(logs_dir)) == 2
+        assert os.path.basename(filepath_2) in os.listdir(logs_dir)
+        assert os.path.basename(filepath) not in os.listdir(logs_dir)
 
         # make sure the csv file for the record saved in the database exists
         log_request = GenerateCSVLogRequest.objects.get(log_type=log_type)
@@ -190,7 +201,11 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
             log_request.selected_start_date.strftime(date_format),
             log_request.selected_end_date.strftime(date_format),
         )
-        assert os.listdir(logs_dir)[0] == os.path.basename(expected_file_path)
+        expected_users_csv_file_path = USER_CSV_EXPORT_FILENAMES["user"].format(
+            self.facility.name, self.facility.id[:4]
+        )
+        assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
+        assert expected_users_csv_file_path in os.listdir(logs_dir)
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
@@ -357,13 +372,21 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
             start_date=start_date_2,
             end_date=end_date_2,
         )
+        # generate users csv
+        call_command(
+            "bulkexportusers",
+            facility=self.facility.id,
+            overwrite=True,
+        )
         # execute cleanup
         # latest csv should persist and the old one should be deleted
         log_exports_cleanup()
 
         logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
-        assert len(os.listdir(logs_dir)) == 1
-        assert os.listdir(logs_dir)[0] == os.path.basename(filepath_2)
+        # currently there are two file. logs export and users csv export
+        assert len(os.listdir(logs_dir)) == 2
+        assert os.path.basename(filepath_2) in os.listdir(logs_dir)
+        assert os.path.basename(filepath) not in os.listdir(logs_dir)
 
         # make sure the csv file for the record saved in the database exists
         log_request = GenerateCSVLogRequest.objects.get(log_type=log_type)
@@ -374,7 +397,11 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
             log_request.selected_start_date.strftime(date_format),
             log_request.selected_end_date.strftime(date_format),
         )
-        assert os.listdir(logs_dir)[0] == os.path.basename(expected_file_path)
+        expected_users_csv_file_path = USER_CSV_EXPORT_FILENAMES["user"].format(
+            self.facility.name, self.facility.id[:4]
+        )
+        assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
+        assert expected_users_csv_file_path in os.listdir(logs_dir)
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
