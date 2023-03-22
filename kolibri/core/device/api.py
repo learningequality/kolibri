@@ -76,7 +76,6 @@ from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
-logger.info("Updating our Kolibri instance on the Zeroconf network now")
 
 
 class DevicePermissionsViewSet(viewsets.ModelViewSet):
@@ -103,7 +102,8 @@ class DeviceProvisionView(viewsets.GenericViewSet):
             response_data["app_key"] = app_key
 
         # Restart zeroconf before moving along when we're a SoUD
-        if data["is_soud"]:
+        if response_data["is_soud"]:
+            logger.info("Updating our Kolibri instance on the Zeroconf network now")
             from kolibri.utils.server import update_zeroconf_broadcast
 
             update_zeroconf_broadcast()
