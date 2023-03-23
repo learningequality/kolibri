@@ -65,9 +65,6 @@
   "browserslist": [
     "extends browserslist-config-kolibri"
   ],
-  "dependencies": {
-    "path-to-regexp": "1.8.0"
-  },
   "volta": {
     "node": "16.18.0"
   }

@@ -26,6 +26,7 @@
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
     "markdown-it": "13.0.1",
+    "path-to-regexp": "1.8.0",
     "screenfull": "^5.2.0",
     "shave": "^5.0.2",
     "tinycolor2": "^1.6.0",
