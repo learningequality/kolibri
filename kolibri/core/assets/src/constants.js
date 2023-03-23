@@ -106,7 +106,6 @@ export const QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED = 'QUIZ_REPORT_VISIBILITY_MO
 
 export const NavComponentSections = {
   ACCOUNT: 'account',
-  LEARN: 'LearnSideNavEntry',
 };
 
 export const SyncStatus = {
