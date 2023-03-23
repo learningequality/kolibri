@@ -13,49 +13,27 @@ Feature: Device setup
 		Then I see a *Get started* button
 
 	Scenario: Select *On my own* setup in a desktop browser
-		Given I using a desktop browser
+		Given I am using a desktop browser
 			And Kolibri has finished loading after opening it for the first time
 		When I click *Get started*
 		Then I see *How are you using Kolibri?*
-			And I see the checkbox for *On my own* is selected by default
+			And I see that the checkbox for *On my own* is selected by default
 		When I click *Continue*
-		Then I see *What language do you want to learn in?*
-			And I see an option to change the language
-		When I click the *Change* button
+		Then I see *Please select the default language for Kolibri*
+			And at the top right corner I see an option to change the current language
+		When I click the button which is labeled as the currently selected language
 		Then I see the *Change language* modal
 		When I select a language
 			And I press the *Confirm* button
-		Then I see the the *Selected: <language>*
+		Then I see the interface changed to the selected language
 		When I click *Continue*
-		Then I see the *Create your account* page
-			And I see the Kolibri logo to the left, the language selector to the right and a label *Create your account*
-			And I see the text *This is a super admin account that will let you manage educational resources and user accounts on this device.*
+		Then I see the *Create super admin* page
+			And I see the Kolibri logo to the left, the language selector to the right and a label *Create super admin*
+			And I see the text *This super admin account allows you to manage all facilities, resources, and users on this device.*
 			And I see the *Full name*, *Username*, *Password* and *Re-enter password* fields*
 			And I see the *Usage and privacy* link and the text *Important: please remember this account information. Write it down if needed.*
 		When I fill in the *Full name*, *Username*, *Password* and *Re-enter password* fields
 			And I click *Continue*
-		Then I see the Kolibri loading icon
-			And I see *Setting up Kolibri*
-			And I see *This may take several minutes*
-		When Kolibri finishes loading
-		Then I see a modal *Add materials*
-		When I click *Continue*
-		Then I am at *Learn > Library* page
-
-	Scenario: Select *On my own* setup in app mode
-		Given Kolibri has finished loading after opening it for the first time
-		When I click *Get started*
-		Then I see *How are you using Kolibri?*
-			And I see the checkbox for *On my own* is selected by default
-		When I click *Continue*
-		Then I see *What language do you want to learn in?*
-			And I see an option to change the language
-		When I click the *Change* button
-		Then I see the *Change language* modal
-		When I select a language
-			And I press the *Confirm* button
-		Then I see the the *Selected: <language>*
-		When I click *Continue*
 		Then I see the Kolibri loading icon
 			And I see *Setting up Kolibri*
 			And I see *This may take several minutes*
@@ -74,8 +52,8 @@ Feature: Device setup
 		Then I see the *What kind of device is this?* page
 			And I see that the *Full device* option is selected
 		When I click *Continue*
-		Then I am at the *Select a facility setup for this full device* page
-			And I see that the *Create a new facility* option is selected
+		Then I am at the *Set up the learning facility for this full device* page
+			And I see that the *Create a new learning facility* option is selected
 		When I click *Continue*
 		Then I am at the *What kind of learning environment is your facility?* page
 			And I see that the *Non-formal* option is selected
@@ -83,14 +61,16 @@ Feature: Device setup
 		Then I am at the *Enable guest access?* page
 			And I see that the *Yes* option is selected
 		When I click *Continue*
-		Then I am at the *Allow learners to join this facility?* page
+		Then I am at the *Allow anyone to create their own learner account?* page
 			And I see that the *Yes* option is selected
 		When I click *Continue*
 		Then I am at the *Enable passwords on learner accounts?* page
 			And I see that the *Yes* option is selected
 		When I click *Continue*
 		Then I am at the *Responsibilities as an administrator* page
-		When I click *Finish*
+		Then I see the *Create super admin* page
+		When I fill in the *Full name*, *Username*, *Password* and *Re-enter password* fields
+			And I click *Continue*
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
 		Then I am at the *Device > Channels* page
