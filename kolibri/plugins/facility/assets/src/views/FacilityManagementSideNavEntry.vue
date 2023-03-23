@@ -41,11 +41,11 @@
             route: this.generateNavRoute(FacilityPageNames.USER_MGMT_PAGE),
           },
           facilitySettings: {
-            text: this.$tr('settingsLabel'),
+            text: this.coreString('settingsLabel'),
             route: this.generateNavRoute(FacilityPageNames.FACILITY_CONFIG_PAGE),
           },
           facilityData: {
-            text: this.$tr('data'),
+            text: this.coreString('dataLabel'),
             route: this.generateNavRoute(FacilityPageNames.DATA_EXPORT_PAGE),
           },
         };
@@ -63,16 +63,6 @@
     },
     role: UserKinds.ADMIN,
     priority: 10,
-    $trs: {
-      data: {
-        message: 'Data',
-        context: "Title of tab in 'Facility' section.",
-      },
-      settingsLabel: {
-        message: 'Settings',
-        context: "Title of tab in 'Facility' section.",
-      },
-    },
   };
 
   navComponents.register(component);
