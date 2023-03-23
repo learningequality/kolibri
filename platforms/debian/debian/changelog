@@ -1,3 +1,9 @@
+kolibri-source (0.15.12-0ubuntu2) bionic; urgency=medium
+
+  * debian/control: Drop support for python 3.4 & 3.5
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 22 Mar 2023 21:01:17 +0100
+
 kolibri-source (0.15.12-0ubuntu1) bionic; urgency=medium
 
   * New upstream release
