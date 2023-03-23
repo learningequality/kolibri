@@ -148,7 +148,7 @@
         // which plugin are we currently in?
         if (this.subRoutes) {
           const key = Object.keys(this.subRoutes)[0];
-          this.subRoutes[key].route.includes(window.location.pathname)
+          this.subRoutes[key].route == `${window.location.pathname + window.location.hash}`
             ? (this.visibleSubMenu = true)
             : (this.visibleSubMenu = false);
         }
