@@ -78,6 +78,9 @@ class NetworkLocation(models.Model):
     added = models.DateTimeField(auto_now_add=True, db_index=True)
     last_accessed = models.DateTimeField(auto_now=True)
 
+    # Determines whether device is local or on the internet
+    is_local = models.BooleanField(default=False)
+
     @property
     def since_last_accessed(self):
         """
@@ -118,7 +121,11 @@ class StaticNetworkLocation(NetworkLocation):
 
     def save(self, *args, **kwargs):
         self.dynamic = False
+        self.is_local = self.capture_network_state()
         return super(StaticNetworkLocation, self).save(*args, **kwargs)
+
+    def capture_network_state():
+        return True
 
 
 class DynamicNetworkLocationManager(models.Manager):
@@ -146,6 +153,7 @@ class DynamicNetworkLocation(NetworkLocation):
 
     def save(self, *args, **kwargs):
         self.dynamic = True
+        self.is_local = True
 
         if self.id and self.instance_id and self.id != self.instance_id:
             raise ValidationError(
