@@ -1,7 +1,9 @@
 .ONESHELL:
 
+DIST_DIR:=./dist
+
 clean:
-	rm -f dist/* dist/VERSION *.cid
+	rm -Rf dist/*
 
 # Doesn't have to run if you bring in your own tarball.
 build_src/%.tar.gz:
@@ -9,26 +11,25 @@ build_src/%.tar.gz:
 	pip download --no-binary :all: -d build_src kolibri
 
 
-# Need a reliable name so `make` knows what to look for.
-# Copying rather than renaming in place so that users
-# can plop their own tarball in `build_src` if so desired.
-dist/kolibri_archive.tar.gz: build_src/*.tar.gz
-	@# Copy to dist, where it will be copied to container
+dist/VERSION: build_src/*.tar.gz
 	mkdir -p dist
-	cp $< $@
-
-dist/VERSION: dist/kolibri_archive.tar.gz
 	@# Use head of archive list to determine version location
 	ARCHIVE_ROOT=$$(tar -tf $< | head -1)
 	VERSION_PATH=$${ARCHIVE_ROOT}kolibri/VERSION
 
 	tar -zxvf $< $$VERSION_PATH
 	mv $$VERSION_PATH $@
-	rm -r $$ARCHIVE_ROOT
+	rm -rf $$ARCHIVE_ROOT
+
+
+dist/%.orig.tar.gz: dist/VERSION
+	$(eval RELEASE_VERSION:= $(shell cat $(DIST_DIR)/VERSION))
+	cp build_src/*.tar.gz $(DIST_DIR)/kolibri-source_$(RELEASE_VERSION).orig.tar.gz
+
 
 # Meant to be used for local dev. Can be called with alias below.
 # If something changes in the way you build locally, please update this recipe.
-dist/%.deb: dist/VERSION dist/kolibri_archive.tar.gz
+dist/%.deb: dist/%.orig.tar.gz
 	build_tools/build.sh
 
 .PHONY: kolibri.deb

@@ -3,18 +3,25 @@
 set -euxo pipefail
 export DEBIAN_FRONTEND=noninteractive
 
-DEB_VERSION=`cat dist/VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
+cd dist
+tar xf *orig.tar.gz
+# SOURCE_DIR=`tar --exclude="*/*" -tf *.orig.tar.gz|head -1`
+SOURCE_DIR=`ls -d kolibri*/`
+cp -r ../debian $SOURCE_DIR
+DEB_VERSION=`cat VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
+cd $SOURCE_DIR
 
-echo "--- Running uupdate on current source"
-# Go to current kolibri source to run uupdate, then come back
-cd kolibri-source-*
-uupdate --no-symlink -b -v $DEB_VERSION ../dist/kolibri_archive.tar.gz
-cd -
+DEBFULLNAME='Learning Equality' DEBEMAIL=info@learningequality.org dch -v $DEB_VERSION-0ubuntu1 'New upstream release'
+DEBFULLNAME='Learning Equality' DEBEMAIL=info@learningequality.org dch -r 'New upstream release'
 
-echo "--- Running debuild on new source"
-# Go to new kolibri source to run debuild, then come back
-cd kolibri-source-$DEB_VERSION
-debuild --no-lintian -us -uc -Zgzip -z3
-cd -
+# package can't be run from a virtualenv
+if [[ "$VIRTUAL_ENV" != "" ]]
+then
+  export  PATH=`echo $PATH | tr ":" "\n" | grep -v $VIRTUAL_ENV | tr "\n" ":"`
+  unset VIRTUAL_ENV
+fi
 
-mv *.deb dist/
+
+# build with unsigned source, changes and gzip compression
+VIRTUAL_ENV= fakeroot dpkg-buildpackage -Zgzip -z3 -us -uc
+
