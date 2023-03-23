@@ -35,15 +35,19 @@ dist/%.deb: dist/%.orig.tar.gz
 .PHONY: kolibri.deb
 kolibri.deb: dist/kolibri.deb
 
-.PHONY: docker-deb
-docker-deb:
-	# Essentially just calls make dist/%.deb in a prepared docker container.
-	# After building, it copies the .deb into the dist/ dir.
-	build_tools/docker_build.sh
+.PHONY: kolibri.changes
+kolibri.changes: dist/%.orig.tar.gz
+	build_tools/build.sh -S
 
-.PHONY: docker-test
-docker-test:
-	export DOCKER_IMAGES=$(DOCKER_IMAGES) && build_tools/docker_test.sh
+# Commit to kolibri-installer-debian the new release changelog
+# and upload the package to PPA
+# Both gpg key and git credentials must be set up for this to work
+.PHONY: commit-new-release
+commit-new-release: kolibri.changes
+	find dist -name *.changes -exec dput ppa:learningequality/kolibri-proposed {} \;
+	find dist -name changelog -exec cp {} debian \;
+	git commit -a -m "New release: $(shell cat dist/VERSION)"
+	git push
 
 .PHONY:
 clean-tar:

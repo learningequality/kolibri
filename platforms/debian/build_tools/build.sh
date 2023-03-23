@@ -1,7 +1,21 @@
 #! /usr/bin/env bash
 
-set -euxo pipefail
-export DEBIAN_FRONTEND=noninteractive
+set -euo pipefail
+# set -euxo pipefail
+
+# When this script is run with -S, it builds a source package only.
+# It will ask to sign the package if the $DEBMAIL gpg key is installed in the system
+
+BUILD_BINARY=1
+
+while getopts "S" FLAG; do
+    case $FLAG in
+        S)
+        BUILD_BINARY=0
+        ;;
+    esac
+    done
+
 
 cd dist
 tar xf *orig.tar.gz
@@ -9,10 +23,12 @@ tar xf *orig.tar.gz
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
 DEB_VERSION=`cat VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
-cd $SOURCE_DIR
+DEBEMAIL=info@learningequality.org 
+DEBFULLNAME='Learning Equality'
 
-DEBFULLNAME='Learning Equality' DEBEMAIL=info@learningequality.org dch -v $DEB_VERSION-0ubuntu1 'New upstream release'
-DEBFULLNAME='Learning Equality' DEBEMAIL=info@learningequality.org dch -r 'New upstream release'
+cd $SOURCE_DIR
+DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -v $DEB_VERSION-0ubuntu1 'New upstream release'
+DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -r 'New upstream release'
 
 # package can't be run from a virtualenv
 if [[ "$VIRTUAL_ENV" != "" ]]
@@ -21,7 +37,11 @@ then
   unset VIRTUAL_ENV
 fi
 
-
-# build with unsigned source, changes and gzip compression
-VIRTUAL_ENV= fakeroot dpkg-buildpackage -Zgzip -z3 -us -uc
+if [ "$BUILD_BINARY" -eq "0" ]; then
+    # build source package only
+   dpkg-buildpackage -S || { echo "Not signing the sources: GPG secret key for $DEBEMAIL is not available" ; }
+else
+    # build with unsigned source, changes and gzip compression
+    dpkg-buildpackage -Zgzip -z3 -us -uc
+fi
 
