@@ -1,7 +1,7 @@
 <template>
 
   <CoreMenuOption
-    :label="$tr('device')"
+    :label="deviceString('device')"
     icon="device"
     :subRoutes="isSubsetOfUsersDevice ? routes : generalDeviceRoutes"
   />
@@ -19,6 +19,7 @@
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import { PageNames as DevicePageNames } from '../constants';
   import baseRoutes from '../routes/baseRoutes';
+  import commonDeviceStrings from './commonDeviceStrings';
   import plugin_data from 'plugin_data';
 
   const component = {
@@ -26,7 +27,7 @@
     components: {
       CoreMenuOption,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     data() {
       return {
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
@@ -47,7 +48,7 @@
       generalDeviceRoutes() {
         return {
           permissions: {
-            text: this.$tr('permissionsLabel'),
+            text: this.deviceString('permissionsLabel'),
             route: this.generateNavRoute(DevicePageNames.MANAGE_PERMISSIONS_PAGE),
           },
           facilities: {
@@ -55,11 +56,11 @@
             route: this.generateNavRoute(DevicePageNames.FACILITIES_PAGE),
           },
           info: {
-            text: this.$tr('infoLabel'),
+            text: this.coreString('infoLabel'),
             route: this.generateNavRoute(DevicePageNames.DEVICE_INFO_PAGE),
           },
           settings: {
-            text: this.$tr('settingsLabel'),
+            text: this.coreString('settingsLabel'),
             route: this.generateNavRoute(DevicePageNames.DEVICE_SETTINGS_PAGE),
           },
         };
@@ -68,25 +69,6 @@
     methods: {
       generateNavRoute(route) {
         return generateNavRoute(this.url, route, baseRoutes);
-      },
-    },
-    $trs: {
-      device: {
-        message: 'Device',
-        context:
-          'The device is the physical or virtual machine that has the Kolibri server installed on it.',
-      },
-      permissionsLabel: {
-        message: 'Permissions',
-        context: 'Refers to the Device > Permissions tab.',
-      },
-      infoLabel: {
-        message: 'Info',
-        context: 'Refers to the Device > Info tab.',
-      },
-      settingsLabel: {
-        message: 'Settings',
-        context: 'Refers to the Device > Settings tab.\n',
       },
     },
     role: UserKinds.CAN_MANAGE_CONTENT,
