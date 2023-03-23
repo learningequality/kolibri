@@ -7,6 +7,7 @@ import datetime
 import os
 import uuid
 
+import mock
 import pytz
 from django.core.management import call_command
 from django.urls import reverse
@@ -15,6 +16,7 @@ from rest_framework.test import APITestCase
 from kolibri.core.auth.test.helpers import DUMMY_PASSWORD
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
+from kolibri.core.logger.tasks import log_exports_cleanup
 from kolibri.core.logger.test.factory_logger import ContentSessionLogFactory
 from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
@@ -67,7 +69,8 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
         cls.end_date = local_now().isoformat()
 
-    def test_csv_download_anonymous_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_anonymous_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="summary",
@@ -89,7 +92,8 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_csv_download_non_admin_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_non_admin_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="summary",
@@ -116,7 +120,8 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_csv_download_admin_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_admin_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="summary",
@@ -167,7 +172,8 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
         cls.end_date = local_now().isoformat()
 
-    def test_csv_download_anonymous_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_anonymous_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="session",
@@ -189,7 +195,8 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_csv_download_non_admin_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_non_admin_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="session",
@@ -216,7 +223,8 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         )
         self.assertEqual(response.status_code, 403)
 
-    def test_csv_download_admin_permissions(self):
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_download_admin_permissions(self, mock_enqueue):
         call_command(
             "exportlogs",
             log_type="session",
