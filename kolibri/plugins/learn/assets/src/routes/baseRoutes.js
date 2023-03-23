@@ -5,10 +5,6 @@ import { PageNames } from '../constants';
 
 export default [
   {
-    name: PageNames.ROOT,
-    path: '/',
-  },
-  {
     name: PageNames.HOME,
     path: '/home',
   },
@@ -19,9 +15,5 @@ export default [
   {
     name: PageNames.BOOKMARKS,
     path: '/bookmarks',
-  },
-  {
-    path: '*',
-    redirect: '/',
   },
 ];

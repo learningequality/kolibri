@@ -3,15 +3,10 @@ var pathToRegexp = require('path-to-regexp');
 export function generateNavRoute(rootUrl, pathReference, baseRoutes, params) {
   const pathMap = {};
   let compiledRoute;
-  Object.keys(baseRoutes).forEach(key => {
-    const pathName = baseRoutes[key].name;
-    const pathRoute = baseRoutes[key].path;
-    if (pathName) {
-      pathMap[`${pathName}`] = pathRoute;
-    }
+  baseRoutes.forEach(route => {
+    if (route == pathReference) console.log('matches', pathReference);
+    compiledRoute = `${rootUrl}#${pathReference.path}`;
   });
-
-  compiledRoute = `${rootUrl}#${pathMap[pathReference]}`;
 
   if (params) {
     const pathRegex = `${rootUrl}#${pathMap[pathReference]}`;

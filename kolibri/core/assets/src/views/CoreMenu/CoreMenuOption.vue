@@ -47,15 +47,15 @@
     </li>
 
     <div v-if="visibleSubMenu">
-      <div v-for="(nestedObject, key) in subRoutes" :key="key">
+      <div v-for="subRoute in subRoutes" :key="subRoute">
         <div class="link-container">
           <a
-            :href="nestedObject.route"
+            :href="generateNavRoute(subRoute)"
             class="link"
-            :class="$computedClass(subpathStyles(nestedObject.route))"
-            @click="handleNav(nestedObject.route)"
+            :class="$computedClass(subpathStyles(subRoute.path))"
+            @click="handleNav(subRoute.path)"
           >
-            {{ nestedObject.text }}
+            {{ createLabel(subRoute.name) }}
           </a>
         </div>
       </div>
@@ -68,8 +68,12 @@
 
 <script>
 
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { generateNavRoute } from '../../utils/generateNavRoutes';
+
   export default {
     name: 'CoreMenuOption',
+    mixins: [commonCoreStrings],
     props: {
       label: {
         type: String,
@@ -90,7 +94,7 @@
         default: '',
       },
       subRoutes: {
-        type: Object,
+        type: Array,
         required: false,
         default: null,
       },
@@ -141,6 +145,10 @@
           this.$emit('select');
         }
       },
+      createLabel(text) {
+        const string = `${text.toLowerCase()}Label`;
+        return this.coreString(string);
+      },
       isActiveLink(route) {
         return route.includes(this.$router.currentRoute.path);
       },
@@ -177,6 +185,10 @@
       },
       handleNav(route) {
         this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
+      },
+      generateNavRoute(route) {
+        console.log('url', this.link, 'route', route, 'subroutes', this.subRoutes);
+        return generateNavRoute(this.link, route, this.subRoutes);
       },
     },
   };
