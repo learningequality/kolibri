@@ -37,7 +37,7 @@ import AppBarPage from '../views/CorePage/AppBarPage';
 import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
 import ScrollingHeader from '../views/ScrollingHeader';
-import MenuNav from '../views/MenuNav';
+import SideNav from '../views/SideNav';
 import Navbar from '../views/Navbar';
 import NavbarLink from '../views/Navbar/NavbarLink';
 import HorizontalNavBarWithOverflowMenu from '../views/HorizontalNavBarWithOverflowMenu';
@@ -161,7 +161,7 @@ export default {
       AppBar,
       AppBarPage,
       ImmersivePage,
-      MenuNav,
+      SideNav,
       Navbar,
       NavbarLink,
       HorizontalNavBarWithOverflowMenu,

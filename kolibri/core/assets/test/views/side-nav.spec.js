@@ -2,7 +2,7 @@ import times from 'lodash/times';
 import { mount } from '@vue/test-utils';
 import navComponents from 'kolibri.utils.navComponents';
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import MenuNav from '../../src/views/MenuNav';
+import SideNav from '../../src/views/SideNav';
 import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
 import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
@@ -13,7 +13,7 @@ import { coreStoreFactory as makeStore } from '../../src/state/store';
 jest.mock('kolibri.urls');
 
 function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}, data = {}) {
-  return mount(MenuNav, {
+  return mount(SideNav, {
     propsData: {
       navShown,
       headerHeight,

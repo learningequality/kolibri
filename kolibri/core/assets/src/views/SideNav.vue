@@ -272,7 +272,7 @@
   ];
 
   export default {
-    name: 'MenuNav',
+    name: 'SideNav',
     components: {
       Backdrop,
       CoreMenu,

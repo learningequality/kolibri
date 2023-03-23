@@ -31,8 +31,8 @@
       <slot></slot>
     </div>
 
-    <MenuNav
-      ref="menuNav"
+    <SideNav
+      ref="sideNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
       @shouldFocusFirstEl="findFirstEl()"
@@ -53,7 +53,7 @@
 
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
-  import MenuNav from 'kolibri.coreVue.components.MenuNav';
+  import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppBar from '../AppBar';
@@ -67,7 +67,7 @@
       AppBar,
       LanguageSwitcherModal,
       ScrollingHeader,
-      MenuNav,
+      SideNav,
       StorageNotification,
     },
     mixins: [commonCoreStrings],
