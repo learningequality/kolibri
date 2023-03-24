@@ -109,6 +109,7 @@ class GetImportExportNodesTestCase(TestCase):
             ContentNode.objects.filter(channel_id=self.the_channel_id)
             .filter(renderable_contentnodes_q_filter)
             .exclude(kind=content_kinds.TOPIC)
+            .distinct()
         )
 
         matched_nodes_queries_list = get_import_export_nodes(self.the_channel_id)
