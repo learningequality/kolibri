@@ -61,7 +61,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../../../../../plugins/facility/assets/src/constants';
+  import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -114,7 +114,7 @@
       },
       manageSync() {
         this.$router.push({
-          name: PageNames.MANAGE_SYNC_SCHEDULE,
+          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
           params: { facility_id: this.facility.id },
         });
       },

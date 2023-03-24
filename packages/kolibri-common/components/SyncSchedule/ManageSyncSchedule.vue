@@ -56,7 +56,7 @@
               </td>
               <td>
                 <div>
-                  {{ device.extra_metadata.sync_state }}
+                  {{ ScheduleTime(device.repeat_interval, device.scheduled_datetime ) }}
                 </div>
               </td>
 
@@ -190,9 +190,8 @@
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { PageNames as PageNamesFacility } from '../../../../kolibri/plugins/facility/assets/src/constants';
-  import { PageNames as PageNamesDevice } from '../../../../kolibri/plugins/device/assets/src/constants';
-  import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
+  import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
+  import { SyncPageNames, DeviceReturnPage, FacilityReturnPage } from './constants';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -203,12 +202,12 @@
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
-    // props: {
-    //   facility_id: {
-    //     type: String,
-    //     required: true,
-    //   },
-    // },
+    props: {
+      // facilityId: {
+      //   type: String,
+      //   required: true,
+      // },
+    },
     data() {
       return {
         deviceModal: false,
@@ -224,10 +223,11 @@
       ...mapState(['isDevicePlugin']),
       goBack() {
         return {
-          name: this.isDevicePlugin
-            ? PageNamesDevice.FACILITIES_PAGE
-            : PageNamesFacility.DATA_EXPORT_PAGE,
+          name: this.isDevicePlugin ? DeviceReturnPage : FacilityReturnPage,
         };
+      },
+      facilityId() {
+        return this.$route.params.facility_id;
       },
     },
     beforeMount() {
@@ -237,7 +237,7 @@
     },
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.facility_id, force: true }).then(facility => {
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
           this.facility = { ...facility };
         });
       },
@@ -248,8 +248,7 @@
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.savedDevices = tasks;
-
+          this.savedDevices = tasks.filter(t => t.facility_id === this.facilityId);
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -265,8 +264,8 @@
         if (id !== ' ') {
           this.deviceIds.push(id);
           this.$router.push({
-            name: PageNamesFacility.EDIT_SYNC_SCHEDULE,
-            params: { deviceId: id },
+            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+            params: { deviceId: id, facilityId: this.facilityId },
           });
         } else {
           return window.location.href;
@@ -278,12 +277,47 @@
       editButton(value) {
         if (value !== ' ') {
           this.$router.push({
-            name: PageNamesFacility.EDIT_SYNC_SCHEDULE,
-            params: { deviceId: value },
+            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+            params: { deviceId: value, facilityId: this.facilityId },
           });
         } else {
           return window.location.href;
         }
+      },
+      ScheduleTime(time, timestamp) {
+        const schedule = this.getDays(timestamp);
+        if (time === 3600) {
+          return this.$tr('everyHour');
+        }
+        if (time === 86400) {
+          const everyDay = this.$tr('everyDay') + ',' + this.getTime(timestamp);
+          return everyDay;
+        }
+        if (time === 604800) {
+          const everyWeek = this.$tr('everyWeek') + ',' + schedule;
+          return everyWeek;
+        }
+        if (time === 1209600) {
+          const everyTwoWeeks = this.$tr('everyTwoWeeks') + ',' + schedule;
+          return everyTwoWeeks;
+        }
+        if (time === 2592000) {
+          const everyMonth = this.$tr('everyMonth') + ',' + schedule;
+          return everyMonth;
+        }
+      },
+      getDays(timestamp) {
+        const dateTimeString = timestamp;
+        const date = new Date(dateTimeString);
+        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
+        return `${day},${time}`;
+      },
+      getTime(timestamp) {
+        const dateTimeString = timestamp;
+        const date = new Date(dateTimeString);
+        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
+        return `${time}`;
       },
     },
 
@@ -320,6 +354,26 @@
       NoSync: {
         message: 'There are no syncs scheduled',
         context: 'Text to display when there is no schedule sync to be managed.',
+      },
+      everyHour: {
+        message: 'Every hour',
+        context: 'Period for scheduling the sync between devices every hour',
+      },
+      everyDay: {
+        message: 'Every day',
+        context: 'Period for scheduling the sync between devices every day',
+      },
+      everyWeek: {
+        message: 'Every week',
+        context: 'Period for scheduling the sync between devices every week',
+      },
+      everyMonth: {
+        message: 'Every month',
+        context: 'Period for scheduling the sync between devices every month',
+      },
+      everyTwoWeeks: {
+        message: 'Every two weeks',
+        context: 'Period for scheduling the sync between devices every two weeks',
       },
     },
   };
