@@ -89,6 +89,7 @@ class ChannelResourcesValidator(ChannelValidator):
 
 class ChannelResourcesImportValidator(ChannelResourcesValidator):
     update = serializers.BooleanField(default=False)
+    fail_on_error = serializers.BooleanField(default=False)
     new_version = serializers.IntegerField(required=False)
 
     def validate(self, data):
@@ -96,6 +97,7 @@ class ChannelResourcesImportValidator(ChannelResourcesValidator):
         job_data["kwargs"].update(
             {
                 "update": data.get("update"),
+                "fail_on_error": data.get("fail_on_error"),
             }
         )
         if data.get("new_version"):
@@ -138,7 +140,12 @@ class LocalChannelImportResourcesValidator(LocalMixin, ChannelResourcesImportVal
     status_fn=get_status,
 )
 def diskcontentimport(
-    channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
+    channel_id,
+    drive_id,
+    update=False,
+    node_ids=None,
+    exclude_node_ids=None,
+    fail_on_error=False,
 ):
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager
@@ -151,6 +158,7 @@ def diskcontentimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         import_updates=update,
+        fail_on_error=fail_on_error,
     )
     manager.run()
 
@@ -224,6 +232,7 @@ def remotecontentimport(
     node_ids=None,
     exclude_node_ids=None,
     update=False,
+    fail_on_error=False,
 ):
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
@@ -234,6 +243,7 @@ def remotecontentimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        fail_on_error=fail_on_error,
     )
     manager.run()
 

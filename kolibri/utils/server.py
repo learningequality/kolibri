@@ -372,6 +372,8 @@ class PIDPlugin(SimplePlugin):
 
         :param: status: status of the process
         """
+        if status is None:
+            _, _, _, status = _read_pid_file(self.bus.pid_file)
         with open(self.bus.pid_file, "w") as f:
             f.write(
                 "{}\n{}\n{}\n{}\n".format(
@@ -385,6 +387,7 @@ class PIDPlugin(SimplePlugin):
 
     def ZIP_SERVING(self, zip_port):
         self.bus.zip_port = zip_port or self.bus.zip_port
+        self.set_pid_file(None)
 
     def EXIT(self):
         try:
