@@ -116,22 +116,33 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 # We've already imported the facility to the device before provisioning
                 facility = Facility.objects.get(pk=facility_id)
                 preset = facility.dataset.preset
+                facility_created = False
             else:
                 facility = Facility.objects.create(**facility_data)
                 preset = validated_data.pop("preset")
                 facility.dataset.preset = preset
                 facility.dataset.reset_to_default_settings(preset)
+                facility_created = True
 
             custom_settings = validated_data.pop("settings")
 
-            if "on_my_own_setup" in custom_settings:
-                facility.on_my_own_setup = custom_settings.pop("on_my_own_setup")
+            if facility_created:
+                # We only want to update things about the facility or the facility dataset in the case
+                # that we are creating the facility during this provisioning process.
+                # If it has been imported as part of a whole facility import, then we should not be
+                # making edits just now.
+                # If it has been imported as part of a learner only device import, then editing
+                # these things now will a) not be synced back, and b) will actively block future
+                # syncing of updates to the facility or facility dataset from our 'upstream'.
 
-            # overwrite the settings in dataset_data with validated_data.settings
-            for key, value in custom_settings.items():
-                if value is not None:
-                    setattr(facility.dataset, key, value)
-            facility.dataset.save()
+                if "on_my_own_setup" in custom_settings:
+                    facility.on_my_own_setup = custom_settings.pop("on_my_own_setup")
+
+                # overwrite the settings in dataset_data with validated_data.settings
+                for key, value in custom_settings.items():
+                    if value is not None:
+                        setattr(facility.dataset, key, value)
+                facility.dataset.save()
 
             if not validated_data.get("os_user"):
                 # We've imported a facility if the username exists
@@ -159,7 +170,9 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     is_super = False
                 else:
                     is_super = True
-                    facility.add_role(superuser, user_kinds.ADMIN)
+                    if facility_created:
+                        # Only do this if this is a created, not imported facility.
+                        facility.add_role(superuser, user_kinds.ADMIN)
 
                 if DevicePermissions.objects.count() == 0:
                     DevicePermissions.objects.create(
