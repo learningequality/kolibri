@@ -14,6 +14,8 @@ from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils import conf
 
+LOGS_CLEANUP_JOB_ID = "18"
+
 
 def get_filepath(log_type, facility_id, start_date, end_date):
     facility = Facility.objects.get(id=facility_id)
@@ -70,12 +72,10 @@ def get_valid_filenames():
     These filenames are valid and will not be
     cleaned from log_exports_cleanup.
     """
-    valid_filenames = set()
     valid_logs_filenames = get_valid_logs_csv_filenames()
     valid_users_filenames = get_valid_users_csv_filenames()
-    valid_filenames = valid_filenames.union(valid_logs_filenames)
-    valid_filenames = valid_filenames.union(valid_users_filenames)
-    return valid_filenames
+    valid_filenames_set = valid_logs_filenames.union(valid_users_filenames)
+    return valid_filenames_set
 
 
 class ExportLogCSVValidator(JobValidator):
@@ -171,7 +171,7 @@ def exportsummarylogcsv(facility_id, **kwargs):
     )
 
 
-@register_task()
+@register_task(job_id=LOGS_CLEANUP_JOB_ID)
 def log_exports_cleanup():
     """
     Cleanup log_exports csv files that does not have
