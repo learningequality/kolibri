@@ -232,7 +232,6 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         self.resources_before_transfer = (
             ContentNode.objects.filter(channel_id=self.channel_id, available=True)
             .exclude(kind=content_kinds.TOPIC)
-            .values("content_id")
             .count()
         )
 
@@ -318,7 +317,6 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         self.resources_after_transfer = (
             ContentNode.objects.filter(channel_id=self.channel_id, available=True)
             .exclude(kind=content_kinds.TOPIC)
-            .values("content_id")
             .count()
         )
 
