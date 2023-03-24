@@ -151,8 +151,8 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../kolibri/plugins/device/assets/src/constants';
-  // import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  import { SyncPageNames } from './constants';
+  // ... from 'kolibri-common/Components/SyncSchedule/constants'
   export default {
     name: 'EditDeviceSyncSchedule',
     components: {
@@ -183,7 +183,7 @@
     },
     computed: {
       backRoute() {
-        return { name: PageNames.MANAGE_SYNC_SCHEDULE };
+        return { name: SyncPageNames.MANAGE_SYNC_SCHEDULE };
       },
       pageHeight() {
         return {
@@ -245,8 +245,6 @@
     },
     beforeMount() {
       this.fetchDevice();
-      console.log(this.deviceId);
-      console.log(this.facility_id);
     },
     mounted() {
       this.serverTime = setInterval(() => {
@@ -272,7 +270,7 @@
           });
       },
       handleSaveSchedule() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
+        FacilityResource.fetchModel({ id: this.$route.params.facilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
             const date = new Date(this.serverTime);
@@ -280,7 +278,7 @@
             TaskResource.startTask({
               type: TaskTypes.SYNCPEERFULL,
               facility: this.facility.id,
-              device_id: this.device.id,
+              device_id: this.$route.params.deviceId,
               baseurl: this.baseurl,
               enqueue_args: {
                 enqueue_at: equeue_param,
@@ -300,7 +298,7 @@
       },
 
       cancelBtn() {
-        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
+        this.$router.push({ name: SyncPageNames.MANAGE_SYNC_SCHEDULE });
       },
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {

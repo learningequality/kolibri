@@ -182,7 +182,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../../facility/assets/src/constants';
+  import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
   import DeviceTopNav from '../DeviceTopNav';
@@ -293,7 +293,7 @@
           this.facilityForRegister = facility;
         } else if (option === Options.MANAGESYNC) {
           this.$router.push({
-            name: PageNames.MANAGE_SYNC_SCHEDULE,
+            name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
             params: { facility_id: facility.id },
           });
         }

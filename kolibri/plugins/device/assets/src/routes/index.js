@@ -1,11 +1,11 @@
 import store from 'kolibri.coreVue.vuex.store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
+import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';
 import { showUserPermissionsPage } from '../modules/userPermissions/handlers';
-import { PageNames } from '../constants';
 import DeleteExportChannelsPage from '../views/ManageContentPage/DeleteExportChannelsPage';
 import DeviceInfoPage from '../views/DeviceInfoPage';
 import DeviceSettingsPage from '../views/DeviceSettingsPage';
@@ -18,6 +18,7 @@ import NewChannelVersionPage from '../views/ManageContentPage/NewChannelVersionP
 import RearrangeChannelsPage from '../views/RearrangeChannelsPage';
 import UserPermissionsPage from '../views/UserPermissionsPage';
 import withAuthMessage from '../views/withAuthMessage';
+import { PageNames } from '../constants';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 function hideLoadingScreen() {
@@ -78,18 +79,18 @@ const routes = [
     },
   },
   {
-    name: PageNames.MANAGE_SYNC_SCHEDULE,
+    name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
-    path: '/facilities/:facility_id/managesync',
+    path: '/facilities/:facilityId/managesync',
     props: true,
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false, isDevicePlugin: true });
     },
   },
   {
-    name: PageNames.EDIT_SYNC_SCHEDULE,
+    name: SyncPageNames.EDIT_SYNC_SCHEDULE,
     component: withAuthMessage(EditDeviceSyncSchedule, 'superuser'),
-    path: '/facilities/:device_id/:facility_id/editdevice',
+    path: '/facilities/:device_id/:facilityId/editdevice',
     props: true,
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false });
