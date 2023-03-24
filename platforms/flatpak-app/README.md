@@ -8,9 +8,17 @@ Kolibri desktop front-end for GNOME.
 
 ### Getting started
 
-The easiest way to try the Kolibri GNOME front-end is to install the
-flatpak app from flathub:
-https://flathub.org/apps/details/org.learningequality.Kolibri
+The fastest way to try the Kolibri GNOME front-end is to install the
+Flatpak app from Flathub:
+
+<a href="https://flathub.org/apps/details/org.learningequality.Kolibri">
+<img
+    src="https://flathub.org/assets/badges/flathub-badge-i-en.png"
+    alt="Download Kolibri on Flathub"
+    width="240px"
+    height="80px"
+/>
+</a>
 
 ### Building
 
