@@ -22,8 +22,9 @@
           />
         </span>
       </h2>
-      <p class="channels">
-        {{ $tr('channels', { count: channels }) }}
+
+      <p v-if="channels" class="channels">
+        {{ channels }} {{ $tr('channels', { count: channels }) }}
       </p>
     </KRouterLink>
   </div>
@@ -56,8 +57,7 @@
       },
       channels: {
         type: Number,
-        required: false,
-        default: 0,
+        required: true,
       },
       allDevices: {
         type: Object,
@@ -81,6 +81,7 @@
         };
       },
     },
+    mounted() {},
 
     methods: {
       getDeviceIcon() {
@@ -95,7 +96,7 @@
     },
     $trs: {
       channels: {
-        message: '{count, plural, one {channel} other {channels}',
+        message: '{count, plural, one {channel} other {channels} }',
         context: 'Indicates the number of channels',
       },
     },

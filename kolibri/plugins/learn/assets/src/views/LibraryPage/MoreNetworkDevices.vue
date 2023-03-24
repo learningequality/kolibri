@@ -8,7 +8,7 @@
     >
       <UnPinnedDevices
         :deviceName="device.device_name"
-        :channels="device.channels"
+        :channels="device.channels.length"
         :allDevices="device"
         :operatingSystem="device.operatingSystem"
       />
@@ -21,8 +21,6 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import useDevices from '../../composables/useDevices';
-  import useChannels from '../../composables/useChannels';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -32,19 +30,18 @@
     },
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
-      const { fetchChannels } = useChannels();
-      const { baseurl, fetchDevices } = useDevices();
       return {
-        baseurl,
-        fetchDevices,
-        fetchChannels,
         windowBreakpoint,
       };
     },
+    props: {
+      devices: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
-      return {
-        devices: [],
-      };
+      return {};
     },
     computed: {
       cardColumnSpan() {
@@ -53,17 +50,6 @@
         if (this.windowBreakpoint <= 6) return 4;
         return 3;
       },
-    },
-    created() {
-      this.fetchDevices().then(devices => {
-        const device = devices.filter(d => d.available);
-        device.forEach(element => {
-          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
-            this.$set(element, 'channels', channel.length);
-            this.devices.push(element);
-          });
-        });
-      });
     },
   };
 

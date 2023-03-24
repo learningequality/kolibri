@@ -97,7 +97,10 @@
         <!-- More  -->
         <div>
           <h2>{{ $tr('moreLibraries') }}</h2>
-          <MoreNetworkDevices />
+          <MoreNetworkDevices
+            v-if="pinnedDevices"
+            :devices="pinnedDevices"
+          />
         </div>
 
       </div>
