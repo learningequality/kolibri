@@ -217,7 +217,11 @@
         return availableLanguages[currentLanguage];
       },
       coreError() {
-        return this.$store.state.core.error;
+        if (this.$store) {
+          return this.$store.state.core.error;
+        } else {
+          return null;
+        }
       },
     },
     methods: {
