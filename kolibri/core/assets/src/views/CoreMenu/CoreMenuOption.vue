@@ -47,15 +47,15 @@
     </li>
 
     <div v-if="visibleSubMenu">
-      <div v-for="subRoute in subRoutes" :key="subRoute">
+      <div v-for="subRoute in subRoutes" :key="subRoute.label">
         <div class="link-container">
           <a
-            :href="generateNavRoute(subRoute)"
+            :href="generateNavRoute(subRoute.route)"
             class="link"
-            :class="$computedClass(subpathStyles(subRoute.path))"
-            @click="handleNav(subRoute.path)"
+            :class="$computedClass(subpathStyles(subRoute.route))"
+            @click="handleNav(subRoute.route)"
           >
-            {{ createLabel(subRoute.name) }}
+            {{ subRoute.label }}
           </a>
         </div>
       </div>
@@ -145,12 +145,8 @@
           this.$emit('select');
         }
       },
-      createLabel(text) {
-        const string = `${text.toLowerCase()}Label`;
-        return this.coreString(string);
-      },
       isActiveLink(route) {
-        return route.includes(this.$router.currentRoute.path);
+        return route.includes(this.$route.path);
       },
       submenuShouldBeOpen() {
         // which plugin are we currently in?
@@ -187,8 +183,8 @@
         this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
       generateNavRoute(route) {
-        console.log('url', this.link, 'route', route, 'subroutes', this.subRoutes);
-        return generateNavRoute(this.link, route, this.subRoutes);
+        const params = this.$route.params;
+        return generateNavRoute(this.link, route, params);
       },
     },
   };

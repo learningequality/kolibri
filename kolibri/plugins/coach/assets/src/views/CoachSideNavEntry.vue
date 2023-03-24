@@ -4,6 +4,7 @@
     :label="coreString('coachLabel')"
     icon="coach"
     :subRoutes="coachRoutes"
+    :link="url"
   />
 
 </template>
@@ -16,9 +17,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { PageNames } from '../constants';
-  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
-  import navigationBaseRoutes from '../routes/navigationBaseRoutes';
+  import baseRoutes from '../routes/baseRoutes';
   import commonCoach from './common.js';
   import { coachStringsMixin } from './common/commonCoachStrings';
 
@@ -33,39 +32,20 @@
         return urls['kolibri:kolibri.plugins.coach:coach']();
       },
       coachRoutes() {
-        return {
-          home: {
-            text: this.coreString('classHome'),
-            route: this.generateNavRoute(PageNames.HOME_PAGE),
+        return [
+          {
+            label: this.coreString('classHome'),
+            route: baseRoutes.classHome.path,
           },
-          plan: {
-            text: this.coachString('reportsLabel'),
-            route: this.generateNavRoute(PageNames.REPORTS_PAGE),
+          {
+            label: this.coachString('reportsLabel'),
+            route: baseRoutes.reports.path,
           },
-          reports: {
-            text: this.coachString('plan'),
-            route: this.generateNavRoute(PageNames.PLAN_PAGE),
+          {
+            label: this.coachString('plan'),
+            route: baseRoutes.plan.path,
           },
-        };
-      },
-    },
-    methods: {
-      generateNavRoute(route) {
-        // if class id
-        let params;
-        if (this.$router.currentRoute.params.classId) {
-          params = this.$router.currentRoute.params;
-          return generateNavRoute(this.url, route, navigationBaseRoutes, params);
-        } else {
-          // otherwise, go to class page and then have the next
-          return generateNavRoute(
-            this.url,
-            PageNames.COACH_CLASS_LIST_PAGE,
-            navigationBaseRoutes,
-            params,
-            route
-          );
-        }
+        ];
       },
     },
     role: UserKinds.COACH,

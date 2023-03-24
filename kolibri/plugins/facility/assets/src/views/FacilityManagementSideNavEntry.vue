@@ -4,6 +4,7 @@
     :label="coreString('facilityLabel')"
     icon="facility"
     :subRoutes="facilityRoutes"
+    :link="url"
   />
 
 </template>
@@ -16,9 +17,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import navComponents from 'kolibri.utils.navComponents';
   import urls from 'kolibri.urls';
-  import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
   import baseRoutes from '../baseRoutes';
-  import { PageNames as FacilityPageNames } from '../constants';
 
   const component = {
     name: 'FacilityManagementSideNavEntry',
@@ -31,34 +30,24 @@
         return urls['kolibri:kolibri.plugins.facility:facility_management']();
       },
       facilityRoutes() {
-        return {
-          facilityClasses: {
-            text: this.coreString('classesLabel'),
-            route: this.generateNavRoute(FacilityPageNames.CLASS_MGMT_PAGE),
+        return [
+          {
+            label: this.coreString('classesLabel'),
+            route: baseRoutes.classes.path,
           },
-          facilityUsers: {
-            text: this.coreString('usersLabel'),
-            route: this.generateNavRoute(FacilityPageNames.USER_MGMT_PAGE),
+          {
+            label: this.coreString('usersLabel'),
+            route: baseRoutes.users.path,
           },
-          facilitySettings: {
-            text: this.coreString('settingsLabel'),
-            route: this.generateNavRoute(FacilityPageNames.FACILITY_CONFIG_PAGE),
+          {
+            label: this.coreString('settingsLabel'),
+            route: baseRoutes.settings.path,
           },
-          facilityData: {
-            text: this.coreString('dataLabel'),
-            route: this.generateNavRoute(FacilityPageNames.DATA_EXPORT_PAGE),
+          {
+            label: this.coreString('dataLabel'),
+            route: baseRoutes.data.path,
           },
-        };
-      },
-    },
-    methods: {
-      generateNavRoute(route) {
-        // if class id
-        let params;
-        if (this.$store.getters.currentFacilityId) {
-          params = { facilityId: this.$store.getters.currentFacilityId };
-          return generateNavRoute(this.url, route, baseRoutes, params);
-        }
+        ];
       },
     },
     role: UserKinds.ADMIN,

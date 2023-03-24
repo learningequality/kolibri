@@ -3,7 +3,7 @@
   <CoreMenuOption
     ref="firstMenu"
     :label="learnString('learnLabel')"
-    :subRoutes="baseRoutes"
+    :subRoutes="learnRoutes"
     :link="url"
     icon="learn"
   />
@@ -30,8 +30,21 @@
       url() {
         return urls['kolibri:kolibri.plugins.learn:learn']();
       },
-      baseRoutes() {
-        return baseRoutes;
+      learnRoutes() {
+        return [
+          {
+            label: this.coreString('homeLabel'),
+            route: baseRoutes.home.path,
+          },
+          {
+            label: this.coreString('libraryLabel'),
+            route: baseRoutes.library.path,
+          },
+          {
+            label: this.coreString('bookmarksLabel'),
+            route: baseRoutes.bookmarks.path,
+          },
+        ];
       },
     },
     priority: 10,

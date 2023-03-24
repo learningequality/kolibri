@@ -1,18 +1,24 @@
 var pathToRegexp = require('path-to-regexp');
 
-export function generateNavRoute(rootUrl, pathReference, baseRoutes, params) {
-  const pathMap = {};
+export function generateNavRoute(rootUrl, pathReference, params = {}) {
+  // console.log(params)
   let compiledRoute;
-  baseRoutes.forEach(route => {
-    if (route == pathReference) console.log('matches', pathReference);
-    compiledRoute = `${rootUrl}#${pathReference.path}`;
-  });
 
-  if (params) {
-    const pathRegex = `${rootUrl}#${pathMap[pathReference]}`;
-    const toPath = pathToRegexp.compile(pathRegex);
-    toPath(params);
-    compiledRoute = toPath(params);
+  // when there is a direct path
+  compiledRoute = `${rootUrl}#${pathReference}`;
+
+  // Are there params being passes
+  if (Object.keys(params).length > 0) {
+    const makeParamsRoute = pathToRegexp.compile(compiledRoute);
+    compiledRoute = makeParamsRoute(params);
+  }
+
+  // if the path requires params but none exist, send to root
+  const pathParams = [];
+  pathToRegexp(compiledRoute, pathParams);
+
+  if (pathParams.length > 0 && Object.keys(params).length < 1) {
+    compiledRoute = rootUrl;
   }
 
   return compiledRoute;

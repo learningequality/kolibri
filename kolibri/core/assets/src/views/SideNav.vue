@@ -176,6 +176,7 @@
       class="bottom-bar"
       :style="{ backgroundColor: $themeTokens.textInverted }"
     >
+      {{ bottomMenuOptions }}
       <span v-for="(link, key) in bottomMenuOptions" :key="key">
         <a
           v-if="isUserLoggedIn"
@@ -339,8 +340,8 @@
         );
       },
       bottomMenuOptions() {
-        const bottomComponents = navComponents.filter(component => component.bottomBarRoutes)[0]
-          .bottomBarRoutes;
+        const bottomComponents = navComponents.filter(component => component.bottomBar);
+        console.log(bottomComponents);
         return bottomComponents;
       },
       sideNavTitleText() {

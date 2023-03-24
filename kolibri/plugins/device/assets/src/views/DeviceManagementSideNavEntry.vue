@@ -1,9 +1,10 @@
 <template>
 
   <CoreMenuOption
-    :label="deviceString('device')"
+    :label="deviceString('deviceManagementTitle')"
     icon="device"
-    :subRoutes="isSubsetOfUsersDevice ? routes : generalDeviceRoutes"
+    :link="url"
+    :subRoutes="isSubsetOfUsersDevice ? routes : adminDeviceRoutes"
   />
 
 </template>
@@ -17,7 +18,6 @@
   import urls from 'kolibri.urls';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { generateNavRoute } from '../../../../../core/assets/src/utils/generateNavRoutes';
-  import { PageNames as DevicePageNames } from '../constants';
   import baseRoutes from '../routes/baseRoutes';
   import commonDeviceStrings from './commonDeviceStrings';
   import plugin_data from 'plugin_data';
@@ -40,30 +40,30 @@
       routes() {
         return {
           channels: {
-            text: this.coreString('channelsLabel'),
-            route: this.generateNavRoute(DevicePageNames.MANAGE_CONTENT_PAGE),
+            label: this.coreString('channelsLabel'),
+            route: baseRoutes.content.path,
           },
         };
       },
-      generalDeviceRoutes() {
-        return {
-          permissions: {
-            text: this.deviceString('permissionsLabel'),
-            route: this.generateNavRoute(DevicePageNames.MANAGE_PERMISSIONS_PAGE),
+      adminDeviceRoutes() {
+        return [
+          {
+            label: this.deviceString('permissionsLabel'),
+            route: baseRoutes.permissions.path,
           },
-          facilities: {
-            text: this.coreString('facilitiesLabel'),
-            route: this.generateNavRoute(DevicePageNames.FACILITIES_PAGE),
+          {
+            label: this.coreString('facilitiesLabel'),
+            route: baseRoutes.facilities.path,
           },
-          info: {
-            text: this.coreString('infoLabel'),
-            route: this.generateNavRoute(DevicePageNames.DEVICE_INFO_PAGE),
+          {
+            label: this.coreString('infoLabel'),
+            route: baseRoutes.info.path,
           },
-          settings: {
-            text: this.coreString('settingsLabel'),
-            route: this.generateNavRoute(DevicePageNames.DEVICE_SETTINGS_PAGE),
+          {
+            label: this.coreString('settingsLabel'),
+            route: baseRoutes.settings.path,
           },
-        };
+        ];
       },
     },
     methods: {
