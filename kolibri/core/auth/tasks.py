@@ -42,12 +42,15 @@ from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import IsAdminForJob
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import NotProvisioned
+from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.conf import KOLIBRI_HOME
@@ -465,6 +468,9 @@ def peerusersync(command, **kwargs):
                     kwargs["user"], kwargs["baseurl"]
                 )
             )
+        elif isinstance(e, UserCancelledError):
+            # In this instance we are cancelling the task, and we should not reschedule
+            resync_interval = None
         else:
             logger.error(
                 "Error syncing user {} to server {}".format(
@@ -477,6 +483,10 @@ def peerusersync(command, **kwargs):
         if cleanup and command == "resumesync":
             # for resume we should have sync_session_id kwarg
             queue_soud_sync_cleanup(kwargs["sync_session_id"])
+        job = get_current_job()
+        if job and job.storage.check_job_canceled(job.job_id):
+            # If the job is canceled, then do not attempt to resync
+            resync_interval = None
         if resync_interval:
             # schedule a new sync
             schedule_new_sync(
@@ -526,8 +536,12 @@ def stoppeerusersync(server, user_id):
 
     # clear jobs with matching ID
     job_id = hashlib.md5("{}::{}".format(server, user_id).encode()).hexdigest()
-    job_storage.clear(job_id=job_id)
-    job_storage.cancel(job_id)
+    try:
+        job_storage.cancel(job_id)
+        job_storage.clear(job_id=job_id)
+    except JobNotFound:
+        # No job to clean up, we're done!
+        pass
 
     # skip if we couldn't find one for resume
     if sync_session is None:
