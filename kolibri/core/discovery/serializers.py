@@ -67,6 +67,9 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
 
 
 class PinnedDeviceSerializer(ModelSerializer):
+    """
+    Serializer for handling requests regarding a user's Pinned Devices
+    """
     class Meta:
         model = PinnedDevice
         fields = (

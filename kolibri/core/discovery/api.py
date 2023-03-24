@@ -16,9 +16,9 @@ from .utils.network import errors
 from .utils.network.client import NetworkClient
 from .utils.network.connections import capture_connection_state
 from .utils.network.connections import update_network_location
+from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
-from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.utils.urls import reverse_path
 

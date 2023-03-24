@@ -115,6 +115,9 @@ class PinnedDeviceAPITestCase(APITestCase):
         cls.network_location = models.NetworkLocation.objects.create(
             base_url="https://kolibrihappyurl.qqq/"
         )
+        cls.network_location2 = models.NetworkLocation.objects.create(
+            base_url="https://anotherone.moc"
+        )
 
     def setUp(self):
         self.client.login(
@@ -122,24 +125,35 @@ class PinnedDeviceAPITestCase(APITestCase):
         )
 
     def test_add_pinned_device(self):
+        """
+        Tests the API for adding Pinned Devices
+        """
         response = self.client.post(
             reverse("kolibri:core:pinned_devices-list"),
-            data={"user": self.user.id, "device_id": self.network_location.id}
+            data={"user": self.user.id, "device_id": self.network_location.id},
         )
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
     def test_fetch_pinned_devices(self):
+        """
+        Tests the API for fetching Pinned Devices
+        """
         my_pin = models.PinnedDevice.objects.create(
-            user=self.user,
-            device_id=self.network_location.id
+            user=self.user, device_id=self.network_location.id
         )
+        my_second_pin = models.PinnedDevice.objects.create(
+            user=self.user, device_id=self.network_location2.id
+        )
+
+        pin_ids = sorted([my_pin.device_id, my_second_pin.device_id])
+
         response = self.client.get(
             reverse("kolibri:core:pinned_devices-list"),
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
-        self.assertEqual(len(response.data), 1)
+        self.assertEqual(len(response.data), 2)
         # TODO - Get this working
         #      - Discuss & write any more tasks
         #      - Start onto the frontend
-        #self.assertEqual(response.data[0]['device_id'], my_pin.device_id)
-        #self.assertTrue(my_pin in response.data)
+        response_ids = sorted([item['device_id'].hex for item in response.data])
+        self.assertEqual(response_ids, pin_ids)
