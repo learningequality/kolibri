@@ -23,8 +23,10 @@ tar xf *orig.tar.gz
 SOURCE_DIR=`ls -d kolibri*/`
 cp -r ../debian $SOURCE_DIR
 DEB_VERSION=`cat VERSION | sed -s 's/^\+\.\+\.\+\([abc]\|\.dev\)/\~\0/g'`
-DEBEMAIL=info@learningequality.org 
-DEBFULLNAME='Learning Equality'
+
+# use the environment variables if they are set:
+DEBFULLNAME="${DEBFULLNAME:-Learning Equality}"
+DEBEMAIL="${DEBEMAIL:-info@learningequality.org}"
 
 cd $SOURCE_DIR
 DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -v $DEB_VERSION-0ubuntu1 'New upstream release'
