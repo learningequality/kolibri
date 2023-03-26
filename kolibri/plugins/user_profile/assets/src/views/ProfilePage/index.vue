@@ -107,7 +107,7 @@
             </td>
           </tr>
 
-          <tr v-if="canEditPassword">
+          <tr v-if="!isSubsetOfUsersDevice && canEditPassword">
             <th>{{ coreString('passwordLabel') }}</th>
             <td>
               <KButton
@@ -158,7 +158,7 @@
 
 
         <ChangeUserPasswordModal
-          v-if="showPasswordModal"
+          v-if="!isSubsetOfUsersDevice && showPasswordModal"
           @cancel="showPasswordModal = false"
         />
 
