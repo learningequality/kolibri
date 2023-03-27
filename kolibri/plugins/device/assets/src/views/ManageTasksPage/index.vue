@@ -55,8 +55,6 @@
 
 
 <script>
-
-  import reverse from 'lodash/fp/reverse';
   import some from 'lodash/some';
   import { mapGetters } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
@@ -98,7 +96,11 @@
         return { name: PageNames.MANAGE_CONTENT_PAGE };
       },
       sortedTaskList() {
-        return reverse(this.managedTasks);
+        const sorterArray = this.managedTasks;
+        sorterArray.sort(
+          (a, b) => (new Date(a.scheduled_datetime) > new Date(b.scheduled_datetime) ? 1 : -1)
+        )
+        return sorterArray;
       },
       showClearCompletedButton() {
         return some(this.managedTasks, task => task.clearable);
