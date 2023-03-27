@@ -455,8 +455,6 @@ const states = {
       selectLodSetupType: {
         meta: { route: { name: 'LOD_SETUP_TYPE' } },
         on: {
-          // #<name> points to a state w/ an `id` property; wizard is the root
-          BACK_LOD: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
           CONTINUE: {
             target: 'selectLodFacility',
             actions: [setLodType, send({ type: 'PUSH_HISTORY', value: 'selectLodSetupType' })],
