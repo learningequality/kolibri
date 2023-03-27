@@ -1,4 +1,3 @@
-
 # Kolibri
 
 [![Python test status](https://github.com/learningequality/kolibri/actions/workflows/tox.yml/badge.svg?branch=develop)](https://github.com/learningequality/kolibri/actions/workflows/tox.yml)
@@ -36,3 +35,15 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 ## How can I contribute?
 
 Please see the 'contributing' section of our [developer documentation](http://kolibri-dev.readthedocs.io/).
+
+## Adding a New Feature
+
+If you would like to add a new feature to Kolibri, please follow these steps:
+
+1. Fork the repository and create a new branch for your feature.
+2. Write code and tests for your feature.
+3. Submit a pull request to the `develop` branch of the main repository.
+4. Wait for a review from one of the maintainers. If there are any changes needed, they will let you know.
+5. Once your pull request is approved and merged, your feature will be available in the next release of Kolibri!
+
+Thank you for contributing to Kolibri!
