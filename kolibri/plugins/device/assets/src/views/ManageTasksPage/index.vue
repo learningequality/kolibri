@@ -98,7 +98,11 @@
       sortedTaskList() {
         const sorterArray = this.managedTasks;
         sorterArray.sort(
-          (a, b) => (new Date(a.scheduled_datetime) > new Date(b.scheduled_datetime) ? 1 : -1)
+          (a, b) => {
+            const dateA = new Date(a.scheduled_datetime)
+            const dateB = new Date(b.scheduled_datetime)
+            return (dateA > dateB) ? 1 : -1
+          }
         )
         return sorterArray;
       },
