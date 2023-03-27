@@ -346,15 +346,21 @@ kolibri_debconf_set_defaults()
         db_fset kolibri/pre-010-upgrade-system-user seen true
     fi
 
-    if [ "$USER_SEEN" == "false" ]
+    if [ -s /etc/kolibri/username ]    # Test that file exists with non-zero size
     then
-        # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
-        DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
-        if ! [ "$DESKTOP_USER" == "" ]
+        KOLIBRI_USER=$(cat /etc/kolibri/username)
+        db_set kolibri/user "$KOLIBRI_USER"
+    else
+        if [ "$USER_SEEN" == "false" ]
         then
-            # Set default to the user running the installation
-            db_set kolibri/user "$DESKTOP_USER"
-            db_fset kolibri/user seen false
+            # DESKTOP_USER=`getent passwd | awk -F: '$3 >= 1000 && $3 < 2000 {print $1}'`
+            DESKTOP_USER=`getent passwd | cut -d: -f1,3 | egrep ':[0-9]{4}$' | cut -d: -f1 | head -1`
+            if ! [ "$DESKTOP_USER" == "" ]
+            then
+                # Set default to the user running the installation
+                db_set kolibri/user "$DESKTOP_USER"
+                db_fset kolibri/user seen false
+            fi
         fi
     fi
 
