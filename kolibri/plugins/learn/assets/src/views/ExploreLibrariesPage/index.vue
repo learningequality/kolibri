@@ -35,7 +35,8 @@
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
       :totalChannels="device['total_channels']"
-      :pinIcon="getPinIcon(true)"
+      :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+      @togglePin="handlePinToggle"
     />
     <div v-if="areMoreDevicesAvailable">
       <h2>{{ learnString('moreLibraries') }}</h2>
@@ -53,7 +54,8 @@
         :deviceIcon="getDeviceIcon(device)"
         :channels="device.channels"
         :totalChannels="device['total_channels']"
-        :pinIcon="getPinIcon(false)"
+        :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+        @togglePin="handlePinToggle"
       />
       <KButton
         v-if="displayShowMoreButton"
@@ -76,6 +78,7 @@
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useDevices from '../../composables/useDevices';
+  import usePinnedDevices from '../../composables/usePinnedDevices';
   import { PageNames, KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
@@ -89,8 +92,12 @@
     setup() {
       const { fetchChannels } = useChannels();
       const { fetchDevices } = useDevices();
+      const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
 
       return {
+        deletePinForUser,
+        createPinForUser,
+        fetchPinsForUser,
         fetchChannels,
         fetchDevices,
       };
@@ -102,6 +109,7 @@
         totalChannels: 0,
         isKolibriLibraryLoaded: false,
         moreDevices: [],
+        usersPins: [],
       };
     },
     computed: {
@@ -132,19 +140,34 @@
           color: this.$themeTokens.text,
         };
       },
+      usersPinsDeviceIds() {
+        // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
+        // items) -- which the user has pinned
+        return this.usersPins.map(pin => pin.device_id);
+      },
       pinnedDevices() {
-        //ToDo: filter only pinned devices using pinning and unpinning api TBD
-        return this.networkDevicesWithChannels;
+        return this.networkDevicesWithChannels.filter(netdev => {
+          return this.usersPinsDeviceIds.includes(netdev.instance_id);
+        });
       },
       showKolibriLibrary() {
         return this.isSuperuser && this.isKolibriLibraryLoaded;
       },
       unpinnedDevices() {
-        //ToDo: filter only unpinned devices using pinning and unpinning api TBD
-        return this.networkDevicesWithChannels;
+        return this.networkDevicesWithChannels.filter(netdev => {
+          return !this.usersPinsDeviceIds.includes(netdev.instance_id);
+        });
       },
     },
     created() {
+      // Fetch user's pins
+      this.fetchPinsForUser().then(resp => {
+        this.usersPins = resp.map(pin => {
+          const device_id = pin.device_id.replace(/-/g, '');
+          return { ...pin, device_id };
+        });
+      });
+
       RemoteChannelResource.getKolibriStudioStatus().then(({ data }) => {
         if (data.status === 'online') {
           RemoteChannelResource.fetchCollection()
@@ -173,6 +196,47 @@
       });
     },
     methods: {
+      isPinned(device_id) {
+        return this.usersPinsDeviceIds.includes(device_id);
+      },
+      handlePinToggle(device_id) {
+        if (this.usersPinsDeviceIds.includes(device_id)) {
+          const pinId = this.usersPins.find(pin => pin.device_id === device_id);
+          this.deletePinForUser(pinId)
+            .then(() => {
+              // Remove this pin from the usersPins
+              this.usersPins = this.usersPins.filter(p => p.device_id != device_id);
+              const removedDevice = this.networkDevicesWithChannels.find(
+                d => d.instance_id === device_id
+              );
+
+              if (removedDevice) {
+                this.moreDevices.push(removedDevice);
+              }
+              // FIXME This needs a string - look for generic "deleted..." string
+              this.$store.dispatch('createSnackbar', 'DELETED');
+            })
+            .catch(e => {
+              console.error(e);
+              // FIXME This needs a string - look for generic "oops" kind of string
+              this.$store.dispatch('createSnackbar', 'OOPS');
+            });
+        } else {
+          this.createPinForUser(device_id)
+            .then(response => {
+              const id = response.id;
+              this.usersPins = [...this.usersPins, { device_id, id }];
+              // FIXME This needs a string - xCompTranslator this message from libraryitem
+              this.$store.dispatch('createSnackbar', 'CREATED');
+              this.moreDevices = this.moreDevices.filter(d => d.instance_id !== device_id);
+            })
+            .catch(e => {
+              console.error(e);
+              // FIXME This needs a string - look for generic "oops" kind of string
+              this.$store.dispatch('createSnackbar', 'OOPS');
+            });
+        }
+      },
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {
           return 'device';

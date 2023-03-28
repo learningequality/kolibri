@@ -21,6 +21,7 @@
             <KIconButton
               :icon="pinIcon"
               appearance="flat-button"
+              @click="$emit('togglePin', deviceId)"
             />
           </h2>
           <p
