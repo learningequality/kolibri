@@ -61,7 +61,6 @@ public class PythonWorker extends RemoteListenableWorker {
         pythonPath = appRoot + ":" + appRoot + "/lib";
 
         File appRootFile = new File(appRoot);
-        PythonUtil.unpackAsset(context, "private", appRootFile, false);
         PythonUtil.loadLibraries(
             appRootFile,
             new File(getApplicationContext().getApplicationInfo().nativeLibraryDir)
