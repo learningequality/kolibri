@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, reactive } from 'kolibri.lib.vueCompositionApi';
+import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
@@ -23,13 +23,20 @@ const translator = createTranslator('DownloadRequests', {
 });
 
 // The reactive is defined in the outer scope so it can be used as a shared store
-const downloadRequestMap = reactive({});
+const downloadRequestMap = reactive({
+  downloads: {},
+  totalPageNumber: 0,
+  totalDownloads: 0,
+});
 
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
-  function fetchUserDownloadRequests() {
+  function fetchUserDownloadRequests(params) {
+    const { page, pageSize } = params;
+    const loading = ref(true);
     const dummyDownloadRequests = [
       {
+        id: '2ea9bda8703241be89b5b9fd87f88815',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
         facility_id: store.getters.currentFacilityId,
@@ -42,10 +49,57 @@ export default function useDownloadRequests(store) {
         },
         node_id: '2ea9bda8703241be89b5b9fd87f88815',
       },
+      {
+        id: '9e53d545aaf44c3787a29a34b189c56a',
+        user_id: store.getters.currentUserId,
+        reason: 'USER_INITIATED',
+        facility_id: store.getters.currentFacilityId,
+        status: 'QUEUED',
+        date_added: new Date(),
+        resource_metadata: {
+          title: 'PDF 1 page',
+          file_size: 3113580,
+          learning_activities: ['wA01urpi'],
+        },
+        node_id: '9e53d545aaf44c3787a29a34b189c56a',
+      },
     ];
-    for (const req of dummyDownloadRequests) {
-      set(downloadRequestMap, req.node_id, req);
-    }
+    setTimeout(() => {
+      set(downloadRequestMap, 'downloads', {});
+      for (let i = 0; i < pageSize; i++) {
+        const index = (page - 1) * pageSize + i;
+        if (index >= dummyDownloadRequests.length) {
+          break;
+        }
+        set(
+          downloadRequestMap.downloads,
+          dummyDownloadRequests[index].node_id,
+          dummyDownloadRequests[index]
+        );
+      }
+      set(
+        downloadRequestMap,
+        'totalPageNumber',
+        Math.ceil(dummyDownloadRequests.length / pageSize)
+      );
+      set(downloadRequestMap, 'totalDownloads', dummyDownloadRequests.length);
+      set(loading, false);
+    }, 500);
+    return loading;
+  }
+
+  function fetchDownloadsStorageInfo() {
+    const loading = ref(true);
+    const storageInfo = ref(null);
+    const dummyStorageInfo = {
+      freeDiskSize: 13340000000,
+      myDownloadsSize: 23200000,
+    };
+    setTimeout(() => {
+      set(storageInfo, dummyStorageInfo);
+      set(loading, false);
+    }, 600);
+    return { loading, storageInfo };
   }
 
   function navigateToDownloads() {}
@@ -80,14 +134,24 @@ export default function useDownloadRequests(store) {
 
   function removeDownloadRequest(content) {
     console.log(`requested removal of ${content.id}`);
-    Vue.delete(downloadRequestMap, content.id);
+    Vue.delete(downloadRequestMap.downloads, content.id);
+    return Promise.resolve();
+  }
+
+  function removeDownloadsRequest(contentList) {
+    console.log(`requested removal of ${contentList.length} items`);
+    contentList.forEach(content => {
+      Vue.delete(downloadRequestMap.downloads, content.id);
+    });
     return Promise.resolve();
   }
 
   return {
     fetchUserDownloadRequests,
+    fetchDownloadsStorageInfo,
     downloadRequestMap,
     addDownloadRequest,
     removeDownloadRequest,
+    removeDownloadsRequest,
   };
 }
