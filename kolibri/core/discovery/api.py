@@ -87,7 +87,7 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
 
 
 class PinnedDeviceViewSet(ValuesViewset):
-    values = ("user", "device_id")
+    values = ("user", "device_id", "id")
     serializer_class = PinnedDeviceSerializer
     queryset = PinnedDevice.objects.all()
     permission_classes = (KolibriAuthPermissions,)
@@ -96,3 +96,9 @@ class PinnedDeviceViewSet(ValuesViewset):
         DjangoFilterBackend,
     )
     filter_fields = ("device_id",)
+
+    def post(self, request):
+        serializer = self.serializer(data=request.data)
+        # following will automatically raise an exception if the serialize data is not valid
+        serializer.is_valid(raise_exception=True)
+        return Response(serializer.validated_data)

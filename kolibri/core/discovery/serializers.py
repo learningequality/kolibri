@@ -11,6 +11,7 @@ from .models import NetworkLocation
 from .models import PinnedDevice
 from .utils.network import errors
 from .utils.network.client import NetworkClient
+from kolibri.core.auth.models import FacilityUser
 
 
 class NetworkLocationSerializer(serializers.ModelSerializer):
@@ -70,9 +71,12 @@ class PinnedDeviceSerializer(ModelSerializer):
     """
     Serializer for handling requests regarding a user's Pinned Devices
     """
+
+    user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
+
     class Meta:
         model = PinnedDevice
-        fields = (
-            "device_id",
-            "user",
-        )
+        fields = ("device_id", "user", "id")
+
+    def get_device_id(self, instance):
+        return instance.device_id.replace("-", "")
