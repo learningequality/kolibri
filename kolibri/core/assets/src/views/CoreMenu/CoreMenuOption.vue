@@ -26,6 +26,7 @@
     <li v-else>
       <a
         ref="menuItem"
+        :href="link"
         class="core-menu-option"
         role="menuitem"
         :class="$computedClass(optionStyle)"

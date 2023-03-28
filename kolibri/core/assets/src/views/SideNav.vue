@@ -77,11 +77,17 @@
               :aria-label="$tr('navigationLabel')"
             >
               <template #options>
-                <!-- <div v-for="component in menuOptions" :key="component.name">
-                  <p> {{component}} </p>
-                </div> -->
                 <CoreMenuOption
-                  v-for="component in menuOptions"
+                  v-for="component in topComponents"
+                  :key="component.name"
+                  :label="component.label"
+                  :subRoutes="component.routes"
+                  :link="component.url"
+                  :icon="component.icon"
+                />
+                <SideNavDivider />
+                <CoreMenuOption
+                  v-for="component in accountComponents"
                   :key="component.name"
                   :label="component.label"
                   :subRoutes="component.routes"
@@ -177,7 +183,11 @@
       </div>
     </transition>
 
-    <BottomNavigationBar :bottomMenuOptions="bottomMenuOptions" @toggleNav="toggleNav()" />
+    <BottomNavigationBar
+      v-if="isAppContext"
+      :bottomMenuOptions="bottomMenuOptions"
+      @toggleNav="toggleNav()"
+    />
 
 
 
@@ -226,7 +236,6 @@
   import navComponentsMixin from '../mixins/nav-components';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
-  import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import BottomNavigationBar from './BottomNavigationBar';
@@ -299,18 +308,17 @@
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-      menuOptions() {
-        console.log(navComponents);
-        const topComponents = navComponents
+      topComponents() {
+        return navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
-        const accountComponents = navComponents
+          .sort(this.compareMenuComponents)
+          .filter(this.filterByRole);
+      },
+      accountComponents() {
+        return navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
-        console.log(accountComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
-          this.filterByRole
-        );
+          .sort(this.compareMenuComponents)
+          .filter(this.filterByRole);
       },
       bottomMenuOptions() {
         return navComponents.filter(component => component.bottomBar == true);

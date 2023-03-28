@@ -1,8 +1,6 @@
 var pathToRegexp = require('path-to-regexp');
 
 export function generateNavRoute(rootUrl, pathReference, params = {}) {
-  console.log('generate nav route', rootUrl, pathReference);
-  // console.log(params)
   let compiledRoute;
 
   // when there is a direct path
