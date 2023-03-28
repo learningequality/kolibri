@@ -199,42 +199,44 @@
       isPinned(device_id) {
         return this.usersPinsDeviceIds.includes(device_id);
       },
+      createPin(device_id) {
+        return this.createPinForUser(device_id).then(response => {
+          const id = response.id;
+          this.usersPins = [...this.usersPins, { device_id, id }];
+          // FIXME This needs a string - xCompTranslator this message from libraryitem
+          this.$store.dispatch('createSnackbar', 'CREATED');
+          this.moreDevices = this.moreDevices.filter(d => d.instance_id !== device_id);
+        });
+      },
+      deletePin(device_id, pinId) {
+        return this.deletePinForUser(pinId).then(() => {
+          // Remove this pin from the usersPins
+          this.usersPins = this.usersPins.filter(p => p.device_id != device_id);
+          const removedDevice = this.networkDevicesWithChannels.find(
+            d => d.instance_id === device_id
+          );
+
+          if (removedDevice) {
+            this.moreDevices.push(removedDevice);
+          }
+          // FIXME This needs a string - look for generic "deleted..." string
+          this.$store.dispatch('createSnackbar', 'DELETED');
+        });
+      },
       handlePinToggle(device_id) {
         if (this.usersPinsDeviceIds.includes(device_id)) {
           const pinId = this.usersPins.find(pin => pin.device_id === device_id);
-          this.deletePinForUser(pinId)
-            .then(() => {
-              // Remove this pin from the usersPins
-              this.usersPins = this.usersPins.filter(p => p.device_id != device_id);
-              const removedDevice = this.networkDevicesWithChannels.find(
-                d => d.instance_id === device_id
-              );
-
-              if (removedDevice) {
-                this.moreDevices.push(removedDevice);
-              }
-              // FIXME This needs a string - look for generic "deleted..." string
-              this.$store.dispatch('createSnackbar', 'DELETED');
-            })
-            .catch(e => {
-              console.error(e);
-              // FIXME This needs a string - look for generic "oops" kind of string
-              this.$store.dispatch('createSnackbar', 'OOPS');
-            });
+          this.deletePin(device_id, pinId).catch(e => {
+            console.error(e);
+            // FIXME This needs a string - look for generic "oops" kind of string
+            this.$store.dispatch('createSnackbar', 'OOPS');
+          });
         } else {
-          this.createPinForUser(device_id)
-            .then(response => {
-              const id = response.id;
-              this.usersPins = [...this.usersPins, { device_id, id }];
-              // FIXME This needs a string - xCompTranslator this message from libraryitem
-              this.$store.dispatch('createSnackbar', 'CREATED');
-              this.moreDevices = this.moreDevices.filter(d => d.instance_id !== device_id);
-            })
-            .catch(e => {
-              console.error(e);
-              // FIXME This needs a string - look for generic "oops" kind of string
-              this.$store.dispatch('createSnackbar', 'OOPS');
-            });
+          this.createPin(device_id).catch(e => {
+            console.error(e);
+            // FIXME This needs a string - look for generic "oops" kind of string
+            this.$store.dispatch('createSnackbar', 'OOPS');
+          });
         }
       },
       getDeviceIcon(device) {
