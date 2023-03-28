@@ -8,7 +8,7 @@ module.exports = [
   {
     bundle_id: 'side_nav',
     webpack_config: {
-      entry: './assets/src/views/CoachSideNavEntry.vue',
+      entry: './assets/src/views/CoachSideNavEntry.js',
     },
   },
 ];

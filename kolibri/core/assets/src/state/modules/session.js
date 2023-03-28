@@ -78,6 +78,7 @@ export default {
       return state;
     },
     isAppContext(state) {
+      // return true
       return state.app_context;
     },
   },

@@ -37,6 +37,7 @@ function validateComponent(component) {
 }
 
 navComponents.register = component => {
+  console.log(component);
   if (!navComponents.includes(component)) {
     if (validateComponent(component)) {
       navComponents.push(component);

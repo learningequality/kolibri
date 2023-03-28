@@ -1,30 +1,8 @@
 <template>
 
   <div>
-    <li v-if="!subRoutes">
-      <a
-        ref="menuItem"
-        :href="link"
-        class="core-menu-option"
-        role="menuitem"
-        :class="$computedClass(optionStyle)"
-        :tabindex="link ? false : '0'"
-        @click="conditionalEmit"
-        @keydown.enter="conditionalEmit"
-      >
-        <slot>
-          <KLabeledIcon>
-            <template v-if="icon" #icon>
-              <KIcon :icon="icon" :color="optionIconColor" />
-            </template>
-            <div v-if="label">{{ label }}</div>
-          </KLabeledIcon>
-          <div v-if="secondaryText">{{ secondaryText }}</div>
-        </slot>
-      </a>
-    </li>
     <!-- routes that have subpaths -->
-    <li v-else>
+    <li v-if="subRoutes && subRoutes.length > 0">
       <a
         ref="menuItem"
         class="core-menu-option"
@@ -36,6 +14,25 @@
       >
         <slot>
           <KLabeledIcon :iconAfter="iconAfter">
+            <template v-if="icon" #icon>
+              <KIcon :icon="icon" :color="optionIconColor" />
+            </template>
+            <div v-if="label">{{ label }}</div>
+          </KLabeledIcon>
+          <div v-if="secondaryText">{{ secondaryText }}</div>
+        </slot>
+      </a>
+    </li>
+    <li v-else>
+      <a
+        ref="menuItem"
+        class="core-menu-option"
+        role="menuitem"
+        :class="$computedClass(optionStyle)"
+        tabindex="0"
+      >
+        <slot>
+          <KLabeledIcon>
             <template v-if="icon" #icon>
               <KIcon :icon="icon" :color="optionIconColor" />
             </template>
@@ -140,17 +137,12 @@
       this.submenuShouldBeOpen();
     },
     methods: {
-      conditionalEmit() {
-        if (!this.link) {
-          this.$emit('select');
-        }
-      },
       isActiveLink(route) {
         return route.includes(this.$route.path);
       },
       submenuShouldBeOpen() {
         // which plugin are we currently in?
-        if (this.subRoutes) {
+        if (this.subRoutes && this.subRoutes.length > 0) {
           const key = Object.keys(this.subRoutes)[0];
           this.subRoutes[key].route == `${window.location.pathname + window.location.hash}`
             ? (this.visibleSubMenu = true)
