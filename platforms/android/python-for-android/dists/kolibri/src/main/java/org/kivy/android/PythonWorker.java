@@ -157,6 +157,7 @@ public class PythonWorker extends RemoteListenableWorker {
                 .setSmallIcon(R.drawable.ic_stat_kolibri_notification)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
                 .setColor(context.getColor(R.color.primary))
+                .setSilent(true)
                 .setContentTitle(notificationTitle);
         if (notificationText != null) {
             builder.setContentText(notificationText);
