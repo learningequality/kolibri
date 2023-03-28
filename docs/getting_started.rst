@@ -313,6 +313,12 @@ Some of Kolibri's functionality will differ when being run as a mobile app. In o
 
 This will run the script located at ``integration_testing/scripts/run_kolibri_app_mode.py``. There you may change the port, register app capabilities (ie, ``os_user``) and make adjustments to meet your needs.
 
+When the app development server is started, you will see a message with a particular URL that you will need to use in order to initialize your browser session properly.
+
+.. code-block:: bash
+
+   [app-python-devserver] Kolibri running at: http://127.0.0.1:8000/app/api/initialize/6b91ec2b697042c2b360235894ad2632
+
 
 Editor configuration
 --------------------
