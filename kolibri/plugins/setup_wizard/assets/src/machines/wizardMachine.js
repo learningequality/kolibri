@@ -398,18 +398,24 @@ const states = {
       selectFacilityForm: {
         meta: { route: { name: 'SELECT_FACILITY_FOR_IMPORT' } },
         on: {
+          BACK: {
+            target: '#wizard.fullDeviceNewOrImportFacility',
+            actions: [removeLastHistoryItem],
+          },
           CONTINUE: {
             target: 'importAuthentication',
-            actions: [
-              setSelectedImportDeviceFacility,
-              send({ type: 'PUSH_HISTORY', value: 'selectFacilityForm' }),
-            ],
+            actions: [setSelectedImportDeviceFacility],
           },
         },
       },
       importAuthentication: {
         meta: { route: { name: 'IMPORT_AUTHENTICATION' } },
         on: {
+          BACK: 'selectFacilityForm',
+          BACK_SKIP_FACILITY_FORM: {
+            target: '#wizard.fullDeviceNewOrImportFacility',
+            actions: ['clearSelectedSetupType', 'revertFullDeviceImport', removeLastHistoryItem],
+          },
           // THE POINT OF NO RETURN
           CONTINUE: { target: 'loadingTaskPage' },
         },
