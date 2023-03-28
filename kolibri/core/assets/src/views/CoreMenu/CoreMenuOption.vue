@@ -142,10 +142,8 @@
         return route.includes(this.$route.path);
       },
       submenuShouldBeOpen() {
-        // which plugin are we currently in?
         if (this.subRoutes && this.subRoutes.length > 0) {
-          const key = Object.keys(this.subRoutes)[0];
-          this.subRoutes[key].route == `${window.location.pathname + window.location.hash}`
+          window.location.pathname.includes(this.link)
             ? (this.visibleSubMenu = true)
             : (this.visibleSubMenu = false);
         }
