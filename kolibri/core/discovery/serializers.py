@@ -76,7 +76,7 @@ class PinnedDeviceSerializer(ModelSerializer):
 
     class Meta:
         model = PinnedDevice
-        fields = ("device_id", "user", "id")
+        fields = ("instance_id", "user", "id")
 
-    def get_device_id(self, instance):
-        return instance.device_id.replace("-", "")
+    def get_instance_id(self, instance):
+        return instance.instance_id.replace("-", "")

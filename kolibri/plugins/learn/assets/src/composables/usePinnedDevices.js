@@ -13,8 +13,8 @@ export default function usePinnedDevices() {
     return PinnedDeviceResource.fetchCollection({ force: true });
   }
 
-  function createPinForUser(device_id) {
-    return PinnedDeviceResource.create({ device_id, user });
+  function createPinForUser(instance_id) {
+    return PinnedDeviceResource.create({ instance_id, user });
   }
 
   function deletePinForUser(id) {

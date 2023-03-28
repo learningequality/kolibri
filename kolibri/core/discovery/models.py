@@ -217,7 +217,7 @@ class PinnedDevice(models.Model):
     id = models.CharField(
         primary_key=True, max_length=36, default=_uuid_string, editable=False
     )
-    device_id = models.UUIDField(blank=False)
+    instance_id = models.UUIDField(blank=False)
     user = models.ForeignKey(FacilityUser, blank=False)
     created = models.DateTimeField(default=timezone.now, db_index=True)
 
@@ -228,5 +228,5 @@ class PinnedDevice(models.Model):
         # django.db.utils.IntegrityError
         unique_together = (
             "user",
-            "device_id",
+            "instance_id",
         )

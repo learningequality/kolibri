@@ -143,7 +143,7 @@
       usersPinsDeviceIds() {
         // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
         // items) -- which the user has pinned
-        return this.usersPins.map(pin => pin.device_id);
+        return this.usersPins.map(pin => pin.instance_id);
       },
       pinnedDevices() {
         return this.networkDevicesWithChannels.filter(netdev => {
@@ -163,8 +163,8 @@
       // Fetch user's pins
       this.fetchPinsForUser().then(resp => {
         this.usersPins = resp.map(pin => {
-          const device_id = pin.device_id.replace(/-/g, '');
-          return { ...pin, device_id };
+          const instance_id = pin.instance_id.replace(/-/g, '');
+          return { ...pin, instance_id };
         });
       });
 
@@ -196,24 +196,24 @@
       });
     },
     methods: {
-      isPinned(device_id) {
-        return this.usersPinsDeviceIds.includes(device_id);
+      isPinned(instance_id) {
+        return this.usersPinsDeviceIds.includes(instance_id);
       },
-      createPin(device_id) {
-        return this.createPinForUser(device_id).then(response => {
+      createPin(instance_id) {
+        return this.createPinForUser(instance_id).then(response => {
           const id = response.id;
-          this.usersPins = [...this.usersPins, { device_id, id }];
+          this.usersPins = [...this.usersPins, { instance_id, id }];
           // FIXME This needs a string - xCompTranslator this message from libraryitem
           this.$store.dispatch('createSnackbar', 'CREATED');
-          this.moreDevices = this.moreDevices.filter(d => d.instance_id !== device_id);
+          this.moreDevices = this.moreDevices.filter(d => d.instance_id !== instance_id);
         });
       },
-      deletePin(device_id, pinId) {
+      deletePin(instance_id, pinId) {
         return this.deletePinForUser(pinId).then(() => {
           // Remove this pin from the usersPins
-          this.usersPins = this.usersPins.filter(p => p.device_id != device_id);
+          this.usersPins = this.usersPins.filter(p => p.instance_id != instance_id);
           const removedDevice = this.networkDevicesWithChannels.find(
-            d => d.instance_id === device_id
+            d => d.instance_id === instance_id
           );
 
           if (removedDevice) {
@@ -223,16 +223,16 @@
           this.$store.dispatch('createSnackbar', 'DELETED');
         });
       },
-      handlePinToggle(device_id) {
-        if (this.usersPinsDeviceIds.includes(device_id)) {
-          const pinId = this.usersPins.find(pin => pin.device_id === device_id);
-          this.deletePin(device_id, pinId).catch(e => {
+      handlePinToggle(instance_id) {
+        if (this.usersPinsDeviceIds.includes(instance_id)) {
+          const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
+          this.deletePin(instance_id, pinId).catch(e => {
             console.error(e);
             // FIXME This needs a string - look for generic "oops" kind of string
             this.$store.dispatch('createSnackbar', 'OOPS');
           });
         } else {
-          this.createPin(device_id).catch(e => {
+          this.createPin(instance_id).catch(e => {
             console.error(e);
             // FIXME This needs a string - look for generic "oops" kind of string
             this.$store.dispatch('createSnackbar', 'OOPS');
