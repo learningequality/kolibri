@@ -313,7 +313,7 @@ Some of Kolibri's functionality will differ when being run as a mobile app. In o
 
 This will run the script located at ``integration_testing/scripts/run_kolibri_app_mode.py``. There you may change the port, register app capabilities (ie, ``os_user``) and make adjustments to meet your needs.
 
-When the app development server is started, you will see a message with a particular URL that you will need to use in order to initialize your browser session properly.
+When the app development server is started, you will see a message with a particular URL that you will need to use in order to initialize your browser session properly. Once your browser session has been initialized for use in the app mode, your browser session will remain in this mode until you clear your cookies, even if you've started your normal Kolibri development server.
 
 .. code-block:: bash
 
