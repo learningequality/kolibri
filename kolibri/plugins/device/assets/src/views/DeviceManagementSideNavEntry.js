@@ -21,6 +21,10 @@ const component = {
     } else {
       return [
         {
+          label: coreStrings.$tr('channelsLabel'),
+          route: baseRoutes.content.path,
+        },
+        {
           label: deviceString('permissionsLabel'),
           route: baseRoutes.permissions.path,
         },
