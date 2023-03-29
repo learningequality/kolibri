@@ -9,6 +9,7 @@
       <UnPinnedDevices
         :deviceName="device.device_name"
         :channels="device.channels"
+        :allDevices="device"
       />
     </KGridItem>
   </KGrid>
@@ -57,9 +58,9 @@
         const device = devices.filter(d => d.available);
         device.forEach(element => {
           this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
-            element['channels'] = channel.length;
+            this.$set(element, 'channels', channel.length);
+            this.devices.push(element);
           });
-          this.devices.push(element);
         });
       });
     },

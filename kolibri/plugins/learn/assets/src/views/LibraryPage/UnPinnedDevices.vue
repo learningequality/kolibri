@@ -4,10 +4,14 @@
     class="card-main-wrapper"
     :style="cardStyle"
   >
-    <div class="" style="width:250px;height:100px;">
+    <KRouterLink
+      :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
+      :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
+      style="text-decoration:none;"
+    >
       <h2 class="device-name">
         <span>
-          <KIcon icon="device" />
+          <KIcon :icon="getDeviceIcon(allDevices)" />
         </span>
         <span>
           <TextTruncator
@@ -17,9 +21,9 @@
         </span>
       </h2>
       <p class="channels">
-        {{ $tr('channels', { count: channels }) }}
+        {{ channels }} {{ $tr('channels') }}
       </p>
-    </div>
+    </KRouterLink>
   </div>
 
 </template>
@@ -53,6 +57,11 @@
         required: false,
         default: 0,
       },
+      allDevices: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
 
     computed: {
@@ -62,12 +71,26 @@
           color: this.$themeTokens.text,
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
         };
+      },
+    },
+    methods: {
+      getDeviceIcon(device) {
+        if (device['operating_system'] === 'Darwin') {
+          return 'laptop';
+        } else if (device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (!device['subset_of_users_device']) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
       },
     },
     $trs: {
       channels: {
-        message: '{count, plural, one {channel} other {channels}',
+        message: 'channels',
         context: 'Indicates the number of channels',
       },
     },
@@ -111,6 +134,8 @@
   }
 
   .channels {
+    justify-content: center;
+    width: 100%;
     color: #616161;
     text-align: center;
   }
