@@ -11,10 +11,12 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
+
       <ChannelCardGroupGrid
         data-test="channel-cards"
         class="grid"
         :contents="device.channels"
+        :isPinned="true"
       />
     </KGridItem>
   </KGrid>
