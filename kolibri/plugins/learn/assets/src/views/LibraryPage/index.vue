@@ -173,7 +173,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapState } from 'vuex';
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
@@ -300,7 +300,7 @@
     },
     computed: {
       ...mapState(['rootNodes']),
-      ...mapGetters(['isUserLoggedIn']),
+      // ...mapGetters(['isUserLoggedIn']),
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -330,18 +330,21 @@
     },
     created() {
       this.search();
-      if (this.isUserLoggedIn) {
-        this.fetchDevices().then(devices => {
-          this.devices = devices.filter(d => d.available);
-        });
-      }
+      // if (this.isUserLoggedIn) {
+      //   this.fetchDevices().then(devices => {
+      //     this.devices = devices.filter(d => d.available);
+      //   });
+      // }
 
       this.fetchDevices().then(devices => {
-        const device = devices.filter(d => d.available);
-        device.forEach(element => {
-          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
-            this.$set(element, 'channels', channel);
-            this.pinnedDevices.push(element);
+        this.devices = devices.filter(d => d.available);
+        this.devices.forEach(device => {
+          console.log(device);
+          this.fetchChannels({ baseurl: device.base_url }).then(channel => {
+            if (channel.length > 0) {
+              this.$set(device, 'channels', channel);
+              this.pinnedDevices.push(device);
+            }
           });
         });
       });

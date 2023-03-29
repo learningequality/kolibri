@@ -55,6 +55,11 @@
     >
       <p>{{ $tr('version', { version: version }) }}</p>
     </div>
+    <div
+      style="text-align:right;margin-right:10px;margin-top:10px"
+    >
+      <KIcon v-if="isPinned" icon="wifi" />
+    </div>
 
   </router-link>
 
@@ -111,6 +116,11 @@
         type: Number,
         required: false,
         default: null,
+      },
+      isPinned: {
+        type: Boolean,
+        required: true,
+        default: false,
       },
     },
     computed: {
