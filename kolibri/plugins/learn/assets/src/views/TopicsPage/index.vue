@@ -595,13 +595,10 @@
       document.documentElement.style.position = '';
     },
     created() {
-      // window.addEventListener('scroll', this.throttledHandleScroll);
+      window.addEventListener('scroll', this.throttledHandleScroll);
       if (this.subTopicId) {
         this.handleLoadMoreInSubtopic(this.subTopicId);
       }
-    },
-    mounted() {
-      window.addEventListener('scroll', this.throttledHandleScroll);
     },
     methods: {
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
@@ -632,10 +629,6 @@
         this.toggleFolderSearchSidePanel();
       },
       tabPositionCalculation() {
-        // the component this function is referencing is also undefined in the DOM upon initial navigation to the page,
-        // but is not presenting any errors/issues
-        // tried to replicate the logic found here in the stickyCalculation() but with no/limited success
-
         const tabBottom = this.$refs.sidePanel
           ? this.$refs.sidePanel.$el.getBoundingClientRect().top
           : 0;
@@ -653,189 +646,23 @@
       // is visible or no (the toolbar hides on smaller resolutions when scrolling
       // down and appears again when scrolling up).
       // Takes effect only when the side panel is not displayed full-screen.
-      // stickyCalculation() {
-      //
-      //   // // IDEA: first determine we are in the right location/page (since created/mounted is getting called earlier
-      //   // if we navigate to this page rather than starting on it) tried using presence of a class belonging to another
-      //   // DOM element on the page or another signifier to ensure page is rendered before header existence is assessed
-      //
-      //
-      //   // OLD CODE replaced 2 months ago -- because header const did not include this.$refs.header.$el,
-      //   // getBoundingClientRect() couldn't be validly called on it and the function quietly failed and errored out in
-      //   // the console. until it was addressed, this error coincidentally stopped the "crazy jumping page" bug from
-      //   // occurring.
-      //   // const header = this.$refs.header
-      //
-      //   const header = this.$refs.header && this.$refs.header.$el;
-      //
-      //   // // code below is potentially being removed by this PR - removal of this return statement eliminates initial
-      //   // bug -- headers for certain folders [e.g. Kolibri QA Channel > HTML5 > African Story Books] being cut off, BUT also results (when devtools is not open &
-      //   // `windowIsShort` prop is false) in jumping scroll behavior and flashing screen.
-      //   // if (!header) {
-      //   //   return;
-      //   // }
-      //
-      //   const topbar = document.querySelector('.scrolling-header');
-      //   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-      //
-      //
-      //   // // causes FREAK OUT (afr story books, LSAT prep)
-      //   // const header = this.$refs.header
-      //   // const headerBottom = header ? header.$el.getBoundingClientRect().bottom : 0;
-      //   //
-      //
-      //   // // SAME EFFECT
-      //   // const header = this.$refs.header
-      //   // const headerBottom = (header && header.$el) ? header.$el.getBoundingClientRect().bottom : 0;
-      //
-      //
-      //   // // SAME EFFECT
-      //   //  const header = document.querySelector('.test-class')
-      //   // // tried it instead of targeting w refs bc ¯\_(ツ)_/¯
-      //
-      //
-      //   const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-      //
-      //   if (headerBottom < Math.max(topbarBottom, 0)) {
-      //     this.sidePanelStyleOverrides = {
-      //       position: 'fixed',
-      //       top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-      //       height: '100%',
-      //     };
-      //   } else {
-      //     this.sidePanelStyleOverrides = {};
-      //   }
-      // },
+      stickyCalculation() {
+        const header = this.$refs.header && this.$refs.header.$el;
+        const topbar = document.querySelector('.scrolling-header');
 
+        const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
+        const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
-      // // original 0.15 sticky calculation
-      // // page-jumping bug does not occur because a function is erroring out before triggering code is reached
-
-      // stickyCalculation() {
-      //   const header = this.$refs.header;
-      //   const topbar = document.querySelector('.scrolling-header');
-
-      // // make sure you're referencing the element there -- checking here may not be the place it needs to happen
-      //   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-      //   const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-      //   if (headerBottom < Math.max(topbarBottom, 0)) {
-      //     this.sidePanelStyleOverrides = {
-      //       position: 'fixed',
-      //       top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-      //       height: '100%',
-      //     };
-      //   } else {
-      //     this.sidePanelStyleOverrides = {};
-      //   }
-      // },
-
-      // // original 0.15 sticky calculation
-      // // // with changes/notes
-      // stickyCalculation() {
-      //
-      //   // // original header assignment - will not work with .getBoundingClientRect()
-      //   // // errors out and blocks page jumping bug // header bug
-      //   // const header = this.$refs.header
-      //
-      //   // // solution from updated code
-      //   // // fixes header but causes screen dance bug
-      //   // // (if header existence check/return from func version above is not included.
-      //   // if existence check is included, header bug is reintroduced)
-      //   const header = this.$refs.header && this.$refs.header.$el;
-      //
-      //   // // if this is reintroduced in combination with const header = this.$refs.header && this.$refs.header.$el,
-      //   // // it causes the header bug (bc replicates code state when bug was found) in addition to allowing the screen-
-      //   // // jumping bug to occur
-      //   //  if (!header) {
-      //   //   return;
-      //   // }
-      //
-      //   // // header fixed, page jumping bug introduced
-      //   // const header = this.$refs.header ? this.$refs.header.$el : null;
-      //
-      //   // console.log('header', header);
-      //
-      //   const topbar = document.querySelector('.scrolling-header');
-      //   // // original headerBottom assignment
-      //   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-      //
-      //   // // in conjunction with commenting out header const entirely
-      //   // const headerBottom = this.$refs.header
-      //   //   ? this.$refs.header.$el.getBoundingClientRect().bottom
-      //   //   : 0;
-      //   const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-      //   if (headerBottom < Math.max(topbarBottom, 0)) {
-      //     this.sidePanelStyleOverrides = {
-      //       position: 'fixed',
-      //       top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-      //       height: '100%',
-      //     };
-      //   } else {
-      //     this.sidePanelStyleOverrides = {};
-      //   }
-      // },
-      //
-      //         const header = this.$refs.header && this.$refs.header.$el;
-      //   if (header) {
-      //     this.headerExists = true;
-      //     this.headerBottom = header.getBoundingClientRect().bottom;
-      //   }
-      //
-      //   console.log('this.headerExists', this.headerExists)
-      //
-      //   // if (!header) {
-      //   //   return;
-      //   // }
-      //
-      //   // // 30 mins trying to make this work
-      //   // // build this calculation from scratch if no progress
-      //
-      //   const topbar = document.querySelector('.scrolling-header');
-      //   // Q: is this check actually CHECKING for existence the way we think it is?
-      //   // rather than dealing with conditional checks, see if you can reference element in straightforward way and see what problems resolve
-      //
-      //
-      //   const headerBottom = this.headerExists ? this.headerBottom : 0;
-      //
-
-      // stickyCalculation() {
-      //   // try moving lower
-      //   // const header = this.$refs.header && this.$refs.header.$el;
-      //
-      //   // if (!header) {
-      //   //   return;
-      //   // }
-      //
-      //   // // 30 mins trying to make this work
-      //   // // build this calculation from scratch if no progress
-      //
-      //   const topbar = document.querySelector('.scrolling-header');
-      //   const header = document.querySelector('.header');
-      //
-      //   // Q: is this check actually CHECKING for existence the way we think it is?
-      //   // rather than dealing with conditional checks, see if you can reference element in straightforward way and see what problems resolve
-      //
-      //
-      //   const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
-      //   const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
-      //
-      //   // console.log('header', header);
-      //   // console.log('header.getBoundingRect()', header.getBoundingClientRect())
-      //   // console.log('header.getBoundingClientRect().bottom', header.getBoundingClientRect().bottom)
-      //   // in shakiness things are being repositioned
-      //   // what is it about this condition that's causing this (rather than what we want)?
-      //   // console.log('headerbottom, topbarbottom, rest of expression', headerBottom, topbarBottom, headerBottom < Math.max(topbarBottom, 0));
-      //   // scrolling all the way to the bottom, that's where it's negative, and you've lost reference to the element
-      //   if (headerBottom < Math.max(topbarBottom, 0)) {
-      //     this.sidePanelStyleOverrides = {
-      //       position: 'fixed',
-      //       top: `${Math.max(0, headerBottom, topbarBottom)}px`,
-      //       height: '100%',
-      //     };
-      //   } else {
-      //     this.sidePanelStyleOverrides = {};
-      //   }
-      // },
+        if (headerBottom < Math.max(topbarBottom, 0)) {
+          this.sidePanelStyleOverrides = {
+            position: 'fixed',
+            top: `${Math.max(0, headerBottom, topbarBottom)}px`,
+            height: '100%',
+          };
+        } else {
+          this.sidePanelStyleOverrides = {};
+        }
+      },
       handleShowMore(topicId) {
         this.expandedTopics = {
           ...this.expandedTopics,
