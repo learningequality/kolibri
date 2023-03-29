@@ -2,25 +2,20 @@
 
   <KGrid>
     <KGridItem
-      v-for="group in groups"
-      :key="group.id"
+      v-for="device in pinnedDevices"
+      :key="device.id"
     >
       <KGridItem>
         <h2>
-          <KIcon icon="device" />
-          <span class="device-name">{{ group.deviceName }}</span>
+          <KIcon :icon="getDeviceIcon(device.operating_system)" />
+          <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
-      <KGridItem
-        v-for="item in group.content"
-        :key="item.id"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-      >
-        <CardContent
-          :content="item.title"
-          :body="item.body"
-        />
-      </KGridItem>
+      <ChannelCardGroupGrid
+        data-test="channel-cards"
+        class="grid"
+        :contents="device.channels"
+      />
     </KGridItem>
   </KGrid>
 
@@ -30,66 +25,56 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import CardContent from './CardContent';
+  import useDevices from './../../composables/useDevices';
+  import useChannels from './../../composables/useChannels';
+  import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
-      CardContent,
+      ChannelCardGroupGrid,
     },
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
+      const { baseurl, fetchDevices } = useDevices();
+      const { fetchChannels } = useChannels();
       return {
         windowBreakpoint,
+        fetchChannels,
+        fetchDevices,
+        baseurl,
       };
     },
     data() {
       return {
-        groups: [
-          {
-            id: 1,
-            deviceName: 'Samson`s MacBook-Pro',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 2,
-            deviceName: 'Marcella MBP',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-            ],
-          },
-        ],
+        pinnedDevices: [],
       };
     },
-    computed: {
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
+    created() {
+      this.fetchDevices().then(devices => {
+        const device = devices.filter(d => d.available);
+        device.forEach(element => {
+          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
+            this.$set(element, 'channels', channel);
+            this.pinnedDevices.push(element);
+          });
+        });
+        console.log(this.pinnedDevices);
+      });
+    },
+    methods: {
+      getDeviceIcon(device) {
+        if (device['operating_system'] === 'Darwin') {
+          return 'laptop';
+        } else if (device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (device.subset_of_users_device) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
       },
     },
-    created() {},
   };
 
 </script>
