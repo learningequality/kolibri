@@ -62,6 +62,7 @@
         if (this.role === 'learner') return '';
         return this.$tr('changeFacilityInfoLine2', {
           role: this.role,
+          facility: this.targetFacility.name,
         });
       },
       thirdLine() {

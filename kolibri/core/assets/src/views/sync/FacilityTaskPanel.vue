@@ -9,9 +9,9 @@
     :loaderType="loaderType"
     :showCircularLoader="taskInfo.isRunning"
     :buttonSet="buttonSet"
-    @cancel="$emit('click', 'cancel')"
-    @clear="$emit('click', 'clear')"
-    @retry="$emit('click', 'retry')"
+    @cancel="$emit('cancel')"
+    @clear="$emit('clear')"
+    @retry="$emit('retry')"
   />
 
 </template>

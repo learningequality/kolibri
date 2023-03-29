@@ -49,7 +49,6 @@ describe('LoadingTaskPage', () => {
     const { wrapper } = makeWrapper();
     await global.flushPromises();
     const taskPanel = wrapper.findComponent({ name: 'FacilityTaskPanel' });
-    console.log(taskPanel);
     expect(taskPanel.exists()).toBe(true);
     expect(wrapper.vm.isPolling).toBe(true);
     expect(wrapper.find('h1').text()).toEqual('Import learning facility');

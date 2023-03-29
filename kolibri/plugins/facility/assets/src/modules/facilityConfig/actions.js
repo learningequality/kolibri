@@ -81,7 +81,7 @@ export function unsetPin(store) {
 export function isPinValid(store, payload) {
   const { facilityDatasetId } = store.state;
   return client({
-    url: urls['kolibri:core:facilitydataset-is-pin-valid'](facilityDatasetId),
+    url: urls['kolibri:core:ispinvalid'](facilityDatasetId),
     method: 'POST',
     data: payload,
   }).then(({ data }) => {

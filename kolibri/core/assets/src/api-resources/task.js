@@ -11,7 +11,7 @@ export default new Resource({
     return this.create(tasks, multipart);
   },
 
-  cancelTask(jobId) {
+  cancel(jobId) {
     return this.postDetailEndpoint('cancel', jobId);
   },
 

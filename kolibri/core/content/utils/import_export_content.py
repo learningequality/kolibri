@@ -195,7 +195,7 @@ def get_import_export_nodes(  # noqa: C901
         # Only bother with this query if there were any resources returned above.
 
         if nodes_query.count() > 0:
-            nodes_queries_list.append(nodes_query)
+            nodes_queries_list.append(nodes_query.distinct())
 
     return nodes_queries_list
 
