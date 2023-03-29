@@ -9,17 +9,10 @@
     :route="route"
     :title="appBarTitle"
   >
-    <template v-if="disconnected" #actions>
-      <span class="inner" style="color:white; font-size: 14px;">
-        {{ coreString('disconnected') }}
-      </span>
-      <KIconButton
-        icon="disconnected"
-        color="white"
-        :tooltip="coreString('disconnected')"
-        :ariaLabel="coreString('disconnected')"
-      />
+    <template #actions>
+      <DeviceConnectionStatus :deviceId="deviceId" color="white" />
     </template>
+
     <template
       v-if="!deviceId"
       #subNav
@@ -39,8 +32,8 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDeviceConnectionStatus from '../composables/useDeviceConnectionStatus';
   import LearnTopNav from './LearnTopNav';
+  import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
 
   export default {
     name: 'LearnAppBarPage',
@@ -48,14 +41,10 @@
       AppBarPage,
       ImmersivePage,
       LearnTopNav,
+      DeviceConnectionStatus,
     },
     mixins: [commonCoreStrings],
-    setup(props) {
-      const { disconnected } = useDeviceConnectionStatus(props.deviceId);
-      return {
-        disconnected,
-      };
-    },
+
     props: {
       appBarTitle: {
         type: String,

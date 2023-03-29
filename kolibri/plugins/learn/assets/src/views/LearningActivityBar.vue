@@ -66,18 +66,7 @@
             </div>
           </template>
         </CoreMenu>
-
-        <span v-if="disconnected">
-          <span class="inner" style="font-size: 14px;">
-            {{ coreString('disconnected') }}
-          </span>
-          <KIconButton
-            icon="disconnected"
-            :tooltip="coreString('disconnected')"
-            :ariaLabel="coreString('disconnected')"
-          />
-        </span>
-
+        <DeviceConnectionStatus :deviceId="deviceId" />
 
         <KIconButton
           v-for="action in barActions"
@@ -156,9 +145,9 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import get from 'lodash/get';
-  import useDeviceConnectionStatus from '../composables/useDeviceConnectionStatus';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import commonLearnStrings from './commonLearnStrings';
+  import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
 
   export default {
     name: 'LearningActivityBar',
@@ -172,15 +161,9 @@
       UiToolbar,
       TimeDuration,
       SuggestedTime,
+      DeviceConnectionStatus,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
-    setup(_, context) {
-      const deviceId = get(context.root.$route, 'params.deviceId');
-      const { disconnected } = useDeviceConnectionStatus(deviceId);
-      return {
-        disconnected,
-      };
-    },
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
@@ -305,6 +288,10 @@
       };
     },
     computed: {
+      deviceId() {
+        return get(this.$route, 'params.deviceId');
+      },
+
       showMarkComplete() {
         return this.allowMarkComplete && this.contentProgress < 1;
       },

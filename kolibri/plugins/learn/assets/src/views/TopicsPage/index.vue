@@ -15,16 +15,8 @@
       :primary="!allowDownloads"
       class="page"
     >
-      <template v-if="disconnected" #actions>
-        <span class="inner" style="color:white; font-size: 14px;">
-          {{ coreString('disconnected') }}
-        </span>
-        <KIconButton
-          icon="disconnected"
-          color="white"
-          :tooltip="coreString('disconnected')"
-          :ariaLabel="coreString('disconnected')"
-        />
+      <template #actions>
+        <DeviceConnectionStatus :deviceId="deviceId" color="white" />
       </template>
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
@@ -287,7 +279,7 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
-  import useDeviceConnectionStatus from '../../composables/useDeviceConnectionStatus';
+  import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
@@ -328,9 +320,10 @@
       TopicSubsection,
       SearchPanelModal,
       ImmersivePage,
+      DeviceConnectionStatus,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
-    setup(props) {
+    setup() {
       const store = getCurrentInstance().proxy.$store;
       const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
@@ -347,8 +340,6 @@
         setCategory,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
-
-      const { disconnected } = useDeviceConnectionStatus(props.deviceId);
       return {
         searchTerms,
         displayingSearchResults,
@@ -363,7 +354,6 @@
         setCategory,
         back,
         genContentLinkKeepCurrentBackLink,
-        disconnected,
       };
     },
     props: {
