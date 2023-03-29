@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="coreString('newAddresTitle')"
+    :title="$tr('header')"
     :submitText="$tr('submitButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -180,6 +180,11 @@
         message: 'Trying to connect to server…',
         context:
           'Progress message an admin sees when Kolibri is attempting to connect to a device.',
+      },
+      header: {
+        message: 'New address',
+        context:
+          'The title of the section that an admin accesses when they select the "Add new address" link in the Device > Facilities section.\n\nThey use this screen to add a new network address.',
       },
     },
   };
