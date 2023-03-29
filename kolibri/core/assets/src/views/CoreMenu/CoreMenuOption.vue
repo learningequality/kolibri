@@ -139,11 +139,15 @@
     },
     methods: {
       isActiveLink(route) {
-        return route.includes(this.$route.path);
+        // temporary second condition to account for downloads route structure
+        if (!this.$route.name || this.$route.name != 'MY_DOWNLOADS') {
+          return route.includes(this.$route.path);
+        }
       },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
-          window.location.pathname.includes(this.link)
+          // temporary second condition to account for downloads route structure
+          window.location.pathname.includes(this.link) && this.$route.name != 'MY_DOWNLOADS'
             ? (this.visibleSubMenu = true)
             : (this.visibleSubMenu = false);
         }

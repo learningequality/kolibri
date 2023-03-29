@@ -20,7 +20,7 @@ module.exports = [
   {
     bundle_id: 'my_downloads_side_nav',
     webpack_config: {
-      entry: './assets/src/my_downloads/views/MyDownloadsSideNavEntry.vue',
+      entry: './assets/src/my_downloads/views/MyDownloadsSideNavEntry.js',
     },
   },
 ];
