@@ -128,12 +128,20 @@ export default [
   },
   {
     path: '/:facility_id?/managesync',
+    props: route => {
+      return { facility_id: route.params.facility_id || store.getters.currentFacilityId };
+    },
     component: ManageSyncSchedule,
     name: PageNames.MANAGE_SYNC_SCHEDULE,
   },
   {
-    path: '/:facility_id?/editdevice/:deviceId',
+    path: '/:facility_id?/editdevice/:deviceId/',
     component: editDeviceSyncSchedule,
     name: PageNames.EDIT_SYNC_SCHEDULE,
+    props: route => {
+      return { facility_id: route.params.facility_id || store.getters.currentFacilityId };
+      // return { device_id: route.params.device_id || store.getters.currentDeviceId,
+      //     facility_id:store.getters.currentFacilityId };
+    },
   },
 ];

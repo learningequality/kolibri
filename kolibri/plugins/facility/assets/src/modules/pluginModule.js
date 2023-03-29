@@ -48,7 +48,7 @@ export default {
       // parameter if we're in a multi-facility situation
       const params = {};
       if (getters.userIsMultiFacilityAdmin) {
-        params.facility_id = getters.activeFacilityId;
+        params.facilityId = getters.activeFacilityId;
       }
       return {
         // Keys are the names of the components in routes.js
