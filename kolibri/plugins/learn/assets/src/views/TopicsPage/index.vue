@@ -10,10 +10,22 @@
       v-else-if="!loading"
       :loading="loading"
       :route="back"
-      :appBarTitle="(topic && topic.title) || ''"
+      :appBarTitle="barTitle"
       :appearanceOverrides="{}"
+      :primary="!allowDownloads"
       class="page"
     >
+      <template v-if="disconnected" #actions>
+        <span class="inner" style="color:white; font-size: 14px;">
+          {{ coreString('disconnected') }}
+        </span>
+        <KIconButton
+          icon="disconnected"
+          color="white"
+          :tooltip="coreString('disconnected')"
+          :ariaLabel="coreString('disconnected')"
+        />
+      </template>
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
         v-if="!windowIsSmall"
@@ -275,6 +287,7 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
+  import useDeviceConnectionStatus from '../../composables/useDeviceConnectionStatus';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
@@ -317,7 +330,7 @@
       ImmersivePage,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
-    setup() {
+    setup(props) {
       const store = getCurrentInstance().proxy.$store;
       const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
@@ -334,6 +347,8 @@
         setCategory,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
+
+      const { disconnected } = useDeviceConnectionStatus(props.deviceId);
       return {
         searchTerms,
         displayingSearchResults,
@@ -348,6 +363,7 @@
         setCategory,
         back,
         genContentLinkKeepCurrentBackLink,
+        disconnected,
       };
     },
     props: {
@@ -380,6 +396,11 @@
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
       allowDownloads() {
         return Boolean(this.deviceId);
+      },
+      barTitle() {
+        return this.deviceId
+          ? this.learnString('exploreLibraries')
+          : (this.topic && this.topic.title) || '';
       },
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
