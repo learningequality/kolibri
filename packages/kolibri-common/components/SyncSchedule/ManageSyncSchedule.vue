@@ -18,7 +18,8 @@
 
 
         <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
-          <b>{{ facility.name }}</b>
+          <b v-if="facility">{{ facility.name }}</b>
+          <KCircularLoader v-else />
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
@@ -61,18 +62,20 @@
 
               <td v-if="data && data.length > 0">
                 <div v-for="ids in data" :key="ids.id">
-                  <span v-if="ids.id === device.id">
-                    <KIcon
-                      icon="onDevice"
-                    />
-                    <span>{{ $tr('connected') }}</span>
-                  </span>
-                  <span v-else>
-                    <KIcon
-                      icon="disconnected"
-                    />
-                    <span>{{ $tr('disconnected') }}</span>
-                  </span>
+                  <div v-if="ids.base_url === device.extra_metadata.baseurl">
+                    <span v-if="ids.available">
+                      <KIcon
+                        icon="onDevice"
+                      />
+                      <span>{{ $tr('connected') }}</span>
+                    </span>
+                    <span v-else>
+                      <KIcon
+                        icon="disconnected"
+                      />
+                      <span>{{ $tr('disconnected') }}</span>
+                    </span>
+                  </div>
                 </div>
               </td>
               <td v-else>
@@ -135,7 +138,7 @@
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
-            <div v-if="data.length > 0">
+            <div v-if="data && data.length > 0">
               <div v-for="btn in data" :key="btn.id">
                 <div>
                   <KRadioButton
@@ -186,7 +189,8 @@
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  // import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
+  import { PageNames } from '../../../../kolibri/plugins/device/assets/src/constants';
   import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
 
   export default {
@@ -198,6 +202,12 @@
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
+    // props: {
+    //   facility_id: {
+    //     type: String,
+    //     required: true,
+    //   },
+    // },
     data() {
       return {
         deviceModal: false,
@@ -219,14 +229,11 @@
       this.fetchFacility();
       this.fetchAddressesForLOD();
     },
-
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-          }
-        );
+        FacilityResource.fetchModel({ id: this.facility_id, force: true }).then(facility => {
+          this.facility = { ...facility };
+        });
       },
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
@@ -261,7 +268,7 @@
       },
       editButton(value) {
         if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
+          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE });
         } else {
           return window.location.href;
         }
