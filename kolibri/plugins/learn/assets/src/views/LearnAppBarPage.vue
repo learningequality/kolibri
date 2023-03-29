@@ -39,8 +39,7 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { useConnectionChecker, useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
-  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import useDeviceConnectionStatus from '../composables/useDeviceConnectionStatus';
   import LearnTopNav from './LearnTopNav';
 
   export default {
@@ -52,19 +51,7 @@
     },
     mixins: [commonCoreStrings],
     setup(props) {
-      const disconnected = ref(false);
-      const { devices } = useDevicesWithFacility();
-      const { doCheck } = useConnectionChecker(devices);
-      watch(devices, currentValue => {
-        if (!props.deviceId) return;
-        if (currentValue.length > 0) {
-          doCheck(props.deviceId).then(device => {
-            disconnected.value = !device.available;
-          });
-        } else {
-          disconnected.value = true;
-        }
-      });
+      const { disconnected } = useDeviceConnectionStatus(props.deviceId);
       return {
         disconnected,
       };
