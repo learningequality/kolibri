@@ -66,6 +66,19 @@
             </div>
           </template>
         </CoreMenu>
+
+        <span v-if="disconnected">
+          <span class="inner" style="font-size: 14px;">
+            {{ coreString('disconnected') }}
+          </span>
+          <KIconButton
+            icon="disconnected"
+            :tooltip="coreString('disconnected')"
+            :ariaLabel="coreString('disconnected')"
+          />
+        </span>
+
+
         <KIconButton
           v-for="action in barActions"
           :key="action.id"
@@ -142,6 +155,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
+  import { useConnectionChecker, useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import get from 'lodash/get';
   import LearningActivityIcon from './LearningActivityIcon.vue';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -159,6 +175,25 @@
       SuggestedTime,
     },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    setup(props, context) {
+      const disconnected = ref(false);
+      const { devices } = useDevicesWithFacility();
+      const { doCheck } = useConnectionChecker(devices);
+      const deviceId = get(context.root.$route, 'params.deviceId');
+      watch(devices, currentValue => {
+        if (!deviceId) return;
+        if (currentValue.length > 0) {
+          doCheck(deviceId).then(device => {
+            disconnected.value = !device.available;
+          });
+        } else {
+          disconnected.value = true;
+        }
+      });
+      return {
+        disconnected,
+      };
+    },
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
