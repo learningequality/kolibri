@@ -301,7 +301,6 @@
     },
     computed: {
       ...mapState(['rootNodes']),
-      // ...mapGetters(['isUserLoggedIn']),
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
           return 0;
@@ -331,16 +330,9 @@
     },
     created() {
       this.search();
-      // if (this.isUserLoggedIn) {
-      //   this.fetchDevices().then(devices => {
-      //     this.devices = devices.filter(d => d.available);
-      //   });
-      // }
-
       this.fetchDevices().then(devices => {
         this.devices = devices.filter(d => d.available);
         this.devices.forEach(device => {
-          console.log(device);
           this.fetchChannels({ baseurl: device.base_url }).then(channel => {
             if (channel.length > 0) {
               this.$set(device, 'channels', channel);
