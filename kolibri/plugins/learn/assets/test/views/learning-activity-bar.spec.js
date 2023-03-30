@@ -3,6 +3,8 @@ import { shallowMount, mount } from '@vue/test-utils';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
+jest.mock('../../src/composables/useDeviceConnectionStatus');
+
 function makeWrapper({ propsData } = {}) {
   return mount(LearningActivityBar, { propsData });
 }

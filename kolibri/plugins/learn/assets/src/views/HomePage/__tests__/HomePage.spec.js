@@ -13,6 +13,7 @@ import useLearnerResources, {
 } from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
 
+jest.mock('../../../composables/useDeviceConnectionStatus');
 jest.mock('../../../composables/useChannels');
 jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
