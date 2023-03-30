@@ -56,9 +56,10 @@
       <p>{{ $tr('version', { version: version }) }}</p>
     </div>
     <div
+      v-if="isPinnedDevice"
       style="text-align:right;margin-right:10px;margin-top:10px"
     >
-      <KIcon v-if="isPinned" icon="wifi" />
+      <KIcon icon="wifi" />
     </div>
 
   </router-link>
@@ -117,9 +118,9 @@
         required: false,
         default: null,
       },
-      isPinned: {
+      isPinnedDevice: {
         type: Boolean,
-        required: true,
+        required: false,
         default: false,
       },
     },

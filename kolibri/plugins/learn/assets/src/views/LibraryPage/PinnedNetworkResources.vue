@@ -16,7 +16,7 @@
         data-test="channel-cards"
         class="grid"
         :contents="device.channels"
-        :isPinned="true"
+        :isPinnedDevice="true"
       />
     </KGridItem>
   </KGrid>
