@@ -1,19 +1,34 @@
 <template>
+  <div>
+    <KGrid>
+      <KGridItem
+        v-for="device in devices"
+        :key="device.id"
+        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+      >
+        <UnPinnedDevices
+          :deviceName="device.device_name"
+          :channels="device.channels.length"
+          :allDevices="device"
+          :operatingSystem="device.operatingSystem"
+        />
+      </KGridItem>
+    </KGrid>
 
-  <KGrid>
-    <KGridItem
-      v-for="device in devices"
-      :key="device.id"
-      :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-    >
-      <UnPinnedDevices
-        :deviceName="device.device_name"
-        :channels="device.channels.length"
-        :allDevices="device"
-        :operatingSystem="device.operatingSystem"
-      />
-    </KGridItem>
-  </KGrid>
+    <KGrid>
+      <KGridItem
+        v-if="devices.length > 3"
+        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+      >
+        <div
+          class="card-main-wrapper"
+          :style="cardStyle"
+        >
+          <h5 style="padding:15px;margin:auto;margin-top: 15px;"> {{ coreString('viewAll') }} </h5>
+        </div>
+      </KGridItem>
+    </KGrid>
+  </div>
 
 </template>
 
@@ -21,6 +36,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -28,10 +44,12 @@
     components: {
       UnPinnedDevices,
     },
+    mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
+      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
       return {
         windowBreakpoint,
+        windowGutter
       };
     },
     props: {
@@ -49,6 +67,15 @@
         if (this.windowBreakpoint <= 3) return 6;
         if (this.windowBreakpoint <= 6) return 4;
         return 3;
+      },
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
+        };
       },
     },
   };

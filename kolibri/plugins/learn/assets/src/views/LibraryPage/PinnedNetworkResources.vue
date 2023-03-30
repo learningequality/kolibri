@@ -1,3 +1,4 @@
+<!-- eslint-disable vue/html-indent -->
 <template>
 
   <KGrid v-if="pinnedDevices !== null">
@@ -11,13 +12,29 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
+      <div class="card-layout">
+        <div class="cards">
+          <ChannelCardGroupGrid
+            data-test="channel-cards"
+            class="grid"
+            :contents="device.channels"
+            :isPinnedDevice="true"
+          />
+        </div>
+        <div class="cards">
+          <div
+            class="card-main-wrapper card-size"
+            :style="cardStyle"
+          >
+            <div style="margin:auto;">
+              <h1>
+                {{ coreString('explore') }}
+              </h1>
+            </div>
+          </div>
+        </div>
+      </div>
 
-      <ChannelCardGroupGrid
-        data-test="channel-cards"
-        class="grid"
-        :contents="device.channels"
-        :isPinnedDevice="true"
-      />
     </KGridItem>
   </KGrid>
 
@@ -27,6 +44,8 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useDevices from './../../composables/useDevices';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
 
@@ -35,13 +54,15 @@
     components: {
       ChannelCardGroupGrid,
     },
+    mixins:[responsiveWindowMixin, commonCoreStrings],
     setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
+      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
       const { baseurl, fetchDevices } = useDevices();
       return {
         windowBreakpoint,
         fetchDevices,
         baseurl,
+        windowGutter
       };
     },
     props: {
@@ -52,6 +73,17 @@
     },
     data() {
       return {};
+    },
+    computed: {
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
+        };
+      },
     },
     methods: {
       getDeviceIcon(device) {
@@ -97,6 +129,13 @@
       outline-width: 4px;
       outline-offset: 6px;
     }
+  }
+  .card-size{
+    width:340px;
+    height:340px;
+  }
+  .card-layout .cards{
+    float: left;
   }
 
   .cardgroup .card-main-wrapper {
