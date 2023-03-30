@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('header')"
+    :title="$tr('newAddressTitle')"
     :submitText="$tr('submitButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -134,10 +134,10 @@
       },
     },
     $trs: {
-      header: {
-        message: 'New address',
-        context:
-          'The title of the section that an admin accesses when they select the "Add new address" link in the Device > Facilities section.\n\nThey use this screen to add a new network address.',
+      newAddressTitle: {
+    message: 'New device',
+    context:
+      'Title of the menu where the user manually adds a new device device from where to import a facility',
       },
       addressDesc: {
         message:
