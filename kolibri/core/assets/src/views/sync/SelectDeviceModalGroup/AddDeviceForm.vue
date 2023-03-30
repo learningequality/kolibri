@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="$tr('newAddressTitle')"
+    :title="getCommonSyncString('newAddressTitle')"
     :submitText="$tr('submitButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -52,6 +52,7 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { createDevice } from './api';
 
@@ -65,7 +66,7 @@
     components: {
       UiAlert,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings,commonSyncElements],
     data() {
       return {
         address: '',
@@ -134,11 +135,6 @@
       },
     },
     $trs: {
-      newAddressTitle: {
-    message: 'New device',
-    context:
-      'Title of the menu where the user manually adds a new device device from where to import a facility',
-      },
       addressDesc: {
         message:
           "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
