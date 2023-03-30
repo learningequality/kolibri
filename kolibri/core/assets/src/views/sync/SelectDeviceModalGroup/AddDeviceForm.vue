@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="coreString('newAddresTitle')"
+    :title="$tr('header')"
     :submitText="$tr('submitButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
@@ -134,6 +134,11 @@
       },
     },
     $trs: {
+      header: {
+        message: 'New address',
+        context:
+          'The title of the section that an admin accesses when they select the "Add new address" link in the Device > Facilities section.\n\nThey use this screen to add a new network address.',
+      },
       addressDesc: {
         message:
           "The network address can be an IP and port like '192.168.0.100:8080' or a URL like 'example.com':",
