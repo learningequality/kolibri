@@ -66,7 +66,7 @@
     components: {
       UiAlert,
     },
-    mixins: [commonCoreStrings,commonSyncElements],
+    mixins: [commonCoreStrings, commonSyncElements],
     data() {
       return {
         address: '',
