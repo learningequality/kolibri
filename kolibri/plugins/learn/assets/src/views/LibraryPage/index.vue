@@ -70,7 +70,7 @@
                   </div>
                   <div>
                     <KButton appearance="basic-link">
-                      {{ getCommonSyncString('refresh') }}
+                      {{ coreString('refresh') }}
                     </KButton>
                   </div>
                   <div>
@@ -175,7 +175,6 @@
 
   import { mapState } from 'vuex';
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SidePanelModal from '../SidePanelModal';
@@ -214,7 +213,7 @@
       PinnedNetworkResources,
       MoreNetworkDevices,
     },
-    mixins: [commonLearnStrings, commonCoreStrings,commonSyncElements],
+    mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const {
         searchTerms,
