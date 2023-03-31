@@ -3,9 +3,9 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from .utils.network.ipaddress import AddressValueError
-from .utils.network.ipaddress import ip_address
 from kolibri.core.discovery.utils.network.client import NetworkClient
+from kolibri.core.discovery.utils.network.ipaddress import AddressValueError
+from kolibri.core.discovery.utils.network.ipaddress import ip_address
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
