@@ -71,7 +71,7 @@
     margin: auto;
     text-align: center;
   }
-
+  
   .card-title {
     margin: auto;
     margin-top: 100px;
