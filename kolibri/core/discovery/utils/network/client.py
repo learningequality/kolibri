@@ -8,7 +8,6 @@ from . import errors
 from .urls import get_normalized_url_variations
 from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
-from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
 
@@ -77,6 +76,8 @@ class NetworkClient(requests.Session):
 
     @classmethod
     def build_from_network_location(cls, network_location, timeout=None):
+        from kolibri.core.discovery.models import ConnectionStatus
+
         """
         Creates a NetworkClient for a NetworkLocation, and validates the connection if the status
         isn't already 'Okay'

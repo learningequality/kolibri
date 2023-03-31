@@ -30,6 +30,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "kolibri_version",
             "subset_of_users_device",
             "connection_status",
+            "is_local",
         )
         read_only_fields = (
             "available",
@@ -44,6 +45,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "kolibri_version",
             "subset_of_users_device",
             "connection_status",
+            "is_local",
         )
 
     def validate(self, data):
