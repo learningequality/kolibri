@@ -1,15 +1,24 @@
 import { shallowMount, mount } from '@vue/test-utils';
-
+import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
-jest.mock('../../src/composables/useDeviceConnectionStatus');
-
+jest.mock('kolibri.coreVue.componentSets.sync');
 function makeWrapper({ propsData } = {}) {
   return mount(LearningActivityBar, { propsData });
 }
 
 describe('LearningActivityBar', () => {
+  beforeEach(() => {
+    useDevicesWithFacility.mockReturnValue({
+      devices: [
+        {
+          id: '1',
+          available: true,
+        },
+      ],
+    });
+  });
   it('smoke test', () => {
     const wrapper = shallowMount(LearningActivityBar, {
       propsData: {

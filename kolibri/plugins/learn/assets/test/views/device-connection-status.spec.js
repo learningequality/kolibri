@@ -1,19 +1,23 @@
 import { shallowMount, mount } from '@vue/test-utils';
+import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import DeviceConnectionStatus from '../../src/views/DeviceConnectionStatus';
 
-import useDeviceConnectionStatus, {
-  // eslint-disable-next-line import/named
-  useDeviceConnectionStatusMock,
-} from '../../src/composables/useDeviceConnectionStatus';
+jest.mock('kolibri.coreVue.componentSets.sync');
 
-jest.mock('../../src/composables/useDeviceConnectionStatus');
 function makeWrapper({ propsData } = {}) {
   return mount(DeviceConnectionStatus, { propsData });
 }
 
 describe('DeviceConnectionStatus', () => {
   beforeEach(() => {
-    useDeviceConnectionStatus.mockImplementation(() => useDeviceConnectionStatusMock());
+    useDevicesWithFacility.mockReturnValue({
+      devices: [
+        {
+          id: '1',
+          available: true,
+        },
+      ],
+    });
   });
   it('smoke test', () => {
     const wrapper = shallowMount(DeviceConnectionStatus, {
@@ -30,13 +34,12 @@ describe('DeviceConnectionStatus', () => {
         deviceId: '1',
       },
     });
+
     expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeFalsy();
   });
 
   it('shows the disconnected icon', () => {
-    useDeviceConnectionStatus.mockImplementation(() =>
-      useDeviceConnectionStatusMock({ disconnected: true })
-    );
+    useDevicesWithFacility.mockReturnValue({ devices: [] });
     const wrapper = makeWrapper({
       propsData: {
         deviceId: '1',

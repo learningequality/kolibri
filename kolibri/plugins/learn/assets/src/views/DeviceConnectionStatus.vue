@@ -1,6 +1,6 @@
 <template>
 
-  <span v-if="disconnected">
+  <span v-if="!devices.some(device => device.id === deviceId && device.available)">
     <span class="inner" style="font-size: 14px;">
       {{ coreString('disconnected') }}
     </span>
@@ -19,15 +19,15 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDeviceConnectionStatus from '../composables/useDeviceConnectionStatus';
+  import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 
   export default {
     name: 'DeviceConnectionStatus',
     mixins: [commonCoreStrings],
-    setup(props) {
-      const { disconnected } = useDeviceConnectionStatus(props.deviceId);
+    setup() {
+      const { devices } = useDevicesWithFacility();
       return {
-        disconnected,
+        devices,
       };
     },
     props: {

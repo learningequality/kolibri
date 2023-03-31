@@ -2,6 +2,7 @@ import VueRouter from 'vue-router';
 
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
@@ -10,8 +11,7 @@ import TopicsPage from '../../src/views/TopicsPage';
 import useSearch, { useSearchMock } from '../../src/composables/useSearch';
 import plugin_data from 'plugin_data';
 
-jest.mock('../../src/composables/useDeviceConnectionStatus');
-
+jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('plugin_data', () => {
   return {
     __esModule: true,
@@ -66,6 +66,14 @@ describe('TopicsPage', () => {
       ...store.state.core,
       loading: false,
     };
+    useDevicesWithFacility.mockReturnValue({
+      devices: [
+        {
+          id: '1',
+          available: true,
+        },
+      ],
+    });
   });
 
   describe('When current topic modality is CUSTOM_NAVIGATION and custom channel nav is enabled', () => {
