@@ -4,6 +4,7 @@
     <ImmersivePage
       :appBarTitle="coreString('changeLearningFacility')"
       :route="$router.getRoute('PROFILE')"
+      :appearanceOverrides="wrapperStyles"
     >
       <KPageContainer>
         <router-view />
@@ -60,6 +61,14 @@
 
     computed: {
       ...mapGetters(['session', 'getUserKind']),
+      wrapperStyles() {
+        return {
+          maxWidth: '1064px',
+          margin: '0px auto auto',
+          padding: '96px 32px 72px',
+          backgroundColor: this.$themePalette.grey.v_100,
+        };
+      },
     },
 
     beforeRouteUpdate(to, from, next) {
