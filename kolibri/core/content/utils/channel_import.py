@@ -50,7 +50,10 @@ merge_models = [ContentTag, LocalFile, Language]
 models_not_to_overwrite = [LocalFile]
 
 models_to_exclude = [
-    apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages")
+    apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages"),
+    apps.get_model(CONTENT_APP_NAME, "ContentRequest"),
+    apps.get_model(CONTENT_APP_NAME, "ContentDownloadRequest"),
+    apps.get_model(CONTENT_APP_NAME, "ContentRemovalRequest"),
 ]
 
 
