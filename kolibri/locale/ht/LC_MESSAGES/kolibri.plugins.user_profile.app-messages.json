@@ -1,0 +1,15 @@
+{
+  "ChangeUserPasswordModal.passwordChangeFormHeader": "Chanje mo sekrè",
+  "ChangeUserPasswordModal.passwordChangedNotification": "Yo te chanje modpas ou an.",
+  "ProfileEditPage.editProfileHeader": "Modifye pwofil",
+  "ProfilePage.changePasswordPrompt": "Chanje modpas la",
+  "ProfilePage.detailsHeader": "Detay yo",
+  "ProfilePage.documentTitle": "Pwofil itilizatè",
+  "ProfilePage.editAction": "Modifye",
+  "ProfilePage.isSuperuser": "Pèmisyon sipè administratè ",
+  "ProfilePage.limitedPermissions": "Pèmisyon limite",
+  "ProfilePage.manageContent": "Jere chanèl yo ak resous yo",
+  "ProfilePage.manageDevicePermissions": "Jere pèmisyon sou aparèy yo",
+  "ProfilePage.points": "Pwen yo",
+  "ProfilePage.youCan": "Ou kapab:"
+}
