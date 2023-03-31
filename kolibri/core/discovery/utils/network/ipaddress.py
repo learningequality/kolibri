@@ -53,6 +53,10 @@ def ip_address(address):
     raise ValueError(f"{address!r} does not appear to be an IPv4 or IPv6 address")
 
 
+def is_ascii(s):
+    return all(ord(c) < 128 for c in s)
+
+
 class _IPAddressBase:
 
     """The mother class."""
@@ -163,7 +167,7 @@ class _IPAddressBase:
         """
         # int allows a leading +/- as well as surrounding whitespace,
         # so we ensure that isn't the case
-        if not (prefixlen_str.isascii() and prefixlen_str.isdigit()):
+        if not (is_ascii(prefixlen_str) and prefixlen_str.isdigit()):
             cls._report_invalid_netmask(prefixlen_str)
         try:
             prefixlen = int(prefixlen_str)
@@ -441,11 +445,11 @@ class _BaseNetwork(_IPAddressBase):
             or (other.network_address in self or (other.broadcast_address in self))
         )
 
-    @property
+    @functools.cached_property
     def broadcast_address(self):
         return self._address_class(int(self.network_address) | int(self.hostmask))
 
-    @property
+    @functools.cached_property
     def hostmask(self):
         return self._address_class(int(self.netmask) ^ self._ALL_ONES)
 
@@ -916,7 +920,7 @@ class _BaseV4:
         if not octet_str:
             raise ValueError("Empty octet not permitted")
         # Reject non-ASCII digits.
-        if not (octet_str.isascii() and octet_str.isdigit()):
+        if not (is_ascii(octet_str) and octet_str.isdigit()):
             msg = "Only decimal digits permitted in %r"
             raise ValueError(msg % octet_str)
         # We do the length check second, since the invalid character error
