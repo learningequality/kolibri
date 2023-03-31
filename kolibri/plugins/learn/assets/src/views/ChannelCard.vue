@@ -57,7 +57,7 @@
     </div>
     <div
       v-if="isPinnedDevice"
-      style="text-align:right;margin-right:10px;margin-top:10px"
+      class="wifi-icon"
     >
       <KIcon icon="wifi" />
     </div>
@@ -220,6 +220,13 @@
       padding: $margin;
       margin-bottom: 0;
     }
+  }
+
+  .wifi-icon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
   }
 
 </style>

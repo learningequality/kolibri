@@ -1,5 +1,6 @@
-<!-- eslint-disable vue/html-indent -->
 <template>
+
+  <!-- eslint-disable vue/html-indent -->
 
   <KGrid v-if="pinnedDevices !== null">
     <KGridItem
@@ -19,19 +20,12 @@
             class="grid"
             :contents="device.channels"
             :isPinnedDevice="true"
-          />
-        </div>
-        <div class="cards">
-          <div
-            class="card-main-wrapper card-size"
-            :style="cardStyle"
           >
-            <div style="margin:auto;">
-              <h1>
-                {{ coreString('explore') }}
-              </h1>
-            </div>
-          </div>
+            <ExploreCard
+              :style="cardStyle"
+              class="card-main-wrapper"
+            />
+          </ChannelCardGroupGrid>
         </div>
       </div>
 
@@ -48,13 +42,15 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useDevices from './../../composables/useDevices';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
+  import ExploreCard from './ExploreCard';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
       ChannelCardGroupGrid,
+      ExploreCard,
     },
-    mixins:[responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
       const { baseurl, fetchDevices } = useDevices();
@@ -62,7 +58,7 @@
         windowBreakpoint,
         fetchDevices,
         baseurl,
-        windowGutter
+        windowGutter,
       };
     },
     props: {
@@ -113,9 +109,10 @@
 
     position: relative;
     display: inline-flex;
-    width: 100%;
-    max-height: 258px;
+    width: 350px;
+    max-height: 270px;
     padding-bottom: $margin;
+    margin-left: 8px;
     text-decoration: none;
     vertical-align: top;
     border-radius: $radius;
@@ -130,11 +127,8 @@
       outline-offset: 6px;
     }
   }
-  .card-size{
-    width:340px;
-    height:340px;
-  }
-  .card-layout .cards{
+
+  .card-layout .cards {
     float: left;
   }
 

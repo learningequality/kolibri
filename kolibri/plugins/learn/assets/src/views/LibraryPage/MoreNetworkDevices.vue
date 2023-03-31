@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <KGrid>
       <KGridItem
@@ -13,20 +14,7 @@
           :operatingSystem="device.operatingSystem"
         />
       </KGridItem>
-    </KGrid>
-
-    <KGrid>
-      <KGridItem
-        v-if="devices.length > 3"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-      >
-        <div
-          class="card-main-wrapper"
-          :style="cardStyle"
-        >
-          <h5 style="padding:15px;margin:auto;margin-top: 15px;"> {{ coreString('viewAll') }} </h5>
-        </div>
-      </KGridItem>
+      <slot></slot>
     </KGrid>
   </div>
 
@@ -49,7 +37,7 @@
       const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
       return {
         windowBreakpoint,
-        windowGutter
+        windowGutter,
       };
     },
     props: {
@@ -68,14 +56,14 @@
         if (this.windowBreakpoint <= 6) return 4;
         return 3;
       },
-      cardStyle() {
-        return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
-          marginBottom: `${this.windowGutter}px`,
-          minHeight: `${this.overallHeight}px`,
-          textAlign: 'center',
-        };
+    },
+    mounted() {
+      this.setNetworkDeviceChannels(this.devices, this.devices, this.devices.length);
+    },
+    methods: {
+      setNetworkDeviceChannels(device, channels, total) {
+        this.$set(device, 'channels', channels.slice(0, 4));
+        this.$set(device, 'total_channels', total);
       },
     },
   };

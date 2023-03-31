@@ -98,9 +98,29 @@
         <div>
           <h2>{{ $tr('moreLibraries') }}</h2>
           <MoreNetworkDevices
-            v-if="pinnedDevices"
-            :devices="pinnedDevices"
-          />
+            v-if="unPinnedDevices"
+            :devices="unPinnedDevices"
+          >
+            <KGrid>
+              <KGridItem
+                :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+                class="view-all-card"
+              >
+                <div
+                  class="card-main-wrapper"
+                  :style="cardStyle"
+                >
+                  <span>
+                    <TextTruncator
+                      :text="coreString('viewAll')"
+                      :maxHeight="52"
+                      class="view-all-text"
+                    />
+                  </span>
+                </div>
+              </KGridItem>
+            </KGrid>
+          </MoreNetworkDevices>
         </div>
 
       </div>
@@ -177,6 +197,7 @@
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import SidePanelModal from '../SidePanelModal';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useDevices from '../../composables/useDevices';
@@ -212,6 +233,7 @@
       LearnAppBarPage,
       PinnedNetworkResources,
       MoreNetworkDevices,
+      TextTruncator,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
@@ -296,6 +318,7 @@
         devices: [],
         searching: true,
         pinnedDevices: [],
+        unPinnedDevices: [],
       };
     },
     computed: {
@@ -314,6 +337,21 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px` }
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
+        };
+      },
+      cardColumnSpan() {
+        if (this.windowBreakpoint <= 2) return 4;
+        if (this.windowBreakpoint <= 3) return 6;
+        if (this.windowBreakpoint <= 6) return 4;
+        return 3;
+      },
     },
     watch: {
       searchTerms() {
@@ -330,15 +368,18 @@
     created() {
       this.search();
       this.fetchDevices().then(devices => {
+        const storeUnpinnedDevices = [];
         this.devices = devices.filter(d => d.available);
         this.devices.forEach(device => {
           this.fetchChannels({ baseurl: device.base_url }).then(channel => {
             if (channel.length > 0) {
               this.$set(device, 'channels', channel);
               this.pinnedDevices.push(device);
+              storeUnpinnedDevices.push(device);
             }
           });
         });
+        this.setLimitToDevices(storeUnpinnedDevices);
       });
     },
     methods: {
@@ -347,6 +388,11 @@
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
+      },
+      setLimitToDevices(devices) {
+        // TODO - Ensuring that the display of devices is
+        // limited to 4 devices before the view all card is clicked
+        this.unPinnedDevices = devices;
       },
     },
     $trs: {
@@ -382,6 +428,32 @@
 
 <style lang="scss" scoped>
 
+  @import '~kolibri-design-system/lib/styles/definitions';
+  @import '../HybridLearningContentCard/card';
+
+  .card-main-wrapper {
+    @extend %dropshadow-1dp;
+
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+    max-height: 258px;
+    padding-bottom: $margin;
+    text-decoration: none;
+    vertical-align: top;
+    border-radius: $radius;
+    transition: box-shadow $core-time ease;
+
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
+
+    &:focus {
+      outline-width: 4px;
+      outline-offset: 6px;
+    }
+  }
+
   .main-grid {
     margin-top: 140px;
     margin-right: 24px;
@@ -406,6 +478,20 @@
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
+  }
+
+  .view-all-text {
+    padding: 60px;
+    margin-left: 60px;
+    font-size: 20px;
+    font-weight: bold;
+    text-align: center;
+  }
+
+  .view-all-card {
+    width: 370px;
+    margin-left: 10px;
+    cursor: pointer;
   }
 
 </style>
