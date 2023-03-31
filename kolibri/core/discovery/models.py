@@ -132,7 +132,7 @@ class StaticNetworkLocation(NetworkLocation):
         try:
             client = NetworkClient.build_from_network_location(self)
             return ip_address(client.remote_ip).is_private
-        except AddressValueError:
+        except (AddressValueError, ValueError):
             return False
 
 
