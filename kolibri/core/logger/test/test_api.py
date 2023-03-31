@@ -5,10 +5,12 @@ Also tests whether the users with permissions can create logs.
 """
 import csv
 import datetime
+import os
 import sys
 import tempfile
 import uuid
 
+import mock
 import pytz
 from django.core.management import call_command
 from django.urls import reverse
@@ -21,11 +23,17 @@ from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
 from .helpers import EvaluationMixin
+from kolibri.core.auth.management.commands.bulkexportusers import (
+    CSV_EXPORT_FILENAMES as USER_CSV_EXPORT_FILENAMES,
+)
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.logger.csv_export import labels
+from kolibri.core.logger.tasks import get_filepath
+from kolibri.core.logger.tasks import log_exports_cleanup
+from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 
 
@@ -141,6 +149,66 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
                 log_type="summary", facility=self.facility.id
             ).exists()
         )
+
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_cleanup(self, mock_enqueue):
+        # generate summary csv
+        log_type = "summary"
+        start_date = "2023-03-05 00:00:00"
+        end_date = "2023-03-10 00:00:00"
+        filepath = get_filepath(log_type, self.facility.id, start_date, end_date)
+        call_command(
+            "exportlogs",
+            log_type=log_type,
+            output_file=filepath,
+            overwrite=True,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        # generate another summary csv
+        start_date_2 = "2023-03-11 00:00:00"
+        end_date_2 = "2023-03-12 00:00:00"
+        filepath_2 = get_filepath(log_type, self.facility.id, start_date_2, end_date_2)
+        call_command(
+            "exportlogs",
+            log_type=log_type,
+            output_file=filepath_2,
+            overwrite=True,
+            start_date=start_date_2,
+            end_date=end_date_2,
+        )
+        # generate users csv
+        call_command(
+            "bulkexportusers",
+            facility=self.facility.id,
+            overwrite=True,
+        )
+        # execute cleanup
+        # latest should persist and the old one should be deleted
+        log_exports_cleanup()
+
+        logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
+        # currently there are two file. logs export and users csv export
+        assert len(os.listdir(logs_dir)) == 2
+        assert os.path.basename(filepath_2) in os.listdir(logs_dir)
+        assert os.path.basename(filepath) not in os.listdir(logs_dir)
+
+        # make sure the csv file for the record saved in the database exists
+        log_request = GenerateCSVLogRequest.objects.get(log_type=log_type)
+        date_format = "%Y-%m-%d"
+        expected_file_path = get_filepath(
+            log_request.log_type,
+            log_request.facility_id,
+            log_request.selected_start_date.strftime(date_format),
+            log_request.selected_end_date.strftime(date_format),
+        )
+        expected_users_csv_file_path = USER_CSV_EXPORT_FILENAMES["user"].format(
+            self.facility.name, self.facility.id[:4]
+        )
+        assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
+        assert expected_users_csv_file_path in os.listdir(logs_dir)
+        assert mock_enqueue.has_calls(2)
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
@@ -279,6 +347,66 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
                 log_type="session", facility=self.facility.id
             ).exists()
         )
+
+    @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
+    def test_csv_cleanup(self, mock_enqueue):
+        # generate session csv
+        log_type = "session"
+        start_date = "2023-03-05 00:00:00"
+        end_date = "2023-03-10 00:00:00"
+        filepath = get_filepath(log_type, self.facility.id, start_date, end_date)
+        call_command(
+            "exportlogs",
+            log_type=log_type,
+            output_file=filepath,
+            overwrite=True,
+            start_date=start_date,
+            end_date=end_date,
+        )
+
+        # generate another session csv
+        start_date_2 = "2023-03-11 00:00:00"
+        end_date_2 = "2023-03-12 00:00:00"
+        filepath_2 = get_filepath(log_type, self.facility.id, start_date_2, end_date_2)
+        call_command(
+            "exportlogs",
+            log_type=log_type,
+            output_file=filepath_2,
+            overwrite=True,
+            start_date=start_date_2,
+            end_date=end_date_2,
+        )
+        # generate users csv
+        call_command(
+            "bulkexportusers",
+            facility=self.facility.id,
+            overwrite=True,
+        )
+        # execute cleanup
+        # latest csv should persist and the old one should be deleted
+        log_exports_cleanup()
+
+        logs_dir = os.path.join(conf.KOLIBRI_HOME, "log_export")
+        # currently there are two file. logs export and users csv export
+        assert len(os.listdir(logs_dir)) == 2
+        assert os.path.basename(filepath_2) in os.listdir(logs_dir)
+        assert os.path.basename(filepath) not in os.listdir(logs_dir)
+
+        # make sure the csv file for the record saved in the database exists
+        log_request = GenerateCSVLogRequest.objects.get(log_type=log_type)
+        date_format = "%Y-%m-%d"
+        expected_file_path = get_filepath(
+            log_request.log_type,
+            log_request.facility_id,
+            log_request.selected_start_date.strftime(date_format),
+            log_request.selected_end_date.strftime(date_format),
+        )
+        expected_users_csv_file_path = USER_CSV_EXPORT_FILENAMES["user"].format(
+            self.facility.name, self.facility.id[:4]
+        )
+        assert os.path.basename(expected_file_path) in os.listdir(logs_dir)
+        assert expected_users_csv_file_path in os.listdir(logs_dir)
+        assert mock_enqueue.has_calls(2)
 
 
 class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):

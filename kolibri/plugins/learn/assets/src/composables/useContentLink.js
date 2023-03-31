@@ -2,7 +2,7 @@ import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-import { PageNames } from '../constants';
+import { ExternalPagePaths, PageNames } from '../constants';
 
 export default function useContentLink(store) {
   // Get store reference from the curent instance
@@ -45,6 +45,29 @@ export default function useContentLink(store) {
       query.prevParams = encodeURI(JSON.stringify(params));
     }
     return _makeLink(id, isResource, query);
+  }
+
+  function genExternalContentURLBackLinkCurrentPage(id) {
+    const pathname = window.location.pathname;
+    const learnIndex = pathname.indexOf('/learn');
+    const base = pathname.slice(0, learnIndex) + '/learn/#';
+    if (!route) {
+      return base;
+    }
+    const oldQuery = get(route).query || {};
+    const query = {
+      prevName: get(route).name,
+    };
+    if (!isEmpty(oldQuery)) {
+      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
+    }
+    const params = get(route).params;
+    if (!isEmpty(params)) {
+      query.prevParams = encodeURI(JSON.stringify(params));
+    }
+    const path = `/topics/c/${id}`;
+
+    return `${base}${path}?${new URLSearchParams(query)}`;
   }
 
   /**
@@ -90,9 +113,24 @@ export default function useContentLink(store) {
     };
   });
 
+  function genExternalBackURL() {
+    const pathname = window.location.pathname;
+    const learnIndex = pathname.indexOf('/learn');
+    const base = pathname.slice(0, learnIndex) + '/learn';
+    const backValue = get(back);
+    if (!backValue) {
+      return base;
+    }
+    const query = backValue.query ? `#/?${new URLSearchParams(backValue.query)}` : '';
+    const path = ExternalPagePaths[backValue.name];
+    return `${base}${path}${query}`;
+  }
+
   return {
     genContentLinkBackLinkCurrentPage,
     genContentLinkKeepCurrentBackLink,
+    genExternalContentURLBackLinkCurrentPage,
+    genExternalBackURL,
     back,
   };
 }

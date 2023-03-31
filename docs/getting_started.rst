@@ -297,6 +297,29 @@ and in the second terminal, start the webpack build process for frontend assets:
   yarn run frontend-devserver
 
 
+Running in App Mode
+~~~~~~~~~~~~~~~~~~~
+
+Some of Kolibri's functionality will differ when being run as a mobile app. In order to run the development server in that "app mode" context, you can use the following commands.
+
+.. code-block:: bash
+
+   # run the Python "app mode" server and the frontend server together:
+   yarn run app-devserver
+
+   # you may also run the python "app mode" server by itself
+   # this will require you to run the frontend server in a separate terminal
+   yarn run app-python-devserver
+
+This will run the script located at ``integration_testing/scripts/run_kolibri_app_mode.py``. There you may change the port, register app capabilities (ie, ``os_user``) and make adjustments to meet your needs.
+
+When the app development server is started, you will see a message with a particular URL that you will need to use in order to initialize your browser session properly. Once your browser session has been initialized for use in the app mode, your browser session will remain in this mode until you clear your cookies, even if you've started your normal Kolibri development server.
+
+.. code-block:: bash
+
+   [app-python-devserver] Kolibri running at: http://127.0.0.1:8000/app/api/initialize/6b91ec2b697042c2b360235894ad2632
+
+
 Editor configuration
 --------------------
 
