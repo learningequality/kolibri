@@ -441,11 +441,11 @@ class _BaseNetwork(_IPAddressBase):
             or (other.network_address in self or (other.broadcast_address in self))
         )
 
-    @functools.cached_property
+    @property
     def broadcast_address(self):
         return self._address_class(int(self.network_address) | int(self.hostmask))
 
-    @functools.cached_property
+    @property
     def hostmask(self):
         return self._address_class(int(self.netmask) ^ self._ALL_ONES)
 
