@@ -139,22 +139,18 @@
     },
     methods: {
       isActiveLink(route) {
-        // temporary second condition to account for downloads route structure
-        if (!this.$route.name || this.$route.name != 'MY_DOWNLOADS') {
-          return route.includes(this.$route.path);
-        }
+        return `${this.link}#${route}` === `${window.location.pathname}${window.location.hash}`;
       },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
-          // temporary second condition to account for downloads route structure
-          window.location.pathname.includes(this.link) && this.$route.name != 'MY_DOWNLOADS'
+          window.location.pathname === this.link
             ? (this.visibleSubMenu = true)
             : (this.visibleSubMenu = false);
         }
         return false;
       },
       subpathStyles(route) {
-        if (this.isActiveLink(route) && this.$router.currentRoute.name != 'PROFILE') {
+        if (this.isActiveLink(route)) {
           return {
             color: this.$themeTokens.primaryDark,
             fontWeight: 'bold',
