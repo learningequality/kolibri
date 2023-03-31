@@ -29,6 +29,10 @@ def other_side_using_single_user_cert(context):
     return _get_their_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
 
 
+def get_dataset_id(context):
+    return _get_our_cert(context).get_root().id
+
+
 def get_user_id_for_single_user_sync(context):
     if other_side_using_single_user_cert(context):
         cert = _get_their_cert(context)
@@ -56,7 +60,7 @@ def get_other_side_kolibri_version(context):
 
 def _extract_kwargs_from_context(context):
     return {
-        "dataset_id": _get_our_cert(context).get_root().id,
+        "dataset_id": get_dataset_id(context),
         "local_is_single_user": this_side_using_single_user_cert(context),
         "remote_is_single_user": other_side_using_single_user_cert(context),
         "single_user_id": get_user_id_for_single_user_sync(context),
