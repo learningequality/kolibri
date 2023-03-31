@@ -101,6 +101,9 @@
           (a, b) => {
             const dateA = new Date(a.scheduled_datetime)
             const dateB = new Date(b.scheduled_datetime)
+
+            if (dateA === dateB) return 0;
+
             return (dateA > dateB) ? 1 : -1
           }
         )
