@@ -37,7 +37,9 @@ class NetworkLocationResponseFailure(NetworkClientError):
     Successfully connected to the network location but the response is malformed or an HTTP failure
     """
 
-    pass
+    def __init__(self, *args, **kwargs):
+        self.response = kwargs.pop("response", None)
+        super(NetworkLocationResponseFailure, self).__init__(*args, **kwargs)
 
 
 class NetworkLocationInvalidResponse(NetworkClientError):
