@@ -53,6 +53,9 @@
           />
         </span>
       </template>
+      <template #actions>
+        <slot name="actions"></slot>
+      </template>
     </UiToolbar>
   </header>
 

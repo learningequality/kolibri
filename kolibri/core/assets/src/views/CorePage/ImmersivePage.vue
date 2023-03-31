@@ -8,7 +8,11 @@
         :route="route"
         :icon="icon"
         :isFullscreen="primary"
-      />
+      >
+        <template #actions>
+          <slot name="actions"></slot>
+        </template>
+      </ImmersiveToolbar>
       <KLinearLoader
         v-if="loading"
         type="indeterminate"

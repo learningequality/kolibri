@@ -5,6 +5,7 @@ import TopicsPage from '../../src/views/TopicsPage';
 import makeStore from '../makeStore';
 import { PageNames } from '../../src/constants';
 
+jest.mock('kolibri.resources');
 jest.mock('plugin_data', () => {
   return {
     __esModule: true,
