@@ -38,10 +38,12 @@
         </template>
 
         <template #actions>
-          <div aria-live="polite" 
-          :style="{
-            paddingBottom: '6px',
-          }">
+          <div
+            aria-live="polite"
+            :style="{
+              paddingBottom: '6px',
+            }"
+          >
             <slot name="app-bar-actions"></slot>
             <span v-if="isLearner">
               <KIconButton
