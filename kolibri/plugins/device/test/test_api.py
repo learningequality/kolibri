@@ -263,7 +263,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             data={"channel_id": self.the_channel_id},
             format="json",
         )
-        self.assertEqual(response.data["resource_count"], 3)
+        self.assertEqual(response.data["resource_count"], 2)
         self.assertEqual(
             response.data["file_size"],
             sum(
@@ -310,7 +310,7 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             data={"channel_id": self.the_channel_id, "export": True},
             format="json",
         )
-        self.assertEqual(response.data["resource_count"], 3)
+        self.assertEqual(response.data["resource_count"], 2)
         self.assertEqual(
             response.data["file_size"],
             sum(

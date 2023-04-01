@@ -1,5 +1,8 @@
 const path = require('path');
+const logger = require('../logging');
 const { writeSourceToFile } = require('./utils');
+
+const logging = logger.getLogger('Kolibri Intl Data');
 
 module.exports = function(outputDir, languageInfoPath) {
   const languageInfo = require(languageInfoPath);
@@ -31,7 +34,21 @@ module.exports = function(outputDir, languageInfoPath) {
 
     // Exclude ach-ug language that is defined in language_info.json
     if (vue_intl_code !== 'ach') {
-      return `data.push(require('vue-intl/locale-data/${vue_intl_code}.js'));`;
+      let module_path = `vue-intl/locale-data/${vue_intl_code}.js`;
+      try {
+        require.resolve(module_path);
+      } catch (e) {
+        module_path = `kolibri-tools/lib/i18n/locale-data/vue-intl/${vue_intl_code}.js`;
+        try {
+          require.resolve(module_path);
+        } catch (e) {
+          logging.error(
+            `${vue_intl_code} not available from vue-intl locale data and no kolibri-tools locale data found`
+          );
+          throw new Error('No vue-intl locale data');
+        }
+      }
+      return `data.push(require('${module_path}'));`;
     }
   }
 
@@ -91,13 +108,27 @@ module.exports = function(outputDir, languageInfoPath) {
 
     // Exclude ach-ug language that is defined in language_info.json
     if (language.intl_code !== 'ach-ug') {
+      let module_path = `intl/locale-data/jsonp/${filename}.js`;
+      try {
+        require.resolve(module_path);
+      } catch (e) {
+        module_path = `kolibri-tools/lib/i18n/locale-data/intl/${filename}.js`;
+        try {
+          require.resolve(module_path);
+        } catch (e) {
+          logging.error(
+            `${language.intl_code} not available from intl locale data and no kolibri-tools locale data found`
+          );
+          throw new Error('No intl locale data');
+        }
+      }
       return `
       case '${language.intl_code}':
         return new Promise(function(resolve) {
           require.ensure(
-            ['intl/locale-data/jsonp/${filename}.js'],
+            ['${module_path}'],
             function(require) {
-              resolve(() => require('intl/locale-data/jsonp/${filename}.js'));
+              resolve(() => require('${module_path}'));
             }
           );
         });`;

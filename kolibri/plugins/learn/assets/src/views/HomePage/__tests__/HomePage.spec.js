@@ -2,6 +2,7 @@ import { shallowMount, mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
+import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import { ClassesPageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
@@ -12,23 +13,14 @@ import useLearnerResources, {
   useLearnerResourcesMock,
 } from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
-
+jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('../../../composables/useChannels');
 jest.mock('../../../composables/useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');
-
-jest.mock('kolibri.utils.coreStrings', () => {
-  const translations = {
-    readReference: 'Reference',
-  };
-  return {
-    $tr: jest.fn(key => {
-      return translations[key];
-    }),
-  };
-});
+// Needed to test anything using mount() where children use this composable
+jest.mock('../../../composables/useLearningActivities');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -95,6 +87,14 @@ describe(`HomePage`, () => {
     useUser.mockImplementation(() => useUserMock());
     useDeviceSettings.mockImplementation(() => useDeviceSettingsMock());
     useLearnerResources.mockImplementation(() => useLearnerResourcesMock());
+    useDevicesWithFacility.mockReturnValue({
+      devices: [
+        {
+          id: '1',
+          available: true,
+        },
+      ],
+    });
   });
 
   it(`smoke test`, () => {

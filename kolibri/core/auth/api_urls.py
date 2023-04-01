@@ -6,6 +6,7 @@ from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
 from .api import FacilityViewSet
+from .api import IsPINValidView
 from .api import LearnerGroupViewSet
 from .api import MembershipViewSet
 from .api import RoleViewSet
@@ -48,6 +49,11 @@ urlpatterns = (
             r"^usernameavailable$",
             UsernameAvailableView.as_view(),
             name="usernameavailable",
+        ),
+        url(
+            r"^ispinvalid/(?P<pk>[a-f0-9]{32})$",
+            IsPINValidView.as_view(),
+            name="ispinvalid",
         ),
     ]
 )

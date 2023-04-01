@@ -74,14 +74,16 @@ jobs:
           script: |
             const utils = require('./.github/githubUtils.js')
             const filesToUpload = [
-              'dist/${{ needs.whl.outputs.whl-file-name }}',
-              'dist/${{ needs.pex.outputs.pex-file-name }}',
-              'dist/${{ needs.dmg.outputs.dmg-file-name }}',
-              'dist/${{ needs.deb.outputs.deb-file-name }}',
-              'dist/${{ needs.exe.outputs.exe-file-name }}',
+              // When you download all artifacts, the artifact downloader action puts each one into
+              // a directory named for the artifact, for reasons, so we have to do this doubling up.
+              'dist/${{ needs.whl.outputs.whl-file-name }}/${{ needs.whl.outputs.whl-file-name }}',
+              'dist/${{ needs.pex.outputs.pex-file-name }}/${{ needs.pex.outputs.pex-file-name }}',
+              'dist/${{ needs.dmg.outputs.dmg-file-name }}/${{ needs.dmg.outputs.dmg-file-name }}',
+              'dist/${{ needs.deb.outputs.deb-file-name }}/${{ needs.deb.outputs.deb-file-name }}',
+              'dist/${{ needs.exe.outputs.exe-file-name }}/${{ needs.exe.outputs.exe-file-name }}',
             ]
             for (let filePath of filesToUpload) {
-              await utils.uploadReleaseAsset(github, context, filePath, '${{ github.event.release.release_id }}')
+              await utils.uploadReleaseAsset(github, context, filePath, '${{ github.event.release.id }}')
             }
   block_release_step:
   # This step ties to the release environment which requires manual approval

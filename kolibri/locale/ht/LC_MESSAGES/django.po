@@ -1,0 +1,242 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: kolibri\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2021-11-01 22:12-0700\n"
+"PO-Revision-Date: 2023-02-28 02:18\n"
+"Last-Translator: \n"
+"Language-Team: Haitian Creole\n"
+"Language: ht_HT\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Crowdin-Project: kolibri\n"
+"X-Crowdin-Project-ID: 201933\n"
+"X-Crowdin-Language: ht\n"
+"X-Crowdin-File: /release-v0.15.x/django.po\n"
+"X-Crowdin-File-ID: 4105\n"
+
+#: core/auth/constants/commands_errors.py:17
+msgid "Unexpected exception [{}]: {}"
+msgstr "Eksepsyon yo pa t atann [{}]: {}"
+
+#: core/auth/constants/commands_errors.py:20
+msgctxt "Error report message when the allowed number of digits has been exceeded."
+msgid "Content of cell '{}' is too long"
+msgstr "Kontni selil '{}' twò long"
+
+#: core/auth/constants/commands_errors.py:24
+msgctxt "Error report message when the cell contains an improper data format."
+msgid "Content of cell '{}' is not valid"
+msgstr "Kontni selil '{}' pa valid"
+
+#: core/auth/constants/commands_errors.py:26
+msgid "Duplicated username"
+msgstr "Non itilizatè sa egziste deja"
+
+#: core/auth/constants/commands_errors.py:28
+#: core/auth/management/commands/bulkimportusers.py:85
+msgid "Username only can contain characters, numbers and underscores"
+msgstr "Non itilizatè a ka sèlman genyen karaktè, chif ak siy soutirè"
+
+#: core/auth/constants/commands_errors.py:30
+msgid "The column '{}' is required"
+msgstr "Kolòn '{}' obligatwa"
+
+#: core/auth/constants/commands_errors.py:31
+msgid "Mix of valid and/or invalid header labels found in first row"
+msgstr "Yo jwenn yon melanj etikèt antèt valid ak/oubyen pa valid nan premye liy lan"
+
+#: core/auth/constants/commands_errors.py:33
+msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
+msgstr "Okenn enstalasyon predefini pa egziste. Asire w ou konfigire yon enstalasyon sou aparèy la anvan w egzekite kòmann sa"
+
+#: core/auth/constants/commands_errors.py:35
+#: core/auth/management/commands/bulkimportusers.py:99
+msgid "Error trying to read csv file: {}"
+msgstr "Erè pandan y ap eseye li fichye csv a: {}"
+
+#: core/auth/constants/commands_errors.py:36
+#: core/auth/management/commands/bulkimportusers.py:100
+msgid "Error trying to write csv file: {}"
+msgstr "Erè pandan y ap eseye ekri fichye csv: {}"
+
+#: core/auth/management/commands/bulkexportusers.py:42
+#: core/auth/management/commands/bulkexportusers.py:124
+msgid "Database ID ({})"
+msgstr "Idantifyan baz done ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:43
+#: core/auth/management/commands/bulkexportusers.py:125
+msgid "Username ({})"
+msgstr "Non itilizatè ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:44
+#: core/auth/management/commands/bulkexportusers.py:126
+msgid "Password ({})"
+msgstr "Modpas ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:45
+#: core/auth/management/commands/bulkexportusers.py:127
+msgid "Full name ({})"
+msgstr "Non konplè ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:50
+msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Tip itilizatè ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:53
+#: core/auth/management/commands/bulkexportusers.py:135
+msgid "Identifier ({})"
+msgstr "Idantifyan ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:54
+#: core/auth/management/commands/bulkexportusers.py:136
+msgid "Birth year ({})"
+msgstr "Ane nesans ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:55
+#: core/auth/management/commands/bulkexportusers.py:137
+msgid "Gender ({})"
+msgstr "Sèks ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:60
+msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Enskripsyon etidyan ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:67
+msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Atribisyon edikatè ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:132
+msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
+msgid "User type ({})"
+msgstr "Tip itilizatè ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:142
+msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
+msgid "Learner enrollment ({})"
+msgstr "Enskripsyon etidyan ({})"
+
+#: core/auth/management/commands/bulkexportusers.py:149
+msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
+msgid "Coach assignment ({})"
+msgstr "Atribisyon edikatè ({})"
+
+#: core/auth/management/commands/bulkimportusers.py:76
+msgctxt "Error message that might appear when there's a programming error importing a CSV file"
+msgid "Unexpected error [{}]: {}"
+msgstr "Erè yo pa t atann [{}]: {}"
+
+#: core/auth/management/commands/bulkimportusers.py:80
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "Value in column '{}' has too many characters"
+msgstr "Valè nan kolòn lan '{}' gen twòp karaktè"
+
+#: core/auth/management/commands/bulkimportusers.py:82
+msgid "Value in column '{}' not valid"
+msgstr "Valè nan kolòn lan '{}' pa valid"
+
+#: core/auth/management/commands/bulkimportusers.py:83
+msgid "Username is duplicated"
+msgstr "Non itilizatè a egziste deja"
+
+#: core/auth/management/commands/bulkimportusers.py:89
+msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
+msgid "The column '{}' is required"
+msgstr "Kolòn '{}' obligatwa"
+
+#: core/auth/management/commands/bulkimportusers.py:93
+msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
+msgid "Incorrect header label found in the first row"
+msgstr "Yo jwenn yon etikèt antèt ki pa kòrèk nan premye liy lan"
+
+#: core/auth/management/commands/bulkimportusers.py:97
+msgctxt "Error when the command is executed in the Terminal (command prompt)"
+msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
+msgstr "Okenn enstalasyon predefini pa egziste. Asire w ou konfigire yon enstalasyon sou aparèy la anvan w egzekite kòmann sa"
+
+#: core/auth/management/commands/bulkimportusers.py:102
+msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
+msgstr "Chan modpas la obligatwa. Pou w kite modpas la san chanjman pou itilizatè ki deja egziste, mete yon siy asteriks (*)"
+
+#: core/auth/management/commands/bulkimportusers.py:105
+msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
+msgstr "Pa ka mete ajou itilizatè ak idantifyan: '{}' paske pa gen okenn itilizatè ki gen idantifyan baz done sa a ki egziste nan etablisman an"
+
+#: core/auth/management/commands/bulkimportusers.py:107
+msgid "Database ID is not valid"
+msgstr "Idantifyan baz done pa valid"
+
+#: core/content/api.py:170
+msgid "Resource"
+msgstr "Resous"
+
+#: core/content/api.py:1327
+msgid "The requested channel does not exist on the content server"
+msgstr "Kanal ou ap chèche a pa egziste sou kontni ki nan sèvè sa a"
+
+#: core/content/models.py:252
+msgid "Unknown format"
+msgstr "Fòma enkoni"
+
+#: core/device/serializers.py:36
+msgid "Language is not supported by Kolibri"
+msgstr "Lang nan pa sipòte nan lojisyèl Kolibri a"
+
+#: core/logger/csv_export.py:205
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs"
+msgstr "jounal_sesyon_kontni"
+
+#: core/logger/csv_export.py:215
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs"
+msgstr "jounal_rezime_kontni"
+
+#: core/tasks/api.py:82
+msgid "There was a network error."
+msgstr "Te gen erè nan rezo a."
+
+#: core/tasks/api.py:84
+msgid "There was a disk access error."
+msgstr "Te gen yon erè pou jwenn disk la."
+
+#: core/tasks/api.py:86
+msgid "There was an unknown error."
+msgstr "Te gen yon erè enkoni."
+
+#: core/templates/kolibri/base.html:13
+#: core/templates/kolibri/unsupported_browser.html:13
+msgid "Kolibri"
+msgstr "Kolibri"
+
+#: core/templates/kolibri/unsupported_browser.html:42
+msgid "Unsupported browser"
+msgstr "Navigatè sa a pa sipòte nan lojisyèl la"
+
+#: core/templates/kolibri/unsupported_browser.html:43
+msgid "Sorry, your browser version is not supported."
+msgstr "Dezole, yo pa ka sipòte vèsyon navigatè ou a."
+
+#: core/templates/kolibri/unsupported_browser.html:44
+msgid "To use Kolibri, we recommend using Firefox or Chrome."
+msgstr "Pou itilize Kolibri, nou rekòmande ou itilize navigatè Firefox osinon Chrome."
+
+#: core/templates/kolibri/unsupported_browser.html:45
+msgid "You can also try updating your current browser."
+msgstr "Ou kapab eseye fè mizajou pou navigatè ou genyen kounye a."
+
+#: core/views.py:168
+msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
+msgstr "Nou pa jwenn paj apwopriye pou nou transfere w. Sanble gen yon konfigirasyon ki pa mache byen nan Kolibri"
+
+#: plugins/facility/views.py:52
+msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
+msgid "users_{}"
+msgstr "itilizatè_{}"
+

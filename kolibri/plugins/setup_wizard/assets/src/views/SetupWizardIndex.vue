@@ -116,8 +116,6 @@
       this.service.start(savedState);
 
       this.service.onTransition(state => {
-        console.log('ontransition', state);
-        console.log(this.service);
         synchronizeRouteAndMachine(state);
         Lockr.set('savedState', this.service._state);
       });

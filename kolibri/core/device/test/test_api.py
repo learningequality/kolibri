@@ -215,6 +215,25 @@ class DeviceProvisionTestCase(APITestCase):
             )
             self.assertTrue(FacilityUser.objects.get().os_user)
 
+    def test_imported_facility_no_update(self):
+        facility = Facility.objects.create(name="This is a test")
+        settings = FacilityDataset.objects.get()
+        settings.learner_can_edit_username = True
+        settings.save()
+        data = self._default_provision_data()
+        data["facility_id"] = facility.id
+        del data["facility"]
+        # Client should pass an empty Dict for settings
+        data["settings"] = {
+            "learner_can_edit_username": False,
+            "on_my_own_setup": True,
+        }
+        settings.refresh_from_db()
+        facility.refresh_from_db()
+        self._post_deviceprovision(data)
+        self.assertEqual(settings.learner_can_edit_username, True)
+        self.assertEqual(facility.on_my_own_setup, False)
+
 
 class DeviceSettingsTestCase(APITestCase):
     @classmethod

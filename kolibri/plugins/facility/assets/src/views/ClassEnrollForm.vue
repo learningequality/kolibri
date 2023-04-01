@@ -43,7 +43,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import UserTable from 'kolibri.coreVue.components.UserTable';
-  import PaginatedListContainerWithBackend from './PaginatedListContainerWithBackend';
+  import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import SelectionBottomBar from './SelectionBottomBar';
 
   export default {

@@ -332,7 +332,11 @@ class Storage(object):
             )
 
     def check_job_canceled(self, job_id):
-        job = self.get_job(job_id)
+        try:
+            job = self.get_job(job_id)
+        except JobNotFound:
+            return True
+
         return job.state == State.CANCELED or job.state == State.CANCELING
 
     def cancel(self, job_id):
