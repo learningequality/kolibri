@@ -1,4 +1,3 @@
-
 # Kolibri
 
 [![Python test status](https://github.com/learningequality/kolibri/actions/workflows/tox.yml/badge.svg?branch=develop)](https://github.com/learningequality/kolibri/actions/workflows/tox.yml)
@@ -35,4 +34,10 @@ If you have found a bug and are comfortable using Github and Markdown, you can c
 
 ## How can I contribute?
 
-Please see the 'contributing' section of our [developer documentation](http://kolibri-dev.readthedocs.io/).
+We welcome contributions from the community to help make Kolibri better! Here are some ways to get started:
+- Report issues or feature requests on our [Github issues page](https://github.com/learningequality/kolibri/issues)
+- Fork the repository, make changes and submit a pull request
+- Contribute to the codebase by picking up an issue or implementing a new feature
+- Help improve the documentation by submitting updates or creating new content
+
+Please see the 'contributing' section of our [developer documentation](http://kolibri-dev.readthedocs.io/) for more information on how to get started with contributing.
