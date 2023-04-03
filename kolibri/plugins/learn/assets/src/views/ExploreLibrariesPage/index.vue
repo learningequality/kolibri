@@ -74,6 +74,7 @@
   import { mapGetters } from 'vuex';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { RemoteChannelResource } from 'kolibri.resources';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
@@ -81,6 +82,8 @@
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import { PageNames, KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
+
+  const PinStrings = crossComponentTranslator(LibraryItem);
 
   export default {
     name: 'ExploreLibrariesPage',
@@ -203,8 +206,8 @@
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;
           this.usersPins = [...this.usersPins, { instance_id, id }];
-          // FIXME This needs a string - xCompTranslator this message from libraryitem
-          this.$store.dispatch('createSnackbar', 'CREATED');
+          // eslint-disable-next-line
+          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
           this.moreDevices = this.moreDevices.filter(d => d.instance_id !== instance_id);
         });
       },
@@ -219,8 +222,8 @@
           if (removedDevice) {
             this.moreDevices.push(removedDevice);
           }
-          // FIXME This needs a string - look for generic "deleted..." string
-          this.$store.dispatch('createSnackbar', 'DELETED');
+          // eslint-disable-next-line
+          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
         });
       },
       handlePinToggle(instance_id) {
@@ -228,14 +231,10 @@
           const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
           this.deletePin(instance_id, pinId).catch(e => {
             console.error(e);
-            // FIXME This needs a string - look for generic "oops" kind of string
-            this.$store.dispatch('createSnackbar', 'OOPS');
           });
         } else {
           this.createPin(instance_id).catch(e => {
             console.error(e);
-            // FIXME This needs a string - look for generic "oops" kind of string
-            this.$store.dispatch('createSnackbar', 'OOPS');
           });
         }
       },
