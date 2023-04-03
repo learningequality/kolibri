@@ -19,10 +19,14 @@
             />
             <span>{{ deviceName }}</span>
             <KIconButton
+              ref="pinIcon"
               :icon="pinIcon"
               appearance="flat-button"
               @click="$emit('togglePin', deviceId)"
             />
+            <KTooltip reference="pinIcon" :refs="$refs">
+              {{ (pinIcon === 'pinned') ? $tr('removePin') : $tr('pinTo') }}
+            </KTooltip>
           </h2>
           <p
             v-if="showDescription"
