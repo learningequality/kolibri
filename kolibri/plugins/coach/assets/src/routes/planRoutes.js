@@ -4,18 +4,12 @@ import GroupsPage from '../views/plan/GroupsPage';
 import GroupMembersPage from '../views/plan/GroupMembersPage';
 import GroupEnrollPage from '../views/plan/GroupEnrollPage';
 import { showGroupsPage } from '../modules/groups/handlers';
-import HomePage from '../views/home/HomePage';
 import planLessonsRoutes from './planLessonsRoutes';
 import planExamRoutes from './planExamRoutes';
 
 export default [
   ...planLessonsRoutes,
   ...planExamRoutes,
-  {
-    name: 'HomePage',
-    path: '/:classId/home',
-    component: HomePage,
-  },
   {
     name: PageNames.PLAN_PAGE,
     path: '/:classId/plan',
