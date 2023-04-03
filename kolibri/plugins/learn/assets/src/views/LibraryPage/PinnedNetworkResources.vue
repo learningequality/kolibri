@@ -19,7 +19,7 @@
             data-test="channel-cards"
             class="grid"
             :contents="device.channels"
-            :isPinnedDevice="true"
+            isRemote="true"
           >
             <ExploreCard
               :style="cardStyle"

@@ -13,7 +13,7 @@
         :tagline="getTagLine(content)"
         :numCoachContents="content.num_coach_contents"
         :link="genContentLinkBackLinkCurrentPage(content.id, false)"
-        :isPinnedDevice="isPinnedDevice"
+        :isRemote="isRemote"
       />
     </KGridItem>
     <slot></slot>
@@ -44,7 +44,7 @@
         type: Array,
         required: true,
       },
-      isPinnedDevice: {
+      isRemote: {
         type: Boolean,
         default: false,
       },
