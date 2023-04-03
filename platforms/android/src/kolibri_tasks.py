@@ -65,7 +65,10 @@ def task_updates(job, orm_job, state=None, **kwargs):
         # Set to running as foreground
         PythonWorker.mWorker.runAsForeground()
 
-    if state is not None and orm_job.repeat is None or orm_job.repeat > 0:
+    # Only do this special handling if repeat is not None or if it is not 0
+    # meaning it is a task that repeats a limited number of times, and Kolibri
+    # is repeating it again.
+    if state is not None and orm_job.repeat:
         if state in {State.COMPLETED, State.CANCELED} or (
             state == State.FAILED and not orm_job.retry_interval
         ):
@@ -73,7 +76,7 @@ def task_updates(job, orm_job, state=None, **kwargs):
                 id=orm_job.id,
                 priority=orm_job.priority,
                 interval=orm_job.interval,
-                repeat=orm_job.repeat - 1,
+                repeat=orm_job.repeat,
                 retry_interval=orm_job.retry_interval,
                 scheduled_time=datetime.now() + timedelta(seconds=orm_job.interval),
                 keep=False,
