@@ -13,6 +13,8 @@ __version__ = "1.0"
 import functools
 from six import raise_from
 
+from django.utils.functional import cached_property
+
 IPV4LENGTH = 32
 IPV6LENGTH = 128
 
@@ -442,11 +444,11 @@ class _BaseNetwork(_IPAddressBase):
             or (other.network_address in self or (other.broadcast_address in self))
         )
 
-    @functools.cached_property
+    @cached_property
     def broadcast_address(self):
         return self._address_class(int(self.network_address) | int(self.hostmask))
 
-    @functools.cached_property
+    @cached_property
     def hostmask(self):
         return self._address_class(int(self.netmask) ^ self._ALL_ONES)
 
