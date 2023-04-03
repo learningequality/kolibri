@@ -21,7 +21,7 @@
     mixins: [commonCoreStrings],
     computed: {
       links() {
-        const facility_id = this.$store.getters.activeFacilityId; // Ensure we stay in the current facility
+        const facility_id = this.$route.params.facility_id;
 
         return [
           {
