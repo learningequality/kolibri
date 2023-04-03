@@ -6,7 +6,7 @@ import baseRoutes from '../routes/baseRoutes';
 import { deviceString } from './commonDeviceStrings';
 import plugin_data from 'plugin_data';
 
-const component = {
+const sideNavConfig = {
   name: 'DeviceManagementSideNavEntry',
 
   get url() {
@@ -51,6 +51,6 @@ const component = {
   priority: 10,
 };
 
-navComponents.register(component);
+navComponents.register(sideNavConfig);
 
-export default component;
+export default sideNavConfig;

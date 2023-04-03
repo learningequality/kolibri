@@ -4,7 +4,7 @@ import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 import baseRoutes from '../baseRoutes';
 
-const component = {
+const sideNavConfig = {
   name: 'FacilityManagementSideNavEntry',
   get url() {
     return urls['kolibri:kolibri.plugins.facility:facility_management']();
@@ -37,6 +37,6 @@ const component = {
   priority: 10,
 };
 
-navComponents.register(component);
+navComponents.register(sideNavConfig);
 
-export default component;
+export default sideNavConfig;

@@ -3,7 +3,7 @@ import navComponents from 'kolibri.utils.navComponents';
 import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 
-const component = {
+const sideNavConfig = {
   name: 'LoginSideNavEntry',
   get url() {
     return urls['kolibri:kolibri.plugins.user_auth:user_auth']();
@@ -17,6 +17,6 @@ const component = {
   section: NavComponentSections.ACCOUNT,
 };
 
-navComponents.register(component);
+navComponents.register(sideNavConfig);
 
-export default component;
+export default sideNavConfig;

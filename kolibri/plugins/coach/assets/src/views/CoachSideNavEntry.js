@@ -5,7 +5,7 @@ import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import baseRoutes from '../routes/baseRoutes';
 import { coachStrings } from './common/commonCoachStrings';
 
-const component = {
+const sideNavConfig = {
   name: 'CoachSideNavEntry',
   get url() {
     return urls['kolibri:kolibri.plugins.coach:coach']();
@@ -21,7 +21,7 @@ const component = {
         route: baseRoutes.reports.path,
       },
       {
-        label: coachStrings.$tr('plan'),
+        label: coachStrings.$tr('planLabel'),
         route: baseRoutes.plan.path,
       },
     ];
@@ -34,6 +34,6 @@ const component = {
   priority: 10,
 };
 
-navComponents.register(component);
+navComponents.register(sideNavConfig);
 
-export default component;
+export default sideNavConfig;

@@ -4,7 +4,7 @@ import coreStrings from 'kolibri.utils.coreStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { learnStrings } from './commonLearnStrings';
 
-const component = {
+const sideNavConfig = {
   name: 'LearnSideNavEntry',
   get url() {
     return urls['kolibri:kolibri.plugins.learn:learn']();
@@ -36,6 +36,6 @@ const component = {
   bottomBar: true,
 };
 
-navComponents.register(component);
+navComponents.register(sideNavConfig);
 
-export default component;
+export default sideNavConfig;
