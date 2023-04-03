@@ -51,7 +51,7 @@ def ip_address(address):
         pass
 
     raise ValueError(
-        f"{0} does not appear to be an IPv4 or IPv6 address".format(address)
+        "{0} does not appear to be an IPv4 or IPv6 address".format(address)
     )
 
 
