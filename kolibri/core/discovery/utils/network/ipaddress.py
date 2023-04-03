@@ -11,6 +11,7 @@ __version__ = "1.0"
 
 
 import functools
+import re
 from six import raise_from
 
 from django.utils.functional import cached_property
@@ -54,6 +55,12 @@ def ip_address(address):
         pass
 
     raise ValueError("%s does not appear to be an IPv4 or IPv6 address" % address)
+
+
+def _is_ascii(string):
+    # Match any ASCII character
+    match = re.search(r"^[\x00-\x7F]+$", string)
+    return bool(match)
 
 
 class _IPAddressBase:
@@ -166,7 +173,7 @@ class _IPAddressBase:
         """
         # int allows a leading +/- as well as surrounding whitespace,
         # so we ensure that isn't the case
-        if not (prefixlen_str.isascii() and prefixlen_str.isdigit()):
+        if not (_is_ascii(prefixlen_str) and prefixlen_str.isdigit()):
             cls._report_invalid_netmask(prefixlen_str)
         try:
             prefixlen = int(prefixlen_str)
@@ -325,8 +332,6 @@ class _BaseAddress(_IPAddressBase):
         # From here on down, support for 'bnXx'
         global _address_fmt_re
         if _address_fmt_re is None:
-            import re
-
             _address_fmt_re = re.compile("(#?)(_?)([xbnX])")
 
         m = _address_fmt_re.fullmatch(fmt)
@@ -919,7 +924,7 @@ class _BaseV4:
         if not octet_str:
             raise ValueError("Empty octet not permitted")
         # Reject non-ASCII digits.
-        if not (octet_str.isascii() and octet_str.isdigit()):
+        if not (_is_ascii(octet_str) and octet_str.isdigit()):
             msg = "Only decimal digits permitted in %r"
             raise ValueError(msg % octet_str)
         # We do the length check second, since the invalid character error
