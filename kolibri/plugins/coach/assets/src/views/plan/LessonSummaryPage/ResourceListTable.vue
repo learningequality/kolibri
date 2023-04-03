@@ -10,17 +10,16 @@
         :key="resource.contentnode_id"
       >
         <DragHandle>
-        
+
           <!-- replaced KFixedGrid with normal div to prevent text overlap error  -->
           <div
-          class="row"
+            class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
-            
           >
-          <!-- replaced KFixedGridItem with normal div to prevent text overlap error  -->
+            <!-- replaced KFixedGridItem with normal div to prevent text overlap error  -->
 
-          <div class="relative">
-            <div class="move-handle">
+            <div class="relative">
+              <div class="move-handle">
                 <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
                   :moveDownText="$tr('moveResourceDownButtonDescription')"
@@ -30,7 +29,7 @@
                   @moveDown="moveDownOne(index)"
                 />
               </div>
-          </div>
+            </div>
             <div class="relative">
               <div v-if="getCachedResource(resource.contentnode_id)">
                 <div class="resource-title">
@@ -267,20 +266,20 @@
     margin-left: 8px;
   }
 
-  // updated the styles of resources row to prevent the overlap issue 
+  // updated the styles of resources row to prevent the overlap issue
   // using flex we are able to rectify the issue
   .row {
+    display: flex;
+    flex-direction: row;
     padding: 8px;
     cursor: grab;
     user-select: none;
-    
-    display: flex;
-    flex-direction: row;
 
     .relative:nth-child(1) {
-      width: 3rem;
       flex-shrink: 0;
+      width: 3rem;
     }
+
     .relative:nth-child(2) {
       flex-grow: 1;
       flex-shrink: 1;
@@ -308,12 +307,12 @@
     margin-right: 8px;
   }
 
-  // updated the class coach-content-label 
+  // updated the class coach-content-label
   .coach-content-label {
     position: absolute;
     display: inline-block;
-    vertical-align: top;
     width: fit-content;
+    vertical-align: top;
   }
 
   .move-button {
