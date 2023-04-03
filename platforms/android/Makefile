@@ -78,6 +78,7 @@ check-android-clean:
 
 .PHONY: p4a_android_distro
 p4a_android_distro: needs-android-dirs check-android-clean
+	rm -rf python-for-android/dists/kolibri
 	$(P4A) create $(ARCH_OPTIONS)
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
