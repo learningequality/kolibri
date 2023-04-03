@@ -214,9 +214,7 @@ class NetworkLocationRouter(object):
 
 class PinnedDevice(models.Model):
 
-    id = models.CharField(
-        primary_key=True, max_length=36, default=_uuid_string, editable=False
-    )
+    id = models.UUIDField(primary_key=True, max_length=36, default=_uuid_string)
     instance_id = models.UUIDField(blank=False)
     user = models.ForeignKey(FacilityUser, blank=False)
     created = models.DateTimeField(default=timezone.now, db_index=True)
