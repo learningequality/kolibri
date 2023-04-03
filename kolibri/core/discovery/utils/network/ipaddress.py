@@ -50,7 +50,9 @@ def ip_address(address):
     except (AddressValueError, NetmaskValueError):
         pass
 
-    raise ValueError(f"{address!r} does not appear to be an IPv4 or IPv6 address")
+    raise ValueError(
+        f"{0} does not appear to be an IPv4 or IPv6 address".format(address)
+    )
 
 
 class _IPAddressBase:
