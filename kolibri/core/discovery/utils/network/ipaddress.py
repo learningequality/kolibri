@@ -15,6 +15,7 @@ import re
 from six import raise_from
 
 from django.utils.functional import cached_property
+from kolibri.utils.lru_cache import lru_cache
 
 IPV4LENGTH = 32
 IPV6LENGTH = 128
@@ -1017,7 +1018,7 @@ class IPv4Address(_BaseV4, _BaseAddress):
         return self in self._constants._reserved_network
 
     @property
-    @functools.lru_cache()
+    @lru_cache()
     def is_private(self):
         """Test if this address is allocated for private networks.
 
@@ -1029,7 +1030,7 @@ class IPv4Address(_BaseV4, _BaseAddress):
         return any(self in net for net in self._constants._private_networks)
 
     @property
-    @functools.lru_cache()
+    @lru_cache()
     def is_global(self):
         return self not in self._constants._public_network and not self.is_private
 
@@ -1141,7 +1142,7 @@ class IPv4Network(_BaseV4, _BaseNetwork):
             self.hosts = lambda: [IPv4Address(addr)]
 
     @property
-    @functools.lru_cache()
+    @lru_cache()
     def is_global(self):
         """Test if this address is allocated for public networks.
 
@@ -1606,7 +1607,7 @@ class IPv6Address(_BaseV6, _BaseAddress):
         return self in self._constants._sitelocal_network
 
     @property
-    @functools.lru_cache()
+    @lru_cache()
     def is_private(self):
         """Test if this address is allocated for private networks.
 
