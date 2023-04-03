@@ -130,7 +130,7 @@ class PinnedDeviceAPITestCase(APITestCase):
         """
         response = self.client.post(
             reverse("kolibri:core:pinned_devices-list"),
-            data={"user": self.user.id, "device_id": self.network_location.id},
+            data={"user": self.user.id, "instance_id": self.network_location.id},
         )
         self.assertEqual(response.status_code, HTTP_201_CREATED)
 
@@ -139,13 +139,13 @@ class PinnedDeviceAPITestCase(APITestCase):
         Tests the API for fetching Pinned Devices
         """
         my_pin = models.PinnedDevice.objects.create(
-            user=self.user, device_id=self.network_location.id
+            user=self.user, instance_id=self.network_location.id
         )
         my_second_pin = models.PinnedDevice.objects.create(
-            user=self.user, device_id=self.network_location2.id
+            user=self.user, instance_id=self.network_location2.id
         )
 
-        pin_ids = sorted([my_pin.device_id, my_second_pin.device_id])
+        pin_ids = sorted([my_pin.instance_id, my_second_pin.instance_id])
 
         response = self.client.get(
             reverse("kolibri:core:pinned_devices-list"),
@@ -155,5 +155,5 @@ class PinnedDeviceAPITestCase(APITestCase):
         # TODO - Get this working
         #      - Discuss & write any more tasks
         #      - Start onto the frontend
-        response_ids = sorted([item['device_id'].hex for item in response.data])
+        response_ids = sorted([item["instance_id"].hex for item in response.data])
         self.assertEqual(response_ids, pin_ids)
