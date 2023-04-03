@@ -94,6 +94,7 @@
                   :link="component.url"
                   :icon="component.icon"
                 />
+                <LogoutSideNavEntry />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
@@ -239,6 +240,7 @@
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import BottomNavigationBar from './BottomNavigationBar';
+  import LogoutSideNavEntry from './LogoutSideNavEntry';
   import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
@@ -265,6 +267,7 @@
       FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
+      LogoutSideNavEntry,
       BottomNavigationBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
@@ -315,10 +318,11 @@
           .filter(this.filterByRole);
       },
       accountComponents() {
-        return navComponents
+        const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents)
-          .filter(this.filterByRole);
+          .sort(this.compareMenuComponents);
+
+        return [...accountComponents].filter(this.filterByRole);
       },
       bottomMenuOptions() {
         return navComponents.filter(component => component.bottomBar == true);

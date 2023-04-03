@@ -55,8 +55,3 @@ class LogInRedirect(RoleBasedRedirectHook):
 @register_hook
 class LogInNavAction(NavigationHook):
     bundle_id = "login_side_nav"
-
-
-@register_hook
-class LogOutNavAction(NavigationHook):
-    bundle_id = "logout_side_nav"
