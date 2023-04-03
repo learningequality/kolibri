@@ -11,6 +11,7 @@ __version__ = "1.0"
 
 
 import functools
+from six import raise_from
 
 IPV4LENGTH = 32
 IPV6LENGTH = 128
@@ -50,9 +51,7 @@ def ip_address(address):
     except (AddressValueError, NetmaskValueError):
         pass
 
-    raise ValueError(
-        "{0} does not appear to be an IPv4 or IPv6 address".format(address)
-    )
+    raise ValueError("%s does not appear to be an IPv4 or IPv6 address" % address)
 
 
 class _IPAddressBase:
@@ -147,8 +146,8 @@ class _IPAddressBase:
 
     @classmethod
     def _report_invalid_netmask(cls, netmask_str):
-        msg = "{0} is not a valid netmask".format(netmask_str)
-        raise NetmaskValueError(msg) from None
+        msg = "%r is not a valid netmask" % netmask_str
+        raise_from(NetmaskValueError(msg), None)
 
     @classmethod
     def _prefix_from_prefix_string(cls, prefixlen_str):
@@ -238,7 +237,7 @@ class _IPAddressBase:
         """Helper to split the netmask and raise AddressValueError if needed"""
         addr = str(address).split("/")
         if len(addr) > 2:
-            raise AddressValueError(f"Only one '/' permitted in {address!r}")
+            raise AddressValueError("Only one '/' permitted in %s" % address)
         return addr
 
     def __reduce__(self):
@@ -352,7 +351,7 @@ class _BaseAddress(_IPAddressBase):
         if alternate:
             padlen += 2  # 0b or 0x
 
-        return format(int(self), f"{alternate}0{padlen}{grouping}{fmt_base}")
+        return format(int(self), "%s0%s%s%s" % (alternate, padlen, grouping, fmt_base))
 
 
 @functools.total_ordering
@@ -726,14 +725,14 @@ class _BaseNetwork(_IPAddressBase):
         try:
             # Always false if one is v4 and the other is v6.
             if a._version != b._version:
-                raise TypeError(f"{a} and {b} are not of the same version")
+                raise TypeError("%s and %s are not of the same version" % (a, b))
             return (
                 b.network_address <= a.network_address
                 and b.broadcast_address >= a.broadcast_address
             )
         except AttributeError:
             raise TypeError(
-                f"Unable to test subnet containment " f"between {a} and {b}"
+                "Unable to test subnet containment between %s and %s" % (a, b)
             )
 
     def subnet_of(self, other):
@@ -899,7 +898,7 @@ class _BaseV4:
         try:
             return int.from_bytes(map(cls._parse_octet, octets), "big")
         except ValueError as exc:
-            raise AddressValueError("%s in %r" % (exc, ip_str)) from None
+            raise_from(AddressValueError("%s in %r" % (exc, ip_str)), None)
 
     @classmethod
     def _parse_octet(cls, octet_str):
@@ -996,7 +995,7 @@ class IPv4Address(_BaseV4, _BaseAddress):
         # which converts into a formatted IP string.
         addr_str = str(address)
         if "/" in addr_str:
-            raise AddressValueError(f"Unexpected '/' in {address!r}")
+            raise AddressValueError("Unexpected '/' in %s" % address)
         self._ip = self._ip_int_from_string(addr_str)
 
     @property
@@ -1258,7 +1257,7 @@ class _BaseV6:
             try:
                 ipv4_int = IPv4Address(parts.pop())._ip
             except AddressValueError as exc:
-                raise AddressValueError("%s in %r" % (exc, ip_str)) from None
+                raise raise_from(AddressValueError("%s in %r" % (exc, ip_str)), None)
             parts.append("%x" % ((ipv4_int >> 16) & 0xFFFF))
             parts.append("%x" % (ipv4_int & 0xFFFF))
 
@@ -1330,7 +1329,7 @@ class _BaseV6:
                 ip_int |= cls._parse_hextet(parts[i])
             return ip_int
         except ValueError as exc:
-            raise AddressValueError("%s in %r" % (exc, ip_str)) from None
+            raise_from(AddressValueError("%s in %r" % (exc, ip_str)), None)
 
     @classmethod
     def _parse_hextet(cls, hextet_str):
@@ -1521,7 +1520,7 @@ class IPv6Address(_BaseV6, _BaseAddress):
         # which converts into a formatted IP string.
         addr_str = str(address)
         if "/" in addr_str:
-            raise AddressValueError(f"Unexpected '/' in {address!r}")
+            raise AddressValueError("Unexpected '/' in %s" % address)
         addr_str, self._scope_id = self._split_scope_id(addr_str)
 
         self._ip = self._ip_int_from_string(addr_str)
