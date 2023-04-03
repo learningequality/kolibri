@@ -151,7 +151,7 @@
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
-  import { PageNames } from '../constants';
+  import { PageNames, ClassesPageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
@@ -434,7 +434,7 @@
         });
       },
       navigateBack() {
-        if (PageNames[this.back.name]) {
+        if (PageNames[this.back.name] || ClassesPageNames[this.back.name]) {
           this.$router.push(this.back);
         } else {
           window.location.replace(this.genExternalBackURL());
