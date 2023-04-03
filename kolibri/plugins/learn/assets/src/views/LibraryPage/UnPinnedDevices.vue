@@ -67,7 +67,7 @@
     },
     $trs: {
       channels: {
-        message: '{count, plural, one {channel} other {channels}',
+        message: '{count, number, integer} {count, plural, one {channel} other {channels}}',
         context: 'Indicates the number of channels',
       },
     },
