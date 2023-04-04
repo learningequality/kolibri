@@ -104,7 +104,7 @@
     },
     computed: {
       isActive() {
-        return window.location.pathname.includes(this.label.toLowerCase());
+        return window.location.pathname == this.link;
       },
       optionStyle() {
         if (this.isActive) {
