@@ -6,7 +6,7 @@
     :appBarTitle="coreString('cookiePolicy')"
     :route="cookiePolicyRoute"
   >
-    <KPageContainer :topMargin="100">
+    <KPageContainer>
       <h1>{{ coreString('cookiePolicy') }}</h1>
 
       <section>
@@ -21,7 +21,7 @@
 
         <table>
           <tr>
-            <th>{{ coreString('name') }}</th>
+            <th>{{ coreString('nameLabel') }}</th>
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
@@ -49,7 +49,7 @@
         <p>{{ $tr('statisticsCookiesP1') }}</p>
         <table>
           <tr>
-            <th>{{ coreString('name') }}</th>
+            <th>{{ coreString('nameLabel') }}</th>
             <th>{{ $tr('cookiePurposeTableHeader') }}</th>
             <th>{{ $tr('cookieExpiryTableHeader') }}</th>
           </tr>
@@ -62,7 +62,7 @@
       </section>
       <section>
         <h2>{{ $tr('yourChoicesHeader') }}</h2>
-        <p>{{ $tr('choicesP1') }}</p>
+        <p>{{ $tr('choicesP1', { choice: "AYE" }) }}</p>
       </section>
       <KButton
         :text="coreString('closeAction')"
@@ -79,11 +79,19 @@
 
 <script>
 
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'CookiePolicy',
+    components: { ImmersivePage },
     mixins: [commonCoreStrings],
+    computed: {
+      cookiePolicyRoute() {
+        // FIXME This will just go back to the root
+        return { path: window.location.origin };
+      },
+    },
     $trs: {
       cookieP1: {
         message:
@@ -146,8 +154,7 @@
         message: 'Your choices',
       },
       choicesP1: {
-        message:
-          'You {choice, string} to receive statistics cookies. You can change this preference here:',
+        message: 'You {choice} to receive statistics cookies. You can change this preference here:',
       },
     },
   };
