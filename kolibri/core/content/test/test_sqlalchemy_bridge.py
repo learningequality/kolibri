@@ -34,7 +34,7 @@ class SQLAlchemyBridgeClassTestCase(TestCase):
 
     @patch(
         "kolibri.core.content.utils.sqlalchemybridge.get_default_db_string",
-        return_value="sqlite://",
+        wraps=get_default_db_string,
     )
     def test_constructor_default_db_path(
         self,
