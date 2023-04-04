@@ -76,7 +76,7 @@ class ContentAssignmentManager(object):
         self.model = model
         self.name = name
         setattr(model, name, self)
-        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({model.morango_model_name: self})
+        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({model.__class__.__name__: self})
 
     @classmethod
     def find_all_downloadable_assignments(cls, transfer_session_id):
