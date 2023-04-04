@@ -470,6 +470,21 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         )
 
     @classmethod
+    def clear_statuses(cls):
+        """
+        Clears any statuses for all learners on the device, only supported for devices
+        provisioned as a `subset_of_users_device`
+        :return:
+        """
+        if not get_device_setting("subset_of_users_device", False):
+            raise NotImplementedError(
+                "Saving all learner statuses is not supported on full-facility devices"
+            )
+
+        for user_id in FacilityUser.objects.all().values_list("id", flat=True):
+            cls.clear_learner_status(user_id)
+
+    @classmethod
     def clear_learner_status(cls, learner_user_id):
         """
         :param learner_user_id: The ID of the learner (`FacilityUser`) of which to clear status
