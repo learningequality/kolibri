@@ -1235,7 +1235,7 @@ class _BaseV6:
             cls._netmask_cache[arg] = netmask, prefixlen
         return cls._netmask_cache[arg]
 
-    @classmethod
+    @classmethod  # noqa: C901
     def _ip_int_from_string(cls, ip_str):  # noqa: C901
         """Turn an IPv6 ip_str into an integer.
 
