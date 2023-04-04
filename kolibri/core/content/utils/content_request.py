@@ -243,6 +243,8 @@ def process_content_requests():
 
     try:
         _process_content_requests(incomplete_downloads)
+        # must have completed downloads, we can clear any 'InsufficientStorage' statuses
+        LearnerDeviceStatus.clear_statuses()
     except InsufficientStorage as e:
         logger.warning(str(e))
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
