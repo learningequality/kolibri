@@ -1,9 +1,7 @@
-Feature: New landing page for super admins in Facility plugin
+Feature: Landing page for super admins in Facility plugin
   A super admin should be able to select the facility they would like to view when there is more than one facility on the device
 
-# If there is only one facility on the device, there should essentially be no change to the 0.13 *Facility* landing page experience
-
-  Background:
+	Background:
     Given I am signed in as a super admin
 
   Scenario: View Facilities landing page in Facility plugin
@@ -12,8 +10,7 @@ Feature: New landing page for super admins in Facility plugin
       And I click *Facility*
     Then I see a *Facilities* page
       And I see a list of facilities on the device
-      And I see how many classes are in each facility
-      And I don't see the *Facility* plugin subtabs
+      And I see the number of classes for each facility
 
   Scenario: View facility
     Given there is more than one facility on the device

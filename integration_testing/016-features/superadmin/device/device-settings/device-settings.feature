@@ -180,7 +180,17 @@ Feature: Device settings
 		Given all pages are enabled by default
 		When I uncheck any or all of the available pages
 			And I click the *Save changes* button
-		Then a user is no longer able to access the unchecked pages even if the user has permission to access them
+		Then I see the *Server restart* modal
+			And I see the following text: *When you uncheck a page, it will become invisible to users even if they have permission to access it. Anyone using Kolibri on this server right now will temporarily be unable to use it.*
+		When I click *Continue*
+		Then I see the *Settings have been updated* snakbar notification.
+			And I see the *Disconnected from server. Will try to reconnect in 00:03* snakbar notification.
+		When the server has successfully restarted.
+		Then I see the *Successfully reconnected* snakbar notification.
+		When I refresh the page
+			And open the side bar
+		Then I see that the disabled pages are no longer displayed there
+			And a user is no longer able to access the unchecked pages even if the user has permission to access them
 
 	Scenario: Position of the *Save changes* button in the native app
 		Given I'm viewing the *Device > Settings* page in the native app
