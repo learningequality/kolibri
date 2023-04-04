@@ -435,7 +435,7 @@ export default {
       state.examLearnerStatusMap = { ...state.examLearnerStatusMap };
       state.contentLearnerStatusMap = { ...state.contentLearnerStatusMap };
     },
-    SET_CLASS_LESSONS_SIZES(state, sizes) {
+    SET_CLASS_LESSONS_SIZES(state, sizes = {}) {
       state.lessonsSizes = sizes;
     },
     SET_CLASS_QUIZZES_SIZES(state, sizes) {
@@ -445,12 +445,15 @@ export default {
   actions: {
     updateWithNotifications,
     loadClassSummary(store, classId) {
-      return ClassSummaryResource.fetchModel({ id: classId, force: true }).then(summary => {
-        store.commit('SET_STATE', summary);
-      });
-      // .then(() => {
-      //   return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
-      // });
+      return ClassSummaryResource.fetchModel({ id: classId, force: true })
+        .then(summary => {
+          store.commit('SET_STATE', summary);
+        })
+        .then(() => {
+          if (Object.keys(store.state.lessonMap).length > 0) {
+            return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+          }
+        });
     },
     fetchLessonsSizes(store, classId) {
       return LessonResource.fetchLessonsSizes(classId)
