@@ -338,7 +338,7 @@ def remoteresourceimport(
 
 @register_task(
     queue=QUEUE,
-    long_running=False,
+    long_running=True,
     status_fn=get_status,
 )
 def automatic_resource_import():

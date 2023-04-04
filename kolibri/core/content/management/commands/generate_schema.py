@@ -19,6 +19,7 @@ from sqlalchemy.orm import sessionmaker
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
+from kolibri.core.content.utils.channel_import import models_to_exclude
 from kolibri.core.content.utils.sqlalchemybridge import __SQLALCHEMY_CLASSES_MODULE_NAME
 from kolibri.core.content.utils.sqlalchemybridge import __SQLALCHEMY_CLASSES_PATH
 from kolibri.core.content.utils.sqlalchemybridge import (
@@ -99,7 +100,7 @@ class Command(BaseCommand):
         table_names = [
             model._meta.db_table
             for name, model in app_config.models.items()
-            if name != "channelmetadatacache"
+            if name != "channelmetadatacache" and model not in models_to_exclude
         ]
         metadata.reflect(bind=engine, only=table_names)
         Base = prepare_base(metadata, name=version)
