@@ -39,6 +39,7 @@
           :link="genContentLinkBackLinkCurrentPage(content.id, true)"
         />
       </section>
+      <KCircularLoader v-else-if="$store.state.core.loading" />
       <p v-else class="no-resources-message">
         {{ $tr('noResourcesInLesson') }}
       </p>
