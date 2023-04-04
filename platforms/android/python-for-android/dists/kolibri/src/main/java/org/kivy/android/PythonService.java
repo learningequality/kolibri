@@ -187,10 +187,8 @@ public class PythonService extends Service implements Runnable {
 
     @Override
     public void run(){
-        String app_root =  getFilesDir().getAbsolutePath() + "/app";
-        File app_root_file = new File(app_root);
-        PythonUtil.loadLibraries(app_root_file,
-            new File(getApplicationInfo().nativeLibraryDir));
+        PythonUtil.loadLibraries(
+                new File(getApplicationInfo().nativeLibraryDir));
         this.mService = this;
         nativeStart(
             androidPrivate, androidArgument,

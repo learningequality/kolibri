@@ -19,6 +19,8 @@ import org.renpy.android.AssetExtract;
 public class PythonUtil {
 	private static final String TAG = "pythonutil";
 
+    private static boolean nativeLibrariesLoaded = false;
+
     protected static void addLibraryIfExists(ArrayList<String> libsList, String pattern, File libsDir) {
         // pattern should be the name of the lib file, without the
         // preceding "lib" or suffix ".so", for instance "ssl.*" will
@@ -49,16 +51,17 @@ public class PythonUtil {
         addLibraryIfExists(libsList, "SDL2_image", libsDir);
         addLibraryIfExists(libsList, "SDL2_mixer", libsDir);
         addLibraryIfExists(libsList, "SDL2_ttf", libsDir);
-        libsList.add("python3.5m");
-        libsList.add("python3.6m");
-        libsList.add("python3.7m");
-        libsList.add("python3.8");
         libsList.add("python3.9");
         libsList.add("main");
         return libsList;
     }
 
-    public static void loadLibraries(File filesDir, File libsDir) {
+    public static void loadLibraries(File libsDir) {
+        if (nativeLibrariesLoaded) {
+            Log.v(TAG, "Native libraries already loaded.");
+            return;
+        }
+
         boolean foundPython = false;
 
         for (String lib : getLibraries(libsDir)) {
@@ -83,6 +86,8 @@ public class PythonUtil {
                 }
             }
         }
+
+        nativeLibrariesLoaded = true;
 
         Log.v(TAG, "Loaded everything!");
     }

@@ -59,12 +59,6 @@ public class PythonWorker extends RemoteListenableWorker {
         androidArgument = appRoot;
         pythonHome = appRoot;
         pythonPath = appRoot + ":" + appRoot + "/lib";
-
-        File appRootFile = new File(appRoot);
-        PythonUtil.loadLibraries(
-            appRootFile,
-            new File(getApplicationContext().getApplicationInfo().nativeLibraryDir)
-        );
     }
 
     public void setPythonName(String value) {
@@ -110,6 +104,10 @@ public class PythonWorker extends RemoteListenableWorker {
             final Thread pythonThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
+                    PythonUtil.loadLibraries(
+                            new File(getApplicationContext().getApplicationInfo().nativeLibraryDir)
+                    );
+
                     int res = nativeStart(
                         androidPrivate, androidArgument,
                         workerEntrypoint, pythonName,
