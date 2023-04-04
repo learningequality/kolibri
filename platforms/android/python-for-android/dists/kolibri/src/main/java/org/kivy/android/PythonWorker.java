@@ -81,23 +81,6 @@ public class PythonWorker extends RemoteListenableWorker {
                 serviceArg = "";
             }
 
-            // If the work is cancelled, exit the whole process since we
-            // have no other way to stop the python thread.
-            //
-            // FIXME: Unfortunately, exiting here causes the service to
-            // behave unreliably since all the connections are not
-            // unbound. Android will immediately restart the service to
-            // bind the connection again and eventually there are issues
-            // with the process not exiting to completely clear the
-            // Python environment.
-            completer.addCancellationListener(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, "Exiting remote work service process");
-                    System.exit(0);
-                }
-            }, Executors.newSingleThreadExecutor());
-
             // The python thread handling the work needs to be run in a
             // separate thread so that future can be returned. Without
             // it, any cancellation can't be processed.
@@ -124,6 +107,14 @@ public class PythonWorker extends RemoteListenableWorker {
                 }
             });
             pythonThread.setName("python_worker_thread");
+
+            completer.addCancellationListener(new Runnable() {
+                @Override
+                public void run() {
+                    Log.i(TAG, "Interrupting remote work");
+                    pythonThread.interrupt();
+                }
+            }, Executors.newSingleThreadExecutor());
 
             Log.i(TAG, "Starting remote python work");
             pythonThread.start();
