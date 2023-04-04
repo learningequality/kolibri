@@ -19,6 +19,7 @@ import org.learningequality.Kolibri.R;
 import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
@@ -42,6 +43,8 @@ public class PythonWorker extends RemoteListenableWorker {
     private String notificationText = null;
     private int notificationProgress = -1;
     private int notificationTotal = -1;
+
+    private static final AtomicInteger threadCounter = new AtomicInteger(0);
 
 
     public PythonWorker(
@@ -93,12 +96,21 @@ public class PythonWorker extends RemoteListenableWorker {
 
                     Log.d(TAG, "Running with python worker argument: " + serviceArg);
 
+                    threadCounter.incrementAndGet();
+
                     int res = nativeStart(
                         androidPrivate, androidArgument,
                         workerEntrypoint, pythonName,
                         pythonHome, pythonPath,
                         serviceArg
                     );
+
+                    int remainingThreads = threadCounter.decrementAndGet();
+
+                    if (remainingThreads == 0) {
+                        tearDownPython();
+                    }
+
                     Log.d(TAG, "Finished remote python work: " + res);
 
                     if (res == 0) {
@@ -186,4 +198,6 @@ public class PythonWorker extends RemoteListenableWorker {
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
         return CallbackToFutureAdapter.getFuture((CallbackToFutureAdapter.Resolver<ForegroundInfo>) completer -> completer.set(getForegroundInfo()));
     }
+
+    public static native int tearDownPython();
 }
