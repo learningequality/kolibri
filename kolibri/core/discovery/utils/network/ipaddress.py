@@ -93,14 +93,6 @@ class _IPAddressBase:
             msg = "%d (>= 2**%d) is not permitted as an IPv%d address"
             raise AddressValueError(msg % (address, self._max_prefixlen, self._version))
 
-    def _check_packed_address(self, address, expected_len):
-        address_len = len(address)
-        if address_len != expected_len:
-            msg = "%r (len %d != %d) is not permitted as an IPv%d address"
-            raise AddressValueError(
-                msg % (address, address_len, expected_len, self._version)
-            )
-
     @classmethod
     def _ip_int_from_prefix(cls, prefixlen):
         """Turn the prefix length into a bitwise netmask
@@ -993,12 +985,6 @@ class IPv4Address(_BaseV4, _BaseAddress):
             self._ip = address
             return
 
-        # Constructing from a packed address
-        if isinstance(address, bytes):
-            self._check_packed_address(address, 4)
-            self._ip = int.from_bytes(address)  # big endian
-            return
-
         # Assume input argument to be string or any object representation
         # which converts into a formatted IP string.
         addr_str = str(address)
@@ -1514,13 +1500,6 @@ class IPv6Address(_BaseV6, _BaseAddress):
         if isinstance(address, int):
             self._check_int_address(address)
             self._ip = address
-            self._scope_id = None
-            return
-
-        # Constructing from a packed address
-        if isinstance(address, bytes):
-            self._check_packed_address(address, 16)
-            self._ip = int.from_bytes(address, "big")
             self._scope_id = None
             return
 
