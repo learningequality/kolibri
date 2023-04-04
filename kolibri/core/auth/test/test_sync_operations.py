@@ -63,13 +63,16 @@ class KolibriSyncOperationsTestCase(SimpleTestCase):
         mock_hook.registered_hooks = []
         for i in range(2):
             mock_other_hook = mock.Mock(spec_set=FacilityDataSyncHook)()
-            mock_operation = mock.Mock(spec_set=BaseOperation)()
+            mock_operation = mock.MagicMock(
+                spec=KolibriSyncOperationMixin(), priority=i
+            )
             mock_operations.append(mock_operation)
             mock_other_hook.get_sync_operations.return_value = [mock_operation]
             mock_hook.registered_hooks.append(mock_other_hook)
 
         result = self.operation.get_operations(self.context)
-        self.assertEqual(mock_operations, result)
+        # should be reversed because of priority attribute, higher is more important
+        self.assertEqual(list(reversed(mock_operations)), result)
 
         for mock_other_hook in mock_hook.registered_hooks:
             mock_other_hook.get_sync_operations.assert_called_once_with(self.context)
