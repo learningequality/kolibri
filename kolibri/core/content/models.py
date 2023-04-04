@@ -408,6 +408,10 @@ class ContentRequestStatus(ChoicesEnum):
     Completed = "COMPLETED"
 
 
+def _hex_uuid_str():
+    return str(uuid.uuid4().hex)
+
+
 class ContentRequest(models.Model):
     """
     Model representing requests for specific content, either through user interaction or as a
@@ -415,7 +419,7 @@ class ContentRequest(models.Model):
     downloaded or removed
     """
 
-    id = UUIDField(primary_key=True, default=lambda: str(uuid.uuid4().hex))
+    id = UUIDField(primary_key=True, default=_hex_uuid_str)
     facility = models.ForeignKey(Facility, related_name="content_requests")
 
     # the source model's `morango_model_name` that initiated the request:
