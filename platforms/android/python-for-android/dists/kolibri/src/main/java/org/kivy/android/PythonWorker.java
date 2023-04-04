@@ -75,7 +75,7 @@ public class PythonWorker extends RemoteListenableWorker {
             String dataArg = getInputData().getString(ARGUMENT_WORKER_ARGUMENT);
             final String serviceArg;
             if (dataArg != null) {
-                Log.d(TAG, "Setting python service argument to " + dataArg);
+                Log.d(TAG, "Setting python worker argument to " + dataArg);
                 serviceArg = dataArg;
             } else {
                 serviceArg = "";
@@ -90,6 +90,8 @@ public class PythonWorker extends RemoteListenableWorker {
                     PythonUtil.loadLibraries(
                             new File(getApplicationContext().getApplicationInfo().nativeLibraryDir)
                     );
+
+                    Log.d(TAG, "Running with python worker argument: " + serviceArg);
 
                     int res = nativeStart(
                         androidPrivate, androidArgument,
