@@ -30,8 +30,8 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
-from kolibri.core.utils.lock import db_lock_sqlite_only
 from kolibri.core.utils.urls import reverse_path
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
 from kolibri.utils.system import get_free_space
 
@@ -122,18 +122,15 @@ def synchronize_content_requests(dataset_id, transfer_session):
     if not new_contentnode_ids:
         return
 
-    # TODO: we can't yet do this during a sync because the sync command creates a lock / transaction
-    # which is in conflict with the locks/transactions handling metadata import
-    #
     # process metadata import for new requests without metadata
-    # incomplete_downloads = _incomplete_downloads_queryset()
-    # incomplete_downloads_without_metadata = incomplete_downloads.filter(
-    #     has_metadata=False,
-    #     # limit to just those recently requested nodes during this phase
-    #     contentnode_id__in=list(new_contentnode_ids)
-    # )
-    # if incomplete_downloads_without_metadata.exists():
-    #     _process_metadata_import(incomplete_downloads_without_metadata)
+    incomplete_downloads = _incomplete_downloads_queryset()
+    incomplete_downloads_without_metadata = incomplete_downloads.filter(
+        has_metadata=False,
+        # limit to just those recently requested nodes during this phase
+        contentnode_id__in=list(new_contentnode_ids),
+    )
+    if incomplete_downloads_without_metadata.exists():
+        _process_metadata_import(incomplete_downloads_without_metadata)
 
 
 def _get_preferred_network_location(version_filter=None):
@@ -184,9 +181,13 @@ def _total_size_annotation():
     """
     Returns a subquery to determine the total size of needed files not yet imported
     """
+    # we check the parent and the node itself, since we'll generally want to import the parent
+    # topic/folder for the resource, and it may have thumbnails
     return Subquery(
         File.objects.filter(
-            contentnode_id=OuterRef("contentnode_id"), local_file__available=False
+            Q(contentnode_id=OuterRef("contentnode_id"))
+            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
+            & Q(local_file__available=False)
         )
         .annotate(total_size=Sum("local_file__file_size"))
         .values("total_size"),
@@ -291,10 +292,7 @@ def _import_metadata(client, contentnode_ids):
         # if the request 404'd, then we wouldn't have this data
         if import_metadata:
             processed_count += 1
-            with db_lock_sqlite_only():
-                import_channel_from_data(
-                    import_metadata, cancel_check=False, partial=True
-                )
+            import_channel_from_data(import_metadata, cancel_check=False, partial=True)
             if processed_count % 10 == 0:
                 logger.info(
                     "Imported content metadata for {} out of {} nodes".format(
@@ -368,7 +366,7 @@ def _process_content_requests(incomplete_downloads):
     # loop while we have pending downloads
     while incomplete_downloads_with_metadata.exists():
         # grab the next request that will fit within current free space
-        free_space = get_free_space()
+        free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
         download_request = incomplete_downloads_with_metadata.filter(
             total_size__lte=free_space
         ).first()
@@ -494,9 +492,9 @@ def process_content_removal_requests(queryset):
     """
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
-        Q(admin_imported__isnull=True)
-        | Q(admin_imported=False)
-        & Q(id__in=queryset.values_list("contentnode_id", flat=True), available=True)
+        admin_imported=False,
+        id__in=queryset.values_list("contentnode_id", flat=True),
+        available=True,
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
