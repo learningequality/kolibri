@@ -55,6 +55,7 @@
 
 
 <script>
+
   import some from 'lodash/some';
   import { mapGetters } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
@@ -97,16 +98,14 @@
       },
       sortedTaskList() {
         const sorterArray = this.managedTasks;
-        sorterArray.sort(
-          (a, b) => {
-            const dateA = new Date(a.scheduled_datetime)
-            const dateB = new Date(b.scheduled_datetime)
+        sorterArray.sort((a, b) => {
+          const dateA = new Date(a.scheduled_datetime);
+          const dateB = new Date(b.scheduled_datetime);
 
-            if (dateA === dateB) return 0;
+          if (dateA === dateB) return 0;
 
-            return (dateA > dateB) ? 1 : -1
-          }
-        )
+          return dateA > dateB ? 1 : -1;
+        });
         return sorterArray;
       },
       showClearCompletedButton() {
