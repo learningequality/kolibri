@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Tsallaka zuwa matsayi a littafi",
   "BottomBar.preparingSlider": "Shiryawa dajiya",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "An kasa loda wannan littafin",
   "LoadingScreen.loadingBook": "Ana lodin littafi",
   "NextButton.goToNextPage": "Tafi shafin gaba",

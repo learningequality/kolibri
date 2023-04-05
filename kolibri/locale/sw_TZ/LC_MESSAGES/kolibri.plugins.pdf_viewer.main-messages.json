@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Panua alamisho",
+  "Bookmarks.bookmarksSection": "Sehemu ya maalamisho. Unaweza kubadilisha kati ya hati ya pdf na sehemu ya alamisho ukibonyeza shift + enter.",
+  "PdfPage.numPage": "Ukurasa {number} kati ya {total}",
   "PdfRendererIndex.enterFullscreen": "Ingia katika skrini nzima",
   "PdfRendererIndex.exitFullscreen": "Toka katika skrini nzima"
 }

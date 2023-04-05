@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Pitani pamalo ena mu buku",
   "BottomBar.preparingSlider": "Kukonzekera ma silaida",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Bukuli lakanika kutseguka",
   "LoadingScreen.loadingBook": "Buku likutsekula",
   "NextButton.goToNextPage": "Pitani patsamba lotsalira",

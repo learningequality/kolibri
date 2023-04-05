@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "ចូលទៅទីតាំងក្នុងសៀវភៅ",
   "BottomBar.preparingSlider": "កំពុងរៀបចំ Slider",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "មិនអាចទាញសៀវភៅនេះ",
   "LoadingScreen.loadingBook": "កំពុងទាញសៀវភៅ",
   "NextButton.goToNextPage": "ទៅទំព័របន្ទាប់",

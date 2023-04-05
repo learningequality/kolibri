@@ -86,7 +86,7 @@
       },
       changeLater: {
         message: 'You can change this in your device settings later.',
-        context: '',
+        context: 'Refers to the selected option for guest access in the setup wizard.',
       },
     },
   };

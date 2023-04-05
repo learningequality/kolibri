@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Vai alla posizione nel libro",
   "BottomBar.preparingSlider": "Preparazione cursore",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Impossibile caricare questo libro",
   "LoadingScreen.loadingBook": "Caricamento libro",
   "NextButton.goToNextPage": "Vai alla pagina successiva",
