@@ -15,5 +15,5 @@ class StorageHook(KolibriHook):
         pass
 
     @abstractmethod
-    def clear(self, job_id):
+    def clear(self, job, orm_job):
         pass

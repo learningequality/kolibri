@@ -381,8 +381,9 @@ class Storage(object):
                 )
             if self._hooks:
                 for orm_job in q:
+                    job = self._orm_to_job(orm_job)
                     for hook in self._hooks:
-                        hook.clear(orm_job.id)
+                        hook.clear(job, orm_job)
             q.delete(synchronize_session=False)
 
     def update_job_progress(self, job_id, progress, total_progress):
