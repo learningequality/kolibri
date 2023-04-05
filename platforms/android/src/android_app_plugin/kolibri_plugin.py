@@ -83,3 +83,6 @@ class StorageHook(StorageHook):
                     orm_job,
                     keep=False,
                 )
+
+    def clear(self, job_id):
+        Task.clear(job_id)

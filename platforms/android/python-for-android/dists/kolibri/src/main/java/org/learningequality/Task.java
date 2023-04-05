@@ -1,5 +1,8 @@
 package org.learningequality;
 
+import android.content.Context;
+
+import androidx.core.app.NotificationManagerCompat;
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -7,11 +10,13 @@ import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
-import org.kivy.android.PythonActivity;
+import org.kivy.android.PythonWorker;
 import org.learningequality.Kolibri.TaskworkerWorker;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 
@@ -77,5 +82,21 @@ public class Task {
         } else {
             workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
         }
+    }
+
+    public static void clear(String id) {
+        Context context = ContextUtil.getApplicationContext();
+        String tag = generateTagFromId(id);
+        WorkManager workManager = WorkManager.getInstance(context);
+        List<WorkInfo> workInfos = workManager.getWorkInfosByTagLiveData(tag).getValue();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        for (WorkInfo workInfo : workInfos) {
+            Data progress = workInfo.getProgress();
+            int notificationId = progress.getInt(PythonWorker.NOTIFICATION_ID, -1);
+            if (notificationId > -1) {
+                notificationManager.cancel(notificationId);
+            }
+        }
+        workManager.cancelAllWorkByTag(tag);
     }
 }

@@ -8,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 import androidx.work.multiprocess.RemoteListenableWorker;
@@ -37,7 +38,7 @@ public class PythonWorker extends RemoteListenableWorker {
 
     public static PythonWorker mWorker = null;
 
-    public static int notificationId = -1;
+    public int notificationId = -1;
 
     private String notificationTitle = null;
     private String notificationText = null;
@@ -46,6 +47,7 @@ public class PythonWorker extends RemoteListenableWorker {
 
     private static final AtomicInteger threadCounter = new AtomicInteger(0);
 
+    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
 
     public PythonWorker(
         @NonNull Context context,
@@ -56,12 +58,17 @@ public class PythonWorker extends RemoteListenableWorker {
 
         notificationTitle = context.getString(R.string.app_name);
 
+        notificationId = ThreadLocalRandom.current().nextInt(1, 65537);
+
         PythonWorker.mWorker = this;
 
         androidPrivate = appRoot;
         androidArgument = appRoot;
         pythonHome = appRoot;
         pythonPath = appRoot + ":" + appRoot + "/lib";
+
+        // Store the notification id so that we can retrieve it via WorkManager.
+        setProgressAsync(new Data.Builder().putInt(NOTIFICATION_ID, notificationId).build());
     }
 
     public void setPythonName(String value) {
@@ -145,14 +152,7 @@ public class PythonWorker extends RemoteListenableWorker {
         String pythonServiceArgument
     );
 
-    private void setNotificationId() {
-        if (notificationId == 0) {
-            notificationId = ThreadLocalRandom.current().nextInt(1, 65537);
-        }
-    }
-
     private Notification createNotification() {
-        setNotificationId();
         Context context = getApplicationContext();
         String channelId = context.getString(R.string.notification_channel_id);
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
