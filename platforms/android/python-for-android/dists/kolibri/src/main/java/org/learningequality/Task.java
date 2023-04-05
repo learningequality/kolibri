@@ -16,8 +16,16 @@ import java.util.concurrent.TimeUnit;
 
 
 public class Task {
-    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite) {
-        WorkManager workManager = WorkManager.getInstance(PythonActivity.mActivity);
+    private static String generateTagFromId(String id) {
+        return "kolibri_task_id:" + id;
+    }
+
+    private static String generateTagFromJobFunc(String jobFunc) {
+        return "kolibri_job_type:" + jobFunc;
+    }
+
+    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite, String jobFunc) {
+        WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
         Data data = TaskworkerWorker.buildInputData(id);
 
         PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
@@ -36,12 +44,14 @@ public class Task {
         if (delay > 0) {
             workRequestBuilder.setInitialDelay(delay, TimeUnit.SECONDS);
         }
+        workRequestBuilder.addTag(generateTagFromId(id));
+        workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
         workRequestBuilder.setInputData(data);
         PeriodicWorkRequest workRequest = workRequestBuilder.build();
         workManager.enqueueUniquePeriodicWork(id, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
-    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite) {
-        WorkManager workManager = WorkManager.getInstance(PythonActivity.mActivity);
+    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite, String jobFunc) {
+        WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
         Data data = TaskworkerWorker.buildInputData(id);
 
         OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
@@ -58,6 +68,8 @@ public class Task {
         if (delay > 0) {
             workRequestBuilder.setInitialDelay(delay, TimeUnit.SECONDS);
         }
+        workRequestBuilder.addTag(generateTagFromId(id));
+        workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
         workRequestBuilder.setInputData(data);
         OneTimeWorkRequest workRequest = workRequestBuilder.build();
         if (keep) {
