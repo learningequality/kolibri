@@ -6,6 +6,8 @@ from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.utils.network.ipaddress import AddressValueError
+from kolibri.core.discovery.utils.network.ipaddress import ip_address
 
 
 def check_if_port_open(base_url, timeout=1):
@@ -50,7 +52,13 @@ def capture_network_state(network_location, client):
         network_location.last_known_ip = client.remote_ip
     # update all device info
     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
-        setattr(network_location, key, client.device_info.get(key))
+        if client.device_info:
+            setattr(network_location, key, client.device_info.get(key))
+
+    try:
+        return ip_address(client.remote_ip).is_private
+    except (AddressValueError, ValueError):
+        return False
 
 
 @contextmanager

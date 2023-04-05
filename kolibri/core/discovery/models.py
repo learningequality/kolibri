@@ -3,9 +3,6 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 
-from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.ipaddress import AddressValueError
-from kolibri.core.discovery.utils.network.ipaddress import ip_address
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
@@ -123,17 +120,17 @@ class StaticNetworkLocation(NetworkLocation):
         proxy = True
 
     def save(self, *args, **kwargs):
-        self.dynamic = False
-        self.is_local = self.capture_network_state()
-        return super(StaticNetworkLocation, self).save(*args, **kwargs)
+        from kolibri.core.discovery.utils.network.connections import (
+            capture_network_state,
+        )
+        from kolibri.core.discovery.utils.network.client import NetworkClient
 
-    @classmethod
-    def capture_network_state(self):
-        try:
-            client = NetworkClient.build_from_network_location(self)
-            return ip_address(client.remote_ip).is_private
-        except (AddressValueError, ValueError):
-            return False
+        self.dynamic = False
+
+        client = NetworkClient.build_from_network_location(self)
+        self.is_local = capture_network_state(self, client)
+
+        return super(StaticNetworkLocation, self).save(*args, **kwargs)
 
 
 class DynamicNetworkLocationManager(models.Manager):
