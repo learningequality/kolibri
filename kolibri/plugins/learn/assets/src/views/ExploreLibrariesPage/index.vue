@@ -35,7 +35,8 @@
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
       :totalChannels="device['total_channels']"
-      :pinIcon="getPinIcon(true)"
+      :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+      @togglePin="handlePinToggle"
     />
     <div v-if="areMoreDevicesAvailable">
       <h2>{{ learnString('moreLibraries') }}</h2>
@@ -53,7 +54,8 @@
         :deviceIcon="getDeviceIcon(device)"
         :channels="device.channels"
         :totalChannels="device['total_channels']"
-        :pinIcon="getPinIcon(false)"
+        :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+        @togglePin="handlePinToggle"
       />
       <KButton
         v-if="displayShowMoreButton"
@@ -72,12 +74,16 @@
   import { mapGetters } from 'vuex';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import { RemoteChannelResource } from 'kolibri.resources';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useDevices from '../../composables/useDevices';
+  import usePinnedDevices from '../../composables/usePinnedDevices';
   import { PageNames, KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
+
+  const PinStrings = crossComponentTranslator(LibraryItem);
 
   export default {
     name: 'ExploreLibrariesPage',
@@ -89,8 +95,12 @@
     setup() {
       const { fetchChannels } = useChannels();
       const { fetchDevices } = useDevices();
+      const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
 
       return {
+        deletePinForUser,
+        createPinForUser,
+        fetchPinsForUser,
         fetchChannels,
         fetchDevices,
       };
@@ -102,6 +112,7 @@
         totalChannels: 0,
         isKolibriLibraryLoaded: false,
         moreDevices: [],
+        usersPins: [],
       };
     },
     computed: {
@@ -132,19 +143,34 @@
           color: this.$themeTokens.text,
         };
       },
+      usersPinsDeviceIds() {
+        // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
+        // items) -- which the user has pinned
+        return this.usersPins.map(pin => pin.instance_id);
+      },
       pinnedDevices() {
-        //ToDo: filter only pinned devices using pinning and unpinning api TBD
-        return this.networkDevicesWithChannels;
+        return this.networkDevicesWithChannels.filter(netdev => {
+          return this.usersPinsDeviceIds.includes(netdev.instance_id);
+        });
       },
       showKolibriLibrary() {
         return this.isSuperuser && this.isKolibriLibraryLoaded;
       },
       unpinnedDevices() {
-        //ToDo: filter only unpinned devices using pinning and unpinning api TBD
-        return this.networkDevicesWithChannels;
+        return this.networkDevicesWithChannels.filter(netdev => {
+          return !this.usersPinsDeviceIds.includes(netdev.instance_id);
+        });
       },
     },
     created() {
+      // Fetch user's pins
+      this.fetchPinsForUser().then(resp => {
+        this.usersPins = resp.map(pin => {
+          const instance_id = pin.instance_id.replace(/-/g, '');
+          return { ...pin, instance_id };
+        });
+      });
+
       RemoteChannelResource.getKolibriStudioStatus().then(({ data }) => {
         if (data.status === 'online') {
           RemoteChannelResource.fetchCollection()
@@ -173,6 +199,45 @@
       });
     },
     methods: {
+      isPinned(instance_id) {
+        return this.usersPinsDeviceIds.includes(instance_id);
+      },
+      createPin(instance_id) {
+        return this.createPinForUser(instance_id).then(response => {
+          const id = response.id;
+          this.usersPins = [...this.usersPins, { instance_id, id }];
+          // eslint-disable-next-line
+          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
+          this.moreDevices = this.moreDevices.filter(d => d.instance_id !== instance_id);
+        });
+      },
+      deletePin(instance_id, pinId) {
+        return this.deletePinForUser(pinId).then(() => {
+          // Remove this pin from the usersPins
+          this.usersPins = this.usersPins.filter(p => p.instance_id != instance_id);
+          const removedDevice = this.networkDevicesWithChannels.find(
+            d => d.instance_id === instance_id
+          );
+
+          if (removedDevice) {
+            this.moreDevices.push(removedDevice);
+          }
+          // eslint-disable-next-line
+          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
+        });
+      },
+      handlePinToggle(instance_id) {
+        if (this.usersPinsDeviceIds.includes(instance_id)) {
+          const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
+          this.deletePin(instance_id, pinId).catch(e => {
+            console.error(e);
+          });
+        } else {
+          this.createPin(instance_id).catch(e => {
+            console.error(e);
+          });
+        }
+      },
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {
           return 'device';

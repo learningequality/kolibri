@@ -6,6 +6,8 @@ import mock
 import requests
 from django.urls import reverse
 from rest_framework import status
+from rest_framework.status import HTTP_200_OK
+from rest_framework.status import HTTP_201_CREATED
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -102,3 +104,56 @@ class NetworkLocationAPITestCase(APITestCase):
         )
         for location in response.data:
             self.assertFalse(location["subset_of_users_device"])
+
+
+class PinnedDeviceAPITestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory(facility=cls.facility)
+        cls.network_location = models.NetworkLocation.objects.create(
+            base_url="https://kolibrihappyurl.qqq/"
+        )
+        cls.network_location2 = models.NetworkLocation.objects.create(
+            base_url="https://anotherone.moc"
+        )
+
+    def setUp(self):
+        self.client.login(
+            username=self.user.username, password=DUMMY_PASSWORD, facility=self.facility
+        )
+
+    def test_add_pinned_device(self):
+        """
+        Tests the API for adding Pinned Devices
+        """
+        response = self.client.post(
+            reverse("kolibri:core:pinned_devices-list"),
+            data={"user": self.user.id, "instance_id": self.network_location.id},
+        )
+        self.assertEqual(response.status_code, HTTP_201_CREATED)
+
+    def test_fetch_pinned_devices(self):
+        """
+        Tests the API for fetching Pinned Devices
+        """
+        my_pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location.id
+        )
+        my_second_pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location2.id
+        )
+
+        pin_ids = sorted([my_pin.instance_id, my_second_pin.instance_id])
+
+        response = self.client.get(
+            reverse("kolibri:core:pinned_devices-list"),
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(len(response.data), 2)
+        # TODO - Get this working
+        #      - Discuss & write any more tasks
+        #      - Start onto the frontend
+        response_ids = sorted([item["instance_id"].hex for item in response.data])
+        self.assertEqual(response_ids, pin_ids)
