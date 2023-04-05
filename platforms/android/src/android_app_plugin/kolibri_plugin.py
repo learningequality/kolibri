@@ -4,11 +4,16 @@ from jnius import autoclass
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
 PythonWorker = autoclass("org.kivy.android.PythonWorker")
+
+
+class AndroidApp(KolibriPluginBase):
+    pass
 
 
 @register_hook
