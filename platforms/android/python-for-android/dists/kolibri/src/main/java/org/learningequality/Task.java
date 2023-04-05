@@ -13,10 +13,13 @@ import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
 
+import com.google.common.util.concurrent.ListenableFuture;
+
 import org.kivy.android.PythonWorker;
 import org.learningequality.Kolibri.TaskworkerWorker;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
@@ -87,16 +90,43 @@ public class Task {
     public static void clear(String id) {
         Context context = ContextUtil.getApplicationContext();
         String tag = generateTagFromId(id);
-        WorkManager workManager = WorkManager.getInstance(context);
-        List<WorkInfo> workInfos = workManager.getWorkInfosByTagLiveData(tag).getValue();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        for (WorkInfo workInfo : workInfos) {
-            Data progress = workInfo.getProgress();
-            int notificationId = progress.getInt(PythonWorker.NOTIFICATION_ID, -1);
-            if (notificationId > -1) {
-                notificationManager.cancel(notificationId);
+        WorkManager workManager = WorkManager.getInstance(context);
+        ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfosByTag(tag);
+
+        workInfosFuture.addListener(() -> {
+            try {
+                List<WorkInfo> workInfos = workInfosFuture.get();
+                if (workInfos != null) {
+                    // Track whether the work infos are telling us this is clearable
+                    boolean clearable = true;
+                    // As clearable defaults to true to repeatedly &&
+                    // also make sure we actually saw any info at all
+                    boolean anyInfo = false;
+                    for (WorkInfo workInfo : workInfos) {
+                        anyInfo = true;
+                        Data progress = workInfo.getProgress();
+                        int notificationId = progress.getInt(PythonWorker.NOTIFICATION_ID, -1);
+                        // TODO: Unfortunately, we are failing to retrieve this data from the worker
+                        // so the notificationId is always -1. Fixing this will allow the clearing of
+                        // tasks from within the Kolibri UI to propagate to clearing notifications.
+                        if (notificationId > -1) {
+                            notificationManager.cancel(notificationId);
+                        }
+                        WorkInfo.State state = workInfo.getState();
+                        // Clearing a task while it is still running causes some
+                        // not great things to happen, so we should wait until
+                        // WorkManager has determined it is not running.
+                        clearable = clearable && state != WorkInfo.State.RUNNING;
+                    }
+                    if (anyInfo && clearable) {
+                        // If the tasks are marked as completed we
+                        workManager.cancelAllWorkByTag(tag);
+                    }
+                }
+            } catch (ExecutionException | InterruptedException e) {
+                e.printStackTrace();
             }
-        }
-        workManager.cancelAllWorkByTag(tag);
+        }, new MainThreadExecutor());
     }
 }
