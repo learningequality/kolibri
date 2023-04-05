@@ -2,7 +2,6 @@ package org.learningequality;
 
 import android.content.Context;
 
-import androidx.core.app.NotificationManagerCompat;
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
 import androidx.work.ExistingPeriodicWorkPolicy;
@@ -15,7 +14,6 @@ import androidx.work.WorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.kivy.android.PythonWorker;
 import org.learningequality.Kolibri.TaskworkerWorker;
 
 import java.util.List;
@@ -90,7 +88,6 @@ public class Task {
     public static void clear(String id) {
         Context context = ContextUtil.getApplicationContext();
         String tag = generateTagFromId(id);
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         WorkManager workManager = WorkManager.getInstance(context);
         ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfosByTag(tag);
 
@@ -105,14 +102,6 @@ public class Task {
                     boolean anyInfo = false;
                     for (WorkInfo workInfo : workInfos) {
                         anyInfo = true;
-                        Data progress = workInfo.getProgress();
-                        int notificationId = progress.getInt(PythonWorker.NOTIFICATION_ID, -1);
-                        // TODO: Unfortunately, we are failing to retrieve this data from the worker
-                        // so the notificationId is always -1. Fixing this will allow the clearing of
-                        // tasks from within the Kolibri UI to propagate to clearing notifications.
-                        if (notificationId > -1) {
-                            notificationManager.cancel(notificationId);
-                        }
                         WorkInfo.State state = workInfo.getState();
                         // Clearing a task while it is still running causes some
                         // not great things to happen, so we should wait until

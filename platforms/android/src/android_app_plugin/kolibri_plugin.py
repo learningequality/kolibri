@@ -76,6 +76,15 @@ class StorageHook(StorageHook):
             # Set to running as foreground
             PythonWorker.mWorker.runAsForeground()
 
+        if not job.long_running and state in {
+            State.COMPLETED,
+            State.CANCELED,
+            State.FAILED,
+        }:
+            # This is a short running job and it has just finished
+            # Remove the notification
+            PythonWorker.mWorker.hideNotification()
+
         # Only do this special handling if repeat is not None or if it is not 0
         # meaning it is a task that repeats a limited number of times, and Kolibri
         # is repeating it again.

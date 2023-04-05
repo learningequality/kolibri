@@ -66,9 +66,6 @@ public class PythonWorker extends RemoteListenableWorker {
         androidArgument = appRoot;
         pythonHome = appRoot;
         pythonPath = appRoot + ":" + appRoot + "/lib";
-
-        // Store the notification id so that we can retrieve it via WorkManager.
-        setProgressAsync(new Data.Builder().putInt(NOTIFICATION_ID, notificationId).build());
     }
 
     public void setPythonName(String value) {
@@ -184,6 +181,12 @@ public class PythonWorker extends RemoteListenableWorker {
         Context context = getApplicationContext();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.notify(notificationId, createNotification());
+    }
+
+    public void hideNotification() {
+        Context context = getApplicationContext();
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+        notificationManager.cancel(notificationId);
     }
 
     public ForegroundInfo getForegroundInfo() {
