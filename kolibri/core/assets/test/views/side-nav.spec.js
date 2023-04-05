@@ -44,20 +44,12 @@ function setUserKind(store, userKind) {
 }
 
 const url = '/test/url';
-const label = 'Test Label';
-const label2 = 'Test Label 2';
+const label = 'label1';
+const label2 = 'label2';
 const icon = 'library';
 const role = UserKinds.LEARNER;
 
-function createAndRegisterComponent(
-  name,
-  url,
-  label,
-  icon,
-  role,
-  priority,
-  section = NavComponentSections.ACCOUNT
-) {
+function createAndRegisterComponent(name, url, label, icon, role, priority, section) {
   const config = {
     name: name,
     url: url,
@@ -165,9 +157,10 @@ describe('side nav component', () => {
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
       await wrapper.vm.$nextTick();
-      const accountComponents = wrapper.findAll("[data-test='account-component']");
-      expect(accountComponents[0]).toContain(label);
-      expect(accountComponents[1]).toContain(label2);
+      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
+      expect(sideNavComponents.exists()).toBeTruthy();
+      expect(sideNavComponents.at(0).html()).toContain(label);
+      expect(sideNavComponents.at(1).html()).toContain(label2);
     });
   });
 
@@ -177,38 +170,45 @@ describe('side nav component', () => {
     });
 
     it('should show higher priority component above lower priority component', () => {
-      const component1 = createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
-      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
+      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
+      createAndRegisterComponent('2SideNavEntry', url, label2, icon, role, 10);
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.topComponents[0]).toBe(component1);
-      expect(wrapper.vm.topComponents[1]).toBe(component2);
+      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
+      expect(sideNavComponents.exists()).toBeTruthy();
+      expect(sideNavComponents.at(0).html()).toContain(label);
+      expect(sideNavComponents.at(1).html()).toContain(label2);
     });
 
     it('should show account section component below lower priority component', () => {
-      const component1 = createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
-      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
+      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
+      createAndRegisterComponent(
+        '2SideNavEntry',
+        url,
+        label2,
+        icon,
+        role,
+        10,
+        NavComponentSections.ACCOUNT
+      );
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.topComponents[2]).toBe(component1);
-      expect(wrapper.vm.topComponents[0]).toBe(component2);
+      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
+      expect(sideNavComponents.exists()).toBeTruthy();
+      expect(sideNavComponents.at(1).html()).toContain(label2);
+      expect(sideNavComponents.at(0).html()).toContain(label);
     });
 
     it('should show component with priority above undefined priority component', () => {
       // Component 2 should be registered first
-      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
-      const component1 = createAndRegisterComponent(
-        '1SideNavEntry',
-        url,
-        label,
-        icon,
-        role,
-        undefined
-      );
+      createAndRegisterComponent('2SideNavEntry', url, label2, icon, role, 10);
+      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, undefined);
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.topComponents[1]).toBe(component1);
-      expect(wrapper.vm.topComponents[0]).toBe(component2);
+      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
+      expect(sideNavComponents.exists()).toBeTruthy();
+      expect(sideNavComponents.at(0).html()).toContain(label2);
+      expect(sideNavComponents.at(1).html()).toContain(label);
     });
   });
 

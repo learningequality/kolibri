@@ -14,6 +14,7 @@ function makeWrapper({ propsData = {}, getters = {} }) {
     stubs: ['FacilityTopNav'],
   });
 }
+jest.mock('kolibri.urls');
 
 describe('FacilityAppBarPage', function() {
   it('renders the FacilityTopNav component', () => {

@@ -84,7 +84,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
-                  data-test="top-component"
+                  data-test="side-nav-component"
                 />
                 <SideNavDivider />
                 <CoreMenuOption
@@ -94,7 +94,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
-                  data-test="account-component"
+                  data-test="side-nav-component"
                 />
                 <LogoutSideNavEntry v-if="showLogout" />
                 <CoreMenuOption
