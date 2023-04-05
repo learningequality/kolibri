@@ -40,6 +40,7 @@ logging.info("Initializing Kolibri and running any upgrade routines")
 
 # activate app mode
 enable_plugin("kolibri.plugins.app")
+enable_plugin("android_app_plugin")
 
 # we need to initialize Kolibri to allow us to access the app key
 initialize()
