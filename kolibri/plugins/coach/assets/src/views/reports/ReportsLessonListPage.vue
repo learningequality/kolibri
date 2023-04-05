@@ -185,9 +185,9 @@
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'visibleLessons') {
-            return lesson.active;
+            return lesson.is_active;
           } else if (this.filter.value === 'lessonsNotVisible') {
-            return !lesson.active;
+            return !lesson.is_active;
           }
         });
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
@@ -209,7 +209,7 @@
           let sum = 0;
           this.table.forEach(lesson => {
             // only include visible lessons
-            if (lesson.active) {
+            if (lesson.is_active) {
               sum += this.lessonsSizes[0][lesson.id];
             }
           });
@@ -224,7 +224,7 @@
     },
     methods: {
       handleToggleVisibility(lesson) {
-        const newActiveState = !lesson.active;
+        const newActiveState = !lesson.is_active;
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
@@ -259,7 +259,7 @@
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation) {
-          if (lesson.active) {
+          if (lesson.is_active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {
