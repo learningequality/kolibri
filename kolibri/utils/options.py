@@ -643,15 +643,6 @@ base_option_spec = {
                 The default is to disallow server restarts, so callbacks need to be added to enable restarting.
             """,
         },
-        "SYNC_INITIATED_CONTENT_IMPORT": {
-            "type": "boolean",
-            "default": False,
-            "description": """
-                Enables automatic content import of individual content resources assigned in
-                classes, initiated by syncing facility data. For learn-only devices, this is the
-                default behavior and cannot be changed.
-            """,
-        },
     },
     "Python": {
         "PICKLE_PROTOCOL": {
