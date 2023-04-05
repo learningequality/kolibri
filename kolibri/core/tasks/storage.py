@@ -19,10 +19,10 @@ from sqlalchemy.orm import sessionmaker
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
+from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
-from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
 from kolibri.utils.time_utils import naive_utc_datetime
 
@@ -72,14 +72,6 @@ class ORMJob(Base):
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
-def _validate_hooks(hooks):
-    if hooks is None:
-        return []
-    if not isinstance(hooks, list) or any(not callable(h) for h in hooks):
-        raise RuntimeError("hooks must be a list of callables")
-    return hooks
-
-
 class Storage(object):
     def __init__(self, connection, Base=Base):
         self.engine = connection
@@ -88,10 +80,7 @@ class Storage(object):
         self.Base = Base
         self.Base.metadata.create_all(self.engine)
         self.sessionmaker = sessionmaker(bind=self.engine)
-        schedule_hooks = conf.OPTIONS["Tasks"]["SCHEDULE_HOOKS"]
-        update_hooks = conf.OPTIONS["Tasks"]["UPDATE_HOOKS"]
-        self.schedule_hooks = _validate_hooks(schedule_hooks)
-        self.update_hooks = _validate_hooks(update_hooks)
+        self._hooks = list(StorageHook.registered_hooks)
 
     @contextmanager
     def session_scope(self):
@@ -390,7 +379,11 @@ class Storage(object):
                         ORMJob.state == State.CANCELED,
                     )
                 )
-
+            if self._hooks:
+                for orm_job in q:
+                    job = self._orm_to_job(orm_job)
+                    for hook in self._hooks:
+                        hook.clear(job, orm_job)
             q.delete(synchronize_session=False)
 
     def update_job_progress(self, job_id, progress, total_progress):
@@ -462,8 +455,8 @@ class Storage(object):
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
-                for update_hook in self.update_hooks:
-                    update_hook(job, orm_job, state=state, **kwargs)
+                for hook in self._hooks:
+                    hook.update(job, orm_job, state=state, **kwargs)
                 return job, orm_job
             except JobNotFound:
                 if state:
@@ -601,15 +594,9 @@ class Storage(object):
             return job.job_id
 
     def _run_scheduled_hooks(self, orm_job):
-        for schedule_hook in self.schedule_hooks:
-            schedule_hook(
-                id=orm_job.id,
-                priority=orm_job.priority,
-                interval=orm_job.interval,
-                repeat=orm_job.repeat,
-                retry_interval=orm_job.retry_interval,
-                scheduled_time=orm_job.scheduled_time,
-            )
+        job = self._orm_to_job(orm_job)
+        for hook in self._hooks:
+            hook.schedule(job, orm_job)
 
     def _now(self):
         return local_now()
