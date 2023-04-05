@@ -179,6 +179,35 @@ class DeviceSettings(models.Model):
     def secondary_storage_locations(self, value):
         update_options_file("Paths", "CONTENT_FALLBACK_DIRS", value)
 
+    def _get_extra(self, name):
+        """
+        Allows use with `get_device_setting` utility
+        :param name: A str name of the `extra_settings` field
+        :return: mixed
+        """
+        return self.extra_settings.get(name, extra_settings_default_values[name])
+
+    @property
+    def allow_download_on_metered_connection(self):
+        # TODO: fix typo
+        return self._get_extra("allow_download_on_mettered_connection")
+
+    @property
+    def enable_automatic_download(self):
+        return self._get_extra("enable_automatic_download")
+
+    @property
+    def allow_learner_download_resources(self):
+        return self._get_extra("allow_learner_download_resources")
+
+    @property
+    def set_limit_for_autodownload(self):
+        return self._get_extra("set_limit_for_autodownload")
+
+    @property
+    def limit_for_autodownload(self):
+        return self._get_extra("limit_for_autodownload")
+
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
 
