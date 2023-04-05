@@ -43,16 +43,33 @@ function setUserKind(store, userKind) {
   });
 }
 
-function createAndRegisterComponent(name, options = {}) {
-  const component = {
-    name,
-    render() {
-      return '';
-    },
-    ...options,
+const url = '/test/url';
+const label = 'Test Label';
+const label2 = 'Test Label 2';
+const icon = 'library';
+const role = UserKinds.LEARNER;
+
+function createAndRegisterComponent(
+  name,
+  url,
+  label,
+  icon,
+  role,
+  priority,
+  section = NavComponentSections.ACCOUNT
+) {
+  const config = {
+    name: name,
+    url: url,
+    label: label,
+    icon: icon,
+    role: role,
+    priority: priority,
+    section: section,
+    bottomBar: true,
   };
-  navComponents.register(component);
-  return component;
+  navComponents.register(config);
+  return config;
 }
 
 function emptyNavComponents(n = 1) {
@@ -114,17 +131,15 @@ describe('side nav component', () => {
     it.each(testCases)(
       'if user is %s, then %s component should show (%s)',
       async (kind, otherKind, shouldShow) => {
-        const component = createAndRegisterComponent(`${otherKind}SideNavEntry`, {
-          role: otherKind,
-        });
+        createAndRegisterComponent(`${otherKind}SideNavEntry`, url, label, icon, otherKind);
         expect(navComponents).toHaveLength(1);
         const wrapper = createWrapper();
         setUserKind(wrapper.vm.$store, kind);
         await wrapper.vm.$nextTick();
         if (shouldShow) {
-          expect(wrapper.findComponent(component).element).toBeTruthy();
+          expect(wrapper.text()).toContain(label);
         } else {
-          expect(wrapper.findComponent(component).element).toBeFalsy();
+          expect(wrapper.text()).not.toContain(label);
         }
       }
     );
@@ -144,16 +159,15 @@ describe('side nav component', () => {
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT],
     ];
     it.each(testCases)('%s component should above %s component', async (kind, otherKind) => {
-      const component1 = createAndRegisterComponent(`${kind}SideNavEntry`, { role: kind });
-      const component2 = createAndRegisterComponent(`${otherKind}SideNavEntry`, {
-        role: otherKind,
-      });
+      createAndRegisterComponent(`${kind}SideNavEntry`, url, label, icon, kind, 10);
+      createAndRegisterComponent(`${otherKind}SideNavEntry`, url, label2, icon, otherKind, 10);
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
       setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
       await wrapper.vm.$nextTick();
-      expect(wrapper.vm.menuOptions[0]).toBe(component1);
-      expect(wrapper.vm.menuOptions[1]).toBe(component2);
+      const accountComponents = wrapper.findAll("[data-test='account-component']");
+      expect(accountComponents[0]).toContain(label);
+      expect(accountComponents[1]).toContain(label2);
     });
   });
 
@@ -163,34 +177,38 @@ describe('side nav component', () => {
     });
 
     it('should show higher priority component above lower priority component', () => {
-      const component1 = createAndRegisterComponent('1SideNavEntry', { priority: 1 });
-      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
+      const component1 = createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
+      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.menuOptions[0]).toBe(component1);
-      expect(wrapper.vm.menuOptions[1]).toBe(component2);
+      expect(wrapper.vm.topComponents[0]).toBe(component1);
+      expect(wrapper.vm.topComponents[1]).toBe(component2);
     });
 
     it('should show account section component below lower priority component', () => {
-      const component1 = createAndRegisterComponent('1SideNavEntry', {
-        priority: 1,
-        section: NavComponentSections.ACCOUNT,
-      });
-      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
+      const component1 = createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
+      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.menuOptions[2]).toBe(component1);
-      expect(wrapper.vm.menuOptions[0]).toBe(component2);
+      expect(wrapper.vm.topComponents[2]).toBe(component1);
+      expect(wrapper.vm.topComponents[0]).toBe(component2);
     });
 
     it('should show component with priority above undefined priority component', () => {
       // Component 2 should be registered first
-      const component2 = createAndRegisterComponent('2SideNavEntry', { priority: 10 });
-      const component1 = createAndRegisterComponent('1SideNavEntry');
+      const component2 = createAndRegisterComponent('2SideNavEntry', url, label, icon, role, 10);
+      const component1 = createAndRegisterComponent(
+        '1SideNavEntry',
+        url,
+        label,
+        icon,
+        role,
+        undefined
+      );
       expect(navComponents).toHaveLength(2);
       const wrapper = createWrapper();
-      expect(wrapper.vm.menuOptions[1]).toBe(component1);
-      expect(wrapper.vm.menuOptions[0]).toBe(component2);
+      expect(wrapper.vm.topComponents[1]).toBe(component1);
+      expect(wrapper.vm.topComponents[0]).toBe(component2);
     });
   });
 

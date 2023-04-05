@@ -84,6 +84,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  data-test="top-component"
                 />
                 <SideNavDivider />
                 <CoreMenuOption
@@ -93,8 +94,9 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  data-test="account-component"
                 />
-                <LogoutSideNavEntry />
+                <LogoutSideNavEntry v-if="showLogout" />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
@@ -323,6 +325,9 @@
           .sort(this.compareMenuComponents);
 
         return [...accountComponents].filter(this.filterByRole);
+      },
+      showLogout() {
+        return this.getUserKind !== UserKinds.ANONYMOUS;
       },
       bottomMenuOptions() {
         return navComponents.filter(component => component.bottomBar == true);
