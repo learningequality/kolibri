@@ -120,16 +120,7 @@ class StaticNetworkLocation(NetworkLocation):
         proxy = True
 
     def save(self, *args, **kwargs):
-        from kolibri.core.discovery.utils.network.connections import (
-            capture_network_state,
-        )
-        from kolibri.core.discovery.utils.network.client import NetworkClient
-
         self.dynamic = False
-
-        client = NetworkClient.build_from_network_location(self)
-        self.is_local = capture_network_state(self, client)
-
         return super(StaticNetworkLocation, self).save(*args, **kwargs)
 
 
