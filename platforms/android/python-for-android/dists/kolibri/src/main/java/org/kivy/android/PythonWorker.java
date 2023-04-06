@@ -1,14 +1,10 @@
 package org.kivy.android;
 
-import android.app.Notification;
 import android.content.Context;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
-import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.work.Data;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 import androidx.work.multiprocess.RemoteListenableWorker;

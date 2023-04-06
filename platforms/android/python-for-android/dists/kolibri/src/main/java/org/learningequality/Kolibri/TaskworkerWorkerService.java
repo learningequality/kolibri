@@ -25,4 +25,10 @@ public class TaskworkerWorkerService extends RemoteWorkerService {
         }
         super.onCreate();
     }
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        // When the service exits, call System.exit to teardown the process.
+        System.exit(0);
+    }
 }
