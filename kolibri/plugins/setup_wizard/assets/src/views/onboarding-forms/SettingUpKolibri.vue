@@ -169,8 +169,8 @@
 
           // // suggested fix(-ish)
           // let baseTranslatedLength = this.$tr('defaultDeviceName', { name: '' }).length
-let       // truncatedFullName = this.user.full_name.slice(0, baseTranslatedLength-1);
-let       // actualStringWeUse = this.$tr('defaultDeviceName', { name: truncatedFullName });
+          // let truncatedFullName = this.user.full_name.slice(0, baseTranslatedLength-1);
+          // let actualStringWeUse = this.$tr('defaultDeviceName', { name: truncatedFullName });
 
           // // if there is a device name available, use it, otherwise get superuser's full name
           // // and insert into (translation of) 'personal device of {}'
