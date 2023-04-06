@@ -9,7 +9,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ("discovery", "0006_networklocation_min_content_schema_version"),
+        ("discovery", "0007_device_pinning"),
     ]
 
     operations = [
