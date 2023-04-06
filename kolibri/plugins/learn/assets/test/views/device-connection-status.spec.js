@@ -38,13 +38,16 @@ describe('DeviceConnectionStatus', () => {
     expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeFalsy();
   });
 
-  it('shows the disconnected icon', () => {
-    useDevicesWithFacility.mockReturnValue({ devices: [] });
+  it('shows the disconnected icon', async () => {
+    useDevicesWithFacility.mockReturnValue({ devices: [], isFetching: true });
     const wrapper = makeWrapper({
       propsData: {
         deviceId: '1',
       },
     });
-    expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeTruthy();
+    useDevicesWithFacility.mockReturnValue({ isFetching: false });
+    wrapper.vm.$nextTick(() => {
+      expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeTruthy();
+    });
   });
 });
