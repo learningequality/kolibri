@@ -346,7 +346,7 @@
           // Log out of Facility Page if and Admin demotes themselves to non-Admin
           this.$store.dispatch('kolibriLogout');
         } else {
-          this.$store.dispatch('createSnackbar', this.coreString('changedSavedNotification'));
+          this.$store.dispatch('createSnackbar', this.coreString('changesSavedNotification'));
           this.goToUserManagementPage();
         }
       },

@@ -13,7 +13,7 @@
             v-model="languageFilter"
             class="filter-lang"
             :options="languageFilterOptions"
-            :label="coreString('languageFilterLabel')"
+            :label="coreString('languageLabel')"
             :inline="true"
           />
         </KGridItem>

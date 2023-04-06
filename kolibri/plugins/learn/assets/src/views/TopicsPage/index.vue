@@ -10,10 +10,14 @@
       v-else-if="!loading"
       :loading="loading"
       :route="back"
-      :appBarTitle="(topic && topic.title) || ''"
+      :appBarTitle="barTitle"
       :appearanceOverrides="{}"
+      :primary="!allowDownloads"
       class="page"
     >
+      <template #actions>
+        <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+      </template>
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
         v-if="!windowIsSmall"
@@ -275,6 +279,7 @@
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
   import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
+  import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
@@ -315,6 +320,7 @@
       TopicSubsection,
       SearchPanelModal,
       ImmersivePage,
+      DeviceConnectionStatus,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
@@ -380,6 +386,11 @@
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
       allowDownloads() {
         return Boolean(this.deviceId);
+      },
+      barTitle() {
+        return this.deviceId
+          ? this.learnString('exploreLibraries')
+          : (this.topic && this.topic.title) || '';
       },
       childrenToDisplay() {
         return Math.max(this.numCols, 3);
@@ -648,10 +659,8 @@
       // Takes effect only when the side panel is not displayed full-screen.
       stickyCalculation() {
         const header = this.$refs.header && this.$refs.header.$el;
-        if (!header) {
-          return;
-        }
         const topbar = document.querySelector('.scrolling-header');
+
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 

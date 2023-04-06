@@ -11,4 +11,16 @@ module.exports = [
       entry: './assets/src/views/LearnSideNavEntry.vue',
     },
   },
+  {
+    bundle_id: 'my_downloads_app',
+    webpack_config: {
+      entry: './assets/src/my_downloads/app.js',
+    },
+  },
+  {
+    bundle_id: 'my_downloads_side_nav',
+    webpack_config: {
+      entry: './assets/src/my_downloads/views/MyDownloadsSideNavEntry.vue',
+    },
+  },
 ];

@@ -39,6 +39,7 @@
         :isValid.sync="usernameValid"
         :disabled="disabled"
         :shouldValidate="formSubmitted"
+        :errors.sync="caughtErrors"
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
@@ -144,6 +145,12 @@
         required: false,
         default: null,
       },
+      // Pass in errors with .sync modifier
+      errors: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
     },
     data() {
       let user;
@@ -160,6 +167,8 @@
         password: '',
         passwordValid: false,
         formSubmitted: false,
+        // Property to wrap props.errors and avoid warnings about mutating props
+        caughtErrors: [],
       };
     },
     computed: {
@@ -200,6 +209,15 @@
           this.syncOnboardingData();
           this.focusOnInvalidField();
         });
+      },
+      errors() {
+        if (this.errors && this.errors.length) {
+          this.focusOnInvalidField();
+        }
+        this.caughtErrors = this.errors;
+      },
+      caughtErrors() {
+        this.$emit('update:errors', this.caughtErrors);
       },
     },
     mounted() {

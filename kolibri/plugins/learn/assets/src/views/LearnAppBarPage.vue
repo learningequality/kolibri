@@ -9,6 +9,9 @@
     :route="route"
     :title="appBarTitle"
   >
+    <template #actions>
+      <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+    </template>
 
     <template
       v-if="!deviceId"
@@ -30,6 +33,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LearnTopNav from './LearnTopNav';
+  import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
 
   export default {
     name: 'LearnAppBarPage',
@@ -37,8 +41,10 @@
       AppBarPage,
       ImmersivePage,
       LearnTopNav,
+      DeviceConnectionStatus,
     },
     mixins: [commonCoreStrings],
+
     props: {
       appBarTitle: {
         type: String,
