@@ -7,6 +7,7 @@
 
       <UiToolbar
         :title="title"
+        :removeNavIcon="isAppContext"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -14,7 +15,7 @@
         :raised="false"
         :removeBrandDivider="true"
       >
-        <template #icon>
+        <template v-if="!isAppContext" #icon>
           <KIconButton
             icon="menu"
             :color="$themeTokens.textInverted"
@@ -29,11 +30,11 @@
             :src="themeConfig.appBar.topLogo.src"
             :alt="themeConfig.appBar.topLogo.alt"
             :style="themeConfig.appBar.topLogo.style"
-            class="brand-logo"
+            :class="isAppContext ? 'brand-logo-left' : 'brand-logo'"
           >
         </template>
 
-        <template v-if="windowIsLarge" #navigation>
+        <template v-if="windowIsLarge && !isAppContext" #navigation>
           <slot name="sub-nav"></slot>
         </template>
 
@@ -122,7 +123,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner']),
+      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -267,6 +268,7 @@
   /deep/ .ui-toolbar__left {
     display: flex;
     align-items: center;
+    margin-left: 8px;
   }
 
   .brand-logo {
@@ -274,6 +276,10 @@
     max-height: 48px;
     margin-right: 8px;
     vertical-align: middle;
+  }
+
+  .brand-logo-left {
+    margin-left: -16px !important;
   }
 
   // Hide the UiButton focus ring

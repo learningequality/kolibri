@@ -8,7 +8,7 @@ module.exports = [
   {
     bundle_id: 'side_nav',
     webpack_config: {
-      entry: './assets/src/views/DeviceManagementSideNavEntry.vue',
+      entry: './assets/src/views/DeviceManagementSideNavEntry.js',
     },
   },
 ];

@@ -46,6 +46,7 @@ import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherLis
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
 import PointsIcon from '../views/PointsIcon';
+import TotalPoints from '../views/TotalPoints';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
 import KolibriLoadingSnippet from '../views/KolibriLoadingSnippet';
@@ -168,6 +169,7 @@ export default {
       LanguageSwitcherList,
       ElapsedTime,
       PointsIcon,
+      TotalPoints,
       AuthMessage,
       FilterTextbox,
       CoreSnackbar,

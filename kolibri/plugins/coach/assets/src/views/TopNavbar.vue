@@ -29,7 +29,7 @@
         return [
           {
             title: this.coreString('classHome'),
-            link: this.navRoute('HomePage'),
+            link: this.navRoute(PageNames.HOME_PAGE),
             icon: 'dashboard',
             color: this.$themeTokens.textInverted,
           },

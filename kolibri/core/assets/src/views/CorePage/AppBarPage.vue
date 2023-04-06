@@ -35,6 +35,7 @@
       ref="sideNav"
       :navShown="navShown"
       @toggleSideNav="navShown = !navShown"
+      @shouldFocusFirstEl="findFirstEl()"
     />
     <LanguageSwitcherModal
       v-if="languageModalShown"
@@ -42,6 +43,7 @@
       :style="{ color: $themeTokens.text }"
       @cancel="languageModalShown = false"
     />
+
   </div>
 
 </template>
@@ -53,6 +55,7 @@
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
@@ -60,7 +63,14 @@
 
   export default {
     name: 'AppBarPage',
-    components: { AppBar, LanguageSwitcherModal, ScrollingHeader, SideNav, StorageNotification },
+    components: {
+      AppBar,
+      LanguageSwitcherModal,
+      ScrollingHeader,
+      SideNav,
+      StorageNotification,
+    },
+    mixins: [commonCoreStrings],
     setup() {
       let userDeviceStatus = null;
       if (plugin_data.isSubsetOfUsersDevice) {
@@ -117,6 +127,15 @@
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
     },
+    methods: {
+      findFirstEl() {
+        this.$nextTick(() => {
+          if (this.navShown) {
+            this.$refs.menuNav.focusFirstEl();
+          }
+        });
+      },
+    },
   };
 
 </script>
@@ -127,9 +146,21 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .app-bar {
-    @extend %dropshadow-4dp;
+    @extend %dropshadow-8dp;
 
     width: 100%;
+  }
+
+  .android-nav-bottom-bar {
+    @extend %dropshadow-4dp;
+
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 12;
+    height: 48px;
+    background-color: white;
   }
 
 </style>

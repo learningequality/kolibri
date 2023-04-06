@@ -8,7 +8,7 @@ module.exports = [
   {
     bundle_id: 'user_profile_side_nav',
     webpack_config: {
-      entry: './assets/src/views/UserProfileSideNavEntry.vue',
+      entry: './assets/src/views/UserProfileSideNavEntry.js',
     },
   },
 ];

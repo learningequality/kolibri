@@ -64,7 +64,6 @@ export default {
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })
         .then(classrooms => {
-          console.log(classrooms);
           store.commit('SET_CLASS_LIST', classrooms);
         })
         .catch(error => store.dispatch('handleApiError', error));

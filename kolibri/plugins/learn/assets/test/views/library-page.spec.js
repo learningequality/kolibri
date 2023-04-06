@@ -30,6 +30,7 @@ const mockStore = new Vuex.Store({
     isSuperuser: jest.fn(),
     isAdmin: jest.fn(),
     isCoach: jest.fn(),
+    isAppContext: jest.fn(),
     getUserKind: jest.fn(),
   },
 });
@@ -40,6 +41,7 @@ jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri.urls');
 
 describe('LibraryPage', () => {
   describe('filters button', () => {

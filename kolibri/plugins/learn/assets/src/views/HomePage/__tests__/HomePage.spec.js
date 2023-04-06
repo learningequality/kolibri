@@ -29,6 +29,7 @@ const mockStore = new Vuex.Store({
   state: { core: { loading: false } },
   getters: {
     isUserLoggedIn: jest.fn(),
+    isAppContext: jest.fn(),
     isLearner: jest.fn(),
   },
 });

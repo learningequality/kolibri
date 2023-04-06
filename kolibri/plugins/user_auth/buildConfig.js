@@ -8,7 +8,7 @@ module.exports = [
   {
     bundle_id: 'login_side_nav',
     webpack_config: {
-      entry: './assets/src/views/LoginSideNavEntry.vue',
+      entry: './assets/src/views/LoginSideNavEntry.js',
     },
   },
 ];

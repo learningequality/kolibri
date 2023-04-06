@@ -1,8 +1,10 @@
 import { LessonsPageNames } from './lessonsConstants';
 
 export const PageNames = {
+  HOME_PAGE: 'HomePage', // make sure this matches the Coach 'Home' page name
   REPORTS_PAGE: 'REPORTS_PAGE',
   PLAN_PAGE: 'PLAN_PAGE',
+  COACH_CLASS_LIST_PAGE: 'COACH_CLASS_LIST_PAGE',
   NEW_COACH_PAGES: 'NEW_COACH_PAGES',
   EXAMS: 'EXAMS',
   EXAM_CREATION_ROOT: 'EXAM_CREATION_ROOT',

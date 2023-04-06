@@ -8,7 +8,7 @@ module.exports = [
   {
     bundle_id: 'side_nav',
     webpack_config: {
-      entry: './assets/src/views/FacilityManagementSideNavEntry.vue',
+      entry: './assets/src/views/FacilityManagementSideNavEntry.js',
     },
   },
 ];

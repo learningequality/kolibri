@@ -7,6 +7,7 @@ localVue.use(Vuex);
 const store = new Vuex.Store({
   getters: {
     isUserLoggedIn: jest.fn(),
+    isAppContext: jest.fn(),
   },
 });
 

@@ -6,12 +6,13 @@
     tabindex="0"
     @keyup.esc="toggleNav"
   >
-    <transition name="side-nav">
+    <transition :name="isAppContext ? 'bottom-nav' : 'side-nav'">
       <div
         v-show="navShown"
         class="side-nav"
+        :class="isAppContext ? 'bottom-offset' : ''"
         :style="{
-          width: `${width}px`,
+          width: `${width}`,
           color: $themeTokens.text,
           backgroundColor: $themeTokens.surface,
         }"
@@ -24,8 +25,10 @@
 
 
           <div
-            class="side-nav-scrollable-area"
-            :style="{ top: `${topBarHeight}px`, width: `${width}px` }"
+            :class="isAppContext ? 'bottom-nav-scrollable-area' : 'side-nav-scrollable-area'"
+            :style="isAppContext ?
+              { width: `${width}` } :
+              { top: `${topBarHeight}px`, width: `${width}` }"
           >
             <img
               v-if="themeConfig.sideNav.topLogo"
@@ -70,15 +73,30 @@
             <CoreMenu
               ref="coreMenu"
               role="navigation"
-              :style="{ backgroundColor: $themeTokens.surface }"
+              :style="{ backgroundColor: $themeTokens.surface, width: width }"
               :aria-label="$tr('navigationLabel')"
             >
               <template #options>
-                <component
-                  :is="component"
-                  v-for="component in menuOptions"
+                <CoreMenuOption
+                  v-for="component in topComponents"
                   :key="component.name"
+                  :label="component.label"
+                  :subRoutes="component.routes"
+                  :link="component.url"
+                  :icon="component.icon"
+                  data-test="side-nav-component"
                 />
+                <SideNavDivider />
+                <CoreMenuOption
+                  v-for="component in accountComponents"
+                  :key="component.name"
+                  :label="component.label"
+                  :subRoutes="component.routes"
+                  :link="component.url"
+                  :icon="component.icon"
+                  data-test="side-nav-component"
+                />
+                <LogoutSideNavEntry v-if="showLogout" />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
@@ -141,10 +159,11 @@
             </div>
           </div>
           <div
+            v-if="!isAppContext"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
-              width: `${width}px`, paddingTop: windowIsSmall ? '4px' : '8px',
+              width: `${width}`, paddingTop: windowIsSmall ? '4px' : '8px',
               backgroundColor: $themeTokens.appBar,
             }"
           >
@@ -167,8 +186,16 @@
       </div>
     </transition>
 
+    <BottomNavigationBar
+      v-if="isAppContext"
+      :bottomMenuOptions="bottomMenuOptions"
+      @toggleNav="toggleNav()"
+    />
+
+
+
     <Backdrop
-      v-show="navShown"
+      v-show="navShown && !isAppContext"
       :transitions="true"
       class="side-nav-backdrop"
       @click="toggleNav"
@@ -208,13 +235,14 @@
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
+  import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import navComponentsMixin from '../mixins/nav-components';
-  import TotalPoints from '../../../../plugins/learn/assets/src/views/TotalPoints.vue';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
-  import logout from './LogoutSideNavEntry';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
+  import BottomNavigationBar from './BottomNavigationBar';
+  import LogoutSideNavEntry from './LogoutSideNavEntry';
   import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
@@ -241,6 +269,8 @@
       FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
+      LogoutSideNavEntry,
+      BottomNavigationBar,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
@@ -269,13 +299,13 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind']),
+      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
       }),
       width() {
-        return this.topBarHeight * 4;
+        return this.isAppContext ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
         return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
@@ -283,16 +313,24 @@
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-      menuOptions() {
-        const topComponents = navComponents
+      topComponents() {
+        return navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
+          .sort(this.compareMenuComponents)
+          .filter(this.filterByRole);
+      },
+      accountComponents() {
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
-        return [...topComponents, SideNavDivider, ...accountComponents, logout].filter(
-          this.filterByRole
-        );
+
+        return [...accountComponents].filter(this.filterByRole);
+      },
+      showLogout() {
+        return this.getUserKind !== UserKinds.ANONYMOUS;
+      },
+      bottomMenuOptions() {
+        return navComponents.filter(component => component.bottomBar == true);
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
@@ -324,6 +362,7 @@
     beforeDestroy() {
       window.removeEventListener('click', this.handleWindowClick);
     },
+
     methods: {
       toggleNav() {
         this.$emit('toggleSideNav');
@@ -468,10 +507,23 @@
     left: 0;
     padding-top: 4px;
     overflow: auto;
+    overflow-x: hidden;
+  }
+
+  .bottom-nav-scrollable-area {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 95vw;
+    height: 100%;
+    padding-top: 4px;
+    overflow-x: hidden;
+    overflow-y: auto;
   }
 
   .side-nav-scrollable-area-footer {
     padding: 16px;
+    margin-bottom: 40px;
   }
 
   .side-nav-scrollable-area-footer-logo {
@@ -524,8 +576,9 @@
 
   /* keen menu */
   /deep/ .ui-menu {
+    max-width: none;
     max-height: none;
-    padding: 0;
+    padding: 0 12px;
     border: 0;
   }
 
