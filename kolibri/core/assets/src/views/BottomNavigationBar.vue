@@ -7,7 +7,7 @@
         tabindex="-1"
         class="nav-menu-item"
         :style="{ textDecoration: 'none' }"
-        @click="handleNav(routeDefinition.route)"
+        @click="handleNav(routeDefinition.route, bottomMenuOptions[0].url)"
       >
         <div
           :style="isActiveLink(routeDefinition.route, bottomMenuOptions[0].url) ?
@@ -78,8 +78,8 @@
       isActiveLink(route, url) {
         return window.location.pathname === url && route == this.$router.currentRoute.path;
       },
-      handleNav(route) {
-        if (this.isActiveLink(route)) {
+      handleNav(route, url) {
+        if (this.isActiveLink(route, url)) {
           this.$emit('toggleNav');
         }
       },
