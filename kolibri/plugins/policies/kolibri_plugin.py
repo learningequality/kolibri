@@ -10,6 +10,8 @@ from kolibri.utils.translation import ugettext as _
 
 
 class Policies(KolibriPluginBase):
+    translated_view_urls = "urls"
+
     @property
     def url_slug(self):
         return "policies"
@@ -21,5 +23,4 @@ class Policies(KolibriPluginBase):
 
 @register_hook
 class PoliciesAsset(webpack_hooks.WebpackBundleHook):
-    print("policies app")
     bundle_id = "app"

@@ -63,11 +63,13 @@
 
 <script>
 
+  import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import plugin_data from 'plugin_data';
 
   export default {
     name: 'UsageAndPrivacy',
+    components: { ImmersivePage },
     mixins: [commonCoreStrings],
     props: {
       hideUsersSection: {
