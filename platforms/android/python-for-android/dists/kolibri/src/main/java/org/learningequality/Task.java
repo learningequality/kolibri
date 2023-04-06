@@ -30,9 +30,9 @@ public class Task {
         return "kolibri_job_type:" + jobFunc;
     }
 
-    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite, String jobFunc) {
+    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite, String jobFunc, boolean longRunning) {
         WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
-        Data data = TaskworkerWorker.buildInputData(id);
+        Data data = TaskworkerWorker.buildInputData(id, longRunning);
 
         PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
             TaskworkerWorker.class, interval, TimeUnit.SECONDS
@@ -56,9 +56,9 @@ public class Task {
         PeriodicWorkRequest workRequest = workRequestBuilder.build();
         workManager.enqueueUniquePeriodicWork(id, ExistingPeriodicWorkPolicy.KEEP, workRequest);
     }
-    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite, String jobFunc) {
+    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite, String jobFunc, boolean longRunning) {
         WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
-        Data data = TaskworkerWorker.buildInputData(id);
+        Data data = TaskworkerWorker.buildInputData(id, longRunning);
 
         OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
 

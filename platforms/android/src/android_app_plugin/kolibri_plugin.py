@@ -10,6 +10,7 @@ from kolibri.plugins.hooks import register_hook
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
 PythonWorker = autoclass("org.kivy.android.PythonWorker")
+Notifications = autoclass("org.learningequality.Notifications")
 
 
 class AndroidApp(KolibriPluginBase):
@@ -46,13 +47,20 @@ class StorageHook(StorageHook):
                     retry_interval,
                     high_priority,
                     job.func,
+                    job.long_running,
                 )
             else:
                 # Android has no mechanism for scheduling a limited run of repeating tasks
                 # so anything else is just scheduled once, and we use the task_updates function
                 # below to reschedule the next invocation.
                 Task.enqueueOnce(
-                    orm_job.id, delay, retry_interval, keep, high_priority, job.func
+                    orm_job.id,
+                    delay,
+                    retry_interval,
+                    keep,
+                    high_priority,
+                    job.func,
+                    job.long_running,
                 )
 
     def update(self, job, orm_job, state=None, **kwargs):
@@ -60,30 +68,36 @@ class StorageHook(StorageHook):
 
         status = job.status(currentLocale)
 
-        if status:
-            PythonWorker.mWorker.updateNotificationText(status.title, status.text)
+        notification_id = PythonWorker.getNotificationId()
 
-        if job.total_progress:
-            PythonWorker.mWorker.updateNotificationProgress(
-                job.progress, job.total_progress
+        if status and notification_id:
+            if job.total_progress:
+                progress = job.progress
+                total_progress = job.total_progress
+            else:
+                progress = -1
+                total_progress = -1
+            Notifications.showNotification(
+                notification_id,
+                status.title,
+                status.text,
+                progress,
+                total_progress,
             )
 
-        if status:
-            PythonWorker.mWorker.showNotification()
-
-        if job.long_running and state == State.RUNNING:
-            # This is a long running job and it has just started running
-            # Set to running as foreground
-            PythonWorker.mWorker.runAsForeground()
-
-        if not job.long_running and state in {
-            State.COMPLETED,
-            State.CANCELED,
-            State.FAILED,
-        }:
+        if (
+            notification_id
+            and not job.long_running
+            and state
+            in {
+                State.COMPLETED,
+                State.CANCELED,
+                State.FAILED,
+            }
+        ):
             # This is a short running job and it has just finished
             # Remove the notification
-            PythonWorker.mWorker.hideNotification()
+            Notifications.hideNotification(notification_id)
 
         # Only do this special handling if repeat is not None or if it is not 0
         # meaning it is a task that repeats a limited number of times, and Kolibri

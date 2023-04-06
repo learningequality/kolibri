@@ -24,9 +24,10 @@ public class TaskworkerWorker extends PythonWorker {
         mWorker = this;
     }
 
-    public static Data buildInputData (String workerArgument) {
+    public static Data buildInputData (String workerArgument, boolean longRunning) {
         String dataArgument = workerArgument == null ? "" : workerArgument;
         Data data = new Data.Builder()
+                .putBoolean(ARGUMENT_LONG_RUNNING, longRunning)
             .putString(ARGUMENT_WORKER_ARGUMENT, dataArgument)
             .putString(ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri")
             .putString(ARGUMENT_CLASS_NAME,
@@ -34,12 +35,5 @@ public class TaskworkerWorker extends PythonWorker {
             .build();
         Log.v(TAG, "Request data: " + data.toString());
         return data;
-    }
-
-    public static WorkRequest buildWorkRequest (
-        WorkRequest.Builder builder,
-        String workerArgument) {
-        Data data = buildInputData(workerArgument);
-        return builder.setInputData(data).build();
     }
 }

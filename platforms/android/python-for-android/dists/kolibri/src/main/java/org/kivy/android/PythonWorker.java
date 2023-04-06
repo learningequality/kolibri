@@ -16,6 +16,7 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.learningequality.Kolibri.R;
+import org.learningequality.Notifications;
 
 import java.io.File;
 import java.util.concurrent.Executors;
@@ -28,6 +29,8 @@ public class PythonWorker extends RemoteListenableWorker {
     // WorkRequest data key for python worker argument
     public static final String ARGUMENT_WORKER_ARGUMENT = "PYTHON_WORKER_ARGUMENT";
 
+    public static final String ARGUMENT_LONG_RUNNING = "LONG_RUNNING_ARGUMENT";
+
     // Python environment variables
     private String androidPrivate;
     private String androidArgument;
@@ -38,16 +41,13 @@ public class PythonWorker extends RemoteListenableWorker {
 
     public static PythonWorker mWorker = null;
 
-    public int notificationId = -1;
+    public int notificationId;
 
-    private String notificationTitle = null;
-    private String notificationText = null;
-    private int notificationProgress = -1;
-    private int notificationTotal = -1;
+    public static ThreadLocal<Integer> threadNotificationId = new ThreadLocal<>();
+
+    private String notificationTitle;
 
     private static final AtomicInteger threadCounter = new AtomicInteger(0);
-
-    public static final String NOTIFICATION_ID = "NOTIFICATION_ID";
 
     public PythonWorker(
         @NonNull Context context,
@@ -88,6 +88,12 @@ public class PythonWorker extends RemoteListenableWorker {
                 serviceArg = "";
             }
 
+            boolean longRunning = getInputData().getBoolean(ARGUMENT_LONG_RUNNING, false);
+
+            if (longRunning) {
+                runAsForeground();
+            }
+
             // The python thread handling the work needs to be run in a
             // separate thread so that future can be returned. Without
             // it, any cancellation can't be processed.
@@ -101,6 +107,8 @@ public class PythonWorker extends RemoteListenableWorker {
                     Log.d(TAG, "Running with python worker argument: " + serviceArg);
 
                     threadCounter.incrementAndGet();
+
+                    threadNotificationId.set(notificationId);
 
                     int res = nativeStart(
                         androidPrivate, androidArgument,
@@ -149,48 +157,8 @@ public class PythonWorker extends RemoteListenableWorker {
         String pythonServiceArgument
     );
 
-    private Notification createNotification() {
-        Context context = getApplicationContext();
-        String channelId = context.getString(R.string.notification_channel_id);
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelId)
-                .setSmallIcon(R.drawable.ic_stat_kolibri_notification)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setColor(context.getColor(R.color.primary))
-                .setSilent(true)
-                .setContentTitle(notificationTitle);
-        if (notificationText != null) {
-            builder.setContentText(notificationText);
-        }
-        if (notificationProgress != -1 && notificationTotal != -1) {
-            builder.setProgress(notificationTotal, notificationProgress, false);
-        }
-        return builder.build();
-    }
-
-    public void updateNotificationText(String title, String text) {
-        notificationTitle = title;
-        notificationText = text;
-    }
-
-    public void updateNotificationProgress(int progress, int total) {
-        notificationProgress = progress;
-        notificationTotal = total;
-    }
-
-    public void showNotification() {
-        Context context = getApplicationContext();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(notificationId, createNotification());
-    }
-
-    public void hideNotification() {
-        Context context = getApplicationContext();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.cancel(notificationId);
-    }
-
     public ForegroundInfo getForegroundInfo() {
-        return new ForegroundInfo(notificationId, createNotification());
+        return new ForegroundInfo(notificationId, Notifications.createNotification(notificationTitle, null, -1, -1));
     }
 
     public void runAsForeground() {
@@ -203,4 +171,8 @@ public class PythonWorker extends RemoteListenableWorker {
     }
 
     public static native int tearDownPython();
+
+    public static int getNotificationId() {
+        return threadNotificationId.get();
+    }
 }
