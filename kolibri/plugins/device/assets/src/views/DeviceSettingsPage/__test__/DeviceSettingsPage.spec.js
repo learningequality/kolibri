@@ -34,7 +34,7 @@ const DeviceSettingsData = {
   primaryStorageLocation: null,
   secondaryStorageLocations: [],
   extraSettings: {
-    allow_download_on_mettered_connection: false,
+    allow_download_on_metered_connection: false,
     allow_learner_download_resources: false,
     enable_automatic_download: false,
     limit_for_autodownload: 0,

@@ -618,14 +618,14 @@
       setExtraSettings(extraSettings) {
         // Destructuring the object
         const {
-          allow_download_on_mettered_connection = false,
+          allow_download_on_metered_connection = false,
           allow_learner_download_resources = false,
           enable_automatic_download = true,
           limit_for_autodownload = 0,
           set_limit_for_autodownload = false,
         } = extraSettings;
 
-        if (allow_download_on_mettered_connection === false) {
+        if (allow_download_on_metered_connection === false) {
           this.meteredConnectionDownloadOption =
             MeteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION;
         } else {
@@ -662,7 +662,7 @@
       },
       getExtraSettings() {
         const newExtraSettings = {
-          allow_download_on_mettered_connection:
+          allow_download_on_metered_connection:
             this.meteredConnectionDownloadOption ===
             MeteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION
               ? false

@@ -85,20 +85,20 @@ def app_is_enabled():
 extra_settings_schema = {
     "type": "object",
     "properties": {
-        "allow_download_on_mettered_connection": {"type": "boolean"},
+        "allow_download_on_metered_connection": {"type": "boolean"},
         "enable_automatic_download": {"type": "boolean"},
         "allow_learner_download_resources": {"type": "boolean", "optional": True},
         "set_limit_for_autodownload": {"type": "boolean", "optional": True},
         "limit_for_autodownload": {"type": "integer", "optional": True},
     },
     "required": [
-        "allow_download_on_mettered_connection",
+        "allow_download_on_metered_connection",
         "enable_automatic_download",
     ],
 }
 
 extra_settings_default_values = {
-    "allow_download_on_mettered_connection": False,
+    "allow_download_on_metered_connection": False,
     "enable_automatic_download": True,
     "allow_learner_download_resources": False,
     "set_limit_for_autodownload": False,
