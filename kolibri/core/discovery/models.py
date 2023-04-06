@@ -54,6 +54,9 @@ class NetworkLocation(models.Model):
     dynamic = models.BooleanField(default=False)
 
     base_url = models.CharField(max_length=100)
+    # # as this is 100 char max, will we run into the same problem as currently addressing, with device name char limit
+    # # (50) vs user's name length (120)? data.device_name = data.nickname in SyncFacilityModalGroup.vue ln 74
+    # # & 2+ other places
     nickname = models.CharField(max_length=100, blank=True)
     # the last known IP when we successfully connected to the instance, specifically for static
     # locations, so we have information on whether it's local or on the internet
@@ -74,6 +77,7 @@ class NetworkLocation(models.Model):
     application = models.CharField(max_length=32, blank=True)
     kolibri_version = models.CharField(max_length=100, blank=True)
     instance_id = models.CharField(max_length=32, blank=True)
+    # # but chars are limited to 50 for device name elsewhere?
     device_name = models.CharField(max_length=100, blank=True)
     operating_system = models.CharField(max_length=32, blank=True)
     subset_of_users_device = models.BooleanField(default=False)
