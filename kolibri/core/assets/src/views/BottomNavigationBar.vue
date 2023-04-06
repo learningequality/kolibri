@@ -10,7 +10,7 @@
         @click="handleNav(routeDefinition.route)"
       >
         <div
-          :style="isActiveLink(routeDefinition.route) ?
+          :style="isActiveLink(routeDefinition.route, bottomMenuOptions[0].url) ?
             bottomMenuActiveStyles :
             bottomMenuInactiveStyles"
         >
@@ -18,10 +18,11 @@
             :icon="routeDefinition.icon"
             :color="$themeTokens.primary"
             :ariaLabel="routeDefinition.label"
+            size="small"
           />
         </div>
         <p
-          v-if="isActiveLink(routeDefinition.route)"
+          v-if="isActiveLink(routeDefinition.route, bottomMenuOptions[0].url)"
           class="nav-menu-label"
           :style="{ color: $themeTokens.primary }"
         >
@@ -74,11 +75,8 @@
         const params = this.$route.params;
         return generateNavRoute(url, route, params);
       },
-      isActiveLink(route) {
-        return (
-          route.includes(this.$router.currentRoute.path) &&
-          this.$router.currentRoute.name != 'PROFILE'
-        );
+      isActiveLink(route, url) {
+        return window.location.pathname === url && route == this.$router.currentRoute.path;
       },
       handleNav(route) {
         if (this.isActiveLink(route)) {
@@ -114,6 +112,13 @@
     flex-direction: column;
     align-items: center;
     width: 100px;
+    margin: 0;
+  }
+
+  .nav-menu-label {
+    margin: 0;
+    margin-top: -6px;
+    font-size: 12px;
   }
 
 </style>
