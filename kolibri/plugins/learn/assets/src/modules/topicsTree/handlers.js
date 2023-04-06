@@ -150,7 +150,7 @@ export function showTopicsTopic(store, route) {
       return setCurrentDevice(route.params.deviceId).then(device => {
         const baseurl = device.base_url;
         const { fetchUserDownloadRequests } = useDownloadRequests(store);
-        fetchUserDownloadRequests();
+        fetchUserDownloadRequests({ page: 1, pageSize: 100 });
         return fetchChannels({ baseurl }).then(() => {
           return _loadTopicsTopic(store, { route, baseurl });
         });
