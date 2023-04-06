@@ -216,6 +216,17 @@
 
 <style lang="scss" scoped>
 
+  // Do not let text oveflow in select menu
+  /deep/ .ui-select-content {
+    width: 100%;
+
+    // remove position absolute to prevent text from getting under button
+    .overlay-close-button {
+      position: unset;
+      flex-shrink: 0;
+    }
+  }
+
   /deep/ .ui-select-label-text.is-inline {
     position: absolute;
     bottom: 45px;
