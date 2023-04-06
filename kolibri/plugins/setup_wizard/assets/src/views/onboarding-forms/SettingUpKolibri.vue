@@ -162,6 +162,18 @@
           settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
+
+          // // clarify -- does device name char count include "Person Device of" or is that just rendered in the UI?
+
+          // // is there anywhere else device name can get assigned to full name (saw nickname elsewhere)
+
+          // // suggested fix(-ish)
+          // let baseTranslatedLength = this.$tr('defaultDeviceName', { name: '' }).length
+let       // truncatedFullName = this.user.full_name.slice(0, baseTranslatedLength-1);
+let       // actualStringWeUse = this.$tr('defaultDeviceName', { name: truncatedFullName });
+
+          // // if there is a device name available, use it, otherwise get superuser's full name
+          // // and insert into (translation of) 'personal device of {}'
           device_name:
             this.wizardContext('deviceName') ||
             this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }),
@@ -224,6 +236,7 @@
         message: 'This may take several minutes',
         context: 'Kolibri is working in the background and the user may need to wait',
       },
+      // related to issue
       onMyOwnDeviceName: {
         message: 'Personal device for {name}',
         context:
