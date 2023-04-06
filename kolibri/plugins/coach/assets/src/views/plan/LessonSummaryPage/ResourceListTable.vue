@@ -10,12 +10,15 @@
         :key="resource.contentnode_id"
       >
         <DragHandle>
-          <KFixedGrid
+
+          <!-- replaced KFixedGrid with normal div to prevent text overlap error  -->
+          <div
             class="row"
             :style="{ backgroundColor: $themeTokens.surface }"
-            numCols="9"
           >
-            <KFixedGridItem span="1" class="relative">
+            <!-- replaced KFixedGridItem with normal div to prevent text overlap error  -->
+
+            <div class="relative">
               <div class="move-handle">
                 <DragSortWidget
                   :moveUpText="$tr('moveResourceUpButtonDescription')"
@@ -26,9 +29,9 @@
                   @moveDown="moveDownOne(index)"
                 />
               </div>
-            </KFixedGridItem>
-            <KFixedGridItem class="parent" span="4">
-              <div v-if="getCachedResource(resource.contentnode_id)" class="child">
+            </div>
+            <div class="relative">
+              <div v-if="getCachedResource(resource.contentnode_id)">
                 <div class="resource-title">
                   <div class="content-icon">
                     <ContentIcon :kind="resourceKind(resource.contentnode_id)" />
@@ -60,23 +63,26 @@
               <div v-else class="child">
                 {{ resourceMissingText }}
               </div>
-            </KFixedGridItem>
-            <KFixedGridItem span="1" :style="{ 'padding-top': '16px' }" alignment="right">
+
+            </div>
+
+            <div class="relative">
               <KIcon
                 v-if="!getCachedResource(resource.contentnode_id) ||
                   !getCachedResource(resource.contentnode_id).available"
                 icon="warning"
                 :style=" { fill: $themePalette.orange.v_400 }"
               />
-            </KFixedGridItem>
-            <KFixedGridItem :style="{ 'padding-top': '16px' }" span="3" alignment="right">
+            </div>
+
+            <div class="relative">
               <KButton
                 :text="coreString('removeAction')"
                 appearance="flat-button"
                 @click="removeResource(resource)"
               />
-            </KFixedGridItem>
-          </KFixedGrid>
+            </div>
+          </div>
         </DragHandle>
       </Draggable>
     </transition-group>
@@ -260,10 +266,33 @@
     margin-left: 8px;
   }
 
+  // updated the styles of resources row to prevent the overlap issue
+  // using flex we are able to rectify the issue
   .row {
+    display: flex;
+    flex-direction: row;
     padding: 8px;
     cursor: grab;
     user-select: none;
+
+    .relative:nth-child(1) {
+      flex-shrink: 0;
+      width: 3rem;
+    }
+
+    .relative:nth-child(2) {
+      flex-grow: 1;
+      flex-shrink: 1;
+      padding-right: 2rem;
+    }
+
+    .relative:nth-child(3) {
+      flex-shrink: 1;
+    }
+
+    .relative:last-child {
+      flex-shrink: 0;
+    }
   }
 
   .headers {
@@ -278,8 +307,11 @@
     margin-right: 8px;
   }
 
+  // updated the class coach-content-label
   .coach-content-label {
+    position: absolute;
     display: inline-block;
+    width: fit-content;
     vertical-align: top;
   }
 
@@ -295,6 +327,7 @@
     position: absolute;
     top: 16px;
     left: 18px;
+    left: 16px;
   }
 
   .move-button.down {
