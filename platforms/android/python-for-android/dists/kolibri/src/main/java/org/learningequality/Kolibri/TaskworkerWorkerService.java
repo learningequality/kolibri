@@ -25,17 +25,4 @@ public class TaskworkerWorkerService extends RemoteWorkerService {
         }
         super.onCreate();
     }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-
-        // The process needs to exit when the service is destroyed since
-        // p4a doesn't support starting a Python interpreter more than
-        // once per process. Combined with the stopWithTask="true"
-        // configuration in the manifest, this should ensure that the
-        // service process exits when a task completes.
-        Log.v(TAG, "Exiting service process");
-        System.exit(0);
-    }
 }
