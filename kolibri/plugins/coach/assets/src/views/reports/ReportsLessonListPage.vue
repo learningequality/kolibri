@@ -287,8 +287,9 @@
       },
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
-          const size = this.lessonsSizes[0][lessonId];
-          return size ? bytesForHumans(size) : bytesForHumans(0);
+          let size = this.lessonsSizes[0][lessonId];
+          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
+          return size;
         }
         return '--';
       },
