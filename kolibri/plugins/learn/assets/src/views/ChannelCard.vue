@@ -56,6 +56,12 @@
     >
       <p>{{ $tr('version', { version: version }) }}</p>
     </div>
+    <div
+      v-if="isRemote"
+      class="wifi-icon"
+    >
+      <KIcon icon="wifi" />
+    </div>
 
   </router-link>
 
@@ -112,6 +118,11 @@
         type: Number,
         required: false,
         default: null,
+      },
+      isRemote: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
@@ -210,6 +221,12 @@
       padding: $margin;
       margin-bottom: 0;
     }
+  }
+  .wifi-icon {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    padding: 10px;
   }
 
 </style>

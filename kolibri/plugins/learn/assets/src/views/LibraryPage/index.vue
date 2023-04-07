@@ -51,61 +51,75 @@
         <!-- Other Libraires -->
         <div v-if="!deviceId">
           <KGrid gutter="12">
-            <KGridItem :layout="{ span: 6 }">
-              <span>
-                <h1>
-                  {{ $tr('otherLibraries') }}
-                </h1>
-              </span>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 4 }"
+            >
+              <h1>
+                {{ $tr('otherLibraries') }}
+              </h1>
             </KGridItem>
-            <KGridItem :layout="{ span: 6, alignment: 'right' }">
-              <p
-                v-if="searching"
-                style="padding-top:20px"
-              >
-                {{ $tr('searchingOtherLibrary') }}
-                <KButton appearance="basic-link">
-                  {{ coreString('refresh') }}
-                </KButton>
-                <KIcon icon="disconnected" />
-              </p>
-              <p v-else>
+            <KGridItem
+              :layout12="{ span: 6 }"
+              :layout8="{ span: 4 }"
+              :layout4="{ span: 4 }"
+              class="sync-display"
+            >
+              <div v-if="searching" class="sync-status">
+                <span>
+                  {{ $tr('searchingOtherLibrary') }}
+                </span>
+                <span>
+                  <KButton appearance="basic-link">
+                    {{ coreString('refresh') }}
+                  </KButton>
+                  <KIcon icon="wifi" />
+                </span>
+              </div>
+              <div v-else>
                 {{ coreString('viewMoreAction') }}
                 {{ $tr('pinned') }}
                 {{ $tr('showingAllLibraries') }}
                 {{ $tr('noOtherLibraries') }}
                 {{ $tr('searchingOtherLibrary') }}
-              </p>
+              </div>
             </KGridItem>
           </KGrid>
-          <PinnedNetworkResources />
         </div>
+        <PinnedNetworkResources
+          v-if="pinnedDevices"
+          :pinnedDevices="pinnedDevices"
+        />
         <!-- More  -->
         <div v-if="!deviceId">
-          <h2>
-            {{ $tr('moreLibraries') }}
-          </h2>
-          <MoreNetworkDevices />
+          <h2>{{ $tr('moreLibraries') }}</h2>
+          <MoreNetworkDevices
+            v-if="unPinnedDevices"
+            :devices="unPinnedDevices"
+          >
+            <KGrid>
+              <KGridItem
+                :layout="{ span: cardColumnSpan,alignment: 'auto' }"
+                class="view-all-card"
+                style=""
+              >
+                <div
+                  class="card-main-wrapper"
+                  :style="cardStyle"
+                  @click="viewAll"
+                >
+                  <TextTruncator
+                    :text="coreString('viewAll')"
+                    :maxHeight="52"
+                    class="view-all-text"
+                  />
+                </div>
+              </KGridItem>
+            </KGrid>
+          </MoreNetworkDevices>
         </div>
 
-        <template v-if="!baseurl">
-          <p
-            v-for="device in devices"
-            :key="device.id"
-          >
-            <KRouterLink
-              :text="device.nickname.length ? device.nickname : device.device_name"
-              :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
-              appearance="basic-link"
-            />
-          </p>
-        </template>
-        <KRouterLink
-          v-else
-          :text="coreString('libraryLabel')"
-          :to="{ name: 'LIBRARY' }"
-          appearance="basic-link"
-        />
       </div>
 
       <SearchResultsGrid
@@ -184,6 +198,7 @@
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import SidePanelModal from '../SidePanelModal';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
@@ -196,6 +211,7 @@
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
+  import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
@@ -219,6 +235,7 @@
       LearnAppBarPage,
       PinnedNetworkResources,
       MoreNetworkDevices,
+      TextTruncator,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
@@ -259,6 +276,8 @@
 
       const { baseurl, deviceName, fetchDevices } = useDevices();
 
+      const { fetchChannels } = useChannels();
+
       return {
         displayingSearchResults,
         searchTerms,
@@ -282,6 +301,7 @@
         baseurl,
         fetchDevices,
         deviceName,
+        fetchChannels
       };
     },
     props: {
@@ -300,6 +320,8 @@
         mobileSidePanelIsOpen: false,
         devices: [],
         searching: true,
+        pinnedDevices: [],
+        unPinnedDevices: [],
       };
     },
     computed: {
@@ -336,6 +358,21 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px` }
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
+        };
+      },
+      cardColumnSpan() {
+        if (this.windowBreakpoint <= 2) return 4;
+        if (this.windowBreakpoint <= 3) return 6;
+        if (this.windowBreakpoint <= 6) return 4;
+        return 3;
+      },
     },
     watch: {
       searchTerms() {
@@ -353,8 +390,19 @@
       this.search();
       if (this.isUserLoggedIn) {
         this.fetchDevices().then(devices => {
-          this.devices = devices.filter(d => d.available);
+        const storeUnpinnedDevices = [];
+        this.devices = devices.filter(d => d.available);
+        this.devices.forEach(device => {
+          this.fetchChannels({ baseurl: device.base_url }).then(channel => {
+            if (channel.length > 0) {
+              this.$set(device, 'channels', channel);
+              this.pinnedDevices.push(device);
+              storeUnpinnedDevices.push(device);
+            }
+          });
         });
+        this.setLimitToDevices(storeUnpinnedDevices);
+      });
       }
     },
     methods: {
@@ -364,6 +412,14 @@
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
       },
+      setLimitToDevices(devices) {
+        // TODO - Ensuring that the display of devices is
+        // limited to 4 devices before the view all card is clicked
+        this.unPinnedDevices = devices;
+      },
+      viewAll(){
+        return this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
+      }
     },
     $trs: {
       libraryOf: {
@@ -401,7 +457,32 @@
 
 
 <style lang="scss" scoped>
+   @import '~kolibri-design-system/lib/styles/definitions';
+  @import '../HybridLearningContentCard/card';
 
+  .card-main-wrapper {
+    @extend %dropshadow-1dp;
+
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+    max-height: 258px;
+    height:130px;
+    padding-bottom: $margin;
+    text-decoration: none;
+    vertical-align: top;
+    border-radius: $radius;
+    transition: box-shadow $core-time ease;
+
+    &:hover {
+      @extend %dropshadow-8dp;
+    }
+
+    &:focus {
+      outline-width: 4px;
+      outline-offset: 6px;
+    }
+  }
   .main-grid {
     margin-top: 140px;
     margin-right: 24px;
@@ -423,5 +504,29 @@
     margin-bottom: 8px;
     margin-left: 8px;
   }
+  .sync-status span{
+    display:inline-flex;
+  }
+  .sync-status{
+    text-align:right;
+    margin-top:20px;
+  }
+
+  .network-device-refresh {
+    display: inline-block;
+    margin: 0 4px;
+  }
+  .view-all-text {
+    font-size: 16px;
+    margin:auto;
+    
+  }
+  .view-all-card {
+    height:150px;
+    width:365px;
+    margin-left:10px;
+    cursor: pointer;
+  }
+
 
 </style>
