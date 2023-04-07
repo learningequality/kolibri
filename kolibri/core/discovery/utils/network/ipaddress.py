@@ -10,8 +10,6 @@ and networks.
 
 __version__ = "1.0"
 
-
-import codecs
 import functools
 import re
 import six
@@ -67,6 +65,32 @@ def _is_ascii(string):
 
 def _is_number(x):
     return str(x).isdigit() if not isinstance(x, str) else False
+
+
+def _to_bytes(n, length=1, byteorder="big"):
+    if byteorder == "little":
+        order = range(length)
+    elif byteorder == "big":
+        order = reversed(range(length))
+    else:
+        raise ValueError("byteorder must be either 'little' or 'big'")
+
+    return bytes((n >> i * 8) & 0xFF for i in order)
+
+
+def _from_bytes(bytes, byteorder="big", signed=False):
+    if byteorder == "little":
+        little_ordered = list(bytes)
+    elif byteorder == "big":
+        little_ordered = list(reversed(bytes))
+    else:
+        raise ValueError("byteorder must be either 'little' or 'big'")
+
+    n = sum(b << i * 8 for i, b in enumerate(little_ordered))
+    if signed and little_ordered and (little_ordered[-1] & 0x80):
+        n -= 1 << 8 * len(little_ordered)
+
+    return n
 
 
 def _split_optional_netmask(address):
@@ -312,7 +336,7 @@ class _IPAddressBase:
         all_ones = (1 << prefixlen) - 1
         if leading_ones != all_ones:
             byteslen = cls._max_prefixlen // 8
-            details = int.to_bytes(ip_int, byteslen, "big")
+            details = _to_bytes(ip_int, byteslen, "big")
             msg = "Netmask pattern %r mixes zeroes & ones"
             raise ValueError(msg % details)
         return prefixlen
@@ -991,7 +1015,7 @@ class _BaseV4:
             raise AddressValueError("Expected 4 octets in %r" % ip_str)
 
         try:
-            return int(codecs.encode(bytes(map(cls._parse_octet, octets)), "hex"), 16)
+            return _from_bytes(list(map(cls._parse_octet, octets)))
         except ValueError as exc:
             raise six.raise_from(AddressValueError("%s in %r" % (exc, ip_str)), None)
 
@@ -1035,7 +1059,7 @@ class _BaseV4:
         Returns:
             The IP address as a string in dotted decimal notation.
         """
-        return ".".join(map(str, int.to_bytes(ip_int, 4, "big")))
+        return ".".join(list(map(str, _to_bytes(ip_int, 4, "big"))))
 
     def _reverse_pointer(self):
         """Return the reverse DNS pointer name for the IPv4 address.
@@ -1101,7 +1125,7 @@ class IPv4Address(_BaseV4, _BaseAddress):
             A boolean, True if the address is reserved per
             iana-ipv4-special-registry.
         """
-        return any(self in net for net in self._constants._private_networks)
+        return any([self in net for net in self._constants._private_networks])
 
     @property
     @lru_cache()
