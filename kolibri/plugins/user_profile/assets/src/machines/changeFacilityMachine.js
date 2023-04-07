@@ -98,6 +98,9 @@ const setTaskId = assign({
   taskId: (_, event) => event.value.task_id,
 });
 
+const resetTaskId = assign({
+  taskId: () => null,
+});
 const resetMachineContext = assign(() => {
   return generateMachineContext();
 });
@@ -381,7 +384,7 @@ const states = {
     on: {
       SETTASKID: { actions: setTaskId },
       FINISH: 'syncFinished',
-      TASKERROR: 'changeFacility',
+      TASKERROR: { target: 'changeFacility', actions: [resetTaskId] },
     },
   },
   syncFinished: {

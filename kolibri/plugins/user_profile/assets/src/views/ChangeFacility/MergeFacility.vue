@@ -143,6 +143,7 @@
       }
 
       function pollTask() {
+        console.log(taskId.value);
         if (taskId.value === null) {
           // first, try to see if there's already one running
           TaskResource.fetchCollection().then(allTasks => {
@@ -179,34 +180,40 @@
                   params['password'] = state.value.targetAccount.AdminPassword;
                 }
 
-                TaskResource.startTask(params)
-                  .then(startedTask => {
-                    updateMachineContext(startedTask);
-                    isTaskRequested = false;
-                  })
-                  .catch(error => {
-                    if (error.response.status === 400) {
-                      const message = get(error.response, 'data[0].metadata.message', '');
-                      if (
-                        message === 'USERNAME_ALREADY_EXISTS' ||
-                        message === 'PASSWORD_NOT_SPECIFIED'
-                      ) {
-                        taskError.value = true;
-                        isPolling = false;
-                      } else {
-                        // if the request is bad, we can't do anything
-                        changeFacilityService.send('TASKERROR');
+                  TaskResource.startTask(params)
+                    .then(startedTask => {
+                      updateMachineContext(startedTask);
+                      isTaskRequested = false;
+                    })
+                    .catch(error => {
+                      if (error.response.status === 400) {
+                        const message = get(error.response, 'data[0].metadata.message', '');
+                        if (
+                          message === 'USERNAME_ALREADY_EXISTS' ||
+                          message === 'PASSWORD_NOT_SPECIFIED'
+                        ) {
+                          taskError.value = true;
+                          isPolling = false;
+                        } else {
+                          // if the request is bad, we can't do anything
+                          changeFacilityService.send('TASKERROR');
+                        }
+                      } else if (error.response.status == 500) {
+                        const message = error.response.data;
+                        if (message.includes('ConnectionError')) {
+                          taskError.value = true;
+                          isPolling = false;
+                        }
                       }
-                    } else if (error.response.status == 500) {
-                      const message = error.response.data;
-                      if (message.includes('ConnectionError')) {
-                        taskError.value = true;
-                      }
-                    }
-                  });
+                    });
+                }
               }
-            }
-          });
+            })
+            .catch(() => {
+              // if the request is bad, we can't do anything
+              taskError.value = true;
+              isPolling = false;
+            });
         } else {
           TaskResource.fetchModel({ id: taskId.value, force: true }).then(startedTask => {
             task.value = startedTask;
@@ -253,6 +260,7 @@
         if (taskId.value !== null) {
           TaskResource.clear(taskId.value);
         }
+        taskError.value = false;
         changeFacilityService.send('TASKERROR');
       }
 
