@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Dispositivo"
+  "CommonDeviceStrings.deviceManagementTitle": "Dispositivo",
+  "CommonDeviceStrings.emptyTasksMessage": "Não há tarefas a serem mostradas",
+  "CommonDeviceStrings.newChannelLabel": "Novo",
+  "CommonDeviceStrings.newEnabledPluginsState": "Quando desmarcar uma página, esta tornar-se-á invisível para os utilizadores, mesmo que estes tenham permissão para a aceder à página.",
+  "CommonDeviceStrings.newResourceLabel": "Novo",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Não há espaço suficiente para completar a operação. Libere espaço no seu disco ou selecione menos conteúdos",
+  "CommonDeviceStrings.permissionsLabel": "Permissões",
+  "CommonDeviceStrings.primaryStorageLabel": "Os recursos transferidos recentemente serão adicionados à localização de armazenamento primária.",
+  "CommonDeviceStrings.unlistedChannelLabel": "Canal privado"
 }

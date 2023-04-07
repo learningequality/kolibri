@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Розгорнути закладку",
+  "Bookmarks.bookmarksSection": "Закладки. Між документом PDF та закладками можна переключатися за допомогою комбінації клавіш shift + enter.",
+  "PdfPage.numPage": "Сторінка {number} з {total}",
   "PdfRendererIndex.enterFullscreen": "Перейти в повноекранний режим",
   "PdfRendererIndex.exitFullscreen": "Вийти з повноекранного режиму"
 }

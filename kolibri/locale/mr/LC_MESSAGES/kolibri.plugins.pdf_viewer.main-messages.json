@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "बुकमार्क विस्तृत करा",
+  "Bookmarks.bookmarksSection": "बुकमार्क विभाग. तुम्ही शिफ्ट + एंटर दाबून पीडीएफ दस्तऐवज आणि बुकमार्क विभाग यांच्यात स्विच करू शकता.",
+  "PdfPage.numPage": "{total} पैकी पृष्ठ {number}",
   "PdfRendererIndex.enterFullscreen": "फुलस्क्रीन करा",
   "PdfRendererIndex.exitFullscreen": "फुलस्क्रीनमधून बाहेर पडा"
 }

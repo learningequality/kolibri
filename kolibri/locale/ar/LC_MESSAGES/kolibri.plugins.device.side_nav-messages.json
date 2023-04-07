@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "الجهاز"
+  "CommonDeviceStrings.deviceManagementTitle": "الجهاز",
+  "CommonDeviceStrings.emptyTasksMessage": "لا توجد مهام للعرض",
+  "CommonDeviceStrings.newChannelLabel": "جديد",
+  "CommonDeviceStrings.newEnabledPluginsState": "عند إلغاء تحديد الصفحة، ستُصبح الصفحة غير مرئية للمستخدمين، حتى لو كان لديهم إذن للوصول إليها.",
+  "CommonDeviceStrings.newResourceLabel": "جديد",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "لا تتوفر مساحة كافية على جهازك. قم بتفريغ مساحة على القرص أو حدد مصادراً أقل",
+  "CommonDeviceStrings.permissionsLabel": "الأذونات",
+  "CommonDeviceStrings.primaryStorageLabel": "ستتم إضافة المصادر التي تم تحميلها حديثاً إلى موقع التخزين الرئيسي",
+  "CommonDeviceStrings.unlistedChannelLabel": "قناة غير مدرجة"
 }

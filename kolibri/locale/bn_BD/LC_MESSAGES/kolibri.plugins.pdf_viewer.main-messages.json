@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "বুকমার্ক প্রসারিত করুন",
+  "Bookmarks.bookmarksSection": "বুকমার্ক সেকশন। আপনি shift + enter চেপে পিডিএফ ডকুমেন্ট এবং বুকমার্ক সেকশনের মধ্যে পরিবর্তন করতে পারবেন।",
+  "PdfPage.numPage": "পৃষ্ঠা {number}, মোট পৃষ্ঠা {total}",
   "PdfRendererIndex.enterFullscreen": "সম্পূর্ণ স্ক্রিনে দেখ",
   "PdfRendererIndex.exitFullscreen": "সম্পূর্ণ স্ক্রিন থেকে ফিরে আসো"
 }

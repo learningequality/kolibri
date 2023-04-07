@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Vietnamese\n"
 "Language: vi_VN\n"
@@ -33,7 +33,7 @@ msgstr "Nội dung của ô '{}' không hợp lệ"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "Tên người dùng bị trùng lắp"
+msgstr "Tên người dùng bị trùng lặp"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
@@ -46,11 +46,11 @@ msgstr "Cần có cột '{}'"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "Hàng đầu tiên chứa cả nhãn đầu đề hợp lệ và không hợp lệ"
+msgstr "Hàng đầu tiên chứa cả nhãn tiêu đề hợp lệ và/hoặc không hợp lệ"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Công cụ mặc định không tồn tại. Bảo đảm thiết lập công cụ trên thiết bị trước khi chạy lệnh này"
+msgstr "Địa điểm mặc định không tồn tại. Bảo đảm thiết lập một địa điểm trên thiết bị trước khi chạy lệnh này"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -62,67 +62,67 @@ msgstr "Lỗi khi đọc tệp csv: {}"
 msgid "Error trying to write csv file: {}"
 msgstr "Lỗi khi ghi tệp csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
-msgstr "Cơ sở dữ liệu ID"
+msgstr "ID Cơ sở dữ liệu ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "Tên người dùng ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "Mật khẩu ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "Họ tên ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Loại người dùng ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "Mã định danh ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "Năm sinh ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "Giới tính ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Học viên ghi danh ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Phân công giáo viên ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Loại người dùng ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Học viên ghi danh ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Phân công giáo viên ({})"
@@ -172,48 +172,161 @@ msgstr "Không thể cập nhật thông tin cho người dùng mang mã số: '
 msgid "Database ID is not valid"
 msgstr "Mã cơ sở dữ liệu không hợp lệ"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "Đang đồng bộ hoá dữ liệu"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "Không ngắt kết nối mạng thiết bị của bạn"
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "Nguồn tài liệu"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "Kênh được yêu cầu không tồn tại trên máy chủ nội dung"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "Không xác định được định dạng"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "Đang cập nhật thư viện"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "Thư viện đã được cập nhật"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "Cập nhật thư viện thất bại"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri không hỗ trợ ngôn ngữ này"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "nhật_ký_nội_dung_phiên_làm_việc"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "Đang tìm kiếm"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "nhật ký_phần tóm tắt_nội dung"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "Đang tìm kiếm thiết bị Kolibri khác"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "Đã xảy ra lỗi mạng."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "Tên địa điểm"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "Đã xảy ra lỗi truy cập đĩa."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "Tên người dùng"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "Đã xảy ra lỗi không xác định."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "ID kênh"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "Tên kênh"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "ID nội dung"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "Tiêu đề nội dung"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "Thời gian tương tác lần đầu"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "Thời gian tương tác gần nhất"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "Thời gian hoàn thành"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "Thời gian Thực hiện (giây)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "Tiến độ (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "Loại nội dung"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "Hoàn thành"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "Thất bại"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "Đã hủy"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "Đang tiến hành - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "Đang chờ"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "Kolibri đang khởi động"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "Đang khởi động Kolibri"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "Bạn sẽ được tự động chuyển hướng khi Kolibri sẵn sàng"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "Nếu không, vui lòng đề nghị trợ giúp trong các diễn đàn cộng đồng của chúng tôi"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "Làm mới trang"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "Chúng tôi đề nghị dùng Firefox hoặc Chrome để sử dụng K
 msgid "You can also try updating your current browser."
 msgstr "Bạn cũng có thể thử cập nhật trình duyệt hiện tại."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Không tìm thấy trang chuyển hướng phù hợp. Có thể Kolibri đặt cấu hình không tốt"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "Giáo viên"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Địa điểm"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "nhật ký_phiên_nội dung_từ_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "đến_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "nhật ký_tóm lược_nội dung_từ_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "người dùng_{}"
+msgid "users"
+msgstr "người dùng"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "Học tập"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "Chính sách"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "Thuật sĩ thiết lập"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "Hồ sơ người dùng"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "Đang tiến hành chuyển tài khoản"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "Đang chuyển {learner_name} sang địa điểm học tập {facility_name}"
 

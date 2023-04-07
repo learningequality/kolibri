@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "책에서 해당 지점으로 점프하기",
   "BottomBar.preparingSlider": "슬라이더 준비중",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "이 책을 로딩할 수 없습니다",
   "LoadingScreen.loadingBook": "책 로딩 중",
   "NextButton.goToNextPage": "다음 페이지로 이동",

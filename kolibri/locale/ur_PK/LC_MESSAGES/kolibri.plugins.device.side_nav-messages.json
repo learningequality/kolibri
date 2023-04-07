@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "ڈیوائس"
+  "CommonDeviceStrings.deviceManagementTitle": "ڈیوائس",
+  "CommonDeviceStrings.emptyTasksMessage": "ظاہر کرنے کے لئے کوئی کام نہیں ہیں",
+  "CommonDeviceStrings.newChannelLabel": "نیا",
+  "CommonDeviceStrings.newEnabledPluginsState": "جب آپ کسی صفحہ کو غیر نشان زدہ کرتے ہیں، تو یہ صارفین کے لیے پوشیدہ ہو جائے گا چاہے انہیں اس تک رسائی کی اجازت ہو۔",
+  "CommonDeviceStrings.newResourceLabel": "نیا",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "آپ کے آلے پر جگہ دستیاب نہیں ہے۔ ڈسک خالی کریں یا کم وسائل منتخب کریں",
+  "CommonDeviceStrings.permissionsLabel": "اجازتیں",
+  "CommonDeviceStrings.primaryStorageLabel": "نئے ڈاؤن لوڈ کردہ وسائل کو بنیادی اسٹوریج کے مقام میں شامل کیا جائے گا۔",
+  "CommonDeviceStrings.unlistedChannelLabel": "غیر مندرج چینل"
 }

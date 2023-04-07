@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Dispositivo"
+  "CommonDeviceStrings.deviceManagementTitle": "Dispositivo",
+  "CommonDeviceStrings.emptyTasksMessage": "Non ci sono attività da visualizzare",
+  "CommonDeviceStrings.newChannelLabel": "Nuovo",
+  "CommonDeviceStrings.newEnabledPluginsState": "Quando deselezioni una pagina, questa diventerà invisibile agli utenti anche se dispongono dell'autorizzazione per accedervi.",
+  "CommonDeviceStrings.newResourceLabel": "Nuovo",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Spazio insufficiente disponibile sul dispositivo. Liberare spazio su disco o selezionare meno risorse",
+  "CommonDeviceStrings.permissionsLabel": "Autorizzazioni",
+  "CommonDeviceStrings.primaryStorageLabel": "Le risorse appena scaricate verranno aggiunte alla posizione di archiviazione principale",
+  "CommonDeviceStrings.unlistedChannelLabel": "Canale privato"
 }
