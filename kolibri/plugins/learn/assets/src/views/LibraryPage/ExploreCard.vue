@@ -14,80 +14,80 @@
       </div>
     </div>
   </router-link>
-  
+
 </template>
-  
-  
-  <script>
-  
-    import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-    import { PageNames } from './../../constants';
-  
-    export default {
-      name: 'ExploreCard',
-      mixins: [commonCoreStrings],
-      props:{
-        deviceId:{
-        type:String,
-        required:true,
-        default:null,
-        }
+
+
+<script>
+
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from './../../constants';
+
+  export default {
+    name: 'ExploreCard',
+    mixins: [commonCoreStrings],
+    props: {
+      deviceId: {
+        type: String,
+        required: true,
+        default: null,
       },
-      computed: {
-        exploreLibraries() {
-            return {
-                name: PageNames.LIBRARY,
-                params: {
-                    deviceId: this.deviceId,
-                },
-            };
-        },
+    },
+    computed: {
+      exploreLibraries() {
+        return {
+          name: PageNames.LIBRARY,
+          params: {
+            deviceId: this.deviceId,
+          },
+        };
       },
-      created() {},
-      methods: {},
-    };
-  
-  </script>
-  
-  
-  <style lang="scss" scoped>
-  
-    @import '~kolibri-design-system/lib/styles/definitions';
-  
-    $margin: 16px;
-  
-    .card-main-wrapper {
-      @extend %dropshadow-1dp;
-  
-      position: relative;
-      display: inline-block;
-      width: 100%;
-      max-height: 270px;
-      padding-bottom: $margin;
-      text-decoration: none;
-      vertical-align: top;
-      border-radius: $radius;
-      transition: box-shadow $core-time ease;
-  
-      &:hover {
-        @extend %dropshadow-8dp;
-      }
-  
-      &:focus {
-        outline-width: 4px;
-        outline-offset: 6px;
-      }
+    },
+    created() {},
+    methods: {},
+  };
+
+</script>
+
+
+<style lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  $margin: 16px;
+
+  .card-main-wrapper {
+    @extend %dropshadow-1dp;
+
+    position: relative;
+    display: inline-block;
+    width: 100%;
+    max-height: 270px;
+    padding-bottom: $margin;
+    text-decoration: none;
+    vertical-align: top;
+    border-radius: $radius;
+    transition: box-shadow $core-time ease;
+
+    &:hover {
+      @extend %dropshadow-8dp;
     }
-  
-    .cards {
-      margin: auto;
-      text-align: center;
+
+    &:focus {
+      outline-width: 4px;
+      outline-offset: 6px;
     }
-  
-    .card-title {
-      margin: auto;
-      margin-top: 100px;
-      letter-spacing: normal;
-    }
-  
-  </style>
+  }
+
+  .cards {
+    margin: auto;
+    text-align: center;
+  }
+
+  .card-title {
+    margin: auto;
+    margin-top: 100px;
+    letter-spacing: normal;
+  }
+
+</style>

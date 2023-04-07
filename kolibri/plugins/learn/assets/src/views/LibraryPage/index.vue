@@ -301,7 +301,7 @@
         baseurl,
         fetchDevices,
         deviceName,
-        fetchChannels
+        fetchChannels,
       };
     },
     props: {
@@ -390,19 +390,19 @@
       this.search();
       if (this.isUserLoggedIn) {
         this.fetchDevices().then(devices => {
-        const storeUnpinnedDevices = [];
-        this.devices = devices.filter(d => d.available);
-        this.devices.forEach(device => {
-          this.fetchChannels({ baseurl: device.base_url }).then(channel => {
-            if (channel.length > 0) {
-              this.$set(device, 'channels', channel);
-              this.pinnedDevices.push(device);
-              storeUnpinnedDevices.push(device);
-            }
+          const storeUnpinnedDevices = [];
+          this.devices = devices.filter(d => d.available);
+          this.devices.forEach(device => {
+            this.fetchChannels({ baseurl: device.base_url }).then(channel => {
+              if (channel.length > 0) {
+                this.$set(device, 'channels', channel);
+                this.pinnedDevices.push(device);
+                storeUnpinnedDevices.push(device);
+              }
+            });
           });
+          this.setLimitToDevices(storeUnpinnedDevices);
         });
-        this.setLimitToDevices(storeUnpinnedDevices);
-      });
       }
     },
     methods: {
@@ -417,9 +417,9 @@
         // limited to 4 devices before the view all card is clicked
         this.unPinnedDevices = devices;
       },
-      viewAll(){
+      viewAll() {
         return this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
-      }
+      },
     },
     $trs: {
       libraryOf: {
@@ -457,7 +457,8 @@
 
 
 <style lang="scss" scoped>
-   @import '~kolibri-design-system/lib/styles/definitions';
+
+  @import '~kolibri-design-system/lib/styles/definitions';
   @import '../HybridLearningContentCard/card';
 
   .card-main-wrapper {
@@ -466,8 +467,8 @@
     position: relative;
     display: inline-flex;
     width: 100%;
+    height: 130px;
     max-height: 258px;
-    height:130px;
     padding-bottom: $margin;
     text-decoration: none;
     vertical-align: top;
@@ -483,6 +484,7 @@
       outline-offset: 6px;
     }
   }
+
   .main-grid {
     margin-top: 140px;
     margin-right: 24px;
@@ -504,29 +506,31 @@
     margin-bottom: 8px;
     margin-left: 8px;
   }
-  .sync-status span{
-    display:inline-flex;
+
+  .sync-status span {
+    display: inline-flex;
   }
-  .sync-status{
-    text-align:right;
-    margin-top:20px;
+
+  .sync-status {
+    margin-top: 20px;
+    text-align: right;
   }
 
   .network-device-refresh {
     display: inline-block;
     margin: 0 4px;
   }
+
   .view-all-text {
+    margin: auto;
     font-size: 16px;
-    margin:auto;
-    
-  }
-  .view-all-card {
-    height:150px;
-    width:365px;
-    margin-left:10px;
-    cursor: pointer;
   }
 
+  .view-all-card {
+    width: 365px;
+    height: 150px;
+    margin-left: 10px;
+    cursor: pointer;
+  }
 
 </style>

@@ -62,10 +62,10 @@
         required: false,
         default: 0,
       },
-      allDevices:{
-        type:Object,
-        required:true
-      }
+      allDevices: {
+        type: Object,
+        required: true,
+      },
     },
 
     computed: {
@@ -79,7 +79,7 @@
         };
       },
     },
-    methods:{
+    methods: {
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {
           return 'device';
@@ -133,34 +133,39 @@
   .cardgroup .card-main-wrapper {
     display: inline-flex;
   }
-  .unpinned-device-card .col{
+
+  .unpinned-device-card .col {
     display: inline-flex;
   }
-  .unpinned-device-card{
-    height:80px;
-    margin:15px;
-  }
-  .channels {
-    width: 100%;
-    color: #616161;
-    position:absolute;
-    margin-top:30px;
-    font-size: 14px;
+
+  .unpinned-device-card {
+    height: 80px;
+    margin: 15px;
   }
 
-  .device-name{
+  .channels {
+    position: absolute;
+    width: 100%;
+    margin-top: 30px;
+    font-size: 14px;
+    color: #616161;
+  }
+
+  .device-name {
+    font-size: 16px;
     font-style: normal;
     font-weight: 700;
-    font-size: 16px;
     line-height: 140%;
-    color:black;
+    color: black;
   }
-  .device-icon{
-    margin:0px 10px 0px 10px;
+
+  .device-icon {
+    margin: 0 10px;
   }
-  .icon{
-    left:5px;
-    right:5px;
+
+  .icon {
+    right: 5px;
+    left: 5px;
   }
 
 </style>

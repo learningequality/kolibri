@@ -140,8 +140,6 @@
     float: left;
   }
 
-
-
   .device-name {
     padding-left: 10px;
   }

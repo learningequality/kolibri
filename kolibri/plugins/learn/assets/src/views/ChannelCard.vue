@@ -222,6 +222,7 @@
       margin-bottom: 0;
     }
   }
+
   .wifi-icon {
     position: absolute;
     right: 0;
