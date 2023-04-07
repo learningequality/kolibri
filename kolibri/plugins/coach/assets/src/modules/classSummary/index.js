@@ -451,7 +451,10 @@ export default {
         })
         .then(() => {
           if (Object.keys(store.state.lessonMap).length > 0) {
-            return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+            store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+          }
+          if (Object.keys(store.state.examMap).length > 0) {
+            store.dispatch('fetchQuizzesSizes', { classId: classId, force: true });
           }
         });
     },
@@ -465,8 +468,10 @@ export default {
         });
     },
     fetchQuizzesSizes(store, classId) {
+      console.log('fetch quiz sizes in index');
       return ExamResource.fetchQuizzesSizes(classId)
         .then(sizes => {
+          console.log(sizes);
           store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
         })
         .catch(error => {
