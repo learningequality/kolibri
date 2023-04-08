@@ -97,12 +97,13 @@
                   data-test="side-nav-component"
                 />
                 <LogoutSideNavEntry v-if="showLogout" />
+                <div @click="handleShowLanguageModal()">
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
                   class="pointer"
-                  @select="handleShowLanguageModal()"
-                />
+                />                                       
+                </div>
                 <SideNavDivider />
               </template>
             </CoreMenu>
