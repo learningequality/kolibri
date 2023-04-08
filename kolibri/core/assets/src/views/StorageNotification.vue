@@ -47,18 +47,18 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
   import { mapGetters } from 'vuex';
+  import useUserSyncStatus from '../composables/useUserSyncStatus';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'StorageNotification',
     components: {},
     mixins: [commonCoreStrings],
     setup() {
-      const { isLearnerOnlyImport } = useUser();
-      return {
-        isLearnerOnlyImport,
-      };
+        const { status, lastSynced ,deviceStatus } = useUserSyncStatus();
+    
+        return { lastSynced, status , deviceStatus };
     },
     props: {
       showBanner: {
@@ -69,6 +69,7 @@
     data() {
       return {
         bannerOpened: false,
+        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
         // TODO: remove this
         insufficientSpace: true,
         // TODO: retrieve proper info for these
@@ -86,7 +87,7 @@
         );
       },
       learnOnlyRemovedResources() {
-        return this.isLearner && this.resourcesRemoved && this.isLearnerOnlyImport;
+        return this.isLearner && this.resourcesRemoved && this.isSubsetOfUsersDevice;
       },
       availableDownload() {
         return !this.hasDevicePermissions && this.availableDownloads && !this.isLearner;
@@ -95,6 +96,7 @@
     created() {
       this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
+      console.log(this.deviceStatus);
     },
     beforeDestroy() {
       document.removeEventListener('focusin', this.focusChange);
