@@ -1,17 +1,22 @@
 <template>
 
-  <KGrid>
-    <KGridItem
-      v-for="device in devices"
-      :key="device.id"
-      :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-    >
-      <UnPinnedDevices
-        :deviceName="device.device_name"
-        :channels="device.channels"
-      />
-    </KGridItem>
-  </KGrid>
+  <div>
+    <KGrid>
+      <KGridItem
+        v-for="device in devices"
+        :key="device.id"
+        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+      >
+        <UnPinnedDevices
+          :deviceName="device.device_name"
+          :channels="device.channels.length"
+          :allDevices="device"
+          :operatingSystem="device.operatingSystem"
+        />
+      </KGridItem>
+      <slot></slot>
+    </KGrid>
+  </div>
 
 </template>
 
@@ -19,8 +24,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import useDevices from '../../composables/useDevices';
-  import useChannels from '../../composables/useChannels';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -28,21 +32,22 @@
     components: {
       UnPinnedDevices,
     },
+    mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
-      const { fetchChannels } = useChannels();
-      const { baseurl, fetchDevices } = useDevices();
+      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
       return {
-        baseurl,
-        fetchDevices,
-        fetchChannels,
         windowBreakpoint,
+        windowGutter,
       };
     },
+    props: {
+      devices: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
-      return {
-        devices: [],
-      };
+      return {};
     },
     computed: {
       cardColumnSpan() {
@@ -52,16 +57,14 @@
         return 3;
       },
     },
-    created() {
-      this.fetchDevices().then(devices => {
-        const device = devices.filter(d => d.available);
-        device.forEach(element => {
-          this.fetchChannels({ baseurl: element.baseurl }).then(channel => {
-            element['channels'] = channel.length;
-          });
-          this.devices.push(element);
-        });
-      });
+    mounted() {
+      this.setNetworkDeviceChannels(this.devices, this.devices, this.devices.length);
+    },
+    methods: {
+      setNetworkDeviceChannels(device, channels, total) {
+        this.$set(device, 'channels', channels.slice(0, 4));
+        this.$set(device, 'total_channels', total);
+      },
     },
   };
 

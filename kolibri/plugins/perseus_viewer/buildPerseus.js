@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const execSync = require('child_process').execSync;
 const mkdirp = require('mkdirp');
-const rimraf = require('rimraf');
 const webpack = require('webpack');
 const buildConfig = require('./perseusBuildConfig');
 const extractPerseusMessages = require('./extractPerseusMessages');
@@ -13,7 +12,7 @@ const submodulesPath = path.resolve(__dirname, './submodules');
 
 // Clear submodules, create the directory anew, cd into it, and clone the submodules
 console.log('Cloning the Learning Equality Perseus repo');
-rimraf.sync(submodulesPath);
+fs.rmSync(submodulesPath, { recursive: true, force: true });
 mkdirp.sync(submodulesPath);
 process.chdir(submodulesPath);
 execSync('git clone https://github.com/learningequality/perseus.git');
@@ -36,7 +35,7 @@ console.log('Perseus dependencies installed');
 process.chdir(__dirname);
 const target = path.resolve(__dirname, './assets/dist');
 console.log('Clearing dist folder');
-rimraf.sync(target);
+fs.rmSync(target, { recursive: true, force: true });
 mkdirp.sync(target);
 
 
@@ -112,7 +111,7 @@ compiler.run(err => {
     }
     // Now that the file has been built, we can extract all the perseus messages.
     extractPerseusMessages().then(() => {
-      rimraf.sync(submodulesPath);
+      fs.rmSync(submodulesPath, { recursive: true, force: true });
       // Write out the readme to the dist folder.
       fs.writeFileSync(path.join(target, 'README.md'), README, { encoding: 'utf-8' });
       process.chdir(currentCwd);
@@ -120,7 +119,7 @@ compiler.run(err => {
   } else {
     // If there's an error still cleanup after ourselves.
     console.log(err);
-    rimraf.sync(submodulesPath);
+    fs.rmSync(submodulesPath, { recursive: true, force: true });
     process.chdir(currentCwd);
   }
 });

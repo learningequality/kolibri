@@ -13,8 +13,10 @@
         :tagline="getTagLine(content)"
         :numCoachContents="content.num_coach_contents"
         :link="genContentLinkBackLinkCurrentPage(content.id, false)"
+        :isRemote="isRemote"
       />
     </KGridItem>
+    <slot></slot>
 
   </KGrid>
 
@@ -41,6 +43,10 @@
       contents: {
         type: Array,
         required: true,
+      },
+      isRemote: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

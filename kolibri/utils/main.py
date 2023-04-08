@@ -279,7 +279,8 @@ def initialize(  # noqa C901
 
     updated = version_updated(kolibri.__version__, version)
 
-    _upgrades_before_django_setup(updated, version)
+    if not skip_update:
+        _upgrades_before_django_setup(updated, version)
 
     _setup_django()
 

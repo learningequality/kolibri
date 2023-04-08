@@ -1,26 +1,36 @@
 <template>
 
-  <KGrid>
+  <!-- eslint-disable vue/html-indent -->
+
+  <KGrid v-if="pinnedDevices !== null">
     <KGridItem
-      v-for="group in groups"
-      :key="group.id"
+      v-for="device in pinnedDevices"
+      :key="device.id"
     >
       <KGridItem>
         <h2>
-          <KIcon icon="device" />
-          <span class="device-name">{{ group.deviceName }}</span>
+          <KIcon :icon="getDeviceIcon(device)" />
+          <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
-      <KGridItem
-        v-for="item in group.content"
-        :key="item.id"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
-      >
-        <CardContent
-          :content="item.title"
-          :body="item.body"
-        />
-      </KGridItem>
+      <div class="card-layout">
+        <div class="cards">
+          <ChannelCardGroupGrid
+            data-test="channel-cards"
+            class="grid"
+            :contents="device.channels"
+            :isRemote="true"
+          >
+          <KGridItem :layout="{ span: cardColumnSpan, alignment: 'auto' }">
+              <ExploreCard
+                :style="cardStyle"
+                :deviceId="device.id"
+              />
+          </KGridItem>
+        </ChannelCardGroupGrid>
+        </div>
+      </div>
+
     </KGridItem>
   </KGrid>
 
@@ -30,58 +40,48 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import CardContent from './CardContent';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useDevices from './../../composables/useDevices';
+  import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
+  import ExploreCard from './ExploreCard';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
-      CardContent,
+      ChannelCardGroupGrid,
+      ExploreCard,
     },
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
+      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
+      const { baseurl, fetchDevices } = useDevices();
       return {
         windowBreakpoint,
+        fetchDevices,
+        baseurl,
+        windowGutter,
       };
+    },
+    props: {
+      pinnedDevices: {
+        type: Array,
+        required: true,
+      },
     },
     data() {
-      return {
-        groups: [
-          {
-            id: 1,
-            deviceName: 'Samson`s MacBook-Pro',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: 'Explore',
-              },
-            ],
-          },
-          {
-            id: 2,
-            deviceName: 'Marcella MBP',
-            content: [
-              {
-                id: 1,
-                title: 'Card 1',
-                body: ' ',
-              },
-              {
-                id: 2,
-                title: 'Card 2',
-                body: ' ',
-              },
-            ],
-          },
-        ],
-      };
+      return {};
     },
     computed: {
+      cardStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+          color: this.$themeTokens.text,
+          marginBottom: `${this.windowGutter}px`,
+          minHeight: `${this.overallHeight}px`,
+          textAlign: 'center',
+        };
+      },
       cardColumnSpan() {
         if (this.windowBreakpoint <= 2) return 4;
         if (this.windowBreakpoint <= 3) return 6;
@@ -89,7 +89,17 @@
         return 3;
       },
     },
-    created() {},
+    methods: {
+      getDeviceIcon(device) {
+        if (device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (!device['subset_of_users_device']) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
+      },
+    },
   };
 
 </script>
@@ -107,9 +117,10 @@
 
     position: relative;
     display: inline-flex;
-    width: 100%;
-    max-height: 258px;
+    width: 350px;
+    max-height: 270px;
     padding-bottom: $margin;
+    margin-left: 8px;
     text-decoration: none;
     vertical-align: top;
     border-radius: $radius;
@@ -125,8 +136,8 @@
     }
   }
 
-  .cardgroup .card-main-wrapper {
-    display: inline-flex;
+  .card-layout .cards {
+    float: left;
   }
 
   .device-name {
