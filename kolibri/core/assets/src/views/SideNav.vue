@@ -98,11 +98,11 @@
                 />
                 <LogoutSideNavEntry v-if="showLogout" />
                 <div @click="handleShowLanguageModal()">
-                <CoreMenuOption
-                  :label="coreString('changeLanguageOption')"
-                  icon="language"
-                  class="pointer"
-                />                                       
+                  <CoreMenuOption
+                    :label="coreString('changeLanguageOption')"
+                    icon="language"
+                    class="pointer"
+                  />                                       
                 </div>
                 <SideNavDivider />
               </template>
