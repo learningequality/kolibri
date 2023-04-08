@@ -50,7 +50,6 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     preset = serializers.ChoiceField(choices=choices)
     superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
-    # # device name char limiting
     device_name = serializers.CharField(max_length=50, allow_null=True)
     settings = serializers.JSONField()
     allow_guest_access = serializers.BooleanField(allow_null=True)

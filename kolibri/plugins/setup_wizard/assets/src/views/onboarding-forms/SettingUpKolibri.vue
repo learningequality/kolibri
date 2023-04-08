@@ -81,7 +81,8 @@
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
         const facilityName =
           this.wizardContext('facilityName') ||
-          this.$tr('onMyOwnFacilityName', { name: usersName });
+          // full names may be up to 120 chars, but facility names can only be 100 chars
+          this.$tr('onMyOwnFacilityName', { name: usersName }).slice(0, 100);
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
@@ -162,21 +163,10 @@
           settings: omitBy(settings, v => v === null),
           preset: this.wizardContext('formalOrNonformal') || 'nonformal',
           language_id: currentLanguage,
-
-          // // clarify -- does device name char count include "Person Device of" or is that just rendered in the UI?
-
-          // // is there anywhere else device name can get assigned to full name (saw nickname elsewhere)
-
-          // // suggested fix(-ish)
-          // let baseTranslatedLength = this.$tr('defaultDeviceName', { name: '' }).length
-          // let truncatedFullName = this.user.full_name.slice(0, baseTranslatedLength-1);
-          // let actualStringWeUse = this.$tr('defaultDeviceName', { name: truncatedFullName });
-
-          // // if there is a device name available, use it, otherwise get superuser's full name
-          // // and insert into (translation of) 'personal device of {}'
           device_name:
             this.wizardContext('deviceName') ||
-            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }),
+            // full names may be up to 120 chars, but device names can only be 50 chars
+            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }).slice(0, 50),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
@@ -236,7 +226,6 @@
         message: 'This may take several minutes',
         context: 'Kolibri is working in the background and the user may need to wait',
       },
-      // related to issue
       onMyOwnDeviceName: {
         message: 'Personal device for {name}',
         context:
