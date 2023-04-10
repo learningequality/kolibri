@@ -6,6 +6,7 @@ from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.utils.network.ipaddress import ip_address
 
 
 def check_if_port_open(base_url, timeout=1):
@@ -47,7 +48,11 @@ def capture_network_state(network_location, client):
     network_location.base_url = client.base_url
     # save the IP address for static locations
     if not network_location.dynamic:
-        network_location.last_known_ip = client.remote_ip
+        remote_ip = client.remote_ip
+
+        network_location.last_known_ip = remote_ip
+        network_location.is_local = ip_address(remote_ip).is_private
+
     # update all device info
     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
         setattr(network_location, key, client.device_info.get(key))
