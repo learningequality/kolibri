@@ -57,17 +57,6 @@ Finally, add the Learning Equality repo as a remote called `upstream`. That way 
   git checkout -t upstream/develop # Checkout the development branch
 
 
-Checkout release-v0.15.x
-~~~~~~~~~~~~~~~~~~~~~~~~
-
-We are currently updating our “setting up Kolibri” (user workflow) for our upcoming 0.16 release, and the code is only partially merged in develop. Therefore, you may run into some challenges if you try to setup on develop.
-When setting up Kolibri for the first time, even if you will be working off of develop for your feature or bug, please complete your initial Kolibri set up up on the release-0.15.x branch. This will allow you to go through the existing user workflow for setting up a facility in the UI. Once you facility is created, you can git checkout develop (or any other branch) and continue to use the facility that you have set up.
-
-.. code-block:: bash
-
-  git checkout -t upstream/release-v0.15.x
-
-
 Python and Pip
 ~~~~~~~~~~~~~~
 
