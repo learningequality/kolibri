@@ -115,6 +115,9 @@ class NetworkClient(requests.Session):
             with super(NetworkClient, self).request(
                 method, url, stream=True, **kwargs
             ) as response:
+                if response.raw._connection.sock is None:
+                    raise requests.exceptions.ConnectionError("No socket available")
+
                 # capture the remote IP address, which requires `stream=True` and before consumed
                 self.remote_ip = response.raw._connection.sock.getpeername()[0]
                 # now consume content, see how `Session.send` does this when `stream=False`
