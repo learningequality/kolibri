@@ -1725,6 +1725,9 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             if resp.status_code == 404:
                 raise requests.ConnectionError("Kolibri Studio URL is incorrect!")
             else:
-                return Response({"status": "online"})
+                data = resp.json()
+                data["available"] = True
+                data["status"] = "online"
+                return Response(data)
         except requests.ConnectionError:
-            return Response({"status": "offline"})
+            return Response({"status": "offline", "available": False})
