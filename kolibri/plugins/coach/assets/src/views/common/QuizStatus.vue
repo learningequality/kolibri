@@ -188,7 +188,7 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          <p>{{ quizSize(exam.id) }}</p>
+          <p>{{ exam.size_string ? exam.size_string : '--' }}</p>
         </KGridItem>
       </div>
 
@@ -205,7 +205,7 @@
     >
       <p>{{ coachString('openQuizModalDetail') }}</p>
       <p>{{ coachString('lodQuizDetail') }}</p>
-      <p>{{ coachString('fileSizeToDownload', { size: quizSize(exam.id) }) }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: exam.size_string }) }}</p>
     </KModal>
 
     <KModal
@@ -259,11 +259,9 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import { ExamResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ElapsedTime from 'kolibri.coreVue.components.ElapsedTime';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import Lockr from 'lockr';
   import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { coachStringsMixin } from './commonCoachStrings';
@@ -304,7 +302,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', ['quizzesSizes']),
       orderDescriptionString() {
         return this.exam.learners_see_fixed_order
           ? this.coachString('orderFixedLabel')
@@ -420,14 +417,6 @@
           this.showMakeReportVisibleModal = false;
           this.$store.dispatch('createSnackbar', snackbarMessage);
         });
-      },
-      quizSize(quizId) {
-        if (this.quizzesSizes && this.quizzesSizes[0]) {
-          let size = this.quizzesSizes[0][quizId];
-          size = bytesForHumans(size);
-          return size;
-        }
-        return '--';
       },
     },
     $trs: {

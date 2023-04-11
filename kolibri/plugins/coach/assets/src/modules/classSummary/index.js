@@ -3,6 +3,7 @@ import set from 'lodash/set';
 import flatten from 'lodash/flatten';
 import find from 'lodash/find';
 import Vue from 'kolibri.lib.vue';
+import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { ExamResource, LessonResource } from 'kolibri.resources';
 import ClassSummaryResource from '../../apiResources/classSummary';
 import dataHelpers from './dataHelpers';
@@ -227,14 +228,6 @@ export default {
       );
     },
     /*
-     * quizzesSizes := [
-     *   { quiz_id: size in bytes for humans }, ...
-     * ]
-     */
-    quizzesSizes(state) {
-      return Object.values(state.examMap);
-    },
-    /*
      * content := [
      *   { content_id, node_id, kind, title }, ...
      * ]
@@ -438,8 +431,16 @@ export default {
     SET_CLASS_LESSONS_SIZES(state, sizes = {}) {
       state.lessonsSizes = sizes;
     },
-    SET_CLASS_QUIZZES_SIZES(state, sizes) {
-      state.quizzesSizes = sizes;
+    SET_CLASS_QUIZZES_SIZES(state, sizes = {}) {
+      if (sizes.length > 0) {
+        sizes.forEach(sizeItem => {
+          for (const [key, val] of Object.entries(sizeItem)) {
+            state.examMap[key]['size_string'] = bytesForHumans(val);
+            state.examMap[key]['size'] = val;
+          }
+        });
+        state.examMap = { ...state.examMap };
+      }
     },
   },
   actions: {
@@ -468,10 +469,8 @@ export default {
         });
     },
     fetchQuizzesSizes(store, classId) {
-      console.log('fetch quiz sizes in index');
       return ExamResource.fetchQuizzesSizes(classId)
         .then(sizes => {
-          console.log(sizes);
           store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
         })
         .catch(error => {

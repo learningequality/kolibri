@@ -138,11 +138,13 @@ class ExamViewset(ValuesViewset):
     @action(detail=False)
     def size(self, request, **kwargs):
         exams = self.get_queryset()
-        exams_sizes_dict = {}
+        exams_sizes_set = []
         for exam in exams:
+            quiz_size = {}
             quiz_nodes = ContentNode.objects.filter(
                 id__in={source["exercise_id"] for source in exam.question_sources}
             )
-            exams_sizes_dict[exam.id] = total_file_size(quiz_nodes)
+            quiz_size[exam.id] = total_file_size(quiz_nodes)
+            exams_sizes_set.append(quiz_size)
 
-        return Response([exams_sizes_dict])
+        return Response(exams_sizes_set)
