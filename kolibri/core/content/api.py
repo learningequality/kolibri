@@ -121,7 +121,8 @@ class RemoteMixin(object):
     def _get_request_headers(self, request):
         return {
             "Accept": request.META.get("HTTP_ACCEPT"),
-            "Accept-Encoding": request.META.get("HTTP_ACCEPT_ENCODING"),
+            # Don't proxy client's accept headers as it may include br for brotli
+            # that we cannot rely on having decompression for available on the server.
             "Accept-Language": request.META.get("HTTP_ACCEPT_LANGUAGE"),
             "Content-Type": request.META.get("CONTENT_TYPE"),
             "If-None-Match": request.META.get("HTTP_IF_NONE_MATCH", ""),
