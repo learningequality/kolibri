@@ -105,9 +105,6 @@ def get_engine(connection_string):
         connection_string == get_default_db_string()
         and connection_string.startswith("sqlite")
     )
-    # enable connection sharing when connecting to default database
-    if is_default_sqlite:
-        engine_kwargs["poolclass"] = SharingPool
 
     engine = create_engine(connection_string, **engine_kwargs)
     if is_default_sqlite:
