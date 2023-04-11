@@ -56,7 +56,7 @@
               </td>
               <td>
                 <div>
-                  {{ ScheduleTime(device.repeat_interval, device.scheduled_datetime ) }}
+                  {{ scheduleTime(device.repeat_interval, device.scheduled_datetime ) }}
                 </div>
               </td>
 
@@ -284,7 +284,7 @@
           return window.location.href;
         }
       },
-      ScheduleTime(time, timestamp) {
+      scheduleTime(time, timestamp) {
         const schedule = this.getDays(timestamp);
         if (time === 3600) {
           return this.$tr('everyHour');

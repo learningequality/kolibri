@@ -310,7 +310,7 @@
                 task.extra_metadata.device_id === device.id &&
                 task.facility_id === this.$store.getters.activeFacilityId
             );
-            if (this.tasks) {
+            if (this.tasks && this.tasks.length) {
               this.removeBtn = true;
             }
           });
