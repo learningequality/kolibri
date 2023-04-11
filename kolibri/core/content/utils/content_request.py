@@ -57,8 +57,6 @@ def synchronize_content_requests(dataset_id, transfer_session):
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
-    new_contentnode_ids = set()
-
     # process the new assignments
     logger.info("Processing new content assignment requests")
     for assignment in ContentAssignmentManager.find_all_downloadable_assignments(
@@ -82,7 +80,6 @@ def synchronize_content_requests(dataset_id, transfer_session):
             source_id=assignment.source_id,
             contentnode_id=assignment.contentnode_id,
         )
-        new_contentnode_ids.update([assignment.contentnode_id])
 
     # process new removals
     logger.info("Processing new content removal requests")
@@ -117,20 +114,6 @@ def synchronize_content_requests(dataset_id, transfer_session):
 
         # delete any related download requests
         related_downloads.delete()
-
-    # avoid adding extra logs
-    if not new_contentnode_ids:
-        return
-
-    # process metadata import for new requests without metadata
-    incomplete_downloads = _incomplete_downloads_queryset()
-    incomplete_downloads_without_metadata = incomplete_downloads.filter(
-        has_metadata=False,
-        # limit to just those recently requested nodes during this phase
-        contentnode_id__in=list(new_contentnode_ids),
-    )
-    if incomplete_downloads_without_metadata.exists():
-        _process_metadata_import(incomplete_downloads_without_metadata)
 
 
 def _get_preferred_network_location(version_filter=None):
@@ -195,7 +178,7 @@ def _total_size_annotation():
     )
 
 
-def _incomplete_downloads_queryset():
+def incomplete_downloads_queryset():
     """
     Returns a queryset used to determine the incomplete downloads, with and without metadata, as
     well as the total import size if it does have metadata
@@ -232,16 +215,19 @@ def process_content_requests():
     """
     Wrapper around the processing of content requests to capture errors
     """
-    incomplete_downloads = _incomplete_downloads_queryset()
+    logger.debug("Processing content requests")
+    incomplete_downloads = incomplete_downloads_queryset()
 
     # first, process the metadata import for any incomplete downloads without metadata
     incomplete_downloads_without_metadata = incomplete_downloads.filter(
         has_metadata=False
     )
     if incomplete_downloads_without_metadata.exists():
-        _process_metadata_import(incomplete_downloads_without_metadata)
+        logger.debug("Attempting to import missing metadata before content import")
+        process_metadata_import(incomplete_downloads_without_metadata)
 
     try:
+        logger.debug("Starting automated import of content")
         _process_content_requests(incomplete_downloads)
         # must have completed downloads, we can clear any 'InsufficientStorage' statuses
         LearnerDeviceStatus.clear_statuses()
@@ -308,7 +294,7 @@ def _import_metadata(client, contentnode_ids):
     logger.info("Imported content metadata for {} nodes".format(processed_count))
 
 
-def _process_metadata_import(incomplete_downloads_without_metadata):
+def process_metadata_import(incomplete_downloads_without_metadata):
     """
     Processes metadata import for a queryset already filtered to those without metadata
     :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
@@ -346,12 +332,26 @@ def _process_content_requests(incomplete_downloads):
             has_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
+                ).exclude(
+                    # has a download that isn't from the same model
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
                 )
-            )
+            ),
+            is_admin_imported=Exists(
+                ContentNode.objects.filter(
+                    id=OuterRef("contentnode_id"),
+                    admin_imported=True,
+                )
+            ),
         )
         .filter(
             status__in=INCOMPLETE_STATUSES,
-            has_download=False,
+        )
+        .exclude(
+            # hoping using exclude creates SQL like `NOT EXISTS`
+            has_download=True,
+            is_admin_imported=True,
         )
         .order_by("requested_at")
     )
@@ -393,7 +393,7 @@ def _process_content_requests(incomplete_downloads):
                 continue
             if complete_user_downloads.exists():
                 # process, then repeat
-                process_user_downloads_for_removal(incomplete_downloads)
+                process_user_downloads_for_removal()
                 continue
             raise InsufficientStorage(
                 "Content download requests need {} of free space".format(
@@ -443,24 +443,30 @@ def process_download_request(download_request):
         download_request.save()
 
 
-def process_user_downloads_for_removal(incomplete_downloads):
+def process_user_downloads_for_removal():
     """
     Simplistic approach to removing user downloads, starting with largest and working down
-
-    :param incomplete_downloads: a ContentDownloadRequest queryset
-    :type incomplete_downloads: django.db.models.QuerySet
     """
     user_downloads = (
         ContentDownloadRequest.objects.filter(
             reason=ContentRequestReason.UserInitiated,
             status=ContentRequestStatus.Completed,
         )
-        .exclude(
-            contentnode_id__in=incomplete_downloads.values_list(
-                "contentnode_id", flat=True
-            )
+        .annotate(
+            total_size=_total_size_annotation(),
+            has_other_download=Exists(
+                ContentDownloadRequest.objects.filter(
+                    contentnode_id=OuterRef("contentnode_id")
+                ).exclude(
+                    # has a download that isn't from the same model
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                )
+            ),
         )
-        .annotate(total_size=_total_size_annotation())
+        .exclude(
+            has_other_download=True,
+        )
     )
 
     # TODO: add more sophisticated logic for choosing which user downloads to remove, like based
@@ -495,7 +501,7 @@ def process_content_removal_requests(queryset):
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
         admin_imported=False,
-        id__in=queryset.values_list("contentnode_id", flat=True),
+        id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
         available=True,
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
@@ -518,8 +524,8 @@ def process_content_removal_requests(queryset):
             logger.exception(e)
             channel_requests.update(status=ContentRequestStatus.Failed)
 
-    # lastly, update all incomplete as completed, since they must have been excluded either
-    # already unavailable or admin_imported
+    # lastly, update all incomplete as completed, since they must have been excluded
+    # as already unavailable
     queryset.filter(status__in=INCOMPLETE_STATUSES).update(
         status=ContentRequestStatus.Completed
     )
