@@ -154,6 +154,9 @@ class RemoteMixin(object):
             response = requests.get(
                 remote_url, params=qs, headers=self._get_request_headers(request)
             )
+            if response.status_code == 404:
+                raise Http404("Remote resource not found")
+            response.raise_for_status()
             # If Etag is set on the response we have returned here, any further Etag will not be modified
             # by the django etag decorator, so this should allow us to transparently proxy the remote etag.
             try:
