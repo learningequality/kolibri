@@ -3,19 +3,52 @@
  */
 
 import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
-import { NetworkLocationResource } from 'kolibri.resources';
+import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
+import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+import { KolibriStudioId } from '../constants';
+import { learnStrings } from '../views/commonLearnStrings';
+import plugin_data from 'plugin_data';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const currentDevice = ref(null);
 
+const KolibriStudioDeviceData = {
+  id: KolibriStudioId,
+  instance_id: KolibriStudioId,
+  base_url: plugin_data.studio_baseurl,
+  get device_name() {
+    return learnStrings.$tr('kolibriLibrary');
+  },
+};
+
+const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
+
 function fetchDevices() {
-  return NetworkLocationResource.list().then(devices => {
+  return Promise.all([
+    RemoteChannelResource.getKolibriStudioStatus(),
+    NetworkLocationResource.list(),
+  ]).then(([studioResponse, devices]) => {
+    const studio = studioResponse.data;
+    devices = devices.filter(device => isMinimumKolibriVersion(device.kolibri_version));
+    if (studio.available && isMinimumKolibriVersion(studio.kolibri_version || '0.15.0')) {
+      return [
+        {
+          ...studio,
+          ...KolibriStudioDeviceData,
+        },
+        ...devices,
+      ];
+    }
     return devices;
   });
 }
 
 export function setCurrentDevice(id) {
+  if (id === KolibriStudioId) {
+    set(currentDevice, KolibriStudioDeviceData);
+    return Promise.resolve(KolibriStudioDeviceData);
+  }
   return NetworkLocationResource.fetchModel({ id }).then(device => {
     set(currentDevice, device);
     return device;
