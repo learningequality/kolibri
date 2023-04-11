@@ -205,6 +205,15 @@ export default [
     name: PageNames.EXPLORE_LIBRARIES,
     path: '/explore_libraries',
     component: ExploreLibrariesPage,
+    handler: () => {
+      if (!get(isUserLoggedIn)) {
+        router.replace({ name: PageNames.LIBRARY });
+        return;
+      }
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+    },
   },
   {
     path: '*',
