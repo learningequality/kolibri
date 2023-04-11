@@ -18,6 +18,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
@@ -464,7 +465,9 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         :param status: A status tuple of which to save, see `DeviceStatus`
         :type status: tuple(string, int)
         """
-        if not get_device_setting("subset_of_users_device", False):
+        if not get_device_setting(
+            "subset_of_users_device", default=not device_provisioned()
+        ):
             raise NotImplementedError(
                 "Saving all learner statuses is not supported on full-facility devices"
             )
@@ -505,7 +508,9 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         provisioned as a `subset_of_users_device`
         :return:
         """
-        if not get_device_setting("subset_of_users_device", False):
+        if not get_device_setting(
+            "subset_of_users_device", default=not device_provisioned()
+        ):
             raise NotImplementedError(
                 "Saving all learner statuses is not supported on full-facility devices"
             )
