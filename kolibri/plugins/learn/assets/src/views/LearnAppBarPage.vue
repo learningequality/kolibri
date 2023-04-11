@@ -4,7 +4,7 @@
     :is="page"
     :appBarTitle="appBarTitle"
     :appearanceOverrides="appearanceOverrides"
-    :loading="loading"
+    :loading="$store.state.core.loading"
     :primary="false"
     :route="route"
     :title="appBarTitle"
@@ -61,10 +61,6 @@
       },
       deviceId: {
         type: String,
-        default: null,
-      },
-      loading: {
-        type: Boolean,
         default: null,
       },
       route: {

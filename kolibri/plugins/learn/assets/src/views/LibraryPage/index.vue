@@ -3,7 +3,6 @@
   <LearnAppBarPage
     :appBarTitle="appBarTitle"
     :appearanceOverrides="{}"
-    :loading="loading"
     :deviceId="deviceId"
     :route="back"
   >
@@ -362,10 +361,6 @@
     props: {
       deviceId: {
         type: String,
-        default: null,
-      },
-      loading: {
-        type: Boolean,
         default: null,
       },
     },
