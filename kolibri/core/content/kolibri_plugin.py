@@ -6,6 +6,8 @@ from kolibri.core.auth.hooks import FacilityDataSyncHook
 from kolibri.core.auth.sync_event_hook_utils import get_dataset_id
 from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.content.tasks import automatic_resource_import
+from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
+from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.plugins.hooks import register_hook
 
@@ -48,10 +50,35 @@ class ContentRequestsOperation(KolibriSyncOperationMixin, LocalOperation):
         logger.info(
             "Completed content requests for synced dataset: {}".format(dataset_id)
         )
-        automatic_resource_import.enqueue()
         return False
 
 
 @register_hook
 class ContentSyncHook(FacilityDataSyncHook):
     cleanup_operations = [ContentRequestsOperation()]
+
+    def post_transfer(
+        self,
+        dataset_id,
+        local_is_single_user,
+        remote_is_single_user,
+        single_user_id,
+        context,
+    ):
+        """
+        Processes content import using the post_transfer hook, outside of the sync process, but
+        between push and pulls (since this processes when receiving)
+        """
+        # only process upon receiving
+        if not context.is_receiver:
+            return
+
+        # process metadata import for new requests without metadata
+        incomplete_downloads = incomplete_downloads_queryset()
+        incomplete_downloads_without_metadata = incomplete_downloads.filter(
+            has_metadata=False,
+        )
+        if incomplete_downloads_without_metadata.exists():
+            process_metadata_import(incomplete_downloads_without_metadata)
+
+        automatic_resource_import.enqueue()

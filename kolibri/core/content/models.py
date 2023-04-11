@@ -436,7 +436,6 @@ class ContentRequest(models.Model):
     reason = models.CharField(choices=ContentRequestReason.choices(), max_length=14)
     status = models.CharField(choices=ContentRequestStatus.choices(), max_length=11)
 
-    # unenforced FK so we can leverage Django joins, but not worry about creating FK model
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
 
