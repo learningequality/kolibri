@@ -74,13 +74,10 @@ def _local_event_handler(func):
         """
         :type context: morango.sync.context.CompositeSessionContext
         """
-        context = next(
-            c for c in context.children if isinstance(c, LocalSessionContext)
-        )
-
-        if isinstance(context, LocalSessionContext):
-            kwargs = _extract_kwargs_from_context(context)
-            return func(**kwargs)
+        for sub_context in context.children:
+            if isinstance(sub_context, LocalSessionContext):
+                kwargs = _extract_kwargs_from_context(sub_context)
+                return func(**kwargs)
 
     return wrapper
 
