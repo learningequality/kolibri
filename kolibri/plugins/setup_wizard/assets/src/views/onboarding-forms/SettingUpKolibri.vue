@@ -81,7 +81,8 @@
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
         const facilityName =
           this.wizardContext('facilityName') ||
-          this.$tr('onMyOwnFacilityName', { name: usersName });
+          // full names may be up to 120 chars, but facility names can only be 100 chars
+          this.$tr('onMyOwnFacilityName', { name: usersName }).slice(0, 100);
         const selectedFacility = this.wizardContext('selectedFacility');
         if (selectedFacility) {
           if (selectedFacility.id) {
@@ -164,7 +165,8 @@
           language_id: currentLanguage,
           device_name:
             this.wizardContext('deviceName') ||
-            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }),
+            // full names may be up to 120 chars, but device names can only be 50 chars
+            this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }).slice(0, 50),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
