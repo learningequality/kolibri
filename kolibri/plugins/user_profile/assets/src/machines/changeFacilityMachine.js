@@ -66,6 +66,10 @@ const checkExists = assign((context, event) => {
   };
 });
 
+const setCurrentUserAsSuperAdmin = assign({
+  setAsSuperAdmin: () => true,
+});
+
 const setNewSuperAdminId = assign({
   newSuperAdminId: (_, event) => event.value,
 });
@@ -133,6 +137,8 @@ const generateMachineContext = () => {
     isMerging: false,
     // id of the backend task executing the merging
     taskId: null,
+    // whether the migrated user will become a super admin after facility change
+    setAsSuperAdmin: false,
     // Contains machine states history, its items are states names.
     // Doesn't necessarily capture all transitions as it is used
     // for user-facing back navigation, therefore we don't want to
@@ -293,13 +299,32 @@ const states = {
         });
       },
       onDone: {
-        target: 'checkNeedsNewSuperAdmin',
+        target: 'checkFacilityHasNoMoreUsers',
         actions: [setSourceFacilityUsers],
       },
       onError: {
         target: 'error',
       },
     },
+  },
+  checkFacilityHasNoMoreUsers: {
+    always: [
+      {
+        cond: context => context.sourceFacilityUsers.length == 1,
+        target: 'setCurrentUserToSuperAdmin',
+      },
+      {
+        target: 'checkNeedsNewSuperAdmin',
+      },
+    ],
+  },
+  setCurrentUserToSuperAdmin: {
+    always: [
+      {
+        target: 'checkIsMerging',
+        actions: [setCurrentUserAsSuperAdmin, clearSourceFacilityUsers],
+      },
+    ],
   },
   checkNeedsNewSuperAdmin: {
     always: [
