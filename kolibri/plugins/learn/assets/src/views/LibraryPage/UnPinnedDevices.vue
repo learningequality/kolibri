@@ -7,14 +7,14 @@
     >
 
       <KRouterLink
-        v-if="allDevices !== null"
-        :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
-        :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
+        v-if="device !== null"
+        :text="device.nickname.length ? device.nickname : device.device_name"
+        :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
         style="text-decoration:none;width:100%;"
       >
         <div class="unpinned-device-card">
           <div class="col device-icon">
-            <KIcon :icon="getDeviceIcon(allDevices)" class="icon" />
+            <KIcon :icon="getDeviceIcon(device)" class="icon" />
           </div>
           <div class="col device-detail">
             <TextTruncator
@@ -62,7 +62,7 @@
         required: false,
         default: 0,
       },
-      allDevices: {
+      device: {
         type: Object,
         required: true,
       },
