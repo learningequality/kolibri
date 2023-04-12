@@ -440,7 +440,7 @@ class ContentRequest(models.Model):
     metadata = JSONField(null=True)
 
     class Meta:
-        unique_together = ("source_model", "source_id", "contentnode_id")
+        unique_together = ("type", "source_model", "source_id", "contentnode_id")
         ordering = ("requested_at",)
 
     def save(self, *args, **kwargs):

@@ -103,6 +103,8 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterUniqueTogether(
             name="contentrequest",
-            unique_together=set([("source_model", "source_id", "contentnode_id")]),
+            unique_together=set(
+                [("type", "source_model", "source_id", "contentnode_id")]
+            ),
         ),
     ]
