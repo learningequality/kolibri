@@ -81,4 +81,7 @@ class ContentSyncHook(FacilityDataSyncHook):
         if incomplete_downloads_without_metadata.exists():
             process_metadata_import(incomplete_downloads_without_metadata)
 
+        # TODO: we need determine total space for new downloads and if there isn't sufficient space
+        # save the `LearnerDeviceStatus` with the insufficient storage status
+
         automatic_resource_import.enqueue()
