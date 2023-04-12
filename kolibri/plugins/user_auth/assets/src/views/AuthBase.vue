@@ -430,4 +430,10 @@
     vertical-align: middle;
   }
 
+  /deep/ .ui-textbox-input {
+    &:hover {
+      outline: none;
+    }
+  }
+
 </style>
