@@ -83,7 +83,7 @@
 
     <div v-if="content.lang" class="section" data-test="lang">
       <span class="label">
-        {{ coreString('language') }}:
+        {{ coreString('languageLabel') }}:
       </span>
       <span>
         {{ content.lang.lang_name }}
