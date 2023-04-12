@@ -42,22 +42,20 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
         .count()
     )
 
-    unused_files = (
-        LocalFile.objects.filter(
-            available=True,
-            files__contentnode__channel_id=channel.id,
-            files__contentnode__available=False,
-        )
-        .distinct()
-        .values("id", "file_size", "extension")
-    )
-
-    deleted_bytes = unused_files.aggregate(size=Sum("file_size"))["size"] or 0
-
     if force_delete:
         # Do this before we delete all the metadata, as otherwise we lose
         # track of which local files were associated with the channel we
         # just deleted.
+
+        unused_files = (
+            LocalFile.objects.filter(
+                available=True,
+                files__contentnode__channel_id=channel.id,
+                files__contentnode__available=False,
+            )
+            .distinct()
+            .values("id", "file_size", "extension")
+        )
 
         with db_lock():
             propagate_forced_localfile_removal(unused_files)
@@ -75,7 +73,7 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
 
-    return total_resource_number, delete_all_metadata, deleted_bytes
+    return total_resource_number, delete_all_metadata
 
 
 class Command(AsyncCommand):
@@ -141,24 +139,26 @@ class Command(AsyncCommand):
         (
             total_resource_number,
             delete_all_metadata,
-            total_bytes_to_transfer,
         ) = delete_metadata(channel, node_ids, exclude_node_ids, force_delete)
         unused_files = LocalFile.objects.get_unused_files()
-        # Get orphan files that are being deleted
-        total_file_deletion_operations = unused_files.count()
+        # Get the number of files that are being deleted
+        unused_files_count = unused_files.count()
+        deleted_bytes = unused_files.aggregate(size=Sum("file_size"))["size"] or 0
+
         job = get_current_job()
         if job:
-            job.extra_metadata["file_size"] = total_bytes_to_transfer
+            job.extra_metadata["file_size"] = deleted_bytes
             job.extra_metadata["total_resources"] = total_resource_number
             job.save_meta()
         progress_extra_data = {"channel_id": channel_id}
         additional_progress = sum((1, bool(delete_all_metadata)))
-        with self.start_progress(
-            total=total_file_deletion_operations + additional_progress
-        ) as progress_update:
+        total_progress = 0
+        target_progress = unused_files_count + additional_progress
+        with self.start_progress(total=target_progress) as progress_update:
 
             for _ in LocalFile.objects.delete_unused_files():
                 progress_update(1, progress_extra_data)
+                total_progress += 1
 
             with db_lock():
                 LocalFile.objects.delete_orphan_file_objects()
@@ -172,3 +172,5 @@ class Command(AsyncCommand):
                     pass
 
                 progress_update(1, progress_extra_data)
+
+            progress_update(target_progress - total_progress, progress_extra_data)
