@@ -14,7 +14,7 @@
       >
         <div class="unpinned-device-card">
           <div class="col device-icon">
-            <KIcon :icon="getDeviceIcon(device)" class="icon" />
+            <KIcon :icon="getDeviceIcon" class="icon" />
           </div>
           <div class="col device-detail">
             <TextTruncator
@@ -50,7 +50,6 @@
         windowGutter,
       };
     },
-
     props: {
       deviceName: {
         type: String,
@@ -78,12 +77,10 @@
           textAlign: 'center',
         };
       },
-    },
-    methods: {
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Android') {
+      getDeviceIcon() {
+        if (this.device['operating_system'] === 'Android') {
           return 'device';
-        } else if (!device['subset_of_users_device']) {
+        } else if (!this.device['subset_of_users_device']) {
           return 'cloud';
         } else {
           return 'laptop';
