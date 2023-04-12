@@ -372,6 +372,9 @@ class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
     pass
 
 
+BATCH_SIZE = 1000
+
+
 @python_2_unicode_compatible
 class ChannelMetadata(base_models.ChannelMetadata):
     """
@@ -403,7 +406,22 @@ class ChannelMetadata(base_models.ChannelMetadata):
 
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
-        self.root.delete()
+        right_value = self.root.rght
+        # Disable MPTT updates during the deletion as everything
+        # is being deleted anyway, so no need to make any updates!
+        with ContentNode.objects.disable_mptt_updates():
+            if right_value // 2 > BATCH_SIZE:
+                # If there are more than 1000 nodes in the tree, delete in batches to limit memory usage
+                left_value = self.root.lft
+                while left_value < right_value:
+                    qs = ContentNode.objects.filter(
+                        lft__gt=left_value,
+                        rght__lt=left_value + BATCH_SIZE,
+                        tree_id=self.root.tree_id,
+                    )
+                    qs.delete()
+                    left_value += BATCH_SIZE
+            self.root.delete()
         ContentCacheKey.update_cache_key()
 
 
