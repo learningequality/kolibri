@@ -25,6 +25,15 @@ from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.translation import ugettext as _
 
 
+def set_superuser(user_id):
+    new_superuser = FacilityUser.objects.get(id=user_id)
+    # make the user a new super user for this device:
+    new_superuser.facility.add_role(new_superuser, role_kinds.ADMIN)
+    DevicePermissions.objects.create(
+        user=new_superuser, is_superuser=True, can_manage_content=True
+    )
+
+
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
     local_user_id = serializers.PrimaryKeyRelatedField(
         queryset=FacilityUser.objects.all()
@@ -140,12 +149,7 @@ def mergeuser(command, **kwargs):
 
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id:
-        new_superuser = FacilityUser.objects.get(id=new_superuser_id)
-        # make the user a new super user for this device:
-        new_superuser.facility.add_role(new_superuser, role_kinds.ADMIN)
-        DevicePermissions.objects.create(
-            user=new_superuser, is_superuser=True, can_manage_content=True
-        )
+        set_superuser(new_superuser_id)
 
     # create token to validate user in the new facility
     # after it's deleted in the current facility:
@@ -157,14 +161,10 @@ def mergeuser(command, **kwargs):
     job.save_meta()
     job.update_progress(1.0, 1.0)
 
-    # check if current user should be promoted to superuser:
+    # check if current user should be set as superuser:
     set_as_super_user = kwargs.get("set_as_super_user")
     if set_as_super_user:
-        # set current user as the new superuser of this device:
-        remote_user.facility.add_role(remote_user, role_kinds.ADMIN)
-        DevicePermissions.objects.create(
-            user=remote_user, is_superuser=True, can_manage_content=True
-        )
+        set_superuser(remote_user.id)
         delete_facility(local_user.facility)
         set_device_settings(default_facility=remote_user.facility)
     else:
