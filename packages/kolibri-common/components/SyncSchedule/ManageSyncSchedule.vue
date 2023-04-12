@@ -203,10 +203,10 @@
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
     props: {
-      // facilityId: {
-      //   type: String,
-      //   required: true,
-      // },
+      facilityId: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
@@ -226,8 +226,8 @@
           name: this.isDevicePlugin ? DeviceReturnPage : FacilityReturnPage,
         };
       },
-      facilityId() {
-        return this.$route.params.facility_id;
+      theFacilityId() {
+        return this.$route.params.facilityId || this.facilityId;
       },
     },
     beforeMount() {
@@ -248,7 +248,7 @@
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.savedDevices = tasks.filter(t => t.facility_id === this.facilityId);
+          this.savedDevices = tasks.filter(t => t.facility_id === this.theFacilityId);
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();

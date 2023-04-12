@@ -173,7 +173,10 @@
     },
     methods: {
       managesync() {
-        this.$router.push({ name: PageNames.MANAGE_SYNC_SCHEDULE });
+        this.$router.push({
+          name: PageNames.MANAGE_SYNC_SCHEDULE,
+          params: { deviceId: this.$store.getters.activeFacilityId },
+        });
       },
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(

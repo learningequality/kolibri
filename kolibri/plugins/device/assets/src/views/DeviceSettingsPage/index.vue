@@ -707,7 +707,6 @@
       },
       getFacilitySettingsPath(facilityId = '') {
         const getUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
-        window.ur;
         if (getUrl) {
           if (facilityId) {
             return getUrl() + `#/${facilityId}/settings`;
