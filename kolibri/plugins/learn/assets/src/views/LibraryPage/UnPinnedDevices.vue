@@ -7,14 +7,14 @@
     >
 
       <KRouterLink
-        v-if="allDevices !== null"
-        :text="allDevices.nickname.length ? allDevices.nickname : allDevices.device_name"
-        :to="{ name: 'LIBRARY', params: { deviceId: allDevices.id } }"
+        v-if="device !== null"
+        :text="device.nickname.length ? device.nickname : device.device_name"
+        :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
         style="text-decoration:none;width:100%;"
       >
         <div class="unpinned-device-card">
           <div class="col device-icon">
-            <KIcon :icon="getDeviceIcon(allDevices)" class="icon" />
+            <KIcon :icon="getDeviceIcon" class="icon" />
           </div>
           <div class="col device-detail">
             <TextTruncator
@@ -50,7 +50,6 @@
         windowGutter,
       };
     },
-
     props: {
       deviceName: {
         type: String,
@@ -62,7 +61,7 @@
         required: false,
         default: 0,
       },
-      allDevices: {
+      device: {
         type: Object,
         required: true,
       },
@@ -78,12 +77,10 @@
           textAlign: 'center',
         };
       },
-    },
-    methods: {
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Android') {
+      getDeviceIcon() {
+        if (this.device['operating_system'] === 'Android') {
           return 'device';
-        } else if (!device['subset_of_users_device']) {
+        } else if (!this.device['subset_of_users_device']) {
           return 'cloud';
         } else {
           return 'laptop';
