@@ -10,7 +10,7 @@
         <UnPinnedDevices
           :deviceName="device.device_name"
           :channels="device.channels.length"
-          :allDevices="device"
+          :device="device"
           :operatingSystem="device.operatingSystem"
         />
       </KGridItem>
