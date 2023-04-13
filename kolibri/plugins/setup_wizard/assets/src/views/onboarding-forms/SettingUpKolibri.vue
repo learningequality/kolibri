@@ -26,7 +26,6 @@
         overflow: auto;
       "
     >
-      <h2>Setup Wizard Debugger 3000</h2>
       <h3>Device Provisioning Data</h3>
       <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
       <KButtonGroup
