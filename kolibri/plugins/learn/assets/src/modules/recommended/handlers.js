@@ -1,12 +1,11 @@
 import { get } from '@vueuse/core';
-import { ContentNodeResource, RemoteChannelResource } from 'kolibri.resources';
+import { ContentNodeResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { PageNames, KolibriStudioId } from '../../constants';
+import { PageNames } from '../../constants';
 import useChannels from '../../composables/useChannels';
 import { setCurrentDevice } from '../../composables/useDevices';
 import useLearnerResources from '../../composables/useLearnerResources';
 import { searchKeys } from '../../composables/useSearch';
-import plugin_data from 'plugin_data';
 
 const { channels, fetchChannels } = useChannels();
 
@@ -78,39 +77,13 @@ function _showLibrary(store, query, channels, baseurl) {
 }
 
 export function showLibrary(store, query, deviceId = null) {
-  /**
-   * ToDo: remove if block.
-   * Currently the channels & contentnode browser apis in studio
-   * are not able to load content using the the studio base url.
-   * Once studio is updated, this function will need to be refactored
-   * to use the else block code only.
-   *
-   * The if block is meant for UI viualization purposes only
-   * during development
-   */
-  if (deviceId === KolibriStudioId) {
-    RemoteChannelResource.getKolibriStudioStatus().then(({ data }) => {
-      if (data.status === 'online') {
-        RemoteChannelResource.fetchCollection().then(channels => {
-          //This is a hack to return kolibri channels.
-          store.commit('SET_ROOT_NODES', channels);
-
-          store.commit('CORE_SET_PAGE_LOADING', false);
-          store.commit('CORE_SET_ERROR', null);
-          store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
-          return Promise.resolve();
-        });
-      }
-    });
-  } else {
-    if (deviceId) {
-      return setCurrentDevice(deviceId).then(device => {
-        const baseurl = deviceId === KolibriStudioId ? plugin_data.studio_baseurl : device.base_url;
-        return fetchChannels({ baseurl }).then(channels => {
-          return _showLibrary(store, query, channels, baseurl);
-        });
+  if (deviceId) {
+    return setCurrentDevice(deviceId).then(device => {
+      const baseurl = device.base_url;
+      return fetchChannels({ baseurl }).then(channels => {
+        return _showLibrary(store, query, channels, baseurl);
       });
-    }
-    return _showLibrary(store, query, get(channels));
+    });
   }
+  return _showLibrary(store, query, get(channels));
 }

@@ -17,17 +17,6 @@
       </p>
     </div>
     <LibraryItem
-      v-if="showKolibriLibrary"
-      :key="kolibriStudioId"
-      :deviceId="kolibriStudioId"
-      :deviceName="learnString('kolibriLibrary')"
-      deviceIcon="cloud"
-      :channels="kolibriLibraryChannels"
-      :showDescription="true"
-      :totalChannels="totalChannels"
-      :pinIcon="getPinIcon(true)"
-    />
-    <LibraryItem
       v-for="device in pinnedDevices"
       :key="device['instance_id']"
       :deviceId="device['instance_id']"
@@ -35,7 +24,7 @@
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
       :totalChannels="device['total_channels']"
-      :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+      :pinIcon="getPinIcon(true)"
       @togglePin="handlePinToggle"
     />
     <div v-if="areMoreDevicesAvailable">
@@ -54,7 +43,7 @@
         :deviceIcon="getDeviceIcon(device)"
         :channels="device.channels"
         :totalChannels="device['total_channels']"
-        :pinIcon="getPinIcon(isPinned(device['instance_id']))"
+        :pinIcon="getPinIcon(false)"
         @togglePin="handlePinToggle"
       />
       <KButton
@@ -75,7 +64,6 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import { RemoteChannelResource } from 'kolibri.resources';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useDevices from '../../composables/useDevices';
@@ -108,9 +96,6 @@
     data() {
       return {
         networkDevices: [],
-        kolibriLibraryChannels: [],
-        totalChannels: 0,
-        isKolibriLibraryLoaded: false,
         moreDevices: [],
         usersPins: [],
       };
@@ -131,11 +116,12 @@
           this.moreDevices.length > 0 && this.moreDevices.length < this.unpinnedDevices?.length
         );
       },
-      kolibriStudioId() {
-        return KolibriStudioId;
-      },
       networkDevicesWithChannels() {
-        return this.networkDevices.filter(device => device.channels?.length > 0);
+        return this.networkDevices.filter(
+          device =>
+            device.channels?.length > 0 &&
+            (device.instance_id !== KolibriStudioId || this.isSuperuser)
+        );
       },
       pageHeaderStyle() {
         return {
@@ -150,11 +136,11 @@
       },
       pinnedDevices() {
         return this.networkDevicesWithChannels.filter(netdev => {
-          return this.usersPinsDeviceIds.includes(netdev.instance_id);
+          return (
+            this.usersPinsDeviceIds.includes(netdev.instance_id) ||
+            netdev.instance_id === KolibriStudioId
+          );
         });
-      },
-      showKolibriLibrary() {
-        return this.isSuperuser && this.isKolibriLibraryLoaded;
       },
       unpinnedDevices() {
         return this.networkDevicesWithChannels.filter(netdev => {
@@ -171,19 +157,6 @@
         });
       });
 
-      RemoteChannelResource.getKolibriStudioStatus().then(({ data }) => {
-        if (data.status === 'online') {
-          RemoteChannelResource.fetchCollection()
-            .then(channels => {
-              this.isKolibriLibraryLoaded = true;
-              this.kolibriLibraryChannels = channels.slice(0, 4);
-              this.totalChannels = channels.length;
-            })
-            .catch(() => {
-              this.isKolibriLibraryLoaded = true;
-            });
-        }
-      });
       this.fetchDevices().then(devices => {
         this.networkDevices = devices;
         for (const device of this.networkDevices) {
@@ -199,9 +172,6 @@
       });
     },
     methods: {
-      isPinned(instance_id) {
-        return this.usersPinsDeviceIds.includes(instance_id);
-      },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;

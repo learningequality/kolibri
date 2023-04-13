@@ -9,7 +9,7 @@ import { setClasses, setResumableContentNodes } from '../composables/useLearnerR
 import { setContentNodeProgress } from '../composables/useContentNodeProgress';
 import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
 import { showLibrary } from '../modules/recommended/handlers';
-import { PageNames, ClassesPageNames } from '../constants';
+import { PageNames, ClassesPageNames, KolibriStudioId } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
 import TopicsPage from '../views/TopicsPage';
@@ -45,7 +45,7 @@ function hydrateHomePage() {
   });
 }
 
-const optionalDeviceIdPathSegment = '/:deviceId([a-f0-9]{32}|kolibri-studio)?';
+const optionalDeviceIdPathSegment = `/:deviceId([a-f0-9]{32}|${KolibriStudioId})?`;
 
 export default [
   {
@@ -205,6 +205,15 @@ export default [
     name: PageNames.EXPLORE_LIBRARIES,
     path: '/explore_libraries',
     component: ExploreLibrariesPage,
+    handler: () => {
+      if (!get(isUserLoggedIn)) {
+        router.replace({ name: PageNames.LIBRARY });
+        return;
+      }
+      if (unassignedContentGuard()) {
+        return unassignedContentGuard();
+      }
+    },
   },
   {
     path: '*',
