@@ -387,7 +387,11 @@ class KolibriBroadcast(object):
             return
 
         # a new ID every time the broadcast changes
-        self.id = uuid.uuid4().hex
+        new_id = uuid.uuid4().hex
+        logging.debug(
+            "Updating broadcast with new ID: {}, old ID: {}".format(new_id, self.id)
+        )
+        self.id = new_id
 
         # when interfaces is being updated, pass along to Zeroconf so it can bind to them
         if interfaces is not None:
@@ -403,6 +407,12 @@ class KolibriBroadcast(object):
             # if not provided a new instance, we still trigger this event when the broadcast is
             # updated so the listeners can hook into that lifecycle
             self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
+
+        # since the renew listener enqueues a task to clear any instances for the prior broadcast
+        # we need to trigger the UPDATE_INSTANCE event for all instances we know about in order
+        # to refill the database with those NetworkLocation records
+        for instance in self.other_instances.values():
+            self.events.publish(EVENT_UPDATE_INSTANCE, instance)
 
     def stop_broadcast(self):
         """Stops broadcasting our instance and shuts down Zeroconf"""

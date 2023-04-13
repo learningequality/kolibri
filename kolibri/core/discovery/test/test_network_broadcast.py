@@ -235,6 +235,10 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.zeroconf = mock.MagicMock(spec_set=Zeroconf)()
         self.broadcast = KolibriBroadcast(self.instance)
         self.listener = self.broadcast.add_listener(KolibriTestInstanceListener)
+        self.other_instance = KolibriInstance("abc")
+        self.broadcast.other_instances = {
+            "abc": self.other_instance,
+        }
 
     def test_is_broadcasting(self):
         self.assertFalse(self.broadcast.is_broadcasting)
@@ -277,6 +281,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.assertEqual(updated_instance, self.broadcast.instance)
         self.assertEqual("abc-1", self.broadcast.instance.zeroconf_id)
         mock_renew.assert_called_once()
+        self.listener.mock.update_instance.assert_called_once_with(self.other_instance)
 
     @pytest.mark.skipIf(ZEROCONF_NEEDS_UPDATE, "Needs updated Zeroconf")
     def test_update_broadcast__interfaces(self):
@@ -288,6 +293,7 @@ class KolibriBroadcastTestCase(SimpleTestCase):
         self.zeroconf.update_interfaces.assert_called_once_with(
             interfaces=new_interfaces
         )
+        self.listener.mock.update_instance.assert_called_once_with(self.other_instance)
 
     @mock.patch(BROADCAST_MODULE + "logger.error")
     def test_update_broadcast__not_broadcasting(self, mock_logger):
