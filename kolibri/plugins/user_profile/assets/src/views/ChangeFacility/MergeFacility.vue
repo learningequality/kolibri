@@ -170,6 +170,9 @@
                 if (state.value.newSuperAdminId !== '') {
                   params['new_superuser_id'] = state.value.newSuperAdminId;
                 }
+                if (state.value.setAsSuperAdmin !== false) {
+                  params['set_as_super_user'] = true;
+                }
                 if (state.value.targetAccount.AdminUsername !== undefined) {
                   params['using_admin'] = true;
                   params['username'] = state.value.targetAccount.AdminUsername;
