@@ -9,7 +9,6 @@ export default {
   state() {
     return {
       authenticateWithPin: false,
-      isDevicePlugin: false,
       pageName: '',
       welcomeModalVisible: false,
       query: {},
@@ -28,9 +27,6 @@ export default {
     SET_GRANT_PLUGIN_ACCESS(state, grantAccess) {
       state.grantPluginAccess = grantAccess;
     },
-    SET_IS_DEVICE_PLUGIN(state, isDevicePlugin) {
-      state.isDevicePlugin = isDevicePlugin;
-    },
     SET_PAGE_NAME(state, name) {
       state.pageName = name;
     },
@@ -46,11 +42,10 @@ export default {
       store.commit('SET_AUTHENTICATE_WITH_PIN', true);
       store.commit('SET_GRANT_PLUGIN_ACCESS', grantAccess);
     },
-    preparePage(store, { name, isAsync = true, isDevicePlugin = false }) {
+    preparePage(store, { name, isAsync = true }) {
       store.commit('CORE_SET_PAGE_LOADING', isAsync);
       store.commit('SET_PAGE_NAME', name);
       store.commit('CORE_SET_ERROR', null);
-      store.commit('SET_IS_DEVICE_PLUGIN', isDevicePlugin);
     },
     resetModuleState(store, { toRoute, fromRoute }) {
       // Don't reset when going to available channels page

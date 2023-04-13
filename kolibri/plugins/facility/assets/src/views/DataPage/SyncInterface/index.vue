@@ -130,7 +130,7 @@
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../../../device/assets/src/constants';
+  import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
   import PrivacyModal from './PrivacyModal';
 
   const Modals = Object.freeze({
@@ -174,7 +174,7 @@
     methods: {
       managesync() {
         this.$router.push({
-          name: PageNames.MANAGE_SYNC_SCHEDULE,
+          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
           params: { deviceId: this.$store.getters.activeFacilityId },
         });
       },
