@@ -82,9 +82,11 @@ const routes = [
     name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
     path: '/facilities/:facilityId/managesync',
-    props: true,
-    handler: ({ name }) => {
-      store.dispatch('preparePage', { name, isAsync: false, isDevicePlugin: true });
+    props: route => {
+      return {
+        goBackRoute: { name: PageNames.FACILITIES_PAGE },
+        facilityId: route.params.facilityId || store.getters.currentFacilityId,
+      };
     },
   },
   {

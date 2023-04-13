@@ -184,14 +184,13 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
-  import { SyncPageNames, DeviceReturnPage, FacilityReturnPage } from './constants';
+  import { SyncPageNames } from './constants';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -207,6 +206,10 @@
         type: String,
         required: true,
       },
+      goBackRoute: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
@@ -220,11 +223,8 @@
       };
     },
     computed: {
-      ...mapState(['isDevicePlugin']),
       goBack() {
-        return {
-          name: this.isDevicePlugin ? DeviceReturnPage : FacilityReturnPage,
-        };
+        return this.goBackRoute;
       },
       theFacilityId() {
         return this.$route.params.facilityId || this.facilityId;

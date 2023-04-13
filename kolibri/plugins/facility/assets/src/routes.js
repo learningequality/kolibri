@@ -133,7 +133,10 @@ export default [
   {
     path: '/:facility_id?/managesync',
     props: route => {
-      return { facilityId: route.params.facilityId || store.getters.currentFacilityId };
+      return {
+        facilityId: route.params.facilityId || store.getters.currentFacilityId,
+        goBackRoute: { name: PageNames.DATA_EXPORT_PAGE },
+      };
     },
     component: ManageSyncSchedule,
     name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
