@@ -171,6 +171,7 @@
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { mapActions } from 'vuex';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import commonCoach from '../../common';
@@ -196,6 +197,7 @@
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
         activeQuiz: null,
+        learnOnlyDevicesExist: false,
       };
     },
     computed: {
@@ -269,7 +271,21 @@
         return '--';
       },
     },
+    mounted() {
+      this.checkIfAnyLODsInClass();
+    },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      // modal about lesson sizes should only exist of LODs exist in the class
+      // which we are checking via if there have recently been any user syncs
+      // TODO: refactor to a more robust check
+      checkIfAnyLODsInClass() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (data && data.length > 0) {
+            this.learnOnlyDevicesExist = true;
+          }
+        });
+      },
       handleOpenQuiz(quizId) {
         const promise = ExamResource.saveModel({
           id: quizId,
