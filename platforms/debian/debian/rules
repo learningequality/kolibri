@@ -29,7 +29,7 @@ override_dh_builddeb:
 override_dh_auto_install:
 	# Our own tests
 	debian/test_build_sanity.sh
-	python3 setup.py install --force --root=debian/kolibri --no-compile -O0 --install-layout=deb
+	python3 setup.py install --force --root=debian/kolibri --no-compile -O0 --prefix=/usr --install-lib=/usr/lib/python3/dist-packages
 	# dh_installman
 	install -D -m0755 debian/startup/kolibri.init $(CURDIR)/debian/kolibri/etc/init.d/kolibri
 	install -D -m0644 debian/startup/kolibri.default $(CURDIR)/debian/kolibri/etc/default/kolibri

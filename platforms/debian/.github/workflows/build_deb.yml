@@ -55,7 +55,7 @@ jobs:
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
-    - name: Install Ubuntu dependencies
+    - name: Install Debian build package dependencies
       run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools
     - name: Run the build
       run: make kolibri.deb
