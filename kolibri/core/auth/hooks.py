@@ -23,7 +23,7 @@ class FacilityDataSyncHook(KolibriHook):
         context,
     ):
         """
-        Invoked at the completion of initialization stage
+        Invoked before the initialization stage
         :type dataset_id: str
         :type local_is_single_user: bool
         :type remote_is_single_user: bool
@@ -41,7 +41,7 @@ class FacilityDataSyncHook(KolibriHook):
         context,
     ):
         """
-        Invoked at the completion of cleanup stage
+        Invoked at after the cleanup stage
         :type dataset_id: str
         :type local_is_single_user: bool
         :type remote_is_single_user: bool

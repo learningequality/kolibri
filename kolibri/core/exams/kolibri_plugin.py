@@ -18,6 +18,8 @@ class SingleUserExamSerializeOperation(KolibriSingleUserSyncOperation):
 
 
 class SingleUserExamCleanupOperation(KolibriSingleUserSyncOperation):
+    priority = 10
+
     def handle_local_user(self, context, user_id):
         self._assert(context.is_receiver)
         # if we've just received data on a single-user device, update the exams and assignments

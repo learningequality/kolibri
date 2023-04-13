@@ -1,5 +1,7 @@
 from __future__ import unicode_literals
 
+import json
+
 from django.db import models
 from django.db.utils import IntegrityError
 
@@ -8,10 +10,21 @@ from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
+from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.core.notifications.models import LearnerProgressNotification
 from kolibri.utils.time_utils import local_now
+
+
+def lesson_assignment_lookup(resources):
+    """
+    Lookup function for the ContentAssignmentManager
+    :param resources: a list of dicts from a Lesson
+    :return: a tuple of contentnode_id and metadata
+    """
+    for resource in resources:
+        yield (resource["contentnode_id"], dict(channel_id=resource["channel_id"]))
 
 
 class Lesson(AbstractFacilityDataModel):
@@ -52,6 +65,16 @@ class Lesson(AbstractFacilityDataModel):
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
+    morango_model_name = "lesson"
+
+    content_assignments = ContentAssignmentManager(
+        # one lesson can contain multiple resources, hence multiple assigned content nodes
+        one_to_many=True,
+        filters=dict(is_active=True),
+        lookup_field="resources",
+        lookup_func=lesson_assignment_lookup,
+    )
+
     def get_all_learners(self):
         """
         Get all Learners that are somehow assigned to this Lesson
@@ -85,9 +108,6 @@ class Lesson(AbstractFacilityDataModel):
         """
         LearnerProgressNotification.objects.filter(lesson_id=self.id).delete()
         super(Lesson, self).delete(using, keep_parents)
-
-    # Morango fields
-    morango_model_name = "lesson"
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")
@@ -168,6 +188,19 @@ class LessonAssignment(AbstractFacilityDataModel):
         return self.dataset_id
 
 
+def individual_lesson_assignment_lookup(serialized_lesson):
+    """
+    Lookup function for the ContentAssignmentManager
+    :param serialized_lesson: a json serialized form of a Lesson
+    :return: a tuple of contentnode_id and metadata
+    """
+    try:
+        resources = json.loads(serialized_lesson.get("resources", "[]"))
+        return lesson_assignment_lookup(resources)
+    except json.JSONDecodeError:
+        return []
+
+
 class IndividualSyncableLesson(AbstractFacilityDataModel):
     """
     Represents a Lesson and its assignment to a particular user
@@ -186,6 +219,13 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
     lesson_id = models.UUIDField()
 
     serialized_lesson = JSONField()
+
+    content_assignments = ContentAssignmentManager(
+        # one lesson can contain multiple resources, hence multiple assigned content nodes
+        one_to_many=True,
+        lookup_field="serialized_lesson",
+        lookup_func=individual_lesson_assignment_lookup,
+    )
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("user")

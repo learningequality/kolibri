@@ -8,6 +8,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
+from kolibri.core.content.utils.content_request import process_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
@@ -275,7 +276,7 @@ class RemoteResourceImportValidator(ResourceNodeValidator):
     )
 
     def validate(self, data):
-        job_data = super(RemoteImportMixin, self).validate(data)
+        job_data = super(RemoteResourceImportValidator, self).validate(data)
         peer = data.get(
             "peer",
             {
@@ -333,6 +334,18 @@ def remoteresourceimport(
         channel_id, peer_id=peer_id, baseurl=baseurl, node_ids=[node_id]
     )
     import_manager.run()
+
+
+@register_task(
+    queue=QUEUE,
+    long_running=True,
+    status_fn=get_status,
+)
+def automatic_resource_import():
+    """
+    Processes content download and removal requests
+    """
+    process_content_requests()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):

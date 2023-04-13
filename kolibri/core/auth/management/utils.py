@@ -25,7 +25,8 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
+from kolibri.core.auth.sync_event_hook_utils import post_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import pre_transfer_handler
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
@@ -400,7 +401,6 @@ class MorangoSyncCommand(AsyncCommand):
         )
 
         client_cert = sync_session_client.sync_session.client_certificate
-        register_sync_event_handlers(sync_session_client.controller)
 
         filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
         dataset_id = scope_params.get("dataset_id")
@@ -507,6 +507,10 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_filter: Filter
         """
         sync_client = sync_session_client.get_pull_client()
+
+        # note this is the CompositeSessionContext
+        pre_transfer_handler(sync_client.context)
+
         sync_client.signals.queuing.connect(self._raise_cancel)
         sync_client.signals.transferring.connect(self._raise_cancel)
 
@@ -540,6 +544,9 @@ class MorangoSyncCommand(AsyncCommand):
         with self._lock():
             sync_client.finalize()
 
+        # note this is the CompositeSessionContext
+        post_transfer_handler(sync_client.context)
+
     def _push(
         self,
         sync_session_client,
@@ -552,6 +559,10 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_filter: Filter
         """
         sync_client = sync_session_client.get_push_client()
+
+        # note this is the CompositeSessionContext
+        pre_transfer_handler(sync_client.context)
+
         sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
@@ -590,6 +601,9 @@ class MorangoSyncCommand(AsyncCommand):
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
         sync_client.finalize()
+
+        # note this is the CompositeSessionContext
+        post_transfer_handler(sync_client.context)
 
     def _update_all_progress(self, progress_fraction, progress):
         """

@@ -107,6 +107,7 @@ class NetworkClient(requests.Session):
         return self.request("POST", path, **kwargs)
 
     def request(self, method, path, **kwargs):
+        response = None
         if "timeout" not in kwargs:
             kwargs.update(timeout=self.timeout)
 
@@ -160,7 +161,7 @@ class NetworkClient(requests.Session):
         ) as e:
             raise_from(
                 errors.NetworkLocationResponseFailure(
-                    "Response failure: {}".format(url)
+                    "Response failure: {}".format(url), response=response
                 ),
                 e,
             )
