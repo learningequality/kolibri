@@ -199,6 +199,7 @@
     <BottomNavigationBar
       v-if="isAppContext"
       :bottomMenuOptions="bottomMenuOptions"
+      :navShown="navShown"
       @toggleNav="toggleNav()"
     />
 
