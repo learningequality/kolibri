@@ -199,12 +199,15 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import DeviceSettingsPage from '../../../../../device/assets/src/views/DeviceSettingsPage';
+  import PinAuthenticationModal from '../../../../../device/assets/src/views/PinAuthenticationModal';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -212,6 +215,13 @@
   import ViewPinModal from './ViewPinModal';
   import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
+
+  /**
+   * Use the crossComponentTranslator to aid concatenation
+   * of strings missed before string freeze. This only a workaround
+   */
+  const DeviceSettingsPageStrings = crossComponentTranslator(DeviceSettingsPage);
+  const PinAuthenticationModalStrings = crossComponentTranslator(PinAuthenticationModal);
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -291,10 +301,23 @@
       },
       dropdownOption() {
         return [
-          { label: 'View PIN', value: 'VIEW' },
-          { label: 'Change PIN', value: 'CHANGE' },
+          { label: this.viewPINLabel, value: 'VIEW' },
+          { label: this.changePINLabel, value: 'CHANGE' },
           { label: this.coreString('removePinPlacholder'), value: 'REMOVE' },
         ];
+      },
+      changePINLabel() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return `${DeviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
+        /* eslint-enable */
+      },
+      viewPINLabel() {
+        return `${this.coreString('viewAction')} ${this.pinPlaceholder}`;
+      },
+      pinPlaceholder() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return PinAuthenticationModalStrings.$tr('pinPlaceholder');
+        /* eslint-enable */
       },
     },
     watch: {
