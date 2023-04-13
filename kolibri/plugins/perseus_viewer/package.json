@@ -20,7 +20,7 @@
     "raphael": "^2.2.7",
     "react": "15.3.2",
     "react-addons-create-fragment": "^15.6.0",
-    "react-addons-css-transition-group": "15.3.2",
+    "react-addons-css-transition-group": "15.6.2",
     "react-addons-pure-render-mixin": "^15.6.0",
     "react-components": "^0.5.1",
     "react-dom": "15.3.2",
