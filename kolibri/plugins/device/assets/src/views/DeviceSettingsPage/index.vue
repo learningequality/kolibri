@@ -284,7 +284,7 @@
         </ul>
       </section>
 
-      <section v-if="deviceIsAndroid" class="android-bar">
+      <section v-if="deviceIsAndroid || isAppContext" class="android-bar">
         <KButton
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
