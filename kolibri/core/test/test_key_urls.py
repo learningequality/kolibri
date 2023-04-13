@@ -155,23 +155,9 @@ class AllUrlsTest(APITransactionTestCase):
         with patch(
             "kolibri.core.webpack.hooks.WebpackBundleHook.bundle", return_value=[]
         ), patch("kolibri.core.webpack.hooks.WebpackBundleHook.get_by_unique_id"):
-            # A slight hack to accommodate the SoUD tests ensuring that Coach and Facility plugins are not
-            # available to the frontend. If for any reason you decide to use get_device_setting in the
-            # kolibri_plugin of either Coach or Facility.
-            # This ensures that the subsequent import of urlpatterns doesn't try to touch the database and
-            # we touch the database in these two places.
-            with patch(
-                "kolibri.plugins.coach.kolibri_plugin.get_device_setting",
-                return_value=False,
-            ), patch(
-                "kolibri.plugins.facility.kolibri_plugin.get_device_setting",
-                return_value=False,
-            ), patch(
-                "kolibri.core.tasks.api.job_storage"
-            ):
-                from kolibri.deployment.default.urls import urlpatterns
+            from kolibri.deployment.default.urls import urlpatterns
 
-                check_urls(urlpatterns)
+            check_urls(urlpatterns)
 
     def test_anonymous_responses(self):
         self.check_responses()
