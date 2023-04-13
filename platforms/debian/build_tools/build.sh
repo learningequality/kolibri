@@ -1,7 +1,8 @@
 #! /usr/bin/env bash
 
-set -euo pipefail
+set -eo pipefail
 # set -euxo pipefail
+# removed -u because it was causing an error when reading VIRTUAL_ENV from the environment
 
 # When this script is run with -S, it builds a source package only.
 # It will ask to sign the package if the $DEBMAIL gpg key is installed in the system
@@ -29,7 +30,7 @@ DEBFULLNAME="${DEBFULLNAME:-Learning Equality}"
 DEBEMAIL="${DEBEMAIL:-info@learningequality.org}"
 
 cd $SOURCE_DIR
-DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -v $DEB_VERSION-0ubuntu1 'New upstream release'
+DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -b -v $DEB_VERSION-0ubuntu1 'New upstream release'
 DEBFULLNAME=$DEBFULLNAME DEBEMAIL=$DEBEMAIL dch -r 'New upstream release'
 
 # package can't be run from a virtualenv

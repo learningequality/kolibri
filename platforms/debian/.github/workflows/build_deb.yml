@@ -42,6 +42,10 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.10.11
     - name: Download the tarfile from URL
       if: ${{ github.event.inputs.tar-url }}
       run: make get-tar tar=${{ github.event.inputs.tar-url }}
@@ -51,15 +55,8 @@ jobs:
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
-    - name: Register the kolibri PPA
-      id: ppa
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AD405B4A
-        sudo add-apt-repository -y -u -s ppa:learningequality/kolibri-proposed
     - name: Install Ubuntu dependencies
-      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf
-    - name: Download the most recent kolibri from the PPA
-      run: apt-get -y source kolibri
+      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools
     - name: Run the build
       run: make kolibri.deb
     - name: Get DEB filename

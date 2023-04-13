@@ -15,7 +15,7 @@ then
   fi
 fi
 
-make docker-deb
+make kolibri.deb
 
 if [[ $LE_TRIGGERED_FROM_JOB_ID && $BUILDKITE_TRIGGERED_FROM_BUILD_ID ]]
 then
