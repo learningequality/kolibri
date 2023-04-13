@@ -190,8 +190,7 @@ class DeviceSettings(models.Model):
 
     @property
     def allow_download_on_metered_connection(self):
-        # TODO: fix typo
-        return self._get_extra("allow_download_on_mettered_connection")
+        return self._get_extra("allow_download_on_metered_connection")
 
     @property
     def enable_automatic_download(self):
