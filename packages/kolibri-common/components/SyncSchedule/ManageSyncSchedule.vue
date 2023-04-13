@@ -2,7 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="$tr('syncSchedules')"
-    :route="goBack"
+    :route="goBackRoute"
   >
     <KPageContainer>
       <KGrid gutter="48">
@@ -223,9 +223,6 @@
       };
     },
     computed: {
-      goBack() {
-        return this.goBackRoute;
-      },
       theFacilityId() {
         return this.$route.params.facilityId || this.facilityId;
       },
