@@ -293,7 +293,7 @@
         return [
           { label: 'View PIN', value: 'VIEW' },
           { label: 'Change PIN', value: 'CHANGE' },
-          { label: 'Remove PIN', value: 'REMOVE' },
+          { label: this.coreString('removePinPlacholder'), value: 'REMOVE' },
         ];
       },
     },
