@@ -57,6 +57,11 @@
         type: Array,
         required: true,
       },
+      navShown: {
+        type: Boolean,
+        required: true,
+        default: false,
+      },
     },
     computed: {
       bottomMenuActiveStyles() {
@@ -79,7 +84,7 @@
         return window.location.pathname === url && route == this.$router.currentRoute.path;
       },
       handleNav(route, url) {
-        if (this.isActiveLink(route, url)) {
+        if (this.isActiveLink(route, url) && this.navShown) {
           this.$emit('toggleNav');
         }
       },
