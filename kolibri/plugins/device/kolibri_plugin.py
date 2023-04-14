@@ -31,6 +31,10 @@ class DeviceManagementAsset(WebpackBundleHook):
 @register_hook
 class DeviceRedirect(RoleBasedRedirectHook):
     roles = (SUPERUSER,)
+    # Only do this redirect if the user is a full facility import and hence
+    # more likely to be a superuser managing a device rather than a learner
+    # with on their own device.
+    require_full_facility = True
 
     @property
     def url(self):
