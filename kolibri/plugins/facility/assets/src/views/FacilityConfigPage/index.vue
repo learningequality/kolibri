@@ -220,8 +220,6 @@
    * Use the crossComponentTranslator to aid concatenation
    * of strings missed before string freeze. This only a workaround
    */
-  const DeviceSettingsPageStrings = crossComponentTranslator(DeviceSettingsPage);
-  const PinAuthenticationModalStrings = crossComponentTranslator(PinAuthenticationModal);
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -260,6 +258,8 @@
         handleViewModal: false,
         handleChangePinModal: false,
         handleRemovePinModal: false,
+        deviceSettingsPageStrings: {},
+        pinAuthenticationModalStrings: {},
       };
     },
     computed: {
@@ -308,7 +308,7 @@
       },
       changePINLabel() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        return `${DeviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
+        return `${this.deviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
         /* eslint-enable */
       },
       viewPINLabel() {
@@ -316,7 +316,7 @@
       },
       pinPlaceholder() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        return PinAuthenticationModalStrings.$tr('pinPlaceholder');
+        return this.pinAuthenticationModalStrings.$tr('pinPlaceholder');
         /* eslint-enable */
       },
     },
@@ -333,6 +333,10 @@
           this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
         }
       },
+    },
+    created() {
+      this.deviceSettingsPageStrings = crossComponentTranslator(DeviceSettingsPage);
+      this.pinAuthenticationModalStrings = crossComponentTranslator(PinAuthenticationModal);
     },
     mounted() {
       this.copySettings();
