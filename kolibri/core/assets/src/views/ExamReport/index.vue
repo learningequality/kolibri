@@ -332,13 +332,15 @@
       },
       pastTriesOptions() {
         return this.pastTries.map((quizTry, index) => {
-          const score = Math.floor((quizTry.correct / this.questions.length) * 100);
+          const rawScore = quizTry.correct / this.questions.length;
+          const score = this.$formatNumber(rawScore, { style: 'percent' });
           const time = this.$formatRelative(quizTry.completion_timestamp || quizTry.end_timestamp, {
             now: this.now,
           });
+
           return {
             value: index,
-            label: this.isSurvey ? time : `(${score}%) ${time}`,
+            label: this.isSurvey ? time : `(${score}) ${time}`,
           };
         });
       },
