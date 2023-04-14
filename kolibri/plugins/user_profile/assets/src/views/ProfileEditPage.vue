@@ -2,7 +2,7 @@
 
   <!-- The v-if ensures the page isn't visible briefly before redirection -->
   <ImmersivePage
-    v-if="!isSubsetOfUsersDevice"
+    v-if="!isLearnerOnlyImport"
     icon="close"
     :appBarTitle="$tr('editProfileHeader')"
     :route="profileRoute"
@@ -78,10 +78,10 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { FacilityUserResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { RoutesMap } from '../constants';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ProfileEditPage',
@@ -98,6 +98,10 @@
       ImmersivePage,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { isLearnerOnlyImport } = useUser();
+      return { isLearnerOnlyImport };
+    },
     data() {
       return {
         fullName: '',
@@ -110,7 +114,6 @@
         formSubmitted: false,
         status: '',
         userCopy: {},
-        isSubsetOfUsersDevice: plugin_data['isSubsetOfUsersDevice'],
       };
     },
     computed: {
@@ -146,7 +149,7 @@
     created() {
       // Users cannot edit profiles on SoUD so redirect them if they get here which should
       // only be possible by direct linking to the URL that leads here
-      if (plugin_data['isSubsetOfUsersDevice']) {
+      if (this.isLearnerOnlyImport) {
         redirectBrowser();
       }
     },

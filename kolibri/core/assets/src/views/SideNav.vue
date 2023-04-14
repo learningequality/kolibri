@@ -58,7 +58,7 @@
 
 
               <!-- display sync status, when relevant -->
-              <div v-if="isSubsetOfUsersDevice" data-test="syncStatusInDropdown">
+              <div v-if="isLearnerOnlyImport" data-test="syncStatusInDropdown">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -222,6 +222,7 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -237,13 +238,13 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import navComponentsMixin from '../mixins/nav-components';
+  import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import BottomNavigationBar from './BottomNavigationBar';
   import LogoutSideNavEntry from './LogoutSideNavEntry';
-  import plugin_data from 'plugin_data';
 
   // Explicit ordered list of roles for nav item sorting
   const navComponentRoleOrder = [
@@ -276,12 +277,13 @@
     setup() {
       let userSyncStatus = null;
       let userLastSynced = null;
-      if (plugin_data.isSubsetOfUsersDevice) {
+      const { isLearnerOnlyImport } = useUser();
+      if (get(isLearnerOnlyImport)) {
         const { status, lastSynced } = useUserSyncStatus();
         userSyncStatus = status;
         userLastSynced = lastSynced;
       }
-      return { themeConfig, userSyncStatus, userLastSynced };
+      return { isLearnerOnlyImport, themeConfig, userSyncStatus, userLastSynced };
     },
     props: {
       navShown: {
@@ -295,7 +297,6 @@
         copyrightYear: __copyrightYear,
         privacyModalVisible: false,
         languageModalShown: false,
-        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
       };
     },
     computed: {
@@ -308,7 +309,7 @@
         return this.isAppContext ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
-        return this.isSubsetOfUsersDevice && (this.isAdmin || this.isCoach);
+        return this.isLearnerOnlyImport && (this.isAdmin || this.isCoach);
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });

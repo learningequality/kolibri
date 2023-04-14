@@ -22,7 +22,6 @@ from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.core.content.utils.paths import get_zip_content_config
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.utils import allow_other_browsers_to_connect
-from kolibri.core.device.utils import get_device_setting
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.oidc_provider_hook import OIDCProviderHook
 from kolibri.core.theme_hook import ThemeHook
@@ -128,9 +127,6 @@ class FrontEndCoreAppAssetHook(WebpackBundleHook):
             "languageGlobals": self.language_globals(),
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "kolibriTheme": ThemeHook.get_theme(),
-            "isSubsetOfUsersDevice": get_device_setting(
-                "subset_of_users_device", False
-            ),
         }
 
     def language_globals(self):
