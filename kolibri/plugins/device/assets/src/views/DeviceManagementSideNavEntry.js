@@ -14,18 +14,16 @@ const sideNavConfig = {
     return urls['kolibri:kolibri.plugins.device:device_management']();
   },
   get routes() {
-    const { isLearnerOnlyImport } = useUser();
-    if (get(isLearnerOnlyImport)) {
-      return {
+    const { canManageContent, isSuperuser } = useUser();
+    const routes = [];
+    if (get(canManageContent) || get(isSuperuser)) {
+      routes.push({
         label: coreStrings.$tr('channelsLabel'),
         route: baseRoutes.content.path,
-      };
-    } else {
-      return [
-        {
-          label: coreStrings.$tr('channelsLabel'),
-          route: baseRoutes.content.path,
-        },
+      });
+    }
+    if (get(isSuperuser)) {
+      routes.push(
         {
           label: deviceString('permissionsLabel'),
           route: baseRoutes.permissions.path,
@@ -41,9 +39,10 @@ const sideNavConfig = {
         {
           label: coreStrings.$tr('settingsLabel'),
           route: baseRoutes.settings.path,
-        },
-      ];
+        }
+      );
     }
+    return routes;
   },
   get label() {
     return deviceString('deviceManagementTitle');
