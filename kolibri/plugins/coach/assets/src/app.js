@@ -1,3 +1,6 @@
+import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
 import PageRoot from 'kolibri.coreVue.components.PageRoot';
@@ -19,7 +22,12 @@ class CoachToolsModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
+    const { isLearnerOnlyImport } = useUser();
     router.beforeEach((to, from, next) => {
+      if (get(isLearnerOnlyImport)) {
+        redirectBrowser();
+        return;
+      }
       const promises = [];
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
