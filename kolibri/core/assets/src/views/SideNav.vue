@@ -317,14 +317,17 @@
         return navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents)
-          .filter(this.filterByRole);
+          .filter(this.filterByRole)
+          .filter(this.filterByFullFacilityOnly);
       },
       accountComponents() {
         const accountComponents = navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
 
-        return [...accountComponents].filter(this.filterByRole);
+        return [...accountComponents]
+          .filter(this.filterByRole)
+          .filter(this.filterByFullFacilityOnly);
       },
       showLogout() {
         return this.getUserKind !== UserKinds.ANONYMOUS;
@@ -391,6 +394,9 @@
         // Still no difference?
         // There is no difference!
         return 0;
+      },
+      filterByFullFacilityOnly(component) {
+        return !this.isLearnerOnlyImport || !component.fullFacilityOnly;
       },
 
       /**
