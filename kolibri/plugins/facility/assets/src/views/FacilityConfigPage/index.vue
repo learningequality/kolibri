@@ -87,7 +87,7 @@
           <KButton
             v-show="isPinSet"
             hasDropdown
-            :text="$tr('optionBtn')"
+            :text="coreString('optionsLabel')"
           >
             <template #menu>
               <KDropdownMenu
@@ -471,10 +471,12 @@
         message: 'Create PIN',
         context: 'Button for the create PIN',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       optionBtn: {
         message: 'option',
         context: 'Options button for the create PIN page',
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
