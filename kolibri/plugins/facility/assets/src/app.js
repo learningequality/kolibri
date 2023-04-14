@@ -1,3 +1,6 @@
+import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import router from 'kolibri.coreVue.router';
 import RootVue from './views/FacilityIndex';
 import routes from './routes';
@@ -15,7 +18,12 @@ class FacilityManagementModule extends KolibriApp {
     return pluginModule;
   }
   ready() {
+    const { isLearnerOnlyImport } = useUser();
     router.beforeEach((to, from, next) => {
+      if (get(isLearnerOnlyImport)) {
+        redirectBrowser();
+        return;
+      }
       if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
         this.store.dispatch('getFacilities').then(next, next);
       } else {
