@@ -71,8 +71,6 @@
   import { PageNames, KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
-  const PinStrings = crossComponentTranslator(LibraryItem);
-
   export default {
     name: 'ExploreLibrariesPage',
     components: {
@@ -98,6 +96,7 @@
         networkDevices: [],
         moreDevices: [],
         usersPins: [],
+        pinStrings: {},
       };
     },
     computed: {
@@ -150,6 +149,7 @@
     },
     created() {
       // Fetch user's pins
+      this.pinStrings = crossComponentTranslator(LibraryItem);
       this.fetchPinsForUser().then(resp => {
         this.usersPins = resp.map(pin => {
           const instance_id = pin.instance_id.replace(/-/g, '');
@@ -177,7 +177,7 @@
           const id = response.id;
           this.usersPins = [...this.usersPins, { instance_id, id }];
           // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
+          this.$store.dispatch('createSnackbar', pinStrings.$tr('pinnedTo'));
           this.moreDevices = this.moreDevices.filter(d => d.instance_id !== instance_id);
         });
       },
@@ -193,7 +193,7 @@
             this.moreDevices.push(removedDevice);
           }
           // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
+          this.$store.dispatch('createSnackbar', pinStrings.$tr('pinRemoved'));
         });
       },
       handlePinToggle(instance_id) {
