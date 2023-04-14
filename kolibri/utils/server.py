@@ -292,6 +292,10 @@ class ZeroConfPlugin(Monitor):
 
     @property
     def addresses_changed(self):
+        # if we're bound to a specific addresses, then we don't need to do dynamic updates
+        if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] != "0.0.0.0":
+            return False
+
         current_addresses = set(get_all_addresses())
         return (
             self.broadcast is not None
