@@ -105,6 +105,7 @@ import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
 import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
+import useUser from '../composables/useUser';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -231,6 +232,7 @@ export default {
     composables: {
       useKResponsiveWindow,
       useMinimumKolibriVersion,
+      useUser,
     },
   },
   resources,
