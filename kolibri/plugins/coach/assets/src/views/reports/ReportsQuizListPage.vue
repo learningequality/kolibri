@@ -180,10 +180,10 @@
           return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'startedQuizzes') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'quizzesNotStarted') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'endedQuizzes') {
           return this.$tr('noEndedExams');
