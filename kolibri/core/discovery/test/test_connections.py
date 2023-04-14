@@ -16,6 +16,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         self.mock_location = mock.MagicMock(
             spec=NetworkLocation(),
+            id="mock_location_id",
             dynamic=False,
             instance_id=None,
             connection_status=ConnectionStatus.Unknown,
