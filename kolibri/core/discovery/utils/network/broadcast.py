@@ -390,13 +390,6 @@ class KolibriBroadcast(object):
         if instance is None and interfaces is None:
             return
 
-        # a new ID every time the broadcast changes
-        new_id = uuid.uuid4().hex
-        logging.debug(
-            "Updating broadcast with new ID: {}, old ID: {}".format(new_id, self.id)
-        )
-        self.id = new_id
-
         # when our instance is being updated
         if instance is not None:
             instance.zeroconf_id = self.instance.zeroconf_id
@@ -406,6 +399,13 @@ class KolibriBroadcast(object):
 
         # when interfaces is being updated, pass along to Zeroconf so it can bind to them
         if interfaces is not None:
+            # a new ID every time the broadcast interfaces change
+            new_id = uuid.uuid4().hex
+            logging.debug(
+                "Updating broadcast with new ID: {}, old ID: {}".format(new_id, self.id)
+            )
+            self.id = new_id
+
             # call the unregister listeners so that we enqueue necessary tasks to delete old
             # locations from the database
             self.events.publish(EVENT_UNREGISTER_INSTANCE, self.instance)
