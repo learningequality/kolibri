@@ -199,15 +199,13 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { createTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import DeviceSettingsPage from '../../../../../device/assets/src/views/DeviceSettingsPage';
-  import PinAuthenticationModal from '../../../../../device/assets/src/views/PinAuthenticationModal';
   import FacilityAppBarPage from '../FacilityAppBarPage';
   import ConfirmResetModal from './ConfirmResetModal';
   import EditFacilityNameModal from './EditFacilityNameModal';
@@ -215,6 +213,23 @@
   import ViewPinModal from './ViewPinModal';
   import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
+
+  /**
+   * Using the crossComponentTranslator to aid concatenation
+   * of strings missed before string freeze. This only a workaround
+   */
+  const deviceSettingsPageStrings = createTranslator('DeviceSettingsPage', {
+    changeLocation: {
+      message: 'Change',
+      context: 'Label to change primary storage location',
+    },
+  });
+  const pinAuthenticationModalStrings = createTranslator('PinAuthenticationModal', {
+    pinPlaceholder: {
+      message: 'PIN',
+      context: 'Placeholder label for a PIN input',
+    },
+  });
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -253,8 +268,6 @@
         handleViewModal: false,
         handleChangePinModal: false,
         handleRemovePinModal: false,
-        deviceSettingsPageStrings: {},
-        pinAuthenticationModalStrings: {},
       };
     },
     computed: {
@@ -303,7 +316,7 @@
       },
       changePINLabel() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        return `${this.deviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
+        return `${deviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
         /* eslint-enable */
       },
       viewPINLabel() {
@@ -311,7 +324,7 @@
       },
       pinPlaceholder() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
-        return this.pinAuthenticationModalStrings.$tr('pinPlaceholder');
+        return pinAuthenticationModalStrings.$tr('pinPlaceholder');
         /* eslint-enable */
       },
     },
@@ -328,14 +341,6 @@
           this.$store.commit('facilityConfig/RESET_FACILITY_NAME_STATES');
         }
       },
-    },
-    created() {
-      /**
-       * Using the crossComponentTranslator to aid concatenation
-       * of strings missed before string freeze. This only a workaround
-       */
-      this.deviceSettingsPageStrings = crossComponentTranslator(DeviceSettingsPage);
-      this.pinAuthenticationModalStrings = crossComponentTranslator(PinAuthenticationModal);
     },
     mounted() {
       this.copySettings();
