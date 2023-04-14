@@ -6,6 +6,7 @@ from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.ipaddress import ip_address
 
 
@@ -91,7 +92,9 @@ def capture_connection_state(network_location):
         # increment the number of faulty connection attempts
         network_location.connection_faults += 1
 
-    network_location.save()
+    # it's possible the network location was deleted while making requests during the context
+    if NetworkLocation.objects.filter(id=network_location.id).exists():
+        network_location.save()
 
 
 def update_network_location(network_location):
