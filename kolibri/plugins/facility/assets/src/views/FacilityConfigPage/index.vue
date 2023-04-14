@@ -215,7 +215,7 @@
   import RemovePinModal from './RemovePinModal';
 
   /**
-   * Using the crossComponentTranslator to aid concatenation
+   * Using the createTranslator to aid concatenation
    * of strings missed before string freeze. This only a workaround
    */
   const deviceSettingsPageStrings = createTranslator('DeviceSettingsPage', {
