@@ -216,11 +216,6 @@
   import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
 
-  /**
-   * Use the crossComponentTranslator to aid concatenation
-   * of strings missed before string freeze. This only a workaround
-   */
-
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
     'learner_can_edit_username',
@@ -335,6 +330,10 @@
       },
     },
     created() {
+      /**
+       * Using the crossComponentTranslator to aid concatenation
+       * of strings missed before string freeze. This only a workaround
+       */
       this.deviceSettingsPageStrings = crossComponentTranslator(DeviceSettingsPage);
       this.pinAuthenticationModalStrings = crossComponentTranslator(PinAuthenticationModal);
     },
