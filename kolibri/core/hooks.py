@@ -31,6 +31,10 @@ class NavigationHook(WebpackBundleHook):
 
 @define_hook
 class RoleBasedRedirectHook(KolibriHook):
+    # If True, will only be used to redirect if the user is part
+    # of a full facility import
+    require_full_facility = False
+
     # User role to redirect for
     @abstractproperty
     def roles(self):
