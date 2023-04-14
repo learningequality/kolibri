@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    :title="coreString('registerFacility')"
+    :title="registerFacility.$tr('registerFacility')"
     :submitText="coreString('continueAction')"
     :cancelText="coreString('cancelAction')"
     :submitDisabled="submitting"
@@ -29,6 +29,8 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { PortalResource } from 'kolibri.resources';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import ConfirmationRegisterModal from './ConfirmationRegisterModal';
 
   export default {
     name: 'RegisterFacilityModal',
@@ -38,6 +40,7 @@
         submitting: false,
         token: null,
         invalid: false,
+        registerFacility: crossComponentTranslator(ConfirmationRegisterModal),
       };
     },
     methods: {
