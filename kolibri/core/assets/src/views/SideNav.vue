@@ -41,10 +41,11 @@
 
 
             <div v-if="userIsLearner || isAppContext" class="user-information">
-              <div v-if="isAppContext" class="">
+              <div v-if="isAppContext" style="margin-bottom:10px;margin-left:-15px">
                 <KIconButton
                   ref="closeButton"
                   icon="close"
+                  class="side-nav-header-icon"
                   @click="toggleNav"
                 />
               </div>
