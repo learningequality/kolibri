@@ -51,15 +51,16 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'AppBarPage',
@@ -73,7 +74,8 @@
     mixins: [commonCoreStrings],
     setup() {
       let userDeviceStatus = null;
-      if (plugin_data.isSubsetOfUsersDevice) {
+      const { isLearnerOnlyImport } = useUser();
+      if (get(isLearnerOnlyImport)) {
         userDeviceStatus = useUserSyncStatus().deviceStatus;
       }
       return {

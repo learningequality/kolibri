@@ -47,13 +47,19 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { mapGetters } from 'vuex';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'StorageNotification',
     components: {},
     mixins: [commonCoreStrings],
+    setup() {
+      const { isLearnerOnlyImport } = useUser();
+      return {
+        isLearnerOnlyImport,
+      };
+    },
     props: {
       showBanner: {
         type: Boolean,
@@ -63,7 +69,6 @@
     data() {
       return {
         bannerOpened: false,
-        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
         // TODO: remove this
         insufficientSpace: true,
         // TODO: retrieve proper info for these
@@ -81,7 +86,7 @@
         );
       },
       learnOnlyRemovedResources() {
-        return this.isLearner && this.resourcesRemoved && this.isSubsetOfUsersDevice;
+        return this.isLearner && this.resourcesRemoved && this.isLearnerOnlyImport;
       },
       availableDownload() {
         return !this.hasDevicePermissions && this.availableDownloads && !this.isLearner;

@@ -32,9 +32,6 @@ class UserAuthAsset(webpack_hooks.WebpackBundleHook):
         return {
             "oidcProviderEnabled": OIDCProviderHook.is_enabled(),
             "allowGuestAccess": get_device_setting("allow_guest_access"),
-            "isSubsetOfUsersDevice": get_device_setting(
-                "subset_of_users_device", False
-            ),
         }
 
 
