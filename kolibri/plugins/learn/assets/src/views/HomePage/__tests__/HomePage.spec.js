@@ -3,11 +3,11 @@ import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import { ClassesPageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
 import useChannels, { useChannelsMock } from '../../../composables/useChannels';
-import useUser, { useUserMock } from '../../../composables/useUser';
 import useDeviceSettings, { useDeviceSettingsMock } from '../../../composables/useDeviceSettings';
 import useLearnerResources, {
   useLearnerResourcesMock,
@@ -15,7 +15,7 @@ import useLearnerResources, {
 /* eslint-enable import/named */
 jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('../../../composables/useChannels');
-jest.mock('../../../composables/useUser');
+jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('../../../composables/useDeviceSettings');
 jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');

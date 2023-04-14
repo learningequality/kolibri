@@ -10,6 +10,7 @@ export const baseSessionState = {
   kind: [UserKinds.ANONYMOUS],
   user_id: undefined,
   username: '',
+  full_facility_import: true,
 };
 
 export default {
@@ -79,6 +80,9 @@ export default {
     },
     isAppContext(state) {
       return state.app_context;
+    },
+    isLearnerOnlyImport(state) {
+      return !state.full_facility_import;
     },
   },
   mutations: {
