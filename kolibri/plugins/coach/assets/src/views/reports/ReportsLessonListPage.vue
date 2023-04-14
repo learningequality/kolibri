@@ -164,10 +164,10 @@
           return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'visibleLessons') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'lessonsNotVisible') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         return '';
       },
