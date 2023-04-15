@@ -16,7 +16,9 @@
         >
           <KIconButton
             :icon="routeDefinition.icon"
-            :color="$themeTokens.primary"
+            :color="isActiveLink(routeDefinition.route, bottomMenuOptions[0].url)
+              ? $themeTokens.primary
+              : $themeTokens.annotation"
             :ariaLabel="routeDefinition.label"
             size="small"
           />
@@ -34,7 +36,7 @@
       <KIconButton
         icon="menu"
         :ariaLabel="coreString('menuLabel')"
-        :color="$themeTokens.primary"
+        :color="navShown ? $themeTokens.primary : $themeTokens.annotation"
         @click="$emit('toggleNav')"
       />
       <p :style="{ color: $themeTokens.primary }">{{ coreString('menuLabel') }}</p>
@@ -56,6 +58,11 @@
       bottomMenuOptions: {
         type: Array,
         required: true,
+      },
+      navShown: {
+        type: Boolean,
+        required: true,
+        default: false,
       },
     },
     computed: {
@@ -79,7 +86,7 @@
         return window.location.pathname === url && route == this.$router.currentRoute.path;
       },
       handleNav(route, url) {
-        if (this.isActiveLink(route, url)) {
+        if (this.isActiveLink(route, url) && this.navShown) {
           this.$emit('toggleNav');
         }
       },

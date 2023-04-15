@@ -84,7 +84,7 @@
         </template>
       </UiToolbar>
     </header>
-    <div v-if="!windowIsLarge" class="subpage-nav">
+    <div v-if="!windowIsLarge && !isAppContext" class="subpage-nav">
       <slot name="sub-nav"></slot>
     </div>
   </div>
