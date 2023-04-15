@@ -290,6 +290,19 @@ class ZeroConfPlugin(Monitor):
             else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
         )
 
+    @property
+    def addresses_changed(self):
+        # if we're bound to a specific addresses, then we don't need to do dynamic updates
+        if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] != "0.0.0.0":
+            return False
+
+        current_addresses = set(get_all_addresses())
+        return (
+            self.broadcast is not None
+            and self.broadcast.is_broadcasting
+            and self.broadcast.addresses != current_addresses
+        )
+
     def SERVING(self, port):
         self.port = port or self.port
 
@@ -308,9 +321,10 @@ class ZeroConfPlugin(Monitor):
             self.broadcast.add_listener(NetworkLocationListener)
             self.broadcast.start_broadcast()
         else:
-            self.broadcast.update_broadcast(
-                instance=instance, interfaces=self.interfaces
-            )
+            # `interfaces` should only be passed to update when there is a change to the interfaces,
+            # like the detection in self.run()
+            interfaces = self.interfaces if self.addresses_changed else None
+            self.broadcast.update_broadcast(instance=instance, interfaces=interfaces)
 
     def UPDATE_ZEROCONF(self):
         self.RUN()
@@ -326,12 +340,7 @@ class ZeroConfPlugin(Monitor):
         # If set of addresses that were present at the last time zeroconf updated its broadcast list
         # don't match the current set of all addresses for this device, then we should reinitialize
         # zeroconf, the listener, and the broadcast kolibri service.
-        current_addresses = set(get_all_addresses())
-        if (
-            self.broadcast is not None
-            and self.broadcast.is_broadcasting
-            and self.broadcast.addresses != current_addresses
-        ):
+        if self.addresses_changed:
             logger.info(
                 "List of local addresses has changed since zeroconf was last initialized, updating now"
             )
