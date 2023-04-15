@@ -13,8 +13,8 @@
           <slot name="actions"></slot>
         </KGridItem>
         <KGridItem
-          :layout12="{ span: 10, alignment: 'left' }"
-          :layout8="{ span: 6, alignment: 'left' }"
+          :layout12="{ span: 9, alignment: 'left' }"
+          :layout8="{ span: 5, alignment: 'left' }"
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
@@ -39,7 +39,12 @@
             :isSurvey="isSurvey"
           />
         </KGridItem>
-        <KGridItem v-if="!windowIsSmall" :layout="{ span: 2, alignment: 'right' }">
+        <KGridItem
+          v-if="!windowIsSmall"
+          :layout12="{ span: 3, alignment: 'right' }"
+          :layout8="{ span: 3, alignment: 'right' }"
+          :layout="{ span: 2, alignment: 'right' }"
+        >
           <slot name="actions"></slot>
         </KGridItem>
       </KGrid>
