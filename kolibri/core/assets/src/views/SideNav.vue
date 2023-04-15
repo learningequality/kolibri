@@ -18,6 +18,7 @@
         }"
       >
 
+
         <FocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
@@ -38,7 +39,16 @@
               :style="themeConfig.sideNav.topLogo.style"
             >
 
-            <div v-if="userIsLearner" class="user-information">
+
+            <div v-if="userIsLearner || isAppContext" class="user-information">
+              <div v-if="isAppContext" style="margin-bottom:10px;margin-left:-15px">
+                <KIconButton
+                  ref="closeButton"
+                  icon="close"
+                  class="side-nav-header-icon"
+                  @click="toggleNav"
+                />
+              </div>
               <!-- display user details -->
               <TotalPoints class="points" />
               <b>{{ fullName }}</b>
