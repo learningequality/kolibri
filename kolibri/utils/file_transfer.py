@@ -155,7 +155,6 @@ class Transfer(object):
             self._content_iterator = self._get_content_iterator()
 
     def __next__(self):  # proxy this method to fully support Python 3
-        self._set_iterator()
         return self.next()
 
     def __iter__(self):
@@ -168,6 +167,7 @@ class Transfer(object):
         )
 
     def next(self):
+        self._set_iterator()
         try:
             chunk = next(self._content_iterator)
         except StopIteration:
