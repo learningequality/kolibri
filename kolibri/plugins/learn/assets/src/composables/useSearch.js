@@ -225,9 +225,11 @@ export default function useSearch(descendant, store, router) {
   }
 
   function search() {
+    const currentBaseUrl = get(baseurl);
     const getParams = {
       include_coach_content:
         store.getters.isAdmin || store.getters.isCoach || store.getters.isSuperuser,
+      baseurl: currentBaseUrl,
     };
     const descValue = descendant ? get(descendant) : null;
     if (descValue) {
