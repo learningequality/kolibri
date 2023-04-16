@@ -11,11 +11,11 @@ export default function useContentLink(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
 
-  function _makeLink(id, isResource, query) {
+  function _makeLink(id, isResource, query, deviceId) {
     const params = get(route).params;
     return {
       name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
-      params: pick({ id, deviceId: params.deviceId }, ['id', 'deviceId']),
+      params: pick({ id, deviceId: deviceId || params.deviceId }, ['id', 'deviceId']),
       query,
     };
   }
@@ -29,7 +29,7 @@ export default function useContentLink(store) {
    * @param {boolean} isResource - whether this is a resource or not
    * @return {Object} VueRouter link object
    */
-  function genContentLinkBackLinkCurrentPage(id, isResource = false) {
+  function genContentLinkBackLinkCurrentPage(id, isResource = false, deviceId) {
     if (!route) {
       return null;
     }
@@ -44,7 +44,7 @@ export default function useContentLink(store) {
     if (!isEmpty(params)) {
       query.prevParams = encodeURI(JSON.stringify(params));
     }
-    return _makeLink(id, isResource, query);
+    return _makeLink(id, isResource, query, deviceId);
   }
 
   function genExternalContentURLBackLinkCurrentPage(id) {
@@ -82,14 +82,14 @@ export default function useContentLink(store) {
    * @param {boolean} isResource - whether this is a resource or not
    * @return {Object} VueRouter link object
    */
-  function genContentLinkKeepCurrentBackLink(id, isResource = false) {
+  function genContentLinkKeepCurrentBackLink(id, isResource = false, deviceId) {
     if (!route) {
       return null;
     }
     const oldQuery = get(route).query || {};
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
 
-    return _makeLink(id, isResource, query);
+    return _makeLink(id, isResource, query, deviceId);
   }
 
   const back = computed(() => {
