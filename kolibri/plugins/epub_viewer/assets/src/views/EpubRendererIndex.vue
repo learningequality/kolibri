@@ -149,13 +149,13 @@
           />
         </div>
       </div>
-
       <BottomBar
         class="bottom-bar"
         :locationsAreReady="locationsAreReady"
         :heading="bottomBarHeading"
+        :sliderMax="totalPages"
         :sliderValue="sliderValue"
-        :sliderStep="sliderStep"
+        :percentComplete="percentComplete"
         @sliderChanged="handleSliderChanged"
       />
     </div>
@@ -243,6 +243,7 @@
         currentSection: null,
         searchQuery: null,
         sliderValue: 0,
+        percentComplete: 0,
         scrolled: false,
         currentLocation: null,
         visitedPages: {},
@@ -347,9 +348,9 @@
         }
         return '';
       },
-      sliderStep() {
+      totalPages() {
         if (this.locations.length > 0) {
-          return Math.floor(Math.min(Math.max(100 / this.locations.length, 0.1), 100));
+          return this.locations.length - 1;
         }
         return 1;
       },
@@ -736,10 +737,11 @@
         // Ensures that when we're on the last page, we set the slider value to 100
         // otherwise, we show the slider % using the start
         if (location.atEnd) {
-          this.sliderValue = 100;
+          this.percentComplete = 100;
         } else {
-          this.sliderValue = location.start.percentage * 100;
+          this.percentComplete = location.end.percentage * 100;
         }
+        this.sliderValue = location.start.index;
         this.updateCurrentSection(location.start);
         this.currentLocation = location.start.cfi;
         for (
@@ -756,11 +758,7 @@
         this.updateContentState();
       },
       handleSliderChanged(newSliderValue) {
-        const indexOfLocationToJumpTo = Math.floor(
-          (this.locations.length - 1) * (newSliderValue / 100)
-        );
-        const locationToJumpTo = this.locations[indexOfLocationToJumpTo];
-        this.jumpToLocation(locationToJumpTo);
+        this.jumpToLocation(newSliderValue);
       },
       updateContentState() {
         let contentState;

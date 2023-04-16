@@ -12,7 +12,7 @@
           <div class="d-t-r">
             <div class="bottom-bar-progress-container d-t-c">
               <div class="bottom-bar-progress">
-                {{ $formatNumber(sliderValue / 100, { style: 'percent' }) }}
+                {{ $formatNumber(percentComplete / 100, { style: 'percent' }) }}
               </div>
             </div>
             <div class="d-t-c full-width">
@@ -20,8 +20,8 @@
                 class="full-width"
                 type="range"
                 :min="0"
-                :max="100"
-                :step="sliderStep"
+                :max="sliderMax"
+                :step="1"
                 :value="sliderValue"
                 :aria-label="$tr('jumpToPositionInBook')"
                 @change="handleChange($event.target.value)"
@@ -60,7 +60,11 @@
         type: Number,
         required: true,
       },
-      sliderStep: {
+      sliderMax: {
+        type: Number,
+        required: true,
+      },
+      percentComplete: {
         type: Number,
         required: true,
       },
