@@ -1,6 +1,5 @@
 package org.learningequality;
 
-import android.app.Activity;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
@@ -9,6 +8,7 @@ import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.FrameLayout;
+
 import org.kivy.android.PythonActivity;
 
 public class FullScreen {

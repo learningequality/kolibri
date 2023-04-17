@@ -14,9 +14,11 @@ This project was primarily developed on Docker, so this method is more rigorousl
 
 4. The generated APK will end up in the `bin/` folder.
 
-## Building for Development
+## Development Flow
 
-1. Install the Android SDK and Android NDK.
+1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
+
+2. Install the Android SDK and Android NDK.
 
 Set the `ANDROID_HOME` environment variable to the location you would like these to be installed, e.g.:
 `export ANDROID_HOME=./android_root`
@@ -25,22 +27,33 @@ Run `make setup`.
 
 Follow the instructions from the command to set the additional environment variables.
 
-2. Install the Python dependencies:
+3. Install the Python dependencies:
 
 `pip install -r requirements.txt`
 
-3. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
+4. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
 
-4. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
+5. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
-To download a Kolibri WHL file, you can use `make whl=<URL>` from the command line. It will download it and put it in the correct directory.
+To download a Kolibri WHL file, you can use `make get-whl whl=<URL>` from the command line. It will download it and put it in the correct directory.
 
-5. By default the APK will be built for most architectures supported by
-   Python for Android. To build for a smaller set of architectures, set
-   the `ARCHES` environment variable. Run `p4a archs` to see the
-   available targets.
+6. By default the APK/AAB will be built for most architectures supported by Python for Android. To build for a smaller set of architectures, set the `ARCHES` environment variable. Run `p4a archs` to see the available targets.
 
-6. Run `make kolibri.apk.unsigned` to build the apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
+7. Run `make p4a_android_project` this will do all of the Python for Android setup up until the point of actually building an APK or AAB.
+
+N.B. You will need to rerun this step any time you update the Kolibri WHL file you are using, or any time you update the Python code in this repository.
+
+8. You can now run Android Studio and open the folder `python-for-android/dists/kolibri` as the project folder to work from. You should be able to make updates to Java code, resource files, etc. using Android Studio, and build and run the project using Android Studio, including launching into emulators and real physical devices.
+
+N.B. When you rerun step 7, it will complain loudly and exit early if you have uncommitted changes in the python-for-android folder. Any changes should be committed (even if in a temporary commit) before rerunning this step, as we use git stash to undo any changes in the Android project caused by the Python for Android project bootstrapping process. Also, when rerunning step 5, the Android version will not have incremented, meaning that any emulator or physical device will need to have Kolibri explicitly uninstalled for any changes to Python code to be updated on install.
+
+## Debugging the app
+
+1. When running the app from Android Studio, if you are using an emulator, it is possible that there will be many warning messages due to GPU emulation. In the logcat tab, update the filter to this `package:mine & -tag:eglCodecCommon` to hide those errors from the logcat output.
+
+## Building from the commandline
+
+1. Run `make kolibri.apk.unsigned` to build the development apk. Watch for success at the end, or errors, which might indicate missing build dependencies or build errors. If successful, there should be an APK in the `dist/` directory.
 
 ## Installing the apk
 1. Connect your Android device over USB, with USB Debugging enabled.
@@ -51,8 +64,6 @@ To download a Kolibri WHL file, you can use `make whl=<URL>` from the command li
 ## Running the apk from the terminal
 
 1. Run `adb shell am start -n org.learningequality.Kolibri/org.kivy.android.PythonActivity`
-
-## Debugging the app
 
 ### Server Side
 Run `adb logcat -v brief python:D *:F` to get all debug logs from the Kolibri server
@@ -102,3 +113,9 @@ Host kolibri-android
     HostkeyAlgorithms +ssh-rsa
 ```
 Then, you should be able to just do “ssh kolibri-android”
+
+## Updating Python for Android
+
+We maintain a fork of Python for Android that includes various changes we have made to the source code to support our specific needs. As P4A make new releases, we make a branch from the latest release tag, and then replay the commits on top of this tag using an interactive rebase. Sometimes, this allows us to drop commits as new features are merged into P4A. Our naming convention for the branch on our fork is `from_upstream_<tag_name>`. Any time we push new commits to this branch, we must also update the pinned commit in `requirements.txt`, so that we are always building with a completely predictable version of Python for Android.
+
+By default we stash any updates to our bootstrap coming from Python for Android, because mostly we have overwritten their bootstrap code to make the relevant changes for us. If there are upstream changes to code we have committed in this repo from the bootstraps, then if the diff is small, it is probably simplest to manually copy in these changes to our committed code. If the diff is larger, or the developer fancies exercising some git-fu, then the make command `make update_project_from_p4a` will update the bootstrap from Python for Android, and not stash any changes that introduces. Through judicious change reversion and diffing, the appropriate changes can then be applied. Here be dragons.

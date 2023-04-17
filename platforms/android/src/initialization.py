@@ -34,11 +34,15 @@ os.environ["LC_ALL"] = "en_US.UTF-8"
 
 os.environ["KOLIBRI_CHERRYPY_THREAD_POOL"] = "2"
 
-Secure = autoclass("android.provider.Settings$Secure")
 
-node_id = Secure.getString(get_context().getContentResolver(), Secure.ANDROID_ID)
+def set_node_id():
+    Secure = autoclass("android.provider.Settings$Secure")
+    node_id = Secure.getString(get_context().getContentResolver(), Secure.ANDROID_ID)
 
-# Don't set this if the retrieved id is falsy, too short, or a specific
-# id that is known to be hardcoded in many devices.
-if node_id and len(node_id) >= 16 and node_id != "9774d56d682e549c":
-    os.environ["MORANGO_NODE_ID"] = node_id
+    # Don't set this if the retrieved id is falsy, too short, or a specific
+    # id that is known to be hardcoded in many devices.
+    if node_id and len(node_id) >= 16 and node_id != "9774d56d682e549c":
+        os.environ["MORANGO_NODE_ID"] = node_id
+
+
+set_node_id()

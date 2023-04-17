@@ -1,6 +1,22 @@
 src/kolibri
 tmpenv
 whl/*
+python-for-android/build/
+python-for-android/packages/**
+python-for-android/dists/kolibri/_python*
+python-for-android/dists/kolibri/.gradle
+python-for-android/dists/kolibri/build
+python-for-android/dists/kolibri/gradle
+python-for-android/dists/kolibri/jni
+python-for-android/dists/kolibri/libs
+python-for-android/dists/kolibri/templates
+python-for-android/dists/kolibri/obj
+python-for-android/dists/kolibri/src/res_initial
+python-for-android/dists/kolibri/src/main/assets/private.tar
+python-for-android/dists/kolibri/src/main/AndroidManifest.xml
+python-for-android/dists/kolibri/webview_includes
+python-for-android/dists/kolibri/*.*
+python-for-android/dists/kolibri/gradlew
 
 # File format for signing key
 *.jks
