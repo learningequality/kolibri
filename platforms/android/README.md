@@ -16,7 +16,9 @@ This project was primarily developed on Docker, so this method is more rigorousl
 
 ## Development Flow
 
-1. Install the Android SDK and Android NDK.
+1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
+
+2. Install the Android SDK and Android NDK.
 
 Set the `ANDROID_HOME` environment variable to the location you would like these to be installed, e.g.:
 `export ANDROID_HOME=./android_root`
@@ -25,25 +27,25 @@ Run `make setup`.
 
 Follow the instructions from the command to set the additional environment variables.
 
-2. Install the Python dependencies:
+3. Install the Python dependencies:
 
 `pip install -r requirements.txt`
 
-3. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
+4. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
 
-4. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
+5. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
 To download a Kolibri WHL file, you can use `make get-whl whl=<URL>` from the command line. It will download it and put it in the correct directory.
 
-5. By default the APK/AAB will be built for most architectures supported by Python for Android. To build for a smaller set of architectures, set the `ARCHES` environment variable. Run `p4a archs` to see the available targets.
+6. By default the APK/AAB will be built for most architectures supported by Python for Android. To build for a smaller set of architectures, set the `ARCHES` environment variable. Run `p4a archs` to see the available targets.
 
-6. Run `make p4a_android_project` this will do all of the Python for Android setup up until the point of actually building an APK or AAB.
+7. Run `make p4a_android_project` this will do all of the Python for Android setup up until the point of actually building an APK or AAB.
 
 N.B. You will need to rerun this step any time you update the Kolibri WHL file you are using, or any time you update the Python code in this repository.
 
-7. You can now run Android Studio and open the folder `python-for-android/dists/kolibri` as the project folder to work from. You should be able to make updates to Java code, resource files, etc. using Android Studio, and build and run the project using Android Studio, including launching into emulators and real physical devices.
+8. You can now run Android Studio and open the folder `python-for-android/dists/kolibri` as the project folder to work from. You should be able to make updates to Java code, resource files, etc. using Android Studio, and build and run the project using Android Studio, including launching into emulators and real physical devices.
 
-N.B. When you rerun step 6, it will complain loudly and exit early if you have uncommitted changes in the python-for-android folder. Any changes should be committed (even if in a temporary commit) before rerunning this step, as we use git stash to undo any changes in the Android project caused by the Python for Android project bootstrapping process. Also, when rerunning step 5, the Android version will not have incremented, meaning that any emulator or physical device will need to have Kolibri explicitly uninstalled for any changes to Python code to be updated on install.
+N.B. When you rerun step 7, it will complain loudly and exit early if you have uncommitted changes in the python-for-android folder. Any changes should be committed (even if in a temporary commit) before rerunning this step, as we use git stash to undo any changes in the Android project caused by the Python for Android project bootstrapping process. Also, when rerunning step 5, the Android version will not have incremented, meaning that any emulator or physical device will need to have Kolibri explicitly uninstalled for any changes to Python code to be updated on install.
 
 ## Debugging the app
 

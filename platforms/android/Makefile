@@ -44,7 +44,8 @@ needs-android-dirs:
 
 # Clear out apks
 clean:
-	- rm -rf dist/*.apk src/kolibri tmpenv src/*.pyc
+	- rm -rf dist/*.apk src/kolibri tmpenv
+	- find ./src -name '*.pyc' -exec rm -f {} +
 
 deepclean: clean
 	$(PYTHON_FOR_ANDROID) clean_dists
@@ -72,10 +73,13 @@ src/kolibri: clean
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
 	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' src/kolibri/dist/django/db/migrations/loader.py
 
+# Checks to see if we have any uncommitted changes in the Android project
+# use this to prevent losing uncommitted changes when updating or rebuilding the P4A project
 .PHONY: check-android-clean
 check-android-clean:
 	@git diff --quiet --exit-code python-for-android || (echo "python-for-android directory has uncommitted changes in the working tree" && exit 1)
 
+# Create the python-for-android project bootstrap from scratch
 .PHONY: p4a_android_distro
 p4a_android_distro: needs-android-dirs check-android-clean
 	rm -rf python-for-android/dists/kolibri
@@ -83,12 +87,17 @@ p4a_android_distro: needs-android-dirs check-android-clean
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
 
+# Update the python-for-android project bootstrap, discarding any changes that are made to committed files
+# this should be the usually run command in normal workflows.
 .PHONY: p4a_android_project
 p4a_android_project: p4a_android_distro src/kolibri needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
 
+# Update the python-for-android project bootstrap, keeping any changes that are made to committed files
+# this command should only be run when it is known there is an update from the upstream p4a bootstrap
+# that is needed, although it will probably normally be easier to manually vendor the changes.
 .PHONY: update_project_from_p4a
 update_project_from_p4a: p4a_android_distro src/kolibri needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
