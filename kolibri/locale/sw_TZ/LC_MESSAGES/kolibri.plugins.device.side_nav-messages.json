@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Kifaa"
+  "CommonDeviceStrings.deviceManagementTitle": "Kifaa",
+  "CommonDeviceStrings.emptyTasksMessage": "Hakuna kazi za kuonyeshwa",
+  "CommonDeviceStrings.newChannelLabel": "Mpya",
+  "CommonDeviceStrings.newEnabledPluginsState": "Unapoondoa uteuzi kwenye ukurasa, hautaonekana kwa watumiaji hata ikiwa wana ruhusa ya kuufikia.",
+  "CommonDeviceStrings.newResourceLabel": "Mpya",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Hakuna nafasi ya kutosha kwenye kifaa chako. Hifadhi nafasi ya diski au uchague nyenzo chache",
+  "CommonDeviceStrings.permissionsLabel": "Ruhusa",
+  "CommonDeviceStrings.primaryStorageLabel": "Nyenzo mpya zilizopakuliwa zitaongezwa kwenye eneo msingi la hifadhi",
+  "CommonDeviceStrings.unlistedChannelLabel": "Kituo kisichoorodheshwa"
 }

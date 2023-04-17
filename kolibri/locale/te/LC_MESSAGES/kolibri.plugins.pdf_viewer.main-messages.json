@@ -1,4 +1,7 @@
 {
-  "PdfRendererIndex.enterFullscreen": "ఫుల్స్క్రీం చెయ్యండి",
-  "PdfRendererIndex.exitFullscreen": "ఫుల్స్క్రీం తీసెయ్యండి"
+  "BookmarkItem.expand": "బుక్‌మార్క్‌ను విస్తరించండి",
+  "Bookmarks.bookmarksSection": "బుక్‌మార్క్స్ విభాగం. షిఫ్ట్‌ + ఎంటర్‌ నొక్కి మీరు పిడిఎఫ్‌ డాక్యుమెంట్‌ మరియు బుక్‌మార్క్స్‌ విభాగం మధ్య మారవచ్చు.",
+  "PdfPage.numPage": "{total}యొక్క పేజీ {number}",
+  "PdfRendererIndex.enterFullscreen": "పూర్తి స్క్రీన్ ఎంటర్ అవండి",
+  "PdfRendererIndex.exitFullscreen": "ఫుల్‌స్క్రీన్‌ నుంచి నిష్క్రమించండి"
 }

@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "მოწყობილობა"
+  "CommonDeviceStrings.deviceManagementTitle": "მოწყობილობა",
+  "CommonDeviceStrings.emptyTasksMessage": "ამოცანები არ არის",
+  "CommonDeviceStrings.newChannelLabel": "ახალი",
+  "CommonDeviceStrings.newEnabledPluginsState": "",
+  "CommonDeviceStrings.newResourceLabel": "ახალი",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "მოწყობილობაზე არ გაქვთ საკმარისი თავისუფალი ადგილი. გაათავისუფლეთ დისკის მეხსიერება, ან ნაკლები რესურსი მონიშნეთ",
+  "CommonDeviceStrings.permissionsLabel": "ნებართვები",
+  "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.unlistedChannelLabel": "აღუნუსხავი არხი"
 }

@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "წიგნის კონკრეტულ ნაწილზე გადასვლა",
   "BottomBar.preparingSlider": "ცოციას მომზადება",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "ეს წიგნი არ ჩაიტვირთა",
   "LoadingScreen.loadingBook": "წიგნი იტვირთება",
   "NextButton.goToNextPage": "შემდეგი გვერდი",

@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Device"
+  "CommonDeviceStrings.deviceManagementTitle": "Device",
+  "CommonDeviceStrings.emptyTasksMessage": "There are no tasks to display",
+  "CommonDeviceStrings.newChannelLabel": "New",
+  "CommonDeviceStrings.newEnabledPluginsState": "When you uncheck a page, it will become invisible to users even if they have permission to access it.",
+  "CommonDeviceStrings.newResourceLabel": "New",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Not enough space available on your device. Free up disk space or select fewer resources",
+  "CommonDeviceStrings.permissionsLabel": "Permissions",
+  "CommonDeviceStrings.primaryStorageLabel": "Newly downloaded resources will be added to the primary storage location",
+  "CommonDeviceStrings.unlistedChannelLabel": "Unlisted channel"
 }

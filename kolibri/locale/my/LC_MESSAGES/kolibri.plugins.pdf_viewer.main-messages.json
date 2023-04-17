@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Bookmark ကိုချဲ့မည်",
+  "Bookmarks.bookmarksSection": "Bookmarkကဏ္ဍ။ pdf document နှင့် bookmarks ကဏ္ဍအကြား shift + enter ကိုနှိပ်ပါ။",
+  "PdfPage.numPage": "{total} ၏ စာမျက်နှာ {number}\n",
   "PdfRendererIndex.enterFullscreen": "စာမျက်နှာအပြည့်ဝင်ရောက်မည်",
   "PdfRendererIndex.exitFullscreen": "စာမျက်နှာအပြည့်မှထွက်မည်"
 }

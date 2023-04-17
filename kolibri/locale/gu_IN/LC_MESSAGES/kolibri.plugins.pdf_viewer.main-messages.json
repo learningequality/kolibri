@@ -1,4 +1,7 @@
 {
-  "PdfRendererIndex.enterFullscreen": "પૂર્ણ સ્ક્રીનમાં દાખલ કરો",
+  "BookmarkItem.expand": "બુકમાર્કને વિસ્તૃત કરો",
+  "Bookmarks.bookmarksSection": "બુકમાર્ક્સનો વિભાગ. તમે PDF દસ્તાવેજ અને બુકમાર્ક્સના વિભાગને shift + enter દબાવીને સ્વિચ કરી શકો છો.",
+  "PdfPage.numPage": "{total}માંથી પેજ {number}",
+  "PdfRendererIndex.enterFullscreen": "પૂર્ણ સ્ક્રીનમાં દાખલ થાઓ",
   "PdfRendererIndex.exitFullscreen": "પૂર્ણ સ્ક્રીનમાંથી બહાર નીકળો"
 }

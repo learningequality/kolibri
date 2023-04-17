@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "पुस्तकातील विशिष्ट स्थानावर थेट जा",
   "BottomBar.preparingSlider": "स्लायडर तयार होत आहे",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "हे पुस्तक लोड करता आले नाही",
   "LoadingScreen.loadingBook": "पुस्तक लोड होत आहे",
   "NextButton.goToNextPage": "पुढील पानावर जा",

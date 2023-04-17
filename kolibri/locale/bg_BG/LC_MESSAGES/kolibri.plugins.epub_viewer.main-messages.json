@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Прескочи към място в книгата",
   "BottomBar.preparingSlider": "Подготовка на плъзгача",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Неуспешно зареждане на книгата",
   "LoadingScreen.loadingBook": "Зареждане на книгата",
   "NextButton.goToNextPage": "Към следващата страница",

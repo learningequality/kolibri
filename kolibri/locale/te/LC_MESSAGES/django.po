@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Telugu\n"
 "Language: te_IN\n"
@@ -19,110 +19,110 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "ఊహించని దోషం [{}]: {}"
+msgstr "ఊహించని మినహాయింపు [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr "'{}' సెల్ కంటెంట్ చాలా ఎక్కువ ఉంది"
+msgstr "'{}' సెల్ కంటెంట్ మరీ ఎక్కువగా ఉంది"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "'{}' సెల్ కంటెంట్ చెల్లదు"
+msgstr "'{}' సెల్ కంటెంట్ చెల్లుబాటు కాదు"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "నకిలీ వినియోగదారు పేరు"
+msgstr "నకిలీ యూజర్‌నేమ్"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
 msgid "Username only can contain characters, numbers and underscores"
-msgstr "వినియోగదారు పేరులో కేవలం అక్షరాలు, సంఖ్యలు, మరియు అండర్‌స్కోర్‌లు మాత్రమే ఉండవచ్చు"
+msgstr "యూజర్‌నేమ్ యందు కేవలం అక్షరాలు, సంఖ్యలు, మరియు అండర్‌స్కోర్‌లు మాత్రమే ఉండవచ్చు"
 
 #: core/auth/constants/commands_errors.py:30
 msgid "The column '{}' is required"
-msgstr "'{}' నిలువు వరుస ఆవశ్యకం"
+msgstr "'{}' కాలమ్ అవసరమై ఉంది"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "మొదటి వరుసలో చెల్లుబాటయ్యే మరియు/లేదా చెల్లుబాటుకాని హెడర్ లేబుల్‌ల కలయిక కనుగొనబడింది"
+msgstr "మొదటి వరుసలో చెల్లుబాటయ్యే మరియు/లేదా చెల్లుబాటుకాని హెడర్ లేబుల్‌ల మిశ్రమం కనుగొనబడింది"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "డిఫాల్ట్ సదుపాయం లేదు. ఈ కమాండ్‌ను అమలు పరిచే ముందు పరికరంపై ఒక సదుపాయాన్ని తప్పక సెటప్ చేయండి."
+msgstr "డిఫాల్ట్ సదుపాయం లేదు. ఈ కమాండ్‌ను నడిపే ముందు పరికరంపై ఒక సదుపాయాన్ని సెటప్ చేసేలా చూసుకోండి."
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
 msgid "Error trying to read csv file: {}"
-msgstr "csv ఫైల్ చదివేటప్పుడు దోషం ఏర్పడింది: {}"
+msgstr "csv ఫైల్ చదవడానికి ప్రయత్నించేటప్పుడు దోషం ఏర్పడింది: {}"
 
 #: core/auth/constants/commands_errors.py:36
 #: core/auth/management/commands/bulkimportusers.py:100
 msgid "Error trying to write csv file: {}"
 msgstr "csv ఫైల్ వ్రాసేటప్పుడు దోషం ఏర్పడింది: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "డేటాబేస్ ID ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
-msgstr "వినియోగదారు పేరు ({})"
+msgstr "యూజర్‌నేమ్ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "పాస్‌వర్డ్ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "పూర్తి పేరు ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "వినియోగదారు రకం ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
-msgstr "ఐడెంటిఫైయర్ ({})"
+msgstr "గుర్తింపుదారు ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "పుట్టిన సంవత్సరం ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "లింగం ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "విద్యార్థుల నమోదు ({})"
+msgstr "అభ్యాసకుల నమోదు ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "శిక్షకుల కేటాయింపు ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "వినియోగదారు రకం ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "విద్యార్థుల నమోదు ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "శిక్షకుల కేటాయింపు ({})"
@@ -172,48 +172,161 @@ msgstr "'{}' ఐడీ ఉన్న వినియోగదారును అ�
 msgid "Database ID is not valid"
 msgstr "డేటాబేస్ ID చెల్లదు"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "డేటా సింకింగ్‌ పురోగతిలో ఉంది"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "నెట్‌వర్క్‌ నుంచి మీ పరికరాన్ని డిస్‌కనెక్ట్‌ చేయవద్దు."
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "వనరులు"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "కావలసిన ఛానల్ కంటెంట్ సర్వర్ ఫై లేదు"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "తెలియని రకం"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "మీ లైబ్రరీ అప్‌డేట్‌ అవుతోంది"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "లైబ్రరీ అప్‌డేట్‌ అయింది"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "లైబ్రరీ అప్‌డేట్‌ విఫలమైంది"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri భాషకి మద్దతు ఇవ్వదు"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "కంటెంట్_సెషన్_లాగ్‌లు"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "అన్వేషిస్తోంది"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "కంటెంట్_సారాంశం_లాగ్‌లు"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "ఇతర కోలిబ్రి పరికరాల కోసం చూస్తోంది"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "నెట్‌వర్క్ లోపం ఏర్పడింది."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "సదుపాయం పేరు"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "డిస్క్ యాక్సెస్ లోపం ఏర్పడింది."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "వినియోగదారు పేరు"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "తెలియని దోషం ఏర్పడింది."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "ఛానల్‌ ఐడి"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "ఛానల్‌ పేరు"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "కంటెంట్‌ ఐడి"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "కంటెంట్‌ శీర్షిక"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "మొదటి ప్రతిచర్య సమయం"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "చివరి ప్రతిచర్య సమయం"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "పూర్తయిన సమయం"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "వెచ్చించిన సమయం (సెకన్లు)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "పురోగతి (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "కంటెంట్‌ రకం"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "పూర్తి"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "విఫలమైంది"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "రద్దయింది"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "పురోగతిలో ఉంది - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "వేచి ఉంది"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "కోలిబ్రి ప్రారంభమవుతోంది"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "కోలిబ్రి ప్రారంభించడం"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "కోలిబ్రి సిద్ధమైనప్పుడు మీరు స్వయంచాలకంగా రీడైరెక్ట్‌ చేయబడతారు"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "అలా కాకపోతే, దయచేసి మన కమ్యూనిటీ ఫోరమ్స్‌లో సహాయం కోసం అడగండి"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "పేజీని రీఫ్రెష్‌ చేయండి"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "Kolibriని ఉపయోగించేందుకు, Firefox లే
 msgid "You can also try updating your current browser."
 msgstr "మీరు మీ ప్రస్తుత బ్రౌజర్‌ని నవీకరించి కూడా ప్రయత్నించవచ్చు."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "సరైన దారి మళ్లింపు పేజీలు కనుగొనబడలేదు. Kolibri సరిగ్గా కాన్ఫిగర్ చేసి ఉండకపోవచ్చు"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "కోచ్"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "సౌకర్యం"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "దీని నుంచి_కంటెంట్_సెషన్_లాగ్స్_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "ఇక్కడికి_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "దీని నుంచి_కంటెంట్‌_సారాంశం_లాగ్స్_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "వినియోగదారులు_{}"
+msgid "users"
+msgstr "యూజరులు"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "నేర్చుకొను"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "విధానాలు"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "సెటప్ విజార్డ్"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "వినియోగదారు ప్రొఫైల్"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "ఖాతా బదిలీ పురోగతిలో ఉంది"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "అభ్యాసన సంస్థ {facility_name}కి {learner_name} మారుతోంది"
 

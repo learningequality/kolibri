@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "ពង្រីកចំណាំ",
+  "Bookmarks.bookmarksSection": "ផ្នែកចំណាំ។ អ្នកអាចប្តូររវាងឯកសារ pdf និងផ្នែកចំណាំដោយចុច shift + enter ។",
+  "PdfPage.numPage": "ទំព័រ {number} នៃ {total}",
   "PdfRendererIndex.enterFullscreen": "ចូលពេញអេក្រង់",
   "PdfRendererIndex.exitFullscreen": "ចាកចេញពីអេក្រង់ពេញ"
 }

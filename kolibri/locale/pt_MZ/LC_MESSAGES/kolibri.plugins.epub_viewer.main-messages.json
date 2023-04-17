@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Usar as teclas-flecha para navegar entre as páginas",
   "BottomBar.preparingSlider": "Preparando a barra de navegação",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Não foi possível carregar este livro",
   "LoadingScreen.loadingBook": "Carregando o livro",
   "NextButton.goToNextPage": "Ir para a próxima página",
