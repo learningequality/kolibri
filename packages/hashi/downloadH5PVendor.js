@@ -2,7 +2,6 @@ var fs = require('fs');
 var https = require('https');
 var path = require('path');
 var url = require('url');
-const mkdirp = require('mkdirp');
 var JSZip = require('jszip');
 var { PurgeCSS } = require('purgecss');
 
@@ -60,7 +59,7 @@ function downloadFiles() {
                     targetFolder,
                     file.name.replace(/h5p-php-library-[^/]+\//, '')
                   );
-                  mkdirp.sync(path.dirname(outputPath));
+                  fs.mkdirSync(path.dirname(outputPath), { recursive: true });
                   return new Promise(resolve => {
                     if (outputPath.endsWith('css')) {
                       file.async('string').then(text => {
