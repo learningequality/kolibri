@@ -93,7 +93,12 @@ const routes = [
     name: SyncPageNames.EDIT_SYNC_SCHEDULE,
     component: withAuthMessage(EditDeviceSyncSchedule, 'superuser'),
     path: '/facilities/:device_id/:facilityId/editdevice',
-    props: true,
+    props: route => {
+      return {
+        goBackRoute: { name: PageNames.MANAGE_SYNC_SCHEDULE },
+        facilityId: route.params.facilityId || store.getters.currentFacilityId,
+      };
+    },
     handler: ({ name }) => {
       store.dispatch('preparePage', { name, isAsync: false });
     },

@@ -2,7 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="$tr('editSyncScheduleTitle')"
-    :route="backRoute"
+    :route="goBackRoute"
     :icon="icon"
   >
     <KPageContainer v-if="device" :style="pageHeight">
@@ -152,7 +152,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import { SyncPageNames } from './constants';
-  // ... from 'kolibri-common/Components/SyncSchedule/constants'
+
   export default {
     name: 'EditDeviceSyncSchedule',
     components: {
@@ -164,6 +164,14 @@
       icon: {
         type: String,
         default: 'back',
+      },
+      facilityId: {
+        type: String,
+        required: true,
+      },
+      goBackRoute: {
+        type: Object,
+        required: true,
       },
     },
     data() {
@@ -182,9 +190,6 @@
       };
     },
     computed: {
-      backRoute() {
-        return { name: SyncPageNames.MANAGE_SYNC_SCHEDULE };
-      },
       pageHeight() {
         return {
           height: '80%',
@@ -270,31 +275,29 @@
           });
       },
       handleSaveSchedule() {
-        FacilityResource.fetchModel({ id: this.$route.params.facilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-            const date = new Date(this.serverTime);
-            const equeue_param = date.toISOString();
-            TaskResource.startTask({
-              type: TaskTypes.SYNCPEERFULL,
-              facility: this.facility.id,
-              device_id: this.$route.params.deviceId,
-              baseurl: this.baseurl,
-              enqueue_args: {
-                enqueue_at: equeue_param,
-                repeat_interval: this.selectedItem.value,
-                repeat: 2,
-              },
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+          this.facility = { ...facility };
+          const date = new Date(this.serverTime);
+          const equeue_param = date.toISOString();
+          TaskResource.startTask({
+            type: TaskTypes.SYNCPEERFULL,
+            facility: this.facility.id,
+            device_id: this.$route.params.deviceId,
+            baseurl: this.baseurl,
+            enqueue_args: {
+              enqueue_at: equeue_param,
+              repeat_interval: this.selectedItem.value,
+              repeat: 2,
+            },
+          })
+            .then(() => {
+              history.back();
+              this.showSnackbarNotification('syncAdded');
             })
-              .then(() => {
-                history.back();
-                this.showSnackbarNotification('syncAdded');
-              })
-              .catch(() => {
-                this.createTaskFailedSnackbar();
-              });
-          }
-        );
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+            });
+        });
       },
 
       cancelBtn() {
@@ -307,8 +310,7 @@
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
             this.tasks = tasks.filter(
               task =>
-                task.extra_metadata.device_id === device.id &&
-                task.facility_id === this.$store.getters.activeFacilityId
+                task.extra_metadata.device_id === device.id && task.facility_id === this.facilityId
             );
             if (this.tasks && this.tasks.length) {
               this.removeBtn = true;
