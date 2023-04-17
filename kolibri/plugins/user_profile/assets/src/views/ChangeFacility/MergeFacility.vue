@@ -143,42 +143,42 @@
       }
 
       function pollTask() {
-        console.log(taskId.value);
         if (taskId.value === null) {
           // first, try to see if there's already one running
-          TaskResource.fetchCollection().then(allTasks => {
-            const tasks = allTasks.filter(
-              t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser'
-            );
-            if (tasks.length > 0) {
-              updateMachineContext(tasks[0]);
-            } else {
-              // if not, start a new one or wait for the previous request to finish
-              if (!isTaskRequested) {
-                isTaskRequested = true;
-                const params = {
-                  type: 'kolibri.plugins.user_profile.tasks.mergeuser',
-                  baseurl: state.value.targetFacility.url,
-                  facility: state.value.targetFacility.id,
-                  username: state.value.targetAccount.username,
-                  local_user_id: state.value.userId,
-                  facility_name: state.value.targetFacility.name,
-                  user_id: state.value.targetAccount.id,
-                };
-                if (state.value.targetAccount.password !== '') {
-                  params['password'] = state.value.targetAccount.password;
-                }
-                if (state.value.newSuperAdminId !== '') {
-                  params['new_superuser_id'] = state.value.newSuperAdminId;
-                }
-                if (state.value.setAsSuperAdmin !== false) {
-                  params['set_as_super_user'] = true;
-                }
-                if (state.value.targetAccount.AdminUsername !== undefined) {
-                  params['using_admin'] = true;
-                  params['username'] = state.value.targetAccount.AdminUsername;
-                  params['password'] = state.value.targetAccount.AdminPassword;
-                }
+          TaskResource.fetchCollection()
+            .then(allTasks => {
+              const tasks = allTasks.filter(
+                t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser'
+              );
+              if (tasks.length > 0) {
+                updateMachineContext(tasks[0]);
+              } else {
+                // if not, start a new one or wait for the previous request to finish
+                if (!isTaskRequested) {
+                  isTaskRequested = true;
+                  const params = {
+                    type: 'kolibri.plugins.user_profile.tasks.mergeuser',
+                    baseurl: state.value.targetFacility.url,
+                    facility: state.value.targetFacility.id,
+                    username: state.value.targetAccount.username,
+                    local_user_id: state.value.userId,
+                    facility_name: state.value.targetFacility.name,
+                    user_id: state.value.targetAccount.id,
+                  };
+                  if (state.value.targetAccount.password !== '') {
+                    params['password'] = state.value.targetAccount.password;
+                  }
+                  if (state.value.newSuperAdminId !== '') {
+                    params['new_superuser_id'] = state.value.newSuperAdminId;
+                  }
+                  if (state.value.setAsSuperAdmin !== false) {
+                    params['set_as_super_user'] = true;
+                  }
+                  if (state.value.targetAccount.AdminUsername !== undefined) {
+                    params['using_admin'] = true;
+                    params['username'] = state.value.targetAccount.AdminUsername;
+                    params['password'] = state.value.targetAccount.AdminPassword;
+                  }
 
                   TaskResource.startTask(params)
                     .then(startedTask => {
