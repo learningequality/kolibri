@@ -105,6 +105,17 @@ describe('PinAuthenticationModal', () => {
         });
     });
 
+    it('on submit, shows a validation message when PIN has letters', async () => {
+      return inputPin(wrapper, 'abcd')
+        .then(() => {
+          const elements = getElements(wrapper);
+          elements.form().trigger('submit');
+        })
+        .then(() => {
+          assertTextbox(wrapper, 'Enter numbers only', true);
+        });
+    });
+
     it('on submit, shows a validation message when PIN code is empty', async () => {
       return inputPin(wrapper, '')
         .then(() => {
@@ -112,7 +123,7 @@ describe('PinAuthenticationModal', () => {
           elements.form().trigger('submit');
         })
         .then(() => {
-          assertTextbox(wrapper, 'Enter four numbers to set as your new PIN', true);
+          assertTextbox(wrapper, 'This field is required', true);
         });
     });
   });
