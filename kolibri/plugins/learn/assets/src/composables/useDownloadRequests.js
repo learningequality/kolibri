@@ -127,7 +127,7 @@ export default function useDownloadRequests(store) {
     setTimeout(() => (requestData.complete = true), 1000);
 
     console.log(requestData);
-    set(downloadRequestMap, requestData.node_id, requestData);
+    set(downloadRequestMap.downloads, requestData.node_id, requestData);
     store.commit('CORE_CREATE_SNACKBAR', {
       text: downloadRequestsTranslator.$tr('downloadStartedLabel'),
       actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
