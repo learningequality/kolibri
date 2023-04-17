@@ -7,16 +7,20 @@ import androidx.work.Configuration;
 import androidx.work.multiprocess.RemoteWorkerService;
 import androidx.work.WorkManager;
 
+import java.io.File;
 import java.lang.System;
+
+import org.kivy.android.PythonUtil;
+import org.kivy.android.PythonWorker;
 
 public class TaskworkerWorkerService extends RemoteWorkerService {
     private static final String TAG = "TaskworkerWorkerService";
 
     @Override
     public void onCreate() {
+        Context context = getApplicationContext();
         try {
             Log.v(TAG, "Initializing WorkManager");
-            Context context = getApplicationContext();
             Configuration configuration = new Configuration.Builder()
                 .setDefaultProcessName(context.getPackageName())
                 .build();
@@ -24,6 +28,9 @@ public class TaskworkerWorkerService extends RemoteWorkerService {
         } catch (IllegalStateException e) {
         }
         super.onCreate();
+        PythonUtil.loadLibraries(
+                new File(context.getApplicationInfo().nativeLibraryDir)
+        );
     }
     @Override
     public void onDestroy() {

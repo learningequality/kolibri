@@ -14,10 +14,8 @@ import com.google.common.util.concurrent.ListenableFuture;
 import org.learningequality.Kolibri.R;
 import org.learningequality.Notifications;
 
-import java.io.File;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
@@ -42,8 +40,6 @@ public class PythonWorker extends RemoteListenableWorker {
     public static ThreadLocal<Integer> threadNotificationId = new ThreadLocal<>();
 
     private String notificationTitle;
-
-    private static final AtomicInteger threadCounter = new AtomicInteger(0);
 
     public PythonWorker(
         @NonNull Context context,
@@ -96,13 +92,7 @@ public class PythonWorker extends RemoteListenableWorker {
             final Thread pythonThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    PythonUtil.loadLibraries(
-                            new File(getApplicationContext().getApplicationInfo().nativeLibraryDir)
-                    );
-
                     Log.d(TAG, "Running with python worker argument: " + serviceArg);
-
-                    threadCounter.incrementAndGet();
 
                     threadNotificationId.set(notificationId);
 
@@ -112,12 +102,6 @@ public class PythonWorker extends RemoteListenableWorker {
                         pythonHome, pythonPath,
                         serviceArg
                     );
-
-                    int remainingThreads = threadCounter.decrementAndGet();
-
-                    if (remainingThreads == 0) {
-                        tearDownPython();
-                    }
 
                     Log.d(TAG, "Finished remote python work: " + res);
 
