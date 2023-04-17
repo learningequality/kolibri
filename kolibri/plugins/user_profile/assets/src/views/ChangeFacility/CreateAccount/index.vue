@@ -134,8 +134,7 @@
     $trs: {
       description: {
         message: "New account for '{fullName}' in '{targetFacility}' learning facility",
-        context:
-          'Shows above a new user form where a user can create a new account in a target facility when changing facility.',
+        context: 'When they are changing facility users can choose a new account name.',
       },
     },
   };

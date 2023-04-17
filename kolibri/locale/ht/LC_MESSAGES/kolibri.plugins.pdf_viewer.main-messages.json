@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Elaji favori a",
+  "Bookmarks.bookmarksSection": "Seksyon favori yo. Ou kapab baskile ant dokiman pdf ak seksyon favori yo pandan w ap peze shift + enter.",
+  "PdfPage.numPage": "Paj {number} nan {total}",
   "PdfRendererIndex.enterFullscreen": "Antre nan ekran konplè",
   "PdfRendererIndex.exitFullscreen": "Soti nan ekran konplè"
 }

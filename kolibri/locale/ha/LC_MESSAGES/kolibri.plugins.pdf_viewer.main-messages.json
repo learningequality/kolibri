@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Faɗaɗa da'irar littafi",
+  "Bookmarks.bookmarksSection": "Sashen da'irar littafi. Kan iya shiga tsarin pdf daga bookmark ta hanyar latsa shift+enter",
+  "PdfPage.numPage": "Shafin {number} na {total}",
   "PdfRendererIndex.enterFullscreen": "Shiga cikakken allo",
   "PdfRendererIndex.exitFullscreen": "Fita daga cikakken allo"
 }

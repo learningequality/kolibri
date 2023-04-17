@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "توسيع الإشارة المرجعية",
+  "Bookmarks.bookmarksSection": "قسم الإشارات المرجعية. يمكنك التبديل بين المستند بصيغة pdf وقسم الإشارات المرجعية بالضغط على زر shift + enter",
+  "PdfPage.numPage": "صفحة {number} من أصل {total}",
   "PdfRendererIndex.enterFullscreen": "تفعيل وضعية الشاشة الكاملة",
   "PdfRendererIndex.exitFullscreen": "الخروج من وضعية الشاشة الكاملة"
 }

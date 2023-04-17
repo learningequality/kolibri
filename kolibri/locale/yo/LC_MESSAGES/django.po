@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Yoruba\n"
 "Language: yo_NG\n"
@@ -33,7 +33,7 @@ msgstr "Àkoonú sẹ́ẹ̀lì '{}' kò péye"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
-msgstr "Orúkọ aṣàmúlò ti di pupo"
+msgstr "Ìṣenírúméjí orúkọ-aṣàmúlò"
 
 #: core/auth/constants/commands_errors.py:28
 #: core/auth/management/commands/bulkimportusers.py:85
@@ -62,67 +62,67 @@ msgstr "Àṣìṣe wa ni kíka fáìlì csv: {}"
 msgid "Error trying to write csv file: {}"
 msgstr "Àṣìṣe wa ni kíkọ fáìlì csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "ÌDÁNIMỌ̀ Oruko ti o wa tele ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "Orúkọ aṣàmúlò ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "Ọ̀rọ̀ aṣayàn ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "Orúkọ lekún rere({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Irúfẹ́ aṣàmúlò ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "Àfidámọ̀ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "Ọdún ìbí ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "Abo tàbí akọ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Ìforúkọsílẹ̀ akẹ́kọ̀ọ́ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Iṣẹ́ àmúrelé olùkọ́ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Irúfẹ́ aṣàmúlò ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Ìforúkọsílẹ̀ akẹ́kọ̀ọ́ ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Iṣẹ́ àmúrelé olùkọ́ ({})"
@@ -148,7 +148,7 @@ msgstr "Ìṣenírúméjí orúkọ-aṣàmúlò"
 #: core/auth/management/commands/bulkimportusers.py:89
 msgctxt "Error message indicating that the CSV file selected for import is missing a required column"
 msgid "The column '{}' is required"
-msgstr "Apayi se'{}' Pataki"
+msgstr "Apá yìí ṣe'{}' Pàtàkì"
 
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
@@ -158,7 +158,7 @@ msgstr "Aamì àkọlé ti ko tọ̀nà wà nínu ilà àkọkọ́"
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "Ko si ohun elo àsàyàn. Rii daju lati ṣeto ohun elo lori ẹrọ ṣaaju agbewọle awọn oluṣamulo ati awọn kilaasi"
+msgstr "Kò sí ohun èlò àìyípadà. Ríi dájú láti ṣètò ohun èlò lórí ẹ̀rọ ṣaájú àgbéwọlé àwọn olùṣamúlò àti àwọn kíláàsì"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
@@ -172,48 +172,161 @@ msgstr "Kòle ṣàfikún àwọn ìrísí olùlò pẹ̀lú Idanimo: '{}' ni�
 msgid "Database ID is not valid"
 msgstr "Ibùgbéìwífúnalálàyé ìdánimọ̀ kò kòjú òṣùwọ̀n"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "Àjọṣe àwọn ìsọfúnni ní ìmúṣẹ"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "Má ṣe yọ ẹ̀rọ rẹ kúrò nínú ìlujára"
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "Ohun èlò"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "Ìkànnì yìí kò sí lóri Ero afefe yi"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "Agbekale yìí kò sí"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "Ṣíṣe ìmúdójúìwọ̀n ibi ìkówèésí rẹ"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "A ṣe ìmúdójúìwọ̀n ibi ìkówèésí"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "Ìmúdójúìwọ̀n ibi ìkówèésí kùnà"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "Èdè yìí ko sese lorí Kolibri"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "àkóónú_sáà_àwọn-àkọsílẹ̀-iṣẹ́"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "Ń wá"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "àkóónù_níṣókí_àwọn-àkọsílẹ̀-iṣẹ́"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "Wíwá àwọn ohun èlò Kolibri mìíràn"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "Ero ayelukara ń ṣe ségesège."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "Orúkọ ohun elò"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "Àṣìṣe ìráàyèsì dísíkì wáyé."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "Orúkọ aṣàmúlò"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "Àṣìṣe ti ko sese alaye wáyé."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "Ìdánimọ̀ ìkànnì"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "Orúkọ ìkànnì"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "Ìdánimọ̀ àkòónú"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "Àkọlé àkòónú"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "Àkókò tí wọ́n kọ́kọ́ bára wọn lò"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "Àkókò ìfọwọ́sowọ́pọ̀ ìkẹyìn"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "Àkókò tí wọ́n parí"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "Àkókò tí wọ́n lò (ìyẹn ní ìṣẹ́jú àáyá)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "Ìlọsíwájú (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "Oríṣi akosinu"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "Ti parí"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "Ti kùnà"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "Ti fagi lé"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "Ni ilọsiwaju - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "N Iduro"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "Kolibri ti ń bẹ̀rẹ̀"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "Bí wọ́n ṣe bẹ̀rẹ̀ sí í lo Kolibri"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "Ó yẹ kí a tún ọ́ darí sí ibòmíràn nígbà tí Kolibri bá ti ṣe tán"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "Bí kò bá rí bẹ́ẹ̀, jọ̀wọ́ béèrè fún ìrànlọ́wọ́ nínú àwùjọ wa"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "Ṣe àtúnṣe ojú ewé"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "Láti lo Kolibiri, a dàbá pé kó o lo Firefox tàbí Chrome."
 msgid "You can also try updating your current browser."
 msgstr "O tún lè gbìyànjú láti lo ìlujá ìwádìí ti o peye."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Kò sí àwọn ojú ewé tí ò peye. Ó ṣeé ṣe kó jẹ́ pé ìkànnì Kolibiri kò ṣiṣẹ́ bó ṣe yẹ"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "Olùkọ́ni"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Ohun èlò"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "àkókò_ìkójọpọ̀_àwọn àkọsílẹ̀_láti_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "sí"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "àdáyanrí_àkópọ̀_àwọn àkọsílẹ̀_láti_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "àwọn olùṣàmúlò_{}"
+msgid "users"
+msgstr "àwọn olùṣàmúlò"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "Kọ́"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "Awon eto imulo"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "Ètò ìṣiṣẹ́"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "Ìrísí olùlò aṣàmúlò"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "Àyípadà sí àkọọ́lẹ̀ tó ń lọ lọwọ"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "Gbigbe {learner_name}lọ si ibi-iṣẹ ikẹkọ {facility_name}"
 

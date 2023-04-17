@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Dispositivo"
+  "CommonDeviceStrings.deviceManagementTitle": "Dispositivo",
+  "CommonDeviceStrings.emptyTasksMessage": "No hay tareas para mostrar",
+  "CommonDeviceStrings.newChannelLabel": "Nuevo",
+  "CommonDeviceStrings.newEnabledPluginsState": "Cuando desmarque una página, será invisible para los usuarios incluso si tienen permiso para acceder a ella.",
+  "CommonDeviceStrings.newResourceLabel": "Nuevo",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "No hay suficiente espacio disponible en el dispositivo. Liberar espacio en el disco o seleccionar menos recursos",
+  "CommonDeviceStrings.permissionsLabel": "Permisos",
+  "CommonDeviceStrings.primaryStorageLabel": "Los recursos descargados se guardarán en la ubicación de almacenamiento principal",
+  "CommonDeviceStrings.unlistedChannelLabel": "Canal privado"
 }

@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Zu Position in Buch wechseln",
   "BottomBar.preparingSlider": "Schieberegler wird vorbereitet",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Buch konnte nicht geladen werden",
   "LoadingScreen.loadingBook": "Buch wird geladen",
   "NextButton.goToNextPage": "Nächste Seite",

@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Perangkat"
+  "CommonDeviceStrings.deviceManagementTitle": "Perangkat",
+  "CommonDeviceStrings.emptyTasksMessage": "Tidak ada tugas untuk ditampilkan",
+  "CommonDeviceStrings.newChannelLabel": "Baru",
+  "CommonDeviceStrings.newEnabledPluginsState": "Jika Anda batal mencentang halaman, halaman akan menjadi tidak terlihat bagi pengguna meski jika pengguna memiliki izin untuk mengaksesnya.",
+  "CommonDeviceStrings.newResourceLabel": "Baru",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ruangan dalam perangkat tidak cukup. Kosongkan ruang dan pilih aplikasi yang lebih kecil",
+  "CommonDeviceStrings.permissionsLabel": "Izin",
+  "CommonDeviceStrings.primaryStorageLabel": "Sumber daya yang baru diunduh akan ditambahkan ke lokasi penyimpanan utama",
+  "CommonDeviceStrings.unlistedChannelLabel": "Channel yang tidak terdaftar"
 }

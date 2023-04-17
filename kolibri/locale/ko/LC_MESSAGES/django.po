@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:11\n"
 "Last-Translator: \n"
 "Language-Team: Korean\n"
 "Language: ko_KR\n"
@@ -62,67 +62,67 @@ msgstr "csv 파일 {} 을 읽는데 문제가 있습니다"
 msgid "Error trying to write csv file: {}"
 msgstr "csv 파일 {} 을 읽는데 문제가 있습니다"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "데이터베이스 ID ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "닉네임 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "비밀번호 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "성명 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "사용자 유형 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "식별정보 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "출생년도 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "성별 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "학생 등록 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "코치 과제물 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "사용자 유형 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "학생 등록 ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "코치 과제물 ({})"
@@ -172,48 +172,161 @@ msgstr "'{}' 사용자에 ID를 업데이트할수 없습니다: 이 기관에 �
 msgid "Database ID is not valid"
 msgstr "데이터베이스 ID가 유효하지 않습니다"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "데이터 동기화 진행 중"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "네트워크에서 기기를 연결 해제하지 마세요."
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "리소스"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "요청하신 채널은 컨텐츠 서버에 존재하지 않습니다"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "알수없는 형식"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "라이브러리 업데이트 중"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "라이브러리 업데이트 완료"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "라이브러리 업데이트 실패"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "Kolibri에서 지원하지 않는 언어입니다"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "컨텐츠_세션_로그기록"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "검색 중"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "컨텐츠_요약_로그기록"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "다른 Kolibri 기기를 찾는 중"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "네트워크 오류가 발생했습니다"
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "기관명"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "디스크 접속 오류가 발생하였습니다"
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "닉네임"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "알수없는 오류가 발생하였습니다"
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "채널 ID"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "채널명"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "콘텐츠 id"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "콘텐츠 제목"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "최초 상호작용 시간"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "최근 상호작용 시간"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "완료 시간"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "소요된 시간 (초)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "진행 (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "콘텐츠 종류"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "완료됨"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "실패"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "취소 완료"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "{percent}% 진행됨"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "대기"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "Kolibri가 시작 중입니다"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "Kolibri 시작 중"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "Kolibri가 준비되면 자동으로 리디렉션됩니다"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "리디렉션이 안되는 경우, 커뮤니티 포럼에 도움을 요청하세요"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "페이지 새로 고침"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "Kolibri를 사용하기 위해 Firefox 혹은 크롬을 사용하실 것
 msgid "You can also try updating your current browser."
 msgstr "현재 브라우저를 업데이트 해보시기 바랍니다"
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "적절한 리디렉션 페이지를 찾을 수 없습니다. Kolibri가 잘못 반영된 것으로 보입니다."
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "코치"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "기관"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "content_session_logs_from_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "to_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "content_summary_logs_from_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "사용자_{}"
+msgid "users"
+msgstr "사용자"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "학습"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "정책"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "설치 마법사"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "사용자 프로필"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "계정 데이터 전송 중"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "{learner_name}에서 학습 기관 {facility_name}으로 이동 중"
 

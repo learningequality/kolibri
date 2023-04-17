@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Swahili, Tanzania\n"
 "Language: sw_TZ\n"
@@ -19,17 +19,17 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "lisilotarajiwa [{}]: {}"
+msgstr "Hitilafu isiyotarajiwa [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
 msgid "Content of cell '{}' is too long"
-msgstr "Yaliyomo kwenye seli '{}' ni marefu sana"
+msgstr "Yaliyomo kwenye seli ya '{}' ni marefu sana"
 
 #: core/auth/constants/commands_errors.py:24
 msgctxt "Error report message when the cell contains an improper data format."
 msgid "Content of cell '{}' is not valid"
-msgstr "Yaliyomo kwenye seli '{}' sio sawa"
+msgstr "Yaliyomo kwenye seli ya '{}' si sahihi"
 
 #: core/auth/constants/commands_errors.py:26
 msgid "Duplicated username"
@@ -46,11 +46,11 @@ msgstr "Safu wima '{}' inahitajika"
 
 #: core/auth/constants/commands_errors.py:31
 msgid "Mix of valid and/or invalid header labels found in first row"
-msgstr "Mchanganyiko wa lebo ya halali na / au batili ya kichwa kinaonekana kwenye safu ya kwanza"
+msgstr "Mchanganyiko wa kichwa cha lebo sahihi na/au si sahihi umepatikana kwenye safumlalo ya kwanza"
 
 #: core/auth/constants/commands_errors.py:33
 msgid "No default facility exists. Make sure to set up a facility on the device before running this command"
-msgstr "Hakuna kituo chaguo-msingi kilichopo. Hakikisha kusanikisha kituo kwenye kifaa kabla ya kutekeleza amri hii"
+msgstr "Hakuna kituo cha mafunzo chaguo-msingi kilichopo. Hakikisha kuwa umeweka kituo kwenye kifaa kabla ya kutekeleza agizo hili"
 
 #: core/auth/constants/commands_errors.py:35
 #: core/auth/management/commands/bulkimportusers.py:99
@@ -62,70 +62,70 @@ msgstr "Hitilafu wakati wa kujaribu kusoma faili ya csv: {}"
 msgid "Error trying to write csv file: {}"
 msgstr "Hitilafu wakati wa kujaribu kuandika faili ya csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "Kitambulisho cha Hifadhidata ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "Jina la mtumiaji ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
-msgstr "Neno la siri ({})"
+msgstr "Nenosiri ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "Jina kamili ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Aina ya mtumiaji ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "Kitambulisho ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "Mwaka wa kuzaliwa ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "Jinsia ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Uandikishaji wa wanafunzi ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Mgao wa wakufunzi ({})"
+msgstr "Mgao wa walimu ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Aina ya mtumiaji ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Uandikishaji wa wanafunzi ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "Mgao wa wakufunzi ({})"
+msgstr "Mgao wa walimu ({})"
 
 #: core/auth/management/commands/bulkimportusers.py:76
 msgctxt "Error message that might appear when there's a programming error importing a CSV file"
@@ -135,11 +135,11 @@ msgstr "Hitilafu isiyotarajiwa [{}]: {}"
 #: core/auth/management/commands/bulkimportusers.py:80
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "Value in column '{}' has too many characters"
-msgstr "Thamani katika safu '{}' ina herufi nyingi mno"
+msgstr "Thamani katika safuwima ya '{}' ina herufi nyingi mno"
 
 #: core/auth/management/commands/bulkimportusers.py:82
 msgid "Value in column '{}' not valid"
-msgstr "Thamani kwenye safu wima '{}' siyo halali"
+msgstr "Thamani kwenye safuwima ya '{}' si sahihi"
 
 #: core/auth/management/commands/bulkimportusers.py:83
 msgid "Username is duplicated"
@@ -153,90 +153,252 @@ msgstr "Safu wima '{}' inahitajika"
 #: core/auth/management/commands/bulkimportusers.py:93
 msgctxt "Error message indicating that one column header in the CSV file selected for import is missing or incorrect"
 msgid "Incorrect header label found in the first row"
-msgstr "Lebo ya kichwa kisicho sahihi imepatikana kwenye safu mlalo ya kwanza"
+msgstr "Kichwa cha lebo kisicho sahihi kimepatikana kwenye safumlalo ya kwanza"
 
 #: core/auth/management/commands/bulkimportusers.py:97
 msgctxt "Error when the command is executed in the Terminal (command prompt)"
 msgid "No default facility exists. Make sure to set up a facility on the  device before importing users and classes"
-msgstr "Hakuna kituo cha chaguo-msingi kilichopo. Hakikisha kusanikisha kituo kwenye kifaa kabla ya kuingiza watumiaji na madarasa"
+msgstr "Hakuna kituo cha mafunzo chaguo-msingi kilichopo. Hakikisha unasanikisha kituo kwenye kifaa kabla ya kuingiza watumiaji na madarasa"
 
 #: core/auth/management/commands/bulkimportusers.py:102
 msgid "The password field is required. To leave the password unchanged in existing users, insert an asterisk (*)"
-msgstr "Sehemu ya neno la siri inahitajika. Ili kuacha neno la siri lisibadilishwe kwa watumiaji waliopo, ingiza kitisho (*)"
+msgstr "Sehemu ya nenosiri inahitajika. Ili kuacha nenosiri lisibadilishwe kwa watumiaji waliopo, ingiza nyota (*)"
 
 #: core/auth/management/commands/bulkimportusers.py:105
 msgid "Cannot update user with ID: '{}' because no user with that database ID exists in this facility"
-msgstr "Haiwezi kusasisha mtumiaji na Kitambulisho: '{}' kwa sababu hakuna mtumiaji aliye na kitambulisho cha hifadhidata kilichopo katika kituo hiki"
+msgstr "Haiwezi kusasisha mtumiaji aliye na Kitambulisho: '{}' kwa sababu hakuna mtumiaji aliye na kitambulisho cha hifadhidata kilichopo katika kituo hiki"
 
 #: core/auth/management/commands/bulkimportusers.py:107
 msgid "Database ID is not valid"
-msgstr "Kitambulisho cha Hifadhidata sio sahihi"
+msgstr "Kitambulisho cha Hifadhidata si sahihi"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "Usawazishaji wa data unaendelea"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "Usitenganishe kifaa chako kutoka mtandao."
+
+#: core/content/api.py:352
 msgid "Resource"
-msgstr "Rasilimali"
+msgstr "Nyenzo za mafunzo"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
-msgstr "Kipengele kilichoombwa hakipo kwenye kumbukumbu ya yaliyomo"
+msgstr "Kituo ulichoomba hakipo kwenye seva ya yaliyomo"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "Muundo haujulikani"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "Insasisha maktaba yako"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "Maktaba imesasishwa"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "Haikuweza kusasisha maktaba"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
-msgstr "Lugha haikubaliani na Kolibri"
+msgstr "Lugha haitumiki na Kolibri"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "yaliyomo_somo_logs"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "Inatafuta"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "yaliyomo_summary_logs"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "Inatafuta vifaa vingine vya Kolibri"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "Kulikuwa na hitilafu ya kimtandao."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "Jina la kituo cha mafunzo"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "Kulikuwa na hitilafu ya ufikivu wa diski."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "Jina la mtumiaji"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "Kulikuwa na hitilafu isiyojulikana."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "Kitambulisho cha kituo"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "Jina la kituo"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "Kitambulisho cha maudhui"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "Mada ya maudhui"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "Wakati wa matumizi ya kwanza"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "Wakati wa matumizi ya mwisho"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "Saa ya kukamilisha"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "Muda uliotumia (sekunde)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "Maendeleo (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "Aina ya maundhui"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "Imekamilisha"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "Imeshindwa"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "Imeghairi"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "Inaendelea - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "Inasubiri"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
 
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "Kolibri inaanza"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "Inaanzisha Kolibri"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "Unapaswa kuelekezwa kwingine kiotomatiki wakati Kolibri iko tayari"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "Ikiwa hapana, tafadhali omba usaidizi kutoka kwa majukwaa yetu ya jamii"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "Onyesha ukurasa upya"
+
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
-msgstr "Kisakuzi hakikubaliwi"
+msgstr "Kivinjari hakitumiki"
 
 #: core/templates/kolibri/unsupported_browser.html:43
 msgid "Sorry, your browser version is not supported."
-msgstr "Samahani, toleo la kisakuzi chako halikubaliwi."
+msgstr "Samahani, toleo la kivinjari chako halitumiki."
 
 #: core/templates/kolibri/unsupported_browser.html:44
 msgid "To use Kolibri, we recommend using Firefox or Chrome."
-msgstr "Kutumia Kolibri, tunapendekeza matumizi ya Firefox au Chrome."
+msgstr "Ili utumie Kolibri, tunapendekeza utumie Firefox au Chrome."
 
 #: core/templates/kolibri/unsupported_browser.html:45
 msgid "You can also try updating your current browser."
-msgstr "Lakini pia unaweza kukisasisha kisakuzi chako."
+msgstr "Lakini pia unaweza kujaribu kusasisha kivinjari chako."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
-msgstr "Hakuna kurasa za kuelekeza tena mwafaka zimepatikana. Kuna uwezekano kwamba Kolibri imesanidiwa vibaya"
+msgstr "Hakuna kurasa mwafaka za kuelekeza tena zimepatikana. Huenda Kolibri imesanidiwa vibaya"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "Mwalimu"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Kituo cha mafunzo"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "maudhui_kipindi_kuingia_kutoka_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "kwa_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "maudhui_muhtasari_kuingia_kutoka_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "watumiaji_{}"
+msgid "users"
+msgstr "watumiaji"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "Jifunze"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "Sera"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "Sogora ya Kusanidi"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "Maelezo ya Mtumiaji"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "Inaendelea kuhamisha akaunti"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "Inahamisha {learner_name} hadi kituo cha mafunzo cha {facility_name}"
 

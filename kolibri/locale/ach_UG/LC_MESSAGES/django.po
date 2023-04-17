@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 01:56\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Acholi\n"
 "Language: ach_UG\n"
@@ -62,67 +62,67 @@ msgstr "crwdns333103:0crwdne333103:0"
 msgid "Error trying to write csv file: {}"
 msgstr "crwdns333105:0crwdne333105:0"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "crwdns333107:0crwdne333107:0"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "crwdns333109:0crwdne333109:0"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "crwdns333111:0crwdne333111:0"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "crwdns333113:0crwdne333113:0"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "crwdns333115:0crwdne333115:0"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "crwdns333117:0crwdne333117:0"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "crwdns333119:0crwdne333119:0"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "crwdns333121:0crwdne333121:0"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "crwdns333123:0crwdne333123:0"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "crwdns333125:0crwdne333125:0"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "crwdns333127:0crwdne333127:0"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "crwdns333129:0crwdne333129:0"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "crwdns333131:0crwdne333131:0"
@@ -172,48 +172,161 @@ msgstr "crwdns333149:0crwdne333149:0"
 msgid "Database ID is not valid"
 msgstr "crwdns333151:0crwdne333151:0"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "crwdns370209:0crwdne370209:0"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "crwdns370211:0crwdne370211:0"
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "crwdns333153:0crwdne333153:0"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "crwdns333155:0crwdne333155:0"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "crwdns333157:0crwdne333157:0"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "crwdns370213:0crwdne370213:0"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "crwdns370215:0crwdne370215:0"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "crwdns370217:0crwdne370217:0"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "crwdns333159:0crwdne333159:0"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "crwdns333161:0crwdne333161:0"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "crwdns370219:0crwdne370219:0"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "crwdns333163:0crwdne333163:0"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "crwdns370221:0crwdne370221:0"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "crwdns333165:0crwdne333165:0"
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "crwdns370223:0crwdne370223:0"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "crwdns333167:0crwdne333167:0"
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "crwdns370225:0crwdne370225:0"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "crwdns333169:0crwdne333169:0"
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "crwdns370227:0crwdne370227:0"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "crwdns370229:0crwdne370229:0"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "crwdns370231:0crwdne370231:0"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "crwdns370233:0crwdne370233:0"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "crwdns370235:0crwdne370235:0"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "crwdns370237:0crwdne370237:0"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "crwdns370239:0crwdne370239:0"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "crwdns370241:0crwdne370241:0"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "crwdns370243:0crwdne370243:0"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "crwdns370245:0crwdne370245:0"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "crwdns370247:0crwdne370247:0"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "crwdns370249:0crwdne370249:0"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "crwdns370251:0crwdne370251:0"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "crwdns370253:0{percent}crwdne370253:0"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "crwdns370255:0crwdne370255:0"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "crwdns333171:0crwdne333171:0"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "crwdns370257:0crwdne370257:0"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "crwdns370259:0crwdne370259:0"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "crwdns370261:0crwdne370261:0"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "crwdns370263:0crwdne370263:0"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "crwdns370265:0crwdne370265:0"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "crwdns333177:0crwdne333177:0"
 msgid "You can also try updating your current browser."
 msgstr "crwdns333179:0crwdne333179:0"
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "crwdns333181:0crwdne333181:0"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "crwdns370267:0crwdne370267:0"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "crwdns370269:0crwdne370269:0"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "crwdns370271:0crwdne370271:0"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "crwdns370273:0crwdne370273:0"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "crwdns370275:0crwdne370275:0"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "crwdns333183:0crwdne333183:0"
+msgid "users"
+msgstr "crwdns370277:0crwdne370277:0"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "crwdns370279:0crwdne370279:0"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "crwdns370281:0crwdne370281:0"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "crwdns370283:0crwdne370283:0"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "crwdns370285:0crwdne370285:0"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "crwdns370287:0crwdne370287:0"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "crwdns370289:0{learner_name}crwdnd370289:0{facility_name}crwdne370289:0"
 

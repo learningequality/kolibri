@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "دستگاه"
+  "CommonDeviceStrings.deviceManagementTitle": "دستگاه",
+  "CommonDeviceStrings.emptyTasksMessage": "هیچ تکلیف یا وظیفه‌ای برای نمایش وجود ندارد",
+  "CommonDeviceStrings.newChannelLabel": "جدید",
+  "CommonDeviceStrings.newEnabledPluginsState": "وقتی علامت صفحه را بردارید، برای کاربران غیرقابل‌مشاهده خواهد شد؛ حتی اگر مجوز دسترسی به آن را داشته باشند.",
+  "CommonDeviceStrings.newResourceLabel": "جدید",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "فضای کافی بر روی دستگاه شما وجود ندارد. فضای دیسک را خالی کنید یا منابع کمتری را انتخاب کنید",
+  "CommonDeviceStrings.permissionsLabel": "مجوزها و دسترسی‌ها",
+  "CommonDeviceStrings.primaryStorageLabel": "منابع جدیداً دانلودشده به محل ذخیره‌سازی اصلی اضافه خواهد شد",
+  "CommonDeviceStrings.unlistedChannelLabel": "کانال خارج از لیست"
 }
