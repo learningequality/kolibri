@@ -1,7 +1,6 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
@@ -154,7 +153,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
           timings: true, // modules timing information
           performance: true, // info about oversized assets
         });
-        mkdirp.sync('./.stats');
+        fs.mkdirSync('./.stats', { recursive: true });
         for (const stat of statsJson.children) {
           fs.writeFileSync(`.stats/${stat.name}.json`, JSON.stringify(stat, null, 2), {
             encoding: 'utf-8',

@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const { parse } = require('csv-parse/sync');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const logging = require('../logging');
@@ -10,7 +9,7 @@ const { checkForDuplicateIds, forEachPathInfo } = require('./utils');
 // Instantiates the CSV data and writes to a file.
 function writeAuditToCSV(audit, outputFile) {
   // Ensure we have a {localePath}/audit directory available.
-  mkdirp.sync(path.dirname(outputFile));
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
 
   const csvWriter = createCsvWriter({
     path: outputFile,
