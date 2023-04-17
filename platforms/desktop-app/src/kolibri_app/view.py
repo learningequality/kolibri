@@ -51,6 +51,7 @@ class KolibriView(object):
         self.current_url = None
 
         self.view = wx.Frame(None, -1, APP_NAME, size=size)
+        self.view.SetMinSize((350, 400))
 
         backend = html2.WebViewBackendDefault
 
