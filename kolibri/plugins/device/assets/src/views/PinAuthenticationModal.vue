@@ -44,8 +44,12 @@
     methods: {
       ...mapActions('facilityConfig', ['isPinValid']),
       submit() {
-        if (!this.pin.match(/^\d+$/)) {
-          this.pinError = this.$tr('invalidPin');
+        if (!this.pin) {
+          this.pinError = this.coreString('requiredFieldError');
+          this.showErrorText = true;
+          this.focus();
+        } else if (!this.pin.match(/^\d+$/)) {
+          this.pinError = this.coreString('numbersOnly');
           this.showErrorText = true;
           this.focus();
         } else {
@@ -76,10 +80,12 @@
         message: 'Incorrect PIN, please try again',
         context: 'Error message displayed when an incorrect PIN is input',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       invalidPin: {
         message: 'Enter four numbers to set as your new PIN',
         context: 'Error message displayed when a PIN with less than 4 digits is input',
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
       pinPlaceholder: {
         message: 'PIN',
         context: 'Placeholder label for a PIN input',
