@@ -79,14 +79,19 @@ class ContentAssignmentManager(object):
         CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({model.__class__.__name__: self})
 
     @classmethod
-    def find_all_downloadable_assignments(cls, transfer_session_id):
+    def find_all_downloadable_assignments(cls, dataset_id=None, transfer_session_id=None):
         """
+        :param dataset_id: optional argument to filter assignments by dataset
         :param transfer_session_id:
         :rtype: list of ContentAssignment
         """
+        
+        if dataset_id is None and transfer_session_id is None:
+            raise ValueError("Either dataset_id or transfer_session_id is required")
+
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
             for assignment in manager.find_downloadable_assignments(
-                transfer_session_id
+                dataset_id, transfer_session_id
             ):
                 yield assignment
 
@@ -143,25 +148,31 @@ class ContentAssignmentManager(object):
                     )
                     contentnode_ids.update([contentnode_id])
 
-    def find_downloadable_assignments(self, transfer_session_id):
+
+    def find_downloadable_assignments(self, dataset_id=None, transfer_session_id=None):
         """
-        :param transfer_session_id:
-        :return: yields ContentAssigment tuples
+        :param dataset_id: optional dataset_id to filter records by
+        :param transfer_session_id: optional transfer_session_id to filter records by transfer_session_id
+        :return: yields ContentAssignment tuples
         :rtype: list of ContentAssignment
         """
-        modified_store = self._get_modified_store(transfer_session_id).exclude(
-            Q(deleted=True) | Q(hard_deleted=True) | ~Q(deserialization_error="")
-        )
 
-        model_qs = self.model.objects.filter(
-            pk__in=modified_store.values_list("id", flat=True)
-        )
+        model_qs = self.model.objects.all()
+        if transfer_session_id:
+            modified_store = self._get_modified_store(transfer_session_id).exclude(
+                Q(deleted=True) | Q(hard_deleted=True) | ~Q(deserialization_error="")
+            )
+            if modified_store.exists():
+                model_qs = model_qs.filter(pk__in=modified_store.values_list("id", flat=True))
+        elif dataset_id:
+            model_qs = model_qs.filter(dataset_id=dataset_id)
         if self.filters:
             model_qs = model_qs.filter(**self.filters)
-
+        
         for assignment in self._get_assignments(model_qs):
             yield assignment
-
+    
+    
     def find_removable_assignments(self, transfer_session_id):
         """
         :param transfer_session_id:
