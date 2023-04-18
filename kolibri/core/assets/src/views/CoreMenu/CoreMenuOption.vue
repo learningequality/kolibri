@@ -31,6 +31,8 @@
         role="menuitem"
         :class="$computedClass(optionStyle)"
         tabindex="0"
+        @click="conditionalEmit"
+        @keydown.enter="conditionalEmit"
       >
         <slot>
           <KLabeledIcon>
@@ -177,6 +179,11 @@
         const params = this.$route.params;
         return generateNavRoute(this.link, route, params);
       },
+      conditionalEmit() {
+      if (!this.link) {
+        this.$emit('select');
+        }
+      }
     },
   };
 
