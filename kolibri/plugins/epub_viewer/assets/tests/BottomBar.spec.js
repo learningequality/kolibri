@@ -47,7 +47,7 @@ describe('Bottom bar', () => {
     expect(wrapper.find('input').element.value).toBe(String(sliderValue));
   });
   it('should set the correct step on the slider', () => {
-    const sliderStep = 10;
+    const sliderStep = 1;
     const wrapper = createWrapper({ sliderStep });
     expect(wrapper.find('input').element.step).toBe(String(sliderStep));
   });
