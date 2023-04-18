@@ -96,13 +96,18 @@ class ContentAssignmentManager(object):
                 yield assignment
 
     @classmethod
-    def find_all_removable_assignments(cls, transfer_session_id):
+    def find_all_removable_assignments(cls, dataset_id=None, transfer_session_id=None):
         """
-        :param transfer_session_id:
+        :param dataset_id: optional argument to filter assignments by dataset_id
+        :param transfer_session_id:optional argument to filter assignments by transfer_session_id
         :rtype: list of ContentAssignment or DeletedAssignment
         """
+
+        if dataset_id is None and transfer_session_id is None:
+            raise ValueError("Either dataset_id or transfer_session_id is required")
+        
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
-            for assignment in manager.find_removable_assignments(transfer_session_id):
+            for assignment in manager.find_removable_assignments(dataset_id, transfer_session_id):
                 yield assignment
 
     def _get_modified_store(self, transfer_session_id):
@@ -173,23 +178,30 @@ class ContentAssignmentManager(object):
             yield assignment
     
     
-    def find_removable_assignments(self, transfer_session_id):
+    def find_removable_assignments(self, dataset_id, transfer_session_id):
         """
-        :param transfer_session_id:
+        :param dataset_id: the ID of the dataset to filter records by dataset_id
+        :param transfer_session_id: the ID of the transfer session to filter records by transfer_session_id
         :return: yields ContentAssigment or DeletedAssignment tuples
         :rtype: list of ContentAssignment or DeletedAssignment
         """
-        modified_store = self._get_modified_store(transfer_session_id)
+        if transfer_session_id:
+            modified_store = self._get_modified_store(transfer_session_id)
+            if self.filters:
+                # modified models that do not match filters
+                model_qs = self.model.objects.filter(
+                    pk__in=modified_store.values_list("id", flat=True)
+                ).exclude(**self.filters)
+                for assignment in self._get_assignments(model_qs):
+                    yield assignment
 
-        if self.filters:
-            # modified models that do not match filters
-            model_qs = self.model.objects.filter(
-                pk__in=modified_store.values_list("id", flat=True)
-            ).exclude(**self.filters)
+            # models that were deleted
+            deleted_qs = modified_store.filter(Q(deleted=True) | Q(hard_deleted=True))
+            for source_id in deleted_qs.values_list("id", flat=True):
+                yield DeletedAssignment(self.model.morango_model_name, source_id)
+        elif dataset_id:
+            model_qs = self.model.objects.filter(dataset_id=dataset_id)
+            if self.filters:
+                model_qs = model_qs.exclude(**self.filters)
             for assignment in self._get_assignments(model_qs):
                 yield assignment
-
-        # models that were deleted
-        model_qs = modified_store.filter(Q(deleted=True) | Q(hard_deleted=True))
-        for source_id in model_qs.values_list("id", flat=True):
-            yield DeletedAssignment(self.model.morango_model_name, source_id)
