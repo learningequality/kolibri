@@ -20,7 +20,8 @@ For example, `HTTP_PORT` can be configured as
 
   `KOLIBRI_HTTP_PORT=1234 kolibri start`
 
-
+A full list of all the available options with their documentation can be found executing:
+    `kolibri configure list-env` 
 
 
 
