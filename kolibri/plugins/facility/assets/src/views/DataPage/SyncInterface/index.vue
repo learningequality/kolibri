@@ -175,7 +175,7 @@
       managesync() {
         this.$router.push({
           name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { deviceId: this.$store.getters.activeFacilityId },
+          params: { facilityId: this.facility.id },
         });
       },
       fetchFacility() {

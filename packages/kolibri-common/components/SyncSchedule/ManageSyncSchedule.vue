@@ -222,11 +222,7 @@
         savedDevices: [],
       };
     },
-    computed: {
-      theFacilityId() {
-        return this.$route.params.facilityId || this.facilityId;
-      },
-    },
+
     beforeMount() {
       this.pollFacilityTasks();
       this.fetchFacility();
