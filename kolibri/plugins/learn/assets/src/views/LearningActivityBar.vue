@@ -32,20 +32,22 @@
       </template>
 
       <template #actions>
-        <template v-if="showDownloadingLoader">
-          <KCircularLoader
-            ref="downloadingLoader"
-            data-test="downloadingLoader"
-            :size="24"
-            :style="{ margin: '10px 4px 0px 4px' }"
-          />
-          <KTooltip
-            reference="downloadingLoader"
-            :refs="$refs"
-          >
-            {{ downloadingLoaderTooltip }}
-          </KTooltip>
-        </template>
+        <Transition name="downloading-loader">
+          <span v-if="showDownloadingLoader">
+            <KCircularLoader
+              ref="downloadingLoader"
+              data-test="downloadingLoader"
+              :size="24"
+              :style="{ margin: '10px 4px 0px 4px' }"
+            />
+            <KTooltip
+              reference="downloadingLoader"
+              :refs="$refs"
+            >
+              {{ downloadingLoaderTooltip }}
+            </KTooltip>
+          </span>
+        </Transition>
 
         <KIconButton
           v-if="isQuiz && !showingReportState"
@@ -83,18 +85,21 @@
         </CoreMenu>
         <DeviceConnectionStatus :deviceId="deviceId" />
 
-        <KIconButton
-          v-for="action in barActions"
-          :key="action.id"
-          :data-test="`bar_${action.dataTest}`"
-          :icon="action.icon"
-          :color="action.iconColor"
-          :tooltip="action.label"
-          :ariaLabel="action.label"
-          :disabled="action.disabled"
-          :class="action.id === 'next-steps' && nextStepsAnimate ? 'bounce' : ''"
-          @click="onActionClick(action.event)"
-        />
+        <TransitionGroup name="bar-actions">
+          <KIconButton
+            v-for="action in barActions"
+            :key="action.id"
+            :data-test="`bar_${action.dataTest}`"
+            :icon="action.icon"
+            :color="action.iconColor"
+            :tooltip="action.label"
+            :ariaLabel="action.label"
+            :disabled="action.disabled"
+            class="bar-actions-item"
+            :class="action.id === 'next-steps' && nextStepsAnimate ? 'bounce' : ''"
+            @click="onActionClick(action.event)"
+          />
+        </TransitionGroup>
 
         <span class="menu-wrapper">
           <KIconButton
@@ -641,6 +646,30 @@
     animation-delay: 0s;
     animation-iteration-count: infinite;
     animation-direction: normal;
+  }
+
+  .downloading-loader-enter-active,
+  .downloading-loader-leave-active {
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  .downloading-loader-enter,
+  .downloading-loader-leave-to {
+    opacity: 0;
+  }
+
+  // https://v2.vuejs.org/v2/guide/transitions.html#List-Move-Transitions
+  .bar-actions-item {
+    transition: all 0.5s ease-in-out;
+  }
+
+  .bar-actions-enter,
+  .bar-actions-leave-to {
+    opacity: 0;
+  }
+
+  .bar-actions-leave-active {
+    position: absolute;
   }
 
 </style>
