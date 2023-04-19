@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "ઉપકરણ"
+  "CommonDeviceStrings.deviceManagementTitle": "ડિવાઇસ",
+  "CommonDeviceStrings.emptyTasksMessage": "બતાવવા કરવા માટે કોઈ કાર્યો નથી",
+  "CommonDeviceStrings.newChannelLabel": "નવી",
+  "CommonDeviceStrings.newEnabledPluginsState": "જ્યારે તમે કોઈ પેજને અનચેક કરો છો, ત્યારે તે ઉપયોગકર્તાઓ માટે અદૃશ્ય થઈ જશે, પછી ભલે તેમની પાસે તેને ઍક્સેસ કરવાની પરવાનગી હોય.",
+  "CommonDeviceStrings.newResourceLabel": "નવું",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "તમારા ડિવાઇસ પર પૂરતી જગ્યા ઉપલબ્ધ નથી. ડિસ્ક સ્થાન ખાલી કરો અથવા ઓછા સંસાધનો પસંદ કરો",
+  "CommonDeviceStrings.permissionsLabel": "પરવાનગીઓ",
+  "CommonDeviceStrings.primaryStorageLabel": "નવા ડાઉનલોડ કરાયેલા સંસાધનોને પ્રાથમિક સંગ્રહ સ્થાનમાં ઉમેરવામાં આવશે",
+  "CommonDeviceStrings.unlistedChannelLabel": "અસૂચિબદ્ધ ચૅનલ"
 }

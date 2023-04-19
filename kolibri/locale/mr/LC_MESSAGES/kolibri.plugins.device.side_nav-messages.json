@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "उपकरण"
+  "CommonDeviceStrings.deviceManagementTitle": "उपकरण",
+  "CommonDeviceStrings.emptyTasksMessage": "दाखवण्यासाठी कोणतेही कार्य नाही",
+  "CommonDeviceStrings.newChannelLabel": "नवीन",
+  "CommonDeviceStrings.newEnabledPluginsState": "तुम्ही पेज अनचेक करता तेव्हा, वापरकर्त्यांना त्यात प्रवेश करण्याची परवानगी असली तरीही ते अदृश्य होईल.",
+  "CommonDeviceStrings.newResourceLabel": "नवीन",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "तुमच्या उपकरणावर पुरेशी जागा उपलब्ध नाही. कृपया जागा रिकामी करा किंवा कमी संसाधने निवडा",
+  "CommonDeviceStrings.permissionsLabel": "परवानग्या",
+  "CommonDeviceStrings.primaryStorageLabel": "नवीन डाउनलोड केलेली संसाधने प्राथमिक स्टोरेज स्थानावर जोडली जातील",
+  "CommonDeviceStrings.unlistedChannelLabel": "यादीत नसलेली वाहिनी"
 }

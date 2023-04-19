@@ -73,8 +73,8 @@
                   <KSwitch
                     name="toggle-lesson-visibility"
                     label=""
-                    :checked="tableRow.active"
-                    :value="tableRow.active"
+                    :checked="tableRow.is_active"
+                    :value="tableRow.is_active"
                     @change="toggleModal(tableRow)"
                   />
                 </td>

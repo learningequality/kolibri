@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Ale nan yon pozisyon nan liv la",
   "BottomBar.preparingSlider": "Glisè a ap prepare",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Nou pat ka telechaje liv sa a",
   "LoadingScreen.loadingBook": "Liv ap telechaje",
   "NextButton.goToNextPage": "Ale nan paj apre a",

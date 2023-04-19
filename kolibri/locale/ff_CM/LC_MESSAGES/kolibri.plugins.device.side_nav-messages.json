@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Kompiita"
+  "CommonDeviceStrings.deviceManagementTitle": "Kompiita",
+  "CommonDeviceStrings.emptyTasksMessage": "Kuuɗe kompiita kolleteeɗe ngalaa",
+  "CommonDeviceStrings.newChannelLabel": "Kesum",
+  "CommonDeviceStrings.newEnabledPluginsState": "",
+  "CommonDeviceStrings.newResourceLabel": "Kesum",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Disk kompiita ma ɓadake heewugo. Ɗustu ko woni nder disk koo suɓtu jannginillum seɗɗa tan.",
+  "CommonDeviceStrings.permissionsLabel": "Yerduye",
+  "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.unlistedChannelLabel": "Wuro janngugo ngo winndaaka"
 }

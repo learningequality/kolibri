@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Перейти на місце в книзі",
   "BottomBar.preparingSlider": "Підготовка слайдера",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Не вдалося завантажити цю книгу",
   "LoadingScreen.loadingBook": "Завантаження книги",
   "NextButton.goToNextPage": "Перейти на наступну сторінку",

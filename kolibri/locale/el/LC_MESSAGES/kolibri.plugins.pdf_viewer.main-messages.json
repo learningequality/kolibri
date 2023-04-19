@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Ανάπτυξη σελιδοδείκτη",
+  "Bookmarks.bookmarksSection": "Ενότητα σελιδοδεικτών. Μπορείτε να κάνετε εναλλαγή μεταξύ του εγγράφου pdf και της ενότητας σελιδοδεικτών πατώντας shift + enter.",
+  "PdfPage.numPage": "Σελίδα {number} από {total}",
   "PdfRendererIndex.enterFullscreen": "Είσοδος σε λειτουργία πλήρους οθόνης",
   "PdfRendererIndex.exitFullscreen": "Έξοδος από τη λειτουργία πλήρους οθόνης"
 }

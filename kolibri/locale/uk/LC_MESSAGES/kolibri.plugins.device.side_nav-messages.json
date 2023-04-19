@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Пристрій"
+  "CommonDeviceStrings.deviceManagementTitle": "Пристрій",
+  "CommonDeviceStrings.emptyTasksMessage": "Немає завдань для відображення",
+  "CommonDeviceStrings.newChannelLabel": "Нове",
+  "CommonDeviceStrings.newEnabledPluginsState": "Після зняття позначки сторінка стає невидимою для користувачів, навіть якщо вони мають дозвіл заходити на неї.",
+  "CommonDeviceStrings.newResourceLabel": "Нове",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Недостатньо місця на вашому пристрої. Звільніть місце на диску або оберіть менше матеріалів",
+  "CommonDeviceStrings.permissionsLabel": "Дозволи",
+  "CommonDeviceStrings.primaryStorageLabel": "Нові завантажені матеріали будуть додані до основного сховища.",
+  "CommonDeviceStrings.unlistedChannelLabel": "Канал не зі списку"
 }

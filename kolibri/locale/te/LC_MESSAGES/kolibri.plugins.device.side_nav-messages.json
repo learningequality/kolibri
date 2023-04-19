@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "పరికరం"
+  "CommonDeviceStrings.deviceManagementTitle": "పరికరం",
+  "CommonDeviceStrings.emptyTasksMessage": "ప్రదర్శించేందుకు టాస్క్‌లు ఏవీ లేవు",
+  "CommonDeviceStrings.newChannelLabel": "కొత్తవి",
+  "CommonDeviceStrings.newEnabledPluginsState": "మీరు ఒక పేజీని అన్‌చెక్‌ చేసినప్పుడు, అది యూజర్ల ప్రాప్యతకు అనుమతి ఉన్నప్పటికీ, అది వారికి కనిపించకుండా ఉంటుంది.",
+  "CommonDeviceStrings.newResourceLabel": "కొత్తవి",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "మీ పరికరంలో సరిపడినంత ఖాళీ లేదు. డిస్క్‌ని కాస్త ఖాళీ చేయండి లేదా కొన్ని వనరులనే ఎంచుకోండి",
+  "CommonDeviceStrings.permissionsLabel": "అనుమతులు",
+  "CommonDeviceStrings.primaryStorageLabel": "కొత్తగా డౌన్‌లోడ్‌ అయిన వనరులు ప్రాథమిక నిల్వ స్థానానికి జోడించబడతాయి",
+  "CommonDeviceStrings.unlistedChannelLabel": "జాబితా చేయబడని ఛానెల్"
 }

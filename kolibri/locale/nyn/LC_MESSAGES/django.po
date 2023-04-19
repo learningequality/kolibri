@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Chewa\n"
 "Language: ny_MW\n"
@@ -62,67 +62,67 @@ msgstr "Pepani tikuyesa kuona fayilo ya csv: {}"
 msgid "Error trying to write csv file: {}"
 msgstr "Pepani tikuyesa kulemba fayilo ya csv: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "Chizindikiro cha Databezi ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "Dzina lolowera ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "Nambala yachinsinsi ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "Dzina lonse ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Mtundu wa akaunti ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "Chozindikiritsa ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "Chaka chobadwa ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "Mwamuna/Mkazi ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Kalasi yoti wophunzira alowetsedwe ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Zoti m'phunzitsi achite ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "Mtundu wa akaunti ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "Kalasi yoti wophunzira alowetsedwe ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "Zoti m'phunzitsi achite ({})"
@@ -172,48 +172,161 @@ msgstr "Sizingatheke kupanga apudeti akaunti yokhala ndi ID: '{}' chifukwa choti
 msgid "Database ID is not valid"
 msgstr "Databezi ID ndi yosavomerezeka"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "Kuluzanitsa uthenga kuli mkati"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "Musachotse makina anu"
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "Zophunzirira"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "Tchanelo imene mukufuna sikupezeka pa seva"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "Fomati yosadziwika"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "Ikusintha malo osungiramo zinthu"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "Malo osungiramo zinthu akonzedwa"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "Kukonza malo osungiramo zinthu kwalephereka"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "Chilankhulo chimenechi sichili pa Kolibri"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "content_session_logs"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "Ikufufuza"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "content_summary_logs"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "Ikufufuza zipangizo zina za Kolibri"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "Panali vuto la netiweki."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "Dzina la Bungwe"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "Panali vuto potsekula disiki."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "Dzina lolowera"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "Panali vuto losadziwika bwino."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "Chizindikiro cha tchanelo"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "Dzina la tchanelo"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "Chizindikilitso cha zamkati"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "Mutu wa zopezeka mkatimu"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "Nthawi ya kulumikiza koyamba"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "Nthawi ya kulumikiza komaliza"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "Nthawi yomalizira"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "Nthawi yomwe mwagwiritsa ntchito (masekondi)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "Momwe zikuyendera (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "Mtundu wa zopezeka mkatimu"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "Yamaliza"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "Zalephereka"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "Yayimitsidwa"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "Ili mkati - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "Dikilani"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "Kolibri"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "Kolibri ikuyamba"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "Ikuyambitsa Kolibri"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "Mutumizidwa mbali ina Kolibri ikakonzeka"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "Ngati si choncho, chonde pemphani thandizo m'malo athu a zokambirana"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "Tsekulaninso tsambali"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "Kuti muthe kugwiritsa ntchito Kolibri, mufunika kugwiritsa ntchito Firef
 msgid "You can also try updating your current browser."
 msgstr "Mungayesenso kupanga apudeti bulawuza imene mukugwiritsa ntchito panopo."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "Palibe tsamba limene latseguka. N'kutheka kuti simunaike bwino Kolibri"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "Kochi"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "Bungwe"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "nthawi_yolowa_m'zopezeka mkati_kuyambira_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "kulekeza_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "chiudule_cha mndanda_wa zopezeka mkati_kuyambira_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "ma akaunti_{}"
+msgid "users"
+msgstr "munthu"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "Phunzirani"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "Ndondomeko"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "Zothandiza Poika Pulagalamu"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "Pulofailo"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "Kusamutsa akaunti kuli mkati"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "Kuchotsa {learner_name} kupita ku malo ophunzirira a {facility_name}"
 

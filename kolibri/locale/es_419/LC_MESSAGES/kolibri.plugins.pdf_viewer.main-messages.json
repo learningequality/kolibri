@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Desplegar marcador",
+  "Bookmarks.bookmarksSection": "Región de marcadores. Puedes saltar entre el documento PDF y la región de marcadores usando el atajo Majusc+Intro",
+  "PdfPage.numPage": "Página {number} de {total}",
   "PdfRendererIndex.enterFullscreen": "Pantalla completa",
   "PdfRendererIndex.exitFullscreen": "Salir de la pantalla completa"
 }

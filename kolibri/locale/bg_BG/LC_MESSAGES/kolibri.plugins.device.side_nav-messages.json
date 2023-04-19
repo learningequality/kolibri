@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Устройство"
+  "CommonDeviceStrings.deviceManagementTitle": "Устройство",
+  "CommonDeviceStrings.emptyTasksMessage": "Няма задачи за показване",
+  "CommonDeviceStrings.newChannelLabel": "Нов",
+  "CommonDeviceStrings.newEnabledPluginsState": "",
+  "CommonDeviceStrings.newResourceLabel": "Нов",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Няма достатъчно място на устройството. Освободи място или избери по-малко материали",
+  "CommonDeviceStrings.permissionsLabel": "Разрешения",
+  "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.unlistedChannelLabel": "Скрит канал"
 }

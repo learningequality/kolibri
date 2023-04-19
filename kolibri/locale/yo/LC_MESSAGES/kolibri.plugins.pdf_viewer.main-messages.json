@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Se ìmúgbòòrò àmì ìwé",
+  "Bookmarks.bookmarksSection": "Ìpín àmì ìwé. O lè yí i padà láàárín ìwé Pdf àti ìpín àmì ìwé nípa títẹ shift + enter.",
+  "PdfPage.numPage": "Ojú ewé {number} ti {total}",
   "PdfRendererIndex.enterFullscreen": "Wọlé ní ẹ̀kúnjú-aṣàfihàn",
   "PdfRendererIndex.exitFullscreen": "Jáde ní ẹ̀kúnjú-aṣàfihàn "
 }

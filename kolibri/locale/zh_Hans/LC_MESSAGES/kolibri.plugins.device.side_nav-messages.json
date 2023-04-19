@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "设备"
+  "CommonDeviceStrings.deviceManagementTitle": "设备",
+  "CommonDeviceStrings.emptyTasksMessage": "没有可以显示的任务",
+  "CommonDeviceStrings.newChannelLabel": "新",
+  "CommonDeviceStrings.newEnabledPluginsState": "当您取消选中某个页面时，该页面将对用户不可见，即便用户拥有其访问权限。",
+  "CommonDeviceStrings.newResourceLabel": "新",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "设备上没有足够的可用空间。释放磁盘空间或选择更少的资源",
+  "CommonDeviceStrings.permissionsLabel": "权限",
+  "CommonDeviceStrings.primaryStorageLabel": "新下载的资源将添加到主存储位置",
+  "CommonDeviceStrings.unlistedChannelLabel": "未列出的频道"
 }

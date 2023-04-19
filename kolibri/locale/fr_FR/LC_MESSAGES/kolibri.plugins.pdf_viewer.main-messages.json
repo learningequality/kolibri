@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Agrandir les favoris",
+  "Bookmarks.bookmarksSection": "Section des favoris. Vous pouvez passer du document PDF à la section des favoris en appuyant sur les touches Maj + Entrée.",
+  "PdfPage.numPage": "Page {number} sur {total}",
   "PdfRendererIndex.enterFullscreen": "Passer en mode plein écran",
   "PdfRendererIndex.exitFullscreen": "Quitter le mode plein écran"
 }

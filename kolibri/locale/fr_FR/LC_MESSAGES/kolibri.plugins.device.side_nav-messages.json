@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Appareil"
+  "CommonDeviceStrings.deviceManagementTitle": "Appareil",
+  "CommonDeviceStrings.emptyTasksMessage": "Il n'y a pas de tâches à afficher",
+  "CommonDeviceStrings.newChannelLabel": "Nouveau",
+  "CommonDeviceStrings.newEnabledPluginsState": "Lorsque vous décochez une page, elle devient invisible pour les utilisateurs, même s'ils ont l'autorisation d'y accéder.",
+  "CommonDeviceStrings.newResourceLabel": "Nouveau",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Pas assez d'espace disponible sur votre appareil. Libérer de l'espace disque ou sélectionner moins de contenus",
+  "CommonDeviceStrings.permissionsLabel": "Autorisations",
+  "CommonDeviceStrings.primaryStorageLabel": "Les ressources nouvellement téléchargées seront ajoutées à l'emplacement de stockage principal",
+  "CommonDeviceStrings.unlistedChannelLabel": "Masquer la chaîne"
 }

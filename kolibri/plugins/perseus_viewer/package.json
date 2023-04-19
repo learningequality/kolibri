@@ -42,7 +42,6 @@
     "espree": "^9.5.1",
     "exports-loader": "^0.7.0",
     "imports-loader": "^4.0.1",
-    "mkdirp": "^0.5.1",
     "pofile": "^1.0.8",
     "progress": "^2.0.0",
     "string-replace-loader": "^3.1.0",

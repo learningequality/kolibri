@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Thiết bị"
+  "CommonDeviceStrings.deviceManagementTitle": "Thiết bị",
+  "CommonDeviceStrings.emptyTasksMessage": "Không có công việc để hiển thị",
+  "CommonDeviceStrings.newChannelLabel": "Mới",
+  "CommonDeviceStrings.newEnabledPluginsState": "Khi bạn bỏ chọn một trang, người dùng sẽ không nhìn thấy trang đó nữa, kể cả khi họ có quyền truy cập trang.",
+  "CommonDeviceStrings.newResourceLabel": "Mới",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Không đủ dung lượng trên thiết bị. Hãy giải phóng ổ đĩa hay chọn ít tài liệu hơn",
+  "CommonDeviceStrings.permissionsLabel": "Quyền hạn",
+  "CommonDeviceStrings.primaryStorageLabel": "Tài liệu mới tải xuống sẽ được thêm vào vị trí lưu trữ chính",
+  "CommonDeviceStrings.unlistedChannelLabel": "Kênh chưa liệt kê"
 }
