@@ -380,6 +380,8 @@
         topicMoreLoading: false,
         mobileSearchActive: false,
         currentSearchCardViewStyle: 'card',
+        closeCategoryModal: '',
+        sidePanelOverlayWidth: '',
       };
     },
     computed: {
