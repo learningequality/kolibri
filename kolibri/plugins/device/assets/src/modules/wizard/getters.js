@@ -1,7 +1,7 @@
 import find from 'lodash/find';
 import isEmpty from 'lodash/isEmpty';
 import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
-import { ApplicationTypes } from '../../constants';
+import { ApplicationTypes } from 'kolibri.coreVue.vuex.constants';
 
 export function cachedTopicPath(state) {
   return function getPath(id) {
