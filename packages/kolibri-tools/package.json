@@ -33,7 +33,7 @@
     "commander": "^10.0.0",
     "core-js": "3",
     "css-loader": "6.7.3",
-    "css-minimizer-webpack-plugin": "4.2.2",
+    "css-minimizer-webpack-plugin": "5.0.0",
     "csv-parse": "^5.3.6",
     "csv-writer": "^1.3.0",
     "del": "^6.1.1",
