@@ -89,7 +89,7 @@ extra_fields_schema = {
     "properties": {
         "facility": {"type": "object", "optional": True},
         "on_my_own_setup": {"type": "boolean", "optional": True},
-        "pin_code": {"type": "string", "optional": True},
+        "pin_code": {"type": ["string", "null"], "optional": True},
     },
 }
 

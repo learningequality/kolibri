@@ -3,6 +3,7 @@ Tests related specifically to the FacilityDataset model.
 """
 import uuid
 
+from django.core.exceptions import ValidationError
 from django.db.utils import IntegrityError
 from django.test import TestCase
 
@@ -134,6 +135,11 @@ class FacilityDatasetTestCase(TestCase):
             FacilityDataset.objects.create(
                 learner_can_edit_password=True, learner_can_login_with_no_password=True
             )
+
+    def test_null_pin_code(self):
+        facility_dataset = FacilityDataset(extra_fields={"pin_code": None})
+        with self.assertRaises(ValidationError):
+            facility_dataset.clean_fields()
 
 
 class MultipleDatasetAssignmentTestCase(TestCase):
