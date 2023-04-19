@@ -12,11 +12,11 @@ To fetch and build a new version of this package, the following workflow is sugg
 
 #. Install the `kolibri-proposed development PPA <https://launchpad.net/~learningequality/+archive/ubuntu/kolibri-proposed>`__
 #. Enable source repositories in ``/etc/apt/sources.list.d/learningequality-ubuntu-kolibri-proposed*``
-#. Run ``apt update``
+#. Run ``sudo apt update``
 #. Fetch the latest source package: ``apt source kolibri-server``
-#. Run ``dch`` to edit the changelog
-#. Make changes in ``<unpakced-package>/debian`` and run ``debuild`` in order to test a new build.
-#. Copy your changed files in ``<unpakced-package>/debian`` to your git checkout
+#. Run ``dch`` to edit the changelog. If ``dch`` is not available, then install: ``sudo apt install devscripts``
+#. Make changes in ``<unpacked-package>/debian`` and run ``debuild`` in order to test a new build.
+#. Copy your changed files in ``<unpacked-package>/debian`` to your git checkout
 #. Create a PR
 
 You can optimize this workflow according to your own needs.
@@ -29,11 +29,11 @@ Working in the repo
 You can also make changes in the cloned repository in the following workflow:
 
 #. Make your changes
-#. Run `dch`, carefully noting your release notes
-#. Build the package with `make dist`
-#. Test the package with  `sudo dpkg -i ../kolibri-server_VERSION.deb`
-#. If you have further changes, you can keep editing and invoking `make dist`
-#. Finally, commit your changes and open a PR, including your entry in `debian/changelog`
+#. Run ``dch``, carefully noting your release notes. 
+#. Build the package with ``make dist``
+#. Test the package with  ``sudo dpkg -i ../kolibri-server_VERSION.deb``
+#. If you have further changes, you can keep editing and invoking ``make dist``
+#. Finally, commit your changes and open a PR, including your entry in ``debian/changelog``
 
 Releasing
 ---------
@@ -60,4 +60,4 @@ Configuration
 
 You can configure the behavior of the UWSGI workers, by adding ``.ini`` files to ``/etc/kolibri/uwsgi.d/``.
 
-If you can configure the main Nginx site and overwrite defaults by adding ``.conf`` files in to ``/etc/kolibri/nginx.d/``.
+You can configure the main Nginx site and overwrite defaults by adding ``.conf`` files in to ``/etc/kolibri/nginx.d/``.
