@@ -10,45 +10,6 @@
         {{ $tr('pleaseWaitMessage') }}
       </p>
     </main>
-    <div
-      v-if="devMode"
-      style="
-        z-index: 9999;
-        position: absolute;
-        left: 1em;
-        right: 1em;
-        bottom: 1em;
-        top: 1em;
-        background-color: rgba(0, 0, 0, 0.86);
-        padding: 2em;
-        color: white;
-        font-weight: bold;
-        overflow: auto;
-      "
-    >
-      <h2>Setup Wizard Debugger 3000</h2>
-      <h3>Device Provisioning Data</h3>
-      <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
-      <KButtonGroup
-        style="
-          position: fixed;
-          top: 2em;
-          right: 3em;
-        "
-      >
-        <KButton
-          icon="back"
-          text="START OVER"
-          @click="wizardService.send('START_OVER')"
-        />
-        <KButton
-          primary
-          iconAfter="forward"
-          text="Continue and Finish"
-          @click="provisionDevice()"
-        />
-      </KButtonGroup>
-    </div>
   </div>
 
 </template>
@@ -71,11 +32,6 @@
     name: 'SettingUpKolibri',
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
-    data() {
-      return {
-        devMode: process.NODE_ENV !== 'production',
-      };
-    },
     computed: {
       facilityData() {
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
@@ -184,11 +140,7 @@
       },
     },
     mounted() {
-      if (this.devMode) {
-        return null; // debugger activated, don't do anything
-      } else {
-        this.provisionDevice();
-      }
+      this.provisionDevice();
     },
     methods: {
       // A helper for readability
