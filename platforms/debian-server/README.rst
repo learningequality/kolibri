@@ -15,7 +15,7 @@ To fetch and build a new version of this package, the following workflow is sugg
 #. Run ``sudo apt update``
 #. Fetch the latest source package: ``apt source kolibri-server``
 #. Run ``dch`` to edit the changelog. If ``dch`` is not available, then install: ``sudo apt install devscripts``
-#. Make changes in ``<unpacked-package>/debian`` and run ``debuild`` in order to test a new build.
+#. Make changes in ``<unpacked-package>/debian`` and run ``dpkg-buildpackage`` in order to test a new build.
 #. Copy your changed files in ``<unpacked-package>/debian`` to your git checkout
 #. Create a PR
 
