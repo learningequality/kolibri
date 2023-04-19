@@ -40,11 +40,11 @@ then
   unset VIRTUAL_ENV
 fi
 
-if [ "$BUILD_BINARY" -eq "0" ]; then
+if [[ "$BUILD_BINARY" -eq "0" ]]; then
     # build source package only
    dpkg-buildpackage -S || { echo "Not signing the sources: GPG secret key for $DEBEMAIL is not available" ; }
 else
     # build with unsigned source, changes and gzip compression
-    dpkg-buildpackage -Zgzip -z3 -us -uc
+    dpkg-buildpackage -A -Zgzip -z3 -us -uc
 fi
 
