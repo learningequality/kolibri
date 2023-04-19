@@ -246,14 +246,6 @@ class FacilityDataset(FacilityDataSyncableModel):
             setattr(self, key, value)
         self.save()
 
-    def validate_pin_code(self):
-        if self.pin_code is None:
-            raise ValidationError("Pin code cannot be null!")
-
-    def clean_fields(self, exclude=None):
-        self.validate_pin_code()
-        super().clean_fields(exclude=exclude)
-
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
     """
