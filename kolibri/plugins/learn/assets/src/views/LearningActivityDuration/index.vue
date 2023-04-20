@@ -61,7 +61,7 @@
         displayEstimatedDuration,
         durationInSeconds,
         durationEstimation,
-        exerciseDescription
+        exerciseDescription,
       };
     },
     props: {

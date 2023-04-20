@@ -149,17 +149,17 @@ export default function useLearningActivities(contentNode) {
     );
 
     if (options_mastery_model) {
-      if (options_mastery_model == "do_all" && isPracticeQuiz) {
+      if (options_mastery_model == 'do_all' && isPracticeQuiz) {
         return coreStrings.$tr('practiceQuizLabel');
       }
-    } 
+    }
     if (assessmentmetadata_mastery_model) {
       if (assessmentmetadata_mastery_model.type.match(/num_correct_in_a_row_\d+/)) {
-          const count = assessmentmetadata_mastery_model.type.match(/\d+/)[0];
-          return coreStrings.$tr('shortExerciseGoalDescription', { count : count });
+        const count = assessmentmetadata_mastery_model.type.match(/\d+/)[0];
+        return coreStrings.$tr('shortExerciseGoalDescription', { count: count });
       } else {
         const m = assessmentmetadata_mastery_model.m;
-        return coreStrings.$tr('shortExerciseGoalDescription', { count : m });
+        return coreStrings.$tr('shortExerciseGoalDescription', { count: m });
       }
     }
   });

@@ -54,12 +54,12 @@
         }
         return true;
       },
-      checkIfExercise(){
-        if (this.contentNode.kind === "exercise") {
+      checkIfExercise() {
+        if (this.contentNode.kind === 'exercise') {
           return true;
         }
         return false;
-      }
+      },
     },
   };
 
