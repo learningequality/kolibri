@@ -251,6 +251,7 @@ class Transfer(object):
         remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
+        retry_wait=30,
     ):
         self.source = source
         self.dest = dest
@@ -258,6 +259,7 @@ class Transfer(object):
         self.checksum = checksum
         self.block_size = BLOCK_SIZE
         self.timeout = timeout
+        self.retry_wait = retry_wait
         self.started = False
         self.completed = False
         self.finalized = False
@@ -491,8 +493,12 @@ class FileDownload(Transfer):
         super(FileDownload, self).close()
 
     def resume(self):
-        logger.info("Waiting 30s before retrying import: {}".format(self.source))
-        for i in range(30):
+        logger.info(
+            "Waiting {}s before retrying import: {}".format(
+                self.retry_wait, self.source
+            )
+        )
+        for i in range(self.retry_wait):
             if self.cancel_check():
                 logger.info("Canceling import: {}".format(self.source))
                 return
