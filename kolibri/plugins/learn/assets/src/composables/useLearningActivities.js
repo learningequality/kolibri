@@ -137,20 +137,28 @@ export default function useLearningActivities(contentNode) {
    */
   const exerciseDescription = computed(() => {
     const isPracticeQuiz = lodashGet(contentNode, ['options', 'modality'], false) === 'QUIZ';
-    const mastery_model = lodashGet(
+    const options_mastery_model = lodashGet(
       contentNode,
       ['options', 'completion_criteria', 'threshold', 'mastery_model'],
       false
     );
+    const assessmentmetadata_mastery_model = lodashGet(
+      contentNode,
+      ['assessmentmetadata', 'mastery_model'],
+      false
+    );
 
-    if (mastery_model) {
-      if (mastery_model == "do_all" && isPracticeQuiz) {
+    if (options_mastery_model) {
+      if (options_mastery_model == "do_all" && isPracticeQuiz) {
         return coreStrings.$tr('practiceQuizLabel');
-      } else if (mastery_model.match(/num_correct_in_a_row_\d+/)) {
-        const count = mastery_model.match(/\d+/)[0];
-        return coreStrings.$tr('shortExerciseGoalDescription', { count : count });
-      } else if (mastery_model == "m_of_n" || mastery_model == "do_all") {
-        const m = contentNode.assessmentmetadata.mastery_model.m;
+      }
+    } 
+    if (assessmentmetadata_mastery_model) {
+      if (assessmentmetadata_mastery_model.type.match(/num_correct_in_a_row_\d+/)) {
+          const count = assessmentmetadata_mastery_model.type.match(/\d+/)[0];
+          return coreStrings.$tr('shortExerciseGoalDescription', { count : count });
+      } else {
+        const m = assessmentmetadata_mastery_model.m;
         return coreStrings.$tr('shortExerciseGoalDescription', { count : m });
       }
     }
