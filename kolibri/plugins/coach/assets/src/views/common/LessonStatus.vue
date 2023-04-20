@@ -110,7 +110,7 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
@@ -151,6 +151,7 @@
         showLessonIsNotVisibleModal: false,
         activeLesson: null,
         dontShowAgainChecked: false,
+        learnOnlyDevicesExist: false,
       };
     },
     computed: {
@@ -170,7 +171,21 @@
         return Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
       },
     },
+    mounted() {
+      this.checkIfAnyLODsInClass();
+    },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      // modal about lesson sizes should only exist of LODs exist in the class
+      // which we are checking via if there have recently been any user syncs
+      // TODO: refactor to a more robust check
+      checkIfAnyLODsInClass() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (data && data.length > 0) {
+            this.learnOnlyDevicesExist = true;
+          }
+        });
+      },
       handleToggleVisibility() {
         const newActiveState = !this.lesson[this.activeKey];
         const snackbarMessage = newActiveState
@@ -197,7 +212,7 @@
         // has the user set their preferences to not have a modal confirmation?
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
-        if (!hideModalConfirmation) {
+        if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
           if (lesson.is_active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
@@ -221,7 +236,7 @@
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
           let size = this.lessonsSizes[0][lessonId];
-          size = bytesForHumans(size);
+          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
           return size;
         }
         return '--';

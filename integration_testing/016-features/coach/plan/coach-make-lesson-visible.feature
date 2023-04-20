@@ -7,7 +7,7 @@ Feature: Coach makes lessons visible
       And I see the table of lessons which includes <lesson>
       And in the second browser or an incognito tab I am signed in as a learner on *Learn > Classes > '<class>'*
 
-  Scenario: Coach turns ON the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch in the column *Visible to learners* for the lesson <lesson> is in the OFF position (gray)
       When I click the switch for <lesson>
       Then I see the switch slide in the ON position (green)
@@ -15,20 +15,42 @@ Feature: Coach makes lessons visible
       When I reload the browser as a learner
         Then I see the lesson '<lesson>'
 
-  Scenario: Coach turns OFF the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch in the column *Visible to learners* for the lesson <lesson> is in the OFF position (gray)
+      And there are learners using Learn-only Devices in this class
+      When I click the switch for <lesson>
+      Then I see the switch slide in the ON position (green)
+        And I see a modal open that says *Make lesson visible* and displays the total size in bytes of the current lesson
+      When I click *Continue*
+      Then I see a snackbar notification that says *Lesson is visible to learners*
+      When I reload the browser as a learner
+      Then I see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch in the column *Visible to learners* for the lesson <lesson> is in the ON position (green)
       When I click the switch for <lesson>
       Then I see the switch slide in the OFF position (gray)
         And I see a snackbar notification that says *Lesson is not visible to learners*
       When I reload the browser as a learner
         Then I don't see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch in the column *Visible to learners* for the lesson <lesson> is in the ON position (green)
+      And there are learners using Learn-only Devices in this class
+      When I click the switch for <lesson>
+      Then I see the switch slide in the OFF position (gray)
+        And I see a modal open that says *Make lesson not visible*
+      When I click *Continue*
+      Then I see a snackbar notification that says *Lesson is visible to learners*
+      When I reload the browser as a learner
+      Then I don't see the lesson '<lesson>'
 
   Background:
     Given I am signed in to kolibri as coach user
       And I am on *Coach - '<class>' > Report > Lessons* page
       And I see the table of lessons which includes <lesson>
 
-  Scenario: Coach turns ON the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch in the column *Visible to learners* for the lesson <lesson> is in the OFF position (gray)
       When I click the switch for <lesson>
       Then I see the switch slide in the ON position (green)
@@ -36,7 +58,18 @@ Feature: Coach makes lessons visible
       When I reload the browser as a learner
         Then I see the lesson '<lesson>'
 
-  Scenario: Coach turns OFF the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch in the column *Visible to learners* for the lesson <lesson> is in the OFF position (gray)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the ON position (green)
+      And I see a modal open that says *Make lesson visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is visible to learners*
+    When I reload the browser as a learner
+    Then I see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch in the column *Visible to learners* for the lesson <lesson> is in the ON position (green)
       When I click the switch for <lesson>
       Then I see the switch slide in the OFF position (gray)
@@ -44,11 +77,22 @@ Feature: Coach makes lessons visible
       When I reload the browser as a learner
         Then I don't see the lesson '<lesson>'
 
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch in the column *Visible to learners* for the lesson <lesson> is in the ON position (green)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the OFF position (gray)
+      And I see a modal open that says *Make lesson not visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is not visible to learners*
+    When I reload the browser as a learner
+    Then I don't see the lesson '<lesson>'
+
   Background:
     Given I am signed in to Kolibri as a Coach user
       And I am on *Coach - '<class>' > Plan > Lessons > '<lesson>'* page
 
-  Scenario: Coach turns ON the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch *Visible to learners* is in the OFF position (gray)
       When I click the switch for <lesson>
       Then I see the switch slide in the ON position (green)
@@ -56,19 +100,42 @@ Feature: Coach makes lessons visible
       When I reload the browser as a learner
         Then I see the lesson '<lesson>'
 
-  Scenario: Coach turns OFF the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch *Visible to learners* is in the OFF position (gray)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the ON position (green)
+      And I see a modal open that says *Make lesson visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is visible to learners*
+    When I reload the browser as a learner
+    Then I see the lesson '<lesson>'
+
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch *Visible to learners* is in the ON position (green)
       When I click the switch for <lesson>
       Then I see the switch slide in the OFF position (gray)
         And I see a snackbar notification that says *Lesson is not visible to learners*
       When I reload the browser as a learner
         Then I don't see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch *Visible to learners* is in the ON position (green)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the OFF position (gray)
+      And I see a modal open that says *Make lesson not visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is not visible to learners*
+    When I reload the browser as a learner
+    Then I don't see the lesson '<lesson>'
 
   Background:
     Given I am signed in to Kolibri as a Coach user
       And I am on *Coach - '<class>' > Report > Lessons > '<lesson>'* page
 
-  Scenario: Coach turns ON the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch *Visible to learners* is in the OFF position (gray)
       When I click the switch for <lesson>
       Then I see the switch slide in the ON position (green)
@@ -76,13 +143,35 @@ Feature: Coach makes lessons visible
       When I reload the browser as a learner
         Then I see the lesson '<lesson>'
 
-  Scenario: Coach turns OFF the lesson *Visible for learners* status
+  Scenario: Coach turns ON the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch *Visible to learners* is in the OFF position (gray)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the ON position (green)
+      And I see a modal open that says *Make lesson visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is visible to learners*
+    When I reload the browser as a learner
+    Then I see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - no Learner Only Devices
     Given that switch *Visible to learners* is in the ON position (green)
       When I click the switch for <lesson>
       Then I see the switch slide in the OFF position (gray)
         And I see a snackbar notification that says *Lesson is not visible to learners*
       When I reload the browser as a learner
         Then I don't see the lesson '<lesson>'
+
+  Scenario: Coach turns OFF the lesson *Visible for learners* status - Learner Only Devices
+    Given that switch *Visible to learners* is in the ON position (green)
+      And there are learners using Learn-only Devices in this class
+    When I click the switch for <lesson>
+    Then I see the switch slide in the OFF position (gray)
+      And I see a modal open that says *Make lesson not visible*
+    When I click *Continue*
+    Then I see a snackbar notification that says *Lesson is not visible to learners*
+    When I reload the browser as a learner
+    Then I don't see the lesson '<lesson>'
 
 Examples:
 | lesson                |
