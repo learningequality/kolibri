@@ -5,7 +5,7 @@
   >
     <template #labels>
       <LearningActivityDuration
-        v-if="displayDurationChip"
+        v-if="checkIfExercise || displayDurationChip"
         :contentNode="contentNode"
         appearance="chip"
         class="duration"
@@ -54,6 +54,12 @@
         }
         return true;
       },
+      checkIfExercise(){
+        if (this.contentNode.kind === "exercise") {
+          return true;
+        }
+        return false;
+      }
     },
   };
 
