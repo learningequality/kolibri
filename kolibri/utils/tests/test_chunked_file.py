@@ -121,15 +121,51 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size
         end = self.chunk_size * 4 - 1
-        missing_ranges = list(
-            self.chunked_file.next_missing_chunk_for_range_generator(start, end)
-        )
+        missing_ranges = list(self.chunked_file.next_missing_chunk_and_seek(start, end))
 
         expected_ranges = [
             (self.chunk_size * 1, self.chunk_size * 2 - 1),
             (self.chunk_size * 3, self.chunk_size * 4 - 1),
         ]
         self.assertEqual(missing_ranges, expected_ranges)
+
+    def test_get_missing_chunk_ranges_whole_file(self):
+        # Remove some chunks
+        os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_1"))
+        os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_3"))
+
+        missing_ranges = list(self.chunked_file.next_missing_chunk_and_seek())
+
+        expected_ranges = [
+            (self.chunk_size * 1, self.chunk_size * 2 - 1),
+            (self.chunk_size * 3, self.chunk_size * 4 - 1),
+        ]
+        self.assertEqual(missing_ranges, expected_ranges)
+
+    def test_get_missing_chunk_ranges_seeking(self):
+        # Remove some chunks
+        os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_1"))
+        os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_3"))
+
+        start = self.chunk_size
+        end = self.chunk_size * 4 - 1
+        generator = self.chunked_file.next_missing_chunk_and_seek(start, end)
+
+        missing_range_1 = next(generator)
+
+        self.assertEqual(self.chunked_file.position, self.chunk_size)
+        self.assertEqual(self.chunked_file.position, missing_range_1[0])
+
+        missing_range_2 = next(generator)
+
+        self.assertEqual(self.chunked_file.position, self.chunk_size * 3)
+        self.assertEqual(self.chunked_file.position, missing_range_2[0])
+
+        expected_ranges = [
+            (self.chunk_size * 1, self.chunk_size * 2 - 1),
+            (self.chunk_size * 3, self.chunk_size * 4 - 1),
+        ]
+        self.assertEqual([missing_range_1, missing_range_2], expected_ranges)
 
     def test_finalize_file(self):
         self.chunked_file.finalize_file()

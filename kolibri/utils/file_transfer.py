@@ -186,15 +186,20 @@ class ChunkedFile(BufferedIOBase):
                 self.position += bytes_written
                 remaining -= bytes_written
 
-    def next_missing_chunk_for_range_generator(self, start=None, end=None):
+    def next_missing_chunk_and_seek(self, start=None, end=None):
+        """
+        Generator to yield the next missing chunk, and see the file to the position the chunk
+        should be written to.
+        """
         start_chunk = start // self.chunk_size if start is not None else 0
-        end_chunk = end // self.chunk_size if end is not None else self.chunks_count
+        end_chunk = end // self.chunk_size if end is not None else self.chunks_count - 1
 
         for chunk_index in range(start_chunk, end_chunk + 1):
             chunk_file = self._get_chunk_file_name(chunk_index)
             if not os.path.exists(chunk_file):
                 range_start = chunk_index * self.chunk_size
                 range_end = min(range_start + self.chunk_size - 1, self.file_size - 1)
+                self.seek(range_start)
 
                 yield (range_start, range_end)
 
