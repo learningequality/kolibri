@@ -2,9 +2,12 @@ kolibri-server (0.5.0~alpha-0ubuntu1) bionic; urgency=medium
 
   * Bumped python minimum version to 3.6
   * Added kolibri build dependency to automate error pages creation (Closes: #96)
-  * debian/rules modified to automate error pages creation
+  * debian/rules:
+    - modified to automate error pages creation
+    - force gzip compression for old OS compatibility
   * debian/compat bumped to version 10
   * Improved README.rst file (thanks to Shrenik Bhura)
+  * nginx.conf takes into account new kolibri LISTEN_ADDRESS option (Closes: #95)
 
  -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 19 Apr 2023 19:52:27 +0200
 

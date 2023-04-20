@@ -18,6 +18,7 @@ port = OPTIONS["Deployment"]["HTTP_PORT"]
 zip_content_port = OPTIONS["Deployment"]["ZIP_CONTENT_PORT"]
 path_prefix = OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 redis_db = OPTIONS["Cache"]["CACHE_REDIS_DB"]
+listen_address = OPTIONS["Deployment"]["LISTEN_ADDRESS"]
 
 if path_prefix != "/":
     path_prefix = "/" + path_prefix
@@ -142,13 +143,20 @@ def check_redis_service():
     return status
 
 
-def save_nginx_conf_port(port, zip_port, nginx_conf=None):
+def save_nginx_conf_port(port, zip_port, listen_address="0.0.0.0", nginx_conf=None):
     """
      Adds the port for nginx to run to an existing config file.
     """
 
     if nginx_conf is None:
         nginx_conf = os.path.join(KOLIBRI_HOME, "nginx.conf")
+
+    if listen_address != "0.0.0.0":
+        address_port = "{}:{}".format(listen_address, port)
+        address_zip_port = "{}:{}".format(listen_address, zip_port)
+    else:
+        address_port = port
+        address_zip_port = zip_port
 
     configuration = (
         "# This file is maintained AUTOMATICALLY and will be overwritten\n"
@@ -180,7 +188,7 @@ def save_nginx_conf_port(port, zip_port, nginx_conf=None):
         "    uwsgi_pass unix:///tmp/kolibri_hashi_uwsgi.sock;\n"
         "  }}\n"
         "}}\n"
-    ).format(port=port, path_prefix=path_prefix, zip_port=zip_port)
+    ).format(port=address_port, path_prefix=path_prefix, zip_port=address_zip_port)
 
     with open(nginx_conf, "w") as nginx_conf_file:
         nginx_conf_file.write(configuration)
@@ -215,6 +223,6 @@ if __name__ == "__main__":
             enable_redis_cache()
         else:
             disable_redis_cache()
-        save_nginx_conf_port(port, zip_content_port)
+        save_nginx_conf_port(port, zip_content_port, listen_address)
         # Let's update debconf, just in case the user has changed the port in options.ini:
         set_debconf_ports(port, zip_content_port)
