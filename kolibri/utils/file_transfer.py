@@ -1,5 +1,6 @@
 import hashlib
 import logging
+import math
 import os
 import shutil
 from io import BufferedIOBase
@@ -75,6 +76,170 @@ def retry_import(e):
     return False
 
 
+# Set block size to 128KB
+# the previous value of 2MB was set to avoid frequent progress
+# updates during file transfer, but since file transfers
+# have been parallelized, and individual file downloads are not tracked
+# except as part of overall download progress, this is no longer necessary.
+# 128KB allows for small chunks of files to be transferred
+# with the potential for interruption, while still allowing
+# for a reasonable amount of data to be transferred in one go.
+# This will also reduce memory usage when transferring large files.
+BLOCK_SIZE = 128 * 1024
+
+
+class ChunkedFile(BufferedIOBase):
+    def __init__(self, filepath):
+        self.filepath = filepath
+        self.chunk_dir = filepath + ".chunks"
+        os.makedirs(self.chunk_dir, exist_ok=True)
+        self.chunk_size = BLOCK_SIZE
+        self.position = 0
+        self._file_size = None
+
+    @property
+    def chunks_count(self):
+        return int(math.ceil(float(self.file_size) / float(self.chunk_size)))
+
+    @property
+    def file_size(self):
+        if self._file_size is not None:
+            return self._file_size
+        try:
+            with open(os.path.join(self.chunk_dir, ".file_size"), "r") as f:
+                self._file_size = int(f.read())
+        except (OSError, IOError, ValueError):
+            raise ValueError("file_size is not set")
+        return self._file_size
+
+    @file_size.setter
+    def file_size(self, value):
+        with open(os.path.join(self.chunk_dir, ".file_size"), "w") as f:
+            f.write(str(value))
+            self._file_size = value
+
+    def _get_chunk_file_name(self, index):
+        return os.path.join(self.chunk_dir, ".chunk_{index}".format(index=index))
+
+    def seek(self, offset, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            self.position = offset
+        elif whence == os.SEEK_CUR:
+            self.position += offset
+        elif whence == os.SEEK_END:
+            self.position = self.file_size + offset
+        else:
+            raise ValueError("Invalid whence value")
+
+        self.position = min(self.file_size, max(0, self.position))
+
+    def read(self, size=-1):
+        if size < 0:
+            size = self.file_size - self.position
+
+        remaining = size
+        data_parts = []
+
+        while remaining > 0:
+            chunk_index = self.position // self.chunk_size
+            chunk_file = self._get_chunk_file_name(chunk_index)
+
+            with open(chunk_file, "rb") as f:
+                f.seek(self.position % self.chunk_size)
+                chunk_data = f.read(min(remaining, self.chunk_size))
+                data_parts.append(chunk_data)
+
+                self.position += len(chunk_data)
+                remaining -= len(chunk_data)
+
+        return b"".join(data_parts)
+
+    def write(self, data):
+        remaining = len(data)
+
+        if self.position + remaining > self.file_size:
+            raise EOFError("Cannot write past end of file")
+
+        while remaining > 0:
+            chunk_index = self.position // self.chunk_size
+            chunk_file = self._get_chunk_file_name(chunk_index)
+            current_chunk_file_size = (
+                os.path.getsize(chunk_file) if os.path.exists(chunk_file) else 0
+            )
+
+            with open(chunk_file, "ab") as f:
+                chunk_position = self.position % self.chunk_size
+                amount_to_write = min(remaining, self.chunk_size - chunk_position)
+                if chunk_position < current_chunk_file_size:
+                    diff = current_chunk_file_size - chunk_position
+                    chunk_position += diff
+                    self.position += diff
+                    amount_to_write -= diff
+                    remaining -= diff
+                f.seek(chunk_position)
+                bytes_written = f.write(
+                    data[
+                        len(data) - remaining : len(data) - remaining + amount_to_write
+                    ]
+                )
+
+                self.position += bytes_written
+                remaining -= bytes_written
+
+    def next_missing_chunk_for_range_generator(self, start=None, end=None):
+        start_chunk = start // self.chunk_size if start is not None else 0
+        end_chunk = end // self.chunk_size if end is not None else self.chunks_count
+
+        for chunk_index in range(start_chunk, end_chunk + 1):
+            chunk_file = self._get_chunk_file_name(chunk_index)
+            if not os.path.exists(chunk_file):
+                range_start = chunk_index * self.chunk_size
+                range_end = min(range_start + self.chunk_size - 1, self.file_size - 1)
+
+                yield (range_start, range_end)
+
+    def finalize_file(self):
+        if not self.is_complete():
+            raise ValueError("Cannot combine chunks: Not all chunks are complete")
+
+        with open(self.filepath, "wb") as output_file:
+            for chunk_index in range(self.chunks_count):
+                chunk_file = self._get_chunk_file_name(chunk_index)
+                with open(chunk_file, "rb") as input_file:
+                    shutil.copyfileobj(input_file, output_file)
+
+    def is_complete(self):
+        for chunk_index in range(self.chunks_count):
+            chunk_file = self._get_chunk_file_name(chunk_index)
+            if not os.path.exists(chunk_file):
+                return False
+
+            # Check for correct chunk size
+            expected_chunk_size = (
+                self.chunk_size
+                if chunk_index < self.chunks_count - 1
+                else (self.file_size - (self.chunk_size * chunk_index))
+            )
+            if os.path.getsize(chunk_file) != expected_chunk_size:
+                return False
+
+        return True
+
+    def md5_checksum(self):
+        if not self.is_complete():
+            raise ValueError("Cannot calculate MD5: Not all chunks are complete")
+        md5 = hashlib.md5()
+        for chunk_index in range(self.chunks_count):
+            chunk_file = self._get_chunk_file_name(chunk_index)
+            with open(chunk_file, "rb") as f:
+                while True:
+                    data = f.read(8192)
+                    if not data:
+                        break
+                    md5.update(data)
+        return md5.hexdigest()
+
+
 class Transfer(object):
     DEFAULT_TIMEOUT = 60
 
@@ -83,7 +248,6 @@ class Transfer(object):
         source,
         dest,
         checksum=None,
-        block_size=2097152,
         remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
@@ -92,7 +256,7 @@ class Transfer(object):
         self.dest = dest
         self.dest_tmp = dest + ".transfer"
         self.checksum = checksum
-        self.block_size = block_size
+        self.block_size = BLOCK_SIZE
         self.timeout = timeout
         self.started = False
         self.completed = False
