@@ -3,6 +3,9 @@ import logging
 import math
 import os
 import shutil
+from abc import ABCMeta
+from abc import abstractmethod
+from contextlib import contextmanager
 from io import BufferedIOBase
 from time import sleep
 
@@ -11,6 +14,7 @@ from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
+from six import with_metaclass
 
 
 try:
@@ -27,7 +31,7 @@ except NameError:
     FileNotFoundError = IOError
 
 
-RETRY_STATUS_CODE = [502, 503, 504, 521, 522, 523, 524]
+RETRY_STATUS_CODE = {502, 503, 504, 521, 522, 523, 524}
 
 
 logger = logging.getLogger(__name__)
@@ -244,8 +248,20 @@ class ChunkedFile(BufferedIOBase):
                     md5.update(data)
         return md5.hexdigest()
 
+    def delete(self):
+        shutil.rmtree(self.chunk_dir)
 
-class Transfer(object):
+    def close(self):
+        pass
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, traceback):
+        self.close()
+
+
+class Transfer(with_metaclass(ABCMeta)):
     DEFAULT_TIMEOUT = 60
 
     def __init__(
@@ -253,31 +269,44 @@ class Transfer(object):
         source,
         dest,
         checksum=None,
-        remove_existing_temp_file=True,
         timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
         retry_wait=30,
+        # Allow a transfer to specify start and end ranges for transfers
+        # this allows proxying range requests for streamed files, and also
+        # allows for parallelizing transfers of large files.
+        range_start=None,
+        range_end=None,
+        # A flag to allow the download to remain in the chunked file directory
+        # for easier clean up when it is just a temporary download.
+        finalize_download=True,
     ):
         self.source = source
         self.dest = dest
-        self.dest_tmp = dest + ".transfer"
         self.checksum = checksum
         self.block_size = BLOCK_SIZE
         self.timeout = timeout
         self.retry_wait = retry_wait
+        self._headers_set = False
         self.started = False
         self.completed = False
         self.finalized = False
         self.closed = False
+        self.finalize_download = finalize_download
+        self.transfer_size = None
         if cancel_check and not callable(cancel_check):
             raise AssertionError("cancel_check must be callable")
         self._cancel_check = cancel_check
 
-        # TODO (aron): Instead of using signals, have bbq/iceqube add
-        # hooks that the app calls every so often to determine whether it
-        # should shut down or not.
-        # signal.signal(signal.SIGINT, self._kill_gracefully)
-        # signal.signal(signal.SIGTERM, self._kill_gracefully)
+        if range_start is not None and not isinstance(range_start, int):
+            raise TypeError("range_start must be an integer")
+
+        self.range_start = range_start
+
+        if range_end is not None and not isinstance(range_end, int):
+            raise TypeError("range_end must be an integer")
+
+        self.range_end = range_end
 
         if os.path.isdir(dest):
             raise AssertionError(
@@ -285,44 +314,29 @@ class Transfer(object):
             )
 
         # ensure the directories in the destination path exist
-        try:
-            filedir = os.path.dirname(self.dest)
-            os.makedirs(filedir)
-        except OSError as e:
-            if e.errno == 17:  # File exists (folder already created)
-                logger.debug(
-                    "Not creating directory '{}' as it already exists.".format(filedir)
-                )
-            else:
-                raise
+        os.makedirs(os.path.dirname(self.dest), exist_ok=True)
 
-        if os.path.isfile(self.dest_tmp):
-            if remove_existing_temp_file:
-                try:
-                    os.remove(self.dest_tmp)
-                except OSError:
-                    pass
-            else:
-                raise ExistingTransferInProgress(
-                    "Temporary transfer destination '{}' already exists!".format(
-                        self.dest_tmp
-                    )
-                )
+        self.chunked_file_obj = ChunkedFile(self.dest)
 
-        # record whether the destination file already exists, so it can be checked, but don't error out
-        self.dest_exists = os.path.isfile(dest)
-
-        self.hasher = hashlib.md5()
-
+    @abstractmethod
     def start(self):
-        # open the destination file for writing
-        self.dest_file_obj = open(self.dest_tmp, "wb")
+        pass
+
+    @property
+    def total_size(self):
+        return self.chunked_file_obj.file_size
+
+    @total_size.setter
+    def total_size(self, value):
+        self.chunked_file_obj.file_size = value
+        if self.transfer_size is None:
+            self.transfer_size = value
 
     def cancel_check(self):
         return self._cancel_check and self._cancel_check()
 
-    def _set_iterator(self):
-        if not hasattr(self, "_content_iterator"):
+    def _set_iterator(self, force=False):
+        if force or not hasattr(self, "_content_iterator"):
             self._content_iterator = self._get_content_iterator()
 
     def __next__(self):  # proxy this method to fully support Python 3
@@ -332,13 +346,14 @@ class Transfer(object):
         self._set_iterator()
         return self
 
+    @abstractmethod
     def _get_content_iterator(self):
-        raise NotImplementedError(
-            "Transfer subclass must implement a _get_content_iterator method"
-        )
+        pass
 
     def next(self):
         self._set_iterator()
+        if self.cancel_check():
+            self._kill_gracefully()
         try:
             chunk = next(self._content_iterator)
         except StopIteration:
@@ -346,13 +361,12 @@ class Transfer(object):
             self.close()
             self.finalize()
             raise
-        self.dest_file_obj.write(chunk)
-        self.hasher.update(chunk)
+        self.chunked_file_obj.write(chunk)
         return chunk
 
     def _move_tmp_to_dest(self):
         try:
-            shutil.move(self.dest_tmp, self.dest)
+            self.chunked_file_obj.finalize_file()
         except FileNotFoundError as e:
             if not os.path.exists(self.dest):
                 raise e
@@ -372,15 +386,16 @@ class Transfer(object):
         raise TransferCanceled("The transfer was canceled.")
 
     def cancel(self):
+        logger.info("Canceling import: {}".format(self.source))
         self.close()
         try:
-            os.remove(self.dest_tmp)
+            self.chunked_file_obj.delete()
         except OSError:
             pass
         self.canceled = True
 
     def _checksum_correct(self):
-        return self.hasher.hexdigest() == self.checksum
+        return self.chunked_file_obj.md5_checksum() == self.checksum
 
     def _verify_checksum(self):
         # If checksum of the destination file is different from the localfile
@@ -391,7 +406,7 @@ class Transfer(object):
             e = "File {} is corrupted.".format(self.source)
             logger.error("An error occurred during content import: {}".format(e))
             try:
-                os.remove(self.dest_tmp)
+                self.chunked_file_obj.delete()
             except OSError:
                 pass
             raise TransferFailed(
@@ -410,11 +425,12 @@ class Transfer(object):
         if self.finalized:
             return
         self._verify_checksum()
-        self._move_tmp_to_dest()
-        self.finalized = True
+        if self.finalize_download:
+            self._move_tmp_to_dest()
+            self.finalized = True
 
     def close(self):
-        self.dest_file_obj.close()
+        self.chunked_file_obj.close()
         self.closed = True
 
 
@@ -428,69 +444,94 @@ class FileDownload(Transfer):
             # initialize a fresh requests session, if one wasn't provided
             self.session = requests.Session()
 
-        # Record the size of content that has been transferred
-        self.transferred_size = 0
+        self.byte_range_requests_supported = False
+
+        self.compressed = False
 
         super(FileDownload, self).__init__(*args, **kwargs)
 
-    def start(self):
-        super(FileDownload, self).start()
-        # initiate the download, check for status errors, and calculate download size
+    @contextmanager
+    def _catch_exception_and_retry(self):
         try:
-            self.response = self.session.get(
-                self.source, stream=True, timeout=self.timeout
-            )
-            self.response.raise_for_status()
+            yield
         except Exception as e:
             retry = retry_import(e)
             if not retry:
                 raise
             # Catch exceptions to check if we should resume file downloading
+            logger.error("Error reading download stream: {}".format(e))
             self.resume()
-            if self.cancel_check():
-                self._kill_gracefully()
+
+    def _set_headers(self):
+        if self._headers_set:
+            return
+
+        response = self.session.head(self.source, timeout=self.timeout)
+        response.raise_for_status()
+
+        self.compressed = bool(response.headers.get("content-encoding", ""))
+        # Use Accept-Ranges and Content-Length header to check if range
+        # requests are supported. For example, range requests are
+        # supported on compressed files, but the files cannot be decoded
+        # because of the missing gzip header.
+        self.byte_range_requests_supported = (
+            "bytes" in response.headers.get("accept-ranges", "")
+            and not self.compressed
+            and "content-length" in response.headers
+        )
 
         try:
-            self.total_size = int(self.response.headers["content-length"])
+            self.total_size = int(response.headers["content-length"])
         except KeyError:
             # When a compressed file is saved on Google Cloud Storage,
             # content-length is not available in the header,
             # but we can use X-Goog-Stored-Content-Length.
-            gcs_content_length = self.response.headers.get(
-                "X-Goog-Stored-Content-Length"
-            )
+            gcs_content_length = response.headers.get("X-Goog-Stored-Content-Length")
             if gcs_content_length:
-                self.total_size = int(gcs_content_length)
-            else:
-                # Get size of response content when file is compressed through nginx.
+                self.transfer_size = int(gcs_content_length)
+        self._headers_set = True
+
+    def start(self):
+        # initiate the download, check for status errors, and calculate download size
+        with self._catch_exception_and_retry():
+            self._set_headers()
+            self.started = True
+            self._set_iterator(force=True)
+            if not self.byte_range_requests_supported:
+                self.response.raise_for_status()
                 self.total_size = len(self.response.content)
 
-        self.started = True
+    def next_missing_chunk_range_generator(self):
+        for start_byte, end_byte in self.chunked_file_obj.next_missing_chunk_and_seek(
+            start=self.range_start, end=self.range_end
+        ):
+            response = self.session.get(
+                self.source,
+                headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
+                stream=True,
+                timeout=self.timeout,
+            )
+            response.raise_for_status()
+
+            for chunk in response.iter_content(self.block_size):
+                yield chunk
 
     def _get_content_iterator(self):
         if not self.started:
             raise AssertionError(
                 "File download must be started before it can be iterated."
             )
+        if self.byte_range_requests_supported:
+            return self.next_missing_chunk_range_generator()
+        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         return self.response.iter_content(self.block_size)
 
     def next(self):
-        if self.cancel_check():
-            self._kill_gracefully()
-
-        try:
-            chunk = super(FileDownload, self).next()
-            self.transferred_size = self.transferred_size + len(chunk)
-            return chunk
-        except StopIteration:
-            raise
-        except Exception as e:
-            retry = retry_import(e)
-            if not retry:
-                raise
-            logger.error("Error reading download stream: {}".format(e))
-            self.resume()
-            return self.next()
+        output = None
+        while not output:
+            with self._catch_exception_and_retry():
+                output = super(FileDownload, self).next()
+        return output
 
     def close(self):
         if hasattr(self, "response"):
@@ -505,55 +546,10 @@ class FileDownload(Transfer):
         )
         for i in range(self.retry_wait):
             if self.cancel_check():
-                logger.info("Canceling import: {}".format(self.source))
-                return
+                self._kill_gracefully()
             sleep(1)
 
-        try:
-
-            byte_range_resume = None
-            # When internet connection is lost at the beginning of start(),
-            # self.response does not get an assigned value
-            if hasattr(self, "response"):
-                # Use Accept-Ranges and Content-Length header to check if range
-                # requests are supported. For example, range requests are not
-                # supported on compressed files
-                byte_range_resume = self.response.headers.get(
-                    "accept-ranges", None
-                ) and self.response.headers.get("content-length", None)
-                resume_headers = self.response.request.headers
-
-                # Only use byte-range file resuming when sources support range requests
-                if byte_range_resume:
-                    range_headers = {"Range": "bytes={}-".format(self.transferred_size)}
-                    resume_headers.update(range_headers)
-
-                self.response = self.session.get(
-                    self.source,
-                    headers=resume_headers,
-                    stream=True,
-                    timeout=self.timeout,
-                )
-            else:
-                self.response = self.session.get(
-                    self.source, stream=True, timeout=self.timeout
-                )
-            self.response.raise_for_status()
-            self._content_iterator = self.response.iter_content(self.block_size)
-
-            # Remove the existing content in dest_file_object when range requests are not supported
-            if byte_range_resume is None:
-                self.dest_file_obj.seek(0)
-                self.dest_file_obj.truncate()
-                # Reset our ongoing file hash
-                self.hasher = hashlib.md5()
-        except Exception as e:
-            logger.error("Error reading download stream: {}".format(e))
-            retry = retry_import(e)
-            if not retry:
-                raise
-
-            self.resume()
+        self.start()
 
 
 class FileCopy(Transfer):
@@ -562,7 +558,6 @@ class FileCopy(Transfer):
             raise AssertionError(
                 "File copy has already been started, and cannot be started again"
             )
-        super(FileCopy, self).start()
         self.total_size = os.path.getsize(self.source)
         self.source_file_obj = open(self.source, "rb")
         self.started = True
