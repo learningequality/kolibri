@@ -2,9 +2,9 @@
 
   <!-- eslint-disable vue/html-indent -->
 
-  <KGrid v-if="pinnedDevices !== null">
+  <KGrid v-if="devices !== null">
     <KGridItem
-      v-for="device in pinnedDevices"
+      v-for="device in devices"
       :key="device.id"
     >
       <KGridItem>
@@ -21,13 +21,13 @@
             :contents="device.channels"
             :isRemote="true"
           >
-          <KGridItem :layout="{ span: cardColumnSpan, alignment: 'auto' }">
+            <KGridItem :layout="{ span: cardColumnSpan, alignment: 'auto' }">
               <ExploreCard
                 :style="cardStyle"
                 :deviceId="device.id"
               />
-          </KGridItem>
-        </ChannelCardGroupGrid>
+            </KGridItem>
+          </ChannelCardGroupGrid>
         </div>
       </div>
 
@@ -42,7 +42,6 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDevices from './../../composables/useDevices';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
   import ExploreCard from './ExploreCard';
 
@@ -55,22 +54,19 @@
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
       const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
-      const { baseurl, fetchDevices } = useDevices();
       return {
         windowBreakpoint,
-        fetchDevices,
-        baseurl,
         windowGutter,
       };
     },
     props: {
-      pinnedDevices: {
+      devices: {
         type: Array,
         required: true,
+        default() {
+          return [];
+        },
       },
-    },
-    data() {
-      return {};
     },
     computed: {
       cardStyle() {
