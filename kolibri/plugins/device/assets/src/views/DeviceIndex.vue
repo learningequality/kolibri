@@ -10,7 +10,7 @@
 
     <transition name="delay-entry">
       <PinAuthenticationModal
-        v-if="showModal && requirePinAuthentication"
+        v-if="showModal && authenticateWithPin"
         @submit="submit"
         @cancel="closePinModal"
       />
@@ -56,7 +56,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        showModal: true,
+        showModal: false,
         currentFacility: {},
       };
     },
@@ -91,14 +91,6 @@
       pageName() {
         return this.$route.name;
       },
-      requirePinAuthentication() {
-        if (this.isPinSet) {
-          return this.authenticateWithPin;
-        } else {
-          this.showDevicesPage();
-          return false;
-        }
-      },
     },
     watch: {
       facilities(newValue) {
@@ -108,6 +100,15 @@
           facilityDatasetId: dataset.id, //Required for pin authentication
         });
       },
+      isPinSet: {
+        handler(newValue) {
+          if (!newValue) {
+            this.grantPluginAccess();
+          }
+          this.showModal = newValue && this.authenticateWithPin;
+        },
+        deep: true,
+      },
     },
     methods: {
       hideWelcomeModal() {
@@ -115,23 +116,15 @@
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
       closePinModal() {
-        if (this.requirePinAuthentication) {
-          //Force learner back to learn
-          redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
-        }
+        redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
         return (this.showModal = false);
-      },
-      showDevicesPage() {
-        if (this.isPinSet !== undefined) {
-          this.grantPluginAccess();
-        }
       },
       submit() {
         Cookies.set(IsPinAuthenticated, true, {
           expires: new Date(new Date().getTime() + 15 * 1000),
         });
         this.$store.commit('SET_AUTHENTICATE_WITH_PIN', false);
-        this.showDevicesPage();
+        this.grantPluginAccess();
       },
     },
   };
