@@ -301,7 +301,10 @@
       },
 
       cancelBtn() {
-        this.$router.push({ name: SyncPageNames.MANAGE_SYNC_SCHEDULE });
+        this.$router.push({
+          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
+          params: { facility_id: this.$route.params.facility_id },
+        });
       },
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {

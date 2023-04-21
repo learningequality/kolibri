@@ -258,7 +258,7 @@
           this.deviceIds.push(id);
           this.$router.push({
             name: SyncPageNames.EDIT_SYNC_SCHEDULE,
-            params: { deviceId: id, facilityId: this.facilityId },
+            params: { deviceId: id, facility_id: this.facilityId },
           });
         } else {
           return window.location.href;
