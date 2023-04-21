@@ -136,7 +136,7 @@ class Command(AsyncCommand):
             return
         copy = transfer.FileCopy(srcpath, dest, cancel_check=self.is_cancelled)
         with copy, self.start_progress(
-            total=copy.total_size
+            total=copy.transfer_size
         ) as file_cp_progress_update:
             try:
                 for chunk in copy:

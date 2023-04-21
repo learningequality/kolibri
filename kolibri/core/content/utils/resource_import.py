@@ -113,7 +113,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             # the difference so that the overall progress is never incorrect.
             # This could happen, for example for a local transfer if a file
             # has been replaced or corrupted (which we catch below)
-            data_transferred += f["file_size"] - filetransfer.total_size
+            data_transferred += f["file_size"] - filetransfer.transfer_size
 
         return None, data_transferred
 

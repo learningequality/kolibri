@@ -196,7 +196,7 @@ class Command(AsyncCommand):
         progress_extra_data = {"channel_id": channel_id}
 
         with filetransfer, self.start_progress(
-            total=filetransfer.total_size
+            total=filetransfer.transfer_size
         ) as progress_update:
             for chunk in filetransfer:
                 progress_update(len(chunk), progress_extra_data)
