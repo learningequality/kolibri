@@ -198,12 +198,9 @@
                           // if the request is bad, we can't do anything
                           changeFacilityService.send('TASKERROR');
                         }
-                      } else if (error.response.status == 500) {
-                        const message = error.response.data;
-                        if (message.includes('ConnectionError')) {
-                          taskError.value = true;
-                          isPolling = false;
-                        }
+                      } else if (error.response.status == 410) {
+                        taskError.value = true;
+                        isPolling = false;
                       }
                     });
                 }

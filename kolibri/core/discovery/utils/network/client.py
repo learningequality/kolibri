@@ -11,6 +11,7 @@ from .urls import HTTPS_PORTS
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
+from kolibri.utils.server import get_urls
 
 logger = logging.getLogger(__name__)
 
@@ -68,7 +69,10 @@ class NetworkClient(requests.Session):
             else:
                 # if we're within a request thread, then we limit it for an overall time
                 timeout = (DEFAULT_CONNECT_TIMEOUT, DEFAULT_SYNC_READ_TIMEOUT)
+        _, self_urls = get_urls()
         for url in get_normalized_url_variations(address):
+            if url in self_urls:
+                continue  # exclude our own URLs
             with NetworkClient(url, timeout=timeout) as client:
                 if client.connect(raise_if_unavailable=False):
                     return client
