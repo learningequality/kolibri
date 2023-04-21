@@ -274,7 +274,7 @@
         },
       },
       epubURL() {
-        return this.defaultFile.storage_url;
+        return new URL(this.defaultFile.storage_url, window.location).href;
       },
       backgroundColor() {
         return this.theme.backgroundColor;
