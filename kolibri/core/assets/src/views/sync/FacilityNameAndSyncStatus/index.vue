@@ -25,22 +25,39 @@
     <div>
       <span>
         <template v-if="facility.syncing || isSyncing">
-          <KCircularLoader class="loader" :size="16" :delay="false" />
+          <KCircularLoader
+            class="loader"
+            :size="16"
+            :delay="false"
+          />
           {{ $tr('syncing') }}
         </template>
         <template v-else-if="isDeleting">
-          <KCircularLoader class="loader" :size="16" :delay="false" />
+          <KCircularLoader
+            class="loader"
+            :size="16"
+            :delay="false"
+          />
           {{ getTaskString('removingFacilityStatus') }}
         </template>
         <template v-else>
-          <span v-if="syncFailed" class="sync-message">
+          <span
+            v-if="syncFailed"
+            class="sync-message"
+          >
             {{ $tr('syncFailed') }}
           </span>
-          <span v-else-if="neverSynced" class="sync-message">
+          <span
+            v-else-if="neverSynced"
+            class="sync-message"
+          >
             {{ $tr('neverSynced') }}
           </span>
           <!-- Always show the last successful sync time when available -->
-          <span v-if="facility.last_successful_sync" class="sync-message">
+          <span
+            v-if="facility.last_successful_sync"
+            class="sync-message"
+          >
             {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_successful_sync) }) }}
           </span>
         </template>
@@ -61,7 +78,6 @@
   import { now } from 'kolibri.utils.serverClock';
   import taskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 
   export default {
     name: 'FacilityNameAndSyncStatus',
@@ -82,6 +98,10 @@
       isDeleting: {
         type: Boolean,
         default: false,
+      },
+      goToRoute: {
+        type: Object,
+        required: true,
       },
     },
     data() {
@@ -113,10 +133,7 @@
         return this.$formatRelative(datetime, { now: this.now });
       },
       manageSync() {
-        this.$router.push({
-          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { facility_id: this.facility.id },
-        });
+        this.$router.push(this.goToRoute);
       },
     },
     $trs: {

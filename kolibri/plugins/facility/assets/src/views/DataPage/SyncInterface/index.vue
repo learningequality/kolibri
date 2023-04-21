@@ -17,18 +17,19 @@
       </template>
       <template #tbody>
         <tbody>
-          <tr v-if="theFacility">
+          <tr v-if="facility">
             <td>
               <FacilityNameAndSyncStatus
-                :facility="theFacility"
+                :facility="facility"
                 :isSyncing="isSyncing"
                 :syncHasFailed="syncHasFailed"
+                :goToRoute="manageSyncRoute"
               />
             </td>
             <td class="button-col">
               <KButtonGroup style="margin-top: 8px; overflow: visible">
                 <KButton
-                  v-if="!theFacility.dataset.registered"
+                  v-if="!facility.dataset.registered"
                   appearance="raised-button"
                   :text="$tr('register')"
                   @click="displayModal(Modals.REGISTER_FACILITY)"
@@ -61,10 +62,10 @@
                     <CoreMenuOption
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="coreString('manageSyncAction')"
-                      @select="managesync()"
+                      @select="manageSyncAction()"
                     />
                     <CoreMenuOption
-                      v-if="theFacility.dataset.registered"
+                      v-if="facility.dataset.registered"
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
@@ -95,7 +96,7 @@
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
-      :targetFacility="theFacility"
+      :targetFacility="facility"
       :projectName="kdpProject.name"
       :token="kdpProject.token"
       @success="handleConfirmationSuccess"
@@ -104,7 +105,7 @@
 
     <SyncFacilityModalGroup
       v-if="modalShown === Modals.SYNC_FACILITY"
-      :facilityForSync="theFacility"
+      :facilityForSync="facility"
       @close="closeModal"
       @success="handleSyncFacilitySuccess"
       @failure="handleSyncFacilityFailure"
@@ -155,7 +156,7 @@
     mixins: [commonSyncElements, commonCoreStrings],
     data() {
       return {
-        theFacility: null,
+        facility: null,
         kdpProject: null, // { name, token }
         modalShown: null,
         syncTaskId: '',
@@ -165,6 +166,16 @@
         isMenuOpen: false,
       };
     },
+    computed: {
+      manageSyncRoute() {
+        return {
+          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
+          params: {
+            facility_id: this.facility.id,
+          },
+        };
+      },
+    },
     beforeMount() {
       this.fetchFacility();
     },
@@ -172,16 +183,13 @@
       this.syncTaskId = '';
     },
     methods: {
-      managesync() {
-        this.$router.push({
-          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { facility_id: this.facility.id },
-        });
+      manageSyncAction() {
+        this.$router.push(this.manageSyncRoute);
       },
       fetchFacility() {
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
-            this.theFacility = { ...facility };
+            this.facility = { ...facility };
           }
         );
       },
@@ -216,7 +224,7 @@
       },
       handleConfirmationSuccess(payload) {
         this.$store.commit('manageCSV/SET_REGISTERED', payload);
-        this.theFacility.dataset.registered = true;
+        this.facility.dataset.registered = true;
         this.closeModal();
       },
       handleSyncFacilitySuccess(taskId) {

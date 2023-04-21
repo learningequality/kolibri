@@ -5,8 +5,14 @@
     :route="goBackRoute"
     :icon="icon"
   >
-    <KPageContainer v-if="device" :style="pageHeight">
-      <KGrid gutter="48" class="edit-sync-schedule">
+    <KPageContainer
+      v-if="device"
+      :style="pageHeight"
+    >
+      <KGrid
+        gutter="48"
+        class="edit-sync-schedule"
+      >
 
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleTitle') }}</h1>
@@ -106,7 +112,6 @@
       </KButtonGroup>
     </BottomAppBar>
 
-
     <KModal
       v-if="removeDeviceModal"
       :title="$tr('removeDevice')"
@@ -151,7 +156,6 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { SyncPageNames } from './constants';
 
   export default {
     name: 'EditDeviceSyncSchedule',
@@ -166,6 +170,10 @@
         default: 'back',
       },
       facilityId: {
+        type: String,
+        required: true,
+      },
+      deviceId: {
         type: String,
         required: true,
       },
@@ -265,7 +273,7 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.$route.params.deviceId })
+        NetworkLocationResource.deleteModel({ id: this.deviceId })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             history.back();
@@ -282,7 +290,7 @@
           TaskResource.startTask({
             type: TaskTypes.SYNCPEERFULL,
             facility: this.facility.id,
-            device_id: this.$route.params.deviceId,
+            device_id: this.deviceId,
             baseurl: this.baseurl,
             enqueue_args: {
               enqueue_at: equeue_param,
@@ -301,13 +309,10 @@
       },
 
       cancelBtn() {
-        this.$router.push({
-          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
-          params: { facility_id: this.$route.params.facility_id },
-        });
+        this.$router.push(this.goBackRoute);
       },
       fetchDevice() {
-        NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
+        NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
           this.baseurl = device.base_url;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
@@ -390,18 +395,16 @@
 
 
 <style scoped>
-  .spacing{
-    margin-top:10px;
-  }
-  .loader{
-    margin-top:5px;
-  }
-  .edit-sync-schedule{
-    margin-left:20px;
-  }
-  .align-kselects{
-    margin-left:16px;
-  }
-
-
+.spacing {
+  margin-top: 10px;
+}
+.loader {
+  margin-top: 5px;
+}
+.edit-sync-schedule {
+  margin-left: 20px;
+}
+.align-kselects {
+  margin-left: 16px;
+}
 </style>
