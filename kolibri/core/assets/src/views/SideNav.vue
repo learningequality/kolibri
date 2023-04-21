@@ -63,7 +63,15 @@
                 {{ username }}
               </p>
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
-                {{ getUserKind }}
+                <span v-if="getUserKind === 'learner'">
+                  {{ coreString('learnerLabel') }}
+                </span>
+                <span v-if="getUserKind === 'coach'">
+                  {{ coreString('coachLabel') }}
+                </span>
+                <span v-if="getUserKind === 'super admin'">
+                  {{ coreString('superAdminLabel') }}
+                </span>
               </p>
 
 
