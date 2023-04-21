@@ -49,8 +49,11 @@
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
         <!-- Other Libraires -->
-        <div v-if="!deviceId">
-          <KGrid gutter="12">
+        <div v-if="!deviceId && isUserLoggedIn">
+          <KGrid
+            gutter="12"
+            :debug="true"
+          >
             <KGridItem
               :layout12="{ span: 6 }"
               :layout8="{ span: 4 }"
@@ -66,7 +69,10 @@
               :layout4="{ span: 4 }"
               class="sync-display"
             >
-              <div v-if="searching" class="sync-status">
+              <div
+                v-if="searching"
+                class="sync-status"
+              >
                 <span>
                   {{ $tr('searchingOtherLibrary') }}
                 </span>
@@ -86,38 +92,23 @@
               </div>
             </KGridItem>
           </KGrid>
-        </div>
-        <PinnedNetworkResources
-          v-if="pinnedDevices"
-          :pinnedDevices="pinnedDevices"
-        />
-        <!-- More  -->
-        <div v-if="!deviceId">
-          <h2>{{ $tr('moreLibraries') }}</h2>
+
+          <h2 v-if="pinnedDevicesExist">
+            {{ $tr('pinned') }}
+          </h2>
+          <PinnedNetworkResources
+            v-if="pinnedDevicesExist"
+            :devices="pinnedDevices"
+          />
+
+          <!-- More  -->
+          <h2 v-if="pinnedDevicesExist && unpinnedDevicesExist">
+            {{ $tr('moreLibraries') }}
+          </h2>
           <MoreNetworkDevices
-            v-if="unPinnedDevices"
-            :devices="unPinnedDevices"
-          >
-            <KGrid>
-              <KGridItem
-                :layout="{ span: cardColumnSpan,alignment: 'auto' }"
-                class="view-all-card"
-                style=""
-              >
-                <div
-                  class="card-main-wrapper"
-                  :style="cardStyle"
-                  @click="viewAll"
-                >
-                  <TextTruncator
-                    :text="coreString('viewAll')"
-                    :maxHeight="52"
-                    class="view-all-text"
-                  />
-                </div>
-              </KGridItem>
-            </KGrid>
-          </MoreNetworkDevices>
+            v-if="unpinnedDevicesExist"
+            :devices="unpinnedDevices"
+          />
         </div>
 
       </div>
@@ -198,11 +189,11 @@
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
   import SidePanelModal from '../SidePanelModal';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useDevices from '../../composables/useDevices';
+  import usePinnedDevices from '../../composables/usePinnedDevices';
   import useSearch from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -235,7 +226,6 @@
       LearnAppBarPage,
       PinnedNetworkResources,
       MoreNetworkDevices,
-      TextTruncator,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
@@ -264,6 +254,10 @@
         windowIsMedium,
         windowIsSmall,
       } = useKResponsiveWindow();
+      const { currentCardViewStyle } = useCardViewStyle();
+      const { baseurl, deviceName, fetchDevices } = useDevices();
+      const { fetchChannels } = useChannels();
+      const { fetchPinsForUser } = usePinnedDevices();
 
       onMounted(() => {
         const keywords = currentRoute().query.keywords;
@@ -271,12 +265,6 @@
           search(keywords);
         }
       });
-
-      const { currentCardViewStyle } = useCardViewStyle();
-
-      const { baseurl, deviceName, fetchDevices } = useDevices();
-
-      const { fetchChannels } = useChannels();
 
       return {
         displayingSearchResults,
@@ -302,6 +290,7 @@
         fetchDevices,
         deviceName,
         fetchChannels,
+        fetchPinsForUser,
       };
     },
     props: {
@@ -320,8 +309,7 @@
         mobileSidePanelIsOpen: false,
         devices: [],
         searching: true,
-        pinnedDevices: [],
-        unPinnedDevices: [],
+        usersPins: [],
       };
     },
     computed: {
@@ -335,7 +323,7 @@
       },
       channelsLabel() {
         if (this.deviceId) {
-          if (this.deviceId === KolibriStudioId) {
+          if (this.deviceId === this.studioId) {
             return this.learnString('kolibriLibrary');
           } else {
             return this.$tr('libraryOf', { device: this.deviceName });
@@ -343,6 +331,30 @@
         } else {
           return this.coreString('channelsLabel');
         }
+      },
+      devicesWithChannels() {
+        //display Kolibri studio for superusers only
+        return this.devices.filter(
+          device =>
+            device.channels?.length > 0 &&
+            (device.instance_id !== this.studioId || this.isSuperuser)
+        );
+      },
+      gridOffset() {
+        return this.isRtl
+          ? { marginRight: `${this.sidePanelWidth + 24}px` }
+          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+      },
+      pinnedDevices() {
+        return this.devicesWithChannels.filter(device => {
+          return (
+            this.usersPinsDeviceIds.includes(device.instance_id) ||
+            device.instance_id === this.studioId
+          );
+        });
+      },
+      pinnedDevicesExist() {
+        return this.pinnedDevices.length > 0;
       },
       sidePanelWidth() {
         if (this.windowIsSmall || this.windowIsMedium) {
@@ -353,25 +365,22 @@
           return 346;
         }
       },
-      gridOffset() {
-        return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px` }
-          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+      studioId() {
+        return KolibriStudioId;
       },
-      cardStyle() {
-        return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
-          marginBottom: `${this.windowGutter}px`,
-          minHeight: `${this.overallHeight}px`,
-          textAlign: 'center',
-        };
+      unpinnedDevices() {
+        return this.devicesWithChannels.filter(device => {
+          return (
+            !this.usersPinsDeviceIds.includes(device.instance_id) &&
+            device.instance_id !== this.studioId
+          );
+        });
       },
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
+      unpinnedDevicesExist() {
+        return this.unpinnedDevices.length > 0;
+      },
+      usersPinsDeviceIds() {
+        return this.usersPins.map(pin => pin.instance_id);
       },
     },
     watch: {
@@ -389,19 +398,28 @@
     created() {
       this.search();
       if (this.isUserLoggedIn) {
+        this.fetchPinsForUser().then(resp => {
+          this.usersPins = resp.map(pin => {
+            const instance_id = pin.instance_id.replace(/-/g, '');
+            return { ...pin, instance_id };
+          });
+        });
+
         this.fetchDevices().then(devices => {
-          const storeUnpinnedDevices = [];
-          this.devices = devices.filter(d => d.available);
-          this.devices.forEach(device => {
-            this.fetchChannels({ baseurl: device.base_url }).then(channel => {
-              if (channel.length > 0) {
-                this.$set(device, 'channels', channel);
-                this.pinnedDevices.push(device);
-                storeUnpinnedDevices.push(device);
-              }
+          const fetchDevicesChannels = devices.reduce((accumulator, device) => {
+            const baseurl = device.base_url;
+            accumulator.push(this.fetchChannels({ baseurl }));
+            return accumulator;
+          }, []);
+
+          Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
+            this.devices = devices.map((device, index) => {
+              const deviceChannels = devicesChannels[index]?.value || [];
+              device['channels'] = deviceChannels.slice(0, 4);
+              device['total_count'] = deviceChannels.length;
+              return device;
             });
           });
-          this.setLimitToDevices(storeUnpinnedDevices);
         });
       }
     },
@@ -411,14 +429,6 @@
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
-      },
-      setLimitToDevices(devices) {
-        // TODO - Ensuring that the display of devices is
-        // limited to 4 devices before the view all card is clicked
-        this.unPinnedDevices = devices;
-      },
-      viewAll() {
-        return this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
       },
     },
     $trs: {
@@ -460,6 +470,8 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   @import '../HybridLearningContentCard/card';
+
+  $margin: 24px;
 
   .card-main-wrapper {
     @extend %dropshadow-1dp;
@@ -524,13 +536,6 @@
   .view-all-text {
     margin: auto;
     font-size: 16px;
-  }
-
-  .view-all-card {
-    width: 365px;
-    height: 150px;
-    margin-left: 10px;
-    cursor: pointer;
   }
 
 </style>

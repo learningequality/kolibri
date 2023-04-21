@@ -5,16 +5,25 @@
       <KGridItem
         v-for="device in devices"
         :key="device.id"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+        :layout12="{ span: 4 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 4 }"
+      >
+        <UnPinnedDevices :device="device" />
+      </KGridItem>
+      <KGridItem
+        v-if="devices.length"
+        key="view-all"
+        :layout12="{ span: 4 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 4 }"
       >
         <UnPinnedDevices
-          :deviceName="device.device_name"
-          :channels="device.channels.length"
-          :device="device"
-          :operatingSystem="device.operatingSystem"
+          :device="{}"
+          :viewAll="true"
+          :routeTo="viewAllRoute"
         />
       </KGridItem>
-      <slot></slot>
     </KGrid>
   </div>
 
@@ -23,8 +32,8 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../../constants';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -33,37 +42,15 @@
       UnPinnedDevices,
     },
     mixins: [commonCoreStrings],
-    setup() {
-      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
-      return {
-        windowBreakpoint,
-        windowGutter,
-      };
-    },
     props: {
       devices: {
         type: Array,
         required: true,
       },
     },
-    data() {
-      return {};
-    },
     computed: {
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
-      },
-    },
-    mounted() {
-      this.setNetworkDeviceChannels(this.devices, this.devices, this.devices.length);
-    },
-    methods: {
-      setNetworkDeviceChannels(device, channels, total) {
-        this.$set(device, 'channels', channels.slice(0, 4));
-        this.$set(device, 'total_channels', total);
+      viewAllRoute() {
+        return { name: PageNames.EXPLORE_LIBRARIES };
       },
     },
   };

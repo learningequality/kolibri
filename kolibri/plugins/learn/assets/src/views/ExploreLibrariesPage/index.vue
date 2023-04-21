@@ -188,9 +188,9 @@
           return accumulator;
         }, []);
 
-        Promise.all(fetchDevicesChannels).then(devicesChannels => {
+        Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
           this.networkDevices = devices.map((device, index) => {
-            const deviceChannels = devicesChannels[index] || [];
+            const deviceChannels = devicesChannels[index]?.value || [];
             device['channels'] = deviceChannels.slice(0, 4);
             device['total_count'] = deviceChannels.length;
             return device;
