@@ -151,7 +151,7 @@
     text-overflow: ellipsis;
   }
 
-  div.dimmable.tab-title::after {
+  div.dimmable.tab-title::before {
     content: attr(title);
     display: block;
     height: 0;
