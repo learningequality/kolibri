@@ -12,7 +12,7 @@
         <slot></slot>
       </div>
 
-      <div class="dimmable tab-title" tabindex="-1">
+      <div class="dimmable tab-title" tabindex="-1" :title="title">
         {{ title }}
       </div>
     </router-link>
@@ -151,4 +151,14 @@
     text-overflow: ellipsis;
   }
 
+  div.dimmable.tab-title::after {
+    content: attr(title);
+    display: block;
+    height: 0;
+    visibility: hidden;
+    overflow: hidden;
+    user-select: none;
+    pointer-events: none;
+    font-weight: bold;
+  }
 </style>
