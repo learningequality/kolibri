@@ -137,26 +137,36 @@ class ChunkedFile(BufferedIOBase):
 
         self.position = min(self.file_size, max(0, self.position))
 
-    def read(self, size=-1):
+    def _read(self, position, size=-1):
+        """
+        Takes a position argument which will be modified and returned by the read operation.
+        """
         if size < 0:
-            size = self.file_size - self.position
+            size = self.file_size - position
+
+        if size > self.file_size - position:
+            size = self.file_size - position
 
         remaining = size
         data_parts = []
 
         while remaining > 0:
-            chunk_index = self.position // self.chunk_size
+            chunk_index = position // self.chunk_size
             chunk_file = self._get_chunk_file_name(chunk_index)
 
             with open(chunk_file, "rb") as f:
-                f.seek(self.position % self.chunk_size)
+                f.seek(position % self.chunk_size)
                 chunk_data = f.read(min(remaining, self.chunk_size))
                 data_parts.append(chunk_data)
 
-                self.position += len(chunk_data)
+                position += len(chunk_data)
                 remaining -= len(chunk_data)
 
-        return b"".join(data_parts)
+        return position, b"".join(data_parts)
+
+    def read(self, size=-1):
+        self.position, output = self._read(self.position, size)
+        return output
 
     def write(self, data):
         remaining = len(data)
@@ -190,10 +200,27 @@ class ChunkedFile(BufferedIOBase):
                 self.position += bytes_written
                 remaining -= bytes_written
 
-    def next_missing_chunk_and_seek(self, start=None, end=None):
+    def read_data_until(self, end):
         """
-        Generator to yield the next missing chunk, and see the file to the position the chunk
-        should be written to.
+        Generator to read data from the current position of the file until
+        but not including the end value.
+        Need to update this to give it an independent read position, as when this is called
+        the data is then written to the chunked file object (but ignored) so the position gets moved
+        twice leading to an overflow.
+        """
+        position = self.position
+        while position < end:
+            position, output = self._read(position, min(end - position, BLOCK_SIZE))
+            yield output
+
+    def next_missing_chunk_and_read(self, start=None, end=None):
+        """
+        Generator to yield start and end ranges of the next missing chunk,
+        and return a generator to read the intervening data.
+        Exhausting the generator has no effect on the file position, as it is anticipated
+        that the data will be written back to the file in normal operation.
+        The data written back to the file will be ignored, but then the file position will be
+        updated as a result of the write.
         """
         start_chunk = start // self.chunk_size if start is not None else 0
         end_chunk = end // self.chunk_size if end is not None else self.chunks_count - 1
@@ -203,9 +230,8 @@ class ChunkedFile(BufferedIOBase):
             if not os.path.exists(chunk_file):
                 range_start = chunk_index * self.chunk_size
                 range_end = min(range_start + self.chunk_size - 1, self.file_size - 1)
-                self.seek(range_start)
 
-                yield (range_start, range_end)
+                yield (range_start, range_end, self.read_data_until(range_start))
 
     def finalize_file(self):
         if not self.is_complete():
@@ -238,14 +264,11 @@ class ChunkedFile(BufferedIOBase):
         if not self.is_complete():
             raise ValueError("Cannot calculate MD5: Not all chunks are complete")
         md5 = hashlib.md5()
-        for chunk_index in range(self.chunks_count):
-            chunk_file = self._get_chunk_file_name(chunk_index)
-            with open(chunk_file, "rb") as f:
-                while True:
-                    data = f.read(8192)
-                    if not data:
-                        break
-                    md5.update(data)
+        position = 0
+        position, chunk = self._read(position, self.chunk_size)
+        while chunk:
+            md5.update(chunk)
+            position, chunk = self._read(position, self.chunk_size)
         return md5.hexdigest()
 
     def delete(self):
@@ -272,11 +295,6 @@ class Transfer(with_metaclass(ABCMeta)):
         timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
         retry_wait=30,
-        # Allow a transfer to specify start and end ranges for transfers
-        # this allows proxying range requests for streamed files, and also
-        # allows for parallelizing transfers of large files.
-        range_start=None,
-        range_end=None,
         # A flag to allow the download to remain in the chunked file directory
         # for easier clean up when it is just a temporary download.
         finalize_download=True,
@@ -298,15 +316,8 @@ class Transfer(with_metaclass(ABCMeta)):
             raise AssertionError("cancel_check must be callable")
         self._cancel_check = cancel_check
 
-        if range_start is not None and not isinstance(range_start, int):
-            raise TypeError("range_start must be an integer")
-
-        self.range_start = range_start
-
-        if range_end is not None and not isinstance(range_end, int):
-            raise TypeError("range_end must be an integer")
-
-        self.range_end = range_end
+        self.range_start = None
+        self.range_end = None
 
         if os.path.isdir(dest):
             raise AssertionError(
@@ -462,6 +473,17 @@ class FileDownload(Transfer):
             logger.error("Error reading download stream: {}".format(e))
             self.resume()
 
+    def set_ranges(self, range_start, range_end):
+        if range_start is not None and not isinstance(range_start, int):
+            raise TypeError("range_start must be an integer")
+
+        self.range_start = range_start
+
+        if range_end is not None and not isinstance(range_end, int):
+            raise TypeError("range_end must be an integer")
+
+        self.range_end = range_end
+
     def _set_headers(self):
         if self._headers_set:
             return
@@ -502,9 +524,15 @@ class FileDownload(Transfer):
                 self.total_size = len(self.response.content)
 
     def next_missing_chunk_range_generator(self):
-        for start_byte, end_byte in self.chunked_file_obj.next_missing_chunk_and_seek(
+        for (
+            start_byte,
+            end_byte,
+            chunk_generator,
+        ) in self.chunked_file_obj.next_missing_chunk_and_read(
             start=self.range_start, end=self.range_end
         ):
+            for chunk in chunk_generator:
+                yield chunk
             response = self.session.get(
                 self.source,
                 headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},

@@ -1,5 +1,7 @@
 import hashlib
+import math
 import os
+import shutil
 import tempfile
 import unittest
 
@@ -11,6 +13,7 @@ from requests.exceptions import HTTPError
 from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
+from kolibri.utils.file_transfer import BLOCK_SIZE
 from kolibri.utils.file_transfer import FileCopy
 from kolibri.utils.file_transfer import FileDownload
 from kolibri.utils.file_transfer import retry_import
@@ -20,17 +23,39 @@ from kolibri.utils.file_transfer import TransferFailed
 
 
 class BaseTestTransfer(unittest.TestCase):
+    def set_test_data(self, partial=False):
+        self.dest = self.destdir + "/test_file_{}".format(self.num_files)
+        self.file_size = (1024 * 1024) + 731
+
+        # Create dummy chunks
+        chunks_count = int(math.ceil(float(self.file_size) / float(BLOCK_SIZE)))
+
+        os.makedirs(self.dest + ".chunks", exist_ok=True)
+
+        hash = hashlib.md5()
+
+        self.content = b""
+        for i in range(chunks_count):
+            size = BLOCK_SIZE if i < chunks_count - 1 else (self.file_size % BLOCK_SIZE)
+            to_write = os.urandom(size)
+            if partial and (i % 3) == 0:
+                with open(
+                    os.path.join(self.dest + ".chunks", ".chunk_{}".format(i)), "wb"
+                ) as f:
+                    f.write(to_write)
+            self.content += to_write
+            hash.update(to_write)
+
+        self.checksum = hash.hexdigest()
+        self.num_files += 1
+
     def setUp(self):
         self.destdir = tempfile.mkdtemp()
-        self.dest = self.destdir + "/test_file"
-        self.content = b"test"
-        hash = hashlib.md5()
-        hash.update(self.content)
-        self.checksum = hash.hexdigest()
+        self.num_files = 0
+        self.set_test_data()
 
     def tearDown(self):
-        if os.path.exists(self.dest):
-            os.remove(self.dest)
+        shutil.rmtree(self.destdir, ignore_errors=True)
 
 
 class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
@@ -38,24 +63,64 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
     def HEADERS(self):
         return {"content-length": str(len(self.content)), "accept-ranges": "bytes"}
 
+    @property
+    def byte_range_support(self):
+        return (
+            "accept-ranges" in self.HEADERS
+            and "content-length" in self.HEADERS
+            and "content-encoding" not in self.HEADERS
+        )
+
+    def get_headers(self, data):
+        headers = self.HEADERS.copy()
+        if "content-length" in headers:
+            headers["content-length"] = len(data)
+        if "x-goog-stored-content-length" in headers:
+            headers["x-goog-stored-content-length"] = len(data)
+        return headers
+
+    def mock_get_request(self, url, headers=None, **kwargs):
+        start, end = 0, None
+        if headers and "Range" in headers:
+            range_header = headers["Range"]
+            start, end = map(int, range_header.replace("bytes=", "").split("-"))
+            if end:
+                end += 1  # Make the end range inclusive
+            else:
+                end = None
+
+        range_data = self.content[start:end]
+
+        range_headers = self.get_headers(range_data)
+        mock_response = MagicMock()
+        mock_response.iter_content.return_value = iter([range_data])
+        mock_response.headers = range_headers
+        mock_response.content = range_data
+        return mock_response
+
+    def mock_head_request(self, url, **kwargs):
+        mock_response = MagicMock()
+        mock_response.headers = self.get_headers(self.content)
+        return mock_response
+
+    def set_session_mock(self):
+        self.mock_session = MagicMock()
+        self.mock_session.get.side_effect = self.mock_get_request
+        self.mock_session.head.side_effect = self.mock_head_request
+
     def setUp(self):
         super(TestTransferDownloadByteRangeSupport, self).setUp()
         self.source = "http://example.com/testfile"
-        mock_response = MagicMock()
-        mock_response.iter_content.return_value = iter([self.content])
-        mock_response.headers = self.HEADERS
-        mock_response.content = self.content
-        self.mock_session = MagicMock()
-        self.mock_session.get.return_value = mock_response
-        self.mock_session.head.return_value = mock_response
+        self.set_session_mock()
 
     def test_download_iterator(self):
-        # Test FileDownload iterator
+        output = b""
         with FileDownload(
             self.source, self.dest, self.checksum, session=self.mock_session
         ) as fd:
             for chunk in fd:
-                self.assertEqual(chunk, self.content)
+                output += chunk
+        self.assertEqual(output, self.content)
 
     def test_download_checksum_validation(self):
         # Test FileDownload checksum validation
@@ -92,17 +157,19 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.assertTrue(os.path.isfile(self.dest))
         self.assertEqual(self.mock_session.get.call_count, 2)
 
-        if (
-            "accept-ranges" in self.HEADERS
-            and "content-length" in self.HEADERS
-            and "content-encoding" not in self.HEADERS
-        ):
+        if self.byte_range_support:
             calls = [
                 call(
-                    self.source, headers={"Range": "bytes=0-3"}, stream=True, timeout=60
+                    self.source,
+                    headers={"Range": "bytes=0-{}".format(BLOCK_SIZE - 1)},
+                    stream=True,
+                    timeout=60,
                 ),
                 call(
-                    self.source, headers={"Range": "bytes=0-3"}, stream=True, timeout=60
+                    self.source,
+                    headers={"Range": "bytes=0-{}".format(BLOCK_SIZE - 1)},
+                    stream=True,
+                    timeout=60,
                 ),
             ]
         else:
@@ -138,6 +205,19 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 for chunk in fd:
                     pass
         self.assertFalse(os.path.isfile(self.dest))
+
+    def test_partial_download_iterator(self):
+        self.set_test_data(partial=True)
+
+        data_out = b""
+
+        with FileDownload(
+            self.source, self.dest, self.checksum, session=self.mock_session
+        ) as fd:
+            for chunk in fd:
+                data_out += chunk
+
+        self.assertEqual(self.content, data_out)
 
 
 class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSupport):
@@ -189,32 +269,25 @@ class TestTransferDownloadNoByteRangeSupport(TestTransferDownloadByteRangeSuppor
 
 
 class TestTransferCopy(BaseTestTransfer):
-    def test_copy_iterator(self):
+    def setUp(self):
+        super(TestTransferCopy, self).setUp()
         self.copy_source = tempfile.NamedTemporaryFile(delete=False).name
         # Test FileCopy iterator
         with open(self.copy_source, "wb") as testfile:
             testfile.write(self.content)
 
-        with FileCopy(self.copy_source, self.dest + "_copy", self.checksum) as fc:
+    def test_copy_iterator(self):
+        output = b""
+        with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
             for chunk in fc:
-                self.assertEqual(chunk, self.content)
-
-        if os.path.exists(self.copy_source + "_copy"):
-            os.remove(self.copy_source + "_copy")
+                output += chunk
+        self.assertEqual(output, self.content)
 
     def test_copy_checksum_validation(self):
-        self.copy_source = tempfile.NamedTemporaryFile(delete=False).name
-        # Test FileCopy checksum validation
-        with open(self.copy_source, "wb") as testfile:
-            testfile.write(self.content)
-
-        dest_copy = self.copy_source + "_copy"
-        with FileCopy(self.copy_source, dest_copy, self.checksum) as fc:
+        with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
             for chunk in fc:
                 pass
-        self.assertTrue(os.path.isfile(dest_copy))
-
-        os.remove(dest_copy)
+        self.assertTrue(os.path.isfile(self.dest))
 
 
 class TestRetryImport(unittest.TestCase):

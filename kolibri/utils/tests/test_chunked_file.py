@@ -13,7 +13,7 @@ class TestChunkedFile(unittest.TestCase):
         self.file_path = "test_file"
 
         self.chunk_size = BLOCK_SIZE
-        self.file_size = 1024 * 1024  # 1 MB
+        self.file_size = (1024 * 1024) + 731
 
         self.chunked_file = ChunkedFile(self.file_path)
 
@@ -26,7 +26,12 @@ class TestChunkedFile(unittest.TestCase):
             with open(
                 os.path.join(self.chunked_file.chunk_dir, ".chunk_{}".format(i)), "wb"
             ) as f:
-                to_write = os.urandom(self.chunk_size)
+                size = (
+                    self.chunk_size
+                    if i < self.chunks_count - 1
+                    else (self.file_size % self.chunk_size)
+                )
+                to_write = os.urandom(size)
                 f.write(to_write)
                 self.data += to_write
 
@@ -38,24 +43,25 @@ class TestChunkedFile(unittest.TestCase):
     def test_read(self):
         # Read from the beginning
         data = self.chunked_file.read(512)
-        self.assertEqual(len(data), 512)
+        self.assertEqual(data, self.data[:512])
 
+    def test_read_from_middle(self):
         # Read from the middle
         self.chunked_file.seek(512 * 1024)
         data = self.chunked_file.read(512)
-        self.assertEqual(len(data), 512)
+        self.assertEqual(data, self.data[512 * 1024 : (512 * 1024) + 512])
 
     def test_write(self):
         new_data = os.urandom(BLOCK_SIZE)
         os.remove(
             os.path.join(
-                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 1)
+                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
             )
         )
-        self.chunked_file.seek(self.file_size - BLOCK_SIZE)
+        self.chunked_file.seek((self.chunks_count - 2) * BLOCK_SIZE)
         self.chunked_file.write(new_data)
 
-        self.chunked_file.seek(self.file_size - BLOCK_SIZE)
+        self.chunked_file.seek((self.chunks_count - 2) * BLOCK_SIZE)
         data = self.chunked_file.read(BLOCK_SIZE)
         self.assertEqual(data, new_data)
 
@@ -88,15 +94,22 @@ class TestChunkedFile(unittest.TestCase):
         new_data = os.urandom(self.file_size)
         os.remove(
             os.path.join(
-                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 1)
+                self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
             )
         )
         self.chunked_file.seek(0)
         self.chunked_file.write(new_data)
 
-        self.chunked_file.seek(BLOCK_SIZE * (self.chunks_count - 1))
-        data = self.chunked_file.read()
-        self.assertEqual(data, new_data[-BLOCK_SIZE:])
+        self.chunked_file.seek(BLOCK_SIZE * (self.chunks_count - 2))
+        data = self.chunked_file.read(BLOCK_SIZE)
+        self.assertEqual(
+            data,
+            new_data[
+                BLOCK_SIZE
+                * (self.chunks_count - 2) : BLOCK_SIZE
+                * (self.chunks_count - 1)
+            ],
+        )
 
     def test_seek_set(self):
         # SEEK_SET
@@ -121,7 +134,9 @@ class TestChunkedFile(unittest.TestCase):
 
         start = self.chunk_size
         end = self.chunk_size * 4 - 1
-        missing_ranges = list(self.chunked_file.next_missing_chunk_and_seek(start, end))
+        missing_ranges = [
+            mr[:2] for mr in self.chunked_file.next_missing_chunk_and_read(start, end)
+        ]
 
         expected_ranges = [
             (self.chunk_size * 1, self.chunk_size * 2 - 1),
@@ -134,7 +149,9 @@ class TestChunkedFile(unittest.TestCase):
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_1"))
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_3"))
 
-        missing_ranges = list(self.chunked_file.next_missing_chunk_and_seek())
+        missing_ranges = [
+            mr[:2] for mr in self.chunked_file.next_missing_chunk_and_read()
+        ]
 
         expected_ranges = [
             (self.chunk_size * 1, self.chunk_size * 2 - 1),
@@ -142,30 +159,36 @@ class TestChunkedFile(unittest.TestCase):
         ]
         self.assertEqual(missing_ranges, expected_ranges)
 
-    def test_get_missing_chunk_ranges_seeking(self):
+    def test_get_missing_chunk_ranges_reading(self):
         # Remove some chunks
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_1"))
         os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_3"))
 
         start = self.chunk_size
         end = self.chunk_size * 4 - 1
-        generator = self.chunked_file.next_missing_chunk_and_seek(start, end)
+        generator = self.chunked_file.next_missing_chunk_and_read(start, end)
 
         missing_range_1 = next(generator)
 
-        self.assertEqual(self.chunked_file.position, self.chunk_size)
-        self.assertEqual(self.chunked_file.position, missing_range_1[0])
+        self.assertEqual(b"".join(missing_range_1[2]), self.data[0 : self.chunk_size])
+
+        # Seek past the first missing chunk to make sure we don't try to read it.
+        # In normal operation, the missing chunk would be filled in with a write before
+        # the next read, which would cause the read to skip past.
+        self.chunked_file.seek(self.chunk_size * 2)
 
         missing_range_2 = next(generator)
 
-        self.assertEqual(self.chunked_file.position, self.chunk_size * 3)
-        self.assertEqual(self.chunked_file.position, missing_range_2[0])
+        self.assertEqual(
+            b"".join(missing_range_2[2]),
+            self.data[self.chunk_size * 2 : self.chunk_size * 3],
+        )
 
         expected_ranges = [
             (self.chunk_size * 1, self.chunk_size * 2 - 1),
             (self.chunk_size * 3, self.chunk_size * 4 - 1),
         ]
-        self.assertEqual([missing_range_1, missing_range_2], expected_ranges)
+        self.assertEqual([missing_range_1[:2], missing_range_2[:2]], expected_ranges)
 
     def test_finalize_file(self):
         self.chunked_file.finalize_file()
