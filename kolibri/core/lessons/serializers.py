@@ -86,6 +86,20 @@ class LessonSerializer(ModelSerializer):
                 "The fields title, collection must make a unique set.",
                 code=error_constants.UNIQUE,
             )
+            
+    def validate_description(self, description):
+        if len(description) > 500:
+            raise ValidationError("Description must not exceed 500 characters.")
+        return description
+
+    def validate_resources(self, resources):
+        for resource in resources:
+            if not resource["content_id"]:
+                raise ValidationError("Content ID is required.")
+            if not resource["channel_id"]:
+                raise ValidationError("Channel ID is required.")
+        return resources
+
 
     def to_internal_value(self, data):
         data = OrderedDict(data)
