@@ -28,15 +28,19 @@ class BaseTestTransfer(unittest.TestCase):
         self.file_size = (1024 * 1024) + 731
 
         # Create dummy chunks
-        chunks_count = int(math.ceil(float(self.file_size) / float(BLOCK_SIZE)))
+        self.chunks_count = int(math.ceil(float(self.file_size) / float(BLOCK_SIZE)))
 
         os.makedirs(self.dest + ".chunks", exist_ok=True)
 
         hash = hashlib.md5()
 
         self.content = b""
-        for i in range(chunks_count):
-            size = BLOCK_SIZE if i < chunks_count - 1 else (self.file_size % BLOCK_SIZE)
+        for i in range(self.chunks_count):
+            size = (
+                BLOCK_SIZE
+                if i < self.chunks_count - 1
+                else (self.file_size % BLOCK_SIZE)
+            )
             to_write = os.urandom(size)
             if partial and (i % 3) == 0:
                 with open(
@@ -121,6 +125,10 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             for chunk in fd:
                 output += chunk
         self.assertEqual(output, self.content)
+        self.assertEqual(
+            self.mock_session.get.call_count,
+            self.chunks_count if self.byte_range_support else 1,
+        )
 
     def test_download_checksum_validation(self):
         # Test FileDownload checksum validation
@@ -218,6 +226,50 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 data_out += chunk
 
         self.assertEqual(self.content, data_out)
+
+    def test_range_request_download_iterator(self):
+        data_out = b""
+
+        start_range = self.file_size // 3
+        end_range = self.file_size // 3 * 2
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            start_range=start_range,
+            end_range=end_range,
+        ) as fd:
+            for chunk in fd:
+                data_out += chunk
+
+        if self.byte_range_support:
+            first_download_chunk = start_range // BLOCK_SIZE
+            last_download_chunk = end_range // BLOCK_SIZE
+            calls = [
+                call(
+                    self.source,
+                    headers={
+                        "Range": "bytes={}-{}".format(
+                            i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE - 1
+                        )
+                    },
+                    stream=True,
+                    timeout=60,
+                )
+                for i in range(first_download_chunk, last_download_chunk)
+            ]
+
+        else:
+            calls = [
+                call(self.source, stream=True, timeout=60),
+            ]
+
+        self.mock_session.get.assert_has_calls(calls)
+
+        self.assertEqual(len(data_out), end_range - start_range + 1)
+        self.assertEqual(self.content[start_range : end_range + 1], data_out)
 
 
 class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSupport):
