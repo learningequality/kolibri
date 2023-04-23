@@ -148,21 +148,22 @@ class ChunkedFile(BufferedIOBase):
             size = self.file_size - position
 
         remaining = size
-        data_parts = []
+        data = b""
 
         while remaining > 0:
             chunk_index = position // self.chunk_size
             chunk_file = self._get_chunk_file_name(chunk_index)
-
+            if not os.path.exists(chunk_file):
+                raise ValueError("Attempting to read data that has not been stored yet")
             with open(chunk_file, "rb") as f:
                 f.seek(position % self.chunk_size)
                 chunk_data = f.read(min(remaining, self.chunk_size))
-                data_parts.append(chunk_data)
+                data += chunk_data
 
                 position += len(chunk_data)
                 remaining -= len(chunk_data)
 
-        return position, b"".join(data_parts)
+        return position, data
 
     def read(self, size=-1):
         self.position, output = self._read(self.position, size)
@@ -224,6 +225,8 @@ class ChunkedFile(BufferedIOBase):
         """
         start_chunk = start // self.chunk_size if start is not None else 0
         end_chunk = end // self.chunk_size if end is not None else self.chunks_count - 1
+
+        self.seek(start_chunk * self.chunk_size)
 
         for chunk_index in range(start_chunk, end_chunk + 1):
             chunk_file = self._get_chunk_file_name(chunk_index)
@@ -298,6 +301,8 @@ class Transfer(with_metaclass(ABCMeta)):
         # A flag to allow the download to remain in the chunked file directory
         # for easier clean up when it is just a temporary download.
         finalize_download=True,
+        start_range=None,
+        end_range=None,
     ):
         self.source = source
         self.dest = dest
@@ -310,14 +315,14 @@ class Transfer(with_metaclass(ABCMeta)):
         self.completed = False
         self.finalized = False
         self.closed = False
-        self.finalize_download = finalize_download
+        self._finalize_download = finalize_download
         self.transfer_size = None
+        self.position = 0
         if cancel_check and not callable(cancel_check):
             raise AssertionError("cancel_check must be callable")
         self._cancel_check = cancel_check
 
-        self.range_start = None
-        self.range_end = None
+        self.set_range(start_range, end_range)
 
         if os.path.isdir(dest):
             raise AssertionError(
@@ -357,23 +362,78 @@ class Transfer(with_metaclass(ABCMeta)):
         self._set_iterator()
         return self
 
+    def set_range(self, range_start, range_end):
+        if range_start is not None and not isinstance(range_start, int):
+            raise TypeError("range_start must be an integer")
+
+        self.range_start = range_start
+
+        if range_end is not None and not isinstance(range_end, int):
+            raise TypeError("range_end must be an integer")
+
+        self.range_end = range_end
+
     @abstractmethod
     def _get_content_iterator(self):
         pass
+
+    def _next(self):
+        """
+        Retrieves the next chunk of data during the transfer and writes it to the output file.
+        Returns the data only if it is within the range specified by range_start and range_end.
+        """
+
+        # Initialize an empty byte string as output
+        output = b""
+
+        # Keep looping until a non-empty output is obtained
+        while not output:
+            try:
+                # Get the next chunk from the content iterator
+                chunk = next(self._content_iterator)
+            except StopIteration:
+                # If there are no more chunks, mark the transfer as completed
+                self.completed = True
+                # Close the transfer
+                self.close()
+                # Finalize the transfer (verify checksum and move the temporary file)
+                self.finalize()
+                # Raise the StopIteration exception to stop the iteration
+                raise
+
+            # Write the current chunk to the chunked file object
+            self.chunked_file_obj.write(chunk)
+
+            # Initialize chunk_start to 0
+            chunk_start = 0
+
+            # Check if there is a range_start and if the position is less than range_start
+            if self.range_start and self.position < self.range_start:
+                # Update chunk_start to the difference between range_start and the current position
+                chunk_start = self.range_start - self.position
+
+            # Set chunk_end to the length of the current chunk
+            chunk_end = len(chunk)
+
+            # Check if there is a range_end and if the current position plus chunk_end is greater than range_end
+            if self.range_end and self.position + chunk_end > self.range_end:
+                # Update chunk_end to the maximum of range_end + 1 minus the current position, or 0
+                chunk_end = max(self.range_end + 1 - self.position, 0)
+
+            # Update output with the slice of the chunk between chunk_start and chunk_end
+            output = chunk[chunk_start:chunk_end]
+
+            # Update the position by the length of the chunk
+            self.position += len(chunk)
+
+        # Return the output (a non-empty byte string)
+        return output
 
     def next(self):
         self._set_iterator()
         if self.cancel_check():
             self._kill_gracefully()
-        try:
-            chunk = next(self._content_iterator)
-        except StopIteration:
-            self.completed = True
-            self.close()
-            self.finalize()
-            raise
-        self.chunked_file_obj.write(chunk)
-        return chunk
+        return self._next()
 
     def _move_tmp_to_dest(self):
         try:
@@ -424,6 +484,14 @@ class Transfer(with_metaclass(ABCMeta)):
                 "Transferred file checksums did not match for {}".format(self.source)
             )
 
+    @property
+    def finalize_download(self):
+        return (
+            self._finalize_download
+            and (self.range_start is None or self.range_start == 0)
+            and (self.range_end is None or self.range_end == self.file_size - 1)
+        )
+
     def finalize(self):
         if not self.completed:
             raise TransferNotYetCompleted(
@@ -435,8 +503,8 @@ class Transfer(with_metaclass(ABCMeta)):
             )
         if self.finalized:
             return
-        self._verify_checksum()
         if self.finalize_download:
+            self._verify_checksum()
             self._move_tmp_to_dest()
             self.finalized = True
 
@@ -472,17 +540,6 @@ class FileDownload(Transfer):
             # Catch exceptions to check if we should resume file downloading
             logger.error("Error reading download stream: {}".format(e))
             self.resume()
-
-    def set_ranges(self, range_start, range_end):
-        if range_start is not None and not isinstance(range_start, int):
-            raise TypeError("range_start must be an integer")
-
-        self.range_start = range_start
-
-        if range_end is not None and not isinstance(range_end, int):
-            raise TypeError("range_end must be an integer")
-
-        self.range_end = range_end
 
     def _set_headers(self):
         if self._headers_set:
@@ -524,6 +581,8 @@ class FileDownload(Transfer):
                 self.total_size = len(self.response.content)
 
     def next_missing_chunk_range_generator(self):
+        if self.range_start:
+            self.position = self.range_start // self.block_size * self.block_size
         for (
             start_byte,
             end_byte,
