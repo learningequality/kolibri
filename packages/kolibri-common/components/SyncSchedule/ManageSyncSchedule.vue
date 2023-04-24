@@ -16,8 +16,11 @@
           <p>{{ $tr('introduction') }}</p>
         </KGridItem>
 
-
-        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+          class="separate"
+        >
           <b v-if="facility">{{ facility.name }}</b>
           <KCircularLoader v-else />
         </KGridItem>
@@ -27,14 +30,10 @@
           :layout12="{ span: 6 }"
           class="separate"
         >
-          <KButton
-            @click="deviceModal = true"
-          >
+          <KButton @click="deviceModal = true">
             {{ $tr('addDevice') }}
           </KButton>
         </KGridItem>
-
-
 
       </KGrid>
 
@@ -48,7 +47,10 @@
               <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
-            <tr v-for="device in savedDevices" :key="device.id">
+            <tr
+              v-for="device in savedDevices"
+              :key="device.id"
+            >
               <td>
                 <span>{{ device.extra_metadata.device_name }}<br>
                   {{ device.extra_metadata.baseurl }}
@@ -61,27 +63,24 @@
               </td>
 
               <td v-if="data && data.length > 0">
-                <div v-for="ids in data" :key="ids.id">
+                <div
+                  v-for="ids in data"
+                  :key="ids.id"
+                >
                   <div v-if="ids.base_url === device.extra_metadata.baseurl">
                     <span v-if="ids.available">
-                      <KIcon
-                        icon="onDevice"
-                      />
+                      <KIcon icon="onDevice" />
                       <span>{{ $tr('connected') }}</span>
                     </span>
                     <span v-else>
-                      <KIcon
-                        icon="disconnected"
-                      />
+                      <KIcon icon="disconnected" />
                       <span>{{ $tr('disconnected') }}</span>
                     </span>
                   </div>
                 </div>
               </td>
               <td v-else>
-                <KIcon
-                  icon="disconnected"
-                />
+                <KIcon icon="disconnected" />
                 <span>{{ $tr('disconnected') }}</span>
               </td>
               <td>
@@ -103,7 +102,10 @@
               <th></th>
             </tr>
             <tr>
-              <td colspan="3" style="text-align:center">
+              <td
+                colspan="3"
+                style="text-align:center"
+              >
                 <b>{{ $tr('NoSync') }}</b>
               </td>
             </tr>
@@ -133,13 +135,19 @@
           </KGridItem>
         </KGrid>
 
-        <KGrid gutter="48" class="add-space">
+        <KGrid
+          gutter="48"
+          class="add-space"
+        >
           <KGridItem
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
             <div v-if="data && data.length > 0">
-              <div v-for="btn in data" :key="btn.id">
+              <div
+                v-for="btn in data"
+                :key="btn.id"
+              >
                 <div>
                   <KRadioButton
                     v-model="radioBtnValue"
@@ -190,7 +198,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
-  import { SyncPageNames } from './constants';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -208,6 +215,10 @@
       },
       goBackRoute: {
         type: Object,
+        required: true,
+      },
+      editSyncRoute: {
+        type: Function,
         required: true,
       },
     },
@@ -241,7 +252,7 @@
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.savedDevices = tasks.filter(t => t.facility_id === this.theFacilityId);
+          this.savedDevices = tasks.filter(t => t.facility_id === this.facilityId);
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -256,10 +267,7 @@
         this.deviceModal = false;
         if (id !== ' ') {
           this.deviceIds.push(id);
-          this.$router.push({
-            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
-            params: { deviceId: id, facility_id: this.facilityId },
-          });
+          this.$router.push(this.editSyncRoute(id));
         } else {
           return window.location.href;
         }
@@ -267,12 +275,9 @@
       newAddress() {
         this.newaddressclick = true;
       },
-      editButton(value) {
-        if (value !== ' ') {
-          this.$router.push({
-            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
-            params: { deviceId: value, facilityId: this.facilityId },
-          });
+      editButton(id) {
+        if (id !== ' ') {
+          this.$router.push(this.editSyncRoute(id));
         } else {
           return window.location.href;
         }
@@ -375,19 +380,18 @@
 
 
 <style scoped>
-.separate{
-  margin-bottom:35px;
-  margin-top:35px;
+.separate {
+  margin-bottom: 35px;
+  margin-top: 35px;
 }
-.add-space{
-  margin:4px;
+.add-space {
+  margin: 4px;
 }
 .right {
   position: absolute;
   right: 50px;
 }
-.loader-size{
-  margin-top:10px
+.loader-size {
+  margin-top: 10px;
 }
-
 </style>

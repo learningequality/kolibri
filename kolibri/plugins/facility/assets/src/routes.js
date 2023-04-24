@@ -130,9 +130,19 @@ export default [
   {
     path: '/:facility_id?/managesync',
     props: route => {
+      const facilityId = route.params.facility_id || store.getters.currentFacilityId;
       return {
-        facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        facilityId,
         goBackRoute: { name: PageNames.DATA_EXPORT_PAGE },
+        editSyncRoute: function(deviceId) {
+          return {
+            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+            params: {
+              deviceId,
+              facility_id: facilityId,
+            },
+          };
+        },
       };
     },
     component: ManageSyncSchedule,
@@ -145,6 +155,7 @@ export default [
     props: route => {
       return {
         facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        deviceId: route.params.deviceId,
         goBackRoute: { name: SyncPageNames.MANAGE_SYNC_SCHEDULE },
       };
     },

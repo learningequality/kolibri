@@ -1,7 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
-import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 import { showDeviceInfoPage } from '../modules/deviceInfo/handlers';
 import { showManagePermissionsPage } from '../modules/managePermissions/handlers';
 import { showManageContentPage } from '../modules/manageContent/handlers';
@@ -79,24 +78,35 @@ const routes = [
     },
   },
   {
-    name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
+    name: PageNames.MANAGE_SYNC_SCHEDULE,
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
     path: '/facilities/:facilityId/managesync',
     props: route => {
+      const facilityId = route.params.facilityId || store.getters.currentFacilityId;
       return {
         goBackRoute: { name: PageNames.FACILITIES_PAGE },
-        facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        facilityId,
+        editSyncRoute: function(deviceId) {
+          return {
+            name: PageNames.EDIT_SYNC_SCHEDULE,
+            params: {
+              device_id: deviceId,
+              facilityId: facilityId,
+            },
+          };
+        },
       };
     },
   },
   {
-    name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+    name: PageNames.EDIT_SYNC_SCHEDULE,
     component: withAuthMessage(EditDeviceSyncSchedule, 'superuser'),
     path: '/facilities/:device_id/:facilityId/editdevice',
     props: route => {
       return {
         goBackRoute: { name: PageNames.MANAGE_SYNC_SCHEDULE },
-        facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        facilityId: route.params.facilityId || store.getters.currentFacilityId,
+        deviceId: route.params.device_id,
       };
     },
     handler: ({ name }) => {
