@@ -13,10 +13,13 @@ from sqlalchemy import Integer
 from sqlalchemy import select
 from sqlalchemy.exc import DatabaseError
 
+from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.apps import KolibriContentConfig
 from kolibri.core.content.constants.kind_to_learningactivity import kind_activity_map
+from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
@@ -31,7 +34,6 @@ from kolibri.core.content.utils.sqlalchemybridge import Bridge
 from kolibri.core.content.utils.tree import get_channel_node_depth
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.upgrade import version_upgrade
-
 
 logger = logging.getLogger(__name__)
 
@@ -325,3 +327,18 @@ def admin_imported_flag():
     )
 
     ContentCacheKey.update_cache_key()
+
+
+@version_upgrade(old_version="<0.16.0")
+def synchronize_content_requests_upgrade():
+    """
+    Synchronizes content requests for each dataset on the device, excluding datasets with a transfer_session_id.
+    """
+
+    dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
+
+    # Synchronize content requests for each dataset
+    for dataset_id in dataset_ids:
+        synchronize_content_requests(dataset_id, None)
+
+    automatic_resource_import.enqueue()

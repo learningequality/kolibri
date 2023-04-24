@@ -48,22 +48,32 @@ INCOMPLETE_STATUSES = [
 ]
 
 
-def synchronize_content_requests(dataset_id, transfer_session):
+def synchronize_content_requests(dataset_id, transfer_session=None):
     """
     Synchronizes content download and removal requests with models that dictate assignment, like
     Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
 
     :param dataset_id: The UUID of the synced dataset
-    :param transfer_session: The sync's transfer session model
-    :type transfer_session: morango.models.core.TransferSession
+    :param transfer_session: The sync's transfer session model, if available
+    :type transfer_session: Optional[morango.models.core.TransferSession]
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
+    if transfer_session is None and dataset_id is None:
+        raise ValueError("Either dataset_id or transfer_session_id is required")
+
+    assignments = ContentAssignmentManager.find_all_assignments(
+        dataset_id=dataset_id,
+        transfer_session_id=transfer_session.id if transfer_session else None,
+    )
+    removable_assignments = ContentAssignmentManager.find_all_removable_assignments(
+        dataset_id=dataset_id,
+        transfer_session_id=transfer_session.id if transfer_session else None,
+    )
+
     # process the new assignments
     logger.info("Processing new content assignment requests")
-    for assignment in ContentAssignmentManager.find_all_downloadable_assignments(
-        transfer_session.id
-    ):
+    for assignment in assignments:
         related_removals = ContentRemovalRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,
@@ -85,9 +95,7 @@ def synchronize_content_requests(dataset_id, transfer_session):
 
     # process new removals
     logger.info("Processing new content removal requests")
-    for assignment in ContentAssignmentManager.find_all_removable_assignments(
-        transfer_session.id
-    ):
+    for assignment in removable_assignments:
         related_downloads = ContentDownloadRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,

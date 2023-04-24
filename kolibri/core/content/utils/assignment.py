@@ -174,6 +174,8 @@ class ContentAssignmentManager(object):
                 model_qs = model_qs.filter(
                     pk__in=modified_store.values_list("id", flat=True)
                 )
+            else:
+                return []
         elif dataset_id:
             model_qs = model_qs.filter(dataset_id=dataset_id)
         if self.filters:
@@ -191,13 +193,16 @@ class ContentAssignmentManager(object):
         """
         if transfer_session_id:
             modified_store = self._get_modified_store(transfer_session_id)
+
+            model_qs = self.model.objects.filter(
+                pk__in=modified_store.values_list("id", flat=True)
+            )
             if self.filters:
                 # modified models that do not match filters
-                model_qs = self.model.objects.filter(
-                    pk__in=modified_store.values_list("id", flat=True)
-                ).exclude(**self.filters)
-                for assignment in self._get_assignments(model_qs):
-                    yield assignment
+                model_qs = model_qs.exclude(**self.filters)
+
+            for assignment in self._get_assignments(model_qs):
+                yield assignment
 
             # models that were deleted
             deleted_qs = modified_store.filter(Q(deleted=True) | Q(hard_deleted=True))
