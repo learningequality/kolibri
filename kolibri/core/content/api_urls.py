@@ -3,6 +3,7 @@ from django.conf.urls import url
 from rest_framework import routers
 
 from .api import ChannelMetadataViewSet
+from .api import ContentDownloadRequestViewset
 from .api import ContentNodeBookmarksViewset
 from .api import ContentNodeGranularViewset
 from .api import ContentNodeProgressViewset
@@ -32,6 +33,11 @@ router.register(
 router.register(r"file", FileViewset, basename="file")
 router.register(
     r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
+)
+router.register(
+    r"contentdownloadrequest",
+    ContentDownloadRequestViewset,
+    basename="contentdownloadrequest",
 )
 router.register(
     r"contentnode_granular",

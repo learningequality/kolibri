@@ -41,6 +41,7 @@ from rest_framework.response import Response
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.middleware import session_exempt
@@ -1319,6 +1320,16 @@ class ContentNodeBookmarksViewset(
                     item["bookmark"] = bookmark
                     sorted_items.append(item)
         return sorted_items
+
+
+class ContentDownloadRequestViewset(ValuesViewset):
+
+    queryset = models.ContentDownloadRequest.objects.all()
+    values = (
+        "id",
+        "metadata",
+        "reason",
+    )
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")
