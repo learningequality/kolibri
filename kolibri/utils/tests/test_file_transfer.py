@@ -7,6 +7,7 @@ import unittest
 
 from mock import call
 from mock import MagicMock
+from mock import patch
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -14,8 +15,10 @@ from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
 from kolibri.utils.file_transfer import BLOCK_SIZE
+from kolibri.utils.file_transfer import ChunkedFile
 from kolibri.utils.file_transfer import FileCopy
 from kolibri.utils.file_transfer import FileDownload
+from kolibri.utils.file_transfer import RemoteFile
 from kolibri.utils.file_transfer import retry_import
 from kolibri.utils.file_transfer import RETRY_STATUS_CODE
 from kolibri.utils.file_transfer import SSLERROR
@@ -75,17 +78,31 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             and "content-encoding" not in self.HEADERS
         )
 
-    def get_headers(self, data):
+    @property
+    def attempt_byte_range(self):
+        return (
+            "content-length" in self.HEADERS and "content-encoding" not in self.HEADERS
+        )
+
+    def get_headers(self, data, start, end):
         headers = self.HEADERS.copy()
         if "content-length" in headers:
             headers["content-length"] = len(data)
         if "x-goog-stored-content-length" in headers:
             headers["x-goog-stored-content-length"] = len(data)
+        if end is not None:
+            headers["content-range"] = "bytes {}-{}/{}".format(
+                # have to take 1 away as it has been coerced to fit an exclusive
+                # range for a Python list slice.
+                start,
+                end - 1,
+                self.file_size,
+            )
         return headers
 
     def mock_get_request(self, url, headers=None, **kwargs):
         start, end = 0, None
-        if headers and "Range" in headers:
+        if headers and "Range" in headers and self.byte_range_support:
             range_header = headers["Range"]
             start, end = map(int, range_header.replace("bytes=", "").split("-"))
             if end:
@@ -95,16 +112,38 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
         range_data = self.content[start:end]
 
-        range_headers = self.get_headers(range_data)
+        range_headers = self.get_headers(range_data, start, end)
         mock_response = MagicMock()
-        mock_response.iter_content.return_value = iter([range_data])
+
+        # Because of the way that requests iterates over the content, we need to
+        # keep track of whether the content has been exhausted, so that we can
+        # yield nothing from the iter_content method, if the content has
+        # already been read from the content property.
+
+        self.iter_content_exhausted = False
+
+        def iter_content(chunk_size=1):
+            remaining = len(range_data)
+            if not self.iter_content_exhausted:
+                while remaining > 0:
+                    start = len(range_data) - remaining
+                    yield range_data[start : start + chunk_size]
+                    remaining -= chunk_size
+
+        mock_response.iter_content = iter_content
         mock_response.headers = range_headers
-        mock_response.content = range_data
+
+        @property
+        def content(other):
+            self.iter_content_exhausted = True
+            return range_data
+
+        type(mock_response).content = content
         return mock_response
 
     def mock_head_request(self, url, **kwargs):
         mock_response = MagicMock()
-        mock_response.headers = self.get_headers(self.content)
+        mock_response.headers = self.get_headers(self.content, None, None)
         return mock_response
 
     def set_session_mock(self):
@@ -138,6 +177,12 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             for chunk in fd:
                 pass
         self.assertTrue(os.path.isfile(self.dest))
+        with open(self.dest, "rb") as f:
+            data = f.read()
+            self.assertEqual(data, self.content)
+            hasher = hashlib.md5()
+            hasher.update(data)
+            self.assertEqual(hasher.hexdigest(), self.checksum)
 
     def test_file_download_retry_resume(self):
         mock_response_1 = MagicMock()
@@ -165,7 +210,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.assertTrue(os.path.isfile(self.dest))
         self.assertEqual(self.mock_session.get.call_count, 2)
 
-        if self.byte_range_support:
+        if self.attempt_byte_range:
             calls = [
                 call(
                     self.source,
@@ -261,6 +306,15 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 for i in range(first_download_chunk, last_download_chunk)
             ]
 
+        elif self.attempt_byte_range:
+            calls = [
+                call(
+                    self.source,
+                    headers={"Range": "bytes=262144-393215"},
+                    stream=True,
+                    timeout=60,
+                ),
+            ]
         else:
             calls = [
                 call(self.source, stream=True, timeout=60),
@@ -270,6 +324,105 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
         self.assertEqual(len(data_out), end_range - start_range + 1)
         self.assertEqual(self.content[start_range : end_range + 1], data_out)
+
+        chunked_file = ChunkedFile(self.dest)
+        chunked_file.seek(start_range)
+        self.assertEqual(
+            chunked_file.read(end_range - start_range + 1),
+            self.content[start_range : end_range + 1],
+        )
+
+    def test_remote_file_iterator(self):
+        output = b""
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            chunk = rf.read(BLOCK_SIZE)
+            while chunk:
+                output += chunk
+                chunk = rf.read(BLOCK_SIZE)
+        self.assertEqual(output, self.content)
+        self.assertEqual(
+            self.mock_session.get.call_count,
+            self.chunks_count if self.byte_range_support else 1,
+        )
+
+    def test_partial_remote_file_iterator(self):
+        self.set_test_data(partial=True)
+
+        data_out = b""
+
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            chunk = rf.read(BLOCK_SIZE)
+            while chunk:
+                data_out += chunk
+                chunk = rf.read(BLOCK_SIZE)
+        self.assertEqual(self.content, data_out)
+
+    def test_range_request_remote_file_iterator(self):
+        data_out = b""
+
+        start_range = self.file_size // 3
+        end_range = self.file_size // 3 * 2
+
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            rf.set_range(start_range, end_range)
+            chunk = rf.read(BLOCK_SIZE)
+            while chunk:
+                data_out += chunk
+                chunk = rf.read(BLOCK_SIZE)
+
+        if self.byte_range_support:
+            first_download_chunk = start_range // BLOCK_SIZE
+            last_download_chunk = end_range // BLOCK_SIZE
+            calls = [
+                call(
+                    self.source,
+                    headers={
+                        "Range": "bytes={}-{}".format(
+                            i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE - 1
+                        )
+                    },
+                    stream=True,
+                    timeout=60,
+                )
+                for i in range(first_download_chunk, last_download_chunk)
+            ]
+        elif self.attempt_byte_range:
+            calls = [
+                call(
+                    self.source,
+                    headers={"Range": "bytes=262144-393215"},
+                    stream=True,
+                    timeout=60,
+                ),
+            ]
+        else:
+            calls = [
+                call(self.source, stream=True, timeout=60),
+            ]
+
+        self.mock_session.get.assert_has_calls(calls)
+
+        self.assertEqual(len(data_out), end_range - start_range + 1)
+        self.assertEqual(self.content[start_range : end_range + 1], data_out)
+
+        chunked_file = ChunkedFile(self.dest)
+        chunked_file.seek(start_range)
+        self.assertEqual(
+            chunked_file.read(end_range - start_range + 1),
+            self.content[start_range : end_range + 1],
+        )
 
 
 class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSupport):
@@ -318,6 +471,24 @@ class TestTransferDownloadNoByteRangeSupport(TestTransferDownloadByteRangeSuppor
     @property
     def HEADERS(self):
         return {"content-length": str(len(self.content))}
+
+
+class TestTransferDownloadByteRangeSupportNotReported(
+    TestTransferDownloadByteRangeSupport
+):
+    """
+    Some versions of Kolibri do support byte range requests, but do not report an accept-ranges header.
+    So we do a functional test of this behaviour by attempting the byte range request, and checking that
+    it does work. This combined with the test case above should cover all cases.
+    """
+
+    @property
+    def HEADERS(self):
+        return {"content-length": str(len(self.content))}
+
+    @property
+    def byte_range_support(self):
+        return True
 
 
 class TestTransferCopy(BaseTestTransfer):

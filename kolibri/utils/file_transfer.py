@@ -214,6 +214,11 @@ class ChunkedFile(BufferedIOBase):
             position, output = self._read(position, min(end - position, BLOCK_SIZE))
             yield output
 
+    def _chunk_range_for_byte_range(self, start, end):
+        start_chunk = start // self.chunk_size if start is not None else 0
+        end_chunk = end // self.chunk_size if end is not None else self.chunks_count - 1
+        return start_chunk, end_chunk
+
     def next_missing_chunk_and_read(self, start=None, end=None):
         """
         Generator to yield start and end ranges of the next missing chunk,
@@ -223,8 +228,7 @@ class ChunkedFile(BufferedIOBase):
         The data written back to the file will be ignored, but then the file position will be
         updated as a result of the write.
         """
-        start_chunk = start // self.chunk_size if start is not None else 0
-        end_chunk = end // self.chunk_size if end is not None else self.chunks_count - 1
+        start_chunk, end_chunk = self._chunk_range_for_byte_range(start, end)
 
         self.seek(start_chunk * self.chunk_size)
 
@@ -246,8 +250,16 @@ class ChunkedFile(BufferedIOBase):
                 with open(chunk_file, "rb") as input_file:
                     shutil.copyfileobj(input_file, output_file)
 
-    def is_complete(self):
-        for chunk_index in range(self.chunks_count):
+    def is_complete(self, start=None, end=None):
+        try:
+            # Check that the number of chunks is set
+            # this depends on the file size being set
+            # which will raise a ValueError.
+            self.chunks_count
+        except ValueError:
+            return False
+        start_chunk, end_chunk = self._chunk_range_for_byte_range(start, end)
+        for chunk_index in range(start_chunk, end_chunk + 1):
             chunk_file = self._get_chunk_file_name(chunk_index)
             if not os.path.exists(chunk_file):
                 return False
@@ -340,7 +352,10 @@ class Transfer(with_metaclass(ABCMeta)):
 
     @property
     def total_size(self):
-        return self.chunked_file_obj.file_size
+        try:
+            return self.chunked_file_obj.file_size
+        except ValueError:
+            return None
 
     @total_size.setter
     def total_size(self, value):
@@ -438,6 +453,7 @@ class Transfer(with_metaclass(ABCMeta)):
     def _move_tmp_to_dest(self):
         try:
             self.chunked_file_obj.finalize_file()
+            self.chunked_file_obj.delete()
         except FileNotFoundError as e:
             if not os.path.exists(self.dest):
                 raise e
@@ -493,6 +509,8 @@ class Transfer(with_metaclass(ABCMeta)):
         )
 
     def finalize(self):
+        if not self.finalize_download:
+            return
         if not self.completed:
             raise TransferNotYetCompleted(
                 "Transfer must have completed before it can be finalized."
@@ -503,10 +521,10 @@ class Transfer(with_metaclass(ABCMeta)):
             )
         if self.finalized:
             return
-        if self.finalize_download:
-            self._verify_checksum()
-            self._move_tmp_to_dest()
-            self.finalized = True
+
+        self._verify_checksum()
+        self._move_tmp_to_dest()
+        self.finalized = True
 
     def close(self):
         self.chunked_file_obj.close()
@@ -523,9 +541,9 @@ class FileDownload(Transfer):
             # initialize a fresh requests session, if one wasn't provided
             self.session = requests.Session()
 
-        self.byte_range_requests_supported = False
-
         self.compressed = False
+
+        self.content_length_header = False
 
         super(FileDownload, self).__init__(*args, **kwargs)
 
@@ -549,15 +567,8 @@ class FileDownload(Transfer):
         response.raise_for_status()
 
         self.compressed = bool(response.headers.get("content-encoding", ""))
-        # Use Accept-Ranges and Content-Length header to check if range
-        # requests are supported. For example, range requests are
-        # supported on compressed files, but the files cannot be decoded
-        # because of the missing gzip header.
-        self.byte_range_requests_supported = (
-            "bytes" in response.headers.get("accept-ranges", "")
-            and not self.compressed
-            and "content-length" in response.headers
-        )
+
+        self.content_length_header = "content-length" in response.headers
 
         try:
             self.total_size = int(response.headers["content-length"])
@@ -576,9 +587,6 @@ class FileDownload(Transfer):
             self._set_headers()
             self.started = True
             self._set_iterator(force=True)
-            if not self.byte_range_requests_supported:
-                self.response.raise_for_status()
-                self.total_size = len(self.response.content)
 
     def next_missing_chunk_range_generator(self):
         if self.range_start:
@@ -590,8 +598,6 @@ class FileDownload(Transfer):
         ) in self.chunked_file_obj.next_missing_chunk_and_read(
             start=self.range_start, end=self.range_end
         ):
-            for chunk in chunk_generator:
-                yield chunk
             response = self.session.get(
                 self.source,
                 headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
@@ -600,17 +606,55 @@ class FileDownload(Transfer):
             )
             response.raise_for_status()
 
+            range_response_supported = response.headers.get(
+                "content-range", ""
+            ) == "bytes {}-{}/{}".format(start_byte, end_byte, self.total_size)
+
+            if range_response_supported:
+                for chunk in chunk_generator:
+                    yield chunk
+
+            bytes_to_consume = self.position
+
             for chunk in response.iter_content(self.block_size):
+                if not range_response_supported:
+                    if bytes_to_consume:
+                        old_length = len(chunk)
+                        chunk = chunk[bytes_to_consume:]
+                        bytes_to_consume -= old_length - len(chunk)
+                    if not chunk:
+                        continue
                 yield chunk
+
+            if not range_response_supported:
+                break
 
     def _get_content_iterator(self):
         if not self.started:
             raise AssertionError(
                 "File download must be started before it can be iterated."
             )
-        if self.byte_range_requests_supported:
+        # Some Kolibri versions do support range requests, but fail to properly report this fact
+        # from their Accept-Ranges header. So we need to check if the server supports range requests
+        # by trying to make a range request, and if it fails, we need to fall back to the old
+        # behavior of downloading the whole file.
+        if self.content_length_header and not self.compressed:
             return self.next_missing_chunk_range_generator()
         self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
+        self.response.raise_for_status()
+        if (not self.content_length_header or self.compressed) and not self.total_size:
+            # Doing this exhausts the iterator, so if we need to do this, we need
+            # to return the dummy iterator below, as the iterator will be empty,
+            # and all content is now stored in memory. So we should avoid doing this as much
+            # as we can, hence the total size check above.
+            self.total_size = len(self.response.content)
+            # We then need to return a dummy iterator over the content
+            # this just iterates over the content in block size chunks
+            # as a generator comprehension.
+            return (
+                self.response.content[i * self.block_size : (i + 1) * self.block_size]
+                for i in range(self.total_size // self.block_size + 1)
+            )
         return self.response.iter_content(self.block_size)
 
     def next(self):
@@ -668,33 +712,55 @@ class RemoteFile(BufferedIOBase):
     A file like wrapper to handle downloading a file from a remote location.
     """
 
-    def __init__(self, filepath, remote_url, callback=None):
+    def __init__(self, filepath, remote_url):
         self.transfer = FileDownload(
-            remote_url, filepath, remove_existing_temp_file=True
+            remote_url,
+            filepath,
+            finalize_download=False,
         )
-        self.callback = callback
-        self.transfer.start()
+        self.chunked_file_obj = self.transfer.chunked_file_obj
         self._previously_read = b""
+        self._needs_download = None
+        self.range_start = None
+        self.range_end = None
+
+    def set_range(self, start, end):
+        self.range_start = start
+        self.range_end = end
+        self.transfer.set_range(start, end)
+
+    def get_file_size(self):
+        if self.transfer.total_size is None:
+            self._start_transfer()
+        return self.transfer.total_size
+
+    def _start_transfer(self):
+        if self._needs_download is None:
+            self._needs_download = not self.chunked_file_obj.is_complete(
+                start=self.range_start, end=self.range_end
+            )
+        if self._needs_download and not self.transfer.started:
+            self.transfer.start()
 
     def read(self, size=-1):
-        data = self._previously_read
-        while size == -1 or len(data) < size:
-            try:
-                data += next(self.transfer)
-            except StopIteration:
-                if self.callback:
-                    self.callback()
-                break
-        if size != -1:
-            self._previously_read = data[size:]
-            data = data[:size]
-        return data
+        self._start_transfer()
+        if self._needs_download:
+            data = self._previously_read
+            while size == -1 or len(data) < size:
+                try:
+                    data += next(self.transfer)
+                except StopIteration:
+                    break
+            if size != -1:
+                self._previously_read = data[size:]
+                data = data[:size]
+            return data
+        return self.chunked_file_obj.read(size=size)
 
     def close(self):
-        # Finish the download and close the file
-        self.read()
         self.transfer.close()
 
     def seek(self, offset, whence=0):
-        # Just read from the response until the offset is reached
-        self.read(size=offset)
+        # We handle this by setting the range on the transfer instead, so can safely
+        # ignore this call.
+        pass
