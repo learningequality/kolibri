@@ -8,52 +8,50 @@ import useDownloadRequests, {
 /* eslint-enable import/named */
 
 jest.mock('kolibri.urls');
+jest.mock('kolibri.client');
 jest.mock('../../src/composables/useDownloadRequests');
-
-jest.mock('plugin_data', () => {
-  return {
-    __esModule: true,
-    default: {
-      channels: [],
-    },
-  };
-});
 
 const CONTENT_ID = 'content-id';
 
 const localVue = createLocalVue();
 
-const store = makeStore();
-store.state.core = {
-  blockDoubleClicks: true,
-  logging: {
-    summary: {
-      progress: 0,
+// see `makeWrapper` for `params`
+function makeAuthWrapper(params) {
+  return makeWrapper({ ...params, isUserLoggedIn: true });
+}
+
+// see `makeWrapper` for `params`
+function makeAuthWrapperWithRemoteContent(params) {
+  return makeAuthWrapper({
+    ...params,
+    propsData: {
+      deviceId: 'remote-device-id', // non-null device ID means that the content is remote
+      ...params?.propsData,
     },
-  },
-};
-store.state.topicsTree = {
-  content: {
-    id: CONTENT_ID,
-    coach_content: 0,
-    admin_imported: false,
-  },
-};
+  });
+}
 
-store.getters = {
-  isAdmin() {
-    return false;
-  },
-};
-
-function makeWrapper({ propsData, isUserLoggedIn = false, isContentAdminImported = false } = {}) {
+function makeWrapper({
+  propsData = {},
+  isContentAdminImported = false,
+  isUserLoggedIn = false,
+} = {}) {
+  const store = makeStore();
+  store.state.topicsTree = {
+    content: {
+      id: CONTENT_ID,
+      admin_imported: isContentAdminImported,
+    },
+  };
   store.getters = {
     isUserLoggedIn,
   };
-  store.state.topicsTree.content.admin_imported = isContentAdminImported;
 
   return shallowMount(TopicsContentPage, {
-    propsData,
+    propsData: {
+      loading: false,
+      ...propsData,
+    },
     store,
     localVue,
     stubs: {
@@ -73,271 +71,167 @@ function makeWrapper({ propsData, isUserLoggedIn = false, isContentAdminImported
   });
 }
 
+function assertBookmarkButtonIsDisplayed(wrapper) {
+  expect(
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
+  ).toBeTruthy();
+}
+
+function assertBookmarkButtonIsNotDisplayed(wrapper) {
+  expect(
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
+  ).toBeFalsy();
+}
+
+function assertDownloadButtonIsDisplayed(wrapper) {
+  expect(
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
+  ).toBeTruthy();
+}
+
+function assertDownloadButtonIsNotDisplayed(wrapper) {
+  expect(
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
+  ).toBeFalsy();
+}
+
 describe('TopicsContentPage', () => {
   afterEach(() => {
     // reset back to defaults
     useDownloadRequests.mockImplementation(() => useDownloadRequestsMock());
   });
 
-  const wrapper = makeWrapper({
-    propsData: {
-      content: { id: 'test' },
-      loading: false,
-    },
-  });
-
   it('smoke test', () => {
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBe(true);
   });
 
   it('shows the Learning Activity Bar', () => {
+    const wrapper = makeWrapper();
     expect(wrapper.find('[data-test="learningActivityBar"]').exists()).toBeTruthy();
   });
 
   it('shows the Content Page', () => {
+    const wrapper = makeWrapper();
     expect(wrapper.find('[data-test="contentPage"]').exists()).toBeTruthy();
   });
 
-  describe(`bookmark`, () => {
+  describe(`remote download and bookmark`, () => {
     describe(`when a user is not logged in`, () => {
       it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-          },
-          isUserLoggedIn: false,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeFalsy();
-      });
-    });
-
-    describe(`when a user is logged in`, () => {
-      it(`instructs 'LearningActivityBar' to show the bookmark button when content is not remote`, async () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: null, // null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeTruthy();
+        const wrapper = makeWrapper();
+        assertBookmarkButtonIsNotDisplayed(wrapper);
       });
 
-      it(`instructs 'LearningActivityBar' to show the bookmark button for remote content that has been downloaded by a learner`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => true,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeTruthy();
-      });
-
-      it(`instructs 'LearningActivityBar' to show the bookmark button for remote content that has been imported by an admin`, () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: true,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeTruthy();
-      });
-
-      it(`instructs 'LearningActivityBar' to not show the bookmark button for remote content that hasn't been downloaded by a learner or imported by an admin yet`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => false,
-            isDownloadingByLearner: () => false,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeFalsy();
-      });
-
-      it(`instructs 'LearningActivityBar' to not show the bookmark button for remote content that is being downloaded by a learner`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => false,
-            isDownloadingByLearner: () => false,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
-        ).toBeFalsy();
-      });
-    });
-  });
-
-  describe(`remote download`, () => {
-    describe(`when a user is not logged in`, () => {
       it(`instructs 'LearningActivityBar' to not show the download button`, () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-          },
-          isUserLoggedIn: false,
-        });
-
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeFalsy();
+        const wrapper = makeWrapper();
+        assertDownloadButtonIsNotDisplayed(wrapper);
       });
     });
 
     describe(`when a user is logged in`, () => {
-      it(`instructs 'LearningActivityBar' to not show the download button when content is not remote`, () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: null, // null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
+      describe(`when content is not remote`, () => {
+        let wrapper;
+        beforeEach(() => {
+          wrapper = makeAuthWrapper();
         });
 
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeFalsy();
+        it(`instructs 'LearningActivityBar' to show the bookmark button`, () => {
+          assertBookmarkButtonIsDisplayed(wrapper);
+        });
+
+        it(`instructs 'LearningActivityBar' to not show the download button`, () => {
+          assertDownloadButtonIsNotDisplayed(wrapper);
+        });
       });
 
-      it(`instructs 'LearningActivityBar' to not show the download button for remote content that has been imported by an admin`, () => {
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: true,
+      describe(`for remote content that was imported by an admin`, () => {
+        let wrapper;
+        beforeEach(() => {
+          wrapper = makeAuthWrapperWithRemoteContent({
+            isContentAdminImported: true,
+          });
         });
 
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeFalsy();
+        it(`instructs 'LearningActivityBar' to show the bookmark button`, () => {
+          assertBookmarkButtonIsDisplayed(wrapper);
+        });
+
+        it(`instructs 'LearningActivityBar' to not show the download button`, () => {
+          assertDownloadButtonIsNotDisplayed(wrapper);
+        });
       });
 
-      it(`instructs 'LearningActivityBar' to not show the download button for remote content that has been downloaded by a learner already`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => true,
-            isDownloadingByLearner: () => false,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
+      describe(`for remote content that was downloaded by a learner (and not imported by an admin)`, () => {
+        let wrapper;
+        beforeEach(() => {
+          useDownloadRequests.mockImplementation(() =>
+            useDownloadRequestsMock({
+              isDownloadedByLearner: () => true,
+            })
+          );
+          wrapper = makeAuthWrapperWithRemoteContent();
         });
 
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeFalsy();
+        it(`instructs 'LearningActivityBar' to show the bookmark button`, () => {
+          assertBookmarkButtonIsDisplayed(wrapper);
+        });
+
+        it(`instructs 'LearningActivityBar' to not show the download button`, () => {
+          assertDownloadButtonIsNotDisplayed(wrapper);
+        });
       });
 
-      it(`instructs 'LearningActivityBar' to not show the download button for remote content that is being downloaded by a learner`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => false,
-            isDownloadingByLearner: () => true,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
+      describe(`for remote content that is being downloaded by a learner (and not imported by an admin)`, () => {
+        let wrapper;
+        beforeEach(() => {
+          useDownloadRequests.mockImplementation(() =>
+            useDownloadRequestsMock({
+              isDownloadingByLearner: () => true,
+            })
+          );
+          wrapper = makeAuthWrapperWithRemoteContent();
         });
 
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeFalsy();
+        it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
+          assertBookmarkButtonIsNotDisplayed(wrapper);
+        });
+
+        it(`instructs 'LearningActivityBar' to not show the download button`, () => {
+          assertDownloadButtonIsNotDisplayed(wrapper);
+        });
       });
 
-      it(`instructs 'LearningActivityBar' to show the download button for remote content that hasn't been downloaded by a learner or imported by an admin yet`, () => {
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            isDownloadedByLearner: () => false,
-            isDownloadingByLearner: () => false,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
+      describe(`for remote content that hasn't been downloaded by a learner or imported by an admin yet`, () => {
+        let wrapper;
+        beforeEach(() => {
+          wrapper = makeAuthWrapperWithRemoteContent();
         });
 
-        expect(
-          wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
-        ).toBeTruthy();
-      });
-
-      it(`clicking the download button calls 'addDownloadRequest' with content in the payload`, () => {
-        const addDownloadRequest = jest.fn();
-        useDownloadRequests.mockImplementation(() =>
-          useDownloadRequestsMock({
-            downloadRequestMap: { downloads: {} },
-            addDownloadRequest,
-          })
-        );
-        const wrapper = makeWrapper({
-          propsData: {
-            loading: false,
-            deviceId: 'remote-device-id', // non-null device ID means that the content is not remote
-          },
-          isUserLoggedIn: true,
-          isContentAdminImported: false,
+        it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
+          assertBookmarkButtonIsNotDisplayed(wrapper);
         });
-        wrapper.findComponent({ name: 'LearningActivityBar' }).vm.$emit('download');
-        expect(addDownloadRequest).toHaveBeenCalledTimes(1);
-        expect(addDownloadRequest).toHaveBeenCalledWith({
-          admin_imported: false,
-          coach_content: 0,
-          id: 'content-id',
+
+        it(`instructs 'LearningActivityBar' to show the download button`, () => {
+          assertDownloadButtonIsDisplayed(wrapper);
+        });
+
+        it(`clicking the download button calls 'addDownloadRequest' with content in the payload`, () => {
+          const addDownloadRequest = jest.fn();
+          useDownloadRequests.mockImplementation(() =>
+            useDownloadRequestsMock({
+              downloadRequestMap: { downloads: {} },
+              addDownloadRequest,
+            })
+          );
+          wrapper = makeAuthWrapperWithRemoteContent();
+          wrapper.findComponent({ name: 'LearningActivityBar' }).vm.$emit('download');
+
+          expect(addDownloadRequest).toHaveBeenCalledTimes(1);
+          expect(addDownloadRequest).toHaveBeenCalledWith({
+            admin_imported: false,
+            id: CONTENT_ID,
+          });
         });
       });
     });
