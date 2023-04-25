@@ -10,6 +10,8 @@ from io import BufferedIOBase
 from time import sleep
 
 import requests
+from diskcache import Cache
+from diskcache import Lock
 from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
@@ -232,13 +234,22 @@ class ChunkedFile(BufferedIOBase):
 
         self.seek(start_chunk * self.chunk_size)
 
-        for chunk_index in range(start_chunk, end_chunk + 1):
-            chunk_file = self._get_chunk_file_name(chunk_index)
-            if not os.path.exists(chunk_file):
-                range_start = chunk_index * self.chunk_size
-                range_end = min(range_start + self.chunk_size - 1, self.file_size - 1)
+        with Cache(self.chunk_dir) as cache:
 
-                yield (range_start, range_end, self.read_data_until(range_start))
+            for chunk_index in range(start_chunk, end_chunk + 1):
+                chunk_file = self._get_chunk_file_name(chunk_index)
+                with Lock(cache, chunk_file):
+                    if not os.path.exists(chunk_file):
+                        range_start = chunk_index * self.chunk_size
+                        range_end = min(
+                            range_start + self.chunk_size - 1, self.file_size - 1
+                        )
+
+                        yield (
+                            range_start,
+                            range_end,
+                            self.read_data_until(range_start),
+                        )
 
     def finalize_file(self):
         if not self.is_complete():
