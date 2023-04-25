@@ -33,9 +33,11 @@
 
       <template #actions>
         <Transition name="downloading-loader">
-          <span v-if="showDownloadingLoader">
+          <span>
             <KCircularLoader
               ref="downloadingLoader"
+              :show="showDownloadingLoader"
+              :freeze="3000"
               data-test="downloadingLoader"
               :size="24"
               :style="{ margin: '10px 4px 0px 4px' }"

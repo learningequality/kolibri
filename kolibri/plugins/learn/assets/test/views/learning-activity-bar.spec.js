@@ -293,7 +293,7 @@ describe('LearningActivityBar', () => {
 
       it(`doesn't show the downloading loader by default`, () => {
         const wrapper = makeWrapper();
-        expect(wrapper.find("[data-test='downloadingLoader']").exists()).toBeFalsy();
+        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeFalsy();
       });
 
       it(`shows the downloading loader for truthy 'showDownloadingLoader'`, () => {
@@ -302,7 +302,7 @@ describe('LearningActivityBar', () => {
             showDownloadingLoader: true,
           },
         });
-        expect(wrapper.find("[data-test='downloadingLoader']").exists()).toBeTruthy();
+        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeTruthy();
       });
     });
   });
