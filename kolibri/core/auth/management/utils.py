@@ -605,15 +605,6 @@ class MorangoSyncCommand(AsyncCommand):
         # note this is the CompositeSessionContext
         post_transfer_handler(sync_client.context)
 
-    def _update_all_progress(self, progress_fraction, progress):
-        """
-        Override parent progress update callback to report from the progress tracker we're sent
-        """
-        if self.job:
-            self.job.update_progress(progress_fraction, 1.0)
-            self.job.extra_metadata.update(progress.extra_data)
-            self.job.save_meta()
-
     def _session_tracker_adapter(self, signal_group, noninteractive):
         """
         Attaches a signal handler to session creation signals
@@ -649,7 +640,6 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=100).progresstracker
 
         def stats_msg(transfer_session):
             transfer_total = (
@@ -662,8 +652,14 @@ class MorangoSyncCommand(AsyncCommand):
             )
 
         def stats(transfer_session):
-            if transfer_session.records_total > 0:
+            if (
+                noninteractive or self.progresstracker.progressbar is None
+            ) and transfer_session.records_total > 0:
                 logger.info(stats_msg(transfer_session))
+
+        def started(transfer_session):
+            stats(transfer_session)
+            self.start_progress(total=100)
 
         def handler(transfer_session):
             """
@@ -679,7 +675,7 @@ class MorangoSyncCommand(AsyncCommand):
                 progress = 100
 
             self.update_progress(
-                increment=math.ceil(progress - tracker.progress),
+                increment=math.ceil(progress - self.progresstracker.progress),
                 message=stats_msg(transfer_session),
                 extra_data=dict(
                     bytes_sent=transfer_session.bytes_sent,
@@ -688,11 +684,11 @@ class MorangoSyncCommand(AsyncCommand):
                 ),
             )
 
-        if noninteractive or tracker.progressbar is None:
-            signal_group.started.connect(stats)
-            signal_group.in_progress.connect(stats)
-
-        signal_group.connect(handler)
+        signal_group.started.connect(started)
+        signal_group.started.connect(handler)
+        signal_group.in_progress.connect(stats)
+        signal_group.in_progress.connect(handler)
+        signal_group.completed.connect(handler)
 
     def _queueing_tracker_adapter(
         self, signal_group, message, sync_state, noninteractive
@@ -705,11 +701,11 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=2).progresstracker
 
         def started(transfer_session):
+            self.start_progress(total=2)
             dataset_cache.clear()
-            if noninteractive or tracker.progressbar is None:
+            if noninteractive or self.progresstracker.progressbar is None:
                 if (
                     not sync_state.endswith("DEQUEUING")
                     or transfer_session.records_total > 0
@@ -725,3 +721,4 @@ class MorangoSyncCommand(AsyncCommand):
 
         signal_group.started.connect(started)
         signal_group.started.connect(handler)
+        signal_group.completed.connect(handler)
