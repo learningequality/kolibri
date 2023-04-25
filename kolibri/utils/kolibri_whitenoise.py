@@ -183,6 +183,10 @@ class StreamingStaticFile(EndRangeStaticFile):
         return Response(HTTPStatus.OK, self.headers.items(), file_handle)
 
 
+def add_headers_function(headers, path, url):
+    headers["Accept-Ranges"] = "bytes"
+
+
 class DynamicWhiteNoise(WhiteNoise):
     index_file = "index.html"
 
@@ -203,6 +207,7 @@ class DynamicWhiteNoise(WhiteNoise):
             # these files will be cached indefinitely
             "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
             "autorefresh": os.environ.get("KOLIBRI_DEVELOPER_MODE", False),
+            "add_headers_function": add_headers_function,
         }
         kwargs.update(whitenoise_settings)
         super(DynamicWhiteNoise, self).__init__(application, **kwargs)
