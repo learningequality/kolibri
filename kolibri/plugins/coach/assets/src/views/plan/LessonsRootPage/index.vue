@@ -77,7 +77,7 @@
           {{ $tr('noLessons') }}
         </p>
         <p v-else-if="!hasVisibleLessons">
-          {{ $tr('noVisibleLessons') }}
+          {{ coreString('noResultsLabel') }}
         </p>
         <KModal
           v-if="showLessonIsVisibleModal && !userHasDismissedModal"
@@ -342,7 +342,6 @@
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
-      noVisibleLessons: 'No visible lessons',
       dontShowAgain: {
         message: "Don't show this message again",
         context: 'Option for a check box to not be prompted again with an informational modal',
