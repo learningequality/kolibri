@@ -141,11 +141,17 @@
       },
     },
     computed: {
+      goBackRoute() {
+        return {
+          name: PageNames.EXPLORE_LIBRARIES,
+        };
+      },
       libraryPageRoute() {
         return {
           name: PageNames.LIBRARY,
           params: {
             deviceId: this.deviceId,
+            goBackRoute: this.goBackRoute,
           },
         };
       },

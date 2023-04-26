@@ -4,7 +4,9 @@
     <KGridItem
       v-for="content in contents"
       :key="content.id"
-      :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+      :layout12="{ span: 3 }"
+      :layout8="{ span: 4 }"
+      :layout4="{ span: 4 }"
     >
       <ChannelCard
         :isMobile="windowIsSmall"
@@ -47,14 +49,6 @@
       isRemote: {
         type: Boolean,
         default: false,
-      },
-    },
-    computed: {
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
       },
     },
     methods: {

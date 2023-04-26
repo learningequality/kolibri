@@ -111,6 +111,7 @@ export default [
     props: route => {
       return {
         deviceId: route.params.deviceId,
+        goBackRoute: route.params.goBackRoute,
       };
     },
   },

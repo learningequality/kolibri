@@ -13,23 +13,25 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
-      <div class="card-layout">
-        <div class="cards">
-          <ChannelCardGroupGrid
-            data-test="channel-cards"
-            class="grid"
-            :contents="device.channels"
-            :isRemote="true"
-          >
-            <KGridItem :layout="{ span: cardColumnSpan, alignment: 'auto' }">
-              <ExploreCard
-                :style="cardStyle"
-                :deviceId="device.id"
-              />
-            </KGridItem>
-          </ChannelCardGroupGrid>
-        </div>
-      </div>
+      <ChannelCardGroupGrid
+        data-test="channel-cards"
+        :contents="device.channels"
+        :isRemote="true"
+      >
+        <KGridItem
+          :layout12="{ span: 3 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 4 }"
+        >
+          <ChannelCard
+            :key="exploreString.toLowerCase()"
+            :isMobile="windowIsSmall"
+            :title="exploreString"
+            :link="libraryPageRoute(device.id)"
+            :explore="true"
+          />
+        </KGridItem>
+      </ChannelCardGroupGrid>
 
     </KGridItem>
   </KGrid>
@@ -42,20 +44,20 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../../constants';
+  import ChannelCard from '../ChannelCard';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
-  import ExploreCard from './ExploreCard';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
+      ChannelCard,
       ChannelCardGroupGrid,
-      ExploreCard,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
+      const { windowGutter } = useKResponsiveWindow();
       return {
-        windowBreakpoint,
         windowGutter,
       };
     },
@@ -69,20 +71,13 @@
       },
     },
     computed: {
-      cardStyle() {
-        return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
-          marginBottom: `${this.windowGutter}px`,
-          minHeight: `${this.overallHeight}px`,
-          textAlign: 'center',
-        };
+      exploreString() {
+        return this.coreString('explore');
       },
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
+      goBackRoute() {
+        return {
+          name: PageNames.LIBRARY,
+        };
       },
     },
     methods: {
@@ -95,6 +90,12 @@
           return 'laptop';
         }
       },
+      libraryPageRoute(deviceId) {
+        return this.$router.getRoute(PageNames.LIBRARY, {
+          deviceId,
+          goBackRoute: this.goBackRoute,
+        });
+      },
     },
   };
 
@@ -102,39 +103,6 @@
 
 
 <style lang="scss"  scoped>
-
-  @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../HybridLearningContentCard/card';
-
-  $margin: 24px;
-
-  .card-main-wrapper {
-    @extend %dropshadow-1dp;
-
-    position: relative;
-    display: inline-flex;
-    width: 350px;
-    max-height: 270px;
-    padding-bottom: $margin;
-    margin-left: 8px;
-    text-decoration: none;
-    vertical-align: top;
-    border-radius: $radius;
-    transition: box-shadow $core-time ease;
-
-    &:hover {
-      @extend %dropshadow-8dp;
-    }
-
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
-    }
-  }
-
-  .card-layout .cards {
-    float: left;
-  }
 
   .device-name {
     padding-left: 10px;
