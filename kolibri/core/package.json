@@ -18,7 +18,7 @@
     "fuse.js": "^6.6.2",
     "hammerjs": "^2.0.8",
     "intl": "^1.2.4",
-    "js-cookie": "^3.0.1",
+    "js-cookie": "^3.0.5",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.1.42",
     "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#a671f6f898eef07a3167dc74648ef329f8e3af44",
