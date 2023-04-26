@@ -17,11 +17,11 @@
 
 <script>
 
-  import { v4 } from 'uuid';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
@@ -127,7 +127,6 @@
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
           is_soud: this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD,
-          auth_token: v4(),
         };
 
         // Remove anything that is `null` value
@@ -153,18 +152,12 @@
           method: 'POST',
           data: this.deviceProvisioningData,
         })
-          .then(response => {
-            const appKey = response.data.app_key;
-
-            const path = appKey
-              ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
-              : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
-
+          .then(() => {
             const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
             window.sessionStorage.setItem(welcomeDimissalKey, false);
 
             Lockr.set('savedState', null); // Clear out saved state machine
-            window.location.href = path;
+            redirectBrowser();
           })
           .catch(e => console.error(e));
       },
