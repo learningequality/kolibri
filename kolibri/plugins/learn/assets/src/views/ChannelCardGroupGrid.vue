@@ -14,7 +14,7 @@
         :thumbnail="content.thumbnail"
         :tagline="getTagLine(content)"
         :numCoachContents="content.num_coach_contents"
-        :link="genContentLinkBackLinkCurrentPage(content.id, false)"
+        :link="genContentLinkBackLinkCurrentPage(content.id, false, deviceId)"
         :isRemote="isRemote"
       />
     </KGridItem>
@@ -45,6 +45,11 @@
       contents: {
         type: Array,
         required: true,
+      },
+      deviceId: {
+        type: String,
+        required: false,
+        default: null,
       },
       isRemote: {
         type: Boolean,

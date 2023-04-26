@@ -39,6 +39,7 @@
           data-test="channel-cards"
           class="grid"
           :contents="rootNodes"
+          :deviceId="deviceId"
         />
         <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
         <!-- but we conditionalize it based on whether we are on another device's library page !-->
@@ -76,7 +77,7 @@
                     />
                   </span>
                 </span>
-                <span v-show="!searching">
+                <span v-show="!searching && devicesWithChannelsExist">
                   <span>
                     <KIcon
                       v-if="windowIsSmall"
@@ -99,8 +100,7 @@
                     />
                   </span>
                 </span>
-                <!--
-                <span v-show="!searching">
+                <span v-show="!searching && !devicesWithChannelsExist">
                   <span>
                     <KIcon icon="disconnected" />
                   </span>
@@ -113,20 +113,6 @@
                     @click="refreshDevices"
                   />
                 </span>
-                <span v-show="!searching">
-                  <span>
-                    <KIcon icon="disconnected" />
-                  </span>
-                  &nbsp;&nbsp;
-                  {{ $tr('noOtherLibraries') }}
-                  &nbsp;&nbsp;
-                  <KButton
-                    :text="coreString('refresh')"
-                    appearance="basic-link"
-                    @click="refreshDevices"
-                  />
-                </span>
-                -->
               </div>
             </KGridItem>
           </KGrid>
@@ -386,6 +372,9 @@
             (device.instance_id !== this.studioId || this.isSuperuser)
           );
         });
+      },
+      devicesWithChannelsExist() {
+        return this.devicesWithChannels.length > 0;
       },
       gridOffset() {
         return this.isRtl
