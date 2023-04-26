@@ -78,5 +78,5 @@ class InitializeAppView(APIView):
             ):
                 redirect_url = "/"
         response = HttpResponseRedirect(redirect_url)
-        set_app_key_on_response(response)
+        set_app_key_on_response(response, auth_token)
         return response

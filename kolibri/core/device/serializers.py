@@ -10,6 +10,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -55,7 +56,6 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     allow_guest_access = serializers.BooleanField(allow_null=True)
     is_provisioned = serializers.BooleanField(default=True)
     is_soud = serializers.BooleanField(default=True)
-    auth_token = serializers.CharField(max_length=50, required=False, allow_null=True)
 
     class Meta:
         fields = (
@@ -69,7 +69,6 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             "is_provisioned",
             "is_soud",
             "superuser",
-            "auth_token",
         )
 
     def validate(self, data):
@@ -79,7 +78,9 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             and "request" in self.context
             and valid_app_key_on_request(self.context["request"])
         ):
-            data["os_user"] = True
+            data["auth_token"] = self.context["request"].COOKIES.get(
+                APP_AUTH_TOKEN_COOKIE_NAME
+            )
         elif "superuser" not in data:
             raise serializers.ValidationError("Superuser is required for provisioning")
 
@@ -144,7 +145,9 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                         setattr(facility.dataset, key, value)
                 facility.dataset.save()
 
-            if not validated_data.get("os_user"):
+            auth_token = validated_data.pop("auth_token", None)
+
+            if not auth_token:
                 # We've imported a facility if the username exists
                 try:
                     superuser = FacilityUser.objects.get(
@@ -160,23 +163,21 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                     )
             else:
                 superuser = FacilityUser.objects.get_or_create_os_user(
-                    validated_data.pop("auth_token"), facility=facility
+                    auth_token, facility=facility
                 )
 
             is_soud = validated_data.pop("is_soud")
 
             if superuser:
-                if is_soud:
-                    is_super = False
-                else:
-                    is_super = True
-                    if facility_created:
-                        # Only do this if this is a created, not imported facility.
-                        facility.add_role(superuser, user_kinds.ADMIN)
+                if facility_created:
+                    # Only do this if this is a created, not imported facility.
+                    facility.add_role(superuser, user_kinds.ADMIN)
 
                 if DevicePermissions.objects.count() == 0:
                     DevicePermissions.objects.create(
-                        user=superuser, is_superuser=is_super, can_manage_content=True
+                        user=superuser,
+                        is_superuser=not is_soud,
+                        can_manage_content=True,
                     )
 
             # Create device settings
