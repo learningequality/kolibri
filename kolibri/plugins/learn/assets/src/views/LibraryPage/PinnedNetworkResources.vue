@@ -15,6 +15,7 @@
       </KGridItem>
       <ChannelCardGroupGrid
         data-test="channel-cards"
+        :deviceId="device.id"
         :contents="device.channels"
         :isRemote="true"
       >
