@@ -33,9 +33,13 @@
 
       <template #actions>
         <Transition name="downloading-loader">
-          <span>
+          <!--
+            wrapping span needed here because
+            (1) tooltip doesn't display when `ref` is on `KCircularLoader`
+            (2) Transition needs a single child
+          -->
+          <span ref="downloadingLoader">
             <KCircularLoader
-              ref="downloadingLoader"
               :show="showDownloadingLoader"
               :freeze="3000"
               data-test="downloadingLoader"
