@@ -5,7 +5,7 @@
       <KGridItem
         v-for="device in devices"
         :key="device.id"
-        :layout12="{ span: 4 }"
+        :layout12="{ span: 3 }"
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
@@ -14,7 +14,7 @@
       <KGridItem
         v-if="devices.length"
         key="view-all"
-        :layout12="{ span: 4 }"
+        :layout12="{ span: 3 }"
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >

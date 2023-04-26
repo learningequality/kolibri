@@ -5,7 +5,7 @@
     :appearanceOverrides="{}"
     :loading="loading"
     :deviceId="deviceId"
-    :route="backRoute"
+    :route="goBackRoute"
   >
     <main
       class="main-grid"
@@ -50,10 +50,7 @@
         />
         <!-- Other Libraires -->
         <div v-if="!deviceId && isUserLoggedIn">
-          <KGrid
-            gutter="12"
-            :debug="true"
-          >
+          <KGrid gutter="12">
             <KGridItem
               :layout12="{ span: 6 }"
               :layout8="{ span: 4 }"
@@ -67,33 +64,74 @@
               :layout12="{ span: 6 }"
               :layout8="{ span: 4 }"
               :layout4="{ span: 4 }"
-              class="sync-display"
             >
-              <div
-                v-if="searching"
-                class="sync-status"
-              >
-                <span>
-                  {{ $tr('searchingOtherLibrary') }}
+              <div class="sync-status">
+                <span v-show="searching">
+                  <span>{{ $tr('searchingOtherLibrary') }}</span>
+                  &nbsp;&nbsp;
+                  <span>
+                    <KCircularLoader
+                      type="indeterminate"
+                      :stroke="6"
+                    />
+                  </span>
                 </span>
-                <span>
-                  <KButton appearance="basic-link">
-                    {{ coreString('refresh') }}
-                  </KButton>
-                  <KIcon icon="wifi" />
+                <span v-show="!searching">
+                  <span>
+                    <KIcon
+                      v-if="windowIsSmall"
+                      icon="wifi"
+                    />
+                  </span>
+                  &nbsp;&nbsp;
+                  {{ $tr('showingAllLibraries') }}
+                  &nbsp;&nbsp;
+                  <KButton
+                    :text="coreString('refresh')"
+                    appearance="basic-link"
+                    @click="refreshDevices"
+                  />
+                  &nbsp;
+                  <span>
+                    <KIcon
+                      v-if="!windowIsSmall"
+                      icon="wifi"
+                    />
+                  </span>
                 </span>
-              </div>
-              <div v-else>
-                {{ coreString('viewMoreAction') }}
-                {{ $tr('pinned') }}
-                {{ $tr('showingAllLibraries') }}
-                {{ $tr('noOtherLibraries') }}
-                {{ $tr('searchingOtherLibrary') }}
+                <!--
+                <span v-show="!searching">
+                  <span>
+                    <KIcon icon="disconnected" />
+                  </span>
+                  &nbsp;&nbsp;
+                  {{ $tr('noOtherLibraries') }}
+                  &nbsp;&nbsp;
+                  <KButton
+                    :text="coreString('refresh')"
+                    appearance="basic-link"
+                    @click="refreshDevices"
+                  />
+                </span>
+                <span v-show="!searching">
+                  <span>
+                    <KIcon icon="disconnected" />
+                  </span>
+                  &nbsp;&nbsp;
+                  {{ $tr('noOtherLibraries') }}
+                  &nbsp;&nbsp;
+                  <KButton
+                    :text="coreString('refresh')"
+                    appearance="basic-link"
+                    @click="refreshDevices"
+                  />
+                </span>
+                -->
               </div>
             </KGridItem>
           </KGrid>
 
-          <h2 v-if="pinnedDevicesExist">
+          <h2 v-if="pinnedDevicesExist && unpinnedDevicesExist">
             {{ $tr('pinned') }}
           </h2>
           <PinnedNetworkResources
@@ -185,12 +223,14 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import cloneDeep from 'lodash/cloneDeep';
 
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import { currentLanguage } from 'kolibri.utils.i18n';
   import SidePanelModal from '../SidePanelModal';
-  import { KolibriStudioId, PageNames } from '../../constants';
+  import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
@@ -302,24 +342,26 @@
         type: Boolean,
         default: null,
       },
+      goBackRoute: {
+        type: Object,
+        default: null,
+      },
     },
     data: function() {
       return {
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         devices: [],
+        tempDevices: [],
         searching: true,
         usersPins: [],
       };
     },
     computed: {
       ...mapState(['rootNodes']),
-      ...mapGetters(['isUserLoggedIn']),
+      ...mapGetters(['isSuperuser', 'isUserLoggedIn']),
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
-      },
-      backRoute() {
-        return { name: PageNames.EXPLORE_LIBRARIES };
       },
       channelsLabel() {
         if (this.deviceId) {
@@ -332,13 +374,18 @@
           return this.coreString('channelsLabel');
         }
       },
+      channelsToDisplay() {
+        return this.windowIsSmall ? 3 : 7;
+      },
       devicesWithChannels() {
         //display Kolibri studio for superusers only
-        return this.devices.filter(
-          device =>
+        return this.devices.filter(device => {
+          device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
+          return (
             device.channels?.length > 0 &&
             (device.instance_id !== this.studioId || this.isSuperuser)
-        );
+          );
+        });
       },
       gridOffset() {
         return this.isRtl
@@ -394,10 +441,26 @@
         }
         document.documentElement.style.position = '';
       },
+      tempDevices: {
+        handler(newValue) {
+          this.devices = cloneDeep(newValue);
+        },
+        deep: true,
+      },
     },
     created() {
       this.search();
       if (this.isUserLoggedIn) {
+        this.refreshDevices();
+      }
+    },
+    methods: {
+      findFirstEl() {
+        this.$refs.resourcePanel.focusFirstEl();
+      },
+      refreshDevices() {
+        this.searching = true;
+
         this.fetchPinsForUser().then(resp => {
           this.usersPins = resp.map(pin => {
             const instance_id = pin.instance_id.replace(/-/g, '');
@@ -413,19 +476,21 @@
           }, []);
 
           Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
-            this.devices = devices.map((device, index) => {
+            this.tempDevices = devices.map((device, index) => {
               const deviceChannels = devicesChannels[index]?.value || [];
-              device['channels'] = deviceChannels.slice(0, 4);
+              //Sort channels based on user's current language,
+              //and then return the first seven channels only.
+              device['channels'] = deviceChannels.sort((a, b) => {
+                return (
+                  b['lang_code'].indexOf(currentLanguage) - a['lang_code'].indexOf(currentLanguage)
+                );
+              });
               device['total_count'] = deviceChannels.length;
               return device;
             });
+            this.searching = false;
           });
         });
-      }
-    },
-    methods: {
-      findFirstEl() {
-        this.$refs.resourcePanel.focusFirstEl();
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
@@ -444,10 +509,12 @@
         message: 'Searching for libraries around you.',
         context: 'Connection state for showing other library',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       noOtherLibraries: {
         message: 'No other libraries around you right now',
         context: 'Connection state when there is no other libraries around',
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
       showingAllLibraries: {
         message: 'Showing all available libraries around you.',
         context: 'Connection state when the device is connected and shows other libraries',
@@ -519,13 +586,15 @@
     margin-left: 8px;
   }
 
-  .sync-status span {
-    display: inline-flex;
-  }
-
   .sync-status {
-    margin-top: 20px;
-    text-align: right;
+    display: flex;
+    justify-content: flex-end;
+    margin: 30px 0 10px;
+
+    span {
+      display: inline-flex;
+      vertical-align: bottom;
+    }
   }
 
   .network-device-refresh {
