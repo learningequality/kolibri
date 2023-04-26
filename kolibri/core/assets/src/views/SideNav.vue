@@ -63,7 +63,7 @@
                 {{ username }}
               </p>
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
-                {{ getUserKind }}
+                {{ loggedInUserKind }}
               </p>
 
 
@@ -351,6 +351,18 @@
       },
       userIsLearner() {
         return this.getUserKind == UserKinds.LEARNER;
+      },
+      loggedInUserKind() {
+        if (this.getUserKind === UserKinds.LEARNER) {
+          return this.coreString('learnerLabel');
+        }
+        if (this.getUserKind === UserKinds.ADMIN) {
+          return this.coreString('adminLabel');
+        }
+        if (this.getUserKind === UserKinds.COACH) {
+          return this.coreString('coachLabel');
+        }
+        return this.coreString('superAdminLabel');
       },
     },
     watch: {
