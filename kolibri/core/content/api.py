@@ -48,6 +48,10 @@ from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.bookmarks.models import Bookmark
 from kolibri.core.content import models
 from kolibri.core.content import serializers
+from kolibri.core.content.models import ContentDownloadRequest
+from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
@@ -1323,13 +1327,76 @@ class ContentNodeBookmarksViewset(
 
 
 class ContentDownloadRequestViewset(ValuesViewset):
+    pagination_class = OptionalPageNumberPagination
 
-    queryset = models.ContentDownloadRequest.objects.all()
+    queryset = ContentDownloadRequest.objects.all()
+
+    field_map = {
+        "source_id": "self.request.user.id",
+    }
+
     values = (
         "id",
-        "metadata",
+        "requested_at",
         "reason",
+        "contentnode_id",
+        "metadata",
+        "status",
     )
+
+    def filter_queryset(self, queryset):
+        return queryset.filter(source_id=self.request.user.id)
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            has_removal=Exists(
+                ContentRemovalRequest.objects.filter(
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    contentnode_id=OuterRef("contentnode_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                )
+            )
+        ).filter(has_removal=False)
+
+    def create(self, request, *args, **kwargs):
+        # if there is an existing deletion request, delete the deletion request
+        deletion_request = ContentRemovalRequest.objects.filter(
+            contentnode_id=self.request["contentnode_id"],
+            source_id=self.request.user.id,
+        )
+
+        if deletion_request:
+            ContentRemovalRequest.objects.filter(
+                contentnode_id=self.request["contentnode_id"],
+                source_id=self.request.user.id,
+            ).delete()
+        else:
+            try:
+                request = ContentDownloadRequest.build_for_user(self, *args)
+                # this is definitely not right but I don't know what would be? but I need to put that somewhere, I think
+                # i.e.
+                metadata = ContentNode.objects.filter(
+                    pk=OuterRef("contentnode_id")
+                ).metadata
+                ContentRequest.metadata = metadata
+                return request
+            except ValueError:
+                pass
+
+    def delete(self, request, *args, **kwargs):
+        # We delete all ContentRequest objects whose contentnode_id is this id.
+        deletion_request = ContentRemovalRequest.objects.filter(
+            contentnode_id=request["contentnode_id"], source_id=self.request.user.id
+        )
+        if deletion_request:
+            pass
+        else:
+            try:
+                request = ContentRemovalRequest.build_for_user(self, *args)
+                return request
+            except ValueError:
+                pass
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")
