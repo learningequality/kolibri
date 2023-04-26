@@ -338,7 +338,6 @@
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         devices: [],
-        tempDevices: [],
         searching: true,
         usersPins: [],
       };
@@ -365,7 +364,7 @@
       },
       devicesWithChannels() {
         //display Kolibri studio for superusers only
-        return this.devices.filter(device => {
+        return cloneDeep(this.devices).filter(device => {
           device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
           return (
             device.channels?.length > 0 &&
@@ -430,12 +429,6 @@
         }
         document.documentElement.style.position = '';
       },
-      tempDevices: {
-        handler(newValue) {
-          this.devices = cloneDeep(newValue);
-        },
-        deep: true,
-      },
     },
     created() {
       this.search();
@@ -465,7 +458,7 @@
           }, []);
 
           Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
-            this.tempDevices = devices.map((device, index) => {
+            this.devices = devices.map((device, index) => {
               const deviceChannels = devicesChannels[index]?.value || [];
               //Sort channels based on user's current language,
               //and then return the first seven channels only.
