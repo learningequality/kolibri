@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Expandir marcador de site",
+  "Bookmarks.bookmarksSection": "Secção de marcadores de site. Pode alternar entre os documentos em PDF e a secção de marcadores de site ao pressionar as teclas Shift+Enter.",
+  "PdfPage.numPage": "Página {number} de {total}",
   "PdfRendererIndex.enterFullscreen": "Entrar no modo tela cheia",
   "PdfRendererIndex.exitFullscreen": "Sair do modo tela cheia"
 }

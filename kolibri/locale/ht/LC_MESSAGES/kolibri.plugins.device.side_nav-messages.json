@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Aparèy"
+  "CommonDeviceStrings.deviceManagementTitle": "Aparèy",
+  "CommonDeviceStrings.emptyTasksMessage": "Pa gen okenn aktivite pou afiche",
+  "CommonDeviceStrings.newChannelLabel": "Nouvo",
+  "CommonDeviceStrings.newEnabledPluginsState": "Lè ou pa koche yon paj, l ap vin envizib pou itilizatè yo menm si yo gen pèmisyon pou aksede ak li.",
+  "CommonDeviceStrings.newResourceLabel": "Nouvo",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Pa gen espas sifizan ki disponib sou aparèy ou an. Libere espas disk oubyen chwazi mwens resous.",
+  "CommonDeviceStrings.permissionsLabel": "Pèmisyon yo",
+  "CommonDeviceStrings.primaryStorageLabel": "Resous ki apèn sot telechaje yo pral ajoute nan anplasman estokaj prensipal la",
+  "CommonDeviceStrings.unlistedChannelLabel": "Chanèl ki pa nan lis la"
 }

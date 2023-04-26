@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "बुकमार्क विस्तृत करें",
+  "Bookmarks.bookmarksSection": "बुकमार्क अनुभाग। आप shift + enter दबाकर Pdf डॉक्यूमेंट और बुकमार्क सेक्शन के बीच स्विच कर सकते हैं।",
+  "PdfPage.numPage": "{total} पेज में से {number}",
   "PdfRendererIndex.enterFullscreen": "फुल स्क्रीन करें",
   "PdfRendererIndex.exitFullscreen": "फ़ुल स्क्रीन से बाहर जाएँ"
 }

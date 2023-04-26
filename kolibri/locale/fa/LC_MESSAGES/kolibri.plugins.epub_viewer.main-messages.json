@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "پرش به یک قسمت در کتاب",
   "BottomBar.preparingSlider": "در حال آماده‌سازی نوارِ متحرک",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "امکان بارگذاری این کتاب وجود ندارد",
   "LoadingScreen.loadingBook": "در حال بارگذاری کتاب",
   "NextButton.goToNextPage": "رفتن به صفحه بعدی",

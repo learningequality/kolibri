@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Μετάβαση στη σελίδα στο βιβλίο",
   "BottomBar.preparingSlider": "Προετοιμασία γραμμής πλοήγησης",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Αδυναμία φόρτωσης αυτού του βιβλίου",
   "LoadingScreen.loadingBook": "Φόρτωση βιβλίου",
   "NextButton.goToNextPage": "Μετάβαση στην επόμενη σελίδα",

@@ -77,7 +77,7 @@
           {{ $tr('noLessons') }}
         </p>
         <p v-else-if="!hasVisibleLessons">
-          {{ $tr('noVisibleLessons') }}
+          {{ coreString('noResultsLabel') }}
         </p>
         <KModal
           v-if="showLessonIsVisibleModal && !userHasDismissedModal"
@@ -187,6 +187,7 @@
         filterSelection: {},
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
+        learnOnlyDevicesExist: false,
       };
     },
     computed: {
@@ -234,8 +235,12 @@
     beforeMount() {
       this.filterSelection = this.filterOptions[0];
     },
+    mounted() {
+      this.checkIfAnyLODsInClass();
+    },
     methods: {
       ...mapActions('lessonsRoot', ['createLesson']),
+      ...mapActions(['fetchUserSyncStatus']),
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'filterLessonVisible':
@@ -264,6 +269,16 @@
             this.detailsModalIsDisabled = false;
           });
       },
+      // modal about lesson sizes should only exist of LODs exist in the class
+      // which we are checking via if there have recently been any user syncs
+      // TODO: refactor to a more robust check
+      checkIfAnyLODsInClass() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (data && data.length > 0) {
+            this.learnOnlyDevicesExist = true;
+          }
+        });
+      },
       handleToggleVisibility(lesson) {
         const newActiveState = !lesson.is_active;
         const snackbarMessage = newActiveState
@@ -286,7 +301,7 @@
         // has the user set their preferences to not have a modal confirmation?
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
-        if (!hideModalConfirmation) {
+        if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
           if (lesson.is_active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
@@ -310,7 +325,7 @@
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
           let size = this.lessonsSizes[0][lessonId];
-          size = bytesForHumans(size);
+          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
           return size;
         }
         return '--';
@@ -327,7 +342,6 @@
         context:
           "Text displayed in the 'Lessons' tab of the 'Plan' section if there are no lessons created",
       },
-      noVisibleLessons: 'No visible lessons',
       dontShowAgain: {
         message: "Don't show this message again",
         context: 'Option for a check box to not be prompted again with an informational modal',

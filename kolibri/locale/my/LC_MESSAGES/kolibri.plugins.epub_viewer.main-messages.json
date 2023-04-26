@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "စာအုပ်တွင် နေရာတစ်ခုသို့သွားမည်",
   "BottomBar.preparingSlider": "Slider ကိုပြင်ဆင်နေသည်",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "ထိုစာအုပ်ကိုတင်လို့မရပါ။",
   "LoadingScreen.loadingBook": "စာအုပ်များတင်ပေးခြင်း",
   "NextButton.goToNextPage": "နောက်စာမျက်နှာသွားပါ",

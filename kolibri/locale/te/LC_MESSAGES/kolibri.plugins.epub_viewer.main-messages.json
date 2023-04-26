@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "పుస్తకంలోని స్థానానికి వెళ్లండి",
   "BottomBar.preparingSlider": "స్లైడర్‌ని సిద్ధం చేస్తోంది",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "ఈ పుస్తకాన్ని లోడ్ చేయలేకున్నాము",
   "LoadingScreen.loadingBook": "పుస్తకాన్ని లోడ్ చేస్తోంది",
   "NextButton.goToNextPage": "తదుపరి పేజీకి వెళ్లు",

@@ -139,7 +139,7 @@ def mergeuser(command, **kwargs):
         begin_request_soud_sync(kwargs["baseurl"], remote_user.id)
 
     new_superuser_id = kwargs.get("new_superuser_id")
-    if new_superuser_id:
+    if new_superuser_id and local_user.is_superuser:
         new_superuser = FacilityUser.objects.get(id=new_superuser_id)
         # make the user a new super user for this device:
         new_superuser.facility.add_role(new_superuser, role_kinds.ADMIN)
@@ -159,7 +159,7 @@ def mergeuser(command, **kwargs):
 
     # check if current user should be set as superuser:
     set_as_super_user = kwargs.get("set_as_super_user")
-    if set_as_super_user:
+    if set_as_super_user and local_user.is_superuser:
         DevicePermissions.objects.create(
             user=remote_user, is_superuser=True, can_manage_content=True
         )

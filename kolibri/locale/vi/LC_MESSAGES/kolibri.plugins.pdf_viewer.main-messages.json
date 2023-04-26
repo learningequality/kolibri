@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Mở rộng dấu trang",
+  "Bookmarks.bookmarksSection": "Mục có dấu trang. Bạn có thể chuyển đổi giữa tài liệu PDF và mục có dấu trang bằng cách nhấn phím shift + enter.",
+  "PdfPage.numPage": "Trang {number} / {total}",
   "PdfRendererIndex.enterFullscreen": "Vào chế độ toàn màn hình",
   "PdfRendererIndex.exitFullscreen": "Thoát chế độ toàn màn hình"
 }

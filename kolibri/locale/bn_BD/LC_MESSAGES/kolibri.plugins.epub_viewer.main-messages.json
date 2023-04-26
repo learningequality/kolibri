@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "বইয়ের অন্য জায়গায় যান",
   "BottomBar.preparingSlider": "স্লাইডার প্রস্তুত করা হচ্ছে",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "এই বইটি লোড করা যায়নি",
   "LoadingScreen.loadingBook": "বই লোড করা হচ্ছে",
   "NextButton.goToNextPage": "পরের পৃষ্ঠায় যান",

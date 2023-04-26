@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Lesezeichen erweitern",
+  "Bookmarks.bookmarksSection": "Lesezeichen-Bereich. Sie können zwischen dem PDF-Dokument und dem Lesezeichen-Bereich wechseln, indem Sie gleichzeitig UMSCHALT und die Eingabetaste drücken.",
+  "PdfPage.numPage": "Seite {number} von {total}",
   "PdfRendererIndex.enterFullscreen": "Vollbildmodus aktivieren",
   "PdfRendererIndex.exitFullscreen": "Vollbildmodus beenden"
 }

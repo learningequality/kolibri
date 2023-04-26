@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Perluas bookmark",
+  "Bookmarks.bookmarksSection": "Bagian bookmark. Anda dapat beralih antara dokumen pdf dan bagian bookmark dengan menekan shift+enter.",
+  "PdfPage.numPage": "Halaman {number} dari {total}",
   "PdfRendererIndex.enterFullscreen": "Masuk ke layar penuh",
   "PdfRendererIndex.exitFullscreen": "Keluar dari layar penuh"
 }

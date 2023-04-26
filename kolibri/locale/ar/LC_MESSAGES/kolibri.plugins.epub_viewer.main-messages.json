@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "الانتقال إلى موضع آخر في الكتاب",
   "BottomBar.preparingSlider": "إعداد شريط التمرير",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "تعذر تحميل هذا الكتاب",
   "LoadingScreen.loadingBook": "جاري تحميل الكتاب",
   "NextButton.goToNextPage": "اذهب للصفحة التالية",

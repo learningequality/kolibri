@@ -12,6 +12,7 @@
     <p>{{ $tr('addressDesc') }}</p>
     <div>
       <KTextbox
+        ref="address"
         v-model="address"
         :label="$tr('addressLabel')"
         :placeholder="$tr('addressPlaceholder')"
@@ -123,8 +124,10 @@
             ]);
             if (errorsCaught.includes(ERROR_CONSTANTS.NETWORK_LOCATION_NOT_FOUND)) {
               this.status = Statuses.COULD_NOT_CONNECT;
+              this.$refs.address.focus();
             } else if (errorsCaught.includes(ERROR_CONSTANTS.INVALID_NETWORK_LOCATION_FORMAT)) {
               this.status = Statuses.INVALID_ADDRESS;
+              this.$refs.address.focus();
             } else {
               this.$store.dispatch('handleApiError', err);
             }

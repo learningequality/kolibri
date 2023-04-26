@@ -50,7 +50,7 @@
   },
   "private": true,
   "devDependencies": {
-    "@types/jest": "^29.4.0",
+    "@types/jest": "^29.5.1",
     "xhr-mock": "^2.5.1",
     "concurrently": "^7.6.0"
   },

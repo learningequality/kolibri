@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "기기"
+  "CommonDeviceStrings.deviceManagementTitle": "기기",
+  "CommonDeviceStrings.emptyTasksMessage": "표시할 작업이 없습니다",
+  "CommonDeviceStrings.newChannelLabel": "신규",
+  "CommonDeviceStrings.newEnabledPluginsState": "페이지 선택을 해제하면 엑세스 권한이 있는 사용자라도 볼 수 없습니다.",
+  "CommonDeviceStrings.newResourceLabel": "신규",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "기기에 공간이 충분하지 않습니다. 디스크 크기를 늘리거나 더 적은 자료를 선택하세요.",
+  "CommonDeviceStrings.permissionsLabel": "권한",
+  "CommonDeviceStrings.primaryStorageLabel": "새로 다운로드한 자료는 주요 저장 위치에 추가됩니다",
+  "CommonDeviceStrings.unlistedChannelLabel": "공개되지 않은 채널"
 }
