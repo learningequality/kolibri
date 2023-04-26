@@ -196,12 +196,13 @@ class ChunkedFile(BufferedIOBase):
                     amount_to_write -= diff
                     remaining -= diff
                 f.seek(chunk_position)
-                bytes_written = f.write(
-                    data[
-                        len(data) - remaining : len(data) - remaining + amount_to_write
-                    ]
-                )
-
+                to_write = data[
+                    len(data) - remaining : len(data) - remaining + amount_to_write
+                ]
+                # For some reason in Python 2.7 this is failing to return the number of bytes written.
+                # as we know exactly how much we are writing, we can just use that value.
+                f.write(to_write)
+                bytes_written = len(to_write)
                 self.position += bytes_written
                 remaining -= bytes_written
 
