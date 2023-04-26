@@ -21,10 +21,14 @@
             <KIconButton
               ref="pinIcon"
               :icon="pinIcon"
+              :disabled="disablePinDevice"
               appearance="flat-button"
               @click="$emit('togglePin', deviceId)"
             />
-            <KTooltip reference="pinIcon" :refs="$refs">
+            <KTooltip
+              reference="pinIcon"
+              :refs="$refs"
+            >
               {{ (pinIcon === 'pinned') ? $tr('removePin') : $tr('pinTo') }}
             </KTooltip>
           </h2>
@@ -130,13 +134,24 @@
         required: false,
         default: false,
       },
+      disablePinDevice: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
+      goBackRoute() {
+        return {
+          name: PageNames.EXPLORE_LIBRARIES,
+        };
+      },
       libraryPageRoute() {
         return {
           name: PageNames.LIBRARY,
           params: {
             deviceId: this.deviceId,
+            goBackRoute: this.goBackRoute,
           },
         };
       },
