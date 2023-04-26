@@ -152,13 +152,14 @@
   }
 
   div.dimmable.tab-title::before {
-    content: attr(title);
     display: block;
     height: 0;
-    visibility: hidden;
     overflow: hidden;
-    user-select: none;
-    pointer-events: none;
     font-weight: bold;
+    pointer-events: none;
+    visibility: hidden;
+    content: attr(title);
+    user-select: none;
   }
+
 </style>
