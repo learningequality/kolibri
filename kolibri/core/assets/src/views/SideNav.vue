@@ -311,7 +311,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
+      ...mapGetters(['isSuperuser', 'isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -320,7 +320,7 @@
         return this.isAppContext ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
-        return this.isLearnerOnlyImport && (this.isAdmin || this.isCoach);
+        return this.isLearnerOnlyImport && (this.isSuperuser || this.isAdmin || this.isCoach);
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
