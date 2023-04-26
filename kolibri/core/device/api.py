@@ -63,6 +63,7 @@ from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
+from kolibri.utils.filesystem import resolve_path
 from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -434,5 +435,6 @@ class PathPermissionView(views.APIView):
             {
                 "writable": get_path_permission(pathname),
                 "directory": check_is_directory(pathname),
+                "path": resolve_path(pathname),
             }
         )

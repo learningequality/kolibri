@@ -67,7 +67,7 @@
           }
           this.invalidPath = !permissions.data.directory;
           if (permissions.data.directory) {
-            this.$emit('submit', this.path, writable);
+            this.$emit('submit', permissions.data.path, writable);
           } else {
             this.errorType = 'directory';
           }
