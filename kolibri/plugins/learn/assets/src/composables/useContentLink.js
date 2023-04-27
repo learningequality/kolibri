@@ -126,11 +126,35 @@ export default function useContentLink(store) {
     return `${base}${path}${query}`;
   }
 
+  function genLibraryPageBackLink(deviceId, isExploreLibraries = false) {
+    if (!route) {
+      return null;
+    }
+
+    const oldQuery = get(route).query || {};
+    const query = {
+      prevName: get(route).name,
+    };
+    if (!isEmpty(oldQuery)) {
+      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
+    }
+    const params = get(route).params;
+    if (!isEmpty(params)) {
+      query.prevParams = encodeURI(JSON.stringify(params));
+    }
+    return {
+      name: isExploreLibraries ? PageNames.EXPLORE_LIBRARIES : PageNames.LIBRARY,
+      params: pick({ deviceId: deviceId || params.deviceId }, ['deviceId']),
+      query,
+    };
+  }
+
   return {
     genContentLinkBackLinkCurrentPage,
     genContentLinkKeepCurrentBackLink,
     genExternalContentURLBackLinkCurrentPage,
     genExternalBackURL,
+    genLibraryPageBackLink,
     back,
   };
 }

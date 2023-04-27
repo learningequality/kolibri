@@ -48,7 +48,7 @@
         <KRouterLink
           appearance="raised-button"
           :text="coreString('explore')"
-          :to="libraryPageRoute"
+          :to="genLibraryPageBackLink(deviceId, false)"
         />
       </KGridItem>
     </div>
@@ -80,7 +80,6 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
-  import { PageNames } from '../../constants';
 
   export default {
     name: 'LibraryItem',
@@ -89,11 +88,12 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      const { genContentLinkBackLinkCurrentPage, genLibraryPageBackLink } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
         genContentLinkBackLinkCurrentPage,
+        genLibraryPageBackLink,
         windowIsSmall,
       };
     },
@@ -138,22 +138,6 @@
         type: Boolean,
         required: false,
         default: false,
-      },
-    },
-    computed: {
-      goBackRoute() {
-        return {
-          name: PageNames.EXPLORE_LIBRARIES,
-        };
-      },
-      libraryPageRoute() {
-        return {
-          name: PageNames.LIBRARY,
-          params: {
-            deviceId: this.deviceId,
-            goBackRoute: this.goBackRoute,
-          },
-        };
       },
     },
     $trs: {
