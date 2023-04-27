@@ -55,6 +55,7 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.filesystem import mkdirp
 from kolibri.utils.translation import ugettext as _
 
 
@@ -144,7 +145,7 @@ class ImportUsersFromCSVValidator(JobValidator):
         else:
             raise serializers.ValidationError("Facility must be specified")
         temp_dir = os.path.join(KOLIBRI_HOME, "temp")
-        os.makedirs(temp_dir, exist_ok=True)
+        mkdirp(temp_dir, exist_ok=True)
         if "csvfile" in data:
             tmpfile = data["csvfile"].temporary_file_path()
             filename = ntpath.basename(tmpfile)
