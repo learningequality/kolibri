@@ -24,7 +24,6 @@
   import { interpret } from 'xstate';
   import { mapGetters } from 'vuex';
   import { changeFacilityMachine } from '../../machines/changeFacilityMachine';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ChangeFacility',
@@ -35,13 +34,6 @@
     },
     components: { NotificationsRoot, ImmersivePage },
     mixins: [commonCoreStrings],
-    setup() {
-      const { isSubsetOfUsersDevice } = plugin_data;
-      return {
-        isSubsetOfUsersDevice,
-      };
-    },
-
     data() {
       return {
         service: interpret(changeFacilityMachine),

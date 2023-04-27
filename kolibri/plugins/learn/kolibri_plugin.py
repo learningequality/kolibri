@@ -79,9 +79,6 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
             ],
-            "isSubsetOfUsersDevice": get_device_setting(
-                "subset_of_users_device", False
-            ),
             "categories": label_metadata["categories"],
             "learningActivities": label_metadata["learning_activities"],
             "languages": languages,

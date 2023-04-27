@@ -20,24 +20,24 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import plugin_data from 'plugin_data';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   export default {
     name: 'WelcomeModal',
     mixins: [commonCoreStrings],
+    setup() {
+      const { isLearnerOnlyImport } = useUser();
+      return { isLearnerOnlyImport };
+    },
     props: {
       importedFacility: {
         type: Object,
         default: null,
       },
-      isLOD: {
-        type: Boolean,
-        default: plugin_data.isSubsetOfUsersDevice,
-      },
     },
     computed: {
       paragraphs() {
-        if (this.isLOD) {
+        if (this.isLearnerOnlyImport) {
           let facility = this.importedFacility;
           if (this.$store.getters.facilities.length > 0 && facility === null)
             facility = this.$store.getters.facilities[0];

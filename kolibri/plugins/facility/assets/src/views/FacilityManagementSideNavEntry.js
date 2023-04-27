@@ -35,6 +35,7 @@ const sideNavConfig = {
   icon: 'facility',
   role: UserKinds.ADMIN,
   priority: 10,
+  fullFacilityOnly: true,
 };
 
 navComponents.register(sideNavConfig);

@@ -16,14 +16,6 @@ const { pause, resume } = useTimeoutPoll(pollUserSyncStatusTask, timeoutInterval
 
 const usageCount = ref(0);
 
-export function useUser() {
-  const isUserLoggedIn = computed(() => store.getters.isUserLoggedIn);
-
-  return {
-    isUserLoggedIn,
-  };
-}
-
 export function fetchUserSyncStatus(params) {
   return UserSyncStatusResource.fetchCollection({
     force: true,

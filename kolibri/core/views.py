@@ -99,12 +99,14 @@ def get_urls_by_role(role):
             yield hook.url
 
 
-def get_url_by_role(role):
+def get_url_by_role(role, full_facility_import=False):
     obj = next(
         (
             hook
             for hook in RoleBasedRedirectHook.registered_hooks
-            if role in hook.roles and hook.url
+            if role in hook.roles
+            and hook.url
+            and (full_facility_import or not hook.require_full_facility)
         ),
         None,
     )
@@ -145,17 +147,29 @@ class RootURLRedirectView(View):
         if request.user.is_authenticated:
             url = None
             if request.user.is_superuser:
-                url = url or get_url_by_role(user_kinds.SUPERUSER)
+                url = url or get_url_by_role(
+                    user_kinds.SUPERUSER,
+                    full_facility_import=request.user.full_facility_import,
+                )
             roles = set(
                 Role.objects.filter(user_id=request.user.id)
                 .values_list("kind", flat=True)
                 .distinct()
             )
             if user_kinds.ADMIN in roles:
-                url = url or get_url_by_role(user_kinds.ADMIN)
+                url = url or get_url_by_role(
+                    user_kinds.ADMIN,
+                    full_facility_import=request.user.full_facility_import,
+                )
             if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
-                url = url or get_url_by_role(user_kinds.COACH)
-            url = url or get_url_by_role(user_kinds.LEARNER)
+                url = url or get_url_by_role(
+                    user_kinds.COACH,
+                    full_facility_import=request.user.full_facility_import,
+                )
+            url = url or get_url_by_role(
+                user_kinds.LEARNER,
+                full_facility_import=request.user.full_facility_import,
+            )
         else:
             url = get_url_by_role(user_kinds.ANONYMOUS)
         if url:

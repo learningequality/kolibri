@@ -1,10 +1,11 @@
+import { get } from '@vueuse/core';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import navComponents from 'kolibri.utils.navComponents';
 import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { deviceString } from './commonDeviceStrings';
-import plugin_data from 'plugin_data';
 
 const sideNavConfig = {
   name: 'DeviceManagementSideNavEntry',
@@ -13,17 +14,16 @@ const sideNavConfig = {
     return urls['kolibri:kolibri.plugins.device:device_management']();
   },
   get routes() {
-    if (plugin_data.isSubsetOfUsersDevice) {
-      return {
+    const { canManageContent, isSuperuser } = useUser();
+    const routes = [];
+    if (get(canManageContent) || get(isSuperuser)) {
+      routes.push({
         label: coreStrings.$tr('channelsLabel'),
         route: baseRoutes.content.path,
-      };
-    } else {
-      return [
-        {
-          label: coreStrings.$tr('channelsLabel'),
-          route: baseRoutes.content.path,
-        },
+      });
+    }
+    if (get(isSuperuser)) {
+      routes.push(
         {
           label: deviceString('permissionsLabel'),
           route: baseRoutes.permissions.path,
@@ -39,9 +39,10 @@ const sideNavConfig = {
         {
           label: coreStrings.$tr('settingsLabel'),
           route: baseRoutes.settings.path,
-        },
-      ];
+        }
+      );
     }
+    return routes;
   },
   get label() {
     return deviceString('deviceManagementTitle');

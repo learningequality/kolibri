@@ -1,11 +1,12 @@
 import Cookies from 'js-cookie';
+import { get } from '@vueuse/core';
 import router from 'kolibri.coreVue.router';
 import { IsPinAuthenticated } from 'kolibri.coreVue.vuex.constants';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import RootVue from './views/DeviceIndex';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import KolibriApp from 'kolibri_app';
-import plugin_data from 'plugin_data';
 
 let viewPlugin = false;
 
@@ -23,11 +24,11 @@ class DeviceManagementModule extends KolibriApp {
     return Cookies.get(IsPinAuthenticated) === 'true';
   }
   checkIfPinAuthenticationIsRequired(store, grantPluginAccess) {
-    const isLearnOnlyDevice = plugin_data.isSubsetOfUsersDevice;
+    const { isLearnerOnlyImport } = useUser();
     const isSuperuser = store.getters.isSuperuser;
     const isFacilityAdmin = store.getters.isFacilityAdmin;
     const userCanManageContent = store.getters.canManageContent;
-    if (isLearnOnlyDevice && !isFacilityAdmin && (isSuperuser || userCanManageContent)) {
+    if (get(isLearnerOnlyImport) && !isFacilityAdmin && (isSuperuser || userCanManageContent)) {
       //While browsing within the device plugin, prevent expiry.
       //On page refresh within plugin, show pin prompt if cookie has expired.
       viewPlugin = viewPlugin ? viewPlugin : this.isPinAuthenticated;
