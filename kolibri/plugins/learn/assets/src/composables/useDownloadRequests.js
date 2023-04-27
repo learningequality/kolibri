@@ -165,7 +165,7 @@ export default function useDownloadRequests(store) {
     // and return accurate information as the progress changes. After updating to real
     // progress, check that related logic in components that use `isDownloadingByLearner`
     // still makes sense and all features are working as expected.
-    return downloadRequest && !downloadRequest.complete;
+    return Boolean(downloadRequest && !downloadRequest.complete);
   }
 
   // Note that backend filters out download requests that correspond to content that was
@@ -183,7 +183,7 @@ export default function useDownloadRequests(store) {
     // and return accurate information as the progress changes. After updating to real
     // progress, check that related logic in components that use `isDownloadedByLearner`
     // still makes sense and all features are working as expected.
-    return downloadRequest && downloadRequest.complete;
+    return Boolean(downloadRequest && downloadRequest.complete);
   }
 
   return {
