@@ -18,6 +18,8 @@ from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
 from six import with_metaclass
 
+from kolibri.utils.filesystem import mkdirp
+
 
 try:
     import OpenSSL
@@ -98,7 +100,7 @@ class ChunkedFile(BufferedIOBase):
     def __init__(self, filepath):
         self.filepath = filepath
         self.chunk_dir = filepath + ".chunks"
-        os.makedirs(self.chunk_dir, exist_ok=True)
+        mkdirp(self.chunk_dir, exist_ok=True)
         self.chunk_size = BLOCK_SIZE
         self.position = 0
         self._file_size = None
@@ -353,7 +355,7 @@ class Transfer(with_metaclass(ABCMeta)):
             )
 
         # ensure the directories in the destination path exist
-        os.makedirs(os.path.dirname(self.dest), exist_ok=True)
+        mkdirp(os.path.dirname(self.dest), exist_ok=True)
 
         self.chunked_file_obj = ChunkedFile(self.dest)
 

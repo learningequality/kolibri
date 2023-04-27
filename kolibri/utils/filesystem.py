@@ -40,3 +40,15 @@ def resolve_path(path):
         return os.path.realpath(os.path.expanduser(path))
     except (IOError, OSError):
         return None
+
+
+def mkdirp(path, exist_ok=False):
+    """
+    Make a directory and any missing parent directories.
+    Do this to add the exist_ok parameter to Python 2's os.makedirs.
+    """
+    try:
+        os.makedirs(path)
+    except OSError as e:
+        if e.errno != 17 or not exist_ok:
+            raise e
