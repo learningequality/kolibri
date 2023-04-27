@@ -146,7 +146,6 @@
         :topicsLoading="topicMoreLoading"
         @searchTerms="newTerms => searchTerms = newTerms"
         @currentCategory="handleShowSearchModal"
-        @closeCategoryModal="closeCategoryModal"
         @loadMoreTopics="handleLoadMoreInTopic"
         @close="sidePanelIsOpen = false"
       />
@@ -182,7 +181,6 @@
         class="full-screen-side-panel"
         alignment="left"
         :closeButtonIconType="closeButtonIcon"
-        :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="closeEventHandler()"
         @shouldFocusFirstEl="findFirstEl()"
       >
@@ -380,8 +378,6 @@
         topicMoreLoading: false,
         mobileSearchActive: false,
         currentSearchCardViewStyle: 'card',
-        closeCategoryModal: '',
-        sidePanelOverlayWidth: '',
       };
     },
     computed: {
