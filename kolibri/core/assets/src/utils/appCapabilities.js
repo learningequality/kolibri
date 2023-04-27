@@ -18,6 +18,20 @@ export const checkCapability = key => store.getters.isAppContext && appCapabilit
 // checks and exposing the functions.
 
 export default {
+  get checkIsMetered() {
+    if (!checkCapability('check_is_metered')) {
+      return null;
+    }
+
+    return () => {
+      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
+      if (!urlFunction) {
+        logging.warn('Checking if the device is metered is not supported on this platform');
+        return Promise.reject();
+      }
+      return client({ url: urlFunction(), method: 'GET' });
+    };
+  },
   get shareFile() {
     if (!checkCapability('share_file')) {
       return; // eslint-disable-line getter-return

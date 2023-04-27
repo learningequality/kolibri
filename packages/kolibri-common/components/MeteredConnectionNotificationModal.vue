@@ -29,6 +29,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { checkIsMetered } from 'kolibri.utils.appCapabilities';
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
@@ -40,15 +41,23 @@
     mixins: [commonCoreStrings],
 
     data() {
+      console.log('- is metered -');
+      console.log(checkIsMetered());
       return {
         Options,
+        isMetered: checkIsMetered(),
         selected: Options.DO_NOT_USE_METERED,
       };
     },
     computed: {
       displayMeteredConnectionWarning() {
-        return true;
+        return this.isMetered;
       },
+    },
+    mounted() {
+      setInterval(() => {
+        this.isMetered = checkIsMetered();
+      }, 1000);
     },
     $trs: {
       /* Second-person perspective: "You ..." */
