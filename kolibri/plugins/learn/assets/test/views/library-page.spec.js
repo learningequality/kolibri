@@ -46,7 +46,6 @@ jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 
-//ToDo: fix tests suit, overhaul could be require here
 describe('LibraryPage', () => {
   describe('filters button', () => {
     it('is visible when the page is not large', () => {
