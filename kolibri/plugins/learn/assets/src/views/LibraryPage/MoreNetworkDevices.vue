@@ -9,7 +9,10 @@
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
-        <UnPinnedDevices :device="device" />
+        <UnPinnedDevices
+          :device="device"
+          :routeTo="genLibraryPageBackLink(device.id, false)"
+        />
       </KGridItem>
       <KGridItem
         v-if="devices.length"
@@ -21,7 +24,7 @@
         <UnPinnedDevices
           :device="{}"
           :viewAll="true"
-          :routeTo="viewAllRoute"
+          :routeTo="genLibraryPageBackLink(null, true)"
         />
       </KGridItem>
     </KGrid>
@@ -33,7 +36,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../constants';
+  import useContentLink from '../../composables/useContentLink';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -42,15 +45,16 @@
       UnPinnedDevices,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { genLibraryPageBackLink } = useContentLink();
+      return {
+        genLibraryPageBackLink,
+      };
+    },
     props: {
       devices: {
         type: Array,
         required: true,
-      },
-    },
-    computed: {
-      viewAllRoute() {
-        return { name: PageNames.EXPLORE_LIBRARIES };
       },
     },
   };

@@ -2,8 +2,9 @@
 
   <ImmersivePage
     :appBarTitle="learnString('exploreLibraries')"
-    :route="backRoute"
+    :route="back"
     :primary="false"
+    :loading="loading"
   >
     <div
       class="page-header"
@@ -39,8 +40,8 @@
         />
       </div>
       <LibraryItem
-        v-for="device in moreDevices"
-        :key="device['instance_id']"
+        v-for="(device, index) in moreDevices"
+        :key="index"
         :deviceId="device['instance_id']"
         :deviceName="device['device_name']"
         :deviceIcon="getDeviceIcon(device)"
@@ -64,14 +65,16 @@
 <script>
 
   import { mapGetters } from 'vuex';
+
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
+  import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { PageNames, KolibriStudioId } from '../../constants';
+  import { KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
   const PinStrings = crossComponentTranslator(LibraryItem);
@@ -85,6 +88,7 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { fetchChannels } = useChannels();
+      const { back } = useContentLink();
       const { fetchDevices } = useDevices();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
 
@@ -94,10 +98,12 @@
         fetchPinsForUser,
         fetchChannels,
         fetchDevices,
+        back,
       };
     },
     data() {
       return {
+        loading: false,
         networkDevices: [],
         moreDevices: [],
         usersPins: [],
@@ -107,9 +113,6 @@
       ...mapGetters(['isSuperuser']),
       areMoreDevicesAvailable() {
         return this.unpinnedDevices?.length > 0;
-      },
-      backRoute() {
-        return { name: PageNames.LIBRARY };
       },
       displayShowButton() {
         return this.moreDevices.length === 0;
@@ -173,6 +176,7 @@
       },
     },
     created() {
+      this.loading = true;
       // Fetch user's pins
       this.fetchPinsForUser().then(resp => {
         this.usersPins = resp.map(pin => {
@@ -182,23 +186,28 @@
       });
 
       this.fetchDevices().then(devices => {
-        const fetchDevicesChannels = devices.reduce((accumulator, device) => {
+        this.loading = false;
+        for (const device of devices) {
           const baseurl = device.base_url;
-          accumulator.push(this.fetchChannels({ baseurl }));
-          return accumulator;
-        }, []);
-
-        Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
-          this.networkDevices = devices.map((device, index) => {
-            const deviceChannels = devicesChannels[index]?.value || [];
-            device['channels'] = deviceChannels.slice(0, 4);
-            device['total_count'] = deviceChannels.length;
-            return device;
-          });
-        });
+          this.fetchChannels({ baseurl })
+            .then(channels => {
+              this.addNetworkDevice(device, channels);
+            })
+            .catch(() => {
+              this.addNetworkDevice(device, []);
+            });
+        }
       });
     },
     methods: {
+      addNetworkDevice(device, channels) {
+        this.networkDevices.push(
+          Object.assign(device, {
+            channels: channels.slice(0, 4),
+            total_count: channels.length,
+          })
+        );
+      },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;
@@ -222,13 +231,9 @@
       handlePinToggle(instance_id) {
         if (this.usersPinsDeviceIds.includes(instance_id)) {
           const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
-          this.deletePin(instance_id, pinId).catch(e => {
-            console.error(e);
-          });
+          this.deletePin(instance_id, pinId);
         } else {
-          this.createPin(instance_id).catch(e => {
-            console.error(e);
-          });
+          this.createPin(instance_id);
         }
       },
       getDeviceIcon(device) {

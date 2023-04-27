@@ -5,7 +5,7 @@
     :appearanceOverrides="{}"
     :loading="loading"
     :deviceId="deviceId"
-    :route="goBackRoute"
+    :route="back"
   >
     <main
       class="main-grid"
@@ -218,6 +218,7 @@
   import SidePanelModal from '../SidePanelModal';
   import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
+  import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import useSearch from '../../composables/useSearch';
@@ -281,6 +282,7 @@
         windowIsSmall,
       } = useKResponsiveWindow();
       const { currentCardViewStyle } = useCardViewStyle();
+      const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
       const { fetchChannels } = useChannels();
       const { fetchPinsForUser } = usePinnedDevices();
@@ -317,6 +319,7 @@
         deviceName,
         fetchChannels,
         fetchPinsForUser,
+        back,
       };
     },
     props: {
@@ -326,10 +329,6 @@
       },
       loading: {
         type: Boolean,
-        default: null,
-      },
-      goBackRoute: {
-        type: Object,
         default: null,
       },
     },
@@ -437,12 +436,23 @@
       }
     },
     methods: {
+      addDevice(device, channels) {
+        this.devices.push(
+          Object.assign(device, {
+            channels: channels.sort(this.currentLanguageChannelsFirst),
+            total_count: channels.length,
+          })
+        );
+      },
+      currentLanguageChannelsFirst(a, b) {
+        return b['lang_code'].indexOf(currentLanguage) - a['lang_code'].indexOf(currentLanguage);
+      },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
       refreshDevices() {
         this.searching = true;
-
+        this.devices = [];
         this.fetchPinsForUser().then(resp => {
           this.usersPins = resp.map(pin => {
             const instance_id = pin.instance_id.replace(/-/g, '');
@@ -451,27 +461,17 @@
         });
 
         this.fetchDevices().then(devices => {
-          const fetchDevicesChannels = devices.reduce((accumulator, device) => {
+          this.searching = false;
+          for (const device of devices) {
             const baseurl = device.base_url;
-            accumulator.push(this.fetchChannels({ baseurl }));
-            return accumulator;
-          }, []);
-
-          Promise.allSettled(fetchDevicesChannels).then(devicesChannels => {
-            this.devices = devices.map((device, index) => {
-              const deviceChannels = devicesChannels[index]?.value || [];
-              //Sort channels based on user's current language,
-              //and then return the first seven channels only.
-              device['channels'] = deviceChannels.sort((a, b) => {
-                return (
-                  b['lang_code'].indexOf(currentLanguage) - a['lang_code'].indexOf(currentLanguage)
-                );
+            this.fetchChannels({ baseurl })
+              .then(channels => {
+                this.addDevice(device, channels);
+              })
+              .catch(() => {
+                this.addDevice(device, []);
               });
-              device['total_count'] = deviceChannels.length;
-              return device;
-            });
-            this.searching = false;
-          });
+          }
         });
       },
       toggleSidePanelVisibility() {
