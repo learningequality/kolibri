@@ -121,7 +121,8 @@ class RemoteMixin(object):
     def _get_request_headers(self, request):
         return {
             "Accept": request.META.get("HTTP_ACCEPT"),
-            "Accept-Encoding": request.META.get("HTTP_ACCEPT_ENCODING"),
+            # Don't proxy client's accept headers as it may include br for brotli
+            # that we cannot rely on having decompression for available on the server.
             "Accept-Language": request.META.get("HTTP_ACCEPT_LANGUAGE"),
             "Content-Type": request.META.get("CONTENT_TYPE"),
             "If-None-Match": request.META.get("HTTP_IF_NONE_MATCH", ""),
@@ -154,6 +155,9 @@ class RemoteMixin(object):
             response = requests.get(
                 remote_url, params=qs, headers=self._get_request_headers(request)
             )
+            if response.status_code == 404:
+                raise Http404("Remote resource not found")
+            response.raise_for_status()
             # If Etag is set on the response we have returned here, any further Etag will not be modified
             # by the django etag decorator, so this should allow us to transparently proxy the remote etag.
             try:
@@ -1721,6 +1725,9 @@ class RemoteChannelViewSet(viewsets.ViewSet):
             if resp.status_code == 404:
                 raise requests.ConnectionError("Kolibri Studio URL is incorrect!")
             else:
-                return Response({"status": "online"})
+                data = resp.json()
+                data["available"] = True
+                data["status"] = "online"
+                return Response(data)
         except requests.ConnectionError:
-            return Response({"status": "offline"})
+            return Response({"status": "offline", "available": False})

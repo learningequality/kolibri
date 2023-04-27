@@ -77,7 +77,7 @@
                   />
                 </td>
                 <td>
-                  {{ quizSize(tableRow.id) }}
+                  {{ tableRow.size_string ? tableRow.size_string : '--' }}
                 </td>
                 <td
                   v-show="!$isPrint"
@@ -121,7 +121,7 @@
         >
           <p>{{ coachString('openQuizModalDetail') }}</p>
           <p>{{ coachString('lodQuizDetail') }}</p>
-          <p>{{ coachString('fileSizeToDownload', { size: quizSize(modalQuizId) }) }}</p>
+          <p>{{ coachString('fileSizeToDownload', { size: modalQuizId.size_string }) }}</p>
         </KModal>
         <KModal
           v-if="showCloseConfirmationModal"
@@ -142,7 +142,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
@@ -173,17 +172,15 @@
       };
     },
     computed: {
-      ...mapState('classSummary', ['quizzesSizes']),
-
       emptyMessage() {
         if (this.filter.value === 'allQuizzes') {
           return this.coachString('quizListEmptyState');
         }
         if (this.filter.value === 'startedQuizzes') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'quizzesNotStarted') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'endedQuizzes') {
           return this.$tr('noEndedExams');
@@ -241,12 +238,11 @@
         });
       },
       calcTotalSizeOfVisibleQuizzes() {
-        if (this.table && this.quizzesSizes && this.quizzesSizes[0]) {
+        if (this.exams) {
           let sum = 0;
           this.exams.forEach(exam => {
-            // only include visible lessons
             if (exam.active) {
-              sum += this.quizzesSizes[0][exam.id];
+              sum += exam.size;
             }
           });
           const size = bytesForHumans(sum);
@@ -309,14 +305,6 @@
 
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);
-      },
-      quizSize(quizId) {
-        if (this.quizzesSizes && this.quizzesSizes[0]) {
-          let size = this.quizzesSizes[0][quizId];
-          size = bytesForHumans(size);
-          return size;
-        }
-        return '--';
       },
     },
     $trs: {

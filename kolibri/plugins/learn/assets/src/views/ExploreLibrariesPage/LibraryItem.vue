@@ -21,10 +21,14 @@
             <KIconButton
               ref="pinIcon"
               :icon="pinIcon"
+              :disabled="disablePinDevice"
               appearance="flat-button"
               @click="$emit('togglePin', deviceId)"
             />
-            <KTooltip reference="pinIcon" :refs="$refs">
+            <KTooltip
+              reference="pinIcon"
+              :refs="$refs"
+            >
               {{ (pinIcon === 'pinned') ? $tr('removePin') : $tr('pinTo') }}
             </KTooltip>
           </h2>
@@ -60,7 +64,7 @@
           :title="channel.name"
           :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
-          :link="genContentLinkBackLinkCurrentPage(channel.root)"
+          :link="genContentLinkBackLinkCurrentPage(channel.root, false, deviceId)"
           :version="channel.version"
         />
       </KGridItem>
@@ -130,13 +134,24 @@
         required: false,
         default: false,
       },
+      disablePinDevice: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
+      goBackRoute() {
+        return {
+          name: PageNames.EXPLORE_LIBRARIES,
+        };
+      },
       libraryPageRoute() {
         return {
           name: PageNames.LIBRARY,
           params: {
             deviceId: this.deviceId,
+            goBackRoute: this.goBackRoute,
           },
         };
       },

@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "उपकरण"
+  "CommonDeviceStrings.deviceManagementTitle": "डिवाइस",
+  "CommonDeviceStrings.emptyTasksMessage": "प्रदर्शित करने के लिए कोई कार्य नहीं हैं",
+  "CommonDeviceStrings.newChannelLabel": "नया",
+  "CommonDeviceStrings.newEnabledPluginsState": "जब आप किसी पेज को अनचेक करते हैं, तो यह उपयोगकर्ताओं के लिए अदृश्य हो जाएगा, भले ही उनके पास इसे एक्सेस करने की अनुमति हो।",
+  "CommonDeviceStrings.newResourceLabel": "नया",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "आपके डिवाइस पर पर्याप्त जगह उपलब्ध नहीं है। डिवाइस पर जगह बनाये या कम संसाधनों का चयन करें",
+  "CommonDeviceStrings.permissionsLabel": "अनुमतियाँ",
+  "CommonDeviceStrings.primaryStorageLabel": "नए डाउनलोड किए गए संसाधनों को प्राथमिक संग्रहण स्थान में जोड़ दिया जाएगा",
+  "CommonDeviceStrings.unlistedChannelLabel": "असूचीबद्ध चैनल"
 }

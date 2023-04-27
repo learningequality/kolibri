@@ -11,3 +11,4 @@ Backend architecture
   tasks
   dist_build_pipeline
   upgrade
+  facility_syncing/index

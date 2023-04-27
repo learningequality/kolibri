@@ -9,6 +9,7 @@ from .utils import TokenGenerator
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
+from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
@@ -32,6 +33,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         queryset=FacilityUser.objects.all(), required=False
     )
     facility_name = serializers.CharField(default="")
+    set_as_super_user = serializers.BooleanField(required=False)
 
     def validate(self, data):
         try:
@@ -44,6 +46,8 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
+        if data.get("set_as_super_user"):
+            job_data["kwargs"]["set_as_super_user"] = data["set_as_super_user"]
 
         return job_data
 
@@ -135,7 +139,7 @@ def mergeuser(command, **kwargs):
         begin_request_soud_sync(kwargs["baseurl"], remote_user.id)
 
     new_superuser_id = kwargs.get("new_superuser_id")
-    if new_superuser_id:
+    if new_superuser_id and local_user.is_superuser:
         new_superuser = FacilityUser.objects.get(id=new_superuser_id)
         # make the user a new super user for this device:
         new_superuser.facility.add_role(new_superuser, role_kinds.ADMIN)
@@ -152,4 +156,14 @@ def mergeuser(command, **kwargs):
     job.extra_metadata["remote_user_pk"] = remote_user_pk
     job.save_meta()
     job.update_progress(1.0, 1.0)
-    local_user.delete()
+
+    # check if current user should be set as superuser:
+    set_as_super_user = kwargs.get("set_as_super_user")
+    if set_as_super_user and local_user.is_superuser:
+        DevicePermissions.objects.create(
+            user=remote_user, is_superuser=True, can_manage_content=True
+        )
+        delete_facility(local_user.facility)
+        set_device_settings(default_facility=remote_user.facility)
+    else:
+        local_user.delete()

@@ -18,6 +18,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.base import RoleBasedPermissions
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
 from kolibri.core.utils.cache import process_cache as cache
@@ -178,6 +179,34 @@ class DeviceSettings(models.Model):
     @secondary_storage_locations.setter
     def secondary_storage_locations(self, value):
         update_options_file("Paths", "CONTENT_FALLBACK_DIRS", value)
+
+    def _get_extra(self, name):
+        """
+        Allows use with `get_device_setting` utility
+        :param name: A str name of the `extra_settings` field
+        :return: mixed
+        """
+        return self.extra_settings.get(name, extra_settings_default_values[name])
+
+    @property
+    def allow_download_on_metered_connection(self):
+        return self._get_extra("allow_download_on_metered_connection")
+
+    @property
+    def enable_automatic_download(self):
+        return self._get_extra("enable_automatic_download")
+
+    @property
+    def allow_learner_download_resources(self):
+        return self._get_extra("allow_learner_download_resources")
+
+    @property
+    def set_limit_for_autodownload(self):
+        return self._get_extra("set_limit_for_autodownload")
+
+    @property
+    def limit_for_autodownload(self):
+        return self._get_extra("limit_for_autodownload")
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
@@ -435,7 +464,9 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         :param status: A status tuple of which to save, see `DeviceStatus`
         :type status: tuple(string, int)
         """
-        if not get_device_setting("subset_of_users_device", False):
+        if not get_device_setting(
+            "subset_of_users_device", default=not device_provisioned()
+        ):
             raise NotImplementedError(
                 "Saving all learner statuses is not supported on full-facility devices"
             )
@@ -468,6 +499,23 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
             user_id=learner_user_id,
             defaults=dict(zip(("status", "status_sentiment"), status)),
         )
+
+    @classmethod
+    def clear_statuses(cls):
+        """
+        Clears any statuses for all learners on the device, only supported for devices
+        provisioned as a `subset_of_users_device`
+        :return:
+        """
+        if not get_device_setting(
+            "subset_of_users_device", default=not device_provisioned()
+        ):
+            raise NotImplementedError(
+                "Saving all learner statuses is not supported on full-facility devices"
+            )
+
+        for user_id in FacilityUser.objects.all().values_list("id", flat=True):
+            cls.clear_learner_status(user_id)
 
     @classmethod
     def clear_learner_status(cls, learner_user_id):

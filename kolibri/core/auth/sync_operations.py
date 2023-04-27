@@ -55,7 +55,9 @@ class KolibriSyncOperations(BaseOperation):
             # stage of the transfer, but by default it looks for an attribute that matches the
             # current stage
             operations.extend(hook.get_sync_operations(context))
-        return operations
+
+        # finally, sort operations by priority (higher is first)
+        return sorted(operations, reverse=True, key=lambda o: getattr(o, "priority", 0))
 
 
 class KolibriSyncOperationMixin(BaseOperation):
@@ -63,6 +65,9 @@ class KolibriSyncOperationMixin(BaseOperation):
     Mixin for Morango operations to provide structure for handling a context once if the operation
     does have side effects that do that modify the behavior of the sync (returning non-False)
     """
+
+    priority = 0
+    """Priority integer for ordering operations relative to others"""
 
     @property
     def history_key(self):

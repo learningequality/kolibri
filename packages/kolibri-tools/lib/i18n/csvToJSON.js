@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const logging = require('../logging');
 const { forEachPathInfo, parseCSVDefinitions, toLocale } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
@@ -50,7 +49,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
           logging.error(`Could not find translation for message ${msg} in CSV files`);
         }
       }
-      mkdirp.sync(localeFolder);
+      fs.mkdirSync(localeFolder, { recursive: true });
       const filename = path.join(localeFolder, name + '-messages.json');
       if (Object.keys(messages).length) {
         fs.writeFileSync(

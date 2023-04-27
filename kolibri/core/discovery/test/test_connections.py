@@ -16,6 +16,7 @@ class BaseTestCase(TestCase):
     def setUp(self):
         self.mock_location = mock.MagicMock(
             spec=NetworkLocation(),
+            id="mock_location_id",
             dynamic=False,
             instance_id=None,
             connection_status=ConnectionStatus.Unknown,
@@ -140,6 +141,12 @@ class UpdateNetworkLocationTestCase(BaseTestCase):
         self.mock_location.dynamic = True
         update_network_location(self.mock_location)
         self.assertNotEqual(self.mock_location.last_known_ip, "192.168.101.101")
+
+    def test_okay__static(self):
+        self.mock_location.dynamic = False
+        update_network_location(self.mock_location)
+        self.assertEqual(self.mock_location.last_known_ip, "192.168.101.101")
+        self.assertTrue(self.mock_location.is_local)
 
     def test_connect__connection_failure(self):
         self.mock_location.connection_faults = 0

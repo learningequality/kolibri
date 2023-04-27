@@ -6,9 +6,11 @@ from django.utils import timezone
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.general import IsOwn
+from kolibri.core.upgrade import matches_version
 from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 from kolibri.utils.data import ChoicesEnum
 from kolibri.utils.time_utils import local_now
+from kolibri.utils.version import truncate_version
 
 
 def _filter_out_unsupported_fields(fields):
@@ -81,6 +83,9 @@ class NetworkLocation(models.Model):
     added = models.DateTimeField(auto_now_add=True, db_index=True)
     last_accessed = models.DateTimeField(auto_now=True)
 
+    # Determines whether device is local or on the internet
+    is_local = models.BooleanField(default=False)
+
     @property
     def since_last_accessed(self):
         """
@@ -105,6 +110,16 @@ class NetworkLocation(models.Model):
             return True
         except models.FieldDoesNotExist:
             return False
+
+    def matches_version(self, version):
+        """
+        Truncates the kolibri version to the patch level (0.16.0a1 -> 0.16.0) and compares it with
+        version range, which can use operators `>` or `<` for comparing below or above a specified
+        version
+        :param version: the version filter with operators
+        :return: a bool
+        """
+        return matches_version(truncate_version(self.kolibri_version), version)
 
 
 class StaticNetworkLocationManager(models.Manager):
@@ -149,6 +164,7 @@ class DynamicNetworkLocation(NetworkLocation):
 
     def save(self, *args, **kwargs):
         self.dynamic = True
+        self.is_local = True
 
         if self.id and self.instance_id and self.id != self.instance_id:
             raise ValidationError(

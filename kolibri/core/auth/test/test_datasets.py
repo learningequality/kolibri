@@ -135,6 +135,10 @@ class FacilityDatasetTestCase(TestCase):
                 learner_can_edit_password=True, learner_can_login_with_no_password=True
             )
 
+    def test_null_pin_code(self):
+        facility_dataset = FacilityDataset(extra_fields={"pin_code": None})
+        facility_dataset.clean_fields()
+
 
 class MultipleDatasetAssignmentTestCase(TestCase):
     """

@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <h1>{{ coreString('chageLearningFacility') }}</h1>
+    <h1>{{ coreString('changeLearningFacility') }}</h1>
     <p data-test="line1">
       {{ mergeAccountInfoLine1 }}
     </p>

@@ -13,8 +13,8 @@
           <slot name="actions"></slot>
         </KGridItem>
         <KGridItem
-          :layout12="{ span: 10, alignment: 'left' }"
-          :layout8="{ span: 6, alignment: 'left' }"
+          :layout12="{ span: 9, alignment: 'left' }"
+          :layout8="{ span: 5, alignment: 'left' }"
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
@@ -39,7 +39,12 @@
             :isSurvey="isSurvey"
           />
         </KGridItem>
-        <KGridItem v-if="!windowIsSmall" :layout="{ span: 2, alignment: 'right' }">
+        <KGridItem
+          v-if="!windowIsSmall"
+          :layout12="{ span: 3, alignment: 'right' }"
+          :layout8="{ span: 3, alignment: 'right' }"
+          :layout="{ span: 2, alignment: 'right' }"
+        >
           <slot name="actions"></slot>
         </KGridItem>
       </KGrid>
@@ -332,13 +337,15 @@
       },
       pastTriesOptions() {
         return this.pastTries.map((quizTry, index) => {
-          const score = Math.floor((quizTry.correct / this.questions.length) * 100);
+          const rawScore = quizTry.correct / this.questions.length;
+          const score = this.$formatNumber(rawScore, { style: 'percent' });
           const time = this.$formatRelative(quizTry.completion_timestamp || quizTry.end_timestamp, {
             now: this.now,
           });
+
           return {
             value: index,
-            label: this.isSurvey ? time : `(${score}%) ${time}`,
+            label: this.isSurvey ? time : `(${score}) ${time}`,
           };
         });
       },

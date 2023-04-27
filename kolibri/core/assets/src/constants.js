@@ -174,3 +174,9 @@ export const FacilityUserGender = {
 };
 
 export const IsPinAuthenticated = 'is_pin_authenticated';
+
+// maps to possible network applications that we import/export content from
+export const ApplicationTypes = {
+  KOLIBRI: 'kolibri',
+  STUDIO: 'studio',
+};

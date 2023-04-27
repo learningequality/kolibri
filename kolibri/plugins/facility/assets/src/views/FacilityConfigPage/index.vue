@@ -87,7 +87,7 @@
           <KButton
             v-show="isPinSet"
             hasDropdown
-            :text="$tr('optionBtn')"
+            :text="coreString('optionsLabel')"
           >
             <template #menu>
               <KDropdownMenu
@@ -199,6 +199,7 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { createTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';
   import isEqual from 'lodash/isEqual';
@@ -212,6 +213,23 @@
   import ViewPinModal from './ViewPinModal';
   import ChangePinModal from './ChangePinModal';
   import RemovePinModal from './RemovePinModal';
+
+  /**
+   * Using the createTranslator to aid concatenation
+   * of strings missed before string freeze. This only a workaround
+   */
+  const deviceSettingsPageStrings = createTranslator('DeviceSettingsPage', {
+    changeLocation: {
+      message: 'Change',
+      context: 'Label to change primary storage location',
+    },
+  });
+  const pinAuthenticationModalStrings = createTranslator('PinAuthenticationModal', {
+    pinPlaceholder: {
+      message: 'PIN',
+      context: 'Placeholder label for a PIN input',
+    },
+  });
 
   // See FacilityDataset in core.auth.models for details
   const settingsList = [
@@ -291,10 +309,23 @@
       },
       dropdownOption() {
         return [
-          { label: 'View PIN', value: 'VIEW' },
-          { label: 'Change PIN', value: 'CHANGE' },
-          { label: 'Remove PIN', value: 'REMOVE' },
+          { label: this.viewPINLabel, value: 'VIEW' },
+          { label: this.changePINLabel, value: 'CHANGE' },
+          { label: this.coreString('removePinPlacholder'), value: 'REMOVE' },
         ];
+      },
+      changePINLabel() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return `${deviceSettingsPageStrings.$tr('changeLocation')} ${this.pinPlaceholder}`;
+        /* eslint-enable */
+      },
+      viewPINLabel() {
+        return `${this.coreString('viewAction')} ${this.pinPlaceholder}`;
+      },
+      pinPlaceholder() {
+        /* eslint-disable kolibri/vue-no-undefined-string-uses */
+        return pinAuthenticationModalStrings.$tr('pinPlaceholder');
+        /* eslint-enable */
       },
     },
     watch: {
@@ -445,10 +476,12 @@
         message: 'Create PIN',
         context: 'Button for the create PIN',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       optionBtn: {
         message: 'option',
         context: 'Options button for the create PIN page',
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 

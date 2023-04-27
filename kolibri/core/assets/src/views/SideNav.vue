@@ -18,6 +18,7 @@
         }"
       >
 
+
         <FocusTrap
           @shouldFocusFirstEl="$emit('shouldFocusFirstEl')"
           @shouldFocusLastEl="focusLastEl"
@@ -38,7 +39,16 @@
               :style="themeConfig.sideNav.topLogo.style"
             >
 
-            <div v-if="userIsLearner" class="user-information">
+
+            <div v-if="userIsLearner || isAppContext" class="user-information">
+              <div v-if="isAppContext" style="margin-bottom:10px;margin-left:-15px">
+                <KIconButton
+                  ref="closeButton"
+                  icon="close"
+                  class="side-nav-header-icon"
+                  @click="toggleNav"
+                />
+              </div>
               <!-- display user details -->
               <TotalPoints class="points" />
               <b>{{ fullName }}</b>
@@ -53,7 +63,7 @@
                 {{ username }}
               </p>
               <p :style="{ color: $themeTokens.annotation, fontSize: '12px', marginTop: 0 }">
-                {{ getUserKind }}
+                {{ loggedInUserKind }}
               </p>
 
 
@@ -189,6 +199,7 @@
     <BottomNavigationBar
       v-if="isAppContext"
       :bottomMenuOptions="bottomMenuOptions"
+      :navShown="navShown"
       @toggleNav="toggleNav()"
     />
 
@@ -340,6 +351,18 @@
       },
       userIsLearner() {
         return this.getUserKind == UserKinds.LEARNER;
+      },
+      loggedInUserKind() {
+        if (this.getUserKind === UserKinds.LEARNER) {
+          return this.coreString('learnerLabel');
+        }
+        if (this.getUserKind === UserKinds.ADMIN) {
+          return this.coreString('adminLabel');
+        }
+        if (this.getUserKind === UserKinds.COACH) {
+          return this.coreString('coachLabel');
+        }
+        return this.coreString('superAdminLabel');
       },
     },
     watch: {

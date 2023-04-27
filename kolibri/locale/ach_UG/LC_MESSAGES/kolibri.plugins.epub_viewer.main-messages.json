@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "crwdns334413:0crwdne334413:0",
   "BottomBar.preparingSlider": "crwdns334415:0crwdne334415:0",
-  "BottomBar.progress": "crwdns334417:0progress={progress}crwdne334417:0",
   "LoadingError.couldNotLoadThisBook": "crwdns334419:0crwdne334419:0",
   "LoadingScreen.loadingBook": "crwdns334421:0crwdne334421:0",
   "NextButton.goToNextPage": "crwdns334423:0crwdne334423:0",
@@ -11,7 +10,7 @@
   "SearchSideBar.loadingResults": "crwdns334431:0crwdne334431:0",
   "SearchSideBar.noSearchResults": "crwdns334433:0crwdne334433:0",
   "SearchSideBar.numberOfSearchResults": "crwdns334435:0num={num}crwdnd334435:0num={num}crwdne334435:0",
-  "SearchSideBar.overCertainNumberOfSearchResults": "crwdns335357:0num={num}crwdnd335357:0num={num}crwdne335357:0",
+  "SearchSideBar.overCertainNumberOfSearchResults": "crwdns334437:0num={num}crwdnd334437:0num={num}crwdne334437:0",
   "SearchSideBar.searchThroughBook": "crwdns334439:0crwdne334439:0",
   "SearchSideBar.submitSearchQuery": "crwdns334441:0crwdne334441:0",
   "SettingsButton.toggleSettingsSideBar": "crwdns334443:0crwdne334443:0",

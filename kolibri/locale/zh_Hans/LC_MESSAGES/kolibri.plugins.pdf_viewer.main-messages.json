@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "展开书签",
+  "Bookmarks.bookmarksSection": "书签部分。您可以按 Shift + Enter 键，在 PDF 文档和书签部分之间切换。",
+  "PdfPage.numPage": "第 {number} 页，共 {total} 页",
   "PdfRendererIndex.enterFullscreen": "进入全屏",
   "PdfRendererIndex.exitFullscreen": "退出全屏"
 }

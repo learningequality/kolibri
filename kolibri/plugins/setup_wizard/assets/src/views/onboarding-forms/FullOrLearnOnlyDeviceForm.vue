@@ -52,7 +52,8 @@
     $trs: {
       whatKindOfDeviceTitle: {
         message: 'What kind of device is this?',
-        context: '',
+        context:
+          'Title for the Kolibri setup wizard step where user decides if they want to configure their device as only used by one or more learners, of as a full device to also be used by coaches and administrators.',
       },
       fullDeviceLabel: {
         message: 'Full device',

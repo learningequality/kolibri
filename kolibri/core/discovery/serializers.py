@@ -34,6 +34,7 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "kolibri_version",
             "subset_of_users_device",
             "connection_status",
+            "is_local",
         )
         read_only_fields = (
             "available",
@@ -48,12 +49,13 @@ class NetworkLocationSerializer(serializers.ModelSerializer):
             "kolibri_version",
             "subset_of_users_device",
             "connection_status",
+            "is_local",
         )
 
     def validate(self, data):
         try:
             client = NetworkClient.build_for_address(data["base_url"])
-        except errors.NetworkClientError as e:
+        except (errors.NetworkClientError, errors.URLParseError) as e:
             raise ValidationError(
                 "Error with address {} ({})".format(
                     data["base_url"], e.__class__.__name__

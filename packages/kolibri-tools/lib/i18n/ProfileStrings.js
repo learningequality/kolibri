@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const traverse = require('ast-traverse');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
 const reduce = require('lodash/reduce');
@@ -39,7 +38,7 @@ function logKeyError(namespace, key) {
 // Instantiates the CSV data and writes to a file.
 function writeProfileToCSV(profile, outputFile) {
   // Ensure we have a {localePath}/profile directory available.
-  mkdirp.sync(path.dirname(outputFile));
+  fs.mkdirSync(path.dirname(outputFile), { recursive: true });
 
   const csvData = profileToCSV(profile);
   const csvWriter = createCsvWriter({

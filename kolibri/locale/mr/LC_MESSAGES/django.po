@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-01-12 06:47-0800\n"
-"PO-Revision-Date: 2022-01-25 19:10\n"
+"POT-Creation-Date: 2023-03-14 16:32-0700\n"
+"PO-Revision-Date: 2023-04-05 22:12\n"
 "Last-Translator: \n"
 "Language-Team: Marathi\n"
 "Language: mr_IN\n"
@@ -62,67 +62,67 @@ msgstr "ही csv फाईल वाचताना समस्या आल�
 msgid "Error trying to write csv file: {}"
 msgstr "ही csv फाईल लिहिताना समस्या आली: {}"
 
-#: core/auth/management/commands/bulkexportusers.py:42
-#: core/auth/management/commands/bulkexportusers.py:124
+#: core/auth/management/commands/bulkexportusers.py:46
+#: core/auth/management/commands/bulkexportusers.py:123
 msgid "Database ID ({})"
 msgstr "डेटाबेस आयडी ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:43
-#: core/auth/management/commands/bulkexportusers.py:125
+#: core/auth/management/commands/bulkexportusers.py:47
+#: core/auth/management/commands/bulkexportusers.py:124
 msgid "Username ({})"
 msgstr "युझरनेम ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:44
-#: core/auth/management/commands/bulkexportusers.py:126
+#: core/auth/management/commands/bulkexportusers.py:48
+#: core/auth/management/commands/bulkexportusers.py:125
 msgid "Password ({})"
 msgstr "पासवर्ड ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:45
-#: core/auth/management/commands/bulkexportusers.py:127
+#: core/auth/management/commands/bulkexportusers.py:49
+#: core/auth/management/commands/bulkexportusers.py:126
 msgid "Full name ({})"
 msgstr "पूर्ण नाव ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:50
+#: core/auth/management/commands/bulkexportusers.py:54
 msgctxt "CSV column header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "युझरचा प्रकार ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:53
-#: core/auth/management/commands/bulkexportusers.py:135
+#: core/auth/management/commands/bulkexportusers.py:57
+#: core/auth/management/commands/bulkexportusers.py:134
 msgid "Identifier ({})"
 msgstr "ओळख संकेत ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:54
-#: core/auth/management/commands/bulkexportusers.py:136
+#: core/auth/management/commands/bulkexportusers.py:58
+#: core/auth/management/commands/bulkexportusers.py:135
 msgid "Birth year ({})"
 msgstr "जन्म वर्ष ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:55
-#: core/auth/management/commands/bulkexportusers.py:137
+#: core/auth/management/commands/bulkexportusers.py:59
+#: core/auth/management/commands/bulkexportusers.py:136
 msgid "Gender ({})"
 msgstr "लिंग ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:60
+#: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "विद्यार्थ्याची नावनोंदणी ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:67
+#: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "प्रशिक्षकाची नेमणूक ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:132
+#: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
 msgid "User type ({})"
 msgstr "युझरचा प्रकार ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:142
+#: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
 msgstr "विद्यार्थ्याची नावनोंदणी ({})"
 
-#: core/auth/management/commands/bulkexportusers.py:149
+#: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
 msgstr "प्रशिक्षकाची नेमणूक ({})"
@@ -172,48 +172,161 @@ msgstr "'{}' या आयडीचा युझर अद्ययावत क
 msgid "Database ID is not valid"
 msgstr "डेटाबेस आयडी वैध नाही"
 
-#: core/content/api.py:254
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:63
+msgid "Data syncing in progress"
+msgstr "डेटा सिंकिंग चालू आहे"
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:67
+msgid "Do not disconnect your device from the network."
+msgstr "तुमच्या डिव्हाइस नेटवर्कवरून डिस्कनेक्ट करू नका."
+
+#: core/content/api.py:352
 msgid "Resource"
 msgstr "संसाधन"
 
-#: core/content/api.py:1467
+#: core/content/api.py:1622
 msgid "The requested channel does not exist on the content server"
 msgstr "तुम्हाला हवी असलेली वाहिनी या सर्व्हर वर उपलब्ध नाही"
 
-#: core/content/models.py:256
+#: core/content/models.py:265
 msgid "Unknown format"
 msgstr "अनोळखी फॉरमॅट"
 
-#: core/device/serializers.py:36
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:46
+msgid "Updating your library"
+msgstr "तुमची लायब्ररी अद्ययावत करत आहे"
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:49
+msgid "Library updated"
+msgstr "लायब्ररी अद्ययावत केली"
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:52
+msgid "Library update failed"
+msgstr "लायब्ररी अद्ययावत अयशस्वी"
+
+#: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
 msgstr "कोलिब्री सुविधा या भाषेत उपलब्ध नाही"
 
-#: core/logger/csv_export.py:205
-msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
-msgid "content_session_logs"
-msgstr "मजकूर_सत्र_लॉग"
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr "शोधत आहे"
 
-#: core/logger/csv_export.py:215
-msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
-msgid "content_summary_logs"
-msgstr "मजकूर_सारांश_लॉग"
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
+msgstr "इतर कोलिब्री डिव्हाइसेस शोधत आहोत"
 
-#: core/tasks/api.py:82
-msgid "There was a network error."
-msgstr "नेटवर्कमध्ये समस्या निर्माण झाली."
+#: core/logger/csv_export.py:69
+msgid "Facility name"
+msgstr "सुविधेचे नाव"
 
-#: core/tasks/api.py:84
-msgid "There was a disk access error."
-msgstr "डिस्क वापरताना समस्या निर्माण झाली."
+#: core/logger/csv_export.py:70
+msgid "Username"
+msgstr "युझरनेम"
 
-#: core/tasks/api.py:86
-msgid "There was an unknown error."
-msgstr "समस्येचे कारण माहिती नाही."
+#: core/logger/csv_export.py:71
+msgid "Channel id"
+msgstr "चॅनल आयडी"
+
+#: core/logger/csv_export.py:72
+msgid "Channel name"
+msgstr "चॅनेलचे नाव"
+
+#: core/logger/csv_export.py:73
+msgid "Content id"
+msgstr "मजकुर आयडी"
+
+#: core/logger/csv_export.py:74
+msgid "Content title"
+msgstr "मजकुराचे शीर्षक"
+
+#: core/logger/csv_export.py:79
+msgctxt "CSV column header for the time of the first interaction in the exported logs"
+msgid "Time of first interaction"
+msgstr "पहिल्या संवादाची वेळ"
+
+#: core/logger/csv_export.py:86
+msgctxt "CSV column header for the time of the last interaction in the exported logs"
+msgid "Time of last interaction"
+msgstr "शेवटच्या संवादाची वेळ"
+
+#: core/logger/csv_export.py:93
+msgctxt "CSV column header for the percentage of completion in the exported logs"
+msgid "Time of completion"
+msgstr "पूर्ण होण्याची वेळ"
+
+#: core/logger/csv_export.py:100
+msgctxt "CSV column header for the time spent in a resource in the exported logs"
+msgid "Time Spent (sec)"
+msgstr "लागलेला वेळ (सेकंद)"
+
+#: core/logger/csv_export.py:103
+msgid "Progress (0-1)"
+msgstr "प्रगती (0-1)"
+
+#: core/logger/csv_export.py:104
+msgid "Content kind"
+msgstr "मजकुराचा प्रकार"
+
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:100
+msgid "Complete"
+msgstr "पूर्ण"
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:103
+msgid "Failed"
+msgstr "अयशस्वी झाले"
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:106
+msgid "Cancelled"
+msgstr "रद्द झाले"
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:109
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr "प्रगतीपथावर आहे - {percent}%"
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:113
+msgid "Waiting"
+msgstr "वाट पाहत आहे"
 
 #: core/templates/kolibri/base.html:13
 #: core/templates/kolibri/unsupported_browser.html:13
 msgid "Kolibri"
 msgstr "कोलिब्री"
+
+#: core/templates/kolibri/loading_page.html:8
+msgid "Kolibri is starting"
+msgstr "कोलिब्री सुरू होत आहे"
+
+#: core/templates/kolibri/loading_page.html:87
+msgid "Starting Kolibri"
+msgstr "कोलिब्री सुरू करत आहे"
+
+#: core/templates/kolibri/loading_page.html:89
+msgid "You should be automatically redirected when Kolibri is ready"
+msgstr "कोलिब्री तयार झाल्यावर तुम्हाला आपोआप पुनर्निर्देशित केले जाईल"
+
+#: core/templates/kolibri/loading_page.html:90
+msgid "If not, please ask for help in our community forums"
+msgstr "तसे न झाल्यास, कृपया आमच्या समुदाय मंचावर मदतीसाठी विचारणा करा"
+
+#: core/templates/kolibri/loading_page.html:91
+msgid "Refresh page"
+msgstr "पृष्ठ रिफ्रेश करा"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -231,12 +344,61 @@ msgstr "कोलिब्री वापरण्यासाठी फाय�
 msgid "You can also try updating your current browser."
 msgstr "तुम्ही तुमच्या सध्याच्या ब्राऊझरची अद्ययावत आवृत्ती इन्स्टॉ्ल करण्याचाही प्रयत्न करू शकता."
 
-#: core/views.py:168
+#: core/views.py:165
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "योग्य रीडायरेक्ट पाने सापडली नाहीत. कदाचित कोलिब्री चुकीच्या पद्धतीने कॉन्फिगर झाले आहे"
 
-#: plugins/facility/views.py:52
+#: plugins/coach/kolibri_plugin.py:36
+msgid "Coach"
+msgstr "प्रशिक्षक"
+
+#: plugins/facility/kolibri_plugin.py:30
+msgid "Facility"
+msgstr "सुविधा"
+
+#: plugins/facility/views.py:151
+msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
+msgid "content_session_logs_from_"
+msgstr "मजकूर _सेशन_लॉग्स_कडून_"
+
+#: plugins/facility/views.py:158 plugins/facility/views.py:176
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "to_"
+msgstr "च्याकडे_"
+
+#: plugins/facility/views.py:169
+msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
+msgid "content_summary_logs_from_"
+msgstr "मजकूर _सारांश_लॉग्स_कडून_"
+
+#: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
-msgid "users_{}"
-msgstr "युझर्स_{}"
+msgid "users"
+msgstr "युझर"
+
+#: plugins/learn/kolibri_plugin.py:33
+msgid "Learn"
+msgstr "शिका"
+
+#: plugins/policies/kolibri_plugin.py:19
+msgid "Policies"
+msgstr "धोरणे"
+
+#: plugins/setup_wizard/kolibri_plugin.py:23
+msgid "Setup Wizard"
+msgstr "सेटअप व्हीझर्ड"
+
+#: plugins/user_profile/kolibri_plugin.py:25
+msgid "User Profile"
+msgstr "युझर प्रोफाइल"
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:67
+msgid "Account transfer in progress"
+msgstr "खाते हस्तांतरण प्रगतीपथावर आहे"
+
+#: plugins/user_profile/tasks.py:70
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
+msgstr "{learner_name} ला  शिक्षण सुविधेमध्ये {facility_name} नेत आहे"
 

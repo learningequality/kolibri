@@ -97,7 +97,8 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
   whenAvailable: {
     message: 'When available',
-    context: '',
+    context:
+      'An option to select to sync learner progress data to either a local or an online server whenever it is available on the network or Internet.',
   },
   retryAction: {
     message: 'Retry',

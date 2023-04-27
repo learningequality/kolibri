@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Expandir marcador",
+  "Bookmarks.bookmarksSection": "Seção de favoritos. Para alternar entre o documento e a seção de favoritos, pressione shift + enter.",
+  "PdfPage.numPage": "Página {number} de {total}",
   "PdfRendererIndex.enterFullscreen": "Entrar no modo tela cheia",
   "PdfRendererIndex.exitFullscreen": "Sair do modo tela cheia"
 }

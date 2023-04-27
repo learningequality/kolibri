@@ -107,6 +107,7 @@ class NetworkClient(requests.Session):
         return self.request("POST", path, **kwargs)
 
     def request(self, method, path, **kwargs):
+        response = None
         if "timeout" not in kwargs:
             kwargs.update(timeout=self.timeout)
 
@@ -115,6 +116,9 @@ class NetworkClient(requests.Session):
             with super(NetworkClient, self).request(
                 method, url, stream=True, **kwargs
             ) as response:
+                if response.raw._connection.sock is None:
+                    raise requests.exceptions.ConnectionError("No socket available")
+
                 # capture the remote IP address, which requires `stream=True` and before consumed
                 self.remote_ip = response.raw._connection.sock.getpeername()[0]
                 # now consume content, see how `Session.send` does this when `stream=False`
@@ -157,7 +161,7 @@ class NetworkClient(requests.Session):
         ) as e:
             raise_from(
                 errors.NetworkLocationResponseFailure(
-                    "Response failure: {}".format(url)
+                    "Response failure: {}".format(url), response=response
                 ),
                 e,
             )

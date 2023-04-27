@@ -2,6 +2,10 @@ import { mount } from '@vue/test-utils';
 import ConfigPage from '../../src/views/FacilityConfigPage';
 import makeStore from '../makeStore';
 
+jest.mock('../../../../device/assets/src/views/DeviceSettingsPage/api.js', () => ({
+  getDeviceSettings: jest.fn(),
+}));
+
 function makeWrapper(propsData = {}) {
   const store = makeStore();
   store.commit('facilityConfig/SET_STATE', {

@@ -25,6 +25,7 @@ LANDING_PAGE_SIGN_IN = "sign-in"
 LANDING_PAGE_LEARN = "learn"
 
 APP_KEY_COOKIE_NAME = "app_key_cookie"
+APP_AUTH_TOKEN_COOKIE_NAME = "app_auth_token_cookie"
 
 
 class DeviceNotProvisioned(Exception):
@@ -128,10 +129,13 @@ def valid_app_key_on_request(request):
     )
 
 
-def set_app_key_on_response(response):
+def set_app_key_on_response(response, auth_token):
     from .models import DeviceAppKey
 
     response.set_cookie(APP_KEY_COOKIE_NAME, DeviceAppKey.get_app_key())
+
+    if auth_token:
+        response.set_cookie(APP_AUTH_TOKEN_COOKIE_NAME, auth_token, httponly=True)
 
 
 def _check_setting(name, available, msg):

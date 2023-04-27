@@ -3,39 +3,8 @@ import os
 import platform
 import sys
 
-try:
-    # Do this to allow this to be accessed
-    # during build, when dependencies are not
-    # installed.
-    # TODO: Move version tools to build tools, so we don't have to do this
-    from colorlog import TTYColoredFormatter
-    from colorlog import getLogger
-except ImportError:
-    getLogger = None
-    TTYColoredFormatter = None
-
-from .logger import LOG_COLORS
-from .logger import EncodingStreamHandler as StreamHandler
 from kolibri.utils.compat import monkey_patch_collections
 from kolibri.utils.compat import monkey_patch_translation
-
-
-logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
-logging.StreamHandler(sys.stdout)
-
-if StreamHandler and getLogger and TTYColoredFormatter:
-    handler = StreamHandler(stream=sys.stdout)
-    handler.setFormatter(
-        TTYColoredFormatter(
-            fmt="%(log_color)s%(levelname)-8s %(message)s", log_colors=LOG_COLORS
-        )
-    )
-    handler.setLevel(logging.INFO)
-    logger = getLogger("env")
-    logger.addHandler(handler)
-    logger.propagate = False
-else:
-    logger = logging.getLogger("env")
 
 
 def settings_module():
@@ -105,6 +74,9 @@ def prepend_cext_path(dist_path):
         # add it + the matching noarch (OpenSSL) modules to sys.path
         sys.path = [str(dirname), str(noarch_dir)] + sys.path
     else:
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+        logging.StreamHandler(sys.stdout)
+        logger = logging.getLogger("env")
         logger.debug("No C extensions are available for this platform")
 
 

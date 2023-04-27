@@ -386,23 +386,33 @@ class KolibriBroadcast(object):
             logger.error("Zeroconf service is not broadcasting!")
             return
 
-        # a new ID every time the broadcast changes
-        self.id = uuid.uuid4().hex
+        # nothing to do
+        if instance is None and interfaces is None:
+            return
 
-        # when interfaces is being updated, pass along to Zeroconf so it can bind to them
-        if interfaces is not None:
-            self.interfaces = interfaces
-            self.zeroconf.update_interfaces(interfaces=interfaces)
-
-        # when our instance is being updated,
+        # when our instance is being updated
         if instance is not None:
             instance.zeroconf_id = self.instance.zeroconf_id
             self.instance = instance
-            self.renew()
-        else:
-            # if not provided a new instance, we still trigger this event when the broadcast is
-            # updated so the listeners can hook into that lifecycle
-            self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
+            # skip broadcasting if we're also updating our interfaces
+            self.renew(do_broadcast=interfaces is None)
+
+        # when interfaces is being updated, pass along to Zeroconf so it can bind to them
+        if interfaces is not None:
+            # a new ID every time the broadcast interfaces change
+            new_id = uuid.uuid4().hex
+            logging.debug(
+                "Updating broadcast with new ID: {}, old ID: {}".format(new_id, self.id)
+            )
+            self.id = new_id
+
+            # call the unregister listeners so that we enqueue necessary tasks to delete old
+            # locations from the database
+            self.events.publish(EVENT_UNREGISTER_INSTANCE, self.instance)
+
+            self.interfaces = interfaces
+            # `update_interfaces` will broadcast the new instance if it was updated
+            self.zeroconf.update_interfaces(interfaces=interfaces)
 
     def stop_broadcast(self):
         """Stops broadcasting our instance and shuts down Zeroconf"""
@@ -451,9 +461,11 @@ class KolibriBroadcast(object):
         self.zeroconf.register_service(service, ttl=service.ttl)
         self.instance.set_broadcasting(service, is_self=True)
 
-    def renew(self):
+    def renew(self, do_broadcast=True):
         """
         'Renews' the registration of our instance on the network
+        :param do_broadcast: Whether to broadcast the renewal or not
+        :type do_broadcast: bool
         """
         if not self.is_broadcasting:
             return
@@ -467,7 +479,20 @@ class KolibriBroadcast(object):
         service.ttl = SERVICE_TTL
         # very important to publish the event first, to avoid race conditions
         self.events.publish(EVENT_RENEW_INSTANCE, self.instance)
-        self.zeroconf.update_service(service, ttl=SERVICE_TTL)
+
+        if do_broadcast:
+            # `update_service` does 2 things:
+            # 1. updates the service info in the cache
+            # 2. sends out a new broadcast
+            self.zeroconf.update_service(service, ttl=SERVICE_TTL)
+        else:
+            # if we weren't explicitly told to broadcast, we still need to update the cache
+            # assuming something else will trigger the broadcast, like `update_interfaces` which
+            # internally calls the same broadcast method in `update_service`
+            service.ttl = SERVICE_TTL
+            self.zeroconf.services[service.name.lower()] = service
+
+        # even though may not have actually broadcast, we still set that we're broadcasting
         self.instance.set_broadcasting(service, is_self=True)
 
     def unregister(self):

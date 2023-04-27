@@ -104,7 +104,13 @@
       });
 
       watch(changeFacilityService, currentValue => {
-        usingAdminPasswordState.value = currentValue.state.value === 'useAdminPassword';
+        if (currentValue.state.value === 'useAdminPassword') {
+          usingAdminPasswordState.value = true;
+          formData.value['username'] = '';
+        } else {
+          usingAdminPasswordState.value = false;
+          formData.value['username'] = get(state, 'value.username', '');
+        }
       });
 
       const mergeAccountUserInfo = computed({

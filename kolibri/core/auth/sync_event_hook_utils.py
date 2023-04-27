@@ -29,6 +29,10 @@ def other_side_using_single_user_cert(context):
     return _get_their_cert(context).scope_definition_id == ScopeDefinitions.SINGLE_USER
 
 
+def get_dataset_id(context):
+    return _get_our_cert(context).get_root().id
+
+
 def get_user_id_for_single_user_sync(context):
     if other_side_using_single_user_cert(context):
         cert = _get_their_cert(context)
@@ -56,7 +60,7 @@ def get_other_side_kolibri_version(context):
 
 def _extract_kwargs_from_context(context):
     return {
-        "dataset_id": _get_our_cert(context).get_root().id,
+        "dataset_id": get_dataset_id(context),
         "local_is_single_user": this_side_using_single_user_cert(context),
         "remote_is_single_user": other_side_using_single_user_cert(context),
         "single_user_id": get_user_id_for_single_user_sync(context),
@@ -67,18 +71,25 @@ def _extract_kwargs_from_context(context):
 def _local_event_handler(func):
     @wraps(func)
     def wrapper(context):
-        if isinstance(context, LocalSessionContext):
-            kwargs = _extract_kwargs_from_context(context)
-            return func(**kwargs)
+        """
+        :type context: morango.sync.context.CompositeSessionContext
+        """
+        for sub_context in context.children:
+            if isinstance(sub_context, LocalSessionContext):
+                kwargs = _extract_kwargs_from_context(sub_context)
+                return func(**kwargs)
 
     return wrapper
 
 
 @_local_event_handler
-def _pre_transfer_handler(**kwargs):
+def pre_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
+            logger.debug(
+                "Invoking sync hook {}.pre_transfer".format(hook.__class__.__name__)
+            )
             hook.pre_transfer(**kwargs)
         except Exception as e:
             logger.error(
@@ -88,18 +99,16 @@ def _pre_transfer_handler(**kwargs):
 
 
 @_local_event_handler
-def _post_transfer_handler(**kwargs):
+def post_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
+            logger.debug(
+                "Invoking sync hook {}.post_transfer".format(hook.__class__.__name__)
+            )
             hook.post_transfer(**kwargs)
         except Exception as e:
             logger.error(
                 "{}.post_transfer hook failed".format(hook.__class__.__name__),
                 exc_info=e,
             )
-
-
-def register_sync_event_handlers(session_controller):
-    session_controller.signals.initializing.completed.connect(_pre_transfer_handler)
-    session_controller.signals.cleanup.completed.connect(_post_transfer_handler)

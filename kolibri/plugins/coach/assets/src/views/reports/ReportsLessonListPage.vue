@@ -73,8 +73,8 @@
                   <KSwitch
                     name="toggle-lesson-visibility"
                     label=""
-                    :checked="tableRow.active"
-                    :value="tableRow.active"
+                    :checked="tableRow.is_active"
+                    :value="tableRow.is_active"
                     @change="toggleModal(tableRow)"
                   />
                 </td>
@@ -125,7 +125,7 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
@@ -155,6 +155,7 @@
         showLessonIsNotVisibleModal: false,
         activeLesson: null,
         dontShowAgainChecked: false,
+        learnOnlyDevicesExist: false,
       };
     },
     computed: {
@@ -164,10 +165,10 @@
           return this.coachString('lessonListEmptyState');
         }
         if (this.filter.value === 'visibleLessons') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         if (this.filter.value === 'lessonsNotVisible') {
-          return this.coreString('noResults');
+          return this.coreString('noResultsLabel');
         }
         return '';
       },
@@ -232,7 +233,11 @@
     beforeMount() {
       this.filter = this.filterOptions[0];
     },
+    mounted() {
+      this.checkIfAnyLODsInClass();
+    },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
       handleToggleVisibility(lesson) {
         const newActiveState = !lesson.is_active;
         const snackbarMessage = newActiveState
@@ -260,12 +265,23 @@
         const fileName = this.$tr('printLabel', { className: this.className });
         new CSVExporter(columns, fileName).export(this.table);
       },
+      // modal about lesson sizes should only exist of LODs exist in the class
+      // which we are checking via if there have recently been any user syncs
+      // TODO: refactor to a more robust check
+      checkIfAnyLODsInClass() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          console.log(data);
+          if (data && data.length > 0) {
+            this.learnOnlyDevicesExist = true;
+          }
+        });
+      },
       toggleModal(lesson) {
         // has the user set their preferences to not have a modal confirmation?
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
-        if (!hideModalConfirmation) {
-          if (lesson.is_active) {
+        if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
+          if (lesson.active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {
@@ -274,6 +290,7 @@
           }
         } else {
           // proceed with visibility changes withhout the modal
+          console.log('toggling', lesson.active);
           this.handleToggleVisibility(lesson);
         }
       },
@@ -287,8 +304,9 @@
       },
       lessonSize(lessonId) {
         if (this.lessonsSizes && this.lessonsSizes[0]) {
-          const size = this.lessonsSizes[0][lessonId];
-          return size ? bytesForHumans(size) : bytesForHumans(0);
+          let size = this.lessonsSizes[0][lessonId];
+          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
+          return size;
         }
         return '--';
       },

@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "ডিভাইস"
+  "CommonDeviceStrings.deviceManagementTitle": "ডিভাইস",
+  "CommonDeviceStrings.emptyTasksMessage": "দেখাবার মত কোনো টাস্ক নেই",
+  "CommonDeviceStrings.newChannelLabel": "নতুন",
+  "CommonDeviceStrings.newEnabledPluginsState": "আপনি যখন একটি পৃষ্ঠা আনচেক করবেন, তখন ব্যবহারকারীদের কাছে অ্যাক্সেস করার অনুমতি থাকলেও সেটি অদৃশ্য হয়ে যাবে।",
+  "CommonDeviceStrings.newResourceLabel": "নতুন",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "আপনার ডিভাইসে যথেষ্ট জায়গা নেই। ডিস্কে জায়গা খালি করুন অথবা কম সংখ্যক সংস্থান নির্বাচন করুন",
+  "CommonDeviceStrings.permissionsLabel": "অনুমতি",
+  "CommonDeviceStrings.primaryStorageLabel": "নতুন ডাউনলোড করা সংস্থানগুলো প্রাইমারি স্টোরেজ লোকেশনে যুক্ত করা হবে",
+  "CommonDeviceStrings.unlistedChannelLabel": "তালিকাবহির্ভূত চ্যানেল"
 }

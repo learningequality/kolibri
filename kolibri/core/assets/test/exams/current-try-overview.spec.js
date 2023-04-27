@@ -156,7 +156,9 @@ describe('ExamReport/CurrentTryOverview', () => {
         `returns currentTry.correct (%i) / this.totalQuestions (${defaultProps.totalQuestions})`,
         n => {
           wrapper.setProps(defaultPropsWith({}, { correct: n }));
-          expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
+          return wrapper.vm.$nextTick().then(() => {
+            expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
+          });
         }
       );
     });

@@ -32,6 +32,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { FacilityUserResource } from 'kolibri.resources';
   import commonProfileStrings from '../commonProfileStrings';
 
   export default {
@@ -46,6 +47,11 @@
     mixins: [commonCoreStrings, commonProfileStrings],
 
     inject: ['changeFacilityService', 'state'],
+    data() {
+      return {
+        lastUserOnDevice: false,
+      };
+    },
     computed: {
       targetFacility() {
         return this.state.value.targetFacility;
@@ -59,7 +65,7 @@
         });
       },
       secondLine() {
-        if (this.role === 'learner') return '';
+        if (this.role === 'learner' || this.lastUserOnDevice) return '';
         return this.$tr('changeFacilityInfoLine2', {
           role: this.role,
           facility: this.targetFacility.name,
@@ -71,7 +77,18 @@
         });
       },
     },
-
+    created() {
+      FacilityUserResource.fetchCollection({
+        force: true,
+        getParams: {
+          member_of: this.state.value.sourceFacility,
+        },
+      }).then(users => {
+        if (Object.keys(users).length === 1) {
+          this.lastUserOnDevice = true;
+        }
+      });
+    },
     methods: {
       to_continue() {
         this.changeFacilityService.send({

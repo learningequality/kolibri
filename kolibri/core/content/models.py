@@ -23,6 +23,7 @@ Django ORM for these calculations).
 from __future__ import print_function
 
 import os
+import uuid
 from gettext import gettext as _
 
 from django.db import connection
@@ -34,17 +35,24 @@ from django.db.models import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
+from morango.models.fields import UUIDField
 from mptt.managers import TreeManager
 from mptt.querysets import TreeQuerySet
 
 from .utils import paths
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content import base_models
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.search import bitmask_fieldnames
 from kolibri.core.content.utils.search import metadata_bitmasks
 from kolibri.core.device.models import ContentCacheKey
+from kolibri.core.fields import DateTimeTzField
 from kolibri.core.fields import JSONField
 from kolibri.core.mixins import FilterByUUIDQuerysetMixin
+from kolibri.utils.data import ChoicesEnum
+from kolibri.utils.time_utils import local_now
+
 
 PRESET_LOOKUP = dict(format_presets.choices)
 
@@ -381,3 +389,121 @@ class ChannelMetadata(base_models.ChannelMetadata):
         # Use Django ORM to ensure cascading delete:
         self.root.delete()
         ContentCacheKey.update_cache_key()
+
+
+class ContentRequestType(ChoicesEnum):
+    Download = "DOWNLOAD"
+    Removal = "REMOVAL"
+
+
+class ContentRequestReason(ChoicesEnum):
+    UserInitiated = "USER_INITIATED"
+    SyncInitiated = "SYNC_INITIATED"
+
+
+class ContentRequestStatus(ChoicesEnum):
+    Pending = "PENDING"
+    InProgress = "IN_PROGRESS"
+    Failed = "FAILED"
+    Completed = "COMPLETED"
+
+
+def _hex_uuid_str():
+    return str(uuid.uuid4().hex)
+
+
+class ContentRequest(models.Model):
+    """
+    Model representing requests for specific content, either through user interaction or as a
+    consequence of a sync. This stores their intermediate state as well as whether they've been
+    downloaded or removed
+    """
+
+    id = UUIDField(primary_key=True, default=_hex_uuid_str)
+    facility = models.ForeignKey(Facility, related_name="content_requests")
+
+    # the source model's `morango_model_name` that initiated the request:
+    # - for user-initiated requests it should be `facilityuser`
+    # - for sync-initiated requests it should the model that assigned the content (lesson, exam)
+    # and max_length=40 is the same value used in morango's Store.model_name
+    source_model = models.CharField(max_length=40)
+    # the source model's PK, could be the user's ID
+    source_id = UUIDField()
+
+    requested_at = DateTimeTzField(default=local_now)
+
+    type = models.CharField(choices=ContentRequestType.choices(), max_length=8)
+    reason = models.CharField(choices=ContentRequestReason.choices(), max_length=14)
+    status = models.CharField(choices=ContentRequestStatus.choices(), max_length=11)
+
+    contentnode_id = UUIDField()
+    metadata = JSONField(null=True)
+
+    class Meta:
+        unique_together = ("type", "source_model", "source_id", "contentnode_id")
+        ordering = ("requested_at",)
+
+    def save(self, *args, **kwargs):
+        """
+        Save override to set type for the proxy models
+        """
+        self.type = getattr(self.__class__.objects, "request_type", None)
+        return super(ContentRequest, self).save(*args, **kwargs)
+
+    @classmethod
+    def build_for_user(cls, user):
+        """
+        :type user: FacilityUser
+        :return: A ContentRequest
+        :rtype: ContentRequest
+        """
+        return ContentRequest(
+            facility_id=user.facility_id,
+            source_model=FacilityUser.morango_model_name,
+            source_id=user.id,
+            type=getattr(cls.objects, "request_type", None),
+            reason=ContentRequestReason.UserInitiated,
+            status=ContentRequestStatus.Pending,
+        )
+
+
+class ContentRequestManager(models.Manager):
+    request_type = None
+
+    def get_queryset(self):
+        """
+        Automatically filters on the request type for use with proxy models
+        :rtype: django.db.models.QuerySet
+        """
+        queryset = super(ContentRequestManager, self).get_queryset()
+        return queryset.filter(type=self.request_type)
+
+
+class ContentDownloadRequestManager(ContentRequestManager):
+    request_type = ContentRequestType.Download
+
+
+class ContentDownloadRequest(ContentRequest):
+    """
+    Proxy model for the Download content request type
+    """
+
+    objects = ContentDownloadRequestManager()
+
+    class Meta:
+        proxy = True
+
+
+class ContentRemovalRequestManager(ContentRequestManager):
+    request_type = ContentRequestType.Removal
+
+
+class ContentRemovalRequest(ContentRequest):
+    """
+    Proxy model for the Removal content request type
+    """
+
+    objects = ContentRemovalRequestManager()
+
+    class Meta:
+        proxy = True
