@@ -222,3 +222,12 @@ def get_signature_key_issuing_organization():
     else:
         print("Using cached value for issuing org")
     return value
+
+
+def is_active_network_metered():
+    ConnectivityManager = autoclass("android.net.ConnectivityManager")
+
+    return cast(
+        ConnectivityManager,
+        get_context().getSystemService(get_context().CONNECTIVITY_SERVICE),
+    ).isActiveNetworkMetered()
