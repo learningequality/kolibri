@@ -48,9 +48,7 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
 
 const defaultLocale = defaultLanguage.id;
 
-export const availableLanguages = {
-  [defaultLocale]: defaultLanguage,
-};
+export const availableLanguages = {};
 
 export let currentLanguage = defaultLocale;
 
