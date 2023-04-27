@@ -35,19 +35,21 @@ const mockStore = new Vuex.Store({
   },
 });
 
+jest.mock('../../src/composables/useChannels');
 jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
-jest.mock('../../src/composables/usePinnedDevices');
 jest.mock('../../src/composables/useContentLink');
+jest.mock('../../src/composables/usePinnedDevices');
 jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 
 //ToDo: fix tests suit, overhaul could be require here
 describe('LibraryPage', () => {
   describe('filters button', () => {
-    it.skip('is visible when the page is not large', () => {
+    it('is visible when the page is not large', () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: false,
       }));
@@ -57,7 +59,7 @@ describe('LibraryPage', () => {
       });
       expect(wrapper.find('[data-test="filter-button"').element).toBeTruthy();
     });
-    it.skip('is hidden when the page is large', () => {
+    it('is hidden when the page is large', () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: true,
       }));
@@ -70,7 +72,7 @@ describe('LibraryPage', () => {
   });
 
   describe('when user clicks the filters button', () => {
-    it.skip('displays the filters side panel, which is not displayed by default', async () => {
+    it('displays the filters side panel, which is not displayed by default', async () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: false,
       }));
@@ -91,7 +93,7 @@ describe('LibraryPage', () => {
 
   describe('displaying channels and recent/popular content ', () => {
     /** useSearch#displayingSearchResults is falsy and there are rootNodes.length */
-    it.skip('displays a grid of channel cards', () => {
+    it('displays a grid of channel cards', () => {
       useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
       const wrapper = shallowMount(LibraryPage, {
         localVue,
@@ -99,7 +101,7 @@ describe('LibraryPage', () => {
       });
       expect(wrapper.find("[data-test='channel-cards']").exists()).toBe(true);
     });
-    it.skip('displays a ResumableContentGrid', () => {
+    it('displays a ResumableContentGrid', () => {
       useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
       const wrapper = shallowMount(LibraryPage, {
         localVue,
@@ -110,7 +112,7 @@ describe('LibraryPage', () => {
   });
 
   describe('when page is loading', () => {
-    it.skip('shows a KCircularLoader', () => {
+    it('shows a KCircularLoader', () => {
       useSearch.mockImplementation(() => useSearchMock({ searchLoading: true }));
       const wrapper = shallowMount(LibraryPage, {
         localVue,
