@@ -5,7 +5,7 @@
     :appearanceOverrides="{}"
     :loading="loading"
     :deviceId="deviceId"
-    :route="goBackRoute"
+    :route="back"
   >
     <main
       class="main-grid"
@@ -218,6 +218,7 @@
   import SidePanelModal from '../SidePanelModal';
   import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
+  import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import useSearch from '../../composables/useSearch';
@@ -281,6 +282,7 @@
         windowIsSmall,
       } = useKResponsiveWindow();
       const { currentCardViewStyle } = useCardViewStyle();
+      const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
       const { fetchChannels } = useChannels();
       const { fetchPinsForUser } = usePinnedDevices();
@@ -317,6 +319,7 @@
         deviceName,
         fetchChannels,
         fetchPinsForUser,
+        back,
       };
     },
     props: {
@@ -326,10 +329,6 @@
       },
       loading: {
         type: Boolean,
-        default: null,
-      },
-      goBackRoute: {
-        type: Object,
         default: null,
       },
     },

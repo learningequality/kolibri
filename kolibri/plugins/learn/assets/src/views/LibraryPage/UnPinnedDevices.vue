@@ -53,7 +53,6 @@
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../constants';
 
   export default {
     name: 'UnPinnedDevices',
@@ -74,15 +73,7 @@
       },
       routeTo: {
         type: Object,
-        required: false,
-        default() {
-          return {
-            name: PageNames.LIBRARY,
-            params: {
-              deviceId: this.device.id,
-            },
-          };
-        },
+        required: true,
       },
       viewAll: {
         type: Boolean,

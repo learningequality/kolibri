@@ -28,7 +28,7 @@
             :key="exploreString.toLowerCase()"
             :isMobile="windowIsSmall"
             :title="exploreString"
-            :link="libraryPageRoute(device.id)"
+            :link="genLibraryPageBackLink(device.id, false)"
             :explore="true"
           />
         </KGridItem>
@@ -45,7 +45,7 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { PageNames } from '../../constants';
+  import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
 
@@ -57,8 +57,10 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
+      const { genLibraryPageBackLink } = useContentLink();
       const { windowGutter } = useKResponsiveWindow();
       return {
+        genLibraryPageBackLink,
         windowGutter,
       };
     },
@@ -75,11 +77,6 @@
       exploreString() {
         return this.coreString('explore');
       },
-      goBackRoute() {
-        return {
-          name: PageNames.LIBRARY,
-        };
-      },
     },
     methods: {
       getDeviceIcon(device) {
@@ -90,12 +87,6 @@
         } else {
           return 'laptop';
         }
-      },
-      libraryPageRoute(deviceId) {
-        return this.$router.getRoute(PageNames.LIBRARY, {
-          deviceId,
-          goBackRoute: this.goBackRoute,
-        });
       },
     },
   };

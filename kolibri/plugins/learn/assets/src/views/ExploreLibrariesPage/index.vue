@@ -2,7 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="learnString('exploreLibraries')"
-    :route="backRoute"
+    :route="back"
     :primary="false"
   >
     <div
@@ -69,9 +69,10 @@
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
+  import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { PageNames, KolibriStudioId } from '../../constants';
+  import { KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
   const PinStrings = crossComponentTranslator(LibraryItem);
@@ -85,6 +86,7 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { fetchChannels } = useChannels();
+      const { back } = useContentLink();
       const { fetchDevices } = useDevices();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
 
@@ -94,6 +96,7 @@
         fetchPinsForUser,
         fetchChannels,
         fetchDevices,
+        back,
       };
     },
     data() {
@@ -107,9 +110,6 @@
       ...mapGetters(['isSuperuser']),
       areMoreDevicesAvailable() {
         return this.unpinnedDevices?.length > 0;
-      },
-      backRoute() {
-        return { name: PageNames.LIBRARY };
       },
       displayShowButton() {
         return this.moreDevices.length === 0;
