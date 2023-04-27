@@ -35,7 +35,7 @@
             <TextTruncatorCss
               class="content-title"
               :text="content.title"
-              :maxHeight="72"
+              :maxLines="2"
             />
             <TimeDuration
               v-if="content.duration"
@@ -93,7 +93,7 @@
 <script>
 
   import isBoolean from 'lodash/isBoolean';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss'; //update
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';

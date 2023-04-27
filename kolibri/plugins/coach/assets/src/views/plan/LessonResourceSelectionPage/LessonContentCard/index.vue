@@ -38,7 +38,7 @@
       <TextTruncatorCss
         v-if="!windowIsSmall"
         :text="description"
-        :maxHeight="80"
+        :maxLines="3"
         class="description"
       />
       <div>
@@ -60,7 +60,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss'; //update
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CardThumbnail from './CardThumbnail';
 
