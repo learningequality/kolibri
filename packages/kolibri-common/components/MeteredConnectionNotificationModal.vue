@@ -1,13 +1,17 @@
 <template>
 
   <KModal
-    v-if="displayMeteredConnectionWarning"
+    v-if="true"
     :title="$tr('modalTitle')"
     :submitText="coreString('continueAction')"
     @submit="$emit('submit')"
   >
     <div>
+
+      <p>{{ "METERED: " + JSON.stringify(isMetered) }}</p>
+      <p>{{ "displayMeteredConnectionWarning: " + displayMeteredConnectionWarning }}</p>
       <p>{{ $tr('modalDescription') }}</p>
+
       <KRadioButton
         v-model="selected"
         :label="$tr('doNotUseMetered')"
@@ -29,7 +33,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { checkIsMetered } from 'kolibri.utils.appCapabilities';
+  import appCapabilities from 'kolibri.utils.appCapabilities';
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
@@ -41,11 +45,9 @@
     mixins: [commonCoreStrings],
 
     data() {
-      console.log('- is metered -');
-      console.log(checkIsMetered());
       return {
         Options,
-        isMetered: checkIsMetered(),
+        isMetered: false,
         selected: Options.DO_NOT_USE_METERED,
       };
     },
@@ -55,8 +57,10 @@
       },
     },
     mounted() {
+      appCapabilities.checkIsMetered().then(check => (this.isMetered = check().value));
+      appCapabilities.checkIsMetered().then(check => console.log(check().value));
       setInterval(() => {
-        this.isMetered = checkIsMetered();
+        appCapabilities.checkIsMetered().then(check => (this.isMetered = check().value));
       }, 1000);
     },
     $trs: {

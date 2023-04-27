@@ -52,7 +52,7 @@ class AppCommandsViewset(ViewSet):
 
         @action(detail=False, methods=["get"])
         def check_is_metered(self, request):
-            return Response({"isMetered": interface.check_is_metered()})
+            return Response({"value": interface.check_is_metered()})
 
 
 class InitializeAppView(APIView):

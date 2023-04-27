@@ -44,6 +44,8 @@
       @cancel="languageModalShown = false"
     />
 
+    <MeteredConnectionNotificationModal />
+
   </div>
 
 </template>
@@ -58,6 +60,7 @@
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
@@ -66,6 +69,7 @@
     name: 'AppBarPage',
     components: {
       AppBar,
+      MeteredConnectionNotificationModal,
       LanguageSwitcherModal,
       ScrollingHeader,
       SideNav,

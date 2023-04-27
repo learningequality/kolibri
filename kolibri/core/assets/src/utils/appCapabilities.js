@@ -18,9 +18,9 @@ export const checkCapability = key => store.getters.isAppContext && appCapabilit
 // checks and exposing the functions.
 
 export default {
-  get checkIsMetered() {
+  checkIsMetered() {
     if (!checkCapability('check_is_metered')) {
-      return null;
+      return Promise.resolve(() => ({ value: null }));
     }
 
     return () => {
