@@ -11,6 +11,16 @@
       <p>{{ "METERED: " + JSON.stringify(isMetered) }}</p>
       <p>{{ "displayMeteredConnectionWarning: " + displayMeteredConnectionWarning }}</p>
       <p>{{ $tr('modalDescription') }}</p>
+      <ul>
+        <li 
+          v-for="(response, index) in responses" 
+          :key="index"
+        >
+
+          {{ `${index} - ${r}` }}
+
+        </li>
+      </ul>
 
       <KRadioButton
         v-model="selected"
@@ -48,6 +58,7 @@
       return {
         Options,
         isMetered: false,
+        responses: [],
         selected: Options.DO_NOT_USE_METERED,
       };
     },
@@ -61,6 +72,7 @@
       appCapabilities.checkIsMetered().then(check => console.log(check().value));
       setInterval(() => {
         appCapabilities.checkIsMetered().then(check => (this.isMetered = check().value));
+        this.responses = [...this.responses, this.isMetered];
       }, 1000);
     },
     $trs: {
