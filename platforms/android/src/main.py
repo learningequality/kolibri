@@ -1,6 +1,7 @@
 import logging
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
+from android_utils import is_active_network_metered
 from android_utils import share_by_intent
 from jnius import autoclass
 from kolibri.main import enable_plugin
@@ -48,6 +49,7 @@ initialize()
 start_default_tasks()
 
 interface.register(share_file=share_by_intent)
+interface.register(check_is_metered=is_active_network_metered)
 
 kolibri_bus = BaseKolibriProcessBus()
 # Setup zeroconf plugin
