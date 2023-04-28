@@ -1,11 +1,10 @@
 {
   "BottomBar.jumpToPositionInBook": "पुस्तक में आगे या पीछे जाएँ",
   "BottomBar.preparingSlider": "स्लाइडर तैयार हो रहा है",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "यह पुस्तक लोड नहीं हो पाई",
   "LoadingScreen.loadingBook": "पुस्तक लोड हो रही है",
-  "NextButton.goToNextPage": "अगले पृष्ठ पर जाएँ",
-  "PreviousButton.goToPreviousPage": "पिछले पृष्ठ पर जाएँ",
+  "NextButton.goToNextPage": "अगले पेज पर जाएँ",
+  "PreviousButton.goToPreviousPage": "पिछले पेज पर जाएँ",
   "SearchButton.toggleSearchSideBar": "खोज की साइड बार टॉगल करें",
   "SearchSideBar.enterSearchQuery": "खोजने के लिए एक शब्द दर्ज करें",
   "SearchSideBar.loadingResults": "परिणाम लोड हो रहे हैं",
@@ -21,7 +20,7 @@
   "SettingsSideBar.setBlackTheme": "काली थीम सेट करें",
   "SettingsSideBar.setGreyTheme": "ग्रे/धूसर थीम सेट करें",
   "SettingsSideBar.setWhiteTheme": "सफेद थीम सेट करें",
-  "SettingsSideBar.textSize": "टेक्स्ट का आकार",
+  "SettingsSideBar.textSize": "टेक्स्ट का साइज़",
   "SettingsSideBar.theme": "थीम",
   "TocButton.toggleTocSideBar": "सामग्री की तालिका साइड बार को टॉगल करें",
   "TopBar.toggleFullscreen": "फुलस्क्रीन टॉगल करें"

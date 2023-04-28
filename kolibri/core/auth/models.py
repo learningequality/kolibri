@@ -37,6 +37,7 @@ from django.db import transaction
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.encoding import python_2_unicode_compatible
+from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
@@ -89,7 +90,7 @@ extra_fields_schema = {
     "properties": {
         "facility": {"type": "object", "optional": True},
         "on_my_own_setup": {"type": "boolean", "optional": True},
-        "pin_code": {"type": "string", "optional": True},
+        "pin_code": {"type": ["string", "null"], "optional": True},
     },
 }
 
@@ -561,7 +562,13 @@ class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
             "user_id": None,
             "facility_id": getattr(Facility.get_default_facility(), "id", None),
             "kind": [user_kinds.ANONYMOUS],
+            "full_facility_import": self.full_facility_import,
         }
+
+    @property
+    def full_facility_import(self):
+        # Just return True for anonymous users, since they don't have any permissions anyway
+        return True
 
     def is_member_of(self, coll):
         return False
@@ -840,7 +847,22 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             "kind": roles,
             "can_manage_content": self.can_manage_content,
             "facility_id": self.facility_id,
+            # Is this user a member of a facility that has been fully imported?
+            "full_facility_import": self.full_facility_import,
         }
+
+    @cached_property
+    def full_facility_import(self):
+        """
+        Returns True if this user is a member of a facility that has been fully imported.
+        """
+        return (
+            Certificate.objects.get(id=self.dataset_id)
+            .get_descendants(include_self=True)
+            .exclude(_private_key__isnull=True)
+            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+            .exists()
+        )
 
     @property
     def can_manage_content(self):

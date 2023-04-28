@@ -484,11 +484,18 @@ class ImportChannelTestCase(TestCase):
         import_channel_mock.assert_not_called()
 
     @patch(
+        "kolibri.core.content.management.commands.importchannel.transfer.FileDownload"
+    )
+    @patch(
         "kolibri.core.content.management.commands.importchannel.AsyncCommand.is_cancelled",
         return_value=False,
     )
     def test_remote_import_full_import(
-        self, is_cancelled_mock, start_progress_mock, import_channel_mock
+        self,
+        is_cancelled_mock,
+        FileDownloadMock,
+        start_progress_mock,
+        import_channel_mock,
     ):
         call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
         is_cancelled_mock.assert_called()
@@ -686,7 +693,7 @@ class ImportContentTestCase(TestCase):
         remote_path_mock.return_value = "notest"
         # Mock this __iter__ so that the filetransfer can be looped over
         FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
-        FileDownloadMock.return_value.total_size = 1
+        FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path_1
         LocalFile.objects.update(file_size=1)
         get_import_export_mock.return_value = (
@@ -1178,7 +1185,7 @@ class ImportContentTestCase(TestCase):
             self.assertIn("Permission denied", logger_mock.call_args_list[0][0][0])
             annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.resource_import.transfer.os.remove")
+    @patch("kolibri.core.content.utils.resource_import.transfer.shutil.rmtree")
     @patch(
         "kolibri.core.content.utils.resource_import.os.path.isfile",
         return_value=False,
@@ -1216,7 +1223,7 @@ class ImportContentTestCase(TestCase):
             node_ids=[self.c1_node_id],
         )
         manager.run()
-        remove_mock.assert_any_call(local_dest_path + ".transfer")
+        remove_mock.assert_any_call(local_dest_path + ".chunks")
 
     @patch(
         "kolibri.core.content.utils.resource_import.os.path.isfile",
@@ -1865,15 +1872,12 @@ class ImportContentTestCase(TestCase):
         )
 
         m = mock_open()
-        with patch("kolibri.utils.file_transfer.open", m) as open_mock:
+        with patch("kolibri.utils.file_transfer.open", m):
             try:
                 manager = RemoteChannelResourceImportManager(self.the_channel_id)
                 manager.run()
             except Exception:
                 pass
-            # Check if truncate() is called since byte-range file resuming is not supported
-            open_mock.assert_called_with("test/test.transfer", "wb")
-            open_mock.return_value.truncate.assert_called_once()
             sleep_mock.assert_called()
             annotation_mock.set_content_visibility.assert_called_with(
                 self.the_channel_id,
@@ -2071,7 +2075,7 @@ class ImportContentTestCase(TestCase):
         local_path_mock.side_effect = [local_path]
         remote_path_mock.return_value = "notest"
         FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
-        FileDownloadMock.return_value.total_size = 1
+        FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path
         get_import_export_mock.return_value = (
             1,

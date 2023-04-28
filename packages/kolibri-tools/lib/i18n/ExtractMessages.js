@@ -1,6 +1,5 @@
 const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 const sortBy = require('lodash/sortBy');
 const del = require('del');
 const createCsvWriter = require('csv-writer').createObjectCsvWriter;
@@ -74,7 +73,7 @@ function toCSV(csvPath, namespace, messages) {
   // Here is the path to where we will write our CSVs
   // Let's be sure the path exists in the first place
   if (!fs.existsSync(csvPath)) {
-    mkdirp.sync(csvPath);
+    fs.mkdirSync(csvPath, { recursive: true });
   }
 
   const filePath = `${csvPath}/${namespace}-messages.csv`;

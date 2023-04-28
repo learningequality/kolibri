@@ -8,23 +8,37 @@
 
       <KRouterLink
         v-if="device !== null"
-        :text="device.nickname.length ? device.nickname : device.device_name"
-        :to="{ name: 'LIBRARY', params: { deviceId: device.id } }"
+        :text="deviceName"
+        :to="routeTo"
         style="text-decoration:none;width:100%;"
       >
-        <div class="unpinned-device-card">
-          <div class="col device-icon">
-            <KIcon :icon="getDeviceIcon" class="icon" />
-          </div>
-          <div class="col device-detail">
-            <TextTruncator
+        <div class="card-main-body">
+          <KIcon
+            v-if="!viewAll"
+            :icon="getDeviceIcon"
+            class="icon"
+          />
+          <div
+            v-if="!viewAll"
+            class="device-details"
+          >
+            <TextTruncatorCss
               :text="deviceName"
-              :maxHeight="52"
-              class="device-name"
+              :maxLines="2"
+              class="name"
             />
-            <p v-if="channels" class="channels">
-              {{ $tr('channels', { count: channels }) }}
+            <p class="channels">
+              {{ $tr('channels', { count: channelCount }) }}
             </p>
+          </div>
+          <div
+            v-if="viewAll"
+            class="name view-all"
+          >
+            <TextTruncatorCss
+              :text="coreString('viewAll')"
+              :maxLines="1"
+            />
           </div>
         </div>
       </KRouterLink>
@@ -36,14 +50,16 @@
 
 <script>
 
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UnPinnedDevices',
     components: {
-      TextTruncator,
+      TextTruncatorCss,
     },
+    mixins: [commonCoreStrings],
     setup() {
       const { windowGutter } = useKResponsiveWindow();
       return {
@@ -51,19 +67,18 @@
       };
     },
     props: {
-      deviceName: {
-        type: String,
-        required: false,
-        default: null,
-      },
-      channels: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
       device: {
         type: Object,
         required: true,
+      },
+      routeTo: {
+        type: Object,
+        required: true,
+      },
+      viewAll: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
 
@@ -72,10 +87,14 @@
         return {
           backgroundColor: this.$themeTokens.surface,
           color: this.$themeTokens.text,
-          marginBottom: `${this.windowGutter}px`,
-          minHeight: `${this.overallHeight}px`,
           textAlign: 'center',
         };
+      },
+      channelCount() {
+        return this.device['total_count'] || 0;
+      },
+      deviceName() {
+        return this.device.nickname || this.device.device_name;
       },
       getDeviceIcon() {
         if (this.device['operating_system'] === 'Android') {
@@ -109,9 +128,8 @@
     @extend %dropshadow-1dp;
 
     position: relative;
-    display: inline-flex;
     width: 100%;
-    padding-bottom: $margin;
+    margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;
     border-radius: $radius;
@@ -127,42 +145,46 @@
     }
   }
 
-  .cardgroup .card-main-wrapper {
-    display: inline-flex;
+  .card-main-body {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    padding: 24px;
   }
 
-  .unpinned-device-card .col {
-    display: inline-flex;
-  }
-
-  .unpinned-device-card {
-    height: 80px;
-    margin: 15px;
-  }
-
-  .channels {
-    position: absolute;
+  .device-details {
     width: 100%;
-    margin-top: 30px;
-    font-size: 14px;
-    color: #616161;
+    font-style: normal;
   }
 
-  .device-name {
-    font-size: 16px;
-    font-style: normal;
+  .icon {
+    width: 40px;
+    min-width: 40px;
+    height: 100%;
+    margin: 0 10px 40px 0;
+  }
+
+  .name {
+    font-size: 19px;
     font-weight: 700;
     line-height: 140%;
     color: black;
   }
 
-  .device-icon {
-    margin: 0 10px;
+  .channels {
+    padding: 0;
+    margin: 5px 0 0;
+    font-size: 17px;
+    font-weight: 500;
+    color: #616161;
   }
 
-  .icon {
-    right: 5px;
-    left: 5px;
+  .view-all {
+    width: 100%;
+    padding: 22px;
+    text-align: center;
   }
 
 </style>

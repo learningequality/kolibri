@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "跳到书中的位置",
   "BottomBar.preparingSlider": "准备滑块中",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "无法加载这本书",
   "LoadingScreen.loadingBook": "加载书籍中",
   "NextButton.goToNextPage": "转到下一页",

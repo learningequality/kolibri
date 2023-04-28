@@ -60,10 +60,10 @@
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
-  import useUser from '../../composables/useUser';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';

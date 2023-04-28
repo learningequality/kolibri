@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "북마크 확장하기",
+  "Bookmarks.bookmarksSection": "북마크 섹션. shift + enter를 누르면 pdf 문서와 북마크 섹션 사이를 오갈 수 있습니다.",
+  "PdfPage.numPage": "페이지 {total} / {number}",
   "PdfRendererIndex.enterFullscreen": "전체화면으로 보기",
   "PdfRendererIndex.exitFullscreen": "전체화면 종료"
 }

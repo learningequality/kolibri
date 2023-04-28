@@ -32,6 +32,7 @@ const sideNavConfig = {
   icon: 'coach',
   role: UserKinds.COACH,
   priority: 10,
+  fullFacilityOnly: true,
 };
 
 navComponents.register(sideNavConfig);

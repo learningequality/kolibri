@@ -157,6 +157,7 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import themeConfig from 'kolibri.themeConfig';
   import loginComponents from 'kolibri.utils.loginComponents';
   import urls from 'kolibri.urls';
@@ -171,7 +172,8 @@
     components: { CoreLogo, LanguageSwitcherFooter, PrivacyInfoModal },
     mixins: [commonCoreStrings, commonUserStrings],
     setup() {
-      return { themeConfig };
+      const { isLearnerOnlyImport } = useUser();
+      return { isLearnerOnlyImport, themeConfig };
     },
     props: {
       hideCreateAccount: {
@@ -210,7 +212,7 @@
         return urls['kolibri:core:guest']();
       },
       canSignUp() {
-        return !plugin_data.isSubsetOfUsersDevice && this.facilityConfig.learner_can_sign_up;
+        return !this.isLearnerOnlyImport && this.facilityConfig.learner_can_sign_up;
       },
       nextParam() {
         // query is after hash

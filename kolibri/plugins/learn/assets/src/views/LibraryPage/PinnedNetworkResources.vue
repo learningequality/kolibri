@@ -2,9 +2,9 @@
 
   <!-- eslint-disable vue/html-indent -->
 
-  <KGrid v-if="pinnedDevices !== null">
+  <KGrid v-if="devices !== null">
     <KGridItem
-      v-for="device in pinnedDevices"
+      v-for="device in devices"
       :key="device.id"
     >
       <KGridItem>
@@ -13,23 +13,26 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
       </KGridItem>
-      <div class="card-layout">
-        <div class="cards">
-          <ChannelCardGroupGrid
-            data-test="channel-cards"
-            class="grid"
-            :contents="device.channels"
-            :isRemote="true"
-          >
-          <KGridItem :layout="{ span: cardColumnSpan, alignment: 'auto' }">
-              <ExploreCard
-                :style="cardStyle"
-                :deviceId="device.id"
-              />
-          </KGridItem>
-        </ChannelCardGroupGrid>
-        </div>
-      </div>
+      <ChannelCardGroupGrid
+        data-test="channel-cards"
+        :deviceId="device.id"
+        :contents="device.channels"
+        :isRemote="true"
+      >
+        <KGridItem
+          :layout12="{ span: 3 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 4 }"
+        >
+          <ChannelCard
+            :key="exploreString.toLowerCase()"
+            :isMobile="windowIsSmall"
+            :title="exploreString"
+            :link="genLibraryPageBackLink(device.id, false)"
+            :explore="true"
+          />
+        </KGridItem>
+      </ChannelCardGroupGrid>
 
     </KGridItem>
   </KGrid>
@@ -42,51 +45,37 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDevices from './../../composables/useDevices';
+  import useContentLink from '../../composables/useContentLink';
+  import ChannelCard from '../ChannelCard';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
-  import ExploreCard from './ExploreCard';
 
   export default {
     name: 'PinnedNetworkResources',
     components: {
+      ChannelCard,
       ChannelCardGroupGrid,
-      ExploreCard,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
-      const { baseurl, fetchDevices } = useDevices();
+      const { genLibraryPageBackLink } = useContentLink();
+      const { windowGutter } = useKResponsiveWindow();
       return {
-        windowBreakpoint,
-        fetchDevices,
-        baseurl,
+        genLibraryPageBackLink,
         windowGutter,
       };
     },
     props: {
-      pinnedDevices: {
+      devices: {
         type: Array,
         required: true,
+        default() {
+          return [];
+        },
       },
-    },
-    data() {
-      return {};
     },
     computed: {
-      cardStyle() {
-        return {
-          backgroundColor: this.$themeTokens.surface,
-          color: this.$themeTokens.text,
-          marginBottom: `${this.windowGutter}px`,
-          minHeight: `${this.overallHeight}px`,
-          textAlign: 'center',
-        };
-      },
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
+      exploreString() {
+        return this.coreString('explore');
       },
     },
     methods: {
@@ -106,39 +95,6 @@
 
 
 <style lang="scss"  scoped>
-
-  @import '~kolibri-design-system/lib/styles/definitions';
-  @import '../HybridLearningContentCard/card';
-
-  $margin: 24px;
-
-  .card-main-wrapper {
-    @extend %dropshadow-1dp;
-
-    position: relative;
-    display: inline-flex;
-    width: 350px;
-    max-height: 270px;
-    padding-bottom: $margin;
-    margin-left: 8px;
-    text-decoration: none;
-    vertical-align: top;
-    border-radius: $radius;
-    transition: box-shadow $core-time ease;
-
-    &:hover {
-      @extend %dropshadow-8dp;
-    }
-
-    &:focus {
-      outline-width: 4px;
-      outline-offset: 6px;
-    }
-  }
-
-  .card-layout .cards {
-    float: left;
-  }
 
   .device-name {
     padding-left: 10px;

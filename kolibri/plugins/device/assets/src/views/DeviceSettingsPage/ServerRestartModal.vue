@@ -68,7 +68,9 @@
             break;
         }
         // message is a separate sentence, concatenating them is not problematic
-        return message + this.$tr('serverRestartDescription');
+        return this.changedSetting === 'primary'
+          ? message
+          : message + ' ' + this.$tr('serverRestartDescription');
       },
       handleSubmit() {
         if (this.changedSetting === 'add') {

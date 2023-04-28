@@ -21,10 +21,14 @@
             <KIconButton
               ref="pinIcon"
               :icon="pinIcon"
+              :disabled="disablePinDevice"
               appearance="flat-button"
               @click="$emit('togglePin', deviceId)"
             />
-            <KTooltip reference="pinIcon" :refs="$refs">
+            <KTooltip
+              reference="pinIcon"
+              :refs="$refs"
+            >
               {{ (pinIcon === 'pinned') ? $tr('removePin') : $tr('pinTo') }}
             </KTooltip>
           </h2>
@@ -44,7 +48,7 @@
         <KRouterLink
           appearance="raised-button"
           :text="coreString('explore')"
-          :to="libraryPageRoute"
+          :to="genLibraryPageBackLink(deviceId, false)"
         />
       </KGridItem>
     </div>
@@ -60,7 +64,7 @@
           :title="channel.name"
           :tagline="channel.tagline || channel.description"
           :thumbnail="channel.thumbnail"
-          :link="genContentLinkBackLinkCurrentPage(channel.root)"
+          :link="genContentLinkBackLinkCurrentPage(channel.root, false, deviceId)"
           :version="channel.version"
         />
       </KGridItem>
@@ -76,7 +80,6 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
-  import { PageNames } from '../../constants';
 
   export default {
     name: 'LibraryItem',
@@ -85,11 +88,12 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      const { genContentLinkBackLinkCurrentPage, genLibraryPageBackLink } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
         genContentLinkBackLinkCurrentPage,
+        genLibraryPageBackLink,
         windowIsSmall,
       };
     },
@@ -130,15 +134,10 @@
         required: false,
         default: false,
       },
-    },
-    computed: {
-      libraryPageRoute() {
-        return {
-          name: PageNames.LIBRARY,
-          params: {
-            deviceId: this.deviceId,
-          },
-        };
+      disablePinDevice: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     $trs: {

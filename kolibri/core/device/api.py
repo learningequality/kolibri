@@ -44,7 +44,6 @@ from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.permissions import IsSuperuser
-from kolibri.core.device.utils import APP_KEY_COOKIE_NAME
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -63,6 +62,7 @@ from kolibri.utils.android import on_android
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
+from kolibri.utils.filesystem import resolve_path
 from kolibri.utils.server import get_status_from_pid_file
 from kolibri.utils.server import get_urls
 from kolibri.utils.server import installation_type
@@ -93,9 +93,6 @@ class DeviceProvisionView(viewsets.GenericViewSet):
             login(request, data["superuser"])
         output_serializer = self.get_serializer(data)
         response_data = output_serializer.data
-        if APP_KEY_COOKIE_NAME in request.COOKIES:
-            app_key = request.COOKIES[APP_KEY_COOKIE_NAME]
-            response_data["app_key"] = app_key
 
         # Restart zeroconf before moving along when we're a SoUD
         if response_data["is_soud"]:
@@ -434,5 +431,6 @@ class PathPermissionView(views.APIView):
             {
                 "writable": get_path_permission(pathname),
                 "directory": check_is_directory(pathname),
+                "path": resolve_path(pathname),
             }
         )

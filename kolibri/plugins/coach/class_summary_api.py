@@ -266,7 +266,7 @@ def serialize_lessons(queryset):
                 "assignments",
                 "description",
                 "date_created",
-                active=F("is_active"),
+                "is_active",
             ),
         )
     )

@@ -240,23 +240,23 @@
     $trs: {
       newLearningFacilitySteps: {
         message: 'New learning facility - {step} of {steps}',
-        context: `A message indicating to the user the number of steps in the process and
-          how far along they are in the process`,
+        context:
+          'A message indicating to the user the number of steps in the process and\n        how far along they are in the process',
       },
       importLearningFacilitySteps: {
         message: 'Import learning facility - {step} of {steps}',
-        context: `A message indicating to the user the number of steps in the process and
-          how far along they are in the process`,
+        context:
+          'A message indicating to the user the number of steps in the process and\n        how far along they are in the process',
       },
       importIndividualUsersSteps: {
         message: 'Import individual user accounts - {step} of {steps}',
-        context: `A message indicating to the user the number of steps in the process and
-          how far along they are in the process`,
+        context:
+          'A message indicating to the user the number of steps in the process and\n        how far along they are in the process',
       },
       joinLearningFacilitySteps: {
         message: 'Join learning facility - {step} of {steps}',
-        context: `A message indicating to the user the number of steps in the process and
-          how far along they are in the process`,
+        context:
+          'A message indicating to the user the number of steps in the process and\n        how far along they are in the process',
       },
     },
   };

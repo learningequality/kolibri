@@ -21,15 +21,8 @@ logger = logging.getLogger(__name__)
 
 class Coach(KolibriPluginBase):
     untranslated_view_urls = "api_urls"
+    translated_view_urls = "urls"
     can_manage_while_running = True
-
-    @property
-    def translated_view_urls(self):
-        # On an SoUD this plugin should be disabled. In lieu of properly
-        # disabling the plugin, we will just not register any urls for now
-        if not get_device_setting("subset_of_users_device", False):
-            return "urls"
-        return None
 
     def name(self, lang):
         with translation.override(lang):
@@ -39,13 +32,11 @@ class Coach(KolibriPluginBase):
 @register_hook
 class CoachRedirect(RoleBasedRedirectHook):
     roles = (COACH,)
+    require_full_facility = True
 
     @property
     def url(self):
-        # Also disable attempting to redirect to the coach page
-        # if we are on a subset of users device.
-        if not get_device_setting("subset_of_users_device", False):
-            return self.plugin_url(Coach, "coach")
+        return self.plugin_url(Coach, "coach")
 
 
 @register_hook

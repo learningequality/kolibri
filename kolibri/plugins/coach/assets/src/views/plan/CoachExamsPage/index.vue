@@ -84,7 +84,7 @@
                   />
                 </td>
                 <td>
-                  {{ quizSize(exam.id) }}
+                  {{ exam.size_string ? exam.size_string : '--' }}
                 </td>
                 <td class="button-col center-text core-table-button-col">
                   <!-- Open quiz button -->
@@ -92,14 +92,14 @@
                     v-if="!exam.active && !exam.archive"
                     :text="coachString('openQuizLabel')"
                     appearance="flat-button"
-                    @click="showOpenConfirmationModal = true; activeQuizId = exam.id"
+                    @click="showOpenConfirmationModal = true; activeQuiz = exam"
                   />
                   <!-- Close quiz button -->
                   <KButton
                     v-if="exam.active && !exam.archive"
                     :text="coachString('closeQuizLabel')"
                     appearance="flat-button"
-                    @click="showCloseConfirmationModal = true; activeQuizId = exam.id;"
+                    @click="showCloseConfirmationModal = true; activeQuiz = exam;"
                   />
                   <!-- Closed quiz label -->
                   <div v-if="exam.archive">
@@ -141,11 +141,11 @@
           :submitText="coreString('continueAction')"
           :cancelText="coreString('cancelAction')"
           @cancel="showOpenConfirmationModal = false"
-          @submit="handleOpenQuiz(activeQuizId)"
+          @submit="handleOpenQuiz(activeQuiz.id)"
         >
           <p>{{ coachString('openQuizModalDetail') }}</p>
           <p>{{ coachString('lodQuizDetail') }}</p>
-          <p>{{ coachString('fileSizeToDownload', { size: quizSize(activeQuizId) }) }}</p>
+          <p>{{ coachString('fileSizeToDownload', { size: activeQuiz.size_string }) }}</p>
         </KModal>
         <KModal
           v-if="showCloseConfirmationModal"
@@ -153,7 +153,7 @@
           :submitText="coreString('continueAction')"
           :cancelText="coreString('cancelAction')"
           @cancel="showCloseConfirmationModal = false"
-          @submit="handleCloseQuiz(activeQuizId)"
+          @submit="handleCloseQuiz(activeQuiz.id)"
         >
           <div>{{ coachString('closeQuizModalDetail') }}</div>
         </KModal>
@@ -166,12 +166,12 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
   import plugin_data from 'plugin_data';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
+  import { mapActions } from 'vuex';
   import { PageNames } from '../../../constants';
   import { PLAN_TABS_ID, PlanTabs } from '../../../constants/tabsConstants';
   import commonCoach from '../../common';
@@ -196,11 +196,11 @@
         },
         showOpenConfirmationModal: false,
         showCloseConfirmationModal: false,
-        activeQuizId: null,
+        activeQuiz: null,
+        learnOnlyDevicesExist: false,
       };
     },
     computed: {
-      ...mapState('classSummary', ['quizzesSizes']),
       sortedExams() {
         return this._.orderBy(this.exams, ['date_created'], ['desc']);
       },
@@ -258,12 +258,11 @@
         ];
       },
       calcTotalSizeOfVisibleQuizzes() {
-        if (this.filteredExams && this.quizzesSizes && this.quizzesSizes[0]) {
+        if (this.filteredExams) {
           let sum = 0;
           this.filteredExams.forEach(exam => {
-            // only include visible lessons
             if (exam.active) {
-              sum += this.quizzesSizes[0][exam.id];
+              sum += exam.size;
             }
           });
           const size = bytesForHumans(sum);
@@ -272,7 +271,21 @@
         return '--';
       },
     },
+    mounted() {
+      this.checkIfAnyLODsInClass();
+    },
     methods: {
+      ...mapActions(['fetchUserSyncStatus']),
+      // modal about lesson sizes should only exist of LODs exist in the class
+      // which we are checking via if there have recently been any user syncs
+      // TODO: refactor to a more robust check
+      checkIfAnyLODsInClass() {
+        this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
+          if (data && data.length > 0) {
+            this.learnOnlyDevicesExist = true;
+          }
+        });
+      },
       handleOpenQuiz(quizId) {
         const promise = ExamResource.saveModel({
           id: quizId,
@@ -319,14 +332,6 @@
           SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
-      },
-      quizSize(quizId) {
-        if (this.quizzesSizes && this.quizzesSizes[0]) {
-          let size = this.quizzesSizes[0][quizId];
-          size = bytesForHumans(size);
-          return size;
-        }
-        return '--';
       },
     },
     $trs: {

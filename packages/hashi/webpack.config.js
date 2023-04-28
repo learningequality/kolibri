@@ -1,6 +1,5 @@
 const path = require('path');
 const fs = require('fs');
-const mkdirp = require('mkdirp');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function Plugin() {}
@@ -17,7 +16,7 @@ Plugin.prototype.apply = function(compiler) {
           __dirname,
           '../../kolibri/core/content/build/hashi_filename'
         );
-        mkdirp.sync(path.dirname(outputFilename));
+        fs.mkdirSync(path.dirname(outputFilename), { recursive: true });
 
         fs.writeFileSync(outputFilename, data.outputName);
         // Tell webpack to move on

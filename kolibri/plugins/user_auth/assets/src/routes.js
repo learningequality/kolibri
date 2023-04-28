@@ -1,3 +1,5 @@
+import { get } from '@vueuse/core';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import { showSignInPage } from './modules/signIn/handlers';
@@ -8,7 +10,6 @@ import FacilitySelect from './views/FacilitySelect';
 import SignInPage from './views/SignInPage';
 import SignUpPage from './views/SignUpPage';
 import NewPasswordPage from './views/SignInPage/NewPasswordPage';
-import plugin_data from 'plugin_data';
 
 export default [
   {
@@ -55,7 +56,8 @@ export default [
     path: '/create_account',
     component: SignUpPage,
     beforeEnter(to, from, next) {
-      if (plugin_data.isSubsetOfUsersDevice) {
+      const { isLearnerOnlyImport } = useUser();
+      if (get(isLearnerOnlyImport)) {
         next(router.getRoute(ComponentMap.PROFILE));
         return Promise.resolve();
       }

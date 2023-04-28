@@ -12,7 +12,7 @@
             <h1>{{ coreString('profileLabel') }}</h1>
           </KGridItem>
           <KGridItem
-            v-if="!isSubsetOfUsersDevice"
+            v-if="!isLearnerOnlyImport"
             :layout8="{ span: 4, alignment: 'right' }"
             :layout12="{ span: 6, alignment: 'right' }"
           >
@@ -107,7 +107,7 @@
             </td>
           </tr>
 
-          <tr v-if="!isSubsetOfUsersDevice && canEditPassword">
+          <tr v-if="!isLearnerOnlyImport && canEditPassword">
             <th>{{ coreString('passwordLabel') }}</th>
             <td>
               <KButton
@@ -158,7 +158,7 @@
 
 
         <ChangeUserPasswordModal
-          v-if="!isSubsetOfUsersDevice && showPasswordModal"
+          v-if="!isLearnerOnlyImport && showPasswordModal"
           @cancel="showPasswordModal = false"
         />
 
@@ -196,13 +196,13 @@
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
   import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import { RoutesMap } from '../../constants';
   import useCurrentUser from '../../composables/useCurrentUser';
   import useOnMyOwnSetup from '../../composables/useOnMyOwnSetup';
   import ChangeUserPasswordModal from './ChangeUserPasswordModal';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'ProfilePage',
@@ -226,12 +226,12 @@
       const showPasswordModal = ref(false);
       const showLearnModal = ref(false);
       const { currentUser } = useCurrentUser();
-      const { isSubsetOfUsersDevice } = plugin_data;
+      const { isLearnerOnlyImport } = useUser();
       const { onMyOwnSetup } = useOnMyOwnSetup();
       return {
         currentUser,
         onMyOwnSetup,
-        isSubsetOfUsersDevice,
+        isLearnerOnlyImport,
         showLearnModal,
         showPasswordModal,
       };

@@ -130,6 +130,8 @@ class EndRangeStaticFile(StaticFile):
         if start >= end:
             return self.get_range_not_satisfiable_response(file_handle, size)
         if file_handle is not None:
+            if isinstance(file_handle, RemoteFile):
+                file_handle.set_range(start, end)
             file_handle = SlicedFile(file_handle, start, end)
         headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
         headers.append(("Content-Length", str(end - start + 1)))
@@ -137,34 +139,41 @@ class EndRangeStaticFile(StaticFile):
 
 
 class StreamingStaticFile(EndRangeStaticFile):
-    def __init__(self, path, headers, remote_url):
+    def __init__(self, path, headers, remote_url, encodings=None, stat_cache=None):
         self.path = path
         self.remote_url = remote_url
-        self.headers = headers
+        super().__init__(path, headers, encodings, stat_cache)
 
-    def complete_transfer(self):
-        super(StreamingStaticFile, self).__init__(self.path, self.headers.items())
+    @staticmethod
+    def get_file_stats(path, encodings, stat_cache):
+        # Override this method to avoid statting the file
+        return {}
+
+    def get_headers(self, headers_list, files):
+        headers = Headers(headers_list)
+        self.headers = headers
+        # Override this method to avoid statting the file
+        return headers
+
+    @staticmethod
+    def get_alternatives(base_headers, files):
+        # Override this method to avoid statting the file
+        return []
 
     def get_response(self, method, request_headers):
         """
         Returns a streaming response for a request.
         Vendored and modified from Whitenoise.
         """
-        if os.path.exists(self.path):
-            return super(StreamingStaticFile, self).get_response(
-                method, request_headers
-            )
         if method not in ("GET", "HEAD"):
             return NOT_ALLOWED_RESPONSE
         if method != "HEAD":
             try:
                 file_handle = RemoteFile(
-                    self.path, self.remote_url, callback=self.complete_transfer
+                    self.path,
+                    self.remote_url,
                 )
-                if file_handle.transfer.total_size:
-                    self.headers["Content-Length"] = str(
-                        file_handle.transfer.total_size
-                    )
+                self.headers["Content-Length"] = str(file_handle.get_file_size())
             except Exception:
                 return NOT_FOUND.get_response(method, request_headers)
         else:
@@ -181,6 +190,10 @@ class StreamingStaticFile(EndRangeStaticFile):
                 # behaviour is allowed by the spec)
                 pass
         return Response(HTTPStatus.OK, self.headers.items(), file_handle)
+
+
+def add_headers_function(headers, path, url):
+    headers["Accept-Ranges"] = "bytes"
 
 
 class DynamicWhiteNoise(WhiteNoise):
@@ -203,6 +216,7 @@ class DynamicWhiteNoise(WhiteNoise):
             # these files will be cached indefinitely
             "immutable_file_test": r"((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)|[a-f0-9]{32})",
             "autorefresh": os.environ.get("KOLIBRI_DEVELOPER_MODE", False),
+            "add_headers_function": add_headers_function,
         }
         kwargs.update(whitenoise_settings)
         super(DynamicWhiteNoise, self).__init__(application, **kwargs)
@@ -318,7 +332,7 @@ class DynamicWhiteNoise(WhiteNoise):
     def get_streaming_static_file(self, url, remote_baseurl):
         """
         Vendor this function from source to substitute in our
-        own StaticFile class that can properly handle ranges.
+        own StaticFile class that can handle remote files.
         """
         headers = Headers([])
         prefix, local_dir = next(
@@ -336,6 +350,6 @@ class DynamicWhiteNoise(WhiteNoise):
         headers["Content-Encoding"] = ""
         return StreamingStaticFile(
             os.path.join(local_dir, path),
-            headers,
+            headers.items(),
             urljoin(remote_baseurl, url.lstrip("/")),
         )

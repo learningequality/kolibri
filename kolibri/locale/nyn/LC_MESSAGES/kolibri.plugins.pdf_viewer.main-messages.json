@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "Kulitsani zosunga",
+  "Bookmarks.bookmarksSection": "Malo a zosunga. Mukhoza kusuntha pakati pa zolembedwa za pdf ndi malo a zosunga podina/potabwanya shift + enter.",
+  "PdfPage.numPage": "Tsamba {number} la {total}",
   "PdfRendererIndex.enterFullscreen": "Tsekulani sikilini yonse",
   "PdfRendererIndex.exitFullscreen": "Tsekani sikilini yonse"
 }

@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "بک مارک کو پھیلائیں",
+  "Bookmarks.bookmarksSection": "بُک مارکس سیکشن۔ آپ شفٹ + انٹر دبانے سے pdf دستاویز اور بک مارکس سیکشن کے درمیان سوئچ کر سکتے ہیں۔",
+  "PdfPage.numPage": "صفحہ {number} کل {total} کا",
   "PdfRendererIndex.enterFullscreen": "پوری سکرین کھولیں",
   "PdfRendererIndex.exitFullscreen": "پوری سکرین بند کریں"
 }

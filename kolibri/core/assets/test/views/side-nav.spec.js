@@ -216,7 +216,7 @@ describe('side nav component', () => {
     describe('on an SoUD with learn-only device indicators', () => {
       let wrapper;
       beforeAll(() => {
-        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
       });
       describe('showing the SyncStatusDisplay', () => {
         it('shows the SyncStatusDisplay to Learners', async () => {
@@ -237,7 +237,7 @@ describe('side nav component', () => {
       /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
        * definitions - hence no tests to ensure they're hidden here when on SoUD */
       it('shows the Learn-only notice to non-Learners', async () => {
-        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        const wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
         setUserKind(wrapper.vm.$store, UserKinds.COACH);
         await wrapper.vm.$nextTick();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
@@ -247,7 +247,7 @@ describe('side nav component', () => {
       });
 
       it('does not show learn-only notice to Learners or Guests', async () => {
-        const wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: true });
+        const wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
         setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
         await wrapper.vm.$nextTick();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
@@ -259,7 +259,7 @@ describe('side nav component', () => {
     describe('NOT on a SoUD', () => {
       let wrapper;
       beforeEach(async () => {
-        wrapper = createWrapper(undefined, { isSubsetOfUsersDevice: false });
+        wrapper = createWrapper(undefined, { isLearnerOnlyImport: false });
       });
 
       it('shows no notice', () => {

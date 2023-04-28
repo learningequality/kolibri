@@ -1,8 +1,8 @@
+const fs = require('fs');
 const path = require('path');
-const mkdirp = require('mkdirp');
 
 function ensureDist() {
-  mkdirp.sync(path.resolve(__dirname, '../dist'));
+  fs.mkdirSync(path.resolve(__dirname, '../dist'), { recursive: true });
 }
 
 module.exports = ensureDist;

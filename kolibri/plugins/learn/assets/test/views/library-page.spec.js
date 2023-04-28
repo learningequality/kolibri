@@ -35,12 +35,15 @@ const mockStore = new Vuex.Store({
   },
 });
 
+jest.mock('../../src/composables/useChannels');
 jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
 jest.mock('../../src/composables/useLearningActivities');
 jest.mock('../../src/composables/useContentLink');
+jest.mock('../../src/composables/usePinnedDevices');
 jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 
 describe('LibraryPage', () => {

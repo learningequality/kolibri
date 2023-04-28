@@ -1,3 +1,11 @@
 {
-  "DeviceManagementSideNavEntry.device": "Na'ura"
+  "CommonDeviceStrings.deviceManagementTitle": "Na'ura",
+  "CommonDeviceStrings.emptyTasksMessage": "Ba wani abu da za a nuna",
+  "CommonDeviceStrings.newChannelLabel": "Sabo",
+  "CommonDeviceStrings.newEnabledPluginsState": "Idan ka sauke zaben shafi, masu amfani za su daina ganinta ko sa kuwa suna sa isnin hakan.",
+  "CommonDeviceStrings.newResourceLabel": "Sabo",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Ba isasshen wuri a kan na'urarka. Samar da wuri a disk ko a zabi albarkatu kadan",
+  "CommonDeviceStrings.permissionsLabel": "Izini",
+  "CommonDeviceStrings.primaryStorageLabel": "Sabbin kaéyyakin da aka saukar za a ajiye su a wannan ma'aji",
+  "CommonDeviceStrings.unlistedChannelLabel": "Tashar da ba a jera da sunanta ba"
 }

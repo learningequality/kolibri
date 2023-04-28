@@ -1,7 +1,6 @@
 {
   "BottomBar.jumpToPositionInBook": "Nhảy sang vị trí trong sách",
   "BottomBar.preparingSlider": "Chuẩn bị con trượt",
-  "BottomBar.progress": "{progress, number, percent}",
   "LoadingError.couldNotLoadThisBook": "Không thể tải sách này",
   "LoadingScreen.loadingBook": "Đang tải sách",
   "NextButton.goToNextPage": "Đến trang tiếp theo",

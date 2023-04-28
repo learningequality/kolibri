@@ -1,10 +1,10 @@
 {
   "DemoServerBannerContent.demoServerA1": "दस्तावेज़ पढ़ें",
   "DemoServerBannerContent.demoServerA2": "नवीनतम संस्करण को डाउनलोड और इंस्टाल करें",
-  "DemoServerBannerContent.demoServerHeader": "कोलिब्री डेमो साइट में स्वागत है!",
-  "DemoServerBannerContent.demoServerL1": "शिक्षार्थी ({user}/{pass} या बिना खाते के खोज करें)",
+  "DemoServerBannerContent.demoServerHeader": "Kolibri डेमो साइट में स्वागत है!",
+  "DemoServerBannerContent.demoServerL1": "शिक्षणार्थी ({user}/{pass} या बिना अकाउंट के खोज करें)",
   "DemoServerBannerContent.demoServerL2": "कोच ({user}/{pass})",
   "DemoServerBannerContent.demoServerP1": "इनमें से किसी भी उपयोगकर्ता प्रकार के बारे में पता लगाएं:",
-  "DemoServerBannerContent.demoServerP2": "कोलिब्री का यह ऑनलाइन संस्करण केवल प्रदर्शन के लिए है। उपयोगकर्ता और डेटा समय-समय पर मिटा दिए जाएंगे। हाल के कोलिब्री संस्करण की विशेषताएँ डेमो में देख सकते हैं और सभी संसाधन केवल नमूने हैं।",
-  "DemoServerBannerContent.demoServerP3": "ऑफ़लाइन संदर्भ में कोलिब्री के बारे में अधिक जानकारी लेने और बेहतर समझने के लिए:"
+  "DemoServerBannerContent.demoServerP2": "Kolibri का यह ऑनलाइन संस्करण केवल प्रदर्शन के लिए है। उपयोगकर्ता और डेटा समय-समय पर हटा दिए जाएंगे। हाल के Kolibri संस्करण की विशेषताएँ डेमो में देख सकते हैं और सभी संसाधन केवल नमूने हैं।",
+  "DemoServerBannerContent.demoServerP3": "ऑफ़लाइन संदर्भ में Kolibri के बारे में अधिक जानकारी लेने और बेहतर समझने के लिए:"
 }

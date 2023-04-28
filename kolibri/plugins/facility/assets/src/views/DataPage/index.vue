@@ -3,7 +3,7 @@
   <FacilityAppBarPage>
 
     <KPageContainer v-if="canUploadDownloadFiles">
-      <KGrid gutter="48">
+      <KGrid gutter="24">
 
         <KGridItem>
           <h1>{{ $tr('pageHeading') }}</h1>

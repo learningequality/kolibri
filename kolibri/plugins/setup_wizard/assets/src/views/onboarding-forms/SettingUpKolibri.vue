@@ -10,45 +10,6 @@
         {{ $tr('pleaseWaitMessage') }}
       </p>
     </main>
-    <div
-      v-if="devMode"
-      style="
-        z-index: 9999;
-        position: absolute;
-        left: 1em;
-        right: 1em;
-        bottom: 1em;
-        top: 1em;
-        background-color: rgba(0, 0, 0, 0.86);
-        padding: 2em;
-        color: white;
-        font-weight: bold;
-        overflow: auto;
-      "
-    >
-      <h2>Setup Wizard Debugger 3000</h2>
-      <h3>Device Provisioning Data</h3>
-      <pre>{{ JSON.stringify(deviceProvisioningData, null, 2) }}</pre>
-      <KButtonGroup
-        style="
-          position: fixed;
-          top: 2em;
-          right: 3em;
-        "
-      >
-        <KButton
-          icon="back"
-          text="START OVER"
-          @click="wizardService.send('START_OVER')"
-        />
-        <KButton
-          primary
-          iconAfter="forward"
-          text="Continue and Finish"
-          @click="provisionDevice()"
-        />
-      </KButtonGroup>
-    </div>
   </div>
 
 </template>
@@ -56,11 +17,11 @@
 
 <script>
 
-  import { v4 } from 'uuid';
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
@@ -71,11 +32,6 @@
     name: 'SettingUpKolibri',
     components: { KolibriLoadingSnippet },
     inject: ['wizardService'],
-    data() {
-      return {
-        devMode: process.NODE_ENV !== 'production',
-      };
-    },
     computed: {
       facilityData() {
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
@@ -171,7 +127,6 @@
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
           is_soud: this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD,
-          auth_token: v4(),
         };
 
         // Remove anything that is `null` value
@@ -184,11 +139,7 @@
       },
     },
     mounted() {
-      if (this.devMode) {
-        return null; // debugger activated, don't do anything
-      } else {
-        this.provisionDevice();
-      }
+      this.provisionDevice();
     },
     methods: {
       // A helper for readability
@@ -201,18 +152,12 @@
           method: 'POST',
           data: this.deviceProvisioningData,
         })
-          .then(response => {
-            const appKey = response.data.app_key;
-
-            const path = appKey
-              ? urls['kolibri:kolibri.plugins.app:initialize'](appKey) + '?auth_token=' + v4()
-              : urls['kolibri:kolibri.plugins.user_auth:user_auth']();
-
+          .then(() => {
             const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
             window.sessionStorage.setItem(welcomeDimissalKey, false);
 
             Lockr.set('savedState', null); // Clear out saved state machine
-            window.location.href = path;
+            redirectBrowser();
           })
           .catch(e => console.error(e));
       },

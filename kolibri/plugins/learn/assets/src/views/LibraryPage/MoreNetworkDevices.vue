@@ -5,16 +5,28 @@
       <KGridItem
         v-for="device in devices"
         :key="device.id"
-        :layout="{ span: cardColumnSpan, alignment: 'auto' }"
+        :layout12="{ span: 3 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 4 }"
       >
         <UnPinnedDevices
-          :deviceName="device.device_name"
-          :channels="device.channels.length"
           :device="device"
-          :operatingSystem="device.operatingSystem"
+          :routeTo="genLibraryPageBackLink(device.id, false)"
         />
       </KGridItem>
-      <slot></slot>
+      <KGridItem
+        v-if="devices.length"
+        key="view-all"
+        :layout12="{ span: 3 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 4 }"
+      >
+        <UnPinnedDevices
+          :device="{}"
+          :viewAll="true"
+          :routeTo="genLibraryPageBackLink(null, true)"
+        />
+      </KGridItem>
     </KGrid>
   </div>
 
@@ -23,8 +35,8 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useContentLink from '../../composables/useContentLink';
   import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
@@ -34,36 +46,15 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowBreakpoint, windowGutter } = useKResponsiveWindow();
+      const { genLibraryPageBackLink } = useContentLink();
       return {
-        windowBreakpoint,
-        windowGutter,
+        genLibraryPageBackLink,
       };
     },
     props: {
       devices: {
         type: Array,
         required: true,
-      },
-    },
-    data() {
-      return {};
-    },
-    computed: {
-      cardColumnSpan() {
-        if (this.windowBreakpoint <= 2) return 4;
-        if (this.windowBreakpoint <= 3) return 6;
-        if (this.windowBreakpoint <= 6) return 4;
-        return 3;
-      },
-    },
-    mounted() {
-      this.setNetworkDeviceChannels(this.devices, this.devices, this.devices.length);
-    },
-    methods: {
-      setNetworkDeviceChannels(device, channels, total) {
-        this.$set(device, 'channels', channels.slice(0, 4));
-        this.$set(device, 'total_channels', total);
       },
     },
   };

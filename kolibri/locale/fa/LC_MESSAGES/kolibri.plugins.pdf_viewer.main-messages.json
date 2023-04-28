@@ -1,4 +1,7 @@
 {
+  "BookmarkItem.expand": "گستردن نشانک",
+  "Bookmarks.bookmarksSection": "بخش نشانک‌ها. می‌توانید با فشار دادن shift + enter، بین سند PDF و بخش نشانک‌ها جابه‌جا شوید.",
+  "PdfPage.numPage": "صفحه {number} از {total}",
   "PdfRendererIndex.enterFullscreen": "ورود به حالت تمام صفحه",
   "PdfRendererIndex.exitFullscreen": "خروج از حالتِ تمام صفحه"
 }
