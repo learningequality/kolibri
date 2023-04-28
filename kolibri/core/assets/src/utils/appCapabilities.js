@@ -18,19 +18,21 @@ export const checkCapability = key => store.getters.isAppContext && appCapabilit
 // checks and exposing the functions.
 
 export default {
+  /**
+   * @returns fn -> Promise<{ value: (boolean | null) }>
+   * Returns a function that returns a Promise... because
+   */
   checkIsMetered() {
     if (!checkCapability('check_is_metered')) {
-      return Promise.resolve(() => ({ value: null }));
+      return Promise.resolve({ value: null });
     }
 
-    return () => {
-      const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
-      if (!urlFunction) {
-        logging.warn('Checking if the device is metered is not supported on this platform');
-        return Promise.reject();
-      }
-      return client({ url: urlFunction(), method: 'GET' });
-    };
+    const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
+    if (!urlFunction) {
+      logging.warn('Checking if the device is metered is not supported on this platform');
+      return Promise.reject();
+    }
+    return client({ url: urlFunction(), method: 'GET' });
   },
   get shareFile() {
     if (!checkCapability('share_file')) {

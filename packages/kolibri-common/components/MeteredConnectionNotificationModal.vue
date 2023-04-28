@@ -12,8 +12,8 @@
       <p>{{ "displayMeteredConnectionWarning: " + displayMeteredConnectionWarning }}</p>
       <p>{{ $tr('modalDescription') }}</p>
       <ul>
-        <li 
-          v-for="(response, index) in responses" 
+        <li
+          v-for="(r, index) in responses"
           :key="index"
         >
 
@@ -68,12 +68,26 @@
       },
     },
     mounted() {
-      appCapabilities.checkIsMetered().then(check => (this.isMetered = check().value));
-      appCapabilities.checkIsMetered().then(check => console.log(check().value));
+      /*
+      appCapabilities.checkIsMetered()
+        .then(check => this.isMetered = check.value);
+        */
       setInterval(() => {
-        appCapabilities.checkIsMetered().then(check => (this.isMetered = check().value));
-        this.responses = [...this.responses, this.isMetered];
+        appCapabilities.checkIsMetered().then(response => {
+          console.log(response.data.value);
+          this.isMetered = response.data.value;
+          this.responses = [...this.responses, this.isMetered];
+        });
       }, 1000);
+      /*
+      setInterval(() => {
+        appCapabilities.checkIsMetered()
+          .then(check => {
+            this.isMetered = check.value;
+            this.responses = [...this.responses, this.isMetered];
+          });
+      }, 1000);
+      */
     },
     $trs: {
       /* Second-person perspective: "You ..." */
