@@ -32,10 +32,10 @@
 
         <div class="content-meta">
           <div class="text-and-time">
-            <TextTruncator
+            <TextTruncatorCss
               class="content-title"
               :text="content.title"
-              :maxHeight="72"
+              :maxLines="2"
             />
             <TimeDuration
               v-if="content.duration"
@@ -93,7 +93,7 @@
 <script>
 
   import isBoolean from 'lodash/isBoolean';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
@@ -107,7 +107,7 @@
     components: {
       LearningActivityIcon,
       ProgressBar,
-      TextTruncator,
+      TextTruncatorCss,
       TimeDuration,
       MissingResourceAlert,
     },

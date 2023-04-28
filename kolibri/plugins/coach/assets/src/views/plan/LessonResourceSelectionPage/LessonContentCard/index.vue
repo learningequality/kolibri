@@ -35,10 +35,10 @@
       <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
         {{ message }}
       </div>
-      <TextTruncator
+      <TextTruncatorCss
         v-if="!windowIsSmall"
         :text="description"
-        :maxHeight="80"
+        :maxLines="3"
         class="description"
       />
       <div>
@@ -60,7 +60,7 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CardThumbnail from './CardThumbnail';
 
@@ -69,7 +69,7 @@
     components: {
       CardThumbnail,
       ContentIcon,
-      TextTruncator,
+      TextTruncatorCss,
       CoachContentLabel,
     },
     mixins: [responsiveWindowMixin],
