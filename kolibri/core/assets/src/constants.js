@@ -163,7 +163,7 @@ export const ERROR_CONSTANTS = {
 
 export const DemographicConstants = {
   NOT_SPECIFIED: 'NOT_SPECIFIED',
-  DEFERRED: 'DEFERRED',
+  DEFERRED: '-',
 };
 
 // See FacilityUser model
