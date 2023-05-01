@@ -16,8 +16,6 @@ export {
 
 const logging = logger.getLogger(__filename);
 
-const languageGlobals = plugin_data['languageGlobals'] || {};
-
 let _i18nReady = false;
 
 function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
@@ -186,6 +184,8 @@ function _setUpVueIntl() {
     return $trWrapper(nameSpace, this.$options.$trs, this.$formatMessage, messageId, args);
   };
 
+  const languageGlobals = plugin_data['languageGlobals'] || {};
+
   Vue.setLocale(currentLanguage);
   if (languageGlobals.coreLanguageMessages) {
     Vue.registerMessages(currentLanguage, languageGlobals.coreLanguageMessages);
@@ -199,6 +199,8 @@ export function i18nSetup(skipPolyfill = false) {
   /**
    * Load fonts, app strings, and Intl polyfills
    **/
+
+  const languageGlobals = plugin_data['languageGlobals'] || {};
 
   // Set up exported module variable
   if (languageGlobals.languageCode) {
