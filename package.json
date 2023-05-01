@@ -52,7 +52,7 @@
   "devDependencies": {
     "@types/jest": "^29.5.1",
     "xhr-mock": "^2.5.1",
-    "concurrently": "^7.6.0"
+    "concurrently": "^8.0.1"
   },
   "optionalDependencies": {
     "fsevents": "*"
