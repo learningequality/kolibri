@@ -14,6 +14,9 @@ import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 
+import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
+import plugin_data from 'plugin_data';
+
 global.beforeEach(() => {
   return new Promise(resolve => {
     Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
@@ -41,6 +44,13 @@ Vue.use(VueCompositionApi);
 Vue.config.silent = true;
 Vue.config.devtools = false;
 Vue.config.productionTip = false;
+
+plugin_data['languageGlobals'] = {
+  languageCode: defaultLanguage.id,
+  languages: {
+    defaultLanguage: defaultLanguage,
+  },
+};
 
 i18nSetup(true);
 
