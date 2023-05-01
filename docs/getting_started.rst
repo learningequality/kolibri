@@ -148,7 +148,6 @@ To install Kolibri project-specific dependencies make sure you're in the ``kolib
   pip install -e .
 
   # optional
-  pip install -r requirements/build.txt --upgrade
   pip install -r requirements/test.txt --upgrade
   pip install -r requirements/docs.txt --upgrade
 
