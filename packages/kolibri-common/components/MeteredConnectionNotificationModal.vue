@@ -1,26 +1,13 @@
 <template>
 
   <KModal
-    v-if="true"
+    v-if="displayMeteredConnectionWarning"
     :title="$tr('modalTitle')"
     :submitText="coreString('continueAction')"
     @submit="$emit('submit')"
   >
     <div>
-
-      <p>{{ "METERED: " + JSON.stringify(isMetered) }}</p>
-      <p>{{ "displayMeteredConnectionWarning: " + displayMeteredConnectionWarning }}</p>
       <p>{{ $tr('modalDescription') }}</p>
-      <ul>
-        <li
-          v-for="(r, index) in responses"
-          :key="index"
-        >
-
-          {{ `${index} - ${r}` }}
-
-        </li>
-      </ul>
 
       <KRadioButton
         v-model="selected"
@@ -42,8 +29,8 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import appCapabilities from 'kolibri.utils.appCapabilities';
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
@@ -57,37 +44,14 @@
     data() {
       return {
         Options,
-        isMetered: false,
-        responses: [],
         selected: Options.DO_NOT_USE_METERED,
       };
     },
     computed: {
+      ...mapGetters(['isSuperuser', 'activeConnectionIsMetered']),
       displayMeteredConnectionWarning() {
-        return this.isMetered;
+        return this.activeConnectionIsMetered && this.isSuperuser;
       },
-    },
-    mounted() {
-      /*
-      appCapabilities.checkIsMetered()
-        .then(check => this.isMetered = check.value);
-        */
-      setInterval(() => {
-        appCapabilities.checkIsMetered().then(response => {
-          console.log(response.data.value);
-          this.isMetered = response.data.value;
-          this.responses = [...this.responses, this.isMetered];
-        });
-      }, 1000);
-      /*
-      setInterval(() => {
-        appCapabilities.checkIsMetered()
-          .then(check => {
-            this.isMetered = check.value;
-            this.responses = [...this.responses, this.isMetered];
-          });
-      }, 1000);
-      */
     },
     $trs: {
       /* Second-person perspective: "You ..." */

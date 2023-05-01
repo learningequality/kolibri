@@ -20,11 +20,12 @@ export const checkCapability = key => store.getters.isAppContext && appCapabilit
 export default {
   /**
    * @returns fn -> Promise<{ value: (boolean | null) }>
-   * Returns a function that returns a Promise... because
+   * Returns a function that returns a Promise that resolves to something responding to
+   * `data.value` whether it succeeds or fails.
    */
   checkIsMetered() {
     if (!checkCapability('check_is_metered')) {
-      return Promise.resolve({ value: null });
+      return Promise.resolve({ data: { value: null } });
     }
 
     const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
