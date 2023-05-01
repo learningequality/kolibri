@@ -78,7 +78,7 @@ jobs:
     - name: Get APK filename
       id: get-apk-filename
       run: echo "::set-output name=apk-file-name::$(ls dist | grep .apk | cat)"
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
         path: dist/${{ steps.get-apk-filename.outputs.apk-file-name }}
