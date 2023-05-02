@@ -21,23 +21,12 @@
         dir="auto"
         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
-        <TextTruncator
+        <TextTruncatorCss
           :text="title"
-          :maxHeight="titleHeight"
+          :maxLines="2"
           :showTooltip="true"
         />
       </h3>
-    <h3
-      class="title"
-      dir="auto"
-      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
-    >
-      <TextTruncatorCss
-        :text="title"
-        :maxLines="2"
-        :showTooltip="true"
-      />
-    </h3>
 
       <KFixedGrid
         numCols="4"
@@ -54,9 +43,9 @@
           span="3"
           alignment="auto"
         >
-          <TextTruncator
+          <TextTruncatorCss
             :text="tagline"
-            :maxHeight="taglineHeight"
+            :maxLines="4"
             :showTooltip="false"
           />
         </KFixedGridItem>
