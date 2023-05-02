@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "查看任务",
   "TasksBar.someTasksComplete": "已完成 {done, number} 个任务，共 {total, plural, other {{total, number} 个}}",
   "TasksBar.taskManagerLink": "查看任务管理器",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "已复制到剪贴板上",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "复制到剪切板",
   "TreeViewRowMessages.allResourcesOnDevice": "在当前设备上的所有资源",
   "TreeViewRowMessages.allResourcesSelected": "已选所有资源",
   "TreeViewRowMessages.alreadyOnYourDevice": "已位于您的设备上",

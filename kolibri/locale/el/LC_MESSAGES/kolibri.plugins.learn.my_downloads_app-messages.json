@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "Ζητήθηκε λήψη",
   "DownloadRequests.goToDownloadsPage": "Μεταβείτε στις λήψεις",
-  "DownloadRequests.resourceRemoved": "Η πηγή αφαιρέθηκε από τη βιβλιοθήκη μου"
+  "DownloadRequests.resourceRemoved": "Η πηγή αφαιρέθηκε από τη βιβλιοθήκη μου",
+  "PaginatedListContainerWithBackend.nextResults": "Επόμενα αποτελέσματα",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } από { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Προηγούμενα αποτελέσματα"
 }

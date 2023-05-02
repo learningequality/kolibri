@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "টাস্ক দেখুন",
   "TasksBar.someTasksComplete": "{total, plural, one {{total, number}} other {{total, number}}}টির মধ্যে {done, number}টি কাজ শেষ হয়েছে",
   "TasksBar.taskManagerLink": "টাস্ক ম্যানেজার দেখুন",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "ক্লিপবোর্ডে অনুলিপি হয়েছে",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "ক্লিপবোর্ডে অনুলিপি করুন",
   "TreeViewRowMessages.allResourcesOnDevice": "এই ডিভাইসে থাকা সমস্ত সংস্থান",
   "TreeViewRowMessages.allResourcesSelected": "সকল সংস্থান নির্বাচিত",
   "TreeViewRowMessages.alreadyOnYourDevice": "আগে থেকেই আপনার ডিভাইসে আছে",

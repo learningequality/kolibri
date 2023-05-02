@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Показване на задачи",
   "TasksBar.someTasksComplete": "{done, number} от {total, plural, one {{total, number} задача изпълнена} other {{total, number} задачи изпълнени}}",
   "TasksBar.taskManagerLink": "Виж диспечера на задачите",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Копирано в клипборда",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копиране в клипборда",
   "TreeViewRowMessages.allResourcesOnDevice": "Всички ресурси са на това устройство",
   "TreeViewRowMessages.allResourcesSelected": "Избрани са всички ресурси",
   "TreeViewRowMessages.alreadyOnYourDevice": "Вече е на устройството",

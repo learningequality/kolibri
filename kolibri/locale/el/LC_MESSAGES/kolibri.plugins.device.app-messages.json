@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Προβολή εργασιών",
   "TasksBar.someTasksComplete": "{done, number} από {total, plural, one {{total, number} εργασία ολοκληρώθηκε} other {{total, number} εργασίες ολοκληρώθηκαν}}",
   "TasksBar.taskManagerLink": "Προβολή διαχειριστή εργασιών",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Αντιγράφηκε στο πρόχειρο",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Αντιγραφή στο πρόχειρο",
   "TreeViewRowMessages.allResourcesOnDevice": "Όλες οι πηγές σε αυτήν τη συσκευή",
   "TreeViewRowMessages.allResourcesSelected": "Όλες οι επιλεγμένες πηγές",
   "TreeViewRowMessages.alreadyOnYourDevice": "Ήδη στη συσκευή σας",

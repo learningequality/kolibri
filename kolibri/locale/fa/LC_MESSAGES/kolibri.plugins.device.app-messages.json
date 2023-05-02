@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "مشاهده‌ی فعالیت‌ها",
   "TasksBar.someTasksComplete": "{done, number} از {total, plural, one {{total, number} تکلیف انجام شده است} other {{total, number} تکلیف انجام شده‌اند}}",
   "TasksBar.taskManagerLink": "مشاهده مدیریت وظایف",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "در کلیپ‌بورد کپی شد",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "کپی به کلیپ‌بورد",
   "TreeViewRowMessages.allResourcesOnDevice": "همه‌ی منابع بر روی این دستگاه",
   "TreeViewRowMessages.allResourcesSelected": "همه‌ی منابع انتخاب‌شده",
   "TreeViewRowMessages.alreadyOnYourDevice": "در حال حاضر بر روی دستگاه شما وجود دارد",

@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Visualizar tarefas",
   "TasksBar.someTasksComplete": "{done, number} of {total, plural, one {{total, number} tarefa concluída} other {{total, number} tarefas concluídas}}",
   "TasksBar.taskManagerLink": "Visualizar o gerenciador de tarefas",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Copiado para a área de transferência",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copiar para área de transferência",
   "TreeViewRowMessages.allResourcesOnDevice": "Todos os conteúdos encontrados nesse dispositivo",
   "TreeViewRowMessages.allResourcesSelected": "Todos os conteúdos selecionados",
   "TreeViewRowMessages.alreadyOnYourDevice": "Já está no seu dispositivo",

@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "",
   "DownloadRequests.goToDownloadsPage": "",
-  "DownloadRequests.resourceRemoved": ""
+  "DownloadRequests.resourceRemoved": "",
+  "PaginatedListContainerWithBackend.nextResults": "Jawaabu jokkotooɗum",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } nder { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Jawaabu saalaaɗum"
 }

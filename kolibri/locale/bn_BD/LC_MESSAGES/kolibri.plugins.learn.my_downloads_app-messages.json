@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "ডাউনলোড অনুরোধ করা হয়েছে",
   "DownloadRequests.goToDownloadsPage": "ডাউনলোডে যান",
-  "DownloadRequests.resourceRemoved": "আমার লাইব্রেরি থেকে সংস্থান সরানো হয়েছে"
+  "DownloadRequests.resourceRemoved": "আমার লাইব্রেরি থেকে সংস্থান সরানো হয়েছে",
+  "PaginatedListContainerWithBackend.nextResults": "পরবর্তী ফলাফল",
+  "PaginatedListContainerWithBackend.pagination": "{ numFilteredItems, number } এর মধ্যে { visibleStartRange, number } - { visibleEndRange, number }",
+  "PaginatedListContainerWithBackend.previousResults": "আগের ফলাফল"
 }

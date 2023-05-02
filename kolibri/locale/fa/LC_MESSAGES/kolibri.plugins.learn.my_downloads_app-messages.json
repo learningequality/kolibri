@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "دانلود درخواست شد",
   "DownloadRequests.goToDownloadsPage": "برو به دانلودها",
-  "DownloadRequests.resourceRemoved": "منبع از کتابخانه من حذف شده است"
+  "DownloadRequests.resourceRemoved": "منبع از کتابخانه من حذف شده است",
+  "PaginatedListContainerWithBackend.nextResults": "نتایج بعدی",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } از { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "نتایج قبلی"
 }

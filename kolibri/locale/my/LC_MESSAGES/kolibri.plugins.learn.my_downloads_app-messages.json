@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "ဒေါင်းလုဒ်တောင်းဆိုထားသည်။",
   "DownloadRequests.goToDownloadsPage": "ဒေါင်းလုဒ်သို့သွားပါ။\n",
-  "DownloadRequests.resourceRemoved": "အရင်းအမြစ်များကို ကျွန်ုပ်၏ ထည့်ထားသည်များမှ ဖယ်ရှားခဲ့သည်။"
+  "DownloadRequests.resourceRemoved": "အရင်းအမြစ်များကို ကျွန်ုပ်၏ ထည့်ထားသည်များမှ ဖယ်ရှားခဲ့သည်။",
+  "PaginatedListContainerWithBackend.nextResults": "နောက်ရလဒ်များ",
+  "PaginatedListContainerWithBackend.pagination": "{ numFilteredItems, number } ၏ { visibleStartRange, number } - { visibleEndRange, number }",
+  "PaginatedListContainerWithBackend.previousResults": "ယခင်ရလဒ်များ"
 }

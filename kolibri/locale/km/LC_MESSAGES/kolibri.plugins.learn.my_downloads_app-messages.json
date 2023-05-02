@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "បានស្នើសុំការទាញយក",
   "DownloadRequests.goToDownloadsPage": "ចូលទៅកាន់ការទាញយក",
-  "DownloadRequests.resourceRemoved": "ធនធានត្រូវបានដកចេញពីបណ្ណាល័យរបស់ខ្ញុំ"
+  "DownloadRequests.resourceRemoved": "ធនធានត្រូវបានដកចេញពីបណ្ណាល័យរបស់ខ្ញុំ",
+  "PaginatedListContainerWithBackend.nextResults": "លទ្ធផលបន្ទាប់",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } នៃ { numFilteredItems, number } នាក់",
+  "PaginatedListContainerWithBackend.previousResults": "លទ្ធផលពីមុន"
 }

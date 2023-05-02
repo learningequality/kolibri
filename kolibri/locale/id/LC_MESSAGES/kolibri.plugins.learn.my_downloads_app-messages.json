@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "Unduhan diminta",
   "DownloadRequests.goToDownloadsPage": "Masuk ke unduhan",
-  "DownloadRequests.resourceRemoved": "Sumber daya dihapus dari perpustakaan saya"
+  "DownloadRequests.resourceRemoved": "Sumber daya dihapus dari perpustakaan saya",
+  "PaginatedListContainerWithBackend.nextResults": "Hasil selanjutnya",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } dari { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Hasil sebelumnya"
 }

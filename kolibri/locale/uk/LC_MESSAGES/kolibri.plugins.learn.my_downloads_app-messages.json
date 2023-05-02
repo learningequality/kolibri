@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "Запит на завантаження",
   "DownloadRequests.goToDownloadsPage": "Перейти до завантажень",
-  "DownloadRequests.resourceRemoved": "Матеріал було видалено з моєї бібліотеки."
+  "DownloadRequests.resourceRemoved": "Матеріал було видалено з моєї бібліотеки.",
+  "PaginatedListContainerWithBackend.nextResults": "Наступний результат",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } із { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Попередній результат"
 }

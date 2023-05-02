@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Afiche aktivite yo",
   "TasksBar.someTasksComplete": "{done, number} of {total, plural, one {{total, number} aktivite fini} other {{total, number} aktivite yo fini}}",
   "TasksBar.taskManagerLink": "Gade administratè aktivite",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Te kopye nan klavye a",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Kopye nan klavye a",
   "TreeViewRowMessages.allResourcesOnDevice": "Tout resous ki sou aparèy sa a",
   "TreeViewRowMessages.allResourcesSelected": "Tout resous ki chwazi yo",
   "TreeViewRowMessages.alreadyOnYourDevice": "Deja enstale sou aparèy ou",

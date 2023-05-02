@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "डाउनलोड करण्याची विनंती केली",
   "DownloadRequests.goToDownloadsPage": "डाउनलोड्स वर जा",
-  "DownloadRequests.resourceRemoved": "माझ्या लायब्ररीतून संसाधन काढले"
+  "DownloadRequests.resourceRemoved": "माझ्या लायब्ररीतून संसाधन काढले",
+  "PaginatedListContainerWithBackend.nextResults": "पुढील निकाल",
+  "PaginatedListContainerWithBackend.pagination": "{ numFilteredItems, number } पैकी { visibleStartRange, number } - { visibleEndRange, number }",
+  "PaginatedListContainerWithBackend.previousResults": "मागील निकाल"
 }

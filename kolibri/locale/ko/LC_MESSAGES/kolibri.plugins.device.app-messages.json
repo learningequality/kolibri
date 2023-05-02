@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "할일 보기",
   "TasksBar.someTasksComplete": "총 {total, plural, other {{total, number} 완료된 작업}} 중 {done, number}",
   "TasksBar.taskManagerLink": "작업 관리자 보기",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "클립보드에 복사됨",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "클립보드에 복사",
   "TreeViewRowMessages.allResourcesOnDevice": "이 기기내 모든 자료",
   "TreeViewRowMessages.allResourcesSelected": "모든 자료가 선택됨",
   "TreeViewRowMessages.alreadyOnYourDevice": "이미 기기에 있습니다",

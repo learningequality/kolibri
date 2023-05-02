@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "A ní láti gba ìsọfúnni",
   "DownloadRequests.goToDownloadsPage": "Lọ si awọn gbigba lati ayelujara",
-  "DownloadRequests.resourceRemoved": "A ti yọ ohun èlò kúrò nínú àkájọ ìwé mi"
+  "DownloadRequests.resourceRemoved": "A ti yọ ohun èlò kúrò nínú àkájọ ìwé mi",
+  "PaginatedListContainerWithBackend.nextResults": "Àwọn èsì tí ó kàn",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } ti { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Àwọn èsì àtẹ̀hìnwá"
 }

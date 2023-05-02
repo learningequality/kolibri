@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "crwdns332991:0crwdne332991:0",
   "TasksBar.someTasksComplete": "crwdns332993:0done={done}crwdnd332993:0total={total}crwdnd332993:0total={total}crwdnd332993:0total={total}crwdne332993:0",
   "TasksBar.taskManagerLink": "crwdns332995:0crwdne332995:0",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "crwdns370079:0crwdne370079:0",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "crwdns370081:0crwdne370081:0",
   "TreeViewRowMessages.allResourcesOnDevice": "crwdns332997:0crwdne332997:0",
   "TreeViewRowMessages.allResourcesSelected": "crwdns332999:0crwdne332999:0",
   "TreeViewRowMessages.alreadyOnYourDevice": "crwdns333001:0crwdne333001:0",
