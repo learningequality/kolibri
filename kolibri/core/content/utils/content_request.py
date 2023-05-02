@@ -1,4 +1,5 @@
 import logging
+import os
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
@@ -25,6 +26,7 @@ from kolibri.core.content.utils.resource_import import (
 )
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -33,6 +35,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
+from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.system import get_free_space
 
 
@@ -193,6 +196,18 @@ def incomplete_downloads_queryset():
             total_size=_total_size_annotation(),
         )
     )
+
+
+def _get_content_storage_space():
+    """
+    Calculates and returns the total space used for content storage
+    """
+    size = 0
+    for path, dirs, files in os.walk(OPTIONS["Paths"]["CONTENT_DIR"]):
+        for f in files:
+            fp = os.path.join(path, f)
+            size += os.path.getsize(fp)
+    return size
 
 
 class InsufficientStorage(Exception):
@@ -367,8 +382,19 @@ def _process_content_requests(incomplete_downloads):
 
     # loop while we have pending downloads
     while incomplete_downloads_with_metadata.exists():
+        # if a limit is set, subtract the total content storage size from the limit to get free space
+        if get_device_setting("set_limit_for_autodownload", False):
+            # compute total space used for content storage
+            content_storage_size = _get_content_storage_space()
+            # convert limit_for_autodownload from GB to bytes
+            auto_download_limit = bytes_from_humans(
+                str(get_device_setting("limit_for_autodownload", "0")) + "GB"
+            )
+            free_space = auto_download_limit - content_storage_size
+        else:
+            free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
+
         # grab the next request that will fit within current free space
-        free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
         download_request = incomplete_downloads_with_metadata.filter(
             total_size__lte=free_space
         ).first()
