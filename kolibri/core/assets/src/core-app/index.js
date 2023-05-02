@@ -6,7 +6,6 @@ import 'core-js';
 import urls from 'kolibri.urls';
 import logging from 'kolibri.lib.logging';
 import store from 'kolibri.coreVue.vuex.store';
-import { checkCapability } from 'kolibri.utils.appCapabilities';
 import Vue from 'vue';
 import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
@@ -51,16 +50,6 @@ initializeTheme();
 document.addEventListener('visibilitychange', function() {
   store.dispatch('setPageVisibility');
 });
-
-// If we have the ability to check if the device is metered, then
-// set up a poller to check every 5 seconds.
-if (checkCapability('check_is_metered')) {
-  store.dispatch('updateMeteredStatus').then(() => {
-    window.setInterval(function() {
-      store.dispatch('updateMeteredStatus');
-    }, 5000);
-  });
-}
 
 // Register Vue plugins and components
 Vue.use(Vuex);

@@ -4,7 +4,8 @@
     v-if="displayMeteredConnectionWarning"
     :title="$tr('modalTitle')"
     :submitText="coreString('continueAction')"
-    @submit="$emit('submit')"
+    :submitDisabled="loading"
+    @submit="submit"
   >
     <div>
       <p>{{ $tr('modalDescription') }}</p>
@@ -13,12 +14,14 @@
         v-model="selected"
         :label="$tr('doNotUseMetered')"
         :value="Options.DO_NOT_USE_METERED"
+        :disabled="loading"
         class="radio-button"
       />
       <KRadioButton
         v-model="selected"
         :label="$tr('useMetered')"
         :value="Options.USE_METERED"
+        :disabled="loading"
         class="radio-button"
       />
     </div>
@@ -30,27 +33,105 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import urls from 'kolibri.urls';
+  import client from 'kolibri.client';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
     USE_METERED: 'USE_METERED',
   });
 
+  const meteredNetworkModalDismissedKey = 'METERED_NETWORK_MODAL_DISMISSED';
+
   export default {
     name: 'MeteredConnectionNotificationModal',
     mixins: [commonCoreStrings],
-
     data() {
       return {
         Options,
         selected: Options.DO_NOT_USE_METERED,
+        loading: false,
+        extra_settings: {},
+        dismissed: Boolean(window.sessionStorage.getItem(meteredNetworkModalDismissedKey)),
       };
     },
     computed: {
       ...mapGetters(['isSuperuser', 'activeConnectionIsMetered']),
       displayMeteredConnectionWarning() {
-        return this.activeConnectionIsMetered && this.isSuperuser;
+        return (
+          this.originalSettingDisallows &&
+          this.activeConnectionIsMetered &&
+          this.isSuperuser &&
+          !this.dismissed
+        );
+      },
+      settingsUrl() {
+        return urls['kolibri:core:devicesettings']();
+      },
+      originalSettingDisallows() {
+        return !this.extra_settings.allow_download_on_metered_connection;
+      },
+    },
+    mounted() {
+      // If we have the ability to check if the device is metered, then
+      // set up a poller to check every 5 seconds and set things up,
+      // otherwise this component will never be rendered anyway so no need to make the calls
+      if (checkCapability('check_is_metered')) {
+        // Get status initially and poll every 5 seconds
+        this.$store.dispatch('updateMeteredStatus').then(() => {
+          window.setInterval(() => {
+            this.$store.dispatch('updateMeteredStatus');
+          }, 5000);
+        });
+
+        // Fetch the DeviceSettings#extra_settings value
+        // We need the whole thing because when we PATCH it later, the API will throw a fit
+        // if we only include one of the keys for the extra_settings object
+        this.loading = true;
+        client({ method: 'GET', url: this.settingsUrl })
+          .then(({ data }) => {
+            console.log(data);
+            this.extra_settings = data.extra_settings;
+            this.selected = this.extra_settings.allow_download_on_metered_connection
+              ? Options.USE_METERED
+              : Options.DO_NOT_USE_METERED;
+          })
+          .catch(e => {
+            console.error(e);
+          })
+          .finally(() => (this.loading = false));
+      }
+    },
+    methods: {
+      submit() {
+        console.log('submitting', this.selected);
+        this.$emit('submit', this.selected);
+
+        const allow_download_on_metered_connection = this.selected === Options.USE_METERED;
+        const extra_settings = { ...this.extra_settings, allow_download_on_metered_connection };
+
+        this.loading = true;
+
+        client({
+          method: 'PATCH',
+          url: this.settingsUrl,
+          data: { extra_settings },
+        })
+          .then(() => {
+            window.sessionStorage.setItem(meteredNetworkModalDismissedKey, true);
+            this.dismissed = true;
+
+            // TODO Uncomment this when strings are not frozen
+            //this.$store.dispatch("createSnackbar", this.$tr("saveSuccessNotification"));
+          })
+          .catch(e => {
+            console.error(e);
+            // TODO Uncomment this when strings are not frozen
+            //this.$store.dispatch("createSnackbar", this.$tr("saveFailureNotification"));
+          })
+          .finally(() => (this.loading = false));
       },
     },
     $trs: {
@@ -73,6 +154,19 @@
         message: 'Allow Kolibri to use mobile data',
         context: 'An option that a user can select in a form',
       },
+      /** TODO Uncomment these when strings are not frozen, then use them to fix the other TODO
+        *  above in this file.
+
+      saveFailureNotification: {
+        message: 'Settings have not been updated',
+        context: 'Error message that displays if device settings are not saved correctly.',
+      },
+      saveSuccessNotification: {
+        message: 'Settings have been updated',
+        context: 'Notification that displays if device settings have been saved correctly.\n',
+      },
+
+      */
     },
   };
 
