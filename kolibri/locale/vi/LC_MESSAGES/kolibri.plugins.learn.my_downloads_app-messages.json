@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "Đã yêu cầu tải xuống",
   "DownloadRequests.goToDownloadsPage": "Truy cập tài liệu tải xuống",
-  "DownloadRequests.resourceRemoved": "Đã xoá tài liệu khỏi thư viện của tôi"
+  "DownloadRequests.resourceRemoved": "Đã xoá tài liệu khỏi thư viện của tôi",
+  "PaginatedListContainerWithBackend.nextResults": "Kết quả tiếp theo",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } trong số { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Kết quả trước"
 }

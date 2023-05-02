@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Ver tareas",
   "TasksBar.someTasksComplete": "{done, number} de {total, plural, one {{total, number} tarea completada} other {{total, number} tareas completadas}}",
   "TasksBar.taskManagerLink": "Ver administrador de tareas",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Copiado al portapapeles",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Copiar al portapapeles",
   "TreeViewRowMessages.allResourcesOnDevice": "Todos los recursos en este dispositivo",
   "TreeViewRowMessages.allResourcesSelected": "Todos recursos seleccionados",
   "TreeViewRowMessages.alreadyOnYourDevice": "Ya está en tu dispositivo",

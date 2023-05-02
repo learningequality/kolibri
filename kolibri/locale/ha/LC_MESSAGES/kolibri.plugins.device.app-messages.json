@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Duba ayyuka",
   "TasksBar.someTasksComplete": "{done, number} na {total, plural, one {{total, number} an gama aiki} other {{total, number} an gama aikin}}",
   "TasksBar.taskManagerLink": "Duba mai sarrafa aiki",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "An kwafa zuwa allo",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Kwafa zuwa allo",
   "TreeViewRowMessages.allResourcesOnDevice": "Duk albarkatun kan wannan na'ura",
   "TreeViewRowMessages.allResourcesSelected": "An zabi duk albarkatu",
   "TreeViewRowMessages.alreadyOnYourDevice": "Tuni yana kan na'urarku",

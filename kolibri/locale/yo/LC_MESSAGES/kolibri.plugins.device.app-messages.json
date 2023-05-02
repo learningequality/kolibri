@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Yẹ àwọn iṣẹ́ wò",
   "TasksBar.someTasksComplete": "{done, number} ti {total, plural, other {{total, number} iṣẹ́-àmúṣe parí}}",
   "TasksBar.taskManagerLink": "Wo alákòóso iṣẹ́",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "A ti se ẹ̀dà si aka ọlọ́pọ́n",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Ṣe ẹ̀dà si aka ọlọ́pọ́n",
   "TreeViewRowMessages.allResourcesOnDevice": "Gbogbo àwọn èlo lórí ero yii",
   "TreeViewRowMessages.allResourcesSelected": "A yan gbogbo ohun èlò",
   "TreeViewRowMessages.alreadyOnYourDevice": "Ti wà lórí ohun elò rẹ",

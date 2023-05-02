@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "ამოცანების ნახვა",
   "TasksBar.someTasksComplete": "{total, plural, one {{total, number} ამოცანიდან} other {{total, number} ამოცანიდან}} {done, number} დასრულებულია",
   "TasksBar.taskManagerLink": "ამოცანების მართვა",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "ასლი ბუფერშია",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "ასლის შექმნა",
   "TreeViewRowMessages.allResourcesOnDevice": "ამ მოწყობილობის ყველა რესურსი",
   "TreeViewRowMessages.allResourcesSelected": "ყველა რესურსი მონიშნულია",
   "TreeViewRowMessages.alreadyOnYourDevice": "თქვენს მოწყობილობაზეა უკვე",

@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Tazama kazi",
   "TasksBar.someTasksComplete": "{done, number} kati {total, plural, one {{total, number} kazi imekamilika} other {{total, number} kazi zimekamilika}}",
   "TasksBar.taskManagerLink": "Tazama kidhibiti cha kazi",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Imenakiliwa kwenye ubaoklipu",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Nakili kwenye ubaoklipu",
   "TreeViewRowMessages.allResourcesOnDevice": "Nyenzo zote kwenye kifaa hiki",
   "TreeViewRowMessages.allResourcesSelected": "Nyenzo zote zimechaguliwa",
   "TreeViewRowMessages.alreadyOnYourDevice": "Tayari ipo kwenye kifaa chako",

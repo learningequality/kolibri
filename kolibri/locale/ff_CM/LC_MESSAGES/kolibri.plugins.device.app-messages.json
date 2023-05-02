@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Raarugo kuugal kompiita",
   "TasksBar.someTasksComplete": "{done, plural, one {kuugal kompiita {done, number}} other {kuuɗe kompiita {done, number}}} nder {total, number} timminaama",
   "TasksBar.taskManagerLink": "Raarugo kakkilanoojum kuugal kompiita",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Tonngi resi e danki kompiita",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Tonnga resu e danki kompiita",
   "TreeViewRowMessages.allResourcesOnDevice": "Jannginillum gonɗum nder kompiita ɗu'um fuu",
   "TreeViewRowMessages.allResourcesSelected": "Jannginillum fuu suɓtaama",
   "TreeViewRowMessages.alreadyOnYourDevice": "E ɗum nder kompiita ma",

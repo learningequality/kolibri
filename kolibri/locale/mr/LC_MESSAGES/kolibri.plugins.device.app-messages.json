@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "कार्ये पहा",
   "TasksBar.someTasksComplete": "{total, number} पैकी {done, number} {done, plural, one {कार्य पूर्ण झाले} other {कार्य पूर्ण झाले}} ",
   "TasksBar.taskManagerLink": "टास्क मॅनेजर पहा",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "क्लिपबोर्डवर कॉपी केले",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "क्लिपबोर्डवर कॉपी करा",
   "TreeViewRowMessages.allResourcesOnDevice": "या उपकरणावरील सर्व संसाधने",
   "TreeViewRowMessages.allResourcesSelected": "सर्व संसाधने निवडली",
   "TreeViewRowMessages.alreadyOnYourDevice": "तुमच्या उपकरणावर आधीपासून आहे",

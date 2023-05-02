@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "Переглянути завдання",
   "TasksBar.someTasksComplete": "{done, number} із {total, plural, one {{total, number} завдання завершено} few {{total, number} завдань завершено} many {{total, number} завдань завершено} other {{total, number} завдань завершено}}",
   "TasksBar.taskManagerLink": "Переглянути диспетчер завдань",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "Скопійовано до буфера обміну.",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "Копіювати до буфера обміну",
   "TreeViewRowMessages.allResourcesOnDevice": "Усі матеріали на цьому пристрої",
   "TreeViewRowMessages.allResourcesSelected": "Обрано всі матеріали",
   "TreeViewRowMessages.alreadyOnYourDevice": "Вже на вашому пристрої",

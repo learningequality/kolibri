@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "",
   "DownloadRequests.goToDownloadsPage": "",
-  "DownloadRequests.resourceRemoved": ""
+  "DownloadRequests.resourceRemoved": "",
+  "PaginatedListContainerWithBackend.nextResults": "შემდეგი შედეგები",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number }, { numFilteredItems, number }-დან",
+  "PaginatedListContainerWithBackend.previousResults": "წინა შედეგები"
 }

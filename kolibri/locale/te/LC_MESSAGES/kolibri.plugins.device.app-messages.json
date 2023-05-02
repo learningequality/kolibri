@@ -268,6 +268,8 @@
   "TaskSnackbarStrings.viewTasksAction": "టాస్క్‌లను వీక్షించండి",
   "TasksBar.someTasksComplete": "{done, number} of {total, plural, one {{total, number} పూర్తి చేసిన టాస్క్} other {{total, number} పూర్తి చేసిన టాస్క్‌లు}}",
   "TasksBar.taskManagerLink": "టాస్క్ మేనేజర్‌ని వీక్షించు",
+  "TechnicalTextBlock.copiedToClipboardConfirmation": "క్లిప్‌బోర్డ్‌కి కాపీ చేయబడింది",
+  "TechnicalTextBlock.copyToClipboardButtonPrompt": "క్లిప్‌బోర్డ్‌కి కాపీ చేయి",
   "TreeViewRowMessages.allResourcesOnDevice": "ఈ పరికరంలోని అన్ని వనరులు",
   "TreeViewRowMessages.allResourcesSelected": "అన్ని వనరులు ఎంచుకోబడ్డాయి",
   "TreeViewRowMessages.alreadyOnYourDevice": "ఇప్పటికే మీ పరికరంపై ఉంది",

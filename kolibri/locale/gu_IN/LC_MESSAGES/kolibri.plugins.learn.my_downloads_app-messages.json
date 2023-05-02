@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "ડાઉનલોડની વિનંતી કરવામાં આવી છે",
   "DownloadRequests.goToDownloadsPage": "ડાઉનલોડ્સ પર જાઓ",
-  "DownloadRequests.resourceRemoved": "સંસાધનને મારી લાઇબ્રેરીમાંથી દૂર કરવામાં આવેલ છે"
+  "DownloadRequests.resourceRemoved": "સંસાધનને મારી લાઇબ્રેરીમાંથી દૂર કરવામાં આવેલ છે",
+  "PaginatedListContainerWithBackend.nextResults": "આગળનું પરિણામ",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number }માંથી { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "પાછલું પરિણામ"
 }

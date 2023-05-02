@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "Download richiesto",
   "DownloadRequests.goToDownloadsPage": "Vai ai download",
-  "DownloadRequests.resourceRemoved": "Risorsa rimossa dalla mia libreria"
+  "DownloadRequests.resourceRemoved": "Risorsa rimossa dalla mia libreria",
+  "PaginatedListContainerWithBackend.nextResults": "Pagina seguente dei risultati",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } di { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Pagina precedente dei risultati"
 }

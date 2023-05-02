@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "",
   "DownloadRequests.goToDownloadsPage": "",
-  "DownloadRequests.resourceRemoved": ""
+  "DownloadRequests.resourceRemoved": "",
+  "PaginatedListContainerWithBackend.nextResults": "Следващи резултати",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } от { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "Предишни резултати"
 }

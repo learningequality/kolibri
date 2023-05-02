@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "التحميل المطلوب",
   "DownloadRequests.goToDownloadsPage": "الذهاب إلى التحميلات",
-  "DownloadRequests.resourceRemoved": "تمت إزالة المصدر من مكتبتي"
+  "DownloadRequests.resourceRemoved": "تمت إزالة المصدر من مكتبتي",
+  "PaginatedListContainerWithBackend.nextResults": "النتائج التالية",
+  "PaginatedListContainerWithBackend.pagination": "{ visibleStartRange, number } - { visibleEndRange, number } من { numFilteredItems, number }",
+  "PaginatedListContainerWithBackend.previousResults": "النتائج السابقة"
 }

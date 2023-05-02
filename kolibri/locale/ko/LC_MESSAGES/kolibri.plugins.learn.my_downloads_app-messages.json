@@ -1,5 +1,8 @@
 {
   "DownloadRequests.downloadStartedLabel": "요청한 다운로드",
   "DownloadRequests.goToDownloadsPage": "다운로드로 가기",
-  "DownloadRequests.resourceRemoved": "나의 라이브러리에서 제거된 자료"
+  "DownloadRequests.resourceRemoved": "나의 라이브러리에서 제거된 자료",
+  "PaginatedListContainerWithBackend.nextResults": "다음 결과",
+  "PaginatedListContainerWithBackend.pagination": "{ numFilteredItems, number } 중 { visibleStartRange, number } - { visibleEndRange, number }",
+  "PaginatedListContainerWithBackend.previousResults": "이전 결과"
 }
