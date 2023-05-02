@@ -27,6 +27,17 @@
           :showTooltip="true"
         />
       </h3>
+    <h3
+      class="title"
+      dir="auto"
+      :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
+    >
+      <TextTruncatorCss
+        :text="title"
+        :maxLines="2"
+        :showTooltip="true"
+      />
+    </h3>
 
       <KFixedGrid
         numCols="4"
@@ -84,7 +95,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -92,7 +103,7 @@
     components: {
       ChannelThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -152,12 +163,6 @@
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
-      },
-      titleHeight() {
-        return 60;
-      },
-      taglineHeight() {
-        return 155;
       },
       versionStyle() {
         return {
