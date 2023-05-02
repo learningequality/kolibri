@@ -21,13 +21,14 @@
         :delay="false"
       />
       <div aria-live="polite">
-        <StorageNotification
-          :showBanner="showStorageNotification"
-        />
+        <StorageNotification :showBanner="showStorageNotification" />
       </div>
     </ScrollingHeader>
 
-    <div class="main-wrapper" :style="wrapperStyles">
+    <div
+      class="main-wrapper"
+      :style="wrapperStyles"
+    >
       <slot></slot>
     </div>
 
@@ -51,9 +52,11 @@
 
 <script>
 
+  import { mapGetters } from 'vuex';
   import { get } from '@vueuse/core';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -78,8 +81,10 @@
       if (get(isLearnerOnlyImport)) {
         userDeviceStatus = useUserSyncStatus().deviceStatus;
       }
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         userDeviceStatus,
+        windowIsSmall,
       };
     },
     props: {
@@ -105,6 +110,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isAppContext']),
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides
@@ -113,12 +119,18 @@
               maxWidth: '1064px',
               margin: 'auto',
               backgroundColor: this.$themePalette.grey.v_100,
-              paddingLeft: '32px',
-              paddingRight: '32px',
-              paddingTop: this.appBarHeight + 32 + 'px',
+              paddingLeft: this.paddingLeftRight,
+              paddingRight: this.paddingLeftRight,
+              paddingTop: this.appBarHeight + this.paddingTop + 'px',
               paddingBottom: '72px',
               marginTop: 0,
             };
+      },
+      paddingTop() {
+        return this.isAppContext ? 0 : 32;
+      },
+      paddingLeftRight() {
+        return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
       },
       showStorageNotification() {
         return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
