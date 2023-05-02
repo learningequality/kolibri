@@ -34,6 +34,8 @@ Feature: Super admin deletes channel(s) or resource(s)
     Then I see the task is labeled as *Finished*
       And I do not see the progress bar anymore
       And I see the *Clear* button for the finished task
+      And I see the number and size of the resources which were successfully deleted
+      And I see *Started by '<super admin>'*
       And I see the *Clear completed* button
 
   Scenario: Review that the channel is deleted
@@ -47,7 +49,7 @@ Feature: Super admin deletes channel(s) or resource(s)
     Then I see the *Manage '<channel2>'* page
       And I see the channel page with logo, name, and version
       And I see the values for number and size of resources from <channel2> channel that are on my device
-      And I see the list of topics for the <channel> channel
+      And I see the list of folders for the <channel> channel
       And I see the *Delete* and *Export* buttons are inactive
 
   # navigate the topic tree and select topics or resources to be deleted following the same scenarios as for import tasks

@@ -23,13 +23,12 @@ Feature: Facility settings
 		Given there's no existing PIN
 		When I click *Create PIN*
 		Then I see the *Create device management PIN* modal
-			And I see *You will need to sync this device with other devices that share this facility on order to use this PIN. Choose four numbers to set as your new PIN*
+			And I see *You will need to sync this device with other devices with the same facility in order to use this PIN. Choose a 4-digit number to set as your new PIN*
 		When I enter four numbers
 			And I click *Save*
 		Then the modal is closed
 			And I see a toast message *New PIN created*
-		When I sign out
-			And I sign in as a learner on a learn-only device
+		When I sign in as a learner on a learn-only device
 			And I go to the *Device* page
 		Then I see the *Enter PIN* modal
 		When I enter the correct PIN
@@ -63,11 +62,17 @@ Feature: Facility settings
 		Then I see the options *View PIN*, *Change PIN* and *Remove PIN*
 		When I click *Change PIN*
 		Then I see the *Change device management PIN* modal
-			And I see *You will need to sync this device with other devices that share this facility on order to use this PIN. Choose four numbers to set as your new PIN*
+			And I see *You will need to sync this device with other devices that have the same facility in order to use this PIN. Choose a 4-digit number to set as your new PIN*
 		When I enter new a valid 4-digit PIN
 			And I click *Save*
 		Then the modal is closed
 			And I see a toast message *PIN updated*
+		When I sign in as a learner on a learn-only device
+			And I go to the *Device* page
+		Then I see the *Enter PIN* modal
+		When I enter the new PIN
+			And I click *Continue*
+		Then I can see the *Device* page
 
 	Scenario: Remove PIN
 		Given the user has already created a PIN
@@ -75,7 +80,11 @@ Feature: Facility settings
 		Then I see the options *View PIN*, *Change PIN* and *Remove PIN*
 		When I click *Remove PIN*
 		Then I see the *Remove device management PIN* modal
-			And I see *You will need to sync this device with other devices that share this facility on order to use this PIN.*
+			And I see *You will need to sync this device with other devices that have the same facility in order for this PIN to be removed.*
 		When I click *Remove PIN*
 		Then the modal is closed
 			And I see a toast message *PIN removed*
+		When I sign in as a learner on a learn-only device
+			And I go to the *Device* page
+		Then I no longer see the *Enter PIN* modal
+			And I can see the *Device* page

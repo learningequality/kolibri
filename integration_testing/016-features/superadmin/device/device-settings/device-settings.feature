@@ -68,8 +68,27 @@ Feature: Device settings
 			And I click the *Save changes* button
 		Then I see a *Settings have been updated* message
 
+	Scenario: Add storage location for the first time
+		When I scroll down to *Primary storage location*
+			And I click the *Add location* button
+		Then I see the *New storage location file path* modal
+			And I see *Copy and paste a file path from your Kolibri server that contains Kolibri channels. By default, channels exported to a drive from Kolibri will be in a content folder called KOLIBRI_DATA_DIR*
+		When I enter a valid path in the *File path* field
+			And I click *Continue*
+		Then I see the *Server restart* modal
+			And I see the specified file path
+			And I see *Server needs to restart to add a new storage location. Anyone using Kolibri on this server right now will temporarily be unable to use it.*
+			And I see a checkbox *Make this the primary storage location
+		When I select the checkbox
+		 And I click *Continue*
+		Then the modal window is closed
+			And the server is restarted in the background
+			And I see the new storage location file path displayed under the *Primary storage location* section
+			And I see the previous storage location path displayed under the *Other storage locations* section
+
 	Scenario: Change the storage location
-		When I click the *Change* link
+		When I scroll down to *Primary storage location*
+			And I click the *Change* link next to the current storage location
 		Then I see the *Change primary storage location* modal
 			And I see *New downloaded resources will be added to the primary storage location*
 			And I see only the paths that can be set as the primary storage location
@@ -80,24 +99,26 @@ Feature: Device settings
 		When I click *Continue*
 		Then the modal window is closed
 			And the server is restarted in the background
+			And I see the new storage location file path displayed under the *Primary storage location* section
+			And I see the previous storage location path displayed under the *Other storage locations* section
 
-	Scenario: Add storage location
+	Scenario: Add a different storage location
 		When I scroll down to *Other storage locations*
 			And I select *Add storage location* from the *Options* drop-down
-		Then I see the native file picker
-		When I select a new storage location
+		Then I see the *New storage location file path* modal
+			And I see *Copy and paste a file path from your Kolibri server that contains Kolibri channels. By default, channels exported to a drive from Kolibri will be in a content folder called KOLIBRI_DATA_DIR*
+		When I enter a valid path in the *File path* field
+			And I click *Continue*
 		Then I see the *Server restart* modal
-			And I see the *Selected: <path>*
-			And I see the *Adding a new storage location will restart the server. Anyone using Kolibri on this server right now will temporarily be unable to use it.*
-			And I see a checkbox *Make this the primary storage location*
-			And below the checkbox I see *Newly downloaded resources will be added to the primary storage location*
-			But the checkbox is not displayed if it's a read-only location
-		When I click *Continue*
-		Then I see the *Add to library* overlay
-			And I see that all channels are selected by default
-		When I click *Continue*
+			And I see the specified file path
+			And I see *Server needs to restart to add a new storage location. Anyone using Kolibri on this server right now will temporarily be unable to use it.*
+			And I see a checkbox *Make this the primary storage location
+		When I select the checkbox
+		 And I click *Continue*
 		Then the modal window is closed
 			And the server is restarted in the background
+			And I see the new storage location file path displayed under the *Primary storage location* section
+			And I see the previous storage location path displayed under the *Other storage locations* section
 
 	Scenario: Remove storage location
 		When I scroll down to *Other storage locations*
@@ -112,13 +133,14 @@ Feature: Device settings
 		When I click *Continue*
 		Then the modal window is closed
 			And the server is restarted in the background
+			And the removed storage location is no longer displayed under the *Other storage location* section
 
 	Scenario: Disable auto-download
 		Given the *Enable auto-download* option is checked
 		When I uncheck the option
-		Then I see both *Enable "Get later"* and *Set auto-download storage limit* options disabled
-		When I click the *Save changes* button
-			And I go to *Device > Channels* page
+			And I click the *Save changes* button
+		Then I see the *Settings have been updated* message
+		When I go to *Device > Channels* page
 		Then I see that the *My downloads* option is not available
 
 	Scenario: Enable auto-download - default selection
@@ -158,7 +180,17 @@ Feature: Device settings
 		Given all pages are enabled by default
 		When I uncheck any or all of the available pages
 			And I click the *Save changes* button
-		Then a user is no longer able to access the unchecked pages even if the user has permission to access them
+		Then I see the *Server restart* modal
+			And I see the following text: *When you uncheck a page, it will become invisible to users even if they have permission to access it. Anyone using Kolibri on this server right now will temporarily be unable to use it.*
+		When I click *Continue*
+		Then I see the *Settings have been updated* snakbar notification.
+			And I see the *Disconnected from server. Will try to reconnect in 00:03* snakbar notification.
+		When the server has successfully restarted.
+		Then I see the *Successfully reconnected* snakbar notification.
+		When I refresh the page
+			And open the side bar
+		Then I see that the disabled pages are no longer displayed there
+			And a user is no longer able to access the unchecked pages even if the user has permission to access them
 
 	Scenario: Position of the *Save changes* button in the native app
 		Given I'm viewing the *Device > Settings* page in the native app
