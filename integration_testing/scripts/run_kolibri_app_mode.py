@@ -49,7 +49,7 @@ def os_user(auth_token):
 
 
 def check_is_metered():
-    # Change this to True if you need to test being on a metered connection then restart the server
+    # Set this to the value that suits your needs for testing if on a metered connection
     return True
 
 
