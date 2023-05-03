@@ -19,11 +19,7 @@
         :contents="device.channels"
         :isRemote="true"
       >
-        <KGridItem
-          :layout12="{ span: 3 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 4 }"
-        >
+        <KGridItem :layout="{ span: layoutSpan }">
           <ChannelCard
             :key="exploreString.toLowerCase()"
             :isMobile="windowIsSmall"
@@ -43,7 +39,6 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
@@ -55,13 +50,15 @@
       ChannelCard,
       ChannelCardGroupGrid,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { genLibraryPageBackLink } = useContentLink();
-      const { windowGutter } = useKResponsiveWindow();
+      const { windowBreakpoint, windowGutter, windowIsSmall } = useKResponsiveWindow();
       return {
         genLibraryPageBackLink,
+        windowBreakpoint,
         windowGutter,
+        windowIsSmall,
       };
     },
     props: {
@@ -76,6 +73,15 @@
     computed: {
       exploreString() {
         return this.coreString('explore');
+      },
+      layoutSpan() {
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
       },
     },
     methods: {

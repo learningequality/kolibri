@@ -228,6 +228,7 @@
     display: flex;
     width: 100%;
     padding: $margin;
+    margin-bottom: $margin-thin;
   }
 
   .progress-bar {

@@ -4,9 +4,7 @@
     <KGridItem
       v-for="content in contents"
       :key="content.id"
-      :layout12="{ span: 3 }"
-      :layout8="{ span: 4 }"
-      :layout4="{ span: 4 }"
+      :layout="{ span: layoutSpan }"
     >
       <ChannelCard
         :isMobile="windowIsSmall"
@@ -27,7 +25,7 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';
 
@@ -36,10 +34,14 @@
     components: {
       ChannelCard,
     },
-    mixins: [responsiveWindowMixin],
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage };
+      const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      return {
+        genContentLinkBackLinkCurrentPage,
+        windowBreakpoint,
+        windowIsSmall,
+      };
     },
     props: {
       contents: {
@@ -54,6 +56,17 @@
       isRemote: {
         type: Boolean,
         default: false,
+      },
+    },
+    computed: {
+      layoutSpan() {
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
       },
     },
     methods: {

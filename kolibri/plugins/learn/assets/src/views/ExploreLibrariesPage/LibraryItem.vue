@@ -56,9 +56,7 @@
       <KGridItem
         v-for="channel in channels"
         :key="channel.id"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <ChannelCard
           :title="channel.name"
@@ -89,11 +87,12 @@
     mixins: [commonCoreStrings],
     setup() {
       const { genContentLinkBackLinkCurrentPage, genLibraryPageBackLink } = useContentLink();
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
 
       return {
         genContentLinkBackLinkCurrentPage,
         genLibraryPageBackLink,
+        windowBreakpoint,
         windowIsSmall,
       };
     },
@@ -138,6 +137,17 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+    },
+    computed: {
+      layoutSpan() {
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
       },
     },
     $trs: {

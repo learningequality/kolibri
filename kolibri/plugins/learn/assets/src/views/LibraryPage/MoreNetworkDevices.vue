@@ -5,9 +5,7 @@
       <KGridItem
         v-for="device in devices"
         :key="device.id"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
           :device="device"
@@ -17,9 +15,7 @@
       <KGridItem
         v-if="devices.length"
         key="view-all"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
           :device="{}"
@@ -36,6 +32,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../../composables/useContentLink';
   import UnPinnedDevices from './UnPinnedDevices';
 
@@ -47,14 +44,27 @@
     mixins: [commonCoreStrings],
     setup() {
       const { genLibraryPageBackLink } = useContentLink();
+      const { windowBreakpoint } = useKResponsiveWindow();
       return {
         genLibraryPageBackLink,
+        windowBreakpoint,
       };
     },
     props: {
       devices: {
         type: Array,
         required: true,
+      },
+    },
+    computed: {
+      layoutSpan() {
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
       },
     },
   };
