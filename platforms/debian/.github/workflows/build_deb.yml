@@ -42,10 +42,6 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.10.11
     - name: Download the tarfile from URL
       if: ${{ github.event.inputs.tar-url }}
       run: make get-tar tar=${{ github.event.inputs.tar-url }}
@@ -56,7 +52,7 @@ jobs:
         name: ${{ inputs.tar-file-name }}
         path: build_src
     - name: Install Debian build package dependencies
-      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools
+      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip
     - name: Run the build
       run: make kolibri.deb
     - name: Get DEB filename

@@ -51,16 +51,13 @@ jobs:
         name: ${{ inputs.tar-file-name }}
         path: build_src
     - name: Install Debian build package dependencies
-      run: sudo apt install -y devscripts debhelper python3-pip dput
+      run: sudo apt install -y devscripts debhelper python3-pip dput dh-python python3-all python3-pytest
     - name: Configure GPG Key
       run: |
         echo -n "${{ secrets.GPG_SIGNING_KEY }}" | base64 --decode | gpg --import --no-tty --batch --yes
-    - name: Build debianized sources
+    - name: Build and upload debianized sources release files to Launchpad
       env:
         GPG_PASSPHRASE: ${{ secrets.GPG_PASSPHRASE }}    
-      run: make kolibri.changes
-    - name: Upload new release files to Launchpad
       run: make commit-new-release
-
 
         
