@@ -1,6 +1,6 @@
 {
   "name": "eslint-plugin-kolibri",
-  "version": "0.16.0-dev.1",
+  "version": "0.16.0-dev.3",
   "description": "Custom rules.",
   "author": "Learning Equality",
   "main": "lib/index.js",
