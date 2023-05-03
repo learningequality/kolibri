@@ -1,6 +1,7 @@
 import store from 'kolibri.coreVue.vuex.store';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
-import editDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
+import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
+import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
 import ClassEditPage from './views/ClassEditPage';
 import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
@@ -128,12 +129,35 @@ export default [
   },
   {
     path: '/:facility_id?/managesync',
+    props: route => {
+      const facilityId = route.params.facility_id || store.getters.currentFacilityId;
+      return {
+        facilityId,
+        goBackRoute: { name: PageNames.DATA_EXPORT_PAGE },
+        editSyncRoute: function(deviceId) {
+          return {
+            name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+            params: {
+              deviceId,
+              facility_id: facilityId,
+            },
+          };
+        },
+      };
+    },
     component: ManageSyncSchedule,
-    name: PageNames.MANAGE_SYNC_SCHEDULE,
+    name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
   },
   {
-    path: '/:facility_id?/editdevice/:deviceId',
-    component: editDeviceSyncSchedule,
-    name: PageNames.EDIT_SYNC_SCHEDULE,
+    path: '/:facility_id?/editdevice/:deviceId/',
+    component: EditDeviceSyncSchedule,
+    name: SyncPageNames.EDIT_SYNC_SCHEDULE,
+    props: route => {
+      return {
+        facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        deviceId: route.params.deviceId,
+        goBackRoute: { name: SyncPageNames.MANAGE_SYNC_SCHEDULE },
+      };
+    },
   },
 ];

@@ -25,29 +25,46 @@
     <div>
       <span>
         <template v-if="facility.syncing || isSyncing">
-          <KCircularLoader class="loader" :size="16" :delay="false" />
+          <KCircularLoader
+            class="loader"
+            :size="16"
+            :delay="false"
+          />
           {{ $tr('syncing') }}
         </template>
         <template v-else-if="isDeleting">
-          <KCircularLoader class="loader" :size="16" :delay="false" />
+          <KCircularLoader
+            class="loader"
+            :size="16"
+            :delay="false"
+          />
           {{ getTaskString('removingFacilityStatus') }}
         </template>
         <template v-else>
-          <span v-if="syncFailed" class="sync-message">
+          <span
+            v-if="syncFailed"
+            class="sync-message"
+          >
             {{ $tr('syncFailed') }}
           </span>
-          <span v-else-if="neverSynced" class="sync-message">
+          <span
+            v-else-if="neverSynced"
+            class="sync-message"
+          >
             {{ $tr('neverSynced') }}
           </span>
           <!-- Always show the last successful sync time when available -->
-          <span v-if="facility.last_successful_sync" class="sync-message">
+          <span
+            v-if="facility.last_successful_sync"
+            class="sync-message"
+          >
             {{ $tr('lastSync', { relativeTime: formattedTime(facility.last_successful_sync) }) }}
           </span>
         </template>
         <KButton
           :text="$tr('createSync')"
           appearance="basic-link"
-          @click="$emit('manageSync')"
+          @click="manageSync"
         />
       </span>
     </div>
@@ -82,6 +99,10 @@
         type: Boolean,
         default: false,
       },
+      goToRoute: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
@@ -110,6 +131,9 @@
           return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
+      },
+      manageSync() {
+        this.$router.push(this.goToRoute);
       },
     },
     $trs: {

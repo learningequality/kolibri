@@ -41,13 +41,17 @@
           <!-- On mobile, put buttons on a row of their own -->
           <tbody v-if="windowIsSmall">
             <template v-for="(facility, idx) in facilities">
-              <tr :key="idx" style="border: none!important">
+              <tr
+                :key="idx"
+                style="border: none!important"
+              >
                 <td>
                   <FacilityNameAndSyncStatus
                     :facility="facility"
                     :isSyncing="facilityIsSyncing(facility)"
                     :isDeleting="facilityIsDeleting(facility)"
                     :syncHasFailed="facility.syncHasFailed"
+                    :goToRoute="manageSync(facility.id)"
                   />
                 </td>
               </tr>
@@ -81,13 +85,17 @@
 
           <!-- Non-mobile -->
           <tbody v-else>
-            <tr v-for="(facility, idx) in facilities" :key="idx">
+            <tr
+              v-for="(facility, idx) in facilities"
+              :key="idx"
+            >
               <td>
                 <FacilityNameAndSyncStatus
                   :facility="facility"
                   :isSyncing="facilityIsSyncing(facility)"
                   :isDeleting="facilityIsDeleting(facility)"
                   :syncHasFailed="facility.syncHasFailed"
+                  :goToRoute="manageSync(facility.id)"
                 />
               </td>
               <td class="button-col">
@@ -182,6 +190,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { PageNames } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
   import DeviceTopNav from '../DeviceTopNav';
@@ -194,6 +203,7 @@
   const Options = Object.freeze({
     REGISTER: 'REGISTER',
     REMOVE: 'REMOVE',
+    MANAGESYNC: 'MANAGE SYNC',
   });
 
   export default {
@@ -290,7 +300,8 @@
         } else if (option === Options.REGISTER) {
           this.facilityForRegister = facility;
         } else if (option === Options.MANAGESYNC) {
-          this.$router.push({ path: '/manage' });
+          const route = this.manageSync(facility.id);
+          this.$router.push(route);
         }
       },
       fetchFacilites() {
@@ -324,6 +335,15 @@
           name: 'FACILITIES_TASKS_PAGE',
         });
         this.showImportModal = false;
+      },
+      manageSync(facilityId) {
+        return {
+          name: PageNames.MANAGE_SYNC_SCHEDULE,
+          facilityId,
+          params: {
+            facilityId,
+          },
+        };
       },
       showFacilityRemovedSnackbar(facilityName) {
         this.$store.dispatch(

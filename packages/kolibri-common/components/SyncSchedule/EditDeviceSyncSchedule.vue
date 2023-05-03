@@ -2,11 +2,17 @@
 
   <ImmersivePage
     :appBarTitle="$tr('editSyncScheduleTitle')"
-    :route="backRoute"
+    :route="goBackRoute"
     :icon="icon"
   >
-    <KPageContainer v-if="device" :style="pageHeight">
-      <KGrid gutter="48" class="edit-sync-schedule">
+    <KPageContainer
+      v-if="device"
+      :style="pageHeight"
+    >
+      <KGrid
+        gutter="48"
+        class="edit-sync-schedule"
+      >
 
         <KGridItem>
           <h1>{{ $tr('editSyncScheduleTitle') }}</h1>
@@ -30,8 +36,8 @@
 
           </KGrid>
           <KGrid
-            v-if="selectedItem.value !== 0
-              && selectedItem.value !== 1"
+            v-if="selectedItem.value !== 3600
+              && selectedItem.value !== 86400"
             class=""
           >
             <KGridItem>
@@ -47,7 +53,7 @@
 
           </KGrid>
           <KGrid
-            v-if="selectedItem.value !== 0"
+            v-if="selectedItem.value !== 3600"
             class=""
           >
             <KGridItem>
@@ -76,7 +82,6 @@
           </p>
           <p>
             <KButton
-              v-if="removeBtn"
               appearance="basic-link"
               class="spacing"
               @click="removeDeviceModal = true"
@@ -106,7 +111,6 @@
         />
       </KButtonGroup>
     </BottomAppBar>
-
 
     <KModal
       v-if="removeDeviceModal"
@@ -152,7 +156,6 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
 
   export default {
     name: 'EditDeviceSyncSchedule',
@@ -166,6 +169,18 @@
         type: String,
         default: 'back',
       },
+      facilityId: {
+        type: String,
+        required: true,
+      },
+      deviceId: {
+        type: String,
+        required: true,
+      },
+      goBackRoute: {
+        type: Object,
+        required: true,
+      },
     },
     data() {
       return {
@@ -173,17 +188,16 @@
         deviceName: null,
         device: [],
         now: now(),
-        selectedItem: '',
+        selectedItem: {},
         tasks: [],
-        selectedDay: null,
-        selectedTime: null,
+        selectedDay: {},
+        selectedTime: {},
         removeBtn: false,
+        serverTime: null,
+        baseurl: null,
       };
     },
     computed: {
-      backRoute() {
-        return { name: PageNames.MANAGE_SYNC_SCHEDULE };
-      },
       pageHeight() {
         return {
           height: '80%',
@@ -203,11 +217,11 @@
       },
       selectArray() {
         return [
-          { label: this.$tr('everyHour'), value: 0 },
-          { label: this.$tr('everyDay'), value: 1 },
-          { label: this.$tr('everyWeek'), value: 2 },
-          { label: this.$tr('everyTwoWeeks'), value: 3 },
-          { label: this.$tr('everyMonth'), value: 4 },
+          { label: this.$tr('everyHour'), value: 3600 },
+          { label: this.$tr('everyDay'), value: 86400 },
+          { label: this.$tr('everyWeek'), value: 604800 },
+          { label: this.$tr('everyTwoWeeks'), value: 1209600 },
+          { label: this.$tr('everyMonth'), value: 2592000 },
         ];
       },
       getDays() {
@@ -231,15 +245,14 @@
         const interval = 30;
 
         const times = [];
+        var i = 0;
         const time = new Date();
         time.setHours(0, 0, 0, 0);
 
         while (time < endTime) {
-          times.push(this.$formatTime(time));
-
+          times.push({ label: this.$formatTime(time), value: i++ });
           time.setMinutes(time.getMinutes() + interval);
         }
-
         return times;
       },
     },
@@ -247,12 +260,12 @@
       this.fetchDevice();
     },
     mounted() {
-      this.timer = setInterval(() => {
+      this.serverTime = setInterval(() => {
         this.now = now();
       }, 10000);
     },
     beforeDestroy() {
-      clearInterval(this.timer);
+      clearInterval(this.serverTime);
     },
     methods: {
       closeModal() {
@@ -260,7 +273,7 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.$route.query.id })
+        NetworkLocationResource.deleteModel({ id: this.deviceId })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
             history.back();
@@ -270,40 +283,44 @@
           });
       },
       handleSaveSchedule() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-            TaskResource.startTask({
-              type: TaskTypes.SYNCPEERFULL,
-              facility: this.facility.id,
-              device_id: this.device.id,
-              baseurl: this.baseurl,
-              enqueue_args: { enqueue_at: this.serverTime, repeat_interval: 2, repeat: 2 },
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+          this.facility = { ...facility };
+          const date = new Date(this.serverTime);
+          const equeue_param = date.toISOString();
+          TaskResource.startTask({
+            type: TaskTypes.SYNCPEERFULL,
+            facility: this.facility.id,
+            device_id: this.deviceId,
+            baseurl: this.baseurl,
+            enqueue_args: {
+              enqueue_at: equeue_param,
+              repeat_interval: this.selectedItem.value,
+              repeat: 2,
+            },
+          })
+            .then(() => {
+              history.back();
+              this.showSnackbarNotification('syncAdded');
             })
-              .then(() => {
-                history.back();
-                this.showSnackbarNotification('syncAdded');
-              })
-              .catch(() => {
-                this.createTaskFailedSnackbar();
-              });
-          }
-        );
+            .catch(() => {
+              this.createTaskFailedSnackbar();
+            });
+        });
       },
 
       cancelBtn() {
-        this.$router.push({ name: PageNames.ManageSyncSchedule });
+        this.$router.push(this.goBackRoute);
       },
       fetchDevice() {
-        NetworkLocationResource.fetchModel({ id: this.$route.params.deviceId }).then(device => {
+        NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
+          this.baseurl = device.base_url;
           TaskResource.list({ queue: 'facility_task' }).then(tasks => {
             this.tasks = tasks.filter(
               task =>
-                task.extra_metadata.device_id === device.id &&
-                task.facility_id === this.$store.getters.activeFacilityId
+                task.extra_metadata.device_id === device.id && task.facility_id === this.facilityId
             );
-            if (this.tasks.length != 0) {
+            if (this.tasks && this.tasks.length) {
               this.removeBtn = true;
             }
           });
@@ -378,18 +395,16 @@
 
 
 <style scoped>
-  .spacing{
-    margin-top:10px;
-  }
-  .loader{
-    margin-top:5px;
-  }
-  .edit-sync-schedule{
-    margin-left:20px;
-  }
-  .align-kselects{
-    margin-left:16px;
-  }
-
-
+.spacing {
+  margin-top: 10px;
+}
+.loader {
+  margin-top: 5px;
+}
+.edit-sync-schedule {
+  margin-left: 20px;
+}
+.align-kselects {
+  margin-left: 16px;
+}
 </style>

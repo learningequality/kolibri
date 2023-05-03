@@ -2,7 +2,7 @@
 
   <ImmersivePage
     :appBarTitle="$tr('syncSchedules')"
-    :route="goBack"
+    :route="goBackRoute"
   >
     <KPageContainer>
       <KGrid gutter="48">
@@ -16,9 +16,13 @@
           <p>{{ $tr('introduction') }}</p>
         </KGridItem>
 
-
-        <KGridItem :layout8="{ span: 4 }" :layout12="{ span: 6 }" class="separate">
-          <b>{{ facility.name }}</b>
+        <KGridItem
+          :layout8="{ span: 4 }"
+          :layout12="{ span: 6 }"
+          class="separate"
+        >
+          <b v-if="facility">{{ facility.name }}</b>
+          <KCircularLoader v-else />
         </KGridItem>
         <KGridItem
           :layout="{ alignment: 'right' }"
@@ -26,14 +30,10 @@
           :layout12="{ span: 6 }"
           class="separate"
         >
-          <KButton
-            @click="deviceModal = true"
-          >
+          <KButton @click="deviceModal = true">
             {{ $tr('addDevice') }}
           </KButton>
         </KGridItem>
-
-
 
       </KGrid>
 
@@ -47,7 +47,10 @@
               <th>{{ coreString('statusLabel') }}</th>
               <th></th>
             </tr>
-            <tr v-for="device in savedDevices" :key="device.id">
+            <tr
+              v-for="device in savedDevices"
+              :key="device.id"
+            >
               <td>
                 <span>{{ device.extra_metadata.device_name }}<br>
                   {{ device.extra_metadata.baseurl }}
@@ -55,36 +58,35 @@
               </td>
               <td>
                 <div>
-                  {{ device.extra_metadata.sync_state }}
+                  {{ scheduleTime(device.repeat_interval, device.scheduled_datetime ) }}
                 </div>
               </td>
 
               <td v-if="data && data.length > 0">
-                <div v-for="ids in data" :key="ids.id">
-                  <span v-if="ids.id === device.id">
-                    <KIcon
-                      icon="onDevice"
-                    />
-                    <span>{{ $tr('connected') }}</span>
-                  </span>
-                  <span v-else>
-                    <KIcon
-                      icon="disconnected"
-                    />
-                    <span>{{ $tr('disconnected') }}</span>
-                  </span>
+                <div
+                  v-for="ids in data"
+                  :key="ids.id"
+                >
+                  <div v-if="ids.base_url === device.extra_metadata.baseurl">
+                    <span v-if="ids.available">
+                      <KIcon icon="onDevice" />
+                      <span>{{ $tr('connected') }}</span>
+                    </span>
+                    <span v-else>
+                      <KIcon icon="disconnected" />
+                      <span>{{ $tr('disconnected') }}</span>
+                    </span>
+                  </div>
                 </div>
               </td>
               <td v-else>
-                <KIcon
-                  icon="disconnected"
-                />
+                <KIcon icon="disconnected" />
                 <span>{{ $tr('disconnected') }}</span>
               </td>
               <td>
                 <KButton
                   class="right"
-                  @click="editButton(device.id)"
+                  @click="editButton(device.extra_metadata.device_id)"
                 >
                   {{ coreString('editAction') }}
                 </KButton>
@@ -100,7 +102,10 @@
               <th></th>
             </tr>
             <tr>
-              <td colspan="3" style="text-align:center">
+              <td
+                colspan="3"
+                style="text-align:center"
+              >
                 <b>{{ $tr('NoSync') }}</b>
               </td>
             </tr>
@@ -130,13 +135,19 @@
           </KGridItem>
         </KGrid>
 
-        <KGrid gutter="48" class="add-space">
+        <KGrid
+          gutter="48"
+          class="add-space"
+        >
           <KGridItem
             :layout8="{ span: 4 }"
             :layout12="{ span: 6 }"
           >
-            <div v-if="data.length > 0">
-              <div v-for="btn in data" :key="btn.id">
+            <div v-if="data && data.length > 0">
+              <div
+                v-for="btn in data"
+                :key="btn.id"
+              >
                 <div>
                   <KRadioButton
                     v-model="radioBtnValue"
@@ -186,8 +197,7 @@
   import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { PageNames } from '../../../../kolibri/plugins/facility/assets/src/constants';
-  import AddDeviceForm from '../../../../kolibri/core/assets/src/views/sync/SelectDeviceModalGroup/AddDeviceForm.vue';
+  import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -198,6 +208,20 @@
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
+    props: {
+      facilityId: {
+        type: String,
+        required: true,
+      },
+      goBackRoute: {
+        type: Object,
+        required: true,
+      },
+      editSyncRoute: {
+        type: Function,
+        required: true,
+      },
+    },
     data() {
       return {
         deviceModal: false,
@@ -209,24 +233,17 @@
         savedDevices: [],
       };
     },
-    computed: {
-      goBack() {
-        return { name: PageNames.DATA_EXPORT_PAGE };
-      },
-    },
+
     beforeMount() {
       this.pollFacilityTasks();
       this.fetchFacility();
       this.fetchAddressesForLOD();
     },
-
     methods: {
       fetchFacility() {
-        FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
-          facility => {
-            this.facility = { ...facility };
-          }
-        );
+        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
+          this.facility = { ...facility };
+        });
       },
       fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
         return LocationResource.fetchCollection({ force: true }).then(locations => {
@@ -235,8 +252,7 @@
       },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.savedDevices = tasks;
-
+          this.savedDevices = tasks.filter(t => t.facility_id === this.facilityId);
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -251,7 +267,7 @@
         this.deviceModal = false;
         if (id !== ' ') {
           this.deviceIds.push(id);
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: id } });
+          this.$router.push(this.editSyncRoute(id));
         } else {
           return window.location.href;
         }
@@ -259,12 +275,47 @@
       newAddress() {
         this.newaddressclick = true;
       },
-      editButton(value) {
-        if (value !== ' ') {
-          this.$router.push({ name: PageNames.EDIT_SYNC_SCHEDULE, params: { deviceId: value } });
+      editButton(id) {
+        if (id !== ' ') {
+          this.$router.push(this.editSyncRoute(id));
         } else {
           return window.location.href;
         }
+      },
+      scheduleTime(time, timestamp) {
+        const schedule = this.getDays(timestamp);
+        if (time === 3600) {
+          return this.$tr('everyHour');
+        }
+        if (time === 86400) {
+          const everyDay = this.$tr('everyDay') + ',' + this.getTime(timestamp);
+          return everyDay;
+        }
+        if (time === 604800) {
+          const everyWeek = this.$tr('everyWeek') + ',' + schedule;
+          return everyWeek;
+        }
+        if (time === 1209600) {
+          const everyTwoWeeks = this.$tr('everyTwoWeeks') + ',' + schedule;
+          return everyTwoWeeks;
+        }
+        if (time === 2592000) {
+          const everyMonth = this.$tr('everyMonth') + ',' + schedule;
+          return everyMonth;
+        }
+      },
+      getDays(timestamp) {
+        const dateTimeString = timestamp;
+        const date = new Date(dateTimeString);
+        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
+        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
+        return `${day},${time}`;
+      },
+      getTime(timestamp) {
+        const dateTimeString = timestamp;
+        const date = new Date(dateTimeString);
+        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
+        return `${time}`;
       },
     },
 
@@ -302,6 +353,26 @@
         message: 'There are no syncs scheduled',
         context: 'Text to display when there is no schedule sync to be managed.',
       },
+      everyHour: {
+        message: 'Every hour',
+        context: 'Period for scheduling the sync between devices every hour',
+      },
+      everyDay: {
+        message: 'Every day',
+        context: 'Period for scheduling the sync between devices every day',
+      },
+      everyWeek: {
+        message: 'Every week',
+        context: 'Period for scheduling the sync between devices every week',
+      },
+      everyMonth: {
+        message: 'Every month',
+        context: 'Period for scheduling the sync between devices every month',
+      },
+      everyTwoWeeks: {
+        message: 'Every two weeks',
+        context: 'Period for scheduling the sync between devices every two weeks',
+      },
     },
   };
 
@@ -309,19 +380,18 @@
 
 
 <style scoped>
-.separate{
-  margin-bottom:35px;
-  margin-top:35px;
+.separate {
+  margin-bottom: 35px;
+  margin-top: 35px;
 }
-.add-space{
-  margin:4px;
+.add-space {
+  margin: 4px;
 }
 .right {
   position: absolute;
   right: 50px;
 }
-.loader-size{
-  margin-top:10px
+.loader-size {
+  margin-top: 10px;
 }
-
 </style>
