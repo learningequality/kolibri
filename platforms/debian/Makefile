@@ -44,10 +44,10 @@ kolibri.changes: dist/%.orig.tar.gz
 # Both gpg key and git credentials must be set up for this to work
 .PHONY: commit-new-release
 commit-new-release: kolibri.changes
-	find dist -name *.changes -exec dput ppa:learningequality/kolibri-proposed {} \;
-	find dist -name changelog -exec cp {} debian \;
-	git commit -a -m "New release: $(shell cat dist/VERSION)"
-	git push
+	find dist -name *.changes -exec dput --unchecked ppa:learningequality/kolibri-proposed {} \;
+	# find dist -name changelog -exec cp {} debian \;
+	# git commit -a -m "New release: $(shell cat dist/VERSION)"
+	# git push
 
 .PHONY:
 clean-tar:

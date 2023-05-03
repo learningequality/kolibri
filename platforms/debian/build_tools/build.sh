@@ -1,6 +1,6 @@
 #! /usr/bin/env bash
 
-set -exo pipefail
+set -eo pipefail
 # set -euxo pipefail
 # removed -u because it was causing an error when reading VIRTUAL_ENV from the environment
 
@@ -23,12 +23,86 @@ signfile () {
 }
 
 signfiles(){
-    local file="$1"
+    local file=../"$1"
     signfile "$file".dsc
+    fixup_buildinfo "$file".dsc "$file"_source.buildinfo
     signfile "$file"_source.buildinfo
+    fixup_changes dsc "$file".dsc "$file"_source.changes
+    fixup_changes buildinfo "$file"_source.buildinfo "$file"_source.changes
     signfile "$file"_source.changes
 }
 
+fixup_control() {
+    # This code has been copied from the debsign utility included in the devscripts package
+    local filter_out="$1"
+    local childtype="$2"
+    local parenttype="$3"
+    local child="$4"
+    local parent="$5"
+    test -r "$child" || {
+	echo "$PROGNAME: Can't read .$childtype file $child!" >&2
+	return 1
+    }
+
+    local md5=$(md5sum "$child" | cut -d' ' -f1)
+    local sha1=$(sha1sum "$child" | cut -d' ' -f1)
+    local sha256=$(sha256sum "$child" | cut -d' ' -f1)
+    perl -i -pe 'BEGIN {
+    '" \$file='$child'; \$md5='$md5'; "'
+    '" \$sha1='$sha1'; \$sha256='$sha256'; "'
+    $size=(-s $file); ($base=$file) =~ s|.*/||;
+    $infiles=0; $inmd5=0; $insha1=0; $insha256=0; $format="";
+    }
+    if(/^Format:\s+(.*)/) {
+	$format=$1;
+	die "Unrecognised .$parenttype format: $format\n"
+	    unless $format =~ /^\d+(\.\d+)*$/;
+	($major, $minor) = split(/\./, $format);
+	$major+=0;$minor+=0;
+	die "Unsupported .$parenttype format: $format\n"
+	    if('"$filter_out"');
+    }
+    /^Files:/i && ($infiles=1,$inmd5=0,$insha1=0,$insha256=0);
+    if(/^Checksums-Sha1:/i) {$insha1=1;$infiles=0;$inmd5=0;$insha256=0;}
+    elsif(/^Checksums-Sha256:/i) {
+	$insha256=1;$infiles=0;$inmd5=0;$insha1=0;
+    } elsif(/^Checksums-Md5:/i) {
+	$inmd5=1;$infiles=0;$insha1=0;$insha256=0;
+    } elsif(/^Checksums-.*?:/i) {
+	die "Unknown checksum format: $_\n";
+    }
+    /^\s*$/ && ($infiles=0,$inmd5=0,$insha1=0,$insha256=0);
+    if ($infiles &&
+	/^ (\S+) (\d+) (\S+) (\S+) \Q$base\E\s*$/) {
+	$_ = " $md5 $size $3 $4 $base\n";
+	$infiles=0;
+    }
+    if ($inmd5 &&
+	/^ (\S+) (\d+) \Q$base\E\s*$/) {
+        $_ = " $md5 $size $base\n";
+        $inmd5=0;
+    }
+    if ($insha1 &&
+	/^ (\S+) (\d+) \Q$base\E\s*$/) {
+	$_ = " $sha1 $size $base\n";
+	$insha1=0;
+    }
+    if ($insha256 &&
+	/^ (\S+) (\d+) \Q$base\E\s*$/) {
+	$_ = " $sha256 $size $base\n";
+	$insha256=0;
+    }' "$parent"
+}
+
+fixup_buildinfo() {
+    fixup_control '($major != 0 or $minor > 2) and ($major != 1 or $minor > 0)' dsc buildinfo "$@"
+}
+
+fixup_changes() {
+    local childtype="$1"
+    shift
+    fixup_control '$major!=1 or $minor > 8 or $minor < 7' $childtype changes "$@"
+}
 
 BUILD_BINARY=1
 
