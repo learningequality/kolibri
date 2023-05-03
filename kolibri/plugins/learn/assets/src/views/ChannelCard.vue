@@ -21,9 +21,9 @@
         dir="auto"
         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
-        <TextTruncator
+        <TextTruncatorCss
           :text="title"
-          :maxHeight="titleHeight"
+          :maxLines="2"
           :showTooltip="true"
         />
       </h3>
@@ -43,9 +43,9 @@
           span="3"
           alignment="auto"
         >
-          <TextTruncator
+          <TextTruncatorCss
             :text="tagline"
-            :maxHeight="taglineHeight"
+            :maxLines="4"
             :showTooltip="false"
           />
         </KFixedGridItem>
@@ -84,7 +84,7 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -92,7 +92,7 @@
     components: {
       ChannelThumbnail,
       CoachContentLabel,
-      TextTruncator,
+      TextTruncatorCss,
     },
     mixins: [responsiveWindowMixin],
     props: {
@@ -152,12 +152,6 @@
           marginBottom: `${this.windowGutter}px`,
           minHeight: `${this.overallHeight}px`,
         };
-      },
-      titleHeight() {
-        return 60;
-      },
-      taglineHeight() {
-        return 155;
       },
       versionStyle() {
         return {
