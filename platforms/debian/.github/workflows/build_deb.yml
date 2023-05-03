@@ -65,7 +65,7 @@ jobs:
     - name: Get DEB filename
       id: get-deb-filename
       run: echo "::set-output name=deb-file-name::$(ls dist | grep .deb | cat)"
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
         path: dist/${{ steps.get-deb-filename.outputs.deb-file-name }}
