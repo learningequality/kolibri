@@ -1,5 +1,3 @@
-import appCapabilities from 'kolibri.utils.appCapabilities';
-
 export default {
   state: {
     connected: true,
@@ -26,13 +24,6 @@ export default {
     },
     CORE_SET_RECONNECT_TIME(state, reconnectTime) {
       state.reconnectTime = reconnectTime;
-    },
-  },
-  actions: {
-    updateMeteredStatus(store) {
-      appCapabilities.checkIsMetered().then(response => {
-        store.commit('CORE_SET_METERED', response.data.value);
-      });
     },
   },
 };
