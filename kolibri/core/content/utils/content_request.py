@@ -1,5 +1,4 @@
 import logging
-import os
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
@@ -157,8 +156,8 @@ def _total_size(*querysets):
     """
     total_size = 0
     for queryset in querysets:
-        total_size += queryset.aggregate(total_size=Sum("total_size")).get(
-            "total_size", 0
+        total_size += (
+            queryset.aggregate(total_size=Sum("total_size")).get("total_size", 0) or 0
         )
     return total_size
 
@@ -198,16 +197,37 @@ def incomplete_downloads_queryset():
     )
 
 
-def _get_content_storage_space():
+def completed_downloads_queryset():
     """
-    Calculates and returns the total space used for content storage
+    Returns a queryset used to determine the completed downloads, with and without metadata, as
+    well as the total import size if it does have metadata
     """
-    size = 0
-    for path, dirs, files in os.walk(OPTIONS["Paths"]["CONTENT_DIR"]):
-        for f in files:
-            fp = os.path.join(path, f)
-            size += os.path.getsize(fp)
-    return size
+    return (
+        ContentDownloadRequest.objects.filter(status__in=ContentRequestStatus.Completed)
+        .order_by("requested_at")
+        .annotate(
+            has_metadata=Exists(
+                ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
+            ),
+            total_size=_total_size_of_imported_files_annotation(),
+        )
+    )
+
+
+def _total_size_of_imported_files_annotation():
+    """
+    Returns a subquery to determine the total size of imported files
+    """
+    return Subquery(
+        File.objects.filter(
+            Q(contentnode_id=OuterRef("contentnode_id"))
+            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
+            & Q(local_file__available=True)
+        )
+        .annotate(total_size=Sum("local_file__file_size"))
+        .values("total_size"),
+        output_field=BigIntegerField(),
+    )
 
 
 class InsufficientStorage(Exception):
@@ -384,13 +404,13 @@ def _process_content_requests(incomplete_downloads):
     while incomplete_downloads_with_metadata.exists():
         # if a limit is set, subtract the total content storage size from the limit to get free space
         if get_device_setting("set_limit_for_autodownload", False):
-            # compute total space used for content storage
-            content_storage_size = _get_content_storage_space()
+            # compute total space used by automatic and learner initiated downloads
+            completed_downloads_size = _total_size(completed_downloads_queryset())
             # convert limit_for_autodownload from GB to bytes
             auto_download_limit = bytes_from_humans(
                 str(get_device_setting("limit_for_autodownload", "0")) + "GB"
             )
-            free_space = auto_download_limit - content_storage_size
+            free_space = auto_download_limit - completed_downloads_size
         else:
             free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
 
