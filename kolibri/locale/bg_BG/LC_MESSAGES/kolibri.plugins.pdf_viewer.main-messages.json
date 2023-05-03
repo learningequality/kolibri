@@ -1,7 +1,7 @@
 {
-  "BookmarkItem.expand": "",
-  "Bookmarks.bookmarksSection": "",
-  "PdfPage.numPage": "",
+  "BookmarkItem.expand": "Разшири отметката",
+  "Bookmarks.bookmarksSection": "Раздел с отметки. Можеш да превключваш между pdf документа и секцията с отметки, като натиснеш shift + enter.",
+  "PdfPage.numPage": "Страница {number} от {total}",
   "PdfRendererIndex.enterFullscreen": "Влез в режим на цял екран",
   "PdfRendererIndex.exitFullscreen": "Изход от режима на цял екран"
 }
