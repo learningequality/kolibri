@@ -85,7 +85,7 @@
                     />
                   </span>
                   &nbsp;&nbsp;
-                  {{ $tr('showingAllLibraries') }}
+                  <span>{{ $tr('showingAllLibraries').slice(0, -1) }}</span>
                   &nbsp;&nbsp;
                   <KButton
                     :text="coreString('refresh')"
