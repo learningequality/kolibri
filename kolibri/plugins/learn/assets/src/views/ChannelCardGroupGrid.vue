@@ -36,13 +36,13 @@
     },
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         genContentLinkBackLinkCurrentPage,
-        windowBreakpoint,
         windowIsSmall,
       };
     },
+    inject: ['$layoutSpan'],
     props: {
       contents: {
         type: Array,
@@ -60,13 +60,7 @@
     },
     computed: {
       layoutSpan() {
-        let span = 3;
-        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
-          span = 4;
-        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 6;
-        }
-        return span;
+        return this.$layoutSpan();
       },
     },
     methods: {

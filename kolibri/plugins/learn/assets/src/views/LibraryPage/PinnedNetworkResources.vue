@@ -53,11 +53,9 @@
     mixins: [commonCoreStrings],
     setup() {
       const { genLibraryPageBackLink } = useContentLink();
-      const { windowBreakpoint, windowGutter, windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         genLibraryPageBackLink,
-        windowBreakpoint,
-        windowGutter,
         windowIsSmall,
       };
     },
@@ -71,19 +69,14 @@
       },
     },
     computed: {
+      layoutSpan() {
+        return this.$layoutSpan();
+      },
       exploreString() {
         return this.coreString('explore');
       },
-      layoutSpan() {
-        let span = 3;
-        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
-          span = 4;
-        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 6;
-        }
-        return span;
-      },
     },
+    inject: ['$layoutSpan'],
     methods: {
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {
