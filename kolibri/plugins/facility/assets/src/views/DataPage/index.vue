@@ -3,6 +3,17 @@
   <FacilityAppBarPage>
 
     <KPageContainer v-if="canUploadDownloadFiles">
+      <p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{
+            name: facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'DataPage' }
+          }"
+          icon="back"
+          :text="coreString('changeLearningFacility')"
+        />
+      </p>
       <KGrid gutter="24">
 
         <KGridItem>
@@ -227,7 +238,7 @@
         'inSummaryCSVCreation',
         'firstLogDate',
       ]),
-      ...mapGetters(['activeFacilityId']),
+      ...mapGetters(['activeFacilityId', 'userIsMultiFacilityAdmin', 'facilityPageLinks']),
       ...mapState('manageCSV', ['sessionDateCreated', 'summaryDateCreated']),
       // NOTE: We disable CSV file upload/download on embedded web views like the Mac
       // and Android apps

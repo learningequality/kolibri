@@ -6,9 +6,12 @@
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
-          :to="facilityPageLinks.AllFacilitiesPage"
+          :to="{
+            name: facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'ManageClassPage' }
+          }"
           icon="back"
-          :text="coreString('allFacilitiesLabel')"
+          :text="coreString('changeLearningFacility')"
         />
       </p>
       <KGrid>

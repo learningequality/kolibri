@@ -1,4 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -29,6 +30,7 @@ export default [
     name: PageNames.ALL_FACILITIES_PAGE,
     path: '/facilities',
     component: AllFacilitiesPage,
+    props: true,
     handler() {
       store.dispatch('preparePage', { isAsync: false });
     },
@@ -41,7 +43,14 @@ export default [
     path: '/:facility_id?/classes',
     component: ManageClassPage,
     handler: toRoute => {
-      showClassesPage(store, toRoute);
+      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+        return router.replace({
+          name: 'ALL_FACILITIES_PAGE',
+          params: { subtopicName: 'ManageClassPage' },
+        });
+      } else {
+        showClassesPage(store, toRoute);
+      }
     },
   },
   {
@@ -73,7 +82,14 @@ export default [
     component: UserPage,
     path: '/:facility_id?/users',
     handler: (toRoute, fromRoute) => {
+      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+        return router.replace({
+          name: 'ALL_FACILITIES_PAGE',
+          params: { subtopicName: 'UserPage' },
+        });
+      } else {
       showUserPage(store, toRoute, fromRoute);
+      }
     },
   },
   {
@@ -96,8 +112,14 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     component: DataPage,
     path: '/:facility_id?/data',
-    handler: () => {
-      store.dispatch('preparePage', { isAsync: false });
+    handler: toRoute => {
+      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+        router.replace({
+          name: 'ALL_FACILITIES_PAGE',
+          params: { subtopicName: 'DataPage' },
+        });
+      } else {
+        store.dispatch('preparePage', { isAsync: false });}
     },
   },
   {
@@ -113,7 +135,14 @@ export default [
     component: FacilitiesConfigPage,
     path: '/:facility_id?/settings',
     handler: toRoute => {
-      showFacilityConfigPage(store, toRoute);
+      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+        router.replace({
+          name: 'ALL_FACILITIES_PAGE',
+          params: { subtopicName: 'FacilitiesConfigPage' },
+        });
+      } else {
+        showFacilityConfigPage(store, toRoute);
+      }
     },
   },
   {

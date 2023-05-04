@@ -5,6 +5,17 @@
       data-test="page-container"
       :style="{ marginBottom: '42px' }"
     >
+      <p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{
+            name: facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'FacilitiesConfigPage' }
+          }"
+          icon="back"
+          :text="coreString('changeLearningFacility')"
+        />
+      </p>
       <div class="mb">
         <h1>{{ $tr('pageHeader') }}</h1>
         <p>
@@ -278,7 +289,7 @@
         'facilityNameSaved',
         'facilityNameError',
       ]),
-      ...mapGetters(['isAppContext', 'isSuperuser']),
+      ...mapGetters(['isAppContext', 'isSuperuser', 'userIsMultiFacilityAdmin', 'facilityPageLinks']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
