@@ -120,7 +120,7 @@ jobs:
       uses: actions/download-artifact@v3
       with:
         path: dist
-    - uses: 'google-github-actions/auth@v0'
+    - uses: 'google-github-actions/auth@v1'
       with:
         credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
     - name: 'Set up Cloud SDK'
