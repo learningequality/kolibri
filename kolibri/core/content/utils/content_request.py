@@ -62,7 +62,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     if transfer_session is None and dataset_id is None:
         raise ValueError("Either dataset_id or transfer_session_id is required")
 
-    assignments = ContentAssignmentManager.find_all_assignments(
+    assignments = ContentAssignmentManager.find_all_downloadable_assignments(
         dataset_id=dataset_id,
         transfer_session_id=transfer_session.id if transfer_session else None,
     )
