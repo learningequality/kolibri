@@ -402,7 +402,9 @@ def _process_content_requests(incomplete_downloads):
 
     # loop while we have pending downloads
     while incomplete_downloads_with_metadata.exists():
-        # if a limit is set, subtract the total content storage size from the limit to get free space
+        free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
+
+        # if a limit is set, subtract the total content storage size from the limit
         if get_device_setting("set_limit_for_autodownload", False):
             # compute total space used by automatic and learner initiated downloads
             completed_downloads_size = _total_size(completed_downloads_queryset())
@@ -410,9 +412,8 @@ def _process_content_requests(incomplete_downloads):
             auto_download_limit = bytes_from_humans(
                 str(get_device_setting("limit_for_autodownload", "0")) + "GB"
             )
-            free_space = auto_download_limit - completed_downloads_size
-        else:
-            free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
+            # returning smallest argument as to not exceed the space available on disk
+            free_space = min(free_space, auto_download_limit - completed_downloads_size)
 
         # grab the next request that will fit within current free space
         download_request = incomplete_downloads_with_metadata.filter(
