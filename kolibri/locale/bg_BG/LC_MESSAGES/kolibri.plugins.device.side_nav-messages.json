@@ -2,10 +2,10 @@
   "CommonDeviceStrings.deviceManagementTitle": "Устройство",
   "CommonDeviceStrings.emptyTasksMessage": "Няма задачи за показване",
   "CommonDeviceStrings.newChannelLabel": "Нов",
-  "CommonDeviceStrings.newEnabledPluginsState": "",
+  "CommonDeviceStrings.newEnabledPluginsState": "Когато махнеш отметката от страница, тя ще стане невидима за потребителите, дори ако имат разрешение за достъп до нея.",
   "CommonDeviceStrings.newResourceLabel": "Нов",
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Няма достатъчно място на устройството. Освободи място или избери по-малко материали",
   "CommonDeviceStrings.permissionsLabel": "Разрешения",
-  "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.primaryStorageLabel": "Новоизтеглените ресурси ще бъдат добавени към основното хранилище",
   "CommonDeviceStrings.unlistedChannelLabel": "Скрит канал"
 }

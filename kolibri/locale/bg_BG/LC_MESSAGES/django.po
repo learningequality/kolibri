@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-14 16:32-0700\n"
-"PO-Revision-Date: 2023-04-05 22:11\n"
+"PO-Revision-Date: 2023-05-03 20:43\n"
 "Last-Translator: \n"
 "Language-Team: Bulgarian\n"
 "Language: bg_BG\n"
@@ -19,7 +19,7 @@ msgstr ""
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
-msgstr "Неочаквано грешка [{}]: {}"
+msgstr "Неочаквана грешка [{}]: {}"
 
 #: core/auth/constants/commands_errors.py:20
 msgctxt "Error report message when the allowed number of digits has been exceeded."
@@ -175,13 +175,13 @@ msgstr "Идентификационният номер на базата дан
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
 #: core/auth/tasks.py:63
 msgid "Data syncing in progress"
-msgstr ""
+msgstr "Извършва се синхронизиране"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
 #: core/auth/tasks.py:67
 msgid "Do not disconnect your device from the network."
-msgstr ""
+msgstr "Не изключвай устройството си от мрежата."
 
 #: core/content/api.py:352
 msgid "Resource"
@@ -199,17 +199,17 @@ msgstr "Неизвестен формат"
 #. either with new resources, or unwanted resources being deleted.
 #: core/content/tasks.py:46
 msgid "Updating your library"
-msgstr ""
+msgstr "Актуализиране на твоята библиотека"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
 #: core/content/tasks.py:49
 msgid "Library updated"
-msgstr ""
+msgstr "Актуализацията на библиотеката завърши"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
 #: core/content/tasks.py:52
 msgid "Library update failed"
-msgstr ""
+msgstr "Библиотеката не успя да се актуализира"
 
 #: core/device/serializers.py:43
 msgid "Language is not supported by Kolibri"
@@ -218,12 +218,12 @@ msgstr "Този език не се поддържа от Колибри"
 #. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:11
 msgid "Searching"
-msgstr ""
+msgstr "Търсене…"
 
 #. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
 #: core/device/task_notifications.py:13
 msgid "Looking for other Kolibri devices"
-msgstr ""
+msgstr "Търсене на други Колибри устройства"
 
 #: core/logger/csv_export.py:69
 msgid "Facility name"
@@ -235,52 +235,52 @@ msgstr "Потребителско име"
 
 #: core/logger/csv_export.py:71
 msgid "Channel id"
-msgstr ""
+msgstr "Идентификатор на канала"
 
 #: core/logger/csv_export.py:72
 msgid "Channel name"
-msgstr ""
+msgstr "Име на канала"
 
 #: core/logger/csv_export.py:73
 msgid "Content id"
-msgstr ""
+msgstr "Идентификатор на съдържанието"
 
 #: core/logger/csv_export.py:74
 msgid "Content title"
-msgstr ""
+msgstr "Име на съдържанието"
 
 #: core/logger/csv_export.py:79
 msgctxt "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
-msgstr ""
+msgstr "Време на първото взаимодействие"
 
 #: core/logger/csv_export.py:86
 msgctxt "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
-msgstr ""
+msgstr "Време на последното взаимодействие"
 
 #: core/logger/csv_export.py:93
 msgctxt "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
-msgstr ""
+msgstr "Време на завършване"
 
 #: core/logger/csv_export.py:100
 msgctxt "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
-msgstr ""
+msgstr "Прекарано време (сек)"
 
 #: core/logger/csv_export.py:103
 msgid "Progress (0-1)"
-msgstr ""
+msgstr "Напредък (0-1)"
 
 #: core/logger/csv_export.py:104
 msgid "Content kind"
-msgstr ""
+msgstr "Вид съдържание"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
 #: core/tasks/job.py:100
 msgid "Complete"
-msgstr ""
+msgstr "Завършено"
 
 #. Translators: Message shown to indicate that a background process has failed.
 #: core/tasks/job.py:103
@@ -290,13 +290,13 @@ msgstr "Неуспешно"
 #. Translators: Message shown to indicate that a background process has been cancelled.
 #: core/tasks/job.py:106
 msgid "Cancelled"
-msgstr ""
+msgstr "Прекратено"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
 #: core/tasks/job.py:109
 #, python-brace-format
 msgid "In progress - {percent}%"
-msgstr ""
+msgstr "В изпълнение - {percent}%"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
 #: core/tasks/job.py:113
@@ -310,23 +310,23 @@ msgstr "Колибри"
 
 #: core/templates/kolibri/loading_page.html:8
 msgid "Kolibri is starting"
-msgstr ""
+msgstr "Колибри се стартира"
 
 #: core/templates/kolibri/loading_page.html:87
 msgid "Starting Kolibri"
-msgstr ""
+msgstr "Стартиране на Колибри"
 
 #: core/templates/kolibri/loading_page.html:89
 msgid "You should be automatically redirected when Kolibri is ready"
-msgstr ""
+msgstr "Ще бъдеш автоматично пренасочен, когато Kolibri е готово"
 
 #: core/templates/kolibri/loading_page.html:90
 msgid "If not, please ask for help in our community forums"
-msgstr ""
+msgstr "Ако не се получи, моля, потърси помощ във форумите на нашата общност"
 
 #: core/templates/kolibri/loading_page.html:91
 msgid "Refresh page"
-msgstr ""
+msgstr "Презареждане на страница"
 
 #: core/templates/kolibri/unsupported_browser.html:42
 msgid "Unsupported browser"
@@ -359,17 +359,17 @@ msgstr "Институция"
 #: plugins/facility/views.py:151
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
 msgid "content_session_logs_from_"
-msgstr ""
+msgstr "съдържание_сесия_журнал_от_"
 
 #: plugins/facility/views.py:158 plugins/facility/views.py:176
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "to_"
-msgstr ""
+msgstr "към_"
 
 #: plugins/facility/views.py:169
 msgctxt "Default name for the exported CSV file with content summary logs. Please keep the underscores between words in the translation"
 msgid "content_summary_logs_from_"
-msgstr ""
+msgstr "съдържание_обобщен_журнал_от_"
 
 #: plugins/facility/views.py:187
 msgctxt "Default name for the exported CSV file of facility user data. Please keep the underscore between words in the translation"
@@ -382,7 +382,7 @@ msgstr "Научи"
 
 #: plugins/policies/kolibri_plugin.py:19
 msgid "Policies"
-msgstr ""
+msgstr "Политики"
 
 #: plugins/setup_wizard/kolibri_plugin.py:23
 msgid "Setup Wizard"
@@ -395,10 +395,10 @@ msgstr "Потребителски профил"
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
 #: plugins/user_profile/tasks.py:67
 msgid "Account transfer in progress"
-msgstr ""
+msgstr "Извършва се прехвърляне на профила"
 
 #: plugins/user_profile/tasks.py:70
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
-msgstr ""
+msgstr "Прехвърляне на {learner_name} към учебна институция {facility_name}"
 
