@@ -1,7 +1,7 @@
 <template>
 
   <span
-    v-if="isReference || displayPreciseDuration || displayEstimatedDuration"
+    v-if="isReference || displayPreciseDuration || displayEstimatedDuration || exerciseDescription"
     :class="[ appearance === 'chip' ? 'chip' : '']"
     :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted } : {}]"
   >
@@ -14,6 +14,9 @@
     />
     <template v-else-if="displayEstimatedDuration">
       {{ durationEstimation }}
+    </template>
+    <template v-else-if="exerciseDescription">
+      {{ exerciseDescription }}
     </template>
   </span>
 
@@ -48,6 +51,7 @@
         displayEstimatedDuration,
         durationInSeconds,
         durationEstimation,
+        exerciseDescription,
       } = useLearningActivities(props.contentNode);
 
       return {
@@ -57,6 +61,7 @@
         displayEstimatedDuration,
         durationInSeconds,
         durationEstimation,
+        exerciseDescription,
       };
     },
     props: {

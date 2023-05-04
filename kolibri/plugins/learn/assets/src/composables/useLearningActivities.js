@@ -133,6 +133,30 @@ export default function useLearningActivities(contentNode) {
   });
 
   /**
+   * @returns {String} Returns the translated exercise type(Practice Quiz or other)
+   */
+  const exerciseDescription = computed(() => {
+    const isPracticeQuiz = lodashGet(contentNode, ['options', 'modality'], false) === 'QUIZ';
+    const assessmentmetadata_mastery_model = lodashGet(
+      contentNode,
+      ['assessmentmetadata', 'mastery_model'],
+      false
+    );
+
+    if (assessmentmetadata_mastery_model) {
+      if (assessmentmetadata_mastery_model.type == 'do_all' && isPracticeQuiz) {
+        return coreStrings.$tr('practiceQuizLabel');
+      } else if (assessmentmetadata_mastery_model.type.match(/num_correct_in_a_row_\d+/)) {
+        const count = assessmentmetadata_mastery_model.type.match(/\d+/)[0];
+        return coreStrings.$tr('shortExerciseGoalDescription', { count: count });
+      } else {
+        const m = assessmentmetadata_mastery_model.m;
+        return coreStrings.$tr('shortExerciseGoalDescription', { count: m });
+      }
+    }
+  });
+
+  /**
    * @param {String} learningActivity A learning activity constant
    * @returns {String} A translated label for the learning activity
    */
@@ -158,6 +182,7 @@ export default function useLearningActivities(contentNode) {
     displayEstimatedDuration,
     durationInSeconds,
     durationEstimation,
+    exerciseDescription,
     getLearningActivityLabel,
     getLearningActivityIcon,
   };
