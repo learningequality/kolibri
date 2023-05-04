@@ -25,6 +25,7 @@ from kolibri.core.content.utils.resource_import import (
 )
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
@@ -33,6 +34,7 @@ from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseF
 from kolibri.core.utils.urls import reverse_path
 from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
+from kolibri.utils.data import bytes_from_humans
 from kolibri.utils.system import get_free_space
 
 
@@ -154,8 +156,8 @@ def _total_size(*querysets):
     """
     total_size = 0
     for queryset in querysets:
-        total_size += queryset.aggregate(total_size=Sum("total_size")).get(
-            "total_size", 0
+        total_size += (
+            queryset.aggregate(total_size=Sum("total_size")).get("total_size", 0) or 0
         )
     return total_size
 
@@ -192,6 +194,39 @@ def incomplete_downloads_queryset():
             ),
             total_size=_total_size_annotation(),
         )
+    )
+
+
+def completed_downloads_queryset():
+    """
+    Returns a queryset used to determine the completed downloads, with and without metadata, as
+    well as the total import size if it does have metadata
+    """
+    return (
+        ContentDownloadRequest.objects.filter(status__in=ContentRequestStatus.Completed)
+        .order_by("requested_at")
+        .annotate(
+            has_metadata=Exists(
+                ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
+            ),
+            total_size=_total_size_of_imported_files_annotation(),
+        )
+    )
+
+
+def _total_size_of_imported_files_annotation():
+    """
+    Returns a subquery to determine the total size of imported files
+    """
+    return Subquery(
+        File.objects.filter(
+            Q(contentnode_id=OuterRef("contentnode_id"))
+            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
+            & Q(local_file__available=True)
+        )
+        .annotate(total_size=Sum("local_file__file_size"))
+        .values("total_size"),
+        output_field=BigIntegerField(),
     )
 
 
@@ -367,8 +402,20 @@ def _process_content_requests(incomplete_downloads):
 
     # loop while we have pending downloads
     while incomplete_downloads_with_metadata.exists():
-        # grab the next request that will fit within current free space
         free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
+
+        # if a limit is set, subtract the total content storage size from the limit
+        if get_device_setting("set_limit_for_autodownload", False):
+            # compute total space used by automatic and learner initiated downloads
+            completed_downloads_size = _total_size(completed_downloads_queryset())
+            # convert limit_for_autodownload from GB to bytes
+            auto_download_limit = bytes_from_humans(
+                str(get_device_setting("limit_for_autodownload", "0")) + "GB"
+            )
+            # returning smallest argument as to not exceed the space available on disk
+            free_space = min(free_space, auto_download_limit - completed_downloads_size)
+
+        # grab the next request that will fit within current free space
         download_request = incomplete_downloads_with_metadata.filter(
             total_size__lte=free_space
         ).first()
