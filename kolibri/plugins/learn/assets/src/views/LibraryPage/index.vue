@@ -85,7 +85,7 @@
                     />
                   </span>
                   &nbsp;&nbsp;
-                  <span>{{ $tr('showingAllLibraries').slice(0, -1) }}</span>
+                  <span>{{ showingAllLibrariesLabel }}</span>
                   &nbsp;&nbsp;
                   <KButton
                     :text="coreString('refresh')"
@@ -398,6 +398,13 @@
         } else {
           return 346;
         }
+      },
+      showingAllLibrariesLabel() {
+        let label = this.$tr('showingAllLibraries');
+        if (label.slice(-1) === '.') {
+          label = label.slice(0, -1);
+        }
+        return label;
       },
       studioId() {
         return KolibriStudioId;
