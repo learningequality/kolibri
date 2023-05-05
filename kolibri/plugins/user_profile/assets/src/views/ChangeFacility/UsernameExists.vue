@@ -14,6 +14,7 @@
           <KButton
             :primary="false"
             :text="profileString('createAccount')"
+            :disabled="isCreateAccountButtonDisabled"
             appearance="flat-button"
             data-test="createButton"
             @click="to_create"
@@ -72,6 +73,12 @@
         },
       });
 
+      const isCreateAccountButtonDisabled = computed({
+        get() {
+          return !get(state, 'value.targetFacility.learner_can_sign_up', true);
+        },
+      });
+
       function to_create() {
         changeFacilityService.send({
           type: 'NEW',
@@ -84,7 +91,13 @@
         });
       }
 
-      return { mergeAccountInfoLine1, mergeAccountInfoLine2, to_create, to_merge };
+      return {
+        isCreateAccountButtonDisabled,
+        mergeAccountInfoLine1,
+        mergeAccountInfoLine2,
+        to_create,
+        to_merge,
+      };
     },
 
     $trs: {
