@@ -63,7 +63,6 @@
                       @select="manageSyncAction()"
                     />
                     <CoreMenuOption
-                      v-if="!facility.dataset.registered"
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
