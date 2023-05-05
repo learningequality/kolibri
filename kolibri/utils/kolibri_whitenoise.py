@@ -8,6 +8,7 @@ from wsgiref.headers import Headers
 from django.contrib.staticfiles import finders
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
+from django.utils.functional import cached_property
 from six.moves.urllib.parse import parse_qs
 from six.moves.urllib.parse import urljoin
 from whitenoise import WhiteNoise
@@ -220,33 +221,57 @@ class DynamicWhiteNoise(WhiteNoise):
         }
         kwargs.update(whitenoise_settings)
         super(DynamicWhiteNoise, self).__init__(application, **kwargs)
-        self.dynamic_finder = FileFinder(dynamic_locations or [])
+        self._dynamic_locations = dynamic_locations
+        self._writable_locations = writable_locations
+        self._app_paths = app_paths
+
+        if static_prefix is not None and not static_prefix.endswith("/"):
+            raise ValueError("Static prefix must end in '/'")
+        self.static_prefix = static_prefix
+
+    @cached_property
+    def app_path_check(self):
+        # Generate a regex to check if a path patches one of our app paths
+        return (
+            re.compile("^({})".format("|".join(self._app_paths)))
+            if self._app_paths
+            else None
+        )
+
+    @cached_property
+    def dynamic_finder(self):
+        return FileFinder(self._dynamic_locations or [])
+
+    @cached_property
+    def dynamic_check(self):
         # Generate a regex to check if a path matches one of our dynamic
         # location prefixes
-        self.dynamic_check = (
+        return (
             re.compile("^({})".format("|".join(self.dynamic_finder.prefixes)))
             if self.dynamic_finder.prefixes
             else None
         )
-        self.writable_locations = {}
-        if dynamic_locations:
-            for index in writable_locations:
+
+    @cached_property
+    def writable_locations(self):
+        result = {}
+        if self._dynamic_locations:
+            for index in self._writable_locations:
                 try:
                     prefix, root = self.dynamic_finder.locations[index]
-                    self.writable_locations[prefix] = root
+                    result[prefix] = root
                 except IndexError:
                     pass
-        self.writable_check = (
+        return result
+
+    @cached_property
+    def writable_check(self):
+        # Generate a regex to check if a path matches a writable location
+        return (
             re.compile("^({})".format("|".join(self.writable_locations.keys())))
             if self.writable_locations
             else None
         )
-        self.app_path_check = (
-            re.compile("^({})".format("|".join(app_paths))) if app_paths else None
-        )
-        if static_prefix is not None and not static_prefix.endswith("/"):
-            raise ValueError("Static prefix must end in '/'")
-        self.static_prefix = static_prefix
 
     def __call__(self, environ, start_response):
         path = decode_path_info(environ.get("PATH_INFO", ""))
@@ -322,12 +347,15 @@ class DynamicWhiteNoise(WhiteNoise):
             headers["Access-Control-Allow-Origin"] = "*"
         if self.add_headers_function:
             self.add_headers_function(headers, path, url)
-        return EndRangeStaticFile(
+        return self._create_end_range_static_file(
             path,
             headers.items(),
             stat_cache=stat_cache,
             encodings={"gzip": path + ".gz", "br": path + ".br"},
         )
+
+    def _create_end_range_static_file(self, path, headers, **kwargs):
+        return EndRangeStaticFile(path, headers, **kwargs)
 
     def get_streaming_static_file(self, url, remote_baseurl):
         """
@@ -348,8 +376,11 @@ class DynamicWhiteNoise(WhiteNoise):
         if self.add_headers_function:
             self.add_headers_function(headers, path, url)
         headers["Content-Encoding"] = ""
-        return StreamingStaticFile(
+        return self._create_streaming_range_static_file(
             os.path.join(local_dir, path),
             headers.items(),
             urljoin(remote_baseurl, url.lstrip("/")),
         )
+
+    def _create_streaming_range_static_file(self, path, headers, remote_url, **kwargs):
+        return StreamingStaticFile(path, headers, remote_url, **kwargs)
