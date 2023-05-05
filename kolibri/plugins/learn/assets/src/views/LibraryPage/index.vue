@@ -464,9 +464,6 @@
         }
         document.documentElement.style.position = '';
       },
-      windowBreakpoint(xx) {
-        console.log(xx);
-      },
     },
     created() {
       this.search();
