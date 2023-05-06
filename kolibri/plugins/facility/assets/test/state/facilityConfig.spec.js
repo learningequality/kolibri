@@ -27,12 +27,13 @@ const fakeDatasets = [
 
 const testCases = [
   {
-    description: 'single facility user with session.facility_id and no facility_id in toRoute params',
+    description:
+      'single facility user with session.facility_id and no facility_id in toRoute params',
     userIsMultiFacilityAdmin: false,
     toRoute: {
       params: {
         facility_id: '',
-      }
+      },
     },
     expectedResult: '1',
   },
@@ -42,7 +43,7 @@ const testCases = [
     toRoute: {
       params: {
         facility_id: '2',
-      }
+      },
     },
     expectedResult: '2',
   },
@@ -52,7 +53,7 @@ const testCases = [
     toRoute: {
       params: {
         facility_id: '3',
-      }
+      },
     },
     expectedResult: '3',
   },
@@ -84,15 +85,18 @@ describe('facility config page actions', () => {
   describe('showFacilityConfigPage action', () => {
     testCases.forEach(test => {
       beforeEach(() => {
-        const mockUserIsMultiFacilityAdmin =
-          jest.fn().mockReturnValueOnce(test.userIsMultiFacilityAdmin);
-        const mockActiveFacilityId =
-          jest.fn().mockReturnValueOnce(store.state.core.session.currentFacilityId);
+        const mockUserIsMultiFacilityAdmin = jest
+          .fn()
+          .mockReturnValueOnce(test.userIsMultiFacilityAdmin);
+
+        const mockActiveFacilityId = jest
+          .fn()
+          .mockReturnValueOnce(store.state.core.session.currentFacilityId);
 
         store.getters = {
           userIsMultiFacilityAdmin: mockUserIsMultiFacilityAdmin(),
-          activeFacilityId: mockActiveFacilityId()
-        }
+          activeFacilityId: mockActiveFacilityId(),
+        };
       });
 
       it(`should load resources successfully for ${test.description}`, () => {
@@ -120,7 +124,7 @@ describe('facility config page actions', () => {
 
         return showFacilityConfigPage(store, test.toRoute).then(() => {
           expect(FacilityDatasetResource.fetchCollection).toHaveBeenCalledWith({
-            getParams: {facility_id: test.expectedResult},
+            getParams: { facility_id: test.expectedResult },
           });
           expect(commitStub).toHaveBeenCalledWith(
             'facilityConfig/SET_STATE',

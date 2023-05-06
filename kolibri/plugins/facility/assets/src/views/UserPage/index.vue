@@ -149,7 +149,7 @@
         'currentUserId',
         'isSuperuser',
         'userIsMultiFacilityAdmin',
-        'facilityPageLinks'
+        'facilityPageLinks',
       ]),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,

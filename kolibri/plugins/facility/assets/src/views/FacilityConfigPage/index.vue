@@ -293,7 +293,7 @@
         'isAppContext',
         'isSuperuser',
         'userIsMultiFacilityAdmin',
-        'facilityPageLinks'
+        'facilityPageLinks',
       ]),
       settingsList: () => settingsList,
       settingsHaveChanged() {
