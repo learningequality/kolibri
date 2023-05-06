@@ -145,7 +145,12 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId', 'isSuperuser', 'userIsMultiFacilityAdmin', 'facilityPageLinks'] ),
+      ...mapGetters([
+        'currentUserId',
+        'isSuperuser',
+        'userIsMultiFacilityAdmin',
+        'facilityPageLinks'
+      ]),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,
       userKinds() {

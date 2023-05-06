@@ -73,8 +73,9 @@
     },
     methods: {
       facilityLink(facility) {
-        const link = cloneDeep(this.facilityPageLinks[this.subtopicName]
-          || this.facilityPageLinks.ManageClassPage);
+        const link = cloneDeep(
+          this.facilityPageLinks[this.subtopicName] || this.facilityPageLinks.ManageClassPage
+        );
 
         link.params.facility_id = facility.id;
         return link;

@@ -88,7 +88,7 @@ export default [
           params: { subtopicName: 'UserPage' },
         });
       } else {
-      showUserPage(store, toRoute, fromRoute);
+        showUserPage(store, toRoute, fromRoute);
       }
     },
   },
@@ -119,7 +119,8 @@ export default [
           params: { subtopicName: 'DataPage' },
         });
       } else {
-        store.dispatch('preparePage', { isAsync: false });}
+        store.dispatch('preparePage', { isAsync: false });
+      }
     },
   },
   {

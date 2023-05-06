@@ -30,7 +30,7 @@ export function generateNavRoute(rootUrl, pathReference, params = {}) {
   // if there are only optional params & they're not provided, build route without them
   if (onlyOptionalParams && missingOptionalParams) {
     const optionalPathReference = pathReference.slice(pathReference.indexOf('?') + 1);
-    compiledRoute = `${rootUrl}#${optionalPathReference}`
+    compiledRoute = `${rootUrl}#${optionalPathReference}`;
   }
 
   return compiledRoute;

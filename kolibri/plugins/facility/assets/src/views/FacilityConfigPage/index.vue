@@ -289,7 +289,12 @@
         'facilityNameSaved',
         'facilityNameError',
       ]),
-      ...mapGetters(['isAppContext', 'isSuperuser', 'userIsMultiFacilityAdmin', 'facilityPageLinks']),
+      ...mapGetters([
+        'isAppContext',
+        'isSuperuser',
+        'userIsMultiFacilityAdmin',
+        'facilityPageLinks'
+      ]),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
