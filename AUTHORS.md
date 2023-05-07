@@ -94,3 +94,6 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Akila Induranga | akila-i |
 | Sahajpreet Singh | photon0205 |
 | Nishant Shrivastva | shrinishant  |
+| Estela Bobadilla-Cruz | estelacruz |
+
+

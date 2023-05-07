@@ -105,7 +105,7 @@
         },
       });
       function cleanValue(value) {
-        return value === DemographicConstants.NOT_SPECIFIED ? '' : value;
+        return value === DemographicConstants.NOT_SPECIFIED ? '' : <KEmptyPlaceholder />;
       }
       function handleContinue() {
         changeFacilityService.send({
