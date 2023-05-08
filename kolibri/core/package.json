@@ -21,7 +21,7 @@
     "js-cookie": "^3.0.5",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.1.42",
-    "kolibri-design-system": "https://github.com/MisRob/kolibri-design-system#db526d2c40a12c121c9c6edc0898292d3936bd4d",
+    "kolibri-design-system": "https://github.com/MisRob/kolibri-design-system#134a8abc6d4f8fe3009608e869b21509ddd5bfd8",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",

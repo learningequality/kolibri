@@ -41,7 +41,7 @@
           <span ref="downloadingLoader">
             <KCircularLoader
               :show="isDownloading"
-              :freeze="3000"
+              :minVisibleTime="3000"
               data-test="downloadingLoader"
               :size="24"
               :style="{ margin: '10px 4px 0px 4px' }"
