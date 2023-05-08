@@ -40,7 +40,7 @@
           -->
           <span ref="downloadingLoader">
             <KCircularLoader
-              :show="showDownloadingLoader"
+              :show="isDownloading"
               :freeze="3000"
               data-test="downloadingLoader"
               :size="24"
@@ -133,7 +133,9 @@
                 v-for="action in menuActions"
                 :key="action.id"
                 :data-test="`menu_${action.dataTest}`"
+                :disabled="action.disabled"
                 :style="{ 'cursor': 'pointer' }"
+                :icon="action.icon"
                 @select="onActionClick(action.event)"
               >
                 <KLabeledIcon>
@@ -315,16 +317,15 @@
         default: false,
       },
       /**
-       * Shows the downloading loader when truthy
+       * Shows the downloading loader and disables download action when truthy
        */
-      showDownloadingLoader: {
+      isDownloading: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
        * Tooltip text for the downloading loader.
-       * Applies only when `showDownloadingLoader` truthy.
        */
       downloadingLoaderTooltip: {
         type: String,
@@ -346,6 +347,9 @@
 
       showMarkComplete() {
         return this.allowMarkComplete && this.contentProgress < 1;
+      },
+      disableDownloadButton() {
+        return this.isDownloading;
       },
       allActions() {
         const actions = [
@@ -375,9 +379,11 @@
           actions.push({
             id: 'download',
             icon: 'download',
+            iconColor: this.disableDownloadButton ? this.$themeTokens.textDisabled : null,
             label: this.coreString('downloadAction'),
             event: 'download',
             dataTest: 'downloadButton',
+            disabled: this.disableDownloadButton,
           });
         }
         if (this.showMarkComplete) {

@@ -296,10 +296,10 @@ describe('LearningActivityBar', () => {
         expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeFalsy();
       });
 
-      it(`shows the downloading loader for truthy 'showDownloadingLoader'`, () => {
+      it(`shows the downloading loader for truthy 'isDownloading'`, () => {
         const wrapper = makeWrapper({
           propsData: {
-            showDownloadingLoader: true,
+            isDownloading: true,
           },
         });
         expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeTruthy();

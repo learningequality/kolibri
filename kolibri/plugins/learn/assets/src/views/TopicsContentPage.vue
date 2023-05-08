@@ -24,7 +24,7 @@
       :contentKind="content.kind"
       :showBookmark="allowBookmark"
       :showDownloadButton="allowRemoteDownload"
-      :showDownloadingLoader="isDownloading"
+      :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
@@ -333,9 +333,7 @@
         return this.content.admin_imported || this.isDownloadedByLearner(this.content);
       },
       allowRemoteDownload() {
-        return (
-          this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && !this.isDownloading
-        );
+        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
       },
       allowBookmark() {
         return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
