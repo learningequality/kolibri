@@ -197,8 +197,11 @@ describe('TopicsContentPage', () => {
           assertBookmarkButtonIsNotDisplayed(wrapper);
         });
 
-        it(`instructs 'LearningActivityBar' to not show the download button`, () => {
-          assertDownloadButtonIsNotDisplayed(wrapper);
+        it(`instructs 'LearningActivityBar' to show the download button as disabled`, () => {
+          assertDownloadButtonIsDisplayed(wrapper);
+          expect(
+            wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('isdownloading')
+          ).toBeTruthy();
         });
       });
 
