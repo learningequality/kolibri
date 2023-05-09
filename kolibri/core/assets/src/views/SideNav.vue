@@ -104,6 +104,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  style="cursor: pointer;"
                   data-test="side-nav-component"
                 />
                 <LogoutSideNavEntry v-if="showLogout" />
@@ -619,6 +620,10 @@
   .logo {
     max-width: 100%;
     height: auto;
+  }
+
+  /deep/ .core-menu-option[data-v-e1ce0d72] {
+    cursor: pointer;
   }
 
 </style>
