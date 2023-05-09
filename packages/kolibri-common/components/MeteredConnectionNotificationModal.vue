@@ -36,7 +36,7 @@
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { checkCapability } from 'kolibri.utils.appCapabilities';
+  import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
@@ -53,12 +53,13 @@
         Options,
         selected: Options.DO_NOT_USE_METERED,
         loading: false,
+        activeConnectionIsMetered: false,
         extra_settings: {},
         dismissed: Boolean(window.sessionStorage.getItem(meteredNetworkModalDismissedKey)),
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'activeConnectionIsMetered']),
+      ...mapGetters(['isSuperuser']),
       displayMeteredConnectionWarning() {
         return (
           this.originalSettingDisallows &&
@@ -75,38 +76,33 @@
       },
     },
     mounted() {
-      // If we have the ability to check if the device is metered, then
-      // set up a poller to check every 5 seconds and set things up,
-      // otherwise this component will never be rendered anyway so no need to make the calls
       if (checkCapability('check_is_metered')) {
-        // Get status initially and poll every 5 seconds
-        this.$store.dispatch('updateMeteredStatus').then(() => {
-          window.setInterval(() => {
-            this.$store.dispatch('updateMeteredStatus');
-          }, 5000);
-        });
-
-        // Fetch the DeviceSettings#extra_settings value
-        // We need the whole thing because when we PATCH it later, the API will throw a fit
-        // if we only include one of the keys for the extra_settings object
         this.loading = true;
-        client({ method: 'GET', url: this.settingsUrl })
-          .then(({ data }) => {
-            console.log(data);
-            this.extra_settings = data.extra_settings;
-            this.selected = this.extra_settings.allow_download_on_metered_connection
-              ? Options.USE_METERED
-              : Options.DO_NOT_USE_METERED;
-          })
-          .catch(e => {
-            console.error(e);
-          })
-          .finally(() => (this.loading = false));
+
+        appCapabilities.checkIsMetered().then(isMetered => {
+          this.activeConnectionIsMetered = isMetered;
+
+          // Fetch the DeviceSettings#extra_settings value
+          // We need the whole thing because when we PATCH it later, the API will throw a fit
+          // if we only include one of the keys for the extra_settings object
+          client({ method: 'GET', url: this.settingsUrl })
+            .then(({ data }) => {
+              console.log('mounted', isMetered);
+              console.log(data);
+              this.extra_settings = data.extra_settings;
+              this.selected = this.extra_settings.allow_download_on_metered_connection
+                ? Options.USE_METERED
+                : Options.DO_NOT_USE_METERED;
+            })
+            .catch(e => {
+              console.error(e);
+            })
+            .finally(() => (this.loading = false));
+        });
       }
     },
     methods: {
       submit() {
-        console.log('submitting', this.selected);
         this.$emit('submit', this.selected);
 
         const allow_download_on_metered_connection = this.selected === Options.USE_METERED;

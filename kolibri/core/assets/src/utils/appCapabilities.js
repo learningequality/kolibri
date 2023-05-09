@@ -25,15 +25,15 @@ export default {
    */
   checkIsMetered() {
     if (!checkCapability('check_is_metered')) {
-      return Promise.resolve({ data: { value: null } });
+      return Promise.resolve(null);
     }
 
     const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
-    if (!urlFunction) {
+    if (!urlFunction || !checkCapability('check_is_metered')) {
       logging.warn('Checking if the device is metered is not supported on this platform');
-      return Promise.reject();
+      return Promise.resolve(null);
     }
-    return client({ url: urlFunction(), method: 'GET' });
+    return client({ url: urlFunction(), method: 'GET' }).then(response => response.data.value);
   },
   get shareFile() {
     if (!checkCapability('share_file')) {

@@ -1,5 +1,4 @@
 import debounce from 'lodash/debounce';
-import appCapabilities from 'kolibri.utils.appCapabilities';
 import pick from 'lodash/pick';
 import client from 'kolibri.client';
 import logger from 'kolibri.lib.logging';
@@ -216,11 +215,6 @@ export function getNotifications(store) {
       });
   }
   return Promise.resolve();
-}
-export function updateMeteredStatus(store) {
-  appCapabilities.checkIsMetered().then(response => {
-    store.commit('CORE_SET_METERED', response.data.value);
-  });
 }
 
 export function saveDismissedNotification(store, notification_id) {
