@@ -85,7 +85,7 @@
                     />
                   </span>
                   &nbsp;&nbsp;
-                  {{ $tr('showingAllLibraries') }}
+                  <span>{{ showingAllLibrariesLabel }}</span>
                   &nbsp;&nbsp;
                   <KButton
                     :text="coreString('refresh')"
@@ -379,6 +379,30 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px` }
           : { marginLeft: `${this.sidePanelWidth + 24}px` };
       },
+      layoutSpan() {
+        /**
+         * The breakpoints below represent the window widths
+         * 0: < 480px  | Small screen  | 4 columns
+         * 1: < 600px  | Small screen  | 4 columns
+         * 2: < 840px  | Medium screen | 8 columns
+         * 3: < 960px  | Large screen  | 12 columns
+         * 4: < 1280px | Large screen  | 12 columns
+         * 5: < 1440px | Large screen  | 12 columns
+         * 6: < 1600px | Large screen  | 12 columns
+         *
+         * On resize, display X cards per row where:
+         * X = total columns in grid / column span for each card.
+         * For example, if the total number of columns is 12, and
+         * column span for each cards is 4, then X is 3.
+         */
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
+      },
       pinnedDevices() {
         return this.devicesWithChannels.filter(device => {
           return (
@@ -399,6 +423,13 @@
           return 346;
         }
       },
+      showingAllLibrariesLabel() {
+        let label = this.$tr('showingAllLibraries');
+        if (label.slice(-1) === '.') {
+          label = label.slice(0, -1);
+        }
+        return label;
+      },
       studioId() {
         return KolibriStudioId;
       },
@@ -416,6 +447,11 @@
       usersPinsDeviceIds() {
         return this.usersPins.map(pin => pin.instance_id);
       },
+    },
+    provide() {
+      return {
+        $layoutSpan: () => this.layoutSpan,
+      };
     },
     watch: {
       searchTerms() {

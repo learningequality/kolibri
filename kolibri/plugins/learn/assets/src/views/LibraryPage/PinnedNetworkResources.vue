@@ -19,11 +19,7 @@
         :contents="device.channels"
         :isRemote="true"
       >
-        <KGridItem
-          :layout12="{ span: 3 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 4 }"
-        >
+        <KGridItem :layout="{ span: layoutSpan }">
           <ChannelCard
             :key="exploreString.toLowerCase()"
             :isMobile="windowIsSmall"
@@ -43,7 +39,6 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useContentLink from '../../composables/useContentLink';
   import ChannelCard from '../ChannelCard';
@@ -55,13 +50,13 @@
       ChannelCard,
       ChannelCardGroupGrid,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const { genLibraryPageBackLink } = useContentLink();
-      const { windowGutter } = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         genLibraryPageBackLink,
-        windowGutter,
+        windowIsSmall,
       };
     },
     props: {
@@ -74,10 +69,14 @@
       },
     },
     computed: {
+      layoutSpan() {
+        return this.$layoutSpan();
+      },
       exploreString() {
         return this.coreString('explore');
       },
     },
+    inject: ['$layoutSpan'],
     methods: {
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {

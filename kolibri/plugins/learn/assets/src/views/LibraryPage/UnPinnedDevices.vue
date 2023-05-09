@@ -129,6 +129,7 @@
 
     position: relative;
     width: 100%;
+    padding: 16px;
     margin-bottom: 24px;
     text-decoration: none;
     vertical-align: top;

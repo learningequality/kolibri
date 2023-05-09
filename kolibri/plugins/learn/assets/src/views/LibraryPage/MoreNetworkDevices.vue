@@ -5,9 +5,7 @@
       <KGridItem
         v-for="device in devices"
         :key="device.id"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
           :device="device"
@@ -17,9 +15,7 @@
       <KGridItem
         v-if="devices.length"
         key="view-all"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
           :device="{}"
@@ -51,10 +47,16 @@
         genLibraryPageBackLink,
       };
     },
+    inject: ['$layoutSpan'],
     props: {
       devices: {
         type: Array,
         required: true,
+      },
+    },
+    computed: {
+      layoutSpan() {
+        return this.$layoutSpan();
       },
     },
   };

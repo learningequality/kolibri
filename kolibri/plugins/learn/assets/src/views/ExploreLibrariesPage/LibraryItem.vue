@@ -56,9 +56,7 @@
       <KGridItem
         v-for="channel in channels"
         :key="channel.id"
-        :layout12="{ span: 3 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 4 }"
+        :layout="{ span: layoutSpan }"
       >
         <ChannelCard
           :title="channel.name"
@@ -89,11 +87,12 @@
     mixins: [commonCoreStrings],
     setup() {
       const { genContentLinkBackLinkCurrentPage, genLibraryPageBackLink } = useContentLink();
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowIsSmall, windowBreakpoint } = useKResponsiveWindow();
 
       return {
         genContentLinkBackLinkCurrentPage,
         genLibraryPageBackLink,
+        windowBreakpoint,
         windowIsSmall,
       };
     },
@@ -138,6 +137,32 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+    },
+    computed: {
+      layoutSpan() {
+        /**
+         * The breakpoints below represent the window widths
+         * 0: < 480px  | Small screen  | 4 columns
+         * 1: < 600px  | Small screen  | 4 columns
+         * 2: < 840px  | Medium screen | 8 columns
+         * 3: < 960px  | Large screen  | 12 columns
+         * 4: < 1280px | Large screen  | 12 columns
+         * 5: < 1440px | Large screen  | 12 columns
+         * 6: < 1600px | Large screen  | 12 columns
+         *
+         * On resize, display X cards per row where:
+         * X = total columns in grid / column span for each card.
+         * For example, if the total number of columns is 12, and
+         * column span for each cards is 4, then X is 3.
+         */
+        let span = 3;
+        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
+          span = 4;
+        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
+          span = 6;
+        }
+        return span;
       },
     },
     $trs: {
