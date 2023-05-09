@@ -17,6 +17,7 @@
           <KButton
             :primary="true"
             :text="coreString('continueAction')"
+            :disabled="isCreateAccountDisabled"
             @click="to_continue"
           />
         </KButtonGroup>
@@ -30,6 +31,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { FacilityUserResource } from 'kolibri.resources';
@@ -58,6 +60,9 @@
       },
       role() {
         return this.state.value.role;
+      },
+      isCreateAccountDisabled() {
+        return !get(this.targetFacility, 'learner_can_sign_up');
       },
       firstLine() {
         return this.$tr('changeFacilityInfoLine1', {
