@@ -36,6 +36,9 @@ def resolve_path(path):
     :param path: Path to expand and resolve
     :return: The resolved path.
     """
+    if not path:  # Check if the path is empty
+        return path
+
     try:
         return os.path.realpath(os.path.expanduser(path))
     except (IOError, OSError):
