@@ -104,6 +104,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  style="font-size: 20px;"
                   data-test="side-nav-component"
                 />
                 <LogoutSideNavEntry v-if="showLogout" />
@@ -619,6 +620,16 @@
   .logo {
     max-width: 100%;
     height: auto;
+  }
+
+  /deep/ .link[data-v-e1ce0d72] {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    height: 44px;
+    margin: 0 40px;
+    font-size: 14px;
+    text-decoration: none;
   }
 
 </style>
