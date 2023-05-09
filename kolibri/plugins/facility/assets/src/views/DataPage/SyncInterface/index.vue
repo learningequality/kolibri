@@ -1,6 +1,8 @@
 <template>
 
-  <KPageContainer>
+  <KPageContainer
+    :style="windowIsSmall ? { } : { height: '300px', overflow: 'visible' }"
+  >
 
     <h1>{{ $tr('syncData') }}</h1>
     <p>
@@ -26,16 +28,12 @@
                 :goToRoute="manageSyncRoute"
               />
             </td>
-            <td class="button-col">
-              <KButtonGroup style="margin-top: 8px; overflow: visible">
+            <td
+              :style="windowIsSmall ? { padding: '8px 4px 4px' } : { maxWidth: '100px' }"
+              class="button-col"
+            >
+              <KButtonGroup style="margin-top: 12px; overflow: visible">
                 <KButton
-                  v-if="!facility.dataset.registered"
-                  appearance="raised-button"
-                  :text="$tr('register')"
-                  @click="displayModal(Modals.REGISTER_FACILITY)"
-                />
-                <KButton
-                  v-else-if="!Boolean(syncTaskId)"
                   appearance="raised-button"
                   :text="$tr('sync')"
                   @click="displayModal(Modals.SYNC_FACILITY)"
@@ -65,16 +63,9 @@
                       @select="manageSyncAction()"
                     />
                     <CoreMenuOption
-                      v-if="facility.dataset.registered"
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="displayModal(Modals.REGISTER_FACILITY)"
-                    />
-                    <CoreMenuOption
-                      v-else
-                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
-                      :label="$tr('sync')"
-                      @select="displayModal(Modals.SYNC_FACILITY)"
                     />
                   </template>
                 </CoreMenu>
@@ -126,6 +117,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { TaskResource, FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -153,7 +145,7 @@
       CoreMenu,
       CoreMenuOption,
     },
-    mixins: [commonSyncElements, commonCoreStrings],
+    mixins: [commonSyncElements, commonCoreStrings, responsiveWindowMixin],
     data() {
       return {
         facility: null,
@@ -295,8 +287,6 @@
 
   /* derived from .core-table-button-col */
   .button-col {
-    padding: 4px;
-    padding-top: 8px;
     text-align: right;
   }
 
@@ -309,6 +299,11 @@
     top: 3px;
     display: inline-block;
     margin-right: 8px;
+  }
+
+  /deep/ .button-group-item {
+    height: max-content;
+    margin-bottom: 8px;
   }
 
 </style>
