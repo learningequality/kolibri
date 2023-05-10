@@ -622,8 +622,4 @@
     height: auto;
   }
 
-  /deep/ .core-menu-option[data-v-e1ce0d72] {
-    cursor: pointer;
-  }
-
 </style>
