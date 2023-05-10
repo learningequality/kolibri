@@ -55,7 +55,9 @@
         v-if="deviceLimitations"
         :title="$tr('deviceLimitationsTitle') "
         :cancelText="coreString('cancelAction')"
+        :submitText="coreString('importAction')"
         @cancel="closeModal"
+        @submit="importUser"
       >
         <p> {{ modalMessage }} </p>
       </KModal>
@@ -96,6 +98,7 @@
 <script>
 
   import get from 'lodash/get';
+  import { currentLanguage } from 'kolibri.utils.i18n';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -127,6 +130,7 @@
         error: false,
         deviceLimitations: false,
         useAdmin: false,
+        forceNonLearnerImport: false,
         adminUsername: null,
         adminPassword: null,
         device: null,
@@ -169,12 +173,22 @@
         return '';
       },
       modalMessage() {
-        return this.$tr('deviceLimitationsMessage', {
+        const importedUserIsAdmin = this.roles && this.roles.includes('admin');
+
+        const messageArgs = {
           full_name: this.full_name,
           username: this.username,
-          roles: this.roles,
+          non_admin_role:
+            !importedUserIsAdmin &&
+            this.coreString('coachLabel').toLocaleLowerCase(currentLanguage),
           device: this.device.name,
-        });
+        }
+
+        if (importedUserIsAdmin) {
+          return this.$tr('deviceLimitationsAdminsMessage', messageArgs);
+        } else {
+          return this.$tr('deviceLimitationsMessage', messageArgs);
+        }
       },
       adminModalMessage() {
         return this.$tr('enterAdminCredentials', { facility: this.facility.name });
@@ -228,6 +242,7 @@
           facility_name: this.facility.name,
           device_id: this.deviceId,
           using_admin: false,
+          force_non_learner_import: this.forceNonLearnerImport,
         };
 
         if (!params.username && params.password === DemographicConstants.NOT_SPECIFIED) {
@@ -290,6 +305,11 @@
               this.deviceLimitations = true;
             }
           });
+      },
+      importUser() {
+        this.forceNonLearnerImport = true;
+        this.error = false;
+        this.handleSubmit();
       },
       moveAdmin() {
         const params = {
