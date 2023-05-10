@@ -182,7 +182,7 @@
             !importedUserIsAdmin &&
             this.coreString('coachLabel').toLocaleLowerCase(currentLanguage),
           device: this.device.name,
-        }
+        };
 
         if (importedUserIsAdmin) {
           return this.$tr('deviceLimitationsAdminsMessage', messageArgs);
