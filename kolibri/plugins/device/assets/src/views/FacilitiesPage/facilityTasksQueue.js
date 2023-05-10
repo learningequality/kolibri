@@ -8,7 +8,7 @@ function isSyncTask(task) {
 }
 
 function taskFacilityMatch(task, facility) {
-  return task.facility === facility.id;
+  return task.facility_id === facility.id;
 }
 
 export default {

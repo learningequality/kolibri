@@ -1,7 +1,7 @@
 <template>
 
   <KPageContainer
-    :style="windowIsSmall ? { } : { height: '300px', overflow: 'visible' }"
+    :style="containerStyle"
   >
 
     <h1>{{ $tr('syncData') }}</h1>
@@ -29,13 +29,14 @@
               />
             </td>
             <td
-              :style="windowIsSmall ? { padding: '8px 4px 4px' } : { maxWidth: '100px' }"
+              :style="tableCellStyle"
               class="button-col"
             >
               <KButtonGroup style="margin-top: 12px; overflow: visible">
                 <KButton
                   appearance="raised-button"
                   :text="$tr('sync')"
+                  :disabled="isSyncing"
                   @click="displayModal(Modals.SYNC_FACILITY)"
                 />
                 <KIconButton
@@ -44,6 +45,7 @@
                   icon="optionsHorizontal"
                   :tooltip="coreString('optionsLabel')"
                   :ariaLabel="coreString('optionsLabel')"
+                  :disabled="isSyncing"
                   @click="toggleMenu"
                 />
                 <CoreMenu
@@ -65,7 +67,7 @@
                     <CoreMenuOption
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
-                      @select="displayModal(Modals.REGISTER_FACILITY)"
+                      @select="handleRegister(false)"
                     />
                   </template>
                 </CoreMenu>
@@ -82,8 +84,10 @@
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
+      :displaySkipOption="displaySkipOption"
       @success="handleValidateSuccess"
       @cancel="closeModal"
+      @skip="handleKDPSync"
     />
     <ConfirmationRegisterModal
       v-if="modalShown === Modals.CONFIRMATION_REGISTER"
@@ -98,8 +102,9 @@
       v-if="modalShown === Modals.SYNC_FACILITY"
       :facilityForSync="facility"
       @close="closeModal"
-      @success="handleSyncFacilitySuccess"
-      @failure="handleSyncFacilityFailure"
+      @register="handleRegister"
+      @syncKDP="handleKDPSync"
+      @syncPeer="handlePeerSync"
     />
 
   </KPageContainer>
@@ -117,7 +122,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { TaskResource, FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
@@ -145,7 +150,15 @@
       CoreMenu,
       CoreMenuOption,
     },
-    mixins: [commonSyncElements, commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonSyncElements, commonCoreStrings],
+    setup() {
+      const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsMedium,
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         facility: null,
@@ -156,6 +169,7 @@
         syncHasFailed: false,
         Modals,
         isMenuOpen: false,
+        displaySkipOption: false,
       };
     },
     computed: {
@@ -166,6 +180,30 @@
             facility_id: this.facility.id,
           },
         };
+      },
+      containerStyle() {
+        if (this.windowIsMedium || this.windowIsLarge) {
+          return {
+            height: '300px',
+            overflow: 'visible',
+            marginBottom: '24px',
+          };
+        }
+        return {
+          marginBottom: '24px',
+        };
+      },
+      tableCellStyle() {
+        if (this.windowIsSmall || this.windowIsMedium) {
+          return {
+            padding: '8px 4px 4px',
+            maxWidth: '180px',
+          };
+        } else {
+          return {
+            maxWidth: '100px',
+          };
+        }
       },
     },
     beforeMount() {
@@ -223,11 +261,37 @@
         this.isSyncing = true;
         this.syncTaskId = taskId;
         this.pollSyncTask();
-        this.closeModal();
       },
       handleSyncFacilityFailure() {
         this.syncHasFailed = true;
+      },
+      handleRegister(displaySkipOption) {
+        this.closeMenu();
+        this.displaySkipOption = displaySkipOption;
+        this.displayModal(Modals.REGISTER_FACILITY);
+      },
+      handleKDPSync() {
         this.closeModal();
+        this.startKdpSyncTask(this.facility.id)
+          .then(task => {
+            this.handleSyncFacilitySuccess(task.id);
+          })
+          .catch(() => {
+            this.handleSyncFacilityFailure();
+          });
+      },
+      handlePeerSync(peerData) {
+        this.closeModal();
+        this.startPeerSyncTask({
+          facility: this.facility.id,
+          device_id: peerData.id,
+        })
+          .then(task => {
+            this.handleSyncFacilitySuccess(task.id);
+          })
+          .catch(() => {
+            this.handleSyncFacilityFailure();
+          });
       },
       closeMenu({ focusMoreOptionsButton = true } = {}) {
         this.isMenuOpen = false;
