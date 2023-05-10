@@ -23,7 +23,6 @@
 
 <script>
 
-  import get from 'lodash/get';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   const Options = Object.freeze({
@@ -38,7 +37,7 @@
     },
     inject: ['wizardService'],
     data() {
-      const selected = get(this, 'wizardService.context.setupType', Options.FULL);
+      const selected = this.wizardService.state.context['fullOrLOD'] || Options.FULL;
       return {
         Options,
         selected,

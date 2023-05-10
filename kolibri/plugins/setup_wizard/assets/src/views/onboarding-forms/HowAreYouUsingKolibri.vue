@@ -36,8 +36,9 @@
     mixins: [commonSyncElements],
     inject: ['wizardService'],
     data() {
+      const selected = this.wizardService.state.context['onMyOwnOrGroup'] || UsePresets.ON_MY_OWN;
       return {
-        selected: UsePresets.ON_MY_OWN,
+        selected,
       };
     },
     computed: {
