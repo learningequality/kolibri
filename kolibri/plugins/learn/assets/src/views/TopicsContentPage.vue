@@ -22,10 +22,14 @@
       :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
       :contentKind="content.kind"
-      :showBookmark="isUserLoggedIn"
+      :showBookmark="allowBookmark"
+      :showDownloadButton="allowRemoteDownload"
+      :isDownloading="isDownloading"
+      :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
       @navigateBack="navigateBack"
       @toggleBookmark="toggleBookmark"
+      @download="handleRemoteDownloadRequest"
       @viewResourceList="toggleResourceList"
       @viewInfo="openSidePanel"
       @completionModal="openCompletionModal"
@@ -158,6 +162,7 @@
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useDevices from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
+  import useDownloadRequests from '../composables/useDownloadRequests';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
@@ -207,6 +212,12 @@
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
       const { baseurl } = useDevices();
+      const {
+        addDownloadRequest,
+        isDownloadedByLearner,
+        isDownloadingByLearner,
+        downloadRequestsTranslator,
+      } = useDownloadRequests();
       return {
         baseurl,
         canDownload,
@@ -216,6 +227,10 @@
         fetchLesson,
         back,
         genExternalBackURL,
+        addDownloadRequest,
+        isDownloadedByLearner,
+        isDownloadingByLearner,
+        downloadRequestsTranslator,
       };
     },
     props: {
@@ -231,6 +246,10 @@
         default: true,
       },
       authorizedRole: {
+        type: String,
+        default: null,
+      },
+      deviceId: {
         type: String,
         default: null,
       },
@@ -303,6 +322,21 @@
       },
       missingLessonResources() {
         return this.lesson && this.lesson.resources.some(c => !c.contentnode);
+      },
+      isRemoteContent() {
+        return Boolean(this.deviceId);
+      },
+      isDownloading() {
+        return this.isDownloadingByLearner(this.content);
+      },
+      isDownloaded() {
+        return this.content.admin_imported || this.isDownloadedByLearner(this.content);
+      },
+      allowRemoteDownload() {
+        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
+      },
+      allowBookmark() {
+        return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
       },
     },
     watch: {
@@ -486,6 +520,9 @@
         if (this.$refs.contentPage) {
           this.$refs.contentPage.displayCompletionModal();
         }
+      },
+      handleRemoteDownloadRequest() {
+        this.addDownloadRequest(this.content);
       },
     },
     $trs: {
