@@ -4,6 +4,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { _userState } from '../mappers';
 // An action for setting up the initial state of the app by fetching data from the server
 export function showUserPage(store, toRoute, fromRoute) {
+  store.dispatch('loading');
   if (toRoute.name !== fromRoute.name) {
     store.dispatch('preparePage');
   }
@@ -26,7 +27,7 @@ export function showUserPage(store, toRoute, fromRoute) {
           totalPages: users.total_pages,
           usersCount: users.count,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
+        store.dispatch('notLoading');
       }
     },
     error => {

@@ -62,7 +62,14 @@
       </template>
 
       <template #tbody>
-        <tbody>
+        <tbody v-if="$store.state.core.loading">
+          <tr style="overflow:hidden;">
+            <td>
+              <KCircularLoader class="center-loader" />
+            </td>
+          </tr>
+        </tbody>
+        <tbody v-else>
           <tr
             v-for="user in users"
             :key="user.id"
@@ -189,7 +196,7 @@
     </CoreTable>
 
     <p
-      v-if="!users || !users.length"
+      v-if="(!users || !users.length) && !$store.state.core.loading"
       class="empty-message"
     >
       {{ emptyMessage }}
@@ -387,6 +394,21 @@
 
   td.id-col {
     max-width: 120px;
+  }
+
+  .center-loader {
+    &.ui-progress-circular {
+      position: static !important;
+      width: 100% !important;
+      overflow: hidden;
+    }
+
+    /deep/ svg {
+      top: 48px;
+      width: 32px;
+      height: 32px;
+      overflow: hidden;
+    }
   }
 
 </style>
