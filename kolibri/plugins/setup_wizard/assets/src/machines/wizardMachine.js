@@ -331,7 +331,7 @@ export const wizardMachine = createMachine(
             meta: { route: { name: 'LOD_SETUP_TYPE' } },
             on: {
               // #<name> points to a state w/ an `id` property; wizard is the root
-              BACK: { target: '#wizard.fullOrLearnOnlyDevice', actions: 'clearFullOrLOD' },
+              BACK: { target: '#wizard.fullOrLearnOnlyDevice' },
               CONTINUE: {
                 target: 'selectLodFacility',
                 actions: 'setLodType',
