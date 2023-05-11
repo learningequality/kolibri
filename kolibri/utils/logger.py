@@ -261,11 +261,6 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "handlers": DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
             },
-            "kolibri": {
-                "handlers": DEFAULT_HANDLERS,
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
-            },
             "cherrypy.access": {
                 "handlers": [] if DISABLE_REQUEST_LOGGING else DEFAULT_HANDLERS,
                 "level": DEFAULT_LEVEL,
@@ -275,35 +270,14 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
             # We should introduce custom debug log levels or log
             # targets, i.e. --debug-level=high
             "kolibri.core.tasks.worker": {
-                "handlers": DEFAULT_HANDLERS,
                 "level": "INFO",
-                "propagate": False,
-            },
-            "morango": {
-                "handlers": DEFAULT_HANDLERS,
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
-            },
-            "django": {
-                "handlers": DEFAULT_HANDLERS,
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
             },
             "django.db.backends": {
-                "handlers": DEFAULT_HANDLERS,
                 "level": DATABASE_LEVEL,
-                "propagate": False,
-            },
-            "django.request": {
-                "handlers": DEFAULT_HANDLERS,
-                "level": DEFAULT_LEVEL,
-                "propagate": False,
             },
             "django.template": {
-                "handlers": DEFAULT_HANDLERS,
                 # Django template debug is very noisy, only log INFO and above.
                 "level": "INFO",
-                "propagate": False,
             },
         },
     }
