@@ -51,11 +51,13 @@
     },
     data() {
       return {
-        progress: this.quiz ? this.quiz.progress : undefined,
         title: this.quiz ? this.quiz.title : '',
       };
     },
     computed: {
+      progress() {
+        return this.quiz ? this.quiz.progress : undefined;
+      },
       inProgressLabel() {
         if (!this.progress) {
           return '';
