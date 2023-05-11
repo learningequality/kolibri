@@ -49,14 +49,12 @@
         default: false,
       },
     },
-    data() {
-      return {
-        title: this.quiz ? this.quiz.title : '',
-      };
-    },
     computed: {
       progress() {
         return this.quiz ? this.quiz.progress : undefined;
+      },
+      title() {
+        return this.quiz ? this.quiz.title : '';
       },
       inProgressLabel() {
         if (!this.progress) {
