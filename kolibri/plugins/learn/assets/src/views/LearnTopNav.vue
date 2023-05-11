@@ -16,7 +16,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../constants';
   import useCoreLearn from '../composables/useCoreLearn';
-  import useChannels from '../composables/useChannels';
   import commonLearnStrings from './commonLearnStrings';
 
   export default {
@@ -27,21 +26,16 @@
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { inClasses } = useCoreLearn();
-      const { channels } = useChannels();
       return {
-        channels,
         inClasses,
       };
     },
     computed: {
       ...mapGetters(['isUserLoggedIn', 'canAccessUnassignedContent']),
-      hasChannels() {
-        return this.channels.length > 0;
-      },
       links() {
         return [
           {
-            isHidden: !this.isUserLoggedIn || !this.hasChannels,
+            isHidden: !this.isUserLoggedIn,
             title: this.coreString('homeLabel'),
             link: this.$router.getRoute(PageNames.HOME),
             icon: 'dashboard',
@@ -55,7 +49,7 @@
             color: this.$themeTokens.textInverted,
           },
           {
-            isHidden: !this.isUserLoggedIn || !this.canAccessUnassignedContent || !this.hasChannels,
+            isHidden: !this.isUserLoggedIn || !this.canAccessUnassignedContent,
             title: this.coreString('bookmarksLabel'),
             link: this.$router.getRoute(PageNames.BOOKMARKS),
             icon: 'bookmark',
