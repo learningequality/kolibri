@@ -792,6 +792,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     user_id = HexOnlyUUIDField(required=False)
     facility = HexOnlyUUIDField()
     using_admin = serializers.BooleanField(default=False, required=False)
+    force_non_learner_import = serializers.BooleanField(default=False, required=False)
 
     def validate(self, data):
         """
@@ -801,6 +802,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         job_data = super(PeerImportSingleSyncJobValidator, self).validate(data)
         user_id = data.get("user_id", None)
         using_admin = data.get("using_admin", False)
+        force_non_learner_import = data.get("force_non_learner_import", False)
         # Use pre-validated base URL
         baseurl = job_data["kwargs"]["baseurl"]
         facility_id = data["facility"]
@@ -818,16 +820,17 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         full_name = user_info["full_name"]
         roles = user_info["roles"]
 
-        # only learners can by synced:
-        not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
-        if any(role in roles for role in not_syncable):
-            raise ValidationError(
-                detail={
-                    "id": DEVICE_LIMITATIONS,
-                    "full_name": full_name,
-                    "roles": ", ".join(roles),
-                }
-            )
+        # only learners can be synced unless user has confirmed intention to sync a non-learner:
+        if not force_non_learner_import:
+            not_syncable = (SUPERUSER, COACH, ASSIGNABLE_COACH, ADMIN)
+            if any(role in roles for role in not_syncable):
+                raise ValidationError(
+                    detail={
+                        "id": DEVICE_LIMITATIONS,
+                        "full_name": full_name,
+                        "roles": ", ".join(roles),
+                    }
+                )
 
         user_id = user_info["id"]
 
