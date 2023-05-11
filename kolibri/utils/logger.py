@@ -318,7 +318,8 @@ def get_base_logging_config(LOG_ROOT, debug=False, debug_database=False):
     config = get_default_logging_config(
         LOG_ROOT, debug=debug, debug_database=debug_database
     )
-    config["filters"]["require_debug_true"] = {"()": get_require_debug_true(debug)}
+    filters = config.setdefault("filters", {})
+    filters["require_debug_true"] = {"()": get_require_debug_true(debug)}
 
     return config
 
@@ -333,10 +334,11 @@ def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
         LOG_ROOT, debug=debug, debug_database=debug_database
     )
 
-    config["filters"]["require_debug_false"] = {
-        "()": "django.utils.log.RequireDebugFalse"
-    }
-    config["handlers"].update(
+    filters = config.setdefault("filters", {})
+    filters["require_debug_false"] = {"()": "django.utils.log.RequireDebugFalse"}
+
+    handlers = config.setdefault("handlers", {})
+    handlers.update(
         {
             "mail_admins": {
                 "level": "ERROR",
@@ -346,7 +348,9 @@ def get_logging_config(LOG_ROOT, debug=False, debug_database=False):
         }
     )
     # Add the mail_admins handler
-    config["loggers"]["kolibri"]["handlers"].append("mail_admins")
-    config["loggers"]["django"]["handlers"].append("mail_admins")
-    config["loggers"]["django.request"]["handlers"].append("mail_admins")
+    loggers = config.setdefault("loggers", {})
+    for name in ("kolibri", "django", "django.request"):
+        admin_logger = loggers.setdefault(name, {})
+        admin_logger_handlers = admin_logger.setdefault("handlers", [])
+        admin_logger_handlers.append("mail_admins")
     return config
