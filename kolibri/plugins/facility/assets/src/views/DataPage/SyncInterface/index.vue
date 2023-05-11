@@ -67,7 +67,7 @@
                     <CoreMenuOption
                       :style="{ 'cursor': 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
-                      @select="handleRegister(false)"
+                      @select="handleRegister()"
                     />
                   </template>
                 </CoreMenu>
@@ -267,7 +267,7 @@
       },
       handleRegister(displaySkipOption) {
         this.closeMenu();
-        this.displaySkipOption = displaySkipOption;
+        this.displaySkipOption = Boolean(displaySkipOption);
         this.displayModal(Modals.REGISTER_FACILITY);
       },
       handleKDPSync() {
