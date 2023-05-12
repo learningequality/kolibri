@@ -127,10 +127,6 @@ class Storage(object):
         scheduledjobs_table.drop(engine, checkfirst=True)
         Base.metadata.create_all(engine)
 
-    def recreate_tables(self):
-        self.Base.metadata.drop_all(self.engine)
-        self.Base.metadata.create_all(self.engine)
-
     def set_sqlite_pragmas(self):
         """
         Sets the connection PRAGMAs for the sqlalchemy engine stored in self.engine.
