@@ -49,13 +49,14 @@
     },
     data() {
       return {
-        step: this.facilityForSync.dataset.registered ? Steps.SELECT_SOURCE : Steps.SELECT_ADDRESS,
+        step: null,
         syncSubmitDisabled: false,
+        displaySkipOption: true,
       };
     },
     computed: {
       atSelectSource() {
-        return this.step === Steps.SELECT_SOURCE;
+        return !this.step;
       },
       atSelectAddress() {
         return this.step === Steps.SELECT_ADDRESS;
@@ -66,40 +67,21 @@
         if (data.source === 'PEER') {
           this.step = Steps.SELECT_ADDRESS;
         } else {
-          this.startKdpSync();
+          if (this.facilityForSync.dataset.registered) {
+            this.$emit('syncKDP', this.facilityForSync);
+          } else {
+            this.$emit('register', this.displaySkipOption, this.facilityForSync);
+          }
         }
       },
       handleAddressSubmit(data) {
         if (!data.device_name) {
           data.device_name = data.nickname;
         }
-        this.startPeerSync(data);
+        this.$emit('syncPeer', data, this.facilityForSync);
       },
       closeModal() {
         this.$emit('close');
-      },
-      startKdpSync() {
-        this.syncSubmitDisabled = true;
-        this.startKdpSyncTask(this.facilityForSync.id)
-          .then(task => {
-            this.$emit('success', task.id);
-          })
-          .catch(() => {
-            this.$emit('failure');
-          });
-      },
-      startPeerSync(peerData) {
-        this.syncSubmitDisabled = true;
-        this.startPeerSyncTask({
-          facility: this.facilityForSync.id,
-          device_id: peerData.id,
-        })
-          .then(task => {
-            this.$emit('success', task.id);
-          })
-          .catch(() => {
-            this.$emit('failure');
-          });
       },
     },
   };

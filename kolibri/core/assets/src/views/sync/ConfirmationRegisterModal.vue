@@ -57,7 +57,7 @@
           : this.coreString('cancelAction');
       },
       registerText() {
-        return this.alreadyRegistered ? null : this.coreString('register');
+        return this.alreadyRegistered ? null : this.coreString('registerAction');
       },
     },
     methods: {
