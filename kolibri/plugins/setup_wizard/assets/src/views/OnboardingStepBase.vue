@@ -42,13 +42,17 @@
       :noPadding="true"
     >
 
-      <div v-if="coreError" style="padding: 2em;">
-        <h2>{{ coreError }}</h2>
-        <KButton
-          :text="coreString('startOverAction')"
-          :primary="true"
-          @click="startOver"
-        />
+      <div v-if="coreError" style="padding: 16px;">
+        <AppError :hideParagraphs="true">
+          <h2>{{ coreError }}</h2>
+          <template #buttons>
+            <KButton
+              :text="coreString('startOverAction')"
+              :primary="true"
+              @click="startOver"
+            />
+          </template>
+        </AppError>
       </div>
       <div v-else class="content">
         <!-- Optional back arrow to show at the top for longer content views -->
@@ -71,6 +75,7 @@
 
       <!-- Border hidden on mobile by making it the same as the background -->
       <div
+        v-if="!coreError"
         class="footer"
         :style="{
           borderTop: `1px solid ${windowIsSmall ? $themeTokens.surface : $themeTokens.fineLine}`
@@ -138,13 +143,14 @@
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AppError from 'kolibri-common/components/AppError';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import { FooterMessageTypes } from '../constants';
 
   export default {
     name: 'OnboardingStepBase',
-    components: { CoreLogo, LanguageSwitcherModal },
+    components: { AppError, CoreLogo, LanguageSwitcherModal },
     inject: ['wizardService'],
     mixins: [commonCoreStrings, responsiveWindowMixin],
     props: {
