@@ -24,6 +24,16 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
 
+function facilityParamRequiredGuard(toRoute, subtopicName) {
+  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+    router.replace({
+      name: 'ALL_FACILITIES_PAGE',
+      params: { subtopicName },
+    });
+    return true;
+  }
+}
+
 export default [
   // Routes for multi-facility case
   {
@@ -43,14 +53,10 @@ export default [
     path: '/:facility_id?/classes',
     component: ManageClassPage,
     handler: toRoute => {
-      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-        return router.replace({
-          name: 'ALL_FACILITIES_PAGE',
-          params: { subtopicName: 'ManageClassPage' },
-        });
-      } else {
-        showClassesPage(store, toRoute);
+      if (facilityParamRequiredGuard(toRoute, ManageClassPage.name)) {
+        return;
       }
+      showClassesPage(store, toRoute);
     },
   },
   {
@@ -82,14 +88,10 @@ export default [
     component: UserPage,
     path: '/:facility_id?/users',
     handler: (toRoute, fromRoute) => {
-      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-        return router.replace({
-          name: 'ALL_FACILITIES_PAGE',
-          params: { subtopicName: 'UserPage' },
-        });
-      } else {
-        showUserPage(store, toRoute, fromRoute);
+      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
+        return;
       }
+      showUserPage(store, toRoute, fromRoute);
     },
   },
   {
@@ -113,14 +115,10 @@ export default [
     component: DataPage,
     path: '/:facility_id?/data',
     handler: toRoute => {
-      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-        router.replace({
-          name: 'ALL_FACILITIES_PAGE',
-          params: { subtopicName: 'DataPage' },
-        });
-      } else {
-        store.dispatch('preparePage', { isAsync: false });
+      if (facilityParamRequiredGuard(toRoute, DataPage.name)) {
+        return;
       }
+      store.dispatch('preparePage', { isAsync: false });
     },
   },
   {
@@ -136,14 +134,10 @@ export default [
     component: FacilitiesConfigPage,
     path: '/:facility_id?/settings',
     handler: toRoute => {
-      if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-        router.replace({
-          name: 'ALL_FACILITIES_PAGE',
-          params: { subtopicName: 'FacilitiesConfigPage' },
-        });
-      } else {
-        showFacilityConfigPage(store, toRoute);
+      if (facilityParamRequiredGuard(toRoute, FacilitiesConfigPage.name)) {
+        return;
       }
+      showFacilityConfigPage(store, toRoute);
     },
   },
   {
