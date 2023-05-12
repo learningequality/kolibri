@@ -56,9 +56,9 @@
     components: {},
     mixins: [commonCoreStrings],
     setup() {
-        const { status, lastSynced ,deviceStatus } = useUserSyncStatus();
-    
-        return { lastSynced, status , deviceStatus };
+      const { status, lastSynced, deviceStatus, device_status_sentiment } = useUserSyncStatus();
+
+      return { lastSynced, status, deviceStatus, device_status_sentiment };
     },
     props: {
       showBanner: {
@@ -97,6 +97,9 @@
       this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
       console.log(this.deviceStatus);
+      console.log(this.status);
+      console.log(this.deviceStatus);
+      console.log(this.device_status_sentiment);
     },
     beforeDestroy() {
       document.removeEventListener('focusin', this.focusChange);

@@ -40,6 +40,10 @@ from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.models import Collection
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.content.models import ContentDownloadRequest
+from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
@@ -70,6 +74,7 @@ from kolibri.utils.server import restart
 from kolibri.utils.server import STATUS_RUNNING
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
+
 
 logger = logging.getLogger(__name__)
 
@@ -308,6 +313,36 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         ):
             return UserSyncStatus.objects.none()
         return UserSyncStatus.objects.all()
+
+    def downloads_queryset(self, queryset):
+
+        queryset = queryset.annotate(
+            last_download=Max("requested_at"), last_removal=Max("requested_at")
+        )
+
+        is_last_download_removed = Subquery(
+            ContentRemovalRequest.objects.filter(
+                source_id=OuterRef("user_id"),
+                source_model=FacilityUser.morango_model_name,
+                reason=ContentRequestReason.UserInitiated,
+            )
+        )
+
+        is_having_downloads = Subquery(
+            ContentDownloadRequest.objects.filter(
+                source_id=OuterRef("user_id"),
+                source_model=FacilityUser.morango_model_name,
+                reason=ContentRequestReason.UserInitiate,
+            )
+        )
+
+        queryset = queryset.annotate(
+            last_download_removed=Subquery(is_last_download_removed).values(
+                "last_removal"
+            ),
+            has_downloads=Subquery(is_having_downloads).values("last_download"),
+        )
+        return queryset
 
     def annotate_queryset(self, queryset):
 
