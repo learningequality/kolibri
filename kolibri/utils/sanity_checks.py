@@ -120,12 +120,14 @@ def check_database_is_migrated():
 
 def ensure_job_tables_created():
     from kolibri.core.tasks.main import job_storage
+    from kolibri.core.tasks.main import connection
+    from kolibri.core.tasks.storage import Storage
 
     try:
         job_storage.test_table_readable()
     except (SQLAlchemyOperationalError, SQLAlchemyProgrammingError):
         logger.warning("Database table for job storage was not accessible, recreating.")
-        job_storage.recreate_tables()
+        Storage.recreate_default_tables(connection)
     except Exception as e:
         raise DatabaseInaccessible(db_exception=e)
 
