@@ -77,7 +77,9 @@
 
             TaskResource.startTask(params)
               .then(() => this.wizardService.send('CONTINUE'))
-              .catch(err => console.error(err));
+              .catch(err => {
+                this.$store.dispatch('handleApiError', err);
+              });
           } else {
             const errorData = JSON.parse(data);
             if (errorData.find(error => error.id === ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS)) {
