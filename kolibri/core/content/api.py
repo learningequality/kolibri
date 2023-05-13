@@ -1126,6 +1126,7 @@ def union(queries):
         return reduce(lambda x, y: x | y, queries)
     return None
 
+
 @query_params_required(search=str, max_results=int, max_results__default=30)
 class ContentNodeSearchViewset(ContentNodeViewset):
     def search(self, value, max_results, filter=True):
