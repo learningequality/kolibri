@@ -475,10 +475,11 @@ class ContentNodeFilter(IdFilter):
             ]
         )
 
-        # topic: "378cf4128c854c2795c100b5aca7a3ed" 
+        # TODO: replace the static IDs with IDs from the model
         ids = ["bf503b298a3d45caa1223dcdc953de51", "b9b23582c7734e5ba45ec77a1f5dda40", "10840286add94da8ae2b60dbf1eaaef2"]
 
         return queryset.filter(id__in=ids)
+        # return queryset.filter(query)
 
     def bitmask_contains_and(self, queryset, name, value):
         return queryset.has_all_labels(name, value.split(","))
