@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "devserver",
+            "type": "python",
+            "request": "launch",
+            "module": "kolibri",
+            "args": [
+                "start",
+                "--debug",
+                "--foreground",
+                "--port=8000",
+                "--settings=kolibri.deployment.default.settings.dev"
+            ],
+            "env": {
+                "PYTHONUNBUFFERED": "1"
+            },
+            "cwd": "${workspaceFolder}",
+            "console": "internalConsole",
+            "justMyCode": false
+        }
+    ]
+}

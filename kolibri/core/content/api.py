@@ -322,31 +322,31 @@ class CharInFilter(BaseInFilter, CharFilter):
 
 
 contentnode_filter_fields = [
-    "parent",
-    "parent__isnull",
-    "prerequisite_for",
-    "has_prerequisite",
-    "related",
-    "exclude_content_ids",
-    "ids",
-    "content_id",
-    "channel_id",
-    "kind",
-    "include_coach_content",
-    "kind_in",
-    "contains_quiz",
-    "grade_levels",
-    "resource_types",
-    "learning_activities",
-    "accessibility_labels",
-    "categories",
-    "learner_needs",
+    # "parent",
+    # "parent__isnull",
+    # "prerequisite_for",
+    # "has_prerequisite",
+    # "related",
+    # "exclude_content_ids",
+    # "ids",
+    # "content_id",
+    # "channel_id",
+    # "kind",
+    # "include_coach_content",
+    # "kind_in",
+    # "contains_quiz",
+    # "grade_levels",
+    # "resource_types",
+    # "learning_activities",
+    # "accessibility_labels",
+    # "categories",
+    # "learner_needs",
     "keywords",
-    "channels",
-    "languages",
-    "tree_id",
-    "lft__gt",
-    "rght__lt",
+    # "channels",
+    # "languages",
+    # "tree_id",
+    # "lft__gt",
+    # "rght__lt",
 ]
 
 
@@ -475,7 +475,10 @@ class ContentNodeFilter(IdFilter):
             ]
         )
 
-        return queryset.filter(query)
+        # topic: "378cf4128c854c2795c100b5aca7a3ed" 
+        ids = ["bf503b298a3d45caa1223dcdc953de51", "b9b23582c7734e5ba45ec77a1f5dda40", "10840286add94da8ae2b60dbf1eaaef2"]
+
+        return queryset.filter(id__in=ids)
 
     def bitmask_contains_and(self, queryset, name, value):
         return queryset.has_all_labels(name, value.split(","))
@@ -1122,7 +1125,7 @@ def union(queries):
         return reduce(lambda x, y: x | y, queries)
     return None
 
-
+# TODO
 @query_params_required(search=str, max_results=int, max_results__default=30)
 class ContentNodeSearchViewset(ContentNodeViewset):
     def search(self, value, max_results, filter=True):

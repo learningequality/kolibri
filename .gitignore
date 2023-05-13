@@ -53,7 +53,7 @@ kolibri/locale/en/LC_MESSAGES/profiles/*
 .mr.developer.cfg
 .project
 # vscode files
-.vscode
+# .vscode
 # pycharm project file
 kolibri.iml
 .pydevproject
