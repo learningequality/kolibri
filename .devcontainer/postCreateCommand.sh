@@ -8,6 +8,3 @@ nvm install v16.20.0
 nvm use v16.20.0
 npm install -g yarn
 yarn install
-
-# kill process
-fuser -k 8000/tcp
