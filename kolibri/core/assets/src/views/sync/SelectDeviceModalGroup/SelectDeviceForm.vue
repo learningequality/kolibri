@@ -445,20 +445,16 @@
       },
       anyDiscoveredDeviceSeen() {
         for (const device of this.discoveredDevices) {
-          for (const facility of this.availableFacilities) {
-            if (facility.address_id === device.id && facility.learner_can_sign_up) {
-              return true;
-            }
+          if (this.canLearnerSignUp(device.id)) {
+            return true;
           }
         }
         return false;
       },
       anySavedDeviceSeen() {
         for (const device of this.discoveredDevices) {
-          for (const facility of this.availableFacilities) {
-            if (facility.address_id === device.id && facility.learner_can_sign_up) {
-              return true;
-            }
+          if (this.canLearnerSignUp(device.id)) {
+            return true;
           }
         }
         return false;
