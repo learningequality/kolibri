@@ -158,7 +158,6 @@ def diskcontentimport(
         drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
-        import_updates=update,
         fail_on_error=fail_on_error,
     )
     manager.run()
@@ -434,6 +433,7 @@ def remoteimport(
     node_ids=None,
     exclude_node_ids=None,
     update=False,
+    fail_on_error=False,
 ):
     call_command(
         "importchannel",
@@ -456,6 +456,7 @@ def remoteimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        fail_on_error=fail_on_error,
     )
     manager.run()
 
