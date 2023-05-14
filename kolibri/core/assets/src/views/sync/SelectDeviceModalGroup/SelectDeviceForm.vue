@@ -32,25 +32,28 @@
       </UiAlert>
 
       <!-- Static Devices -->
-      <template v-for="(d, idx) in savedDevices">
-        <div :key="`div-${idx}`">
-          <KRadioButton
-            :key="idx"
-            v-model="selectedDeviceId"
-            class="radio-button"
-            :value="d.id"
-            :label="d.nickname"
-            :description="d.base_url"
-            :disabled="formDisabled || !isDeviceAvailable(d.id)"
-          />
-          <KButton
-            :key="`forget-${idx}`"
-            :text="coreString('removeAction')"
-            class="remove-device-button"
-            appearance="basic-link"
-            @click="removeSavedDevice(d.id)"
-          />
-        </div>
+      <template v-if="!anySavedDeviceSeen">
+        <template v-for="(d, idx) in savedDevices">
+          <div :key="`div-${idx}`">
+            <KRadioButton
+              v-if="canLearnerSignUp(d.id)"
+              :key="idx"
+              v-model="selectedDeviceId"
+              class="radio-button"
+              :value="d.id"
+              :label="d.nickname"
+              :description="d.base_url"
+              :disabled="formDisabled || !isDeviceAvailable(d.id)"
+            />
+            <KButton
+              :key="`forget-${idx}`"
+              :text="coreString('removeAction')"
+              class="remove-device-button"
+              appearance="basic-link"
+              @click="removeSavedDevice(d.id)"
+            />
+          </div>
+        </template>
       </template>
 
       <hr
@@ -59,18 +62,24 @@
       >
 
       <!-- Dynamic Devices -->
-      <template v-for="d in discoveredDevices">
-        <div :key="`div-${d.id}`">
-          <KRadioButton
-            :key="d.id"
-            v-model="selectedDeviceId"
-            class="radio-button"
-            :value="d.instance_id"
-            :label="formatNameAndId(d.device_name, d.id)"
-            :description="formatBaseDevice(d)"
-            :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
-          />
-        </div>
+      <template v-if="!anyDiscoveredDeviceSeen">
+        <template v-for="d in discoveredDevices">
+          <div :key="`div-${d.id}`">
+            <KRadioButton
+              v-if="canLearnerSignUp(d.id)"
+              :key="d.id"
+              v-model="selectedDeviceId"
+              class="radio-button"
+              :value="d.instance_id"
+              :label="formatNameAndId(d.device_name, d.id)"
+              :description="formatBaseDevice(d)"
+              :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
+            />
+          </div>
+        </template>
+      </template>
+      <template v-else>
+        <p> {{ $tr('noDeviceText') }} </p>
       </template>
     </template>
 
@@ -123,8 +132,9 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { useLocalStorage, get } from '@vueuse/core';
+  import { NetworkLocationResource } from 'kolibri.resources';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, get, useMemoize, computedAsync } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -186,6 +196,74 @@
       const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
       const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
 
+      const fetchDeviceFacilities = useMemoize(
+        async device => {
+          try {
+            const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
+
+            return facilities.map(facility => {
+              return {
+                id: facility.id,
+                name: facility.name,
+                base_url: device.base_url,
+                address_id: device.id,
+                learner_can_sign_up: facility.learner_can_sign_up,
+                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
+                kolibri_version: device.kolibri_version,
+              };
+            });
+          } catch (e) {
+            return [];
+          }
+        },
+        {
+          getKey: device => device.id,
+        }
+      );
+
+      const isLoading = ref(false);
+
+      const availableAddressIds = computed(() =>
+        get(devices)
+          .filter(d => d.available)
+          .map(d => d.id)
+      );
+
+      const availableFacilities = computedAsync(
+        async () => {
+          // Extract available devices, and sort to most recently accessed so when we dedupe
+          // facilities across two+ devices, the most recently connected device's facility is shown
+          const _devices = get(devices)
+            .filter(d => get(availableAddressIds).includes(d.id))
+            .sort((deviceA, deviceB) => deviceA.since_last_accessed - deviceB.since_last_accessed);
+          const facilitiesFromDevices = await Promise.all(
+            _devices.map(d => fetchDeviceFacilities(d))
+          );
+          const facilities = {};
+          // Promise.all will resolve with an array of arrays
+          for (const deviceFacilities of facilitiesFromDevices) {
+            for (const facility of deviceFacilities) {
+              // deduplicate the same facility across more than one device
+              if (!facility[facility.id]) {
+                facilities[facility.id] = facility;
+              }
+            }
+          }
+          // Sort alphabetically for predictable ordering
+          return Object.values(facilities).sort((facilityA, facilityB) => {
+            if (facilityA.name < facilityB.name) {
+              return -1;
+            }
+            if (facilityA.name > facilityB.name) {
+              return 1;
+            }
+            return 0;
+          });
+        },
+        [],
+        isLoading
+      );
+
       return {
         // useDevices
         devices,
@@ -205,6 +283,7 @@
         discoveredDevices,
         savedDevices,
         storageDeviceId,
+        availableFacilities,
       };
     },
     props: {
@@ -355,6 +434,34 @@
         return this.doDelete(id).then(() => {
           this.$emit('removed_address');
         });
+      },
+      canLearnerSignUp(id) {
+        for (const facility of this.availableFacilities) {
+          if (facility.address_id === id) {
+            return facility.learner_can_sign_up;
+          }
+        }
+        return true;
+      },
+      anyDiscoveredDeviceSeen() {
+        for (const device of this.discoveredDevices) {
+          for (const facility of this.availableFacilities) {
+            if (facility.address_id === device.id && facility.learner_can_sign_up) {
+              return true;
+            }
+          }
+        }
+        return false;
+      },
+      anySavedDeviceSeen() {
+        for (const device of this.discoveredDevices) {
+          for (const facility of this.availableFacilities) {
+            if (facility.address_id === device.id && facility.learner_can_sign_up) {
+              return true;
+            }
+          }
+        }
+        return false;
       },
     },
     $trs: {
