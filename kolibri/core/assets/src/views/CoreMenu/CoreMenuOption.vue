@@ -158,7 +158,6 @@
     },
     methods: {
       isActiveLink(route) {
-        // return `${this.link}#${route}` === `${window.location.pathname}${window.location.hash}`;
         return (
           this.standarizeSubPathRoutes('#' + route) === `${window.location.hash}` ||
           window.location.hash.includes(this.checkClassIdInString(route))
@@ -214,14 +213,12 @@
         return subRoutePath;
       },
 
-      // for special cases, like the classId in the coach, where the id is required
-      //which bring thr change in the url, this function will handle the change in the url
-      // to match it with the actual url route in the browser
+      // changes urls that contain IDs
+      // to match with the actual url route in the browser
       checkClassIdInString(str) {
         const classId = 'classId';
         const regex = new RegExp(`\\b${classId}\\b`, 'i');
         if (regex.test(str)) {
-          console.log(str.replace('/:classId', ''));
           return str.replace('/:classId', '');
         }
       },
