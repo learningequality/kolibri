@@ -862,3 +862,20 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["user"], self.user1.id)
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
+        
+    def test_downloads_queryset(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self._create_transfer_session(
+            active=False,
+        )
+        device_status = self._create_device_status("oopsie", StatusSentiment.Neutral)
+        self.syncsession1.client_instance_id = device_status.instance_id
+        self.syncsession1.save()
+        response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["user"], self.user1.id)
+        self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)

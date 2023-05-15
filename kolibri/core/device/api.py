@@ -342,6 +342,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             ),
             has_downloads=Subquery(is_having_downloads).values("last_download"),
         )
+        pdb.set_trace()
         return queryset
 
     def annotate_queryset(self, queryset):
