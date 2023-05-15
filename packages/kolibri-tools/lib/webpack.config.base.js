@@ -69,7 +69,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
 
   if (transpile) {
     rules.push({
-      test: /\.js$/,
+      test: /\.(js|mjs)$/,
       loader: 'babel-loader',
       exclude: { and: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
       options: {
