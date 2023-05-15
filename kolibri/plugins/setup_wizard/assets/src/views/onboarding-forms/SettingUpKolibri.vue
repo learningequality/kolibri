@@ -156,7 +156,7 @@
             const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
             window.sessionStorage.setItem(welcomeDimissalKey, false);
 
-            Lockr.set('savedState', null); // Clear out saved state machine
+            Lockr.rm('savedState');
             redirectBrowser();
           })
           .catch(e => {
