@@ -1,8 +1,11 @@
 import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
-import { shallowMount, mount } from '@vue/test-utils';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import { shallowMount } from '@vue/test-utils';
+
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 function makeWrapper({ propsData } = {}) {
-  return mount(HorizontalNavBarWithOverflowMenu, { propsData });
+  return shallowMount(HorizontalNavBarWithOverflowMenu, { propsData });
 }
 
 const longerNavigationList = [
@@ -39,12 +42,17 @@ const longerNavigationList = [
 ];
 
 describe('HorizontalNavBarWithOverflowMenu', () => {
+  beforeAll(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowWidth: 0,
+    }));
+  });
   it('smoke test', () => {
-    const wrapper = shallowMount(HorizontalNavBarWithOverflowMenu);
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBe(true);
   });
   it('Renders the Navbar component by default', () => {
-    const wrapper = shallowMount(HorizontalNavBarWithOverflowMenu, {
+    const wrapper = makeWrapper({
       propsData: {
         navigationLinks: [
           {
@@ -60,12 +68,12 @@ describe('HorizontalNavBarWithOverflowMenu', () => {
   });
   describe('the overflow menu', () => {
     describe('overflow not needed', () => {
-      const wrapper = makeWrapper(HorizontalNavBarWithOverflowMenu, {
-        propsData: {
-          navigationLinks: longerNavigationList,
-        },
-      });
       it('does not display a KIconButton with a dropdown menu', () => {
+        const wrapper = makeWrapper(HorizontalNavBarWithOverflowMenu, {
+          propsData: {
+            navigationLinks: longerNavigationList,
+          },
+        });
         expect(wrapper.findComponent({ name: 'KIconButton' }).element).toBeFalsy();
       });
     });

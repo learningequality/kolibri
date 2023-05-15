@@ -81,9 +81,10 @@
       if (get(isLearnerOnlyImport)) {
         userDeviceStatus = useUserSyncStatus().deviceStatus;
       }
-      const { windowIsSmall } = useKResponsiveWindow();
+      const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
       return {
         userDeviceStatus,
+        windowBreakpoint,
         windowIsSmall,
       };
     },
@@ -127,13 +128,19 @@
             };
       },
       paddingTop() {
-        return this.isAppContext ? 0 : 32;
+        return this.isAppContext ? 0 : 4;
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
       },
       showStorageNotification() {
         return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
+      },
+    },
+    watch: {
+      windowBreakpoint() {
+        //Update the the app bar height at every breakpoint
+        this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       },
     },
     mounted() {
