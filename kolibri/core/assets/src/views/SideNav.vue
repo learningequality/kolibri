@@ -104,6 +104,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  style="cursor: pointer;"
                   data-test="side-nav-component"
                 />
                 <LogoutSideNavEntry v-if="showLogout" />

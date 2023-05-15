@@ -55,18 +55,20 @@ class SanityCheckTestCase(TestCase):
             with self.assertRaises(DatabaseNotMigrated):
                 sanity_checks.check_database_is_migrated()
 
-    def test_ensure_job_tables_created_operational_error(self):
+    @patch("kolibri.core.tasks.storage.Storage")
+    def test_ensure_job_tables_created_operational_error(self, Storage):
         with patch("kolibri.core.tasks.main.job_storage") as job_storage:
             job_storage.test_table_readable.side_effect = SQLAlchemyOperationalError(
                 "Test", "", ""
             )
             sanity_checks.ensure_job_tables_created()
-            job_storage.recreate_tables.assert_called_once()
+            Storage.recreate_default_tables.assert_called_once()
 
-    def test_ensure_job_tables_created_programming_error(self):
+    @patch("kolibri.core.tasks.storage.Storage")
+    def test_ensure_job_tables_created_programming_error(self, Storage):
         with patch("kolibri.core.tasks.main.job_storage") as job_storage:
             job_storage.test_table_readable.side_effect = SQLAlchemyProgrammingError(
                 "Test", "", ""
             )
             sanity_checks.ensure_job_tables_created()
-            job_storage.recreate_tables.assert_called_once()
+            Storage.recreate_default_tables.assert_called_once()

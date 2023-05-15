@@ -11,6 +11,7 @@ from sqlalchemy import Integer
 from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
+from sqlalchemy import Table
 from sqlalchemy import update
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.ext.declarative import declarative_base
@@ -115,9 +116,16 @@ class Storage(object):
                 is not None
             )
 
-    def recreate_tables(self):
-        self.Base.metadata.drop_all(self.engine)
-        self.Base.metadata.create_all(self.engine)
+    @staticmethod
+    def recreate_default_tables(engine):
+        """
+        Recreates the default tables for the job storage backend.
+        """
+        Base.metadata.drop_all(engine)
+        scheduledjobs_base = declarative_base()
+        scheduledjobs_table = Table("scheduledjobs", scheduledjobs_base.metadata)
+        scheduledjobs_table.drop(engine, checkfirst=True)
+        Base.metadata.create_all(engine)
 
     def set_sqlite_pragmas(self):
         """

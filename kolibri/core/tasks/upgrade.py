@@ -5,7 +5,8 @@ import logging
 
 from sqlalchemy.exc import OperationalError
 
-from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.main import connection
+from kolibri.core.tasks.storage import Storage
 from kolibri.core.upgrade import version_upgrade
 
 logger = logging.getLogger(__name__)
@@ -24,7 +25,7 @@ def drop_old_iceqube_tables():
     and let iceqube reinitialize the tables from scratch.
     """
     try:
-        job_storage.recreate_tables()
+        Storage.recreate_default_tables(connection)
     except OperationalError:
         logger.warning(
             "Could not recreate job storage table. This is probably because the database already exists and did not need to be recreated."

@@ -221,6 +221,7 @@
     margin: 4px 8px;
     font-size: 16px;
     text-decoration: none;
+    cursor: pointer;
     border-radius: $radius;
     outline-offset: -1px; // override global styles
     transition: background-color $core-time ease;
