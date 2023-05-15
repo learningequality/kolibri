@@ -23,7 +23,7 @@
             @click="closeBanner"
           />
           <KButton
-            v-if="availableDownloads"
+            v-if="hasDownloads"
             :text="$tr('goToDownloads')"
             appearance="raised-button"
             :secondary="true"
@@ -48,6 +48,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { mapGetters } from 'vuex';
+  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import plugin_data from 'plugin_data';
 
@@ -56,50 +57,51 @@
     components: {},
     mixins: [commonCoreStrings],
     setup() {
-      const { status, lastSynced, deviceStatus, device_status_sentiment } = useUserSyncStatus();
+      const {
+        status,
+        lastSynced,
+        deviceStatus,
+        deviceStatusSentiment,
+        hasDownloads,
+        lastDownloadRemoved,
+      } = useUserSyncStatus();
 
-      return { lastSynced, status, deviceStatus, device_status_sentiment };
-    },
-    props: {
-      showBanner: {
-        type: Boolean,
-        default: false,
-      },
+      return {
+        lastSynced,
+        status,
+        deviceStatus,
+        deviceStatusSentiment,
+        hasDownloads,
+        lastDownloadRemoved,
+      };
     },
     data() {
       return {
-        bannerOpened: false,
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
-        // TODO: remove this
-        insufficientSpace: true,
-        // TODO: retrieve proper info for these
-        hasDevicePermissions: false,
-        availableDownloads: false,
-        resourcesRemoved: false,
+        bannerOpened: false,
       };
     },
     computed: {
-      ...mapGetters(['isLearner', 'isAdmin']),
+      ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
       insufficientStorageNoDownloads() {
         return (
           (this.isLearner && this.insufficientSpace) ||
-          (!this.hasDevicePermissions && !this.availableDownloads)
+          (!this.canManageContent && !this.hasDownloads)
         );
       },
+      showBanner() {
+        return this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
+      },
       learnOnlyRemovedResources() {
-        return this.isLearner && this.resourcesRemoved && this.isSubsetOfUsersDevice;
+        return this.isLearner && this.lastDownloadRemoved && this.isSubsetOfUsersDevice;
       },
       availableDownload() {
-        return !this.hasDevicePermissions && this.availableDownloads && !this.isLearner;
+        return !this.canManageContent && this.hasDownloads && !this.isLearner;
       },
     },
-    created() {
+    mounted() {
       this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
-      console.log(this.deviceStatus);
-      console.log(this.status);
-      console.log(this.deviceStatus);
-      console.log(this.device_status_sentiment);
     },
     beforeDestroy() {
       document.removeEventListener('focusin', this.focusChange);
@@ -120,7 +122,11 @@
       },
       closeBanner() {
         // TODO: Store preference after closure
-        this.bannerOpened = false;
+        if (this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE) {
+          this.bannerOpened = true;
+        } else {
+          this.bannerOpened = false;
+        }
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }

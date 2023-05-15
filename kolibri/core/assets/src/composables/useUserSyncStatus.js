@@ -39,7 +39,6 @@ export function pollUserSyncStatusTask() {
   }
 
   return fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
-    console.log(syncData);
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
       lastSynced.value = syncData[0].last_synced ? new Date(syncData[0].last_synced) : null;
