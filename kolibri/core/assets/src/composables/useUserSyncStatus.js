@@ -9,6 +9,8 @@ const queued = ref(false);
 const lastSynced = ref();
 const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
+const hasDownloads = ref(false);
+const lastDownloadRemoved = ref(null);
 const timeoutInterval = computed(() => {
   return get(status) === SyncStatus.QUEUED ? 1000 : 10000;
 });
@@ -43,6 +45,10 @@ export function pollUserSyncStatusTask() {
       status.value = syncData[0].status;
       deviceStatus.value = syncData[0].device_status;
       deviceStatusSentiment.value = syncData[0].device_status_sentiment;
+      hasDownloads.value = syncData[0].has_downloads;
+      lastDownloadRemoved.value = syncData[0].last_download_removed
+        ? new Date(syncData[0].last_download_removed)
+        : null;
     } else {
       status.value = SyncStatus.NOT_CONNECTED;
     }
@@ -70,5 +76,7 @@ export default function useUserSyncStatus() {
     status,
     deviceStatus,
     deviceStatusSentiment,
+    hasDownloads,
+    lastDownloadRemoved,
   };
 }
