@@ -1,8 +1,10 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import Vuex from 'vuex';
 import AppBar from '../../src/views/AppBar';
 
 jest.mock('kolibri.urls');
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -24,6 +26,9 @@ function createWrapper({ propsData } = {}) {
 }
 
 describe('app bar component', () => {
+  beforeAll(() => {
+    useKResponsiveWindow.mockImplementation(() => ({}));
+  });
   describe('smoke test', () => {
     it('should render', () => {
       const wrapper = createWrapper({ loading: false });

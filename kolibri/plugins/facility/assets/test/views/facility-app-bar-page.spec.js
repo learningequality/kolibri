@@ -1,5 +1,6 @@
 import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
@@ -15,8 +16,14 @@ function makeWrapper({ propsData = {}, getters = {} }) {
   });
 }
 jest.mock('kolibri.urls');
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 describe('FacilityAppBarPage', function() {
+  beforeAll(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+    }));
+  });
   it('renders the FacilityTopNav component', () => {
     const wrapper = makeWrapper({});
     expect(wrapper.findComponent({ name: 'FacilityTopNav' }).exists()).toBe(true);

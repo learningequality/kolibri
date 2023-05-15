@@ -12,7 +12,11 @@
         <slot></slot>
       </div>
 
-      <div class="dimmable tab-title" tabindex="-1" :title="title">
+      <div
+        class="dimmable tab-title"
+        tabindex="-1"
+        :title="title"
+      >
         {{ title }}
       </div>
     </router-link>
@@ -24,14 +28,19 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
 
   /**
-   Links for use inside the Navbar
-   */
+     Links for use inside the Navbar
+     */
   export default {
     name: 'NavbarLink',
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       /**
        * The text

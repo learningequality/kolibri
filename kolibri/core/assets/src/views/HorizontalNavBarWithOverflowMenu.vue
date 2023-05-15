@@ -1,7 +1,10 @@
 <template>
 
   <Navbar>
-    <div ref="navContainer" class="navcontainer">
+    <div
+      ref="navContainer"
+      class="navcontainer"
+    >
       <NavbarLink
         v-for="(link, index) in allLinks"
         :key="index"
@@ -47,7 +50,7 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
 
   export default {
     name: 'HorizontalNavBarWithOverflowMenu',
@@ -55,7 +58,13 @@
       Navbar,
       NavbarLink,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowWidth } = useKResponsiveWindow();
+      return {
+        windowWidth,
+      };
+    },
     props: {
       /**
        * An array of options objects, with one object per dropdown item
