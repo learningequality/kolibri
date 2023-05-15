@@ -107,10 +107,10 @@ module.exports = (
     mode,
     output: {
       path: path.resolve(path.join(data.static_dir, data.name)),
-      filename: '[name]-' + data.version + '.js',
+      filename: '[name].js',
       // Need to define this in order for chunks to be named
       // Without this chunks from different bundles will likely have colliding names
-      chunkFilename: data.name + '-[name]-' + data.version + '.js',
+      chunkFilename: data.name + '-[name].js',
       // c.f. https://webpack.js.org/configuration/output/#outputchunkloadingglobal
       // Without this namespacing, there is a possibility that chunks from different
       // plugins could conflict in the global chunk namespace.
@@ -137,8 +137,8 @@ module.exports = (
     },
     plugins: [
       new MiniCssExtractPlugin({
-        filename: '[name]' + data.version + '.css',
-        chunkFilename: '[name]' + data.version + '[id].css',
+        filename: '[name].css',
+        chunkFilename: '[name][id].css',
       }),
       new WebpackRTLPlugin({
         minify: false,
