@@ -36,14 +36,13 @@
         <template v-for="(d, idx) in savedDevices">
           <div :key="`div-${idx}`">
             <KRadioButton
-              v-if="canLearnerSignUp(d.id)"
               :key="idx"
               v-model="selectedDeviceId"
               class="radio-button"
-              :value="d.id"
+              :value="canLearnerSignUp(d.id) ? d.id : false"
               :label="d.nickname"
               :description="d.base_url"
-              :disabled="formDisabled || !isDeviceAvailable(d.id)"
+              :disabled="canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
             />
             <KButton
               :key="`forget-${idx}`"
@@ -62,24 +61,21 @@
       >
 
       <!-- Dynamic Devices -->
-      <template v-if="anyDiscoveredDeviceSeen()">
-        <template v-for="d in discoveredDevices">
-          <div :key="`div-${d.id}`">
-            <KRadioButton
-              v-if="canLearnerSignUp(d.id)"
-              :key="d.id"
-              v-model="selectedDeviceId"
-              class="radio-button"
-              :value="d.instance_id"
-              :label="formatNameAndId(d.device_name, d.id)"
-              :description="formatBaseDevice(d)"
-              :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
-            />
-          </div>
-        </template>
-      </template>
-      <template v-else>
-        <p> {{ $tr('noDeviceText') }} </p>
+      <template v-for="d in discoveredDevices">
+        <div :key="`div-${d.id}`">
+          <KRadioButton
+            :key="d.id"
+            v-model="selectedDeviceId"
+            class="radio-button"
+            :value="canLearnerSignUp(d.id) ? d.instance_id : false"
+            :label="formatNameAndId(d.device_name, d.id)"
+            :description="formatBaseDevice(d)"
+            :disabled="!canLearnerSignUp(d.id)
+              || formDisabled
+              || fetchFailed
+              || !isDeviceAvailable(d.id)"
+          />
+        </div>
       </template>
     </template>
 
@@ -437,28 +433,8 @@
       },
       canLearnerSignUp(id) {
         for (const facility of this.availableFacilities) {
-          console.log("can learner working")
-          console.log(id);
-          console.log(facility.address_id);
           if (facility.address_id === id) {
-            console.log(facility.learner_can_sign_up)
             return facility.learner_can_sign_up;
-          }
-        }
-        return false;
-      },
-      anyDiscoveredDeviceSeen() {
-        for (const device of this.discoveredDevices) {
-          if (this.canLearnerSignUp(device.id)) {
-            return true;
-          }
-        }
-        return false;
-      },
-      anySavedDeviceSeen() {
-        for (const device of this.savedDevices) {
-          if (this.canLearnerSignUp(device.id)) {
-            return true;
           }
         }
         return false;
