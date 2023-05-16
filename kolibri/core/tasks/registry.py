@@ -13,7 +13,6 @@ from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.utils import stringify_func
-from kolibri.core.tasks.validation import EnqueueArgsSerializer
 from kolibri.core.tasks.validation import JobValidator
 
 
@@ -262,25 +261,22 @@ class RegisteredTask(object):
                 raise PermissionDenied
 
     def validate_job_data(self, user, data):
-        enqueue_args_serializer = EnqueueArgsSerializer(
-            data=data.pop("enqueue_args", {})
-        )
-        enqueue_args_serializer.is_valid(raise_exception=True)
-
         # Run validator with `user` and `data` as its argument.
         if "type" not in data:
             data["type"] = stringify_func(self)
         validator = self.validator(data=data, context={"user": user})
         validator.is_valid(raise_exception=True)
+        validated_data = validator.validated_data
+        enqueue_args_validated_data = validated_data.pop("enqueue_args")
 
         try:
-            job = self._ready_job(**validator.validated_data)
+            job = self._ready_job(**validated_data)
         except TypeError:
             raise serializers.ValidationError(
                 "Invalid job data returned from validator."
             )
 
-        return job, enqueue_args_serializer.validated_data
+        return job, enqueue_args_validated_data
 
     def enqueue(self, job=None, retry_interval=None, priority=None, **job_kwargs):
         """
