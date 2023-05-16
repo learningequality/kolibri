@@ -51,15 +51,8 @@ jobs:
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
-    - name: Register the kolibri PPA
-      id: ppa
-      run: |
-        sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys AD405B4A
-        sudo add-apt-repository -y -u -s ppa:learningequality/kolibri-proposed
-    - name: Install Ubuntu dependencies
-      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf
-    - name: Download the most recent kolibri from the PPA
-      run: apt-get -y source kolibri
+    - name: Install Debian build package dependencies
+      run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip
     - name: Run the build
       run: make kolibri.deb
     - name: Get DEB filename

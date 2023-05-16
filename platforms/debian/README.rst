@@ -16,9 +16,6 @@ Decisions (some pending):
 * ``python3-cryptography`` is a suggested dependency
 * How do we get rid of bundled c-extensions upstream (in Python pkg) and replace them with real dependencies
 
-Upcoming changes:
-
-* A package with Nginx proxy config for static media and video streaming
 
 
 Installation instructions

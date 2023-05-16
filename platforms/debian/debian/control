@@ -12,23 +12,14 @@ Build-Depends: debhelper (>=9),
 Standards-Version: 3.9.7
 Homepage: https://learningequality.org/kolibri
 X-Python-Version: >= 2.7
-X-Python3-Version: >= 3.4
+X-Python3-Version: >= 3.6
 Vcs-Git: https://github.com/learningequality/kolibri-installer-debian.git
 Vcs-Browser: https://github.com/learningequality/kolibri-installer-debian
 
-# We are not going to make a python 2 version.
-# Package: python-kolibri
-# Architecture: all
-# Depends: ${python:Depends}, ${misc:Depends}
-# Suggests: python-kolibri-doc
-# Description: <insert up to 60 chars description> (Python 2)
-#  <insert long description, indented with spaces>
-#  .
-#  This package installs the library for Python 2.
 
 Package: kolibri
 Architecture: all
-Depends: python3 (>= 3.4),
+Depends: python3 (>= 3.6),
          python3-pkg-resources,
          adduser
 Recommends: python3-cryptography (>= 1.2.3)

@@ -44,7 +44,6 @@ override_dh_auto_install:
 ifeq ($(filter stage1,$(DEB_BUILD_PROFILES)),)
 override_dh_installdeb:
 	dh_installdeb
-#	perl -w debian/dh_installscripts-common -p kolibri -p kolibri-raspberry-pi
 	perl -w debian/dh_installscripts-common -p kolibri
 endif
 
