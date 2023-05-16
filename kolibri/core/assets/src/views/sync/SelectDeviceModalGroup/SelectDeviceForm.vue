@@ -32,27 +32,25 @@
       </UiAlert>
 
       <!-- Static Devices -->
-      <template v-if="anySavedDeviceSeen">
-        <template v-for="(d, idx) in savedDevices">
-          <div :key="`div-${idx}`">
-            <KRadioButton
-              :key="idx"
-              v-model="selectedDeviceId"
-              class="radio-button"
-              :value="canLearnerSignUp(d.id) ? d.id : false"
-              :label="d.nickname"
-              :description="d.base_url"
-              :disabled="canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
-            />
-            <KButton
-              :key="`forget-${idx}`"
-              :text="coreString('removeAction')"
-              class="remove-device-button"
-              appearance="basic-link"
-              @click="removeSavedDevice(d.id)"
-            />
-          </div>
-        </template>
+      <template v-for="(d, idx) in savedDevices">
+        <div :key="`div-${idx}`">
+          <KRadioButton
+            :key="idx"
+            v-model="selectedDeviceId"
+            class="radio-button"
+            :value="canLearnerSignUp(d.id) ? d.id : false"
+            :label="d.nickname"
+            :description="d.base_url"
+            :disabled="canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
+          />
+          <KButton
+            :key="`forget-${idx}`"
+            :text="coreString('removeAction')"
+            class="remove-device-button"
+            appearance="basic-link"
+            @click="removeSavedDevice(d.id)"
+          />
+        </div>
       </template>
 
       <hr
