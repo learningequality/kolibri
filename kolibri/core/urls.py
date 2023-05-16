@@ -41,6 +41,7 @@ from rest_framework import routers
 from .views import GuestRedirectView
 from .views import logout_view
 from .views import PwaManifestView
+from .views import PwaServiceWorkerView
 from .views import RootURLRedirectView
 from .views import set_language
 from .views import StatusCheckView
@@ -74,6 +75,7 @@ core_urlpatterns = (
         url(r"^status/", StatusCheckView.as_view(), name="status_check"),
         url(r"^manifest.json$", PwaManifestView.as_view(), name="pwa_manifest"),
         url(r"^manifest.webmanifest$", PwaManifestView.as_view(), name="pwa_manifest"),
+        url(r"^sw.js$", PwaServiceWorkerView.as_view(), name="pwa_service_worker"),
     ],
     "core",
 )

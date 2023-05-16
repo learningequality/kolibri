@@ -69,6 +69,20 @@ Vue.use(KContentPlugin, {
   registerContentActivity: heartbeat.setActive,
 });
 
+// Register the Progressive Web App (PWA) service worker, if supported by the
+// browser.
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker
+    .register("/sw.js")
+    .then(serviceWorker => {
+      console.log("Service Worker registered: ", serviceWorker);
+    })
+    .catch(error => {
+      console.error("Error registering the Service Worker: ", error);
+    });
+}
+
+
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();
 

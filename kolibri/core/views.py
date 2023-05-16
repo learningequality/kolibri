@@ -216,6 +216,20 @@ class PwaManifestView(TemplateView):
         return context
 
 
+@method_decorator(cache_no_user_data, name="dispatch")
+@method_decorator(gzip_page, name="dispatch")
+@method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
+class PwaServiceWorkerView(TemplateView):
+    template_name = "kolibri/sw.js"
+    content_type = "application/javascript"
+
+    def get_context_data(self, **kwargs):
+        context = super(PwaServiceWorkerView, self).get_context_data(**kwargs)
+        # Increment this each time a potentially cached asset changes.
+        context["version"] = '1'
+        return context
+
+
 class StatusCheckView(View):
     def get(self, request):
         """

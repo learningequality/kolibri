@@ -11,6 +11,7 @@
   <meta name="google" content="notranslate">
   <link rel="shortcut icon" href="{% static 'assets/logo.ico' %}">
   <link rel="manifest" href="{% url 'kolibri:core:pwa_manifest' %}">
+  <script type="text/javascript" src="{% url 'kolibri:core:pwa_service_worker' %}"></script>
   <title>{% trans "Kolibri" %}</title>
   {% if LANGUAGE_CODE == "ach-ug" %}
     <script type="text/javascript">
