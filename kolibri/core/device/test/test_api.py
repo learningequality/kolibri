@@ -242,9 +242,9 @@ class DeviceProvisionTestCase(APITestCase):
         response = self._post_deviceprovision(data)
         self.assertEqual(response.status_code, 400)
 
-    def test_imported_facility_with_no_facility(self):
+    def test_imported_facility_with_no_facility_data(self):
         data = self._default_provision_data()
-        # Try to create facility data with data
+        # Try to create facility with no data
         data["facility_id"] = None
         del data["facility"]
         response = self._post_deviceprovision(data)
