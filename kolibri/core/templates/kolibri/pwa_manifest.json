@@ -1,0 +1,23 @@
+{% load i18n core_tags webpack_tags content_tags cache %}
+{% load staticfiles %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_current_language as LANGUAGE_CODE %}
+{
+  "name": "{% trans 'Kolibri' %}",
+  "short_name": "{% trans 'Kolibri' %}",
+  "dir": "{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}",
+  "lang": "{{ LANGUAGE_CODE }}",
+  "icons": [
+    {
+      "src": "{% static 'assets/logo.ico' %}",
+      "type": "image/ico",
+      "sizes": "32x32"
+    }
+  ],
+  "id": "/",
+  "start_url": "{% url 'kolibri:core:root_redirect' %}",
+  "background_color": "{{ brand_primary_v400 }}",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "{{ brand_primary_v400 }}"
+}

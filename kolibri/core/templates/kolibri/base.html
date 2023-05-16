@@ -10,6 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="google" content="notranslate">
   <link rel="shortcut icon" href="{% static 'assets/logo.ico' %}">
+  <link rel="manifest" href="{% url 'kolibri:core:pwa_manifest' %}">
   <title>{% trans "Kolibri" %}</title>
   {% if LANGUAGE_CODE == "ach-ug" %}
     <script type="text/javascript">

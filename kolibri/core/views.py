@@ -12,6 +12,8 @@ from django.utils.six.moves.urllib.parse import urlunsplit
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _
+from django.views.decorators.cache import cache_page
+from django.views.decorators.gzip import gzip_page
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View
@@ -187,6 +189,24 @@ class UnsupportedBrowserView(TemplateView):
 
     def get_context_data(self, **kwargs):
         context = super(UnsupportedBrowserView, self).get_context_data(**kwargs)
+        context["brand_primary_v400"] = (
+            ThemeHook.get_theme()
+            .get("brandColors", {})
+            .get("primary", {})
+            .get("v_400", "#212121")
+        )
+        return context
+
+
+@method_decorator(cache_no_user_data, name="dispatch")
+@method_decorator(gzip_page, name="dispatch")
+@method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
+class PwaManifestView(TemplateView):
+    template_name = "kolibri/pwa_manifest.json"
+    content_type = "application/json"
+
+    def get_context_data(self, **kwargs):
+        context = super(PwaManifestView, self).get_context_data(**kwargs)
         context["brand_primary_v400"] = (
             ThemeHook.get_theme()
             .get("brandColors", {})
