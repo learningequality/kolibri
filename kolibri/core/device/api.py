@@ -86,22 +86,28 @@ class DeviceProvisionView(viewsets.GenericViewSet):
     serializer_class = DeviceProvisionSerializer
 
     def create(self, request, *args, **kwargs):
-        serializer = self.get_serializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.save()
-        if data["superuser"]:
-            login(request, data["superuser"])
-        output_serializer = self.get_serializer(data)
-        response_data = output_serializer.data
+        try:
+            serializer = self.get_serializer(data=request.data)
+            serializer.is_valid(raise_exception=True)
+            data = serializer.save()
+            if data["superuser"]:
+                login(request, data["superuser"])
+            output_serializer = self.get_serializer(data)
+            response_data = output_serializer.data
 
-        # Restart zeroconf before moving along when we're a SoUD
-        if response_data["is_soud"]:
-            logger.info("Updating our Kolibri instance on the Zeroconf network now")
-            from kolibri.utils.server import update_zeroconf_broadcast
+            # Restart zeroconf before moving along when we're a SoUD
+            if response_data["is_soud"]:
+                logger.info("Updating our Kolibri instance on the Zeroconf network now")
+                from kolibri.utils.server import update_zeroconf_broadcast
 
-            update_zeroconf_broadcast()
+                update_zeroconf_broadcast()
 
-        return Response(response_data, status=status.HTTP_201_CREATED)
+            return Response(response_data, status=status.HTTP_201_CREATED)
+        except Exception:
+            return Response(
+                "Error occured during device provisioning",
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):

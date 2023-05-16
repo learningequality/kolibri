@@ -234,6 +234,22 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertEqual(settings.learner_can_edit_username, True)
         self.assertEqual(facility.on_my_own_setup, False)
 
+    def test_imported_facility_with_fake_facility_id(self):
+        data = self._default_provision_data()
+        # Fake facility_id
+        data["facility_id"] = "12345678123456781234567812345678"
+        del data["facility"]
+        response = self._post_deviceprovision(data)
+        self.assertEqual(response.status_code, 400)
+
+    def test_imported_facility_with_no_facility(self):
+        data = self._default_provision_data()
+        # Try to create facility data with data
+        data["facility_id"] = None
+        del data["facility"]
+        response = self._post_deviceprovision(data)
+        self.assertEqual(response.status_code, 400)
+
 
 class DeviceSettingsTestCase(APITestCase):
     @classmethod
