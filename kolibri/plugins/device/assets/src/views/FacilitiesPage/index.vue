@@ -62,6 +62,7 @@
                   <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
                     <KButton
                       :text="coreString('syncAction')"
+                      :disabled="facilityIsSyncing(facility)"
                       appearance="flat-button"
                       @click="facilityForSync = facility"
                     />
@@ -69,6 +70,7 @@
                       hasDropdown
                       appearance="flat-button"
                       :text="coreString('optionsLabel')"
+                      :disabled="facilityIsSyncing(facility)"
                     >
                       <template #menu>
                         <KDropdownMenu
@@ -102,6 +104,7 @@
                 <KButtonGroup>
                   <KButton
                     :text="coreString('syncAction')"
+                    :disabled="facilityIsSyncing(facility)"
                     appearance="flat-button"
                     @click="facilityForSync = facility"
                   />
@@ -109,10 +112,11 @@
                     hasDropdown
                     appearance="flat-button"
                     :text="coreString('optionsLabel')"
+                    :disabled="facilityIsSyncing(facility)"
                   >
                     <template #menu>
                       <KDropdownMenu
-                        :options="facilityOptions(facility)"
+                        :options="facilityOptions()"
                         @select="handleOptionSelect($event.value, facility)"
                       />
                     </template>
@@ -149,8 +153,10 @@
         <RegisterFacilityModal
           v-if="!kdpProject"
           :facility="facilityForRegister"
+          :displaySkipOption="displaySkipOption"
           @success="handleValidateSuccess"
           @cancel="clearRegistrationState"
+          @skip="handleKDPSync"
         />
 
         <ConfirmationRegisterModal
@@ -167,7 +173,9 @@
         v-if="Boolean(facilityForSync)"
         :facilityForSync="facilityForSync"
         @close="facilityForSync = null"
-        @success="handleStartSyncSuccess"
+        @register="handleRegister"
+        @syncKDP="handleKDPSync"
+        @syncPeer="handlePeerSync"
       />
     </KPageContainer>
   </AppBarPage>
@@ -238,6 +246,7 @@
         facilityForRegister: null,
         kdpProject: null, // { name, token }
         taskIdsToWatch: [],
+        displaySkipOption: false,
         // (facilityTaskQueue) facilityTasks
       };
     },
@@ -277,7 +286,7 @@
       this.fetchFacilites();
     },
     methods: {
-      facilityOptions(facility) {
+      facilityOptions() {
         return [
           {
             label: this.coreString('manageSyncAction'),
@@ -286,7 +295,6 @@
           {
             label: this.coreString('registerAction'),
             value: Options.REGISTER,
-            disabled: facility.dataset.registered,
           },
           {
             label: this.coreString('removeAction'),
@@ -298,6 +306,7 @@
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
+          this.displaySkipOption = false;
           this.facilityForRegister = facility;
         } else if (option === Options.MANAGESYNC) {
           const route = this.manageSync(facility.id);
@@ -323,8 +332,9 @@
         this.facilityForRegister = null;
         this.kdpProject = null;
       },
-      handleStartSyncSuccess(taskId) {
-        this.taskIdsToWatch.push(taskId);
+      handleStartSyncSuccess(task) {
+        this.taskIdsToWatch.push(task.id);
+        this.facilityTasks.push(task);
         this.facilityForSync = null;
       },
       handleSyncAllSuccess() {
@@ -356,6 +366,35 @@
       handleRemoveSuccess(taskId) {
         this.taskIdsToWatch.push(taskId);
         this.facilityForRemoval = null;
+      },
+      handleRegister(displaySkipOption, facility) {
+        this.displaySkipOption = displaySkipOption;
+        this.facilityForRegister = facility;
+        this.facilityForSync = null;
+      },
+      handleKDPSync(facility) {
+        this.facilityForSync = null;
+        this.facilityForRegister = null;
+        this.startKdpSyncTask(facility.id)
+          .then(task => {
+            this.handleStartSyncSuccess(task);
+          })
+          .catch(() => {
+            this.$emit('failure');
+          });
+      },
+      handlePeerSync(peerData, facility) {
+        this.facilityForSync = null;
+        this.startPeerSyncTask({
+          facility: facility.id,
+          device_id: peerData.id,
+        })
+          .then(task => {
+            this.handleStartSyncSuccess(task);
+          })
+          .catch(() => {
+            this.$emit('failure');
+          });
       },
     },
     $trs: {

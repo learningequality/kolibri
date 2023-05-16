@@ -126,7 +126,7 @@
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
           os_user: checkCapability('get_os_user'),
-          is_soud: this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD,
+          is_soud: this.wizardContext('fullOrLOD') === DeviceTypePresets.LOD,
         };
 
         // Remove anything that is `null` value

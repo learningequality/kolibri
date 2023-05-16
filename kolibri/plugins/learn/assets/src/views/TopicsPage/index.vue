@@ -35,7 +35,7 @@
 
       <main
         class="main-content-grid"
-        :style="gridOffset"
+        :style="gridStyle"
       >
         <KBreadcrumbs
           v-if="breadcrumbs.length && windowIsSmall"
@@ -146,7 +146,6 @@
         :topicsLoading="topicMoreLoading"
         @searchTerms="newTerms => searchTerms = newTerms"
         @currentCategory="handleShowSearchModal"
-        @closeCategoryModal="closeCategoryModal"
         @loadMoreTopics="handleLoadMoreInTopic"
         @close="sidePanelIsOpen = false"
       />
@@ -182,7 +181,6 @@
         class="full-screen-side-panel"
         alignment="left"
         :closeButtonIconType="closeButtonIcon"
-        :sidePanelOverrideWidth="`${sidePanelOverlayWidth}px`"
         @closePanel="closeEventHandler()"
         @shouldFocusFirstEl="findFirstEl()"
       >
@@ -544,10 +542,30 @@
           return 346;
         }
       },
-      gridOffset() {
-        return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px` }
-          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+      gridStyle() {
+        let style = {};
+        /*
+          Fixes jumping scrollbar when reaching the bottom of the page
+          for certain page heights and when side bar is present.
+          The issue is caused by the document scroll height being changed
+          by the sidebar's switching position from absolute to fixed in
+          the sticky calculation, resulting in an endless cycle
+          of the calculation being called and the sidepanel alternating between
+          fixed and absolute position over and over. Setting min height prevents
+          this by making sure that the document scroll height won't change
+          on the sidebar positioning updates.
+        */
+        if (this.windowIsLarge) {
+          style = {
+            minHeight: '900px',
+          };
+        }
+        if (this.isRtl) {
+          style.marginRight = `${this.sidePanelWidth + 24}px`;
+        } else {
+          style.marginLeft = `${this.sidePanelWidth + 24}px`;
+        }
+        return style;
       },
       numCols() {
         if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {

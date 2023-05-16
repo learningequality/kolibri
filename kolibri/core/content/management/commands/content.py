@@ -137,7 +137,8 @@ class Command(BaseCommand):
         Update kolibri_settings.json in KOLIBRI_HOME so that the variable
         CONTENT_DIRECTORY points to the destination content directory.
         """
-        update_options_file("Paths", "CONTENT_DIR", dst, KOLIBRI_HOME)
+        ini_path = os.path.join(KOLIBRI_HOME, "options.ini")
+        update_options_file("Paths", "CONTENT_DIR", dst, ini_path)
 
         self.stdout.write(
             self.style.SUCCESS("\nCurrent content directory is {}".format(dst))

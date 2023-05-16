@@ -86,7 +86,7 @@
     name: 'SelectFacility',
     metaInfo() {
       return {
-        title: this.profileString('documentTitle'),
+        title: this.getCommonSyncString('selectFacilityTitle'),
       };
     },
     components: { AddDeviceForm, BottomAppBar },

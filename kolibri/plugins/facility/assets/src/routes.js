@@ -1,4 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -23,12 +24,23 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
 
+function facilityParamRequiredGuard(toRoute, subtopicName) {
+  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+    router.replace({
+      name: 'ALL_FACILITIES_PAGE',
+      params: { subtopicName },
+    });
+    return true;
+  }
+}
+
 export default [
   // Routes for multi-facility case
   {
     name: PageNames.ALL_FACILITIES_PAGE,
     path: '/facilities',
     component: AllFacilitiesPage,
+    props: true,
     handler() {
       store.dispatch('preparePage', { isAsync: false });
     },
@@ -41,6 +53,9 @@ export default [
     path: '/:facility_id?/classes',
     component: ManageClassPage,
     handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, ManageClassPage.name)) {
+        return;
+      }
       showClassesPage(store, toRoute);
     },
   },
@@ -73,6 +88,9 @@ export default [
     component: UserPage,
     path: '/:facility_id?/users',
     handler: (toRoute, fromRoute) => {
+      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
+        return;
+      }
       showUserPage(store, toRoute, fromRoute);
     },
   },
@@ -96,7 +114,10 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     component: DataPage,
     path: '/:facility_id?/data',
-    handler: () => {
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, DataPage.name)) {
+        return;
+      }
       store.dispatch('preparePage', { isAsync: false });
     },
   },
@@ -113,6 +134,9 @@ export default [
     component: FacilitiesConfigPage,
     path: '/:facility_id?/settings',
     handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, FacilitiesConfigPage.name)) {
+        return;
+      }
       showFacilityConfigPage(store, toRoute);
     },
   },

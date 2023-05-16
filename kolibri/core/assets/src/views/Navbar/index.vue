@@ -17,13 +17,19 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
    */
   export default {
     name: 'Navbar',
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowIsLarge, windowIsMedium } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsMedium,
+      };
+    },
     computed: {
       styleOverrides() {
         const styles = { maxHeight: '52px' };

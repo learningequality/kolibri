@@ -49,13 +49,13 @@
         default: false,
       },
     },
-    data() {
-      return {
-        progress: this.quiz ? this.quiz.progress : undefined,
-        title: this.quiz ? this.quiz.title : '',
-      };
-    },
     computed: {
+      progress() {
+        return this.quiz ? this.quiz.progress : undefined;
+      },
+      title() {
+        return this.quiz ? this.quiz.title : '';
+      },
       inProgressLabel() {
         if (!this.progress) {
           return '';

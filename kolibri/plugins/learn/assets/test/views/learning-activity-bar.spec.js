@@ -263,5 +263,47 @@ describe('LearningActivityBar', () => {
         expect(wrapper.emitted().viewInfo.length).toBe(1);
       });
     });
+
+    describe(`download`, () => {
+      it(`doesn't show the download button by default`, () => {
+        const wrapper = makeWrapper();
+        expect(wrapper.find("[data-test='bar_downloadButton']").exists()).toBeFalsy();
+      });
+
+      describe(`for truthy 'showDownloadButton'`, () => {
+        let wrapper;
+
+        beforeEach(() => {
+          wrapper = makeWrapper({
+            propsData: {
+              showDownloadButton: true,
+            },
+          });
+        });
+
+        it(`shows the download button`, () => {
+          expect(wrapper.find("[data-test='bar_downloadButton']").exists()).toBeTruthy();
+        });
+
+        it(`clicking the download button emits the 'download' event`, () => {
+          wrapper.find("[data-test='bar_downloadButton']").trigger('click');
+          expect(wrapper.emitted().download.length).toBe(1);
+        });
+      });
+
+      it(`doesn't show the downloading loader by default`, () => {
+        const wrapper = makeWrapper();
+        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeFalsy();
+      });
+
+      it(`shows the downloading loader for truthy 'isDownloading'`, () => {
+        const wrapper = makeWrapper({
+          propsData: {
+            isDownloading: true,
+          },
+        });
+        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeTruthy();
+      });
+    });
   });
 });

@@ -33,7 +33,7 @@
     mixins: [commonCoreStrings],
     data() {
       return {
-        value: this.wizardService.state.context.deviceName,
+        value: this.wizardService.state.context['deviceName'],
         shouldValidate: false,
       };
     },

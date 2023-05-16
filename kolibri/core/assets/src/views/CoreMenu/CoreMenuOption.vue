@@ -98,6 +98,11 @@
         required: false,
         default: null,
       },
+      disabled: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     data() {
       return {
@@ -109,6 +114,12 @@
         return window.location.pathname == this.link;
       },
       optionStyle() {
+        if (this.disabled) {
+          return {
+            color: this.$themeTokens.textDisabled,
+            margin: '8px',
+          };
+        }
         if (this.isActive) {
           return {
             color: this.$themeTokens.primaryDark,
@@ -130,7 +141,13 @@
         };
       },
       optionIconColor() {
-        return this.active ? this.$themeTokens.primary : null;
+        if (this.disabled) {
+          return this.$themeTokens.textDisabled;
+        } else if (this.active) {
+          return this.$themeTokens.primary;
+        } else {
+          return null;
+        }
       },
       iconAfter() {
         return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
@@ -170,6 +187,9 @@
         };
       },
       toggleAndroidMenu() {
+        if (this.disabled) {
+          return;
+        }
         this.$emit('toggleAndroidMenu');
       },
       handleNav(route) {
@@ -180,9 +200,10 @@
         return generateNavRoute(this.link, route, params);
       },
       conditionalEmit() {
-        if (!this.link) {
-          this.$emit('select');
+        if (this.disabled || this.link) {
+          return;
         }
+        this.$emit('select');
       },
     },
   };
@@ -200,6 +221,7 @@
     margin: 4px 8px;
     font-size: 16px;
     text-decoration: none;
+    cursor: pointer;
     border-radius: $radius;
     outline-offset: -1px; // override global styles
     transition: background-color $core-time ease;

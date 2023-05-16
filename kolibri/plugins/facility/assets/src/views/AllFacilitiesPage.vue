@@ -51,6 +51,13 @@
       CoreTable,
     },
     mixins: [commonCoreStrings],
+    props: {
+      subtopicName: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       ...mapGetters(['facilityPageLinks', 'userIsMultiFacilityAdmin']),
       facilities() {
@@ -66,7 +73,10 @@
     },
     methods: {
       facilityLink(facility) {
-        const link = cloneDeep(this.facilityPageLinks.ManageClassPage);
+        const link = cloneDeep(
+          this.facilityPageLinks[this.subtopicName] || this.facilityPageLinks.ManageClassPage
+        );
+
         link.params.facility_id = facility.id;
         return link;
       },

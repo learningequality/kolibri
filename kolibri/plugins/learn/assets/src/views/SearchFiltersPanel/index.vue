@@ -184,7 +184,8 @@
       },
       width: {
         type: [Number, String],
-        required: true,
+        required: false,
+        default: null,
       },
       topicsListDisplayed: {
         type: Boolean,

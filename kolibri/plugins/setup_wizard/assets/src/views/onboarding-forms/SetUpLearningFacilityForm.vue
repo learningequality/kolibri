@@ -41,9 +41,10 @@
     },
     inject: ['wizardService'],
     data() {
+      const selected = this.wizardService.state.context['importOrNew'] || Options.NEW;
       return {
         Options,
-        selected: Options.NEW,
+        selected,
         showSelectAddressModal: false,
       };
     },

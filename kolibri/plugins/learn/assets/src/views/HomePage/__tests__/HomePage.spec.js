@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import { ClassesPageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
@@ -21,6 +22,7 @@ jest.mock('../../../composables/useLearnerResources');
 jest.mock('../../../composables/useContentLink');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../../composables/useLearningActivities');
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -82,6 +84,12 @@ function getExploreChannelsSection(wrapper) {
 }
 
 describe(`HomePage`, () => {
+  beforeAll(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+    }));
+  });
+
   beforeEach(() => {
     jest.clearAllMocks();
     // set back to default values defined in __mocks__

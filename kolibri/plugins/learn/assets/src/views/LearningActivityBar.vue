@@ -32,6 +32,29 @@
       </template>
 
       <template #actions>
+        <Transition name="downloading-loader">
+          <!--
+            wrapping span needed here because
+            (1) tooltip doesn't display when `ref` is on `KCircularLoader`
+            (2) Transition needs a single child
+          -->
+          <span ref="downloadingLoader">
+            <KCircularLoader
+              :show="isDownloading"
+              :minVisibleTime="3000"
+              data-test="downloadingLoader"
+              :size="24"
+              :style="{ margin: '10px 4px 0px 4px' }"
+            />
+            <KTooltip
+              reference="downloadingLoader"
+              :refs="$refs"
+            >
+              {{ downloadingLoaderTooltip }}
+            </KTooltip>
+          </span>
+        </Transition>
+
         <KIconButton
           v-if="isQuiz && !showingReportState"
           ref="timerButton"
@@ -68,18 +91,21 @@
         </CoreMenu>
         <DeviceConnectionStatus :deviceId="deviceId" />
 
-        <KIconButton
-          v-for="action in barActions"
-          :key="action.id"
-          :data-test="`bar_${action.dataTest}`"
-          :icon="action.icon"
-          :color="action.iconColor"
-          :tooltip="action.label"
-          :ariaLabel="action.label"
-          :disabled="action.disabled"
-          :class="action.id === 'next-steps' && nextStepsAnimate ? 'bounce' : ''"
-          @click="onActionClick(action.event)"
-        />
+        <TransitionGroup name="bar-actions">
+          <KIconButton
+            v-for="action in barActions"
+            :key="action.id"
+            :data-test="`bar_${action.dataTest}`"
+            :icon="action.icon"
+            :color="action.iconColor"
+            :tooltip="action.label"
+            :ariaLabel="action.label"
+            :disabled="action.disabled"
+            class="bar-actions-item"
+            :class="action.id === 'next-steps' && nextStepsAnimate ? 'bounce' : ''"
+            @click="onActionClick(action.event)"
+          />
+        </TransitionGroup>
 
         <span class="menu-wrapper">
           <KIconButton
@@ -107,7 +133,9 @@
                 v-for="action in menuActions"
                 :key="action.id"
                 :data-test="`menu_${action.dataTest}`"
+                :disabled="action.disabled"
                 :style="{ 'cursor': 'pointer' }"
+                :icon="action.icon"
                 @select="onActionClick(action.event)"
               >
                 <KLabeledIcon>
@@ -172,6 +200,7 @@
      * - `markComplete` on 'Mark resource as finished' click. Only when
      *                  a resource can be marked as complete.
      * - `viewInfo` on 'View information' click
+     * - `download` on 'Download' click
      */
     props: {
       resourceTitle: {
@@ -279,6 +308,30 @@
         required: false,
         default: true,
       },
+      /**
+       * Shows the download button when truthy
+       */
+      showDownloadButton: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+       * Shows the downloading loader and disables download action when truthy
+       */
+      isDownloading: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
+      /**
+       * Tooltip text for the downloading loader.
+       */
+      downloadingLoaderTooltip: {
+        type: String,
+        required: false,
+        default: '',
+      },
     },
     data() {
       return {
@@ -294,6 +347,9 @@
 
       showMarkComplete() {
         return this.allowMarkComplete && this.contentProgress < 1;
+      },
+      disableDownloadButton() {
+        return this.isDownloading;
       },
       allActions() {
         const actions = [
@@ -317,6 +373,17 @@
             event: 'toggleBookmark',
             disabled: this.isBookmarked === null,
             dataTest: this.isBookmarked ? 'removeBookmarkButton' : 'addBookmarkButton',
+          });
+        }
+        if (this.showDownloadButton) {
+          actions.push({
+            id: 'download',
+            icon: 'download',
+            iconColor: this.disableDownloadButton ? this.$themeTokens.textDisabled : null,
+            label: this.coreString('downloadAction'),
+            event: 'download',
+            dataTest: 'downloadButton',
+            disabled: this.disableDownloadButton,
           });
         }
         if (this.showMarkComplete) {
@@ -430,16 +497,16 @@
         // close menu on outside click
         if (this.isMenuOpen) {
           if (
-            !this.$refs.menu.$el.contains(event.target) &&
-            !this.$refs.moreOptionsButton.$el.contains(event.target)
+            !this.$refs.menu.$el?.contains(event.target) &&
+            !this.$refs.moreOptionsButton?.$el.contains(event.target)
           ) {
             this.closeMenu({ focusMoreOptionsButton: false });
           }
         }
         if (this.isTimerOpen) {
           if (
-            !this.$refs.timerButton.$el.contains(event.target) &&
-            !this.$refs.timer.$el.contains(event.target)
+            !this.$refs.timerButton?.$el.contains(event.target) &&
+            !this.$refs.timer?.$el.contains(event.target)
           ) {
             this.closeTimer({ focusTimerButton: false });
           }
@@ -591,6 +658,30 @@
     animation-delay: 0s;
     animation-iteration-count: infinite;
     animation-direction: normal;
+  }
+
+  .downloading-loader-enter-active,
+  .downloading-loader-leave-active {
+    transition: opacity 0.4s ease-in-out;
+  }
+
+  .downloading-loader-enter,
+  .downloading-loader-leave-to {
+    opacity: 0;
+  }
+
+  // https://v2.vuejs.org/v2/guide/transitions.html#List-Move-Transitions
+  .bar-actions-item {
+    transition: all 0.5s ease-in-out;
+  }
+
+  .bar-actions-enter,
+  .bar-actions-leave-to {
+    opacity: 0;
+  }
+
+  .bar-actions-leave-active {
+    position: absolute;
   }
 
 </style>

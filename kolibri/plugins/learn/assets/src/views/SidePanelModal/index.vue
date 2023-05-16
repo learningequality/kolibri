@@ -32,6 +32,7 @@
           </div>
 
           <KIconButton
+            v-if="closeButtonIconType"
             :icon="closeButtonIconType"
             class="close-button"
             :style="closeButtonStyle"
@@ -78,7 +79,7 @@
       /* CloseButtonIconType icon from parent component */
       closeButtonIconType: {
         type: String,
-        required: true,
+        required: false,
         default: 'close',
         validator: value => {
           return ['close', 'back'].includes(value);

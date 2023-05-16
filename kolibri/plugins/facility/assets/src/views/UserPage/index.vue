@@ -2,6 +2,17 @@
 
   <FacilityAppBarPage>
     <KPageContainer>
+      <p>
+        <KRouterLink
+          v-if="userIsMultiFacilityAdmin"
+          :to="{
+            name: facilityPageLinks.AllFacilitiesPage.name,
+            params: { subtopicName: 'UserPage' }
+          }"
+          icon="back"
+          :text="coreString('changeLearningFacility')"
+        />
+      </p>
       <KGrid>
         <KGridItem
           :layout8="{ span: 4 }"
@@ -134,7 +145,12 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId', 'isSuperuser']),
+      ...mapGetters([
+        'currentUserId',
+        'isSuperuser',
+        'userIsMultiFacilityAdmin',
+        'facilityPageLinks',
+      ]),
       ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
       Modals: () => Modals,
       userKinds() {
