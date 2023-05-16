@@ -15,3 +15,7 @@ class JobNotFound(Exception):
 
 class JobNotRestartable(Exception):
     pass
+
+
+class JobRunning(Exception):
+    pass

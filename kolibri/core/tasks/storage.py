@@ -20,6 +20,7 @@ from sqlalchemy.orm import sessionmaker
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
@@ -568,16 +569,8 @@ class Storage(object):
 
         with self.session_scope() as session:
             orm_job = session.query(ORMJob).get(job.job_id)
-            if orm_job and orm_job.state not in {
-                State.COMPLETED,
-                State.FAILED,
-                State.CANCELED,
-            }:
-                # If this job is already queued or running, don't try to replace it.
-                # Call our schedule hooks anyway to ensure that job storage
-                # is synchronized with any other task runner.
-                self._run_scheduled_hooks(orm_job)
-                return job.job_id
+            if orm_job and orm_job.state == State.RUNNING:
+                raise JobRunning()
 
             job.state = State.QUEUED
             orm_job = ORMJob(
