@@ -373,7 +373,7 @@ def cache_no_user_data(view_func):
 
         render_and_cache(response, CACHE_KEY_TEMPLATE.format(request.path))
         patch_response_headers(response, cache_timeout=CACHE_TIMEOUT)
-        response["Vary"] = "accept-encoding, accept"
+        response["Vary"] = "accept-encoding, accept, accept-language"
         return response
 
     return inner_func
