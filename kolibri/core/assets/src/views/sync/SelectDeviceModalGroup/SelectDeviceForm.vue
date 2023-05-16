@@ -32,7 +32,7 @@
       </UiAlert>
 
       <!-- Static Devices -->
-      <template v-if="!anySavedDeviceSeen">
+      <template v-if="anySavedDeviceSeen">
         <template v-for="(d, idx) in savedDevices">
           <div :key="`div-${idx}`">
             <KRadioButton
@@ -62,7 +62,7 @@
       >
 
       <!-- Dynamic Devices -->
-      <template v-if="!anyDiscoveredDeviceSeen">
+      <template v-if="anyDiscoveredDeviceSeen()">
         <template v-for="d in discoveredDevices">
           <div :key="`div-${d.id}`">
             <KRadioButton
@@ -437,11 +437,15 @@
       },
       canLearnerSignUp(id) {
         for (const facility of this.availableFacilities) {
+          console.log("can learner working")
+          console.log(id);
+          console.log(facility.address_id);
           if (facility.address_id === id) {
+            console.log(facility.learner_can_sign_up)
             return facility.learner_can_sign_up;
           }
         }
-        return true;
+        return false;
       },
       anyDiscoveredDeviceSeen() {
         for (const device of this.discoveredDevices) {
@@ -452,7 +456,7 @@
         return false;
       },
       anySavedDeviceSeen() {
-        for (const device of this.discoveredDevices) {
+        for (const device of this.savedDevices) {
           if (this.canLearnerSignUp(device.id)) {
             return true;
           }
