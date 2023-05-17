@@ -431,14 +431,16 @@ export default {
     SET_CLASS_LESSONS_SIZES(state, sizes = {}) {
       state.lessonsSizes = sizes;
     },
-    SET_CLASS_QUIZZES_SIZES(state, sizes = {}) {
+    SET_CLASS_QUIZZES_SIZES(state, sizes) {
       if (sizes.length > 0) {
-        sizes.forEach(sizeItem => {
+        for (const sizeItem of sizes) {
           for (const [key, val] of Object.entries(sizeItem)) {
-            state.examMap[key]['size_string'] = bytesForHumans(val);
-            state.examMap[key]['size'] = val;
+            if (state.examMap[key]) {
+              state.examMap[key]['size_string'] = bytesForHumans(val);
+              state.examMap[key]['size'] = val;
+            }
           }
-        });
+        }
         state.examMap = { ...state.examMap };
       }
     },
@@ -451,16 +453,18 @@ export default {
           store.commit('SET_STATE', summary);
         })
         .then(() => {
+          const promises = [];
           if (Object.keys(store.state.lessonMap).length > 0) {
-            store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+            promises.push(store.dispatch('fetchLessonsSizes', classId));
           }
           if (Object.keys(store.state.examMap).length > 0) {
-            store.dispatch('fetchQuizzesSizes', { classId: classId, force: true });
+            promises.push(store.dispatch('fetchQuizzesSizes', classId));
           }
+          return Promise.all(promises);
         });
     },
     fetchLessonsSizes(store, classId) {
-      return LessonResource.fetchLessonsSizes(classId)
+      return LessonResource.fetchLessonsSizes({ collection: classId })
         .then(sizes => {
           store.commit('SET_CLASS_LESSONS_SIZES', sizes);
         })
@@ -469,7 +473,7 @@ export default {
         });
     },
     fetchQuizzesSizes(store, classId) {
-      return ExamResource.fetchQuizzesSizes(classId)
+      return ExamResource.fetchQuizzesSizes({ collection: classId })
         .then(sizes => {
           store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
         })
