@@ -45,20 +45,23 @@
           @clearall="handleClickClearAll"
         />
 
-        <p v-if="!channelsAreInstalled">
+        <p v-if="!channelsAreInstalled && !channelListLoading">
           {{ $tr('emptyChannelListMessage') }}
         </p>
 
         <div class="channels-list">
-          <ChannelPanel
-            v-for="channel in sortedChannels"
-            :key="channel.id"
-            :channel="channel"
-            :disabled="channelIsBeingDeleted(channel.id)"
-            :showNewLabel="showNewLabel(channel.id)"
-            @select_delete="deleteChannelId = channel.id"
-            @select_manage="handleSelectManage(channel.id)"
-          />
+          <KCircularLoader v-if="channelListLoading" />
+          <div v-else>
+            <ChannelPanel
+              v-for="channel in sortedChannels"
+              :key="channel.id"
+              :channel="channel"
+              :disabled="channelIsBeingDeleted(channel.id)"
+              :showNewLabel="showNewLabel(channel.id)"
+              @select_delete="deleteChannelId = channel.id"
+              @select_manage="handleSelectManage(channel.id)"
+            />
+          </div>
         </div>
 
         <SelectTransferSourceModal :pageName="pageName" />
@@ -134,6 +137,7 @@
         'managedTasks',
       ]),
       ...mapState('manageContent/wizard', ['pageName']),
+      ...mapState('manageContent', ['channelListLoading']),
       pageTitle() {
         return deviceString('deviceManagementTitle');
       },
