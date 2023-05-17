@@ -15,6 +15,7 @@
       </div>
 
       <PaginatedListContainer
+        :dataLoading="loadingFacilityUsers"
         :items="usersFilteredByDropdown"
         :filterPlaceholder="$tr('searchPlaceholder')"
       >
@@ -44,6 +45,7 @@
         </template>
         <template #default="{ items, filterInput }">
           <UserGrid
+            :dataLoading="loadingFacilityUsers"
             :searchFilter="searchFilterText"
             :facilityUsers="items"
             :userPermissions="userPermissions"
@@ -98,6 +100,7 @@
       ...mapState('managePermissions', {
         facilityUsers: state => state.facilityUsers,
         userPermissions: state => userid => state.permissions[userid],
+        loadingFacilityUsers: state => state.loadingFacilityUsers,
       }),
       ...mapState({
         query: state => state.query,

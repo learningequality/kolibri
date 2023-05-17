@@ -1,5 +1,6 @@
 function defaultState() {
   return {
+    loadingFacilityUsers: false,
     facilityUsers: [],
     permissions: {},
   };
@@ -14,6 +15,9 @@ export default {
     },
     RESET_STATE(state) {
       Object.assign(state, defaultState());
+    },
+    SET_LOADING_FACILITY_USERS(state, loadingFacilityUsers) {
+      Object.assign(state, { loadingFacilityUsers });
     },
   },
 };
