@@ -41,7 +41,7 @@
             :value="canLearnerSignUp(d.id) ? d.id : false"
             :label="d.nickname"
             :description="d.base_url"
-            :disabled="canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
+            :disabled="!canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
           />
           <KButton
             :key="`forget-${idx}`"
@@ -126,9 +126,8 @@
 
 <script>
 
-  import { NetworkLocationResource } from 'kolibri.resources';
-  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import { useLocalStorage, get, useMemoize, computedAsync } from '@vueuse/core';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, get } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -141,6 +140,7 @@
     useDevicesForLearnOnlyDevice,
   } from './useDevices.js';
   import useConnectionChecker from './useConnectionChecker.js';
+  import { deviceFacilityCanSignUp } from './api.js';
 
   export default {
     name: 'SelectDeviceForm',
@@ -190,72 +190,10 @@
       const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
       const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
 
-      const fetchDeviceFacilities = useMemoize(
-        async device => {
-          try {
-            const { facilities } = await NetworkLocationResource.fetchFacilities(device.id);
-
-            return facilities.map(facility => {
-              return {
-                id: facility.id,
-                name: facility.name,
-                base_url: device.base_url,
-                address_id: device.id,
-                learner_can_sign_up: facility.learner_can_sign_up,
-                learner_can_login_with_no_password: facility.learner_can_login_with_no_password,
-                kolibri_version: device.kolibri_version,
-              };
-            });
-          } catch (e) {
-            return [];
-          }
-        },
-        {
-          getKey: device => device.id,
-        }
-      );
-
-      const isLoading = ref(false);
-
-      const availableAddressIds = computed(() =>
-        get(devices)
-          .filter(d => d.available)
-          .map(d => d.id)
-      );
-
-      const availableFacilities = computedAsync(
-        async () => {
-          // Extract available devices, and sort to most recently accessed so when we dedupe
-          // facilities across two+ devices, the most recently connected device's facility is shown
-          const _devices = get(devices)
-            .filter(d => get(availableAddressIds).includes(d.id))
-            .sort((deviceA, deviceB) => deviceA.since_last_accessed - deviceB.since_last_accessed);
-          const facilitiesFromDevices = await Promise.all(
-            _devices.map(d => fetchDeviceFacilities(d))
-          );
-          const facilities = {};
-          // Promise.all will resolve with an array of arrays
-          for (const deviceFacilities of facilitiesFromDevices) {
-            for (const facility of deviceFacilities) {
-              // deduplicate the same facility across more than one device
-              if (!facility[facility.id]) {
-                facilities[facility.id] = facility;
-              }
-            }
-          }
-          // Sort alphabetically for predictable ordering
-          return Object.values(facilities).sort((facilityA, facilityB) => {
-            if (facilityA.name < facilityB.name) {
-              return -1;
-            }
-            if (facilityA.name > facilityB.name) {
-              return 1;
-            }
-            return 0;
-          });
-        },
-        [],
-        isLoading
+      const LODDevicesWithSignUpFacility = computed(() =>
+        get(devices).filter(async (d) => {
+          await deviceFacilityCanSignUp(d.id)
+        })
       );
 
       return {
@@ -277,7 +215,7 @@
         discoveredDevices,
         savedDevices,
         storageDeviceId,
-        availableFacilities,
+        LODDevicesWithSignUpFacility,
       };
     },
     props: {
@@ -430,9 +368,9 @@
         });
       },
       canLearnerSignUp(id) {
-        for (const facility of this.availableFacilities) {
-          if (facility.address_id === id) {
-            return facility.learner_can_sign_up;
+        for (const device of this.LODDevicesWithSignUpFacility) {
+          if (device.id === id) {
+            return true;
           }
         }
         return false;
