@@ -61,6 +61,7 @@
           <UserTable
             class="move-down user-roster"
             :users="facilityUsers"
+            :dataLoading="dataLoading"
             :emptyMessage="emptyMessageForItems(facilityUsers, search)"
             :showDemographicInfo="true"
           >
@@ -151,7 +152,7 @@
         'userIsMultiFacilityAdmin',
         'facilityPageLinks',
       ]),
-      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount']),
+      ...mapState('userManagement', ['facilityUsers', 'totalPages', 'usersCount', 'dataLoading']),
       Modals: () => Modals,
       userKinds() {
         return [

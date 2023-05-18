@@ -5,6 +5,7 @@ function defaultState() {
     facilityUsers: [],
     totalPages: 0,
     usersCount: 0,
+    dataLoading: false,
   };
 }
 

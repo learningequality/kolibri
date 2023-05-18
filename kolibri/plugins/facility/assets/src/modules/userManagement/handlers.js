@@ -4,7 +4,7 @@ import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { _userState } from '../mappers';
 // An action for setting up the initial state of the app by fetching data from the server
 export function showUserPage(store, toRoute, fromRoute) {
-  store.dispatch('loading');
+  store.commit('userManagement/SET_STATE', { dataLoading: true });
   if (toRoute.name !== fromRoute.name) {
     store.dispatch('preparePage');
   }
@@ -19,19 +19,22 @@ export function showUserPage(store, toRoute, fromRoute) {
       user_type: toRoute.query.user_type,
     }),
     force: true,
-  }).then(
-    users => {
-      if (shouldResolve()) {
-        store.commit('userManagement/SET_STATE', {
-          facilityUsers: users.results.map(_userState),
-          totalPages: users.total_pages,
-          usersCount: users.count,
-        });
-        store.dispatch('notLoading');
+  })
+    .then(
+      users => {
+        if (shouldResolve()) {
+          store.commit('userManagement/SET_STATE', {
+            facilityUsers: users.results.map(_userState),
+            totalPages: users.total_pages,
+            usersCount: users.count,
+          });
+        }
+      },
+      error => {
+        shouldResolve() ? store.dispatch('handleError', error) : null;
       }
-    },
-    error => {
-      shouldResolve() ? store.dispatch('handleError', error) : null;
-    }
-  );
+    )
+    .finally(() => {
+      store.commit('userManagement/SET_STATE', { dataLoading: false });
+    });
 }
