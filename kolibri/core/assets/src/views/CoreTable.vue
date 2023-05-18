@@ -88,11 +88,11 @@
       /*
        * If data is still loading, then we show a loader. Otherwise, we show the
        * empty message if there are no rows in the table. If we have loaded data, have
-       * an emptyMessage and have no rows.
+       * an emptyMessage and have no rows. If we have rows, then we show the table alone
        */
-      var noDataEl = this.dataLoading
+      var dataStatusEl = this.dataLoading
         ? createElement('p', [createElement(KCircularLoader)])
-        : createElement('p', this.emptyMessage);
+        : !tableHasRows && createElement('p', this.emptyMessage); // Only show message if no rows
 
       return createElement('div', { class: 'core-table-container' }, [
         createElement('table', { class: 'core-table' }, [
@@ -100,7 +100,7 @@
           theadEl,
           tbodyCopy,
         ]),
-        noDataEl,
+        dataStatusEl,
       ]);
     },
   };
