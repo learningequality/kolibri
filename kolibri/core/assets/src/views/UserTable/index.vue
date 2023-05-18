@@ -62,14 +62,7 @@
       </template>
 
       <template #tbody>
-        <tbody v-if="$store.state.core.loading">
-          <tr style="overflow:hidden;">
-            <td>
-              <KCircularLoader class="center-loader" />
-            </td>
-          </tr>
-        </tbody>
-        <tbody v-else>
+        <tbody>
           <tr
             v-for="user in users"
             :key="user.id"
