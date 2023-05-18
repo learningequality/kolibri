@@ -80,11 +80,12 @@ describe('LibraryPage', () => {
       const wrapper = makeWrapper();
       expect(wrapper.find('[data-test="filter-button"').element).toBeTruthy();
     });
-    it('is hidden when the page is not large and channels not are available', () => {
+    it('is hidden when the page is not large and channels not are available', async () => {
       useKResponsiveWindow.mockImplementation(() => ({
         windowIsLarge: false,
       }));
       const wrapper = makeWrapper({ rootNodes: [] });
+      await wrapper.setData({ isLocalLibraryEmpty: true });
       expect(wrapper.find('[data-test="filter-button"').element).toBeFalsy();
     });
     it('is hidden when the page is large and channels not are available', () => {
@@ -150,8 +151,9 @@ describe('LibraryPage', () => {
     beforeAll(() => {
       useSearch.mockImplementation(() => useSearchMock({ displayingSearchResults: false }));
     });
-    it('display when no channels are available', () => {
+    it('display when no channels are available', async () => {
       const wrapper = makeWrapper({ rootNodes: [] });
+      await wrapper.setData({ isLocalLibraryEmpty: true });
       expect(wrapper.find('[data-test="channels"').element).toBeTruthy();
       expect(wrapper.find('[data-test="nothing-in-lib-label"').element).toBeTruthy();
     });
@@ -303,13 +305,7 @@ describe('LibraryPage', () => {
 
   describe('SidePanel', () => {
     it('display side panel if local libraries are available', () => {
-      const wrapper = makeWrapper({
-        options: {
-          computed: {
-            isLocalLibraryEmpty: jest.fn(() => false),
-          },
-        },
-      });
+      const wrapper = makeWrapper();
       expect(wrapper.find('[data-test="side-panel"').element).toBeTruthy();
     });
   });

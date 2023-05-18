@@ -371,6 +371,7 @@
     },
     data: function() {
       return {
+        isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         devices: [],
@@ -442,9 +443,6 @@
         }
         return span;
       },
-      isLocalLibraryEmpty() {
-        return !this.rootNodes.length;
-      },
       pinnedDevices() {
         return this.devicesWithChannels.filter(device => {
           return (
@@ -501,6 +499,9 @@
       };
     },
     watch: {
+      rootNodes(newNodes) {
+        this.isLocalLibraryEmpty = !newNodes.length;
+      },
       searchTerms() {
         this.mobileSidePanelIsOpen = false;
       },
