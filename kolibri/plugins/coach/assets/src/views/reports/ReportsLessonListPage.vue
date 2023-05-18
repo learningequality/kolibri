@@ -11,7 +11,7 @@
         :activeTabId="ReportsTabs.LESSONS"
         :title="$isPrint ? $tr('printLabel', { className }) : null"
       />
-      <p v-if="table.length && table.length > 0 " class="total-size">
+      <p v-if="calcTotalSizeOfVisibleLessons !== null" class="total-size">
         {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
 
@@ -67,7 +67,10 @@
                   />
                 </td>
                 <td>
-                  {{ lessonSize(tableRow.id) }}
+                  <template v-if="typeof tableRow.size !== 'undefined'">
+                    {{ bytesForHumans(tableRow.size) }}
+                  </template>
+                  <KEmptyPlaceholder v-else />
                 </td>
                 <td v-show="!$isPrint">
                   <KSwitch
@@ -91,7 +94,9 @@
           @cancel="showLessonIsVisibleModal = false"
         >
           <p>{{ coachString('makeLessonVisibleText') }}</p>
-          <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+          <p>
+            {{ coachString('fileSizeToDownload', { size: bytesForHumans(activeLesson.size) }) }}
+          </p>
           <KCheckbox
             :checked="dontShowAgainChecked"
             :label="coachString('dontShowAgain')"
@@ -108,7 +113,7 @@
           @cancel="showLessonIsNotVisibleModal = false"
         >
           <p>{{ coachString('makeLessonNotVisibleText') }}</p>
-          <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+          <p>{{ coachString('fileSizeToRemove', { size: bytesForHumans(activeLesson.size) }) }}</p>
           <KCheckbox
             :checked="dontShowAgainChecked"
             :label="coachString('dontShowAgain')"
@@ -125,7 +130,7 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import Lockr from 'lockr';
@@ -159,7 +164,6 @@
       };
     },
     computed: {
-      ...mapState('classSummary', ['lessonsSizes']),
       emptyMessage() {
         if (this.filter.value === 'allLessons') {
           return this.coachString('lessonListEmptyState');
@@ -216,18 +220,18 @@
         });
       },
       calcTotalSizeOfVisibleLessons() {
-        if (this.table && this.lessonsSizes && this.lessonsSizes[0]) {
-          let sum = 0;
-          this.table.forEach(lesson => {
-            // only include visible lessons
-            if (lesson.is_active) {
-              sum += this.lessonsSizes[0][lesson.id];
-            }
-          });
-          const size = bytesForHumans(sum);
-          return size;
+        if (this.table && this.table.length) {
+          const sum = this.table
+            .filter(
+              // only include visible lessons
+              lesson => lesson.is_active
+            )
+            .reduce((acc, lesson) => {
+              return acc + (lesson.size || 0);
+            }, 0);
+          return bytesForHumans(sum);
         }
-        return '--';
+        return null;
       },
     },
     beforeMount() {
@@ -270,7 +274,6 @@
       // TODO: refactor to a more robust check
       checkIfAnyLODsInClass() {
         this.fetchUserSyncStatus({ member_of: this.$route.params.classId }).then(data => {
-          console.log(data);
           if (data && data.length > 0) {
             this.learnOnlyDevicesExist = true;
           }
@@ -290,7 +293,6 @@
           }
         } else {
           // proceed with visibility changes withhout the modal
-          console.log('toggling', lesson.active);
           this.handleToggleVisibility(lesson);
         }
       },
@@ -302,14 +304,7 @@
         this.showLessonIsVisibleModal = false;
         this.showLessonIsNotVisibleModal = false;
       },
-      lessonSize(lessonId) {
-        if (this.lessonsSizes && this.lessonsSizes[0]) {
-          let size = this.lessonsSizes[0][lessonId];
-          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
-          return size;
-        }
-        return '--';
-      },
+      bytesForHumans,
     },
     $trs: {
       visibleLessons: 'Visible lessons',
