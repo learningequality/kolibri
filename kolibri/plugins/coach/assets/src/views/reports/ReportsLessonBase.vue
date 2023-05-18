@@ -28,7 +28,6 @@
           {{ coachString('generalInformationLabel') }}
         </h2>
         <LessonStatus
-          activeKey="active"
           :className="className"
           :lesson="lesson"
           :groupNames="getRecipientNamesForExam(lesson)"

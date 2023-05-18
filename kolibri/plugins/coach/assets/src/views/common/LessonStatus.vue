@@ -21,8 +21,8 @@
           <KSwitch
             name="toggle-lesson-visibility"
             label=""
-            :checked="lesson[activeKey]"
-            :value="lesson[activeKey]"
+            :checked="lesson.is_active"
+            :value="lesson.is_active"
             @change="toggleModal(lesson)"
           />
         </KGridItem>
@@ -135,15 +135,6 @@
         type: Array,
         required: true,
       },
-      activeKey: {
-        type: String,
-        required: true,
-        validator(value) {
-          // Must be active or is_active
-          // Also determines the key for assignments, but no need for prop
-          return ['active', 'is_active'].includes(value);
-        },
-      },
     },
     data() {
       return {
@@ -156,7 +147,7 @@
     },
     computed: {
       assignments() {
-        return this.activeKey === 'is_active'
+        return this.lesson.lesson_assignments
           ? this.lesson.lesson_assignments
           : this.lesson.assignments;
       },
@@ -186,7 +177,7 @@
         });
       },
       handleToggleVisibility() {
-        const newActiveState = !this.lesson[this.activeKey];
+        const newActiveState = !this.lesson.is_active;
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
