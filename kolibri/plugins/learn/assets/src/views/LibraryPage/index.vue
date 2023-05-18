@@ -15,6 +15,7 @@
         <KButton
           icon="filter"
           data-test="filter-button"
+          class="filter-button"
           :text="coreString('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
@@ -36,10 +37,13 @@
         v-else-if="!displayingSearchResults"
         data-test="channels"
       >
-        <h1>{{ channelsLabel }}</h1>
+        <h1 class="channels-label">
+          {{ channelsLabel }}
+        </h1>
         <p
           v-if="isLocalLibraryEmpty"
           data-test="nothing-in-lib-label"
+          class="nothing-in-lib-label"
         >
           {{ coreString('nothingInLibraryLearner') }}
         </p>
@@ -408,9 +412,11 @@
         return this.devicesWithChannels.length > 0;
       },
       gridOffset() {
+        const marginTop =
+          !this.windowIsLarge && (this.isLocalLibraryEmpty || this.deviceId) ? '140px' : '110px';
         return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px` }
-          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+          ? { marginRight: `${this.sidePanelWidth + 24}px`, marginTop }
+          : { marginLeft: `${this.sidePanelWidth + 24}px`, marginTop };
       },
       layoutSpan() {
         /**
@@ -623,9 +629,22 @@
     }
   }
 
+  .filter-button {
+    margin-top: 30px;
+  }
+
   .main-grid {
-    margin-top: 140px;
+    margin-top: 110px;
     margin-right: 24px;
+  }
+
+  .channels-label {
+    margin-bottom: 12px;
+  }
+
+  .nothing-in-lib-label {
+    padding-top: 0;
+    margin-top: 0;
   }
 
   .loader {
