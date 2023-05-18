@@ -88,10 +88,7 @@ export default {
         fromRoute.name === LessonsPageNames.SUMMARY &&
         toRoute.name !== LessonsPageNames.SELECTION_ROOT
       ) {
-        return Promise.all([
-          store.dispatch('lessonSummary/resetLessonSummaryState'),
-          store.dispatch('lessonSummary/fetchLessonsSizes', store.state.classSummary.id),
-        ]);
+        return store.dispatch('lessonSummary/resetLessonSummaryState');
       }
       if (toRoute.name === PageNames.EXAMS) {
         return store.dispatch('examCreation/resetExamCreationState');

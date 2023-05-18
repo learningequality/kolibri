@@ -47,7 +47,7 @@
                   {{
                     coachString('resourcesAndSize', {
                       value: lesson.resources.length,
-                      size: bytesForHumans(activeLesson.size),
+                      size: bytesForHumans(lesson.size),
                     })
                   }}
                 </td>
