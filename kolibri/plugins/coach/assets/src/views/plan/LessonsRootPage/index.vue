@@ -47,7 +47,7 @@
                   {{
                     coachString('resourcesAndSize', {
                       value: lesson.resources.length,
-                      size: lessonSize(lesson.id),
+                      size: bytesForHumans(activeLesson.size),
                     })
                   }}
                 </td>
@@ -88,7 +88,7 @@
           @cancel="showLessonIsVisibleModal = false"
         >
           <p>{{ coachString('makeLessonVisibleText') }}</p>
-          <p>{{ $tr('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+          <p>{{ $tr('fileSizeToDownload', { size: bytesForHumans(activeLesson.size) }) }}</p>
           <KCheckbox
             :checked="dontShowAgainChecked"
             :label="$tr('dontShowAgain')"
@@ -105,7 +105,7 @@
           @cancel="showLessonIsNotVisibleModal = false"
         >
           <p>{{ coachString('makeLessonNotVisibleText') }}</p>
-          <p>{{ $tr('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+          <p>{{ $tr('fileSizeToRemove', { size: bytesForHumans(activeLesson.size) }) }}</p>
           <KCheckbox
             :checked="dontShowAgainChecked"
             :label="$tr('dontShowAgain')"
@@ -192,7 +192,7 @@
     },
     computed: {
       ...mapState('classSummary', { classId: 'id' }),
-      ...mapState('lessonsRoot', ['lessons', 'learnerGroups', 'lessonsSizes']),
+      ...mapState('lessonsRoot', ['lessons', 'learnerGroups']),
       sortedLessons() {
         return this._.orderBy(this.lessons, ['date_created'], ['desc']);
       },
@@ -218,18 +218,18 @@
         );
       },
       calcTotalSizeOfVisibleLessons() {
-        if (this.lessons && this.lessonsSizes && this.lessonsSizes[0]) {
-          let sum = 0;
-          this.lessons.forEach(lesson => {
-            // only include visible lessons
-            if (lesson.is_active) {
-              sum += this.lessonsSizes[0][lesson.id];
-            }
-          });
-          const size = bytesForHumans(sum);
-          return size;
+        if (this.lessons && this.lessons.length) {
+          const sum = this.lessons
+            .filter(
+              // only include visible lessons
+              lesson => lesson.is_active
+            )
+            .reduce((acc, lesson) => {
+              return acc + (lesson.size || 0);
+            }, 0);
+          return bytesForHumans(sum);
         }
-        return '--';
+        return null;
       },
     },
     beforeMount() {
@@ -322,14 +322,7 @@
         this.showLessonIsVisibleModal = false;
         this.showLessonIsNotVisibleModal = false;
       },
-      lessonSize(lessonId) {
-        if (this.lessonsSizes && this.lessonsSizes[0]) {
-          let size = this.lessonsSizes[0][lessonId];
-          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
-          return size;
-        }
-        return '--';
-      },
+      bytesForHumans,
     },
     $trs: {
       size: {
