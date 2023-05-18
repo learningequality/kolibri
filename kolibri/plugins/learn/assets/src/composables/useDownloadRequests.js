@@ -7,6 +7,8 @@ import { ContentDownloadRequestResource } from 'kolibri.resources';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
+import client from 'kolibri.client';
+import urls from 'kolibri.urls';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -72,24 +74,26 @@ export default function useDownloadRequests(store) {
       file_size: content.files.reduce((size, f) => size + f.file_size, 0),
       learning_activities: content.learning_activities,
     };
-    const requestData = {
-      node_id: content.id,
-      resource_metadata,
-      user_id: store.getters.currentUserId,
-      reason: 'USER_INITIATED',
-      facility_id: store.getters.userFacilityId,
-      status: 'QUEUED',
-      date_added: new Date(),
-    };
+
+    client({
+      method: 'post',
+      url: urls['kolibri:core:contentdownloadrequest-list'](),
+      data: {
+        contentnode_id: content.id,
+        resource_metadata,
+        source_id: store.getters.currentUserId,
+        reason: 'UserInitiated',
+        facility: store.getters.currentFacilityId,
+        status: 'Pending',
+        date_added: new Date(),
+      },
+    }).then(response => {
+      console.log('response', response);
+    });
     // TODO: Remove and replace by real progress implementation
     // as soon as backend can provide it. `complete` is just a mock field
     // that may not reflect precisely they way backend will inform fronted
     // about progress. Also see `isDownloadingByLearner` and `isDownloadedByLearner`.
-    requestData.complete = false;
-    setTimeout(() => (requestData.complete = true), 1000);
-
-    console.log(requestData);
-    set(downloadRequestMap.downloads, requestData.node_id, requestData);
     store.commit('CORE_CREATE_SNACKBAR', {
       text: downloadRequestsTranslator.$tr('downloadStartedLabel'),
       actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
