@@ -126,8 +126,8 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { useLocalStorage, get } from '@vueuse/core';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, get, computedAsync } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -190,10 +190,22 @@
       const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
       const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
 
-      const LODDevicesWithSignUpFacility = computed(() =>
-        get(devices).filter(async (d) => {
-          await deviceFacilityCanSignUp(d.id)
-        })
+      const isLoading = ref(false);
+
+      const LODDevicesWithSignUpFacility = computedAsync(
+        async () => {
+          const devicesAvailable = get(devices);
+          const allDevices = {};
+          for (const i of devicesAvailable) {
+            const canSignUp = await deviceFacilityCanSignUp(i.id);
+            if (canSignUp) {
+              allDevices[i.id] = true;
+            }
+          }
+          return allDevices;
+        },
+        {},
+        isLoading
       );
 
       return {
@@ -368,8 +380,8 @@
         });
       },
       canLearnerSignUp(id) {
-        for (const device of this.LODDevicesWithSignUpFacility) {
-          if (device.id === id) {
+        if (this.LODDevicesWithSignUpFacility){
+          if (id in this.LODDevicesWithSignUpFacility) {
             return true;
           }
         }
