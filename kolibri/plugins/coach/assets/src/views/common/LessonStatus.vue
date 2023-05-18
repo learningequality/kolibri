@@ -64,7 +64,7 @@
         </KGridItem>
         <KGridItem :layout12="layout12Value">
           <p>
-            {{ lessonSize(lesson.id) }}
+            {{ bytesForHumans(lesson.size) }}
           </p>
         </KGridItem>
       </div>
@@ -78,7 +78,7 @@
       @cancel="showLessonIsVisibleModal = false"
     >
       <p>{{ coachString('makeLessonVisibleText') }}</p>
-      <p>{{ coachString('fileSizeToDownload', { size: lessonSize(activeLesson.id) }) }}</p>
+      <p>{{ coachString('fileSizeToDownload', { size: bytesForHumans(lesson.size) }) }}</p>
       <KCheckbox
         :checked="dontShowAgainChecked"
         :label="coachString('dontShowAgain')"
@@ -95,7 +95,7 @@
       @cancel="showLessonIsNotVisibleModal = false"
     >
       <p>{{ coachString('makeLessonNotVisibleText') }}</p>
-      <p>{{ coachString('fileSizeToRemove', { size: lessonSize(activeLesson.id) }) }}</p>
+      <p>{{ coachString('fileSizeToRemove', { size: bytesForHumans(lesson.size) }) }}</p>
       <KCheckbox
         :checked="dontShowAgainChecked"
         :label="coachString('dontShowAgain')"
@@ -110,7 +110,7 @@
 <script>
 
   import { LessonResource } from 'kolibri.resources';
-  import { mapState, mapActions } from 'vuex';
+  import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import { LESSON_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
@@ -155,7 +155,6 @@
       };
     },
     computed: {
-      ...mapState('lessonSummary', ['lessonsSizes']),
       assignments() {
         return this.activeKey === 'is_active'
           ? this.lesson.lesson_assignments
@@ -233,14 +232,7 @@
         this.showLessonIsVisibleModal = false;
         this.showLessonIsNotVisibleModal = false;
       },
-      lessonSize(lessonId) {
-        if (this.lessonsSizes && this.lessonsSizes[0]) {
-          let size = this.lessonsSizes[0][lessonId];
-          size = isNaN(size) ? bytesForHumans(0) : bytesForHumans(size);
-          return size;
-        }
-        return '--';
-      },
+      bytesForHumans,
     },
   };
 
