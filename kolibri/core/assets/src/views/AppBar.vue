@@ -1,6 +1,9 @@
 <template>
 
-  <div v-show="!$isPrint" :style="{ backgroundColor: $themeTokens.appBar }">
+  <div
+    v-show="!$isPrint"
+    :style="{ backgroundColor: $themeTokens.appBar }"
+  >
 
     <header>
       <SkipNavigationLink />
@@ -15,7 +18,10 @@
         :raised="false"
         :removeBrandDivider="true"
       >
-        <template v-if="!isAppContext" #icon>
+        <template
+          v-if="!isAppContext"
+          #icon
+        >
           <KIconButton
             icon="menu"
             :color="$themeTokens.textInverted"
@@ -34,7 +40,10 @@
           >
         </template>
 
-        <template v-if="windowIsLarge && !isAppContext" #navigation>
+        <template
+          v-if="windowIsLarge && !isAppContext"
+          #navigation
+        >
           <slot name="sub-nav"></slot>
         </template>
 
@@ -64,7 +73,10 @@
                 {{ $tr('pointsMessage', { points: totalPoints }) }}
               </div>
             </span>
-            <span v-if="isUserLoggedIn" tabindex="-1">
+            <span
+              v-if="isUserLoggedIn"
+              tabindex="-1"
+            >
               <KIcon
                 icon="person"
                 :style="{
@@ -84,7 +96,10 @@
         </template>
       </UiToolbar>
     </header>
-    <div v-if="!windowIsLarge && !isAppContext" class="subpage-nav">
+    <div
+      v-if="!windowIsLarge && !isAppContext"
+      class="subpage-nav"
+    >
       <slot name="sub-nav"></slot>
     </div>
   </div>
@@ -99,7 +114,7 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri.themeConfig';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
 
@@ -112,9 +127,10 @@
       KIconButton,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin, responsiveWindowMixin],
+    mixins: [commonCoreStrings, navComponentsMixin],
     setup() {
-      return { themeConfig };
+      const { windowIsLarge } = useKResponsiveWindow();
+      return { themeConfig, windowIsLarge };
     },
     props: {
       title: {

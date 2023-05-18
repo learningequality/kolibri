@@ -1,9 +1,7 @@
-import Vue from 'vue';
 import { mapGetters } from 'vuex';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
-const mixin = Vue.util.mergeOptions(responsiveWindowMixin, {
+export default {
   computed: {
     ...mapGetters([
       'isUserLoggedIn',
@@ -43,6 +41,4 @@ const mixin = Vue.util.mergeOptions(responsiveWindowMixin, {
       }
     },
   },
-});
-
-export default mixin;
+};
