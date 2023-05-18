@@ -707,7 +707,6 @@ def handle_server_sync_response(response, server, user):
     # In either case, we set the sync status for this user as queued
     # Once the sync starts, then this should get cleared and the SyncSession
     # set on the status, so that more info can be garnered.
-    JOB_ID = hashlib.md5("{}::{}".format(server, user).encode()).hexdigest()
     server_response = response.json()
 
     UserSyncStatus.objects.update_or_create(user_id=user, defaults={"queued": True})
@@ -727,14 +726,18 @@ def handle_server_sync_response(response, server, user):
         pk = server_response["id"]
         time_alive = server_response["keep_alive"]
         dt = datetime.timedelta(seconds=int(time_alive))
-        request_soud_sync.enqueue_in(
-            dt, args=(server, user, pk, time_alive), job_id=JOB_ID
-        )
-        logger.info(
-            "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
-                server, user, time_alive, pk
+        current_job = get_current_job()
+        if current_job:
+            current_job.retry_in(dt, args=(server, user, pk, time_alive))
+            logger.info(
+                "Server {} busy for user {}, will try again in {} seconds with pk={}".format(
+                    server, user, time_alive, pk
+                )
             )
-        )
+        else:
+            logger.warning(
+                "Tried to retry current job but not running in a task context"
+            )
 
 
 def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVAL"]):
@@ -745,8 +748,12 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
         )
     )
     dt = datetime.timedelta(seconds=interval)
-    JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
-    request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
+    current_job = get_current_job()
+    if current_job:
+        current_job.retry_in(dt)
+    else:
+        JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
+        request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
 
 
 @register_task(
