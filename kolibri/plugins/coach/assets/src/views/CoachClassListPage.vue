@@ -17,18 +17,15 @@
       <h1>{{ coreString('classesLabel') }}</h1>
       <p>{{ $tr('classPageSubheader') }}</p>
 
-      <p v-if="classList.length === 0">
+      <p v-if="classList.length === 0 && !dataLoading">
         <KExternalLink
           v-if="isAdmin && createClassUrl"
           :text="$tr('noClassesDetailsForAdmin')"
           :href="createClassUrl"
         />
-        <span v-else>
-          {{ emptyStateDetails }}
-        </span>
       </p>
 
-      <CoreTable v-else>
+      <CoreTable v-else :dataLoading="dataLoading" :emptyMessage="emptyStateDetails">
         <template #headers>
           <th>{{ coreString('classNameLabel') }}</th>
           <th>{{ coreString('coachesLabel') }}</th>
@@ -83,7 +80,7 @@
     mixins: [commonCoach, commonCoreStrings],
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'userIsMultiFacilityAdmin']),
-      ...mapState(['classList']),
+      ...mapState(['classList', 'dataLoading']),
       // Message that shows up when state.classList is empty
       emptyStateDetails() {
         if (this.isClassCoach) {

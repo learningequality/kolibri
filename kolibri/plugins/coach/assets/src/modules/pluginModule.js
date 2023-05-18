@@ -21,7 +21,7 @@ const logging = logger.getLogger(__filename);
 export default {
   state() {
     return {
-      busy: false,
+      dataLoading: false,
       classList: [],
       pageName: '',
       toolbarRoute: {},
@@ -37,6 +37,9 @@ export default {
     },
     SET_TOOLBAR_TITLE(state, title) {
       state.toolbarTitle = title;
+    },
+    SET_DATA_LOADING(state, dataLoading) {
+      state.dataLoading = dataLoading;
     },
     SET_TOOLBAR_ROUTE(state, toolbarRoute) {
       state.toolbarRoute = toolbarRoute;
@@ -60,13 +63,15 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
+      store.commit('SET_DATA_LOADING', true);
       return ClassroomResource.fetchCollection({
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })
         .then(classrooms => {
           store.commit('SET_CLASS_LIST', classrooms);
         })
-        .catch(error => store.dispatch('handleApiError', error));
+        .catch(error => store.dispatch('handleApiError', error))
+        .finally(() => store.commit('SET_DATA_LOADING', false));
     },
     /**
       * Handle coach page errors.
