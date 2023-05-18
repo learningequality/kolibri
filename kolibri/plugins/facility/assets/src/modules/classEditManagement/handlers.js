@@ -18,8 +18,11 @@ export function showClassEditPage(store, classId) {
     ClassroomResource.fetchCollection({ getParams: { parent: facilityId }, force: true }),
   ];
   const shouldResolve = samePageCheckGenerator(store);
+  store.commit('classEditManagement/SET_DATA_LOADING', true);
   Promise.all(promises).then(
     ([facilityUsers, classroom, classrooms]) => {
+      store.commit('classEditManagement/SET_DATA_LOADING', false);
+
       if (shouldResolve()) {
         store.commit('classEditManagement/SET_STATE', {
           modalShown: false,
@@ -28,7 +31,6 @@ export function showClassEditPage(store, classId) {
           classLearners: sortUsersByFullName(facilityUsers).map(_userState),
           classCoaches: sortUsersByFullName(classroom.coaches).map(_userState),
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
       }
     },
     error => {
