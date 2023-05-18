@@ -36,7 +36,7 @@
         </KGridItem>
       </KGrid>
 
-      <CoreTable>
+      <CoreTable :dataLoading="dataLoading" :emptyMessage="$tr('noClassesExist')">
         <caption class="visuallyhidden">
           {{ $tr('tableCaption') }}
         </caption>
@@ -93,10 +93,6 @@
         </template>
       </CoreTable>
 
-      <p v-if="noClassesExist">
-        {{ $tr('noClassesExist') }}
-      </p>
-
       <ClassDeleteModal
         v-if="Boolean(classToDelete)"
         :classToDelete="classToDelete"
@@ -152,11 +148,8 @@
       };
     },
     computed: {
-      ...mapState('classManagement', ['modalShown', 'classes']),
+      ...mapState('classManagement', ['modalShown', 'classes', 'dataLoading']),
       ...mapGetters(['userIsMultiFacilityAdmin', 'facilityPageLinks']),
-      noClassesExist() {
-        return this.classes.length === 0;
-      },
       Modals: () => Modals,
       sortedClassrooms() {
         return orderBy(this.classes, [classroom => classroom.name.toUpperCase()], ['asc']);
