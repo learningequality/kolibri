@@ -1,6 +1,6 @@
 <template>
 
-  <div tabindex="0" @keyup.esc="$emit('close')">
+  <div @keyup.esc="$emit('close')">
     <ul
       role="menu"
       class="ui-menu"
