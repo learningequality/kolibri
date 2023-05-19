@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import SelectDeviceForm from '../SelectDeviceForm';
 import { fetchDevices, updateConnectionStatus } from '../api';
 
@@ -39,7 +39,7 @@ const staticDevices = devices.map(a => ({ ...a, dynamic: false }));
 const dynamicDevices = devices.map(a => ({ ...a, dynamic: true }));
 
 function makeWrapper() {
-  const wrapper = mount(SelectDeviceForm);
+  const wrapper = shallowMount(SelectDeviceForm);
   // prettier-ignore
   const els = {
     KModal: () => wrapper.findComponent({ name: 'KModal' }),
