@@ -1028,7 +1028,7 @@
   resolved "https://registry.yarnpkg.com/@babel/regjsgen/-/regjsgen-0.8.0.tgz#f0ba69b075e1f05fb2825b7fad991e7adbb18310"
   integrity sha512-x/rqGMdzj+fWZvCOYForTghzbtqPDZ5gPwaoNGHdgDfF2QA/XZbCBp4Moo5scrkAMPhB7z26XM/AaHuIJdgauA==
 
-"@babel/runtime@^7.1.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.13.10", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
+"@babel/runtime@^7.1.2", "@babel/runtime@^7.11.2", "@babel/runtime@^7.12.5", "@babel/runtime@^7.5.5", "@babel/runtime@^7.8.4", "@babel/runtime@^7.9.2":
   version "7.18.9"
   resolved "https://registry.yarnpkg.com/@babel/runtime/-/runtime-7.18.9.tgz#b4fcfce55db3d2e5e080d2490f608a3b9f407f4a"
   integrity sha512-lkqXDcvlFT5rvEjiu6+QYO+1GXrEHRo2LOtS7E4GtX5ESIZOgepqsZBVIj6Pv+a6zqsya9VCgiK1KAK4BvJDAw==
@@ -3798,6 +3798,11 @@ co@^4.6.0:
   version "4.6.0"
   resolved "https://registry.yarnpkg.com/co/-/co-4.6.0.tgz#6ea6bdf3d853ae54ccb8e47bfa0bf3f9031fb184"
   integrity sha1-bqa989hTrlTMuOR7+gvz+QMfsYQ=
+
+codsen-utils@^1.5.0:
+  version "1.5.0"
+  resolved "https://registry.yarnpkg.com/codsen-utils/-/codsen-utils-1.5.0.tgz#8274a4f029559cfc979d74d3dd5c947dacf2fd13"
+  integrity sha512-5x4MQYdy+1B7sjWfy5Ibbz7SqgIBSUBCJsJZ0CyD3mIzEpR1nvpzeJThrEZAO3CNWIGgZj5HOhbOnBbmeMRNTQ==
 
 collect-v8-coverage@^1.0.0:
   version "1.0.1"
@@ -6619,12 +6624,12 @@ is-lambda@^1.0.1:
   resolved "https://registry.yarnpkg.com/is-lambda/-/is-lambda-1.0.1.tgz#3d9877899e6a53efc0160504cde15f82e6f061d5"
   integrity sha1-PZh3iZ5qU+/AFgUEzeFfgubwYdU=
 
-is-language-code@^3.0.12:
-  version "3.0.12"
-  resolved "https://registry.yarnpkg.com/is-language-code/-/is-language-code-3.0.12.tgz#95824e2b52cdf0ef62aa4b202ae2270d41d99d6c"
-  integrity sha512-FIMe2RGBE9Rbu+qLR2TFL21vDF8D/IlMylcHGfTKlHycq7c+UAXLNUt3pV/igVLYmWpCVoGjJU2/IT+5YHvlkg==
+is-language-code@^5.0.6:
+  version "5.0.6"
+  resolved "https://registry.yarnpkg.com/is-language-code/-/is-language-code-5.0.6.tgz#8ffeebf6655b06ae59f33b9a9725cb026269dedc"
+  integrity sha512-oWIOpS/YAqW0oq2HuJkRFnj6ocvFPvWv8Ey8z8RaggOHPVobeBdQMBcSwfxPkzs6FmQYijPbxbsfqWEP3YFG+g==
   dependencies:
-    "@babel/runtime" "^7.13.10"
+    codsen-utils "^1.5.0"
 
 is-nan@^1.2.1:
   version "1.3.2"
