@@ -37,24 +37,23 @@
         v-else-if="!displayingSearchResults"
         data-test="channels"
       >
-        <div v-if="!isLocalLibraryEmpty">
-          <h1 class="channels-label">
-            {{ channelsLabel }}
-          </h1>
-          <p
-            v-if="isLocalLibraryEmpty"
-            data-test="nothing-in-lib-label"
-            class="nothing-in-lib-label"
-          >
-            {{ coreString('nothingInLibraryLearner') }}
-          </p>
-          <ChannelCardGroupGrid
-            data-test="channel-cards"
-            class="grid"
-            :contents="rootNodes"
-            :deviceId="deviceId"
-          />
-        </div>
+        <h1 class="channels-label">
+          {{ channelsLabel }}
+        </h1>
+        <p
+          v-if="isLocalLibraryEmpty"
+          data-test="nothing-in-lib-label"
+          class="nothing-in-lib-label"
+        >
+          {{ coreString('nothingInLibraryLearner') }}
+        </p>
+        <ChannelCardGroupGrid
+          v-if="!isLocalLibraryEmpty"
+          data-test="channel-cards"
+          class="grid"
+          :contents="rootNodes"
+          :deviceId="deviceId"
+        />
         <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
         <!-- but we conditionalize it based on whether we are on another device's library page !-->
         <ResumableContentGrid
