@@ -158,9 +158,10 @@
     },
     methods: {
       isActiveLink(route) {
+        const hash = window.location.hash;
         return (
-          this.standarizeSubPathRoutes('#' + route) === `${window.location.hash}` ||
-          window.location.hash.includes(this.checkClassIdInString(route))
+          this.standarizeSubPathRoutes('#' + route) === `${hash}` ||
+          hash.includes(this.checkClassIdInString(route))
         );
       },
       submenuShouldBeOpen() {
