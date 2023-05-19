@@ -98,11 +98,6 @@ export default [
     name: PageNames.LIBRARY,
     path: '/library' + optionalDeviceIdPathSegment,
     handler: to => {
-      if ((!get(channels) || !get(channels).length) && !get(isUserLoggedIn)) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
