@@ -1,0 +1,18 @@
+{# Copyright 2023 Endless OS Foundation, LLC #}
+{# SPDX-License-Identifier: MIT #}
+  <link rel="manifest" href="{% url 'kolibri:kolibri.plugins.pwa:manifest' %}">
+  <script type="text/javascript" src="{% url 'pwa_service_worker' %}"></script>
+  <script type="text/javascript">
+    // Register the Progressive Web App (PWA) service worker, if supported by the
+    // browser.
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker
+        .register("{% url 'pwa_service_worker' %}")
+        .then(serviceWorker => {
+          console.log("Service Worker registered: ", serviceWorker);
+        })
+        .catch(error => {
+          console.error("Error registering the Service Worker: ", error);
+        });
+    }
+  </script>
