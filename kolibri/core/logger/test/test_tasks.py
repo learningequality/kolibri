@@ -31,6 +31,7 @@ class StartExportLogCSVTestCase(TestCase):
             validator.validated_data,
             {
                 "facility_id": self.facility.id,
+                "enqueue_args": {},
                 "kwargs": {
                     "facility": self.facility.id,
                     "start_date": self.start_date,

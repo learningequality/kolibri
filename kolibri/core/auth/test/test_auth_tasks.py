@@ -5,6 +5,7 @@ import pytz
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
+from mock import MagicMock
 from mock import Mock
 from mock import patch
 from requests.exceptions import ConnectionError
@@ -490,6 +491,7 @@ class FacilityTaskHelperTestCase(TestCase):
         expected = dict(
             facility_id=facility_id,
             args=["sync"],
+            enqueue_args={},
             kwargs=dict(
                 baseurl="https://some.server.test/",
                 facility=facility_id,
@@ -702,6 +704,7 @@ class TestRequestSoUDSync(TestCase):
         )
 
     @patch("kolibri.core.tasks.registry.job_storage")
+    @patch("kolibri.core.auth.tasks.get_current_job")
     @patch("kolibri.core.auth.tasks.NetworkClient")
     @patch("kolibri.core.auth.tasks.requests")
     @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
@@ -714,6 +717,7 @@ class TestRequestSoUDSync(TestCase):
         MorangoProfileController,
         requests_mock,
         NetworkClient,
+        get_current_job,
         job_storage,
     ):
         baseurl = "http://whatever.com:8000"
@@ -734,8 +738,12 @@ class TestRequestSoUDSync(TestCase):
         network_client = NetworkClient.return_value
         network_client.base_url = baseurl
 
+        current_job_mock = MagicMock()
+
+        get_current_job.return_value = current_job_mock
+
         request_soud_sync(baseurl, self.test_user.id)
-        self.assertEqual(job_storage.enqueue_in.call_count, 0)
+        self.assertEqual(current_job_mock.retry_in.call_count, 0)
 
         requests_mock.post.return_value.status_code = 200
         requests_mock.post.return_value.json.return_value = {
@@ -744,7 +752,7 @@ class TestRequestSoUDSync(TestCase):
             "id": str(uuid4()),
         }
         request_soud_sync("whatever_server", self.test_user.id)
-        self.assertEqual(job_storage.enqueue_in.call_count, 1)
+        self.assertEqual(current_job_mock.retry_in.call_count, 1)
 
     @patch("kolibri.core.tasks.registry.job_storage")
     @patch("kolibri.core.auth.tasks.requests")

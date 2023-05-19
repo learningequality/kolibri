@@ -98,6 +98,7 @@ class ValidateContentTaskTestCase(TestCase):
             validator.validated_data,
             {
                 "args": [self.channel_id],
+                "enqueue_args": {},
                 "kwargs": {
                     "exclude_node_ids": [exclude_id],
                     "node_ids": [include_id],
@@ -154,6 +155,7 @@ class ValidateRemoteImportTaskTestCase(TestCase):
             validator.validated_data,
             {
                 "args": [channel_id],
+                "enqueue_args": {},
                 "extra_metadata": {
                     "channel_id": channel_id,
                     "channel_name": "test",
@@ -187,6 +189,7 @@ class ValidateRemoteImportTaskTestCase(TestCase):
             validator.validated_data,
             {
                 "args": [channel_id],
+                "enqueue_args": {},
                 "extra_metadata": {
                     "channel_id": channel_id,
                     "channel_name": "test",
@@ -246,6 +249,7 @@ class ValidateLocalImportTaskTestCase(TestCase):
             validator.validated_data,
             {
                 "args": [channel_id, drive_id],
+                "enqueue_args": {},
                 "extra_metadata": {
                     "channel_id": channel_id,
                     "channel_name": "test",
