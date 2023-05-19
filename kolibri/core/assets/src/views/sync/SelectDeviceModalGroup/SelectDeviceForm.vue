@@ -380,7 +380,7 @@
         });
       },
       canLearnerSignUp(id) {
-        if (this.LODDevicesWithSignUpFacility){
+        if (this.LODDevicesWithSignUpFacility) {
           if (id in this.LODDevicesWithSignUpFacility) {
             return true;
           }

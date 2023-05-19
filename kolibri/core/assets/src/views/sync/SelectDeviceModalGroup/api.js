@@ -62,17 +62,16 @@ export function updateConnectionStatus(device) {
 /**
  * @param {string} deviceId
  * @return {Promise<boolean>}
-*/
+ */
 export function deviceFacilityCanSignUp(deviceId) {
-  return NetworkLocationResource.fetchFacilities(deviceId)
-    .then(({ device_id, facilities }) => {
-      if (deviceId === device_id) {
-        for (const facility of facilities) {
-          if (facility.learner_can_sign_up) {
-            return true;
-          }
+  return NetworkLocationResource.fetchFacilities(deviceId).then(({ device_id, facilities }) => {
+    if (deviceId === device_id) {
+      for (const facility of facilities) {
+        if (facility.learner_can_sign_up) {
+          return true;
         }
       }
-      return false;
+    }
+    return false;
   });
 }
