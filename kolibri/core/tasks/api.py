@@ -249,6 +249,21 @@ class TasksViewSet(viewsets.GenericViewSet):
 
         return self.retrieve(request, pk=pk)
 
+    def delete(self, request, pk=None):
+        """
+        Delete a task.
+        """
+        job_to_clear = self._get_job_for_pk(request, pk)
+
+        if job_to_clear.state == State.RUNNING:
+            raise serializers.ValidationError(
+                "Cannot delete job with state: {}".format(job_to_clear.state)
+            )
+
+        job_storage.clear(job_id=job_to_clear.job_id, force=True)
+
+        return Response({})
+
     def partial_update(self, request, *args, **kwargs):
         kwargs["partial"] = True
         return self.update(request, *args, **kwargs)
