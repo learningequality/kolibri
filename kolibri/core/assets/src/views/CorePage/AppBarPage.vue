@@ -151,9 +151,7 @@
     methods: {
       findFirstEl() {
         this.$nextTick(() => {
-          if (this.navShown) {
-            this.$refs.menuNav.focusFirstEl();
-          }
+          this.$refs.sideNav.focusFirstEl();
         });
       },
     },
