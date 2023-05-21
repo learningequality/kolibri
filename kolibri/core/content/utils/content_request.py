@@ -48,29 +48,7 @@ INCOMPLETE_STATUSES = [
 ]
 
 
-def synchronize_content_requests(dataset_id, transfer_session=None):
-    """
-    Synchronizes content download and removal requests with models that dictate assignment, like
-    Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
-
-    :param dataset_id: The UUID of the synced dataset
-    :param transfer_session: The sync's transfer session model, if available
-    :type transfer_session: Optional[morango.models.core.TransferSession]
-    """
-    facility = Facility.objects.get(dataset_id=dataset_id)
-
-    if transfer_session is None and dataset_id is None:
-        raise ValueError("Either dataset_id or transfer_session_id is required")
-
-    # transfer_session_id takes precedence over dataset_id, since it's more specific
-    # (a transfer session should only affect one dataset)
-    find_kwargs = {}
-    if transfer_session:
-        find_kwargs.update(transfer_session_id=transfer_session.id)
-    else:
-        find_kwargs.update(dataset_id=dataset_id)
-
-    # process the new assignments
+def create_content_download_requests(facility, assignments):
     logger.info("Processing new content assignment requests")
     for assignment in ContentAssignmentManager.find_all_downloadable_assignments(
         **find_kwargs
@@ -80,7 +58,6 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
             source_model=assignment.source_model,
             source_id=assignment.source_id,
         )
-        # delete any related removal requests
         related_removals.delete()
 
         ContentDownloadRequest.objects.get_or_create(
@@ -94,7 +71,8 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
             contentnode_id=assignment.contentnode_id,
         )
 
-    # process new removals
+
+def create_content_removal_requests(facility, removable_assignments):
     logger.info("Processing new content removal requests")
     for assignment in ContentAssignmentManager.find_all_removable_assignments(
         **find_kwargs
@@ -104,9 +82,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
             source_model=assignment.source_model,
             source_id=assignment.source_id,
         )
-
         if isinstance(assignment, DeletedAssignment):
-            # for completed downloads, we'll go through contentnode_ids and add removals
             removed_contentnode_ids = related_downloads.values_list(
                 "contentnode_id", flat=True
             ).distinct()
@@ -125,8 +101,34 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
                 contentnode_id=contentnode_id,
             )
 
-        # delete any related download requests
         related_downloads.delete()
+
+
+def synchronize_content_requests(dataset_id, transfer_session=None):
+    """
+    Synchronizes content download and removal requests with models that dictate assignment, like
+    Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
+
+    :param dataset_id: The UUID of the synced dataset
+    :param transfer_session: The sync's transfer session model, if available
+    :type transfer_session: Optional[morango.models.core.TransferSession]
+    """
+    facility = Facility.objects.get(dataset_id=dataset_id)
+
+    if transfer_session is None and dataset_id is None:
+        raise ValueError("Either dataset_id or transfer_session_id is required")
+
+    assignments = ContentAssignmentManager.find_all_assignments(
+        dataset_id=dataset_id,
+        transfer_session_id=transfer_session.id if transfer_session else None,
+    )
+    removable_assignments = ContentAssignmentManager.find_all_removable_assignments(
+        dataset_id=dataset_id,
+        transfer_session_id=transfer_session.id if transfer_session else None,
+    )
+
+    create_content_download_requests(facility, assignments)
+    create_content_removal_requests(facility, removable_assignments)
 
 
 def _get_preferred_network_location(version_filter=None):

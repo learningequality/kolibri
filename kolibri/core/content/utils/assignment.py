@@ -1,10 +1,11 @@
 from collections import namedtuple
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
 from django.db.models import Q
+from django.dispatch import receiver
 from morango.models.core import Store
 from morango.models.core import SyncableModel
-
 
 ContentAssignment = namedtuple(
     "ContentAssignment", ["contentnode_id", "source_model", "source_id", "metadata"]
@@ -53,6 +54,51 @@ class ContentAssignmentManager(object):
         self.filters = filters
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
+
+    def _matches_filters(self, instance):
+        """
+        Checks if the instance matches the filters defined in the manager.
+
+        :param instance: The model instance to check.
+        :type instance: models.Model
+        :return: True if the instance matches the filters, False otherwise.
+        :rtype: bool
+        """
+        if self.filters is None:
+            return True
+        return all(
+            getattr(instance, field) == value for field, value in self.filters.items()
+        )
+
+    @classmethod
+    def on_downloadable_assignment(self, callable_func):
+        """
+        Connects the provided callable to the post_save signal of the associated models.
+        Executes the callable with the current instance if it matches the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        type callable_func: callable
+        """
+
+        @receiver(models.signals.post_save, sender=self.model)
+        def on_save(sender, instance, **kwargs):
+            if self._matches_filters(instance):
+                callable_func(instance)
+
+    @classmethod
+    def on_removable_assignment(self, callable_func):
+        """
+        Connects the provided callable to the post_save signal of the associated models.
+        Executes the callable with the current instance if it matches the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        :type callable_func: callable
+        """
+
+        @receiver(models.signals.post_save, sender=self.model)
+        def on_save(sender, instance, **kwargs):
+            if self._matches_filters(instance):
+                callable_func(instance)
 
     def contribute_to_class(self, model, name):
         """

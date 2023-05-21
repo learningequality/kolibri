@@ -1,3 +1,5 @@
+import json
+
 from django.db import transaction
 from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
@@ -9,6 +11,7 @@ from kolibri.core.auth.constants.facility_presets import choices
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
+from kolibri.core.content.tasks import automatic_synchronize_content_requests_and_import
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
@@ -265,6 +268,23 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
 
     def create(self, validated_data):
         raise serializers.ValidationError("Device settings can only be updated")
+
+    def update(self, instance, validated_data):
+        extra_settings = validated_data.get("extra_settings")
+        initial_extra_settings = getattr(instance, "extra_settings", None)
+
+        if extra_settings != self.initial_extra_settings:
+            # Parse the JSON data from extra_settings
+            current_extra_settings = json.loads(extra_settings)
+            initial_extra_settings = json.loads(initial_extra_settings)
+
+            if current_extra_settings.get(
+                "enable_automatic_download"
+            ) != initial_extra_settings.get("enable_automatic_download"):
+                if current_extra_settings.get("enable_automatic_download") is True:
+                    automatic_synchronize_content_requests_and_import.enqueue()
+        instance = super().update(instance, validated_data)
+        return instance
 
     def validate(self, data):
         data = super(DeviceSettingsSerializer, self).validate(data)

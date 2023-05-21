@@ -4,6 +4,8 @@ from rest_framework import serializers
 from six import with_metaclass
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.models import FacilityDataset
+from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
@@ -351,6 +353,26 @@ def automatic_resource_import():
     Processes content download and removal requests
     """
     process_content_requests()
+
+
+@register_task(
+    long_running=True,
+    status_fn=get_status,
+)
+def automatic_synchronize_content_requests_and_import():
+    """
+    Task that synchronizes content requests for all facilities/datasets on the device and enqueues the automatic_resource_import task afterwards.
+    - Calls synchronize_content_requests for all facilities/datasets on the device.
+    - Enqueues the automatic_resource_import task after synchronizing content requests.
+    """
+
+    dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
+
+    # Synchronize content requests for each dataset
+    for dataset_id in dataset_ids:
+        synchronize_content_requests(dataset_id, None)
+
+    automatic_resource_import.enqueue()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
