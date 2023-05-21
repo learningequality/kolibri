@@ -1,7 +1,6 @@
 import datetime
 from uuid import uuid4
 
-import pytz
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
@@ -56,7 +55,7 @@ def fake_job(**kwargs):
 
 
 class dummy_orm_job_data(object):
-    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=None)
     repeat = 5
     interval = 8600
     retry_interval = 5

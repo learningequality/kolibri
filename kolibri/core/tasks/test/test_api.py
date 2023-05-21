@@ -2,9 +2,11 @@ import datetime
 
 import pytz
 from django.urls import reverse
+from django.utils.timezone import make_aware
 from mock import call
 from mock import Mock
 from mock import patch
+from pytz import utc
 from rest_framework import serializers
 from rest_framework.test import APITestCase
 
@@ -47,7 +49,7 @@ def fake_job(**kwargs):
 
 
 class dummy_orm_job_data(object):
-    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
+    scheduled_time = datetime.datetime(year=2023, month=1, day=1, tzinfo=None)
     repeat = 5
     interval = 8600
     retry_interval = 5
@@ -271,7 +273,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "clearable": False,
             "extra_metadata": {},
             "facility_id": None,
-            "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+            "scheduled_datetime": make_aware(
+                dummy_orm_job_data.scheduled_time, utc
+            ).isoformat(),
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
@@ -328,7 +332,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "extra_metadata": {},
                 "facility_id": None,
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -344,7 +350,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "extra_metadata": {},
                 "facility_id": None,
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -423,7 +431,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "extra_metadata": {
                 "facility": "kolibri HQ",
             },
-            "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+            "scheduled_datetime": make_aware(
+                dummy_orm_job_data.scheduled_time, utc
+            ).isoformat(),
             "repeat": dummy_orm_job_data.repeat,
             "repeat_interval": dummy_orm_job_data.interval,
             "retry_interval": dummy_orm_job_data.retry_interval,
@@ -510,7 +520,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -528,7 +540,9 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -569,7 +583,7 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
         cls.datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         cls.timedelta_obj = datetime.timedelta(days=1, hours=1)
 
-        cls.enqueue_at_datetime = str(cls.datetime_obj)
+        cls.enqueue_at_datetime = cls.datetime_obj.isoformat()
         cls.enqueue_in_timedelta = str(cls.timedelta_obj)
 
     def setUp(self):
@@ -610,7 +624,6 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
             },
-            {"retry_interval": None},  # `retry_interval` None not allowed.
         ]
 
         for err_enq_arg in erroneous_enqueue_args:
@@ -823,7 +836,7 @@ class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
         cls.datetime_obj = datetime.datetime(year=2023, month=1, day=1, tzinfo=pytz.utc)
         cls.timedelta_obj = datetime.timedelta(days=1, hours=1)
 
-        cls.enqueue_at_datetime = str(cls.datetime_obj)
+        cls.enqueue_at_datetime = cls.datetime_obj.isoformat()
         cls.enqueue_in_timedelta = str(cls.timedelta_obj)
 
     def setUp(self):
@@ -870,7 +883,6 @@ class EnqueueArgsUpdateAPITestCase(BaseAPITestCase):
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
             },
-            {"retry_interval": None},  # `retry_interval` None not allowed.
         ]
 
         for err_enq_arg in erroneous_enqueue_args:
@@ -1180,7 +1192,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
                 "extra_metadata": {},
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1196,7 +1210,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
                 "extra_metadata": {},
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,
@@ -1212,7 +1228,9 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "clearable": False,
                 "facility_id": self.facility2user.facility_id,
                 "extra_metadata": {},
-                "scheduled_datetime": str(dummy_orm_job_data.scheduled_time),
+                "scheduled_datetime": make_aware(
+                    dummy_orm_job_data.scheduled_time, utc
+                ).isoformat(),
                 "repeat": dummy_orm_job_data.repeat,
                 "repeat_interval": dummy_orm_job_data.interval,
                 "retry_interval": dummy_orm_job_data.retry_interval,

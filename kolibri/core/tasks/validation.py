@@ -2,19 +2,19 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from kolibri.core.serializers import DateTimeTzField
-
 
 class EnqueueArgsSerializer(serializers.Serializer):
     """
     A serializer for `enqueue_args` object of incoming user request data.
     """
 
-    enqueue_at = DateTimeTzField(required=False)
+    enqueue_at = serializers.DateTimeField(required=False)
     enqueue_in = serializers.DurationField(required=False)
     repeat = serializers.IntegerField(required=False, allow_null=True, min_value=1)
     repeat_interval = serializers.IntegerField(required=False, min_value=1)
-    retry_interval = serializers.IntegerField(required=False, min_value=0)
+    retry_interval = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0
+    )
 
     def validate(self, data):
         if data.get("enqueue_at") and data.get("enqueue_in"):
