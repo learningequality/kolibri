@@ -198,6 +198,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
+  import { oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
 
   export default {
     name: 'ManageSyncSchedule',
@@ -283,39 +284,30 @@
         }
       },
       scheduleTime(time, timestamp) {
-        const schedule = this.getDays(timestamp);
-        if (time === 3600) {
+        timestamp = new Date(Date.parse(timestamp));
+        if (time === oneHour) {
           return this.$tr('everyHour');
         }
-        if (time === 86400) {
-          const everyDay = this.$tr('everyDay') + ',' + this.getTime(timestamp);
-          return everyDay;
+        const options = {
+          weekday: 'long',
+          hour: 'numeric',
+          minute: 'numeric',
+        };
+        let frequencyString;
+        if (time === oneDay) {
+          frequencyString = this.$tr('everyDay');
+          delete options.weekday;
         }
-        if (time === 604800) {
-          const everyWeek = this.$tr('everyWeek') + ',' + schedule;
-          return everyWeek;
+        if (time === oneWeek) {
+          frequencyString = this.$tr('everyWeek');
         }
-        if (time === 1209600) {
-          const everyTwoWeeks = this.$tr('everyTwoWeeks') + ',' + schedule;
-          return everyTwoWeeks;
+        if (time === twoWeeks) {
+          frequencyString = this.$tr('everyTwoWeeks');
         }
-        if (time === 2592000) {
-          const everyMonth = this.$tr('everyMonth') + ',' + schedule;
-          return everyMonth;
+        if (time === oneMonth) {
+          frequencyString = this.$tr('everyMonth');
         }
-      },
-      getDays(timestamp) {
-        const dateTimeString = timestamp;
-        const date = new Date(dateTimeString);
-        const day = date.toLocaleDateString('en-US', { weekday: 'long' });
-        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
-        return `${day},${time}`;
-      },
-      getTime(timestamp) {
-        const dateTimeString = timestamp;
-        const date = new Date(dateTimeString);
-        const time = date.toLocaleTimeString('en-US', { hc: 'h24' });
-        return `${time}`;
+        return `${frequencyString}, ${this.$formatTime(timestamp, options)}`;
       },
     },
 

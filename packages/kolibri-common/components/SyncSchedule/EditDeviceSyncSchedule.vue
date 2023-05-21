@@ -28,6 +28,7 @@
               <KSelect
                 v-model="selectedItem"
                 class="selector"
+                :disabled="currentTaskRunning"
                 :style="selectorStyle"
                 :options="selectArray"
                 :label="$tr('frequency')"
@@ -36,14 +37,13 @@
 
           </KGrid>
           <KGrid
-            v-if="selectedItem.value !== 3600
-              && selectedItem.value !== 86400"
-            class=""
+            v-if="dayRequired"
           >
             <KGridItem>
               <KSelect
                 v-model="selectedDay"
                 class="selector"
+                :disabled="currentTaskRunning"
                 :style="selectorStyle"
                 :options="getDays"
                 :label="$tr('day')"
@@ -52,14 +52,12 @@
             </KGridItem>
 
           </KGrid>
-          <KGrid
-            v-if="selectedItem.value !== 3600"
-            class=""
-          >
+          <KGrid v-if="timeRequired">
             <KGridItem>
               <KSelect
                 v-model="selectedTime"
                 class="selector"
+                :disabled="currentTaskRunning"
                 :style="selectorStyle"
                 :options="SyncTime"
                 :label="$tr('time')"
@@ -72,16 +70,31 @@
 
           <p class="spacing">
             {{ $tr('serverTime') }}
-            {{ now }}
+            {{
+              $formatTime(now, {
+                year: "numeric",
+                month: "numeric",
+                day: "numeric",
+                hour: "numeric",
+                minute: "numeric",
+                second: "numeric",
+              })
+            }}
           </p>
 
           <p class="spacing">
-            <KCheckbox>
+            <KCheckbox
+              :checked="retryFlag"
+              :disabled="currentTaskRunning"
+              @change="retryFlag = !retryFlag"
+            >
               {{ $tr('checkboxLabel') }}
             </KCheckbox>
           </p>
           <p>
             <KButton
+              v-if="currentTask"
+              :disabled="currentTaskRunning"
               appearance="basic-link"
               class="spacing"
               @click="removeDeviceModal = true"
@@ -102,11 +115,12 @@
         <KButton
           :text="coreString('cancelAction')"
           appearance="flat-button"
-          @click="cancelBtn"
+          @click="goBack"
         />
         <KButton
           :text="coreString('saveAction')"
           :primary="true"
+          :disabled="currentTaskRunning"
           @click="handleSaveSchedule"
         />
       </KButtonGroup>
@@ -134,10 +148,7 @@
           :layout12="{ span: 12 }"
         >
           <p>{{ $tr('removeDeviceWarning') }}</p>
-          <p v-if="device.available">
-
-          </p>
-          <p v-else>
+          <p v-if="!device.available">
             {{ $tr('deviceNotConnected') }}
           </p>
         </KGridItem>
@@ -152,10 +163,37 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import { NetworkLocationResource, FacilityResource, TaskResource } from 'kolibri.resources';
+  import { NetworkLocationResource, TaskResource } from 'kolibri.resources';
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
+
+  const today = new Date();
+  const daysOfWeek = [];
+  const date = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + (7 - today.getDay())
+  );
+  for (let i = 0; i < 7; i++) {
+    daysOfWeek.push({ value: i, date: new Date(date) });
+    date.setDate(date.getDate() + 1);
+  }
+
+  const endTime = new Date();
+  endTime.setHours(24, 0, 0, 0);
+  const interval = 30;
+
+  const times = [];
+  var i = 0;
+  const time = new Date();
+  time.setHours(0, 0, 0, 0);
+
+  while (time < endTime) {
+    times.push({ value: i++, time: new Date(time) });
+    time.setMinutes(time.getMinutes() + interval);
+  }
 
   export default {
     name: 'EditDeviceSyncSchedule',
@@ -185,16 +223,13 @@
     data() {
       return {
         removeDeviceModal: false,
-        deviceName: null,
-        device: [],
-        now: now(),
+        retryFlag: false,
+        device: null,
+        now: null,
         selectedItem: {},
         tasks: [],
         selectedDay: {},
         selectedTime: {},
-        removeBtn: false,
-        serverTime: null,
-        baseurl: null,
       };
     },
     computed: {
@@ -217,55 +252,65 @@
       },
       selectArray() {
         return [
-          { label: this.$tr('everyHour'), value: 3600 },
-          { label: this.$tr('everyDay'), value: 86400 },
-          { label: this.$tr('everyWeek'), value: 604800 },
-          { label: this.$tr('everyTwoWeeks'), value: 1209600 },
-          { label: this.$tr('everyMonth'), value: 2592000 },
+          { label: this.$tr('everyHour'), value: oneHour },
+          { label: this.$tr('everyDay'), value: oneDay },
+          { label: this.$tr('everyWeek'), value: oneWeek },
+          { label: this.$tr('everyTwoWeeks'), value: twoWeeks },
+          { label: this.$tr('everyMonth'), value: oneMonth },
         ];
       },
       getDays() {
-        const today = new Date();
-        const daysOfWeek = [];
-        const date = new Date(
-          today.getFullYear(),
-          today.getMonth(),
-          today.getDate() + (7 - today.getDay())
-        );
-        for (let i = 0; i < 7; i++) {
-          daysOfWeek.push({ label: this.$formatDate(date, { weekday: 'long' }), value: i });
-          date.setDate(date.getDate() + 1);
-        }
-        return daysOfWeek;
+        return daysOfWeek.map(day => {
+          return {
+            label: this.$formatDate(day.date, { weekday: 'long' }),
+            value: day.value,
+          };
+        });
       },
 
       SyncTime() {
-        const endTime = new Date();
-        endTime.setHours(24, 0, 0, 0);
-        const interval = 30;
-
-        const times = [];
-        var i = 0;
-        const time = new Date();
-        time.setHours(0, 0, 0, 0);
-
-        while (time < endTime) {
-          times.push({ label: this.$formatTime(time), value: i++ });
-          time.setMinutes(time.getMinutes() + interval);
-        }
-        return times;
+        return times.map(time => {
+          return {
+            label: this.$formatTime(time.time),
+            value: time.value,
+            hours: time.time.getHours(),
+            minutes: time.time.getMinutes(),
+          };
+        });
+      },
+      deviceName() {
+        return this.device && this.device.nickname.length
+          ? this.device.nickname
+          : this.device.device_name;
+      },
+      currentTask() {
+        return this.tasks && this.tasks.length ? this.tasks[0] : null;
+      },
+      currentTaskRunning() {
+        return this.currentTask && this.currentTask.status === TaskStatuses.RUNNING;
+      },
+      timeRequired() {
+        return this.selectedItem.value > oneHour;
+      },
+      timeIsSet() {
+        return this.selectedTime && times[this.selectedTime.value];
+      },
+      dayRequired() {
+        return this.selectedItem.value > oneDay;
+      },
+      dayIsSet() {
+        return this.selectedDay && daysOfWeek[this.selectedDay.value];
       },
     },
-    beforeMount() {
+    created() {
       this.fetchDevice();
-    },
-    mounted() {
-      this.serverTime = setInterval(() => {
+      this.now = now();
+      this.serverTimeInterval = setInterval(() => {
         this.now = now();
       }, 10000);
     },
     beforeDestroy() {
-      clearInterval(this.serverTime);
+      clearInterval(this.serverTimeInterval);
     },
     methods: {
       closeModal() {
@@ -273,57 +318,140 @@
       },
       handleDeleteDevice() {
         this.removeDeviceModal = false;
-        NetworkLocationResource.deleteModel({ id: this.deviceId })
+        TaskResource.deleteModel({ id: this.currentTask.id })
           .then(() => {
             this.showSnackbarNotification('deviceRemove');
-            history.back();
+            this.goBack();
           })
           .catch(() => {
             this.showSnackbarNotification('deviceNotRemove');
           });
       },
+      computeNextSync() {
+        const date = new Date(this.now);
+        if (this.timeRequired) {
+          if (!this.timeIsSet) {
+            throw new ReferenceError('Time is not set and is required');
+          }
+          const hours = this.selectedTime.hours;
+          const minutes = this.selectedTime.minutes;
+          if (
+            hours < date.getHours() ||
+            (hours === date.getHours() && minutes < date.getMinutes())
+          ) {
+            date.setDate(date.getDate() + 1);
+          }
+          date.setHours(hours);
+          date.setMinutes(minutes);
+        }
+        if (this.dayRequired) {
+          if (!this.dayIsSet) {
+            throw new ReferenceError('Day is not set and is required');
+          }
+          const diff = this.selectedDay.value - date.getDay();
+          if (date.getDay() > this.selectedDay.value) {
+            date.setDate(date.getDate() + 7 - Math.abs(diff));
+          } else if (date.getDay() < this.selectedDay.value) {
+            date.setDate(date.getDate() + Math.abs(diff));
+          }
+        }
+        return date;
+      },
       handleSaveSchedule() {
-        FacilityResource.fetchModel({ id: this.facilityId, force: true }).then(facility => {
-          this.facility = { ...facility };
-          const date = new Date(this.serverTime);
-          const equeue_param = date.toISOString();
-          TaskResource.startTask({
+        const enqueue_param = this.computeNextSync().toISOString();
+        const enqueue_args = {
+          enqueue_at: enqueue_param,
+          repeat_interval: this.selectedItem.value,
+          repeat: null,
+          retry_interval: this.retryFlag ? 60 * 5 : null,
+        };
+        let promise;
+        if (this.currentTask) {
+          promise = TaskResource.saveModel({
+            id: this.currentTask.id,
+            data: { enqueue_args },
+            exists: true,
+          });
+        } else {
+          promise = TaskResource.startTask({
             type: TaskTypes.SYNCPEERFULL,
-            facility: this.facility.id,
+            facility: this.facilityId,
             device_id: this.deviceId,
-            baseurl: this.baseurl,
-            enqueue_args: {
-              enqueue_at: equeue_param,
-              repeat_interval: this.selectedItem.value,
-              repeat: 2,
-            },
+            baseurl: this.device.base_url,
+            enqueue_args,
+          });
+        }
+        promise
+          .then(() => {
+            this.goBack();
+            this.showSnackbarNotification('syncAdded');
           })
-            .then(() => {
-              history.back();
-              this.showSnackbarNotification('syncAdded');
-            })
-            .catch(() => {
-              this.createTaskFailedSnackbar();
-            });
-        });
+          .catch(() => {
+            this.createTaskFailedSnackbar();
+            if (this.currentTask) {
+              this.fetchSyncTasks();
+            }
+          });
       },
 
-      cancelBtn() {
+      goBack() {
         this.$router.push(this.goBackRoute);
+      },
+      pollFetchSyncTasks() {
+        this.pollInterval = setInterval(() => {
+          this.fetchSyncTasks();
+        }, 10000);
+      },
+      fetchSyncTasks() {
+        TaskResource.list({ queue: 'facility_task' }).then(tasks => {
+          this.tasks = tasks.filter(
+            task =>
+              (task.extra_metadata.device_id === this.device.id &&
+                task.facility_id === this.facilityId &&
+                task.type === TaskTypes.SYNCPEERFULL) ||
+              task.type === TaskTypes.SYNCDATAPORTAL
+          );
+          this.$nextTick(() => {
+            if (this.currentTask) {
+              const enqueueAt = new Date(Date.parse(this.currentTask.scheduled_datetime));
+              const day = enqueueAt.getDay();
+              const hours = enqueueAt.getHours();
+              const minutes = enqueueAt.getMinutes();
+              this.selectedItem =
+                this.selectArray.find(item => item.value === this.currentTask.repeat_interval) ||
+                {};
+              this.selectedDay = this.getDays.find(item => item.value === day) || {};
+              for (const time of this.SyncTime) {
+                // Because there can be some drift in the task scheduling process,
+                // we round the 'scheduled' time to the nearest 30 minutes
+                if (
+                  time.minutes === 0 &&
+                  ((time.hours === hours && minutes < 15) ||
+                    (time.hours === hours + 1 && minutes >= 45))
+                ) {
+                  this.selectedTime = time;
+                  break;
+                }
+                if (time.minutes === 30 && time.hours === hours && minutes >= 15 && minutes < 45) {
+                  this.selectedTime = time;
+                  break;
+                }
+              }
+              this.retryFlag = Boolean(this.currentTask.retry_interval);
+              if (this.currentTaskRunning) {
+                this.pollFetchSyncTasks();
+              } else {
+                clearInterval(this.pollInterval);
+                this.pollInterval = null;
+              }
+            }
+          });
+        });
       },
       fetchDevice() {
         NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
-          this.baseurl = device.base_url;
-          TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-            this.tasks = tasks.filter(
-              task =>
-                task.extra_metadata.device_id === device.id && task.facility_id === this.facilityId
-            );
-            if (this.tasks && this.tasks.length) {
-              this.removeBtn = true;
-            }
-          });
+          this.fetchSyncTasks();
         });
       },
     },
