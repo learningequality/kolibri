@@ -8,6 +8,7 @@
   >
     <div
       class="page-header"
+      data-test="page-header"
       :style="pageHeaderStyle"
     >
       <h1>
@@ -30,10 +31,14 @@
       @togglePin="handlePinToggle"
     />
     <div v-if="areMoreDevicesAvailable">
-      <div v-if="pinnedDevicesExist">
+      <div
+        v-if="pinnedDevicesExist"
+        data-test="more-libraries"
+      >
         <h2>{{ learnString('moreLibraries') }}</h2>
         <KButton
           v-if="displayShowButton"
+          data-test="show-button"
           :text="coreString('showAction')"
           :primary="false"
           @click="loadMoreDevices"
@@ -52,6 +57,7 @@
       />
       <KButton
         v-if="displayShowMoreButton"
+        data-test="show-more-button"
         :text="coreString('showMoreAction')"
         :primary="false"
         @click="loadMoreDevices"
