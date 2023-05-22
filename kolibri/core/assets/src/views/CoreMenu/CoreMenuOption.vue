@@ -160,7 +160,7 @@
       isActiveLink(route) {
         const hash = window.location.hash;
         return (
-          this.standarizeSubPathRoutes('#' + route) === `${hash}` ||
+          this.standarizeSubPathRoutes('#' + route) === hash ||
           hash.includes(this.checkClassIdInString(route))
         );
       },
