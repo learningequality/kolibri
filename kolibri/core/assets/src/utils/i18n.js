@@ -1,18 +1,29 @@
 import has from 'lodash/has';
 import Vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
-import { languageDirections, defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 import setupAndLoadFonts from './setupAndLoadFonts';
 import plugin_data from 'plugin_data';
 
-export {
-  languageDirections,
-  defaultLanguage,
-  languageValidator,
-  getContentLangDir,
-} from 'kolibri-design-system/lib/utils/i18n';
+export const languageDirections = {
+  LTR: 'ltr',
+  RTL: 'rtl',
+};
+
+export const defaultLanguage = {
+  id: 'en',
+  lang_name: 'English',
+  lang_direction: languageDirections.LTR,
+};
+
+export const languageValidator = language => {
+  return ['id', 'lang_name', 'lang_direction'].reduce((valid, key) => valid && language[key], true);
+};
+
+export const getContentLangDir = language => {
+  return (language || {}).lang_direction || languageDirections.LTR;
+};
 
 const logging = logger.getLogger(__filename);
 

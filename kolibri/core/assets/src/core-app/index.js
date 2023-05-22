@@ -13,7 +13,7 @@ import Vuex from 'vuex';
 import VueCompositionApi from '@vue/composition-api';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
-import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
+import KContentPlugin from '../views/ContentRenderer/KContentPlugin';
 import initializeTheme from '../styles/initializeTheme';
 import { i18nSetup, languageDirection } from '../utils/i18n';
 import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
