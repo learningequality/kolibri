@@ -11,10 +11,11 @@
       class="main-grid"
       :style="gridOffset"
     >
-      <div v-if="!windowIsLarge">
+      <div v-if="!windowIsLarge && !isLocalLibraryEmpty && !deviceId">
         <KButton
           icon="filter"
           data-test="filter-button"
+          class="filter-button"
           :text="coreString('filter')"
           :primary="false"
           @click="toggleSidePanelVisibility"
@@ -32,10 +33,22 @@
         type="indeterminate"
         :delay="false"
       />
-      <div v-else-if="!displayingSearchResults">
-        <h2>{{ channelsLabel }}</h2>
+      <div
+        v-else-if="!displayingSearchResults"
+        data-test="channels"
+      >
+        <h1 class="channels-label">
+          {{ channelsLabel }}
+        </h1>
+        <p
+          v-if="isLocalLibraryEmpty"
+          data-test="nothing-in-lib-label"
+          class="nothing-in-lib-label"
+        >
+          {{ coreString('nothingInLibraryLearner') }}
+        </p>
         <ChannelCardGroupGrid
-          v-if="rootNodes.length"
+          v-if="!isLocalLibraryEmpty"
           data-test="channel-cards"
           class="grid"
           :contents="rootNodes"
@@ -45,12 +58,16 @@
         <!-- but we conditionalize it based on whether we are on another device's library page !-->
         <ResumableContentGrid
           v-if="!deviceId"
+          data-test="resumable-content"
           :currentCardViewStyle="currentCardViewStyle"
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
         <!-- Other Libraires -->
-        <div v-if="!deviceId && isUserLoggedIn">
+        <div
+          v-if="!deviceId && isUserLoggedIn"
+          data-test="other-libraries"
+        >
           <KGrid gutter="12">
             <KGridItem
               :layout12="{ span: 6 }"
@@ -67,8 +84,11 @@
               :layout4="{ span: 4 }"
             >
               <div class="sync-status">
-                <span v-show="searching">
-                  <span>{{ $tr('searchingOtherLibrary') }}</span>
+                <span
+                  v-show="searching"
+                  data-test="searching"
+                >
+                  <span data-test="searching-label">{{ $tr('searchingOtherLibrary') }}</span>
                   &nbsp;&nbsp;
                   <span>
                     <KCircularLoader
@@ -77,7 +97,10 @@
                     />
                   </span>
                 </span>
-                <span v-show="!searching && devicesWithChannelsExist">
+                <span
+                  v-show="!searching && devicesWithChannelsExist"
+                  data-test="showing-all"
+                >
                   <span>
                     <KIcon
                       v-if="windowIsSmall"
@@ -85,7 +108,7 @@
                     />
                   </span>
                   &nbsp;&nbsp;
-                  <span>{{ showingAllLibrariesLabel }}</span>
+                  <span data-test="showing-all-label">{{ showingAllLibrariesLabel }}</span>
                   &nbsp;&nbsp;
                   <KButton
                     :text="coreString('refresh')"
@@ -100,12 +123,15 @@
                     />
                   </span>
                 </span>
-                <span v-show="!searching && !devicesWithChannelsExist">
+                <span
+                  v-show="!searching && !devicesWithChannelsExist"
+                  data-test="no-other"
+                >
                   <span>
                     <KIcon icon="disconnected" />
                   </span>
                   &nbsp;&nbsp;
-                  {{ $tr('noOtherLibraries') }}
+                  <span data-test="no-other-label">{{ $tr('noOtherLibraries') }}</span>
                   &nbsp;&nbsp;
                   <KButton
                     :text="coreString('refresh')"
@@ -117,20 +143,28 @@
             </KGridItem>
           </KGrid>
 
-          <h2 v-if="pinnedDevicesExist && unpinnedDevicesExist">
+          <h2
+            v-if="pinnedDevicesExist && unpinnedDevicesExist"
+            data-test="pinned-label"
+          >
             {{ $tr('pinned') }}
           </h2>
           <PinnedNetworkResources
             v-if="pinnedDevicesExist"
+            data-test="pinned-resources"
             :devices="pinnedDevices"
           />
 
           <!-- More  -->
-          <h2 v-if="pinnedDevicesExist && unpinnedDevicesExist">
+          <h2
+            v-if="pinnedDevicesExist && unpinnedDevicesExist"
+            data-test="more-label"
+          >
             {{ $tr('moreLibraries') }}
           </h2>
           <MoreNetworkDevices
             v-if="unpinnedDevicesExist"
+            data-test="more-devices"
             :devices="unpinnedDevices"
           />
         </div>
@@ -139,6 +173,7 @@
 
       <SearchResultsGrid
         v-else-if="displayingSearchResults"
+        data-test="search-results"
         :results="results"
         :removeFilterTag="removeFilterTag"
         :clearSearch="clearSearch"
@@ -155,7 +190,9 @@
 
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
+      v-if="!isLocalLibraryEmpty && !deviceId"
       ref="sidePanel"
+      data-test="side-panel"
       :searchTerms="searchTerms"
       :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
       @toggleMobileSidePanel="toggleSidePanelVisibility"
@@ -166,7 +203,7 @@
     <!-- Side Panel for metadata -->
     <SidePanelModal
       v-if="metadataSidePanelContent"
-      data-test="content-side-panel"
+      data-test="side-panel-modal"
       alignment="right"
       :closeButtonIconType="close"
       @closePanel="metadataSidePanelContent = null"
@@ -334,6 +371,7 @@
     },
     data: function() {
       return {
+        isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
         devices: [],
@@ -355,7 +393,7 @@
             return this.$tr('libraryOf', { device: this.deviceName });
           }
         } else {
-          return this.coreString('channelsLabel');
+          return this.coreString('yourLibrary');
         }
       },
       channelsToDisplay() {
@@ -375,9 +413,11 @@
         return this.devicesWithChannels.length > 0;
       },
       gridOffset() {
+        const marginTop =
+          !this.windowIsLarge && (this.isLocalLibraryEmpty || this.deviceId) ? '140px' : '110px';
         return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px` }
-          : { marginLeft: `${this.sidePanelWidth + 24}px` };
+          ? { marginRight: `${this.sidePanelWidth + 24}px`, marginTop }
+          : { marginLeft: `${this.sidePanelWidth + 24}px`, marginTop };
       },
       layoutSpan() {
         /**
@@ -415,7 +455,12 @@
         return this.pinnedDevices.length > 0;
       },
       sidePanelWidth() {
-        if (this.windowIsSmall || this.windowIsMedium) {
+        if (
+          this.windowIsSmall ||
+          this.windowIsMedium ||
+          this.isLocalLibraryEmpty ||
+          this.deviceId
+        ) {
           return 0;
         } else if (this.windowBreakpoint < 4) {
           return 234;
@@ -454,6 +499,9 @@
       };
     },
     watch: {
+      rootNodes(newNodes) {
+        this.isLocalLibraryEmpty = !newNodes.length;
+      },
       searchTerms() {
         this.mobileSidePanelIsOpen = false;
       },
@@ -582,9 +630,22 @@
     }
   }
 
+  .filter-button {
+    margin-top: 30px;
+  }
+
   .main-grid {
-    margin-top: 140px;
+    margin-top: 110px;
     margin-right: 24px;
+  }
+
+  .channels-label {
+    margin-bottom: 12px;
+  }
+
+  .nothing-in-lib-label {
+    padding-top: 0;
+    margin-top: 0;
   }
 
   .loader {

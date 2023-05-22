@@ -56,7 +56,7 @@ function _showChannels(store, query, channels, baseurl) {
 }
 
 function _showLibrary(store, query, channels, baseurl) {
-  if (!channels.length) {
+  if (!channels.length && !store.getters.isUserLoggedIn) {
     return;
   }
   // Special case for when only the page number changes:

@@ -159,7 +159,9 @@
             Lockr.set('savedState', null); // Clear out saved state machine
             redirectBrowser();
           })
-          .catch(e => console.error(e));
+          .catch(e => {
+            this.$store.dispatch('handleApiError', e);
+          });
       },
     },
     $trs: {

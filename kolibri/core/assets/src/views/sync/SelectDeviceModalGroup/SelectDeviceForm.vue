@@ -77,19 +77,29 @@
     <slot name="underbuttons"></slot>
 
     <template #actions>
-      <KFixedGrid class="actions" numCols="4">
+      <KFixedGridItem
+        class="actions"
+        numCols="4"
+      >
         <KFixedGridItem span="1">
           <transition name="spinner-fade">
             <div v-if="isFetching || isChecking">
               <KLabeledIcon>
                 <template #icon>
-                  <KCircularLoader :size="16" :stroke="6" class="loader" />
+                  <KCircularLoader
+                    :size="16"
+                    :stroke="6"
+                    class="loader"
+                  />
                 </template>
               </KLabeledIcon>
             </div>
           </transition>
         </KFixedGridItem>
-        <KFixedGridItem span="3" alignment="right">
+        <KFixedGridItem
+          span="3"
+          alignment="right"
+        >
           <KButtonGroup style="margin-top: 8px;">
             <KButton
               :text="coreString('cancelAction')"
@@ -105,7 +115,7 @@
             />
           </KButtonGroup>
         </KFixedGridItem>
-      </KFixedGrid>
+      </KFixedGridItem>
     </template>
 
     <KButton
@@ -159,7 +169,7 @@
         useDevicesResult = useDevicesWithChannel(props.filterByChannelId);
       } else if (props.filterByFacilityId !== null) {
         // This is inherently filtered to full-facility devices
-        useDevicesResult = useDevicesWithFacility(props.filterByFacilityId);
+        useDevicesResult = useDevicesWithFacility({ facilityId: props.filterByFacilityId });
       } else if (props.filterLODAvailable) {
         useDevicesResult = useDevicesForLearnOnlyDevice();
       } else {

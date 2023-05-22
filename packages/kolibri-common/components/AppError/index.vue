@@ -8,12 +8,15 @@
       {{ headerText }}
     </h1>
 
-    <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
-      {{ paragraph }}
-    </p>
+    <template v-if="!hideParagraphs">
+      <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
+        {{ paragraph }}
+      </p>
+    </template>
 
     <p>
-      <KButtonGroup>
+      <slot name="buttons"></slot>
+      <KButtonGroup v-if="!$slots.buttons">
         <KButton
           v-if="!isPageNotFound"
           :text="coreString('refresh')"
@@ -62,6 +65,13 @@
       ReportErrorModal,
     },
     mixins: [commonCoreStrings],
+    props: {
+      /* Generalize the component to just show the title */
+      hideParagraphs: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data() {
       return {
         showDetailsModal: false,
