@@ -15,6 +15,23 @@
       @submit="handleAddressSubmit"
       @cancel="closeModal()"
     />
+
+    <RegisterFacilityModal
+      v-else-if="atRegister"
+      :displaySkipOption="true"
+      @success="handleValidateSuccess"
+      @cancel="closeModal"
+      @skip="emitKdpSync"
+    />
+    <ConfirmationRegisterModal
+      v-else-if="atConfirmation"
+      :targetFacility="facilityForSync"
+      :projectName="kdpProject.name"
+      :token="kdpProject.token"
+      :successOnAlreadyRegistered="true"
+      @success="emitKdpSync"
+      @cancel="closeModal"
+    />
   </div>
 
 </template>
@@ -26,15 +43,21 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import SelectDeviceModalGroup from './SelectDeviceModalGroup';
   import SelectSyncSourceModal from './SelectSyncSourceModal';
+  import RegisterFacilityModal from './RegisterFacilityModal';
+  import ConfirmationRegisterModal from './ConfirmationRegisterModal';
 
   const Steps = Object.freeze({
     SELECT_SOURCE: 'SELECT_SOURCE',
     SELECT_ADDRESS: 'SELECT_ADDRESS',
+    REGISTER_FACILITY: 'REGISTER_FACILITY',
+    CONFIRMATION_REGISTER: 'CONFIRMATION_REGISTER',
   });
 
   export default {
     name: 'SyncFacilityModalGroup',
     components: {
+      ConfirmationRegisterModal,
+      RegisterFacilityModal,
       SelectSyncSourceModal,
       SelectDeviceModalGroup,
     },
@@ -49,17 +72,23 @@
     },
     data() {
       return {
-        step: null,
+        step: Steps.SELECT_SOURCE,
         syncSubmitDisabled: false,
-        displaySkipOption: true,
+        kdpProject: null, // { name, token }
       };
     },
     computed: {
       atSelectSource() {
-        return !this.step;
+        return this.step === Steps.SELECT_SOURCE;
       },
       atSelectAddress() {
         return this.step === Steps.SELECT_ADDRESS;
+      },
+      atRegister() {
+        return this.step === Steps.REGISTER_FACILITY;
+      },
+      atConfirmation() {
+        return this.step === Steps.CONFIRMATION_REGISTER;
       },
     },
     methods: {
@@ -68,9 +97,9 @@
           this.step = Steps.SELECT_ADDRESS;
         } else {
           if (this.facilityForSync.dataset.registered) {
-            this.$emit('syncKDP', this.facilityForSync);
+            this.emitKdpSync();
           } else {
-            this.$emit('register', this.displaySkipOption, this.facilityForSync);
+            this.step = Steps.REGISTER_FACILITY;
           }
         }
       },
@@ -80,8 +109,15 @@
         }
         this.$emit('syncPeer', data, this.facilityForSync);
       },
+      handleValidateSuccess({ name, token }) {
+        this.kdpProject = { name, token };
+        this.step = Steps.CONFIRMATION_REGISTER;
+      },
       closeModal() {
         this.$emit('close');
+      },
+      emitKdpSync() {
+        this.$emit('syncKDP', this.facilityForSync);
       },
     },
   };

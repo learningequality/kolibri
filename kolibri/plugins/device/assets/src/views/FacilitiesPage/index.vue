@@ -153,7 +153,7 @@
         <RegisterFacilityModal
           v-if="!kdpProject"
           :facility="facilityForRegister"
-          :displaySkipOption="displaySkipOption"
+          :displaySkipOption="false"
           @success="handleValidateSuccess"
           @cancel="clearRegistrationState"
           @skip="handleKDPSync"
@@ -173,7 +173,6 @@
         v-if="Boolean(facilityForSync)"
         :facilityForSync="facilityForSync"
         @close="facilityForSync = null"
-        @register="handleRegister"
         @syncKDP="handleKDPSync"
         @syncPeer="handlePeerSync"
       />
@@ -246,8 +245,6 @@
         facilityForRegister: null,
         kdpProject: null, // { name, token }
         taskIdsToWatch: [],
-        displaySkipOption: false,
-        // (facilityTaskQueue) facilityTasks
       };
     },
     computed: {
@@ -306,7 +303,6 @@
         if (option === Options.REMOVE) {
           this.facilityForRemoval = facility;
         } else if (option === Options.REGISTER) {
-          this.displaySkipOption = false;
           this.facilityForRegister = facility;
         } else if (option === Options.MANAGESYNC) {
           const route = this.manageSync(facility.id);
@@ -366,11 +362,6 @@
       handleRemoveSuccess(taskId) {
         this.taskIdsToWatch.push(taskId);
         this.facilityForRemoval = null;
-      },
-      handleRegister(displaySkipOption, facility) {
-        this.displaySkipOption = displaySkipOption;
-        this.facilityForRegister = facility;
-        this.facilityForSync = null;
       },
       handleKDPSync(facility) {
         this.facilityForSync = null;
