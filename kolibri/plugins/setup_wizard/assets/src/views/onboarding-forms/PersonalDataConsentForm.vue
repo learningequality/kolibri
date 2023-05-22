@@ -78,8 +78,10 @@
         // form. The state machine can define the expected event name for it's particular context.
         // See the comments around this in wizardMachine
         const lastStatePath = Object.keys(this.wizardService._state.meta)[0];
+        // const backFromCreateSuperuser =
+        //  lastStatePath === 'wizard.createSuperuserAndFacilityForm' && 'CONTINUE';
         const { nextEvent = null } = this.wizardService.state.meta[lastStatePath];
-        console.log('OK NEXT:', nextEvent);
+          // || backFromCreateSuperuser;
         if (!nextEvent) {
           console.error(
             'Please provide the event you expect where you are using this Component in',
@@ -122,6 +124,41 @@
       },
     },
   };
+
+    //   mounted() {
+    //   // this.wizardService.send({
+    //   //   type: 'SET_BACK_ACTION_DISABLED',
+    //   //   value: true,
+    //   // });
+    //   this.focusOnModalButton();
+    // },
+
+      // // broke forward nav; document.referrer often not helpful/accurate
+    // beforeRouteLeave(to, from) {
+    //   // // makes it impossible to go ANY direction, blocks functionality of "Continue" button
+    //   // window.history.pushState(null, null, window.location.href);
+    //   // window.onpopstate = function () {
+    //   //   window.history.go(1);
+    //   // };
+    //   const documentReferrer = document.referrer;
+    //   console.log('to', to);
+    //   console.log('from', from);
+    //   console.log('document.referrer', documentReferrer);
+    // },
+
+    // // this led to craziness where history kept navigating back but stayed on same page
+    // // broke forward navigation
+    // beforeRouteLeave(to, from) {
+    //   console.log('TO:', to);
+    //   const sameName = to.name === 'REQUIRE_PASSWORD';
+    //   console.log('TO.NAME === REQUIRE_PASSWORD?', sameName);
+    //   console.log('FROM:', from);
+    //   if (sameName) {
+    //     return false;
+    //   } else {
+    //     this.handleContinue();
+    //   }
+    // },
 
 </script>
 

@@ -140,6 +140,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
+  import isEqual from 'lodash/isEqual';
   import { FooterMessageTypes } from '../constants';
 
   export default {
@@ -153,6 +154,7 @@
        * Can be an object with the `type` and `value` and used to include data
        * to the state machine to use during the transition back.
        */
+      //
       eventOnGoBack: {
         type: Object,
         default: () => ({ type: 'BACK' }),
@@ -223,6 +225,25 @@
           return null;
         }
       },
+    },
+    // // not getting hit during wizard navigation or browser navigation
+    // beforeRouteUpdate(to, from, next) {
+    //   console.log('HIT to, from', to, from);
+    //   if (isEqual(this.wizardService.state.context.previousRoute, to)) {
+    //     console.log('IS EQUAL!!!')
+    //   }
+    // },
+    mounted() {
+      // is hit on browser back clicks, but provides v limited information: state keys
+      // (HOWEVER, state keys are consistent - e.g. key for 'lodjoinfacility'
+      // will remain same upon navigating away/navigating back, so could potentially
+      // still track this way, but may not allow for the nuance needed when there are
+      // multiple paths to/from different components
+      window.addEventListener("popstate", (event) => {
+        console.log(
+          `location: ${document.location}, state: ${JSON.stringify(event.state)}`
+        );
+      });
     },
     methods: {
       startOver() {

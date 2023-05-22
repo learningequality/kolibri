@@ -25,6 +25,13 @@ export default [
     path: '/',
     name: 'HOW_ARE_YOU_USING_KOLIBRI',
     component: HowAreYouUsingKolibri,
+    // meta: {
+    //   // backActionAllowed: 'never',
+    //   // nextNavigationAllowed: ['DEVICE_NAME', 'DEFAULT_LANGUAGE'],
+    // }
+    // // add meta: IF page is anything but expected next page(s), DON'T navigate
+    // // and then, if to.name !== from.meta.nextPageName, cancel nav!
+    // // else, send a CONTINUE event with nextPageName
   },
   {
     path: '/default-language',
@@ -77,6 +84,10 @@ export default [
     path: '/create-facility/5',
     component: PersonalDataConsentForm,
     props: { footerMessageType: FooterMessageTypes.NEW_FACILITY },
+    // meta: {
+    //   backActionAllowed: 'never',
+    //   nextNavigationAllowed: ['CREATE_SUPERUSER_AND_FACILITY', 'FINALIZE_SETUP'], // is second one needed/accurate?
+    // }
   },
   // Import a facility
   {
@@ -99,12 +110,20 @@ export default [
     name: 'SELECT_ADMIN',
     path: '/import-facility/select-admin',
     component: SelectSuperAdminAccountForm,
+    // meta: {
+    //   backActionAllowed: 'never',
+    //   nextNavigationAllowed: ['IMPORT_DATA_CONSENT'],
+    // }
   },
   {
     name: 'IMPORT_DATA_CONSENT',
     path: '/import-facility/consent',
     component: PersonalDataConsentForm,
     props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
+    // meta: {
+    //   backActionAllowed: 'never',
+    //   nextNavigationAllowed: ['FINALIZE_SETUP'], // ??
+    // }
   },
 
   // Learn only device
@@ -122,6 +141,10 @@ export default [
     name: 'LOD_IMPORT_USER_AUTH',
     path: '/learn-only/import/sign-in',
     component: ImportIndividualUserForm,
+    // meta: {
+    //   backActionAllowed: 'checkImportedUsers', // if there are imported users, you can't go back
+    //   nextNavigationAllowed: ['LOD_LOADING_TASK_PAGE', 'LOD_IMPORT_AS_ADMIN'],
+    // }
   },
   {
     name: 'LOD_LOADING_TASK_PAGE',

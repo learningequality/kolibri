@@ -64,6 +64,7 @@ const initialContext = {
   importDevice: null,
   superuser: null,
   lodAdmin: {},
+  previousRoute: null,
   remoteUsers: [],
   importedUsers: [],
   firstImportedLodUser: null,
@@ -78,6 +79,7 @@ export const wizardMachine = createMachine(
     predictableActionArguments: true,
     on: {
       START_OVER: { target: 'howAreYouUsingKolibri', actions: 'resetContext' },
+      PUSH_HISTORY: { actions: [assign({ previousRoute: (_, event) => event.value })] },
     },
     states: {
       // This state will be the start so the machine won't progress until
@@ -236,7 +238,7 @@ export const wizardMachine = createMachine(
         meta: { route: { name: 'PERSONAL_DATA_CONSENT' }, nextEvent: 'CONTINUE' },
         on: {
           CONTINUE: 'createSuperuserAndFacility',
-          BACK: 'requirePassword',
+          BACK: 'requirePassword', // this event isn't firing anyway bc browser back is not hooked up to app sending 'BACK'
         },
       },
       // A passthrough step depending on the value of context.canGetOsUser - the finalizeSetup state
@@ -425,6 +427,14 @@ export const wizardMachine = createMachine(
       finalizeSetup: {
         meta: { route: { name: 'FINALIZE_SETUP' } },
       },
+      // // https://xstate.js.org/docs/guides/history.html
+      // could work if top-level states have child states of their own --
+      // e.g. if selectLodSetupType had its own states, it could also have hist node state,
+      // and that hist node could be referenced in lodimportuserauth to replicate the inner
+      // state of selectLodSetupType...
+      // historyNode: {
+      //   type: "history"
+      // }
     },
   },
   {
