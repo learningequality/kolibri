@@ -40,7 +40,7 @@
       <!--      creating the table-->
       <CoreTable>
         <template #tbody>
-          <tbody v-if="savedDevices.length > 0">
+          <tbody v-if="facilitySyncTasks.length > 0">
             <tr>
               <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
@@ -48,45 +48,39 @@
               <th></th>
             </tr>
             <tr
-              v-for="device in savedDevices"
-              :key="device.id"
+              v-for="task in facilitySyncTasks"
+              :key="task.id"
             >
               <td>
-                <span>{{ device.extra_metadata.device_name }}<br>
-                  {{ device.extra_metadata.baseurl }}
+                <span>{{ devicesById[getDeviceId(task)].device_name }}<br>
+                  {{ task.extra_metadata.baseurl }}
                 </span>
               </td>
               <td>
                 <div>
-                  {{ scheduleTime(device.repeat_interval, device.scheduled_datetime ) }}
+                  {{ scheduleTime(task.repeat_interval, task.scheduled_datetime ) }}
                 </div>
               </td>
 
-              <td v-if="data && data.length > 0">
-                <div
-                  v-for="ids in data"
-                  :key="ids.id"
+              <td>
+                <span
+                  v-if="
+                    devicesById[task.extra_metadata.device_id] &&
+                      devicesById[task.extra_metadata.device_id].available
+                  "
                 >
-                  <div v-if="ids.base_url === device.extra_metadata.baseurl">
-                    <span v-if="ids.available">
-                      <KIcon icon="onDevice" />
-                      <span>{{ $tr('connected') }}</span>
-                    </span>
-                    <span v-else>
-                      <KIcon icon="disconnected" />
-                      <span>{{ $tr('disconnected') }}</span>
-                    </span>
-                  </div>
-                </div>
-              </td>
-              <td v-else>
-                <KIcon icon="disconnected" />
-                <span>{{ $tr('disconnected') }}</span>
+                  <KIcon icon="onDevice" />
+                  <span>{{ $tr('connected') }}</span>
+                </span>
+                <span v-else>
+                  <KIcon icon="disconnected" />
+                  <span>{{ $tr('disconnected') }}</span>
+                </span>
               </td>
               <td>
                 <KButton
                   class="right"
-                  @click="editButton(device.extra_metadata.device_id)"
+                  @click="editButton(task)"
                 >
                   {{ coreString('editAction') }}
                 </KButton>
@@ -113,77 +107,13 @@
         </template>
 
       </CoreTable>
-      <KModal
+      <SyncFacilityModalGroup
         v-if="deviceModal"
-        :title="getCommonSyncString('selectNetworkAddressTitle')"
-        size="medium"
-        :submitText="coreString('continueAction')"
-        :cancelText="coreString('cancelAction')"
-        @cancel="closeModal"
-        @submit="submitModal(radioBtnValue)"
-      >
-        <KGrid>
-          <KGridItem
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-            <KButton
-              appearance="basic-link"
-              :text=" $tr('addDevice')"
-              @click.prevent="newAddress"
-            />
-          </KGridItem>
-        </KGrid>
-
-        <KGrid
-          gutter="48"
-          class="add-space"
-        >
-          <KGridItem
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-            <div v-if="data && data.length > 0">
-              <div
-                v-for="btn in data"
-                :key="btn.id"
-              >
-                <div>
-                  <KRadioButton
-                    v-model="radioBtnValue"
-                    class="radio-button"
-                    :value="btn.id"
-                    :label="btn.device_name"
-                  />
-                  <span>{{ btn.base_url }}</span>
-                </div>
-              </div>
-            </div>
-            <div v-else>
-              <div class="loader-size">
-                <KCircularLoader
-                  :delay="false"
-                  class="loader"
-                  :size="18"
-                />
-              </div>
-            </div>
-          </KGridItem>
-
-          <KGridItem
-            :layout="{ alignment: 'right' }"
-            :layout8="{ span: 4 }"
-            :layout12="{ span: 6 }"
-          >
-
-            <KButton
-              appearance="basic-link"
-              :text="$tr('forgetText')"
-            />
-          </KGridItem>
-        </KGrid>
-      </KModal>
-      <AddDeviceForm v-if="newaddressclick" />
+        :facilityForSync="facility"
+        @close="closeModal"
+        @syncKDP="handleKDPSync"
+        @syncPeer="handlePeerSync"
+      />
     </KPageContainer>
   </ImmersivePage>
 
@@ -192,23 +122,52 @@
 
 <script>
 
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
-  import { TaskResource, FacilityResource, NetworkLocationResource } from 'kolibri.resources';
+  import { TaskResource, FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
-  import { oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
+  import {
+    SyncFacilityModalGroup,
+    useDevicesWithFacility,
+  } from 'kolibri.coreVue.componentSets.sync';
+  import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
+  import { kdpNameTranslator } from './i18n';
 
   export default {
     name: 'ManageSyncSchedule',
     components: {
       ImmersivePage,
       CoreTable,
-      AddDeviceForm,
+      SyncFacilityModalGroup,
     },
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
+    setup(props) {
+      const { devices } = useDevicesWithFacility(props.facilityId);
+      const devicesById = computed(() => {
+        return devices.value.reduce(
+          (acc, device) => {
+            acc[device.id] = device;
+            return acc;
+          },
+          {
+            [KDP_ID]: {
+              device_id: KDP_ID,
+              // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+              device_name: kdpNameTranslator.$tr('syncToKDP'),
+              base_url: '',
+            },
+          }
+        );
+      });
+      return {
+        devices,
+        devicesById,
+      };
+    },
     props: {
       facilityId: {
         type: String,
@@ -227,18 +186,12 @@
       return {
         deviceModal: false,
         facility: null,
-        data: null,
-        radioBtnValue: ' ',
-        newaddressclick: false,
-        deviceIds: [],
-        savedDevices: [],
+        facilitySyncTasks: [],
       };
     },
-
     beforeMount() {
       this.pollFacilityTasks();
       this.fetchFacility();
-      this.fetchAddressesForLOD();
     },
     methods: {
       fetchFacility() {
@@ -246,14 +199,14 @@
           this.facility = { ...facility };
         });
       },
-      fetchAddressesForLOD(LocationResource = NetworkLocationResource) {
-        return LocationResource.fetchCollection({ force: true }).then(locations => {
-          this.data = locations;
-        });
-      },
       pollFacilityTasks() {
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
-          this.savedDevices = tasks.filter(t => t.facility_id === this.facilityId);
+          this.facilitySyncTasks = tasks.filter(
+            t =>
+              t.facility_id === this.facilityId &&
+              t.repeat === null &&
+              (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL)
+          );
           if (this.isPolling) {
             setTimeout(() => {
               return this.pollFacilityTasks();
@@ -264,23 +217,24 @@
       closeModal() {
         this.deviceModal = false;
       },
-      submitModal(id) {
+      handlePeerSync(device) {
         this.deviceModal = false;
-        if (id !== ' ') {
-          this.deviceIds.push(id);
-          this.$router.push(this.editSyncRoute(id));
-        } else {
-          return window.location.href;
+        if (device.id) {
+          this.$router.push(this.editSyncRoute(device.id));
         }
       },
-      newAddress() {
-        this.newaddressclick = true;
+      handleKDPSync() {
+        this.deviceModal = false;
+        this.$router.push(this.editSyncRoute(KDP_ID));
       },
-      editButton(id) {
-        if (id !== ' ') {
-          this.$router.push(this.editSyncRoute(id));
-        } else {
-          return window.location.href;
+      editButton(task) {
+        this.$router.push(this.editSyncRoute(this.getDeviceId(task)));
+      },
+      getDeviceId(task) {
+        if (task.type === TaskTypes.SYNCPEERFULL) {
+          return task.extra_metadata.device_id;
+        } else if (task.type === TaskTypes.SYNCDATAPORTAL) {
+          return KDP_ID;
         }
       },
       scheduleTime(time, timestamp) {
@@ -328,10 +282,6 @@
       Schedule: {
         message: 'Schedule',
         context: 'Schedule label',
-      },
-      forgetText: {
-        message: 'Forget',
-        context: 'Forget device button',
       },
       connected: {
         message: 'Connected',

@@ -12,3 +12,5 @@ export const oneWeek = oneDay * 7;
 export const twoWeeks = oneWeek * 2;
 
 export const oneMonth = oneWeek * 4;
+
+export const KDP_ID = 'kolibri-data-portal';
