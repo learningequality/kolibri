@@ -4,6 +4,7 @@ from sys import version_info
 
 from django.conf import settings
 from django.contrib.auth import login
+from django.db.models import Exists
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
@@ -296,6 +297,8 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         "device_status",
         "device_status_sentiment",
         "user",
+        "has_downloads",
+        "last_download_removed",
     )
 
     field_map = {
@@ -313,37 +316,6 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         ):
             return UserSyncStatus.objects.none()
         return UserSyncStatus.objects.all()
-
-    def downloads_queryset(self, queryset):
-
-        queryset = queryset.annotate(
-            last_download=Max("requested_at"), last_removal=Max("requested_at")
-        )
-
-        is_last_download_removed = Subquery(
-            ContentRemovalRequest.objects.filter(
-                source_id=OuterRef("user_id"),
-                source_model=FacilityUser.morango_model_name,
-                reason=ContentRequestReason.UserInitiated,
-            )
-        )
-
-        is_having_downloads = Subquery(
-            ContentDownloadRequest.objects.filter(
-                source_id=OuterRef("user_id"),
-                source_model=FacilityUser.morango_model_name,
-                reason=ContentRequestReason.UserInitiate,
-            )
-        )
-
-        queryset = queryset.annotate(
-            last_download_removed=Subquery(is_last_download_removed).values(
-                "last_removal"
-            ),
-            has_downloads=Subquery(is_having_downloads).values("last_download"),
-        )
-        pdb.set_trace()
-        return queryset
 
     def annotate_queryset(self, queryset):
 
@@ -363,6 +335,23 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             instance_id=OuterRef("sync_session__client_instance_id"),
         )
 
+        has_downloads = Exists(
+            ContentDownloadRequest.objects.filter(
+                source_id=OuterRef("user_id"),
+                source_model=FacilityUser.morango_model_name,
+                reason=ContentRequestReason.UserInitiated,
+            )
+        )
+
+        last_download_removed = Subquery(
+            ContentRemovalRequest.objects.filter(
+                source_id=OuterRef("user_id"),
+                source_model=FacilityUser.morango_model_name,
+                reason=ContentRequestReason.SyncInitiated,
+            )
+            .annotate(last_removal=Max("requested_at"))
+            .values("last_removal")
+        )
         queryset = queryset.annotate(
             transfer_status=Subquery(most_recent_sync_status),
             device_status=Subquery(
@@ -372,7 +361,12 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
                 most_recent_synced_device_status.values("status_sentiment")[:1]
             ),
         )
-
+        queryset.annotate(
+            has_download=Subquery(has_downloads),
+            last_download_remove=Subquery(
+                last_download_removed.values("last_removal")[:1]
+            ),
+        )
         return queryset
 
 

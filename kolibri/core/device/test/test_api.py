@@ -31,6 +31,7 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
+from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import DeviceStatus
@@ -862,7 +863,7 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["user"], self.user1.id)
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
-        
+
     def test_downloads_queryset(self):
         self.client.login(
             username=self.user1.username,
@@ -872,10 +873,15 @@ class UserSyncStatusTestCase(APITestCase):
         self._create_transfer_session(
             active=False,
         )
+        content_request = ContentDownloadRequest.build_for_user(self.user1)
+        content_request.contentnode_id = uuid.uuid4().hex
         device_status = self._create_device_status("oopsie", StatusSentiment.Neutral)
         self.syncsession1.client_instance_id = device_status.instance_id
         self.syncsession1.save()
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+        content_request.save()
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["user"], self.user1.id)
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
+        # self.assertEqual(response.data[0]["last_download_removed"])
+        # self.assertEqual(response.data[0]["has_downloads"])
