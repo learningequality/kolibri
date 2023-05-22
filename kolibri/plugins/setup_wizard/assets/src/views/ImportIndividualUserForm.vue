@@ -110,8 +110,6 @@
   import commonProfileStrings from '../../../../user_profile/assets/src/views/commonProfileStrings';
   import OnboardingStepBase from './OnboardingStepBase';
 
-  commonProfileStrings;
-
   export default {
     name: 'ImportIndividualUserForm',
     components: {
@@ -201,6 +199,9 @@
         }
       });
     },
+    mounted() {
+      this.selectedFacilityId = this.wizardService.state.context.selectedFacility.id;
+    },
     methods: {
       fetchNetworkLocation(deviceId) {
         this.loadingNewAddress = true;
@@ -212,7 +213,6 @@
               id: data.device_id,
               baseurl: data.device_address,
             };
-            this.selectedFacilityId = this.facilities[0].id;
             this.loadingNewAddress = false;
           })
           .catch(error => {
