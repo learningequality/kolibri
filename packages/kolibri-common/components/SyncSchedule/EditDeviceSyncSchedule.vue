@@ -120,7 +120,7 @@
         <KButton
           :text="coreString('saveAction')"
           :primary="true"
-          :disabled="currentTaskRunning"
+          :disabled="saveDisabled"
           @click="handleSaveSchedule"
         />
       </KButtonGroup>
@@ -167,7 +167,8 @@
   import { now } from 'kolibri.utils.serverClock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
-  import { oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
+  import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
+  import { kdpNameTranslator } from './i18n';
 
   const today = new Date();
   const daysOfWeek = [];
@@ -301,6 +302,20 @@
       dayIsSet() {
         return this.selectedDay && daysOfWeek[this.selectedDay.value];
       },
+      isKdp() {
+        return this.deviceId === KDP_ID;
+      },
+      taskType() {
+        return this.isKdp ? TaskTypes.SYNCDATAPORTAL : TaskTypes.SYNCPEERFULL;
+      },
+      saveDisabled() {
+        return (
+          this.currentTaskRunning ||
+          (!this.timeIsSet && this.timeRequired) ||
+          (!this.dayIsSet && this.dayRequired) ||
+          !this.selectedItem.value
+        );
+      },
     },
     created() {
       this.fetchDevice();
@@ -373,13 +388,16 @@
             exists: true,
           });
         } else {
-          promise = TaskResource.startTask({
-            type: TaskTypes.SYNCPEERFULL,
+          const taskParams = {
+            type: this.taskType,
             facility: this.facilityId,
-            device_id: this.deviceId,
-            baseurl: this.device.base_url,
             enqueue_args,
-          });
+          };
+          if (!this.isKdp) {
+            taskParams.device_id = this.deviceId;
+            taskParams.baseurl = this.device.base_url;
+          }
+          promise = TaskResource.startTask(taskParams);
         }
         promise
           .then(() => {
@@ -406,10 +424,11 @@
         TaskResource.list({ queue: 'facility_task' }).then(tasks => {
           this.tasks = tasks.filter(
             task =>
-              (task.extra_metadata.device_id === this.device.id &&
-                task.facility_id === this.facilityId &&
-                task.type === TaskTypes.SYNCPEERFULL) ||
-              task.type === TaskTypes.SYNCDATAPORTAL
+              (this.isKdp || task.extra_metadata.device_id === this.device.id) &&
+              task.facility_id === this.facilityId &&
+              task.type === this.taskType &&
+              // Only show tasks that are repeating indefinitely
+              task.repeat === null
           );
           this.$nextTick(() => {
             if (this.currentTask) {
@@ -449,6 +468,16 @@
         });
       },
       fetchDevice() {
+        if (this.isKdp) {
+          this.device = {
+            id: KDP_ID,
+            // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+            device_name: kdpNameTranslator.$tr('syncToKDP'),
+            base_url: '',
+          };
+          this.fetchSyncTasks();
+          return;
+        }
         NetworkLocationResource.fetchModel({ id: this.deviceId }).then(device => {
           this.device = device;
           this.fetchSyncTasks();
