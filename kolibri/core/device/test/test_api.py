@@ -883,5 +883,5 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["user"], self.user1.id)
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
-        # self.assertEqual(response.data[0]["last_download_removed"])
-        # self.assertEqual(response.data[0]["has_downloads"])
+        self.assertFalse(response.data[0]["has_downloads"], False)
+        self.assertFalse(response.data[0]["last_download_removed"], None)

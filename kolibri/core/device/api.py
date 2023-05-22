@@ -4,6 +4,7 @@ from sys import version_info
 
 from django.conf import settings
 from django.contrib.auth import login
+from django.db.models import DateTimeField
 from django.db.models import Exists
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -335,7 +336,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             instance_id=OuterRef("sync_session__client_instance_id"),
         )
 
-        has_downloads = Exists(
+        has_download = Exists(
             ContentDownloadRequest.objects.filter(
                 source_id=OuterRef("user_id"),
                 source_model=FacilityUser.morango_model_name,
@@ -343,14 +344,15 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             )
         )
 
-        last_download_removed = Subquery(
+        last_download_removal = Subquery(
             ContentRemovalRequest.objects.filter(
                 source_id=OuterRef("user_id"),
                 source_model=FacilityUser.morango_model_name,
                 reason=ContentRequestReason.SyncInitiated,
             )
             .annotate(last_removal=Max("requested_at"))
-            .values("last_removal")
+            .values("last_removal"),
+            output_field=DateTimeField(),
         )
         queryset = queryset.annotate(
             transfer_status=Subquery(most_recent_sync_status),
@@ -360,12 +362,8 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             device_status_sentiment=Subquery(
                 most_recent_synced_device_status.values("status_sentiment")[:1]
             ),
-        )
-        queryset.annotate(
-            has_download=Subquery(has_downloads),
-            last_download_remove=Subquery(
-                last_download_removed.values("last_removal")[:1]
-            ),
+            has_downloads=has_download,
+            last_download_removed=last_download_removal,
         )
         return queryset
 
