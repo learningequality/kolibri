@@ -1,39 +1,27 @@
 <template>
 
-  <div class="alert" :style="{ backgroundColor: $themePalette.red.v_50, display: displayBanner }">
-    <h1 style="display: none">
-      {{ "was insufiicientstorage header" }}
-    </h1>
+  <div
+    v-show="showBanner"
+    class="alert"
+    :style="{ backgroundColor: $themePalette.red.v_50 }"
+  >
     <div style="display:flex">
       <div>
         <KIcon
-          icon="warn"
+          icon="warning"
           class="icon"
         />
       </div>
 
       <div class="error-message">
-        {{ "warning" }}
-        <router-link :to="url">
-          <KButton appearance="basic-link">
-            {{ "link ? button?" }}
-          </KButton>
-        </router-link>
+        <p v-if="py27Deprecated">
+          {{ coreString('pythonSupportWillBeDropped') }}
+        </p>
+        <p v-if="ie11Deprecated">
+          {{ coreString('browserSupportWillBeDroppedIE11') }}
+        </p>
       </div>
-
-      <div>
-        <!-- TODO update aria-labels -->
-        <KIconButton
-          size="small"
-          icon="incorrect"
-          :ariaLabel="'arialabel'"
-          :tooltip="'tooltip'"
-          @click="closeAlert"
-        />
-      </div>
-
     </div>
-
   </div>
 
 </template>
@@ -42,14 +30,21 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import plugin_data from 'plugin_data';
 
   export default {
     name: 'DeprecationWarningBanner',
     mixins: [commonCoreStrings],
-    data: function() {
-      return {
-        displayBanner: 'auto',
-      };
+    computed: {
+      showBanner() {
+        return this.ie11Deprecated || this.py27Deprecated;
+      },
+      ie11Deprecated() {
+        return plugin_data.deprecationWarnings.ie11;
+      },
+      py27Deprecated() {
+        return plugin_data.deprecationWarnings.py27;
+      },
     },
   };
 
@@ -58,16 +53,21 @@
 
 <style scoped>
 .alert {
-  padding: 10px;
-  margin-bottom: 15px;
+  position: relative;
+  padding: 1em 1em 1em 2em;
+  margin-top: 1em;
+  max-width: 1000px;
+  width: 100%;
 }
 .icon {
   height: 24px;
   width: 24px;
-  margin-top: 3px;
+  top: 2em;
+  left: 1em;
+  position: absolute;
 }
 .error-message {
   font-size:14px;
-  margin: 7px 7px 0px 10px;
+  margin: 0em 1em 0 2em;
 }
 </style>

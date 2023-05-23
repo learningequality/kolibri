@@ -25,6 +25,10 @@ class DeviceManagementAsset(WebpackBundleHook):
         return {
             "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
             "canRestart": bool(OPTIONS["Deployment"]["RESTART_HOOKS"]),
+            "deprecationWarnings": {
+                "py27": False,
+                "ie11": False,
+            },
         }
 
 
