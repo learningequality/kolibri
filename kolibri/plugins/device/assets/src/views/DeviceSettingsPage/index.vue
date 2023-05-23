@@ -1,10 +1,7 @@
 <template>
 
-  <AppBarPage :title="pageTitle">
+  <DeviceAppBarPage :title="pageTitle">
 
-    <template #subNav>
-      <DeviceTopNav />
-    </template>
     <KPageContainer class="device-container">
       <UiAlert
         v-if="showDisabledAlert && alertDismissed"
@@ -336,7 +333,7 @@
       />
 
     </KPageContainer>
-  </AppBarPage>
+  </DeviceAppBarPage>
 
 </template>
 
@@ -351,12 +348,11 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonDeviceStrings from '../commonDeviceStrings';
+  import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
-  import DeviceTopNav from '../DeviceTopNav';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
@@ -380,9 +376,8 @@
       };
     },
     components: {
-      AppBarPage,
+      DeviceAppBarPage,
       BottomAppBar,
-      DeviceTopNav,
       PrimaryStorageLocationModal,
       AddStorageLocationModal,
       RemoveStorageLocationModal,
