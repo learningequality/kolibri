@@ -1,6 +1,9 @@
+import Vue from 'vue';
 import { RENDERER_SUFFIX } from '../views/ContentRenderer/constants';
 import contentRendererMixin from '../views/ContentRenderer/mixin';
-import { languageDirections } from '../utils/i18n';
+import ContentRendererLoading from '../views/ContentRenderer/ContentRendererLoading';
+import ContentRendererError from '../views/ContentRenderer/ContentRendererError';
+import { languageDirection, languageDirections } from '../utils/i18n';
 import scriptLoader from '../utils/scriptLoader';
 
 /**
@@ -22,14 +25,11 @@ const publicMethods = [
   'ready',
 ];
 
-export default function pluginMediatorFactory({
-  Vue,
-  languageDirection = languageDirections.LTR,
-  facade,
-} = {}) {
-  function mergeMixin(component) {
-    return Vue.util.mergeOptions(contentRendererMixin, component);
-  }
+function mergeMixin(component) {
+  return Vue.util.mergeOptions(contentRendererMixin, component);
+}
+
+export default function pluginMediatorFactory(facade) {
   /**
    * The Mediator object - registers and loads kolibri_modules and acts as
    * a global event dispatcher.
@@ -421,9 +421,9 @@ export default function pluginMediatorFactory({
              */
             component: this.retrieveContentRenderer(preset),
             // A component to use while the async component is loading
-            loading: Vue.options.components['ContentRendererLoading'],
+            loading: ContentRendererLoading,
             // A component to use if the load fails
-            error: Vue.options.components['ContentRendererError'],
+            error: ContentRendererError,
             // Delay before showing the loading component.
             delay: 0,
             // The error component will be displayed if a timeout is

@@ -15,8 +15,8 @@ import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 import heartbeat from 'kolibri.heartbeat';
 import KContentPlugin from '../views/ContentRenderer/KContentPlugin';
 import initializeTheme from '../styles/initializeTheme';
-import { i18nSetup, languageDirection } from '../utils/i18n';
-import ContentRendererErrorComponent from '../views/ContentRenderer/ContentRendererError';
+import { i18nSetup } from '../utils/i18n';
+import setupPluginMediator from './pluginMediator';
 import apiSpec from './apiSpec';
 
 // Do this before any async imports to ensure that public paths
@@ -43,6 +43,8 @@ const coreApp = {
   version: __version,
 };
 
+setupPluginMediator(coreApp);
+
 // set up theme
 initializeTheme();
 
@@ -62,12 +64,7 @@ Vue.use(VueCompositionApi);
 // - Register KDS components
 Vue.use(KThemePlugin);
 
-Vue.use(KContentPlugin, {
-  languageDirection,
-  ContentRendererErrorComponent,
-  coreApp,
-  registerContentActivity: heartbeat.setActive,
-});
+Vue.use(KContentPlugin);
 
 // Start the heartbeat polling here, as any URL needs should be set by now
 heartbeat.startPolling();

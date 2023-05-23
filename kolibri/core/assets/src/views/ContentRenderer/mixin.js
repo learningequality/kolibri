@@ -1,6 +1,6 @@
 import { defaultLanguage, languageValidator, getContentLangDir } from '../../utils/i18n';
 
-const interactionEvents = [
+export const interactionEvents = [
   'answerGiven',
   'hintTaken',
   'itemError',
@@ -186,5 +186,4 @@ export default {
       return this.contentDirection === 'rtl';
     },
   },
-  interactionEvents,
 };
