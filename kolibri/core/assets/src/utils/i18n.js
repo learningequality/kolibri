@@ -60,13 +60,13 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
 const defaultLocale = defaultLanguage.id;
 
 export const availableLanguages = {
-  [defaultLocale]: defaultLanguage,
+  ...(languageGlobals.languages || { [defaultLocale]: defaultLanguage }),
 };
 
-export let currentLanguage = defaultLocale;
+export const currentLanguage = languageGlobals.languageCode || defaultLocale;
 
 // Default to ltr
-export let languageDirection = languageDirections.LTR;
+export const languageDirection = languageGlobals.languageDir || languageDirections.LTR;
 
 export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
@@ -212,17 +212,6 @@ export function i18nSetup(skipPolyfill = false) {
   /**
    * Load fonts, app strings, and Intl polyfills
    **/
-
-  // Set up exported module variable
-  if (languageGlobals.languageCode) {
-    currentLanguage = languageGlobals.languageCode;
-  }
-
-  if (languageGlobals.languages) {
-    Object.assign(availableLanguages, languageGlobals.languages);
-  }
-
-  languageDirection = languageGlobals.languageDir || languageDirection;
 
   // Set up typography
   setLanguageDensity(currentLanguage);
