@@ -3,13 +3,14 @@
   <div
     v-show="showBanner"
     class="alert"
-    :style="{ backgroundColor: $themePalette.red.v_50 }"
+    :style="{ backgroundColor: $themePalette.yellow.v_100 }"
   >
     <div style="display:flex">
       <div>
         <KIcon
           icon="warning"
           class="icon"
+          :color="$themePalette.amber.v_a400"
         />
       </div>
 
@@ -54,15 +55,15 @@
 <style scoped>
 .alert {
   position: relative;
-  padding: 1em 1em 1em 2em;
-  margin-top: 1em;
+  padding-left: 2em;
+  margin: 1em auto 0;
   max-width: 1000px;
   width: 100%;
 }
 .icon {
   height: 24px;
   width: 24px;
-  top: 2em;
+  top: 1em;
   left: 1em;
   position: absolute;
 }
