@@ -21,7 +21,7 @@ export function updateCurrentLesson(store, lessonId) {
   ]).then(
     ([lesson, lessonSizes]) => {
       const size = lessonSizes[0] && lessonSizes[0][lessonId];
-      lesson[size] = size;
+      lesson.size = size;
       store.commit('SET_CURRENT_LESSON', lesson);
       return lesson;
     },
