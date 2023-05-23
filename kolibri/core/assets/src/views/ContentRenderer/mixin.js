@@ -1,6 +1,8 @@
+import heartbeat from 'kolibri.heartbeat';
 import { defaultLanguage, languageValidator, getContentLangDir } from '../../utils/i18n';
+import { getRenderableFiles, getDefaultFile } from './utils';
 
-export const interactionEvents = [
+const interactionEvents = [
   'answerGiven',
   'hintTaken',
   'itemError',
@@ -138,6 +140,11 @@ export default {
       default: null,
     },
   },
+  created() {
+    for (const event of interactionEvents) {
+      this.$on(event, heartbeat.setUserActive);
+    }
+  },
   computed: {
     // For when we want to force a renderer to use time-based progress (e.g. instead of % completed)
     forceDurationBasedProgress() {
@@ -151,27 +158,8 @@ export default {
       }
       return this.timeSpent / duration;
     },
-    defaultItemPreset() {
-      return this.defaultFile
-        ? this.defaultFile.preset
-        : this.canRenderContent(this.preset)
-        ? this.preset
-        : null;
-    },
-    availableFiles() {
-      return this.files.filter(
-        file =>
-          !file.thumbnail &&
-          !file.supplementary &&
-          file.available &&
-          this.canRenderContent(file.preset)
-      );
-    },
     defaultFile() {
-      return (
-        this.file ||
-        (this.availableFiles && this.availableFiles.length ? this.availableFiles[0] : undefined)
-      );
+      return getDefaultFile(getRenderableFiles(this.files));
     },
     supplementaryFiles() {
       return this.files.filter(file => file.supplementary && file.available);
@@ -184,6 +172,17 @@ export default {
     },
     contentIsRtl() {
       return this.contentDirection === 'rtl';
+    },
+  },
+  methods: {
+    /**
+     * @public
+     */
+    checkAnswer() {
+      /* eslint-disable no-console */
+      console.warn('This content renderer has not implemented the checkAnswer method');
+      /* eslint-enable */
+      return null;
     },
   },
 };
