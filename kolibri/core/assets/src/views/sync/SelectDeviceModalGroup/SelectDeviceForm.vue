@@ -192,7 +192,7 @@
 
       const isLoading = ref(false);
 
-      const LODDevicesWithSignUpFacility = computedAsync(
+      const lodsWithSignupFacility = computedAsync(
         async () => {
           const devicesAvailable = get(devices);
           const allDevices = {};
@@ -227,7 +227,7 @@
         discoveredDevices,
         savedDevices,
         storageDeviceId,
-        LODDevicesWithSignUpFacility,
+        lodsWithSignupFacility,
       };
     },
     props: {
@@ -380,12 +380,7 @@
         });
       },
       canLearnerSignUp(id) {
-        if (this.LODDevicesWithSignUpFacility) {
-          if (id in this.LODDevicesWithSignUpFacility) {
-            return true;
-          }
-        }
-        return false;
+        return this.lodsWithSignupFacility && id in this.lodsWithSignupFacility;
       },
     },
     $trs: {
