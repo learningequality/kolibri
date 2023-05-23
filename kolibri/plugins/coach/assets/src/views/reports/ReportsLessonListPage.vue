@@ -284,7 +284,7 @@
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
-          if (lesson.active) {
+          if (lesson.is_active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {
