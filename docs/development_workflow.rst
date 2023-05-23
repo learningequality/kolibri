@@ -96,6 +96,27 @@ First, all automated checks need to pass before merging. Then...
 * Stale reviews should be dismissed by the PR submitter when the feedback has been addressed
 
 
+Copyright and licensing
+~~~~~~~~~~~~~~~~~~~~~~~
+
+The project as a whole is released under the MIT license, and copyright on its code is held by multiple parties including Learning Equality.
+
+Individual files, such as code copied in from other projects may be under a different license, if that license is compatible.
+
+Similarly, files from Kolibri may end up being copied into other projects.
+
+For these reasons, copyright and license data may be listed explicitly at the top of some files. For example:
+
+.. code-block:: python
+
+  # Copyright 2023 Ann Contributor
+  # SPDX-License-Identifier: MIT
+
+This format is machine readable and complies with the `REUSE specification <https://reuse.software/>`__ for software licensing.
+
+For files where the license is not explicitly stated, the `overall project license <../LICENSE>`__ applies.
+
+
 Development phases
 ------------------
 
