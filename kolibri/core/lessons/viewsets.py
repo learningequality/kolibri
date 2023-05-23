@@ -104,7 +104,7 @@ class LessonViewset(ValuesViewset):
 
     @action(detail=False)
     def size(self, request, **kwargs):
-        lessons = self.get_queryset()
+        lessons = self.filter_queryset(self.get_queryset())
         lessons_set = []
         for lesson in lessons:
             lesson_size = {}
