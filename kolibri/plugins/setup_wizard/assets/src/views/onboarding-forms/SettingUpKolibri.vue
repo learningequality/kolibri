@@ -1,7 +1,28 @@
 <template>
 
   <div class="full-page">
-    <main class="content">
+    <div
+      v-if="coreError"
+      style="padding: 16px;"
+    >
+      <AppError :hideParagraphs="true">
+        <h2>{{ coreError }}</h2>
+        <template
+          v-if="restart"
+          #buttons
+        >
+          <KButton
+            :text="coreString('startOverAction')"
+            :primary="true"
+            @click="startOver"
+          />
+        </template>
+      </AppError>
+    </div>
+    <main
+      v-else
+      class="content"
+    >
       <KolibriLoadingSnippet />
       <h1 class="page-title">
         {{ $tr('pageTitle') }}
@@ -23,6 +44,8 @@
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import AppError from 'kolibri-common/components/AppError';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
@@ -30,9 +53,22 @@
 
   export default {
     name: 'SettingUpKolibri',
-    components: { KolibriLoadingSnippet },
+    components: { AppError, KolibriLoadingSnippet },
     inject: ['wizardService'],
+    mixins: [commonCoreStrings],
+    data() {
+      return {
+        restart: false,
+      };
+    },
     computed: {
+      coreError() {
+        if (this.$store) {
+          return this.$store.state.core.error;
+        } else {
+          return null;
+        }
+      },
       facilityData() {
         const usersName = get(this.wizardContext('superuser'), 'full_name', '');
         const facilityName =
@@ -142,6 +178,10 @@
       this.provisionDevice();
     },
     methods: {
+      startOver() {
+        this.$store.dispatch('clearError');
+        this.wizardService.send('START_OVER');
+      },
       // A helper for readability
       wizardContext(key) {
         return this.wizardService.state.context[key];
@@ -160,6 +200,7 @@
             redirectBrowser();
           })
           .catch(e => {
+            this.restart = e.response.status === 400;
             this.$store.dispatch('handleApiError', e);
           });
       },

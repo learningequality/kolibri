@@ -191,6 +191,12 @@ class DeviceProvisionTestCase(APITestCase):
         self.assertFalse(device_settings.allow_peer_unlisted_channel_import)
         self.assertTrue(device_settings.allow_learner_unassigned_resource_access)
 
+    def test_create_superuser_error(self):
+        data = self._default_provision_data()
+        data.update({"superuser": {}})
+        response = self._post_deviceprovision(data)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
     def test_osuser_superuser_error_no_app(self):
         with plugin_disabled("kolibri.plugins.app"):
             data = self._default_provision_data()
@@ -240,7 +246,7 @@ class DeviceProvisionTestCase(APITestCase):
         data["facility_id"] = "12345678123456781234567812345678"
         del data["facility"]
         response = self._post_deviceprovision(data)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_imported_facility_with_no_facility_data(self):
         data = self._default_provision_data()
@@ -248,7 +254,7 @@ class DeviceProvisionTestCase(APITestCase):
         data["facility_id"] = None
         del data["facility"]
         response = self._post_deviceprovision(data)
-        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
 
 
 class DeviceSettingsTestCase(APITestCase):
