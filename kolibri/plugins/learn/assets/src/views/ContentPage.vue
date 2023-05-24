@@ -47,6 +47,8 @@
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
         @repeat="repeat"
+        @error="onError"
+        @finished="onFinished"
       />
       <AssessmentWrapper
         v-else
@@ -71,6 +73,7 @@
         @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
+        @error="onError"
         @finished="onFinished"
       />
     </template>
