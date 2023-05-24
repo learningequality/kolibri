@@ -352,6 +352,7 @@
           this.setPlayState(false);
           this.$emit('finished');
         });
+        this.player.on('error', this.reportLoadingError);
         this.$watch('elementWidth', this.updatePlayerSizeClass);
         this.updatePlayerSizeClass();
         this.resizePlayer();

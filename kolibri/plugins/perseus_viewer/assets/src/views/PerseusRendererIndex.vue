@@ -445,6 +445,11 @@
               .then(perseusFile => {
                 this.perseusFile = perseusFile;
                 this.perseusFileUrl = this.defaultFile.storage_url;
+              })
+              .catch(err => {
+                logging.error('Error loading Perseus file', err);
+                this.reportLoadingError(err);
+                return Promise.reject(err);
               });
           } else {
             return Promise.resolve();

@@ -1,5 +1,6 @@
 import Vue from 'vue';
 import heartbeat from 'kolibri.heartbeat';
+import { ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
 import {
   defaultLanguage,
   languageValidator,
@@ -207,6 +208,15 @@ export default {
           propsData: { error: this._resourceError },
         });
       }
+    },
+    /**
+     * @public
+     */
+    reportLoadingError(error) {
+      this.$emit('error', {
+        message: error,
+        error: ContentErrorConstants.LOADING_ERROR,
+      });
     },
   },
 };
