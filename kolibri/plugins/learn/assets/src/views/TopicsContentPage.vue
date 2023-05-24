@@ -70,6 +70,7 @@
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
         @finished="$refs.activityBar && $refs.activityBar.animateNextSteps()"
+        @error="onError"
       />
     </div>
 
@@ -134,7 +135,16 @@
         :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
-
+    <KModal
+      v-if="showConnectionErrorModal"
+      :title="deviceFormTranslator.$tr('errorCouldNotConnect')"
+      :submitText="coreString('goBackAction')"
+      @submit="goToAllLibraries"
+    >
+      <p>
+        {{ learnString('cannotConnectToLibrary', { deviceName }) }}
+      </p>
+    </KModal>
   </div>
 
 </template>
@@ -150,7 +160,9 @@
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
+  import { ContentNodeKinds, ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
@@ -163,6 +175,7 @@
   import useDevices from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
   import useDownloadRequests from '../composables/useDownloadRequests';
+  import commonLearnStrings from './commonLearnStrings';
   import SidePanelModal from './SidePanelModal';
   import LearningActivityChip from './LearningActivityChip';
   import CurrentlyViewedResourceMetadata from './CurrentlyViewedResourceMetadata';
@@ -201,7 +214,7 @@
       CurrentlyViewedResourceMetadata,
       SkipNavigationLink,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
       const { canDownload } = useCoreLearn();
       const {
@@ -211,15 +224,17 @@
       } = useContentNodeProgress();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
-      const { baseurl } = useDevices();
+      const { baseurl, deviceName } = useDevices();
       const {
         addDownloadRequest,
         isDownloadedByLearner,
         isDownloadingByLearner,
         downloadRequestsTranslator,
       } = useDownloadRequests();
+      const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       return {
         baseurl,
+        deviceName,
         canDownload,
         contentNodeProgressMap,
         fetchContentNodeProgress,
@@ -231,6 +246,7 @@
         isDownloadedByLearner,
         isDownloadingByLearner,
         downloadRequestsTranslator,
+        deviceFormTranslator,
       };
     },
     props: {
@@ -265,6 +281,7 @@
         resourcesSidePanelLoading: false,
         contentPageMounted: false,
         lesson: null,
+        showConnectionErrorModal: false,
       };
     },
     computed: {
@@ -523,6 +540,14 @@
       },
       handleRemoteDownloadRequest() {
         this.addDownloadRequest(this.content);
+      },
+      onError(error) {
+        if (error && error.error === ContentErrorConstants.LOADING_ERROR && this.deviceId) {
+          this.showConnectionErrorModal = true;
+        }
+      },
+      goToAllLibraries() {
+        this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
       },
     },
     $trs: {
