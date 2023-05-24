@@ -46,7 +46,7 @@ def _map_lesson_classroom(item):
 class LessonViewset(ValuesViewset):
     serializer_class = LessonSerializer
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    filter_fields = ("collection",)
+    filter_fields = ("collection", "id")
     permission_classes = (LessonPermissions,)
     queryset = Lesson.objects.all().order_by("-date_created")
 
@@ -104,7 +104,7 @@ class LessonViewset(ValuesViewset):
 
     @action(detail=False)
     def size(self, request, **kwargs):
-        lessons = self.get_queryset()
+        lessons = self.filter_queryset(self.get_queryset())
         lessons_set = []
         for lesson in lessons:
             lesson_size = {}

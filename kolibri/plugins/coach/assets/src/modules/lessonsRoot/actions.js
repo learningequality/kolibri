@@ -22,7 +22,7 @@ export function refreshClassLessons(store, classId) {
     })
     .then(lessons => {
       if (Object.keys(lessons).length > 0) {
-        return store.dispatch('fetchLessonsSizes', { classId: classId, force: true });
+        return store.dispatch('fetchLessonsSizes', classId);
       }
     })
     .catch(error => {
@@ -31,7 +31,7 @@ export function refreshClassLessons(store, classId) {
 }
 
 export function fetchLessonsSizes(store, classId) {
-  return LessonResource.fetchLessonsSizes(classId)
+  return LessonResource.fetchLessonsSizes({ collection: classId })
     .then(sizes => {
       store.commit('SET_CLASS_LESSONS_SIZES', sizes);
     })

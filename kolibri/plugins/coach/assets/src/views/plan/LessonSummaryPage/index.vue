@@ -29,7 +29,6 @@
           :className="className"
           :lesson="currentLesson"
           :groupNames="getRecipientNamesForLesson(currentLesson)"
-          activeKey="is_active"
         />
       </KGridItem>
       <KGridItem :layout12="{ span: 8 }">

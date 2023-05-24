@@ -7,7 +7,6 @@ function defaultState() {
     learnerGroups: [],
     resourceCache: {},
     workingResources: [],
-    lessonsSizes: [],
   };
 }
 
@@ -30,9 +29,6 @@ export default {
     },
     SET_CURRENT_LESSON(state, currentLesson) {
       state.currentLesson = currentLesson;
-    },
-    SET_CLASS_LESSONS_SIZES(state, sizes = {}) {
-      state.lessonsSizes = sizes;
     },
     SET_LEARNER_GROUPS(state, learnerGroups) {
       state.learnerGroups = [...learnerGroups];
