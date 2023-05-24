@@ -1,10 +1,10 @@
 import Vue from 'vue';
+import scriptLoader from 'kolibri-common//utils/scriptLoader';
 import { RENDERER_SUFFIX } from '../views/ContentRenderer/constants';
 import contentRendererMixin from '../views/ContentRenderer/mixin';
 import ContentRendererLoading from '../views/ContentRenderer/ContentRendererLoading';
 import ContentRendererError from '../views/ContentRenderer/ContentRendererError';
 import { languageDirection, languageDirections } from '../utils/i18n';
-import scriptLoader from '../utils/scriptLoader';
 
 /**
  * Array containing the names of all methods of the Mediator that

@@ -91,7 +91,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import scriptLoader from 'kolibri.utils.scriptLoader';
+  import scriptLoader from 'kolibri-common//utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
   import Khan from '../KAGlobals/Khan';
