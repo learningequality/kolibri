@@ -1,5 +1,10 @@
 import heartbeat from 'kolibri.heartbeat';
-import { defaultLanguage, languageValidator, getContentLangDir } from '../../utils/i18n';
+import {
+  defaultLanguage,
+  languageValidator,
+  getContentLangDir,
+  languageDirections,
+} from '../../utils/i18n';
 import { getRenderableFiles, getDefaultFile } from './utils';
 
 const interactionEvents = [
@@ -7,6 +12,7 @@ const interactionEvents = [
   'hintTaken',
   'itemError',
   'interaction',
+  'addProgress',
   'updateProgress',
   'updateContentState',
   'startTracking',
@@ -141,9 +147,7 @@ export default {
     },
   },
   created() {
-    for (const event of interactionEvents) {
-      this.$on(event, heartbeat.setUserActive);
-    }
+    this.$on(interactionEvents, heartbeat.setUserActive);
   },
   computed: {
     // For when we want to force a renderer to use time-based progress (e.g. instead of % completed)
@@ -171,7 +175,7 @@ export default {
       return getContentLangDir(this.lang);
     },
     contentIsRtl() {
-      return this.contentDirection === 'rtl';
+      return this.contentDirection === languageDirections.RTL;
     },
   },
   methods: {
