@@ -18,8 +18,11 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.exceptions import JobAlreadyRetrying
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
+from kolibri.core.tasks.exceptions import JobNotRunning
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
@@ -162,15 +165,23 @@ class Storage(object):
         Note: Does not actually run the job.
         """
         dt = self._now()
-        return self.schedule(
-            dt,
-            job,
-            queue,
-            priority=priority,
-            interval=0,
-            repeat=0,
-            retry_interval=retry_interval,
-        )
+        try:
+            return self.schedule(
+                dt,
+                job,
+                queue,
+                priority=priority,
+                interval=0,
+                repeat=0,
+                retry_interval=retry_interval,
+            )
+        except JobRunning:
+            logger.debug(
+                "Attempted to enqueue a running job {job_id}, ignoring.".format(
+                    job_id=job.job_id
+                )
+            )
+            return job.job_id
 
     def mark_job_as_canceled(self, job_id):
         """
@@ -437,28 +448,42 @@ class Storage(object):
     def save_job_as_cancellable(self, job_id, cancellable=True):
         self._update_job(job_id, cancellable=cancellable)
 
-    def _update_job(self, job_id, state=None, **kwargs):
+    def retry_job_in(self, job_id, delta_t, **kwargs):
+        if not isinstance(delta_t, timedelta):
+            raise TypeError("Time argument must be a timedelta object.")
+        orm_job = self.get_orm_job(job_id)
+        if orm_job.state != State.RUNNING:
+            raise JobNotRunning("Job is not running, cannot retry.")
+        if orm_job.retry_interval is not None or orm_job.repeat != 0:
+            raise JobAlreadyRetrying("Job is already retrying.")
+        # Update the job to repeat once after delta_t seconds.
+        self._update_job(job_id, interval=delta_t.total_seconds(), repeat=1, **kwargs)
+
+    def _handle_state_update(self, orm_job, job, state):
+        if state is not None:
+            orm_job.state = job.state = state
+            if state == State.FAILED and orm_job.retry_interval is not None:
+                orm_job.state = job.state = State.QUEUED
+                orm_job.scheduled_time = naive_utc_datetime(
+                    self._now() + timedelta(seconds=orm_job.retry_interval)
+                )
+            elif state in {State.COMPLETED, State.FAILED, State.CANCELED}:
+                if orm_job.repeat is None or orm_job.repeat > 0:
+                    orm_job.repeat = (
+                        orm_job.repeat - 1 if orm_job.repeat is not None else None
+                    )
+                    orm_job.state = job.state = State.QUEUED
+                    orm_job.scheduled_time = naive_utc_datetime(
+                        self._now() + timedelta(seconds=orm_job.interval)
+                    )
+
+    def _update_job(self, job_id, state=None, priority=None, **kwargs):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
-                if state is not None:
-                    orm_job.state = job.state = state
-                    if state == State.FAILED and orm_job.retry_interval is not None:
-                        orm_job.state = job.state = State.QUEUED
-                        orm_job.scheduled_time = naive_utc_datetime(
-                            self._now() + timedelta(seconds=orm_job.retry_interval)
-                        )
-                    elif state in {State.COMPLETED, State.FAILED, State.CANCELED}:
-                        if orm_job.repeat is None or orm_job.repeat > 0:
-                            orm_job.repeat = (
-                                orm_job.repeat - 1
-                                if orm_job.repeat is not None
-                                else None
-                            )
-                            orm_job.state = job.state = State.QUEUED
-                            orm_job.scheduled_time = naive_utc_datetime(
-                                self._now() + timedelta(seconds=orm_job.interval)
-                            )
+                self._handle_state_update(orm_job, job, state)
+                if priority is not None:
+                    orm_job.priority = priority
                 for kwarg in kwargs:
                     setattr(job, kwarg, kwargs[kwarg])
                 orm_job.saved_job = job.to_json()
@@ -524,7 +549,7 @@ class Storage(object):
         Add the job in the specified time delta
         """
         if not isinstance(delta_t, timedelta):
-            raise ValueError("Time argument must be a timedelta object.")
+            raise TypeError("Time argument must be a timedelta object.")
         dt = self._now() + delta_t
         return self.schedule(
             dt,
@@ -568,16 +593,8 @@ class Storage(object):
 
         with self.session_scope() as session:
             orm_job = session.query(ORMJob).get(job.job_id)
-            if orm_job and orm_job.state not in {
-                State.COMPLETED,
-                State.FAILED,
-                State.CANCELED,
-            }:
-                # If this job is already queued or running, don't try to replace it.
-                # Call our schedule hooks anyway to ensure that job storage
-                # is synchronized with any other task runner.
-                self._run_scheduled_hooks(orm_job)
-                return job.job_id
+            if orm_job and orm_job.state == State.RUNNING:
+                raise JobRunning()
 
             job.state = State.QUEUED
             orm_job = ORMJob(

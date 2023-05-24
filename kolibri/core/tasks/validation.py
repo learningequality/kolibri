@@ -1,6 +1,6 @@
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
-
-from kolibri.core.serializers import DateTimeTzField
+from rest_framework.exceptions import ValidationError
 
 
 class EnqueueArgsSerializer(serializers.Serializer):
@@ -8,11 +8,13 @@ class EnqueueArgsSerializer(serializers.Serializer):
     A serializer for `enqueue_args` object of incoming user request data.
     """
 
-    enqueue_at = DateTimeTzField(required=False)
+    enqueue_at = serializers.DateTimeField(required=False)
     enqueue_in = serializers.DurationField(required=False)
     repeat = serializers.IntegerField(required=False, allow_null=True, min_value=1)
     repeat_interval = serializers.IntegerField(required=False, min_value=1)
-    retry_interval = serializers.IntegerField(required=False, min_value=0)
+    retry_interval = serializers.IntegerField(
+        required=False, allow_null=True, min_value=0
+    )
 
     def validate(self, data):
         if data.get("enqueue_at") and data.get("enqueue_in"):
@@ -51,17 +53,48 @@ class JobValidator(serializers.Serializer):
     enqueue_args = EnqueueArgsSerializer(required=False)
 
     def validate(self, data):
-        kwargs = data.copy()
-        kwargs.pop("type")
-        kwargs.pop("enqueue_args", None)
         return {
             "args": (),
-            "kwargs": kwargs,
+            "kwargs": data,
             "extra_metadata": {},
         }
 
+    def _verify_args(self, value):
+        args = value.get("args")
+        if args is None:
+            value["args"] = ()
+        elif not isinstance(args, (list, tuple)):
+            raise TypeError("'args' must be a list or tuple.")
+
+    def _verify_kwargs(self, value):
+        kwargs = value.get("kwargs")
+        if kwargs is None:
+            value["kwargs"] = {}
+        elif not isinstance(kwargs, dict):
+            raise TypeError("'kwargs' must be a dict.")
+
     def run_validation(self, data):
-        value = super(JobValidator, self).run_validation(data)
+        """
+        Vendored and modified from rest_framework/serializers.py to allow removing
+        the type argument and enqueue_args before passing to the validate method.
+        This means that the validate method will only be concerned with additional
+        validation of the data set by the subclasses.
+        """
+        (is_empty_value, data) = self.validate_empty_values(data)
+        if is_empty_value:
+            return data
+
+        value = self.to_internal_value(data)
+        try:
+            self.run_validators(value)
+            value.pop("type")
+            enqueue_args = value.pop("enqueue_args", {})
+            value = self.validate(value)
+            value["enqueue_args"] = enqueue_args
+            assert value is not None, ".validate() should return the validated data"
+        except (ValidationError, DjangoValidationError) as exc:
+            raise ValidationError(detail=serializers.as_serializer_error(exc))
+
         if not isinstance(value, dict):
             raise TypeError("Validator must return a dict.")
         extra_metadata = value.get("extra_metadata", {})
@@ -76,4 +109,9 @@ class JobValidator(serializers.Serializer):
                 }
             )
         value["extra_metadata"] = extra_metadata
+
+        self._verify_args(value)
+
+        self._verify_kwargs(value)
+
         return value

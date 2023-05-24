@@ -393,33 +393,29 @@ class TaskUtilitiesTestCase(TestCase):
             generate_job_id("test", "a" * 32), "42440939765e6e06237a90ec42c80b4b"
         )
 
-    @mock.patch(
-        "kolibri.core.discovery.tasks.perform_network_location_update.enqueue_in"
-    )
+    @mock.patch("kolibri.core.discovery.tasks.get_current_job")
     def test_enqueue_network_location_update_with_backoff__zero_faults(
-        self, mock_enqueue
+        self, mock_get_current_job
     ):
+        current_job_mock = mock.MagicMock()
+        mock_get_current_job.return_value = current_job_mock
         next_attempt = datetime.timedelta(minutes=1)
         _enqueue_network_location_update_with_backoff(self.network_location)
-        mock_enqueue.assert_called_once_with(
+        current_job_mock.retry_in.assert_called_once_with(
             next_attempt,
-            job_id="88452dfa2ec2726589d4c63732cc51e4",
-            args=(self.network_location.id,),
             priority=Priority.LOW,
         )
 
-    @mock.patch(
-        "kolibri.core.discovery.tasks.perform_network_location_update.enqueue_in"
-    )
+    @mock.patch("kolibri.core.discovery.tasks.get_current_job")
     def test_enqueue_network_location_update_with_backoff__non_zero_faults(
-        self, mock_enqueue
+        self, mock_get_current_job
     ):
+        current_job_mock = mock.MagicMock()
+        mock_get_current_job.return_value = current_job_mock
         self.network_location.connection_faults = 3
         next_attempt = datetime.timedelta(minutes=8)
         _enqueue_network_location_update_with_backoff(self.network_location)
-        mock_enqueue.assert_called_once_with(
+        current_job_mock.retry_in.assert_called_once_with(
             next_attempt,
-            job_id="88452dfa2ec2726589d4c63732cc51e4",
-            args=(self.network_location.id,),
             priority=Priority.LOW,
         )
