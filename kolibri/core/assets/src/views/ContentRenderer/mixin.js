@@ -1,3 +1,4 @@
+import Vue from 'vue';
 import heartbeat from 'kolibri.heartbeat';
 import {
   defaultLanguage,
@@ -6,6 +7,9 @@ import {
   languageDirections,
 } from '../../utils/i18n';
 import { getRenderableFiles, getDefaultFile } from './utils';
+import ContentRendererError from './ContentRendererError';
+
+const ContentRendererErrorComponent = Vue.extend(ContentRendererError);
 
 const interactionEvents = [
   'answerGiven',
@@ -146,8 +150,12 @@ export default {
       default: null,
     },
   },
+  data() {
+    return { _resourceError: null };
+  },
   created() {
     this.$on(interactionEvents, heartbeat.setUserActive);
+    this.$on('error', this._reportError);
   },
   computed: {
     // For when we want to force a renderer to use time-based progress (e.g. instead of % completed)
@@ -187,6 +195,18 @@ export default {
       console.warn('This content renderer has not implemented the checkAnswer method');
       /* eslint-enable */
       return null;
+    },
+    _reportError(error) {
+      this._resourceError = error;
+      if (!this._errorComponent) {
+        const domNode = document.createElement('div');
+        this.$el.prepend(domNode);
+        this._errorComponent = new ContentRendererErrorComponent({
+          el: domNode,
+          parent: this,
+          propsData: { error: this._resourceError },
+        });
+      }
     },
   },
 };
