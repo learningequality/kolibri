@@ -107,7 +107,7 @@
                   style="cursor: pointer;"
                   data-test="side-nav-component"
                 />
-                <LogoutSideNavEntry v-if="showLogout" />
+                <LogoutSideNavEntry v-if="isUserLoggedIn" />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
@@ -312,7 +312,14 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser', 'isAdmin', 'isCoach', 'getUserKind', 'isAppContext']),
+      ...mapGetters([
+        'isSuperuser',
+        'isAdmin',
+        'isCoach',
+        'getUserKind',
+        'isAppContext',
+        'isUserLoggedIn',
+      ]),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -341,9 +348,6 @@
         return [...accountComponents]
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
-      },
-      showLogout() {
-        return this.getUserKind !== UserKinds.ANONYMOUS;
       },
       bottomMenuOptions() {
         return navComponents.filter(component => component.bottomBar == true);

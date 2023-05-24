@@ -288,7 +288,7 @@
           color: `${this.textColor}!important`,
         };
         const alignmentStyle = {
-          'text-align': `${this.isRtl ? 'right' : 'left'}!important`,
+          'text-align': `${this.isRtl ? 'right' : 'left'}`,
         };
         const fontSizeStyle = this.fontSize ? { 'font-size': `${this.fontSize}!important` } : {};
 

@@ -77,7 +77,7 @@
     <slot name="underbuttons"></slot>
 
     <template #actions>
-      <KFixedGridItem
+      <KFixedGrid
         class="actions"
         numCols="4"
       >
@@ -115,7 +115,7 @@
             />
           </KButtonGroup>
         </KFixedGridItem>
-      </KFixedGridItem>
+      </KFixedGrid>
     </template>
 
     <KButton
