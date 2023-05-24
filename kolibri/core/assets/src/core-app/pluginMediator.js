@@ -26,7 +26,11 @@ const publicMethods = [
 ];
 
 function mergeMixin(component) {
-  return Vue.util.mergeOptions(contentRendererMixin, component);
+  if (!component.mixins) {
+    component.mixins = [];
+  }
+  component.mixins.push(contentRendererMixin);
+  return component;
 }
 
 export default function pluginMediatorFactory(facade) {
