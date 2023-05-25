@@ -100,7 +100,7 @@ against any abstract KolibriHook descendants that it inherits from. In this case
 being registered inherits from NavigationHook, so any hook registered will be available on
 the ``NavigationHook.registered_hooks`` property.
 
-Here is the definition of the abstract NavigatonHook in kolibri.core.hooks:
+Here is the definition of the abstract NavigationHook in kolibri.core.hooks:
 
 .. code-block:: python
 
