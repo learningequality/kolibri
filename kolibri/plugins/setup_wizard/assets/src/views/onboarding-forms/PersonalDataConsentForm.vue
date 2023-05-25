@@ -66,6 +66,22 @@
         return null;
       },
     },
+    // // same as beforeRouteLeave in other routes
+    // beforeRouteLeave(to, from, next) {
+    //   if (!this.$store.state.wizardNavigated) {
+    //     if (from.meta.previousNavigationAllowed.includes(to.name)) {
+    //       return this.wizardService.send({ type: 'BACK' });
+    //     }
+    //   }
+    //   else {
+    //     return next();
+    //   }
+    // },
+    beforeRouteLeave(to, from, next) {
+      if (this.$store.state.wizardNavigated) {
+        return next();
+      }
+    },
     mounted() {
       this.focusOnModalButton();
     },
@@ -78,7 +94,9 @@
         // form. The state machine can define the expected event name for it's particular context.
         // See the comments around this in wizardMachine
         const lastStatePath = Object.keys(this.wizardService._state.meta)[0];
-        const { nextEvent = null } = this.wizardService.state.meta[lastStatePath];
+        // const backFromCreateSuperuser = lastStatePath === 'wizard.createSuperuserAndFacilityForm' && 'CONTINUE';
+        const { nextEvent = null } = this.wizardService.state.meta[lastStatePath]
+          // || backFromCreateSuperuser;
         console.log('OK NEXT:', nextEvent);
         if (!nextEvent) {
           console.error(

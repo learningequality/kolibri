@@ -49,6 +49,13 @@
         return '';
       },
     },
+    beforeRouteLeave(to, from, next) {
+      if (!this.$store.state.wizardNavigated) {
+        if (from.meta.previousNavigationAllowed.includes(to.name)) {
+          return this.wizardService.send({ type: 'BACK' });
+        }
+      } else { return next(); }
+    },
     methods: {
       handleContinue() {
         this.shouldValidate = true;

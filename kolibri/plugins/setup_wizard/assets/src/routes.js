@@ -30,53 +30,94 @@ export default [
     path: '/default-language',
     name: 'DEFAULT_LANGUAGE',
     component: DefaultLanguageForm,
+    // // beforeRouteLeave not set up on route yet
+    // meta: {
+    //   previousNavigationAllowed: ['HOW_ARE_YOU_USING_KOLIBRI'],
+    // }
   },
   {
     path: '/create-account',
     name: 'CREATE_SUPERUSER_AND_FACILITY',
     component: UserCredentialsForm,
+    // // beforeRouteLeave not set up on route yet
+    // meta: {
+    //   previousNavigationAllowed: ['DEFAULT_LANGUAGE'],
+    // }
   },
   {
     path: '/device-name',
     name: 'DEVICE_NAME',
     component: DeviceNameForm,
+    meta: {
+      previousNavigationAllowed: ['HOW_ARE_YOU_USING_KOLIBRI'],
+      // // didn't end up working and it doesn't seem so bad to have
+      // // forward browser button disabled (state is retained when you return)
+      // nextNavigationAllowed: ['FULL_OR_LOD'],
+    }
   },
   {
     path: '/full-or-lod',
     name: 'FULL_OR_LOD',
     component: FullOrLearnOnlyDeviceForm,
+    meta: {
+      previousNavigationAllowed: ['DEVICE_NAME'],
+      // nextNavigationAllowed: ['FULL_NEW_OR_IMPORT_FACILITY', 'LOD_SETUP_TYPE']
+    }
   },
   {
     path: '/facility-new-or-import',
     name: 'FULL_NEW_OR_IMPORT_FACILITY',
     component: SetUpLearningFacilityForm,
+    meta: {
+      previousNavigationAllowed: ['FULL_OR_LOD'],
+      // nextNavigationAllowed: ['FACILITY_PERMISSIONS', 'SELECT_FACILITY_FOR_IMPORT']
+    }
   },
   // create a facility
   {
     name: 'FACILITY_PERMISSIONS',
     path: '/create_facility/1',
     component: FacilityPermissionsForm,
+    meta: {
+      previousNavigationAllowed: ['FULL_NEW_OR_IMPORT_FACILITY'],
+      // nextNavigationAllowed: ['GUEST_ACCESS']
+    }
   },
   {
     name: 'GUEST_ACCESS',
     path: '/create-facility/2',
     component: GuestAccessForm,
+    meta: {
+      previousNavigationAllowed: ['FACILITY_PERMISSIONS'],
+      // nextNavigationAllowed: ['CREATE_LEARNER_ACCOUNT']
+    }
   },
   {
     name: 'CREATE_LEARNER_ACCOUNT',
     path: '/create-facility/3',
     component: CreateLearnerAccountForm,
+    meta: {
+      previousNavigationAllowed: ['GUEST_ACCESS'],
+      // nextNavigationAllowed: ['REQUIRE_PASSWORD']
+    }
   },
   {
     name: 'REQUIRE_PASSWORD',
     path: '/create-facility/4',
     component: RequirePasswordForLearnersForm,
+    meta: {
+      previousNavigationAllowed: ['CREATE_LEARNER_ACCOUNT'],
+      // nextNavigationAllowed: ['PERSONAL_DATA_CONSENT']
+    }
   },
   {
     name: 'PERSONAL_DATA_CONSENT',
     path: '/create-facility/5',
     component: PersonalDataConsentForm,
     props: { footerMessageType: FooterMessageTypes.NEW_FACILITY },
+    meta: {
+      previousNavigationAllowed: [''],
+    }
   },
   // Import a facility
   {
@@ -99,12 +140,22 @@ export default [
     name: 'SELECT_ADMIN',
     path: '/import-facility/select-admin',
     component: SelectSuperAdminAccountForm,
+    meta: {
+      previousNavigationAllowed: [''],
+      // backActionAllowed: 'never',
+      // nextNavigationAllowed: ['IMPORT_DATA_CONSENT'],
+    }
   },
   {
     name: 'IMPORT_DATA_CONSENT',
     path: '/import-facility/consent',
     component: PersonalDataConsentForm,
     props: { footerMessageType: FooterMessageTypes.IMPORT_FACILITY },
+    meta: {
+      previousNavigationAllowed: [''],
+      // backActionAllowed: 'never',
+      // nextNavigationAllowed: ['FINALIZE_SETUP'],
+    }
   },
 
   // Learn only device
@@ -122,6 +173,12 @@ export default [
     name: 'LOD_IMPORT_USER_AUTH',
     path: '/learn-only/import/sign-in',
     component: ImportIndividualUserForm,
+    meta: {
+      // // how to accomplish this?
+      backActionAllowed: 'checkImportedUsers', // if there are imported users, you can't go back
+      previousNavigationAllowed: [''],
+      // nextNavigationAllowed: ['LOD_LOADING_TASK_PAGE', 'LOD_IMPORT_AS_ADMIN'],
+    }
   },
   {
     name: 'LOD_LOADING_TASK_PAGE',

@@ -63,6 +63,14 @@
         return { type: 'BACK', value: Boolean(this.setting) };
       },
     },
+    beforeRouteLeave(to, from, next) {
+      if (!this.$store.state.wizardNavigated) {
+        if (from.meta.previousNavigationAllowed.includes(to.name)) {
+          return this.backEvent;
+          // return this.wizardService.send({ type: 'BACK' });
+        }
+      } else { return next(); }
+    },
     methods: {
       handleContinue() {
         this.wizardService.send({ type: 'CONTINUE', value: this.setting });

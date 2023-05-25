@@ -37,6 +37,7 @@ export default {
       },
       loading: false,
       error: false,
+      wizardNavigated: false,
     };
   },
   actions: {
@@ -66,6 +67,9 @@ export default {
       store.commit('SET_ERROR', true);
       store.dispatch('handleApiError', errorMsg);
     },
+    setWizardNavigated(store, wizardNavFlag) {
+      store.commit('SET_WIZARD_NAVIGATION', wizardNavFlag);
+    }
   },
   mutations: {
     CLEAR_PASSWORD(state) {
@@ -73,6 +77,9 @@ export default {
     },
     SET_LANGUAGE(state, language_id) {
       state.onboardingData.language_id = language_id;
+    },
+    SET_WIZARD_NAVIGATION(state, wizardNavFlag) {
+      state.wizardNavigated = wizardNavFlag;
     },
     SET_USER_CREDENTIALS(state, payload) {
       state.onboardingData.user = {

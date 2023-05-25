@@ -63,7 +63,7 @@
     created() {
       /*
        * The interpreted wizardMachine is an object that lets you move between states.
-       * It's current state value has no side effects or dependencies - so we can store it
+       * Its current state value has no side effects or dependencies - so we can store it
        * as data - then when we initialize the machine each time, we can pass it that data
        * to resume the machine as we had saved it.
        *
@@ -78,7 +78,47 @@
        * using Lockr and redirecting to '/' should do the trick.
        */
 
-      const synchronizeRouteAndMachine = state => {
+      // Note the second arg to Lockr.get is a fallback if the first arg is not found
+      const savedState = Lockr.get('savedState', 'initializeContext');
+
+      // Either the string 'initializeContext' or a valid state object returned from Lockr
+
+      if (savedState !== 'initializeContext') {
+        // Update the route if there is a saved state
+        this.$store.dispatch('setWizardNavigated', true);
+        this.synchronizeRouteAndMachine(savedState);
+      } else {
+        // Or set the app context state on the machine and proceed to the first state
+        this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
+      }
+
+      this.service.start(savedState);
+
+      // this is listening for changes in state --
+      // so it IS getting hit once a successful transition occurs
+      this.service.onTransition(state => {
+        this.$store.dispatch('setWizardNavigated', true);
+        this.synchronizeRouteAndMachine(state);
+        Lockr.set('savedState', this.service._state);
+      });
+    },
+    updated() {
+      const savedState = Lockr.get('savedState', 'initializeContext'); // i think this should just be state
+      const route = savedState.meta[Object.keys(savedState.meta)[0]].route;
+
+      if (route && (this.$route.name !== route.name)) {
+        this.synchronizeRouteAndMachine(this.service._state);
+        Lockr.set('savedState', this.service._state);
+      }
+      this.$store.dispatch('setWizardNavigated', false);
+    },
+
+    destroyed() {
+      Lockr.set('savedState', null);
+      this.service.stop();
+    },
+    methods: {
+      synchronizeRouteAndMachine(state) {
         if (!state) return;
 
         const { meta } = state;
@@ -88,7 +128,6 @@
           this.$router.push('/');
           return;
         }
-
         const route = meta[Object.keys(meta)[0]].route;
         if (route) {
           // Avoid redundant navigation
@@ -98,31 +137,7 @@
         } else {
           this.$router.push('/');
         }
-      };
-
-      // Note the second arg to Lockr.get is a fallback if the first arg is not found
-      const savedState = Lockr.get('savedState', 'initializeContext');
-
-      // Either the string 'initializeContext' or a valid state object returned from Lockr
-
-      if (savedState !== 'initializeContext') {
-        // Update the route if there is a saved state
-        synchronizeRouteAndMachine(savedState);
-      } else {
-        // Or set the app context state on the machine and proceed to the first state
-        this.service.send({ type: 'CONTINUE', value: checkCapability('get_os_user') });
-      }
-
-      this.service.start(savedState);
-
-      this.service.onTransition(state => {
-        synchronizeRouteAndMachine(state);
-        Lockr.set('savedState', this.service._state);
-      });
-    },
-    destroyed() {
-      Lockr.set('savedState', null);
-      this.service.stop();
+      },
     },
 
     $trs: {
