@@ -15,10 +15,7 @@
         @click="startOver"
       />
     </UiAlert>
-    <main
-      v-else
-      class="content"
-    >
+    <main class="content">
       <KolibriLoadingSnippet />
       <h1 class="page-title">
         {{ $tr('pageTitle') }}
@@ -229,6 +226,9 @@
 <style scoped lang="scss">
 
   .alert {
+    position: relative;
+    top: 0;
+    left: 0;
     margin: 16px;
     text-align: left;
   }
