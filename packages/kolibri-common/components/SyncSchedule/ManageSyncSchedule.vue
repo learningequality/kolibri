@@ -146,7 +146,7 @@
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props) {
-      const { devices } = useDevicesWithFacility(props.facilityId);
+      const { devices } = useDevicesWithFacility({ facilityId: props.facilityId });
       const devicesById = computed(() => {
         return devices.value.reduce(
           (acc, device) => {
