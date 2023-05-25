@@ -280,7 +280,7 @@
         });
       },
       deviceName() {
-        return this.device && this.device.nickname.length
+        return this.device && this.device.nickname && this.device.nickname.length
           ? this.device.nickname
           : this.device.device_name;
       },
