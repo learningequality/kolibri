@@ -1,24 +1,20 @@
 <template>
 
   <div class="full-page">
-    <div
+    <UiAlert
       v-if="coreError"
-      style="padding: 16px;"
+      :dismissible="false"
+      class="alert"
+      type="error"
     >
-      <AppError :hideParagraphs="true">
-        <h2>{{ coreError }}</h2>
-        <template
-          v-if="restart"
-          #buttons
-        >
-          <KButton
-            :text="coreString('startOverAction')"
-            :primary="true"
-            @click="startOver"
-          />
-        </template>
-      </AppError>
-    </div>
+      <span>{{ coreError }}</span><br>
+      <KButton
+        v-if="restart"
+        appearance="basic-link"
+        :text="coreString('startOverAction')"
+        @click="startOver"
+      />
+    </UiAlert>
     <main
       v-else
       class="content"
@@ -45,7 +41,7 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import AppError from 'kolibri-common/components/AppError';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
@@ -53,7 +49,7 @@
 
   export default {
     name: 'SettingUpKolibri',
-    components: { AppError, KolibriLoadingSnippet },
+    components: { UiAlert, KolibriLoadingSnippet },
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
     data() {
@@ -231,6 +227,11 @@
 
 
 <style scoped lang="scss">
+
+  .alert {
+    margin: 16px;
+    text-align: left;
+  }
 
   .full-page {
     /* Fill the screen, no scroll bars */
