@@ -1,0 +1,39 @@
+{# Copyright 2023 Endless OS Foundation, LLC #}
+{# SPDX-License-Identifier: MIT #}
+{% load i18n %}
+{% load staticfiles %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+{% get_current_language as LANGUAGE_CODE %}
+{
+  "name": "{% trans 'Kolibri' %}",
+  "short_name": "{% trans 'Kolibri' %}",
+  "dir": "{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}",
+  "lang": "{{ LANGUAGE_CODE }}",
+  "icons": [
+{% for icon in icons %}
+    {
+{% if icon.type %}
+      "type": "{{ icon.type }}",
+{% endif %}
+{% if icon.sizes %}
+      "sizes": "{{ icon.sizes }}",
+{% endif %}
+{% if icon.label %}
+      "label": "{{ icon.label }}",
+{% endif %}
+{% if icon.purpose %}
+      "purpose": "{{ icon.purpose }}",
+{% endif %}
+      "src": "{{ icon.src }}"
+    }{% if not forloop.last %},{% endif %}
+{% endfor %}
+  ],
+  "id": "{{ id }}",
+  "start_url": "{% url 'kolibri:core:root_redirect' %}",
+  "background_color": "{{ background_color }}",
+{% if theme_color %}
+  "theme_color": "{{ theme_color }}",
+{% endif %}
+  "display": "standalone",
+  "scope": "{{ id }}"
+}

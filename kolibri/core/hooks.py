@@ -16,6 +16,8 @@ from __future__ import unicode_literals
 
 from abc import abstractproperty
 
+from django.utils.safestring import mark_safe
+
 from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.core.webpack.hooks import WebpackInclusionASyncMixin
 from kolibri.core.webpack.hooks import WebpackInclusionSyncMixin
@@ -63,6 +65,25 @@ class FrontEndBaseASyncHook(WebpackInclusionASyncMixin):
     Inherit a hook defining assets to be loaded in kolibri/base.html, that means
     ALL pages. Use with care.
     """
+
+
+@define_hook
+class FrontEndBaseHeadHook(KolibriHook):
+    """
+    Inherit a hook defining markup to be injected in the head of
+    kolibri/base.html, that means ALL pages. Use with care.
+    """
+
+    @abstractproperty
+    def head_html(self):
+        pass
+
+    @classmethod
+    def html(cls):
+        tags = []
+        for hook in cls.registered_hooks:
+            tags.append(hook.head_html)
+        return mark_safe("\n".join(tags))
 
 
 @define_hook(only_one_registered=True)

@@ -72,6 +72,7 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Jacob Pierce | nucleogenesis |
 | Paul Bussé | paulbusse |
 | Petar Cenov | pcenov |
+| Philip Withnall | pwithnall |
 | Radina Matic | radinamatic |
 | Rafael Aguayo | ralphiee22 |
 | Hyun Ahn | rationality6 |

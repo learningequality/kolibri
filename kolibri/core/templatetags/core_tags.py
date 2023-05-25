@@ -9,6 +9,7 @@ from __future__ import unicode_literals
 from django import template
 
 from kolibri.core.hooks import FrontEndBaseASyncHook
+from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 
 register = template.Library()
@@ -36,3 +37,15 @@ def frontend_base_async_assets():
     :return: HTML of script tags to insert into base.html
     """
     return FrontEndBaseASyncHook.html()
+
+
+@register.simple_tag()
+def frontend_base_head_markup():
+    """
+    This is a script tag for all ``FrontEndBaseHeadHook`` hooks that implement
+    a render_to_html() method - this is used in the ``/base.html`` template to
+    inject arbitrary markup into the ``<head>`` element.
+
+    :return: HTML to insert into head of base.html
+    """
+    return FrontEndBaseHeadHook.html()
