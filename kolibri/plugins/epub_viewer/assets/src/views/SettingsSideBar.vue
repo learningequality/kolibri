@@ -62,6 +62,29 @@
         </KFixedGridItem>
       </KFixedGrid>
     </div>
+
+    <div class="o-f-h">
+      <h3>{{ $tr('customTheme') }}</h3>
+      <KFixedGrid numCols="4" gutter="8">
+        <!-- Button to add a new custom theme -->
+        <KFixedGridItem
+          v-if="true"
+          span="1"
+        >
+          <KButton
+            class="settings-button theme-button"
+            :aria-label="$tr('addNewTheme')"
+            @click="addNewTheme"
+          >
+            <KIcon
+              icon="plus"
+              style="top: 0; width: 24px; height: 24px;"
+            />
+          </KButton>
+          
+        </KFixedGridItem>
+      </KFixedGrid>
+    </div>
   </SideBar>
 
 </template>
@@ -137,6 +160,10 @@
           },
         };
       },
+      addNewTheme(){
+        // TODO: Add new theme logic
+        console.log("add new theme");
+      }
     },
     $trs: {
       textSize: {
@@ -156,6 +183,16 @@
         message: 'Theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
+      },
+      customTheme: {
+        message: 'Custom Themes',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option.",
+      },
+      addNewTheme: {
+        message: 'Add new theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to add a new theme.",
       },
       setWhiteTheme: {
         message: 'Set white theme',
