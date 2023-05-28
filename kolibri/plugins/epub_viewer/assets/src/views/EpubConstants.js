@@ -40,3 +40,19 @@ export const THEMES = {
 };
 
 export const darkThemeNames = ['BLACK', 'GREY', 'YELLOW'];
+
+// sample custom themes for reference
+export const customThemes = {
+  starryNight: {
+    name: 'Starry Night',
+    backgroundColor: 'blue',
+    hoverColor: 'yellow',
+    textColor: 'white',
+  },
+  batman: {
+    name: 'Batman',
+    backgroundColor: 'black',
+    hoverColor: 'grey',
+    textColor: 'yellow',
+  },
+}
