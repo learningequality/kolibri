@@ -55,4 +55,34 @@ export const customThemes = {
     hoverColor: 'grey',
     textColor: 'yellow',
   },
+  superman: {
+    name: 'Superman',
+    backgroundColor: 'blue',
+    hoverColor: 'red',
+    textColor: 'yellow',
+  },
+  wonderWoman: {
+    name: 'Wonder Woman',
+    backgroundColor: 'red',
+    hoverColor: 'blue',
+    textColor: 'white',
+  },
+  greenLantern: {
+    name: 'Green Lantern',
+    backgroundColor: 'green',
+    hoverColor: 'black',
+    textColor: 'white',
+  },
+  cyborg: {
+    name: 'Cyborg',
+    backgroundColor: 'grey',
+    hoverColor: 'black',
+    textColor: 'white',
+  },
+  blackAdam: {
+    name: 'Black Adam',
+    backgroundColor: 'black',
+    hoverColor: 'yellow',
+    textColor: 'gold',
+  },
 }

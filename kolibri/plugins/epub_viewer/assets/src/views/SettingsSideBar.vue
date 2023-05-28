@@ -90,7 +90,7 @@
         
         <!-- Button to add a new custom theme -->
         <KFixedGridItem
-          v-if="true"
+          v-if="Object.keys(customThemes).length < 8"
           span="1"
         >
           <KButton
