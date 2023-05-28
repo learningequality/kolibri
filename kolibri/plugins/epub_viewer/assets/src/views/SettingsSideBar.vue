@@ -66,6 +66,28 @@
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
       <KFixedGrid numCols="4" gutter="8">
+        <!-- Buttons for already created custom themes -->
+        <KFixedGridItem
+          v-for="(value, key) in customThemes"
+          :key="key"
+          span="1"
+        >
+          <KButton
+            class="settings-button theme-button"
+            :aria-label="generateThemeAriaLabel(key)"
+            :appearanceOverrides="generateStyle(value)"
+            @click="$emit('setTheme', value)"
+          >
+            <KIcon
+              v-if="isCurrentlySelectedTheme(value) "
+              icon="check"
+              :style="{ fill: value.textColor }"
+              style="top: 0; width: 24px; height: 24px;"
+            />
+          </KButton>
+
+        </KFixedGridItem>
+        
         <!-- Button to add a new custom theme -->
         <KFixedGridItem
           v-if="true"
@@ -95,6 +117,9 @@
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
+  // TODO: Get custom themes from local storage
+  import {customThemes} from './EpubConstants';
+
   export default {
     name: 'SettingsSideBar',
     components: {
@@ -119,6 +144,9 @@
     computed: {
       themes() {
         return THEMES;
+      },
+      customThemes() {
+        return customThemes;
       },
       settingsButtonFocus() {
         return {
