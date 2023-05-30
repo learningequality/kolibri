@@ -1,7 +1,10 @@
 <script>
 
   import get from 'lodash/get';
+  import logger from 'kolibri.lib.logging';
   import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
+
+  const logging = logger.getLogger(__filename);
 
   export default {
     name: 'CoreTable',
@@ -82,7 +85,7 @@
 
       // If we have loaded the data, but have no empty message and no rows, we log an error.
       if (!this.dataLoading && this.emptyMessage && !tableHasRows) {
-        console.error('CoreTable: No rows in table, but no empty message provided.');
+        logging.error('CoreTable: No rows in table, but no empty message provided.');
       }
 
       /*
