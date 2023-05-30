@@ -64,6 +64,7 @@ export default {
   actions: {
     setClassList(store, facilityId) {
       store.commit('SET_DATA_LOADING', true);
+      store.commit('SET_CLASS_LIST', []); // Reset the list if we're loading a new one
       return ClassroomResource.fetchCollection({
         getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
       })
