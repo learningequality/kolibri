@@ -4,7 +4,7 @@
     :is="page"
     :appBarTitle="appBarTitle"
     :appearanceOverrides="appearanceOverrides"
-    :loading="$store.state.core.loading"
+    :loading="loading"
     :primary="false"
     :route="route"
     :title="appBarTitle"
@@ -68,6 +68,10 @@
         default() {
           return {};
         },
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

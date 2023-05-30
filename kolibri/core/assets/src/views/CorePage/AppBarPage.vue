@@ -100,7 +100,9 @@
       },
       loading: {
         type: Boolean,
-        default: null,
+        default() {
+          return this.$store.state.core.loading;
+        },
       },
     },
     data() {
