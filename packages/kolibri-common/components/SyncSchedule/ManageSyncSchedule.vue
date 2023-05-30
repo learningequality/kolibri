@@ -72,10 +72,16 @@
                   <KIcon icon="onDevice" />
                   <span>{{ $tr('connected') }}</span>
                 </span>
-                <span v-else>
+                <span
+                  v-else-if="
+                    devicesById[task.extra_metadata.device_id] &&
+                      !devicesById[task.extra_metadata.device_id].isKDP
+                  "
+                >
                   <KIcon icon="disconnected" />
                   <span>{{ $tr('disconnected') }}</span>
                 </span>
+                <KEmptyPlaceholder v-else />
               </td>
               <td>
                 <KButton
@@ -159,6 +165,7 @@
               // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
               device_name: kdpNameTranslator.$tr('syncToKDP'),
               base_url: '',
+              isKDP: true,
             },
           }
         );
