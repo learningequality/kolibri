@@ -61,7 +61,8 @@
 
 <style scoped>
   .alert {
-    margin-bottom: 0;
+    margin: 8px;
     text-align: left;
+    width: calc(100% - 16px);
   }
 </style>
