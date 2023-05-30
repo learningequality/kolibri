@@ -17,7 +17,7 @@ export default {
       Object.assign(state, defaultState());
     },
     SET_LOADING_FACILITY_USERS(state, loadingFacilityUsers) {
-      Object.assign(state, { loadingFacilityUsers });
+      state.loadingFacilityUsers = loadingFacilityUsers;
     },
   },
 };
