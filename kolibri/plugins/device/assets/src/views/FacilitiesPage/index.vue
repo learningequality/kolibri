@@ -27,8 +27,8 @@
       </HeaderWithOptions>
 
       <TasksBar
-        v-if="facilityTasks.length > 0"
-        :tasks="facilityTasks"
+        v-if="activeFacilityTasks.length > 0"
+        :tasks="activeFacilityTasks"
         :taskManagerLink="{ name: 'FACILITIES_TASKS_PAGE' }"
         @clearall="handleClickClearAll"
       />

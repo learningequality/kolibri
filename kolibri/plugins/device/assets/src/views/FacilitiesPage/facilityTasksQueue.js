@@ -11,6 +11,13 @@ function taskFacilityMatch(task, facility) {
   return task.facility_id === facility.id;
 }
 
+function isActiveTask(task) {
+  // Helper function filter tasks by whether they are 'active'
+  // i.e. has a user just queued a non-repeating task, or is a repeating task
+  // that is currently running.
+  return task.repeat !== null || task.status === TaskStatuses.RUNNING;
+}
+
 export default {
   data() {
     return {
@@ -41,15 +48,15 @@ export default {
     this.isPolling = false;
   },
   computed: {
+    activeFacilityTasks() {
+      return this.facilityTasks.filter(isActiveTask);
+    },
     facilityIsSyncing() {
       return function isSyncing(facility) {
-        const activeSyncTasks = this.facilityTasks.filter(
-          t =>
-            isSyncTask(t) &&
-            ((t.repeat !== null && !t.clearable) ||
-              (t.repeat === null && t.status === TaskStatuses.RUNNING))
+        const inProcessSyncTasks = this.activeFacilityTasks.filter(
+          t => isSyncTask(t) && !t.clearable
         );
-        return Boolean(activeSyncTasks.find(task => taskFacilityMatch(task, facility)));
+        return Boolean(inProcessSyncTasks.find(task => taskFacilityMatch(task, facility)));
       };
     },
     facilityIsDeleting() {
