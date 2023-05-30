@@ -17,8 +17,8 @@ export function showClassEditPage(store, classId) {
     ClassroomResource.fetchCollection({ getParams: { parent: facilityId }, force: true }),
   ];
   store.commit('classEditManagement/SET_DATA_LOADING', true);
-  Promise.all(promises).then(
-    ([facilityUsers, classroom, classrooms]) => {
+  Promise.all(promises)
+    .then(([facilityUsers, classroom, classrooms]) => {
       store.commit('classEditManagement/SET_DATA_LOADING', false);
       store.commit('classEditManagement/SET_STATE', {
         modalShown: false,
@@ -27,9 +27,6 @@ export function showClassEditPage(store, classId) {
         classLearners: sortUsersByFullName(facilityUsers).map(_userState),
         classCoaches: sortUsersByFullName(classroom.coaches).map(_userState),
       });
-    },
-    error => {
-      store.dispatch('handleError', error);
-    }
-  );
+    })
+    .catch(error => store.dispatch('handleError', error));
 }
