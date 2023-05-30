@@ -386,19 +386,4 @@
     max-width: 120px;
   }
 
-  .center-loader {
-    &.ui-progress-circular {
-      position: static !important;
-      width: 100% !important;
-      overflow: hidden;
-    }
-
-    /deep/ svg {
-      top: 48px;
-      width: 32px;
-      height: 32px;
-      overflow: hidden;
-    }
-  }
-
 </style>
