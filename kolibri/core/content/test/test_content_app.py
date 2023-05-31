@@ -1221,7 +1221,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
 
     def test_file_list(self):
         response = self.client.get(reverse("kolibri:core:file-list"))
-        self.assertEqual(len(response.data), 5)
+        self.assertEqual(len(response.data), 10)
 
     def test_file_retrieve(self):
         response = self.client.get(

@@ -319,6 +319,21 @@ class GetContentNodesDataTestCase(TestCase):
                 "file_size": None,
                 "extension": "mp4",
             },
+            {
+                "id": "2cea0feba5f930c81661c5c759943964",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "5437c68903de934521128d7656a3b572",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "2318e5a9d6a24ae8f96e9110006e0c53",
+                "file_size": 1,
+                "extension": "png",
+            },
         ]
 
         selected_content_nodes = ContentNode.objects.filter(
@@ -331,7 +346,7 @@ class GetContentNodesDataTestCase(TestCase):
 
         self.assertEqual(total_resource_count, 2)
         self.assertCountEqual(files, expected_files_list)
-        self.assertEqual(total_bytes_to_transfer, 0)
+        self.assertEqual(total_bytes_to_transfer, 3)
 
 
 @patch(
@@ -857,13 +872,16 @@ class ImportContentTestCase(TestCase):
         fd1, local_dest_path_1 = tempfile.mkstemp()
         fd2, local_dest_path_2 = tempfile.mkstemp()
         fd3, local_dest_path_3 = tempfile.mkstemp()
+        fd4, local_dest_path_4 = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
         os.close(fd3)
+        os.close(fd4)
         path_mock.side_effect = [
             local_dest_path_1,
             local_dest_path_2,
             local_dest_path_3,
+            local_dest_path_4,
         ]
         ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
         LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
@@ -885,7 +903,7 @@ class ImportContentTestCase(TestCase):
         )
         manager.run()
         logger_mock.assert_called_once()
-        self.assertIn("3 files are skipped", logger_mock.call_args_list[0][0][0])
+        self.assertIn("4 files are skipped", logger_mock.call_args_list[0][0][0])
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
@@ -1940,13 +1958,16 @@ class ImportContentTestCase(TestCase):
         fd1, local_dest_path_1 = tempfile.mkstemp()
         fd2, local_dest_path_2 = tempfile.mkstemp()
         fd3, local_dest_path_3 = tempfile.mkstemp()
+        fd4, local_dest_path_4 = tempfile.mkstemp()
         os.close(fd1)
         os.close(fd2)
         os.close(fd3)
+        os.close(fd4)
         path_mock.side_effect = [
             local_dest_path_1,
             local_dest_path_2,
             local_dest_path_3,
+            local_dest_path_4,
         ]
         ContentNode.objects.filter(pk=self.c2c1_node_id).update(available=False)
         LocalFile.objects.filter(files__contentnode__pk=self.c2c1_node_id).update(
@@ -2328,7 +2349,10 @@ class TestFilesToTransfer(TestCase):
         _, files_to_transfer, _ = get_import_export_data(
             self.the_channel_id, None, None, False, renderable_only=False, drive_id="1"
         )
-        self.assertEqual(len(files_to_transfer), obj.files.count())
+        self.assertEqual(
+            len(files_to_transfer),
+            obj.files.count() + obj.parent.files.filter(thumbnail=True).count(),
+        )
 
     @patch(
         "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
@@ -2348,7 +2372,10 @@ class TestFilesToTransfer(TestCase):
             renderable_only=False,
             drive_id="1",
         )
-        self.assertEqual(len(files_to_transfer), obj.files.count())
+        self.assertEqual(
+            len(files_to_transfer),
+            parent.files.filter(thumbnail=True).count() + obj.files.count(),
+        )
 
     @patch(
         "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
@@ -2392,7 +2419,10 @@ class TestFilesToTransfer(TestCase):
         _, files_to_transfer, _ = get_import_export_data(
             self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
         )
-        self.assertEqual(len(files_to_transfer), obj.files.count())
+        self.assertEqual(
+            len(files_to_transfer),
+            obj.files.count() + obj.parent.files.filter(thumbnail=True).count(),
+        )
 
     @patch(
         "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"

@@ -823,12 +823,12 @@ class LocalFileByDisk(TransactionTestCase):
 
     @patch(
         "kolibri.core.content.utils.annotation.get_content_storage_file_path",
-        side_effect=[mock_content_file[1]] * 2 + [""] * 3,
+        side_effect=[mock_content_file[1]] * 2 + [""] * 8,
     )
     def test_set_all_files_two_exist(self, path_mock):
         set_local_file_availability_from_disk()
         self.assertEqual(LocalFile.objects.filter(available=True).count(), 2)
-        self.assertEqual(LocalFile.objects.exclude(available=True).count(), 3)
+        self.assertEqual(LocalFile.objects.exclude(available=True).count(), 8)
 
     def test_set_bad_filenames(self):
         local_files = list(LocalFile.objects.all())

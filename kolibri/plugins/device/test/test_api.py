@@ -15,6 +15,9 @@ from kolibri.core.auth.test.helpers import setup_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.content_types_tools import (
+    renderable_contentnodes_q_filter,
+)
 from kolibri.core.device.models import DevicePermissions
 
 DUMMY_PASSWORD = "password"
@@ -177,7 +180,7 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
         # N.B. Because of our not very good fixture data, most of our content nodes are by default not renderable
         # Hence this will return 2 if everything is duplicated properly.
         self.assertEqual(response.data["total_resources"], 2)
-        self.assertEqual(response.data["total_file_size"], 0)
+        self.assertEqual(response.data["total_file_size"], 2)
         self.assertEqual(response.data["on_device_resources"], 4)
         self.assertEqual(response.data["on_device_file_size"], 0)
 
@@ -198,7 +201,7 @@ class DeviceChannelMetadataAPITestCase(APITestCase):
             reverse("kolibri:kolibri.plugins.device:device_channel-list"),
             {"include_fields": "total_file_size"},
         )
-        self.assertEqual(response.data[0]["total_file_size"], 5)
+        self.assertEqual(response.data[0]["total_file_size"], 7)
 
     def test_channelmetadata_include_fields_filter_has_on_device_resources(self):
         ChannelMetadata.objects.all().update(total_resource_count=5)
@@ -267,9 +270,12 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
         self.assertEqual(
             response.data["file_size"],
             sum(
-                LocalFile.objects.filter(available=False).values_list(
-                    "file_size", flat=True
-                )
+                LocalFile.objects.filter(
+                    available=False,
+                    files__contentnode__in=ContentNode.objects.filter(
+                        renderable_contentnodes_q_filter
+                    ),
+                ).values_list("file_size", flat=True)
             ),
         )
 
@@ -283,7 +289,10 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.data["resource_count"], 1)
-        self.assertEqual(response.data["file_size"], obj.files.count() * 5)
+        self.assertEqual(
+            response.data["file_size"],
+            (obj.files.count() + obj.parent.files.filter(thumbnail=True).count()) * 5,
+        )
 
     def test_include_exclude_nodes_studio(self):
         ContentNode.objects.update(available=False)
@@ -314,9 +323,12 @@ class CalculateImportExportSizeViewTestCase(APITestCase):
         self.assertEqual(
             response.data["file_size"],
             sum(
-                LocalFile.objects.filter(available=True).values_list(
-                    "file_size", flat=True
-                )
+                LocalFile.objects.filter(
+                    available=True,
+                    files__contentnode__in=ContentNode.objects.filter(
+                        renderable_contentnodes_q_filter
+                    ),
+                ).values_list("file_size", flat=True)
             ),
         )
 
