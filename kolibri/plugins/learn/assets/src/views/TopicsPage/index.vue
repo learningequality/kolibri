@@ -16,7 +16,11 @@
       class="page"
     >
       <template #actions>
-        <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+        <DeviceConnectionStatus
+          v-if="deviceId"
+          :deviceId="deviceId"
+          color="white"
+        />
       </template>
       <!-- Header with thumbail and tagline -->
       <TopicsHeader
@@ -31,7 +35,10 @@
       />
 
       <!-- mobile tabs (different alignment and interactions) -->
-      <TopicsMobileHeader v-else :topic="topic" />
+      <TopicsMobileHeader
+        v-else
+        :topic="topic"
+      />
 
       <main
         class="main-content-grid"
@@ -46,7 +53,10 @@
 
         <div class="card-grid">
           <!-- Filter buttons - shown when not sidebar not visible -->
-          <div v-if="!windowIsLarge" data-test="tab-buttons">
+          <div
+            v-if="!windowIsLarge"
+            data-test="tab-buttons"
+          >
             <KButton
               v-if="topics.length"
               icon="topic"
@@ -67,7 +77,10 @@
           </div>
 
           <!-- default/preview display of nested folder structure, not search -->
-          <div v-if="!displayingSearchResults" data-test="topics">
+          <div
+            v-if="!displayingSearchResults"
+            data-test="topics"
+          >
             <!-- Rows of cards and links / show more for each Topic -->
             <template v-for="t in topicsForDisplay">
               <TopicSubsection
@@ -101,7 +114,10 @@
             >
               {{ coreString('showMoreAction') }}
             </KButton>
-            <div v-else-if="topicMore" class="end-button-block">
+            <div
+              v-else-if="topicMore"
+              class="end-button-block"
+            >
               <KButton
                 v-if="!topicMoreLoading"
                 :text="coreString('viewMoreAction')"
@@ -211,7 +227,6 @@
         @cancel="currentCategory = null"
         @input="handleCategory"
       />
-
 
       <!-- Side panel for showing the information of selected content with a link to view it -->
       <SidePanelModal
@@ -545,16 +560,16 @@
       gridStyle() {
         let style = {};
         /*
-          Fixes jumping scrollbar when reaching the bottom of the page
-          for certain page heights and when side bar is present.
-          The issue is caused by the document scroll height being changed
-          by the sidebar's switching position from absolute to fixed in
-          the sticky calculation, resulting in an endless cycle
-          of the calculation being called and the sidepanel alternating between
-          fixed and absolute position over and over. Setting min height prevents
-          this by making sure that the document scroll height won't change
-          on the sidebar positioning updates.
-        */
+            Fixes jumping scrollbar when reaching the bottom of the page
+            for certain page heights and when side bar is present.
+            The issue is caused by the document scroll height being changed
+            by the sidebar's switching position from absolute to fixed in
+            the sticky calculation, resulting in an endless cycle
+            of the calculation being called and the sidepanel alternating between
+            fixed and absolute position over and over. Setting min height prevents
+            this by making sure that the document scroll height won't change
+            on the sidebar positioning updates.
+          */
         if (this.windowIsLarge) {
           style = {
             minHeight: '900px',

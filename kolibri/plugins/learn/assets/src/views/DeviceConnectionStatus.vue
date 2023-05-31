@@ -39,7 +39,10 @@
        * null has been specified to return both type of devices which
        * is necesary for device connection statuses
        */
-      const { isFetching, devices } = useDevicesWithFacility({ soud: null });
+      const { isFetching, devices } = useDevicesWithFacility({
+        deviceId: props.deviceId,
+        soud: null,
+      });
       const isFetched = ref(false);
       const allDevices = ref([]);
 

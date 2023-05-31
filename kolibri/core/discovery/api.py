@@ -29,6 +29,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
     queryset = NetworkLocation.objects.all()
     filter_backends = [DjangoFilterBackend]
     filter_fields = [
+        "id",
         "subset_of_users_device",
     ]
 
