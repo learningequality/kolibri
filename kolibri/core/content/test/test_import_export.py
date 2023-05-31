@@ -86,6 +86,7 @@ class GetImportExportDataTestCase(TestCase):
             get_import_export_nodes_mock.return_value,
             available=None,
             topic_thumbnails=True,
+            all_thumbnails=False,
         )
 
 
@@ -347,6 +348,100 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertEqual(total_resource_count, 2)
         self.assertCountEqual(files, expected_files_list)
         self.assertEqual(total_bytes_to_transfer, 3)
+
+    def test_selected_content_nodes_all_thumbnails(self):
+        expected_files_list = [
+            {
+                "id": "4c30dc7619f74f97ae2ccd4fffd09bf2",
+                "file_size": None,
+                "extension": "mp3",
+            },
+            {
+                "id": "8ad3fffedf144cba9492e16daec1e39a",
+                "file_size": None,
+                "extension": "vtt",
+            },
+            {
+                "id": "2cea0feba5f930c81661c5c759943964",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "5437c68903de934521128d7656a3b572",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "2318e5a9d6a24ae8f96e9110006e0c53",
+                "file_size": 1,
+                "extension": "png",
+            },
+            {
+                "id": "37c5c250fbc66e597ae7d604846e9df2",
+                "file_size": 1,
+                "extension": "png",
+            },
+            {
+                "id": "c6f26814b067da30e1cb6239512dc1da",
+                "file_size": 1,
+                "extension": "png",
+            },
+        ]
+
+        selected_content_nodes = ContentNode.objects.filter(
+            channel_id=self.the_channel_id, pk=self.c2c1_node_id
+        ).exclude(kind=content_kinds.TOPIC)
+
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            self.the_channel_id,
+            [selected_content_nodes],
+            available=True,
+            all_thumbnails=True,
+        )
+
+        self.assertEqual(total_resource_count, 1)
+        self.assertCountEqual(files, expected_files_list)
+        self.assertEqual(total_bytes_to_transfer, 5)
+
+    def test_only_thumbnails(self):
+        expected_files_list = [
+            {
+                "id": "2cea0feba5f930c81661c5c759943964",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "5437c68903de934521128d7656a3b572",
+                "file_size": 1,
+                "extension": "jpeg",
+            },
+            {
+                "id": "2318e5a9d6a24ae8f96e9110006e0c53",
+                "file_size": 1,
+                "extension": "png",
+            },
+            {
+                "id": "37c5c250fbc66e597ae7d604846e9df2",
+                "file_size": 1,
+                "extension": "png",
+            },
+            {
+                "id": "c6f26814b067da30e1cb6239512dc1da",
+                "file_size": 1,
+                "extension": "png",
+            },
+        ]
+
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            self.the_channel_id,
+            [],
+            available=True,
+            all_thumbnails=True,
+        )
+
+        self.assertEqual(total_resource_count, 0)
+        self.assertCountEqual(files, expected_files_list)
+        self.assertEqual(total_bytes_to_transfer, 5)
 
 
 @patch(
@@ -2318,6 +2413,24 @@ class TestFilesToTransfer(TestCase):
                     renderable_contentnodes_q_filter
                 ),
             ).count(),
+        )
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_disk"
+    )
+    def test_all_nodes_present_disk_only_thumbnails(self, channel_stats_mock):
+        ContentNode.objects.update(available=False)
+        LocalFile.objects.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        _, files_to_transfer, _ = get_import_export_data(
+            self.the_channel_id, [], None, False, all_thumbnails=True, drive_id="1"
+        )
+        self.assertEqual(
+            len(files_to_transfer),
+            LocalFile.objects.filter(files__thumbnail=True).count(),
         )
 
     @patch(
