@@ -35,10 +35,7 @@
       />
 
       <!-- mobile tabs (different alignment and interactions) -->
-      <TopicsMobileHeader
-        v-else
-        :topic="topic"
-      />
+      <TopicsMobileHeader v-else :topic="topic" />
 
       <main
         class="main-content-grid"
@@ -53,10 +50,7 @@
 
         <div class="card-grid">
           <!-- Filter buttons - shown when not sidebar not visible -->
-          <div
-            v-if="!windowIsLarge"
-            data-test="tab-buttons"
-          >
+          <div v-if="!windowIsLarge" data-test="tab-buttons">
             <KButton
               v-if="topics.length"
               icon="topic"
@@ -77,10 +71,7 @@
           </div>
 
           <!-- default/preview display of nested folder structure, not search -->
-          <div
-            v-if="!displayingSearchResults"
-            data-test="topics"
-          >
+          <div v-if="!displayingSearchResults" data-test="topics">
             <!-- Rows of cards and links / show more for each Topic -->
             <template v-for="t in topicsForDisplay">
               <TopicSubsection
@@ -114,10 +105,7 @@
             >
               {{ coreString('showMoreAction') }}
             </KButton>
-            <div
-              v-else-if="topicMore"
-              class="end-button-block"
-            >
+            <div v-else-if="topicMore" class="end-button-block">
               <KButton
                 v-if="!topicMoreLoading"
                 :text="coreString('viewMoreAction')"
