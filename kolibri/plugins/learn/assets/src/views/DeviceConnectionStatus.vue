@@ -48,7 +48,7 @@
 
       const getStudio = async () => {
         let studio = [];
-        if (props.deviceId) {
+        if (props.deviceId === KolibriStudioId) {
           const response = await RemoteChannelResource.getKolibriStudioStatus();
           const studioData = {
             ...response.data,
