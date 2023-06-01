@@ -49,7 +49,15 @@
     <div v-if="visibleSubMenu">
       <div v-for="subRoute in subRoutes" :key="subRoute.label">
         <div class="link-container">
+          <KRouterLink
+            v-if="isActive"
+            :class="$computedClass(subpathStyles(subRoute.route))"
+            :text="coreString('subRoute.label')"
+            :to=" $router.generateTo(subRoute.label,$route.params )"
+            appearance="basic-link"
+          />
           <a
+            v-else
             :href="generateNavRoute(subRoute.route)"
             class="link"
             :class="$computedClass(subpathStyles(subRoute.route))"
@@ -60,7 +68,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 </template>
@@ -110,6 +117,19 @@
       };
     },
     computed: {
+      // // activeClass() {
+      //   return {
+      //     color: black,
+      //     fontWeight: 'bold',
+      //     margin: '8px',
+      //     textDecoration: 'none',
+      //     backgroundColor: this.$themeBrand.primary.v_50,
+      //     ':hover': {
+      //       backgroundColor: this.$themeBrand.primary.v_100,
+      //     },
+      //     ':focus': this.$coreOutline,
+      //   };
+      // },
       isActive() {
         return window.location.pathname == this.link;
       },
@@ -174,11 +194,14 @@
       },
       subpathStyles(route) {
         if (this.isActiveLink(route)) {
-          return {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          };
+          // console.log(this.$router.currentRoute.path);
+          if (route === this.$router.currentRoute.path) {
+            return {
+              color: this.$themeTokens.primaryDark,
+              fontWeight: 'bold',
+              textDecoration: 'none',
+            };
+          }
         }
         return {
           color: this.$themeTokens.text,
@@ -213,6 +236,23 @@
         var subRoutePath = link.replace(/\/:[^/]*\??/, '');
         return subRoutePath;
       },
+      // getRoute(name, params) {
+      // this.isActiveLink(name);
+      // console.log(name);
+      // console.log(route);
+      // if(route.includes("classId")){
+      //   const navigationLink = this.standarizeSubPathRoutes(route).toLowerCase();
+      //   return {path: navigationLink, params: {classId: this.$route.params.classId}};
+      // }else{
+      //   return {path: name};
+      // }
+      // return { path: name, params: params };
+      // },
+      // routeStyle(route) {
+      //   if (this.isActiveLink(route)) {
+      //     return this.activeClass;
+      //   }
+      // },
 
       // changes urls that contain IDs
       // to match with the actual url route in the browser
