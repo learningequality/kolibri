@@ -52,14 +52,23 @@
         required: true,
       },
     },
-    computed: {
-      isConnected() {
-        return window.navigator.onLine;
-      },
+    data() {
+      return {
+        isConnected: true,
+      };
+    },
+    mounted() {
+      this.setConnectionStatus();
     },
     methods: {
       handleSubmit() {
-        this.startSyncAllTask();
+        this.setConnectionStatus();
+        if (this.isConnected) {
+          this.startSyncAllTask();
+        }
+      },
+      setConnectionStatus() {
+        this.isConnected = window.navigator.onLine;
       },
       startSyncAllTask() {
         return TaskResource.startTasks(
