@@ -40,7 +40,7 @@
       <!--      creating the table-->
       <CoreTable>
         <template #tbody>
-          <tbody v-if="facilitySyncTasks.length > 0">
+          <tbody v-if="scheduledTasks.length > 0">
             <tr>
               <th>{{ coreString('deviceNameLabel') }}</th>
               <th>{{ $tr('Schedule') }}</th>
@@ -48,11 +48,11 @@
               <th></th>
             </tr>
             <tr
-              v-for="task in facilitySyncTasks"
+              v-for="task in scheduledTasks"
               :key="task.id"
             >
               <td>
-                <span>{{ devicesById[getDeviceId(task)].device_name }}<br>
+                <span>{{ task.deviceName }}<br>
                   {{ task.extra_metadata.baseurl }}
                 </span>
               </td>
@@ -63,21 +63,11 @@
               </td>
 
               <td>
-                <span
-                  v-if="
-                    devicesById[task.extra_metadata.device_id] &&
-                      devicesById[task.extra_metadata.device_id].available
-                  "
-                >
+                <span v-if="task.deviceAvailable">
                   <KIcon icon="onDevice" />
                   <span>{{ $tr('connected') }}</span>
                 </span>
-                <span
-                  v-else-if="
-                    devicesById[task.extra_metadata.device_id] &&
-                      !devicesById[task.extra_metadata.device_id].isKDP
-                  "
-                >
+                <span v-else-if="!task.isKDP">
                   <KIcon icon="disconnected" />
                   <span>{{ $tr('disconnected') }}</span>
                 </span>
@@ -165,7 +155,6 @@
               // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
               device_name: kdpNameTranslator.$tr('syncToKDP'),
               base_url: '',
-              isKDP: true,
             },
           }
         );
@@ -195,6 +184,25 @@
         facility: null,
         facilitySyncTasks: [],
       };
+    },
+    computed: {
+      scheduledTasks() {
+        return this.facilitySyncTasks.map(task => {
+          const deviceName = this.devicesById[this.getDeviceId(task)]
+            ? this.devicesById[this.getDeviceId(task)].device_name
+            : task.extra_metadata.device_name;
+          const deviceAvailable =
+            this.devicesById[task.extra_metadata.device_id] &&
+            this.devicesById[task.extra_metadata.device_id].available;
+          const isKDP = task.type === TaskTypes.SYNCDATAPORTAL;
+          return {
+            ...task,
+            deviceName,
+            deviceAvailable,
+            isKDP,
+          };
+        });
+      },
     },
     beforeMount() {
       this.pollFacilityTasks();
