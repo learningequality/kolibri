@@ -13,7 +13,7 @@ export function showExamsPage(store, classId) {
       force: true,
     }),
     // state.classList needs to be set for Copy Exam modal to work
-    store.dispatch('setClassList'),
+    store.dispatch('setClassList', store.state.classSummary.facility_id),
   ];
 
   const shouldResolve = samePageCheckGenerator(store);

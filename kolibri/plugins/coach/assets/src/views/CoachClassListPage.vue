@@ -10,7 +10,7 @@
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{ name: 'AllFacilitiesPage' }"
-          :text="coreString('allFacilitiesLabel')"
+          :text="coreString('changeLearningFacility')"
           icon="back"
         />
       </p>
