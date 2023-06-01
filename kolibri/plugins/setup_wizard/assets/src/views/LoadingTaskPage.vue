@@ -162,43 +162,45 @@
          - Save tasks returned to this.loadingTasks
          - Clear completed
          **/
-        TaskResource.list({ queue: this.queue }).then(tasks => {
-          if (!tasks.length) {
-            // If we have no tasks (ie, they've been cleared and the page loaded here)
-            // we can just move along to the next step
-            this.handleClickContinue();
-          }
-          if (this.loadingTask) {
-            // We cache the last task so when all are complete we can show its status
-            this.lastLoadingTask = this.loadingTask;
-          }
-          this.allTasks = tasks;
-          this.pushCompletedToWizardMachine(); // Update state machine
+        TaskResource.list({ queue: this.queue })
+          .then(tasks => {
+            if (!tasks.length) {
+              // If we have no tasks (ie, they've been cleared and the page loaded here)
+              // we can just move along to the next step
+              this.handleClickContinue();
+            }
+            if (this.loadingTask) {
+              // We cache the last task so when all are complete we can show its status
+              this.lastLoadingTask = this.loadingTask;
+            }
+            this.allTasks = tasks;
+            this.pushCompletedToWizardMachine(); // Update state machine
 
-          // No more tasks are yet to be completed
-          if (this.runningTasks.length === 0) {
-            // In case we got here and every task was already done, set the lastLoadingTask
-            // to the last COMPLETED task -- or the first of all of the tasks
-            this.lastLoadingTask = this.completedTasks.length
-              ? this.completedTasks[this.completedTasks.length - 1]
-              : this.allTasks[0];
-            this.isPolling = false;
-          }
-          // New timeout to poll again if we should
-          if (this.isPolling) {
-            setTimeout(() => {
-              this.pollTask();
-            }, 2000);
-          }
-        }).catch(error => {
-          if (error.status == 500) {
+            // No more tasks are yet to be completed
+            if (this.runningTasks.length === 0) {
+              // In case we got here and every task was already done, set the lastLoadingTask
+              // to the last COMPLETED task -- or the first of all of the tasks
+              this.lastLoadingTask = this.completedTasks.length
+                ? this.completedTasks[this.completedTasks.length - 1]
+                : this.allTasks[0];
+              this.isPolling = false;
+            }
+            // New timeout to poll again if we should
             if (this.isPolling) {
               setTimeout(() => {
                 this.pollTask();
               }, 2000);
             }
-          }
-        });
+          })
+          .catch(error => {
+            if (error.status == 500) {
+              if (this.isPolling) {
+                setTimeout(() => {
+                  this.pollTask();
+                }, 2000);
+              }
+            }
+          });
       },
       retryImport() {
         TaskResource.restart(this.loadingTask.id).catch(error => {
