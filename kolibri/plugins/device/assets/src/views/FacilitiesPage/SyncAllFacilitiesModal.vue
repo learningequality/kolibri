@@ -54,7 +54,7 @@
     },
     computed: {
       isConnected() {
-        return this.$store.getters.connected;
+        return window.navigator.onLine;
       },
     },
     methods: {
