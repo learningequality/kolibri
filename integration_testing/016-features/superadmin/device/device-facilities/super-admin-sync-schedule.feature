@@ -58,6 +58,22 @@ Feature: Manage sync schedule
 			And I can see the device name and address, the specified schedule and the device status in the table
 			And I see an *Edit* button
 
+	Scenario: Successful sync to KDP
+		Given I've already created a sync schedule to KDP
+    When I check the *Last synced* value after the specified time interval has passed
+    Then I see *Last sync: <time>* under the facility name
+
+  Scenario: Successful sync with another Kolibri server on my local network or internet
+  	Given I've already created a sync schedule with another Kolibri server on my local network or internet
+    When I check the *Last synced* value after the specified time interval has passed
+    Then I see *Last sync: <time>* under the facility name
+
+  Scenario: Failed sync to KDP
+    #TO DO: currently this is not implemented
+
+   Scenario: Failed sync with another Kolibri server on my local network or internet
+   	#TO DO: currently this is not implemented
+
 	Scenario: Edit device sync schedule
 		Given I've already created a sync schedule for a device
 			And I am at the *Sync schedules* page

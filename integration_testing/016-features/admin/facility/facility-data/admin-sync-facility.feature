@@ -1,5 +1,5 @@
 Feature: Admin syncs facility
-  Admin needs to be able to sync their facility data to Kolibri Data Portal
+  Admin needs to be able to sync their facility data to Kolibri Data Portal or another Kolibri server on their local network or internet
 
   Background:
     Given I am logged in as a Facility admin
@@ -11,14 +11,49 @@ Feature: Admin syncs facility
     When I click on *Usage and privacy* in the description of the *Sync facility data* section
     Then I see a modal with a description of what sync does
 
-  Scenario: Successful sync
-    When I click *Sync*
-    Then I see an indeterminate loading spinner under the facility name
-      And I see *Syncing* next to the spinner
-    When syncing successfully completes
-    Then I see *Last successful sync: Just now* underneath the facility name
+  Scenario: Successful sync to KDP
+    When I click the *Sync* button
+    Then I see the *Select a source* modal window
+      And I see a *Kolibri Data Portal (online)* radio button (selected by default)
+      And I see a *Local network or internet* radio button
+    When I click the *Continue* button
+    Then I see a *Syncing* message and a spinner icon
+    	And the option to create a sync schedule and the *Sync* button are disabled
+    When the syncing has completed successfully
+    Then I see *Last sync: <time>* under the facility name
 
-  Scenario: Failed sync
-    When I set KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL to a fake URL so the sync will fail
-    And I click *Sync*
-    Then I see *Most recent sync failed* underneath the facility name
+  Scenario: Successful sync with another Kolibri server on my local network or internet
+    When I click the *Sync* button
+    Then I see the *Select a source* modal window
+      And I see a *Kolibri Data Portal (online)* radio button (selected by default)
+      And I see a *Local network or internet* radio button
+    When I select the *Local network or internet* radio button
+    	And I click the *Continue* button
+    Then I see the *Select device* modal
+    	And I see the available devices
+    When I select a device
+    	And I click the *Continue* button
+    Then I see a *Syncing* message and a spinner icon
+    	And the option to create a sync schedule and the *Sync* button are disabled
+    When the syncing has completed successfully
+    Then I see *Last sync: <time>* under the facility name
+
+  Scenario: Manage sync schedule
+  	When I click *Create sync schedule* or *Manage sync schedule*
+  	Then I see the *Sync schedules* modal
+  		And I can interact with all the available options #detailed scenarios for this are available in super-admin-schedule.feature
+
+  Scenario: Failed sync to KDP
+    When I modify the options.ini file so that the variable *KOLIBRI_DATA_PORTAL_SYNCING_BASE_URL* is set to a fake URL
+    	And I click *Sync*
+    Then I see the *Select a source* modal window
+      And I see a *Kolibri Data Portal (online)* radio button (selected by default)
+      And I see a *Local network or internet* radio button
+    When I click the *Continue* button
+    Then I see a *Syncing* message and a spinner icon
+    	And the option to create a sync schedule and the *Sync* button are disabled
+    When the syncing has failed
+    Then I see *Most recent sync failed* under the facility name #TO DO: currently this is not implemented
+
+   Scenario: Failed sync with another Kolibri server on my local network or internet
+   	#TO DO: currently this is not implemented
