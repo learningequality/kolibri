@@ -91,6 +91,14 @@ class Command(BaseCommand):
         )
 
         parser.add_argument(
+            "--all-thumbnails",
+            action="store_true",
+            default=False,
+            dest="all_thumbnails",
+            help="Import thumbnails for all content nodes regardless of included or excluded node IDs",
+        )
+
+        parser.add_argument(
             "--import_updates",
             action="store_true",
             default=False,
@@ -177,6 +185,7 @@ class Command(BaseCommand):
         baseurl=None,
         peer_id=None,
         renderable_only=True,
+        all_thumbnails=False,
         import_updates=False,
         fail_on_error=False,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
@@ -199,6 +208,7 @@ class Command(BaseCommand):
                 baseurl=baseurl,
                 peer_id=peer_id,
                 renderable_only=renderable_only,
+                all_thumbnails=all_thumbnails,
                 fail_on_error=fail_on_error,
                 timeout=timeout,
                 content_dir=content_dir,
@@ -210,6 +220,7 @@ class Command(BaseCommand):
             baseurl=baseurl,
             peer_id=peer_id,
             renderable_only=renderable_only,
+            all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             timeout=timeout,
             content_dir=content_dir,
@@ -225,6 +236,7 @@ class Command(BaseCommand):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        all_thumbnails=False,
         import_updates=False,
         fail_on_error=False,
         content_dir=None,
@@ -242,6 +254,7 @@ class Command(BaseCommand):
                     path=path,
                     drive_id=drive_id,
                     renderable_only=renderable_only,
+                    all_thumbnails=all_thumbnails,
                     fail_on_error=fail_on_error,
                     content_dir=content_dir,
                 )
@@ -251,6 +264,7 @@ class Command(BaseCommand):
                     path=path,
                     drive_id=drive_id,
                     renderable_only=renderable_only,
+                    all_thumbnails=all_thumbnails,
                     fail_on_error=fail_on_error,
                     content_dir=content_dir,
                 )
@@ -261,6 +275,7 @@ class Command(BaseCommand):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
+            all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
         )
@@ -293,6 +308,7 @@ class Command(BaseCommand):
                 baseurl=options["baseurl"],
                 peer_id=options["peer_id"],
                 renderable_only=options["renderable_only"],
+                all_thumbnails=options["all_thumbnails"],
                 import_updates=options["import_updates"],
                 fail_on_error=options["fail_on_error"],
                 timeout=options["timeout"],
@@ -313,6 +329,7 @@ class Command(BaseCommand):
                 node_ids=options["node_ids"],
                 exclude_node_ids=options["exclude_node_ids"],
                 renderable_only=options["renderable_only"],
+                all_thumbnails=options["all_thumbnails"],
                 import_updates=options["import_updates"],
                 fail_on_error=options["fail_on_error"],
                 content_dir=options["content_dir"],
