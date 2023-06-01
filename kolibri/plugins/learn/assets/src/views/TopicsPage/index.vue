@@ -560,16 +560,16 @@
       gridStyle() {
         let style = {};
         /*
-            Fixes jumping scrollbar when reaching the bottom of the page
-            for certain page heights and when side bar is present.
-            The issue is caused by the document scroll height being changed
-            by the sidebar's switching position from absolute to fixed in
-            the sticky calculation, resulting in an endless cycle
-            of the calculation being called and the sidepanel alternating between
-            fixed and absolute position over and over. Setting min height prevents
-            this by making sure that the document scroll height won't change
-            on the sidebar positioning updates.
-          */
+          Fixes jumping scrollbar when reaching the bottom of the page
+          for certain page heights and when side bar is present.
+          The issue is caused by the document scroll height being changed
+          by the sidebar's switching position from absolute to fixed in
+          the sticky calculation, resulting in an endless cycle
+          of the calculation being called and the sidepanel alternating between
+          fixed and absolute position over and over. Setting min height prevents
+          this by making sure that the document scroll height won't change
+          on the sidebar positioning updates.
+        */
         if (this.windowIsLarge) {
           style = {
             minHeight: '900px',
