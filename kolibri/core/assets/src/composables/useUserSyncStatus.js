@@ -34,9 +34,9 @@ export function fetchUserSyncStatus(params) {
 }
 
 export function pollUserSyncStatusTask() {
-  // if (!store.state.core.session.user_id) {
-  //   return Promise.resolve();
-  // }
+  if (!store.state.core.session.user_id) {
+    return Promise.resolve();
+  }
   return fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
@@ -72,6 +72,10 @@ export default function useUserSyncStatus() {
     }
   });
 
+  const userLoggedIn = computed(() => {
+    return !!store.state.core.session.user_id;
+  });
+
   return {
     queued,
     lastSynced,
@@ -80,5 +84,6 @@ export default function useUserSyncStatus() {
     deviceStatusSentiment,
     hasDownloads,
     lastDownloadRemoved,
+    userLoggedIn,
   };
 }

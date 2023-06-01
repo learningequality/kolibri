@@ -51,8 +51,9 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { useLocalStorage } from '@vueuse/core';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
+  import urls from 'kolibri.urls';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
-  import { PageNames } from '../../../../plugins/device/assets/src/constants';
 
   export default {
     name: 'StorageNotification',
@@ -152,7 +153,7 @@
         }
       },
       manageChannel() {
-        this.$router.push(PageNames.MANAGE_CONTENT_PAGE);
+        redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
       },
 
       focusChange(e) {
