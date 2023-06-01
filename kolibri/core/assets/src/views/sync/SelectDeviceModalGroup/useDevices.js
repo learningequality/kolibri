@@ -153,7 +153,7 @@ export function useDevicesWithChannel(channelId = '') {
  *  filterFailed: Ref<bool>, forceFetch: (function(): Promise<void>)
  * }}
  */
-export function useDevicesWithFacility({ deviceId, facilityId = '', soud = false } = {}) {
+export function useDevicesWithFacility({ facilityId = '', soud = false } = {}) {
   // If facilityId is not provided, then we are at the initial Facility Import workflow
   // disable any devices unless it is unavailable/offline
   const filterDevices =
@@ -161,7 +161,7 @@ export function useDevicesWithFacility({ deviceId, facilityId = '', soud = false
       ? () => Promise.resolve(true)
       : facilityIsAvailableAtDevice.bind({}, facilityId);
 
-  return useDevicesWithFilter({ id: deviceId, subset_of_users_device: soud }, filterDevices);
+  return useDevicesWithFilter({ subset_of_users_device: soud }, filterDevices);
 }
 
 /**

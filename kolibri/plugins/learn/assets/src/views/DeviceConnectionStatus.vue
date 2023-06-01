@@ -23,7 +23,7 @@
 
   import { get, set } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+  import { useDevices } from 'kolibri.coreVue.componentSets.sync';
   import { RemoteChannelResource } from 'kolibri.resources';
   import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import { KolibriStudioId } from '../constants';
@@ -33,15 +33,8 @@
     name: 'DeviceConnectionStatus',
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
-      /**
-       * soud(subset_of_user_device) is a query param for filtering.
-       * false to return non learn-only devices and true otherwise.
-       * null has been specified to return both type of devices which
-       * is necesary for device connection statuses
-       */
-      const { isFetching, devices } = useDevicesWithFacility({
-        deviceId: props.deviceId,
-        soud: null,
+      const { isFetching, devices } = useDevices({
+        id: props.deviceId,
       });
       const isFetched = ref(false);
       const allDevices = ref([]);
