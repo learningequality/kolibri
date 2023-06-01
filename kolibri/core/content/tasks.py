@@ -92,6 +92,7 @@ class ChannelResourcesImportValidator(ChannelResourcesValidator):
     update = serializers.BooleanField(default=False)
     fail_on_error = serializers.BooleanField(default=False)
     new_version = serializers.IntegerField(required=False)
+    all_thumbnails = serializers.BooleanField(default=False)
 
     def validate(self, data):
         job_data = super(ChannelResourcesImportValidator, self).validate(data)
@@ -99,6 +100,7 @@ class ChannelResourcesImportValidator(ChannelResourcesValidator):
             {
                 "update": data.get("update"),
                 "fail_on_error": data.get("fail_on_error"),
+                "all_thumbnails": data.get("all_thumbnails"),
             }
         )
         if data.get("new_version"):
@@ -147,6 +149,7 @@ def diskcontentimport(
     node_ids=None,
     exclude_node_ids=None,
     fail_on_error=False,
+    all_thumbnails=False,
 ):
     manager_class = (
         DiskChannelUpdateManager if update else DiskChannelResourceImportManager
@@ -159,6 +162,7 @@ def diskcontentimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
+        all_thumbnails=all_thumbnails,
     )
     manager.run()
 
@@ -233,6 +237,7 @@ def remotecontentimport(
     exclude_node_ids=None,
     update=False,
     fail_on_error=False,
+    all_thumbnails=False,
 ):
     manager_class = (
         RemoteChannelUpdateManager if update else RemoteChannelResourceImportManager
@@ -244,6 +249,7 @@ def remotecontentimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
+        all_thumbnails=all_thumbnails,
     )
     manager.run()
 
@@ -434,6 +440,7 @@ def remoteimport(
     exclude_node_ids=None,
     update=False,
     fail_on_error=False,
+    all_thumbnails=False,
 ):
     call_command(
         "importchannel",
@@ -457,6 +464,7 @@ def remoteimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
+        all_thumbnails=all_thumbnails,
     )
     manager.run()
 
@@ -471,7 +479,12 @@ def remoteimport(
     status_fn=get_status,
 )
 def diskimport(
-    channel_id, drive_id, update=False, node_ids=None, exclude_node_ids=None
+    channel_id,
+    drive_id,
+    update=False,
+    node_ids=None,
+    exclude_node_ids=None,
+    all_thumbnails=False,
 ):
     drive = get_mounted_drive_by_id(drive_id)
     directory = drive.datafolder
@@ -498,6 +511,7 @@ def diskimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         import_updates=update,
+        all_thumbnails=all_thumbnails,
     )
     manager.run()
 
