@@ -1,11 +1,7 @@
 <template>
 
   <nav :aria-label="$tr('optionsLabel')">
-    <UiToolbar
-      style="z-index: 8;"
-      :style="contentSpecificStyles"
-      class="toolbar"
-    >
+    <UiToolbar style="z-index: 8;" :style="contentSpecificStyles" class="toolbar">
       <CoachContentLabel
         :value="isCoachContent"
         style="margin-top: 8px; width: auto;"
@@ -23,10 +19,7 @@
           :maxLines="1"
         />
       </KLabeledIcon>
-      <ProgressIcon
-        :progress="contentProgress"
-        class="progress-icon"
-      />
+      <ProgressIcon :progress="contentProgress" class="progress-icon" />
 
       <template #icon>
         <KIconButton
@@ -92,10 +85,7 @@
               <div v-if="duration">
                 <strong>{{ learnString('suggestedTime') }}</strong>
               </div>
-              <SuggestedTime
-                v-if="duration"
-                :seconds="duration"
-              />
+              <SuggestedTime v-if="duration" :seconds="duration" />
             </div>
           </template>
         </CoreMenu>

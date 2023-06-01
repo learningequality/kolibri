@@ -216,6 +216,7 @@
         @input="handleCategory"
       />
 
+
       <!-- Side panel for showing the information of selected content with a link to view it -->
       <SidePanelModal
         v-if="metadataSidePanelContent"
