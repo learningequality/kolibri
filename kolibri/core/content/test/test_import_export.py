@@ -1571,6 +1571,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id=None,
         )
 
@@ -1607,6 +1608,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id=None,
         )
 
@@ -1726,6 +1728,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id=None,
         )
 
@@ -1773,6 +1776,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id=None,
         )
 
@@ -1791,6 +1795,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id="",
         )
 
@@ -1851,6 +1856,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id=None,
         )
 
@@ -1899,6 +1905,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             drive_id="",
         )
 
@@ -1945,6 +1952,7 @@ class ImportContentTestCase(TestCase):
             None,
             False,
             renderable_only=True,
+            all_thumbnails=False,
             peer_id=None,
         )
 

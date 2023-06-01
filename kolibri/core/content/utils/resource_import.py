@@ -57,6 +57,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
     ):
@@ -71,6 +72,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         self.node_ids = node_ids
         self.exclude_node_ids = exclude_node_ids
         self.renderable_only = renderable_only
+        self.all_thumbnails = all_thumbnails
         self.fail_on_error = fail_on_error
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
         super(ResourceImportManagerBase, self).__init__()
@@ -350,6 +352,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
@@ -359,6 +362,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
+            all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
         )
@@ -406,6 +410,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
         node_ids=None,
         exclude_node_ids=None,
         renderable_only=True,
+        all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
     ):
@@ -420,6 +425,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
             node_ids=node_ids,
             exclude_node_ids=exclude_node_ids,
             renderable_only=renderable_only,
+            all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
         )
@@ -486,6 +492,7 @@ class RemoteChannelResourceImportManager(RemoteResourceImportManagerBase):
             self.exclude_node_ids,
             False,
             renderable_only=self.renderable_only,
+            all_thumbnails=self.all_thumbnails,
             peer_id=self.peer_id,
         )
 
@@ -507,6 +514,7 @@ class DiskChannelResourceImportManager(DiskResourceImportManagerBase):
             self.exclude_node_ids,
             False,
             renderable_only=self.renderable_only,
+            all_thumbnails=self.all_thumbnails,
             drive_id=self.drive_id,
         )
 
