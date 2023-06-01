@@ -255,67 +255,67 @@
         default: false,
       },
       /**
-        The progress of the currently viewed content to determine
-        if and which progress icon should be shown (none/started/complete)
-        */
+      The progress of the currently viewed content to determine
+      if and which progress icon should be shown (none/started/complete)
+      */
       contentProgress: {
         type: Number,
         required: false,
         default: 0,
       },
       /**
-        A 1/0 Boolean check whether we should show the Coach Content icon
-        to be passed to the CoachContentLabel component
-        */
+      A 1/0 Boolean check whether we should show the Coach Content icon
+      to be passed to the CoachContentLabel component
+      */
       isCoachContent: {
         type: Number,
         required: false,
         default: 0,
       },
       /**
-        The ContentNodeKinds kind of the content being viewed
-        */
+      The ContentNodeKinds kind of the content being viewed
+      */
       contentKind: {
         type: String,
         required: false,
         default: null,
       },
       /**
-        Is this a practice quiz?
-        */
+      Is this a practice quiz?
+      */
       isQuiz: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
-        Is the post-quiz report what is currently displayed?
-        */
+      Is the post-quiz report what is currently displayed?
+      */
       showingReportState: {
         type: Boolean,
         required: false,
         default: false,
       },
       /**
-        Suggested time in seconds
-        */
+      Suggested time in seconds
+      */
       duration: {
         type: Number,
         required: false,
         default: null,
       },
       /**
-        Actual time spent in seconds
-        */
+      Actual time spent in seconds
+      */
       timeSpent: {
         type: Number,
         required: false,
         default: null,
       },
       /**
-        A Boolean check whether we should show the Bookmark Icon
-        what should not happen if the user is not logged in
-        */
+            A Boolean check whether we should show the Bookmark Icon
+            what should not happen if the user is not logged in
+            */
       showBookmark: {
         type: Boolean,
         required: false,
@@ -578,14 +578,14 @@
   }
 
   /*
-      Make truncation via text ellipsis work well in UIToolbar's body flex item:
-      By default, `min-width` is `auto`  for a flex item which means it
-      cannot be smaller than the size of its content which causes the whole
-      title being visible even in cases when it should be already truncated.
-      Overriding it to `0` allows the title to be shrinked and then truncated
-      properly. Labeled icon wrapper needs to have this set too for its parent
-      flex item to shrink.
-    */
+    Make truncation via text ellipsis work well in UIToolbar's body flex item:
+    By default, `min-width` is `auto`  for a flex item which means it
+    cannot be smaller than the size of its content which causes the whole
+    title being visible even in cases when it should be already truncated.
+    Overriding it to `0` allows the title to be shrinked and then truncated
+    properly. Labeled icon wrapper needs to have this set too for its parent
+    flex item to shrink.
+  */
   /deep/ .ui-toolbar__body,
   /deep/ .labeled-icon-wrapper {
     min-width: 0;
