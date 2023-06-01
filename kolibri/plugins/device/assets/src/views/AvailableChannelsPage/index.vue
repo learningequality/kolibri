@@ -1,7 +1,7 @@
 <template>
 
   <ImmersivePage
-    :appBarTitle="toolbarTitle()"
+    :appBarTitle="toolbarTitle"
     :route="backRoute"
   >
     <KPageContainer class="device-container">
@@ -265,6 +265,19 @@
             return '';
         }
       },
+      toolbarTitle() {
+        switch (this.transferType) {
+          case TransferTypes.LOCALIMPORT:
+            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
+          case TransferTypes.PEERIMPORT:
+            return this.$tr('importFromPeer', {
+              deviceName: this.selectedPeer.device_name || this.selectedPeer.nickname,
+              address: this.selectedPeer.base_url,
+            });
+          default:
+            return this.$tr('importFromKolibriStudio');
+        }
+      },
       channelsAreLoading() {
         return this.status === 'LOADING_CHANNELS_FROM_KOLIBRI_STUDIO';
       },
@@ -299,19 +312,6 @@
       }
     },
     methods: {
-      toolbarTitle(transferType) {
-        switch (transferType) {
-          case TransferTypes.LOCALIMPORT:
-            return this.$tr('importFromDisk', { driveName: this.selectedDrive.name });
-          case TransferTypes.PEERIMPORT:
-            return this.$tr('importFromPeer', {
-              deviceName: this.selectedPeer.device_name || this.selectedPeer.nickname,
-              address: this.selectedPeer.base_url,
-            });
-          default:
-            return this.$tr('importFromKolibriStudio');
-        }
-      },
       channelIsOnDevice(channel) {
         const match = this.installedChannelsWithResources.find(({ id }) => id === channel.id);
         return Boolean(match);
