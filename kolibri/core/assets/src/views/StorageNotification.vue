@@ -153,7 +153,7 @@
         }
       },
       manageChannel() {
-        redirectBrowser(urls['kolibri:kolibri.plugins.learn:learn']());
+        redirectBrowser(urls['kolibri:kolibri.plugins.device:device_management']());
       },
 
       focusChange(e) {
