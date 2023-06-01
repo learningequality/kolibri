@@ -190,6 +190,14 @@
               this.pollTask();
             }, 2000);
           }
+        }).catch(error => {
+          if (error.status == 500) {
+            if (this.isPolling) {
+              setTimeout(() => {
+                this.pollTask();
+              }, 2000);
+            }
+          }
         });
       },
       retryImport() {

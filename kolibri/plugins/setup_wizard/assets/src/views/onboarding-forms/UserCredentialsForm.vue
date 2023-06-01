@@ -157,7 +157,7 @@
       if (this.selectedUser) {
         user = this.selectedUser;
       } else {
-        user = this.$store.state.onboardingData;
+        user = this.$store.state.onboardingData.user;
       }
       return {
         fullName: user.full_name,
