@@ -60,7 +60,6 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
     def plugin_data(self):
         from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
         from kolibri.core.content.api import ChannelMetadataViewSet
-        from kolibri.core.content.models import Language
 
         channel_viewset = ChannelMetadataViewSet()
 
@@ -68,11 +67,6 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             channel_viewset.get_queryset().filter(root__available=True)
         )
         label_metadata = get_all_contentnode_label_metadata()
-        languages = list(
-            Language.objects.filter(id__in=label_metadata["languages"]).values(
-                "id", "lang_name"
-            )
-        )
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
@@ -81,7 +75,7 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             ],
             "categories": label_metadata["categories"],
             "learningActivities": label_metadata["learning_activities"],
-            "languages": languages,
+            "languages": label_metadata["languages"],
             "channels": channels,
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
