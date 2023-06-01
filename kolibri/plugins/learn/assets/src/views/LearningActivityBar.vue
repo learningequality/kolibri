@@ -313,9 +313,9 @@
         default: null,
       },
       /**
-            A Boolean check whether we should show the Bookmark Icon
-            what should not happen if the user is not logged in
-            */
+      A Boolean check whether we should show the Bookmark Icon
+      what should not happen if the user is not logged in
+      */
       showBookmark: {
         type: Boolean,
         required: false,
