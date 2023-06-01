@@ -94,7 +94,7 @@
       />
       <div
         v-if="Object.keys(availableResourcesNeeded).length"
-        class="section"
+        class="section show-resources"
       >
         <h2 class="title">
           {{ coreString('showResources') }}
@@ -373,6 +373,9 @@
 
   .section {
     margin-top: 40px;
+  }
+
+  .show-resources {
     margin-bottom: 60px;
   }
 
