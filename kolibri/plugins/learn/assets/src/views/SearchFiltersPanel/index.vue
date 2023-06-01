@@ -11,7 +11,10 @@
     :class="position === 'embedded' ? 'side-panel' : ''"
   >
     <div v-if="topics && topics.length && topicsListDisplayed">
-      <div v-for="t in topics" :key="t.id">
+      <div
+        v-for="t in topics"
+        :key="t.id"
+      >
         <KRouterLink
           ref="folders"
           :text="t.title"
@@ -98,7 +101,6 @@
         </h2>
         <div
           v-for="(val, activity) in availableResourcesNeeded"
-
           :key="activity"
           span="4"
           alignment="center"
@@ -371,6 +373,7 @@
 
   .section {
     margin-top: 40px;
+    margin-bottom: 60px;
   }
 
   .card-grid {
