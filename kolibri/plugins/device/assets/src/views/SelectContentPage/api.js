@@ -13,7 +13,7 @@ export function startImportTask(params) {
 
   if (importSource.type === 'peer' || importSource.type === 'studio') {
     if (importSource.id) {
-      taskParams.peer_id = importSource.id;
+      taskParams.peer = importSource.id;
     }
     taskParams.type = TaskTypes.REMOTECONTENTIMPORT;
   } else if (importSource.type === 'drive') {
