@@ -52,8 +52,8 @@
           <KRouterLink
             v-if="isActive"
             :class="$computedClass(subpathStyles(subRoute.route))"
-            :text="coreString('subRoute.label')"
-            :to=" $router.generateTo(subRoute.label,$route.params )"
+            :text="subRoute.label"
+            :to="generateTo(subRoute.name,$route.params)"
             appearance="basic-link"
           />
           <a
@@ -68,6 +68,7 @@
         </div>
       </div>
     </div>
+
   </div>
 
 </template>
@@ -117,19 +118,6 @@
       };
     },
     computed: {
-      // // activeClass() {
-      //   return {
-      //     color: black,
-      //     fontWeight: 'bold',
-      //     margin: '8px',
-      //     textDecoration: 'none',
-      //     backgroundColor: this.$themeBrand.primary.v_50,
-      //     ':hover': {
-      //       backgroundColor: this.$themeBrand.primary.v_100,
-      //     },
-      //     ':focus': this.$coreOutline,
-      //   };
-      // },
       isActive() {
         return window.location.pathname == this.link;
       },
@@ -178,11 +166,7 @@
     },
     methods: {
       isActiveLink(route) {
-        const hash = window.location.hash;
-        return (
-          this.standarizeSubPathRoutes('#' + route) === hash ||
-          hash.includes(this.checkClassIdInString(route))
-        );
+        return `${this.link}#${route}` === `${window.location.pathname}${window.location.hash}`;
       },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
@@ -194,14 +178,11 @@
       },
       subpathStyles(route) {
         if (this.isActiveLink(route)) {
-          // console.log(this.$router.currentRoute.path);
-          if (route === this.$router.currentRoute.path) {
-            return {
-              color: this.$themeTokens.primaryDark,
-              fontWeight: 'bold',
-              textDecoration: 'none',
-            };
-          }
+          return {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+            textDecoration: 'none',
+          };
         }
         return {
           color: this.$themeTokens.text,
@@ -232,36 +213,8 @@
         }
         this.$emit('select');
       },
-      standarizeSubPathRoutes(link) {
-        var subRoutePath = link.replace(/\/:[^/]*\??/, '');
-        return subRoutePath;
-      },
-      // getRoute(name, params) {
-      // this.isActiveLink(name);
-      // console.log(name);
-      // console.log(route);
-      // if(route.includes("classId")){
-      //   const navigationLink = this.standarizeSubPathRoutes(route).toLowerCase();
-      //   return {path: navigationLink, params: {classId: this.$route.params.classId}};
-      // }else{
-      //   return {path: name};
-      // }
-      // return { path: name, params: params };
-      // },
-      // routeStyle(route) {
-      //   if (this.isActiveLink(route)) {
-      //     return this.activeClass;
-      //   }
-      // },
-
-      // changes urls that contain IDs
-      // to match with the actual url route in the browser
-      checkClassIdInString(str) {
-        const classId = 'classId';
-        const regex = new RegExp(`\\b${classId}\\b`, 'i');
-        if (regex.test(str)) {
-          return str.replace('/:classId', '');
-        }
+      generateTo(name, params) {
+        return this.$router.getRoute(name, params);
       },
     },
   };
@@ -279,6 +232,7 @@
     margin: 4px 8px;
     font-size: 16px;
     text-decoration: none;
+    cursor: pointer;
     border-radius: $radius;
     outline-offset: -1px; // override global styles
     transition: background-color $core-time ease;
