@@ -51,9 +51,10 @@
         <div class="link-container">
           <KRouterLink
             v-if="isActive"
-            :class="$computedClass(subpathStyles(subRoute.route))"
+            :class="$computedClass(subpathStyles(generateNavRoute(subRoute.route)))"
             :text="subRoute.label"
-            :to="generateTo(subRoute.name,$route.params)"
+            class="link"
+            :to="$router.getRoute(subRoute.name,$route.params,$router.query)"
             appearance="basic-link"
           />
           <a
@@ -166,7 +167,8 @@
     },
     methods: {
       isActiveLink(route) {
-        return `${this.link}#${route}` === `${window.location.pathname}${window.location.hash}`;
+        const full_path = !route.includes('#') ? `${this.link}#${route}` : route;
+        return `${window.location.pathname}${window.location.hash}`.includes(full_path);
       },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
@@ -213,9 +215,6 @@
         }
         this.$emit('select');
       },
-      generateTo(name, params) {
-        return this.$router.getRoute(name, params);
-      },
     },
   };
 
@@ -254,6 +253,10 @@
     margin: 0 40px;
     font-size: 14px;
     text-decoration: none;
+
+    /deep/ .link-text {
+      text-decoration: none !important;
+    }
   }
 
   .nav-menu-item {
