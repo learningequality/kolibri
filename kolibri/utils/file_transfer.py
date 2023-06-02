@@ -321,34 +321,19 @@ class Transfer(with_metaclass(ABCMeta)):
         source,
         dest,
         checksum=None,
-        timeout=DEFAULT_TIMEOUT,
         cancel_check=None,
-        retry_wait=30,
-        # A flag to allow the download to remain in the chunked file directory
-        # for easier clean up when it is just a temporary download.
-        finalize_download=True,
-        start_range=None,
-        end_range=None,
     ):
         self.source = source
         self.dest = dest
         self.checksum = checksum
         self.block_size = BLOCK_SIZE
-        self.timeout = timeout
-        self.retry_wait = retry_wait
-        self._headers_set = False
         self.started = False
         self.completed = False
         self.finalized = False
         self.closed = False
-        self._finalize_download = finalize_download
-        self.transfer_size = None
-        self.position = 0
         if cancel_check and not callable(cancel_check):
             raise AssertionError("cancel_check must be callable")
         self._cancel_check = cancel_check
-
-        self.set_range(start_range, end_range)
 
         if os.path.isdir(dest):
             raise AssertionError(
@@ -358,24 +343,9 @@ class Transfer(with_metaclass(ABCMeta)):
         # ensure the directories in the destination path exist
         mkdirp(os.path.dirname(self.dest), exist_ok=True)
 
-        self.chunked_file_obj = ChunkedFile(self.dest)
-
     @abstractmethod
     def start(self):
         pass
-
-    @property
-    def total_size(self):
-        try:
-            return self.chunked_file_obj.file_size
-        except ValueError:
-            return None
-
-    @total_size.setter
-    def total_size(self, value):
-        self.chunked_file_obj.file_size = value
-        if self.transfer_size is None:
-            self.transfer_size = value
 
     def cancel_check(self):
         return self._cancel_check and self._cancel_check()
@@ -391,6 +361,147 @@ class Transfer(with_metaclass(ABCMeta)):
         self._set_iterator()
         return self
 
+    @abstractmethod
+    def _get_content_iterator(self):
+        pass
+
+    def _next(self):
+        try:
+            # Get the next chunk from the content iterator
+            chunk = next(self._content_iterator)
+        except StopIteration:
+            # If there are no more chunks, mark the transfer as completed
+            self.completed = True
+            # Close the transfer
+            self.close()
+            # Finalize the transfer (verify checksum and move the temporary file)
+            self.finalize()
+            # Raise the StopIteration exception to stop the iteration
+            raise
+        self.dest_file_obj.write(chunk)
+        return chunk
+
+    def next(self):
+        self._set_iterator()
+        if self.cancel_check():
+            self._kill_gracefully()
+        return self._next()
+
+    @abstractmethod
+    def _move_tmp_to_dest(self):
+        pass
+
+    @abstractmethod
+    def delete(self):
+        pass
+
+    def __enter__(self):
+        self.start()
+        return self
+
+    def __exit__(self, *exc_details):
+        if not self.closed:
+            self.close()
+        if not self.completed:
+            self.cancel()
+
+    def _kill_gracefully(self, *args, **kwargs):
+        self.cancel()
+        raise TransferCanceled("The transfer was canceled.")
+
+    def cancel(self):
+        logger.info("Canceling import: {}".format(self.source))
+        self.close()
+        try:
+            self.delete()
+        except OSError:
+            pass
+        self.canceled = True
+
+    @abstractmethod
+    def _checksum_correct(self):
+        pass
+
+    def _verify_checksum(self):
+        # If checksum of the destination file is different from the localfile
+        # id indicated in the database, it means that the destination file
+        # is corrupted, either from origin or during import. Skip importing
+        # this file.
+        if self.checksum and not self._checksum_correct():
+            e = "File {} is corrupted.".format(self.source)
+            logger.error("An error occurred during content import: {}".format(e))
+            try:
+                self.delete()
+            except OSError:
+                pass
+            raise TransferFailed(
+                "Transferred file checksums did not match for {}".format(self.source)
+            )
+
+    def finalize(self):
+        if not self.completed:
+            raise TransferNotYetCompleted(
+                "Transfer must have completed before it can be finalized."
+            )
+        if not self.closed:
+            raise TransferNotYetClosed(
+                "Transfer must be closed before it can be finalized."
+            )
+        if self.finalized:
+            return
+
+        self._verify_checksum()
+        self._move_tmp_to_dest()
+        self.finalized = True
+
+    def close(self):
+        self.dest_file_obj.close()
+        self.closed = True
+
+
+class FileDownload(Transfer):
+    def __init__(
+        self,
+        source,
+        dest,
+        checksum=None,
+        cancel_check=None,
+        session=None,
+        finalize_download=True,
+        start_range=None,
+        end_range=None,
+        timeout=Transfer.DEFAULT_TIMEOUT,
+        retry_wait=30,
+    ):
+
+        # allow an existing requests.Session instance to be passed in, so it can be reused for speed
+        # initialize a fresh requests session, if one wasn't provided
+        self.session = session or requests.Session()
+
+        # A flag to allow the download to remain in the chunked file directory
+        # for easier clean up when it is just a temporary download.
+        self._finalize_download = finalize_download
+
+        self.set_range(start_range, end_range)
+
+        self.timeout = timeout
+        self.retry_wait = retry_wait
+
+        self.compressed = False
+
+        self.content_length_header = False
+
+        self._headers_set = False
+
+        self.transfer_size = None
+        self.position = 0
+
+        super(FileDownload, self).__init__(
+            source, dest, checksum=checksum, cancel_check=cancel_check
+        )
+
+        self.dest_file_obj = ChunkedFile(self.dest)
+
     def set_range(self, range_start, range_end):
         if range_start is not None and not isinstance(range_start, int):
             raise TypeError("range_start must be an integer")
@@ -402,9 +513,45 @@ class Transfer(with_metaclass(ABCMeta)):
 
         self.range_end = range_end
 
-    @abstractmethod
-    def _get_content_iterator(self):
-        pass
+    @property
+    def total_size(self):
+        try:
+            return self.dest_file_obj.file_size
+        except ValueError:
+            return None
+
+    @total_size.setter
+    def total_size(self, value):
+        self.dest_file_obj.file_size = value
+        if self.transfer_size is None:
+            self.transfer_size = value
+
+    @property
+    def finalize_download(self):
+        return (
+            self._finalize_download
+            and (self.range_start is None or self.range_start == 0)
+            and (self.range_end is None or self.range_end == self.file_size - 1)
+        )
+
+    def finalize(self):
+        if not self.finalize_download:
+            return
+        return super(FileDownload, self).finalize()
+
+    def _move_tmp_to_dest(self):
+        try:
+            self.dest_file_obj.finalize_file()
+            self.dest_file_obj.delete()
+        except FileNotFoundError as e:
+            if not os.path.exists(self.dest):
+                raise e
+
+    def delete(self):
+        self.dest_file_obj.delete()
+
+    def _checksum_correct(self):
+        return self.dest_file_obj.md5_checksum() == self.checksum
 
     def _next(self):
         """
@@ -417,21 +564,7 @@ class Transfer(with_metaclass(ABCMeta)):
 
         # Keep looping until a non-empty output is obtained
         while not output:
-            try:
-                # Get the next chunk from the content iterator
-                chunk = next(self._content_iterator)
-            except StopIteration:
-                # If there are no more chunks, mark the transfer as completed
-                self.completed = True
-                # Close the transfer
-                self.close()
-                # Finalize the transfer (verify checksum and move the temporary file)
-                self.finalize()
-                # Raise the StopIteration exception to stop the iteration
-                raise
-
-            # Write the current chunk to the chunked file object
-            self.chunked_file_obj.write(chunk)
+            chunk = super(FileDownload, self)._next()
 
             # Initialize chunk_start to 0
             chunk_start = 0
@@ -457,109 +590,6 @@ class Transfer(with_metaclass(ABCMeta)):
 
         # Return the output (a non-empty byte string)
         return output
-
-    def next(self):
-        self._set_iterator()
-        if self.cancel_check():
-            self._kill_gracefully()
-        return self._next()
-
-    def _move_tmp_to_dest(self):
-        try:
-            self.chunked_file_obj.finalize_file()
-            self.chunked_file_obj.delete()
-        except FileNotFoundError as e:
-            if not os.path.exists(self.dest):
-                raise e
-
-    def __enter__(self):
-        self.start()
-        return self
-
-    def __exit__(self, *exc_details):
-        if not self.closed:
-            self.close()
-        if not self.completed:
-            self.cancel()
-
-    def _kill_gracefully(self, *args, **kwargs):
-        self.cancel()
-        raise TransferCanceled("The transfer was canceled.")
-
-    def cancel(self):
-        logger.info("Canceling import: {}".format(self.source))
-        self.close()
-        try:
-            self.chunked_file_obj.delete()
-        except OSError:
-            pass
-        self.canceled = True
-
-    def _checksum_correct(self):
-        return self.chunked_file_obj.md5_checksum() == self.checksum
-
-    def _verify_checksum(self):
-        # If checksum of the destination file is different from the localfile
-        # id indicated in the database, it means that the destination file
-        # is corrupted, either from origin or during import. Skip importing
-        # this file.
-        if self.checksum and not self._checksum_correct():
-            e = "File {} is corrupted.".format(self.source)
-            logger.error("An error occurred during content import: {}".format(e))
-            try:
-                self.chunked_file_obj.delete()
-            except OSError:
-                pass
-            raise TransferFailed(
-                "Transferred file checksums did not match for {}".format(self.source)
-            )
-
-    @property
-    def finalize_download(self):
-        return (
-            self._finalize_download
-            and (self.range_start is None or self.range_start == 0)
-            and (self.range_end is None or self.range_end == self.file_size - 1)
-        )
-
-    def finalize(self):
-        if not self.finalize_download:
-            return
-        if not self.completed:
-            raise TransferNotYetCompleted(
-                "Transfer must have completed before it can be finalized."
-            )
-        if not self.closed:
-            raise TransferNotYetClosed(
-                "Transfer must be closed before it can be finalized."
-            )
-        if self.finalized:
-            return
-
-        self._verify_checksum()
-        self._move_tmp_to_dest()
-        self.finalized = True
-
-    def close(self):
-        self.chunked_file_obj.close()
-        self.closed = True
-
-
-class FileDownload(Transfer):
-    def __init__(self, *args, **kwargs):
-
-        # allow an existing requests.Session instance to be passed in, so it can be reused for speed
-        if "session" in kwargs:
-            self.session = kwargs.pop("session")
-        else:
-            # initialize a fresh requests session, if one wasn't provided
-            self.session = requests.Session()
-
-        self.compressed = False
-
-        self.content_length_header = False
-
-        super(FileDownload, self).__init__(*args, **kwargs)
 
     @contextmanager
     def _catch_exception_and_retry(self):
@@ -609,7 +639,7 @@ class FileDownload(Transfer):
             start_byte,
             end_byte,
             chunk_generator,
-        ) in self.chunked_file_obj.next_missing_chunk_and_read(
+        ) in self.dest_file_obj.next_missing_chunk_and_read(
             start=self.range_start, end=self.range_end
         ):
             response = self.session.get(
@@ -703,9 +733,35 @@ class FileCopy(Transfer):
             raise AssertionError(
                 "File copy has already been started, and cannot be started again"
             )
+        self.dest_tmp = self.dest + ".transfer"
+        if os.path.isfile(self.dest_tmp):
+            try:
+                os.remove(self.dest_tmp)
+            except OSError:
+                pass
+        self.dest_file_obj = open(self.dest_tmp, "wb")
         self.total_size = os.path.getsize(self.source)
+        self.transfer_size = self.total_size
         self.source_file_obj = open(self.source, "rb")
         self.started = True
+        self.hasher = hashlib.md5()
+
+    def _move_tmp_to_dest(self):
+        os.rename(self.dest_tmp, self.dest)
+
+    def delete(self):
+        try:
+            os.remove(self.dest_tmp)
+        except OSError:
+            pass
+
+    def _next(self):
+        chunk = super(FileCopy, self)._next()
+        self.hasher.update(chunk)
+        return chunk
+
+    def _checksum_correct(self):
+        return self.hasher.hexdigest() == self.checksum
 
     def _get_content_iterator(self):
         while True:
@@ -732,7 +788,7 @@ class RemoteFile(BufferedIOBase):
             filepath,
             finalize_download=False,
         )
-        self.chunked_file_obj = self.transfer.chunked_file_obj
+        self.file_obj = self.transfer.dest_file_obj
         self._previously_read = b""
         self._needs_download = None
         self.range_start = None
@@ -750,7 +806,7 @@ class RemoteFile(BufferedIOBase):
 
     def _start_transfer(self):
         if self._needs_download is None:
-            self._needs_download = not self.chunked_file_obj.is_complete(
+            self._needs_download = not self.file_obj.is_complete(
                 start=self.range_start, end=self.range_end
             )
         if self._needs_download and not self.transfer.started:
@@ -769,7 +825,7 @@ class RemoteFile(BufferedIOBase):
                 self._previously_read = data[size:]
                 data = data[:size]
             return data
-        return self.chunked_file_obj.read(size=size)
+        return self.file_obj.read(size=size)
 
     def close(self):
         self.transfer.close()

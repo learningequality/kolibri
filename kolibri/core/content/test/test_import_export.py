@@ -1185,7 +1185,7 @@ class ImportContentTestCase(TestCase):
             self.assertIn("Permission denied", logger_mock.call_args_list[0][0][0])
             annotation_mock.set_content_visibility.assert_called()
 
-    @patch("kolibri.core.content.utils.resource_import.transfer.shutil.rmtree")
+    @patch("kolibri.core.content.utils.resource_import.transfer.os.remove")
     @patch(
         "kolibri.core.content.utils.resource_import.os.path.isfile",
         return_value=False,
@@ -1223,7 +1223,7 @@ class ImportContentTestCase(TestCase):
             node_ids=[self.c1_node_id],
         )
         manager.run()
-        remove_mock.assert_any_call(local_dest_path + ".chunks")
+        remove_mock.assert_any_call(local_dest_path + ".transfer")
 
     @patch(
         "kolibri.core.content.utils.resource_import.os.path.isfile",
@@ -1240,7 +1240,7 @@ class ImportContentTestCase(TestCase):
         return_value=False,
     )
     @patch(
-        "kolibri.core.content.utils.resource_import.transfer.Transfer._checksum_correct",
+        "kolibri.core.content.utils.resource_import.transfer.FileCopy._checksum_correct",
         return_value=True,
     )
     def test_local_import_source_corrupted_full_progress(
