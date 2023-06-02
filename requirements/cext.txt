@@ -4,5 +4,5 @@
 # in other files toe ensure they are properly
 # installed - as these dependencies are installed
 # without their dependencies.
-cryptography==2.3
+cryptography==41.0.0
 cffi==1.14.4
