@@ -242,12 +242,15 @@ class ChunkedFile(BufferedIOBase):
             for chunk_index in range(start_chunk, end_chunk + 1):
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 with Lock(cache, chunk_file, expire=10):
-                    if not os.path.exists(chunk_file):
-                        range_start = chunk_index * self.chunk_size
-                        range_end = min(
-                            range_start + self.chunk_size - 1, self.file_size - 1
-                        )
-
+                    range_start = chunk_index * self.chunk_size
+                    range_end = min(
+                        range_start + self.chunk_size - 1, self.file_size - 1
+                    )
+                    if (
+                        not os.path.exists(chunk_file)
+                        # Add 1 to get the total file size as the range is inclusive
+                        or os.path.getsize(chunk_file) < range_end - range_start + 1
+                    ):
                         yield (
                             range_start,
                             range_end,
