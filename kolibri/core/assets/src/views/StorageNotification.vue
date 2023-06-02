@@ -51,6 +51,7 @@
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import plugin_data from 'plugin_data';
+  // import { LearnerClassroomResource } from '../../../../plugins/learn/assets/src/apiResources';
 
   export default {
     name: 'StorageNotification',
@@ -85,12 +86,9 @@
       ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
       insufficientStorageNoDownloads() {
         return (
-          (this.isLearner && this.insufficientSpace) ||
+          (this.isLearner && LearnerDeviceStatus.INSUFFICIENT_STORAGE) ||
           (!this.canManageContent && !this.hasDownloads)
         );
-      },
-      showBanner() {
-        return this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
       learnOnlyRemovedResources() {
         return this.isLearner && this.lastDownloadRemoved && this.isSubsetOfUsersDevice;
@@ -100,8 +98,9 @@
       },
     },
     mounted() {
-      this.toggleBanner();
+      this.validateDeviceStatus();
       document.addEventListener('focusin', this.focusChange);
+      // console.log(localStorage.getItem('device_status'));
     },
     beforeDestroy() {
       document.removeEventListener('focusin', this.focusChange);
@@ -121,12 +120,12 @@
         return message;
       },
       closeBanner() {
-        // TODO: Store preference after closure
-        if (this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE) {
-          this.bannerOpened = true;
-        } else {
-          this.bannerOpened = false;
-        }
+        localStorage.setItem('has_download', this.hasDownloads);
+        localStorage.setItem('download_removed', this.lastDownloadRemoved);
+        localStorage.setItem('last_synced', this.lastSynced);
+        localStorage.setItem('device_status', this.deviceStatus);
+        this.bannerOpened = false;
+
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }
@@ -134,10 +133,19 @@
       manageChannel() {
         this.$router.push('/');
       },
-      toggleBanner() {
-        if (this.showBanner) {
+      validateDeviceStatus() {
+        if (
+          localStorage.getItem('download_removed') < this.lastDownloadRemoved &&
+          localStorage.getItem('last_synced') < this.lastSynced
+        ) {
+          this.bannerOpened = false;
+        } else {
           this.bannerOpened = true;
         }
+        // const toggleBanner = computed(() =>{
+        //   const lastSync = lastSync.value;
+        //   const lastDownloadRemoved = lastDownloadRemoved.value;
+        // }
       },
       focusChange(e) {
         // We need the element prior to the close button and more info
