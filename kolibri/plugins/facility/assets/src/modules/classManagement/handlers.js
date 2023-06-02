@@ -14,11 +14,10 @@ export function showClassesPage(store, toRoute) {
         classes: [...classrooms],
       });
       store.commit('CORE_SET_PAGE_LOADING', false);
+      store.commit('classManagement/SET_STATE', { dataLoading: false });
     })
     .catch(error => {
       store.dispatch('handleError', error);
-    })
-    .finally(() => {
       store.commit('classManagement/SET_STATE', { dataLoading: false });
     });
 }

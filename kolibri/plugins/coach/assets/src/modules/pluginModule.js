@@ -70,9 +70,12 @@ export default {
       })
         .then(classrooms => {
           store.commit('SET_CLASS_LIST', classrooms);
+          store.commit('SET_DATA_LOADING', false);
         })
-        .catch(error => store.dispatch('handleApiError', error))
-        .finally(() => store.commit('SET_DATA_LOADING', false));
+        .catch(error => {
+          store.dispatch('handleApiError', error);
+          store.commit('SET_DATA_LOADING', false);
+        });
     },
     /**
       * Handle coach page errors.

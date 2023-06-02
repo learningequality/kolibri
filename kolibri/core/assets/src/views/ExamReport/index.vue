@@ -437,13 +437,14 @@
         MasteryLogResource.fetchMostRecentDiff(this.getParams())
           .then(currentTry => {
             this.currentTry = currentTry;
+            this.loading = false;
           })
           .catch(err => {
             if (err.response && err.response.status_code === 404) {
               this.$emit('noCompleteTries');
             }
-          })
-          .finally(() => (this.loading = false));
+            this.loading = false;
+          });
       },
       loadAllTries() {
         MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(

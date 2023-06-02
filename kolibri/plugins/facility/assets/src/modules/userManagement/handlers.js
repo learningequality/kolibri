@@ -20,21 +20,18 @@ export function showUserPage(store, toRoute, fromRoute) {
     }),
     force: true,
   })
-    .then(
-      users => {
-        if (shouldResolve()) {
-          store.commit('userManagement/SET_STATE', {
-            facilityUsers: users.results.map(_userState),
-            totalPages: users.total_pages,
-            usersCount: users.count,
-          });
-        }
-      },
-      error => {
-        shouldResolve() ? store.dispatch('handleError', error) : null;
+    .then(users => {
+      if (shouldResolve()) {
+        store.commit('userManagement/SET_STATE', {
+          facilityUsers: users.results.map(_userState),
+          totalPages: users.total_pages,
+          usersCount: users.count,
+        });
       }
-    )
-    .finally(() => {
+      store.commit('userManagement/SET_STATE', { dataLoading: false });
+    })
+    .catch(error => {
+      shouldResolve() ? store.dispatch('handleError', error) : null;
       store.commit('userManagement/SET_STATE', { dataLoading: false });
     });
 }
