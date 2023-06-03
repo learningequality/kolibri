@@ -118,9 +118,6 @@
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
-  // TODO: Get custom themes from local storage
-  // import {customThemes} from './EpubConstants';
-
   export default {
     name: 'SettingsSideBar',
     components: {
@@ -142,14 +139,14 @@
         default: false,
       },
     },
+    data() {
+      return {
+        customThemes: {},
+      };
+    },
     computed: {
       themes() {
         return THEMES;
-      },
-      customThemes() {
-        const customThemes = Lockr.get('kolibriEpubRendererCustomThemes');
-        console.log("customThemes: ", customThemes);
-        return customThemes || {};
       },
       settingsButtonFocus() {
         return {
@@ -160,6 +157,9 @@
           },
         };
       },
+    },
+    mounted() {
+      this.customThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
     },
     methods: {
       generateThemeAriaLabel(themeName) {
@@ -202,16 +202,11 @@
           textColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16),
           hoverColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16)
         };
-        // console.log("randomTheme: ", randomTheme);
-        const customThemes = {}
-        customThemes[randomTheme.name] = randomTheme;
 
-        const saved = Lockr.get('kolibriEpubRendererCustomThemes');
-        // console.log("saved: ", saved);
-        Lockr.set('kolibriEpubRendererCustomThemes', {
-          ...saved,
-          ...customThemes,
-        });
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        savedCustomThemes[randomTheme.name] = randomTheme;
+        Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
+        this.customThemes = savedCustomThemes;
       }
     },
     $trs: {
