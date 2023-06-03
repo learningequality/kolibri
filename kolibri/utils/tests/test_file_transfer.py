@@ -348,13 +348,18 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self._assert_request_calls(start_range, end_range)
 
         self.assertEqual(len(data_out), end_range - start_range + 1)
-        self.assertEqual(self.content[start_range : end_range + 1], data_out)
+        self.assertEqual(
+            self.content[start_range : end_range + 1],
+            data_out,
+            "Content does not match",
+        )
 
         chunked_file = ChunkedFile(self.dest)
         chunked_file.seek(start_range)
         self.assertEqual(
             chunked_file.read(end_range - start_range + 1),
             self.content[start_range : end_range + 1],
+            "Content does not match chunked_file content",
         )
 
     def test_remote_file_iterator(self):
@@ -368,7 +373,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             while chunk:
                 output += chunk
                 chunk = rf.read(BLOCK_SIZE)
-        self.assertEqual(output, self.content)
+        self.assertEqual(output, self.content, "Content does not match")
         self.assertEqual(
             self.mock_session.get.call_count,
             self.chunks_count if self.byte_range_support else 1,
@@ -389,7 +394,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             while chunk:
                 data_out += chunk
                 chunk = rf.read(BLOCK_SIZE)
-        self.assertEqual(self.content, data_out)
+        self.assertEqual(self.content, data_out, "Content does not match")
         self._assert_request_calls()
 
     def test_range_request_remote_file_iterator(self):
@@ -403,23 +408,142 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
-            rf.set_range(start_range, end_range)
+            rf.seek(start_range)
             chunk = rf.read(BLOCK_SIZE)
             while chunk:
                 data_out += chunk
-                chunk = rf.read(BLOCK_SIZE)
+                read_length = min(
+                    BLOCK_SIZE, end_range - (start_range + len(data_out)) + 1
+                )
+                chunk = rf.read(read_length)
 
         self._assert_request_calls(start_range, end_range)
 
         self.assertEqual(len(data_out), end_range - start_range + 1)
-        self.assertEqual(self.content[start_range : end_range + 1], data_out)
+        self.assertEqual(
+            self.content[start_range : end_range + 1], data_out, "Content mismatch"
+        )
 
         chunked_file = ChunkedFile(self.dest)
         chunked_file.seek(start_range)
         self.assertEqual(
             chunked_file.read(end_range - start_range + 1),
             self.content[start_range : end_range + 1],
+            "Chunked file content mismatch",
         )
+
+    def test_range_request_remote_file_read(self):
+        start_range = self.file_size // 3
+        end_range = self.file_size // 3 * 2
+
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            rf.seek(start_range)
+            data_out = rf.read(end_range - start_range + 1)
+
+        self._assert_request_calls(start_range, end_range)
+
+        self.assertEqual(len(data_out), end_range - start_range + 1)
+        self.assertEqual(
+            self.content[start_range : end_range + 1], data_out, "Content mismatch"
+        )
+
+        chunked_file = ChunkedFile(self.dest)
+        chunked_file.seek(start_range)
+        self.assertEqual(
+            chunked_file.read(end_range - start_range + 1),
+            self.content[start_range : end_range + 1],
+            "Chunked file content mismatch",
+        )
+
+    def test_random_access_remote_file_read(self):
+        ranges = [
+            (self.file_size // 3, self.file_size // 3 * 2),
+            (0, self.file_size // 2),
+            (self.file_size // 5 * 2, self.file_size * 2),
+        ]
+
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            for start_range, end_range in ranges:
+                rf = RemoteFile(self.dest, self.source)
+                rf.seek(start_range)
+                data_out = rf.read(end_range - start_range + 1)
+
+                capped_end_rage = min(end_range, self.file_size - 1)
+
+                self.assertEqual(len(data_out), capped_end_rage - start_range + 1)
+                self.assertEqual(
+                    self.content[start_range : capped_end_rage + 1],
+                    data_out,
+                    "Content mismatch: {}-{}".format(start_range, end_range),
+                )
+
+                chunked_file = ChunkedFile(self.dest)
+                chunked_file.seek(start_range)
+                self.assertEqual(
+                    chunked_file.read(end_range - start_range + 1),
+                    self.content[start_range : capped_end_rage + 1],
+                    "Chunked file content mismatch: {}-{}".format(
+                        start_range, end_range
+                    ),
+                )
+                self.mock_session.get.reset_mock()
+
+    def test_random_access_remote_file_iterator(self):
+        ranges = [
+            (self.file_size // 3, self.file_size // 3 * 2),
+            (0, self.file_size // 2),
+            (self.file_size // 5 * 2, self.file_size * 2),
+        ]
+
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            for start_range, end_range in ranges:
+                data_out = b""
+                rf = RemoteFile(self.dest, self.source)
+                rf.seek(start_range)
+                chunk = rf.read(BLOCK_SIZE)
+                while chunk:
+                    data_out += chunk
+                    read_length = min(
+                        BLOCK_SIZE, end_range - (start_range + len(data_out)) + 1
+                    )
+                    chunk = rf.read(read_length)
+
+                capped_end_rage = min(end_range, self.file_size - 1)
+                self.assertEqual(len(data_out), capped_end_rage - start_range + 1)
+                self.assertEqual(
+                    self.content[start_range : capped_end_rage + 1],
+                    data_out,
+                    "Content mismatch: {}-{}".format(start_range, end_range),
+                )
+
+                chunked_file = ChunkedFile(self.dest)
+                chunked_file.seek(start_range)
+                self.assertEqual(
+                    chunked_file.read(end_range - start_range + 1),
+                    self.content[start_range : capped_end_rage + 1],
+                    "Chunked file content mismatch: {}-{}".format(
+                        start_range, end_range
+                    ),
+                )
+
+    def test_remote_file_seek_and_tell(self):
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            rf.seek(0, os.SEEK_END)
+            self.assertEqual(rf.tell(), self.file_size)
 
 
 class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSupport):

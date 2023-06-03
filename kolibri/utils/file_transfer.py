@@ -689,6 +689,8 @@ class FileDownload(Transfer):
             return self.next_missing_chunk_range_generator()
         self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
         self.response.raise_for_status()
+        # Reset the position to 0 here, as we will be going back to the beginning of the response.
+        self.position = 0
         if (not self.content_length_header or self.compressed) and not self.total_size:
             # Doing this exhausts the iterator, so if we need to do this, we need
             # to return the dummy iterator below, as the iterator will be empty,
@@ -698,10 +700,12 @@ class FileDownload(Transfer):
             # We then need to return a dummy iterator over the content
             # this just iterates over the content in block size chunks
             # as a generator comprehension.
+            self.dest_file_obj.seek(0)
             return (
                 self.response.content[i * self.block_size : (i + 1) * self.block_size]
                 for i in range(self.total_size // self.block_size + 1)
             )
+        self.dest_file_obj.seek(0)
         return self.response.iter_content(self.block_size)
 
     def next(self):
@@ -792,48 +796,68 @@ class RemoteFile(BufferedIOBase):
             finalize_download=False,
         )
         self.file_obj = self.transfer.dest_file_obj
-        self._previously_read = b""
-        self._needs_download = None
-        self.range_start = None
-        self.range_end = None
+        self._read_position = 0
 
-    def set_range(self, start, end):
-        self.range_start = start
-        self.range_end = end
-        self.transfer.set_range(start, end)
-
-    def get_file_size(self):
+    @property
+    def file_size(self):
         if self.transfer.total_size is None:
             self._start_transfer()
         return self.transfer.total_size
 
-    def _start_transfer(self):
-        if self._needs_download is None:
-            self._needs_download = not self.file_obj.is_complete(
-                start=self.range_start, end=self.range_end
-            )
-        if self._needs_download and not self.transfer.started:
+    def _start_transfer(self, start=None, end=None):
+        needs_download = not self.file_obj.is_complete(start=start, end=end)
+        if needs_download and not self.transfer.started:
             self.transfer.start()
+        elif self.transfer.started and self._read_position != self.transfer.position:
+            # If the transfer has already started, but we need to read from a different position,
+            # we need to reset the iterator to the correct position.
+            self.transfer._set_iterator(force=True)
+        return needs_download
 
     def read(self, size=-1):
-        self._start_transfer()
-        if self._needs_download:
-            data = self._previously_read
+        if self._read_position != self.transfer.position:
+            self.transfer.set_range(self._read_position, None)
+        needs_download = self._start_transfer(
+            self._read_position, self._read_position + size if size != -1 else None
+        )
+        if needs_download:
+            data = b""
             while size == -1 or len(data) < size:
                 try:
                     data += next(self.transfer)
                 except StopIteration:
                     break
             if size != -1:
-                self._previously_read = data[size:]
                 data = data[:size]
-            return data
-        return self.file_obj.read(size=size)
+        else:
+            self.file_obj.seek(self._read_position)
+            data = self.file_obj.read(size=size)
+        self._read_position += len(data)
+        return data
 
     def close(self):
         self.transfer.close()
 
-    def seek(self, offset, whence=0):
-        # We handle this by setting the range on the transfer instead, so can safely
-        # ignore this call.
-        pass
+    def seek(self, offset, whence=os.SEEK_SET):
+        if whence == os.SEEK_SET:
+            self._read_position = offset
+        elif whence == os.SEEK_CUR:
+            self._read_position += offset
+        elif whence == os.SEEK_END:
+            self._read_position = self.file_size + offset
+        else:
+            raise ValueError("Invalid whence value")
+
+        self._read_position = min(self.file_size, max(0, self._read_position))
+
+    def tell(self):
+        return self._read_position
+
+    def readable(self):
+        return True
+
+    def writable(self):
+        return True
+
+    def seekable(self):
+        return True
