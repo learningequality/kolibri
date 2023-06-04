@@ -85,6 +85,12 @@
               style="top: 0; width: 24px; height: 24px;"
             />
           </KButton>
+          <KButton
+            class="delete-button"
+            :text="$tr('delete')"
+            :primary="true"
+            @click="deleteCustomThemeName = key"
+          />
 
         </KFixedGridItem>
         
@@ -106,6 +112,14 @@
           
         </KFixedGridItem>
       </KFixedGrid>
+
+      <!-- Modal to confirm deletion of a custom theme -->
+      <DeleteCustomThemeModal
+        v-if="deleteCustomThemeName"
+        :themeName="deleteCustomThemeName"
+        @submit="deleteTheme(deleteCustomThemeName)"
+        @cancel="deleteCustomThemeName = null"
+      />
     </div>
   </SideBar>
 
@@ -117,11 +131,13 @@
   import Lockr from 'lockr';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
+  import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
 
   export default {
     name: 'SettingsSideBar',
     components: {
       SideBar,
+      DeleteCustomThemeModal,
     },
     props: {
       theme: {
@@ -142,6 +158,7 @@
     data() {
       return {
         customThemes: {},
+        deleteCustomThemeName: null,
       };
     },
     computed: {
@@ -207,7 +224,14 @@
         savedCustomThemes[randomTheme.name] = randomTheme;
         Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
         this.customThemes = savedCustomThemes;
-      }
+      },
+      deleteTheme (themeName) {
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        delete savedCustomThemes[themeName];
+        Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
+        this.customThemes = savedCustomThemes;
+        this.deleteCustomThemeName = null;
+      },
     },
     $trs: {
       textSize: {
@@ -237,6 +261,11 @@
         message: 'Add new theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to add a new theme.",
+      },
+      delete: {
+        message: 'Delete',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to delete a theme.",
       },
       setWhiteTheme: {
         message: 'Set white theme',
@@ -281,6 +310,17 @@
     height: 44.5px;
     border-style: solid;
     border-width: 2px;
+  }
+
+  .delete-button {
+    width: calc(100% - 4px);
+    min-width: unset;
+    height: calc(100% - 4px);
+    margin: 2px;
+    line-height: unset;
+    transition: none;
+    font-size: 10px;
+    padding: 0px;
   }
 
   .o-f-h {
