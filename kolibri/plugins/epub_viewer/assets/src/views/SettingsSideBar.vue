@@ -71,6 +71,7 @@
           v-for="(value, key) in customThemes"
           :key="key"
           span="1"
+          style="margin-bottom: 8px;"
         >
           <KButton
             class="settings-button theme-button"
@@ -86,10 +87,16 @@
             />
           </KButton>
           <KButton
-            class="delete-button"
+            class="delete-edit-button"
             :text="$tr('delete')"
             :primary="true"
             @click="deleteCustomThemeName = key"
+          />
+          <KButton
+            class="delete-edit-button"
+            :text="$tr('edit')"
+            :secondary="true"
+            @click="editCustomThemeName = key"
           />
 
         </KFixedGridItem>
@@ -159,6 +166,7 @@
       return {
         customThemes: {},
         deleteCustomThemeName: null,
+        editCustomThemeName: null,
       };
     },
     computed: {
@@ -267,6 +275,11 @@
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to delete a theme.",
       },
+      edit: {
+        message: 'Edit',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to edit a theme.",
+      },
       setWhiteTheme: {
         message: 'Set white theme',
         context:
@@ -312,7 +325,7 @@
     border-width: 2px;
   }
 
-  .delete-button {
+  .delete-edit-button {
     width: calc(100% - 4px);
     min-width: unset;
     height: calc(100% - 4px);
