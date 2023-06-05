@@ -27,18 +27,22 @@ const sideNavConfig = {
         {
           label: deviceString('permissionsLabel'),
           route: baseRoutes.permissions.path,
+          name: baseRoutes.permissions.name,
         },
         {
           label: coreStrings.$tr('facilitiesLabel'),
           route: baseRoutes.facilities.path,
+          name: baseRoutes.facilities.name,
         },
         {
           label: coreStrings.$tr('infoLabel'),
           route: baseRoutes.info.path,
+          name: baseRoutes.info.name,
         },
         {
           label: coreStrings.$tr('settingsLabel'),
           route: baseRoutes.settings.path,
+          name: baseRoutes.settings.name,
         }
       );
     }
