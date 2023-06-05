@@ -343,19 +343,19 @@ Manual linting and formatting
 
 Linting and code auto-formatting are done by Prettier and Black.
 
-You can manually run the auto-formatters using:
+You can manually run the auto-formatters for the frontend using:
 
 .. code-block:: bash
 
   yarn run lint-frontend:format
-  yarn run fmt-backend
 
 Or to check the formatting without writing changes, run:
 
 .. code-block:: bash
 
   yarn run lint-frontend
-  yarn run fmt-backend:check
+
+The linting and formatting for the backend is handled using ``pre-commit`` below.
 
 
 Pre-commit hooks
