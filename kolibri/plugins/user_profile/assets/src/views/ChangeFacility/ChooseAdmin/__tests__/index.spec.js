@@ -1,9 +1,13 @@
+import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import { shallowMount, mount } from '@vue/test-utils';
 import ChooseAdmin from '../index.vue';
 
 const sendMachineEvent = jest.fn();
 function makeWrapper({ userId, sourceFacilityUsers } = {}) {
+  const store = coreStoreFactory();
+  store.dispatch('notLoading');
   return mount(ChooseAdmin, {
+    store,
     provide: {
       changeFacilityService: {
         send: sendMachineEvent,

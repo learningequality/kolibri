@@ -1,9 +1,14 @@
 <script>
 
   import get from 'lodash/get';
+  import logger from 'kolibri.lib.logging';
+  import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
+
+  const logging = logger.getLogger(__filename);
 
   export default {
     name: 'CoreTable',
+    components: { KCircularLoader },
     props: {
       selectable: {
         type: Boolean,
@@ -13,6 +18,11 @@
       emptyMessage: {
         type: String,
         default: null,
+      },
+      dataLoading: {
+        type: Boolean,
+        default: false,
+        required: false,
       },
     },
     computed: {
@@ -73,9 +83,19 @@
         }
       });
 
-      // Insert an empty message as a <p> at the end if it is provided and the
-      // table has no rows.
-      const showEmptyMessage = this.emptyMessage && !tableHasRows;
+      // If we have loaded the data, but have no empty message and no rows, we log an error.
+      if (!this.dataLoading && this.emptyMessage && !tableHasRows) {
+        logging.error('CoreTable: No rows in table, but no empty message provided.');
+      }
+
+      /*
+       * If data is still loading, then we show a loader. Otherwise, we show the
+       * empty message if there are no rows in the table. If we have loaded data, have
+       * an emptyMessage and have no rows. If we have rows, then we show the table alone
+       */
+      var dataStatusEl = this.dataLoading
+        ? createElement('p', [createElement(KCircularLoader)])
+        : !tableHasRows && createElement('p', this.emptyMessage); // Only show message if no rows
 
       return createElement('div', { class: 'core-table-container' }, [
         createElement('table', { class: 'core-table' }, [
@@ -83,7 +103,7 @@
           theadEl,
           tbodyCopy,
         ]),
-        showEmptyMessage && createElement('p', this.emptyMessage),
+        dataStatusEl,
       ]);
     },
   };

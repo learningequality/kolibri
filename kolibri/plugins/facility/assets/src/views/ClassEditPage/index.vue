@@ -65,6 +65,7 @@
       <UserTable
         :users="classCoaches"
         :emptyMessage="$tr('noCoachesInClassMessge')"
+        :dataLoading="dataLoading"
         isCoach
       >
         <!-- Don't need template in Vue 2.5+ -->
@@ -100,6 +101,7 @@
 
       <UserTable
         :users="classLearners"
+        :dataLoading="dataLoading"
         :emptyMessage="$tr('noLearnersInClassMessage')"
       >
         <template #action="userRow">
@@ -153,6 +155,7 @@
         'classes',
         'currentClass',
         'modalShown',
+        'dataLoading',
       ]),
       classDetails() {
         // No errors due to race condition around currentClass being undefined

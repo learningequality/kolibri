@@ -54,6 +54,7 @@ const outline = [
 function makeWrapper(options = {}) {
   return mount(Bookmarks, {
     ...options,
+    mocks: { fetchContentNodeProgress: Promise.resolve() },
     propsData: {
       outline,
       goToDestination: jest.fn(),

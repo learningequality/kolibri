@@ -2,7 +2,7 @@
 
   <div>
 
-    <CoreTable :emptyMessage="emptyMessage">
+    <CoreTable :emptyMessage="emptyMessage" :dataLoading="dataLoading">
       <template #headers>
         <th>{{ coreString('fullNameLabel') }}</th>
         <th>{{ coreString('usernameLabel') }}</th>
@@ -81,6 +81,11 @@
       userPermissions: {
         type: Function,
         default: () => null,
+      },
+      dataLoading: {
+        type: Boolean,
+        default: false,
+        required: false,
       },
     },
     computed: {

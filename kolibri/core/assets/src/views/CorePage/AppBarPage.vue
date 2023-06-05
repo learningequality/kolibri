@@ -54,6 +54,7 @@
 
   import { mapGetters } from 'vuex';
   import { get } from '@vueuse/core';
+  import _get from 'lodash/get';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
@@ -100,7 +101,9 @@
       },
       loading: {
         type: Boolean,
-        default: null,
+        default() {
+          return _get(this, '$store.state.core.loading', false);
+        },
       },
     },
     data() {

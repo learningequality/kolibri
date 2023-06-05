@@ -19,17 +19,20 @@ function fetchFacilityUsers() {
 
 export function showManagePermissionsPage(store) {
   const shouldResolve = samePageCheckGenerator(store);
+  store.commit('managePermissions/SET_LOADING_FACILITY_USERS', true);
   const promises = Promise.all([fetchFacilityUsers(store), fetchDevicePermissions()]);
   return promises
-    .then(function onSuccess([users, permissions]) {
+    .then(([users, permissions]) => {
       if (shouldResolve()) {
         store.commit('managePermissions/SET_STATE', {
           facilityUsers: users,
           permissions,
         });
       }
+      return store.commit('managePermissions/SET_LOADING_FACILITY_USERS', false);
     })
-    .catch(function onFailure(error) {
-      shouldResolve() ? store.dispatch('handleError', error) : null;
+    .catch(error => {
+      store.commit('managePermissions/SET_LOADING_FACILITY_USERS', false);
+      return shouldResolve() ? store.dispatch('handleError', error) : null;
     });
 }
