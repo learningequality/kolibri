@@ -16,7 +16,11 @@
       class="page"
     >
       <template #actions>
-        <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+        <DeviceConnectionStatus
+          v-if="deviceId"
+          :deviceId="deviceId"
+          color="white"
+        />
       </template>
       <!-- Header with thumbail and tagline -->
       <TopicsHeader

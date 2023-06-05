@@ -10,7 +10,11 @@
     :title="appBarTitle"
   >
     <template #actions>
-      <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+      <DeviceConnectionStatus
+        v-if="deviceId"
+        :deviceId="deviceId"
+        color="white"
+      />
     </template>
 
     <template
