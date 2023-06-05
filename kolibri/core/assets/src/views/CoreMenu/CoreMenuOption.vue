@@ -167,8 +167,8 @@
     },
     methods: {
       isActiveLink(route) {
-        const full_path = !route.includes('#') ? `${this.link}#${route}` : route;
-        return `${window.location.pathname}${window.location.hash}`.includes(full_path);
+        const fullPath = !route.includes('#') ? `${this.link}#${route}` : route;
+        return `${window.location.pathname}${window.location.hash}`.includes(fullPath);
       },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
