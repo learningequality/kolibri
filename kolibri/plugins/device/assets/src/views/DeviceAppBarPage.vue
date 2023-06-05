@@ -6,9 +6,9 @@
       <DeviceTopNav />
     </template>
 
-    <DeprecationWarningBanner />
+    <DeprecationWarningBanner style="margin-bottom: 1em" />
 
-    <div style="margin-top: 1em">
+    <div>
       <slot></slot>
     </div>
 
