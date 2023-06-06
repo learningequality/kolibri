@@ -138,9 +138,9 @@
       },
       toggleBanner() {
         if (this.showBanner) {
-          this.bannerOpened = false;
-        } else {
           this.bannerOpened = true;
+        } else {
+          this.bannerOpened = false;
         }
       },
       focusChange(e) {
