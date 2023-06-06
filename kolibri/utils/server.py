@@ -1,6 +1,7 @@
 import logging
 import os
 import signal
+import socket
 import sys
 import threading
 import time
@@ -405,6 +406,48 @@ class PIDPlugin(SimplePlugin):
             pass
 
 
+class SystemdNotifyPlugin(SimplePlugin):
+    """
+    A plugin to notify systemd of the process' state when it's starting up and
+    shutting down.
+
+    This allows systemd to wait before starting dependent processes until all
+    Kolibri process plugins have started successfully. In particular, zeroconf
+    registration can take a few seconds.
+
+    If Kolibri is not running under systemd, this plugin will do nothing.
+    """
+
+    def __init__(self, bus):
+        self.bus = bus
+        self.notify_socket_path = os.environ.get("NOTIFY_SOCKET", None)
+
+        self.bus.subscribe("RUN", self.send_ready, priority=999)
+        self.bus.subscribe("STOP", self.send_stopping, priority=1)
+        self.bus.subscribe("EXIT", self.send_stopping, priority=1)
+
+    def sd_notify(self, state):
+        """
+        Sends a state notification to systemd
+
+        See man page sd_notify(3)
+
+        :param: state: new service state
+        """
+        if not self.notify_socket_path:
+            return
+        with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as s:
+            logger.info("Sending sd-notify state {}".format(state))
+            s.connect(self.notify_socket_path)
+            s.send(state.encode())
+
+    def send_ready(self):
+        self.sd_notify("READY=1")
+
+    def send_stopping(self):
+        self.sd_notify("STOPPING=1")
+
+
 def _port_check(port):
     # In case that something other than Kolibri occupies the port,
     # check the port's availability.
@@ -650,6 +693,9 @@ class BaseKolibriProcessBus(ProcessBus):
         # possible and reduce the risk of competing servers
         pid_plugin = PIDPlugin(self)
         pid_plugin.subscribe()
+
+        systemd_plugin = SystemdNotifyPlugin(self)
+        systemd_plugin.subscribe()
 
         logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 
