@@ -19,6 +19,7 @@ from whitenoise.responders import StaticFile
 from whitenoise.string_utils import decode_path_info
 
 from kolibri.utils.file_transfer import RemoteFile
+from kolibri.utils.urls import validator
 
 
 compressed_file_extensions = ("gz",)
@@ -169,6 +170,7 @@ class StreamingStaticFile(EndRangeStaticFile):
             return NOT_ALLOWED_RESPONSE
         if method != "HEAD":
             try:
+                validator(self.remote_url)
                 file_handle = RemoteFile(
                     self.path,
                     self.remote_url,

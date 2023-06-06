@@ -14,7 +14,6 @@ from cheroot import wsgi
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
-from django.core.validators import URLValidator
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
@@ -31,6 +30,7 @@ from kolibri.core.content.utils.paths import get_content_storage_file_path
 from kolibri.core.content.utils.paths import get_content_storage_remote_url
 from kolibri.core.content.utils.paths import get_zip_content_base_path
 from kolibri.utils.file_transfer import RemoteFile
+from kolibri.utils.urls import validator
 
 
 logger = logging.getLogger(__name__)
@@ -182,13 +182,6 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
 path_regex = re.compile(
     r"/(?:(?P<base_url>(?![a-f0-9]{32}\.zip)[^/]+)/)?(?P<zipped_filename>[a-f0-9]{32}\.zip)/(?P<embedded_filepath>.*)"
 )
-
-validator = URLValidator(schemes=["http", "https"])
-# Need to do this as the default message is a lazily translated string
-# which then tries to invoke the Django settings, so would not work
-# outside of a Django setup context.
-validator.message = "Invalid URL"
-
 
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
