@@ -48,13 +48,13 @@ const urls = {
     }
     return generateUrl(this.__mediaUrl, { url });
   },
-  zipContentUrl(fileId, extension, embeddedFilePath = '') {
+  zipContentUrl(fileId, extension, embeddedFilePath = '', baseurl) {
     const filename = `${fileId}.${extension}`;
     if (!this.__zipContentUrl) {
       throw new ReferenceError('Zipcontent Url is not defined');
     }
     return generateUrl(this.__zipContentUrl, {
-      url: `${filename}/${embeddedFilePath}`,
+      url: `${baseurl ? baseurl + '/' : ''}${filename}/${embeddedFilePath}`,
       origin: this.__zipContentOrigin,
       port: this.__zipContentPort,
     });

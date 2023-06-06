@@ -165,15 +165,14 @@
       if (!this.isH5P) {
         // In the case that this is being routed via a remote URL
         // ensure we preserve that for the zip endpoint.
-        const query = this.defaultFile.storage_url.split('?')[1];
+        const url = new URL(this.defaultFile.storage_url, window.location.href);
+        const baseurl = url.searchParams.get('baseurl');
         storageUrl = urls.zipContentUrl(
           this.defaultFile.checksum,
           this.defaultFile.extension,
-          this.entry
+          this.entry,
+          baseurl ? encodeURIComponent(baseurl) : undefined
         );
-        if (query) {
-          storageUrl += '?' + query;
-        }
       }
 
       this.hashi.initialize(
