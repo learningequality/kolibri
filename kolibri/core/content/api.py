@@ -1360,6 +1360,41 @@ class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
         # destroy model mixin
 
 
+class ContentRemovalRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
+    serializer_class = serializers.ContentRemovalRequestSeralizer
+
+    pagination_class = OptionalPageNumberPagination
+
+    queryset = ContentRemovalRequest.objects.all()
+
+    values = (
+        "id",
+        "requested_at",
+        "reason",
+        "contentnode_id",
+        "status",
+        "facility",
+        "source_id",
+    )
+
+    def filter_queryset(self, queryset):
+        return queryset.filter(source_id=self.request.user.id)
+
+    def annotate_queryset(self, queryset):
+        return queryset.annotate(
+            has_download_request=Exists(
+                ContentDownloadRequest.objects.filter(
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    contentnode_id=OuterRef("contentnode_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                )
+            )
+        ).filter(has_download_request=False)
+
+        # destroy model mixin
+
+
 @method_decorator(etag(get_cache_key), name="retrieve")
 class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericViewSet):
     serializer_class = serializers.ContentNodeGranularSerializer

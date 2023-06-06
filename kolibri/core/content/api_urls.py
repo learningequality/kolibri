@@ -10,6 +10,7 @@ from .api import ContentNodeProgressViewset
 from .api import ContentNodeSearchViewset
 from .api import ContentNodeTreeViewset
 from .api import ContentNodeViewset
+from .api import ContentRemovalRequestViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import UserContentNodeViewset
@@ -38,6 +39,11 @@ router.register(
     r"contentdownloadrequest",
     ContentDownloadRequestViewset,
     basename="contentdownloadrequest",
+)
+router.register(
+    r"contentremovalrequest",
+    ContentRemovalRequestViewset,
+    basename="contentremovalrequest",
 )
 router.register(
     r"contentnode_granular",

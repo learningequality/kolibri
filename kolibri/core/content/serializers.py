@@ -309,34 +309,43 @@ class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
         return content_request
 
 
-#     # if there is an existing deletion request, delete the deletion request
+class ContentRemovalRequestSeralizer(serializers.ModelSerializer):
+    class Meta:
 
-#     if "request" in self.context and self.context["request"].user is not None:
-#         user = self.context["request"].user
+        model = ContentRemovalRequest
+        fields = (
+            "id",
+            "contentnode_id",
+        )
 
-#     else:
-#         raise serializers.ValidationError("User must be defined")
+    def create(self, validated_data):
+        # if there is an existing deletion request, delete the deletion request
+        if "request" in self.context and self.context["request"].user is not None:
+            user = self.context["request"].user
+        else:
+            raise serializers.ValidationError("User must be defined")
 
-#     deletion_request = ContentRemovalRequest.objects.filter(
-#         contentnode_id=validated_data["contentnode_id"],
-#         source_id=user.id,
-#     )
+        download_request = ContentDownloadRequest.objects.filter(
+            contentnode_id=validated_data["contentnode_id"],
+            source_id=user.id,
+        )
 
-#     if deletion_request.exists():
-#         ContentRemovalRequest.objects.filter(
-#             contentnode_id=validated_data["contentnode_id"],
-#             source_id=user.id,
-#         ).delete()
+        if download_request.exists():
+            ContentDownloadRequest.objects.filter(
+                contentnode_id=validated_data["contentnode_id"],
+                source_id=user.id,
+            ).delete()
 
-#     existing_request = ContentDownloadRequest.objects.filter(
-#         contentnode_id=validated_data["contentnode_id"],
-#         source_id=user.id,
-#     ).first()
+        existing_request = ContentRemovalRequest.objects.filter(
+            contentnode_id=validated_data["contentnode_id"],
+            source_id=user.id,
+        ).first()
 
-#     if existing_request:
-#         return existing_request
+        if existing_request:
+            return existing_request
 
-#     content_request = ContentDownloadRequest.build_for_user(user)
-#     content_request.metadata = validated_data["metadata"]
-#     content_request.save()
-#     return content_request
+        content_request = ContentRemovalRequest.build_for_user(user)
+        content_request.contentnode_id = validated_data["contentnode_id"]
+
+        content_request.save()
+        return content_request
