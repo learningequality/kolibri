@@ -12,7 +12,9 @@ import zipfile
 import html5lib
 from cheroot import wsgi
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.core.handlers.wsgi import WSGIRequest
+from django.core.validators import URLValidator
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
 from django.http import HttpResponseNotFound
@@ -22,6 +24,7 @@ from django.http.response import StreamingHttpResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
+from six.moves.urllib.parse import unquote
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path
@@ -167,7 +170,25 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
         return response
 
 
-path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
+# Includes a prefix that is almost certain not to collide
+# with a filename embedded in a zip file. Prefix is:
+# @*._ followed by the encoded base url
+# This is used to allow the base url to be passed in the main
+# URL and allow relative paths within the loaded HTML5 zip file
+# to maintain the base URL reference. This means when loading
+# from remote URLs, the HTML5 zip can be incrementally loaded based on
+# the base URL, rather than having to load the entire zip file before
+# loading the HTML5 content.
+path_regex = re.compile(
+    r"/(?:(?P<base_url>(?![a-f0-9]{32}\.zip)[^/]+)/)?(?P<zipped_filename>[a-f0-9]{32}\.zip)/(?P<embedded_filepath>.*)"
+)
+
+validator = URLValidator(schemes=["http", "https"])
+# Need to do this as the default message is a lazily translated string
+# which then tries to invoke the Django settings, so would not work
+# outside of a Django setup context.
+validator.message = "Invalid URL"
+
 
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
@@ -201,7 +222,7 @@ def _zip_content_from_request(request):  # noqa: C901
     if request.method == "OPTIONS":
         return HttpResponse()
 
-    zipped_filename, embedded_filepath = match.groups()
+    remote_baseurl, zipped_filename, embedded_filepath = match.groups()
 
     try:
         # calculate the local file path to the zip file
@@ -211,7 +232,14 @@ def _zip_content_from_request(request):  # noqa: C901
             "{filename} is not a valid file name".format(filename=zipped_filename)
         )
 
-    remote_baseurl = request.GET.get("baseurl")
+    if remote_baseurl:
+        try:
+            remote_baseurl = unquote(remote_baseurl)
+            validator(remote_baseurl)
+        except ValidationError:
+            return create_error_response(
+                "{baseurl} is not a valid URL".format(baseurl=remote_baseurl)
+            )
 
     # if the zipfile does not exist on disk, return a 404
     if not os.path.exists(zipped_path):
