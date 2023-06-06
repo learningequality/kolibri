@@ -1,14 +1,11 @@
-from django.db.models import OuterRef
 from le_utils.constants import content_kinds
+from le_utils.constants.labels import learning_activities
 from rest_framework import serializers
-from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
-from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.fields import create_timezonestamp
@@ -256,64 +253,90 @@ class ContentNodeGranularSerializer(serializers.ModelSerializer):
         return instance.kind != content_kinds.TOPIC
 
 
+class ContentDownloadRequestMetadataSerializer(serializers.Serializer):
+
+    title = serializers.CharField()
+    file_size = serializers.IntegerField()
+    learning_activities = serializers.ListField(
+        child=serializers.ChoiceField(learning_activities.choices)
+    )
+
+
 class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
+
+    metadata = ContentDownloadRequestMetadataSerializer()
+
     class Meta:
 
         model = ContentDownloadRequest
-
         fields = (
             "id",
-            "reason",
-            "requested_at",
             "contentnode_id",
             "metadata",
-            "status",
-            "source_id",
-            "facility",
         )
 
-        def create(self, request, *args, **kwargs):
-            # if there is an existing deletion request, delete the deletion request
-            deletion_request = ContentRemovalRequest.objects.filter(
-                contentnode_id=self.request.data["contentnode_id"],
-                source_id=self.request.user.id,
-            )
+    def create(self, validated_data):
+        # if there is an existing deletion request, delete the deletion request
+        if "request" in self.context and self.context["request"].user is not None:
+            user = self.context["request"].user
+        else:
+            raise serializers.ValidationError("User must be defined")
 
-            if deletion_request:
-                ContentRemovalRequest.objects.filter(
-                    contentnode_id=self.request.data["contentnode_id"],
-                    source_id=self.request.user.id,
-                ).delete()
-            else:
-                try:
-                    user = self.request.user
-                    validated_data = ContentDownloadRequest.build_for_user(user)
-                    metadata = ContentNode.objects.filter(
-                        pk=OuterRef("contentnode_id")
-                    ).metadata
-                    ContentRequest.metadata = metadata
-                    new_request = ContentDownloadRequest.create(validated_data)
-                    if validated_data:
-                        # return Response(new_request, status=status.HTTP_201_CREATED)
-                        return Response(
-                            self.serialize_object(pk=new_request.pk),
-                            status=HTTP_201_CREATED,
-                        )
-                    else:
-                        print("nopeee")
-                except ValueError:
-                    pass
+        deletion_request = ContentRemovalRequest.objects.filter(
+            contentnode_id=validated_data["contentnode_id"],
+            source_id=user.id,
+        )
 
-        def delete(self, request, *args, **kwargs):
-            # We delete all ContentRequest objects whose contentnode_id is this id.
-            deletion_request = ContentRemovalRequest.objects.filter(
-                contentnode_id=request["contentnode_id"], source_id=self.request.user.id
-            )
-            if deletion_request:
-                pass
-            else:
-                try:
-                    request = ContentRemovalRequest.build_for_user(self, *args)
-                    return request
-                except ValueError:
-                    pass
+        if deletion_request.exists():
+            ContentRemovalRequest.objects.filter(
+                contentnode_id=validated_data["contentnode_id"],
+                source_id=user.id,
+            ).delete()
+
+        existing_request = ContentDownloadRequest.objects.filter(
+            contentnode_id=validated_data["contentnode_id"],
+            source_id=user.id,
+        ).first()
+
+        if existing_request:
+            return existing_request
+
+        content_request = ContentDownloadRequest.build_for_user(user)
+        content_request.metadata = validated_data["metadata"]
+        content_request.contentnode_id = validated_data["contentnode_id"]
+
+        content_request.save()
+        return content_request
+
+
+#     # if there is an existing deletion request, delete the deletion request
+
+#     if "request" in self.context and self.context["request"].user is not None:
+#         user = self.context["request"].user
+
+#     else:
+#         raise serializers.ValidationError("User must be defined")
+
+#     deletion_request = ContentRemovalRequest.objects.filter(
+#         contentnode_id=validated_data["contentnode_id"],
+#         source_id=user.id,
+#     )
+
+#     if deletion_request.exists():
+#         ContentRemovalRequest.objects.filter(
+#             contentnode_id=validated_data["contentnode_id"],
+#             source_id=user.id,
+#         ).delete()
+
+#     existing_request = ContentDownloadRequest.objects.filter(
+#         contentnode_id=validated_data["contentnode_id"],
+#         source_id=user.id,
+#     ).first()
+
+#     if existing_request:
+#         return existing_request
+
+#     content_request = ContentDownloadRequest.build_for_user(user)
+#     content_request.metadata = validated_data["metadata"]
+#     content_request.save()
+#     return content_request

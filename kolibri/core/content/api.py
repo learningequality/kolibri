@@ -39,9 +39,9 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
+from kolibri.core.api import CreateModelMixin
 from kolibri.core.api import ListModelMixin
 from kolibri.core.api import ReadOnlyValuesViewset
-from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.auth.middleware import session_exempt
@@ -1324,8 +1324,9 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
-class ContentDownloadRequestViewset(ValuesViewset):
+class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSeralizer
+
     pagination_class = OptionalPageNumberPagination
 
     queryset = ContentDownloadRequest.objects.all()
@@ -1355,6 +1356,8 @@ class ContentDownloadRequestViewset(ValuesViewset):
                 )
             )
         ).filter(has_removal=False)
+
+        # destroy model mixin
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")

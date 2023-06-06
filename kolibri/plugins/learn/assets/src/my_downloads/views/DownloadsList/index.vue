@@ -28,17 +28,18 @@
           <tbody>
             <tr
               v-for="download in Object.values(downloads)"
-              :key="download.node_id"
+              :key="download.id"
             >
               <td>
                 <KCheckbox
-                  :checked="resourceIsSelected(download.node_id)"
+                  :checked="resourceIsSelected(download.id)"
                   class="download-checkbox"
-                  @change="handleCheckResource(download.node_id, $event)"
+                  @change="handleCheckResource(download.id, $event)"
                 >
                   <KLabeledIcon
-                    :icon="getIcon(download)"
-                    :label="download.resource_metadata.title"
+                    v-if="download.metadata"
+                    :icon="getIcon(download.metadata.learning_activities)"
+                    :label="download.metadata.title"
                   />
                 </KCheckbox>
               </td>
@@ -52,14 +53,14 @@
                 <KExternalLink
                   :text="coreString('viewAction')"
                   appearance="flat-button"
-                  :href="genExternalContentURLBackLinkCurrentPage(download.node_id)"
+                  :href="genExternalContentURLBackLinkCurrentPage(download.id)"
                 />
               </td>
               <td class="resource-action">
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
-                  @click="removeResource(download.node_id)"
+                  @click="removeResource(download.id)"
                 />
               </td>
             </tr>
@@ -174,6 +175,7 @@
         },
       },
       areAllSelected() {
+        console.log(this.downloads);
         return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
       },
     },
@@ -186,13 +188,11 @@
         const addedDownloads = newVal.filter(id => !oldVal.includes(id));
         const removedDownloads = oldVal.filter(id => !newVal.includes(id));
         const addedDownloadsSize = addedDownloads.reduce(
-          (acc, id) =>
-            acc + (this.downloads[id] ? this.downloads[id].resource_metadata.file_size : 0),
+          (acc, id) => acc + (this.downloads[id] ? this.downloads[id] : 0),
           0
         );
         const removedDownloadsSize = removedDownloads.reduce(
-          (acc, id) =>
-            acc + (this.downloads[id] ? this.downloads[id].resource_metadata.file_size : 0),
+          (acc, id) => acc + (this.downloads[id] ? this.downloads[id] : 0),
           0
         );
         this.selectedDownloadsSize += addedDownloadsSize - removedDownloadsSize;
@@ -230,18 +230,20 @@
         );
         this.resourcesToDelete = [];
       },
-      getIcon(download) {
-        return this.getLearningActivityIcon(download.resource_metadata.learning_activities[0]);
+      getIcon(activities) {
+        return this.getLearningActivityIcon(activities);
       },
       formattedTime(download) {
-        const datetime = download.date_added;
+        const datetime = download.requested_at;
         if (this.now - datetime < 10000) {
           return this.coreString('justNow');
         }
         return this.$formatRelative(datetime, { now: this.now });
       },
       formattedResourceSize(download) {
-        return bytesForHumans(download.resource_metadata.file_size);
+        if (download.metadata && download.metadata.file_size) {
+          return bytesForHumans(download.metadata.file_size);
+        }
       },
       formattedSelectedSize() {
         return bytesForHumans(this.selectedDownloadsSize);
