@@ -5,6 +5,7 @@ from django import db
 from django.apps import apps
 
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.utils.lock import db_lock
 from kolibri.utils.time_utils import local_now
 
@@ -64,4 +65,7 @@ def schedule_vacuum():
         # If it is past 3AM, change the day to tomorrow.
         vacuum_time = vacuum_time + timedelta(days=1)
     # Repeat indefinitely
-    perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)
+    try:
+        perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)
+    except JobRunning:
+        pass
