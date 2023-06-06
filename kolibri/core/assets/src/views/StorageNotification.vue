@@ -104,7 +104,7 @@
       },
     },
     mounted() {
-      this.validateDeviceStatus();
+      this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
     },
     beforeDestroy() {
@@ -136,7 +136,7 @@
       manageChannel() {
         this.$router.push('/');
       },
-      validateDeviceStatus() {
+      toggleBanner() {
         if (this.showBanner) {
           this.bannerOpened = false;
         } else {
