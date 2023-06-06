@@ -525,15 +525,23 @@ class Storage(object):
         """
         Add the job for the specified time
         """
-        return self.schedule(
-            dt,
-            job,
-            queue,
-            priority=priority,
-            interval=interval,
-            repeat=repeat,
-            retry_interval=retry_interval,
-        )
+        try:
+            return self.schedule(
+                dt,
+                job,
+                queue,
+                priority=priority,
+                interval=interval,
+                repeat=repeat,
+                retry_interval=retry_interval,
+            )
+        except JobRunning:
+            logger.debug(
+                "Attempted to enqueue a running job {job_id}, ignoring.".format(
+                    job_id=job.job_id
+                )
+            )
+            return job.job_id
 
     def enqueue_in(
         self,
@@ -551,15 +559,23 @@ class Storage(object):
         if not isinstance(delta_t, timedelta):
             raise TypeError("Time argument must be a timedelta object.")
         dt = self._now() + delta_t
-        return self.schedule(
-            dt,
-            job,
-            queue=queue,
-            priority=priority,
-            interval=interval,
-            repeat=repeat,
-            retry_interval=retry_interval,
-        )
+        try:
+            return self.schedule(
+                dt,
+                job,
+                queue=queue,
+                priority=priority,
+                interval=interval,
+                repeat=repeat,
+                retry_interval=retry_interval,
+            )
+        except JobRunning:
+            logger.debug(
+                "Attempted to enqueue a running job {job_id}, ignoring.".format(
+                    job_id=job.job_id
+                )
+            )
+            return job.job_id
 
     def schedule(
         self,
