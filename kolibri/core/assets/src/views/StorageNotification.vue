@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
+  <div v-if="showBanner" class="banner" :style="{ background: $themeTokens.surface }">
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -78,7 +78,6 @@
     data() {
       return {
         isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
-        bannerOpened: false,
       };
     },
     computed: {
@@ -104,7 +103,6 @@
       },
     },
     mounted() {
-      this.toggleBanner();
       document.addEventListener('focusin', this.focusChange);
     },
     beforeDestroy() {
@@ -127,7 +125,7 @@
       closeBanner() {
         localStorage.setItem('download_removed', this.lastDownloadRemoved);
         localStorage.setItem('last_synced', this.lastSynced);
-        this.bannerOpened = false;
+        this.showBanner = false;
 
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
@@ -136,13 +134,7 @@
       manageChannel() {
         this.$router.push('/');
       },
-      toggleBanner() {
-        if (this.showBanner) {
-          this.bannerOpened = true;
-        } else {
-          this.bannerOpened = false;
-        }
-      },
+
       focusChange(e) {
         // We need the element prior to the close button and more info
         if (
