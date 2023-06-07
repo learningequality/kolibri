@@ -573,6 +573,8 @@ base_option_spec = {
                 When zipcontent is being served from a completely separate domain, you can set an
                 absolute origin (full protocol plus domain, e.g. 'https://myzipcontent.com/')
                 to be used for all zipcontent origin requests.
+                It is strongly recommended that zipcontent is served from a different origin from the main Kolibri app,
+                either by port or domain, to allow for proper sandboxing.
             """,
         },
         "ZIP_CONTENT_PORT": {
@@ -583,6 +585,8 @@ base_option_spec = {
                 is used to serve all content for the zipcontent endpoint, so as to provide safe IFrame sandboxing
                 but avoiding issues with null origins.
                 This is the alternate origin server equivalent of HTTP_PORT.
+                It is strongly recommended that zipcontent is served from a different origin from the main Kolibri app,
+                either by port or domain, to allow for proper sandboxing.
             """,
         },
         "ZIP_CONTENT_URL_PATH_PREFIX": {
