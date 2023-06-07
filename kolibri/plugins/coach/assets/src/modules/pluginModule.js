@@ -63,13 +63,16 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
-      if (!facilityId) {
+      const activeFacilityId =
+        store.state.core.facilities.length === 1 ? store.getters.currentFacilityId : facilityId;
+
+      if (!activeFacilityId) {
         throw new Error("Missing required 'facilityId' argument");
       }
       store.commit('SET_DATA_LOADING', true);
       store.commit('SET_CLASS_LIST', []); // Reset the list if we're loading a new one
       return ClassroomResource.fetchCollection({
-        getParams: { parent: facilityId, role: 'coach' },
+        getParams: { parent: activeFacilityId, role: 'coach' },
       })
         .then(classrooms => {
           store.commit('SET_CLASS_LIST', classrooms);
