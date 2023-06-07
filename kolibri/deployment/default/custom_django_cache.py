@@ -6,8 +6,8 @@ from django.core.cache.backends.base import DEFAULT_TIMEOUT
 
 class CustomDjangoCache(DjangoCache):
     """
-    Inherits from the DjangoCache to better manage the error handling of
-    the diskcache package by try-catching methods that perform database operations
+    Inherits from the DjangoCache to better manage the error handling of the
+    diskcache package by try-catching methods that perform database operations
     under the hood by compairing against the version of diskcache used in kolibri:
 
     https://github.com/grantjenks/python-diskcache/blob/v4.1.0/diskcache/djangocache.py
