@@ -24,9 +24,7 @@ class CustomDjangoCache(DjangoCache):
         retry=True,
     ):
         try:
-            return super(CustomDjangoCache, self).add(
-                key, value, timeout, version, read, tag, retry
-            )
+            return DjangoCache.add(self, key, value, timeout, version, read, tag, retry)
         except sqlite3.OperationalError:
             return False
 
@@ -41,8 +39,8 @@ class CustomDjangoCache(DjangoCache):
         retry=False,
     ):
         try:
-            return super(CustomDjangoCache, self).get(
-                key, default, version, read, expire_time, tag, retry
+            return DjangoCache.get(
+                self, key, default, version, read, expire_time, tag, retry
             )
         except sqlite3.OperationalError:
             return None
@@ -58,15 +56,13 @@ class CustomDjangoCache(DjangoCache):
         retry=True,
     ):
         try:
-            return super(CustomDjangoCache, self).set(
-                key, value, timeout, version, read, tag, retry
-            )
+            return DjangoCache.set(self, key, value, timeout, version, read, tag, retry)
         except sqlite3.OperationalError:
             return False
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None, retry=True):
         try:
-            return super(CustomDjangoCache, self).touch(key, timeout, version, retry)
+            return DjangoCache.touch(self, key, timeout, version, retry)
         except sqlite3.OperationalError:
             return False
 
@@ -74,78 +70,72 @@ class CustomDjangoCache(DjangoCache):
         self, key, default=None, version=None, expire_time=False, tag=False, retry=True
     ):
         try:
-            return super(CustomDjangoCache, self).pop(
-                key, default, version, expire_time, tag, retry
-            )
+            return DjangoCache.pop(self, key, default, version, expire_time, tag, retry)
         except sqlite3.OperationalError:
             return None
 
     def delete(self, key, version=None, retry=True):
         try:
-            super(CustomDjangoCache, self).delete(key, version, retry)
+            DjangoCache.delete(self, key, version, retry)
         except sqlite3.OperationalError:
             pass
 
     def incr(self, key, delta=1, version=None, default=None, retry=True):
         try:
-            return super(CustomDjangoCache, self).incr(
-                key, delta, version, default, retry
-            )
+            return DjangoCache.incr(self, key, delta, version, default, retry)
         except sqlite3.OperationalError:
             return None
 
     def decr(self, key, delta=1, version=None, default=None, retry=True):
         try:
-            return super(CustomDjangoCache, self).decr(
-                key, delta, version, default, retry
-            )
+            return DjangoCache.decr(self, key, delta, version, default, retry)
         except sqlite3.OperationalError:
             return None
 
     def expire(self, retry=False):
         try:
-            return super(CustomDjangoCache, self).expire(retry)
+            return DjangoCache.expire(self, retry)
         except sqlite3.OperationalError:
             return 0
 
     def stats(self, enable=True, reset=False):
         try:
-            return super(CustomDjangoCache, self).stats(enable, reset)
+            return DjangoCache.stats(self, enable, reset)
         except sqlite3.OperationalError:
             return 0, 0
 
     def create_tag_index(self):
         try:
-            super(CustomDjangoCache, self).create_tag_index()
+            DjangoCache.create_tag_index(self)
         except sqlite3.OperationalError:
             pass
 
     def drop_tag_index(self):
         try:
-            super(CustomDjangoCache, self).drop_tag_index()
+            DjangoCache.drop_tag_index(self)
         except sqlite3.OperationalError:
             pass
 
     def evict(self, tag):
         try:
-            return super(CustomDjangoCache, self).evict(tag)
+            return DjangoCache.evict(self, tag)
         except sqlite3.OperationalError:
             return 0
 
     def cull(self):
         try:
-            return super(CustomDjangoCache, self).cull()
+            return DjangoCache.cull(self)
         except sqlite3.OperationalError:
             return 0
 
     def clear(self):
         try:
-            return super(CustomDjangoCache, self).clear()
+            return DjangoCache.clear(self)
         except sqlite3.OperationalError:
             return 0
 
     def close(self, **kwargs):
         try:
-            super(CustomDjangoCache, self).close(**kwargs)
+            DjangoCache.close(self, **kwargs)
         except sqlite3.OperationalError:
             pass
