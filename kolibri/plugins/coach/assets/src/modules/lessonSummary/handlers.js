@@ -16,7 +16,7 @@ export function setLessonSummaryState(store, params) {
     store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
     LearnerGroupResource.fetchCollection({ getParams: { parent: classId } }),
     // Need state.classList to be set for copying to work
-    store.dispatch('setClassList'),
+    store.dispatch('setClassList', store.state.classSummary.facility_id),
   ];
 
   return Promise.all(loadRequirements)

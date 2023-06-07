@@ -460,12 +460,13 @@ export default {
       return ClassSummaryResource.fetchModel({ id: classId, force: true })
         .then(summary => {
           store.commit('SET_STATE', summary);
+          return summary;
         })
-        .then(() => {
+        .then(summary => {
           return Promise.all([
             store.dispatch('fetchLessonsSizes', classId),
             store.dispatch('fetchQuizzesSizes', classId),
-          ]);
+          ]).then(() => summary);
         });
     },
     fetchLessonsSizes(store, classId) {
