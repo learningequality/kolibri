@@ -8,7 +8,7 @@
       backgroundColor: $themeTokens.surface,
       width: width,
     }"
-    :class="position === 'embedded' ? 'side-panel' : ''"
+    :class="position === 'embedded' ? 'side-panel' : 'drawer-panel'"
   >
     <div v-if="topics && topics.length && topicsListDisplayed">
       <div
@@ -94,7 +94,7 @@
       />
       <div
         v-if="Object.keys(availableResourcesNeeded).length"
-        class="section show-resources"
+        class="section"
       >
         <h2 class="title">
           {{ coreString('showResources') }}
@@ -351,15 +351,28 @@
 
 <style lang="scss" scoped>
 
+  .drawer-panel {
+    padding-bottom: 60px;
+  }
+
   .side-panel {
     position: fixed;
     top: 60px;
     left: 0;
     height: 100%;
-    padding: 24px;
+    padding: 24px 24px 0;
     overflow-y: scroll;
     font-size: 14px;
     box-shadow: 0 3px 3px 0 #00000040;
+  }
+
+  /*
+  * Work around for https://bugzilla.mozilla.org/show_bug.cgi?id=1417667
+  */
+  .side-panel::after {
+    display: block;
+    padding-bottom: 70px;
+    content: '';
   }
 
   .side-panel-folder-link {
@@ -373,10 +386,6 @@
 
   .section {
     margin-top: 40px;
-  }
-
-  .show-resources {
-    margin-bottom: 60px;
   }
 
   .card-grid {
