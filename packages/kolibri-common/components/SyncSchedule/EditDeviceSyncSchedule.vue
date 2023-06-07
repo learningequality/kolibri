@@ -534,7 +534,7 @@
         context: 'Button label for removing the device from the sync schedule',
       },
       frequency: {
-        message: 'Frequence',
+        message: 'Frequency',
         context: 'Indicates often the scheduled sync occurs',
       },
       day: {
