@@ -415,16 +415,22 @@ class SystemdNotifyPlugin(SimplePlugin):
     Kolibri process plugins have started successfully. In particular, zeroconf
     registration can take a few seconds.
 
-    If Kolibri is not running under systemd, this plugin will do nothing.
+    You must check to see if systemd is supported before instantiating this
+    plugin, by calling ```SystemdNotifyPlugin.is_supported()```.
     """
 
     def __init__(self, bus):
         self.bus = bus
-        self.notify_socket_path = os.environ.get("NOTIFY_SOCKET", None)
+        self.notify_socket_path = os.environ["NOTIFY_SOCKET"]
+        assert self.notify_socket_path != ""
 
         self.bus.subscribe("RUN", self.send_ready, priority=999)
         self.bus.subscribe("STOP", self.send_stopping, priority=1)
         self.bus.subscribe("EXIT", self.send_stopping, priority=1)
+
+    @classmethod
+    def is_supported(cls):
+        return os.environ.get("NOTIFY_SOCKET", "") != ""
 
     def sd_notify(self, state):
         """
@@ -434,12 +440,13 @@ class SystemdNotifyPlugin(SimplePlugin):
 
         :param: state: new service state
         """
-        if not self.notify_socket_path:
-            return
-        with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as s:
-            logger.info("Sending sd-notify state {}".format(state))
-            s.connect(self.notify_socket_path)
-            s.send(state.encode())
+        try:
+            with socket.socket(socket.AF_UNIX, socket.SOCK_DGRAM) as s:
+                logger.info("Sending sd-notify state {}".format(state))
+                s.connect(self.notify_socket_path)
+                s.send(state.encode())
+        except OSError as e:
+            logger.warning("Failed to send sd-notify state {}: {}".format(state, e))
 
     def send_ready(self):
         self.sd_notify("READY=1")
@@ -694,8 +701,9 @@ class BaseKolibriProcessBus(ProcessBus):
         pid_plugin = PIDPlugin(self)
         pid_plugin.subscribe()
 
-        systemd_plugin = SystemdNotifyPlugin(self)
-        systemd_plugin.subscribe()
+        if SystemdNotifyPlugin.is_supported():
+            systemd_plugin = SystemdNotifyPlugin(self)
+            systemd_plugin.subscribe()
 
         logger.info("Starting Kolibri {version}".format(version=kolibri.__version__))
 

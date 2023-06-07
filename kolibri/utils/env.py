@@ -43,6 +43,14 @@ ENVIRONMENT_VARIABLES = {
             cherrypy.access logs.
         """,
     },
+    "NOTIFY_SOCKET": {
+        "description": """
+            Path to a socket provided by systemd for sending it notifications
+            about daemon state, particularly for startup and shutdown. If
+            Kolibri is not running under systemd this should be unset.
+            See the sd_notify(3) man page for more details.
+        """,
+    },
 }
 
 
