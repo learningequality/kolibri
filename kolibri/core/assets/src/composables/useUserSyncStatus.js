@@ -72,10 +72,6 @@ export default function useUserSyncStatus() {
     }
   });
 
-  const userLoggedIn = computed(() => {
-    return !!store.state.core.session.user_id;
-  });
-
   return {
     queued,
     lastSynced,
@@ -84,6 +80,5 @@ export default function useUserSyncStatus() {
     deviceStatusSentiment,
     hasDownloads,
     lastDownloadRemoved,
-    userLoggedIn,
   };
 }
