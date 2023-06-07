@@ -63,6 +63,7 @@
         </template>
         <KButton
           :text="$tr('createSync')"
+          :disabled="isSyncing || isDeleting"
           appearance="basic-link"
           @click="manageSync"
         />

@@ -84,7 +84,7 @@
 
     <RegisterFacilityModal
       v-if="modalShown === Modals.REGISTER_FACILITY"
-      :displaySkipOption="displaySkipOption"
+      :displaySkipOption="false"
       @success="handleValidateSuccess"
       @cancel="closeModal"
       @skip="handleKDPSync"
@@ -102,7 +102,6 @@
       v-if="modalShown === Modals.SYNC_FACILITY"
       :facilityForSync="facility"
       @close="closeModal"
-      @register="handleRegister"
       @syncKDP="handleKDPSync"
       @syncPeer="handlePeerSync"
     />
@@ -169,7 +168,6 @@
         syncHasFailed: false,
         Modals,
         isMenuOpen: false,
-        displaySkipOption: false,
       };
     },
     computed: {
@@ -265,9 +263,8 @@
       handleSyncFacilityFailure() {
         this.syncHasFailed = true;
       },
-      handleRegister(displaySkipOption) {
+      handleRegister() {
         this.closeMenu();
-        this.displaySkipOption = Boolean(displaySkipOption);
         this.displayModal(Modals.REGISTER_FACILITY);
       },
       handleKDPSync() {
