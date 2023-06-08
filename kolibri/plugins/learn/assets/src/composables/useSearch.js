@@ -1,5 +1,6 @@
 import { get, set } from '@vueuse/core';
 import invert from 'lodash/invert';
+import logger from 'kolibri.lib.logging';
 import {
   computed,
   getCurrentInstance,
@@ -23,6 +24,8 @@ import { deduplicateResources } from '../utils/contentNode';
 import useContentNodeProgress from './useContentNodeProgress';
 import useDevices from './useDevices';
 import plugin_data from 'plugin_data';
+
+export const logging = logger.getLogger(__filename);
 
 const activitiesLookup = invert(LearningActivities);
 
@@ -370,7 +373,7 @@ export default function useSearch(descendant, store, router) {
         accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
         languagesList: labels.languages || [],
         channelsList: labels.channels || [],
-      });
+      }).catch(err => logging.error('Failed to fetch search labels from remote', err));
     });
   }
 
