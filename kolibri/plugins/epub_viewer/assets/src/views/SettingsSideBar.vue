@@ -109,7 +109,7 @@
           <KButton
             class="settings-button theme-button"
             :aria-label="$tr('addNewTheme')"
-            @click="addNewTheme"
+            @click="addCustomTheme = true"
           >
             <KIcon
               icon="plus"
@@ -127,6 +127,12 @@
         @submit="deleteTheme(deleteCustomThemeName)"
         @cancel="deleteCustomThemeName = null"
       />
+
+      <CustomThemeColorsModal 
+        v-if="addCustomTheme"
+        @submit="addNewTheme"
+        @cancel="addCustomTheme = null"
+      />
     </div>
   </SideBar>
 
@@ -139,12 +145,14 @@
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
+  import CustomThemeColorsModal from './CustomThemeColorsModal.vue';
 
   export default {
     name: 'SettingsSideBar',
     components: {
       SideBar,
       DeleteCustomThemeModal,
+      CustomThemeColorsModal,
     },
     props: {
       theme: {
@@ -167,6 +175,7 @@
         customThemes: {},
         deleteCustomThemeName: null,
         editCustomThemeName: null,
+        addCustomTheme: null,
       };
     },
     computed: {
@@ -219,6 +228,7 @@
       addNewTheme(){
         // TODO: Add new theme logic
         console.log("add new theme");
+        this.addCustomTheme = null
 
         // generate a random new theme
         const randomTheme = {
