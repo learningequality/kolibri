@@ -15,12 +15,7 @@ class Logger {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
       if (logFunction) {
-        if (logFunction.bind === 'undefined') {
-          // IE < 10
-          this[name] = Function.prototype.bind.call(logFunction, console, this.messagePrefix(name));
-        } else {
-          this[name] = logFunction.bind(console, this.messagePrefix(name));
-        }
+        this[name] = logFunction.bind(console, this.messagePrefix(name));
       }
     });
   }
