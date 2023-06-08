@@ -36,7 +36,7 @@ from .permissions import UserHasAnyDevicePermissions
 from .serializers import DevicePermissionsSerializer
 from .serializers import DeviceProvisionSerializer
 from .serializers import DeviceSettingsSerializer
-from kolibri.core.analytics.tasks import trigger_pingback
+from kolibri.core.analytics.tasks import schedule_ping
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.auth.api import KolibriAuthPermissions
 from kolibri.core.auth.api import KolibriAuthPermissionsFilter
@@ -102,7 +102,7 @@ class DeviceProvisionView(viewsets.GenericViewSet):
 
             update_zeroconf_broadcast()
 
-        trigger_pingback()  # Trigger telemetry pingback after we've provisioned
+        schedule_ping()  # Trigger telemetry pingback after we've provisioned
         return Response(response_data, status=status.HTTP_201_CREATED)
 
 

@@ -1,5 +1,4 @@
 import logging
-from datetime import timedelta
 
 from django.db import connection
 from requests.exceptions import ConnectionError
@@ -9,7 +8,7 @@ from requests.exceptions import Timeout
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.exceptions import JobRunning, JobNotRunning
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage
 from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
@@ -71,11 +70,3 @@ def schedule_ping(
             pass
     elif conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         job_storage.clear(job_id=DEFAULT_PING_JOB_ID)
-
-
-def trigger_pingback():
-    try:
-        job = job_storage.get_job(job_id=DEFAULT_PING_JOB_ID)
-        job.retry_in(timedelta(seconds=1))
-    except JobNotRunning:
-        schedule_ping()

@@ -9,7 +9,7 @@ from le_utils.constants import content_kinds
 from six import string_types
 from six import with_metaclass
 
-from kolibri.core.analytics.tasks import trigger_pingback
+from kolibri.core.analytics.tasks import schedule_ping
 from kolibri.core.content.errors import InsufficientStorageSpaceError
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.models import ContentNode
@@ -282,10 +282,6 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             .exists()
         )
 
-        if not channel_has_imported_resources:
-            # This is the first time we're importing to this Channel, so ping telemetry
-            trigger_pingback()
-
         if paths.using_remote_storage():
             self.file_checksums_to_annotate.extend(
                 f["id"] for f in self.files_to_download
@@ -345,6 +341,11 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
 
         # Reraise any cancellation
         self.check_for_cancel()
+
+        if not channel_has_imported_resources:
+            # This is the first time we're importing to this Channel, so ping telemetry now
+            # that we've successfully imported contents to it
+            schedule_ping()
 
         return (
             self.transferred_file_size,
