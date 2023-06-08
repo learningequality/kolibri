@@ -1,27 +1,27 @@
 <template>
 
   <div
-    v-if="!loading && content"
     ref="mainWrapper"
     class="main-wrapper"
   >
 
     <div v-if="blockDoubleClicks" class="click-mask"></div>
+
     <SkipNavigationLink />
     <LearningActivityBar
       ref="activityBar"
       :resourceTitle="resourceTitle"
-      :learningActivities="content.learning_activities"
+      :learningActivities="contentLearningActivities"
       :isLessonContext="lessonContext"
       :isQuiz="practiceQuiz"
       :showingReportState="contentProgress >= 1"
-      :duration="content.duration"
+      :duration="contentDuration"
       :timeSpent="timeSpent"
       :isBookmarked="bookmark ? true : bookmark"
       :isCoachContent="isCoachContent"
       :contentProgress="contentProgress"
       :allowMarkComplete="allowMarkComplete"
-      :contentKind="content.kind"
+      :contentKind="contentKind"
       :showBookmark="allowBookmark"
       :showDownloadButton="allowRemoteDownload"
       :isDownloading="isDownloading"
@@ -40,6 +40,7 @@
       type="indeterminate"
       :delay="false"
     />
+
     <KPageContainer v-if="notAuthorized">
       <AuthMessage
         :authorizedRole="authorizedRole"
@@ -52,7 +53,7 @@
     </KPageContainer>
 
     <div
-      v-else
+      v-else-if="!loading && content"
       id="main"
       role="main"
       tabindex="-1"
@@ -234,11 +235,6 @@
       };
     },
     props: {
-      loading: {
-        type: Boolean,
-        required: false,
-        default: true,
-      },
       // AUTHORIZATION SPECIFIC
       authorized: {
         type: Boolean,
@@ -277,11 +273,23 @@
       ...mapState('topicsTree', {
         isCoachContent: state => (state.content && state.content.coach_content ? 1 : 0),
       }),
+      contentProgress() {
+        return this.content ? this.contentNodeProgressMap[this.content.content_id] : null;
+      },
+      contentKind() {
+        return this.content ? this.content.kind : null;
+      },
+      contentDuration() {
+        return this.content ? this.content.duration : null;
+      },
+      contentLearningActivities() {
+        return this.content ? this.content.learning_activities : [];
+      },
+      loading() {
+        return this.$store.state.core.loading;
+      },
       practiceQuiz() {
         return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
-      },
-      contentProgress() {
-        return this.contentNodeProgressMap[this.content && this.content.content_id];
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
@@ -330,6 +338,7 @@
         return this.isDownloadingByLearner(this.content);
       },
       isDownloaded() {
+        if (!this.content) return false;
         return this.content.admin_imported || this.isDownloadedByLearner(this.content);
       },
       allowRemoteDownload() {

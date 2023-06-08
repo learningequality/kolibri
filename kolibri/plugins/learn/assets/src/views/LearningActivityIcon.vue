@@ -36,6 +36,9 @@
         type: [String, Array],
         required: true,
         validator(value) {
+          if (!value.length) {
+            return true;
+          }
           const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
 
           if (Array.isArray(value) && value.length > 0) {
