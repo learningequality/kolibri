@@ -437,7 +437,6 @@
               method: 'get',
               url: this.defaultFile.storage_url,
               responseType: 'arraybuffer',
-              cacheBust: false,
             })
               .then(response => {
                 return JSZip.loadAsync(response.data);

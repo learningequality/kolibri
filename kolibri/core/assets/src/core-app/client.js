@@ -70,11 +70,6 @@ const client = options => {
     } else {
       options.params = Object.assign({}, options.params);
     }
-    // Cache bust by default, but allow it to be turned off
-    if (options.cacheBust || typeof options.cacheBust === 'undefined') {
-      const cacheBust = new Date().getTime();
-      options.params[cacheBust] = cacheBust;
-    }
     if (options.path) {
       // Provide backwards compatibility with the previous Rest JS API.
       options.url = options.path;
