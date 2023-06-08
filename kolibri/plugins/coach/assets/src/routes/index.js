@@ -27,7 +27,10 @@ export default [
     component: CoachClassListPage,
     handler(toRoute) {
       store.dispatch('loading');
-      store.dispatch('setClassList', toRoute.query.facility_id).then(
+      // if user only has access to one facility, facility_id will not be accessible from URL,
+      // but always defaulting to userFacilityId would cause problems for multi-facility admins
+      const facilityId = toRoute.query.facility_id || store.getters.userFacilityId;
+      store.dispatch('setClassList', facilityId).then(
         () => {
           if (!store.getters.classListPageEnabled) {
             // If no class list page, redirect to
