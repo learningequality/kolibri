@@ -2,6 +2,7 @@ import isPlainObject from 'lodash/isPlainObject';
 import { Resource } from 'kolibri.lib.apiResource';
 import urls from 'kolibri.urls';
 import cloneDeep from '../cloneDeep';
+import { contentCacheClient } from './utils';
 
 /**
  * Type definition for Language metadata
@@ -80,7 +81,7 @@ import cloneDeep from '../cloneDeep';
 
 export default new Resource({
   name: 'contentnode',
-  useContentCacheKey: true,
+  client: contentCacheClient,
   fetchRandomCollection({ getParams: params }) {
     return this.getListEndpoint('random', params);
   },

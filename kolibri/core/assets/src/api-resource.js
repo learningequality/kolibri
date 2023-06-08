@@ -4,11 +4,8 @@ import matches from 'lodash/matches';
 import isEqual from 'lodash/isEqual';
 import urls from 'kolibri.urls';
 import cloneDeep from './cloneDeep';
-import plugin_data from 'plugin_data';
 
 export const logging = logger.getLogger(__filename);
-
-const contentCacheKey = plugin_data.contentCacheKey;
 
 /** Class representing a single API resource object */
 export class Model {
@@ -581,19 +578,12 @@ export class Resource {
   /**
    * Create a resource with a Django REST API name corresponding to the name parameter.
    */
-  constructor({
-    name,
-    idKey = 'id',
-    namespace = 'core',
-    useContentCacheKey = false,
-    ...options
-  } = {}) {
+  constructor({ name, idKey = 'id', namespace = 'core', ...options } = {}) {
     if (!name) {
       throw ReferenceError('Resource must be instantiated with a name property');
     }
     this.name = `kolibri:${namespace}:${name}`;
     this.idKey = idKey;
-    this.useContentCacheKey = useContentCacheKey;
     const optionsDefinitions = Object.getOwnPropertyDescriptors(options);
     Object.keys(optionsDefinitions).forEach(key => {
       Object.defineProperty(this, key, optionsDefinitions[key]);
@@ -1035,11 +1025,6 @@ export class Resource {
 
   client(options) {
     const client = require('./core-app/client').default;
-    // Add in content cache parameter if relevant
-    if (this.useContentCacheKey && !options.data) {
-      options.params = options.params || {};
-      options.params['contentCacheKey'] = contentCacheKey;
-    }
     return client(options);
   }
 
