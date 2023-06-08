@@ -154,7 +154,7 @@ export default [
   {
     path: '/:facility_id?/managesync',
     props: route => {
-      const facilityId = route.params.facility_id || store.getters.currentFacilityId;
+      const facilityId = route.params.facility_id || store.getters.userFacilityId;
       return {
         facilityId,
         goBackRoute: { name: PageNames.DATA_EXPORT_PAGE },
@@ -178,7 +178,7 @@ export default [
     name: SyncPageNames.EDIT_SYNC_SCHEDULE,
     props: route => {
       return {
-        facilityId: route.params.facility_id || store.getters.currentFacilityId,
+        facilityId: route.params.facility_id || store.getters.userFacilityId,
         deviceId: route.params.deviceId,
         goBackRoute: { name: SyncPageNames.MANAGE_SYNC_SCHEDULE },
       };

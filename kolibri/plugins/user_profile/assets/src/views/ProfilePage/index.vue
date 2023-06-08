@@ -254,7 +254,7 @@
       },
       facilityName() {
         const match = find(this.$store.getters.facilities, {
-          id: this.$store.getters.currentFacilityId,
+          id: this.$store.getters.userFacilityId,
         });
         return match ? match.name : '';
       },

@@ -61,7 +61,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'currentFacilityId']),
+      ...mapGetters(['isUserLoggedIn', 'userFacilityId']),
       ...mapState(['authenticateWithPin', 'grantPluginAccess']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
@@ -94,7 +94,7 @@
     },
     watch: {
       facilities(newValue) {
-        this.currentFacility = find(newValue, { id: this.currentFacilityId }) || {};
+        this.currentFacility = find(newValue, { id: this.userFacilityId }) || {};
         const { dataset } = this.currentFacility;
         this.$store.commit('facilityConfig/SET_STATE', {
           facilityDatasetId: dataset.id, //Required for pin authentication

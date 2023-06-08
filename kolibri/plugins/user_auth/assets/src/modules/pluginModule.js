@@ -41,7 +41,7 @@ export default {
       if (selectedFacility) {
         return selectedFacility;
       } else {
-        return getters.facilities.find(f => f.id === getters.currentFacilityId) || null;
+        return getters.facilities.find(f => f.id === getters.userFacilityId) || null;
       }
     },
   },
