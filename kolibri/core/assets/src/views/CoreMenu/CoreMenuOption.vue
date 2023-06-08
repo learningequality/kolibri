@@ -49,20 +49,25 @@
     <div v-if="visibleSubMenu">
       <div v-for="subRoute in subRoutes" :key="subRoute.label">
         <div class="link-container">
-          <KRouterLink
-            v-if="isActive"
-            :class="$computedClass(subpathStyles(generateNavRoute(subRoute.route)))"
-            :text="subRoute.label"
-            class="link"
-            :to="$router.getRoute(subRoute.name,$route.params,$router.query)"
-            appearance="basic-link"
-          />
+          <router-link
+            v-if="linkActive"
+            v-slot="{ href, navigate, isActive }"
+            :to="{ name: subRoute.name, params: $route.params, query: $router.query }"
+          >
+            <a
+              class="link"
+              :href="href"
+              :class="isActive ? subRouteActiveClass : subRouteInactiveClass"
+              @click="isActive ? toggleAndroidMenu() : navigate()"
+            >
+              {{ subRoute.label }}
+            </a>
+          </router-link>
           <a
             v-else
             :href="generateNavRoute(subRoute.route)"
             class="link"
-            :class="$computedClass(subpathStyles(subRoute.route))"
-            @click="handleNav(subRoute.route)"
+            :class="subRouteInactiveClass"
           >
             {{ subRoute.label }}
           </a>
@@ -119,7 +124,7 @@
       };
     },
     computed: {
-      isActive() {
+      linkActive() {
         return window.location.pathname == this.link;
       },
       optionStyle() {
@@ -129,7 +134,7 @@
             margin: '8px',
           };
         }
-        if (this.isActive) {
+        if (this.linkActive) {
           return {
             color: this.$themeTokens.primaryDark,
             fontWeight: 'bold',
@@ -161,15 +166,29 @@
       iconAfter() {
         return this.visibleSubMenu ? 'chevronUp' : 'chevronDown';
       },
+      subRouteActiveClass() {
+        return this.$computedClass({
+          color: this.$themeTokens.primaryDark,
+          fontWeight: 'bold',
+          textDecoration: 'none',
+        });
+      },
+      subRouteInactiveClass() {
+        return this.$computedClass({
+          color: this.$themeTokens.text,
+          textDecoration: 'none',
+          ':hover': {
+            color: this.$themeTokens.primaryDark,
+            fontWeight: 'bold',
+          },
+          ':focus': this.$coreOutline,
+        });
+      },
     },
     mounted() {
       this.submenuShouldBeOpen();
     },
     methods: {
-      isActiveLink(route) {
-        const fullPath = !route.includes('#') ? `${this.link}#${route}` : route;
-        return `${window.location.pathname}${window.location.hash}`.includes(fullPath);
-      },
       submenuShouldBeOpen() {
         if (this.subRoutes && this.subRoutes.length > 0) {
           window.location.pathname === this.link
@@ -178,32 +197,11 @@
         }
         return false;
       },
-      subpathStyles(route) {
-        if (this.isActiveLink(route)) {
-          return {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-            textDecoration: 'none',
-          };
-        }
-        return {
-          color: this.$themeTokens.text,
-          textDecoration: 'none',
-          ':hover': {
-            color: this.$themeTokens.primaryDark,
-            fontWeight: 'bold',
-          },
-          ':focus': this.$coreOutline,
-        };
-      },
       toggleAndroidMenu() {
         if (this.disabled) {
           return;
         }
         this.$emit('toggleAndroidMenu');
-      },
-      handleNav(route) {
-        this.isActiveLink(route) ? this.toggleAndroidMenu() : null;
       },
       generateNavRoute(route) {
         const params = this.$route.params;
@@ -253,6 +251,7 @@
     margin: 0 40px;
     font-size: 14px;
     text-decoration: none;
+    cursor: pointer;
 
     /deep/ .link-text {
       text-decoration: none !important;
