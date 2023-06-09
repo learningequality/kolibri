@@ -8,4 +8,7 @@ export default {
   SET_SHOW_COMPLETE_CONTENT_MODAL(state, valToSet) {
     state.showCompleteContentModal = valToSet;
   },
+  SET_ROOT_NODES_LOADING(state, valToSet) {
+    state.rootNodesLoading = valToSet;
+  },
 };

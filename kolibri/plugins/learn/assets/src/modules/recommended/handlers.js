@@ -47,15 +47,21 @@ function _showChannels(store, query, channels, baseurl) {
         store.commit('CORE_SET_PAGE_LOADING', false);
         store.commit('CORE_SET_ERROR', null);
         store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
+        store.commit('SET_ROOT_NODES_LOADING', false);
       }
     },
     error => {
       shouldResolve() ? store.dispatch('handleError', error) : null;
+      store.commit('SET_ROOT_NODES_LOADING', false);
     }
   );
 }
 
 function _showLibrary(store, query, channels, baseurl) {
+  // Don't set the 'page loading' boolean, to prevent flash and loss of keyboard focus.
+  if (store.state.pageName !== PageNames.LIBRARY) {
+    store.commit('CORE_SET_PAGE_LOADING', true);
+  }
   if (!channels.length && !store.getters.isUserLoggedIn) {
     return;
   }
@@ -71,6 +77,7 @@ function _showLibrary(store, query, channels, baseurl) {
     store.commit('CORE_SET_PAGE_LOADING', false);
     store.commit('CORE_SET_ERROR', null);
     store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
+    store.commit('SET_ROOT_NODES_LOADING', false);
     return Promise.resolve();
   }
   return _showChannels(store, query, channels, baseurl);
@@ -78,9 +85,11 @@ function _showLibrary(store, query, channels, baseurl) {
 
 export function showLibrary(store, query, deviceId = null) {
   if (deviceId) {
+    store.commit('SET_ROOT_NODES_LOADING', true);
     return setCurrentDevice(deviceId).then(device => {
       const baseurl = device.base_url;
       return fetchChannels({ baseurl }).then(channels => {
+        // _showLibrary should unset the rootNodesLoading
         return _showLibrary(store, query, channels, baseurl);
       });
     });

@@ -74,7 +74,6 @@
         @finished="onFinished"
       />
     </template>
-    <KCircularLoader v-else />
 
     <CompletionModal
       v-if="showCompletionModal"

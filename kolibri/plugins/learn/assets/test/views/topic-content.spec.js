@@ -43,6 +43,7 @@ function makeWrapper({
       admin_imported: isContentAdminImported,
     },
   };
+  store.state.core = { loading: false };
   store.getters = {
     isUserLoggedIn,
   };
