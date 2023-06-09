@@ -6,6 +6,7 @@ jest.mock('../api.js', () => ({
   fetchDevices: jest.fn(),
   deleteDevice: jest.fn().mockResolvedValue(),
   updateConnectionStatus: jest.fn(),
+  deviceFacilityCanSignUp: jest.fn().mockResolvedValue(true),
 }));
 
 const devices = [
@@ -39,7 +40,11 @@ const staticDevices = devices.map(a => ({ ...a, dynamic: false }));
 const dynamicDevices = devices.map(a => ({ ...a, dynamic: true }));
 
 function makeWrapper() {
-  const wrapper = mount(SelectDeviceForm);
+  const deviceIdMap = devices.reduce((acc, device) => {
+    acc[device.id] = device;
+    return acc;
+  }, {});
+  const wrapper = mount(SelectDeviceForm, { mocks: { lodsWithSignupFacility: deviceIdMap } });
   // prettier-ignore
   const els = {
     KModal: () => wrapper.findComponent({ name: 'KModal' }),
