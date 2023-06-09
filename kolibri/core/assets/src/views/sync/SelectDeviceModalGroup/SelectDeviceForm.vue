@@ -38,10 +38,10 @@
             :key="idx"
             v-model="selectedDeviceId"
             class="radio-button"
-            :value="d.id"
+            :value="canLearnerSignUp(d.id) ? d.id : false"
             :label="d.nickname"
             :description="d.base_url"
-            :disabled="formDisabled || !isDeviceAvailable(d.id)"
+            :disabled="!canLearnerSignUp(d.id) || formDisabled || !isDeviceAvailable(d.id)"
           />
           <KButton
             :key="`forget-${idx}`"
@@ -65,10 +65,13 @@
             :key="d.id"
             v-model="selectedDeviceId"
             class="radio-button"
-            :value="d.instance_id"
+            :value="canLearnerSignUp(d.id) ? d.instance_id : false"
             :label="formatNameAndId(d.device_name, d.id)"
             :description="formatBaseDevice(d)"
-            :disabled="formDisabled || fetchFailed || !isDeviceAvailable(d.id)"
+            :disabled="!canLearnerSignUp(d.id)
+              || formDisabled
+              || fetchFailed
+              || !isDeviceAvailable(d.id)"
           />
         </div>
       </template>
@@ -133,8 +136,8 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
-  import { useLocalStorage, get } from '@vueuse/core';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { useLocalStorage, get, computedAsync } from '@vueuse/core';
   import find from 'lodash/find';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -147,6 +150,7 @@
     useDevicesForLearnOnlyDevice,
   } from './useDevices.js';
   import useConnectionChecker from './useConnectionChecker.js';
+  import { deviceFacilityCanSignUp } from './api.js';
 
   export default {
     name: 'SelectDeviceForm',
@@ -196,6 +200,24 @@
       const discoveredDevices = computed(() => get(devices).filter(d => d.dynamic));
       const savedDevices = computed(() => get(devices).filter(d => !d.dynamic));
 
+      const isLoading = ref(false);
+
+      const lodsWithSignupFacility = computedAsync(
+        async () => {
+          const devicesAvailable = get(devices);
+          const allDevices = {};
+          for (const i of devicesAvailable) {
+            const canSignUp = await deviceFacilityCanSignUp(i.id);
+            if (canSignUp) {
+              allDevices[i.id] = true;
+            }
+          }
+          return allDevices;
+        },
+        {},
+        isLoading
+      );
+
       return {
         // useDevices
         devices,
@@ -215,6 +237,7 @@
         discoveredDevices,
         savedDevices,
         storageDeviceId,
+        lodsWithSignupFacility,
       };
     },
     props: {
@@ -365,6 +388,9 @@
         return this.doDelete(id).then(() => {
           this.$emit('removed_address');
         });
+      },
+      canLearnerSignUp(id) {
+        return this.lodsWithSignupFacility && id in this.lodsWithSignupFacility;
       },
     },
     $trs: {
