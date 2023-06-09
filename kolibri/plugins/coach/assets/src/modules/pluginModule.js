@@ -63,10 +63,16 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
+      const activeFacilityId =
+        store.state.core.facilities.length === 1 ? store.getters.userFacilityId : facilityId;
+
+      if (!activeFacilityId) {
+        throw new Error("Missing required 'facilityId' argument");
+      }
       store.commit('SET_DATA_LOADING', true);
       store.commit('SET_CLASS_LIST', []); // Reset the list if we're loading a new one
       return ClassroomResource.fetchCollection({
-        getParams: { parent: facilityId || store.getters.currentFacilityId, role: 'coach' },
+        getParams: { parent: activeFacilityId, role: 'coach' },
       })
         .then(classrooms => {
           store.commit('SET_CLASS_LIST', classrooms);
@@ -115,8 +121,9 @@ export default {
         return Promise.all([
           // Make sure we load any class list data, so that we know
           // whether this user has access to multiple classes or not.
-          store.dispatch('setClassList'),
-          store.dispatch('classSummary/loadClassSummary', classId),
+          store
+            .dispatch('classSummary/loadClassSummary', classId)
+            .then(summary => store.dispatch('setClassList', summary.facility_id)),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
           store.dispatch('handleError', error);
