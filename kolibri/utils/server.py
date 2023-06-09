@@ -421,8 +421,13 @@ class SystemdNotifyPlugin(SimplePlugin):
 
     def __init__(self, bus):
         self.bus = bus
+
+        if not self.is_supported():
+            raise RuntimeError(
+                "Attempted to use SystemdNotifyPlugin when NOTIFY_SOCKET environment variable is not set"
+            )
+
         self.notify_socket_path = os.environ["NOTIFY_SOCKET"]
-        assert self.notify_socket_path != ""
 
         self.bus.subscribe("RUN", self.send_ready, priority=999)
         self.bus.subscribe("STOP", self.send_stopping, priority=1)
