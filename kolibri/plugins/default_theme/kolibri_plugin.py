@@ -27,6 +27,11 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             },
             "logos": [
                 {
+                    "src": static("assets/logo.ico"),
+                    "content_type": "image/vnd.microsoft.icon",
+                    "size": "32x32",
+                },
+                {
                     "src": static("kolibri-logo.svg"),
                     "content_type": "image/svg+xml",
                     # See https://web.dev/maskable-icon/ for details on what
