@@ -44,7 +44,9 @@ function makeWrapper() {
     acc[device.id] = device;
     return acc;
   }, {});
-  const wrapper = shallowMount(SelectDeviceForm, { mocks: { lodsWithSignupFacility: deviceIdMap } });
+  const wrapper = shallowMount(SelectDeviceForm, {
+    mocks: { lodsWithSignupFacility: deviceIdMap },
+  });
   // prettier-ignore
   const els = {
     KModal: () => wrapper.findComponent({ name: 'KModal' }),
