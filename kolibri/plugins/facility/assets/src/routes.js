@@ -157,7 +157,10 @@ export default [
       const facilityId = route.params.facility_id || store.getters.userFacilityId;
       return {
         facilityId,
-        goBackRoute: { name: PageNames.DATA_EXPORT_PAGE },
+        goBackRoute: {
+          name: PageNames.DATA_EXPORT_PAGE,
+          params: { facility_id: route.params.facility_id },
+        },
         editSyncRoute: function(deviceId) {
           return {
             name: SyncPageNames.EDIT_SYNC_SCHEDULE,
@@ -180,7 +183,10 @@ export default [
       return {
         facilityId: route.params.facility_id || store.getters.userFacilityId,
         deviceId: route.params.deviceId,
-        goBackRoute: { name: SyncPageNames.MANAGE_SYNC_SCHEDULE },
+        goBackRoute: {
+          name: SyncPageNames.MANAGE_SYNC_SCHEDULE,
+          params: { facility_id: route.params.facility_id },
+        },
       };
     },
   },

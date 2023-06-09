@@ -8,6 +8,7 @@ from requests.exceptions import Timeout
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
 from kolibri.core.tasks.decorators import register_task
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage
 from kolibri.utils import conf
 from kolibri.utils.time_utils import local_now
@@ -57,12 +58,15 @@ def schedule_ping(
         # Scheduler needs datetime object, but job needs (serializable) string
         now = local_now()
         started = now.isoformat()
-        _ping.enqueue_at(
-            now,
-            interval=interval * 60,
-            retry_interval=checkrate * 60,
-            repeat=None,
-            kwargs=dict(started=started, server=server, checkrate=checkrate),
-        )
+        try:
+            _ping.enqueue_at(
+                now,
+                interval=interval * 60,
+                retry_interval=checkrate * 60,
+                repeat=None,
+                kwargs=dict(started=started, server=server, checkrate=checkrate),
+            )
+        except JobRunning:
+            pass
     elif conf.OPTIONS["Deployment"]["DISABLE_PING"]:
         job_storage.clear(job_id=DEFAULT_PING_JOB_ID)

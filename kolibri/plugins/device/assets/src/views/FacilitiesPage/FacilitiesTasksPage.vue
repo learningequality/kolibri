@@ -22,7 +22,7 @@
       </p>
       <div>
         <FacilityTaskPanel
-          v-for="(task, idx) in facilityTasks"
+          v-for="(task, idx) in activeFacilityTasks"
           :key="idx"
           class="task-panel"
           :style="{ borderBottomColor: $themePalette.grey.v_200 }"
@@ -80,7 +80,7 @@
         return { name: PageNames.FACILITIES_PAGE };
       },
       someClearableTasks() {
-        return Boolean(this.facilityTasks.find(task => task.clearable));
+        return Boolean(this.activeFacilityTasks.find(task => task.clearable));
       },
     },
     methods: {

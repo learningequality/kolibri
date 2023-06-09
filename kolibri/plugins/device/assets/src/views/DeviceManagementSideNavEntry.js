@@ -20,6 +20,7 @@ const sideNavConfig = {
       routes.push({
         label: coreStrings.$tr('channelsLabel'),
         route: baseRoutes.content.path,
+        name: baseRoutes.content.name,
       });
     }
     if (get(isSuperuser)) {

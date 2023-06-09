@@ -139,8 +139,8 @@ class LearnerDeviceStatusTestCase(TestCase):
 
     @mock.patch("kolibri.core.device.models.device_provisioned", return_value=True)
     def test_save_statuses__not_subset_of_users_device(self, _):
-        with self.assertRaises(NotImplementedError):
-            LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
+        LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
+        self.assertEqual(LearnerDeviceStatus.objects.count(), 0)
 
     @mock.patch("kolibri.core.device.models.get_device_setting", return_value=True)
     def test_save_statuses(self, mock_device_setting):

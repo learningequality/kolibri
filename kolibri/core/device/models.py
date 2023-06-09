@@ -464,15 +464,11 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         :param status: A status tuple of which to save, see `DeviceStatus`
         :type status: tuple(string, int)
         """
-        if not get_device_setting(
+        if get_device_setting(
             "subset_of_users_device", default=not device_provisioned()
         ):
-            raise NotImplementedError(
-                "Saving all learner statuses is not supported on full-facility devices"
-            )
-
-        for user_id in FacilityUser.objects.all().values_list("id", flat=True):
-            cls.save_learner_status(user_id, status)
+            for user_id in FacilityUser.objects.all().values_list("id", flat=True):
+                cls.save_learner_status(user_id, status)
 
     @classmethod
     def save_learner_status(cls, learner_user_id, status):
@@ -507,15 +503,11 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         provisioned as a `subset_of_users_device`
         :return:
         """
-        if not get_device_setting(
+        if get_device_setting(
             "subset_of_users_device", default=not device_provisioned()
         ):
-            raise NotImplementedError(
-                "Saving all learner statuses is not supported on full-facility devices"
-            )
-
-        for user_id in FacilityUser.objects.all().values_list("id", flat=True):
-            cls.clear_learner_status(user_id)
+            for user_id in FacilityUser.objects.all().values_list("id", flat=True):
+                cls.clear_learner_status(user_id)
 
     @classmethod
     def clear_learner_status(cls, learner_user_id):

@@ -4,6 +4,10 @@ import makeStore from './makeStore';
 
 jest.mock('kolibri.resources');
 
+const fakeClassSummaryState = {
+  facility_id: 'djefrijgeriojfioegsd',
+};
+
 // fakes for data, since they have similar shape
 const fakeItems = [
   {
@@ -328,6 +332,7 @@ describe('showPage actions for coach exams section', () => {
 
   beforeEach(() => {
     store = makeStore();
+    store.state.classSummary = fakeClassSummaryState;
     ClassroomResource.fetchCollection.mockReset();
     ExamResource.fetchCollection.mockReset();
   });

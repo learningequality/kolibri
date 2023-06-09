@@ -7,6 +7,11 @@
         :to="classListLink"
         :text="$tr('allClassesLabel')"
       />
+      <BackLink
+        v-else-if="userIsMultiFacilityAdmin && !classListPageEnabled"
+        :to="{ name: 'AllFacilitiesPage' }"
+        :text="coreString('changeLearningFacility')"
+      />
     </p>
 
     <h1>
@@ -53,15 +58,16 @@
 
   import { mapGetters } from 'vuex';
   import pickBy from 'lodash/pickBy';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ClassesPageNames } from '../../../../../../learn/assets/src/constants';
   import commonCoach from '../../common';
   import { LastPages } from '../../../constants/lastPagesConstants';
 
   export default {
     name: 'OverviewBlock',
-    mixins: [commonCoach],
+    mixins: [commonCoach, commonCoreStrings],
     computed: {
-      ...mapGetters(['classListPageEnabled']),
+      ...mapGetters(['classListPageEnabled', 'userIsMultiFacilityAdmin']),
       coachNames() {
         return this.coaches.map(coach => coach.name);
       },

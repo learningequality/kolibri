@@ -63,9 +63,7 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
-      const activeFacilityId =
-        store.state.core.facilities.length === 1 ? store.getters.userFacilityId : facilityId;
-
+      const activeFacilityId = store.state.core.facilities.length === 1 ? store.getters.userFacilityId : facilityId;
       if (!activeFacilityId) {
         throw new Error("Missing required 'facilityId' argument");
       }
