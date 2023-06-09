@@ -153,7 +153,11 @@
         }
       },
       manageChannel() {
-        redirectBrowser(urls['kolibri:kolibri.plugins.device:device_management']());
+        if (!this.isLearner) {
+          redirectBrowser(urls['kolibri:kolibri.plugins.device:device_management']());
+        } else {
+          this.bannerOpened = false;
+        }
       },
 
       focusChange(e) {
