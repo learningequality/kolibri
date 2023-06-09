@@ -1,4 +1,5 @@
 import { mount, createLocalVue } from '@vue/test-utils';
+import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
 import ConfirmAccountDetails from '../ConfirmAccountDetails';
 
 const localVue = createLocalVue();
@@ -43,9 +44,9 @@ describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
       targetAccount: {
         full_name: 'Test Full Name',
         username: 'remote_username',
-        gender: 'test gender',
+        gender: FacilityUserGender.FEMALE,
         id_number: 'test id',
-        birth_year: 'test birth year',
+        birth_year: '1989',
       },
       username: 'TestLocalUser',
     });
@@ -54,9 +55,9 @@ describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
     );
     expect(wrapper.find('[data-test="fullname"]').text()).toEqual('Test Full Name');
     expect(wrapper.find('[data-test="username"]').text()).toEqual('remote_username');
-    expect(wrapper.find('[data-test="gender"]').text()).toEqual('test gender');
+    expect(wrapper.find('[data-test="gender"]').text()).toEqual('Female');
     expect(wrapper.find('[data-test="idnumber"]').text()).toEqual('test id');
-    expect(wrapper.find('[data-test="birthyear"]').text()).toEqual('test birth year');
+    expect(wrapper.find('[data-test="birthyear"]').text()).toEqual('1989');
   });
 
   it(`clicking the continue button sends the continue event to the state machine`, () => {
