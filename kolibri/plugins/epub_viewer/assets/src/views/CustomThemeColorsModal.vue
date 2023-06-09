@@ -7,26 +7,26 @@
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
-    <div class="theme-preview" :style="{ backgroundColor: backgroundColor, color: textColor }">
-      <p>The quick brown fox jumps over the lazy dog. <a :style="{ color: linkColor }">Link</a></p>
+    <div class="theme-preview" :style="{ backgroundColor: theme.backgroundColor, color: theme.textColor }">
+      <p>The quick brown fox jumps over the lazy dog. <a :style="{ color: theme.linkColor }">Link</a></p>
     </div>
     
     <!--  -->
     <div :class="{ 'color-select-container-mobile': windowIsSmall }">
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: backgroundColor }"></div>
+        <div class="color-box" :style="{ backgroundColor: theme.backgroundColor }"></div>
         <p>Background</p>
       </div>
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: textColor }"></div>
+        <div class="color-box" :style="{ backgroundColor: theme.textColor }"></div>
         <p>Text</p>
       </div>
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: linkColor }"></div>
+        <div class="color-box" :style="{ backgroundColor: theme.linkColor }"></div>
         <p>Link</p>
       </div>
     </div>
-    
+
   </KModal>
 
 </template>
@@ -48,23 +48,42 @@
         windowIsSmall,
       };
     },
-    props: {},
-    data() {
-      return {
-        backgroundColor: '#ffffff',
-        textColor: '#000000',
-        linkColor: '#0000ff',
-      };
+    props: {
+      modalMode: {
+        type: String,
+        default: null
+      },
+      themeName: {
+        type: String,
+        default: null
+      },
+      theme: {
+        type: Object,
+        default: {
+          backgroundColor: '#ffffff',
+          textColor: '#000000',
+          linkColor: '#0000ff',
+        }
+      }
     },
     computed: {
       title() {
-        return this.$tr('titleAddTheme');
+        if (this.modalMode == 'add') {
+          return this.$tr('titleAddTheme');
+        }
+        else if (this.modalMode == 'edit'){
+          return this.$tr('titleEditTheme');
+        }
       },
     },
     $trs: {
       titleAddTheme: {
         message: 'Add New Theme',
         context: 'Title of window that displays when a user tries to add a new custom theme.',
+      },
+      titleEditTheme: {
+        message: 'Edit Theme',
+        context: 'Title of window that displays when a user tries to edit an existing custom theme.',
       }
     },
   };

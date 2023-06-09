@@ -96,7 +96,7 @@
             class="delete-edit-button"
             :text="$tr('edit')"
             :secondary="true"
-            @click="editCustomThemeName = key"
+            @click="editCustomThemeName = key, editCustomTheme = value"
           />
 
         </KFixedGridItem>
@@ -129,9 +129,12 @@
       />
 
       <CustomThemeColorsModal 
-        v-if="addCustomTheme"
+        v-if="addCustomTheme || editCustomThemeName"
+        :modalMode="addCustomTheme ? 'add' : 'edit'"
+        :themeName="editCustomThemeName"
+        :theme="editCustomThemeName ? editCustomTheme : theme"
         @submit="addNewTheme"
-        @cancel="addCustomTheme = null"
+        @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
       />
     </div>
   </SideBar>
@@ -175,6 +178,7 @@
         customThemes: {},
         deleteCustomThemeName: null,
         editCustomThemeName: null,
+        editCustomTheme: null,
         addCustomTheme: null,
       };
     },
