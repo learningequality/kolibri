@@ -46,6 +46,13 @@ jobs:
     secrets:
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}
+  zip:
+    name: Build Raspberry Pi Image
+    needs: deb
+    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@master
+    with:
+      deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
+      ref: master
   test_pypi_upload:
     name: Upload to TestPyPi
     needs: whl
@@ -62,7 +69,7 @@ jobs:
   github_upload:
     name: Upload to Github release
     runs-on: ubuntu-latest
-    needs: [whl, pex, dmg, deb, exe]
+    needs: [whl, pex, dmg, deb, exe, zip]
     steps:
       - uses: actions/checkout@v3
       - name: Download all artifacts
@@ -81,6 +88,7 @@ jobs:
               'dist/${{ needs.dmg.outputs.dmg-file-name }}/${{ needs.dmg.outputs.dmg-file-name }}',
               'dist/${{ needs.deb.outputs.deb-file-name }}/${{ needs.deb.outputs.deb-file-name }}',
               'dist/${{ needs.exe.outputs.exe-file-name }}/${{ needs.exe.outputs.exe-file-name }}',
+              'dist/${{ needs.zip.outputs.zip-file-name }}/${{ needs.zip.outputs.zip-file-name }}',
             ]
             for (let filePath of filesToUpload) {
               await utils.uploadReleaseAsset(github, context, filePath, '${{ github.event.release.id }}')
@@ -114,7 +122,7 @@ jobs:
     name: Upload to Google Cloud Storage
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
-    needs: [block_release_step, whl, pex, dmg, deb, exe]
+    needs: [block_release_step, whl, pex, dmg, deb, exe, zip]
     steps:
     - name: Download all artifacts
       uses: actions/download-artifact@v3

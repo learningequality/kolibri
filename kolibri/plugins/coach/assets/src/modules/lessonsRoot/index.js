@@ -1,10 +1,10 @@
+import Vue from 'vue';
 import * as actions from './actions';
 
 function defaultState() {
   return {
     learnerGroups: [],
     lessons: [],
-    lessonsSizes: [],
   };
 }
 
@@ -25,7 +25,17 @@ export default {
       state.lessons = lessons;
     },
     SET_CLASS_LESSONS_SIZES(state, sizes) {
-      state.lessonsSizes = sizes;
+      if (sizes.length > 0) {
+        for (const sizeItem of sizes) {
+          for (const [key, val] of Object.entries(sizeItem)) {
+            const lesson = state.lessons.find(lesson => lesson.id === key);
+            if (lesson) {
+              Vue.set(lesson, 'size', val);
+            }
+          }
+        }
+        state.lessons = [...state.lessons];
+      }
     },
   },
   actions,

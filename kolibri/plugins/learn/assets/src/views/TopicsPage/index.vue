@@ -7,7 +7,7 @@
     <!-- appearanceOverrides overrides the default page styling -->
     <!-- by replacing it with an empty object -->
     <ImmersivePage
-      v-else-if="!loading"
+      v-else
       :loading="loading"
       :route="back"
       :appBarTitle="barTitle"
@@ -16,201 +16,211 @@
       class="page"
     >
       <template #actions>
-        <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+        <DeviceConnectionStatus
+          v-if="deviceId"
+          :deviceId="deviceId"
+          color="white"
+        />
       </template>
-      <!-- Header with thumbail and tagline -->
-      <TopicsHeader
-        v-if="!windowIsSmall"
-        ref="header"
-        role="complementary"
-        data-test="header-breadcrumbs"
-        :title="(topic && topic.title) || ''"
-        :description="topic && topic.description"
-        :thumbnail="topic && topic.thumbnail"
-        :breadcrumbs="breadcrumbs"
-      />
 
-      <!-- mobile tabs (different alignment and interactions) -->
-      <TopicsMobileHeader v-else :topic="topic" />
+      <KCircularLoader v-if="loading" />
 
-      <main
-        class="main-content-grid"
-        :style="gridStyle"
-      >
-        <KBreadcrumbs
-          v-if="breadcrumbs.length && windowIsSmall"
-          data-test="mobile-breadcrumbs"
-          :items="breadcrumbs"
-          :ariaLabel="learnString('channelAndFoldersLabel')"
+      <div v-else>
+        <!-- Header with thumbail and tagline -->
+        <TopicsHeader
+          v-if="!windowIsSmall"
+          ref="header"
+          role="complementary"
+          data-test="header-breadcrumbs"
+          :title="(topic && topic.title) || ''"
+          :description="topic && topic.description"
+          :thumbnail="topic && topic.thumbnail"
+          :breadcrumbs="breadcrumbs"
         />
 
-        <div class="card-grid">
-          <!-- Filter buttons - shown when not sidebar not visible -->
-          <div v-if="!windowIsLarge" data-test="tab-buttons">
-            <KButton
-              v-if="topics.length"
-              icon="topic"
-              data-test="folders-button"
-              class="overlay-toggle-button"
-              :text="coreString('folders')"
-              :primary="false"
-              @click="toggleFolderSearchSidePanel('folder')"
-            />
-            <KButton
-              icon="filter"
-              class="overlay-toggle-button"
-              data-test="filter-button"
-              :text="coreString('filter')"
-              :primary="false"
-              @click="toggleFolderSearchSidePanel('search')"
-            />
-          </div>
+        <!-- mobile tabs (different alignment and interactions) -->
+        <TopicsMobileHeader v-else :topic="topic" />
 
-          <!-- default/preview display of nested folder structure, not search -->
-          <div v-if="!displayingSearchResults" data-test="topics">
-            <!-- Rows of cards and links / show more for each Topic -->
-            <template v-for="t in topicsForDisplay">
-              <TopicSubsection
-                :key="t.id"
-                :topic="t"
-                :subTopicLoading="t.id === subTopicLoading"
+        <main
+          class="main-content-grid"
+          :style="gridStyle"
+        >
+          <KBreadcrumbs
+            v-if="breadcrumbs.length && windowIsSmall"
+            data-test="mobile-breadcrumbs"
+            :items="breadcrumbs"
+            :ariaLabel="learnString('channelAndFoldersLabel')"
+          />
+
+          <div class="card-grid">
+            <!-- Filter buttons - shown when not sidebar not visible -->
+            <div v-if="!windowIsLarge" data-test="tab-buttons">
+              <KButton
+                v-if="topics.length"
+                icon="topic"
+                data-test="folders-button"
+                class="overlay-toggle-button"
+                :text="coreString('folders')"
+                :primary="false"
+                @click="toggleFolderSearchSidePanel('folder')"
+              />
+              <KButton
+                icon="filter"
+                class="overlay-toggle-button"
+                data-test="filter-button"
+                :text="coreString('filter')"
+                :primary="false"
+                @click="toggleFolderSearchSidePanel('search')"
+              />
+            </div>
+
+            <!-- default/preview display of nested folder structure, not search -->
+            <div v-if="!displayingSearchResults" data-test="topics">
+              <!-- Rows of cards and links / show more for each Topic -->
+              <template v-for="t in topicsForDisplay">
+                <TopicSubsection
+                  :key="t.id"
+                  :topic="t"
+                  :subTopicLoading="t.id === subTopicLoading"
+                  :allowDownloads="allowDownloads"
+                  @showMore="handleShowMore"
+                  @loadMoreInSubtopic="handleLoadMoreInSubtopic"
+                  @toggleInfoPanel="toggleInfoPanel"
+                />
+              </template>
+
+              <!-- display for each nested topic/folder  -->
+              <!-- display all resources at the top level of the folder -->
+              <LibraryAndChannelBrowserMainContent
+                v-if="resources.length"
+                :gridType="2"
                 :allowDownloads="allowDownloads"
-                @showMore="handleShowMore"
-                @loadMoreInSubtopic="handleLoadMoreInSubtopic"
+                data-test="search-results"
+                :contents="resourcesDisplayed"
+                :numCols="numCols"
+                currentCardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
-            </template>
-
-            <!-- display for each nested topic/folder  -->
-            <!-- display all resources at the top level of the folder -->
-            <LibraryAndChannelBrowserMainContent
-              v-if="resources.length"
-              :gridType="2"
-              :allowDownloads="allowDownloads"
-              data-test="search-results"
-              :contents="resourcesDisplayed"
-              :numCols="numCols"
-              currentCardViewStyle="card"
-              @toggleInfoPanel="toggleInfoPanel"
-            />
-            <KButton
-              v-if="moreResources"
-              class="more-after-grid"
-              appearance="basic-link"
-              @click="handleShowMoreResources"
-            >
-              {{ coreString('showMoreAction') }}
-            </KButton>
-            <div v-else-if="topicMore" class="end-button-block">
               <KButton
-                v-if="!topicMoreLoading"
-                :text="coreString('viewMoreAction')"
-                appearance="raised-button"
-                :disabled="topicMoreLoading"
-                @click="handleLoadMoreInTopic"
-              />
-              <KCircularLoader v-else />
+                v-if="moreResources"
+                class="more-after-grid"
+                appearance="basic-link"
+                @click="handleShowMoreResources"
+              >
+                {{ coreString('showMoreAction') }}
+              </KButton>
+              <div v-else-if="topicMore" class="end-button-block">
+                <KButton
+                  v-if="!topicMoreLoading"
+                  :text="coreString('viewMoreAction')"
+                  appearance="raised-button"
+                  :disabled="topicMoreLoading"
+                  @click="handleLoadMoreInTopic"
+                />
+                <KCircularLoader v-else />
+              </div>
             </div>
+
+            <!-- search results -->
+            <!-- TODO: Should card preference be permitted in Topics page as well? At least for
+                search results? -->
+            <SearchResultsGrid
+              v-else
+              data-test="search-results"
+              :allowDownloads="allowDownloads"
+              :currentCardViewStyle="currentSearchCardViewStyle"
+              :hideCardViewToggle="true"
+              :results="results"
+              :removeFilterTag="removeFilterTag"
+              :clearSearch="clearSearch"
+              :moreLoading="moreLoading"
+              :searchMore="searchMore"
+              :searchTerms="searchTerms"
+              :searchLoading="searchLoading"
+              :more="more"
+              @setCardStyle="style => currentSearchCardViewStyle = style"
+              @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+            />
           </div>
+        </main>
 
-          <!-- search results -->
-          <!-- TODO: Should card preference be permitted in Topics page as well? At least for
-              search results? -->
-          <SearchResultsGrid
-            v-else
-            data-test="search-results"
-            :allowDownloads="allowDownloads"
-            :currentCardViewStyle="currentSearchCardViewStyle"
-            :hideCardViewToggle="true"
-            :results="results"
-            :removeFilterTag="removeFilterTag"
-            :clearSearch="clearSearch"
-            :moreLoading="moreLoading"
-            :searchMore="searchMore"
-            :searchTerms="searchTerms"
-            :searchLoading="searchLoading"
-            :more="more"
-            @setCardStyle="style => currentSearchCardViewStyle = style"
-            @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
-          />
-        </div>
-      </main>
-
-      <!-- Side Panels for filtering and searching  -->
-      <SearchPanelModal
-        v-if="!windowIsLarge && sidePanelIsOpen"
-        v-model="searchTerms"
-        :mobileSearchActive="mobileSearchActive"
-        :topicMore="topicMore"
-        :topics="topics"
-        :topicsLoading="topicMoreLoading"
-        @searchTerms="newTerms => searchTerms = newTerms"
-        @currentCategory="handleShowSearchModal"
-        @loadMoreTopics="handleLoadMoreInTopic"
-        @close="sidePanelIsOpen = false"
-      />
-
-      <!-- Embedded Side panel is on larger views, and exists next to content -->
-      <ToggleHeaderTabs
-        v-if="!!windowIsLarge"
-        :topic="topic"
-        :topics="topics"
-        :style="tabPosition"
-      />
-      <SearchFiltersPanel
-        v-if="!!windowIsLarge"
-        ref="sidePanel"
-        v-model="searchTerms"
-        :topicsListDisplayed="!desktopSearchActive"
-        class="side-panel"
-        topicPage="True"
-        :topics="topics"
-        :topicsLoading="topicMoreLoading"
-        :more="topicMore"
-        :width="`${sidePanelWidth}px`"
-        :showChannels="false"
-        position="embedded"
-        :style="sidePanelStyleOverrides"
-        @currentCategory="handleShowSearchModal"
-        @loadMoreTopics="handleLoadMoreInTopic"
-      />
-      <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-      <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
-      <SidePanelModal
-        v-if="!windowIsLarge && sidePanelIsOpen"
-        class="full-screen-side-panel"
-        alignment="left"
-        :closeButtonIconType="closeButtonIcon"
-        @closePanel="closeEventHandler()"
-        @shouldFocusFirstEl="findFirstEl()"
-      >
-        <SearchFiltersPanel
-          v-if="!currentCategory"
-          ref="embeddedPanel"
+        <!-- Side Panels for filtering and searching  -->
+        <SearchPanelModal
+          v-if="!windowIsLarge && sidePanelIsOpen"
           v-model="searchTerms"
-          :topicsListDisplayed="!mobileSearchActive"
+          :mobileSearchActive="mobileSearchActive"
+          :topicMore="topicMore"
+          :topics="topics"
+          :topicsLoading="topicMoreLoading"
+          @searchTerms="newTerms => searchTerms = newTerms"
+          @currentCategory="handleShowSearchModal"
+          @loadMoreTopics="handleLoadMoreInTopic"
+          @close="sidePanelIsOpen = false"
+        />
+
+        <!-- Embedded Side panel is on larger views, and exists next to content -->
+        <ToggleHeaderTabs
+          v-if="!!windowIsLarge"
+          :topic="topic"
+          :topics="topics"
+          :style="tabPosition"
+        />
+        <SearchFiltersPanel
+          v-if="!!windowIsLarge"
+          ref="sidePanel"
+          v-model="searchTerms"
+          :topicsListDisplayed="!desktopSearchActive"
+          class="side-panel"
           topicPage="True"
           :topics="topics"
           :topicsLoading="topicMoreLoading"
           :more="topicMore"
+          :width="`${sidePanelWidth}px`"
           :showChannels="false"
-          position="overlay"
+          position="embedded"
+          :style="sidePanelStyleOverrides"
           @currentCategory="handleShowSearchModal"
           @loadMoreTopics="handleLoadMoreInTopic"
         />
+        <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
+        <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
+        <SidePanelModal
+          v-if="!windowIsLarge && sidePanelIsOpen"
+          class="full-screen-side-panel"
+          alignment="left"
+          :closeButtonIconType="closeButtonIcon"
+          @closePanel="closeEventHandler()"
+          @shouldFocusFirstEl="findFirstEl()"
+        >
+          <SearchFiltersPanel
+            v-if="!currentCategory"
+            ref="embeddedPanel"
+            v-model="searchTerms"
+            :topicsListDisplayed="!mobileSearchActive"
+            topicPage="True"
+            :topics="topics"
+            :topicsLoading="topicMoreLoading"
+            :more="topicMore"
+            :showChannels="false"
+            position="overlay"
+            @currentCategory="handleShowSearchModal"
+            @loadMoreTopics="handleLoadMoreInTopic"
+          />
+          <CategorySearchModal
+            v-if="currentCategory && windowIsSmall"
+            :selectedCategory="currentCategory"
+            @cancel="currentCategory = null"
+            @input="handleCategory"
+          />
+        </SidePanelModal>
         <CategorySearchModal
-          v-if="currentCategory && windowIsSmall"
+          v-if="currentCategory"
           :selectedCategory="currentCategory"
           @cancel="currentCategory = null"
           @input="handleCategory"
         />
-      </SidePanelModal>
-      <CategorySearchModal
-        v-if="currentCategory"
-        :selectedCategory="currentCategory"
-        @cancel="currentCategory = null"
-        @input="handleCategory"
-      />
+
+      </div>
 
 
       <!-- Side panel for showing the information of selected content with a link to view it -->

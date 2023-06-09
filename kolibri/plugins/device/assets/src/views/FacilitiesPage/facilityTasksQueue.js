@@ -1,7 +1,7 @@
 // Mixin that can be used for a component to view and manage
 // the task queue
 import { TaskResource } from 'kolibri.resources';
-import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
+import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
 
 function isSyncTask(task) {
   return task.type === TaskTypes.SYNCDATAPORTAL || task.type === TaskTypes.SYNCPEERFULL;
@@ -9,6 +9,13 @@ function isSyncTask(task) {
 
 function taskFacilityMatch(task, facility) {
   return task.facility_id === facility.id;
+}
+
+function isActiveTask(task) {
+  // Helper function filter tasks by whether they are 'active'
+  // i.e. has a user just queued a non-repeating task, or is a repeating task
+  // that is currently running.
+  return task.repeat !== null || task.status === TaskStatuses.RUNNING;
 }
 
 export default {
@@ -41,10 +48,15 @@ export default {
     this.isPolling = false;
   },
   computed: {
+    activeFacilityTasks() {
+      return this.facilityTasks.filter(isActiveTask);
+    },
     facilityIsSyncing() {
       return function isSyncing(facility) {
-        const syncTasks = this.facilityTasks.filter(t => isSyncTask(t) && !t.clearable);
-        return Boolean(syncTasks.find(task => taskFacilityMatch(task, facility)));
+        const inProcessSyncTasks = this.activeFacilityTasks.filter(
+          t => isSyncTask(t) && !t.clearable
+        );
+        return Boolean(inProcessSyncTasks.find(task => taskFacilityMatch(task, facility)));
       };
     },
     facilityIsDeleting() {

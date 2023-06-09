@@ -24,7 +24,7 @@ default_cache = {
 # to be shared across processes - most frequently, things that might be needed
 # inside asynchronous tasks.
 process_cache = {
-    "BACKEND": "diskcache.DjangoCache",
+    "BACKEND": "kolibri.deployment.default.custom_django_cache.CustomDjangoCache",
     "LOCATION": diskcache_location,
     "TIMEOUT": cache_options["CACHE_TIMEOUT"],
     "SHARDS": CACHE_SHARDS,

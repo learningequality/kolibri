@@ -1,11 +1,11 @@
-import { displayModal, SET_BUSY, SET_ERROR, SET_MODAL } from '../shared';
+import { displayModal, SET_DATA_LOADING, SET_ERROR, SET_MODAL } from '../shared';
 import { createClass } from './actions';
 
 function defaultState() {
   return {
     classes: [],
     error: '',
-    isBusy: false,
+    dataLoading: false,
     modalShown: false,
   };
 }
@@ -20,7 +20,7 @@ export default {
     RESET_STATE(state) {
       Object.assign(state, defaultState());
     },
-    SET_BUSY,
+    SET_DATA_LOADING,
     SET_ERROR,
     SET_MODAL,
     ADD_CLASS(state, classroom) {

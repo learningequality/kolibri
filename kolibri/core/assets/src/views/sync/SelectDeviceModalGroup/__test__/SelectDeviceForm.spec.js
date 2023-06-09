@@ -1,4 +1,4 @@
-import { mount } from '@vue/test-utils';
+import { shallowMount } from '@vue/test-utils';
 import SelectDeviceForm from '../SelectDeviceForm';
 import { fetchDevices, updateConnectionStatus } from '../api';
 
@@ -44,7 +44,7 @@ function makeWrapper() {
     acc[device.id] = device;
     return acc;
   }, {});
-  const wrapper = mount(SelectDeviceForm, { mocks: { lodsWithSignupFacility: deviceIdMap } });
+  const wrapper = shallowMount(SelectDeviceForm, { mocks: { lodsWithSignupFacility: deviceIdMap } });
   // prettier-ignore
   const els = {
     KModal: () => wrapper.findComponent({ name: 'KModal' }),

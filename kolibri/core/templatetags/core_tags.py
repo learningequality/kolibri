@@ -7,9 +7,13 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django import template
+from django.templatetags.static import static
+from django.utils.html import format_html
 
 from kolibri.core.hooks import FrontEndBaseASyncHook
+from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
+from kolibri.core.theme_hook import ThemeHook
 
 register = template.Library()
 
@@ -36,3 +40,34 @@ def frontend_base_async_assets():
     :return: HTML of script tags to insert into base.html
     """
     return FrontEndBaseASyncHook.html()
+
+
+@register.simple_tag()
+def frontend_base_head_markup():
+    """
+    This is a script tag for all ``FrontEndBaseHeadHook`` hooks that implement
+    a render_to_html() method - this is used in the ``/base.html`` template to
+    inject arbitrary markup into the ``<head>`` element.
+
+    :return: HTML to insert into head of base.html
+    """
+    return FrontEndBaseHeadHook.html()
+
+
+@register.simple_tag()
+def theme_favicon():
+    """
+    Render a favicon link to put in the <head> tag of base.html, if a favicon is
+    provided by the theme. If not, a default will be returned.
+    """
+    favicon_urls = [
+        logo["src"]
+        for logo in ThemeHook.get_theme().get("logos", [])
+        if logo.get("content_type", "") == "image/vnd.microsoft.icon"
+    ]
+
+    # Choose the first available .ico file. It's unlikely there's more than
+    # one specified in the theme.
+    favicon_url = favicon_urls[0] if favicon_urls else static("assets/logo.ico")
+
+    return format_html('<link rel="shortcut icon" href="{}">', favicon_url)

@@ -137,7 +137,7 @@ class ExamViewset(ValuesViewset):
 
     @action(detail=False)
     def size(self, request, **kwargs):
-        exams = self.get_queryset()
+        exams = self.filter_queryset(self.get_queryset())
         exams_sizes_set = []
         for exam in exams:
             quiz_size = {}

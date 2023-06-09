@@ -13,10 +13,15 @@ export function addToResourceCache(store, { node }) {
 }
 
 export function updateCurrentLesson(store, lessonId) {
-  return LessonResource.fetchModel({
-    id: lessonId,
-  }).then(
-    lesson => {
+  return Promise.all([
+    LessonResource.fetchModel({
+      id: lessonId,
+    }),
+    LessonResource.fetchLessonsSizes({ id: lessonId }),
+  ]).then(
+    ([lesson, lessonSizes]) => {
+      const size = lessonSizes[0] && lessonSizes[0][lessonId];
+      lesson.size = size;
       store.commit('SET_CURRENT_LESSON', lesson);
       return lesson;
     },
@@ -24,16 +29,6 @@ export function updateCurrentLesson(store, lessonId) {
       return store.dispatch('handleApiError', error, { root: true });
     }
   );
-}
-
-export function fetchLessonsSizes(store, classId) {
-  return LessonResource.fetchLessonsSizes(classId)
-    .then(sizes => {
-      store.commit('SET_CLASS_LESSONS_SIZES', sizes);
-    })
-    .catch(error => {
-      return store.dispatch('handleApiError', error, { root: true });
-    });
 }
 
 export function getResourceCache(store, resourceIds) {

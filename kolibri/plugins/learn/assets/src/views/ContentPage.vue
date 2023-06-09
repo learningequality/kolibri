@@ -39,7 +39,7 @@
         :pastattempts="pastattempts"
         :mastered="complete"
         :masteryLevel="masteryLevel"
-        :updateContentSession="wrappedUpdateContentSession"
+        :updateContentSession="updateContentSession"
         :isSurvey="survey"
         @startTracking="startTracking"
         @stopTracking="stopTracking"
@@ -47,6 +47,8 @@
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
         @repeat="repeat"
+        @error="onError"
+        @finished="onFinished"
       />
       <AssessmentWrapper
         v-else
@@ -71,10 +73,10 @@
         @updateInteraction="updateInteraction"
         @updateProgress="updateProgress"
         @updateContentState="updateContentState"
+        @error="onError"
         @finished="onFinished"
       />
     </template>
-    <KCircularLoader v-else />
 
     <CompletionModal
       v-if="showCompletionModal"
@@ -103,6 +105,7 @@
 
   import get from 'lodash/get';
   import { mapState, mapGetters } from 'vuex';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { ContentNodeResource } from 'kolibri.resources';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import router from 'kolibri.coreVue.router';
@@ -148,6 +151,13 @@
         stopTrackingProgress,
       } = useProgressTracking();
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
+      const errored = ref(false);
+      const wrappedUpdateContentSession = data => {
+        if (!errored.value) {
+          updateContentSession(data);
+        }
+      };
+
       return {
         progress,
         time_spent,
@@ -157,7 +167,7 @@
         totalattempts,
         context,
         initContentSession,
-        updateContentSession,
+        updateContentSession: wrappedUpdateContentSession,
         startTracking: startTrackingProgress,
         stopTracking: stopTrackingProgress,
         genContentLinkKeepCurrentBackLink,
@@ -231,9 +241,6 @@
       cacheProgress() {
         setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
       },
-      wrappedUpdateContentSession(data) {
-        return this.updateContentSession(data).then(this.cacheProgress);
-      },
       updateInteraction({ progress, interaction }) {
         this.updateContentSession({ progress, interaction });
       },
@@ -275,6 +282,9 @@
           });
       },
       onFinished() {
+        if (this.errored) {
+          return;
+        }
         if (this.wasComplete) {
           this.$emit('finished');
         } else if (this.complete) {
@@ -304,7 +314,8 @@
         this.wasComplete = true;
       },
       onError(error) {
-        this.$store.dispatch('handleApiError', error);
+        this.errored = true;
+        this.$emit('error', error);
       },
       initSession(repeat = false) {
         /* Always be sure that this is hidden before the component renders */

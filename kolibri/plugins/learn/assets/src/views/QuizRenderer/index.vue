@@ -54,6 +54,7 @@
               @interaction="saveAnswer"
               @updateProgress="updateProgress"
               @updateContentState="updateContentState"
+              @error="err => $emit('error', err)"
             />
             <UiAlert v-else :dismissible="false" type="error">
               {{ $tr('noItemId') }}
@@ -431,6 +432,7 @@
       finishExam() {
         this.saveAnswer(true).then(() => {
           this.submitModalOpen = false;
+          this.$emit('finished');
         });
       },
       updateProgress(...args) {

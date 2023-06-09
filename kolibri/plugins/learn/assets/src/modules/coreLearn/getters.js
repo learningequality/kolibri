@@ -31,3 +31,7 @@ export function canAccessUnassignedContent(state, getters) {
 export function allowGuestAccess(state) {
   return state.allowGuestAccess;
 }
+
+export function getRootNodesLoading(state) {
+  return state.rootNodesLoading;
+}

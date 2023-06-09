@@ -1,5 +1,5 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import { useDevices } from 'kolibri.coreVue.componentSets.sync';
 import DeviceConnectionStatus from '../../src/views/DeviceConnectionStatus';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
@@ -10,7 +10,7 @@ function makeWrapper({ propsData } = {}) {
 
 describe('DeviceConnectionStatus', () => {
   beforeEach(() => {
-    useDevicesWithFacility.mockReturnValue({
+    useDevices.mockReturnValue({
       devices: [
         {
           id: '1',
@@ -21,9 +21,7 @@ describe('DeviceConnectionStatus', () => {
   });
   it('smoke test', () => {
     const wrapper = shallowMount(DeviceConnectionStatus, {
-      propsData: {
-        deviceId: '1',
-      },
+      propsData: {},
     });
     expect(wrapper.exists()).toBe(true);
   });
@@ -39,13 +37,13 @@ describe('DeviceConnectionStatus', () => {
   });
 
   it('shows the disconnected icon', async () => {
-    useDevicesWithFacility.mockReturnValue({ devices: [], isFetching: true });
+    useDevices.mockReturnValue({ devices: [], isFetching: true });
     const wrapper = makeWrapper({
       propsData: {
         deviceId: '1',
       },
     });
-    useDevicesWithFacility.mockReturnValue({ isFetching: false });
+    useDevices.mockReturnValue({ isFetching: false });
     wrapper.vm.$nextTick(() => {
       expect(wrapper.find('[data-test="disconnected-icon"]').exists()).toBeTruthy();
     });

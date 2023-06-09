@@ -36,12 +36,15 @@ Please make sure to use the template. Replace the HTML comments (the ``<!-- ... 
 Write code
 ----------
 
-Look through the GitHub issues for issues you'd like to address. We have a number of issues tagged as `beginner issues <https://github.com/learningequality/kolibri/labels/TAG%3A%20beginner%20friendly>`__, and these are an excellent starting point. You can check our `upcoming milestones <https://github.com/learningequality/kolibri/milestones>`__ to look for high-priority items.
+Before your first contribution, please make sure to check out :ref:`getting_started`. In addition to that, :ref:`howtos` have step by step guides for common tasks in getting started and working on Kolibri.
 
-Then, visit :ref:`getting_started` to begin contributing.
+We encourage you to visit `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__ to ask questions about contributing to Kolibri, troubleshoot development server issues, or connect with other contributors.
+
+Even though you're welcome to ask for an assignment of any issue you find interesting, we recommend especially issues tagged as `help wanted <https://github.com/learningequality/kolibri/labels/TAG%3A%20help%20wanted>`__. If you're looking for your first issue or a smaller, self-contained issue, issues tagged as `beginner friendly <https://github.com/learningequality/kolibri/labels/TAG%3A%20beginner%20friendly>`__ are a good place to start.
+
+For questions related to a specific issue or assignment requests, feel free to use the issue's comment section. Note that in times of increased contributor activity, it may take us a few days to reply. If you don't hear from us within a week, please reach out through `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__.
 
 Note that since Kolibri is still in development, the APIs are subject to change, and a lot of code is still in flux.
-
 
 Write documentation
 -------------------

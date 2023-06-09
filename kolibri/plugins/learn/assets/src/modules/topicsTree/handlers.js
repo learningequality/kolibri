@@ -140,7 +140,13 @@ function _loadTopicsTopic(store, { route, baseurl } = {}) {
       }
     },
     error => {
-      shouldResolve() ? store.dispatch('handleError', error) : null;
+      if (shouldResolve()) {
+        if (error.response && error.response.status === 410) {
+          router.replace({ name: PageNames.LIBRARY });
+          return;
+        }
+        store.dispatch('handleError', error);
+      }
     }
   );
 }
@@ -148,14 +154,25 @@ function _loadTopicsTopic(store, { route, baseurl } = {}) {
 export function showTopicsTopic(store, route) {
   return store.dispatch('loading').then(() => {
     store.commit('SET_PAGE_NAME', route.name);
+    const shouldResolve = samePageCheckGenerator(store);
     if (route.params.deviceId) {
       return setCurrentDevice(route.params.deviceId).then(device => {
         const baseurl = device.base_url;
         const { fetchUserDownloadRequests } = useDownloadRequests(store);
         fetchUserDownloadRequests({ page: 1, pageSize: 100 });
-        return fetchChannels({ baseurl }).then(() => {
-          return _loadTopicsTopic(store, { route, baseurl });
-        });
+        return fetchChannels({ baseurl })
+          .then(() => {
+            return _loadTopicsTopic(store, { route, baseurl });
+          })
+          .catch(error => {
+            if (shouldResolve()) {
+              if (error.response && error.response.status === 410) {
+                router.replace({ name: PageNames.LIBRARY });
+                return;
+              }
+              store.dispatch('handleError', error);
+            }
+          });
       });
     }
     return _loadTopicsTopic(store, { route });

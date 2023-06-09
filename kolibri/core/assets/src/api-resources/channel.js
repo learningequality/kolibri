@@ -1,4 +1,5 @@
 import { Resource } from 'kolibri.lib.apiResource';
+import { contentCacheClient } from './utils';
 
 /**
  * @example Delete a channel
@@ -9,7 +10,7 @@ import { Resource } from 'kolibri.lib.apiResource';
  */
 export default new Resource({
   name: 'channel',
-  useContentCacheKey: true,
+  client: contentCacheClient,
   fetchFilterOptions(id) {
     return this.getListEndpoint('filter_options', { id });
   },

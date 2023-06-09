@@ -17,7 +17,7 @@
       data-test="selectAllCheckbox"
       @change="selectAll($event)"
     />
-    <CoreTable>
+    <CoreTable :emptyMessage="emptyMessage" :dataLoading="dataLoading">
       <template #headers>
         <th data-test="fullNameHeader" :style="{ minWidth: '32px' }">
           <span v-if="selectable" class="visuallyhidden">
@@ -188,13 +188,6 @@
       </template>
     </CoreTable>
 
-    <p
-      v-if="!users || !users.length"
-      class="empty-message"
-    >
-      {{ emptyMessage }}
-    </p>
-
   </div>
 
 </template>
@@ -269,6 +262,10 @@
       selectedStyle: {
         type: String,
         default: '',
+      },
+      dataLoading: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

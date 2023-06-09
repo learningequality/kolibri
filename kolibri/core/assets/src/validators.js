@@ -22,6 +22,9 @@ export function validateContentNodeKind(value, others = []) {
 }
 
 export function validateLearningActivity(arr) {
+  if (!arr.length) {
+    return true;
+  }
   const isValidLearningActivity = v => Object.values(LearningActivities).includes(v);
-  return arr.length > 0 && arr.every(isValidLearningActivity);
+  return arr.every(isValidLearningActivity);
 }

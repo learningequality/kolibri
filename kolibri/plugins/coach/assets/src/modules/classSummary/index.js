@@ -2,6 +2,7 @@ import get from 'lodash/get';
 import set from 'lodash/set';
 import flatten from 'lodash/flatten';
 import find from 'lodash/find';
+import isFunction from 'lodash/isFunction';
 import Vue from 'kolibri.lib.vue';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
 import { ExamResource, LessonResource } from 'kolibri.resources';
@@ -93,23 +94,23 @@ function defaultState() {
 }
 
 // return a map of keys to items
-export function _itemMap(items, key) {
+export function _itemMap(items, key, mapper = null) {
   const itemMap = {};
-  items.forEach(item => {
-    itemMap[item[key]] = item;
-  });
+  for (const item of items) {
+    itemMap[item[key]] = isFunction(mapper) ? mapper(item) : item;
+  }
   return itemMap;
 }
 
 // return a map of keys to maps of learner ids to statuses
 export function _statusMap(statuses, key) {
   const statusMap = {};
-  statuses.forEach(status => {
+  for (const status of statuses) {
     if (!statusMap[status[key]]) {
       statusMap[status[key]] = {};
     }
     statusMap[status[key]][status.learner_id] = status;
-  });
+  }
   return statusMap;
 }
 
@@ -141,9 +142,9 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
     [STATUSES.completed]: 0,
     [STATUSES.helpNeeded]: 0,
   };
-  statuses.forEach(status => {
+  for (const status of statuses) {
     tally[status.status] += 1;
-  });
+  }
   if (tally[STATUSES.helpNeeded]) {
     return STATUSES.helpNeeded;
   }
@@ -162,6 +163,22 @@ function _score(numCorrect, numQuestions) {
     return null;
   }
   return (1.0 * numCorrect) / numQuestions;
+}
+
+function _mapExams(exams) {
+  return _itemMap(exams, 'id', exam => {
+    // convert dates
+    exam.date_created = new Date(exam.date_created);
+    return exam;
+  });
+}
+
+function _mapLessons(lessons) {
+  return _itemMap(lessons, 'id', lesson => {
+    // convert dates
+    lesson.date_created = new Date(lesson.date_created);
+    return lesson;
+  });
 }
 
 export default {
@@ -264,14 +281,6 @@ export default {
       );
     },
     /*
-     * lessonsSizes := [
-     *   { lesson_id: size in bytes for humans }, ...
-     * ]
-     */
-    lessonsSizes(state) {
-      return Object.values(state.lessonMap);
-    },
-    /*
      * lessonLearnerStatusMap := {
      *   [lesson_id]: {
      *     [learner_id]: { lesson_id, learner_id, status, last_activity }
@@ -342,25 +351,16 @@ export default {
   },
   mutations: {
     SET_STATE(state, summary) {
-      const examMap = _itemMap(summary.exams, 'id');
-      const lessonMap = _itemMap(summary.lessons, 'id');
-      Object.values(examMap).forEach(exam => {
-        // convert dates
-        exam.date_created = new Date(exam.date_created);
-      });
-      Object.values(lessonMap).forEach(lesson => {
-        // convert dates
-        lesson.date_created = new Date(lesson.date_created);
-      });
-      summary.exam_learner_status.forEach(status => {
+      const examMap = _mapExams(summary.exams);
+      for (const status of summary.exam_learner_status) {
         // convert dates
         status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
         status.score = _score(status.num_correct, examMap[status.exam_id].question_count);
-      });
-      summary.content_learner_status.forEach(status => {
+      }
+      for (const status of summary.content_learner_status) {
         // convert dates
         status.last_activity = status.last_activity ? new Date(status.last_activity) : null;
-      });
+      }
       const patchedSummaryContent = summary.content.map(item => {
         const obj = Object.assign({}, item);
         obj['kind'] = obj['kind'] == 'h5p' ? 'html5' : obj['kind'];
@@ -379,7 +379,7 @@ export default {
         contentMap: _itemMap(patchedSummaryContent, 'content_id'),
         contentNodeMap: _itemMap(patchedSummaryContent, 'node_id'),
         contentLearnerStatusMap: _statusMap(summary.content_learner_status, 'content_id'),
-        lessonMap,
+        lessonMap: _mapLessons(summary.lessons),
       });
     },
     CREATE_ITEM(state, { map, id, object }) {
@@ -428,8 +428,17 @@ export default {
       state.examLearnerStatusMap = { ...state.examLearnerStatusMap };
       state.contentLearnerStatusMap = { ...state.contentLearnerStatusMap };
     },
-    SET_CLASS_LESSONS_SIZES(state, sizes = {}) {
-      state.lessonsSizes = sizes;
+    SET_CLASS_LESSONS_SIZES(state, sizes) {
+      if (sizes.length > 0) {
+        for (const sizeItem of sizes) {
+          for (const [key, val] of Object.entries(sizeItem)) {
+            if (state.lessonMap[key]) {
+              state.lessonMap[key]['size'] = val;
+            }
+          }
+        }
+        state.lessonMap = { ...state.lessonMap };
+      }
     },
     SET_CLASS_QUIZZES_SIZES(state, sizes) {
       if (sizes.length > 0) {
@@ -451,35 +460,38 @@ export default {
       return ClassSummaryResource.fetchModel({ id: classId, force: true })
         .then(summary => {
           store.commit('SET_STATE', summary);
+          return summary;
         })
-        .then(() => {
-          const promises = [];
-          if (Object.keys(store.state.lessonMap).length > 0) {
-            promises.push(store.dispatch('fetchLessonsSizes', classId));
-          }
-          if (Object.keys(store.state.examMap).length > 0) {
-            promises.push(store.dispatch('fetchQuizzesSizes', classId));
-          }
-          return Promise.all(promises);
+        .then(summary => {
+          return Promise.all([
+            store.dispatch('fetchLessonsSizes', classId),
+            store.dispatch('fetchQuizzesSizes', classId),
+          ]).then(() => summary);
         });
     },
     fetchLessonsSizes(store, classId) {
-      return LessonResource.fetchLessonsSizes({ collection: classId })
-        .then(sizes => {
-          store.commit('SET_CLASS_LESSONS_SIZES', sizes);
-        })
-        .catch(error => {
-          return store.dispatch('handleApiError', error, { root: true });
-        });
+      if (Object.keys(store.state.lessonMap).length > 0) {
+        return LessonResource.fetchLessonsSizes({ collection: classId })
+          .then(sizes => {
+            store.commit('SET_CLASS_LESSONS_SIZES', sizes);
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', error, { root: true });
+          });
+      }
+      return Promise.resolve();
     },
     fetchQuizzesSizes(store, classId) {
-      return ExamResource.fetchQuizzesSizes({ collection: classId })
-        .then(sizes => {
-          store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
-        })
-        .catch(error => {
-          return store.dispatch('handleApiError', error, { root: true });
-        });
+      if (Object.keys(store.state.examMap).length > 0) {
+        return ExamResource.fetchQuizzesSizes({ collection: classId })
+          .then(sizes => {
+            store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', error, { root: true });
+          });
+      }
+      return Promise.resolve();
     },
     refreshClassSummary(store) {
       return store.dispatch('loadClassSummary', store.state.id);

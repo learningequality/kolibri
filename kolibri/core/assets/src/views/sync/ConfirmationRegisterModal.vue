@@ -5,7 +5,7 @@
     :submitText="registerText"
     :cancelText="cancelText"
     @submit="registerFacility"
-    @cancel="$emit('cancel')"
+    @cancel="cancel"
   >
     <template v-if="!alreadyRegistered">
       <p>{{ $tr('registerWith', { name: projectName }) }}</p>
@@ -43,6 +43,15 @@
       token: {
         type: String,
         required: true,
+      },
+      /**
+       * Whether or not the modal should emit a success event
+       * after the facility has been discovered to be already registered.
+       */
+      successOnAlreadyRegistered: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     data() {
@@ -89,6 +98,13 @@
               this.$store.dispatch('handleApiError', error);
             }
           });
+      },
+      cancel() {
+        if (this.alreadyRegistered && this.successOnAlreadyRegistered) {
+          this.$emit('success', this.targetFacility);
+        } else {
+          this.$emit('cancel');
+        }
       },
     },
     $trs: {

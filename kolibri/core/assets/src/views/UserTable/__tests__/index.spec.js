@@ -1,9 +1,13 @@
-import { shallowMount, mount } from '@vue/test-utils';
+import { mount } from '@vue/test-utils';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+import { coreStoreFactory } from 'kolibri.coreVue.vuex.store';
 import UserTable from '../index';
 
 function makeWrapper({ propsData } = {}) {
+  const store = coreStoreFactory({});
+  store.dispatch('notLoading');
   return mount(UserTable, {
+    store,
     propsData,
   });
 }
@@ -36,7 +40,7 @@ const TEST_USERS = [
 
 describe(`UserTable`, () => {
   it(`smoke test`, () => {
-    const wrapper = shallowMount(UserTable);
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBeTruthy();
   });
 

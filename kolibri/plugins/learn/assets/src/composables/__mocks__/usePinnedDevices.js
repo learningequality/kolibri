@@ -32,9 +32,9 @@
  */
 
 const MOCK_DEFAULTS = {
-  createPinForUser: jest.fn(() => ''),
-  deletePinForUser: jest.fn(() => ''),
-  fetchPinsForUser: jest.fn(() => []),
+  createPinForUser: jest.fn(() => Promise.resolve({})),
+  deletePinForUser: jest.fn(() => Promise.resolve({})),
+  fetchPinsForUser: jest.fn(() => Promise.resolve([])),
 };
 
 export function usePinnedDevicesMock(overrides = {}) {

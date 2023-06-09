@@ -10,9 +10,9 @@ import VueMeta from 'vue-meta';
 import VueRouter from 'vue-router';
 import VueCompositionApi from '@vue/composition-api';
 import Vuex from 'vuex';
+import logging from 'kolibri.lib.logging';
 import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
-import KContentPlugin from 'kolibri-design-system/lib/content/KContentPlugin';
 
 global.beforeEach(() => {
   return new Promise(resolve => {
@@ -30,13 +30,21 @@ global.afterEach(() => {
   });
 });
 
+// Disable all core logging during tests.
+logging.setLevel('silent');
+
 // Register Vue plugins and components
 Vue.use(Vuex);
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
-Vue.use(KContentPlugin);
 Vue.use(VueCompositionApi);
+
+Vue.component('KContentRenderer', {
+  render(h) {
+    return h('p', 'KContentRenderer');
+  },
+});
 
 Vue.config.silent = true;
 Vue.config.devtools = false;

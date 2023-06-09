@@ -23,6 +23,7 @@ UserPage.computed.newUserLink = () => ({});
 
 function makeWrapper() {
   const store = makeStore();
+  store.dispatch('notLoading');
   const wrapper = mount(UserPage, {
     store,
     router,

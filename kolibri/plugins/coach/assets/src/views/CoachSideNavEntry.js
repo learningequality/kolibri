@@ -15,14 +15,17 @@ const sideNavConfig = {
       {
         label: coreStrings.$tr('classHome'),
         route: baseRoutes.classHome.path,
+        name: baseRoutes.classHome.name,
       },
       {
         label: coachStrings.$tr('reportsLabel'),
         route: baseRoutes.reports.path,
+        name: baseRoutes.reports.name,
       },
       {
         label: coachStrings.$tr('planLabel'),
         route: baseRoutes.plan.path,
+        name: baseRoutes.plan.name,
       },
     ];
   },

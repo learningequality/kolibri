@@ -3,7 +3,7 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <div id="main" role="main">
+    <div v-if="!$store.state.core.loading" id="main" role="main">
       <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
       <section class="lesson-details">
         <div>

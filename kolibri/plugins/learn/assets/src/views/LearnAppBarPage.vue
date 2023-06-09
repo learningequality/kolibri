@@ -10,7 +10,11 @@
     :title="appBarTitle"
   >
     <template #actions>
-      <DeviceConnectionStatus :deviceId="deviceId" color="white" />
+      <DeviceConnectionStatus
+        v-if="deviceId"
+        :deviceId="deviceId"
+        color="white"
+      />
     </template>
 
     <template
@@ -59,15 +63,15 @@
         type: String,
         default: null,
       },
-      loading: {
-        type: Boolean,
-        default: null,
-      },
       route: {
         type: Object,
         default() {
           return {};
         },
+      },
+      loading: {
+        type: Boolean,
+        default: false,
       },
     },
     computed: {

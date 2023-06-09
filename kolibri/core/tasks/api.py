@@ -1,8 +1,11 @@
 import logging
 
 from django.http.response import Http404
+from django.utils.timezone import make_aware
+from pytz import utc
 from rest_framework import decorators
 from rest_framework import serializers
+from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
@@ -10,9 +13,11 @@ from six import string_types
 
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.registry import TaskRegistry
+from kolibri.core.tasks.validation import EnqueueArgsSerializer
 
 
 logger = logging.getLogger(__name__)
@@ -85,7 +90,8 @@ class TasksViewSet(viewsets.GenericViewSet):
             "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
             "facility_id": job.facility_id,
             "extra_metadata": job.extra_metadata,
-            "scheduled_datetime": str(orm_job.scheduled_time),  # Output is UTC naive.
+            # Output is UTC naive, coerce to UTC aware.
+            "scheduled_datetime": make_aware(orm_job.scheduled_time, utc).isoformat(),
             "repeat": orm_job.repeat,
             "repeat_interval": orm_job.interval,
             "retry_interval": orm_job.retry_interval,
@@ -138,9 +144,9 @@ class TasksViewSet(viewsets.GenericViewSet):
         Enqueues job based on `enqueue_args` arguments.
         """
         if enqueue_args.get("enqueue_at"):
-            job_id = job_storage.enqueue_at(
-                dt=enqueue_args["enqueue_at"],
-                job=job,
+            return job_storage.enqueue_at(
+                enqueue_args["enqueue_at"],
+                job,
                 queue=registered_task.queue,
                 priority=registered_task.priority,
                 interval=enqueue_args.get("repeat_interval", 0),
@@ -148,23 +154,21 @@ class TasksViewSet(viewsets.GenericViewSet):
                 retry_interval=enqueue_args.get("retry_interval", None),
             )
         elif enqueue_args.get("enqueue_in"):
-            job_id = job_storage.enqueue_in(
-                delta_t=enqueue_args["enqueue_in"],
-                job=job,
+            return job_storage.enqueue_in(
+                enqueue_args["enqueue_in"],
+                job,
                 queue=registered_task.queue,
                 priority=registered_task.priority,
                 interval=enqueue_args.get("repeat_interval", 0),
                 repeat=enqueue_args.get("repeat", 0),
                 retry_interval=enqueue_args.get("retry_interval", None),
             )
-        else:
-            job_id = job_storage.enqueue_job(
-                job,
-                queue=registered_task.queue,
-                priority=registered_task.priority,
-                retry_interval=enqueue_args.get("retry_interval", None),
-            )
-        return job_id
+        return job_storage.enqueue_job(
+            job,
+            queue=registered_task.queue,
+            priority=registered_task.priority,
+            retry_interval=enqueue_args.get("retry_interval", None),
+        )
 
     def create(self, request):
         """
@@ -231,6 +235,41 @@ class TasksViewSet(viewsets.GenericViewSet):
         raises `PermissionDenied`.
         """
         return Response(self._job_to_response(self._get_job_for_pk(request, pk)))
+
+    def update(self, request, *args, **kwargs):
+        pk = kwargs.get("pk")
+        job = self._get_job_for_pk(request, pk)
+        # Don't pass partial to the serializer, as for simplicity, we want to
+        # require a complete set of arguments for updating the enqueue_args.
+        serializer = EnqueueArgsSerializer(data=request.data.pop("enqueue_args"))
+        serializer.is_valid(raise_exception=True)
+        try:
+            self._enqueue_job_based_on_enqueue_args(
+                job.task, job, serializer.validated_data
+            )
+        except JobRunning:
+            return Response("Job is already running", status=status.HTTP_409_CONFLICT)
+
+        return self.retrieve(request, pk=pk)
+
+    def delete(self, request, pk=None):
+        """
+        Delete a task.
+        """
+        job_to_clear = self._get_job_for_pk(request, pk)
+
+        if job_to_clear.state == State.RUNNING:
+            raise serializers.ValidationError(
+                "Cannot delete job with state: {}".format(job_to_clear.state)
+            )
+
+        job_storage.clear(job_id=job_to_clear.job_id, force=True)
+
+        return Response({})
+
+    def partial_update(self, request, *args, **kwargs):
+        kwargs["partial"] = True
+        return self.update(request, *args, **kwargs)
 
     @decorators.action(methods=["post"], detail=True)
     def restart(self, request, pk=None):

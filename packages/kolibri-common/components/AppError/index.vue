@@ -8,12 +8,15 @@
       {{ headerText }}
     </h1>
 
-    <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
-      {{ paragraph }}
-    </p>
+    <template v-if="!hideParagraphs">
+      <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
+        {{ paragraph }}
+      </p>
+    </template>
 
     <p>
-      <KButtonGroup>
+      <slot name="buttons"></slot>
+      <KButtonGroup v-if="!$slots.buttons">
         <KButton
           v-if="!isPageNotFound"
           :text="coreString('refresh')"
@@ -41,6 +44,7 @@
 
     <ReportErrorModal
       v-if="showDetailsModal"
+      :error="error"
       @cancel="hideDetailsModal"
     />
 
@@ -52,7 +56,7 @@
 <script>
 
   import get from 'lodash/get';
-  import { mapActions } from 'vuex';
+  import { mapActions, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ReportErrorModal from './ReportErrorModal';
 
@@ -62,12 +66,22 @@
       ReportErrorModal,
     },
     mixins: [commonCoreStrings],
+    props: {
+      /* Generalize the component to just show the title */
+      hideParagraphs: {
+        type: Boolean,
+        default: false,
+      },
+    },
     data() {
       return {
         showDetailsModal: false,
       };
     },
     computed: {
+      ...mapState({
+        error: state => state.core.error,
+      }),
       headerText() {
         if (this.isPageNotFound) {
           return this.$tr('resourceNotFoundHeader');
@@ -82,9 +96,9 @@
       },
       // HACK since the error is stored as a string, we have to re-parse it to get the error code
       errorObject() {
-        if (this.$store.state.core.error) {
+        if (this.error) {
           try {
-            return JSON.parse(this.$store.state.core.error);
+            return JSON.parse(this.error);
           } catch (err) {
             return null;
           }

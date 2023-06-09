@@ -1,9 +1,6 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-    :loading="loading"
-  >
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div v-if="!loading" id="main" role="main">
       <MissingResourceAlert v-if="missingResources" />
       <YourClasses

@@ -281,6 +281,9 @@ class Job(object):
         self.cancellable = cancellable
         self.storage.save_job_as_cancellable(self.job_id, cancellable=cancellable)
 
+    def retry_in(self, dt, **kwargs):
+        self.storage.retry_job_in(self.job_id, dt, **kwargs)
+
     def execute(self):
         self._check_storage_attached()
 

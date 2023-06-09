@@ -479,7 +479,7 @@ def iterate_plugins():
         if name not in plugin_ids:
             plugin_ids.add(name)
             try:
-                plugin = initialize_kolibri_plugin(name)
+                plugin = initialize_kolibri_plugin(name, initialize_hooks=False)
                 yield plugin
             except Exception:
                 pass

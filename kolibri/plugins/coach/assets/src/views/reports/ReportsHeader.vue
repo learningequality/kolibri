@@ -3,7 +3,7 @@
   <div>
     <p>
       <BackLink
-        v-if="classListPageEnabled"
+        v-if="classListPageEnabled || userIsMultiFacilityAdmin"
         :to="$router.getRoute('HomePage')"
         :text="coreString('classHome')"
       />
@@ -62,7 +62,7 @@
       };
     },
     computed: {
-      ...mapGetters(['classListPageEnabled']),
+      ...mapGetters(['classListPageEnabled', 'userIsMultiFacilityAdmin']),
       reportTitle() {
         return this.title || this.coachString('reportsLabel');
       },

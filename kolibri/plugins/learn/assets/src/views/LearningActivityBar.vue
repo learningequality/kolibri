@@ -89,7 +89,10 @@
             </div>
           </template>
         </CoreMenu>
-        <DeviceConnectionStatus :deviceId="deviceId" />
+        <DeviceConnectionStatus
+          v-if="deviceId"
+          :deviceId="deviceId"
+        />
 
         <TransitionGroup name="bar-actions">
           <KIconButton

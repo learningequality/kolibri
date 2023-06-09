@@ -42,6 +42,14 @@ const _imageSpec = {
     type: String,
     default: null,
   },
+  content_type: {
+    type: String,
+    default: null,
+  },
+  maskable: {
+    type: Boolean,
+    default: false,
+  },
 };
 
 export default {
@@ -161,5 +169,10 @@ export default {
         },
       },
     },
+  },
+  logos: {
+    type: Array,
+    default: [],
+    spec: _imageSpec,
   },
 };

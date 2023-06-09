@@ -2,8 +2,8 @@
 
   <LearnAppBarPage
     :appBarTitle="appBarTitle"
+    :loading="getRootNodesLoading"
     :appearanceOverrides="{}"
-    :loading="loading"
     :deviceId="deviceId"
     :route="back"
   >
@@ -34,7 +34,7 @@
         :delay="false"
       />
       <div
-        v-else-if="!displayingSearchResults"
+        v-else-if="!displayingSearchResults && !getRootNodesLoading"
         data-test="channels"
       >
         <h1 class="channels-label">
@@ -364,10 +364,6 @@
         type: String,
         default: null,
       },
-      loading: {
-        type: Boolean,
-        default: null,
-      },
     },
     data: function() {
       return {
@@ -381,7 +377,7 @@
     },
     computed: {
       ...mapState(['rootNodes']),
-      ...mapGetters(['isSuperuser', 'isUserLoggedIn']),
+      ...mapGetters(['isSuperuser', 'isUserLoggedIn', 'getRootNodesLoading']),
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
       },

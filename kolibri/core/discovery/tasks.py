@@ -19,6 +19,7 @@ from kolibri.core.discovery.utils.network.connections import update_network_loca
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
+from kolibri.core.tasks.utils import get_current_job
 
 logger = logging.getLogger(__name__)
 
@@ -179,12 +180,13 @@ def _enqueue_network_location_update_with_backoff(network_location):
             network_location.id, next_attempt_minutes
         )
     )
-    perform_network_location_update.enqueue_in(
-        datetime.timedelta(minutes=next_attempt_minutes),
-        job_id=generate_job_id(TYPE_CONNECT, network_location.id),
-        args=(network_location.id,),
-        priority=Priority.LOW,
-    )
+    current_job = get_current_job()
+    if current_job:
+        current_job.retry_in(
+            datetime.timedelta(minutes=next_attempt_minutes), priority=Priority.LOW
+        )
+    else:
+        logger.warning("Attempted to retry job outside of job context")
 
 
 @register_task(priority=Priority.REGULAR, status_fn=status_fn)

@@ -2,6 +2,7 @@ from django.db import transaction
 from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.constants.facility_presets import choices
@@ -61,14 +62,14 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
         fields = (
             "facility",
             "facility_id",
+            "preset",
             "superuser",
             "language_id",
-            "settings",
             "device_name",
+            "settings",
             "allow_guest_access",
             "is_provisioned",
             "is_soud",
-            "superuser",
         )
 
     def validate(self, data):
@@ -94,6 +95,11 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 "Please provide one of `facility` or `facility_id`; but not both."
             )
 
+        if has_facility and "preset" not in data:
+            raise serializers.ValidationError(
+                "Please provide `preset` if `facility` is specified"
+            )
+
         return data
 
     def create(self, validated_data):  # noqa C901
@@ -114,16 +120,24 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 facility_data = None
 
             if facility_id:
-                # We've already imported the facility to the device before provisioning
-                facility = Facility.objects.get(pk=facility_id)
-                preset = facility.dataset.preset
-                facility_created = False
+                try:
+                    # We've already imported the facility to the device before provisioning
+                    facility = Facility.objects.get(pk=facility_id)
+                    preset = facility.dataset.preset
+                    facility_created = False
+                except Facility.DoesNotExist:
+                    raise ParseError(
+                        "Facility with id={0} does not exist".format(facility_id)
+                    )
             else:
-                facility = Facility.objects.create(**facility_data)
-                preset = validated_data.pop("preset")
-                facility.dataset.preset = preset
-                facility.dataset.reset_to_default_settings(preset)
-                facility_created = True
+                try:
+                    facility = Facility.objects.create(**facility_data)
+                    preset = validated_data.pop("preset")
+                    facility.dataset.preset = preset
+                    facility.dataset.reset_to_default_settings(preset)
+                    facility_created = True
+                except Exception:
+                    raise ParseError("Please check `facility` or `preset` fields.")
 
             custom_settings = validated_data.pop("settings")
 
@@ -148,19 +162,26 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
             auth_token = validated_data.pop("auth_token", None)
 
             if not auth_token:
+                superuser_data = validated_data["superuser"]
                 # We've imported a facility if the username exists
                 try:
                     superuser = FacilityUser.objects.get(
-                        username=validated_data["superuser"]["username"]
+                        username=superuser_data["username"]
                     )
                 except FacilityUser.DoesNotExist:
-                    # Otherwise we make the superuser
-                    superuser = FacilityUser.objects.create_superuser(
-                        validated_data["superuser"]["username"],
-                        validated_data["superuser"]["password"],
-                        facility=facility,
-                        full_name=validated_data["superuser"].get("full_name"),
-                    )
+                    try:
+                        # Otherwise we make the superuser
+                        superuser = FacilityUser.objects.create_superuser(
+                            superuser_data["username"],
+                            superuser_data["password"],
+                            facility=facility,
+                            full_name=superuser_data.get("full_name"),
+                        )
+                    except Exception:
+                        raise ParseError(
+                            "`username`, `password`, or `full_name` are missing in `superuser`"
+                        )
+
             else:
                 superuser = FacilityUser.objects.get_or_create_os_user(
                     auth_token, facility=facility

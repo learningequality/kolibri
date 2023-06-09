@@ -8,10 +8,9 @@
     <p>
       {{ $tr('syncExplanation') }}
     </p>
-    <p>
+    <p v-if="!isConnected">
       {{ $tr('mustBeConnectedToInternet') }}
     </p>
-
 
     <template #actions>
       <KButtonGroup>
@@ -26,23 +25,11 @@
         <span ref="syncbutton">
           <KButton
             :text="coreString('syncAction')"
-            :disabled="submitDisabled"
             primary
             type="submit"
+            :disabled="!isConnected"
           />
         </span>
-        <KTooltip
-          v-if="submitDisabled"
-          reference="syncbutton"
-          :refs="$refs"
-        >
-          <span v-if="noRegisteredFacilities">
-            {{ $tr('noFacilitiesTooltip') }}
-          </span>
-          <span v-else>
-            {{ $tr('currentlyOfflineTooltip') }}
-          </span>
-        </KTooltip>
       </KButtonGroup>
     </template>
   </KModal>
@@ -52,7 +39,6 @@
 
 <script>
 
-  import some from 'lodash/some';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
@@ -66,22 +52,23 @@
         required: true,
       },
     },
-    computed: {
-      submitDisabled() {
-        // TODO implement a check for KDP being offline
-        return this.noRegisteredFacilities;
-      },
-      noRegisteredFacilities() {
-        return !some(this.facilities, fac => fac.dataset.registered);
-      },
+    data() {
+      return {
+        isConnected: true,
+      };
+    },
+    mounted() {
+      this.setConnectionStatus();
     },
     methods: {
       handleSubmit() {
-        // NOTE the button will not be visibly disabled, but does nothing
-        // when clicked
-        if (!this.submitDisabled) {
-          return this.startSyncAllTask();
+        this.setConnectionStatus();
+        if (this.isConnected) {
+          this.startSyncAllTask();
         }
+      },
+      setConnectionStatus() {
+        this.isConnected = window.navigator.onLine;
       },
       startSyncAllTask() {
         return TaskResource.startTasks(
@@ -109,6 +96,7 @@
         message: 'You must be connected to the internet.',
         context: 'Modal description text',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
       currentlyOfflineTooltip: {
         message: 'You are currently offline',
         context:
@@ -119,6 +107,7 @@
         context:
           "Floating notification message that appears over the 'Sync' button and indicates why is it not active",
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
