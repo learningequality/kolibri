@@ -171,6 +171,22 @@ path_regex = re.compile("/(?P<zipped_filename>[^/]+)/(?P<embedded_filepath>.*)")
 
 YEAR_IN_SECONDS = 60 * 60 * 24 * 365
 
+ERROR_TEMPLATE = """
+<html>
+    <head>
+        <meta name="hashi-error" content="{error}">
+    </head>
+    <body>
+    </body>
+</html>
+"""
+
+
+def create_error_response(error):
+    return HttpResponse(
+        ERROR_TEMPLATE.format(error=error), content_type="text/html", status=404
+    )
+
 
 def _zip_content_from_request(request):  # noqa: C901
     if request.method not in allowed_methods:
@@ -178,7 +194,9 @@ def _zip_content_from_request(request):  # noqa: C901
 
     match = path_regex.match(request.path_info)
     if match is None:
-        return HttpResponseNotFound("Path not found")
+        return create_error_response(
+            "Path not found: {path}".format(path=request.path_info)
+        )
 
     if request.method == "OPTIONS":
         return HttpResponse()
@@ -189,8 +207,8 @@ def _zip_content_from_request(request):  # noqa: C901
         # calculate the local file path to the zip file
         zipped_path = get_content_storage_file_path(zipped_filename)
     except InvalidStorageFilenameError:
-        return HttpResponseNotFound(
-            '"%(filename)s" is not a valid file name' % {"filename": zipped_filename}
+        return create_error_response(
+            "{filename} is not a valid file name".format(filename=zipped_filename)
         )
 
     remote_baseurl = request.GET.get("baseurl")
@@ -198,8 +216,8 @@ def _zip_content_from_request(request):  # noqa: C901
     # if the zipfile does not exist on disk, return a 404
     if not os.path.exists(zipped_path):
         if not remote_baseurl:
-            return HttpResponseNotFound(
-                '"%(filename)s" is not a valid zip file' % {"filename": zipped_filename}
+            return create_error_response(
+                "{filename} is not a valid zip file".format(filename=zipped_filename)
             )
         else:
             try:
@@ -208,9 +226,10 @@ def _zip_content_from_request(request):  # noqa: C901
                 )
                 zipped_path = RemoteFile(zipped_path, zipped_url)
             except Exception:
-                return HttpResponseNotFound(
-                    '"%(filename)s" is either not available on the remote "%(baseurl)s, or cannot be fetched'
-                    % {"filename": zipped_filename, "baseurl": remote_baseurl}
+                return create_error_response(
+                    "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
+                        filename=zipped_filename, baseurl=remote_baseurl
+                    )
                 )
 
     # Sometimes due to URL concatenation, we get URLs with double-slashes in them, like //path/to/file.html.
@@ -245,9 +264,10 @@ def _zip_content_from_request(request):  # noqa: C901
         response = get_embedded_file(zipped_path, zipped_filename, embedded_filepath)
     except Exception:
         if remote_baseurl:
-            return HttpResponseNotFound(
-                '"%(filename)s" is either not available on the remote "%(baseurl)s, or cannot be fetched'
-                % {"filename": zipped_filename, "baseurl": remote_baseurl}
+            return create_error_response(
+                "{filename} is either not available on the remote {baseurl}, or cannot be fetched".format(
+                    filename=zipped_filename, baseurl=remote_baseurl
+                )
             )
         raise
 

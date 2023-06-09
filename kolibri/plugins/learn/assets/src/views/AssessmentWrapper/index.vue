@@ -72,6 +72,7 @@ oriented data synchronization.
           @stopTracking="stopTracking"
           @updateProgress="updateProgress"
           @updateContentState="updateContentState"
+          @error="err => $emit('error', err)"
         />
       </div>
 

@@ -1,18 +1,29 @@
 import has from 'lodash/has';
 import Vue from 'kolibri.lib.vue';
 import logger from 'kolibri.lib.logging';
-import { languageDirections, defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
 import importIntlLocale from './intl-locale-data';
 import importVueIntlLocaleData from './vue-intl-locale-data';
 import setupAndLoadFonts from './setupAndLoadFonts';
 import plugin_data from 'plugin_data';
 
-export {
-  languageDirections,
-  defaultLanguage,
-  languageValidator,
-  getContentLangDir,
-} from 'kolibri-design-system/lib/utils/i18n';
+export const languageDirections = {
+  LTR: 'ltr',
+  RTL: 'rtl',
+};
+
+export const defaultLanguage = {
+  id: 'en',
+  lang_name: 'English',
+  lang_direction: languageDirections.LTR,
+};
+
+export const languageValidator = language => {
+  return ['id', 'lang_name', 'lang_direction'].reduce((valid, key) => valid && language[key], true);
+};
+
+export const getContentLangDir = language => {
+  return (language || {}).lang_direction || languageDirections.LTR;
+};
 
 const logging = logger.getLogger(__filename);
 
@@ -49,13 +60,13 @@ function $trWrapper(nameSpace, defaultMessages, formatter, messageId, args) {
 const defaultLocale = defaultLanguage.id;
 
 export const availableLanguages = {
-  [defaultLocale]: defaultLanguage,
+  ...(languageGlobals.languages || { [defaultLocale]: defaultLanguage }),
 };
 
-export let currentLanguage = defaultLocale;
+export const currentLanguage = languageGlobals.languageCode || defaultLocale;
 
 // Default to ltr
-export let languageDirection = languageDirections.LTR;
+export const languageDirection = languageGlobals.languageDir || languageDirections.LTR;
 
 export function getLangDir(id) {
   return (availableLanguages[id] || {}).lang_direction || languageDirections.LTR;
@@ -201,17 +212,6 @@ export function i18nSetup(skipPolyfill = false) {
   /**
    * Load fonts, app strings, and Intl polyfills
    **/
-
-  // Set up exported module variable
-  if (languageGlobals.languageCode) {
-    currentLanguage = languageGlobals.languageCode;
-  }
-
-  if (languageGlobals.languages) {
-    Object.assign(availableLanguages, languageGlobals.languages);
-  }
-
-  languageDirection = languageGlobals.languageDir || languageDirection;
 
   // Set up typography
   setLanguageDensity(currentLanguage);

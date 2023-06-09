@@ -241,7 +241,7 @@ class ChunkedFile(BufferedIOBase):
 
             for chunk_index in range(start_chunk, end_chunk + 1):
                 chunk_file = self._get_chunk_file_name(chunk_index)
-                with Lock(cache, chunk_file):
+                with Lock(cache, chunk_file, expire=10):
                     if not os.path.exists(chunk_file):
                         range_start = chunk_index * self.chunk_size
                         range_end = min(

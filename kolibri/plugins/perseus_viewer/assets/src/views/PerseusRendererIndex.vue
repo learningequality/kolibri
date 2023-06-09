@@ -91,7 +91,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import scriptLoader from 'kolibri.utils.scriptLoader';
+  import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
   import Khan from '../KAGlobals/Khan';
@@ -437,7 +437,6 @@
               method: 'get',
               url: this.defaultFile.storage_url,
               responseType: 'arraybuffer',
-              cacheBust: false,
             })
               .then(response => {
                 return JSZip.loadAsync(response.data);
@@ -445,6 +444,11 @@
               .then(perseusFile => {
                 this.perseusFile = perseusFile;
                 this.perseusFileUrl = this.defaultFile.storage_url;
+              })
+              .catch(err => {
+                logging.error('Error loading Perseus file', err);
+                this.reportLoadingError(err);
+                return Promise.reject(err);
               });
           } else {
             return Promise.resolve();

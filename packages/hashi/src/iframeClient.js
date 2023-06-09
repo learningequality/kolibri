@@ -109,10 +109,22 @@ export default class SandboxEnvironment {
     this.iframe.height = '100%';
     document.body.appendChild(this.iframe);
     const baseUrl = startUrl.split('?')[0];
+    this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
     if (baseUrl.indexOf('.h5p') === baseUrl.length - 4) {
-      this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: true });
       this.H5P.init(this.iframe, startUrl);
     } else {
+      this.iframe.onload = () => {
+        const error = this.iframe.contentDocument.head.querySelector('meta[name="hashi-error"]');
+        if (error) {
+          this.mediator.sendMessage({
+            nameSpace,
+            event: events.ERROR,
+            data: { message: error.getAttribute('content'), error: 'LOADING_ERROR' },
+          });
+        } else {
+          this.mediator.sendMessage({ nameSpace, event: events.LOADING, data: false });
+        }
+      };
       this.iframe.src = startUrl;
     }
   }

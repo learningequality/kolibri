@@ -413,6 +413,10 @@
     beforeMount() {
       global.ePub = Epub;
       this.book = new Epub(this.epubURL);
+      this.book.on(EVENTS.BOOK.OPEN_FAILED, err => {
+        this.errorLoading = true;
+        this.reportLoadingError(err);
+      });
 
       const { theme = this.theme, fontSize = this.fontSize } =
         Lockr.get(EPUB_RENDERER_SETTINGS_KEY) || {};
@@ -484,12 +488,10 @@
             }
           );
 
-        this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, () => {
+        this.rendition.on(EVENTS.RENDITION.DISPLAY_ERROR, err => {
           this.errorLoading = true;
+          this.reportLoadingError(err);
         });
-      });
-      this.book.on(EVENTS.BOOK.OPEN_FAILED, () => {
-        this.errorLoading = true;
       });
     },
     beforeDestroy() {

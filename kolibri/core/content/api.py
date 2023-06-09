@@ -102,10 +102,17 @@ def metadata_cache(some_func):
             request = kwargs.get("request", request)
         except IndexError:
             request = kwargs.get("request", None)
-        if "contentCacheKey" in request.GET:
-            # Only do long running caching if the contentCacheKey is explicitly
-            # set in the URL, otherwise rely on the Etag to do a quick 304.
-            patch_response_headers(response, cache_timeout=cache_timeout)
+        if response.status_code < 400 or response.status_code == 404:
+            # By default cache for 60 seconds to prevent repeated requests
+            # and we are returning a non-error response.
+            # or if there was a 404.
+
+            timeout = 60
+            if "contentCacheKey" in request.GET:
+                # Do long running caching if the contentCacheKey is explicitly
+                # set in the URL.
+                timeout = cache_timeout
+            patch_response_headers(response, cache_timeout=timeout)
 
         return response
 
@@ -131,7 +138,6 @@ class RemoteMixin(object):
     def _get_response_headers(self, response):
         return {
             "Cache-Control": response.headers.get("cache-control"),
-            "Content-Type": response.headers.get("content-type"),
             "Etag": response.headers.get("etag"),
         }
 

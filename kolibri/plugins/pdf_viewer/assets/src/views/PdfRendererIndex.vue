@@ -286,40 +286,45 @@
         this.progress = loadingProgress.loaded / loadingProgress.total;
       };
       this.eventBus = new EventBus();
-      this.prepComponentData = loadingPdf.promise.then(pdfDocument => {
-        // Get initial info from the loaded pdf document
-        this.pdfDocument = pdfDocument;
-        this.totalPages = this.pdfDocument.numPages;
-        // init pdfPages array
-        for (let i = 0; i < this.totalPages; i++) {
-          this.pdfPages.push({
-            page: null,
-            resolved: false,
-            index: i,
-          });
-        }
-        // Is either the first page or the saved last page visited
-        const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
-        return this.getPage(firstPageToRender + 1).then(firstPage => {
-          const viewPort = firstPage.getViewport({ scale: 1 });
-          this.firstPageHeight = viewPort.height;
-          this.firstPageWidth = viewPort.width;
-          this.scale = this.elementWidth / (this.firstPageWidth * this.screenSizeMultiplier);
+      this.prepComponentData = loadingPdf.promise
+        .then(pdfDocument => {
+          // Get initial info from the loaded pdf document
+          this.pdfDocument = pdfDocument;
+          this.totalPages = this.pdfDocument.numPages;
+          // init pdfPages array
+          for (let i = 0; i < this.totalPages; i++) {
+            this.pdfPages.push({
+              page: null,
+              resolved: false,
+              index: i,
+            });
+          }
+          // Is either the first page or the saved last page visited
+          const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
+          return this.getPage(firstPageToRender + 1).then(firstPage => {
+            const viewPort = firstPage.getViewport({ scale: 1 });
+            this.firstPageHeight = viewPort.height;
+            this.firstPageWidth = viewPort.width;
+            this.scale = this.elementWidth / (this.firstPageWidth * this.screenSizeMultiplier);
 
-          // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
-          // from PDFJS when we do our initial render
-          // splice so changes are detected
-          this.pdfPages.splice(firstPageToRender, 1, {
-            ...this.pdfPages[firstPageToRender],
-            page: firstPage,
-            resolved: true,
+            // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
+            // from PDFJS when we do our initial render
+            // splice so changes are detected
+            this.pdfPages.splice(firstPageToRender, 1, {
+              ...this.pdfPages[firstPageToRender],
+              page: firstPage,
+              resolved: true,
+            });
+            pdfDocument.getOutline().then(outline => {
+              this.outline = outline;
+              this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
+            });
           });
-          pdfDocument.getOutline().then(outline => {
-            this.outline = outline;
-            this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
-          });
+        })
+        .catch(error => {
+          this.reportLoadingError(error);
+          return Promise.reject(error);
         });
-      });
     },
     mounted() {
       // Retrieve the document and its corresponding object

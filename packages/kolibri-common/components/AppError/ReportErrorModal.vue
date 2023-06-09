@@ -47,7 +47,6 @@
 
 <script>
 
-  import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TechnicalTextBlock from './TechnicalTextBlock';
 
@@ -57,6 +56,12 @@
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings],
+    props: {
+      error: {
+        type: String,
+        required: true,
+      },
+    },
     data() {
       return {
         // TODO Set offline variable via ping in mounted()?
@@ -65,9 +70,6 @@
       };
     },
     computed: {
-      ...mapState({
-        error: state => state.core.error,
-      }),
       forumLink() {
         return 'https://community.learningequality.org/c/support/kolibri';
       },

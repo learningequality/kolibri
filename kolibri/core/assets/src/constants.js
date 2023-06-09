@@ -161,6 +161,12 @@ export const ERROR_CONSTANTS = {
   DEVICE_LIMITATIONS: 'DEVICE_LIMITATIONS',
 };
 
+export const ContentErrorConstants = {
+  // These are constants that can be used to define the type of error that a
+  // content renderer has encountered.
+  LOADING_ERROR: 'LOADING_ERROR',
+};
+
 export const DemographicConstants = {
   NOT_SPECIFIED: 'NOT_SPECIFIED',
   DEFERRED: 'DEFERRED',
