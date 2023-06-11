@@ -13,6 +13,7 @@
           <KButtonGroup>
             <KButton
               :text="$tr('syncAllAction')"
+              v-if="isAnyFacilityRegistered"
               style="margin-top: 16px; margin-bottom: -16px;"
               @click="showSyncAllModal = true"
             />
@@ -206,6 +207,7 @@
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
   import facilityTaskQueue from './facilityTasksQueue';
+  import some from 'lodash/some';
 
   const Options = Object.freeze({
     REGISTER: 'REGISTER',
@@ -250,6 +252,9 @@
     computed: {
       pageTitle() {
         return deviceString('deviceManagementTitle');
+      },
+      isAnyFacilityRegistered() {
+        return some(this.facilities, facility => facility.dataset.registered);
       },
     },
     watch: {
