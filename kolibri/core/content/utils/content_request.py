@@ -480,6 +480,7 @@ def process_download_request(download_request):
             baseurl=peer.base_url,
             node_ids=[download_request.contentnode_id],
         )
+        import_manager.download_request = download_request
         import_manager.run()
 
         download_request.status = ContentRequestStatus.Completed

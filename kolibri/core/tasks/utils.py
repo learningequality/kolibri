@@ -265,6 +265,7 @@ class JobProgressMixin(object):
     def __init__(self, *args, **kwargs):
         self.progresstracker = None
         self.job = get_current_job()
+        self.download_request = getattr(self, 'download_request', None)
         super(JobProgressMixin, self).__init__(*args, **kwargs)
 
     def update_progress(self, increment=1, message="", extra_data=None):
@@ -276,6 +277,11 @@ class JobProgressMixin(object):
             )
             if extra_data and isinstance(extra_data, dict):
                 self.job.update_metadata(**extra_data)
+        if self.download_request:
+            self.download_request.update_progress(
+                self.download_request.progress + increment,
+                self.download_request.total_progress
+            )
 
     def update_job_metadata(self, **kwargs):
         if self.job:
@@ -289,6 +295,8 @@ class JobProgressMixin(object):
         self.progresstracker = ProgressTracker(total=total)
         if self.job:
             self.job.update_progress(0, total)
+        if self.download_request:
+            self.download_request.update_progress(0, total)
         return self
 
     def __enter__(self):

@@ -466,6 +466,20 @@ class ContentRequest(models.Model):
             status=ContentRequestStatus.Pending,
         )
 
+    def update_progress(self, progress, total_progress):
+        self.metadata = self.metadata or {}
+        self.metadata['progress'] = progress
+        self.metadata['total_progress'] = total_progress
+        self.save()
+
+    @property
+    def progress(self):
+        return self.metadata.get('progress', 0) if self.metadata else 0
+
+    @property
+    def total_progress(self):
+        return self.metadata.get('total_progress', 0) if self.metadata else 0
+
 
 class ContentRequestManager(models.Manager):
     request_type = None
