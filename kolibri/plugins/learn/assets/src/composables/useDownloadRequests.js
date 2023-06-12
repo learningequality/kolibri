@@ -44,7 +44,7 @@ export default function useDownloadRequests(store) {
         if (index >= downloadRequests.length) {
           break;
         }
-        set(downloadRequestMap.downloads, downloadRequests[index].node_id, downloadRequests[index]);
+        set(downloadRequestMap.downloads, downloadRequests[index].id, downloadRequests[index]);
       }
       set(downloadRequestMap, 'totalPageNumber', Math.ceil(downloadRequests.length / pageSize));
       set(downloadRequestMap, 'totalDownloads', downloadRequests.length);
@@ -56,7 +56,6 @@ export default function useDownloadRequests(store) {
     const loading = ref(true);
     const storageInfo = ref(null);
     const dummyStorageInfo = {
-      freeDiskSize: 13340000000,
       myDownloadsSize: 23200000,
     };
     setTimeout(() => {
@@ -66,10 +65,11 @@ export default function useDownloadRequests(store) {
     return { loading, storageInfo };
   }
 
+  // add the page route here
   function navigateToDownloads() {}
 
   function addDownloadRequest(content) {
-    const resource_metadata = {
+    const metadata = {
       title: content.title,
       file_size: content.files.reduce((size, f) => size + f.file_size, 0),
       learning_activities: content.learning_activities,
@@ -77,18 +77,19 @@ export default function useDownloadRequests(store) {
 
     client({
       method: 'post',
-      url: urls['kolibri:core:contentdownloadrequest-list'](),
+      url: urls['kolibri:core:contentdownloadrequest_list'](),
       data: {
         contentnode_id: content.id,
-        resource_metadata,
+        metadata,
         source_id: store.getters.currentUserId,
         reason: 'UserInitiated',
         facility: store.getters.currentFacilityId,
         status: 'Pending',
         date_added: new Date(),
       },
-    }).then(response => {
-      console.log('response', response);
+    }).then(downloadRequest => {
+      set(downloadRequestMap, 'downloads', {});
+      set(downloadRequestMap.downloads, downloadRequest.node_id, downloadRequest);
     });
     // TODO: Remove and replace by real progress implementation
     // as soon as backend can provide it. `complete` is just a mock field
@@ -106,8 +107,19 @@ export default function useDownloadRequests(store) {
   }
 
   function removeDownloadRequest(content) {
-    console.log(`requested removal of ${content.id}`);
-    Vue.delete(downloadRequestMap.downloads, content.id);
+    client({
+      method: 'post',
+      url: urls['kolibri:core:contentremovalrequest_list'](),
+      data: {
+        contentnode_id: content.id,
+        source_id: store.getters.currentUserId,
+        reason: 'UserInitiated',
+        facility: store.getters.currentFacilityId,
+        status: 'Pending',
+        date_added: new Date(),
+      },
+    }).then(Vue.delete(downloadRequestMap.downloads, content.id));
+
     return Promise.resolve();
   }
 

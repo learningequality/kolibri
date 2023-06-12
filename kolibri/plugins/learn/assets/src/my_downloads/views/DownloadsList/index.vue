@@ -188,11 +188,11 @@
         const addedDownloads = newVal.filter(id => !oldVal.includes(id));
         const removedDownloads = oldVal.filter(id => !newVal.includes(id));
         const addedDownloadsSize = addedDownloads.reduce(
-          (acc, id) => acc + (this.downloads[id] ? this.downloads[id] : 0),
+          (acc, id) => acc + (this.downloads[id] ? this.downloads[id].metadata.file_size : 0),
           0
         );
         const removedDownloadsSize = removedDownloads.reduce(
-          (acc, id) => acc + (this.downloads[id] ? this.downloads[id] : 0),
+          (acc, id) => acc + (this.downloads[id].metadata.file_size ? this.downloads[id] : 0),
           0
         );
         this.selectedDownloadsSize += addedDownloadsSize - removedDownloadsSize;
