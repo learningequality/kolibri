@@ -12,6 +12,7 @@
           <!-- Margins to and bottom adds space when buttons are vertically stacked -->
           <KButtonGroup>
             <KButton
+              v-if="isAnyFacilityRegistered"
               :text="$tr('syncAllAction')"
               style="margin-top: 16px; margin-bottom: -16px;"
               @click="showSyncAllModal = true"
@@ -197,6 +198,7 @@
     SyncFacilityModalGroup,
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import some from 'lodash/some';
   import { PageNames } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
@@ -250,6 +252,9 @@
     computed: {
       pageTitle() {
         return deviceString('deviceManagementTitle');
+      },
+      isAnyFacilityRegistered() {
+        return some(this.facilities, facility => facility.dataset.registered);
       },
     },
     watch: {
