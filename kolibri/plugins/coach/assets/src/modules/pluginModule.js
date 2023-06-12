@@ -63,7 +63,7 @@ export default {
   },
   actions: {
     setClassList(store, facilityId) {
-      if (facilityId) {
+      if (!facilityId) {
         throw new Error("Missing required 'facilityId' argument");
       }
       store.commit('SET_DATA_LOADING', true);
