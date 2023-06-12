@@ -270,21 +270,24 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
         raise serializers.ValidationError("Device settings can only be updated")
 
     def update(self, instance, validated_data):
-        extra_settings = validated_data.get("extra_settings")
-        initial_extra_settings = getattr(instance, "extra_settings", None)
+        if "extra_settings" in validated_data:
+            extra_settings = validated_data.get("extra_settings")
+            initial_extra_settings = getattr(instance, "extra_settings", None)
 
-        if extra_settings != self.initial_extra_settings:
-            # Parse the JSON data from extra_settings
-            current_extra_settings = json.loads(extra_settings)
-            initial_extra_settings = json.loads(initial_extra_settings)
+            if extra_settings != initial_extra_settings:
+                # Parse the JSON data from extra_settings
+                current_extra_settings = json.loads(extra_settings)
+                initial_extra_settings = json.loads(initial_extra_settings)
 
-            if current_extra_settings.get(
-                "enable_automatic_download"
-            ) != initial_extra_settings.get("enable_automatic_download"):
-                if current_extra_settings.get("enable_automatic_download") is True:
-                    automatic_synchronize_content_requests_and_import.enqueue()
-        instance = super().update(instance, validated_data)
-        return instance
+                if current_extra_settings.get(
+                    "enable_automatic_download"
+                ) != initial_extra_settings.get("enable_automatic_download"):
+                    if current_extra_settings.get("enable_automatic_download") is True:
+                        automatic_synchronize_content_requests_and_import.enqueue()
+            instance = super(DeviceSettingsSerializer, self).update(
+                instance, validated_data
+            )
+            return instance
 
     def validate(self, data):
         data = super(DeviceSettingsSerializer, self).validate(data)

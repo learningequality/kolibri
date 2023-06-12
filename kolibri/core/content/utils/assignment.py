@@ -55,21 +55,6 @@ class ContentAssignmentManager(object):
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
 
-    def _matches_filters(self, instance):
-        """
-        Checks if the instance matches the filters defined in the manager.
-
-        :param instance: The model instance to check.
-        :type instance: models.Model
-        :return: True if the instance matches the filters, False otherwise.
-        :rtype: bool
-        """
-        if self.filters is None:
-            return True
-        return all(
-            getattr(instance, field) == value for field, value in self.filters.items()
-        )
-
     @classmethod
     def on_downloadable_assignment(cls, callable_func):
         """
@@ -83,13 +68,13 @@ class ContentAssignmentManager(object):
 
             @receiver(models.signals.post_save, sender=manager.model)
             def on_save(sender, instance, **kwargs):
-                if manager._matches_filters(instance):
-                    queryset = manager.model.objects.filter(pk=instance.pk)
+                queryset = manager.model.objects.filter(pk=instance.pk, **cls.filters)
+                if queryset.exists():
                     assignments = manager._get_assignments(queryset)
                     callable_func(instance.dataset_id, assignments)
 
     @classmethod
-    def on_removable_assignment(self, callable_func):
+    def on_removable_assignment(cls, callable_func):
         """
         Connects the provided callable to the post_save signal of the associated models.
         Executes the callable with the current instance if it matches the filters (if defined).
@@ -99,10 +84,10 @@ class ContentAssignmentManager(object):
         """
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
 
-            @receiver(models.signals.post_save, sender=self.model)
+            @receiver(models.signals.post_save, sender=manager.model)
             def on_save(sender, instance, **kwargs):
-                if self._matches_filters(instance):
-                    queryset = manager.model.objects.filter(pk=instance.pk)
+                queryset = manager.model.objects.exclude(pk=instance.pk, **cls.filters)
+                if queryset.exists():
                     assignments = manager._get_assignments(queryset)
                     callable_func(instance.dataset_id, assignments)
 

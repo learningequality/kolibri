@@ -18,6 +18,5 @@ class KolibriContentConfig(AppConfig):
         from .signals import reorder_channels_upon_deletion  # noqa: F401
         from .signals import cascade_delete_node  # noqa: F401
 
-        manager = ContentAssignmentManager()
-        manager.on_downloadable_assignment(add_download_requests)
-        manager.on_removable_assignment(add_removal_requests)
+        ContentAssignmentManager.on_downloadable_assignment(add_download_requests)
+        ContentAssignmentManager.on_removable_assignment(add_removal_requests)

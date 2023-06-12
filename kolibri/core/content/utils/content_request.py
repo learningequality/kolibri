@@ -58,6 +58,7 @@ def create_content_download_requests(facility, assignments):
             source_model=assignment.source_model,
             source_id=assignment.source_id,
         )
+        # delete any related removal requests
         related_removals.delete()
 
         ContentDownloadRequest.objects.get_or_create(
@@ -83,6 +84,7 @@ def create_content_removal_requests(facility, removable_assignments):
             source_id=assignment.source_id,
         )
         if isinstance(assignment, DeletedAssignment):
+            # for completed downloads, we'll go through contentnode_ids and add removals
             removed_contentnode_ids = related_downloads.values_list(
                 "contentnode_id", flat=True
             ).distinct()
@@ -101,6 +103,7 @@ def create_content_removal_requests(facility, removable_assignments):
                 contentnode_id=contentnode_id,
             )
 
+        # delete any related download requests
         related_downloads.delete()
 
 
