@@ -78,6 +78,7 @@ from kolibri.core.utils.pagination import ValuesViewsetLimitOffsetPagination
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.core.utils.urls import join_url
 from kolibri.utils.conf import OPTIONS
+from kolibri.utils.urls import validator
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +157,10 @@ class RemoteMixin(object):
         qs = request.GET.copy()
         del qs[self.remote_url_param]
         qs.pop("contentCacheKey", None)
+        try:
+            validator(baseurl)
+        except ValidationError:
+            raise Http404("Remote resource not found")
         remote_url = join_url(baseurl, remote_path)
         try:
             response = requests.get(
