@@ -7,8 +7,15 @@
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
-    <div class="theme-preview" :style="{ backgroundColor: theme.backgroundColor, color: theme.textColor }">
-      <p>The quick brown fox jumps over the lazy dog. <a :style="{ color: theme.linkColor }">Link</a></p>
+
+    <div
+      class="theme-preview" 
+      :style="{ backgroundColor: theme.backgroundColor, color: theme.textColor }"
+    >
+      <p>
+        The quick brown fox jumps over the lazy dog.
+        <a :style="{ color: theme.linkColor }">Link</a>
+      </p>
     </div>
     
     <!--  -->
@@ -59,10 +66,12 @@
       },
       theme: {
         type: Object,
-        default: {
-          backgroundColor: '#ffffff',
-          textColor: '#000000',
-          linkColor: '#0000ff',
+        default: () => {
+          return {
+            backgroundColor: '#ffffff',
+            textColor: '#000000',
+            linkColor: '#0000ff',
+          }
         }
       }
     },
@@ -74,6 +83,9 @@
         else if (this.modalMode == 'edit'){
           return this.$tr('titleEditTheme');
         }
+        else {
+          return this.$tr('titleNewTheme'); //this can never return. Suggestions?
+        }
       },
     },
     $trs: {
@@ -84,6 +96,10 @@
       titleEditTheme: {
         message: 'Edit Theme',
         context: 'Title of window that displays when a user tries to edit an existing custom theme.',
+      },
+      titleNewTheme: {
+        message: 'New Theme',
+        context: 'Title of window that displays when a user tries to not adding or editing a custom theme.', //needs discussion
       }
     },
   };
