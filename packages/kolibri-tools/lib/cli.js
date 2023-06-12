@@ -99,6 +99,13 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
       liveReload: !options.hot,
       host: options.host,
       port: options.port,
+      client: {
+        overlay: {
+          errors: true,
+          warnings: false,
+          runtimeErrors: false,
+        },
+      },
       headers: {
         'Access-Control-Allow-Origin': '*',
       },
