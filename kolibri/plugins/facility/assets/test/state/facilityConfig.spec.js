@@ -70,7 +70,7 @@ describe('facility config page actions', () => {
     Object.assign(store.state.core, {
       pageId: '123',
       session: {
-        currentFacilityId: '1',
+        userFacilityId: '1',
       },
     });
   });
@@ -91,7 +91,7 @@ describe('facility config page actions', () => {
 
         const mockActiveFacilityId = jest
           .fn()
-          .mockReturnValueOnce(store.state.core.session.currentFacilityId);
+          .mockReturnValueOnce(store.state.core.session.userFacilityId);
 
         store.getters = {
           userIsMultiFacilityAdmin: mockUserIsMultiFacilityAdmin(),

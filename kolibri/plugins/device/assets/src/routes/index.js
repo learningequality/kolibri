@@ -82,7 +82,7 @@ const routes = [
     component: withAuthMessage(ManageSyncSchedule, 'superuser'),
     path: '/facilities/:facilityId/managesync',
     props: route => {
-      const facilityId = route.params.facilityId || store.getters.currentFacilityId;
+      const facilityId = route.params.facilityId || store.getters.userFacilityId;
       return {
         goBackRoute: { name: PageNames.FACILITIES_PAGE },
         facilityId,
@@ -105,7 +105,7 @@ const routes = [
     props: route => {
       return {
         goBackRoute: { name: PageNames.MANAGE_SYNC_SCHEDULE },
-        facilityId: route.params.facilityId || store.getters.currentFacilityId,
+        facilityId: route.params.facilityId || store.getters.userFacilityId,
         deviceId: route.params.device_id,
       };
     },

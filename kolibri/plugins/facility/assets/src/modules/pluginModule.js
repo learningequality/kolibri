@@ -36,14 +36,14 @@ export default {
   getters: {
     activeFacilityId(state, getters, rootState, rootGetters) {
       // Return either the facility_id param in the route module,
-      // or the currentFacilityId value from core.session
+      // or the userFacilityId value from core.session
 
-      // For multi-facility case, only use facility_id if in route because currentFacilityId
+      // For multi-facility case, only use facility_id if in route because userFacilityId
       // fallback would always navigate to our default facility, not multi-facility landing page
       if (getters.userIsMultiFacilityAdmin) {
         return rootState.route.params.facility_id;
       }
-      return rootState.route.params.facility_id || rootGetters.currentFacilityId;
+      return rootState.route.params.facility_id || rootGetters.userFacilityId;
     },
     currentFacilityName(state, getters, rootState) {
       const match = find(rootState.core.facilities, { id: getters.activeFacilityId });

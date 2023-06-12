@@ -54,7 +54,7 @@ export default {
       permissions.can_manage_content = state.can_manage_content;
       return permissions;
     },
-    currentFacilityId(state) {
+    userFacilityId(state) {
       return state.facility_id;
     },
     currentUserId(state) {

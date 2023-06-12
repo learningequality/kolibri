@@ -39,7 +39,7 @@ export default function useDownloadRequests(store) {
         id: '2ea9bda8703241be89b5b9fd87f88815',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
-        facility_id: store.getters.currentFacilityId,
+        facility_id: store.getters.userFacilityId,
         status: 'QUEUED',
         date_added: new Date(),
         resource_metadata: {
@@ -53,7 +53,7 @@ export default function useDownloadRequests(store) {
         id: '9e53d545aaf44c3787a29a34b189c56a',
         user_id: store.getters.currentUserId,
         reason: 'USER_INITIATED',
-        facility_id: store.getters.currentFacilityId,
+        facility_id: store.getters.userFacilityId,
         status: 'QUEUED',
         date_added: new Date(),
         resource_metadata: {
@@ -115,7 +115,7 @@ export default function useDownloadRequests(store) {
       resource_metadata,
       user_id: store.getters.currentUserId,
       reason: 'USER_INITIATED',
-      facility_id: store.getters.currentFacilityId,
+      facility_id: store.getters.userFacilityId,
       status: 'QUEUED',
       date_added: new Date(),
     };
