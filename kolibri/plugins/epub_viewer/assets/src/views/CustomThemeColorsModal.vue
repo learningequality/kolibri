@@ -7,6 +7,12 @@
     @submit="$emit('submit')"
     @cancel="$emit('cancel')"
   >
+    <div class="theme-name">
+      <!-- need to configure the input box -->
+      <ThemeNameTextbox 
+        :value="themeName"
+      />
+    </div>
 
     <div
       class="theme-preview" 
@@ -43,9 +49,13 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import ThemeNameTextbox from './ThemeNameTextBox.vue';
 
   export default {
     name: 'CustomThemeColorsModal',
+    components: {
+      ThemeNameTextbox,
+    },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
@@ -108,6 +118,9 @@
 
 
 <style lang="scss" scoped>
+  .theme-name {
+    margin: 24px;
+  }
   .theme-preview {
     margin: 24px;
     padding: 24px;
