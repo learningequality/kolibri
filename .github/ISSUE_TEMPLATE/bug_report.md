@@ -1,3 +1,9 @@
+---
+name: Report a bug
+about: Report a bug to help us improve
+title: "[Brief description]"
+---
+
 <!--
 Instructions:
  * Fill out the sections below, replace …'s with information about your issue
