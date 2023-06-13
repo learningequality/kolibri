@@ -26,15 +26,30 @@
     
     <div :class="{ 'color-select-container-mobile': windowIsSmall }">
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: theme.backgroundColor }"></div>
+        <div class="color-box">
+          <KButton
+            :appearanceOverrides="generateStyle(theme.backgroundColor)"
+            @click="pickThemeColor = 'background'"
+          />
+        </div>
         <p>Background</p>
       </div>
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: theme.textColor }"></div>
+        <div class="color-box">
+          <KButton
+            :appearanceOverrides="generateStyle(theme.textColor)"
+            @click="pickThemeColor = 'text'"
+          />
+        </div>
         <p>Text</p>
       </div>
       <div class="theme-option">
-        <div class="color-box" :style="{ backgroundColor: theme.linkColor }"></div>
+        <div class="color-box">
+          <KButton
+            :appearanceOverrides="generateStyle(theme.linkColor)"
+            @click="pickThemeColor = 'link'"
+          />
+        </div>
         <p>Link</p>
       </div>
     </div>
@@ -84,6 +99,11 @@
         }
       }
     },
+    data(){
+      return {
+        pickThemeColor: null
+      }
+    },
     computed: {
       title() {
         if (this.modalMode == 'add') {
@@ -97,6 +117,21 @@
         // NOTE: This message is not supposed to be displayed in the current implementation
         }
       },
+    },
+    methods: {
+      generateStyle(bgColor){
+        return {
+          backgroundColor: bgColor,
+          height: '100%',
+          width: '100%',
+          transition: "box-shadow 0.3s ease-in-out",
+          ':hover': {
+            backgroundColor: bgColor,
+            opacity: 0.9,
+            boxShadow: '0 1px 4px'
+          },
+        };
+      }
     },
     $trs: {
       titleAddTheme: {
