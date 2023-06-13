@@ -24,10 +24,6 @@ def any_ie11_users():
     return UserSessionLog.objects.filter(device_info__contains="IE,11").count() > 0
 
 
-def using_py27():
-    return sys.version_info.major == 2
-
-
 @register_hook
 class DeviceManagementAsset(WebpackBundleHook):
     bundle_id = "app"
@@ -39,7 +35,7 @@ class DeviceManagementAsset(WebpackBundleHook):
             "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
             "canRestart": bool(OPTIONS["Deployment"]["RESTART_HOOKS"]),
             "deprecationWarnings": {
-                "py27": using_py27(),
+                "py27": sys.version_info.major == 2,
                 "ie11": any_ie11_users(),
             },
         }
