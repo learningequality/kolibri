@@ -10,6 +10,7 @@
     />
 
     <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
+      <div :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }" :style="{ color: $themeTokens.text }">
       <h3
         v-if="!windowIsSmall"
         class="title"
@@ -35,6 +36,7 @@
       <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
         {{ message }}
       </div>
+    </div>
       <TextTruncatorCss
         v-if="!windowIsSmall"
         :text="description"
@@ -155,32 +157,27 @@
 
   .text {
     margin-left: $thumb-width + 8;
+    display: flex;
+    flex-direction: column;
   }
 
   .mobile-text {
     margin-left: $mobile-thumb-width + 8;
   }
 
-  .title,
-  .message {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  .title-message-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
   }
 
-  .title.has-message,
-  .message {
-    max-width: 45%;
-  }
-
-  .title {
+  .title, .message {
     margin-top: 0;
+    overflow: hidden;
   }
 
   .message {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    text-align: right;
   }
 
   .coach-content-label {
