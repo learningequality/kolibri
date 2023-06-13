@@ -46,7 +46,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
 export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
   const { id, facility_id } = toRoute.params;
   if (toRoute.name !== fromRoute.name) {
-    store.commit('CORE_SET_PAGE_LOADING', true);
+    store.dispatch('loading');
   }
   const facilityId = facility_id || store.getters.activeFacilityId;
   // all users in facility eligible to be a coach that is not already a coach
@@ -76,10 +76,11 @@ export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
           class: classroom,
           modalShown: false,
         });
-        store.commit('CORE_SET_PAGE_LOADING', false);
       }
+      store.dispatch('notLoading');
     },
     error => {
+      store.dispatch('notLoading');
       shouldResolve() ? store.dispatch('handleError', error) : null;
     }
   );

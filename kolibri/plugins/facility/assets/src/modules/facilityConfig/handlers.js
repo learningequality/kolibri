@@ -10,7 +10,7 @@ export function showFacilityConfigPage(store, toRoute) {
   ];
 
   return Promise.all(resourceRequests)
-    .then(function onSuccess([facility, facilityDatasets, facilities]) {
+    .then(([facility, facilityDatasets, facilities]) => {
       const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
       store.commit('facilityConfig/SET_STATE', {
         facilityDatasetId: dataset.id,
@@ -22,14 +22,13 @@ export function showFacilityConfigPage(store, toRoute) {
         settingsCopy: { ...dataset },
         facilities: facilities,
       });
-
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading').then(() => console.log('NOT LOADING!'));
     })
-    .catch(function onFailure() {
+    .catch(() => {
       store.commit('facilityConfig/SET_STATE', {
         facilityName: '',
         settings: null,
       });
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading');
     });
 }
