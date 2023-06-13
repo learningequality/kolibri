@@ -10,33 +10,36 @@
     />
 
     <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
-      <div :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }" :style="{ color: $themeTokens.text }">
-      <h3
-        v-if="!windowIsSmall"
-        class="title"
-        :class="{ 'has-message': Boolean(message) }"
-        dir="auto"
+      <div 
+        :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }" 
+        :style="{ color: $themeTokens.text }"
       >
-        <KLabeledIcon :label="title">
-          <template #icon>
-            <ContentIcon :kind="kind" />
-          </template>
-        </KLabeledIcon>
-      </h3>
-      <h3
-        v-if="windowIsSmall"
-        dir="auto"
-      >
-        <KLabeledIcon :label="title">
-          <template #icon>
-            <ContentIcon :kind="kind" />
-          </template>
-        </KLabeledIcon>
-      </h3>
-      <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
-        {{ message }}
+        <h3
+          v-if="!windowIsSmall"
+          class="title"
+          :class="{ 'has-message': Boolean(message) }"
+          dir="auto"
+        >
+          <KLabeledIcon :label="title">
+            <template #icon>
+              <ContentIcon :kind="kind" />
+            </template>
+          </KLabeledIcon>
+        </h3>
+        <h3
+          v-if="windowIsSmall"
+          dir="auto"
+        >
+          <KLabeledIcon :label="title">
+            <template #icon>
+              <ContentIcon :kind="kind" />
+            </template>
+          </KLabeledIcon>
+        </h3>
+        <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
+          {{ message }}
+        </div>
       </div>
-    </div>
       <TextTruncatorCss
         v-if="!windowIsSmall"
         :text="description"
@@ -156,8 +159,8 @@
   }
 
   .text {
-    margin-left: $thumb-width + 8;
     flex-direction: column;
+    margin-left: $thumb-width + 8;
   }
 
   .mobile-text {
@@ -170,7 +173,8 @@
     justify-content: space-between;
   }
 
-  .title, .message {
+  .title,
+  .message {
     margin-top: 0;
     overflow: hidden;
   }
