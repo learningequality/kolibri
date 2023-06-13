@@ -275,7 +275,7 @@
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
       },
       customTheme: {
-        message: 'Custom Themes',
+        message: 'My themes',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option.",
       },

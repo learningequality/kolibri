@@ -24,7 +24,6 @@
       </p>
     </div>
     
-    <!--  -->
     <div :class="{ 'color-select-container-mobile': windowIsSmall }">
       <div class="theme-option">
         <div class="color-box" :style="{ backgroundColor: theme.backgroundColor }"></div>
@@ -94,22 +93,24 @@
           return this.$tr('titleEditTheme');
         }
         else {
-          return this.$tr('titleNewTheme'); //this can never return. Suggestions?
+          return this.$tr('titleNewTheme');
+        // NOTE: This message is not supposed to be displayed in the current implementation
         }
       },
     },
     $trs: {
       titleAddTheme: {
-        message: 'Add New Theme',
+        message: 'Add new theme',
         context: 'Title of window that displays when a user tries to add a new custom theme.',
       },
       titleEditTheme: {
-        message: 'Edit Theme',
+        message: 'Edit theme',
         context: 'Title of window that displays when a user tries to edit an existing custom theme.',
       },
       titleNewTheme: {
-        message: 'New Theme',
-        context: 'Title of window that displays when a user tries to not adding or editing a custom theme.', //needs discussion
+        message: 'New theme',
+        context: 'Title of window that displays when a user tries to not adding or editing a custom theme.',
+        // NOTE: This message is not supposed to be displayed in the current implementation
       }
     },
   };
