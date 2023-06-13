@@ -157,7 +157,6 @@
 
   .text {
     margin-left: $thumb-width + 8;
-    display: flex;
     flex-direction: column;
   }
 
