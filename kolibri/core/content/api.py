@@ -1357,8 +1357,6 @@ class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             )
         ).filter(has_removal=False)
 
-        # destroy model mixin
-
 
 class ContentRemovalRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentRemovalRequestSeralizer
