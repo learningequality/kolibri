@@ -2,8 +2,8 @@
 
   <DeviceAppBarPage :title="pageTitle">
 
-    <KPageContainer class="device-container">
-      <div v-if="!$store.state.core.loading">
+    <KPageContainer v-if="!isPageLoading" class="device-container">
+      <div>
         <h1>{{ $tr('header') }}</h1>
         <table :class="windowIsSmall ? 'mobile-table' : ''">
           <tr>
@@ -78,7 +78,7 @@
 
 <script>
 
-  import { mapState } from 'vuex';
+  import { mapGetters, mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -106,6 +106,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isPageLoading']),
       ...mapState('deviceInfo', ['deviceInfo', 'deviceName']),
       buttonText() {
         return this.advancedShown ? this.$tr('hide') : this.coreString('showAction');

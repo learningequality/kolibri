@@ -21,7 +21,7 @@ import { PageNames } from '../constants';
 import wizardTransitionRoutes from './wizardTransitionRoutes';
 
 function hideLoadingScreen() {
-  store.commit('CORE_SET_PAGE_LOADING', false);
+  store.dispatch('notLoading');
 }
 
 function defaultHandler(toRoute) {

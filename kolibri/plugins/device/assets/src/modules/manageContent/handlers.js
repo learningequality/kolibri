@@ -5,7 +5,8 @@ export function showManageContentPage(store) {
     return Promise.all([
       store.dispatch('manageContent/refreshTaskList'),
       store.dispatch('manageContent/refreshChannelList'),
-    ]);
+    ]).then(() => store.dispatch('notLoading'));
   }
+  store.dispatch('notLoading');
   return Promise.resolve();
 }
