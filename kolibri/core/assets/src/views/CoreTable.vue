@@ -93,7 +93,7 @@
        * empty message if there are no rows in the table. If we have loaded data, have
        * an emptyMessage and have no rows. If we have rows, then we show the table alone
        */
-      var dataStatusEl = this.dataLoading
+      const dataStatusEl = this.dataLoading
         ? createElement('p', [createElement(KCircularLoader)])
         : !tableHasRows && createElement('p', this.emptyMessage); // Only show message if no rows
 
