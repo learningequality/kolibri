@@ -253,6 +253,13 @@ In production, content is served through `Whitenoise <http://whitenoise.evans.io
 
 Now you should be able to access the server at ``http://127.0.0.1:8080/``.
 
+Kolibri has support for being run as a ``Type=notify`` service under
+`systemd <https://www.freedesktop.org/software/systemd/>`__. When doing so, it
+is recommended to run ``kolibri start`` with the ``--skip-update`` option, and
+to run ``kolibri configure setup`` separately beforehand to handle database
+migrations and other one-time setup steps. This avoids the ``kolibri start``
+command timing out under systemd if migrations are happening.
+
 
 Separate servers
 ~~~~~~~~~~~~~~~~
