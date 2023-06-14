@@ -20,7 +20,8 @@
     >
       <p>
         The quick brown fox jumps over the lazy dog.
-        <a :style="{ color: theme.linkColor }">Link</a>
+        <a :style="{ color: theme.linkColor }">This is a link</a>
+        <!-- do this need translations too? -->
       </p>
     </div>
     
@@ -32,7 +33,7 @@
             @click="pickThemeColor = 'background'"
           />
         </div>
-        <p>Background</p>
+        <p>{{ $tr('buttonBackground') }}</p>
       </div>
       <div class="theme-option">
         <div class="color-box">
@@ -41,7 +42,7 @@
             @click="pickThemeColor = 'text'"
           />
         </div>
-        <p>Text</p>
+        <p>{{ $tr('buttonText') }}</p>
       </div>
       <div class="theme-option">
         <div class="color-box">
@@ -50,7 +51,7 @@
             @click="pickThemeColor = 'link'"
           />
         </div>
-        <p>Link</p>
+        <p>{{ $tr('buttonLink') }}</p>
       </div>
     </div>
 
@@ -146,6 +147,18 @@
         message: 'New theme',
         context: 'Title of window that displays when a user tries to not adding or editing a custom theme.',
         // NOTE: This message is not supposed to be displayed in the current implementation
+      },
+      buttonBackground: {
+        message: 'Background',
+        context: ''
+      },
+      buttonText: {
+        message: 'Text',
+        context: ''
+      },
+      buttonLink: {
+        message: 'Link',
+        context: ''
       }
     },
   };
