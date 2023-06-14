@@ -538,3 +538,46 @@ class DiskChannelUpdateManager(DiskResourceImportManagerBase):
             renderable_only=self.renderable_only,
             drive_id=self.drive_id,
         )
+
+
+class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportManager):
+    def __init__(
+        self,
+        channel_id,
+        peer_id=None,
+        baseurl=None,
+        node_ids=None,
+        exclude_node_ids=None,
+        renderable_only=True,
+        fail_on_error=False,
+        content_dir=None,
+        download_request=None,
+        timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+    ):
+        super(ContentDownloadRequestResourceImportManager, self).__init__(
+            channel_id,
+            peer_id=peer_id,
+            baseurl=baseurl,
+            node_ids=node_ids,
+            exclude_node_ids=exclude_node_ids,
+            renderable_only=renderable_only,
+            fail_on_error=fail_on_error,
+            content_dir=content_dir,
+            timeout=timeout,
+        )
+        self.download_request = download_request
+
+    def start_progress(self, total=100):
+        super(ContentDownloadRequestResourceImportManager, self).start_progress(total)
+        if self.download_request:
+            self.download_request.update_progress(0, total)
+
+    def update_progress(self, increment=1, message="", extra_data=None):
+        super(ContentDownloadRequestResourceImportManager, self).update_progress(
+            increment, message, extra_data
+        )
+        if self.download_request:
+            self.download_request.update_progress(
+                self.download_request.progress + increment,
+                self.download_request.total_progress,
+            )

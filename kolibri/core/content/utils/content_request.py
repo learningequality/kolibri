@@ -21,7 +21,7 @@ from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.resource_import import (
-    RemoteChannelResourceImportManager,
+    ContentDownloadRequestResourceImportManager,
 )
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
@@ -474,11 +474,12 @@ def process_download_request(download_request):
         channel_id = ContentNode.objects.get(
             pk=download_request.contentnode_id
         ).channel_id
-        import_manager = RemoteChannelResourceImportManager(
+        import_manager = ContentDownloadRequestResourceImportManager(
             channel_id,
             peer_id=peer.id,
             baseurl=peer.base_url,
             node_ids=[download_request.contentnode_id],
+            download_request=download_request,
         )
         import_manager.run()
 
