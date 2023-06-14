@@ -16,11 +16,11 @@
 
     <div
       class="theme-preview" 
-      :style="{ backgroundColor: theme.backgroundColor, color: theme.textColor }"
+      :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
     >
       <p>
         The quick brown fox jumps over the lazy dog.
-        <a :style="{ color: theme.linkColor }">This is a link</a>
+        <a :style="{ color: tempTheme.linkColor }">This is a link</a>
         <!-- do this need translations too? -->
       </p>
     </div>
@@ -29,8 +29,8 @@
       <div class="theme-option">
         <div class="color-box">
           <KButton
-            :appearanceOverrides="generateStyle(theme.backgroundColor)"
-            @click="pickThemeColor = 'background'"
+            :appearanceOverrides="generateStyle(tempTheme.backgroundColor)"
+            @click="pickThemeColor('background')"
           />
         </div>
         <p>{{ $tr('buttonBackground') }}</p>
@@ -38,8 +38,8 @@
       <div class="theme-option">
         <div class="color-box">
           <KButton
-            :appearanceOverrides="generateStyle(theme.textColor)"
-            @click="pickThemeColor = 'text'"
+            :appearanceOverrides="generateStyle(tempTheme.textColor)"
+            @click="pickThemeColor('text')"
           />
         </div>
         <p>{{ $tr('buttonText') }}</p>
@@ -47,8 +47,8 @@
       <div class="theme-option">
         <div class="color-box">
           <KButton
-            :appearanceOverrides="generateStyle(theme.linkColor)"
-            @click="pickThemeColor = 'link'"
+            :appearanceOverrides="generateStyle(tempTheme.linkColor)"
+            @click="pickThemeColor('link')"
           />
         </div>
         <p>{{ $tr('buttonLink') }}</p>
@@ -102,7 +102,11 @@
     },
     data(){
       return {
-        pickThemeColor: null
+        tempTheme: {
+          backgroundColor: this.theme.backgroundColor,
+          textColor: this.theme.textColor,
+          linkColor: this.theme.linkColor,
+        }
       }
     },
     computed: {
@@ -132,6 +136,20 @@
             boxShadow: '0 1px 4px'
           },
         };
+      },
+      pickThemeColor(type) {
+        if (type == 'background') {
+          // pops the color picker
+          this.tempTheme.backgroundColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+        else if (type == 'text') {
+          // pops the color picker
+          this.tempTheme.textColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
+        else if (type == 'link') {
+          // pops the color picker
+          this.tempTheme.linkColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        }
       }
     },
     $trs: {
