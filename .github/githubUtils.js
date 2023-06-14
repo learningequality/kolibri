@@ -30,7 +30,7 @@ const file_manifest = {
   },
   "gz": {
       "extension": "gz",
-      "description": "Source Tarball",
+      "description": "TAR file",
       "content_type": "application/gzip",
   },
   "zip": {
