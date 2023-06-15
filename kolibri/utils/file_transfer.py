@@ -368,6 +368,11 @@ class Transfer(with_metaclass(ABCMeta)):
     def _get_content_iterator(self):
         pass
 
+    def run(self, progress_update=None):
+        for chunk in self:
+            if callable(progress_update):
+                progress_update(len(chunk))
+
     def _next(self):
         try:
             # Get the next chunk from the content iterator
@@ -534,7 +539,7 @@ class FileDownload(Transfer):
         return (
             self._finalize_download
             and (self.range_start is None or self.range_start == 0)
-            and (self.range_end is None or self.range_end == self.file_size - 1)
+            and (self.range_end is None or self.range_end == self.total_size - 1)
         )
 
     def finalize(self):

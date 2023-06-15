@@ -198,8 +198,11 @@ class Command(AsyncCommand):
         with filetransfer, self.start_progress(
             total=filetransfer.transfer_size
         ) as progress_update:
-            for chunk in filetransfer:
-                progress_update(len(chunk), progress_extra_data)
+
+            def progress_callback(bytes):
+                progress_update(bytes, progress_extra_data)
+
+            filetransfer.run(progress_callback)
             # if upgrading, import the channel
             if not no_upgrade:
                 try:

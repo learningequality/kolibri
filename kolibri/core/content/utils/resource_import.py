@@ -103,22 +103,14 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         of data transferred. The error value will be None if no error
         occurred.
         """
-        data_transferred = 0
 
         with filetransfer:
             try:
-                for chunk in filetransfer:
-                    data_transferred += len(chunk)
+                filetransfer.run()
             except transfer.TransferFailed as e:
-                return e, data_transferred
-            # Ensure that if for some reason the total file size for the transfer
-            # is less than what we have marked in the database that we make up
-            # the difference so that the overall progress is never incorrect.
-            # This could happen, for example for a local transfer if a file
-            # has been replaced or corrupted (which we catch below)
-            data_transferred += f["file_size"] - filetransfer.transfer_size
+                return e, 0
 
-        return None, data_transferred
+        return None, f["file_size"] or 0
 
     @abstractmethod
     def get_import_data(self):
@@ -170,8 +162,8 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
                 self.number_of_skipped_files += 1
             else:
                 self.file_checksums_to_annotate.append(f["id"])
-                self.transferred_file_size += f["file_size"]
-            self.remaining_bytes_to_transfer -= f["file_size"]
+                self.transferred_file_size += f["file_size"] or 0
+            self.remaining_bytes_to_transfer -= f["file_size"] or 0
             remaining_free_space = get_free_space(self.content_dir)
             if remaining_free_space <= self.remaining_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(
