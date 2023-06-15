@@ -1,10 +1,6 @@
 <template>
 
-  <AppBarPage :title="pageTitle">
-
-    <template #subNav>
-      <DeviceTopNav />
-    </template>
+  <DeviceAppBarPage :title="pageTitle">
 
     <KPageContainer class="device-container">
       <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
@@ -178,7 +174,7 @@
         @syncPeer="handlePeerSync"
       />
     </KPageContainer>
-  </AppBarPage>
+  </DeviceAppBarPage>
 
 </template>
 
@@ -188,7 +184,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
   import {
@@ -199,10 +194,10 @@
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import some from 'lodash/some';
+  import DeviceAppBarPage from '../DeviceAppBarPage';
   import { PageNames } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
-  import DeviceTopNav from '../DeviceTopNav';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
@@ -223,10 +218,9 @@
       };
     },
     components: {
-      AppBarPage,
+      DeviceAppBarPage,
       ConfirmationRegisterModal,
       CoreTable,
-      DeviceTopNav,
       HeaderWithOptions,
       FacilityNameAndSyncStatus,
       ImportFacilityModalGroup,

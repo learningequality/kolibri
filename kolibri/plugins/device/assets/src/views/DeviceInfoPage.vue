@@ -1,10 +1,6 @@
 <template>
 
-  <AppBarPage :title="pageTitle">
-
-    <template #subNav>
-      <DeviceTopNav />
-    </template>
+  <DeviceAppBarPage :title="pageTitle">
 
     <KPageContainer class="device-container">
       <div v-if="!$store.state.core.loading">
@@ -75,7 +71,7 @@
         />
       </div>
     </KPageContainer>
-  </AppBarPage>
+  </DeviceAppBarPage>
 
 </template>
 
@@ -86,9 +82,8 @@
   import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
+  import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
-  import DeviceTopNav from './DeviceTopNav';
   import DeviceNameModal from './DeviceNameModal';
 
   export default {
@@ -99,9 +94,8 @@
       };
     },
     components: {
-      AppBarPage,
+      DeviceAppBarPage,
       DeviceNameModal,
-      DeviceTopNav,
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],

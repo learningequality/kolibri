@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import sys
+
 from kolibri.core.auth.constants.user_kinds import SUPERUSER
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -16,15 +18,26 @@ class DeviceManagementPlugin(KolibriPluginBase):
     translated_view_urls = "urls"
 
 
+def any_ie11_users():
+    from kolibri.core.logger.models import UserSessionLog
+
+    return UserSessionLog.objects.filter(device_info__contains="IE,11").count() > 0
+
+
 @register_hook
 class DeviceManagementAsset(WebpackBundleHook):
     bundle_id = "app"
 
     @property
     def plugin_data(self):
+
         return {
             "isRemoteContent": OPTIONS["Deployment"]["REMOTE_CONTENT"],
             "canRestart": bool(OPTIONS["Deployment"]["RESTART_HOOKS"]),
+            "deprecationWarnings": {
+                "py27": sys.version_info.major == 2,
+                "ie11": any_ie11_users(),
+            },
         }
 
 

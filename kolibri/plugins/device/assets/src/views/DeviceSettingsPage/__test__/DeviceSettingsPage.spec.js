@@ -13,6 +13,15 @@ import { getFreeSpaceOnServer } from '../../AvailableChannelsPage/api';
 jest.mock('../../../composables/usePlugins');
 jest.mock('kolibri.urls');
 
+jest.mock('plugin_data', () => {
+  return {
+    __esModule: true,
+    default: {
+      deprecationWarnings: {},
+    },
+  };
+});
+
 jest.mock('../api.js', () => ({
   getPathPermissions: jest.fn(),
   getPathsPermissions: jest.fn(),

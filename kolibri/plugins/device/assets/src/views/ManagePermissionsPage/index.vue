@@ -1,10 +1,6 @@
 <template>
 
-  <AppBarPage :title="pageTitle">
-
-    <template #subNav>
-      <DeviceTopNav />
-    </template>
+  <DeviceAppBarPage :title="pageTitle">
 
     <KPageContainer class="device-container">
       <div class="description">
@@ -55,7 +51,7 @@
       </PaginatedListContainer>
 
     </KPageContainer>
-  </AppBarPage>
+  </DeviceAppBarPage>
 
 </template>
 
@@ -67,8 +63,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainer from 'kolibri.coreVue.components.PaginatedListContainer';
   import { PermissionTypes, UserKinds } from 'kolibri.coreVue.vuex.constants';
-  import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import DeviceTopNav from '../DeviceTopNav';
+  import DeviceAppBarPage from '../DeviceAppBarPage';
   import { deviceString } from '../commonDeviceStrings';
   import UserGrid from './UserGrid';
 
@@ -82,8 +77,7 @@
       };
     },
     components: {
-      AppBarPage,
-      DeviceTopNav,
+      DeviceAppBarPage,
       PaginatedListContainer,
       UserGrid,
     },
