@@ -36,7 +36,7 @@
           {{ coreString('genderLabel') }}
         </th>
         <td dir="auto" data-test="gender">
-          {{ cleanValue(targetAccount.gender) }}
+          <GenderDisplayText :gender="targetAccount.gender" />
         </td>
       </tr>
       <tr>
@@ -44,7 +44,7 @@
           {{ coreString('birthYearLabel') }}
         </th>
         <td dir="auto" data-test="birthyear">
-          {{ cleanValue(targetAccount.birth_year) }}
+          <BirthYearDisplayText :birthYear="targetAccount.birth_year" />
         </td>
       </tr>
     </table>
@@ -79,6 +79,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import GenderDisplayText from 'kolibri.coreVue.components.GenderDisplayText';
+  import BirthYearDisplayText from 'kolibri.coreVue.components.BirthYearDisplayText';
   import { computed, inject } from 'kolibri.lib.vueCompositionApi';
   import get from 'lodash/get';
 
@@ -89,7 +91,7 @@
         title: this.$tr('documentTitle'),
       };
     },
-    components: { BottomAppBar },
+    components: { BottomAppBar, GenderDisplayText, BirthYearDisplayText },
 
     mixins: [commonCoreStrings],
     setup() {
