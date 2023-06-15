@@ -24,13 +24,23 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
 
-function facilityParamRequiredGuard(toRoute, subtopicName) {
-  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-    router.replace({
-      name: 'ALL_FACILITIES_PAGE',
-      params: { subtopicName },
-    });
-    return true;
+function facilityParamRequiredGuard(toRoute, fromRoute, subtopicName) {
+  if (
+    store.getters.userIsMultiFacilityAdmin &&
+    !toRoute.params.facility_id &&
+    fromRoute.query.subtopicName !== subtopicName
+  ) {
+    const currentSubtopicName = toRoute.query.subtopicName;
+
+    if (currentSubtopicName !== subtopicName) {
+      router.replace({
+        name: 'ALL_FACILITIES_PAGE',
+        query: { subtopicName },
+        params: { subtopicName },
+      });
+      return true;
+    }
+    return false;
   }
 }
 
@@ -38,7 +48,7 @@ export default [
   // Routes for multi-facility case
   {
     name: PageNames.ALL_FACILITIES_PAGE,
-    path: '/facilities',
+    path: '/:subtopicName?/facilities',
     component: AllFacilitiesPage,
     props: true,
     handler() {
@@ -52,8 +62,8 @@ export default [
     name: PageNames.CLASS_MGMT_PAGE,
     path: '/:facility_id?/classes',
     component: ManageClassPage,
-    handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, ManageClassPage.name)) {
+    handler: (toRoute, fromRoute) => {
+      if (facilityParamRequiredGuard(toRoute, fromRoute, ManageClassPage.name)) {
         return;
       }
       showClassesPage(store, toRoute);
@@ -88,7 +98,7 @@ export default [
     component: UserPage,
     path: '/:facility_id?/users',
     handler: (toRoute, fromRoute) => {
-      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
+      if (facilityParamRequiredGuard(toRoute, fromRoute, UserPage.name)) {
         return;
       }
       showUserPage(store, toRoute, fromRoute);
@@ -114,8 +124,8 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     component: DataPage,
     path: '/:facility_id?/data',
-    handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, DataPage.name)) {
+    handler: (toRoute, fromRoute) => {
+      if (facilityParamRequiredGuard(toRoute, fromRoute, DataPage.name)) {
         return;
       }
       store.dispatch('preparePage', { isAsync: false });
@@ -133,8 +143,8 @@ export default [
     name: PageNames.FACILITY_CONFIG_PAGE,
     component: FacilitiesConfigPage,
     path: '/:facility_id?/settings',
-    handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, FacilitiesConfigPage.name)) {
+    handler: (toRoute, fromRoute) => {
+      if (facilityParamRequiredGuard(toRoute, fromRoute, FacilitiesConfigPage.name)) {
         return;
       }
       showFacilityConfigPage(store, toRoute);
