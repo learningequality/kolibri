@@ -89,6 +89,8 @@ class TasksViewSet(viewsets.GenericViewSet):
             "cancellable": job.cancellable,
             "clearable": job.state in [State.FAILED, State.CANCELED, State.COMPLETED],
             "facility_id": job.facility_id,
+            "args": job.args,
+            "kwargs": job.kwargs,
             "extra_metadata": job.extra_metadata,
             # Output is UTC naive, coerce to UTC aware.
             "scheduled_datetime": make_aware(orm_job.scheduled_time, utc).isoformat(),

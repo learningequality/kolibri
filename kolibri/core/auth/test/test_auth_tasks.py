@@ -43,6 +43,8 @@ fake_job_defaults = dict(
     traceback="",
     percentage_progress=0,
     cancellable=False,
+    args=(),
+    kwargs={},
     extra_metadata={},
     func="",
 )
