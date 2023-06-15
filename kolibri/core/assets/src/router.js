@@ -2,7 +2,6 @@ import VueRouter from 'vue-router';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
-// const { isNavigationFailure, NavigationFailureType } = VueRouter
 
 /** Wrapper around Vue Router.
  *  Implements URL mapping to Vuex actions in addition to Vue components.
@@ -84,23 +83,11 @@ class Router {
   /* vue-router proxy methods */
   /****************************/
 
-  // _silenceNavigationError(error){
-  //   if (!isNavigationFailure(error, NavigationFailureType.duplicated)) {
-  //     throw Error(error)
-  //   }
-  // }
-
   replace(location, onComplete, onAbort) {
     return this._vueRouter.replace(location, onComplete, onAbort);
-    // .catch(error=>{
-    //   this._silenceNavigationError(error);
-    // });
   }
   push(location, onComplete, onAbort) {
     return this._vueRouter.push(location, onComplete, onAbort);
-    // .catch(error=>{
-    //   this._silenceNavigationError(error);
-    // });
   }
 
   go(location, onComplete, onAbort) {
