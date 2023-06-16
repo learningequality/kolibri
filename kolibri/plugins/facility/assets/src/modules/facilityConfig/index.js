@@ -18,12 +18,18 @@ function defaultState() {
     facilityNameError: false,
     facilities: [],
     isFacilityPinValid: false,
+    facilityDataLoading: false,
   };
 }
 
 export default {
   namespaced: true,
   state: defaultState(),
+  getters: {
+    getFacilityDataLoading(state) {
+      return state.facilityDataLoading;
+    },
+  },
   mutations: {
     SET_STATE(state, payload) {
       Object.assign(state, payload);
@@ -56,6 +62,9 @@ export default {
     RESET_FACILITY_NAME_STATES(state) {
       state.facilityNameError = false;
       state.facilityNameSaved = false;
+    },
+    SET_FACILITY_DATA_LOADING(state, value) {
+      state.facilityDataLoading = value;
     },
     UPDATE_FACILITIES(state, payload) {
       state.facilities.find(f => {

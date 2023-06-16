@@ -3,6 +3,7 @@ import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 export function showFacilityConfigPage(store, toRoute) {
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
   store.dispatch('preparePage');
+  store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', true);
   const resourceRequests = [
     FacilityResource.fetchModel({ id: facilityId }),
     FacilityDatasetResource.fetchCollection({ getParams: { facility_id: facilityId } }),
@@ -22,13 +23,15 @@ export function showFacilityConfigPage(store, toRoute) {
         settingsCopy: { ...dataset },
         facilities: facilities,
       });
-      store.dispatch('notLoading').then(() => console.log('NOT LOADING!'));
+      store.dispatch('notLoading'); // preparePage sets loading to true
+      store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', false);
     })
     .catch(() => {
       store.commit('facilityConfig/SET_STATE', {
         facilityName: '',
         settings: null,
       });
-      store.dispatch('notLoading');
+      store.dispatch('notLoading'); // preparePage sets loading to true
+      store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', false);
     });
 }

@@ -32,13 +32,17 @@
         <div class="mb">
           <h2>{{ coreString('facilityLabel') }}</h2>
           <p class="current-facility-name">
-            {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
-            <KButton
-              appearance="basic-link"
-              :text="coreString('editAction')"
-              name="edit-facilityname"
-              @click="showEditFacilityModal = true"
-            />
+            <KCircularLoader v-if="getFacilityDataLoading" class="facility-loader" />
+            <span v-else>
+              {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
+              <KButton
+                appearance="basic-link"
+                :text="coreString('editAction')"
+                :disabled="getFacilityDataLoading"
+                name="edit-facilityname"
+                @click="showEditFacilityModal = true"
+              />
+            </span>
 
           </p>
         </div>
@@ -295,6 +299,7 @@
         'userIsMultiFacilityAdmin',
         'facilityPageLinks',
       ]),
+      ...mapGetters('facilityConfig', ['getFacilityDataLoading']),
       settingsList: () => settingsList,
       settingsHaveChanged() {
         return !isEqual(this.settings, this.settingsCopy);
@@ -522,6 +527,11 @@
 
   .mobile-button {
     margin-top: 16px;
+  }
+
+  .facility-loader {
+    display: inline-block;
+    margin-bottom: -0.5em; // To align with the text
   }
 
 </style>
