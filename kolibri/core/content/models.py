@@ -455,7 +455,6 @@ class ContentRequest(models.Model):
         """
         Save override to set type for the proxy models
         """
-        # self.type = getattr(self.__class__.objects, "request_type", None)
         return super(ContentRequest, self).save(*args, **kwargs)
 
     @classmethod

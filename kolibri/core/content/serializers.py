@@ -8,6 +8,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
+from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.fields import create_timezonestamp
 
 
@@ -306,46 +307,5 @@ class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
         content_request.contentnode_id = validated_data["contentnode_id"]
 
         content_request.save()
-        return content_request
-
-
-class ContentRemovalRequestSeralizer(serializers.ModelSerializer):
-    class Meta:
-
-        model = ContentRemovalRequest
-        fields = (
-            "id",
-            "contentnode_id",
-        )
-
-    def create(self, validated_data):
-        # if there is an existing deletion request, delete the deletion request
-        if "request" in self.context and self.context["request"].user is not None:
-            user = self.context["request"].user
-        else:
-            raise serializers.ValidationError("User must be defined")
-
-        download_request = ContentDownloadRequest.objects.filter(
-            contentnode_id=validated_data["contentnode_id"],
-            source_id=user.id,
-        )
-
-        if download_request.exists():
-            ContentDownloadRequest.objects.filter(
-                contentnode_id=validated_data["contentnode_id"],
-                source_id=user.id,
-            ).delete()
-
-        existing_request = ContentRemovalRequest.objects.filter(
-            contentnode_id=validated_data["contentnode_id"],
-            source_id=user.id,
-        ).first()
-
-        if existing_request:
-            return existing_request
-
-        content_request = ContentRemovalRequest.build_for_user(user)
-        content_request.contentnode_id = validated_data["contentnode_id"]
-
-        content_request.save()
+        automatic_resource_import.enqueue()
         return content_request

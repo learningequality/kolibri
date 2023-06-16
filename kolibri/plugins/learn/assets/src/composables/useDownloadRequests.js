@@ -7,8 +7,6 @@ import { ContentDownloadRequestResource } from 'kolibri.resources';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -30,6 +28,7 @@ const downloadRequestMap = reactive({
   downloads: {},
   totalPageNumber: 0,
   totalDownloads: 0,
+  totalStorage: 0,
 });
 
 export default function useDownloadRequests(store) {
@@ -37,6 +36,7 @@ export default function useDownloadRequests(store) {
   function fetchUserDownloadRequests(params) {
     const { page, pageSize } = params;
     const loading = ref(true);
+    let storage = 0;
     return ContentDownloadRequestResource.list(params).then(downloadRequests => {
       set(downloadRequestMap, 'downloads', {});
       for (let i = 0; i < pageSize; i++) {
@@ -44,10 +44,14 @@ export default function useDownloadRequests(store) {
         if (index >= downloadRequests.length) {
           break;
         }
+        storage += downloadRequests[index].metadata
+          ? downloadRequests[index].metadata.file_size
+          : storage;
         set(downloadRequestMap.downloads, downloadRequests[index].id, downloadRequests[index]);
       }
       set(downloadRequestMap, 'totalPageNumber', Math.ceil(downloadRequests.length / pageSize));
       set(downloadRequestMap, 'totalDownloads', downloadRequests.length);
+      set(downloadRequestMap, 'totalStorage', storage);
       set(loading, false);
     }, 500);
   }
@@ -74,20 +78,16 @@ export default function useDownloadRequests(store) {
       file_size: content.files.reduce((size, f) => size + f.file_size, 0),
       learning_activities: content.learning_activities,
     };
-
-    client({
-      method: 'post',
-      url: urls['kolibri:core:contentdownloadrequest_list'](),
-      data: {
-        contentnode_id: content.id,
-        metadata,
-        source_id: store.getters.currentUserId,
-        reason: 'UserInitiated',
-        facility: store.getters.currentFacilityId,
-        status: 'Pending',
-        date_added: new Date(),
-      },
-    }).then(downloadRequest => {
+    const data = {
+      contentnode_id: content.id,
+      metadata,
+      source_id: store.getters.currentUserId,
+      reason: 'UserInitiated',
+      facility: store.getters.currentFacilityId,
+      status: 'Pending',
+      date_added: new Date(),
+    };
+    ContentDownloadRequestResource.create(data).then(downloadRequest => {
       set(downloadRequestMap, 'downloads', {});
       set(downloadRequestMap.downloads, downloadRequest.node_id, downloadRequest);
     });
@@ -107,24 +107,15 @@ export default function useDownloadRequests(store) {
   }
 
   function removeDownloadRequest(content) {
-    client({
-      method: 'post',
-      url: urls['kolibri:core:contentremovalrequest_list'](),
-      data: {
-        contentnode_id: content.id,
-        source_id: store.getters.currentUserId,
-        reason: 'UserInitiated',
-        facility: store.getters.currentFacilityId,
-        status: 'Pending',
-        date_added: new Date(),
-      },
+    console.log({ ...content });
+    ContentDownloadRequestResource.deleteModel({
+      id: content.id,
+      contentnode_id: content.contentnode_id,
     }).then(Vue.delete(downloadRequestMap.downloads, content.id));
-
     return Promise.resolve();
   }
 
   function removeDownloadsRequest(contentList) {
-    console.log(`requested removal of ${contentList.length} items`);
     contentList.forEach(content => {
       Vue.delete(downloadRequestMap.downloads, content.id);
     });

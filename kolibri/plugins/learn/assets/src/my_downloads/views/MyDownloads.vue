@@ -17,7 +17,7 @@
               <td
                 v-if="!storageLoading.value"
               >
-                {{ formattedSize(storage.value.myDownloadsSize) }}
+                {{ formattedSize(totalStorage) }}
               </td>
             </tr>
             <tr>
@@ -95,6 +95,7 @@
       const downloads = ref({});
       const totalDownloads = ref(0);
       const totalPageNumber = ref(0);
+      const totalStorage = ref(0);
       const fetchDownloads = () => {
         const loadingFetch = fetchUserDownloadRequests({
           sort: sort.value,
@@ -121,6 +122,7 @@
         set(downloads, downloadRequestMap.downloads);
         set(totalDownloads, downloadRequestMap.totalDownloads);
         set(totalPageNumber, downloadRequestMap.totalPageNumber);
+        set(totalStorage, downloadRequestMap.totalStorage);
       });
 
       return {
@@ -128,6 +130,7 @@
         downloadsLoading,
         totalDownloads,
         totalPageNumber,
+        totalStorage,
         storage,
         storageLoading,
         removeDownloadRequest,

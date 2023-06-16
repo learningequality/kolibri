@@ -3,7 +3,6 @@ from rest_framework import status
 from rest_framework.test import APITestCase
 
 from ..serializers import ContentDownloadRequestSeralizer
-from ..serializers import ContentRemovalRequestSeralizer
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
@@ -125,19 +124,15 @@ class ContentDownloadRequestViewsetTest(APITestCase):
             "contentnode_id": "877a1b783fd348bfb87559883e60e9bf",
         }
 
-        request = self.client.post(reverse("kolibri:core:contentremovalrequest-list"))
-        request.user = self.user
-
-        serializer = ContentRemovalRequestSeralizer(
-            data=request_data, context={"request": request}
+        response = self.client.delete(
+            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
         )
-        serializer.is_valid(raise_exception=True)
 
-        content_removal_request = serializer.save()
-
-        self.assertIsNotNone(content_removal_request.id)
-        self.assertEqual(
-            content_removal_request.contentnode_id, request_data["contentnode_id"]
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertTrue(
+            ContentRemovalRequest.objects.filter(
+                contentnode_id=request_data["contentnode_id"]
+            ).exists()
         )
 
     def test_no_duplicate_deletion_requests(self):
@@ -147,40 +142,29 @@ class ContentDownloadRequestViewsetTest(APITestCase):
             "contentnode_id": "9dae9116ab3c5c2a8715c0442d9390d3",
         }
 
-        # Send two identical creation requests
-        self.client.post(
-            reverse("kolibri:core:contentremovalrequest-list"),
-            request_data,
-            format="json",
+        # Send two identical deletion requests
+        response_1 = self.client.delete(
+            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
         )
-        response_2 = self.client.post(
-            reverse("kolibri:core:contentremovalrequest-list"),
-            request_data,
-            format="json",
+        response_2 = self.client.delete(
+            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
         )
-        self.assertEqual(ContentRemovalRequest.objects.count(), 1)
 
-        contentnode_id = response_2.data["contentnode_id"]
-        self.assertEqual(contentnode_id, request_data["contentnode_id"])
+        self.assertEqual(response_1.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response_2.status_code, status.HTTP_200_OK)
+        self.assertEqual(ContentRemovalRequest.objects.count(), 1)
 
     def test_new_download_request_deletes_corresponding_removal_request(self):
         contentnode_id = "877a1b783fd348bfb87559883e60e9bf"
-        # create a removal request first
+        # Create a removal request first
         request_data = {
             "contentnode_id": contentnode_id,
         }
-
-        request = self.client.post(reverse("kolibri:core:contentremovalrequest-list"))
-        request.user = self.user
-
-        serializer = ContentRemovalRequestSeralizer(
-            data=request_data, context={"request": request}
+        self.client.delete(
+            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
         )
-        serializer.is_valid(raise_exception=True)
 
-        content_removal_request = serializer.save()
-
-        # then create a download request with the same contentnode_id
+        # Then create a download request with the same contentnode_id
         request_data = {
             "contentnode_id": contentnode_id,
             "metadata": {
@@ -191,14 +175,16 @@ class ContentDownloadRequestViewsetTest(APITestCase):
         }
         response = self.client.post(
             reverse("kolibri:core:contentdownloadrequest-list"),
-            request_data,
+            data=request_data,
             format="json",
         )
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertFalse(
-            ContentRemovalRequest.objects.filter(id=content_removal_request.id).exists()
+            ContentRemovalRequest.objects.filter(contentnode_id=contentnode_id).exists()
         )
         self.assertTrue(
-            ContentDownloadRequest.objects.filter(id=response.data["id"]).exists()
+            ContentDownloadRequest.objects.filter(
+                contentnode_id=contentnode_id
+            ).exists()
         )

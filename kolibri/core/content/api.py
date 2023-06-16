@@ -36,6 +36,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
@@ -51,6 +52,7 @@ from kolibri.core.content import serializers
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.permissions import CanManageContent
+from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -1324,12 +1326,12 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
-class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
+class ContentDownloadRequestViewset(
+    ReadOnlyValuesViewset, CreateModelMixin, DestroyModelMixin
+):
     serializer_class = serializers.ContentDownloadRequestSeralizer
 
     pagination_class = OptionalPageNumberPagination
-
-    queryset = ContentDownloadRequest.objects.all()
 
     values = (
         "id",
@@ -1342,8 +1344,8 @@ class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
         "source_id",
     )
 
-    def filter_queryset(self, queryset):
-        return queryset.filter(source_id=self.request.user.id)
+    def get_queryset(self):
+        return ContentDownloadRequest.objects.filter(source_id=self.request.user.id)
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
@@ -1357,40 +1359,37 @@ class ContentDownloadRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             )
         ).filter(has_removal=False)
 
+    def delete(self, request, *args, **kwargs):
+        contentnode_id = request.data.get("contentnode_id")
 
-class ContentRemovalRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
-    serializer_class = serializers.ContentRemovalRequestSeralizer
-
-    pagination_class = OptionalPageNumberPagination
-
-    queryset = ContentRemovalRequest.objects.all()
-
-    values = (
-        "id",
-        "requested_at",
-        "reason",
-        "contentnode_id",
-        "status",
-        "facility",
-        "source_id",
-    )
-
-    def filter_queryset(self, queryset):
-        return queryset.filter(source_id=self.request.user.id)
-
-    def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            has_download_request=Exists(
-                ContentDownloadRequest.objects.filter(
-                    source_model=OuterRef("source_model"),
-                    source_id=OuterRef("source_id"),
-                    contentnode_id=OuterRef("contentnode_id"),
-                    requested_at__gte=OuterRef("requested_at"),
-                )
+        if contentnode_id is None:
+            return Response(
+                {"detail": "Contentnode ID is required"},
+                status=status.HTTP_400_BAD_REQUEST,
             )
-        ).filter(has_download_request=False)
 
-        # destroy model mixin
+        download_request = ContentDownloadRequest.objects.filter(
+            contentnode_id=contentnode_id,
+            source_id=request.user.id,
+        )
+
+        if download_request.exists():
+            download_request.delete()
+
+        existing_deletion_request = ContentRemovalRequest.objects.filter(
+            contentnode_id=contentnode_id,
+            source_id=request.user.id,
+        ).first()
+
+        if existing_deletion_request:
+            return Response(status=status.HTTP_200_OK)
+
+        content_request = ContentRemovalRequest.build_for_user(request.user)
+        content_request.contentnode_id = contentnode_id
+        content_request.save()
+
+        automatic_resource_import.enqueue()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @method_decorator(etag(get_cache_key), name="retrieve")
