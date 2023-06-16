@@ -49,7 +49,7 @@
       },
       userId: {
         type: String,
-        required: true,
+        default: null,
       },
       userName: {
         type: String,

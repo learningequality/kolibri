@@ -18,7 +18,7 @@
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
-            <h1 class="title">
+            <h1 v-if="userId" class="title">
               <KLabeledIcon icon="person" :label="userName" />
             </h1>
             <KLabeledIcon :icon="titleIcon" :label="title" />
@@ -203,9 +203,11 @@
         default: null,
       },
       // The user id of the user for the report
+      // Let it be null to handle anonymous users
+      // with just the title and action bar.
       userId: {
         type: String,
-        required: true,
+        default: null,
       },
       // The name of the user for the report
       userName: {
@@ -392,8 +394,10 @@
       },
     },
     created() {
-      this.loadAttempts();
-      this.loadAllTries();
+      if (this.userId) {
+        this.loadAttempts();
+        this.loadAllTries();
+      }
     },
     methods: {
       navigateToQuestion(questionNumber) {
