@@ -378,7 +378,7 @@ class GenerateCSVLogRequest(models.Model):
     )
 
     facility = models.ForeignKey(Facility, on_delete=models.CASCADE)
-    selected_start_date = DateTimeTzField()
-    selected_end_date = DateTimeTzField()
+    selected_start_date = DateTimeTzField(null=True, blank=True)
+    selected_end_date = DateTimeTzField(null=True, blank=True)
     date_requested = DateTimeTzField(default=local_now)
     log_type = models.CharField(max_length=7, choices=LOG_TYPE_CHOICES)

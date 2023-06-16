@@ -153,16 +153,24 @@ def csv_file_generator(
         )
 
     log_info = classes_info[log_type]
-    start = parser.parse(start_date)
-    end = parser.parse(end_date) + datetime.timedelta(days=1)
+    start = start_date if start_date is None else parser.parse(start_date)
+    end = (
+        end_date
+        if end_date is None
+        else parser.parse(end_date) + datetime.timedelta(days=1)
+    )
 
     if not overwrite and os.path.exists(filepath):
         raise ValueError("{} already exists".format(filepath))
     queryset = log_info["queryset"].filter(
         dataset_id=facility.dataset_id,
-        start_timestamp__gte=start,
-        start_timestamp__lte=end,
     )
+
+    if start:
+        queryset = queryset.filter(start_timestamp__gte=start)
+
+    if end:
+        queryset = queryset.filter(start_timestamp__lte=end)
 
     # Exclude completion timestamp for the sessionlog CSV
     header_labels = tuple(
