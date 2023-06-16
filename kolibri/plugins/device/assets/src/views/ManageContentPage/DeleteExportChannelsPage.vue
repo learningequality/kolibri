@@ -3,8 +3,9 @@
   <ImmersivePage
     :appBarTitle="appBarTitle"
     :route="backRoute"
+    :loading="loading"
   >
-    <KPageContainer class="device-container">
+    <KPageContainer v-if="!loading" class="device-container">
       <FilteredChannelListContainer
         :channels="allChannels"
         :selectedChannels.sync="selectedChannels"
