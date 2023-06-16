@@ -197,7 +197,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 if DevicePermissions.objects.count() == 0:
                     DevicePermissions.objects.create(
                         user=superuser,
-                        is_superuser=not is_soud,
+                        is_superuser=True,
                         can_manage_content=True,
                     )
 
