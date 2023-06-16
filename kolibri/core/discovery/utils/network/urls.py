@@ -1,5 +1,6 @@
 import re
 
+from six import raise_from
 from six.moves.urllib.parse import urlparse
 
 from . import errors
@@ -117,8 +118,12 @@ def parse_address_into_components(address):  # noqa C901
     if "://" not in address:
         address = "http://" + address
 
-    # parse out the URL into its components
-    parsed = urlparse(address)
+    # parse out the URL into its components. On python >= 3.11, this
+    # will throw a ValueError on invalid IP addresses.
+    try:
+        parsed = urlparse(address)
+    except ValueError as e:
+        raise_from(errors.InvalidHostname(address), e)
     p_scheme = parsed.scheme
     p_hostname = parsed.hostname
     p_path = parsed.path.rstrip("/") + "/"
