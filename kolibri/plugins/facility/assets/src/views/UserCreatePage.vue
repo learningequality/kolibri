@@ -3,6 +3,7 @@
   <ImmersivePage
     :route="this.$store.getters.facilityPageLinks.UserPage"
     :appBarTitle="coreString('usersLabel')"
+    :loading="loading"
   >
     <KPageContainer v-if="!loading" class="narrow-container">
 
