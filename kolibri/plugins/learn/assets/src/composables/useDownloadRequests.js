@@ -7,6 +7,9 @@ import { ContentDownloadRequestResource } from 'kolibri.resources';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { set } from '@vueuse/core';
+import redirectBrowser from 'kolibri.utils.redirectBrowser';
+import urls from 'kolibri.urls';
+import client from 'kolibri.client';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -59,18 +62,24 @@ export default function useDownloadRequests(store) {
   function fetchDownloadsStorageInfo() {
     const loading = ref(true);
     const storageInfo = ref(null);
-    const dummyStorageInfo = {
-      myDownloadsSize: 23200000,
-    };
+    let freespace = 0;
+    client({
+      url: `${urls['kolibri:core:freespace']()}`,
+      params: { path: 'Content' },
+    })
+      .then(resp => (freespace = resp.data.freespace))
+      .catch(() => -1);
     setTimeout(() => {
-      set(storageInfo, dummyStorageInfo);
+      set(storageInfo, freespace);
       set(loading, false);
     }, 600);
     return { loading, storageInfo };
   }
 
   // add the page route here
-  function navigateToDownloads() {}
+  function navigateToDownloads() {
+    redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
+  }
 
   function addDownloadRequest(content) {
     const metadata = {
@@ -107,11 +116,14 @@ export default function useDownloadRequests(store) {
   }
 
   function removeDownloadRequest(content) {
-    console.log({ ...content });
     ContentDownloadRequestResource.deleteModel({
       id: content.id,
       contentnode_id: content.contentnode_id,
-    }).then(Vue.delete(downloadRequestMap.downloads, content.id));
+    })
+      .then(Vue.delete(downloadRequestMap.downloads, content.id))
+      .then(
+        set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap.downloads).length)
+      );
     return Promise.resolve();
   }
 

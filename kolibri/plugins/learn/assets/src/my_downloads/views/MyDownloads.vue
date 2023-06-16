@@ -25,7 +25,7 @@
               <td
                 v-if="!storageLoading.value"
               >
-                {{ formattedSize(storage.value.freeDiskSize) }}
+                {{ formattedSize(storage.value) }}
               </td>
             </tr>
           </table>
@@ -139,7 +139,12 @@
     },
     methods: {
       formattedSize(size) {
-        return bytesForHumans(size);
+        console.log(size);
+        if (size > 0) {
+          return bytesForHumans(size);
+        } else {
+          return bytesForHumans(0);
+        }
       },
       removeResources(resources) {
         if (resources.length === 1) {
