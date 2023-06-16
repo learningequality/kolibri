@@ -39,6 +39,8 @@ fake_job_defaults = dict(
     cancellable=False,
     extra_metadata={},
     func="",
+    args=(),
+    kwargs={},
 )
 
 
@@ -271,6 +273,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "type": "",
             "cancellable": False,
             "clearable": False,
+            "args": (),
+            "kwargs": {},
             "extra_metadata": {},
             "facility_id": None,
             "scheduled_datetime": make_aware(
@@ -330,6 +334,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "type": "",
                 "cancellable": False,
                 "clearable": False,
+                "args": (),
+                "kwargs": {},
                 "extra_metadata": {},
                 "facility_id": None,
                 "scheduled_datetime": make_aware(
@@ -348,6 +354,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "type": "",
                 "cancellable": False,
                 "clearable": False,
+                "args": (),
+                "kwargs": {},
                 "extra_metadata": {},
                 "facility_id": None,
                 "scheduled_datetime": make_aware(
@@ -408,7 +416,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         mock_job_storage.enqueue_job.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
-            state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
+            state=State.QUEUED,
+            job_id="test",
+            kwargs={"x": 0, "y": 42},
+            extra_metadata={"facility": "kolibri HQ"},
         )
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
@@ -428,6 +439,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
             "cancellable": False,
             "clearable": False,
             "facility_id": None,
+            "args": (),
+            "kwargs": {"x": 0, "y": 42},
             "extra_metadata": {
                 "facility": "kolibri HQ",
             },
@@ -489,7 +502,10 @@ class CreateTaskAPITestCase(BaseAPITestCase):
 
         mock_job_storage.enqueue_job.return_value = "test"
         mock_job_storage.get_job.return_value = fake_job(
-            state=State.QUEUED, job_id="test", extra_metadata={"facility": "kolibri HQ"}
+            state=State.QUEUED,
+            job_id="test",
+            kwargs={"x": 0, "y": 42},
+            extra_metadata={"facility": "kolibri HQ"},
         )
         mock_job_storage.get_orm_job.return_value = dummy_orm_job_data
 
@@ -517,6 +533,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "cancellable": False,
                 "clearable": False,
                 "facility_id": None,
+                "args": (),
+                "kwargs": {"x": 0, "y": 42},
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
@@ -537,6 +555,8 @@ class CreateTaskAPITestCase(BaseAPITestCase):
                 "cancellable": False,
                 "clearable": False,
                 "facility_id": None,
+                "args": (),
+                "kwargs": {"x": 0, "y": 42},
                 "extra_metadata": {
                     "facility": "kolibri HQ",
                 },
@@ -1191,6 +1211,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "cancellable": False,
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
+                "args": (),
+                "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": make_aware(
                     dummy_orm_job_data.scheduled_time, utc
@@ -1209,6 +1231,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "cancellable": False,
                 "clearable": False,
                 "facility_id": self.superuser.facility_id,
+                "args": (),
+                "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": make_aware(
                     dummy_orm_job_data.scheduled_time, utc
@@ -1227,6 +1251,8 @@ class TaskManagementAPITestCase(BaseAPITestCase):
                 "cancellable": False,
                 "clearable": False,
                 "facility_id": self.facility2user.facility_id,
+                "args": (),
+                "kwargs": {},
                 "extra_metadata": {},
                 "scheduled_datetime": make_aware(
                     dummy_orm_job_data.scheduled_time, utc
