@@ -58,7 +58,7 @@
               class="link"
               :href="href"
               :class="isActive ? subRouteActiveClass : subRouteInactiveClass"
-              @click="isActive ? toggleAndroidMenu() : navigate()"
+              @click="e => isActive ? toggleAndroidMenu() : navigate(e)"
             >
               {{ subRoute.label }}
             </a>
