@@ -4,6 +4,8 @@ import logging
 import time
 from itertools import islice
 
+from django.db.models import Case
+from django.db.models import When
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
 from six import string_types
@@ -909,8 +911,9 @@ class ChannelImport(object):
     def import_channel_data(self):
 
         logger.debug("Beginning channel metadata import")
+        channel_order = ChannelMetadata.objects.all().values()
+        id_order = [channel['id'] for channel in channel_order]
         start = time.time()
-
         import_ran = False
 
         try:
@@ -950,6 +953,17 @@ class ChannelImport(object):
                 time.time() - start
             )
         )
+        # Create ChannelMetadata object deleted during import
+        if import_ran:
+            ids = list(ChannelMetadata.objects.filter(root__available=True).all().values_list('id', flat=True))
+            if len(ids)!=len(id_order):
+                deleted_channel_id = [id for id in id_order if id not in ids][0]
+                deleted_channel = channel_order.filter(id=deleted_channel_id)[0]
+                ChannelMetadata.objects.update_or_create(**deleted_channel)
+                ChannelMetadata.objects.update(
+                    order=Case(*(When(id=uuid, then=i + 1) for i, uuid in enumerate(id_order)))
+                )
+
         return import_ran
 
     def run_and_annotate(self):
