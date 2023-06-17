@@ -4,9 +4,9 @@ import logging
 import time
 from itertools import islice
 
+from django.apps import apps
 from django.db.models import Case
 from django.db.models import When
-from django.apps import apps
 from django.db.models.fields.related import ForeignKey
 from six import string_types
 from sqlalchemy import and_
@@ -450,7 +450,6 @@ class ChannelImport(object):
         return "INSERT OR REPLACE"
 
     def raw_attached_sqlite_table_import(self, model, table_mapper):
-
         self.check_cancelled()
 
         source_table = self.source.get_table(model)
@@ -597,7 +596,6 @@ class ChannelImport(object):
                 yield value if value is not None else default
 
         if not merge:
-
             separator = "\t"
             data_string_iterator = StringIteratorIO(
                 (
@@ -802,7 +800,6 @@ class ChannelImport(object):
             self.destination.execute(query)
 
     def delete_old_channel_tree_data(self, old_tree_id):
-
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
         models_to_delete = [
             model
@@ -909,10 +906,9 @@ class ChannelImport(object):
                 )
 
     def import_channel_data(self):
-
         logger.debug("Beginning channel metadata import")
         channel_order = ChannelMetadata.objects.all().values()
-        id_order = [channel['id'] for channel in channel_order]
+        id_order = [channel["id"] for channel in channel_order]
         start = time.time()
         import_ran = False
 
@@ -955,13 +951,19 @@ class ChannelImport(object):
         )
         # Create ChannelMetadata object deleted during import
         if import_ran:
-            ids = list(ChannelMetadata.objects.filter(root__available=True).all().values_list('id', flat=True))
+            ids = list(
+                ChannelMetadata.objects.filter(root__available=True)
+                .all()
+                .values_list("id", flat=True)
+            )
             if len(ids) != len(id_order):
                 deleted_channel_id = [id for id in id_order if id not in ids][0]
                 deleted_channel = channel_order.filter(id=deleted_channel_id)[0]
                 ChannelMetadata.objects.update_or_create(**deleted_channel)
                 ChannelMetadata.objects.update(
-                    order=Case(*(When(id=uuid, then=i + 1) for i, uuid in enumerate(id_order)))
+                    order=Case(
+                        *(When(id=uuid, then=i + 1) for i, uuid in enumerate(id_order))
+                    )
                 )
 
         return import_ran
