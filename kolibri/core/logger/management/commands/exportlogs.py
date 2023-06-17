@@ -68,6 +68,7 @@ class Command(AsyncCommand):
             "--start_date",
             action="store",
             dest="start_date",
+            default=None,
             type=str,
             help="Start date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
@@ -75,6 +76,7 @@ class Command(AsyncCommand):
             "--end_date",
             action="store",
             dest="end_date",
+            default=None,
             type=str,
             help="End date for date range selection of log files. Valid value is an ISO string formatted as YYYY-MM-DDTHH:MM:SS",
         )
@@ -108,10 +110,10 @@ class Command(AsyncCommand):
         if not facility:
             self.overall_error = str(MESSAGES[NO_FACILITY])
 
-        elif not self.validate_date(start_date):
+        elif start_date is not None and not self.validate_date(start_date):
             self.overall_error = str(MESSAGES[INVALID]).format("start_date")
 
-        elif not self.validate_date(end_date):
+        elif end_date is not None and not self.validate_date(end_date):
             self.overall_error = str(MESSAGES[INVALID]).format("end_date")
 
         else:
@@ -165,8 +167,12 @@ class Command(AsyncCommand):
             log_type=log_type,
             facility=facility,
             defaults={
-                "selected_start_date": parser.parse(start_date),
-                "selected_end_date": parser.parse(end_date),
+                "selected_start_date": start_date
+                if start_date is None
+                else parser.parse(start_date),
+                "selected_end_date": end_date
+                if end_date is None
+                else parser.parse(end_date),
                 "date_requested": local_now(),
             },
         )
