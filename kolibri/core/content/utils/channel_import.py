@@ -956,7 +956,7 @@ class ChannelImport(object):
         # Create ChannelMetadata object deleted during import
         if import_ran:
             ids = list(ChannelMetadata.objects.filter(root__available=True).all().values_list('id', flat=True))
-            if len(ids)!=len(id_order):
+            if len(ids) != len(id_order):
                 deleted_channel_id = [id for id in id_order if id not in ids][0]
                 deleted_channel = channel_order.filter(id=deleted_channel_id)[0]
                 ChannelMetadata.objects.update_or_create(**deleted_channel)
