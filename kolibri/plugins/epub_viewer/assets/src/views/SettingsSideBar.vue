@@ -133,7 +133,7 @@
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :themeName="editCustomThemeName"
         :theme="editCustomThemeName ? editCustomTheme : theme"
-        @submit="addNewTheme"
+        @submit="addNewTheme($event)"
         @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
       />
     </div>
@@ -229,21 +229,11 @@
           },
         };
       },
-      addNewTheme(){
-        // TODO: Add new theme logic
-        console.log("add new theme");
+      addNewTheme(tempTheme){
+        // console.log(tempTheme);
         this.addCustomTheme = null
-
-        // generate a random new theme
-        const randomTheme = {
-          name: 'theme' + Math.floor(Math.random() * 100),
-          backgroundColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16),
-          textColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16),
-          hoverColor: '#'+(Math.random()*0xFFFFFF<<0).toString(16)
-        };
-
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
-        savedCustomThemes[randomTheme.name] = randomTheme;
+        savedCustomThemes[tempTheme.name] = tempTheme;
         Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
         this.customThemes = savedCustomThemes;
       },

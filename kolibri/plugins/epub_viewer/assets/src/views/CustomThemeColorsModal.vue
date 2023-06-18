@@ -1,62 +1,72 @@
 <template>
 
-  <KModal
-    :title="title"
-    :submitText="coreString('saveAction')"
-    :cancelText="coreString('cancelAction')"
-    @submit="$emit('submit')"
-    @cancel="$emit('cancel')"
-  >
-    <div class="theme-name">
-      <!-- need to configure the input box -->
-      <ThemeNameTextbox 
-        :value="themeName"
+  <div>
+    <div v-if="colorPicker === null">
+      <KModal
+        :title="title"
+        :submitText="coreString('saveAction')"
+        :cancelText="coreString('cancelAction')"
+        @submit="$emit('submit', tempTheme)"
+        @cancel="$emit('cancel')"
+      >
+        <div class="theme-name">
+          <!-- need to configure the input box -->
+          <ThemeNameTextbox 
+            :value="themeName"
+          />
+        </div>
+
+        <div
+          class="theme-preview" 
+          :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
+        >
+          <p>
+            The quick brown fox jumps over the lazy dog.
+            <a :style="{ color: tempTheme.linkColor }">This is a link</a>
+            <!-- do this need translations too? -->
+          </p>
+        </div>
+        
+        <div :class="{ 'color-select-container-mobile': windowIsSmall }">
+          <div class="theme-option">
+            <div class="color-box">
+              <KButton
+                :appearanceOverrides="generateStyle(tempTheme.backgroundColor)"
+                @click="colorPicker = 'background'"
+              />
+            </div>
+            <p>{{ $tr('buttonBackground') }}</p>
+          </div>
+          <div class="theme-option">
+            <div class="color-box">
+              <KButton
+                :appearanceOverrides="generateStyle(tempTheme.textColor)"
+                @click="colorPicker = 'text'"
+              />
+            </div>
+            <p>{{ $tr('buttonText') }}</p>
+          </div>
+          <div class="theme-option">
+            <div class="color-box">
+              <KButton
+                :appearanceOverrides="generateStyle(tempTheme.linkColor)"
+                @click="colorPicker = 'link'"
+              />
+            </div>
+            <p>{{ $tr('buttonLink') }}</p>
+          </div>
+        </div>    
+      </KModal>
+    </div>
+    <div v-if="colorPicker !== null">
+      <ColorPickerModal
+        :colorPicker="colorPicker"
+        :color="tempTheme[colorPicker + 'Color']"
+        @submit="setThemeColor($event)"
+        @cancel="colorPicker = null"
       />
     </div>
-
-    <div
-      class="theme-preview" 
-      :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
-    >
-      <p>
-        The quick brown fox jumps over the lazy dog.
-        <a :style="{ color: tempTheme.linkColor }">This is a link</a>
-        <!-- do this need translations too? -->
-      </p>
-    </div>
-    
-    <div :class="{ 'color-select-container-mobile': windowIsSmall }">
-      <div class="theme-option">
-        <div class="color-box">
-          <KButton
-            :appearanceOverrides="generateStyle(tempTheme.backgroundColor)"
-            @click="pickThemeColor('background')"
-          />
-        </div>
-        <p>{{ $tr('buttonBackground') }}</p>
-      </div>
-      <div class="theme-option">
-        <div class="color-box">
-          <KButton
-            :appearanceOverrides="generateStyle(tempTheme.textColor)"
-            @click="pickThemeColor('text')"
-          />
-        </div>
-        <p>{{ $tr('buttonText') }}</p>
-      </div>
-      <div class="theme-option">
-        <div class="color-box">
-          <KButton
-            :appearanceOverrides="generateStyle(tempTheme.linkColor)"
-            @click="pickThemeColor('link')"
-          />
-        </div>
-        <p>{{ $tr('buttonLink') }}</p>
-      </div>
-    </div>
-
-  </KModal>
-
+  </div>
 </template>
 
 
@@ -65,11 +75,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import ThemeNameTextbox from './ThemeNameTextBox.vue';
+  import ColorPickerModal from './ColorPickerModal.vue';
 
   export default {
     name: 'CustomThemeColorsModal',
     components: {
       ThemeNameTextbox,
+      ColorPickerModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -103,10 +115,12 @@
     data(){
       return {
         tempTheme: {
+          name: 'theme' + Math.floor(Math.random() * 100),
           backgroundColor: this.theme.backgroundColor,
           textColor: this.theme.textColor,
           linkColor: this.theme.linkColor,
-        }
+        },
+        colorPicker: null
       }
     },
     computed: {
@@ -137,20 +151,18 @@
           },
         };
       },
-      pickThemeColor(type) {
-        if (type == 'background') {
-          // pops the color picker
-          this.tempTheme.backgroundColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+      setThemeColor(color) {
+        if (this.colorPicker == 'background') {
+          this.tempTheme.backgroundColor = color.hex;
         }
-        else if (type == 'text') {
-          // pops the color picker
-          this.tempTheme.textColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        else if (this.colorPicker == 'text') {
+          this.tempTheme.textColor = color.hex;
         }
-        else if (type == 'link') {
-          // pops the color picker
-          this.tempTheme.linkColor = '#'+(Math.random()*0xFFFFFF<<0).toString(16);
+        else if (this.colorPicker == 'link') {
+          this.tempTheme.linkColor = color.hex;
         }
-      }
+        this.colorPicker = null;
+      },
     },
     $trs: {
       titleAddTheme: {
