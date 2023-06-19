@@ -179,7 +179,7 @@
           });
         },
         [],
-        isLoading
+        { evaluating: isLoading, shallow: false }
       );
 
       const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
