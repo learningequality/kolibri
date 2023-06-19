@@ -47,7 +47,7 @@
       };
     },
     computed: {
-      ...mapGetters(["isPageLoading"]),
+      ...mapGetters(['isPageLoading']),
       ...mapState('classAssignMembers', [
         'class',
         'facilityUsers',
