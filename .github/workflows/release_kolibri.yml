@@ -70,29 +70,29 @@ jobs:
     name: Upload to Github release
     runs-on: ubuntu-latest
     needs: [whl, pex, dmg, deb, exe, zip]
+    strategy:
+      matrix:
+        filename: [
+          '${{ needs.whl.outputs.whl-file-name }}',
+          '${{ needs.whl.outputs.tar-file-name }}',
+          '${{ needs.pex.outputs.pex-file-name }}',
+          '${{ needs.dmg.outputs.dmg-file-name }}',
+          '${{ needs.deb.outputs.deb-file-name }}',
+          '${{ needs.exe.outputs.exe-file-name }}',
+          '${{ needs.zip.outputs.zip-file-name }}',
+        ]
     steps:
       - uses: actions/checkout@v3
-      - name: Download all artifacts
+      - name: Download ${{ matrix.filename }} artifact
         uses: actions/download-artifact@v3
         with:
+          name: ${{ matrix.filename }}
           path: dist
       - uses: actions/github-script@v6
         with:
           script: |
             const utils = require('./.github/githubUtils.js')
-            const filesToUpload = [
-              // When you download all artifacts, the artifact downloader action puts each one into
-              // a directory named for the artifact, for reasons, so we have to do this doubling up.
-              'dist/${{ needs.whl.outputs.whl-file-name }}/${{ needs.whl.outputs.whl-file-name }}',
-              'dist/${{ needs.pex.outputs.pex-file-name }}/${{ needs.pex.outputs.pex-file-name }}',
-              'dist/${{ needs.dmg.outputs.dmg-file-name }}/${{ needs.dmg.outputs.dmg-file-name }}',
-              'dist/${{ needs.deb.outputs.deb-file-name }}/${{ needs.deb.outputs.deb-file-name }}',
-              'dist/${{ needs.exe.outputs.exe-file-name }}/${{ needs.exe.outputs.exe-file-name }}',
-              'dist/${{ needs.zip.outputs.zip-file-name }}/${{ needs.zip.outputs.zip-file-name }}',
-            ]
-            for (let filePath of filesToUpload) {
-              await utils.uploadReleaseAsset(github, context, filePath, '${{ github.event.release.id }}')
-            }
+            await utils.uploadReleaseAsset(github, context, 'dist/${{ matrix.filename }}', '${{ github.event.release.id }}')
   block_release_step:
   # This step ties to the release environment which requires manual approval
   # before it can execute. Once manual approval has been granted, the release is
@@ -123,10 +123,22 @@ jobs:
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
     needs: [block_release_step, whl, pex, dmg, deb, exe, zip]
+    strategy:
+      matrix:
+        filename: [
+          '${{ needs.whl.outputs.whl-file-name }}',
+          '${{ needs.whl.outputs.tar-file-name }}',
+          '${{ needs.pex.outputs.pex-file-name }}',
+          '${{ needs.dmg.outputs.dmg-file-name }}',
+          '${{ needs.deb.outputs.deb-file-name }}',
+          '${{ needs.exe.outputs.exe-file-name }}',
+          '${{ needs.zip.outputs.zip-file-name }}',
+        ]
     steps:
-    - name: Download all artifacts
+    - name: Download ${{ matrix.filename }} artifact
       uses: actions/download-artifact@v3
       with:
+        name: ${{ matrix.filename }}
         path: dist
     - uses: 'google-github-actions/auth@v1'
       with:
@@ -136,5 +148,11 @@ jobs:
     - name: Upload files to Google Cloud Storage
       uses: 'google-github-actions/upload-cloud-storage@v1'
       with:
-        path: 'dist/'
-        destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}/'
+        path: 'dist/${{ matrix.filename }}'
+        destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}/${{ matrix.filename }}'
+    - name: Upload to BCK bucket
+      if: ${{ github.event.release.name == 'latest' }} && ${{ endsWith(matrix.filename, '.whl') }}
+      uses: 'google-github-actions/upload-cloud-storage@v1'
+      with:
+        path: 'dist/${{ matrix.filename }}'
+        destination: '${{ secrets.BCK_PROD_BUILD_ARTIFACT_GCS_BUCKET }}/${{ matrix.filename }}'
