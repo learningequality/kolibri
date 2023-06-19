@@ -950,7 +950,9 @@ class ChannelImport(object):
 
     def run_and_annotate(self):
         try:
-            old_order = ChannelMetadata.objects.values("order").get(id=self.channel_id)["order"]
+            old_order = ChannelMetadata.objects.values("order").get(id=self.channel_id)[
+                "order"
+            ]
         except ChannelMetadata.DoesNotExist:
             old_order = None
 
