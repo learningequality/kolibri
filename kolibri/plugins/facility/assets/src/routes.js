@@ -31,16 +31,30 @@ function facilityParamRequiredGuard(toRoute, fromRoute, subtopicName) {
     fromRoute.query.subtopicName !== subtopicName
   ) {
     const currentSubtopicName = toRoute.query.subtopicName;
-
     if (currentSubtopicName !== subtopicName) {
       router.replace({
-        name: 'ALL_FACILITIES_PAGE',
+        name: PageNames.ALL_FACILITIES_PAGE,
         query: { subtopicName },
         params: { subtopicName },
       });
       return true;
     }
     return false;
+  } else {
+    if (!toRoute.params.facility_id) {
+      router
+        .replace({
+          name: PageNames.ALL_FACILITIES_PAGE,
+          query: { subtopicName },
+          params: { subtopicName },
+        })
+        .catch(error => {
+          return error;
+        });
+      return true;
+    } else {
+      return false;
+    }
   }
 }
 
