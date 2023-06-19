@@ -28,11 +28,13 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-20.04
+    container:
+      image: python:2.7.18-buster
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: 2.7
     - name: pip cache
       uses: actions/cache@v3
       with:
@@ -56,9 +58,9 @@ jobs:
         make staticdeps
         make staticdeps-cext
         pip install .
-        # Start and stop kolibri
-        coverage run -p kolibri start --port=8081
-        coverage run -p kolibri stop
+        # Start and stop kolibri - disabled until we can move out of a container
+        # kolibri start --port=8081
+        # kolibri stop
         # Run just tests in test/
         py.test --cov=kolibri --cov-report= --cov-append --color=no test/
   no_c_ext:
@@ -66,11 +68,13 @@ jobs:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     runs-on: ubuntu-20.04
+    container:
+      image: python:2.7.18-buster
+    defaults:
+      run:
+        shell: bash
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-python@v4
-      with:
-        python-version: 2.7
     - name: pip cache
       uses: actions/cache@v3
       with:
@@ -93,8 +97,8 @@ jobs:
         # environment even though builds should be done in Py 2.7
         make staticdeps
         pip install .
-        # Start and stop kolibri
-        coverage run -p kolibri start --port=8081
-        coverage run -p kolibri stop
+        # Start and stop kolibri - disabled until we can move out of a container
+        # kolibri start --port=8081
+        # kolibri stop
         # Run just tests in test/
         py.test --cov=kolibri --cov-report= --cov-append --color=no test/
