@@ -20,6 +20,7 @@ function fetchFacilityUsers() {
 export function showManagePermissionsPage(store) {
   const shouldResolve = samePageCheckGenerator(store);
   store.commit('managePermissions/SET_LOADING_FACILITY_USERS', true);
+  store.dispatch('notLoading'); // We're loading data now, not the page
   const promises = Promise.all([fetchFacilityUsers(store), fetchDevicePermissions()]);
   return promises
     .then(([users, permissions]) => {

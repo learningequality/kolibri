@@ -7,11 +7,15 @@ export default {
   state: {
     deviceInfo: {},
     deviceName: null,
+    dataLoading: false,
   },
   mutations: {
     SET_STATE(state, payload) {
       state.deviceInfo = payload.deviceInfo;
       state.deviceName = payload.deviceInfo.device_name;
+    },
+    SET_DATA_LOADING(state, payload) {
+      state.dataLoading = payload;
     },
     SET_DEVICE_NAME(state, name) {
       state.deviceName = name;
@@ -24,6 +28,9 @@ export default {
   getters: {
     getDeviceOS(state) {
       return state.deviceInfo.os;
+    },
+    getDataLoading(state) {
+      return state.dataLoading;
     },
     canRestart() {
       return plugin_data.canRestart;

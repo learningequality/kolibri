@@ -16,7 +16,7 @@
         </template>
       </AppBar>
       <KLinearLoader
-        v-if="loading"
+        v-if="isLoading"
         type="indeterminate"
         :delay="false"
       />
@@ -54,7 +54,6 @@
 
   import { mapGetters } from 'vuex';
   import { get } from '@vueuse/core';
-  import _get from 'lodash/get';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
@@ -102,7 +101,7 @@
       loading: {
         type: Boolean,
         default() {
-          return _get(this, '$store.state.core.loading', false);
+          return false;
         },
       },
     },
@@ -114,7 +113,10 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext']),
+      ...mapGetters(['isAppContext', 'isPageLoading']),
+      isLoading() {
+        return this.isPageLoading || this.loading;
+      },
       wrapperStyles() {
         return this.appearanceOverrides
           ? this.appearanceOverrides

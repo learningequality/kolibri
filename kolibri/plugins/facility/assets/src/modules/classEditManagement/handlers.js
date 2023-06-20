@@ -27,6 +27,10 @@ export function showClassEditPage(store, classId) {
         classLearners: sortUsersByFullName(facilityUsers).map(_userState),
         classCoaches: sortUsersByFullName(classroom.coaches).map(_userState),
       });
+      store.dispatch('notLoading');
     })
-    .catch(error => store.dispatch('handleError', error));
+    .catch(error => {
+      store.dispatch('notLoading');
+      store.dispatch('handleError', error);
+    });
 }

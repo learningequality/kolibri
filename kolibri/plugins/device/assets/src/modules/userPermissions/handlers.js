@@ -41,7 +41,7 @@ function fetchUserPermissions(userId) {
  */
 export function showUserPermissionsPage(store, userId) {
   const setUserPermissionsState = state => store.commit('userPermissions/SET_STATE', state);
-  const stopLoading = () => store.commit('CORE_SET_PAGE_LOADING', false);
+  const stopLoading = () => store.dispatch('notLoading');
 
   // Don't request any data if not an Admin
   if (!store.getters.isSuperuser) {
@@ -56,8 +56,8 @@ export function showUserPermissionsPage(store, userId) {
     .then(([data]) => {
       if (samePage()) {
         setUserPermissionsState({ user: data.user, permissions: data.permissions });
-        stopLoading();
       }
+      stopLoading();
     })
     .catch(error => {
       if (samePage()) {

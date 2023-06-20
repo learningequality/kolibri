@@ -1,11 +1,11 @@
 <template>
 
   <ImmersivePage
-    v-if="!$store.state.core.loading"
     :appBarTitle="$tr('permissionsTitle')"
     :route="backRoute"
+    :loading="isPageLoading"
   >
-    <KPageContainer class="device-container">
+    <KPageContainer v-if="!isPageLoading" class="device-container">
       <h1 v-if="user === null">
         {{ $tr('userDoesNotExist') }}
       </h1>
@@ -141,7 +141,7 @@
       };
     },
     computed: {
-      ...mapGetters(['facilities', 'currentUserId']),
+      ...mapGetters(['isPageLoading', 'facilities', 'currentUserId']),
       ...mapState('userPermissions', ['user', 'permissions']),
       backRoute() {
         return { name: PageNames.MANAGE_PERMISSIONS_PAGE };

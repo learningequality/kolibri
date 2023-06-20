@@ -3,6 +3,7 @@ import { FacilityResource, FacilityDatasetResource } from 'kolibri.resources';
 export function showFacilityConfigPage(store, toRoute) {
   const facilityId = toRoute.params.facility_id || store.getters.activeFacilityId;
   store.dispatch('preparePage');
+  store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', true);
   const resourceRequests = [
     FacilityResource.fetchModel({ id: facilityId }),
     FacilityDatasetResource.fetchCollection({ getParams: { facility_id: facilityId } }),
@@ -10,7 +11,7 @@ export function showFacilityConfigPage(store, toRoute) {
   ];
 
   return Promise.all(resourceRequests)
-    .then(function onSuccess([facility, facilityDatasets, facilities]) {
+    .then(([facility, facilityDatasets, facilities]) => {
       const dataset = facilityDatasets[0]; // assumes for now is only one facility being managed
       store.commit('facilityConfig/SET_STATE', {
         facilityDatasetId: dataset.id,
@@ -22,14 +23,15 @@ export function showFacilityConfigPage(store, toRoute) {
         settingsCopy: { ...dataset },
         facilities: facilities,
       });
-
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading'); // preparePage sets loading to true
+      store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', false);
     })
-    .catch(function onFailure() {
+    .catch(() => {
       store.commit('facilityConfig/SET_STATE', {
         facilityName: '',
         settings: null,
       });
-      store.commit('CORE_SET_PAGE_LOADING', false);
+      store.dispatch('notLoading'); // preparePage sets loading to true
+      store.commit('facilityConfig/SET_FACILITY_DATA_LOADING', false);
     });
 }
