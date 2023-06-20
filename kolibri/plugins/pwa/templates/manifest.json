@@ -5,35 +5,35 @@
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_current_language as LANGUAGE_CODE %}
 {
-  "name": "{% trans 'Kolibri' %}",
-  "short_name": "{% trans 'Kolibri' %}",
-  "dir": "{{ LANGUAGE_BIDI|yesno:'rtl,ltr' }}",
-  "lang": "{{ LANGUAGE_CODE }}",
+  "name": "{% trans 'Kolibri'|escapejs %}",
+  "short_name": "{% trans 'Kolibri'|escapejs %}",
+  "dir": "{{ LANGUAGE_BIDI|yesno:'rtl,ltr'|escapejs }}",
+  "lang": "{{ LANGUAGE_CODE|escapejs }}",
   "icons": [
 {% for icon in icons %}
     {
 {% if icon.type %}
-      "type": "{{ icon.type }}",
+      "type": "{{ icon.type|escapejs }}",
 {% endif %}
 {% if icon.sizes %}
-      "sizes": "{{ icon.sizes }}",
+      "sizes": "{{ icon.sizes|escapejs }}",
 {% endif %}
 {% if icon.label %}
-      "label": "{{ icon.label }}",
+      "label": "{{ icon.label|escapejs }}",
 {% endif %}
 {% if icon.purpose %}
-      "purpose": "{{ icon.purpose }}",
+      "purpose": "{{ icon.purpose|escapejs }}",
 {% endif %}
-      "src": "{{ icon.src }}"
+      "src": "{{ icon.src|escapejs }}"
     }{% if not forloop.last %},{% endif %}
 {% endfor %}
   ],
-  "id": "{{ id }}",
-  "start_url": "{% url 'kolibri:core:root_redirect' %}",
-  "background_color": "{{ background_color }}",
+  "id": "{{ id|escapejs }}",
+  "start_url": "{% url 'kolibri:core:root_redirect'|escapejs %}",
+  "background_color": "{{ background_color|escapejs }}",
 {% if theme_color %}
-  "theme_color": "{{ theme_color }}",
+  "theme_color": "{{ theme_color|escapejs }}",
 {% endif %}
   "display": "standalone",
-  "scope": "{{ id }}"
+  "scope": "{{ id|escapejs }}"
 }
