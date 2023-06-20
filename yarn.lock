@@ -10471,10 +10471,10 @@ stylelint-config-prettier@9.0.5:
   resolved "https://registry.yarnpkg.com/stylelint-config-prettier/-/stylelint-config-prettier-9.0.5.tgz#9f78bbf31c7307ca2df2dd60f42c7014ee9da56e"
   integrity sha512-U44lELgLZhbAD/xy/vncZ2Pq8sh2TnpiPvo38Ifg9+zeioR+LAkHu0i6YORIOxFafZoVg0xqQwex6e6F25S5XA==
 
-stylelint-config-recess-order@4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/stylelint-config-recess-order/-/stylelint-config-recess-order-4.0.0.tgz#819b4b8f9bf83d23a0bc918a9bf834f42f87b12a"
-  integrity sha512-sOb+OofMryBR91CbzgV2FavpONqiIeAE7cfrgyUHqePblWBKsYzoUuWThI5EjPRA7KKeovm6ykr7twWYLeafPQ==
+stylelint-config-recess-order@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/stylelint-config-recess-order/-/stylelint-config-recess-order-4.2.0.tgz#bc64e2d164f39c9830452d5e6da0061749caeea9"
+  integrity sha512-cWC66tUx74OgurUQaTAH4iJ4JbyisMwlJH8BO/oxglDLZBUNFggjwPFVtgsmd8rS+bUfm7sPlRrF00iAihESwA==
   dependencies:
     stylelint-order "6.x"
 
