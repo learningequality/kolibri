@@ -76,7 +76,6 @@ export default function useDownloadRequests(store) {
     return { loading, storageInfo };
   }
 
-  // add the page route here
   function navigateToDownloads() {
     redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
   }
@@ -100,10 +99,7 @@ export default function useDownloadRequests(store) {
       set(downloadRequestMap, 'downloads', {});
       set(downloadRequestMap.downloads, downloadRequest.node_id, downloadRequest);
     });
-    // TODO: Remove and replace by real progress implementation
-    // as soon as backend can provide it. `complete` is just a mock field
-    // that may not reflect precisely they way backend will inform fronted
-    // about progress. Also see `isDownloadingByLearner` and `isDownloadedByLearner`.
+
     store.commit('CORE_CREATE_SNACKBAR', {
       text: downloadRequestsTranslator.$tr('downloadStartedLabel'),
       actionText: downloadRequestsTranslator.$tr('goToDownloadsPage'),
@@ -139,32 +135,15 @@ export default function useDownloadRequests(store) {
       return false;
     }
     const downloadRequest = downloadRequestMap.downloads[this.content.id];
-    // TODO: Get real progress from `downloadRequest` as soon as backend is ready
-    // and determine whether the content is downloading according to that instead
-    // of using the `complete` mock.
-    // `isDownloadingByLearner` is expected to be reactive by components that use it
-    // and return accurate information as the progress changes. After updating to real
-    // progress, check that related logic in components that use `isDownloadingByLearner`
-    // still makes sense and all features are working as expected.
-    return Boolean(downloadRequest && !downloadRequest.complete);
+    return Boolean(downloadRequest && !downloadRequest.status === 'COMPLETED');
   }
 
-  // Note that backend filters out download requests that correspond to content that was
-  // removed after being downloaded, therefore the presence of a completed download request
-  // means that the content is downloaded on the device.
   function isDownloadedByLearner(content) {
     if (!content || !content.id) {
       return false;
     }
     const downloadRequest = downloadRequestMap.downloads[this.content.id];
-    // TODO: Get real progress from `downloadRequest` as soon as backend is ready
-    // and determine whether the content finished downloading according to that instead
-    // of using the `complete` mock.
-    // `isDownloadedByLearner` is expected to be reactive by components that use it
-    // and return accurate information as the progress changes. After updating to real
-    // progress, check that related logic in components that use `isDownloadedByLearner`
-    // still makes sense and all features are working as expected.
-    return Boolean(downloadRequest && downloadRequest.complete);
+    return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
   }
 
   return {
