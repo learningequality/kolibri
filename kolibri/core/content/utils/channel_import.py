@@ -448,7 +448,6 @@ class ChannelImport(object):
         return "INSERT OR REPLACE"
 
     def raw_attached_sqlite_table_import(self, model, table_mapper):
-
         self.check_cancelled()
 
         source_table = self.source.get_table(model)
@@ -595,7 +594,6 @@ class ChannelImport(object):
                 yield value if value is not None else default
 
         if not merge:
-
             separator = "\t"
             data_string_iterator = StringIteratorIO(
                 (
@@ -800,7 +798,6 @@ class ChannelImport(object):
             self.destination.execute(query)
 
     def delete_old_channel_tree_data(self, old_tree_id):
-
         # we want to delete all content models, but not "merge models" (ones that might also be used by other channels), and ContentNode last
         models_to_delete = [
             model
@@ -907,10 +904,8 @@ class ChannelImport(object):
                 )
 
     def import_channel_data(self):
-
         logger.debug("Beginning channel metadata import")
         start = time.time()
-
         import_ran = False
 
         try:
@@ -950,15 +945,25 @@ class ChannelImport(object):
                 time.time() - start
             )
         )
+
         return import_ran
 
     def run_and_annotate(self):
+        try:
+            old_order = ChannelMetadata.objects.values("order").get(id=self.channel_id)[
+                "order"
+            ]
+        except ChannelMetadata.DoesNotExist:
+            old_order = None
+
         import_ran = self.import_channel_data()
 
         self.end()
 
         if import_ran:
             channel = ChannelMetadata.objects.get(id=self.channel_id)
+            if old_order is not None:
+                channel.order = old_order
             channel.last_updated = local_now()
             channel.partial = self.partial
             try:
