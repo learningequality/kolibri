@@ -85,7 +85,7 @@
 
         // Dump out of here if there is nothing to resume from
         if (!Object.keys(meta).length) {
-          this.$router.push('/');
+          this.$router.replace('/');
           return;
         }
 
@@ -93,10 +93,10 @@
         if (route) {
           // Avoid redundant navigation
           if (this.$route.name !== route.name) {
-            this.$router.push(route);
+            this.$router.replace(route);
           }
         } else {
-          this.$router.push('/');
+          this.$router.replace('/');
         }
       };
 
