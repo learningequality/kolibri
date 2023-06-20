@@ -14,26 +14,30 @@ jobs:
   build_whl:
     name: Build WHL
     runs-on: ubuntu-20.04
+    container:
+      image: python:2.7.18-buster
     outputs:
       whl-file-name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
       tar-file-name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
     steps:
+    - name: Install Git LFS
+      run: |
+        curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
+        apt-get install git-lfs
     - uses: actions/checkout@v3
       with:
         fetch-depth: 0
         lfs: true
     - name: Install Ubuntu dependencies
       run: |
-        sudo apt-get -y -qq update
-        sudo apt-get install -y gettext
-    - name: Set up Python 2.7
-      uses: actions/setup-python@v4
-      with:
-        python-version: 2.7
+        apt-get -y -qq update
+        apt-get install -y gettext sudo
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: '16.x'
+    - name: Install Yarn
+      run: npm install -g yarn
     - name: Get yarn cache directory path
       id: yarn-cache-dir-path
       run: echo "dir=$(yarn cache dir)" >> $GITHUB_OUTPUT
