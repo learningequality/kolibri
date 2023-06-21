@@ -363,18 +363,20 @@ export default function useSearch(descendant, store, router) {
     }
     ContentNodeResource.fetchCollection({
       getParams: { max_results: 1, baseurl: currentBaseUrl },
-    }).then(data => {
-      const labels = data.labels;
-      set(otherDeviceGlobalLabels, {
-        learningActivitiesShown: _generateLearningActivitiesShown(labels.learning_activities),
-        libraryCategories: _generateLibraryCategoriesLookup(labels.categories),
-        resourcesNeeded: _generateResourcesNeeded(labels.learner_needs),
-        gradeLevelsList: _generateGradeLevelsList(labels.grade_levels || []),
-        accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
-        languagesList: labels.languages || [],
-        channelsList: labels.channels || [],
-      }).catch(err => logging.error('Failed to fetch search labels from remote', err));
-    });
+    })
+      .then(data => {
+        const labels = data.labels;
+        set(otherDeviceGlobalLabels, {
+          learningActivitiesShown: _generateLearningActivitiesShown(labels.learning_activities),
+          libraryCategories: _generateLibraryCategoriesLookup(labels.categories),
+          resourcesNeeded: _generateResourcesNeeded(labels.learner_needs),
+          gradeLevelsList: _generateGradeLevelsList(labels.grade_levels || []),
+          accessibilityOptionsList: _generateAccessibilityOptionsList(labels.accessibility_labels),
+          languagesList: labels.languages || [],
+          channelsList: labels.channels || [],
+        });
+      })
+      .catch(err => logging.error('Failed to fetch search labels from remote', err));
   }
 
   ensureGlobalLabels();
