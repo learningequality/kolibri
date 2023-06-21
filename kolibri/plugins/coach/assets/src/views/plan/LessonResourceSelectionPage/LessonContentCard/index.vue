@@ -10,30 +10,34 @@
     />
 
     <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
-      <h3
-        v-if="!windowIsSmall"
-        class="title"
-        :class="{ 'has-message': Boolean(message) }"
-        dir="auto"
+      <div
+        :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
+        :style="{ color: $themeTokens.text }"
       >
-        <KLabeledIcon :label="title">
-          <template #icon>
-            <ContentIcon :kind="kind" />
-          </template>
-        </KLabeledIcon>
-      </h3>
-      <h3
-        v-if="windowIsSmall"
-        dir="auto"
-      >
-        <KLabeledIcon :label="title">
-          <template #icon>
-            <ContentIcon :kind="kind" />
-          </template>
-        </KLabeledIcon>
-      </h3>
-      <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
-        {{ message }}
+        <h3
+          v-if="!windowIsSmall"
+          class="title"
+          dir="auto"
+        >
+          <KLabeledIcon :label="title">
+            <template #icon>
+              <ContentIcon :kind="kind" />
+            </template>
+          </KLabeledIcon>
+        </h3>
+        <h3
+          v-if="windowIsSmall"
+          dir="auto"
+        >
+          <KLabeledIcon :label="title">
+            <template #icon>
+              <ContentIcon :kind="kind" />
+            </template>
+          </KLabeledIcon>
+        </h3>
+        <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
+          {{ message }}
+        </div>
       </div>
       <TextTruncatorCss
         v-if="!windowIsSmall"
@@ -154,6 +158,7 @@
   }
 
   .text {
+    flex-direction: column;
     margin-left: $thumb-width + 8;
   }
 
@@ -161,26 +166,20 @@
     margin-left: $mobile-thumb-width + 8;
   }
 
+  .title-message-wrapper {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
   .title,
   .message {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-  }
-
-  .title.has-message,
-  .message {
-    max-width: 45%;
-  }
-
-  .title {
     margin-top: 0;
+    overflow: hidden;
   }
 
   .message {
-    position: absolute;
-    top: 16px;
-    right: 16px;
+    text-align: right;
   }
 
   .coach-content-label {
