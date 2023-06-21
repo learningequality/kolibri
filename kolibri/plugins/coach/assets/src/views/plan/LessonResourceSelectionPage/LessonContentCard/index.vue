@@ -10,14 +10,13 @@
     />
 
     <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
-      <div 
-        :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }" 
+      <div
+        :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
         :style="{ color: $themeTokens.text }"
       >
         <h3
           v-if="!windowIsSmall"
           class="title"
-          :class="{ 'has-message': Boolean(message) }"
           dir="auto"
         >
           <KLabeledIcon :label="title">
