@@ -13,7 +13,6 @@ from django.utils import six
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
-from mock import mock_open
 from mock import patch
 from requests import Session
 from requests.exceptions import ChunkedEncodingError
@@ -565,13 +564,16 @@ class ImportChannelTestCase(TestCase):
                     "decryption failed or bad record mac",
                 ]
             )
-        with patch("kolibri.utils.file_transfer.Transfer.next", side_effect=SSLERROR):
+        with patch(
+            "kolibri.utils.file_transfer.FileDownload._run_download",
+            side_effect=SSLERROR,
+        ):
             call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
             cancel_mock.assert_called_with()
             import_channel_mock.assert_not_called()
 
     @patch(
-        "kolibri.utils.file_transfer.Transfer.next",
+        "kolibri.utils.file_transfer.FileDownload._run_download",
         side_effect=ReadTimeout("Read timed out."),
     )
     @patch(
@@ -908,7 +910,7 @@ class ImportContentTestCase(TestCase):
         annotation_mock.set_content_visibility.assert_called()
 
     @patch(
-        "kolibri.utils.file_transfer.Transfer.next",
+        "kolibri.utils.file_transfer.FileDownload._run_download",
         side_effect=ConnectionError("connection error"),
     )
     @patch(
@@ -922,7 +924,7 @@ class ImportContentTestCase(TestCase):
         self,
         is_cancelled_mock,
         cancel_mock,
-        next_mock,
+        run_mock,
         annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
@@ -1006,41 +1008,6 @@ class ImportContentTestCase(TestCase):
             exclude_node_ids=None,
             public=False,
         )
-
-    @patch("kolibri.core.content.utils.resource_import.transfer.Transfer.next")
-    @patch("kolibri.core.content.utils.resource_import.transfer.sleep")
-    @patch("kolibri.core.content.utils.resource_import.transfer.requests.Session.get")
-    @patch(
-        "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path",
-        return_value="test/test",
-    )
-    def test_remote_import_httperror_502(
-        self,
-        content_storage_file_path_mock,
-        requests_get_mock,
-        sleep_mock,
-        transfer_next_mock,
-        annotation_mock,
-        get_import_export_mock,
-        channel_list_status_mock,
-    ):
-        response_mock = MagicMock()
-        response_mock.status_code = 502
-        exception_502 = HTTPError("Bad Gateway", response=response_mock)
-        transfer_next_mock.side_effect = [exception_502, ""]
-        LocalFile.objects.filter(
-            files__contentnode__channel_id=self.the_channel_id
-        ).update(file_size=1)
-        get_import_export_mock.return_value = (
-            1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
-            10,
-        )
-        manager = RemoteChannelResourceImportManager(self.the_channel_id)
-        manager.run()
-
-        sleep_mock.assert_called()
-        annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.utils.file_transfer.requests.Session.get")
     @patch(
@@ -1185,7 +1152,7 @@ class ImportContentTestCase(TestCase):
 
     @patch("kolibri.utils.file_transfer.sleep")
     @patch(
-        "kolibri.utils.file_transfer.Transfer.next",
+        "kolibri.utils.file_transfer.FileDownload._run_download",
         side_effect=ChunkedEncodingError("Chunked Encoding Error"),
     )
     @patch(
@@ -1955,62 +1922,6 @@ class ImportContentTestCase(TestCase):
             all_thumbnails=False,
             peer_id=None,
         )
-
-    @patch("kolibri.core.content.utils.resource_import.transfer.sleep")
-    @patch("kolibri.core.content.utils.resource_import.transfer.requests.Session.get")
-    @patch("kolibri.core.content.utils.resource_import.transfer.Transfer.next")
-    @patch(
-        "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path",
-        return_value="test/test",
-    )
-    @patch(
-        "kolibri.core.content.utils.resource_import.JobProgressMixin.is_cancelled",
-        return_value=False,
-    )
-    def test_remote_import_file_compressed_on_gcs(
-        self,
-        is_cancelled_mock,
-        content_storage_file_path_mock,
-        transfer_next_mock,
-        requests_get_mock,
-        sleep_mock,
-        annotation_mock,
-        get_import_export_mock,
-        channel_list_status_mock,
-    ):
-        response_mock = MagicMock()
-        response_mock.status_code = 503
-        exception_503 = HTTPError("Service Unavailable", response=response_mock)
-        transfer_next_mock.side_effect = [exception_503, ""]
-        requests_get_mock.return_value.headers = {"X-Goog-Stored-Content-Length": "1"}
-        LocalFile.objects.filter(
-            files__contentnode__channel_id=self.the_channel_id
-        ).update(file_size=1)
-        get_import_export_mock.return_value = (
-            1,
-            [LocalFile.objects.values("id", "file_size", "extension").first()],
-            10,
-        )
-
-        m = mock_open()
-        with patch("kolibri.utils.file_transfer.open", m):
-            try:
-                manager = RemoteChannelResourceImportManager(self.the_channel_id)
-                manager.run()
-            except Exception:
-                pass
-            sleep_mock.assert_called()
-            annotation_mock.set_content_visibility.assert_called_with(
-                self.the_channel_id,
-                [
-                    LocalFile.objects.values("id", "file_size", "extension").first()[
-                        "id"
-                    ]
-                ],
-                node_ids=None,
-                exclude_node_ids=None,
-                public=False,
-            )
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(

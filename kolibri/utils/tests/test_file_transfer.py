@@ -196,14 +196,16 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
         self.mock_session.get.assert_has_calls(calls)
 
-    def test_download_iterator(self):
-        output = b""
+    def _assert_downloaded_content(self):
+        with open(self.dest, "rb") as f:
+            self.assertEqual(f.read(), self.content)
+
+    def test_download_run(self):
         with FileDownload(
             self.source, self.dest, self.checksum, session=self.mock_session
         ) as fd:
-            for chunk in fd:
-                output += chunk
-        self.assertEqual(output, self.content)
+            fd.run()
+        self._assert_downloaded_content()
         self.assertEqual(
             self.mock_session.get.call_count,
             self.chunks_count if self.byte_range_support else 1,
@@ -215,8 +217,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         with FileDownload(
             self.source, self.dest, self.checksum, session=self.mock_session
         ) as fd:
-            for chunk in fd:
-                pass
+            fd.run()
         self.assertTrue(os.path.isfile(self.dest))
         with open(self.dest, "rb") as f:
             data = f.read()
@@ -245,8 +246,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             session=self.mock_session,
             retry_wait=0,
         ) as fd:
-            for chunk in fd:
-                pass
+            fd.run()
 
         self.assertTrue(os.path.isfile(self.dest))
         self.assertEqual(self.mock_session.get.call_count, 2)
@@ -287,8 +287,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             with FileDownload(
                 self.source, self.dest, self.checksum, session=mock_session
             ) as fd:
-                for chunk in fd:
-                    pass
+                fd.run()
         self.assertFalse(os.path.isfile(self.dest))
 
     def test_file_download_checksum_exception(self):
@@ -296,41 +295,32 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             with FileDownload(
                 self.source, self.dest, "invalid_checksum", session=self.mock_session
             ) as fd:
-                for chunk in fd:
-                    pass
+                fd.run()
         self.assertFalse(os.path.isfile(self.dest))
 
-    def test_partial_download_iterator(self):
+    def test_partial_download_run(self):
         self.set_test_data(partial=True)
 
-        data_out = b""
-
         with FileDownload(
             self.source, self.dest, self.checksum, session=self.mock_session
         ) as fd:
-            for chunk in fd:
-                data_out += chunk
+            fd.run()
 
-        self.assertEqual(self.content, data_out)
+        self._assert_downloaded_content()
         self._assert_request_calls()
 
-    def test_partial_download_iterator_incomplete_chunk(self):
+    def test_partial_download_run_incomplete_chunk(self):
         self.set_test_data(partial=True, incomplete=True)
 
-        data_out = b""
-
         with FileDownload(
             self.source, self.dest, self.checksum, session=self.mock_session
         ) as fd:
-            for chunk in fd:
-                data_out += chunk
+            fd.run()
 
-        self.assertEqual(self.content, data_out)
+        self._assert_downloaded_content()
         self._assert_request_calls()
 
-    def test_range_request_download_iterator(self):
-        data_out = b""
-
+    def test_range_request_download_run(self):
         start_range = self.file_size // 3
         end_range = self.file_size // 3 * 2
 
@@ -342,17 +332,9 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             start_range=start_range,
             end_range=end_range,
         ) as fd:
-            for chunk in fd:
-                data_out += chunk
+            fd.run()
 
         self._assert_request_calls(start_range, end_range)
-
-        self.assertEqual(len(data_out), end_range - start_range + 1)
-        self.assertEqual(
-            self.content[start_range : end_range + 1],
-            data_out,
-            "Content does not match",
-        )
 
         chunked_file = ChunkedFile(self.dest)
         chunked_file.seek(start_range)
@@ -620,17 +602,16 @@ class TestTransferCopy(BaseTestTransfer):
         with open(self.copy_source, "wb") as testfile:
             testfile.write(self.content)
 
-    def test_copy_iterator(self):
-        output = b""
+    def test_copy_run(self):
         with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
-            for chunk in fc:
-                output += chunk
+            fc.run()
+        with open(self.dest, "rb") as f:
+            output = f.read()
         self.assertEqual(output, self.content)
 
     def test_copy_checksum_validation(self):
         with FileCopy(self.copy_source, self.dest, self.checksum) as fc:
-            for chunk in fc:
-                pass
+            fc.run()
         self.assertTrue(os.path.isfile(self.dest))
 
 
