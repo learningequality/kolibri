@@ -105,6 +105,9 @@ class ChunkedFile(BufferedIOBase):
         self.position = 0
         self._file_size = None
 
+    def _open_cache(self):
+        return Cache(self.chunk_dir)
+
     @property
     def chunks_count(self):
         return int(math.ceil(float(self.file_size) / float(self.chunk_size)))
@@ -113,17 +116,18 @@ class ChunkedFile(BufferedIOBase):
     def file_size(self):
         if self._file_size is not None:
             return self._file_size
-        try:
-            with open(os.path.join(self.chunk_dir, ".file_size"), "r") as f:
-                self._file_size = int(f.read())
-        except (OSError, IOError, ValueError):
+        with self._open_cache() as cache:
+            self._file_size = cache.get(".file_size")
+        if self._file_size is None:
             raise ValueError("file_size is not set")
         return self._file_size
 
     @file_size.setter
     def file_size(self, value):
-        with open(os.path.join(self.chunk_dir, ".file_size"), "w") as f:
-            f.write(str(value))
+        if not isinstance(value, int):
+            raise TypeError("file_size must be an integer")
+        with self._open_cache() as cache:
+            cache.set(".file_size", value)
             self._file_size = value
 
     def _get_chunk_file_name(self, index):
@@ -243,7 +247,7 @@ class ChunkedFile(BufferedIOBase):
     @contextmanager
     def lock_chunks(self, *args):
         locks = []
-        with Cache(self.chunk_dir) as cache:
+        with self._open_cache() as cache:
             for chunk_index in args:
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 lock = Lock(cache, chunk_file, expire=10)
@@ -570,6 +574,20 @@ class FileDownload(Transfer):
         self._run_download(progress_update=progress_update)
         self.complete_close_and_finalize()
 
+    @property
+    def header_info(self):
+        return {
+            "compressed": self.compressed,
+            "content_length_header": self.content_length_header,
+            "transfer_size": self.transfer_size,
+        }
+
+    def restore_head_info(self, header_info):
+        self.compressed = header_info["compressed"]
+        self.content_length_header = header_info["content_length_header"]
+        self.transfer_size = header_info["transfer_size"]
+        self._headers_set = True
+
     def _set_headers(self):
         if self._headers_set:
             return
@@ -742,8 +760,13 @@ class RemoteFile(ChunkedFile):
             # In some cases, the server does not return a content-length header,
             # so we need to download the whole file to get the size.
             if not self.transfer.total_size:
-                self.transfer.run()
+                self._run_transfer()
         return self.file_size
+
+    def _run_transfer(self):
+        self.transfer.run()
+        with self._open_cache() as cache:
+            cache.set(self.remote_url, self.transfer.header_info)
 
     def _start_transfer(self, start=None, end=None):
         if not self.is_complete(start=start, end=end):
@@ -754,6 +777,10 @@ class RemoteFile(ChunkedFile):
                 end_range=end,
                 finalize_download=False,
             )
+            with self._open_cache() as cache:
+                header_info = cache.get(self.remote_url)
+            if header_info:
+                self.transfer.restore_head_info(header_info)
             self.transfer.start()
             return True
 
@@ -762,7 +789,7 @@ class RemoteFile(ChunkedFile):
             self.position, self.position + size if size != -1 else None
         )
         if needs_download:
-            self.transfer.run()
+            self._run_transfer()
         return super(RemoteFile, self).read(size)
 
     def seek(self, offset, whence=0):

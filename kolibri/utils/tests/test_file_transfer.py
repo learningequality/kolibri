@@ -362,6 +362,37 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         )
         self._assert_request_calls()
 
+    def test_remote_file_iterator_repeated(self):
+        output = b""
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            chunk = rf.read(BLOCK_SIZE)
+            while chunk:
+                output += chunk
+                chunk = rf.read(BLOCK_SIZE)
+        self.assertEqual(output, self.content, "Content does not match")
+        self.assertEqual(
+            self.mock_session.get.call_count,
+            self.chunks_count if self.byte_range_support else 1,
+        )
+        self._assert_request_calls()
+
+        output = b""
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            chunk = rf.read(BLOCK_SIZE)
+            while chunk:
+                output += chunk
+                chunk = rf.read(BLOCK_SIZE)
+
+        self.mock_session.head.assert_called_once()
+
     def test_partial_remote_file_iterator(self):
         self.set_test_data(partial=True)
 
