@@ -97,3 +97,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Nishant Shrivastva | shrinishant  |
 | Amelia Breault | thanksameeelian |
 | Vikramaditya Singh | Ghat0tkach |
+| Kris Katkus | katkuskris |
