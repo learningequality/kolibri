@@ -1,4 +1,7 @@
 import { useMemoize } from '@vueuse/core';
+import logger from 'kolibri.lib.logging';
+
+const logging = logger.getLogger(__filename);
 
 /**
  * Defaults to returning true if version is 0.15+
@@ -19,9 +22,14 @@ export default function useMinimumKolibriVersion(
   revisionVersion = null
 ) {
   const isMinimumKolibriVersion = useMemoize(version => {
+    if (!version) {
+      logging.error('A version is required');
+      return false;
+    }
     const v = version.split('.');
     if (v.length < 3) {
-      throw new Error('The full version format (e.g. 0.15.0) is required');
+      logging.error('The full version format (e.g. 0.15.0) is required');
+      return false;
     }
     const major = parseInt(v[0]);
     const minor = parseInt(v[1]);
