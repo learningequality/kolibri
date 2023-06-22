@@ -95,7 +95,6 @@ import re
 import subprocess
 import sys
 
-from .compat import parse_version
 from .lru_cache import lru_cache
 
 logger = logging.getLogger(__name__)
@@ -328,7 +327,7 @@ def get_version_from_file(version):
     if version_file:
         # Because \n may have been appended
         version_file = version_file.strip()
-        version_major_minor_patch = parse_version(version_file).base_version
+        version_major_minor_patch = truncate_version(version_file)
         split_version = version_major_minor_patch.split(".")
         major = int(split_version[0])
         minor = int(split_version[1])
