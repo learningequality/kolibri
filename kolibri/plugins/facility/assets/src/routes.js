@@ -1,5 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import VueRouter from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -24,45 +25,30 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
 
-function facilityParamRequiredGuard(toRoute, fromRoute, subtopicName) {
-  if (
-    store.getters.userIsMultiFacilityAdmin &&
-    !toRoute.params.facility_id &&
-    fromRoute.query.subtopicName !== subtopicName
-  ) {
-    const currentSubtopicName = toRoute.query.subtopicName;
-    if (currentSubtopicName !== subtopicName) {
-      router.replace({
-        name: PageNames.ALL_FACILITIES_PAGE,
+function facilityParamRequiredGuard(toRoute, subtopicName) {
+  const { isNavigationFailure, NavigationFailureType } = VueRouter;
+  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+    router
+      .replace({
+        name: 'ALL_FACILITIES_PAGE',
         query: { subtopicName },
         params: { subtopicName },
+      })
+      .catch(e => {
+        if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
+          console.debug(e);
+          throw Error(e);
+        }
       });
-      return true;
-    }
-    return false;
-  } else {
-    if (!toRoute.params.facility_id) {
-      router
-        .replace({
-          name: PageNames.ALL_FACILITIES_PAGE,
-          query: { subtopicName },
-          params: { subtopicName },
-        })
-        .catch(error => {
-          return error;
-        });
-      return true;
-    } else {
-      return false;
-    }
   }
+  return true;
 }
 
 export default [
   // Routes for multi-facility case
   {
     name: PageNames.ALL_FACILITIES_PAGE,
-    path: '/:subtopicName?/facilities',
+    path: '/facilities',
     component: AllFacilitiesPage,
     props: true,
     handler() {
@@ -76,8 +62,8 @@ export default [
     name: PageNames.CLASS_MGMT_PAGE,
     path: '/:facility_id?/classes',
     component: ManageClassPage,
-    handler: (toRoute, fromRoute) => {
-      if (facilityParamRequiredGuard(toRoute, fromRoute, ManageClassPage.name)) {
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, ManageClassPage.name)) {
         return;
       }
       showClassesPage(store, toRoute);
@@ -112,7 +98,7 @@ export default [
     component: UserPage,
     path: '/:facility_id?/users',
     handler: (toRoute, fromRoute) => {
-      if (facilityParamRequiredGuard(toRoute, fromRoute, UserPage.name)) {
+      if (facilityParamRequiredGuard(toRoute, UserPage.name)) {
         return;
       }
       showUserPage(store, toRoute, fromRoute);
@@ -138,8 +124,8 @@ export default [
     name: PageNames.DATA_EXPORT_PAGE,
     component: DataPage,
     path: '/:facility_id?/data',
-    handler: (toRoute, fromRoute) => {
-      if (facilityParamRequiredGuard(toRoute, fromRoute, DataPage.name)) {
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, DataPage.name)) {
         return;
       }
       store.dispatch('preparePage', { isAsync: false });
@@ -157,8 +143,8 @@ export default [
     name: PageNames.FACILITY_CONFIG_PAGE,
     component: FacilitiesConfigPage,
     path: '/:facility_id?/settings',
-    handler: (toRoute, fromRoute) => {
-      if (facilityParamRequiredGuard(toRoute, fromRoute, FacilitiesConfigPage.name)) {
+    handler: toRoute => {
+      if (facilityParamRequiredGuard(toRoute, FacilitiesConfigPage.name)) {
         return;
       }
       showFacilityConfigPage(store, toRoute);

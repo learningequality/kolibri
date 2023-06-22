@@ -86,6 +86,7 @@ class Router {
   replace(location, onComplete, onAbort) {
     return this._vueRouter.replace(location, onComplete, onAbort);
   }
+
   push(location, onComplete, onAbort) {
     return this._vueRouter.push(location, onComplete, onAbort);
   }
