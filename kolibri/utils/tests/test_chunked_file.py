@@ -4,7 +4,6 @@ import os
 import shutil
 import unittest
 
-from kolibri.utils.file_transfer import BLOCK_SIZE
 from kolibri.utils.file_transfer import ChunkedFile
 
 
@@ -12,7 +11,7 @@ class TestChunkedFile(unittest.TestCase):
     def setUp(self):
         self.file_path = "test_file"
 
-        self.chunk_size = BLOCK_SIZE
+        self.chunk_size = ChunkedFile.chunk_size
         self.file_size = (1024 * 1024) + 731
 
         self.chunked_file = ChunkedFile(self.file_path)
@@ -52,17 +51,17 @@ class TestChunkedFile(unittest.TestCase):
         self.assertEqual(data, self.data[512 * 1024 : (512 * 1024) + 512])
 
     def test_write(self):
-        new_data = os.urandom(BLOCK_SIZE)
+        new_data = os.urandom(self.chunk_size)
         os.remove(
             os.path.join(
                 self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
             )
         )
-        self.chunked_file.seek((self.chunks_count - 2) * BLOCK_SIZE)
+        self.chunked_file.seek((self.chunks_count - 2) * self.chunk_size)
         self.chunked_file.write(new_data)
 
-        self.chunked_file.seek((self.chunks_count - 2) * BLOCK_SIZE)
-        data = self.chunked_file.read(BLOCK_SIZE)
+        self.chunked_file.seek((self.chunks_count - 2) * self.chunk_size)
+        data = self.chunked_file.read(self.chunk_size)
         self.assertEqual(data, new_data)
 
     def test_write_whole_file(self):
@@ -100,13 +99,13 @@ class TestChunkedFile(unittest.TestCase):
         self.chunked_file.seek(0)
         self.chunked_file.write(new_data)
 
-        self.chunked_file.seek(BLOCK_SIZE * (self.chunks_count - 2))
-        data = self.chunked_file.read(BLOCK_SIZE)
+        self.chunked_file.seek(self.chunk_size * (self.chunks_count - 2))
+        data = self.chunked_file.read(self.chunk_size)
         self.assertEqual(
             data,
             new_data[
-                BLOCK_SIZE
-                * (self.chunks_count - 2) : BLOCK_SIZE
+                self.chunk_size
+                * (self.chunks_count - 2) : self.chunk_size
                 * (self.chunks_count - 1)
             ],
         )

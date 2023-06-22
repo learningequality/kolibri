@@ -14,7 +14,6 @@ from requests.exceptions import HTTPError
 from requests.exceptions import RequestException
 from requests.exceptions import Timeout
 
-from kolibri.utils.file_transfer import BLOCK_SIZE
 from kolibri.utils.file_transfer import ChunkedFile
 from kolibri.utils.file_transfer import FileCopy
 from kolibri.utils.file_transfer import FileDownload
@@ -35,7 +34,9 @@ class BaseTestTransfer(unittest.TestCase):
         chunked_file.file_size = self.file_size = (1024 * 1024) + 731
 
         # Create dummy chunks
-        self.chunks_count = int(math.ceil(float(self.file_size) / float(BLOCK_SIZE)))
+        self.chunks_count = int(
+            math.ceil(float(self.file_size) / float(ChunkedFile.chunk_size))
+        )
 
         mkdirp(self.dest + ".chunks", exist_ok=True)
 
@@ -46,9 +47,9 @@ class BaseTestTransfer(unittest.TestCase):
         self.content = b""
         for i in range(self.chunks_count):
             size = (
-                BLOCK_SIZE
+                ChunkedFile.chunk_size
                 if i < self.chunks_count - 1
-                else (self.file_size % BLOCK_SIZE)
+                else (self.file_size % ChunkedFile.chunk_size)
             )
             to_write = os.urandom(size)
             if (partial and (i % 3) == 0) or finished:
@@ -179,8 +180,8 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
     def _assert_request_calls(self, start_range=0, end_range=None):
         end_range = end_range or self.file_size - 1
-        first_download_chunk = start_range // BLOCK_SIZE
-        last_download_chunk = end_range // BLOCK_SIZE
+        first_download_chunk = start_range // ChunkedFile.chunk_size
+        last_download_chunk = end_range // ChunkedFile.chunk_size
         download_chunks = [
             (i, i + 1)
             for i in self.chunks_to_download
@@ -205,7 +206,8 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
                 self.source,
                 headers={
                     "Range": "bytes={}-{}".format(
-                        i * BLOCK_SIZE, min(j * BLOCK_SIZE, self.file_size) - 1
+                        i * ChunkedFile.chunk_size,
+                        min(j * ChunkedFile.chunk_size, self.file_size) - 1,
                     )
                 },
                 stream=True,
@@ -308,7 +310,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.assertEqual(self.mock_session.get.call_count, 2)
 
         if self.attempt_byte_range:
-            size = (self.file_size if self.full_ranges else BLOCK_SIZE) - 1
+            size = (self.file_size if self.full_ranges else ChunkedFile.chunk_size) - 1
             calls = [
                 call(
                     self.source,
@@ -433,10 +435,10 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
-            chunk = rf.read(BLOCK_SIZE)
+            chunk = rf.read(ChunkedFile.chunk_size)
             while chunk:
                 output += chunk
-                chunk = rf.read(BLOCK_SIZE)
+                chunk = rf.read(ChunkedFile.chunk_size)
         self.assertEqual(output, self.content, "Content does not match")
         self.assertEqual(
             self.mock_session.get.call_count,
@@ -451,10 +453,10 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
-            chunk = rf.read(BLOCK_SIZE)
+            chunk = rf.read(ChunkedFile.chunk_size)
             while chunk:
                 output += chunk
-                chunk = rf.read(BLOCK_SIZE)
+                chunk = rf.read(ChunkedFile.chunk_size)
         self.assertEqual(output, self.content, "Content does not match")
         self.assertEqual(
             self.mock_session.get.call_count,
@@ -468,10 +470,10 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
-            chunk = rf.read(BLOCK_SIZE)
+            chunk = rf.read(ChunkedFile.chunk_size)
             while chunk:
                 output += chunk
-                chunk = rf.read(BLOCK_SIZE)
+                chunk = rf.read(ChunkedFile.chunk_size)
 
         self.mock_session.head.assert_called_once()
 
@@ -485,10 +487,10 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
             return_value=self.mock_session,
         ):
             rf = RemoteFile(self.dest, self.source)
-            chunk = rf.read(BLOCK_SIZE)
+            chunk = rf.read(ChunkedFile.chunk_size)
             while chunk:
                 data_out += chunk
-                chunk = rf.read(BLOCK_SIZE)
+                chunk = rf.read(ChunkedFile.chunk_size)
         self.assertEqual(self.content, data_out, "Content does not match")
         self._assert_request_calls()
 
@@ -504,11 +506,12 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
         ):
             rf = RemoteFile(self.dest, self.source)
             rf.seek(start_range)
-            chunk = rf.read(BLOCK_SIZE)
+            chunk = rf.read(ChunkedFile.chunk_size)
             while chunk:
                 data_out += chunk
                 read_length = min(
-                    BLOCK_SIZE, end_range - (start_range + len(data_out)) + 1
+                    ChunkedFile.chunk_size,
+                    end_range - (start_range + len(data_out)) + 1,
                 )
                 chunk = rf.read(read_length)
 
@@ -605,11 +608,12 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
                 data_out = b""
                 rf = RemoteFile(self.dest, self.source)
                 rf.seek(start_range)
-                chunk = rf.read(BLOCK_SIZE)
+                chunk = rf.read(ChunkedFile.chunk_size)
                 while chunk:
                     data_out += chunk
                     read_length = min(
-                        BLOCK_SIZE, end_range - (start_range + len(data_out)) + 1
+                        ChunkedFile.chunk_size,
+                        end_range - (start_range + len(data_out)) + 1,
                     )
                     chunk = rf.read(read_length)
 

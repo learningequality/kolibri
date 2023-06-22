@@ -84,24 +84,14 @@ def retry_import(e):
     return False
 
 
-# Set block size to 128KB
-# the previous value of 2MB was set to avoid frequent progress
-# updates during file transfer, but since file transfers
-# have been parallelized, and individual file downloads are not tracked
-# except as part of overall download progress, this is no longer necessary.
-# 128KB allows for small chunks of files to be transferred
-# with the potential for interruption, while still allowing
-# for a reasonable amount of data to be transferred in one go.
-# This will also reduce memory usage when transferring large files.
-BLOCK_SIZE = 128 * 1024
-
-
 class ChunkedFile(BufferedIOBase):
+    # Set chunk size to 128KB
+    chunk_size = 128 * 1024
+
     def __init__(self, filepath):
         self.filepath = filepath
         self.chunk_dir = filepath + ".chunks"
         mkdirp(self.chunk_dir, exist_ok=True)
-        self.chunk_size = BLOCK_SIZE
         self.position = 0
         self._file_size = None
 
@@ -354,7 +344,17 @@ class Transfer(with_metaclass(ABCMeta)):
         self.source = source
         self.dest = dest
         self.checksum = checksum
-        self.block_size = BLOCK_SIZE
+        # Set block size to 128KB
+        # the previous value of 2MB was set to avoid frequent progress
+        # updates during file transfer, but since file transfers
+        # have been parallelized, and individual file downloads are not tracked
+        # except as part of overall download progress, this is no longer necessary.
+        # 128KB allows for small chunks of files to be transferred
+        # with the potential for interruption, while still allowing
+        # for a reasonable amount of data to be transferred in one go.
+        # This will also reduce memory usage when transferring large files.
+        # This seems to gave a very minor performance improvement compared to the 2MB block size.
+        self.block_size = ChunkedFile.chunk_size
         self.started = False
         self.completed = False
         self.finalized = False
