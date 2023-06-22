@@ -47,7 +47,7 @@ export default [
   // Routes for multi-facility case
   {
     name: PageNames.ALL_FACILITIES_PAGE,
-    path: '/facilities',
+    path: '/:subtopicName?/facilities',
     component: AllFacilitiesPage,
     props: true,
     handler() {
