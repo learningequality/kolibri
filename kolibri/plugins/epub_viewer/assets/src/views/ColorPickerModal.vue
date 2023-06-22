@@ -6,8 +6,8 @@
     @submit="$emit('submit', selectedColor)" 
     @cancel="$emit('cancel')"
   >
-    <div>
-      <Chrome v-model="selectedColor" :disableAlpha="true" />
+    <div class="color-picker">
+      <Chrome v-model="selectedColor" class="picker-box" :disableAlpha="true" />
     </div>
 
   </KModal>
@@ -77,6 +77,18 @@ export default {
 
 </script>
   
-  
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+.color-picker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.picker-box {
+  box-shadow: none;
+  border: 1px solid #eee;
+  border-radius: 3px;
+  margin: 10px;
+}
+</style>
   
