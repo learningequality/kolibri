@@ -32,7 +32,6 @@ function facilityParamRequiredGuard(toRoute, subtopicName) {
       .replace({
         name: 'ALL_FACILITIES_PAGE',
         query: { subtopicName },
-        params: { subtopicName },
       })
       .catch(e => {
         if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
