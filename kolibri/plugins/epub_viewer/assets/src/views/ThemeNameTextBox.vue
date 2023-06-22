@@ -15,66 +15,65 @@
   />
 
 </template>
-  
-  
-  <script>
-  
-    import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  
-    export default {
-      name: 'ThemeNameTextBox',
-      mixins: [commonCoreStrings],
-      // NOTE: 'value' and 'isValid' must be .sync'd with parent
-      // You can also pass 'disabled', 'autofocus', and 'autocomplete'
-      props: {
-        value: {
-          type: String,
-          default: '',
-        },
-        shouldValidate: {
-          type: Boolean,
-        },
+
+
+<script>
+
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+
+  export default {
+    name: 'ThemeNameTextBox',
+    mixins: [commonCoreStrings],
+    // NOTE: 'value' and 'isValid' must be .sync'd with parent
+    // You can also pass 'disabled', 'autofocus', and 'autocomplete'
+    props: {
+      value: {
+        type: String,
+        default: '',
       },
-      data() {
-        return {
-          blurred: false,
-        };
+      shouldValidate: {
+        type: Boolean,
       },
-      computed: {
-        isFullNameValid() {
-          return this.value && this.value.trim() !== '';
-        },
-        invalidText() {
-          if (!this.isFullNameValid) {
-            return this.coreString('requiredFieldError');
-          }
-          return '';
-        },
-        shownInvalidText() {
-          if (this.blurred || this.shouldValidate) {
-            return this.invalidText;
-          }
-          return '';
-        },
+    },
+    data() {
+      return {
+        blurred: false,
+      };
+    },
+    computed: {
+      isFullNameValid() {
+        return this.value && this.value.trim() !== '';
       },
-      watch: {
-        isFullNameValid: {
-          handler(value) {
-            this.$emit('update:isValid', value);
-          },
-          immediate: true,
-        },
+      invalidText() {
+        if (!this.isFullNameValid) {
+          return this.coreString('requiredFieldError');
+        }
+        return '';
       },
-      methods: {
-        // @public
-        focus() {
-          return this.$refs.textbox.focus();
-        },
+      shownInvalidText() {
+        if (this.blurred || this.shouldValidate) {
+          return this.invalidText;
+        }
+        return '';
       },
-    };
-  
-  </script>
-  
-  
-  <style lang="scss" scoped></style>
-  
+    },
+    watch: {
+      isFullNameValid: {
+        handler(value) {
+          this.$emit('update:isValid', value);
+        },
+        immediate: true,
+      },
+    },
+    methods: {
+      // @public
+      focus() {
+        return this.$refs.textbox.focus();
+      },
+    },
+  };
+
+</script>
+
+
+<style lang="scss" scoped></style>

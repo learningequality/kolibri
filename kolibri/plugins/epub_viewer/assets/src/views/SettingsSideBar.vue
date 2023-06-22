@@ -100,7 +100,7 @@
           />
 
         </KFixedGridItem>
-        
+
         <!-- Button to add a new custom theme -->
         <KFixedGridItem
           v-if="Object.keys(customThemes).length < 8"
@@ -116,7 +116,7 @@
               style="top: 0; width: 24px; height: 24px;"
             />
           </KButton>
-          
+
         </KFixedGridItem>
       </KFixedGrid>
 
@@ -128,7 +128,7 @@
         @cancel="deleteCustomThemeName = null"
       />
 
-      <CustomThemeColorsModal 
+      <CustomThemeColorsModal
         v-if="addCustomTheme || editCustomThemeName"
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :themeName="editCustomThemeName"
@@ -229,18 +229,18 @@
           },
         };
       },
-      addNewTheme(tempTheme){
+      addNewTheme(tempTheme) {
         // console.log(tempTheme);
-        this.addCustomTheme = null
+        this.addCustomTheme = null;
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
         savedCustomThemes[tempTheme.name] = tempTheme;
-        Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
       },
-      deleteTheme (themeName) {
+      deleteTheme(themeName) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
         delete savedCustomThemes[themeName];
-        Lockr.set('kolibriEpubRendererCustomThemes', {...savedCustomThemes});
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.deleteCustomThemeName = null;
       },
@@ -333,11 +333,11 @@
     width: calc(100% - 4px);
     min-width: unset;
     height: calc(100% - 4px);
+    padding: 0;
     margin: 2px;
+    font-size: 10px;
     line-height: unset;
     transition: none;
-    font-size: 10px;
-    padding: 0px;
   }
 
   .o-f-h {

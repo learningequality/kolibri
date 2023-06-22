@@ -11,13 +11,13 @@
       >
         <div class="theme-name">
           <!-- need to configure the input box -->
-          <ThemeNameTextbox 
+          <ThemeNameTextbox
             :value="themeName"
           />
         </div>
 
         <div
-          class="theme-preview" 
+          class="theme-preview"
           :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
         >
           <p>
@@ -26,7 +26,7 @@
             <!-- do this need translations too? -->
           </p>
         </div>
-        
+
         <div :class="{ 'color-select-container-mobile': windowIsSmall }">
           <div class="theme-option">
             <div class="color-box">
@@ -55,7 +55,7 @@
             </div>
             <p>{{ $tr('buttonLink') }}</p>
           </div>
-        </div>    
+        </div>
       </KModal>
     </div>
     <div v-if="colorPicker !== null">
@@ -67,6 +67,7 @@
       />
     </div>
   </div>
+
 </template>
 
 
@@ -95,11 +96,11 @@
     props: {
       modalMode: {
         type: String,
-        default: null
+        default: null,
       },
       themeName: {
         type: String,
-        default: null
+        default: null,
       },
       theme: {
         type: Object,
@@ -108,11 +109,11 @@
             backgroundColor: '#ffffff',
             textColor: '#000000',
             linkColor: '#0000ff',
-          }
-        }
-      }
+          };
+        },
+      },
     },
-    data(){
+    data() {
       return {
         tempTheme: {
           name: 'theme' + Math.floor(Math.random() * 100),
@@ -120,45 +121,41 @@
           textColor: this.theme.textColor,
           linkColor: this.theme.linkColor,
         },
-        colorPicker: null
-      }
+        colorPicker: null,
+      };
     },
     computed: {
       title() {
         if (this.modalMode == 'add') {
           return this.$tr('titleAddTheme');
-        }
-        else if (this.modalMode == 'edit'){
+        } else if (this.modalMode == 'edit') {
           return this.$tr('titleEditTheme');
-        }
-        else {
+        } else {
           return this.$tr('titleNewTheme');
-        // NOTE: This message is not supposed to be displayed in the current implementation
+          // NOTE: This message is not supposed to be displayed in the current implementation
         }
       },
     },
     methods: {
-      generateStyle(bgColor){
+      generateStyle(bgColor) {
         return {
           backgroundColor: bgColor,
           height: '100%',
           width: '100%',
-          transition: "box-shadow 0.3s ease-in-out",
+          transition: 'box-shadow 0.3s ease-in-out',
           ':hover': {
             backgroundColor: bgColor,
             opacity: 0.9,
-            boxShadow: '0 1px 4px'
+            boxShadow: '0 1px 4px',
           },
         };
       },
       setThemeColor(color) {
         if (this.colorPicker == 'background') {
           this.tempTheme.backgroundColor = color.hex;
-        }
-        else if (this.colorPicker == 'text') {
+        } else if (this.colorPicker == 'text') {
           this.tempTheme.textColor = color.hex;
-        }
-        else if (this.colorPicker == 'link') {
+        } else if (this.colorPicker == 'link') {
           this.tempTheme.linkColor = color.hex;
         }
         this.colorPicker = null;
@@ -171,25 +168,27 @@
       },
       titleEditTheme: {
         message: 'Edit theme',
-        context: 'Title of window that displays when a user tries to edit an existing custom theme.',
+        context:
+          'Title of window that displays when a user tries to edit an existing custom theme.',
       },
       titleNewTheme: {
         message: 'New theme',
-        context: 'Title of window that displays when a user tries to not adding or editing a custom theme.',
+        context:
+          'Title of window that displays when a user tries to not adding or editing a custom theme.',
         // NOTE: This message is not supposed to be displayed in the current implementation
       },
       buttonBackground: {
         message: 'Background',
-        context: ''
+        context: '',
       },
       buttonText: {
         message: 'Text',
-        context: ''
+        context: '',
       },
       buttonLink: {
         message: 'Link',
-        context: ''
-      }
+        context: '',
+      },
     },
   };
 
@@ -197,39 +196,47 @@
 
 
 <style lang="scss" scoped>
+
   .theme-name {
     margin: 24px;
   }
+
   .theme-preview {
-    margin: 24px;
     padding: 24px;
+    margin: 24px;
+    border: 1px solid #cccccc;
     border-radius: 4px;
-    border: 1px solid #ccc;
   }
+
   .theme-option {
-    text-align: center;
     float: left;
     width: 33.33%;
     padding: 10px;
+    text-align: center;
   }
+
   .color-box {
     width: 75px;
     height: 6vh;
     margin: 0 auto;
+    border: 1px solid #cccccc;
     border-radius: 4px;
-    border: 1px solid #ccc;
   }
+
   .color-select-container-mobile {
     display: flex;
     flex-direction: column;
   }
+
   .color-select-container-mobile .theme-option {
     display: flex;
     flex-direction: row-reverse;
     width: 100%;
     margin-left: 10px;
   }
+
   .color-select-container-mobile .theme-option .color-box {
     margin-right: 10px;
   }
+
 </style>

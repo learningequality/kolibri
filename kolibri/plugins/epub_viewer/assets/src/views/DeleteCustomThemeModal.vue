@@ -27,7 +27,7 @@
       themeName: {
         type: String,
         default: null,
-      }
+      },
     },
     computed: {
       title() {
@@ -42,7 +42,7 @@
       titleDeleteTheme: {
         message: 'Delete Theme',
         context: 'Title of window that displays when a user tries to delete a custom theme.',
-      }
+      },
     },
   };
 
