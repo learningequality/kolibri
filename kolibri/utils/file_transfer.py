@@ -510,6 +510,10 @@ class FileDownload(Transfer):
 
         self.dest_file_obj = ChunkedFile(self.dest)
 
+        self.completed = self.dest_file_obj.is_complete(
+            start=self.range_start, end=self.range_end
+        )
+
     def set_range(self, range_start, range_end):
         if range_start is not None and not isinstance(range_start, int):
             raise TypeError("range_start must be an integer")
@@ -587,7 +591,8 @@ class FileDownload(Transfer):
 
     @_catch_exception_and_retry
     def run(self, progress_update=None):
-        self._run_download(progress_update=progress_update)
+        if not self.completed:
+            self._run_download(progress_update=progress_update)
         self.complete_close_and_finalize()
 
     @property
@@ -628,8 +633,9 @@ class FileDownload(Transfer):
 
     @_catch_exception_and_retry
     def start(self):
-        # initiate the download, check for status errors, and calculate download size
-        self._set_headers()
+        if not self.completed:
+            # initiate the download, check for status errors, and calculate download size
+            self._set_headers()
         self.started = True
 
     def _run_byte_range_download(self, progress_update):

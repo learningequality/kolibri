@@ -29,7 +29,10 @@ from kolibri.utils.filesystem import mkdirp
 class BaseTestTransfer(unittest.TestCase):
     def set_test_data(self, partial=False, incomplete=False, finished=False):
         self.dest = self.destdir + "/test_file_{}".format(self.num_files)
-        self.file_size = (1024 * 1024) + 731
+
+        chunked_file = ChunkedFile(self.dest)
+
+        chunked_file.file_size = self.file_size = (1024 * 1024) + 731
 
         # Create dummy chunks
         self.chunks_count = int(math.ceil(float(self.file_size) / float(BLOCK_SIZE)))
@@ -245,6 +248,20 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             else 1,
         )
         self._assert_request_calls()
+
+    def test_download_run_fully_downloaded_not_finalized(self):
+        self.set_test_data(finished=True)
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
+        ) as fd:
+            fd.run()
+        self._assert_downloaded_content()
+        self.assertEqual(self.mock_session.head.call_count, 0)
+        self.assertEqual(self.mock_session.get.call_count, 0)
 
     def test_download_checksum_validation(self):
         # Test FileDownload checksum validation
