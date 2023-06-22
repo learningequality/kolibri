@@ -48,15 +48,29 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { mapGetters } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { useLocalstorage, ref } from '@vue/composition-api';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'StorageNotification',
     components: {},
     mixins: [commonCoreStrings],
     setup() {
+      const local_storage_last_synced = ref(useLocalstorage('last_synced', ''));
+      const local_storage_lastDownloadRemoved = ref(useLocalstorage('last_download_removed', ''));
+
+      const { isLearnerOnlyImport } = useUser();
+
+      const setLastSyncedValue = newLastSyncValue => {
+        local_storage_last_synced.value = newLastSyncValue;
+      };
+
+      const setDownloadRemovedValue = newLastDownloadRemovedValue => {
+        local_storage_lastDownloadRemoved.value = newLastDownloadRemovedValue;
+      };
+
       const {
         status,
         lastSynced,
@@ -73,12 +87,15 @@
         deviceStatusSentiment,
         hasDownloads,
         lastDownloadRemoved,
+        isLearnerOnlyImport,
+        local_storage_last_synced,
+        local_storage_lastDownloadRemoved,
+        setLastSyncedValue,
+        setDownloadRemovedValue,
       };
     },
     data() {
-      return {
-        isSubsetOfUsersDevice: plugin_data.isSubsetOfUsersDevice,
-      };
+      return {};
     },
     computed: {
       ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
@@ -89,7 +106,7 @@
         );
       },
       learnOnlyRemovedResources() {
-        return this.isLearner && this.lastDownloadRemoved && this.isSubsetOfUsersDevice;
+        return this.isLearner && this.lastDownloadRemoved && this.isLearnerOnlyImport;
       },
       availableDownload() {
         return !this.canManageContent && this.hasDownloads && !this.isLearner;
@@ -97,8 +114,8 @@
       showBanner() {
         return (
           (this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE &&
-            localStorage.getItem('last_synced') < this.lastSynced) ||
-          localStorage.getItem('download_removed') < this.lastDownloadRemoved
+            this.local_storage_last_synced < this.lastSynced) ||
+          this.local_storage_lastDownloadRemoved < this.lastDownloadRemoved
         );
       },
     },
@@ -123,8 +140,8 @@
         return message;
       },
       closeBanner() {
-        localStorage.setItem('download_removed', this.lastDownloadRemoved);
-        localStorage.setItem('last_synced', this.lastSynced);
+        this.setLastSyncedValue(this.lastSynced);
+        this.setDownloadRemovedValue(this.lastDownloadRemoved);
         this.showBanner = false;
 
         if (this.previouslyFocusedElement) {

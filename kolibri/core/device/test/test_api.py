@@ -1,3 +1,4 @@
+import datetime
 import os
 import platform
 import sys
@@ -865,6 +866,7 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
 
     def test_downloads_queryset(self):
+        last_download_removed_timestamp = datetime.datetime.now()
         self.client.login(
             username=self.user1.username,
             password=DUMMY_PASSWORD,
@@ -883,5 +885,8 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(len(response.data), 1)
         self.assertEqual(response.data[0]["user"], self.user1.id)
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
-        self.assertFalse(response.data[0]["has_downloads"], False)
-        self.assertFalse(response.data[0]["last_download_removed"], None)
+        self.assertFalse(response.data[0]["has_downloads"], True)
+        self.assertFalse(
+            response.data[0]["last_download_removed"],
+            last_download_removed_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
+        )
