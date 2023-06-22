@@ -235,14 +235,25 @@ class ChunkedFile(BufferedIOBase):
                 range_end = min(range_start + self.chunk_size - 1, self.file_size - 1)
                 yield chunk_index, range_start, range_end
 
-    def get_next_missing_chunk(self, start=None, end=None):
+    def get_next_missing_range(self, start=None, end=None, full_range=False):
         """
-        Returns the index, start range, and end range of the next missing chunk.
+        Returns the indices, start range, and end range of the next missing range of chunks.
+        If full_range is True, it returns the largest range of contiguous missing chunks.
         """
+        generator = self.missing_chunks_generator(start, end)
         try:
-            return next(self.missing_chunks_generator(start, end))
+            first_chunk_index, range_start, range_end = next(generator)
         except StopIteration:
             return None, None, None
+        indices = (first_chunk_index,)
+        if full_range:
+            for chunk_index, _, chunk_end in generator:
+                if chunk_index == indices[-1] + 1:
+                    indices = indices + (chunk_index,)
+                    range_end = chunk_end
+                else:
+                    break
+        return indices, range_start, range_end
 
     @contextmanager
     def lock_chunks(self, *args):
@@ -465,6 +476,7 @@ class FileDownload(Transfer):
         end_range=None,
         timeout=Transfer.DEFAULT_TIMEOUT,
         retry_wait=30,
+        full_ranges=True,
     ):
 
         # allow an existing requests.Session instance to be passed in, so it can be reused for speed
@@ -474,6 +486,10 @@ class FileDownload(Transfer):
         # A flag to allow the download to remain in the chunked file directory
         # for easier clean up when it is just a temporary download.
         self._finalize_download = finalize_download
+
+        # A flag to download the full range in one request, or to download
+        # chunks of the file.
+        self.full_ranges = full_ranges
 
         self.set_range(start_range, end_range)
 
@@ -617,11 +633,11 @@ class FileDownload(Transfer):
         self.started = True
 
     def _run_byte_range_download(self, progress_update):
-        chunk_index, start_byte, end_byte = self.dest_file_obj.get_next_missing_chunk(
-            start=self.range_start, end=self.range_end
+        chunk_indices, start_byte, end_byte = self.dest_file_obj.get_next_missing_range(
+            start=self.range_start, end=self.range_end, full_range=self.full_ranges
         )
-        while chunk_index is not None:
-            with self.dest_file_obj.lock_chunks(chunk_index):
+        while chunk_indices is not None:
+            with self.dest_file_obj.lock_chunks(*chunk_indices):
                 response = self.session.get(
                     self.source,
                     headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
@@ -644,11 +660,13 @@ class FileDownload(Transfer):
                         self.dest_file_obj.write(bytes_to_write)
                         progress_update(bytes_to_write)
                 (
-                    chunk_index,
+                    chunk_indices,
                     start_byte,
                     end_byte,
-                ) = self.dest_file_obj.get_next_missing_chunk(
-                    start=self.range_start, end=self.range_end
+                ) = self.dest_file_obj.get_next_missing_range(
+                    start=self.range_start,
+                    end=self.range_end,
+                    full_range=self.full_ranges,
                 )
 
     def _run_no_byte_range_download(self, progress_update):
@@ -776,6 +794,7 @@ class RemoteFile(ChunkedFile):
                 start_range=start,
                 end_range=end,
                 finalize_download=False,
+                full_ranges=False,
             )
             with self._open_cache() as cache:
                 header_info = cache.get(self.remote_url)

@@ -27,7 +27,7 @@ from kolibri.utils.filesystem import mkdirp
 
 
 class BaseTestTransfer(unittest.TestCase):
-    def set_test_data(self, partial=False, incomplete=False):
+    def set_test_data(self, partial=False, incomplete=False, finished=False):
         self.dest = self.destdir + "/test_file_{}".format(self.num_files)
         self.file_size = (1024 * 1024) + 731
 
@@ -38,6 +38,8 @@ class BaseTestTransfer(unittest.TestCase):
 
         hash = hashlib.md5()
 
+        self.chunks_to_download = []
+
         self.content = b""
         for i in range(self.chunks_count):
             size = (
@@ -46,16 +48,20 @@ class BaseTestTransfer(unittest.TestCase):
                 else (self.file_size % BLOCK_SIZE)
             )
             to_write = os.urandom(size)
-            if partial and (i % 3) == 0:
+            if (partial and (i % 3) == 0) or finished:
                 # Write all but the last byte if incomplete, to ensure that we have our
                 # file size checking exactly correct, and not off by one!
-                to_file_data = (
-                    to_write[:-1] if incomplete and (i % 6) == 0 else to_write
-                )
+                if incomplete and (i % 6) == 0:
+                    to_file_data = to_write[:-1]
+                    self.chunks_to_download.append(i)
+                else:
+                    to_file_data = to_write
                 with open(
                     os.path.join(self.dest + ".chunks", ".chunk_{}".format(i)), "wb"
                 ) as f:
                     f.write(to_file_data)
+            else:
+                self.chunks_to_download.append(i)
             self.content += to_write
             hash.update(to_write)
 
@@ -91,6 +97,10 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         return (
             "content-length" in self.HEADERS and "content-encoding" not in self.HEADERS
         )
+
+    @property
+    def full_ranges(self):
+        return True
 
     def get_headers(self, data, start, end):
         headers = self.HEADERS.copy()
@@ -168,21 +178,39 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         end_range = end_range or self.file_size - 1
         first_download_chunk = start_range // BLOCK_SIZE
         last_download_chunk = end_range // BLOCK_SIZE
+        download_chunks = [
+            (i, i + 1)
+            for i in self.chunks_to_download
+            if i >= first_download_chunk and i <= last_download_chunk
+        ]
         # Default to the calls for byte range support
+        if self.full_ranges:
+            collapsed_chunks = []
+            start = download_chunks[0][0]
+            end = download_chunks[0][1]
+            for i, j in download_chunks[1:]:
+                if end != i:
+                    collapsed_chunks.append((start, end))
+                    start = i
+                end = j
+            if start is not None:
+                collapsed_chunks.append((start, end))
+            download_chunks = collapsed_chunks
+
         calls = [
             call(
                 self.source,
                 headers={
                     "Range": "bytes={}-{}".format(
-                        i * BLOCK_SIZE, (i + 1) * BLOCK_SIZE - 1
+                        i * BLOCK_SIZE, min(j * BLOCK_SIZE, self.file_size) - 1
                     )
                 },
                 stream=True,
                 timeout=60,
             )
-            for i in range(first_download_chunk, last_download_chunk)
-            if not self.partial or (i % 3) != 0 or (self.incomplete and (i % 6) == 0)
+            for i, j in download_chunks
         ]
+
         if not self.byte_range_support:
             if self.attempt_byte_range:
                 # If the server doesn't support byte range, but we attempted it,
@@ -202,20 +230,30 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
 
     def test_download_run(self):
         with FileDownload(
-            self.source, self.dest, self.checksum, session=self.mock_session
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
         self._assert_downloaded_content()
         self.assertEqual(
             self.mock_session.get.call_count,
-            self.chunks_count if self.byte_range_support else 1,
+            self.chunks_count
+            if self.byte_range_support and not self.full_ranges
+            else 1,
         )
         self._assert_request_calls()
 
     def test_download_checksum_validation(self):
         # Test FileDownload checksum validation
         with FileDownload(
-            self.source, self.dest, self.checksum, session=self.mock_session
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
         self.assertTrue(os.path.isfile(self.dest))
@@ -245,6 +283,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             self.checksum,
             session=self.mock_session,
             retry_wait=0,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
 
@@ -252,16 +291,17 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.assertEqual(self.mock_session.get.call_count, 2)
 
         if self.attempt_byte_range:
+            size = (self.file_size if self.full_ranges else BLOCK_SIZE) - 1
             calls = [
                 call(
                     self.source,
-                    headers={"Range": "bytes=0-{}".format(BLOCK_SIZE - 1)},
+                    headers={"Range": "bytes=0-{}".format(size)},
                     stream=True,
                     timeout=60,
                 ),
                 call(
                     self.source,
-                    headers={"Range": "bytes=0-{}".format(BLOCK_SIZE - 1)},
+                    headers={"Range": "bytes=0-{}".format(size)},
                     stream=True,
                     timeout=60,
                 ),
@@ -285,7 +325,11 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         # Test various exceptions during file downloads
         with self.assertRaises(RequestException):
             with FileDownload(
-                self.source, self.dest, self.checksum, session=mock_session
+                self.source,
+                self.dest,
+                self.checksum,
+                session=mock_session,
+                full_ranges=self.full_ranges,
             ) as fd:
                 fd.run()
         self.assertFalse(os.path.isfile(self.dest))
@@ -293,7 +337,11 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
     def test_file_download_checksum_exception(self):
         with self.assertRaises(TransferFailed):
             with FileDownload(
-                self.source, self.dest, "invalid_checksum", session=self.mock_session
+                self.source,
+                self.dest,
+                "invalid_checksum",
+                session=self.mock_session,
+                full_ranges=self.full_ranges,
             ) as fd:
                 fd.run()
         self.assertFalse(os.path.isfile(self.dest))
@@ -302,7 +350,11 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.set_test_data(partial=True)
 
         with FileDownload(
-            self.source, self.dest, self.checksum, session=self.mock_session
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
 
@@ -313,7 +365,11 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         self.set_test_data(partial=True, incomplete=True)
 
         with FileDownload(
-            self.source, self.dest, self.checksum, session=self.mock_session
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
 
@@ -331,6 +387,7 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             session=self.mock_session,
             start_range=start_range,
             end_range=end_range,
+            full_ranges=self.full_ranges,
         ) as fd:
             fd.run()
 
@@ -343,6 +400,14 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             self.content[start_range : end_range + 1],
             "Content does not match chunked_file content",
         )
+
+
+class TestTransferNoFullRangesDownloadByteRangeSupport(
+    TestTransferDownloadByteRangeSupport
+):
+    @property
+    def full_ranges(self):
+        return False
 
     def test_remote_file_iterator(self):
         output = b""
@@ -569,8 +634,32 @@ class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSuppo
         }
 
 
+class TestTransferNoFullRangesDownloadByteRangeSupportGCS(
+    TestTransferNoFullRangesDownloadByteRangeSupport
+):
+    @property
+    def HEADERS(self):
+        return {
+            "content-length": str(len(self.content)),
+            "accept-ranges": "bytes",
+            "x-goog-stored-content-length": "4",
+        }
+
+
 class TestTransferDownloadByteRangeSupportCompressed(
     TestTransferDownloadByteRangeSupport
+):
+    @property
+    def HEADERS(self):
+        return {
+            "content-length": str(len(self.content)),
+            "accept-ranges": "bytes",
+            "content-encoding": "gzip",
+        }
+
+
+class TestTransferNoFullRangesDownloadByteRangeSupportCompressed(
+    TestTransferNoFullRangesDownloadByteRangeSupport
 ):
     @property
     def HEADERS(self):
@@ -593,8 +682,28 @@ class TestTransferDownloadByteRangeSupportCompressedGCS(
         }
 
 
+class TestTransferNoFullRangesDownloadByteRangeSupportCompressedGCS(
+    TestTransferNoFullRangesDownloadByteRangeSupport
+):
+    @property
+    def HEADERS(self):
+        return {
+            "accept-ranges": "bytes",
+            "content-encoding": "gzip",
+            "x-goog-stored-content-length": "3",
+        }
+
+
 class TestTransferDownloadNoByteRangeSupportCompressed(
     TestTransferDownloadByteRangeSupport
+):
+    @property
+    def HEADERS(self):
+        return {"content-length": str(len(self.content)), "content-encoding": "gzip"}
+
+
+class TestTransferNoFullRangesDownloadNoByteRangeSupportCompressed(
+    TestTransferNoFullRangesDownloadByteRangeSupport
 ):
     @property
     def HEADERS(self):
@@ -607,8 +716,34 @@ class TestTransferDownloadNoByteRangeSupport(TestTransferDownloadByteRangeSuppor
         return {"content-length": str(len(self.content))}
 
 
+class TestTransferNoFullRangesDownloadNoByteRangeSupport(
+    TestTransferNoFullRangesDownloadByteRangeSupport
+):
+    @property
+    def HEADERS(self):
+        return {"content-length": str(len(self.content))}
+
+
 class TestTransferDownloadByteRangeSupportNotReported(
     TestTransferDownloadByteRangeSupport
+):
+    """
+    Some versions of Kolibri do support byte range requests, but do not report an accept-ranges header.
+    So we do a functional test of this behaviour by attempting the byte range request, and checking that
+    it does work. This combined with the test case above should cover all cases.
+    """
+
+    @property
+    def HEADERS(self):
+        return {"content-length": str(len(self.content))}
+
+    @property
+    def byte_range_support(self):
+        return True
+
+
+class TestTransferNoFullRangesDownloadByteRangeSupportNotReported(
+    TestTransferNoFullRangesDownloadByteRangeSupport
 ):
     """
     Some versions of Kolibri do support byte range requests, but do not report an accept-ranges header.
