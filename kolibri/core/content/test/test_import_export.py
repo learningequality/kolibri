@@ -3,6 +3,7 @@ import json
 import os
 import sys
 import tempfile
+import time
 import uuid
 
 from django.core.management import call_command
@@ -37,6 +38,7 @@ from kolibri.core.content.utils.resource_import import DiskChannelResourceImport
 from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
 )
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.utils.file_transfer import Transfer
 from kolibri.utils.file_transfer import TransferCanceled
 from kolibri.utils.file_transfer import TransferFailed
@@ -607,6 +609,11 @@ class ImportChannelTestCase(TestCase):
         start_progress_mock,
         import_channel_mock,
     ):
+        # Get the current content cache key and sleep a bit to ensure
+        # time has elapsed before it's updated.
+        cache_key_before = ContentCacheKey.get_cache_key()
+        time.sleep(0.01)
+
         call_command("importchannel", "network", "197934f144305350b5820c7c4dd8e194")
         is_cancelled_mock.assert_called()
         import_channel_mock.assert_called_with(
@@ -614,6 +621,10 @@ class ImportChannelTestCase(TestCase):
             cancel_check=is_cancelled_mock,
             contentfolder=paths.get_content_dir_path(),
         )
+
+        # Check that the content cache key was updated.
+        cache_key_after = ContentCacheKey.get_cache_key()
+        self.assertNotEqual(cache_key_before, cache_key_after)
 
     @patch(
         "kolibri.core.content.management.commands.importchannel.paths.get_content_database_file_url"
