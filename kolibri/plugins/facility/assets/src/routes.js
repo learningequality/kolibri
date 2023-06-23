@@ -28,10 +28,12 @@ import { PageNames } from './constants';
 function facilityParamRequiredGuard(toRoute, subtopicName) {
   const { isNavigationFailure, NavigationFailureType } = VueRouter;
   if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
+    console.log(toRoute);
     router
       .replace({
         name: 'ALL_FACILITIES_PAGE',
         query: { subtopicName },
+        params: { subtopicName },
       })
       .catch(e => {
         if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
