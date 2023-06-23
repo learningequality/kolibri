@@ -49,7 +49,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { mapGetters } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
-  import { useLocalStorage, ref } from '@vue/composition-api';
+  import { useLocalStorage } from '@vueuse/core';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
 
