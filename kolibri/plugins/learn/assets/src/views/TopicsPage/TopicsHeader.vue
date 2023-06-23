@@ -5,7 +5,6 @@
     class="header"
     :style="{
       backgroundColor: $themeTokens.surface,
-      borderBottom: `1px solid ${$themeTokens.fineLine}`
     }"
   >
     <KGrid gutter="0">
@@ -63,8 +62,9 @@
         />
       </KGridItem>
     </KGrid>
-
-
+    <div>
+      <slot name="sticky-sidebar"></slot>
+    </div>
   </div>
 
 </template>
@@ -114,7 +114,7 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  $header-height: 324px;
+  $header-height: 274px;
   $toolbar-height: 70px;
 
   .header {
