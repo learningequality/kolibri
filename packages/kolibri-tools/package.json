@@ -57,7 +57,7 @@
     "launch-editor-middleware": "^2.5.0",
     "lodash": "^4.17.21",
     "mini-css-extract-plugin": "^2.7.6",
-    "node-sass": "8.0.0",
+    "node-sass": "9.0.0",
     "postcss-less": "^6.0.0",
     "postcss-loader": "^7.3.3",
     "postcss-sass": "^0.5.0",
