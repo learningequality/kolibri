@@ -1,0 +1,51 @@
+name: Add Contributor to AUTHORS.md
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+
+jobs:
+  add_contributor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check if contributor already exists
+        id: check_contributor
+        run: |
+          exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md)
+          if [[ $exists -gt 0 ]]; then
+            echo "::set-output name=exists::true"
+          else
+            echo "::set-output name=exists::false"
+          fi
+
+      - name: Get contributor's full name
+        id: get_full_name
+        if: steps.check_contributor.outputs.exists == 'false'
+        run: |
+          username=$GITHUB_ACTOR
+          access_token=$GITHUB_TOKEN
+          full_name=$(curl -s -H "Authorization: token $access_token" "https://api.github.com/users/$username" | jq -r '.name')
+          if [[ -z "$full_name" ]]; then
+            full_name=$username
+          fi
+          echo "::set-output name=full_name::$full_name"
+
+      - name: Append contributor to AUTHORS.md
+        id: append_contributor
+        if: steps.check_contributor.outputs.exists == 'false'
+        run: |
+          echo "$GITHUB_ACTOR - ${{ steps.get_full_name.outputs.full_name }}" >> AUTHORS.md
+
+      - name: Commit and push changes
+        if: steps.check_contributor.outputs.exists == 'false'
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add AUTHORS.md
+          git commit -m "Add $GITHUB_ACTOR to AUTHORS.md"
+          git push
