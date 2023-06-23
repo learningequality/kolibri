@@ -268,6 +268,16 @@ describe('Collection', function() {
               done();
             });
           });
+          it('should call the client without caching disabled', function(done) {
+            collection.synced = false;
+            collection.fetch().then(() => {
+              expect(client).toHaveBeenCalledWith({
+                url: 'test',
+                params: {},
+              });
+              done();
+            });
+          });
           it('should call clearCache once', function(done) {
             collection.synced = false;
             collection.fetch().then(() => {
@@ -331,6 +341,16 @@ describe('Collection', function() {
             collection.synced = false;
             collection.fetch().then(() => {
               expect(client).toHaveBeenCalledTimes(1);
+              done();
+            });
+          });
+          it('should call the client without caching disabled', function(done) {
+            collection.synced = false;
+            collection.fetch().then(() => {
+              expect(client).toHaveBeenCalledWith({
+                url: 'test',
+                params: {},
+              });
               done();
             });
           });
@@ -445,13 +465,26 @@ describe('Collection', function() {
       });
     });
     describe('if called with force true and synced is true', function() {
-      it('should call the client once', function(done) {
+      beforeEach(function() {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn().mockResolvedValue(response);
         resource.client = client;
+      });
+      it('should call the client once', function(done) {
         collection.synced = true;
         collection.fetch({}, true).then(() => {
           expect(client).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+      it('should call the client with caching disabled', function(done) {
+        collection.synced = true;
+        collection.fetch({}, true).then(() => {
+          expect(client).toHaveBeenCalledWith({
+            url: 'test',
+            params: {},
+            headers: { 'Cache-Control': 'max-age=0' },
+          });
           done();
         });
       });
@@ -887,6 +920,16 @@ describe('Model', function() {
           await model.fetch();
           expect(client).toHaveBeenCalledTimes(1);
         });
+        it('should call the client without caching disabled', function(done) {
+          model.synced = false;
+          model.fetch().then(() => {
+            expect(client).toHaveBeenCalledWith({
+              url: 'modelUrl',
+              params: {},
+            });
+            done();
+          });
+        });
         it('should call set once', function(done) {
           model.synced = false;
           model.fetch().then(() => {
@@ -954,14 +997,27 @@ describe('Model', function() {
       });
     });
     describe('if called with force true and synced is true', function() {
-      it('should call the client once', function(done) {
+      beforeEach(function() {
         response = { data: [{ testing: 'testing' }] };
         client = jest.fn();
         client.mockResolvedValue(response);
         resource.client = client;
+      });
+      it('should call the client once', function(done) {
         model.synced = true;
         model.fetch({}, true).then(() => {
           expect(client).toHaveBeenCalledTimes(1);
+          done();
+        });
+      });
+      it('should call the client with caching disabled', function(done) {
+        model.synced = true;
+        model.fetch({}, true).then(() => {
+          expect(client).toHaveBeenCalledWith({
+            url: 'modelUrl',
+            params: {},
+            headers: { 'Cache-Control': 'max-age=0' },
+          });
           done();
         });
       });

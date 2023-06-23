@@ -68,7 +68,15 @@ export class Model {
           } else {
             this.synced = false;
             // Do a fetch on the URL.
-            this.resource.client({ url: this.url, params: this.getParams }).then(
+            const options = {
+              url: this.url,
+              params: this.getParams,
+            };
+            if (force) {
+              // Ensure the request reaches the backend.
+              options.headers = { 'Cache-Control': 'max-age=0' };
+            }
+            this.resource.client(options).then(
               response => {
                 // Set the retrieved Object onto the Model instance.
                 this.set(response.data);
@@ -298,7 +306,15 @@ export class Collection {
             resolve(this.data);
           } else {
             this.synced = false;
-            this.resource.client({ url: this.url, params: this.getParams }).then(
+            const options = {
+              url: this.url,
+              params: this.getParams,
+            };
+            if (force) {
+              // Ensure the request reaches the backend.
+              options.headers = { 'Cache-Control': 'max-age=0' };
+            }
+            this.resource.client(options).then(
               response => {
                 // Set response object - an Array - on the Collection to record the data.
                 // First check that the response *is* an Array
