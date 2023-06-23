@@ -4,7 +4,8 @@
     v-show="!$isPrint"
     class="tab-block"
     :style="{
-      borderBottomColor: !$isPrint ? $themeTokens.fineLine : 'transparent',
+      backgroundColor: $themeTokens.surface,
+      borderBottom: `1px solid ${$themeTokens.fineLine}`
     }"
   >
     <router-link
@@ -106,10 +107,12 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
 
-  // Stolen from Coach HeaderTab(s) components
   .tab-block {
-    position: fixed;
-    top: 324px;
+    position: absolute;
+    top: 253px;
+    right: 0;
+    left: 0;
+    width: 100%;
   }
 
   .header-tab {
@@ -117,7 +120,8 @@
     min-width: 64px;
     max-width: 100%;
     min-height: 36px;
-    margin-left: 24px;
+    padding: 0 12px;
+    margin: 0 12px;
     overflow: hidden;
     font-size: 14px;
     font-weight: bold;

@@ -36,7 +36,33 @@
           :description="topic && topic.description"
           :thumbnail="topic && topic.thumbnail"
           :breadcrumbs="breadcrumbs"
-        />
+        >
+          <template #sticky-sidebar>
+            <ToggleHeaderTabs
+              v-if="!!windowIsLarge"
+              :topic="topic"
+              :topics="topics"
+              :style="tabPosition"
+            />
+            <SearchFiltersPanel
+              v-if="!!windowIsLarge"
+              ref="sidePanel"
+              v-model="searchTerms"
+              :topicsListDisplayed="!desktopSearchActive"
+              class="side-panel"
+              topicPage="True"
+              :topics="topics"
+              :topicsLoading="topicMoreLoading"
+              :more="topicMore"
+              :width="`${sidePanelWidth}px`"
+              :showChannels="false"
+              position="embedded"
+              :style="sidePanelStyleOverrides"
+              @currentCategory="handleShowSearchModal"
+              @loadMoreTopics="handleLoadMoreInTopic"
+            />
+          </template>
+        </TopicsHeader>
 
         <!-- mobile tabs (different alignment and interactions) -->
         <TopicsMobileHeader v-else :topic="topic" />
@@ -156,31 +182,6 @@
           @currentCategory="handleShowSearchModal"
           @loadMoreTopics="handleLoadMoreInTopic"
           @close="sidePanelIsOpen = false"
-        />
-
-        <!-- Embedded Side panel is on larger views, and exists next to content -->
-        <ToggleHeaderTabs
-          v-if="!!windowIsLarge"
-          :topic="topic"
-          :topics="topics"
-          :style="tabPosition"
-        />
-        <SearchFiltersPanel
-          v-if="!!windowIsLarge"
-          ref="sidePanel"
-          v-model="searchTerms"
-          :topicsListDisplayed="!desktopSearchActive"
-          class="side-panel"
-          topicPage="True"
-          :topics="topics"
-          :topicsLoading="topicMoreLoading"
-          :more="topicMore"
-          :width="`${sidePanelWidth}px`"
-          :showChannels="false"
-          position="embedded"
-          :style="sidePanelStyleOverrides"
-          @currentCategory="handleShowSearchModal"
-          @loadMoreTopics="handleLoadMoreInTopic"
         />
         <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
         <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
@@ -589,10 +590,6 @@
       throttledStickyCalculation() {
         return throttle(this.stickyCalculation);
       },
-      // calls handleScroll no more than every 17ms
-      throttledTabPositionCalculation() {
-        return throttle(this.tabPositionCalculation);
-      },
       topicMore() {
         return this.topic && this.topic.children && this.topic.children.more;
       },
@@ -643,7 +640,6 @@
       ...mapActions('topicsTree', ['loadMoreContents', 'loadMoreTopics']),
       throttledHandleScroll() {
         this.throttledStickyCalculation();
-        this.throttledTabPositionCalculation();
       },
       handleShowSearchModal(value) {
         this.currentCategory = value;
@@ -667,19 +663,6 @@
         }
         this.toggleFolderSearchSidePanel();
       },
-      tabPositionCalculation() {
-        const tabBottom = this.$refs.sidePanel
-          ? this.$refs.sidePanel.$el.getBoundingClientRect().top
-          : 0;
-        if (tabBottom > 0) {
-          this.tabPosition = {
-            position: 'fixed',
-            top: `${tabBottom - 70}px`,
-          };
-        } else {
-          this.tabPosition = {};
-        }
-      },
       // Stick the side panel to top. That can be on the very top of the viewport
       // or right under the 'Browse channel' toolbar, depending on whether the toolbar
       // is visible or no (the toolbar hides on smaller resolutions when scrolling
@@ -692,7 +675,7 @@
         const headerBottom = header ? header.getBoundingClientRect().bottom : 0;
         const topbarBottom = topbar ? topbar.getBoundingClientRect().bottom : 0;
 
-        if (headerBottom < Math.max(topbarBottom, 0)) {
+        if (header && headerBottom < Math.max(topbarBottom, 0)) {
           this.sidePanelStyleOverrides = {
             position: 'fixed',
             top: `${Math.max(0, headerBottom, topbarBottom)}px`,
@@ -751,7 +734,7 @@
 
   $header-height: 324px;
   $toolbar-height: 70px;
-  $total-height: 394px;
+  $total-height: 324px;
 
   .page {
     position: relative;
@@ -762,12 +745,13 @@
   .side-panel {
     position: absolute;
     top: $total-height;
+    min-height: calc(100vh - #{$toolbar-height});
     padding-top: 16px;
   }
 
   .main-content-grid {
     position: relative;
-    top: $toolbar-height;
+    top: 120px;
     margin: 24px;
   }
 
