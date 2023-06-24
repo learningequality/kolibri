@@ -18,9 +18,9 @@ jobs:
         run: |
           exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md)
           if [[ $exists -gt 0 ]]; then
-            echo "::set-output name=exists::true"
+            echo "exists=true" >> $GITHUB_ENV
           else
-            echo "::set-output name=exists::false"
+            echo "exists=false" >> $GITHUB_ENV
           fi
 
       - name: Get contributor's full name
@@ -33,13 +33,13 @@ jobs:
           if [[ -z "$full_name" ]]; then
             full_name=$username
           fi
-          echo "::set-output name=full_name::$full_name"
+          echo "full_name=$full_name" >> $GITHUB_ENV
 
       - name: Append contributor to AUTHORS.md
         id: append_contributor
         if: steps.check_contributor.outputs.exists == 'false'
         run: |
-          echo "$GITHUB_ACTOR - ${{ steps.get_full_name.outputs.full_name }}" >> AUTHORS.md
+          echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
 
       - name: Commit and push changes
         if: steps.check_contributor.outputs.exists == 'false'
