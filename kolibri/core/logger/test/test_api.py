@@ -19,6 +19,7 @@ from rest_framework.test import APITestCase
 from ..models import ContentSessionLog
 from ..models import ContentSummaryLog
 from ..models import GenerateCSVLogRequest
+from ..models import MasteryLog
 from .factory_logger import ContentSessionLogFactory
 from .factory_logger import ContentSummaryLogFactory
 from .factory_logger import FacilityUserFactory
@@ -523,3 +524,126 @@ class MasteryLogViewSetTestCase(EvaluationMixin, APITestCase):
         )
         diff = response.data.get("diff")
         self.assertEqual(diff["correct"], 3.0)
+
+
+class TotalContentProgressViewSetTest(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = FacilityFactory.create()
+        # provision device to pass the setup_wizard middleware check
+        provision_device()
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility)
+        cls.summary_logs = [
+            ContentSummaryLogFactory.create(
+                user=cls.user1,
+                content_id=uuid.uuid4().hex,
+                channel_id="6199dde695db4ee4ab392222d5af1e5c",
+            )
+            for _ in range(3)
+        ]
+
+    def test_summary_logs_only_no_complete(self):
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 0)
+
+    def test_summary_logs_only_some_complete(self):
+        log = self.summary_logs[0]
+        log.progress = 1.0
+        log.save()
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 1)
+
+    def test_summary_logs_all_some_complete(self):
+        ContentSummaryLog.objects.all().update(progress=1.0)
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 3)
+
+    def test_mastery_logs_no_complete(self):
+        MasteryLog.objects.create(
+            summarylog=self.summary_logs[0],
+            mastery_level=1,
+            user=self.user1,
+            start_timestamp=local_now(),
+        )
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 0)
+
+    def test_mastery_logs_no_complete_conflict_with_summarylog(self):
+        MasteryLog.objects.create(
+            summarylog=self.summary_logs[0],
+            mastery_level=1,
+            user=self.user1,
+            start_timestamp=local_now(),
+        )
+        self.summary_logs[0].complete = True
+        self.summary_logs[0].save()
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 0)
+
+    def test_mastery_log_complete_conflict_with_summarylog(self):
+        MasteryLog.objects.create(
+            summarylog=self.summary_logs[0],
+            mastery_level=1,
+            user=self.user1,
+            start_timestamp=local_now(),
+            complete=True,
+        )
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 1)
+
+    def test_mastery_logs_all_summarylog_complete_one_masterylog_complete(self):
+        MasteryLog.objects.create(
+            summarylog=self.summary_logs[0],
+            mastery_level=1,
+            user=self.user1,
+            start_timestamp=local_now(),
+            complete=True,
+        )
+        ContentSummaryLog.objects.all().update(progress=1.0)
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 3)
+
+    def test_mastery_logs_all_summarylog_complete_three_masterylog_complete_one_incomplete(
+        self,
+    ):
+        MasteryLog.objects.create(
+            summarylog=self.summary_logs[0],
+            mastery_level=1,
+            user=self.user1,
+            start_timestamp=local_now(),
+        )
+        for i in range(2, 5):
+            MasteryLog.objects.create(
+                summarylog=self.summary_logs[0],
+                mastery_level=i,
+                user=self.user1,
+                start_timestamp=local_now(),
+                complete=True,
+            )
+        ContentSummaryLog.objects.all().update(progress=1.0)
+        self.client.force_login(self.user1)
+        response = self.client.get(
+            reverse("kolibri:core:userprogress-detail", kwargs={"pk": self.user1.id}),
+        )
+        self.assertEqual(response.data["progress"], 5)
