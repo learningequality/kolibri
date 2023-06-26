@@ -125,7 +125,7 @@
       return {
         title: this.learnString('documentTitle', {
           contentTitle: this.content.title,
-          channelTitle: this.content.ancestors[0].title,
+          channelTitle: this.content.ancestors[0] ? this.content.ancestors[0].title : '',
         }),
       };
     },
