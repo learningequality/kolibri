@@ -287,7 +287,17 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
         mock_response_1 = MagicMock()
         mock_response_1.raise_for_status.side_effect = ConnectionError
         mock_response_2 = MagicMock()
-        mock_response_2.iter_content.return_value = iter([self.content])
+        self.iter_content_exhausted = False
+
+        def iter_content(chunk_size=1):
+            remaining = len(self.content)
+            if not self.iter_content_exhausted:
+                while remaining > 0:
+                    start = len(self.content) - remaining
+                    yield self.content[start : start + chunk_size]
+                    remaining -= chunk_size
+
+        mock_response_2.iter_content = iter_content
         mock_response_2.headers = self.HEADERS
         mock_response_2.content = self.content
         self.mock_session.get.side_effect = [

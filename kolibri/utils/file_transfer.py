@@ -198,12 +198,18 @@ class ChunkedFile(BufferedIOBase):
         with open(chunk_file, "wb") as f:
             f.write(data)
 
-    def write_chunks(self, chunks, data_generator):
+    def write_chunks(self, chunks, data_generator, progress_callback=None):
         for index, data in zip(chunks, data_generator):
             self.write_chunk(index, data)
+            if callable(progress_callback):
+                progress_callback(data)
 
-    def write_all(self, data_generator):
-        self.write_chunks(range(0, self.chunks_count), data_generator)
+    def write_all(self, data_generator, progress_callback=None):
+        self.write_chunks(
+            range(0, self.chunks_count),
+            data_generator,
+            progress_callback=progress_callback,
+        )
 
     def _chunk_range_for_byte_range(self, start, end):
         if start is not None and end is not None and start > end:
@@ -646,7 +652,7 @@ class FileDownload(Transfer):
             self._set_headers()
         self.started = True
 
-    def _run_byte_range_download(self, progress_update):
+    def _run_byte_range_download(self, progress_callback):
         chunk_indices, start_byte, end_byte = self.dest_file_obj.get_next_missing_range(
             start=self.range_start, end=self.range_end, full_range=self.full_ranges
         )
@@ -663,16 +669,18 @@ class FileDownload(Transfer):
                 range_response_supported = response.headers.get(
                     "content-range", ""
                 ) == "bytes {}-{}/{}".format(start_byte, end_byte, self.total_size)
+
+                data_generator = response.iter_content(self.dest_file_obj.chunk_size)
                 if range_response_supported:
-                    self.dest_file_obj.seek(start_byte)
-                    for bytes_to_write in response.iter_content(self.block_size):
-                        self.dest_file_obj.write(bytes_to_write)
-                        progress_update(bytes_to_write)
+                    self.dest_file_obj.write_chunks(
+                        chunk_indices,
+                        data_generator,
+                        progress_callback=progress_callback,
+                    )
                 else:
-                    self.dest_file_obj.seek(0)
-                    for bytes_to_write in response.iter_content(self.block_size):
-                        self.dest_file_obj.write(bytes_to_write)
-                        progress_update(bytes_to_write)
+                    self.dest_file_obj.write_all(
+                        data_generator, progress_callback=progress_callback
+                    )
                 (
                     chunk_indices,
                     start_byte,
@@ -683,7 +691,7 @@ class FileDownload(Transfer):
                     full_range=self.full_ranges,
                 )
 
-    def _run_no_byte_range_download(self, progress_update):
+    def _run_no_byte_range_download(self, progress_callback):
         response = self.session.get(self.source, stream=True, timeout=self.timeout)
         response.raise_for_status()
         if (not self.content_length_header or self.compressed) and not self.total_size:
@@ -692,34 +700,28 @@ class FileDownload(Transfer):
             # and all content is now stored in memory. So we should avoid doing this as much
             # as we can, hence the total size check above.
             self.total_size = len(response.content)
-            generator = (
-                response.content[i * self.block_size : (i + 1) * self.block_size]
-                for i in range(self.total_size // self.block_size + 1)
-            )
+            generator = self.dest_file_obj.chunk_generator(response.content)
         else:
-            generator = response.iter_content(self.block_size)
-        self.dest_file_obj.seek(0)
-        for chunk in generator:
-            self.cancel_check()
-            progress_update(chunk)
-            self.dest_file_obj.write(chunk)
+            generator = response.iter_content(self.dest_file_obj.chunk_size)
+        self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
 
     def _run_download(self, progress_update=None):
         if not self.started:
             raise AssertionError("File download must be started before it can be run.")
 
-        def wrapped_progress_update(bytes_to_write):
+        def progress_callback(bytes_to_write):
             if progress_update:
                 progress_update(len(bytes_to_write))
+            self.cancel_check()
 
         # Some Kolibri versions do support range requests, but fail to properly report this fact
         # from their Accept-Ranges header. So we need to check if the server supports range requests
         # by trying to make a range request, and if it fails, we need to fall back to the old
         # behavior of downloading the whole file.
         if self.content_length_header and not self.compressed:
-            self._run_byte_range_download(wrapped_progress_update)
+            self._run_byte_range_download(progress_callback)
         else:
-            self._run_no_byte_range_download(wrapped_progress_update)
+            self._run_no_byte_range_download(progress_callback)
 
     def close(self):
         if hasattr(self, "response"):
