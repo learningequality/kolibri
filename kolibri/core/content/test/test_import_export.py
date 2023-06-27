@@ -1009,15 +1009,10 @@ class ImportContentTestCase(TestCase):
             public=False,
         )
 
-    @patch("kolibri.utils.file_transfer.requests.Session.get")
-    @patch(
-        "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path",
-        return_value="test/test",
-    )
+    @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
     def test_remote_import_httperror_500(
         self,
-        content_storage_file_path_mock,
-        requests_get_mock,
+        file_download_mock,
         annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
@@ -1025,7 +1020,7 @@ class ImportContentTestCase(TestCase):
         response_mock = MagicMock()
         response_mock.status_code = 500
         exception_500 = HTTPError("Internal Server Error", response=response_mock)
-        requests_get_mock.return_value.raise_for_status.side_effect = exception_500
+        file_download_mock.return_value.run.side_effect = exception_500
         LocalFile.objects.filter(
             files__contentnode__channel_id=self.the_channel_id
         ).update(file_size=1)
@@ -1297,12 +1292,13 @@ class ImportContentTestCase(TestCase):
             ],
             10,
         )
-        manager = DiskChannelResourceImportManager(
-            self.the_channel_id,
-            path="destination",
-            node_ids=[self.c1_node_id],
-        )
-        manager.run()
+        with self.assertRaises(TransferFailed):
+            manager = DiskChannelResourceImportManager(
+                self.the_channel_id,
+                path="destination",
+                node_ids=[self.c1_node_id],
+            )
+            manager.run()
         remove_mock.assert_any_call(local_dest_path + ".transfer")
 
     @patch(
@@ -1424,10 +1420,11 @@ class ImportContentTestCase(TestCase):
             ),
             10,
         )
-        manager = RemoteChannelResourceImportManager(
-            self.the_channel_id, node_ids=[self.c1_node_id]
-        )
-        manager.run()
+        with self.assertRaises(TransferFailed):
+            manager = RemoteChannelResourceImportManager(
+                self.the_channel_id, node_ids=[self.c1_node_id]
+            )
+            manager.run()
         annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
