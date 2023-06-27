@@ -265,3 +265,16 @@ class TestChunkedFile(unittest.TestCase):
         self.assertEqual(combined_md5, self.chunked_file.md5_checksum())
 
         os.remove(self.file_path)
+
+    def test_file_removed_by_parallel_process_after_opening(self):
+        shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
+        self.chunked_file._file_size = None
+        with self.assertRaises(ValueError):
+            self.chunked_file.file_size
+
+    def test_file_finalized_by_parallel_process_after_opening(self):
+        self.chunked_file.finalize_file()
+        self.chunked_file.delete()
+        self.chunked_file._file_size = None
+        with self.assertRaises(ValueError):
+            self.chunked_file.file_size

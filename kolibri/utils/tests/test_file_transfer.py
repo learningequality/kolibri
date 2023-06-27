@@ -337,6 +337,27 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             downloaded_content = f.read()
         self.assertEqual(downloaded_content, self.content)
 
+    def test_file_download_500_raise(self):
+        mock_response = MagicMock()
+        mock_response.status_code = 500
+        exception_500 = HTTPError("Internal Server Error", response=mock_response)
+        mock_response.raise_for_status.side_effect = exception_500
+
+        self.mock_session.get.side_effect = [
+            mock_response,  # First call to requests.get
+        ]
+
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            retry_wait=0,
+            full_ranges=self.full_ranges,
+        ) as fd:
+            with self.assertRaises(HTTPError):
+                fd.run()
+
     def test_file_download_request_exception(self):
         mock_session = MagicMock()
         mock_session.head.side_effect = RequestException
@@ -643,6 +664,31 @@ class TestTransferNoFullRangesDownloadByteRangeSupport(
             rf = RemoteFile(self.dest, self.source)
             rf.seek(0, os.SEEK_END)
             self.assertEqual(rf.tell(), self.file_size)
+
+    def test_remote_file_finalized_during_read(self):
+        self.set_test_data(finished=True)
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            data = rf.read(size=self.file_size // 3)
+            rf.finalize_file()
+            rf.delete()
+            data += rf.read()
+        self.assertEqual(data, self.content)
+
+    def test_remote_file_cleaned_up_during_read(self):
+        self.set_test_data(finished=True)
+        with patch(
+            "kolibri.utils.file_transfer.requests.Session",
+            return_value=self.mock_session,
+        ):
+            rf = RemoteFile(self.dest, self.source)
+            data = rf.read(size=self.file_size // 3)
+            rf.delete()
+            data += rf.read()
+        self.assertEqual(data, self.content)
 
 
 class TestTransferDownloadByteRangeSupportGCS(TestTransferDownloadByteRangeSupport):

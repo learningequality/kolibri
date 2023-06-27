@@ -7,6 +7,7 @@ from abc import ABCMeta
 from abc import abstractmethod
 from contextlib import contextmanager
 from io import BufferedIOBase
+from sqlite3 import OperationalError
 from time import sleep
 
 import requests
@@ -92,11 +93,12 @@ class ChunkedFile(BufferedIOBase):
         self.filepath = filepath
         self.chunk_dir = filepath + ".chunks"
         mkdirp(self.chunk_dir, exist_ok=True)
+        self.cache_dir = os.path.join(self.chunk_dir, ".cache")
         self.position = 0
         self._file_size = None
 
     def _open_cache(self):
-        return Cache(self.chunk_dir)
+        return Cache(self.cache_dir)
 
     @property
     def chunks_count(self):
@@ -106,8 +108,11 @@ class ChunkedFile(BufferedIOBase):
     def file_size(self):
         if self._file_size is not None:
             return self._file_size
-        with self._open_cache() as cache:
-            self._file_size = cache.get(".file_size")
+        try:
+            with self._open_cache() as cache:
+                self._file_size = cache.get(".file_size")
+        except OperationalError:
+            pass
         if self._file_size is None:
             raise ValueError("file_size is not set")
         return self._file_size
@@ -264,11 +269,14 @@ class ChunkedFile(BufferedIOBase):
         if not self.is_complete():
             raise ValueError("Cannot combine chunks: Not all chunks are complete")
 
-        with open(self.filepath, "wb") as output_file:
+        tmp_filepath = self.filepath + ".transfer"
+
+        with open(tmp_filepath, "wb") as output_file:
             for chunk_index in range(self.chunks_count):
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 with open(chunk_file, "rb") as input_file:
                     shutil.copyfileobj(input_file, output_file)
+        os.rename(tmp_filepath, self.filepath)
 
     def chunk_complete(self, chunk_index):
         chunk_file = self._get_chunk_file_name(chunk_index)
@@ -676,20 +684,20 @@ class FileDownload(Transfer):
                 )
 
     def _run_no_byte_range_download(self, progress_update):
-        self.response = self.session.get(self.source, stream=True, timeout=self.timeout)
-        self.response.raise_for_status()
+        response = self.session.get(self.source, stream=True, timeout=self.timeout)
+        response.raise_for_status()
         if (not self.content_length_header or self.compressed) and not self.total_size:
             # Doing this exhausts the iterator, so if we need to do this, we need
             # to return the dummy iterator below, as the iterator will be empty,
             # and all content is now stored in memory. So we should avoid doing this as much
             # as we can, hence the total size check above.
-            self.total_size = len(self.response.content)
+            self.total_size = len(response.content)
             generator = (
-                self.response.content[i * self.block_size : (i + 1) * self.block_size]
+                response.content[i * self.block_size : (i + 1) * self.block_size]
                 for i in range(self.total_size // self.block_size + 1)
             )
         else:
-            generator = self.response.iter_content(self.block_size)
+            generator = response.iter_content(self.block_size)
         self.dest_file_obj.seek(0)
         for chunk in generator:
             self.cancel_check()
@@ -775,6 +783,15 @@ class RemoteFile(ChunkedFile):
     def __init__(self, filepath, remote_url):
         super(RemoteFile, self).__init__(filepath)
         self.remote_url = remote_url
+        self._dest_file_handle = None
+        self.transfer = None
+
+    @property
+    def dest_file_handle(self):
+        if self._dest_file_handle is None and os.path.exists(self.filepath):
+            self._dest_file_handle = open(self.filepath, "rb")
+            self._dest_file_handle.seek(self.position)
+        return self._dest_file_handle
 
     def get_file_size(self):
         try:
@@ -810,6 +827,9 @@ class RemoteFile(ChunkedFile):
             return True
 
     def read(self, size=-1):
+        dest_file_handle = self.dest_file_handle
+        if dest_file_handle:
+            return dest_file_handle.read(size)
         needs_download = self._start_transfer(
             self.position, self.position + size if size != -1 else None
         )
@@ -818,8 +838,14 @@ class RemoteFile(ChunkedFile):
         return super(RemoteFile, self).read(size)
 
     def seek(self, offset, whence=0):
+        dest_file_handle = self.dest_file_handle
+        if dest_file_handle:
+            return dest_file_handle.seek(offset, whence)
         self.get_file_size()
         return super(RemoteFile, self).seek(offset, whence)
 
     def close(self):
-        self.transfer.close()
+        if self.transfer:
+            self.transfer.close()
+        if self._dest_file_handle:
+            self._dest_file_handle.close()
