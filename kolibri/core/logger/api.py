@@ -905,7 +905,12 @@ class TotalContentProgressViewSet(viewsets.GenericViewSet):
                 )
             )
             .filter(Q(progress=1) | Q(mastery_progress__isnull=False))
-            .aggregate(progress__sum=Sum(Coalesce("mastery_progress", "progress")))
+            .aggregate(
+                progress__sum=Sum(
+                    Coalesce("mastery_progress", "progress"),
+                    output_field=IntegerField(),
+                )
+            )
             .get("progress__sum")
             or 0
         )
