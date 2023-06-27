@@ -57,8 +57,7 @@ class TestChunkedFile(unittest.TestCase):
                 self.chunked_file.chunk_dir, ".chunk_{}".format(self.chunks_count - 2)
             )
         )
-        self.chunked_file.seek((self.chunks_count - 2) * self.chunk_size)
-        self.chunked_file.write(new_data)
+        self.chunked_file.write_chunk(self.chunks_count - 2, new_data)
 
         self.chunked_file.seek((self.chunks_count - 2) * self.chunk_size)
         data = self.chunked_file.read(self.chunk_size)
@@ -68,28 +67,29 @@ class TestChunkedFile(unittest.TestCase):
         new_data = os.urandom(self.file_size)
         for i in range(self.chunks_count):
             os.remove(os.path.join(self.chunked_file.chunk_dir, ".chunk_{}".format(i)))
-        self.chunked_file.seek(0)
-        self.chunked_file.write(new_data)
+        self.chunked_file.write_all(self.chunked_file.chunk_generator(new_data))
 
         self.chunked_file.seek(0)
         data = self.chunked_file.read()
         self.assertEqual(data, new_data)
 
-    def test_write_fails_longer_than_file_size(self):
-        new_data = os.urandom(256)
-        self.chunked_file.seek(self.file_size)
-        with self.assertRaises(EOFError):
-            self.chunked_file.write(new_data)
+    def test_write_chunk_fails_longer_than_file_size(self):
+        new_data = os.urandom(self.chunked_file.chunk_size)
+        with self.assertRaises(ValueError):
+            self.chunked_file.write_chunk(self.chunks_count, new_data)
 
-    def test_write_ignores_overwrite(self):
-        data = self.chunked_file.read(256)
-        new_data = os.urandom(256)
-        self.chunked_file.seek(0)
-        self.chunked_file.write(new_data)
-        self.chunked_file.seek(0)
-        self.assertEqual(self.chunked_file.read(256), data)
+    def test_write_chunk_fails_negative_chunk(self):
+        new_data = os.urandom(self.chunked_file.chunk_size)
+        with self.assertRaises(ValueError):
+            self.chunked_file.write_chunk(-1, new_data)
 
-    def test_write_whole_file_ignores_overwrite_writes_remainder(self):
+    def test_write_chunk_overwrites(self):
+        new_data = os.urandom(self.chunked_file.chunk_size)
+        self.chunked_file.write_chunk(0, new_data)
+        self.chunked_file.seek(0)
+        self.assertEqual(self.chunked_file.read(self.chunked_file.chunk_size), new_data)
+
+    def test_write_whole_file_overwrites(self):
         new_data = os.urandom(self.file_size)
         os.remove(
             os.path.join(
@@ -97,17 +97,12 @@ class TestChunkedFile(unittest.TestCase):
             )
         )
         self.chunked_file.seek(0)
-        self.chunked_file.write(new_data)
+        self.chunked_file.write_all(self.chunked_file.chunk_generator(new_data))
 
-        self.chunked_file.seek(self.chunk_size * (self.chunks_count - 2))
-        data = self.chunked_file.read(self.chunk_size)
+        data = self.chunked_file.read()
         self.assertEqual(
             data,
-            new_data[
-                self.chunk_size
-                * (self.chunks_count - 2) : self.chunk_size
-                * (self.chunks_count - 1)
-            ],
+            new_data,
         )
 
     def test_seek_set(self):

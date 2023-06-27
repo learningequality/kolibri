@@ -175,38 +175,35 @@ class ChunkedFile(BufferedIOBase):
         self.position, output = self._read(self.position, size)
         return output
 
-    def write(self, data):
-        remaining = len(data)
+    def chunk_generator(self, data):
+        return (
+            data[i : i + self.chunk_size] for i in range(0, len(data), self.chunk_size)
+        )
 
-        if self.position + remaining > self.file_size:
-            raise EOFError("Cannot write past end of file")
-
-        while remaining > 0:
-            chunk_index = self.position // self.chunk_size
-            chunk_file = self._get_chunk_file_name(chunk_index)
-            current_chunk_file_size = (
-                os.path.getsize(chunk_file) if os.path.exists(chunk_file) else 0
+    def write_chunk(self, index, data):
+        if not -1 < index < self.chunks_count:
+            raise ValueError(
+                "Chunk index {} out of range should be between 0 and {}".format(
+                    index, self.chunks_count
+                )
             )
+        chunk_file = self._get_chunk_file_name(index)
+        chunk_file_size = self._get_expected_chunk_size(index)
+        if len(data) != chunk_file_size:
+            raise ValueError(
+                "Chunk size mismatch. Expected {expected} bytes, got {actual} bytes".format(
+                    expected=chunk_file_size, actual=len(data)
+                )
+            )
+        with open(chunk_file, "wb") as f:
+            f.write(data)
 
-            with open(chunk_file, "ab") as f:
-                chunk_position = self.position % self.chunk_size
-                amount_to_write = min(remaining, self.chunk_size - chunk_position)
-                if chunk_position < current_chunk_file_size:
-                    diff = current_chunk_file_size - chunk_position
-                    chunk_position += diff
-                    self.position += diff
-                    amount_to_write -= diff
-                    remaining -= diff
-                f.seek(chunk_position)
-                to_write = data[
-                    len(data) - remaining : len(data) - remaining + amount_to_write
-                ]
-                # For some reason in Python 2.7 this is failing to return the number of bytes written.
-                # as we know exactly how much we are writing, we can just use that value.
-                f.write(to_write)
-                bytes_written = len(to_write)
-                self.position += bytes_written
-                remaining -= bytes_written
+    def write_chunks(self, chunks, data_generator):
+        for index, data in zip(chunks, data_generator):
+            self.write_chunk(index, data)
+
+    def write_all(self, data_generator):
+        self.write_chunks(range(0, self.chunks_count), data_generator)
 
     def _chunk_range_for_byte_range(self, start, end):
         if start is not None and end is not None and start > end:
@@ -251,10 +248,10 @@ class ChunkedFile(BufferedIOBase):
         return indices, range_start, range_end
 
     @contextmanager
-    def lock_chunks(self, *args):
+    def lock_chunks(self, *chunk_indices):
         locks = []
         with self._open_cache() as cache:
-            for chunk_index in args:
+            for chunk_index in chunk_indices:
                 chunk_file = self._get_chunk_file_name(chunk_index)
                 lock = Lock(cache, chunk_file, expire=10)
                 lock.acquire()
@@ -278,14 +275,17 @@ class ChunkedFile(BufferedIOBase):
                     shutil.copyfileobj(input_file, output_file)
         os.rename(tmp_filepath, self.filepath)
 
-    def chunk_complete(self, chunk_index):
-        chunk_file = self._get_chunk_file_name(chunk_index)
-        # Check for correct chunk size
-        expected_chunk_size = (
+    def _get_expected_chunk_size(self, chunk_index):
+        return (
             self.chunk_size
             if chunk_index < self.chunks_count - 1
             else (self.file_size - (self.chunk_size * chunk_index))
         )
+
+    def chunk_complete(self, chunk_index):
+        chunk_file = self._get_chunk_file_name(chunk_index)
+        # Check for correct chunk size
+        expected_chunk_size = self._get_expected_chunk_size(chunk_index)
         return (
             os.path.exists(chunk_file)
             and os.path.getsize(chunk_file) == expected_chunk_size
@@ -333,7 +333,7 @@ class ChunkedFile(BufferedIOBase):
         return True
 
     def writable(self):
-        return True
+        return False
 
     def seekable(self):
         return True
