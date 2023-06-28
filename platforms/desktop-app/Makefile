@@ -46,7 +46,6 @@ get-whl: clean-whl
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
 	$(MAKE) install-whl whl="${WHLFILE}"
-	$(MAKE) loading-pages
 
 dependencies:
 	PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install -r build_requires.txt --no-binary pyinstaller
@@ -59,6 +58,7 @@ build-mac-app:
 
 pyinstaller: clean
 	mkdir -p logs
+	$(MAKE) loading-pages
 	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 
