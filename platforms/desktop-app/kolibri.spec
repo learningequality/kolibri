@@ -8,7 +8,7 @@ from glob import glob
 
 block_cipher = None
 
-sys.path = [os.path.abspath('kolibri')] + sys.path
+sys.path = [os.path.abspath('kolibrisrc')] + sys.path
 
 import kolibri
 kolibri_version = kolibri.__version__
@@ -26,7 +26,7 @@ locale_datas = [
 
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
-    pathex=['kolibri', os.path.join('kolibri', 'kolibri', 'dist')],
+    pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
     binaries=[],
     datas=[('src/kolibri_app/assets/*.*', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=[],

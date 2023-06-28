@@ -129,12 +129,9 @@ dmypy.json
 
 # ignores specific to this project.
 *.whl
-src/kolibri
 src/*.dist-info
 # generated files
-assets/preseeded_kolibri_home
-src/stdlib_imports.py
 tmpenv
 whl
 package
-kolibri
+kolibrisrc
