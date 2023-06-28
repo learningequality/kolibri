@@ -1,0 +1,28 @@
+name: Upload Release Asset to GitHub Release
+
+on:
+  workflow_call:
+    inputs:
+      filename:
+        required: true
+        type: string
+      release_id:
+        required: true
+        type: string
+
+jobs:
+  github_upload:
+    name: Upload to Github release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Download ${{ inputs.filename }} artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: ${{ inputs.filename }}
+          path: dist
+      - uses: actions/github-script@v6
+        with:
+          script: |
+            const utils = require('./.github/githubUtils.js')
+            await utils.uploadReleaseAsset(github, context, 'dist/${{ inputs.filename }}', '${{ inputs.release_id }}')
