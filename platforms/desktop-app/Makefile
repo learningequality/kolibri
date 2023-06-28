@@ -13,7 +13,7 @@ guard-%:
 	fi
 
 needs-version:
-	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibri')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
+	$(eval KOLIBRI_VERSION ?= $(shell python3 -c "import os; import sys; sys.path = [os.path.abspath('kolibrisrc')] + sys.path; from pkginfo import Installed; print(Installed('kolibri').version)"))
 	$(eval APP_VERSION ?= $(shell python3 read_version.py))
 
 clean:
@@ -24,17 +24,17 @@ clean-whl:
 	mkdir whl
 
 install-whl:
-	rm -rf kolibri
-	pip3 install ${whl} -t kolibri/
+	rm -rf kolibrisrc
+	pip3 install ${whl} -t kolibrisrc/
 	# Read SQLAlchemy version from the unpacked whl file to avoid hard coding.
 	# Manually install the sqlalchemy version
-	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibri/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
+	@version=$$(grep -Eo '__version__ = "([0-9]+\.[0-9]+\.[0-9]+)"' kolibrisrc/kolibri/dist/sqlalchemy/__init__.py | grep -Eo "([0-9]+\.[0-9]+\.[0-9]+)"); \
 	pip3 install sqlalchemy==$$version --no-binary :all:
 	# Delete sqlalchemy from the dist folder
-	rm -rf kolibri/kolibri/dist/sqlalchemy
-	rm -rf kolibri/kolibri/dist/SQLAlchemy*
+	rm -rf kolibrisrc/kolibri/dist/sqlalchemy
+	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
-	echo "3.3.1" > kolibri/kolibri/dist/importlib_resources/version.txt || true
+	echo "3.3.1" > kolibrisrc/kolibri/dist/importlib_resources/version.txt || true
 
 get-whl: clean-whl
 # The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
