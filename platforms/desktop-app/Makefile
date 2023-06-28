@@ -113,3 +113,7 @@ notarize-dmg: needs-version
 	$(MAKE) guard-MAC_NOTARIZE_USERNAME
 	$(MAKE) guard-MAC_NOTARIZE_PASSWORD
 	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg"
+
+
+run-dev:
+	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri_app
