@@ -28,7 +28,7 @@ a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
     binaries=[],
-    datas=[('src/kolibri_app/assets/*.*', 'kolibri_app/assets')] + locale_datas,
+    datas=[('src/kolibri_app/assets/*/*.*', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=[],
     hookspath=['hooks'],
     runtime_hooks=['hooks/pyi_rth_kolibri.py'],

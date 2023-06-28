@@ -35,6 +35,7 @@ install-whl:
 	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibrisrc/kolibri/dist/importlib_resources/version.txt || true
+	$(MAKE) loading-pages
 
 loading-pages: needs-version
 	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
@@ -58,7 +59,6 @@ build-mac-app:
 
 pyinstaller: clean
 	mkdir -p logs
-	$(MAKE) loading-pages
 	pip3 install .
 	python3 -OO -m PyInstaller kolibri.spec
 

@@ -80,6 +80,8 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('setup.py', 'build_requires.txt', '.github/workflows/build_mac.yml') }}
         restore-keys: |
           ${{ runner.os }}-pip-
+    - name: Install dependencies
+      run: make dependencies
     - name: Download the whlfile from URL and install
       if: ${{ github.event.inputs.whl-url }}
       run: make get-whl whl=${{ github.event.inputs.whl-url }}
@@ -92,8 +94,6 @@ jobs:
     - name: Install WHL file from artifacts
       if: ${{ inputs.whl-file-name }}
       run: make install-whl whl=whl/${{ inputs.whl-file-name }}
-    - name: Install dependencies
-      run: make dependencies
     - name: Setup app signing certificate
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       env:
