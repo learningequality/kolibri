@@ -673,35 +673,43 @@ class FileDownload(Transfer):
         )
         while chunk_indices is not None:
             with self.dest_file_obj.lock_chunks(*chunk_indices):
-                response = self.session.get(
-                    self.source,
-                    headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
-                    stream=True,
-                    timeout=self.timeout,
-                )
-                response.raise_for_status()
-
-                range_response_supported = response.headers.get(
-                    "content-range", ""
-                ) == "bytes {}-{}/{}".format(start_byte, end_byte, self.total_size)
-
-                data_generator = response.iter_content(self.dest_file_obj.chunk_size)
-                if range_response_supported:
-                    self.dest_file_obj.write_chunks(
-                        chunk_indices,
-                        data_generator,
-                        progress_callback=progress_callback,
+                if not any(
+                    self.dest_file_obj.chunk_complete(chunk) for chunk in chunk_indices
+                ):
+                    # If while waiting for a lock on a chunk, any of the chunks we were trying to
+                    # download were already downloaded, then we can skip downloading those chunks.
+                    # Easiest to just start over and get the fresh list of chunks to download.
+                    response = self.session.get(
+                        self.source,
+                        headers={"Range": "bytes={}-{}".format(start_byte, end_byte)},
+                        stream=True,
+                        timeout=self.timeout,
                     )
-                else:
-                    # Lock all chunks except the chunks we already locked, so as to avoid trying
-                    # to acquire the same lock twice, and also so that no one else tries to download
-                    # the same chunks while we are streaming them.
-                    with self.dest_file_obj.lock_chunks(
-                        self.dest_file_obj.all_chunks(*chunk_indices)
-                    ):
-                        self.dest_file_obj.write_all(
-                            data_generator, progress_callback=progress_callback
+                    response.raise_for_status()
+
+                    range_response_supported = response.headers.get(
+                        "content-range", ""
+                    ) == "bytes {}-{}/{}".format(start_byte, end_byte, self.total_size)
+
+                    data_generator = response.iter_content(
+                        self.dest_file_obj.chunk_size
+                    )
+                    if range_response_supported:
+                        self.dest_file_obj.write_chunks(
+                            chunk_indices,
+                            data_generator,
+                            progress_callback=progress_callback,
                         )
+                    else:
+                        # Lock all chunks except the chunks we already locked, so as to avoid trying
+                        # to acquire the same lock twice, and also so that no one else tries to download
+                        # the same chunks while we are streaming them.
+                        with self.dest_file_obj.lock_chunks(
+                            self.dest_file_obj.all_chunks(*chunk_indices)
+                        ):
+                            self.dest_file_obj.write_all(
+                                data_generator, progress_callback=progress_callback
+                            )
                 (
                     chunk_indices,
                     start_byte,
