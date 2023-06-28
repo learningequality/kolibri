@@ -5,6 +5,7 @@ from importlib.resources import files
 from io import BytesIO
 
 import wx
+from django.utils.translation.trans_real import to_language
 from wx import html2
 
 from kolibri_app.constants import APP_NAME
@@ -17,21 +18,21 @@ from kolibri_app.i18n import locale_info
 
 html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
 
-LOADER_PAGE_TEMPLATE = "_load-{}.html"
+LOADER_PAGE = "loading.html"
 
 
 class LoadingHandler(wx.html2.WebViewHandler):
     def __init__(self):
         wx.html2.WebViewHandler.__init__(self, "loading")
-        lang_id = locale_info["language"]
+        lang_id = to_language(locale_info["language"])
         asset_files = files("kolibri_app") / "assets"
-        loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
+        loader_page = asset_files / lang_id / LOADER_PAGE
         if not loader_page.is_file():
             lang_id = lang_id.split("-")[0]
-            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format(lang_id)
+            loader_page = asset_files / lang_id / LOADER_PAGE
         if not loader_page.is_file():
             # if we can't find anything in the given language, default to the English loading page.
-            loader_page = asset_files / LOADER_PAGE_TEMPLATE.format("en_US")
+            loader_page = asset_files / "en" / LOADER_PAGE
         with loader_page.open("rb") as f:
             self.loader_page = f.read()
 
