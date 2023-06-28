@@ -129,7 +129,7 @@ dmypy.json
 
 # ignores specific to this project.
 *.whl
-src/*.dist-info
+src/kolibri_app/assets
 # generated files
 tmpenv
 whl

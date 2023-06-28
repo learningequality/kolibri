@@ -22,7 +22,7 @@ if not languages and MAC:
     )
 
 if not languages:
-    languages = ["en_US"]
+    languages = ["en"]
 
 nelangs = []
 for lang in languages:
@@ -50,7 +50,7 @@ locale_info = t.info()
 # trigger the exception handling fallback if locale_info doesn't have a language key.
 if "language" not in locale_info:
     # Fallback to English and if we fail to find any language catalogs.
-    locale_info["language"] = "en_US"
+    locale_info["language"] = "en"
 _ = t.gettext
 
 logging.debug("Locale info = {}".format(locale_info))

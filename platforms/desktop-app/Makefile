@@ -36,6 +36,9 @@ install-whl:
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibrisrc/kolibri/dist/importlib_resources/version.txt || true
 
+loading-pages: needs-version
+	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+
 get-whl: clean-whl
 # The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
 # into a prerequisite make step, in order to ensure they happen prior to the download.
@@ -43,6 +46,7 @@ get-whl: clean-whl
 	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
 	$(MAKE) install-whl whl="${WHLFILE}"
+	$(MAKE) loading-pages
 
 dependencies:
 	PYINSTALLER_COMPILE_BOOTLOADER=1 pip3 install -r build_requires.txt --no-binary pyinstaller
@@ -109,3 +113,7 @@ notarize-dmg: needs-version
 	$(MAKE) guard-MAC_NOTARIZE_USERNAME
 	$(MAKE) guard-MAC_NOTARIZE_PASSWORD
 	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg"
+
+
+run-dev:
+	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri_app

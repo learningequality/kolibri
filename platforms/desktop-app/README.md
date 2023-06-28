@@ -38,7 +38,7 @@ Once you have downloaded and installed the Kolibri whl file, run `make pyinstall
 
 #### Running the app from source
 
-`python -m kolibri_app`
+`make run-dev`
 
 #### Creating a native app for testing
 
