@@ -233,6 +233,9 @@ class ChunkedFile(BufferedIOBase):
         )
         return start_chunk, end_chunk
 
+    def all_chunks(self, *skip_chunks):
+        return (i for i in range(self.chunks_count) if i not in skip_chunks)
+
     def missing_chunks_generator(self, start=None, end=None):
         """
         Generator for the index, start range, and end range of the next missing chunk.
@@ -690,9 +693,15 @@ class FileDownload(Transfer):
                         progress_callback=progress_callback,
                     )
                 else:
-                    self.dest_file_obj.write_all(
-                        data_generator, progress_callback=progress_callback
-                    )
+                    # Lock all chunks except the chunks we already locked, so as to avoid trying
+                    # to acquire the same lock twice, and also so that no one else tries to download
+                    # the same chunks while we are streaming them.
+                    with self.dest_file_obj.lock_chunks(
+                        self.dest_file_obj.all_chunks(*chunk_indices)
+                    ):
+                        self.dest_file_obj.write_all(
+                            data_generator, progress_callback=progress_callback
+                        )
                 (
                     chunk_indices,
                     start_byte,
@@ -704,18 +713,23 @@ class FileDownload(Transfer):
                 )
 
     def _run_no_byte_range_download(self, progress_callback):
+        with self.dest_file_obj.lock_chunks(self.dest_file_obj.all_chunks()):
+            response = self.session.get(self.source, stream=True, timeout=self.timeout)
+            response.raise_for_status()
+            generator = response.iter_content(self.dest_file_obj.chunk_size)
+            self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
+
+    def _run_no_byte_range_download_no_total_size(self, progress_callback):
         response = self.session.get(self.source, stream=True, timeout=self.timeout)
         response.raise_for_status()
-        if (not self.content_length_header or self.compressed) and not self.total_size:
-            # Doing this exhausts the iterator, so if we need to do this, we need
-            # to return the dummy iterator below, as the iterator will be empty,
-            # and all content is now stored in memory. So we should avoid doing this as much
-            # as we can, hence the total size check above.
-            self.total_size = len(response.content)
+        # Doing this exhausts the iterator, so if we need to do this, we need
+        # to return the dummy iterator below, as the iterator will be empty,
+        # and all content is now stored in memory. So we should avoid doing this as much
+        # as we can, hence the total size check before this function is invoked.
+        self.total_size = len(response.content)
+        with self.dest_file_obj.lock_chunks(self.dest_file_obj.all_chunks()):
             generator = self.dest_file_obj.chunk_generator(response.content)
-        else:
-            generator = response.iter_content(self.dest_file_obj.chunk_size)
-        self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
+            self.dest_file_obj.write_all(generator, progress_callback=progress_callback)
 
     def _run_download(self, progress_update=None):
         if not self.started:
@@ -732,8 +746,10 @@ class FileDownload(Transfer):
         # behavior of downloading the whole file.
         if self.content_length_header and not self.compressed:
             self._run_byte_range_download(progress_callback)
-        else:
+        elif self.total_size:
             self._run_no_byte_range_download(progress_callback)
+        else:
+            self._run_no_byte_range_download_no_total_size(progress_callback)
 
     def close(self):
         if hasattr(self, "response"):
