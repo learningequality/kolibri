@@ -39,7 +39,9 @@ class CustomDjangoCache(DjangoCache):
 
         """
         try:
-            return super(CustomDjangoCache, self).has_key(key, version=version)
+            return super(CustomDjangoCache, self).has_key(  # noqa: W601
+                key, version=version
+            )
         except sqlite3.OperationalError:
             return False
 
