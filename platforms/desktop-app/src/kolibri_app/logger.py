@@ -21,10 +21,10 @@ class LoggerWriter(io.IOBase):
     def __init__(self, writer):
         self._writer = writer
         self._msg = ""
-    
+
     def readable(self):
         return False
-    
+
     def writable(self):
         return True
 

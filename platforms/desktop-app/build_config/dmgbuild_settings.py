@@ -1,6 +1,4 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
-
 # Symlinks to create
 symlinks = {"Applications": "/Applications"}
 

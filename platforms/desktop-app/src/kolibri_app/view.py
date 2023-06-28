@@ -5,13 +5,14 @@ from importlib.resources import files
 from io import BytesIO
 
 import wx
+from wx import html2
+
 from kolibri_app.constants import APP_NAME
 from kolibri_app.constants import LINUX
 from kolibri_app.constants import MAC
 from kolibri_app.constants import WINDOWS
 from kolibri_app.i18n import _
 from kolibri_app.i18n import locale_info
-from wx import html2
 
 
 html2.WebView.MSWSetEmulationLevel(html2.WEBVIEWIE_EMU_IE11)
