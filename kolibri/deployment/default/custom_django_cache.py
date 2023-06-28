@@ -30,6 +30,19 @@ class CustomDjangoCache(DjangoCache):
         except sqlite3.OperationalError:
             return False
 
+    def has_key(self, key, version=None):
+        """Returns True if the key is in the cache and has not expired.
+
+        :param key: key for item
+        :param int version: key version number (default None, cache parameter)
+        :return: True if key is found
+
+        """
+        try:
+            return super(CustomDjangoCache, self).has_key(key, version=version)
+        except sqlite3.OperationalError:
+            return False
+
     def get(
         self,
         key,
