@@ -12,7 +12,7 @@ xcrun notarytool submit \
 --apple-id "${MAC_NOTARIZE_USERNAME}" \
 --password "${MAC_NOTARIZE_PASSWORD}" \
 --wait \
---output-format xml | tee "build/notarize_result.plist"
+--output-format plist | tee "build/notarize_result.plist"
 
 notarize_exit=$?
 
