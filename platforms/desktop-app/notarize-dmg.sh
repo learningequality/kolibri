@@ -29,20 +29,7 @@ echo "Notarization UUID: ${request_uuid} result: $("${PLIST_BUDDY}" -c "Print su
 # -------- Staple DMG
 
 echo "Stapling notarization result..."
-for (( ; ; ))
-do
-    xcrun stapler staple -q "${DISK_IMAGE_PATH}"
-    stapler_status=$?
-    if [ "${stapler_status}" = "65" ]
-    then
-        echo "Waiting for stapling to find record"
-        sleep 10
-    else
-        echo "Stapler status: ${stapler_status}"
-        break
-    fi
-done
-
+xcrun stapler staple -v "${DISK_IMAGE_PATH}"
 
 # -------- Validate stapled DMG
 
