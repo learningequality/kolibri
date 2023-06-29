@@ -8,6 +8,7 @@ DISK_IMAGE_PATH="$1"
 xcrun notarytool submit \
 "${DISK_IMAGE_PATH}" \
 --apple-id "${MAC_NOTARIZE_USERNAME}" \
+--team-id "${MAC_NOTARIZE_TEAM_ID}" \
 --password "${MAC_NOTARIZE_PASSWORD}" \
 --wait \
 --output-format plist | tee "build/notarize_result.plist"
