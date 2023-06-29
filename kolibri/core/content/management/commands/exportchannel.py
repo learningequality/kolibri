@@ -32,9 +32,7 @@ class Command(AsyncCommand):
 
             with self.start_progress(total=copy.transfer_size) as progress_update:
                 try:
-                    for block in copy:
-                        progress_update(len(block))
-
+                    copy.run(progress_update=progress_update)
                 except transfer.TransferCanceled:
                     pass
 

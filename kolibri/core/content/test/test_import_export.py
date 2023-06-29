@@ -488,7 +488,7 @@ class ImportChannelTestCase(TestCase):
         os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
-        FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileDownloadMock.return_value.run.side_effect = TransferCanceled()
         call_command("importchannel", "network", self.the_channel_id)
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
@@ -527,7 +527,7 @@ class ImportChannelTestCase(TestCase):
         os.close(fd1)
         os.close(fd2)
         local_path_mock.side_effect = [local_dest_path, local_src_path]
-        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileCopyMock.return_value.run.side_effect = TransferCanceled()
         call_command("importchannel", "disk", self.the_channel_id, tempfile.mkdtemp())
         # Check that is_cancelled was called
         is_cancelled_mock.assert_called_with()
@@ -640,7 +640,6 @@ class ImportChannelTestCase(TestCase):
         os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
         import_channel_mock.return_value = True
         call_command("importchannel", "network", self.the_channel_id)
         self.assertTrue(channel_stats_clear_mock.called)
@@ -686,8 +685,6 @@ class ImportContentTestCase(TestCase):
         get_import_export_mock,
         channel_list_status_mock,
     ):
-        # Check behaviour if cancellation is called before any file download starts
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
         get_import_export_mock.return_value = (
             1,
             [LocalFile.objects.all().values("id", "file_size", "extension").first()],
@@ -734,8 +731,7 @@ class ImportContentTestCase(TestCase):
         os.close(fd)
         local_path_mock.return_value = local_path
         remote_path_mock.return_value = "notest"
-        # Mock this __iter__ so that the filetransfer can be looped over
-        FileDownloadMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileDownloadMock.return_value.run.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (
             1,
             [LocalFile.objects.all().values("id", "file_size", "extension").first()],
@@ -803,8 +799,6 @@ class ImportContentTestCase(TestCase):
             f.write("a")
         local_path_mock.side_effect = [local_path_1, local_path_2]
         remote_path_mock.return_value = "notest"
-        # Mock this __iter__ so that the filetransfer can be looped over
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
         FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path_1
         LocalFile.objects.update(file_size=1)
@@ -841,7 +835,6 @@ class ImportContentTestCase(TestCase):
         channel_list_status_mock,
     ):
         # Local version of test above
-        FileCopyMock.return_value.__iter__.return_value = ["one", "two", "three"]
         get_import_export_mock.return_value = (
             1,
             list(LocalFile.objects.all().values("id", "file_size", "extension")),
@@ -886,7 +879,7 @@ class ImportContentTestCase(TestCase):
         os.close(fd1)
         os.close(fd2)
         local_path_mock.side_effect = [local_dest_path, local_src_path] * 10
-        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_import_export_mock.return_value = (
             1,
             [LocalFile.objects.all().values("id", "file_size", "extension").first()],
@@ -2106,7 +2099,6 @@ class ImportContentTestCase(TestCase):
         LocalFile.objects.update(file_size=1)
         local_path_mock.side_effect = [local_path]
         remote_path_mock.return_value = "notest"
-        FileDownloadMock.return_value.__iter__.return_value = ["one", "two", "three"]
         FileDownloadMock.return_value.transfer_size = 1
         FileDownloadMock.return_value.dest = local_path
         get_import_export_mock.return_value = (
@@ -2165,7 +2157,7 @@ class ExportChannelTestCase(TestCase):
         os.close(fd1)
         os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileCopyMock.return_value.run.side_effect = TransferCanceled()
         call_command("exportchannel", self.the_channel_id, local_dest_path)
         FileCopyMock.assert_called_with(
             local_src_path, local_dest_path, cancel_check=is_cancelled_mock
@@ -2204,7 +2196,7 @@ class ExportContentTestCase(TestCase):
         get_import_export_nodes_mock,
     ):
         # If cancel comes in before we do anything, make sure nothing happens!
-        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
             [LocalFile.objects.values("id", "file_size", "extension").first()],
@@ -2246,7 +2238,7 @@ class ExportContentTestCase(TestCase):
         os.close(fd1)
         os.close(fd2)
         local_path_mock.side_effect = [local_src_path, local_dest_path]
-        FileCopyMock.return_value.__iter__.side_effect = TransferCanceled()
+        FileCopyMock.return_value.run.side_effect = TransferCanceled()
         get_content_nodes_data_mock.return_value = (
             1,
             [LocalFile.objects.values("id", "file_size", "extension").first()],
