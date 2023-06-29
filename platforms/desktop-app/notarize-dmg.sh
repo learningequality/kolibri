@@ -7,7 +7,6 @@ DISK_IMAGE_PATH="$1"
 
 xcrun notarytool submit \
 "${DISK_IMAGE_PATH}" \
---type osx \
 --primary-bundle-id "org.learningequality.Kolibri" \
 --apple-id "${MAC_NOTARIZE_USERNAME}" \
 --password "${MAC_NOTARIZE_PASSWORD}" \
