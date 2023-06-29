@@ -1875,10 +1875,10 @@
   resolved "https://registry.yarnpkg.com/@vue/composition-api/-/composition-api-1.7.1.tgz#aa6831be5a12817d93e89e247460c310dd7a3a32"
   integrity sha512-xDWoEtxGXhH9Ku3ROYX/rzhcpt4v31hpPU5zF3UeVC/qxA3dChmqU8zvTUYoKh3j7rzpNsoFOwqsWG7XPMlaFA==
 
-"@vue/test-utils@^1.3.4":
-  version "1.3.4"
-  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.3.4.tgz#83a68179178cb3da4b2b7c5c59ac660dbdff8ef5"
-  integrity sha512-yh2sbosCxk5FfwjXYXdY9rUffaJqYEFjsod5sCD4oosRn2x8LfBLEzQH0scdo5n7z8VkBUThpYzbkI6DVAWimA==
+"@vue/test-utils@^1.3.6":
+  version "1.3.6"
+  resolved "https://registry.yarnpkg.com/@vue/test-utils/-/test-utils-1.3.6.tgz#6656bd8fa44dd088b4ad80ff1ee28abe7e5ddf87"
+  integrity sha512-udMmmF1ts3zwxUJEIAj5ziioR900reDrt6C9H3XpWPsLBx2lpHKoA4BTdd9HNIYbkGltWw+JjWJ+5O6QBwiyEw==
   dependencies:
     dom-event-types "^1.0.0"
     lodash "^4.17.15"
