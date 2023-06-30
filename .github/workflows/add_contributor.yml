@@ -16,6 +16,7 @@ jobs:
       - name: Check if contributor already exists
         id: check_contributor
         run: |
+          set +x
           exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md)
           if [[ $exists -gt 0 ]]; then
             echo "exists=true" >> $GITHUB_ENV
@@ -27,6 +28,7 @@ jobs:
         id: get_full_name
         if: steps.check_contributor.outputs.exists == 'false'
         run: |
+          set +x
           username=$GITHUB_ACTOR
           access_token=$GITHUB_TOKEN
           full_name=$(curl -s -H "Authorization: token $access_token" "https://api.github.com/users/$username" | jq -r '.name')
@@ -39,11 +41,13 @@ jobs:
         id: append_contributor
         if: steps.check_contributor.outputs.exists == 'false'
         run: |
+          set +x
           echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
 
       - name: Commit and push changes
         if: steps.check_contributor.outputs.exists == 'false'
         run: |
+          set +x
           git config --local user.email "action@github.com"
           git config --local user.name "GitHub Action"
           git add AUTHORS.md
