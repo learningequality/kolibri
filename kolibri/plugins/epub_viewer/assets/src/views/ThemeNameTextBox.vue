@@ -12,8 +12,9 @@
     @blur="blurred = true"
     @input="$emit('update:value', $event)"
   />
-    
+
 </template>
+
 
 <script>
 
