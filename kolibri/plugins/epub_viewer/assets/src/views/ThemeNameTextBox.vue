@@ -4,17 +4,16 @@
     ref="textbox"
     :value="value"
     :label="'Theme Name'"
-    :autofocus="false"
+    :autofocus="$attrs.autofocus"
     :maxlength="50"
     :invalid="Boolean(shownInvalidText)"
     :invalidText="shownInvalidText"
+    :autocomplete="$attrs.autocomplete"
     @blur="blurred = true"
-    @input="handleInput"
+    @input="$emit('update:value', $event)"
   />
     
 </template>
-
-<!-- TODO: Clarify the autofocus attribute should be true or false -->
 
 <script>
 
@@ -24,25 +23,27 @@
     name: 'ThemeNameTextBox',
     mixins: [commonCoreStrings],
     props: {
-      themeName: {
+      value: {
         type: String,
         default: '',
+      },
+      shouldValidate: {
+        type: Boolean,
       },
     },
     data() {
       return {
         blurred: false,
-        value: this.themeName,
       };
     },
     computed: {
       isThemeNameEmpty() {
-        return this.value && this.value.trim() !== '';
+        return !this.value && this.value.trim() === '';
       },
       isThemeNameExists() {
-        if (this.value === this.themeName){
-          return false;
-        }
+        // if (this.value === this.themeName){
+        //   return false;
+        // }
         // TODO: look for local storage keys and check if the theme name exists
         // SAMPLE CODE:
         // if (localStorage.getItem(this.value) !== null){
@@ -60,21 +61,30 @@
         return '';
       },
       shownInvalidText() {
-        if (this.blurred) {
+        if (this.blurred || this.shouldValidate) {
           return this.invalidText;
         }
         return '';
+      },
+    },
+    watch: {
+      isThemeNameEmpty: {
+        handler(value) {
+          this.$emit('update:isValid', !value);
+        },
+        immediate: true,
+      },
+      isThemeNameExists: {
+        handler(value) {
+          this.$emit('update:isValid', !value);
+        },
+        immediate: true,
       },
     },
     methods: {
       // @public
       focus() {
         return this.$refs.textbox.focus();
-      },
-      handleInput() {
-        if (!this.isThemeNameEmpty && !this.isThemeNameExists) {
-          this.$emit('updateThemeName', this.value);
-        }
       },
     },
   };

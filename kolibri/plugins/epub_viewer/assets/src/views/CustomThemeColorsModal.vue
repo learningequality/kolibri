@@ -6,14 +6,18 @@
         :title="title"
         :submitText="coreString('saveAction')"
         :cancelText="coreString('cancelAction')"
-        @submit="$emit('submit', tempTheme )"
+        @submit="handleSubmit"
         @cancel="$emit('cancel')"
       >
         <div class="theme-name">
           <ThemeNameTextbox
-            :themeName="tempTheme.name"
-            @updateThemeName="tempTheme.name = $event;"
+            ref="themeNameTextbox"
+            :autofocus="false"
+            :value.sync="tempTheme.name"
+            :isValid.sync="themeNameIsValid"
+            :shouldValidate="formSubmitted"
           />
+          <!-- TODO: autofocus true or false? -->
         </div>
 
         <div
@@ -118,6 +122,8 @@
           linkColor: this.theme.linkColor,
         },
         colorPicker: null,
+        themeNameIsValid: false,
+        formSubmitted: false,
       };
     },
     computed: {
@@ -155,6 +161,16 @@
           this.tempTheme.linkColor = color.hex;
         }
         this.colorPicker = null;
+      },
+      handleSubmit() {
+        this.formSubmitted = true;
+        if (this.themeNameIsValid) {
+          this.$emit('submit', this.tempTheme);
+        } else {
+          this.$nextTick().then(() => {
+            this.$refs.themeNameTextbox.focus();
+          });
+        }
       },
     },
     $trs: {

@@ -232,6 +232,7 @@
       addNewTheme(tempTheme) {
         // console.log(tempTheme);
         this.addCustomTheme = null;
+        this.editCustomThemeName = null;
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
         savedCustomThemes[tempTheme.name] = tempTheme;
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
