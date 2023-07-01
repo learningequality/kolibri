@@ -3,19 +3,18 @@
   <KTextbox
     ref="textbox"
     :value="value"
-    :disabled="$attrs.disabled"
     :label="'Theme Name'"
-    :autofocus="$attrs.autofocus"
+    :autofocus="false"
     :maxlength="50"
     :invalid="Boolean(shownInvalidText)"
     :invalidText="shownInvalidText"
-    :autocomplete="$attrs.autocomplete"
     @blur="blurred = true"
-    @input="$emit('update:value', $event)"
+    @input="handleInput"
   />
-
+    
 </template>
 
+<!-- TODO: Clarify the autofocus attribute should be true or false -->
 
 <script>
 
@@ -24,51 +23,58 @@
   export default {
     name: 'ThemeNameTextBox',
     mixins: [commonCoreStrings],
-    // NOTE: 'value' and 'isValid' must be .sync'd with parent
-    // You can also pass 'disabled', 'autofocus', and 'autocomplete'
     props: {
-      value: {
+      themeName: {
         type: String,
         default: '',
-      },
-      shouldValidate: {
-        type: Boolean,
       },
     },
     data() {
       return {
         blurred: false,
+        value: this.themeName,
       };
     },
     computed: {
-      isFullNameValid() {
+      isThemeNameEmpty() {
         return this.value && this.value.trim() !== '';
       },
+      isThemeNameExists() {
+        if (this.value === this.themeName){
+          return false;
+        }
+        // TODO: look for local storage keys and check if the theme name exists
+        // SAMPLE CODE:
+        // if (localStorage.getItem(this.value) !== null){
+        //   return true;
+        // }
+        return false; // to be implemented
+      },
       invalidText() {
-        if (!this.isFullNameValid) {
+        if (this.isThemeNameEmpty) {
           return this.coreString('requiredFieldError');
+        }
+        if (this.isThemeNameExists) {
+          return this.coreString('themeNameExistsError'); // to be implemented
         }
         return '';
       },
       shownInvalidText() {
-        if (this.blurred || this.shouldValidate) {
+        if (this.blurred) {
           return this.invalidText;
         }
         return '';
-      },
-    },
-    watch: {
-      isFullNameValid: {
-        handler(value) {
-          this.$emit('update:isValid', value);
-        },
-        immediate: true,
       },
     },
     methods: {
       // @public
       focus() {
         return this.$refs.textbox.focus();
+      },
+      handleInput() {
+        if (!this.isThemeNameEmpty && !this.isThemeNameExists) {
+          this.$emit('updateThemeName', this.value);
+        }
       },
     },
   };

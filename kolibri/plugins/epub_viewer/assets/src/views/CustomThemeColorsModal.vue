@@ -6,13 +6,13 @@
         :title="title"
         :submitText="coreString('saveAction')"
         :cancelText="coreString('cancelAction')"
-        @submit="$emit('submit', tempTheme)"
+        @submit="$emit('submit', tempTheme )"
         @cancel="$emit('cancel')"
       >
         <div class="theme-name">
-          <!-- need to configure the input box -->
           <ThemeNameTextbox
-            :value="themeName"
+            :themeName="tempTheme.name"
+            @updateThemeName="tempTheme.name = $event;"
           />
         </div>
 
@@ -23,7 +23,7 @@
           <p>
             The quick brown fox jumps over the lazy dog.
             <a :style="{ color: tempTheme.linkColor }">This is a link</a>
-            <!-- do this need translations too? -->
+            <!-- TODO: do this need translations too? -->
           </p>
         </div>
 
@@ -98,10 +98,6 @@
         type: String,
         default: null,
       },
-      themeName: {
-        type: String,
-        default: null,
-      },
       theme: {
         type: Object,
         default: () => {
@@ -116,7 +112,7 @@
     data() {
       return {
         tempTheme: {
-          name: 'theme' + Math.floor(Math.random() * 100),
+          name: this.modalMode == 'edit' ? this.theme.name : '',
           backgroundColor: this.theme.backgroundColor,
           textColor: this.theme.textColor,
           linkColor: this.theme.linkColor,
