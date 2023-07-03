@@ -20,6 +20,7 @@
           <!-- TODO: autofocus true or false? -->
         </div>
 
+        <h3>{{ $tr('themePreview') }}</h3>
         <div
           class="theme-preview"
           :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
@@ -201,6 +202,10 @@
         message: 'Link',
         context: '',
       },
+      themePreview: {
+        message: 'Theme preview',
+        context: '',
+      },
     },
   };
 
@@ -215,9 +220,13 @@
 
   .theme-preview {
     padding: 24px;
-    margin: 24px;
+    margin: 12px 24px;
     border: 1px solid #cccccc;
     border-radius: 4px;
+  }
+
+  h3 {
+    margin: 0 24px;
   }
 
   .theme-option {
