@@ -2,7 +2,7 @@
 
   <KModal
     :title="title"
-    :submitText="coreString('acceptAction')"
+    :submitText="$tr('selectAction')"
     :cancelText="coreString('cancelAction')"
     @submit="$emit('submit', selectedColor)"
     @cancel="$emit('cancel')"
@@ -74,6 +74,10 @@
       titleSelectColor: {
         message: 'Select theme color',
         context: 'Title of window that displays when a user tries to select a new theme color.',
+      },
+      selectAction: {
+        message: 'Select',
+        context: 'Button that selects a color.',
       },
     },
   };
