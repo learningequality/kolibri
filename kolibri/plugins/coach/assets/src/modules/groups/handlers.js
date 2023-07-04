@@ -1,8 +1,15 @@
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { LearnerGroupResource, FacilityUserResource } from 'kolibri.resources';
+import { useGroups } from '../../composables/useGroups';
+
+const { setGroupsLoading } = useGroups();
 
 export function showGroupsPage(store, classId) {
-  store.dispatch('loading');
+  // on this page, don't handle loading state globally so we can do it locally
+  store.dispatch('notLoading');
+
+  setGroupsLoading(true);
+
   const promises = [
     FacilityUserResource.fetchCollection({
       getParams: { member_of: classId },
@@ -36,7 +43,7 @@ export function showGroupsPage(store, classId) {
                 groups,
                 groupModalShown: false,
               });
-              store.dispatch('notLoading');
+              setGroupsLoading(false);
               store.dispatch('clearError');
             }
           },
