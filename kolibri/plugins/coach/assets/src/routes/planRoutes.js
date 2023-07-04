@@ -1,11 +1,13 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
+import { useGroups } from '../composables/useGroups';
 import GroupsPage from '../views/plan/GroupsPage';
 import GroupMembersPage from '../views/plan/GroupMembersPage';
 import GroupEnrollPage from '../views/plan/GroupEnrollPage';
-import { showGroupsPage } from '../modules/groups/handlers';
 import planLessonsRoutes from './planLessonsRoutes';
 import planExamRoutes from './planExamRoutes';
+
+const { showGroupsPage } = useGroups();
 
 export default [
   ...planLessonsRoutes,
