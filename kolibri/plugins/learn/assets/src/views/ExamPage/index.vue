@@ -349,11 +349,7 @@
     },
     watch: {
       attemptLogItemValue(newVal, oldVal) {
-        // HACK: manually dismiss the perseus renderer message when moving
-        // to a different item (fixes #3853)
-        if (newVal !== oldVal && this.$refs.contentRenderer) {
-          this.$refs.contentRenderer.$refs.contentView.dismissMessage &&
-            this.$refs.contentRenderer.$refs.contentView.dismissMessage();
+        if (newVal !== oldVal) {
           this.startTime = Date.now();
         }
       },

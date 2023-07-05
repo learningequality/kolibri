@@ -326,11 +326,7 @@ oriented data synchronization.
         return null;
       },
       renderer() {
-        // TODO: rtibbles - update the KContentRenderer API to expose hint info
-        // and add takeHint public method
-        return (
-          this.mounted && this.$refs.contentRenderer && this.$refs.contentRenderer.$refs.contentView
-        );
+        return this.mounted && this.$refs.contentRenderer;
       },
       availableHints() {
         return (this.renderer && this.renderer.availableHints) || 0;

@@ -154,8 +154,9 @@
       const errored = ref(false);
       const wrappedUpdateContentSession = data => {
         if (!errored.value) {
-          updateContentSession(data);
+          return updateContentSession(data);
         }
+        return Promise.resolve();
       };
 
       return {

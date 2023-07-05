@@ -6,10 +6,12 @@ from random import randint
 
 from django.core.exceptions import PermissionDenied
 from django.db import transaction
+from django.db.models import Case
 from django.db.models import IntegerField
 from django.db.models import Q
 from django.db.models import Sum
 from django.db.models import Value
+from django.db.models import When
 from django.db.models.functions import Coalesce
 from django.http import Http404
 from django_filters.rest_framework import BooleanFilter
@@ -892,9 +894,25 @@ class TotalContentProgressViewSet(viewsets.GenericViewSet):
         if request.user.is_anonymous or pk != request.user.id:
             raise PermissionDenied("Can only access progress data for self")
         progress = (
-            request.user.contentsummarylog_set.filter(progress=1)
-            .aggregate(Sum("progress"))
+            request.user.contentsummarylog_set.annotate(
+                mastery_progress=Sum(
+                    Case(
+                        When(masterylogs__complete=True, then=Value(1)),
+                        When(masterylogs__complete=False, then=Value(0)),
+                        default=Value(None),
+                        output_field=IntegerField(),
+                    )
+                )
+            )
+            .filter(Q(progress=1) | Q(mastery_progress__isnull=False))
+            .aggregate(
+                progress__sum=Sum(
+                    Coalesce("mastery_progress", "progress"),
+                    output_field=IntegerField(),
+                )
+            )
             .get("progress__sum")
+            or 0
         )
         return Response(
             {

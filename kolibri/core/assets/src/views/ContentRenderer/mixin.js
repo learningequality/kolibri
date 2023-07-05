@@ -1,4 +1,5 @@
 import Vue from 'vue';
+import logger from 'kolibri.lib.logging';
 import heartbeat from 'kolibri.heartbeat';
 import { ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
 import {
@@ -9,6 +10,8 @@ import {
 } from '../../utils/i18n';
 import { getRenderableFiles, getDefaultFile } from './utils';
 import ContentRendererError from './ContentRendererError';
+
+const logging = logger.getLogger(__filename);
 
 const ContentRendererErrorComponent = Vue.extend(ContentRendererError);
 
@@ -70,7 +73,7 @@ function fileValidator(file) {
       typeof file[key] === typeof fileFieldMap[key].type() &&
       (fileFieldMap[key].validator ? fileFieldMap[key].validator(file[key]) : true);
     if (!val) {
-      console.error(`Validation failed for '${key}' in `, file); // eslint-disable-line no-console
+      logging.error(`Validation failed for '${key}' in `, file);
       result = false;
     }
   }
@@ -186,15 +189,26 @@ export default {
     contentIsRtl() {
       return this.contentDirection === languageDirections.RTL;
     },
+    availableHints() {
+      return 0;
+    },
+    totalHints() {
+      return 0;
+    },
   },
   methods: {
     /**
      * @public
      */
     checkAnswer() {
-      /* eslint-disable no-console */
-      console.warn('This content renderer has not implemented the checkAnswer method');
-      /* eslint-enable */
+      logging.warn('This content renderer has not implemented the checkAnswer method');
+      return null;
+    },
+    /**
+     * @public
+     */
+    takeHint() {
+      logging.warn('This content renderer has not implemented the takeHint method');
       return null;
     },
     _reportError(error) {
