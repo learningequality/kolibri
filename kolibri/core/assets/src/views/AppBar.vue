@@ -61,6 +61,9 @@
                 icon="pointsActive"
                 :ariaLabel="$tr('pointsAriaLabel')"
               />
+              <div v-if="!windowIsSmall" class="points-description">
+                {{ $formatNumber(totalPoints) }}
+              </div>
               <div
                 v-if="pointsDisplayed"
                 class="points-popover"
@@ -109,7 +112,7 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
+  import { mapActions, mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
@@ -129,8 +132,8 @@
     },
     mixins: [commonCoreStrings, navComponentsMixin],
     setup() {
-      const { windowIsLarge } = useKResponsiveWindow();
-      return { themeConfig, windowIsLarge };
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return { themeConfig, windowIsLarge, windowIsSmall };
     },
     props: {
       title: {
@@ -155,6 +158,7 @@
       },
     },
     created() {
+      this.fetchPoints();
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
@@ -163,6 +167,7 @@
       window.removeEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
     methods: {
+      ...mapActions(['fetchPoints']),
       handleWindowClick(event) {
         if (this.$refs.pointsButton && this.$refs.pointsButton.$el) {
           if (!this.$refs.pointsButton.$el.contains(event.target) && this.pointsDisplayed) {
@@ -316,6 +321,12 @@
     z-index: 24;
     font-size: 12px;
     border-radius: 8px;
+  }
+
+  .points-description {
+    display: inline-block;
+    margin-left: 8px;
+    font-size: 14px;
   }
 
 </style>
