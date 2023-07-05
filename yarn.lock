@@ -804,17 +804,17 @@
   dependencies:
     "@babel/helper-plugin-utils" "^7.22.5"
 
-"@babel/plugin-transform-runtime@^7.22.5":
-  version "7.22.5"
-  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-runtime/-/plugin-transform-runtime-7.22.5.tgz#ca975fb5e260044473c8142e1b18b567d33c2a3b"
-  integrity sha512-bg4Wxd1FWeFx3daHFTWk1pkSWK/AyQuiyAoeZAOkAOUBjnZPH6KT7eMxouV47tQ6hl6ax2zyAWBdWZXbrvXlaw==
+"@babel/plugin-transform-runtime@^7.22.6":
+  version "7.22.6"
+  resolved "https://registry.yarnpkg.com/@babel/plugin-transform-runtime/-/plugin-transform-runtime-7.22.6.tgz#9ed446bf6829ccfd16305662bd650c159fa19d24"
+  integrity sha512-+AGkst7Kqq3QUflKGkhWWMRb9vaKamoreNmYc+sjsIpOp+TsyU0exhp3RlwjQa/HdlKkPt3AMDwfg8Hpt9Vwqg==
   dependencies:
     "@babel/helper-module-imports" "^7.22.5"
     "@babel/helper-plugin-utils" "^7.22.5"
+    "@nicolo-ribaudo/semver-v6" "^6.3.3"
     babel-plugin-polyfill-corejs2 "^0.4.3"
     babel-plugin-polyfill-corejs3 "^0.8.1"
     babel-plugin-polyfill-regenerator "^0.5.0"
-    semver "^6.3.0"
 
 "@babel/plugin-transform-shorthand-properties@^7.22.5":
   version "7.22.5"
@@ -1349,6 +1349,11 @@
   version "5.2.50"
   resolved "https://registry.yarnpkg.com/@mdn/browser-compat-data/-/browser-compat-data-5.2.50.tgz#f83a9a97f50e06402b8b633bf6bd3247baed1302"
   integrity sha512-3qGRdT2lrIloY8xotSRTW7k3oIRJAO7WSsJymTLN1sqeB1qiWPcbQdAiDG/IQWCA2QCVQewTeT2kfZf/you94w==
+
+"@nicolo-ribaudo/semver-v6@^6.3.3":
+  version "6.3.3"
+  resolved "https://registry.yarnpkg.com/@nicolo-ribaudo/semver-v6/-/semver-v6-6.3.3.tgz#ea6d23ade78a325f7a52750aab1526b02b628c29"
+  integrity sha512-3Yc1fUTs69MG/uZbJlLSI3JISMn2UV2rg+1D/vROUqZyh3l6iYHCs7GMp+M40ZD7yOdDbYjJcU1oTJhrc+dGKg==
 
 "@nodelib/fs.scandir@2.1.3":
   version "2.1.3"
