@@ -38,7 +38,7 @@ install-whl:
 	$(MAKE) loading-pages
 
 loading-pages: needs-version
-	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
+	PYTHONPATH=$$PYTHONPATH:./kolibrisrc python3 -m kolibri manage loadingpage --output-dir src/kolibri_app/assets --version-text "${KOLIBRI_VERSION}-${APP_VERSION}"
 
 get-whl: clean-whl
 # The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
@@ -112,6 +112,7 @@ codesign-dmg: needs-version
 notarize-dmg: needs-version
 	$(MAKE) guard-MAC_NOTARIZE_USERNAME
 	$(MAKE) guard-MAC_NOTARIZE_PASSWORD
+	$(MAKE) guard-MAC_NOTARIZE_TEAM_ID
 	./notarize-dmg.sh "./dist/kolibri-${KOLIBRI_VERSION}-${APP_VERSION}.dmg"
 
 
