@@ -40,6 +40,7 @@ jobs:
       KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE_PASSWORD }}
       KOLIBRI_MAC_APP_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
       KOLIBRI_MAC_APP_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
+      KOLIBRI_MAC_APP_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
   upload_dmg:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: dmg
