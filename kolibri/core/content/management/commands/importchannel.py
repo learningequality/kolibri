@@ -9,6 +9,7 @@ from ...utils import paths
 from ...utils.annotation import update_content_metadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.errors import KolibriUpgradeError
 from kolibri.core.tasks.management.commands.base import AsyncCommand
 from kolibri.utils import conf
@@ -217,10 +218,14 @@ class Command(AsyncCommand):
                     import_ran = import_channel_by_id(
                         channel_id, self.is_cancelled, contentfolder
                     )
-                    if node_ids and import_ran:
-                        # annotate default channel db based on previously annotated leaf nodes
-                        update_content_metadata(channel_id, node_ids=node_ids)
                     if import_ran:
+                        if node_ids:
+                            # annotate default channel db based on previously annotated leaf nodes
+                            update_content_metadata(channel_id, node_ids=node_ids)
+                        else:
+                            # ensure the channel is available to the frontend
+                            ContentCacheKey.update_cache_key()
+
                         # Clear any previously set channel availability stats for this channel
                         clear_channel_stats(channel_id)
                 except channel_import.ImportCancelError:
