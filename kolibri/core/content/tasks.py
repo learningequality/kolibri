@@ -484,6 +484,7 @@ def diskimport(
     update=False,
     node_ids=None,
     exclude_node_ids=None,
+    fail_on_error=False,
     all_thumbnails=False,
 ):
     drive = get_mounted_drive_by_id(drive_id)
@@ -511,6 +512,7 @@ def diskimport(
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
         import_updates=update,
+        fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
     )
     manager.run()

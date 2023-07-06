@@ -131,8 +131,6 @@ class EndRangeStaticFile(StaticFile):
         if start >= end:
             return self.get_range_not_satisfiable_response(file_handle, size)
         if file_handle is not None:
-            if isinstance(file_handle, RemoteFile):
-                file_handle.set_range(start, end)
             file_handle = SlicedFile(file_handle, start, end)
         headers.append(("Content-Range", "bytes {}-{}/{}".format(start, end, size)))
         headers.append(("Content-Length", str(end - start + 1)))

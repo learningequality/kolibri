@@ -95,30 +95,23 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, **kwargs
         )
 
-    def _start_file_transfer(self, f, filetransfer):
+    def _start_file_transfer(self, f):
         """
         Start to transfer the file from network/disk to the destination.
-
-        Returns a tuple containing an error that occurred and the amount
-        of data transferred. The error value will be None if no error
-        occurred.
         """
-        data_transferred = 0
+        filename = get_content_file_name(f)
+        dest = paths.get_content_storage_file_path(
+            filename, contentfolder=self.content_dir
+        )
 
-        with filetransfer:
-            try:
-                for chunk in filetransfer:
-                    data_transferred += len(chunk)
-            except transfer.TransferFailed as e:
-                return e, data_transferred
-            # Ensure that if for some reason the total file size for the transfer
-            # is less than what we have marked in the database that we make up
-            # the difference so that the overall progress is never incorrect.
-            # This could happen, for example for a local transfer if a file
-            # has been replaced or corrupted (which we catch below)
-            data_transferred += f["file_size"] - filetransfer.transfer_size
+        # if the file already exists add its size to our overall progress, and skip
+        if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
+            return
 
-        return None, data_transferred
+        filetransfer = self.create_file_transfer(f, filename, dest)
+        if filetransfer:
+            with filetransfer:
+                filetransfer.run()
 
     @abstractmethod
     def get_import_data(self):
@@ -137,42 +130,20 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         """
         pass
 
-    def _attempt_file_transfer(self, f):
-        filename = get_content_file_name(f)
-        try:
-            dest = paths.get_content_storage_file_path(
-                filename, contentfolder=self.content_dir
-            )
-        except InvalidStorageFilenameError:
-            # If the destination file name is malformed, just stop now.
-            self.update_progress(f["file_size"])
-            return
-
-        # if the file already exists add its size to our overall progress, and skip
-        if os.path.isfile(dest) and os.path.getsize(dest) == f["file_size"]:
-            self.update_progress(f["file_size"])
-            self.file_checksums_to_annotate.append(f["id"])
-            self.transferred_file_size += f["file_size"]
-            return
-
-        filetransfer = self.create_file_transfer(f, filename, dest)
-        if filetransfer:
-            future = self.executor.submit(self._start_file_transfer, f, filetransfer)
-            self.future_file_transfers[future] = f
-
     def _handle_future(self, future, f):
         try:
-            error, data_transferred = future.result()
+            # Handle updating all tracking of downloaded file sizes
+            # before we check for errors
+            data_transferred = f["file_size"] or 0
             self.update_progress(data_transferred)
-            if error:
-                if self.fail_on_error:
-                    raise error
-                self.number_of_skipped_files += 1
-            else:
-                self.file_checksums_to_annotate.append(f["id"])
-                self.transferred_file_size += f["file_size"]
-            self.remaining_bytes_to_transfer -= f["file_size"]
+            self.transferred_file_size += data_transferred
+            self.remaining_bytes_to_transfer -= data_transferred
             remaining_free_space = get_free_space(self.content_dir)
+            # Check for errors from the download
+            future.result()
+            # If not errors, mark this file to be annotated
+            self.file_checksums_to_annotate.append(f["id"])
+            # Finally check if we have enough space to continue
             if remaining_free_space <= self.remaining_bytes_to_transfer:
                 raise InsufficientStorageSpaceError(
                     "Kolibri ran out of storage space while importing content"
@@ -181,16 +152,16 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             pass
         except Exception as e:
             logger.error("An error occurred during content import: {}".format(e))
-
             if not self.fail_on_error and (
                 (
                     isinstance(e, requests.exceptions.HTTPError)
                     and e.response.status_code == 404
                 )
                 or (isinstance(e, OSError) and e.errno == 2)
+                or isinstance(e, InvalidStorageFilenameError)
             ):
-                # Continue file import when the current file is not found from the source and is skipped.
-                self.update_progress(f["file_size"])
+                # Continue file import when the current file is not found from the source and is skipped,
+                # or an invalid destination or source file name is provided.
                 self.number_of_skipped_files += 1
             else:
                 self.exception = e
@@ -309,7 +280,8 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
                     for f in file_batch:
                         if self.is_cancelled() or self.exception:
                             break
-                        self._attempt_file_transfer(f)
+                        future = self.executor.submit(self._start_file_transfer, f)
+                        self.future_file_transfers[future] = f
 
                     self._wait_for_futures()
                     i += batch_size
@@ -480,14 +452,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
         return cls(channel_id, path=path, drive_id=drive_id, **kwargs)
 
     def create_file_transfer(self, f, filename, dest):
-        try:
-            srcpath = paths.get_content_storage_file_path(
-                filename, datafolder=self.path
-            )
-        except InvalidStorageFilenameError:
-            # If the source file name is malformed, just stop now.
-            self.update_progress(f["file_size"])
-            return
+        srcpath = paths.get_content_storage_file_path(filename, datafolder=self.path)
         return transfer.FileCopy(
             srcpath,
             dest,

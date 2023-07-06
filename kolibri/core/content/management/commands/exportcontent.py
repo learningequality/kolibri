@@ -138,12 +138,14 @@ class Command(AsyncCommand):
         with copy, self.start_progress(
             total=copy.transfer_size
         ) as file_cp_progress_update:
+
+            def progress_update(length):
+                self.exported_size = self.exported_size + length
+                overall_progress_update(length)
+                file_cp_progress_update(length)
+
             try:
-                for chunk in copy:
-                    length = len(chunk)
-                    self.exported_size = self.exported_size + length
-                    overall_progress_update(length)
-                    file_cp_progress_update(length)
+                copy.run(progress_update=progress_update)
             except transfer.TransferCanceled:
                 job = get_current_job()
                 if job:
