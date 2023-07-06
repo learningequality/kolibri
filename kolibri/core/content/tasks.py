@@ -511,7 +511,6 @@ def diskimport(
         drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
-        import_updates=update,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
     )
