@@ -125,8 +125,7 @@ jobs:
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       env:
         MAC_NOTARIZE_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
-        MAC_NOTARIZE_PW: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
-        MAC_NOTARIZE_PASSWORD: "@env:MAC_NOTARIZE_PW"
+        MAC_NOTARIZE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
         MAC_NOTARIZE_TEAM_ID: ${{ secrets.KOLIBRI_MAC_APP_TEAM_ID }}
       run: make notarize-dmg
     - name: Get DMG filename
