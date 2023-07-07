@@ -75,7 +75,7 @@
         >
           <KButton
             class="settings-button theme-button"
-            :aria-label="generateThemeAriaLabel(key)"
+            :aria-label="generateCustomThemeAriaLabel(key)"
             :appearanceOverrides="generateStyle(value)"
             @click="$emit('setTheme', value)"
           >
@@ -214,6 +214,9 @@
             return '';
         }
       },
+      generateCustomThemeAriaLabel(themeName) {
+        return this.$tr('setCustomTheme', { themeName });
+      },
       isCurrentlySelectedTheme(theme) {
         return (
           theme.backgroundColor === this.theme.backgroundColor &&
@@ -304,6 +307,11 @@
         message: 'Set black theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
+      },
+      setCustomTheme: {
+        message: 'Set custom theme {themeName}',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
       },
     },
   };
