@@ -28,7 +28,6 @@ import { PageNames } from './constants';
 function facilityParamRequiredGuard(toRoute, subtopicName) {
   const { isNavigationFailure, NavigationFailureType } = VueRouter;
   if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-    console.log(toRoute);
     router
       .replace({
         name: 'ALL_FACILITIES_PAGE',
@@ -41,8 +40,8 @@ function facilityParamRequiredGuard(toRoute, subtopicName) {
           throw Error(e);
         }
       });
+    return true;
   }
-  return true;
 }
 
 export default [
