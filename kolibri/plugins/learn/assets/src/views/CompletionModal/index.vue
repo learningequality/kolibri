@@ -313,8 +313,7 @@
       nextContentNodeRoute() {
         return this.genContentLinkKeepCurrentBackLink(
           this.nextContentNode.id,
-          this.nextContentNode.is_leaf,
-          true
+          this.nextContentNode.is_leaf
         );
       },
     },
