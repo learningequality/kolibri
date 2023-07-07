@@ -885,7 +885,3 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(response.data[0]["status"], user_sync_statuses.RECENTLY_SYNCED)
         self.assertFalse(response.data[0]["has_downloads"])
         self.assertIsNone(response.data[0]["last_download_removed"])
-        # self.assertEqual(
-        #     response.data[0]["last_download_removed"],
-        #     last_download_removed_timestamp.strftime("%Y-%m-%d %H:%M:%S"),
-        # )
