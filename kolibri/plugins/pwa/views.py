@@ -21,7 +21,7 @@ from kolibri.utils.conf import OPTIONS
 @method_decorator(gzip_page, name="dispatch")
 @method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
 class PwaManifestView(TemplateView):
-    template_name = "manifest.json"
+    template_name = "pwa/manifest.json"
     content_type = "application/manifest+json"
 
     def get_context_data(self, **kwargs):
@@ -66,7 +66,7 @@ class PwaManifestView(TemplateView):
 @method_decorator(gzip_page, name="dispatch")
 @method_decorator(cache_page(60 * 60 * 24 * 7), name="dispatch")
 class PwaServiceWorkerView(TemplateView):
-    template_name = "sw.js"
+    template_name = "pwa/sw.js"
     content_type = "application/javascript"
 
     def get_context_data(self, **kwargs):
