@@ -1,6 +1,6 @@
 # Contributors
 
-Kolibri is copyrighted by Learning Equality under the MIT License.
+Kolibri is copyright Learning Equality and other contributors, and is released under the MIT License.
 
 If you have contributed to Kolibri, feel free to add your name and Github account to this list:
 
