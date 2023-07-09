@@ -7,9 +7,8 @@
     @submit="$emit('submit', selectedColor)"
     @cancel="$emit('cancel')"
   >
-    <div class="color-picker">
-      <Chrome v-model="selectedColor" class="picker-box" :disableAlpha="true" />
-    </div>
+    <div id="color-picker"></div>
+    <div class="picker-box"></div>
 
   </KModal>
 
@@ -19,13 +18,11 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { Chrome } from 'vue-color';
+  import Alwan from 'alwan'
+  import 'alwan/dist/css/alwan.min.css'
 
   export default {
     name: 'ColorPickerModal',
-    components: {
-      Chrome,
-    },
     mixins: [commonCoreStrings],
     props: {
       colorPicker: {
@@ -34,7 +31,7 @@
       },
       color: {
         type: String,
-        default: '#FF0000',
+        default: '#000000',
       },
     },
     data() {
@@ -56,6 +53,21 @@
           return this.$tr('titleSelectColor');
         }
       },
+    },
+    mounted() {
+      const alwan = new Alwan('#color-picker',{
+          theme: 'light',
+          toggle: false,
+          popover: false,
+          preset: false,
+          color: this.color,
+          default: this.color,
+          target: '.picker-box',
+          opacity: false,
+      });
+      alwan.on('change', (color) => {
+        this.selectedColor = color;
+      });
     },
     $trs: {
       titleSelectBackground: {
@@ -86,18 +98,10 @@
 
 
 <style lang="scss" scoped>
-
-  .color-picker {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
   .picker-box {
-    margin: 10px;
-    border: 1px solid #eeeeee;
-    border-radius: 3px;
-    box-shadow: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
 </style>
