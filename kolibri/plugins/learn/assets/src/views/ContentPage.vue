@@ -125,7 +125,7 @@
       return {
         title: this.learnString('documentTitle', {
           contentTitle: this.content.title,
-          channelTitle: this.content.ancestors[0].title,
+          channelTitle: this.content.ancestors[0] ? this.content.ancestors[0].title : '',
         }),
       };
     },
@@ -154,8 +154,9 @@
       const errored = ref(false);
       const wrappedUpdateContentSession = data => {
         if (!errored.value) {
-          updateContentSession(data);
+          return updateContentSession(data);
         }
+        return Promise.resolve();
       };
 
       return {

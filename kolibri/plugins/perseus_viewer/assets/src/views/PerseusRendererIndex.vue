@@ -418,7 +418,7 @@
           this.itemRenderer.state.hintsVisible < this.itemRenderer.getNumHints()
         ) {
           this.itemRenderer.showHint();
-          this.$parent.$emit('hintTaken', { answerState: this.getSerializedState() });
+          this.$emit('hintTaken', { answerState: this.getSerializedState() });
         }
       },
       interactionCallback() {

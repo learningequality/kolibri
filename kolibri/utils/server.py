@@ -279,6 +279,10 @@ class ZeroConfPlugin(Monitor):
             # Only bother doing dynamic updates of the zeroconf service if we're bound
             # to all available IP addresses.
             Monitor.__init__(self, bus, self.run, frequency=5)
+        else:
+            # Otherwise do a dummy initialization
+            # A frequency of less than 0 will prevent the monitor from running
+            Monitor.__init__(self, bus, None, frequency=-1)
         self.bus.subscribe("SERVING", self.SERVING)
         self.bus.subscribe("UPDATE_ZEROCONF", self.UPDATE_ZEROCONF)
         self.broadcast = None

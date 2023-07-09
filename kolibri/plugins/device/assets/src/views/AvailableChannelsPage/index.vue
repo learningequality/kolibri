@@ -406,7 +406,7 @@
         if (this.inLocalImportMode) {
           baseParams.drive_id = this.selectedDrive.id;
         } else if (this.inPeerImportMode) {
-          baseParams.peer_id = this.selectedPeer.id;
+          baseParams.peer = this.selectedPeer.id;
         }
         const taskParams = this.selectedChannels.map(x => ({
           ...baseParams,

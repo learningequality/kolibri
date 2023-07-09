@@ -281,8 +281,8 @@ export function setChannelInfo(store) {
 }
 
 export function fetchPoints(store) {
-  const { isUserLoggedIn, currentUserId, totalProgress } = store.getters;
-  if (isUserLoggedIn && totalProgress === null) {
+  const { isUserLoggedIn, currentUserId } = store.getters;
+  if (isUserLoggedIn && store.state.totalProgress === null) {
     UserProgressResource.fetchModel({ id: currentUserId }).then(progress => {
       store.commit('SET_TOTAL_PROGRESS', progress.progress);
     });

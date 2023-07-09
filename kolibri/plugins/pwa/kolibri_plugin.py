@@ -42,4 +42,4 @@ class PwaPlugin(KolibriPluginBase):
 class PwaBaseHeadHook(FrontEndBaseHeadHook):
     @property
     def head_html(self):
-        return render_to_string("head_snippet.html")
+        return render_to_string("pwa/head_snippet.html")
