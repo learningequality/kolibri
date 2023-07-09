@@ -18,8 +18,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import Alwan from 'alwan'
-  import 'alwan/dist/css/alwan.min.css'
+  import Alwan from 'alwan';
+  import 'alwan/dist/css/alwan.min.css';
 
   export default {
     name: 'ColorPickerModal',
@@ -55,17 +55,17 @@
       },
     },
     mounted() {
-      const alwan = new Alwan('#color-picker',{
-          theme: 'light',
-          toggle: false,
-          popover: false,
-          preset: false,
-          color: this.color,
-          default: this.color,
-          target: '.picker-box',
-          opacity: false,
+      const alwan = new Alwan('#color-picker', {
+        theme: 'light',
+        toggle: false,
+        popover: false,
+        preset: false,
+        color: this.color,
+        default: this.color,
+        target: '.picker-box',
+        opacity: false,
       });
-      alwan.on('change', (color) => {
+      alwan.on('change', color => {
         this.selectedColor = color;
       });
     },
@@ -98,10 +98,11 @@
 
 
 <style lang="scss" scoped>
+
   .picker-box {
     display: flex;
-    justify-content: center;
     align-items: center;
+    justify-content: center;
   }
 
 </style>
