@@ -13,12 +13,14 @@ import { learnStrings } from '../views/commonLearnStrings';
 // The refs are defined in the outer scope so they can be used as a shared store
 const currentDevice = ref(null);
 
+const { kolibriLibrary$ } = learnStrings;
+
 const KolibriStudioDeviceData = {
   id: KolibriStudioId,
   instance_id: KolibriStudioId,
   base_url: plugin_data.studio_baseurl,
   get device_name() {
-    return learnStrings.$tr('kolibriLibrary');
+    return kolibriLibrary$();
   },
 };
 
