@@ -31,7 +31,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.api import BaseChannelMetadataMixin
 from kolibri.core.content.api import BaseContentNodeMixin
 from kolibri.core.content.api import BaseContentNodeTreeViewset
-from kolibri.core.content.api import metadata_cache
+from kolibri.core.content.api import metadata_decorators
 from kolibri.core.content.api import OptionalContentNodePagination
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -108,7 +108,7 @@ def _get_channel_list_v1(params, identifier=None):
     return channels.filter(root__available=True).distinct()
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
     def get_queryset(self):
         return (
@@ -118,12 +118,12 @@ class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViews
         )
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
     pass
 

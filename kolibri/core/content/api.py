@@ -14,7 +14,6 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
-from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
@@ -87,37 +86,12 @@ def get_cache_key(*args, **kwargs):
     return str(ContentCacheKey.get_cache_key())
 
 
-def metadata_cache(some_func):
-    """
-    Decorator for patch_response_headers function
-    """
-    # Approximately 1 year
-    # Source: https://stackoverflow.com/a/3001556/405682
-    cache_timeout = 31556926
-
-    @etag(get_cache_key)
-    def wrapper_func(*args, **kwargs):
-        response = some_func(*args, **kwargs)
-        try:
-            request = args[0]
-            request = kwargs.get("request", request)
-        except IndexError:
-            request = kwargs.get("request", None)
-        if response.status_code < 400 or response.status_code == 404:
-            # By default cache for 60 seconds to prevent repeated requests
-            # and we are returning a non-error response.
-            # or if there was a 404.
-
-            timeout = 60
-            if "contentCacheKey" in request.GET:
-                # Do long running caching if the contentCacheKey is explicitly
-                # set in the URL.
-                timeout = cache_timeout
-            patch_response_headers(response, cache_timeout=timeout)
-
-        return response
-
-    return session_exempt(wrapper_func)
+metadata_decorators = [
+    # Use ContentCacheKey as the ETag
+    etag(get_cache_key),
+    # Allow requests outside of a session
+    session_exempt,
+]
 
 
 class RemoteMixin(object):
@@ -306,7 +280,7 @@ class BaseChannelMetadataMixin(object):
         return Response(data)
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
     pass
 
@@ -764,7 +738,7 @@ class OptionalContentNodePagination(OptionalPagination):
         }
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
@@ -1102,7 +1076,7 @@ class BaseContentNodeTreeViewset(
         return Response(parent)
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(metadata_decorators, name="dispatch")
 class ContentNodeTreeViewset(BaseContentNodeTreeViewset, RemoteMixin):
     def retrieve(self, request, pk=None):
         if pk is None:

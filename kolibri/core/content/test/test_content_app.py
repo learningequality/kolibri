@@ -2,6 +2,7 @@
 To run this test, type this in command line <kolibri manage test -- kolibri.core.content>
 """
 import datetime
+import time
 import unittest
 import uuid
 
@@ -22,6 +23,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
+from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.logger.models import ContentSessionLog
@@ -231,8 +233,24 @@ class ContentNodeAPIBase(object):
         cls.admin.save()
         cls.facility.add_admin(cls.admin)
 
+    def setUp(self):
+        self.client_cache = {}
+
     def _get(self, *args, **kwargs):
         return self.client.get(*args, **kwargs)
+
+    def _cached_get(self, path, *args, **kwargs):
+        cached_resp = self.client_cache.get(path)
+        if cached_resp:
+            self.assertTrue(cached_resp.has_header("ETag"))
+            kwargs["HTTP_IF_NONE_MATCH"] = cached_resp["ETag"]
+        resp = self.client.get(path, *args, **kwargs)
+        if resp.status_code == 200:
+            if resp.has_header("ETag"):
+                self.client_cache[path] = resp
+            else:
+                self.client_cache.pop(path, None)
+        return resp
 
     def map_language(self, lang):
         if lang:
@@ -359,6 +377,60 @@ class ContentNodeAPIBase(object):
         response = self._get(reverse("kolibri:core:contentnode-list"))
         self.assertEqual(len(response.data), expected_output)
         self._assert_nodes(response.data, nodes)
+
+    def test_contentnode_etag(self):
+        root = content.ContentNode.objects.get(title="root")
+        nodes = root.get_descendants(include_self=True).filter(available=True)
+        expected_len = len(nodes)
+        url = reverse("kolibri:core:contentnode-list")
+
+        # A new response should be received with no cached response.
+        self.assertNotIn(url, self.client_cache)
+        cache_key = str(ContentCacheKey.get_cache_key())
+        expected_etag = '"{}"'.format(cache_key)
+        response = self._cached_get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertNotIn("HTTP_IF_NONE_MATCH", response.request)
+        self.assertEqual(len(response.data), expected_len)
+        self.assertEqual(response["ETag"], expected_etag)
+        self.assertIn(url, self.client_cache)
+        cached_response = self.client_cache[url]
+        self.assertEqual(len(cached_response.data), expected_len)
+
+        # 304 Not Modified should be returned when the content cache key
+        # ETag hasn't changed.
+        response = self._cached_get(url)
+        self.assertEqual(response.status_code, 304)
+        self.assertIn("HTTP_IF_NONE_MATCH", response.request)
+        self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
+        self.assertEqual(response.content, b"")
+        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
+
+        # Update the content cache key to get a new response.
+        time.sleep(0.01)
+        ContentCacheKey.update_cache_key()
+        cache_key = str(ContentCacheKey.get_cache_key())
+        old_expected_etag = expected_etag
+        expected_etag = '"{}"'.format(cache_key)
+        response = self._cached_get(url)
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("HTTP_IF_NONE_MATCH", response.request)
+        self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], old_expected_etag)
+        self.assertEqual(len(response.data), expected_len)
+        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
+        old_cached_response = cached_response
+        cached_response = self.client_cache[url]
+        self.assertEqual(len(cached_response.data), expected_len)
+        self.assertNotEqual(cached_response, old_cached_response)
+
+        # 304 Not Modified should be returned again since the content
+        # cache key hasn't changed.
+        response = self._cached_get(url)
+        self.assertEqual(response.status_code, 304)
+        self.assertIn("HTTP_IF_NONE_MATCH", response.request)
+        self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
+        self.assertEqual(response.content, b"")
+        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
 
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]
