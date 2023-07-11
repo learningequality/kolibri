@@ -132,13 +132,16 @@ class Translator {
    * @param {object} defaultMessages - an object mapping message ids to default messages.
    */
   constructor(nameSpace, defaultMessages) {
-    this.nameSpace = nameSpace;
-    this.defaultMessages = defaultMessages;
+    this._nameSpace = nameSpace;
+    this._defaultMessages = defaultMessages;
+    for (const key in defaultMessages) {
+      this[`${key}$`] = this.$tr.bind(this, key);
+    }
   }
   $tr(messageId, args) {
     return $trWrapper(
-      this.nameSpace,
-      this.defaultMessages,
+      this._nameSpace,
+      this._defaultMessages,
       Vue.prototype.$formatMessage,
       messageId,
       args
