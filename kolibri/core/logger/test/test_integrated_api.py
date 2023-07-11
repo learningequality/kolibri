@@ -5,6 +5,7 @@ Also tests whether the users with permissions can create logs.
 """
 import uuid
 
+from django.core.exceptions import MultipleObjectsReturned
 from django.http.cookie import SimpleCookie
 from django.urls import reverse
 from le_utils.constants import content_kinds
@@ -2526,9 +2527,13 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
         self.assertIsNotNone(attempt_id)
         self.assertEqual(attemptlog.id, attempt_id)
         try:
-            attempt = AttemptLog.objects.get(id=attempt_id)
+            attempt = AttemptLog.objects.get(
+                item=self.item, user=self.user, masterylog=self.mastery_log
+            )
         except AttemptLog.DoesNotExist:
-            self.fail("Nonexistent attempt_id returned")
+            self.fail("AttemptLog does not exist")
+        except MultipleObjectsReturned:
+            self.fail("Multiple AttemptLogs created")
         self.assertEqual(attempt.correct, 0)
         self.assertEqual(attempt.answer, {"response": "hinty mchintyson2"})
         self.assertEqual(attempt.time_spent, 10)
@@ -2771,9 +2776,13 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
         self.assertIsNotNone(attempt_id)
         self.assertEqual(attemptlog.id, attempt_id)
         try:
-            attempt = AttemptLog.objects.get(id=attempt_id)
+            attempt = AttemptLog.objects.get(
+                item=self.item, user=self.user, masterylog=self.mastery_log
+            )
         except AttemptLog.DoesNotExist:
-            self.fail("Nonexistent attempt_id returned")
+            self.fail("AttemptLog does not exist")
+        except MultipleObjectsReturned:
+            self.fail("Multiple AttemptLogs created")
         self.assertEqual(attempt.correct, 0)
         self.assertEqual(attempt.answer, {"response": "hinty mchintyson2"})
         self.assertEqual(attempt.time_spent, 10)

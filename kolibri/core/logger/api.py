@@ -696,10 +696,11 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 else:
                     # If this is an anonymous user, then the best we can do is
                     # try to update any previous attempt from this session.
+                    # In this case, both the user and masterylog_id will be null.
                     return AttemptLog.objects.get(
-                        masterylog_id=masterylog_id,
+                        masterylog_id__isnull=True,
                         sessionlog_id=session_id,
-                        user=user,
+                        user__isnull=True,
                         item=interaction["item"],
                     )
             except AttemptLog.DoesNotExist:

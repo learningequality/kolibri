@@ -53,7 +53,7 @@ class AttemptLogsConsolidationOperation(KolibriVersionedSyncOperation):
             AttemptLog
         )
         logger.info(
-            "Consolidating duplicates in {} AttemptLogs records".format(
+            "Consolidating duplicates in {} AttemptLog records".format(
                 len(attempt_logs_ids)
             )
         )
