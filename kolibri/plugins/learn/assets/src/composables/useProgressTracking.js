@@ -299,7 +299,7 @@ export default function useProgressTracking(store) {
   // so we can always just chain from this promise for subsequent saves.
   let savingPromise = Promise.resolve();
 
-  let updateContentSessionResolveRejectStack = [];
+  const updateContentSessionDeferredStack = [];
   let updateContentSessionTimeout;
   let forceSessionUpdate = false;
 
@@ -357,25 +357,25 @@ export default function useProgressTracking(store) {
         return makeRequestWithRetry(makeSessionUpdateRequest, data);
       });
     }
+    // Splice all the resolve/reject handlers off the stack
+    // so that only those that have already been added by the time of this
+    // invocation are called, and none that are added subsequently, while
+    // this invocation is still in progress.
+    const deferredStack = updateContentSessionDeferredStack.splice(0);
     return savingPromise
       .then(result => {
         // If it is successful call all of the resolve functions that we have stored
         // from all the Promises that have been returned while this specific debounce
         // has been active.
-        for (const [resolve] of updateContentSessionResolveRejectStack) {
+        for (const { resolve } of deferredStack) {
           resolve(result);
         }
-        // Reset the stack for resolve/reject functions, so that future invocations
-        // do not call these now consumed functions.
-        updateContentSessionResolveRejectStack = [];
       })
       .catch(err => {
         // If there is an error call reject for all previously returned promises.
-        for (const [, reject] of updateContentSessionResolveRejectStack) {
+        for (const { reject } of deferredStack) {
           reject(err);
         }
-        // Likewise reset the stack.
-        updateContentSessionResolveRejectStack = [];
       });
   }
 
@@ -480,7 +480,7 @@ export default function useProgressTracking(store) {
       // Any subsequent calls will then also revoke this timeout.
       clearTimeout(updateContentSessionTimeout);
       // Add the resolve and reject handlers for this promise to the stack here.
-      updateContentSessionResolveRejectStack.push([resolve, reject]);
+      updateContentSessionDeferredStack.push({ resolve, reject });
       if (immediate) {
         // If immediate invocation is required immediately call the handler
         // rather than using a timeout delay.

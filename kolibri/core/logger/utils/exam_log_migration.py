@@ -14,6 +14,9 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamAttemptLog
 from kolibri.core.logger.models import MasteryLog
+from kolibri.core.logger.utils.attempt_log_consolidation import (
+    consolidate_quiz_attempt_logs,
+)
 from kolibri.utils.time_utils import local_now
 
 
@@ -244,6 +247,9 @@ def _handle_unprocessed_attemptlog_ids(unprocessed_attempt_log_ids):
             lambda x: x.masterylog_id,
         ):
             _update_attempt_logs(masterylog_id, logs)
+            consolidate_quiz_attempt_logs(
+                AttemptLog.objects.filter(masterylog_id=masterylog_id)
+            )
 
 
 def migrate_from_exam_logs(source_logs, source_attempt_log_ids=None):  # noqa C901
