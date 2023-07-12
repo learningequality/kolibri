@@ -1,5 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import VueRouter from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
 import { SyncPageNames } from 'kolibri-common/components/SyncSchedule/constants';
@@ -25,11 +26,20 @@ import {
 import { PageNames } from './constants';
 
 function facilityParamRequiredGuard(toRoute, subtopicName) {
+  const { isNavigationFailure, NavigationFailureType } = VueRouter;
   if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
-    router.replace({
-      name: 'ALL_FACILITIES_PAGE',
-      params: { subtopicName },
-    });
+    router
+      .replace({
+        name: 'ALL_FACILITIES_PAGE',
+        query: { subtopicName },
+        params: { subtopicName },
+      })
+      .catch(e => {
+        if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
+          console.debug(e);
+          throw Error(e);
+        }
+      });
     return true;
   }
 }
@@ -38,7 +48,7 @@ export default [
   // Routes for multi-facility case
   {
     name: PageNames.ALL_FACILITIES_PAGE,
-    path: '/facilities',
+    path: '/:subtopicName?/facilities',
     component: AllFacilitiesPage,
     props: true,
     handler() {

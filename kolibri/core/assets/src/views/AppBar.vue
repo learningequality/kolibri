@@ -158,7 +158,9 @@
       },
     },
     created() {
-      this.fetchPoints();
+      if (this.isLearner) {
+        this.fetchPoints();
+      }
       window.addEventListener('click', this.handleWindowClick);
       window.addEventListener('keydown', this.handlePopoverByKeyboard, true);
     },
