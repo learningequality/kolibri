@@ -16,7 +16,7 @@ jobs:
       - name: Check if contributor already exists
         id: check_contributor
         run: |
-          exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md)
+          exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md || true)
           if [[ $exists -gt 0 ]]; then
             echo "exists=true" >> $GITHUB_OUTPUT
           else
@@ -45,8 +45,8 @@ jobs:
       - name: Commit and push changes
         if: steps.check_contributor.outputs.exists == 'false'
         run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
+          git config  --local user.email "action@github.com"
+          git config  --local user.name "GitHub Action"
           git add AUTHORS.md
           git commit -m "Add $GITHUB_ACTOR to AUTHORS.md"
           git push
