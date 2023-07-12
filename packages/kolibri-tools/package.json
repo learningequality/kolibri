@@ -66,7 +66,7 @@
     "process": "^0.11.10",
     "query-ast": "^1.0.5",
     "readline-sync": "^1.4.9",
-    "recast": "^0.23.2",
+    "recast": "^0.23.3",
     "rtlcss": "4.1.0",
     "sass-loader": "13.3.2",
     "scss-parser": "^1.0.6",
