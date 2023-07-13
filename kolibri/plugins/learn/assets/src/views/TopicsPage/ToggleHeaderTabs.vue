@@ -79,7 +79,9 @@
         if (this.topic) {
           return {
             name: PageNames.TOPICS_TOPIC,
-            id: this.topic.id,
+            params: {
+              ...this.$route.params,
+            },
           };
         }
         return {};
@@ -91,7 +93,9 @@
           delete query.dropdown;
           return {
             name: PageNames.TOPICS_TOPIC_SEARCH,
-            id: this.topic.id,
+            params: {
+              ...this.$route.params,
+            },
             query: query,
           };
         }
