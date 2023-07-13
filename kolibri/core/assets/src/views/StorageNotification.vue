@@ -50,7 +50,6 @@
   import { mapGetters } from 'vuex';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { useLocalStorage } from '@vueuse/core';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
 
@@ -59,8 +58,8 @@
     components: {},
     mixins: [commonCoreStrings],
     setup() {
-      const local_storage_last_synced = ref(useLocalStorage('last_synced', ''));
-      const local_storage_lastDownloadRemoved = ref(useLocalStorage('last_download_removed', ''));
+      const local_storage_last_synced = useLocalStorage('last_synced', '');
+      const local_storage_lastDownloadRemoved = useLocalStorage('last_download_removed', '');
 
       const { isLearnerOnlyImport } = useUser();
 
