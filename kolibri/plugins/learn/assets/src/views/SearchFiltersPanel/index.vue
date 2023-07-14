@@ -58,12 +58,12 @@
           <KButton
             :text="coreString(category.value)"
             appearance="flat-button"
-            :appearanceOverrides="isKeyActive(key)
+            :appearanceOverrides="isCategoryActive(category.value)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
             :disabled="availableRootCategories &&
-              !availableRootCategories[key] &&
-              !isKeyActive(key)"
+              !availableRootCategories[category.value] &&
+              !isCategoryActive(category.value)"
             :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
             @click="handleCategory(key)"
           />
@@ -75,7 +75,7 @@
           <KButton
             :text="coreString('uncategorized')"
             appearance="flat-button"
-            :appearanceOverrides="isKeyActive('no_categories')
+            :appearanceOverrides="isCategoryActive('no_categories')
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
             @click="noCategories"
@@ -259,13 +259,14 @@
         }
         return null;
       },
-      activeKeys() {
+      activeCategories() {
         return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
       },
     },
     methods: {
-      isKeyActive(key) {
-        return !!this.activeKeys.filter(k => k.includes(key)).length;
+      isCategoryActive(categoryValue) {
+        // Takes the dot separated category value and checks if it is active
+        return this.activeCategories.some(k => k.includes(categoryValue));
       },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
