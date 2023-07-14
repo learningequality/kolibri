@@ -2,8 +2,7 @@ name: Add Contributor to AUTHORS.md
 on:
   pull_request:
     types:
-      - opened
-      - synchronize
+      - closed
 
 jobs:
   add_contributor:
@@ -12,6 +11,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Check if pull request is closed and merged
+        id: check_merged
+        run: |
+          if [[ "$GITHUB_EVENT_PAYLOAD.pull_request.merged" == "true" ]]; then
+            echo "merged=true" >> $GITHUB_OUTPUT
+          else
+            echo "merged=false" >> $GITHUB_OUTPUT
+          fi
 
       - name: Check if contributor already exists
         id: check_contributor
@@ -25,28 +33,28 @@ jobs:
 
       - name: Get contributor's full name
         id: get_full_name
-        if: steps.check_contributor.outputs.exists == 'false'
+        if: steps.check_merged.outputs.merged == 'true' && steps.check_contributor.outputs.exists == 'false'
         run: |
           username=$GITHUB_ACTOR
           access_token=$GITHUB_TOKEN
           full_name=$(curl -s -H "Authorization: token $access_token" "https://api.github.com/users/$username" | jq -r '.name')
-          if [[ -z "$full_name" ]]; then
-            full_name=$username
+          if [[ "$full_name" == "" || "$full_name" == "null" ]]; then
+            full_name='-'
           fi
           echo "full_name=$full_name" >> $GITHUB_OUTPUT
 
       - name: Append contributor to AUTHORS.md
         id: append_contributor
-        if: steps.check_contributor.outputs.exists == 'false'
+        if: steps.check_merged.outputs.merged == 'true' && steps.check_contributor.outputs.exists == 'false'
         run: |
           full_name=${{ steps.get_full_name.outputs.full_name }}
           echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
 
       - name: Commit and push changes
-        if: steps.check_contributor.outputs.exists == 'false'
+        if: steps.check_merged.outputs.merged == 'true' && steps.check_contributor.outputs.exists == 'false'
         run: |
           git config  --local user.email "action@github.com"
           git config  --local user.name "GitHub Action"
           git add AUTHORS.md
           git commit -m "Add $GITHUB_ACTOR to AUTHORS.md"
-          git push
+          git push origin HEAD
