@@ -16,7 +16,7 @@ Feature: Device setup
 			And I see the star icon and the username which is truncated after XX characters
 		When I click the *...* ellipsis button
 		Then I see the *Info* and *Settings* tabs
-		When I click the star icon
+		When I click the star icon #NOT IMPLEMENTED
 		Then I see the value of the earned points
 
 	Scenario: New bottom bar on the native Android app
@@ -33,10 +33,10 @@ Feature: Device setup
 		Then I am at the selected page
 			And the menu is hidden
 		When I scroll down
-		Then both the top and the bottom bars hide
+		Then both the top and the bottom bars hide #NOT IMPLEMENTED
 		When I scroll up
-		Then both bars appear again
-		When I am in a tab accessible through the menu such as *Coach*, *Facility*, *Device*
+		Then both bars appear again #NOT IMPLEMENTED
+		When I am in a tab not accessible through the menu such as *Coach*, *Facility*, *Device*
 		Then nothing in the app bar is selected
 
 	Scenario: Updates to side menu
@@ -47,7 +47,7 @@ Feature: Device setup
 			And I can see my points
 			And I can see that all the other sections of the menu are collapsed
 			And I can see the *My downloads*, *Profile*, *Change language* and *Sign out* options
-			And I can see the kolibri icon, version of Kolibri, and copyrigt text
+			And I can see the kolibri icon, version of Kolibri, and copyright text
 			And I can see the *Usage and privacy* link
 
 	Scenario: Updates to learn-only device side menu

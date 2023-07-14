@@ -1,4 +1,4 @@
-Feature: Scrolling app bar
+Feature: Scrolling app bar #NOT IMPLEMENTED
     Top app bar should become visible when scrolling up and hidden when scrolling down on mobile
 
   Background:
