@@ -5,6 +5,7 @@ Also tests whether the users with permissions can create logs.
 """
 import uuid
 
+from django.core.exceptions import MultipleObjectsReturned
 from django.http.cookie import SimpleCookie
 from django.urls import reverse
 from le_utils.constants import content_kinds
@@ -2486,6 +2487,65 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
 
         self.assertEqual(response.status_code, 403)
 
+    def test_update_assessment_session_update_attempt_no_id_updates_not_creates(self):
+        """
+        Quizzes should be unique for attempts/masterylogs, so we should not create a new attempt
+        for the same masterylog/item combination, even if the id is not provided.
+        """
+        timestamp = local_now()
+        hinteraction = {
+            "type": interaction_types.HINT,
+            "answer": {"response": "hinty mchintyson"},
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=self.user,
+            interaction_history=[hinteraction],
+        )
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "item": self.item,
+                        "answer": {"response": "hinty mchintyson2"},
+                        "hinted": True,
+                        "correct": 0,
+                        "time_spent": 10,
+                        "replace": True,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempts", [{}])[0].get("id")
+        self.assertIsNotNone(attempt_id)
+        self.assertEqual(attemptlog.id, attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(
+                item=self.item, user=self.user, masterylog=self.mastery_log
+            )
+        except AttemptLog.DoesNotExist:
+            self.fail("AttemptLog does not exist")
+        except MultipleObjectsReturned:
+            self.fail("Multiple AttemptLogs created")
+        self.assertEqual(attempt.correct, 0)
+        self.assertEqual(attempt.answer, {"response": "hinty mchintyson2"})
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], hinteraction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.HINT,
+                "answer": {"response": "hinty mchintyson2"},
+            },
+        )
+
     def tearDown(self):
         self.client.logout()
 
@@ -2673,6 +2733,153 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
                 "type": interaction_types.ANSWER,
                 "answer": {"response": "test"},
                 "correct": 1.0,
+            },
+        )
+
+    def test_update_assessment_session_update_attempt_no_id_updates_not_creates(self):
+        """
+        Quizzes should be unique for attempts/masterylogs, so we should not create a new attempt
+        for the same masterylog/item combination, even if the id is not provided.
+        """
+        timestamp = local_now()
+        hinteraction = {
+            "type": interaction_types.HINT,
+            "answer": {"response": "hinty mchintyson"},
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=self.mastery_log,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=self.user,
+            interaction_history=[hinteraction],
+        )
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "item": self.item,
+                        "answer": {"response": "hinty mchintyson2"},
+                        "hinted": True,
+                        "correct": 0,
+                        "time_spent": 10,
+                        "replace": True,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempts", [{}])[0].get("id")
+        self.assertIsNotNone(attempt_id)
+        self.assertEqual(attemptlog.id, attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(
+                item=self.item, user=self.user, masterylog=self.mastery_log
+            )
+        except AttemptLog.DoesNotExist:
+            self.fail("AttemptLog does not exist")
+        except MultipleObjectsReturned:
+            self.fail("Multiple AttemptLogs created")
+        self.assertEqual(attempt.correct, 0)
+        self.assertEqual(attempt.answer, {"response": "hinty mchintyson2"})
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], hinteraction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.HINT,
+                "answer": {"response": "hinty mchintyson2"},
+            },
+        )
+
+    def test_update_assessment_session_update_attempt_no_id_updates_not_creates_anonymous(
+        self,
+    ):
+        """
+        Quizzes should be unique for attempts/masterylogs, so we should not create a new attempt
+        for the same masterylog/item combination, even if the id is not provided.
+        """
+        self.client.logout()
+        timestamp = local_now()
+        # Create a distractor session log and attempt log to ensure that the correct one is updated.
+        session_log = ContentSessionLog.objects.create(
+            user=None,
+            content_id=self.content_id,
+            channel_id=self.channel_id,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            kind="exercise",
+            extra_fields={"context": {"node_id": self.node.id, "mastery_level": -1}},
+        )
+        AttemptLog.objects.create(
+            masterylog=None,
+            sessionlog=session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=None,
+            interaction_history=[],
+        )
+        # Update self.session_log to ensure _make_request works as expected.
+        self.session_log = ContentSessionLog.objects.create(
+            user=None,
+            content_id=self.content_id,
+            channel_id=self.channel_id,
+            start_timestamp=local_now(),
+            end_timestamp=local_now(),
+            kind="exercise",
+            extra_fields={"context": {"node_id": self.node.id, "mastery_level": -1}},
+        )
+        hinteraction = {
+            "type": interaction_types.HINT,
+            "answer": {"response": "hinty mchintyson"},
+        }
+        attemptlog = AttemptLog.objects.create(
+            masterylog=None,
+            sessionlog=self.session_log,
+            start_timestamp=timestamp,
+            end_timestamp=timestamp,
+            correct=0,
+            item=self.item,
+            user=None,
+            interaction_history=[hinteraction],
+        )
+        response = self._make_request(
+            {
+                "interactions": [
+                    {
+                        "item": self.item,
+                        "answer": {"response": "hinty mchintyson2"},
+                        "hinted": True,
+                        "correct": 0,
+                        "time_spent": 10,
+                        "replace": True,
+                    }
+                ],
+            }
+        )
+
+        self.assertEqual(response.status_code, 200)
+        attempt_id = response.json().get("attempts", [{}])[0].get("id")
+        self.assertIsNotNone(attempt_id)
+        self.assertEqual(attemptlog.id, attempt_id)
+        try:
+            attempt = AttemptLog.objects.get(id=attempt_id)
+        except AttemptLog.DoesNotExist:
+            self.fail("Nonexistent attempt_id returned")
+        self.assertEqual(attempt.correct, 0)
+        self.assertEqual(attempt.answer, {"response": "hinty mchintyson2"})
+        self.assertEqual(attempt.time_spent, 10)
+        self.assertEqual(attempt.interaction_history[0], hinteraction)
+        self.assertEqual(
+            attempt.interaction_history[1],
+            {
+                "type": interaction_types.HINT,
+                "answer": {"response": "hinty mchintyson2"},
             },
         )
 

@@ -141,7 +141,7 @@ class StreamingStaticFile(EndRangeStaticFile):
     def __init__(self, path, headers, remote_url, encodings=None, stat_cache=None):
         self.path = path
         self.remote_url = remote_url
-        super().__init__(path, headers, encodings, stat_cache)
+        super(StreamingStaticFile, self).__init__(path, headers, encodings, stat_cache)
 
     @staticmethod
     def get_file_stats(path, encodings, stat_cache):
