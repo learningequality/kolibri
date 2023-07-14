@@ -675,6 +675,37 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
             **interaction
         )
 
+    def _get_attemptlog(self, session_id, masterylog_id, user, interaction):
+        if "id" in interaction:
+            try:
+                return AttemptLog.objects.get(
+                    id=interaction["id"],
+                    masterylog_id=masterylog_id,
+                    user=user,
+                )
+            except AttemptLog.DoesNotExist:
+                raise ValidationError("Invalid attemptlog id specified")
+        elif interaction.get("replace", False):
+            try:
+                if user:
+                    return AttemptLog.objects.get(
+                        masterylog_id=masterylog_id,
+                        user=user,
+                        item=interaction["item"],
+                    )
+                else:
+                    # If this is an anonymous user, then the best we can do is
+                    # try to update any previous attempt from this session.
+                    # In this case, both the user and masterylog_id will be null.
+                    return AttemptLog.objects.get(
+                        masterylog_id__isnull=True,
+                        sessionlog_id=session_id,
+                        user__isnull=True,
+                        item=interaction["item"],
+                    )
+            except AttemptLog.DoesNotExist:
+                pass
+
     def _update_or_create_attempts(
         self, session_id, masterylog_id, user, interactions, end_timestamp, context
     ):
@@ -691,16 +722,11 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 "_morango_dirty_bit",
             }
             item_interactions = list(item_interactions)
-            if "id" in item_interactions[0]:
-                try:
-                    attemptlog = AttemptLog.objects.get(
-                        id=item_interactions[0]["id"],
-                        masterylog_id=masterylog_id,
-                        user=user,
-                    )
-                except AttemptLog.DoesNotExist:
-                    raise ValidationError("Invalid attemptlog id specified")
-            else:
+            attemptlog = self._get_attemptlog(
+                session_id, masterylog_id, user, item_interactions[0]
+            )
+
+            if attemptlog is None:
                 attemptlog = self._create_attempt(
                     session_id,
                     masterylog_id,

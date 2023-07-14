@@ -1,8 +1,12 @@
 """
 A file to contain specific logic to handle version upgrades in Kolibri.
 """
+from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import ExamLog
+from kolibri.core.logger.utils.attempt_log_consolidation import (
+    consolidate_quiz_attempt_logs,
+)
 from kolibri.core.logger.utils.exam_log_migration import migrate_from_exam_logs
 from kolibri.core.notifications.api import parse_summarylog
 from kolibri.core.notifications.api import quiz_completed_notification
@@ -44,3 +48,12 @@ def fix_asymptotic_progress():
         if not quiz:
             # If this isn't a quiz generate the appropriate completion notification for the resource.
             parse_summarylog(summarylog)
+
+
+@version_upgrade(old_version="<0.16.0")
+def fix_duplicated_attempt_logs():
+    """
+    Migrate any AttemptLogs for Quizzes and PracticeQuizzes that have been duplicated - i.e. have the same
+    item and non-null masterylog_id.
+    """
+    consolidate_quiz_attempt_logs(AttemptLog.objects.all())

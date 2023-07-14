@@ -1119,16 +1119,16 @@
     width: 264px;
     height: 2px;
     margin-left: 10px;
-    outline: none;
     appearance: none;
+    outline: none;
   }
 
   input[type='range']::-webkit-slider-thumb {
     width: 12px;
     height: 12px;
+    appearance: none;
     cursor: pointer;
     border-radius: 10px;
-    appearance: none;
   }
 
   .download-limit-textbox {

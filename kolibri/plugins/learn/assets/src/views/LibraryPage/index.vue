@@ -11,7 +11,7 @@
       class="main-grid"
       :style="gridOffset"
     >
-      <div v-if="!windowIsLarge && !isLocalLibraryEmpty && !deviceId">
+      <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
         <KButton
           icon="filter"
           data-test="filter-button"
@@ -190,7 +190,7 @@
 
     <!-- Side Panels for filtering and searching  -->
     <SidePanel
-      v-if="!isLocalLibraryEmpty && !deviceId"
+      v-if="!isLocalLibraryEmpty || deviceId"
       ref="sidePanel"
       data-test="side-panel"
       :searchTerms="searchTerms"
@@ -454,8 +454,7 @@
         if (
           this.windowIsSmall ||
           this.windowIsMedium ||
-          this.isLocalLibraryEmpty ||
-          this.deviceId
+          (this.isLocalLibraryEmpty && !this.deviceId)
         ) {
           return 0;
         } else if (this.windowBreakpoint < 4) {

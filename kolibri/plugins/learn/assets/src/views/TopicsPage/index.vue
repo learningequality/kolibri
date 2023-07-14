@@ -424,19 +424,6 @@
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
-      searchTabLink() {
-        // navigates the main page to the search view
-        if (this.topic) {
-          const query = { ...this.$route.query };
-          delete query.dropdown;
-          return {
-            name: PageNames.TOPICS_TOPIC_SEARCH,
-            id: this.topic.id,
-            query: query,
-          };
-        }
-        return {};
-      },
       desktopSearchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
@@ -609,9 +596,6 @@
           return;
         }
         if (!isEqual(newVal, oldVal)) {
-          if (!isEqual(this.searchTabLink, this.$route)) {
-            this.$router.push({ ...this.searchTabLink }).catch(() => {});
-          }
           this.sidePanelIsOpen = false;
         }
       },
