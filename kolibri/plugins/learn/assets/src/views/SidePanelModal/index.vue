@@ -15,7 +15,7 @@
           class="side-panel"
           role="region"
           :style="sidePanelStyles"
-          :aria-label="learnString('filterAndSearchLabel')"
+          :aria-label="ariaLabel"
         >
 
           <!-- Fixed header -->
@@ -98,6 +98,11 @@
         validator(value) {
           return ['right', 'left'].includes(value);
         },
+      },
+      ariaLabel: {
+        type: String,
+        required: false,
+        default: null,
       },
     },
     data() {

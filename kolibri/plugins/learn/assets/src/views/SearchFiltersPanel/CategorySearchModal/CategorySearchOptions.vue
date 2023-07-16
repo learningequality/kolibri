@@ -62,7 +62,7 @@
   import camelCase from 'lodash/camelCase';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { injectSearch } from '../../composables/useSearch';
+  import { injectSearch } from '../../../composables/useSearch';
 
   export default {
     name: 'CategorySearchOptions',

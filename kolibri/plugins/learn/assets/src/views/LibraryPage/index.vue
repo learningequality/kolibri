@@ -189,15 +189,13 @@
     </main>
 
     <!-- Side Panels for filtering and searching  -->
-    <SidePanel
-      v-if="!isLocalLibraryEmpty || deviceId"
+    <SearchFiltersPanel
+      v-if="(!isLocalLibraryEmpty || deviceId) && (windowIsLarge || mobileSidePanelIsOpen)"
       ref="sidePanel"
+      v-model="searchTerms"
       data-test="side-panel"
-      :searchTerms="searchTerms"
-      :mobileSidePanelIsOpen="mobileSidePanelIsOpen"
-      @toggleMobileSidePanel="toggleSidePanelVisibility"
-      @setSearchTerms="newTerms => searchTerms = newTerms"
-      @setCategory="category => setCategory(category)"
+      :width="`${sidePanelWidth}px`"
+      @close="toggleSidePanelVisibility"
     />
 
     <!-- Side Panel for metadata -->
@@ -253,6 +251,7 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import SidePanelModal from '../SidePanelModal';
+  import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -270,7 +269,6 @@
   import ResumableContentGrid from './ResumableContentGrid';
   import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
-  import SidePanel from './SidePanel';
 
   export default {
     name: 'LibraryPage',
@@ -286,7 +284,7 @@
       LearningActivityChip,
       ResumableContentGrid,
       SearchResultsGrid,
-      SidePanel,
+      SearchFiltersPanel,
       LearnAppBarPage,
       PinnedNetworkResources,
       MoreNetworkDevices,
