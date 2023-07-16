@@ -62,18 +62,19 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     if transfer_session is None and dataset_id is None:
         raise ValueError("Either dataset_id or transfer_session_id is required")
 
-    assignments = ContentAssignmentManager.find_all_downloadable_assignments(
-        dataset_id=dataset_id,
-        transfer_session_id=transfer_session.id if transfer_session else None,
-    )
-    removable_assignments = ContentAssignmentManager.find_all_removable_assignments(
-        dataset_id=dataset_id,
-        transfer_session_id=transfer_session.id if transfer_session else None,
-    )
+    # transfer_session_id takes precedence over dataset_id, since it's more specific
+    # (a transfer session should only affect one dataset)
+    find_kwargs = {}
+    if transfer_session:
+        find_kwargs.update(transfer_session_id=transfer_session.id)
+    else:
+        find_kwargs.update(dataset_id=dataset_id)
 
     # process the new assignments
     logger.info("Processing new content assignment requests")
-    for assignment in assignments:
+    for assignment in ContentAssignmentManager.find_all_downloadable_assignments(
+        **find_kwargs
+    ):
         related_removals = ContentRemovalRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,
@@ -95,7 +96,9 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
 
     # process new removals
     logger.info("Processing new content removal requests")
-    for assignment in removable_assignments:
+    for assignment in ContentAssignmentManager.find_all_removable_assignments(
+        **find_kwargs
+    ):
         related_downloads = ContentDownloadRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,

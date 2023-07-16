@@ -87,9 +87,10 @@ class ContentAssignmentManager(object):
         :param transfer_session_id:
         :rtype: list of ContentAssignment
         """
-
-        if dataset_id is None and transfer_session_id is None:
-            raise ValueError("Either dataset_id or transfer_session_id is required")
+        if (dataset_id is None) == (transfer_session_id is None):
+            raise ValueError(
+                "One parameter needs specified: dataset_id and transfer_session_id"
+            )
 
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
             for assignment in manager.find_downloadable_assignments(
@@ -104,9 +105,10 @@ class ContentAssignmentManager(object):
         :param transfer_session_id:optional argument to filter assignments by transfer_session_id
         :rtype: list of ContentAssignment or DeletedAssignment
         """
-
-        if dataset_id is None and transfer_session_id is None:
-            raise ValueError("Either dataset_id or transfer_session_id is required")
+        if (dataset_id is None) == (transfer_session_id is None):
+            raise ValueError(
+                "One parameter needs specified: dataset_id and transfer_session_id"
+            )
 
         for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
             for assignment in manager.find_removable_assignments(
