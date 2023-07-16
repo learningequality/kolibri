@@ -51,7 +51,6 @@ const MOCK_DEFAULTS = {
   searchMore: jest.fn(),
   removeFilterTag: jest.fn(),
   clearSearch: jest.fn(),
-  setCategory: jest.fn(),
   currentRoute: jest.fn(() => {
     // return a $route-flavored object to avoid undefined errors
     return {

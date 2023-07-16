@@ -4,7 +4,7 @@
     <h2 class="top-category">
       <KButton
         :text="coreString(camelCase(selectedCategory))"
-        :appearanceOverrides="appearanceOverrides"
+        :appearanceOverrides="appearanceOverrides(topLevelCategory.value)"
         appearance="basic-link"
         :disabled="availablePaths && !availablePaths[topLevelCategory.value]"
         @click="$emit('input', topLevelCategory.value)"
@@ -31,7 +31,7 @@
               :text="coreString(camelCase(key))"
               appearance="basic-link"
               class="larger-text"
-              :appearanceOverrides="appearanceOverrides"
+              :appearanceOverrides="appearanceOverrides(nestedObject.value)"
               :disabled="availablePaths && !availablePaths[nestedObject.value]"
               @click="$emit('input', nestedObject.value)"
             />
@@ -44,7 +44,7 @@
         >
           <KButton
             :text="coreString(camelCase(nestedKey))"
-            :appearanceOverrides="appearanceOverrides"
+            :appearanceOverrides="appearanceOverrides(nestedObject.value)"
             appearance="basic-link"
             :disabled="availablePaths && !availablePaths[nestedObject.value]"
             @click="$emit('input', item.value)"
@@ -68,8 +68,9 @@
     name: 'CategorySearchOptions',
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      const { availableLibraryCategories, searchableLabels } = injectSearch();
+      const { activeSearchTerms, availableLibraryCategories, searchableLabels } = injectSearch();
       return {
+        activeSearchTerms,
         availableLibraryCategories,
         searchableLabels,
       };
@@ -103,14 +104,26 @@
       displaySelectedCategories() {
         return this.availableLibraryCategories[this.selectedCategory].nested;
       },
-      appearanceOverrides() {
-        return {
-          color: this.$themeTokens.text,
-          marginTop: '8px',
-        };
-      },
     },
     methods: {
+      appearanceOverrides(category) {
+        const appearanceOverrides = {
+          color: this.$themeTokens.text,
+          marginTop: '8px',
+          paddingLeft: '2px',
+          paddingRight: '2px',
+        };
+        if (this.activeSearchTerms.categories[category]) {
+          Object.assign(appearanceOverrides, {
+            backgroundColor: this.$themeBrand.primary.v_50,
+            border: '2px',
+            borderColor: this.$themeTokens.primary,
+            borderStyle: 'solid',
+            borderRadius: '4px',
+          });
+        }
+        return appearanceOverrides;
+      },
       camelCase(val) {
         return camelCase(val);
       },

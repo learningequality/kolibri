@@ -471,22 +471,4 @@ describe(`useSearch`, () => {
       });
     });
   });
-  describe('setCategory method', () => {
-    it('should remove all other category filters and add the new one', () => {
-      const { setCategory, router } = prep({
-        categories: 'test1,test2',
-        channels: 'channel1',
-        keywords: 'this',
-      });
-      setCategory('newcategory');
-      expect(router.push).toHaveBeenCalledWith({
-        name,
-        query: {
-          categories: 'newcategory',
-          channels: 'channel1',
-          keywords: 'this',
-        },
-      });
-    });
-  });
 });

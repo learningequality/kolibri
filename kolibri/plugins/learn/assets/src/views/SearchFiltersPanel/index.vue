@@ -287,12 +287,20 @@
         }
       },
       setCategory(category) {
-        this.$emit('input', {
-          ...this.value,
-          // This parallels the behaviour of setCategory in the useSearch
-          // composable - where category selection is mutually exclusive.
-          categories: { [category]: true },
-        });
+        if (this.value.categories[category]) {
+          const categories = { ...this.value.categories };
+          delete categories[category];
+          this.$emit('input', { ...this.value, categories });
+        } else {
+          const categories = { [category]: true };
+          for (const c in this.value.categories) {
+            // Filter out any subcategories of the selected category
+            if (!c.startsWith(category)) {
+              categories[c] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, categories });
+        }
       },
       handleCategory(category) {
         // for categories with sub-categories, open the modal

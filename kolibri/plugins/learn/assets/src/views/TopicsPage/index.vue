@@ -252,6 +252,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import plugin_data from 'plugin_data';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
@@ -269,7 +270,6 @@
   import TopicSubsection from './TopicSubsection';
   import TopicsPanelModal from './TopicsPanelModal';
   import commonLearnStrings from './../commonLearnStrings';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'TopicsPage',
@@ -319,7 +319,6 @@
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
@@ -333,7 +332,6 @@
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
         back,
         genContentLinkKeepCurrentBackLink,
       };
