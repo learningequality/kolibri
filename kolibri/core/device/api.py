@@ -4,7 +4,6 @@ from sys import version_info
 
 from django.conf import settings
 from django.contrib.auth import login
-from django.db.models import DateTimeField
 from django.db.models import Exists
 from django.db.models import Max
 from django.db.models import OuterRef
@@ -52,6 +51,7 @@ from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.fields import DateTimeTzField
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.core.public.constants.user_sync_statuses import INSUFFICIENT_STORAGE
 from kolibri.core.public.constants.user_sync_statuses import NOT_RECENTLY_SYNCED
@@ -352,7 +352,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             )
             .annotate(last_removal=Max("requested_at"))
             .values("last_removal"),
-            output_field=DateTimeField(),
+            output_field=DateTimeTzField(),
         )
         queryset = queryset.annotate(
             transfer_status=Subquery(most_recent_sync_status),

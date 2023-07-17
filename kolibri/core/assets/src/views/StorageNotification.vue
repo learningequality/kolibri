@@ -101,9 +101,12 @@
       ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
       insufficientStorageNoDownloads() {
         return (
-          (this.isLearner && this.insufficientSpace) ||
+          (this.isLearner && this.insufficientStorage) ||
           (!this.canManageContent && !this.hasDownloads)
         );
+      },
+      insufficientStorage() {
+        return this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
       learnOnlyRemovedResources() {
         return this.isLearner && this.lastDownloadRemoved && this.isLearnerOnlyImport;
@@ -113,8 +116,7 @@
       },
       showBanner() {
         return (
-          (this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE &&
-            this.local_storage_last_synced < this.lastSynced) ||
+          (this.insufficientStorage && this.local_storage_last_synced < this.lastSynced) ||
           this.local_storage_lastDownloadRemoved < this.lastDownloadRemoved
         );
       },
