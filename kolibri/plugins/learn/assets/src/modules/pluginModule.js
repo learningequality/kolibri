@@ -1,4 +1,5 @@
 // import { LastPages } from './../constants/lastPagesConstants';
+import plugin_data from 'plugin_data';
 import mutations from './coreLearn/mutations';
 import * as getters from './coreLearn/getters';
 import * as actions from './coreLearn/actions';
@@ -8,8 +9,6 @@ import examReportViewer from './examReportViewer';
 import examViewer from './examViewer';
 import lessonPlaylist from './lessonPlaylist';
 import topicsTree from './topicsTree';
-
-import plugin_data from 'plugin_data';
 
 export default {
   state() {

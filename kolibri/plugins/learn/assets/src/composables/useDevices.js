@@ -6,9 +6,9 @@ import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi
 import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+import plugin_data from 'plugin_data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
-import plugin_data from 'plugin_data';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const currentDevice = ref(null);
