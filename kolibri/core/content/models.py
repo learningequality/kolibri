@@ -457,7 +457,7 @@ class ContentRequest(models.Model):
         :return: A ContentRequest
         :rtype: ContentRequest
         """
-        return ContentRequest(
+        return cls(
             facility_id=user.facility_id,
             source_model=FacilityUser.morango_model_name,
             source_id=user.id,
