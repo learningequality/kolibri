@@ -4,15 +4,13 @@
     <h2 class="top-category">
       <KButton
         :text="coreString(camelCase(selectedCategory))"
-        :appearanceOverrides="appearanceOverrides(topLevelCategory.value)"
+        :appearanceOverrides="appearanceOverrides(topLevelCategory.value, true)"
         appearance="basic-link"
         :disabled="availablePaths && !availablePaths[topLevelCategory.value]"
         @click="$emit('input', topLevelCategory.value)"
       />
     </h2>
-    <KGrid
-      :style="{ margin: '24px' }"
-    >
+    <KGrid>
       <KGridItem
         v-for="(nestedObject, key) in displaySelectedCategories"
         :key="key"
@@ -25,13 +23,14 @@
           <KIcon
             :icon="icon(key)"
             size="large"
+            :style="{ marginLeft: '8px' }"
           />
           <h3>
             <KButton
               :text="coreString(camelCase(key))"
               appearance="basic-link"
               class="larger-text"
-              :appearanceOverrides="appearanceOverrides(nestedObject.value)"
+              :appearanceOverrides="appearanceOverrides(nestedObject.value, true)"
               :disabled="availablePaths && !availablePaths[nestedObject.value]"
               @click="$emit('input', nestedObject.value)"
             />
@@ -106,21 +105,35 @@
       },
     },
     methods: {
-      appearanceOverrides(category) {
+      appearanceOverrides(category, bolded) {
+        const activeOverrides = {
+          backgroundColor: this.$themeBrand.primary.v_50,
+          border: '2px',
+          borderColor: this.$themeTokens.primary,
+          borderStyle: 'solid',
+          borderRadius: '4px',
+        };
         const appearanceOverrides = {
           color: this.$themeTokens.text,
           marginTop: '8px',
-          paddingLeft: '2px',
-          paddingRight: '2px',
+          paddingTop: '8px',
+          paddingBottom: '8px',
+          paddingLeft: '8px',
+          paddingRight: '8px',
+          width: '100%',
+          border: '2px solid transparent',
+          textAlign: this.isRtl ? 'right' : 'left',
+          fontWeight: 'normal',
+          textTransform: 'none',
+          position: 'relative',
+          transition: 'none',
+          ':hover': activeOverrides,
         };
+        if (bolded) {
+          appearanceOverrides.fontWeight = 'bold';
+        }
         if (this.activeSearchTerms.categories[category]) {
-          Object.assign(appearanceOverrides, {
-            backgroundColor: this.$themeBrand.primary.v_50,
-            border: '2px',
-            borderColor: this.$themeTokens.primary,
-            borderStyle: 'solid',
-            borderRadius: '4px',
-          });
+          Object.assign(appearanceOverrides, activeOverrides);
         }
         return appearanceOverrides;
       },
@@ -156,9 +169,7 @@
 <style lang="scss" scoped>
 
   .top-category {
-    margin-right: 16px;
     margin-bottom: 4px;
-    margin-left: 16px;
     font-size: 24px;
   }
 
