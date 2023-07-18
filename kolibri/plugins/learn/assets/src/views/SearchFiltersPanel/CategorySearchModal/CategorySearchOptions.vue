@@ -44,9 +44,9 @@
         >
           <KButton
             :text="coreString(camelCase(nestedKey))"
-            :appearanceOverrides="appearanceOverrides(nestedObject.value)"
+            :appearanceOverrides="appearanceOverrides(item.value)"
             appearance="basic-link"
-            :disabled="availablePaths && !availablePaths[nestedObject.value]"
+            :disabled="availablePaths && !availablePaths[item.value]"
             @click="$emit('input', item.value)"
           />
         </div>
