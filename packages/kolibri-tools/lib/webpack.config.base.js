@@ -71,7 +71,11 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
     rules.push({
       test: /\.(js|mjs)$/,
       loader: 'babel-loader',
-      exclude: { and: [/(node_modules\/vue|dist|core-js)/, { not: [/\.(esm\.js|mjs)$/] }] },
+      exclude: [
+        // \\ for Windows, / for macOS and Linux
+        /node_modules[\\/]core-js/,
+        /node_modules[\\/]webpack[\\/]buildin/,
+      ],
       options: {
         cacheDirectory: cache,
         cacheCompression: false,
