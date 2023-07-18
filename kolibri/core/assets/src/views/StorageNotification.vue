@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="showBanner" class="banner" :style="{ background: $themeTokens.surface }">
+  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -97,7 +97,9 @@
       };
     },
     data() {
-      return {};
+      return {
+        bannerOpened: false,
+      };
     },
     computed: {
       ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
@@ -123,6 +125,16 @@
         );
       },
     },
+    watch: {
+      showBanner: {
+        handler(newVal, oldValue) {
+          if (newVal !== oldValue) {
+            this.bannerOpened = newVal;
+          }
+        },
+        deep: true,
+      },
+    },
     mounted() {
       document.addEventListener('focusin', this.focusChange);
     },
@@ -146,15 +158,16 @@
       closeBanner() {
         this.setLastSyncedValue(this.lastSynced);
         this.setDownloadRemovedValue(this.lastDownloadRemoved);
-        this.showBanner = false;
+        this.bannerOpened = false;
 
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }
       },
       manageChannel() {
-        if (!this.isLearner) {
-          redirectBrowser(urls['kolibri:kolibri.plugins.device:device_management']());
+        const deviceManagementUrl = urls['kolibri:kolibri.plugins.device:device_management']();
+        if (this.canManageContent && deviceManagementUrl) {
+          redirectBrowser(deviceManagementUrl);
         } else {
           this.bannerOpened = false;
         }
