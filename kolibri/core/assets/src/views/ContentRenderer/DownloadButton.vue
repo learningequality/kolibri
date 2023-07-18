@@ -1,6 +1,7 @@
 <template>
 
   <KButton
+    v-if="canDownload"
     ref="button"
     hasDropdown
     :primary="$attrs.primary"
@@ -19,7 +20,10 @@
 
 <script>
 
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getFilePresetString } from './filePresetStrings';
+  import { getRenderableFiles } from './utils';
 
   export default {
     name: 'DownloadButton',
@@ -28,12 +32,26 @@
         type: Array,
         default: () => [],
       },
+      contentKind: {
+        type: String,
+        default: '',
+      },
       nodeTitle: {
         type: String,
         default: '',
       },
     },
     computed: {
+      downloadableFiles() {
+        return getRenderableFiles(this.files);
+      },
+      canDownload() {
+        return (
+          this.downloadableFiles.length &&
+          this.contentKind !== ContentNodeKinds.EXERCISE &&
+          !isEmbeddedWebView
+        );
+      },
       fileOptions() {
         const options = this.files.map(file => {
           const label = getFilePresetString(file);
