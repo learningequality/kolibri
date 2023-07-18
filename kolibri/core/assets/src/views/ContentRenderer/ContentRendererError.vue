@@ -64,5 +64,6 @@
     margin: 8px;
     text-align: left;
     width: calc(100% - 16px);
+    background: white;
   }
 </style>
