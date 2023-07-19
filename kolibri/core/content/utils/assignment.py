@@ -52,7 +52,7 @@ class ContentAssignmentManager(object):
         self.model = None
         self.name = None
         self.one_to_many = one_to_many
-        self.filters = filters or {}
+        self.filters = filters
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
 
@@ -80,7 +80,7 @@ class ContentAssignmentManager(object):
         self.model = model
         self.name = attribute_name
         setattr(model, attribute_name, self)
-        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({model.morango_model_name: self})
+        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({id(model): self})
 
     @classmethod
     def on_any_downloadable_assignment(cls, callable_func):
