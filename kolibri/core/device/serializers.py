@@ -1,5 +1,3 @@
-import json
-
 from django.db import transaction
 from django.utils.translation import check_for_language
 from django.utils.translation import ugettext_lazy as _
@@ -271,19 +269,23 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
 
     def update(self, instance, validated_data):
         if "extra_settings" in validated_data:
-            current_extra_settings= validated_data.get("extra_settings")
+            updated_extra_settings = validated_data.get("extra_settings")
             initial_extra_settings = getattr(instance, "extra_settings", "{}")
 
-            if extra_settings != initial_extra_settings:
-            
-                if current_extra_settings.get(
+            if updated_extra_settings != initial_extra_settings:
+                automatic_download_enabled = updated_extra_settings.get(
                     "enable_automatic_download"
-                ) != initial_extra_settings.get("enable_automatic_download"):
-                    if current_extra_settings.get("enable_automatic_download") is True:
-                        automatic_synchronize_content_requests_and_import.enqueue()
+                )
+                if (
+                    automatic_download_enabled
+                    and automatic_download_enabled
+                    != initial_extra_settings.get("enable_automatic_download")
+                ):
+                    automatic_synchronize_content_requests_and_import.enqueue()
+
         instance = super(DeviceSettingsSerializer, self).update(
-                instance, validated_data
-            )
+            instance, validated_data
+        )
         return instance
 
     def validate(self, data):
