@@ -2,8 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from core.content.signals import add_download_requests
-from core.content.signals import add_removal_requests
+from kolibri.core.content.signals import add_download_requests
+from kolibri.core.content.signals import add_removal_requests
 from django.apps import AppConfig
 
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
