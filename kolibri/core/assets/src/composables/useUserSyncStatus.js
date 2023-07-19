@@ -37,7 +37,6 @@ export function pollUserSyncStatusTask() {
   if (!store.state.core.session.user_id) {
     return Promise.resolve();
   }
-
   return fetchUserSyncStatus({ user: store.state.core.session.user_id }).then(syncData => {
     if (syncData && syncData[0]) {
       queued.value = syncData[0].queued;
@@ -59,6 +58,9 @@ export default function useUserSyncStatus() {
   onMounted(() => {
     usageCount.value++;
     if (usageCount.value === 1) {
+      if (store.state.core.session.user_id) {
+        pollUserSyncStatusTask();
+      }
       resume();
     }
   });
