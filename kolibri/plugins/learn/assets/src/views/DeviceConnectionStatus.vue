@@ -21,11 +21,11 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { set, useTimeoutPoll } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { useDevices } from 'kolibri.coreVue.componentSets.sync';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import { ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
   import { KolibriStudioId } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
 
@@ -33,38 +33,44 @@
     name: 'DeviceConnectionStatus',
     mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
-      const { isFetching, devices } = useDevices({
-        id: props.deviceId,
-      });
-      const isFetched = ref(false);
-      const allDevices = ref([]);
-
-      const getStudio = async () => {
-        let studio = [];
-        if (props.deviceId === KolibriStudioId) {
+      // Because the network location endpoint doesn't currently report status
+      // about special static locations like Kolibri Studio and KDP, we need to
+      // do a separate check for those.
+      // Once that functionality has been enabled, this can be cleaned up!
+      if (props.deviceId === KolibriStudioId) {
+        const isFetched = ref(false);
+        const allDevices = ref([]);
+        const getStudio = async () => {
           const response = await RemoteChannelResource.getKolibriStudioStatus();
-          const studioData = {
-            ...response.data,
-            id: KolibriStudioId,
-            instance_id: KolibriStudioId,
-          };
-          studio = [studioData];
-        }
-        return studio;
-      };
-
-      watch(isFetching, async currentValue => {
-        if (!get(currentValue)) {
-          const studio = await getStudio();
-          set(allDevices, [...get(devices), ...studio]);
+          set(allDevices, [
+            {
+              ...response.data,
+              id: KolibriStudioId,
+              instance_id: KolibriStudioId,
+            },
+          ]);
           set(isFetched, props.deviceId !== null);
-        }
-      });
+        };
+        // Start polling
+        const fetch = useTimeoutPoll(getStudio, 5000, { immediate: true });
 
-      return {
-        allDevices,
-        isFetched,
-      };
+        // Stop polling
+        onBeforeUnmount(() => {
+          fetch.pause();
+        });
+        return {
+          allDevices,
+          isFetched,
+        };
+      } else {
+        const { hasFetched, devices } = useDevices({
+          id: props.deviceId,
+        });
+        return {
+          allDevices: devices,
+          isFetched: hasFetched,
+        };
+      }
     },
     props: {
       // eslint-disable-next-line kolibri/vue-no-unused-properties
