@@ -68,7 +68,7 @@ class ContentAssignmentManager(object):
 
             @receiver(models.signals.post_save, sender=manager.model)
             def on_save(sender, instance, **kwargs):
-                queryset = manager.model.objects.filter(pk=instance.pk, **cls.filters)
+                queryset = manager.model.objects.filter(pk=instance.pk, **manager.filters)
                 if queryset.exists():
                     assignments = manager._get_assignments(queryset)
                     callable_func(instance.dataset_id, assignments)
@@ -86,7 +86,7 @@ class ContentAssignmentManager(object):
 
             @receiver(models.signals.post_save, sender=manager.model)
             def on_save(sender, instance, **kwargs):
-                queryset = manager.model.objects.exclude(pk=instance.pk, **cls.filters)
+                queryset = manager.model.objects.exclude(pk=instance.pk, **manager.filters)
                 if queryset.exists():
                     assignments = manager._get_assignments(queryset)
                     callable_func(instance.dataset_id, assignments)

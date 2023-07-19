@@ -2,11 +2,10 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from kolibri.core.content.signals import add_download_requests
-from kolibri.core.content.signals import add_removal_requests
+
 from django.apps import AppConfig
 
-from kolibri.core.content.utils.assignment import ContentAssignmentManager
+
 
 
 class KolibriContentConfig(AppConfig):
@@ -15,6 +14,9 @@ class KolibriContentConfig(AppConfig):
     verbose_name = "Kolibri Content"
 
     def ready(self):
+        from .utils.assignment import ContentAssignmentManager  # noqa: F401
+        from .signals import add_download_requests  # noqa: F401
+        from .signals import add_removal_requests  # noqa: F401
         from .signals import reorder_channels_upon_deletion  # noqa: F401
         from .signals import cascade_delete_node  # noqa: F401
 
