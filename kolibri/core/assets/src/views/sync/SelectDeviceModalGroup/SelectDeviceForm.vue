@@ -77,8 +77,6 @@
       </template>
     </template>
 
-    <slot name="underbuttons"></slot>
-
     <template #actions>
       <KFixedGrid
         class="actions"
@@ -121,14 +119,16 @@
       </KFixedGrid>
     </template>
 
-    <KButton
-      v-show="!newDeviceButtonDisabled && !formDisabled"
-      class="new-device-button"
-      :text="getCommonSyncString('addNewAddressAction')"
-      appearance="basic-link"
-      @click="$emit('click_add_address')"
-    />
-
+    <KButtonGroup class="under-buttons">
+      <slot name="underbuttons"></slot>
+      <KButton
+        v-show="!newDeviceButtonDisabled && !formDisabled"
+        class="new-device-button"
+        :text="getCommonSyncString('addNewAddressAction')"
+        appearance="basic-link"
+        @click="$emit('click_add_address')"
+      />
+    </KButtonGroup>
   </KModal>
 
 </template>
@@ -462,6 +462,11 @@
   .loader {
     position: relative;
     top: 12px;
+  }
+
+  .under-buttons {
+    /* align button group with the form content */
+    margin-left: -8px;
   }
 
 </style>

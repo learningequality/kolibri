@@ -1,6 +1,6 @@
 <template>
 
-  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
+  <div v-if="showBanner" class="banner" :style="{ background: $themeTokens.surface }">
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -23,7 +23,7 @@
             @click="closeBanner"
           />
           <KButton
-            v-if="availableDownloads"
+            v-if="hasDownloads"
             :text="$tr('goToDownloads')"
             appearance="raised-button"
             :secondary="true"
@@ -47,53 +47,81 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
   import { mapGetters } from 'vuex';
+  import useUser from 'kolibri.coreVue.composables.useUser';
+  import { useLocalStorage } from '@vueuse/core';
+  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
+  import useUserSyncStatus from '../composables/useUserSyncStatus';
 
   export default {
     name: 'StorageNotification',
     components: {},
     mixins: [commonCoreStrings],
     setup() {
+      const local_storage_last_synced = useLocalStorage('last_synced', '');
+      const local_storage_lastDownloadRemoved = useLocalStorage('last_download_removed', '');
+
       const { isLearnerOnlyImport } = useUser();
-      return {
-        isLearnerOnlyImport,
+
+      const setLastSyncedValue = newLastSyncValue => {
+        local_storage_last_synced.value = newLastSyncValue;
       };
-    },
-    props: {
-      showBanner: {
-        type: Boolean,
-        default: false,
-      },
+
+      const setDownloadRemovedValue = newLastDownloadRemovedValue => {
+        local_storage_lastDownloadRemoved.value = newLastDownloadRemovedValue;
+      };
+
+      const {
+        status,
+        lastSynced,
+        deviceStatus,
+        deviceStatusSentiment,
+        hasDownloads,
+        lastDownloadRemoved,
+      } = useUserSyncStatus();
+
+      return {
+        lastSynced,
+        status,
+        deviceStatus,
+        deviceStatusSentiment,
+        hasDownloads,
+        lastDownloadRemoved,
+        isLearnerOnlyImport,
+        local_storage_last_synced,
+        local_storage_lastDownloadRemoved,
+        setLastSyncedValue,
+        setDownloadRemovedValue,
+      };
     },
     data() {
-      return {
-        bannerOpened: false,
-        // TODO: remove this
-        insufficientSpace: true,
-        // TODO: retrieve proper info for these
-        hasDevicePermissions: false,
-        availableDownloads: false,
-        resourcesRemoved: false,
-      };
+      return {};
     },
     computed: {
-      ...mapGetters(['isLearner', 'isAdmin']),
+      ...mapGetters(['isLearner', 'isAdmin', 'canManageContent']),
       insufficientStorageNoDownloads() {
         return (
-          (this.isLearner && this.insufficientSpace) ||
-          (!this.hasDevicePermissions && !this.availableDownloads)
+          (this.isLearner && this.insufficientStorage) ||
+          (!this.canManageContent && !this.hasDownloads)
         );
       },
+      insufficientStorage() {
+        return this.deviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
+      },
       learnOnlyRemovedResources() {
-        return this.isLearner && this.resourcesRemoved && this.isLearnerOnlyImport;
+        return this.isLearner && this.lastDownloadRemoved && this.isLearnerOnlyImport;
       },
       availableDownload() {
-        return !this.hasDevicePermissions && this.availableDownloads && !this.isLearner;
+        return !this.canManageContent && this.hasDownloads && !this.isLearner;
+      },
+      showBanner() {
+        return (
+          (this.insufficientStorage && this.local_storage_last_synced < this.lastSynced) ||
+          this.local_storage_lastDownloadRemoved < this.lastDownloadRemoved
+        );
       },
     },
-    created() {
-      this.toggleBanner();
+    mounted() {
       document.addEventListener('focusin', this.focusChange);
     },
     beforeDestroy() {
@@ -114,8 +142,10 @@
         return message;
       },
       closeBanner() {
-        // TODO: Store preference after closure
-        this.bannerOpened = false;
+        this.setLastSyncedValue(this.lastSynced);
+        this.setDownloadRemovedValue(this.lastDownloadRemoved);
+        this.showBanner = false;
+
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }
@@ -123,11 +153,7 @@
       manageChannel() {
         this.$router.push('/');
       },
-      toggleBanner() {
-        if (this.showBanner) {
-          this.bannerOpened = true;
-        }
-      },
+
       focusChange(e) {
         // We need the element prior to the close button and more info
         if (
