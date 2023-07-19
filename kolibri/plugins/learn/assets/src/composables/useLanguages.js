@@ -10,9 +10,13 @@ import plugin_data from 'plugin_data';
 const langArray = plugin_data.languages ? plugin_data.languages : [];
 const langMap = {};
 
-for (const lang of langArray) {
-  langMap[lang.id] = lang;
+export function setLanguages(langs) {
+  for (const lang of langs) {
+    langMap[lang.id] = lang;
+  }
 }
+
+setLanguages(langArray);
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const languagesMap = ref(langMap);
