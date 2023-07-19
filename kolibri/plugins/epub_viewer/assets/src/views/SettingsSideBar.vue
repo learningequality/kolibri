@@ -109,7 +109,7 @@
           <KButton
             class="settings-button theme-button"
             :aria-label="$tr('addNewTheme')"
-            @click="addCustomTheme = true"
+            @click="addCustomTheme = 'myTheme' + ((Object.keys(customThemes).length + 1))"
           >
             <KIcon
               icon="plus"
@@ -136,6 +136,15 @@
         @submit="addNewTheme($event)"
         @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
       />
+
+      <!-- <AddEditCustomThemeModal
+        v-if="addCustomTheme || editCustomThemeName"
+        :modalMode="addCustomTheme ? 'add' : 'edit'"
+        :theme="addCustomTheme ? theme : editCustomTheme"
+        :themeName="addCustomTheme ? addCustomTheme : editCustomThemeName"
+        @submit="addNewTheme($event)"
+        @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
+      /> -->
     </div>
   </SideBar>
 
@@ -148,15 +157,15 @@
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
-  import CustomThemeColorsModal from './CustomThemeColorsModal.vue';
+  import AddEditCustomThemeModal from './AddEditCustomThemeModal.vue';
 
   export default {
     name: 'SettingsSideBar',
     components: {
-      SideBar,
-      DeleteCustomThemeModal,
-      CustomThemeColorsModal,
-    },
+    SideBar,
+    DeleteCustomThemeModal,
+    AddEditCustomThemeModal
+},
     props: {
       theme: {
         type: Object,
