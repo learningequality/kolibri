@@ -19,7 +19,10 @@
           />
         </div>
 
-        <CoreTable>
+        <CoreTable
+          :dataLoading="groupsAreLoading"
+          :emptyMessage="$tr('noGroups')"
+        >
           <template #headers>
             <th>{{ coachString('nameLabel') }}</th>
             <th>{{ coreString('learnersLabel') }}</th>
@@ -37,10 +40,6 @@
             </tbody>
           </template>
         </CoreTable>
-
-        <p v-if="!sortedGroups.length">
-          {{ $tr('noGroups') }}
-        </p>
 
         <CreateGroupModal
           v-if="showCreateGroupModal"
@@ -79,6 +78,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import { useGroups } from '../../../composables/useGroups';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import PlanHeader from '../../plan/PlanHeader';
   import { GroupModals } from '../../../constants';
@@ -101,6 +101,7 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const { groupsAreLoading } = useGroups();
       const selectedGroup = ref({
         name: '',
         id: '',
@@ -113,6 +114,7 @@
         setSelectedGroup(name, id) {
           selectedGroup.value = { name, id };
         },
+        groupsAreLoading,
       };
     },
     computed: {

@@ -26,7 +26,10 @@
           />
         </div>
 
-        <CoreTable>
+        <CoreTable
+          :dataLoading="lessonsAreLoading"
+          :emptyMessage="$tr('noLessons')"
+        >
           <template #headers>
             <th>{{ coachString('titleLabel') }}</th>
             <th>{{ $tr('size') }}</th>
@@ -73,12 +76,10 @@
           </template>
         </CoreTable>
 
-        <p v-if="!lessons.length">
-          {{ $tr('noLessons') }}
-        </p>
-        <p v-else-if="!hasVisibleLessons">
+        <p v-if="!hasVisibleLessons">
           {{ coreString('noResultsLabel') }}
         </p>
+
         <KModal
           v-if="showLessonIsVisibleModal && !userHasDismissedModal"
           :title="coachString('makeLessonVisibleTitle')"
@@ -166,6 +167,7 @@
   import PlanHeader from '../../plan/PlanHeader';
   import AssignmentDetailsModal from '../../plan/assignments/AssignmentDetailsModal';
   import { lessonSummaryLink } from '../../../routes/planLessonsRouterUtils';
+  import { useLessons } from '../../../composables/useLessons';
 
   export default {
     name: 'LessonsRootPage',
@@ -176,6 +178,10 @@
       AssignmentDetailsModal,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { lessonsAreLoading } = useLessons();
+      return { lessonsAreLoading };
+    },
     data() {
       return {
         PLAN_TABS_ID,
