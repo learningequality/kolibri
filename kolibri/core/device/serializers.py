@@ -271,14 +271,11 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
 
     def update(self, instance, validated_data):
         if "extra_settings" in validated_data:
-            extra_settings = validated_data.get("extra_settings")
+            current_extra_settings= validated_data.get("extra_settings")
             initial_extra_settings = getattr(instance, "extra_settings", "{}")
 
             if extra_settings != initial_extra_settings:
-                # Parse the JSON data from extra_settings
-                current_extra_settings = json.loads(extra_settings)
-                initial_extra_settings = json.loads(initial_extra_settings)
-
+            
                 if current_extra_settings.get(
                     "enable_automatic_download"
                 ) != initial_extra_settings.get("enable_automatic_download"):
