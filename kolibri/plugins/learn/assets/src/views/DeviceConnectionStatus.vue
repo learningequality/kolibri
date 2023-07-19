@@ -21,11 +21,11 @@
 
 <script>
 
-  import { set, onBeforeUnmount, useTimeoutPoll } from '@vueuse/core';
+  import { set, useTimeoutPoll } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { useDevices } from 'kolibri.coreVue.componentSets.sync';
   import { RemoteChannelResource } from 'kolibri.resources';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
   import { KolibriStudioId } from '../constants';
   import commonLearnStrings from './commonLearnStrings';
 
