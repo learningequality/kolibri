@@ -50,9 +50,7 @@ INCOMPLETE_STATUSES = [
 
 def create_content_download_requests(facility, assignments):
     logger.info("Processing new content assignment requests")
-    for assignment in ContentAssignmentManager.find_all_downloadable_assignments(
-        **find_kwargs
-    ):
+    for assignment in assignments:
         related_removals = ContentRemovalRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,
@@ -75,9 +73,7 @@ def create_content_download_requests(facility, assignments):
 
 def create_content_removal_requests(facility, removable_assignments):
     logger.info("Processing new content removal requests")
-    for assignment in ContentAssignmentManager.find_all_removable_assignments(
-        **find_kwargs
-    ):
+    for assignment in removable_assignments:
         related_downloads = ContentDownloadRequest.objects.filter(
             reason=ContentRequestReason.SyncInitiated,
             source_model=assignment.source_model,
@@ -120,13 +116,19 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     if transfer_session is None and dataset_id is None:
         raise ValueError("Either dataset_id or transfer_session_id is required")
 
+    # transfer_session_id takes precedence over dataset_id, since it's more specific
+    # (a transfer session should only affect one dataset)
+    find_kwargs = {}
+    if transfer_session:
+        find_kwargs.update(transfer_session_id=transfer_session.id)
+    else:
+        find_kwargs.update(dataset_id=dataset_id)
+
     assignments = ContentAssignmentManager.find_all_downloadable_assignments(
-        dataset_id=dataset_id,
-        transfer_session_id=transfer_session.id if transfer_session else None,
+        **find_kwargs
     )
     removable_assignments = ContentAssignmentManager.find_all_removable_assignments(
-        dataset_id=dataset_id,
-        transfer_session_id=transfer_session.id if transfer_session else None,
+        **find_kwargs
     )
 
     create_content_download_requests(facility, assignments)
