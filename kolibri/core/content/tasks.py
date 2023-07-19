@@ -5,7 +5,7 @@ from six import with_metaclass
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.models import FacilityDataset
-from kolibri.core.content.kolibri_plugin import synchronize_content_requests
+from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
