@@ -20,10 +20,10 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
+import plugin_data from 'plugin_data';
 import { deduplicateResources } from '../utils/contentNode';
 import useContentNodeProgress from './useContentNodeProgress';
 import useDevices from './useDevices';
-import plugin_data from 'plugin_data';
 
 export const logging = logger.getLogger(__filename);
 
@@ -323,10 +323,6 @@ export default function useSearch(descendant, store, router) {
     set(searchTerms, {});
   }
 
-  function setCategory(category) {
-    set(searchTerms, { ...get(searchTerms), categories: { [category]: true } });
-  }
-
   watch(searchTerms, search);
 
   if (descendant) {
@@ -441,7 +437,6 @@ export default function useSearch(descendant, store, router) {
     searchMore,
     removeFilterTag,
     clearSearch,
-    setCategory,
   };
 }
 

@@ -1,0 +1,9 @@
+{
+  "name": "kolibri-learn-plugin",
+  "description": "Learn Plugin for Kolibri",
+  "private": true,
+  "version": "0.0.1",
+  "dependencies": {
+    "vue2-teleport": "^1.0.1"
+  }
+}

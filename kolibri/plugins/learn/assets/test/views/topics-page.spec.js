@@ -3,13 +3,13 @@ import VueRouter from 'vue-router';
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import plugin_data from 'plugin_data';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
 import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
 // eslint-disable-next-line import/named
 import useSearch, { useSearchMock } from '../../src/composables/useSearch';
-import plugin_data from 'plugin_data';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('plugin_data', () => {

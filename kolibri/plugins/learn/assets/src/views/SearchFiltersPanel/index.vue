@@ -1,38 +1,25 @@
 <template>
 
-  <section
+  <component
+    :is="windowIsLarge ? 'section' : 'SidePanelModal'"
+    alignment="left"
     role="region"
+    :class="windowIsLarge ? 'side-panel' : ''"
+    :closeButtonIconType="closeButtonIcon"
     :aria-label="learnString('filterAndSearchLabel')"
-    :style="{
+    :ariaLabel="learnString('filterAndSearchLabel')"
+    :style="windowIsLarge ? {
       color: $themeTokens.text,
       backgroundColor: $themeTokens.surface,
       width: width,
-    }"
-    :class="position === 'embedded' ? 'side-panel' : 'drawer-panel'"
+    } : {}"
+    @closePanel="currentCategory ? currentCategory = null : $emit('close')"
+    @shouldFocusFirstEl="focusFirstEl()"
   >
-    <div v-if="topics && topics.length && topicsListDisplayed">
-      <div
-        v-for="t in topics"
-        :key="t.id"
-      >
-        <KRouterLink
-          ref="folders"
-          :text="t.title"
-          class="side-panel-folder-link"
-          :appearanceOverrides="{ color: $themeTokens.text }"
-          :to="genContentLinkBackLinkCurrentPage(t.id, false)"
-        />
-      </div>
-      <KButton
-        v-if="more && !topicsLoading"
-        appearance="basic-link"
-        @click="$emit('loadMoreTopics')"
-      >
-        {{ coreString('viewMoreAction') }}
-      </KButton>
-      <KCircularLoader v-if="topicsLoading" />
-    </div>
-    <div v-else>
+    <div
+      v-if="windowIsLarge || !currentCategory"
+      :class="windowIsLarge ? '' : 'drawer-panel'"
+    >
       <!-- search by keyword -->
       <h2 class="title">
         {{ $tr('keywords') }}
@@ -58,12 +45,12 @@
           <KButton
             :text="coreString(category.value)"
             appearance="flat-button"
-            :appearanceOverrides="isKeyActive(key)
+            :appearanceOverrides="isCategoryActive(category.value)
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
             :disabled="availableRootCategories &&
-              !availableRootCategories[key] &&
-              !isKeyActive(key)"
+              !availableRootCategories[category.value] &&
+              !isCategoryActive(category.value)"
             :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
             @click="handleCategory(key)"
           />
@@ -75,7 +62,7 @@
           <KButton
             :text="coreString('uncategorized')"
             appearance="flat-button"
-            :appearanceOverrides="isKeyActive('no_categories')
+            :appearanceOverrides="isCategoryActive('no_categories')
               ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
               : categoryListItemStyles"
             @click="noCategories"
@@ -114,7 +101,15 @@
         </div>
       </div>
     </div>
-  </section>
+    <CategorySearchModal
+      v-if="currentCategory"
+      ref="searchModal"
+      :class="windowIsLarge ? '' : 'drawer-panel'"
+      :selectedCategory="currentCategory"
+      @cancel="currentCategory = null"
+      @input="selectCategory"
+    />
+  </component>
 
 </template>
 
@@ -123,11 +118,15 @@
 
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import SearchBox from '../SearchBox';
+  import SidePanelModal from '../SidePanelModal';
   import commonLearnStrings from '../commonLearnStrings';
   import useContentLink from '../../composables/useContentLink';
   import { injectSearch } from '../../composables/useSearch';
   import ActivityButtonsGroup from './ActivityButtonsGroup';
+  import CategorySearchModal from './CategorySearchModal';
   import SelectGroup from './SelectGroup';
 
   export default {
@@ -136,9 +135,12 @@
       SearchBox,
       ActivityButtonsGroup,
       SelectGroup,
+      CategorySearchModal,
+      SidePanelModal,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
+      const { windowIsLarge } = useKResponsiveWindow();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const {
         availableLibraryCategories,
@@ -146,12 +148,15 @@
         searchableLabels,
         activeSearchTerms,
       } = injectSearch();
+      const currentCategory = ref(null);
       return {
         availableLibraryCategories,
         availableResourcesNeeded,
+        currentCategory,
         genContentLinkBackLinkCurrentPage,
         searchableLabels,
         activeSearchTerms,
+        windowIsLarge,
       };
     },
     props: {
@@ -170,35 +175,10 @@
           return inputKeys.every(k => Object.prototype.hasOwnProperty.call(value, k));
         },
       },
-      topics: {
-        type: Array,
-        default() {
-          return [];
-        },
-      },
-      more: {
-        type: Object,
-        default: null,
-      },
-      topicsLoading: {
-        type: Boolean,
-        default: false,
-      },
       width: {
         type: [Number, String],
         required: false,
         default: null,
-      },
-      topicsListDisplayed: {
-        type: Boolean,
-        required: false,
-      },
-      position: {
-        type: String,
-        required: true,
-        validator(val) {
-          return ['embedded', 'overlay'].includes(val);
-        },
       },
       showChannels: {
         type: Boolean,
@@ -206,6 +186,9 @@
       },
     },
     computed: {
+      closeButtonIcon() {
+        return this.currentCategory ? 'back' : 'close';
+      },
       inputValue: {
         get() {
           return this.value;
@@ -259,13 +242,14 @@
         }
         return null;
       },
-      activeKeys() {
+      activeCategories() {
         return Object.keys((this.activeSearchTerms && this.activeSearchTerms.categories) || {});
       },
     },
     methods: {
-      isKeyActive(key) {
-        return !!this.activeKeys.filter(k => k.includes(key)).length;
+      isCategoryActive(categoryValue) {
+        // Takes the dot separated category value and checks if it is active
+        return this.activeCategories.some(k => k.includes(categoryValue));
       },
       noCategories() {
         this.$emit('input', { ...this.value, categories: { [NoCategories]: true } });
@@ -302,6 +286,22 @@
           });
         }
       },
+      setCategory(category) {
+        if (this.value.categories[category]) {
+          const categories = { ...this.value.categories };
+          delete categories[category];
+          this.$emit('input', { ...this.value, categories });
+        } else {
+          const categories = { [category]: true };
+          for (const c in this.value.categories) {
+            // Filter out any subcategories of the selected category
+            if (!c.startsWith(category)) {
+              categories[c] = true;
+            }
+          }
+          this.$emit('input', { ...this.value, categories });
+        }
+      },
       handleCategory(category) {
         // for categories with sub-categories, open the modal
         if (
@@ -309,17 +309,16 @@
           this.availableLibraryCategories[category].nested &&
           Object.keys(this.availableLibraryCategories[category].nested).length > 0
         ) {
-          this.$emit('currentCategory', category);
+          this.currentCategory = category;
         }
         // for valid categories with no subcategories, search directly
         else if (this.availableLibraryCategories[category]) {
-          this.$emit('input', {
-            ...this.value,
-            // This parallels the behaviour of setCategory in the useSearch
-            // composable - where category selection is mutually exclusive.
-            categories: { [this.availableLibraryCategories[category].value]: true },
-          });
+          this.setCategory(this.availableLibraryCategories[category].value);
         }
+      },
+      selectCategory(category) {
+        this.setCategory(category);
+        this.currentCategory = null;
       },
       /**
        * @public
@@ -329,8 +328,6 @@
       focusFirstEl() {
         if (this.$refs.searchBox) {
           this.$refs.searchBox.focusSearchBox();
-        } else if (this.$refs.folders && this.$refs.folders.length > 0) {
-          this.$refs.folders[0].$el.focus();
         }
       },
     },

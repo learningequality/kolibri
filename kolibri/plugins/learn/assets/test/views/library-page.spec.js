@@ -33,6 +33,7 @@ const mockStore = (rootNodes = ['length'], getters = {}) => {
       isCoach: jest.fn(),
       isAppContext: jest.fn(),
       getUserKind: jest.fn(),
+      getRootNodesLoading: jest.fn(),
       ...getters,
     },
   });
@@ -115,10 +116,10 @@ describe('LibraryPage', () => {
         options: { stubs: ['SidePanelModal', 'LearnTopNav'] },
       });
       // not displayed by default
-      expect(wrapper.findComponent({ name: 'SidePanel' }).vm.$children.length).toEqual(0);
+      expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeUndefined();
       wrapper.find('[data-test="filter-button"]').trigger('click');
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'SidePanel' }).vm.$children.length).not.toEqual(0);
+      expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeTruthy();
     });
   });
 
@@ -305,6 +306,9 @@ describe('LibraryPage', () => {
 
   describe('SidePanel', () => {
     it('display side panel if local libraries are available', () => {
+      useKResponsiveWindow.mockImplementation(() => ({
+        windowIsLarge: true,
+      }));
       const wrapper = makeWrapper();
       expect(wrapper.find('[data-test="side-panel"').element).toBeTruthy();
     });
