@@ -127,6 +127,7 @@
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
+  import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
@@ -279,8 +280,17 @@
       // so that PDFRenderer can scroll itself.
       window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
 
+      this.worker = new PDFJSLib.PDFWorker();
+
+      this.worker.promise.catch(error => {
+        this.reportLoadingError(error.toString ? error.toString() : error.message);
+      });
+
       this.currentLocation = this.savedLocation;
-      const loadingPdf = PDFJSLib.getDocument(this.defaultFile.storage_url);
+      const loadingPdf = PDFJSLib.getDocument({
+        url: this.defaultFile.storage_url,
+        worker: this.worker,
+      });
       // pass callback to update loading bar
       loadingPdf.onProgress = loadingProgress => {
         this.progress = loadingProgress.loaded / loadingProgress.total;
@@ -328,16 +338,22 @@
     },
     mounted() {
       // Retrieve the document and its corresponding object
-      this.prepComponentData.then(() => {
-        // Progress is NaN if loadingProgress.total is undefined
-        if (isNaN(this.progress)) {
-          this.progress = 1;
-        }
-        this.$emit('startTracking');
-        this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
-        // Even if user does not pause while scrolling on first page, we store that as visited
-        this.storeVisitedPage(1);
-      });
+      this.prepComponentData
+        .then(() => {
+          // Progress is NaN if loadingProgress.total is undefined
+          if (isNaN(this.progress)) {
+            this.progress = 1;
+          }
+          this.$emit('startTracking');
+          this.updateContentStateInterval = setInterval(this.updateProgress, 30000);
+          // Even if user does not pause while scrolling on first page, we store that as visited
+          this.storeVisitedPage(1);
+        })
+        .catch(() => {
+          // We have already handled this error above, but we reraised it to ensure that we don't
+          // enter the then block above.
+          // We need to catch it here to avoid an unhandled promise rejection.
+        });
     },
     beforeDestroy() {
       this.updateProgress();
