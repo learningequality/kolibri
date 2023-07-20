@@ -27,36 +27,21 @@ const downloadRequestsTranslator = createTranslator('DownloadRequests', {
 });
 
 // The reactive is defined in the outer scope so it can be used as a shared store
-const downloadRequestMap = reactive({
-  downloads: {},
-  totalPageNumber: 0,
-  totalDownloads: 0,
-  totalStorage: 0,
-});
+const downloadRequestMap = reactive({});
+const totalStorage = ref(0);
+const loading = ref(true);
 
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
   function fetchUserDownloadRequests(params) {
-    const { page, pageSize } = params;
-    const loading = ref(true);
-    let storage = 0;
-    return ContentRequestResource.list(params).then(downloadRequests => {
-      set(downloadRequestMap, 'downloads', {});
-      for (let i = 0; i < pageSize; i++) {
-        const index = (page - 1) * pageSize + i;
-        if (index >= downloadRequests.length) {
-          break;
-        }
-        storage += downloadRequests[index].metadata
-          ? downloadRequests[index].metadata.file_size
-          : storage;
-        set(downloadRequestMap.downloads, downloadRequests[index].id, downloadRequests[index]);
-      }
-      set(downloadRequestMap, 'totalPageNumber', Math.ceil(downloadRequests.length / pageSize));
-      set(downloadRequestMap, 'totalDownloads', downloadRequests.length);
-      set(downloadRequestMap, 'totalStorage', storage);
-      set(loading, false);
-    }, 500);
+    const storage = 0;
+    return ContentRequestResource.list(params)
+      .then(downloadRequests => {
+        set(downloadRequestMap, downloadRequests);
+        set(totalStorage, storage);
+        set(loading, false);
+      }, 500)
+      .then(store.dispatch('notLoading'));
   }
 
   function fetchDownloadsStorageInfo() {
@@ -96,8 +81,7 @@ export default function useDownloadRequests(store) {
       date_added: new Date(),
     };
     ContentRequestResource.create(data).then(downloadRequest => {
-      set(downloadRequestMap, 'downloads', {});
-      set(downloadRequestMap.downloads, downloadRequest.node_id, downloadRequest);
+      set(downloadRequestMap, downloadRequest.node_id, downloadRequest);
     });
 
     store.commit('CORE_CREATE_SNACKBAR', {
@@ -116,16 +100,19 @@ export default function useDownloadRequests(store) {
       id: content.id,
       contentnode_id: content.contentnode_id,
     })
-      .then(Vue.delete(downloadRequestMap.downloads, content.id))
-      .then(
-        set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap.downloads).length)
-      );
+      .then(Vue.delete(downloadRequestMap, content.id))
+      .then(set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap).length));
     return Promise.resolve();
   }
 
   function removeDownloadsRequest(contentList) {
     contentList.forEach(content => {
-      Vue.delete(downloadRequestMap.downloads, content.id);
+      ContentRequestResource.deleteModel({
+        id: content.id,
+        contentnode_id: content.contentnode_id,
+      })
+        .then(Vue.delete(downloadRequestMap, content.id))
+        .then(set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap).length));
     });
     return Promise.resolve();
   }
@@ -151,6 +138,7 @@ export default function useDownloadRequests(store) {
     fetchDownloadsStorageInfo,
     downloadRequestMap,
     addDownloadRequest,
+    loading,
     removeDownloadRequest,
     removeDownloadsRequest,
     downloadRequestsTranslator,

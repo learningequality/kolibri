@@ -36,7 +36,6 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
-from rest_framework.mixins import DestroyModelMixin
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
@@ -51,6 +50,7 @@ from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.utils.content_types_tools import (
@@ -1326,9 +1326,7 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
-class ContentDownloadRequestViewset(
-    ReadOnlyValuesViewset, CreateModelMixin, DestroyModelMixin
-):
+class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSeralizer
 
     pagination_class = OptionalPageNumberPagination
@@ -1348,16 +1346,20 @@ class ContentDownloadRequestViewset(
         return ContentDownloadRequest.objects.filter(source_id=self.request.user.id)
 
     def annotate_queryset(self, queryset):
-        return queryset.annotate(
-            has_removal=Exists(
-                ContentRemovalRequest.objects.filter(
-                    source_model=OuterRef("source_model"),
-                    source_id=OuterRef("source_id"),
-                    contentnode_id=OuterRef("contentnode_id"),
-                    requested_at__gte=OuterRef("requested_at"),
+        return (
+            queryset.annotate(
+                has_removal=Exists(
+                    ContentRemovalRequest.objects.filter(
+                        source_model=OuterRef("source_model"),
+                        source_id=OuterRef("source_id"),
+                        contentnode_id=OuterRef("contentnode_id"),
+                        requested_at__gte=OuterRef("requested_at"),
+                    )
                 )
             )
-        ).filter(has_removal=False)
+            .filter(has_removal=False)
+            .exclude(status=ContentRequestStatus.Failed)
+        )
 
     def delete(self, request, *args, **kwargs):
         contentnode_id = request.data.get("contentnode_id")
@@ -1368,20 +1370,15 @@ class ContentDownloadRequestViewset(
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
-        download_request = ContentDownloadRequest.objects.filter(
-            contentnode_id=contentnode_id,
-            source_id=request.user.id,
-        )
-
-        if download_request.exists():
-            download_request.delete()
-
         existing_deletion_request = ContentRemovalRequest.objects.filter(
             contentnode_id=contentnode_id,
             source_id=request.user.id,
         ).first()
 
         if existing_deletion_request:
+            if existing_deletion_request.status == ContentRequestStatus.Failed:
+                existing_deletion_request.status = ContentRequestStatus.Pending
+                existing_deletion_request.save()
             return Response(status=status.HTTP_200_OK)
 
         content_request = ContentRemovalRequest.build_for_user(request.user)

@@ -2,7 +2,6 @@
 
   <AppBarPage
     :title="coreString('myDownloadsLabel')"
-    :loading="downloadsLoading.value || storageLoading.value"
   >
     <KPageContainer class="container">
       <h1> {{ coreString('myDownloadsLabel') }} </h1>
@@ -38,11 +37,13 @@
           <SortFilter />
         </KGridItem>
       </KGrid>
+      <KCircularLoader v-if="loading" />
       <DownloadsList
-        :downloads="downloads || {}"
-        :totalDownloads="totalDownloads"
+        v-else
+        :downloads="sortedFilteredDownloads()"
+        :totalDownloads="sortedFilteredDownloads().length"
         :totalPageNumber="totalPageNumber"
-        :loading="downloadsLoading.value"
+        :loading="false"
         @removeResources="removeResources"
       />
     </KPageContainer>
@@ -76,6 +77,8 @@
     setup() {
       const {
         downloadRequestMap,
+        totalStorage,
+        loading,
         fetchUserDownloadRequests,
         fetchDownloadsStorageInfo,
         removeDownloadRequest,
@@ -89,25 +92,58 @@
       const pageNumber = computed(() => Number(query.value.page || 1));
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
-      const sort = computed(() => query.value.sort || 'newest');
-
-      const downloadsLoading = ref(true);
-      const downloads = ref({});
-      const totalDownloads = ref(0);
+      const sort = computed(() => query.value.sort);
+      const totalDownloads = ref(25);
       const totalPageNumber = ref(0);
-      const totalStorage = ref(0);
+
       const fetchDownloads = () => {
-        const loadingFetch = fetchUserDownloadRequests({
+        fetchUserDownloadRequests({
           sort: sort.value,
           page: pageNumber.value,
           pageSize: pageSizeNumber.value,
           activityType: activityType.value,
         });
-        set(downloadsLoading, loadingFetch);
-        set(downloads, downloadRequestMap.downloads);
+      };
+      const sortedFilteredDownloads = () => {
+        let downloadsToDisplay;
+        if (downloadRequestMap && downloadRequestMap.value.length > 0) {
+          downloadsToDisplay = downloadRequestMap.value;
+          if (sort) {
+            switch (sort.value) {
+              case 'newest':
+                downloadsToDisplay.sort(
+                  (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
+                );
+                break;
+              case 'oldest':
+                downloadsToDisplay.sort(
+                  (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
+                );
+                break;
+              case 'smallest':
+                downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
+                break;
+              case 'largest':
+                downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
+                break;
+              default:
+                // If no valid sort option provided, return unsorted array
+                break;
+            }
+          }
+          if (activityType) {
+            if (activityType.value !== 'all') {
+              downloadsToDisplay = downloadsToDisplay.filter(download =>
+                download.metadata.learning_activities.includes(activityType.value)
+              );
+            }
+          }
+        }
+        set(totalPageNumber, Math.ceil(downloadsToDisplay.length / pageSizeNumber.value));
+        set(totalDownloads, downloadsToDisplay.length);
+        return downloadsToDisplay;
       };
       fetchDownloads();
-
       const storageLoading = ref(true);
       const storage = ref({});
       const fetchStorageInfo = () => {
@@ -117,29 +153,23 @@
       };
       fetchStorageInfo();
 
-      watch(route, fetchDownloads);
-      watch(downloadRequestMap, () => {
-        set(downloads, downloadRequestMap.downloads);
-        set(totalDownloads, downloadRequestMap.totalDownloads);
-        set(totalPageNumber, downloadRequestMap.totalPageNumber);
-        set(totalStorage, downloadRequestMap.totalStorage);
-      });
+      watch(route, sortedFilteredDownloads);
 
       return {
-        downloads,
-        downloadsLoading,
+        downloadRequestMap,
+        loading,
         totalDownloads,
         totalPageNumber,
         totalStorage,
         storage,
         storageLoading,
+        sortedFilteredDownloads,
         removeDownloadRequest,
         removeDownloadsRequest,
       };
     },
     methods: {
       formattedSize(size) {
-        console.log(size);
         if (size > 0) {
           return bytesForHumans(size);
         } else {
@@ -148,7 +178,7 @@
       },
       removeResources(resources) {
         if (resources.length === 1) {
-          this.removeDownloadRequest({ id: resources[0] });
+          this.removeDownloadRequest(resources[0]);
         } else {
           this.removeDownloadsRequest(resources.map(resource => ({ id: resource })));
         }

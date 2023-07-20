@@ -25,21 +25,24 @@
           <th> {{ coreString('dateAdded') }} </th>
         </template>
         <template #tbody>
-          <tbody>
+          <tbody v-if="!loading">
             <tr
-              v-for="download in Object.values(downloads)"
-              :key="download.id"
+              v-for="download in paginatedDownloads"
+              :key="download.contentnode_id"
+              :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
             >
               <td>
                 <KCheckbox
-                  :checked="resourceIsSelected(download.id)"
+                  :checked="resourceIsSelected(download)"
                   class="download-checkbox"
-                  @change="handleCheckResource(download.id, $event)"
+                  :disabled="nonCompleteStatus(download)"
+                  @change="handleCheckResource(download, $event)"
                 >
                   <KLabeledIcon
                     v-if="download.metadata"
                     :icon="getIcon(download.metadata.learning_activities)"
                     :label="download.metadata.title"
+                    :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
                   />
                 </KCheckbox>
               </td>
@@ -47,20 +50,33 @@
                 {{ formattedResourceSize(download) }}
               </td>
               <td>
-                {{ formattedTime(download) }}
+                <KIcon
+                  :icon="downloadStatusIcon(download)"
+                  :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
+                  class="icon"
+                />
+                <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
               </td>
               <td class="resource-action">
-                <KExternalLink
+                <KButton
+                  v-if="nonCompleteStatus(download)"
                   :text="coreString('viewAction')"
                   appearance="flat-button"
-                  :href="genExternalContentURLBackLinkCurrentPage(download.id)"
+                  :disabled="true"
+                />
+                <KExternalLink
+                  v-else
+                  :text="coreString('viewAction')"
+                  appearance="flat-button"
+                  :href="genExternalContentURLBackLinkCurrentPage(download)"
                 />
               </td>
               <td class="resource-action">
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
-                  @click="removeResource(download.id)"
+                  :disabled="nonCompleteStatus(download)"
+                  @click="removeResource(download)"
                 />
               </td>
             </tr>
@@ -120,7 +136,7 @@
     },
     props: {
       downloads: {
-        type: Object,
+        type: Array,
         required: true,
       },
       totalDownloads: {
@@ -174,8 +190,12 @@
           });
         },
       },
+      paginatedDownloads() {
+        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+        const endIndex = startIndex + this.itemsPerPage;
+        return this.downloads.slice(startIndex, endIndex);
+      },
       areAllSelected() {
-        console.log(this.downloads);
         return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
       },
     },
@@ -199,6 +219,9 @@
       },
     },
     methods: {
+      nonCompleteStatus(download) {
+        return download.status !== 'COMPLETED';
+      },
       selectAll() {
         if (this.areAllSelected) {
           this.selectedDownloads = this.selectedDownloads.filter(
@@ -233,12 +256,44 @@
       getIcon(activities) {
         return this.getLearningActivityIcon(activities);
       },
-      formattedTime(download) {
-        const datetime = download.requested_at;
-        if (this.now - datetime < 10000) {
-          return this.coreString('justNow');
+      downloadStatusIcon(download) {
+        let icon;
+        switch (download.status) {
+          case 'PENDING':
+            icon = 'timer';
+            break;
+          case 'FAILED':
+            icon = 'error';
+            break;
+          default:
+            // If no valid sort option provided, return unsorted array
+            break;
         }
-        return this.$formatRelative(datetime, { now: this.now });
+        return icon;
+      },
+      formattedDownloadStatus(download) {
+        let message = '';
+        switch (download.status) {
+          case 'PENDING':
+            message = this.coreString('waitingToDownload');
+            break;
+          case 'IN_PROGRESS':
+            message = this.coreString('inProgress');
+            break;
+          case 'COMPLETED' && this.now - download.requested_at < 10000:
+            message = this.coreString('justNow');
+            break;
+          case 'COMPLETED':
+            message = this.$formatRelative(download.requested_at, { now: this.now });
+            break;
+          case 'FAILED':
+            message = this.coreString('downloadFailedWillRetry');
+            break;
+          default:
+            // If no valid sort option provided, return unsorted array
+            break;
+        }
+        return message;
       },
       formattedResourceSize(download) {
         if (download.metadata && download.metadata.file_size) {
@@ -275,6 +330,17 @@
   .resource-action {
     max-width: 70px !important;
     text-align: right;
+  }
+
+  .icon {
+    width: 24px !important;
+    height: 24px !important;
+  }
+
+  .status-text {
+    position: relative;
+    top: -4px;
+    padding: 8px;
   }
 
 </style>
