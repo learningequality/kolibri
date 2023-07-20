@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="container">
     <UiAlert :dismissible="false" class="alert" type="error">
       <span>{{ $tr('rendererNotAvailable') }}</span><br>
       <KButton
@@ -8,6 +8,10 @@
         appearance="basic-link"
         :text="appErrorTranslator.$tr('defaultErrorReportPrompt')"
         @click="showDetailsModal = true"
+      />
+      <DownloadButton
+        class="download-button"
+        :files="files"
       />
     </UiAlert>
     <ReportErrorModal
@@ -26,10 +30,12 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import AppError from 'kolibri-common/components/AppError';
   import ReportErrorModal from 'kolibri-common/components/AppError/ReportErrorModal';
+  import DownloadButton from './DownloadButton';
 
   export default {
     name: 'ContentRendererError',
     components: {
+      DownloadButton,
       ReportErrorModal,
       UiAlert,
     },
@@ -37,6 +43,10 @@
       error: {
         type: Object,
         default: null,
+      },
+      files: {
+        type: Array,
+        default: () => [],
       },
     },
     data() {
@@ -60,6 +70,16 @@
 
 
 <style scoped>
+  .container {
+    background: rgba(0, 0, 0, 0.7);
+    height: 100%;
+    width: 100%;
+  }
+
+  .download-button {
+    float: right;
+  }
+
   .alert {
     margin: 8px;
     text-align: left;
