@@ -21,7 +21,6 @@
 <script>
 
   import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { getFilePresetString } from './filePresetStrings';
   import { getRenderableFiles } from './utils';
 
@@ -32,10 +31,6 @@
         type: Array,
         default: () => [],
       },
-      contentKind: {
-        type: String,
-        default: '',
-      },
       nodeTitle: {
         type: String,
         default: '',
@@ -43,14 +38,10 @@
     },
     computed: {
       downloadableFiles() {
-        return getRenderableFiles(this.files);
+        return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
       },
       canDownload() {
-        return (
-          this.downloadableFiles.length &&
-          this.contentKind !== ContentNodeKinds.EXERCISE &&
-          !isEmbeddedWebView
-        );
+        return !isEmbeddedWebView && this.downloadableFiles.length;
       },
       fileOptions() {
         const options = this.files.map(file => {
@@ -59,7 +50,7 @@
             label,
             url: file.storage_url,
             fileName: this.$tr('downloadFilename', {
-              resourceTitle: this.nodeTitle,
+              resourceTitle: this.nodeTitle.length ? this.nodeTitle : file.checksum,
               fileExtension: file.extension,
               fileId: file.checksum.slice(0, 6),
             }),

@@ -119,7 +119,6 @@
       v-if="canDownloadContent"
       :files="content.files"
       :nodeTitle="content.title"
-      :contentKind="content.kind"
       class="download-button"
       data-test="download-button"
     />
