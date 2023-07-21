@@ -1346,20 +1346,16 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
         return ContentDownloadRequest.objects.filter(source_id=self.request.user.id)
 
     def annotate_queryset(self, queryset):
-        return (
-            queryset.annotate(
-                has_removal=Exists(
-                    ContentRemovalRequest.objects.filter(
-                        source_model=OuterRef("source_model"),
-                        source_id=OuterRef("source_id"),
-                        contentnode_id=OuterRef("contentnode_id"),
-                        requested_at__gte=OuterRef("requested_at"),
-                    )
-                )
+        return queryset.annotate(
+            has_removal=Exists(
+                ContentRemovalRequest.objects.filter(
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    contentnode_id=OuterRef("contentnode_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                ).exclude(status=ContentRequestStatus.Failed)
             )
-            .filter(has_removal=False)
-            .exclude(status=ContentRequestStatus.Failed)
-        )
+        ).filter(has_removal=False)
 
     def delete(self, request, pk=None):
         request_id = pk
@@ -1392,7 +1388,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             if existing_deletion_request.status == ContentRequestStatus.Failed:
                 existing_deletion_request.status = ContentRequestStatus.Pending
                 existing_deletion_request.save()
-            return Response(status=status.HTTP_200_OK)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
         content_request = ContentRemovalRequest.build_for_user(request.user)
         content_request.contentnode_id = existing_download_request.contentnode_id
