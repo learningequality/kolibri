@@ -96,6 +96,19 @@ class BackgroundJobOperationTestCase(BaseTestCase):
 
 
 class BackgroundInitializeJobOperationTestCase(BaseTestCase):
+    def setUp(self):
+        super(BackgroundInitializeJobOperationTestCase, self).setUp()
+        mock_options = mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+        self.mock_options = mock_options.start()
+        self.addCleanup(mock_options.stop)
+
+        self.mock_options.get.return_value = {
+            "BACKGROUND_INITIALIZATION": True,
+            "BACKGROUND_INITIALIZATION_STAGES": ",".join(
+                [transfer_stages.SERIALIZING, transfer_stages.QUEUING]
+            ),
+        }
+
     def test_should_handle__is_producer(self):
         operation = BackgroundInitializeJobOperation()
         self.context.is_producer = False
@@ -158,6 +171,23 @@ class BackgroundInitializeJobOperationTestCase(BaseTestCase):
 
 
 class BackgroundFinalizeJobOperationTestCase(BaseTestCase):
+    def setUp(self):
+        super(BackgroundFinalizeJobOperationTestCase, self).setUp()
+        mock_options = mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+        self.mock_options = mock_options.start()
+        self.addCleanup(mock_options.stop)
+
+        self.mock_options.get.return_value = {
+            "BACKGROUND_FINALIZATION": True,
+            "BACKGROUND_FINALIZATION_STAGES": ",".join(
+                [
+                    transfer_stages.DEQUEUING,
+                    transfer_stages.DESERIALIZING,
+                    transfer_stages.CLEANUP,
+                ]
+            ),
+        }
+
     def test_should_handle__is_receiver(self):
         operation = BackgroundFinalizeJobOperation()
         self.context.is_receiver = False
