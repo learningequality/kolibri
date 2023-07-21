@@ -26,6 +26,16 @@
         @blur="customThemeNameBlurred = true"
       />
 
+      <UiAlert
+        v-if="showUIAlert"
+        :dismissible="false"
+        :removeIcon="true"
+        type="warning"
+        :style="{ margin: '8px 24px 12px 24px', width: 'auto' }"
+      >
+        {{ $tr('signIn') }}
+      </UiAlert>
+
       <h3 id="theme-preview-h3">
         {{ $tr('customThemePreview') }}
       </h3>
@@ -91,12 +101,15 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import Lockr from 'lockr';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import { mapGetters } from 'vuex';
+  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import ColorPickerModal from './ColorPickerModal';
 
   export default {
     name: 'AddEditCustomThemeModal',
     components: {
       ColorPickerModal,
+      UiAlert,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -134,9 +147,11 @@
         },
         showColorPicker: null,
         existingCustomThemeNames: [],
+        showUIAlert: false,
       };
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
       generateTitle() {
         if (this.modalMode === 'add') {
           return this.$tr('addCustomThemeTitle');
@@ -178,10 +193,11 @@
     methods: {
       handleSubmit() {
         this.submitting = true;
-        if (this.formIsValid) {
+        if (this.formIsValid && this.isUserLoggedIn) {
           this.formSubmitted = true;
           this.$emit('submit', this.tempTheme);
         } else {
+          this.showUIAlert = !this.isUserLoggedIn;
           this.submitting = false;
           this.$refs.customThemeName.focus();
         }
@@ -239,6 +255,11 @@
       customThemeNameLabel: {
         message: 'Theme name',
         context: 'Label for the textbox to enter the name of the custom theme',
+      },
+      signIn: {
+        message: 'Sign in or create an account to save your new theme',
+        context:
+          'Message that a learner will see upon trying to save a custom theme if they are not signed in to Kolibri.',
       },
     },
   };
