@@ -32,7 +32,7 @@ class ContentDownloadRequestViewsetTest(APITestCase):
             },
         }
 
-        request = self.client.post(reverse("kolibri:core:contentdownloadrequest-list"))
+        request = self.client.post(reverse("kolibri:core:contentrequest-list"))
         request.user = self.user
 
         serializer = ContentDownloadRequestSeralizer(
@@ -70,7 +70,7 @@ class ContentDownloadRequestViewsetTest(APITestCase):
             },
         }
 
-        request = self.client.post(reverse("kolibri:core:contentdownloadrequest-list"))
+        request = self.client.post(reverse("kolibri:core:contentrequest-list"))
         request.user = self.user
 
         serializer = ContentDownloadRequestSeralizer(
@@ -79,7 +79,7 @@ class ContentDownloadRequestViewsetTest(APITestCase):
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
-        url = reverse("kolibri:core:contentdownloadrequest-list")
+        url = reverse("kolibri:core:contentrequest-list")
         response = self.client.get(url, format="json")
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
@@ -104,12 +104,12 @@ class ContentDownloadRequestViewsetTest(APITestCase):
 
         # Send two identical creation requests
         self.client.post(
-            reverse("kolibri:core:contentdownloadrequest-list"),
+            reverse("kolibri:core:contentrequest-list"),
             request_data,
             format="json",
         )
         response_2 = self.client.post(
-            reverse("kolibri:core:contentdownloadrequest-list"),
+            reverse("kolibri:core:contentrequest-list"),
             request_data,
             format="json",
         )
@@ -120,71 +120,73 @@ class ContentDownloadRequestViewsetTest(APITestCase):
 
     def test_create_content_removal_request(self):
         self.client.login(username="learner", password="password")
+        # Create a download request first
+        # Prepare the request data
         request_data = {
             "contentnode_id": "877a1b783fd348bfb87559883e60e9bf",
-        }
-
-        response = self.client.delete(
-            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
-        )
-
-        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertTrue(
-            ContentRemovalRequest.objects.filter(
-                contentnode_id=request_data["contentnode_id"]
-            ).exists()
-        )
-
-    def test_no_duplicate_deletion_requests(self):
-        self.client.login(username="learner", password="password")
-
-        request_data = {
-            "contentnode_id": "9dae9116ab3c5c2a8715c0442d9390d3",
-        }
-
-        # Send two identical deletion requests
-        response_1 = self.client.delete(
-            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
-        )
-        response_2 = self.client.delete(
-            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
-        )
-
-        self.assertEqual(response_1.status_code, status.HTTP_204_NO_CONTENT)
-        self.assertEqual(response_2.status_code, status.HTTP_200_OK)
-        self.assertEqual(ContentRemovalRequest.objects.count(), 1)
-
-    def test_new_download_request_deletes_corresponding_removal_request(self):
-        contentnode_id = "877a1b783fd348bfb87559883e60e9bf"
-        # Create a removal request first
-        request_data = {
-            "contentnode_id": contentnode_id,
-        }
-        self.client.delete(
-            reverse("kolibri:core:contentdownloadrequest-list"), data=request_data
-        )
-
-        # Then create a download request with the same contentnode_id
-        request_data = {
-            "contentnode_id": contentnode_id,
             "metadata": {
                 "title": "Sample Title",
                 "file_size": 1024,
                 "learning_activities": ["3dSeJhqs"],
             },
         }
-        response = self.client.post(
-            reverse("kolibri:core:contentdownloadrequest-list"),
-            data=request_data,
-            format="json",
+
+        request = self.client.post(reverse("kolibri:core:contentrequest-list"))
+        request.user = self.user
+
+        serializer = ContentDownloadRequestSeralizer(
+            data=request_data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        content_download_request = serializer.save()
+        self.assertIsNotNone(content_download_request.id)
+
+        # then, delete it
+        response = self.client.delete(
+            reverse("kolibri:core:contentrequest-list"), pk=content_download_request.id
         )
 
-        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
-        self.assertFalse(
-            ContentRemovalRequest.objects.filter(contentnode_id=contentnode_id).exists()
-        )
+        self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
         self.assertTrue(
-            ContentDownloadRequest.objects.filter(
-                contentnode_id=contentnode_id
+            ContentRemovalRequest.objects.filter(
+                id=content_download_request.id
             ).exists()
         )
+
+    def test_no_duplicate_deletion_requests(self):
+        self.client.login(username="learner", password="password")
+
+        # Create a download request first
+        # Prepare the request data
+        request_data = {
+            "contentnode_id": "877a1b783fd348bfb87559883e60e9bf",
+            "metadata": {
+                "title": "Sample Title",
+                "file_size": 1024,
+                "learning_activities": ["3dSeJhqs"],
+            },
+        }
+
+        request = self.client.post(reverse("kolibri:core:contentrequest-list"))
+        request.user = self.user
+
+        serializer = ContentDownloadRequestSeralizer(
+            data=request_data, context={"request": request}
+        )
+        serializer.is_valid(raise_exception=True)
+
+        content_download_request = serializer.save()
+
+        # then, delete it
+        request_id = content_download_request.id
+        response_1 = self.client.delete(
+            reverse("kolibri:core:contentrequest-list"), pk=request_id
+        )
+        response_2 = self.client.delete(
+            reverse("kolibri:core:contentrequest-list"), pk=request_id
+        )
+
+        self.assertEqual(response_1.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(response_2.status_code, status.HTTP_204_NO_CONTENT)
+        self.assertEqual(ContentRemovalRequest.objects.count(), 1)
