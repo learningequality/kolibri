@@ -1361,17 +1361,30 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             .exclude(status=ContentRequestStatus.Failed)
         )
 
-    def delete(self, request, *args, **kwargs):
-        contentnode_id = request.data.get("contentnode_id")
+    def delete(self, request, pk=None):
+        request_id = pk
 
-        if contentnode_id is None:
+        if request_id is None:
             return Response(
-                {"detail": "Contentnode ID is required"},
+                {"detail": "Request ID is required"},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        existing_download_request = (
+            existing_deletion_request
+        ) = ContentRemovalRequest.objects.filter(
+            id=request_id,
+            source_id=request.user.id,
+        ).first()
+
+        if existing_download_request is None:
+            return Response(
+                {"detail": "No existing download request found"},
+                status=status.HTTP_204_NO_CONTENT,
+            )
+
         existing_deletion_request = ContentRemovalRequest.objects.filter(
-            contentnode_id=contentnode_id,
+            id=request_id,
             source_id=request.user.id,
         ).first()
 
@@ -1382,7 +1395,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             return Response(status=status.HTTP_200_OK)
 
         content_request = ContentRemovalRequest.build_for_user(request.user)
-        content_request.contentnode_id = contentnode_id
+        content_request.contentnode_id = existing_download_request.contentnode_id
         content_request.save()
 
         automatic_resource_import.enqueue()

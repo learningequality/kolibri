@@ -243,8 +243,8 @@
       resourceIsSelected(id) {
         return this.selectedDownloads.indexOf(id) !== -1;
       },
-      removeResource(id) {
-        this.resourcesToDelete = [id];
+      removeResource(download) {
+        this.$emit('removeResources', [download]);
       },
       removeResources() {
         this.$emit('removeResources', this.resourcesToDelete);
