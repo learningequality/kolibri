@@ -8,6 +8,7 @@ from . import errors
 from .urls import get_normalized_url_variations
 from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
+import kolibri
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
@@ -47,6 +48,9 @@ class NetworkClient(requests.Session):
         self.session = None
         self.device_info = None
         self.remote_ip = None
+        self.headers.update({
+            'User-Agent': get_user_agent(),
+        })
 
     @classmethod
     def build_for_address(cls, address, timeout=None):
@@ -241,3 +245,12 @@ class NetworkClient(requests.Session):
             return False
 
         return True
+
+
+def get_user_agent():
+    # get requests default user agent
+    s = requests.Session()
+    requests_user_agent = s.headers['User-Agent']
+
+    # updated useragent format: User-Agent: <product>/<product-version> <requests user agent>
+    return "Kolibri/{0} {1}".format(kolibri.__version__, requests_user_agent)
