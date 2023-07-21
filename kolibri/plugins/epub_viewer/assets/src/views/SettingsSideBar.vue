@@ -128,23 +128,23 @@
         @cancel="deleteCustomThemeName = null"
       />
 
-      <CustomThemeColorsModal
+      <!-- <CustomThemeColorsModal
         v-if="addCustomTheme || editCustomThemeName"
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :themeName="editCustomThemeName"
         :theme="editCustomThemeName ? editCustomTheme : theme"
         @submit="addNewTheme($event)"
         @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
-      />
+      /> -->
 
-      <!-- <AddEditCustomThemeModal
+      <AddEditCustomThemeModal
         v-if="addCustomTheme || editCustomThemeName"
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :theme="addCustomTheme ? theme : editCustomTheme"
         :themeName="addCustomTheme ? addCustomTheme : editCustomThemeName"
         @submit="addNewTheme($event)"
         @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
-      /> -->
+      />
     </div>
   </SideBar>
 
@@ -162,10 +162,10 @@
   export default {
     name: 'SettingsSideBar',
     components: {
-    SideBar,
-    DeleteCustomThemeModal,
-    AddEditCustomThemeModal
-},
+      SideBar,
+      DeleteCustomThemeModal,
+      AddEditCustomThemeModal,
+    },
     props: {
       theme: {
         type: Object,

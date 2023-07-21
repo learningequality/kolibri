@@ -1,8 +1,9 @@
 <template>
+
   <div>
     <!-- Modal of theme options -->
     <KModal
-      v-show="true"
+      v-if="!showColorPicker"
       :title="generateTitle"
       :submitText="coreString('saveAction')"
       :cancelText="coreString('cancelAction')"
@@ -39,8 +40,8 @@
         </p>
       </div>
 
-      <div id="themeColorsContainer" :class="{ 'color-select-container-mobile': windowIsSmall }">
-        <div id="themeBackgroundColorContainer" class="theme-option-container">
+      <div :class="{ 'color-select-container-mobile': windowIsSmall }">
+        <div class="theme-option-container">
           <KButton
             class="theme-color-button"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.backgroundColor)"
@@ -49,7 +50,7 @@
           <p>{{ $tr('themeBackgroundColorButtonDescription') }}</p>
         </div>
 
-        <div id="themeTextColorContainer" class="theme-option-container">
+        <div class="theme-option-container">
           <KButton
             class="theme-color-button"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.textColor)"
@@ -58,7 +59,7 @@
           <p>{{ $tr('themeTextColorButtonDescription') }}</p>
         </div>
 
-        <div id="themeLinkColorContainer" class="theme-option-container">
+        <div class="theme-option-container">
           <KButton
             class="theme-color-button"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.linkColor)"
@@ -70,28 +71,33 @@
 
     </KModal>
 
-    <!-- modal of color pick -->
-    <KModal
-      v-show="false"
-      :title="generateTitle"
-      :submitText="coreString('saveAction')"
-      :cancelText="coreString('cancelAction')"
-      :disabled="submitting"
-      @submit="handleSubmit"
-      @cancel="$emit('cancel')"
-    >
-      <p>this is color picker</p>
-    </KModal>
+    <!-- modal of color picker -->
+    <ColorPickerModal
+      v-if="showColorPicker"
+      :colorPicker="showColorPicker"
+      :color="tempTheme[showColorPicker]"
+      @submit="setThemeColor($event)"
+      @cancel="showColorPicker = null"
+    />
+    <!-- @submit="setThemeColor($event)" -->
+
   </div>
+
 </template>
 
+
 <script>
+
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import Lockr from 'lockr';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import ColorPickerModal from './ColorPickerModal';
 
   export default {
     name: 'AddEditCustomThemeModal',
+    components: {
+      ColorPickerModal,
+    },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
@@ -126,9 +132,9 @@
           textColor: this.theme.textColor,
           linkColor: this.theme.linkColor || '#0000EE', //because fixed themes dont have a link color
         },
-        showColorPicker: '',
+        showColorPicker: null,
         existingCustomThemeNames: [],
-      }
+      };
     },
     computed: {
       generateTitle() {
@@ -159,9 +165,11 @@
       },
     },
     mounted() {
-      this.existingCustomThemeNames = Object.keys(Lockr.get('kolibriEpubRendererCustomThemes') || {});
-      //if the modalMode is 'edit', 
-        //remove the name of the theme being edited from the list of existing names
+      this.existingCustomThemeNames = Object.keys(
+        Lockr.get('kolibriEpubRendererCustomThemes') || {}
+      );
+      //if the modalMode is 'edit',
+      //remove the name of the theme being edited from the list of existing names
       if (this.modalMode === 'edit') {
         const selectedThemeIndex = this.existingCustomThemeNames.indexOf(this.themeName);
         this.existingCustomThemeNames.splice(selectedThemeIndex, 1);
@@ -172,7 +180,7 @@
         this.submitting = true;
         if (this.formIsValid) {
           this.formSubmitted = true;
-          this.$emit('submit',this.tempTheme);
+          this.$emit('submit', this.tempTheme);
         } else {
           this.submitting = false;
           this.$refs.customThemeName.focus();
@@ -186,45 +194,57 @@
             opacity: 0.9,
             boxShadow: '0 1px 4px',
           },
+        };
+      },
+      setThemeColor(color) {
+        if (this.showColorPicker == 'backgroundColor') {
+          this.tempTheme.backgroundColor = color.hex;
+        } else if (this.showColorPicker == 'textColor') {
+          this.tempTheme.textColor = color.hex;
+        } else if (this.showColorPicker == 'linkColor') {
+          this.tempTheme.linkColor = color.hex;
         }
+        this.showColorPicker = null;
       },
     },
     $trs: {
       customThemePreview: {
         message: 'Theme preview',
-        context: 'Heading for the preview of the custom theme that is being created or edited'
+        context: 'Heading for the preview of the custom theme that is being created or edited',
       },
       themeBackgroundColorButtonDescription: {
         message: 'Background',
-        context: 'Description of the button to change the background color of the custom theme'
+        context: 'Description of the button to change the background color of the custom theme',
       },
       themeTextColorButtonDescription: {
         message: 'Text',
-        context: 'Description of the button to change the text color of the custom theme'
+        context: 'Description of the button to change the text color of the custom theme',
       },
       themeLinkColorButtonDescription: {
         message: 'Links',
-        context: 'Description of the button to change the link color of the custom theme'
+        context: 'Description of the button to change the link color of the custom theme',
       },
       addCustomThemeTitle: {
         message: 'Add new theme',
-        context: 'Title of the modal to add a new custom theme'
+        context: 'Title of the modal to add a new custom theme',
       },
       editCustomThemeTitle: {
         message: 'Edit theme',
-        context: 'Title of the modal to edit an existing custom theme'
+        context: 'Title of the modal to edit an existing custom theme',
       },
       duplicateCustomThemeName: {
         message: 'A theme with this name already exists',
-        context: 'Error message when trying to add a custom theme with a name that already exists'
+        context: 'Error message when trying to add a custom theme with a name that already exists',
       },
       customThemeNameLabel: {
         message: 'Theme name',
-        context: 'Label for the textbox to enter the name of the custom theme'
+        context: 'Label for the textbox to enter the name of the custom theme',
       },
-    }
-  }
+    },
+  };
+
 </script>
+
 
 <style>
 
