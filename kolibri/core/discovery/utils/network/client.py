@@ -248,9 +248,4 @@ class NetworkClient(requests.Session):
 
 
 def get_user_agent():
-    # get requests default user agent
-    s = requests.Session()
-    requests_user_agent = s.headers['User-Agent']
-
-    # updated useragent format: User-Agent: <product>/<product-version> <requests user agent>
-    return "Kolibri/{0} {1}".format(kolibri.__version__, requests_user_agent)
+    return "Kolibri/{0} python-requests/{1}".format(kolibri.__version__, requests.__version__)
