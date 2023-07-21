@@ -94,81 +94,21 @@ class BackgroundJobOperationTestCase(BaseTestCase):
         with self.assertRaises(MorangoSkipOperation):
             operation.should_handle(context)
 
-    def test_initialize_should_handle__is_producer(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_producer = False
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-
-    def test_initialize_should_handle__async_capability(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_producer = True
-        self.context.is_push = False
-        self.assertNotIn(capabilities.ASYNC_OPERATIONS, self.context.capabilities)
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-
-    def test_initialize_should_handle__stage(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_push = False
-        self.context.capabilities = {capabilities.ASYNC_OPERATIONS}
-        self.context.stage = transfer_stages.INITIALIZING
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-        self.context.stage = transfer_stages.TRANSFERRING
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-
-    def test_initialize_handle__completed(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_push = False
-        self.context.capabilities = {capabilities.ASYNC_OPERATIONS}
-        self.context.stage = transfer_stages.QUEUING
-
-        with mock.patch.object(operation, "_get_or_queue_job") as mock_job:
-            mock_job.return_value = State.COMPLETED
-            self.assertEqual(
-                transfer_statuses.COMPLETED, operation.handle(self.context)
-            )
-            mock_job.assert_called_once_with(self.context, self.context.stage)
-
-    def test_initialize_handle__completed_incompletely(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_push = False
-        self.context.capabilities = {capabilities.ASYNC_OPERATIONS}
-        self.context.stage = transfer_stages.QUEUING
-
-        with mock.patch.object(operation, "_get_or_queue_job") as mock_job:
-            mock_job.return_value = State.CANCELED
-            self.assertEqual(transfer_statuses.ERRORED, operation.handle(self.context))
-            mock_job.assert_called_once_with(self.context, self.context.stage)
-
-    def test_initialize_handle__started(self):
-        operation = BackgroundInitializeJobOperation()
-        self.context.is_push = False
-        self.context.capabilities = {capabilities.ASYNC_OPERATIONS}
-        self.context.stage = transfer_stages.QUEUING
-
-        with mock.patch.object(operation, "_get_or_queue_job") as mock_job:
-            mock_job.return_value = State.RUNNING
-            self.assertEqual(transfer_statuses.PENDING, operation.handle(self.context))
-            mock_job.assert_called_once_with(self.context, self.context.stage)
-
-    def test_finalize_should_handle__is_receiver(self):
-        operation = BackgroundFinalizeJobOperation()
-        self.context.is_receiver = False
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-
-    def test_finalize_should_handle__stage(self):
-        operation = BackgroundFinalizeJobOperation()
-        self.context.is_receiver = False
-        self.context.stage = transfer_stages.TRANSFERRING
-        with self.assertRaises(MorangoSkipOperation):
-            operation.handle(self.context)
-
 
 class BackgroundInitializeJobOperationTestCase(BaseTestCase):
+    def setUp(self):
+        super(BackgroundInitializeJobOperationTestCase, self).setUp()
+        mock_options = mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+        self.mock_options = mock_options.start()
+        self.addCleanup(mock_options.stop)
+
+        self.mock_options.get.return_value = {
+            "BACKGROUND_INITIALIZATION": True,
+            "BACKGROUND_INITIALIZATION_STAGES": ",".join(
+                [transfer_stages.SERIALIZING, transfer_stages.QUEUING]
+            ),
+        }
+
     def test_should_handle__is_producer(self):
         operation = BackgroundInitializeJobOperation()
         self.context.is_producer = False
@@ -231,6 +171,23 @@ class BackgroundInitializeJobOperationTestCase(BaseTestCase):
 
 
 class BackgroundFinalizeJobOperationTestCase(BaseTestCase):
+    def setUp(self):
+        super(BackgroundFinalizeJobOperationTestCase, self).setUp()
+        mock_options = mock.patch("kolibri_sync_extras_plugin.sync.operations.OPTIONS")
+        self.mock_options = mock_options.start()
+        self.addCleanup(mock_options.stop)
+
+        self.mock_options.get.return_value = {
+            "BACKGROUND_FINALIZATION": True,
+            "BACKGROUND_FINALIZATION_STAGES": ",".join(
+                [
+                    transfer_stages.DEQUEUING,
+                    transfer_stages.DESERIALIZING,
+                    transfer_stages.CLEANUP,
+                ]
+            ),
+        }
+
     def test_should_handle__is_receiver(self):
         operation = BackgroundFinalizeJobOperation()
         self.context.is_receiver = False

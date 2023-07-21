@@ -18,14 +18,14 @@ jobs:
   unit_test:
     name: Python unit tests
     needs: pre_job
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-22.04
     steps:
     - uses: actions/checkout@v2
-    - name: Set up Python 3.8
+    - name: Set up Python 3.9
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.9
     - name: Install dependencies
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
@@ -37,7 +37,7 @@ jobs:
       uses: actions/cache@v2
       with:
         path: ~/.cache/pip
-        key: py3.8-${{ hashFiles('requirements*.txt') }}
+        key: py3.9-${{ hashFiles('requirements*.txt') }}
     - name: Install and enable kolibri_sync_extras plugin
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       env:

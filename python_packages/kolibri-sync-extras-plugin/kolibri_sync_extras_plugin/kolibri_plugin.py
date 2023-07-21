@@ -41,5 +41,5 @@ class SyncExtrasPluginHook(FacilityDataSyncHook):
     serializing_operations = property(get_initialize_operations)
     queuing_operations = property(get_initialize_operations)
     dequeuing_operations = property(get_finalize_operations)
-    deserializing_operations = property(get_initialize_operations)
+    deserializing_operations = property(get_finalize_operations)
     cleanup_operations = property(get_finalize_operations)
