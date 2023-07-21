@@ -28,37 +28,33 @@ const downloadRequestsTranslator = createTranslator('DownloadRequests', {
 
 // The reactive is defined in the outer scope so it can be used as a shared store
 const downloadRequestMap = reactive({});
-const totalStorage = ref(0);
 const loading = ref(true);
+const availableSpace = ref(0);
 
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
   function fetchUserDownloadRequests(params) {
-    const storage = 0;
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
         set(downloadRequestMap, downloadRequests);
-        set(totalStorage, storage);
         set(loading, false);
-      }, 500)
+      })
       .then(store.dispatch('notLoading'));
   }
 
-  function fetchDownloadsStorageInfo() {
+  function fetchAvailableFreespace() {
     const loading = ref(true);
-    const storageInfo = ref(null);
-    let freespace = 0;
+    const freespace = 0;
     client({
       url: `${urls['kolibri:core:freespace']()}`,
       params: { path: 'Content' },
     })
-      .then(resp => (freespace = resp.data.freespace))
+      .then(resp => {
+        set(availableSpace, resp.data.freespace);
+        set(loading, false);
+      })
       .catch(() => -1);
-    setTimeout(() => {
-      set(storageInfo, freespace);
-      set(loading, false);
-    }, 600);
-    return { loading, storageInfo };
+    return freespace;
   }
 
   function navigateToDownloads() {
@@ -99,9 +95,7 @@ export default function useDownloadRequests(store) {
     ContentRequestResource.deleteModel({
       id: content.id,
       contentnode_id: content.contentnode_id,
-    })
-      .then(Vue.delete(downloadRequestMap, content.id))
-      .then(set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap).length));
+    }).then(Vue.delete(downloadRequestMap, content.id));
     return Promise.resolve();
   }
 
@@ -110,9 +104,7 @@ export default function useDownloadRequests(store) {
       ContentRequestResource.deleteModel({
         id: content.id,
         contentnode_id: content.contentnode_id,
-      })
-        .then(Vue.delete(downloadRequestMap, content.id))
-        .then(set(downloadRequestMap, 'totalDownloads', Object.keys(downloadRequestMap).length));
+      }).then(Vue.delete(downloadRequestMap, content.id));
     });
     return Promise.resolve();
   }
@@ -135,7 +127,8 @@ export default function useDownloadRequests(store) {
 
   return {
     fetchUserDownloadRequests,
-    fetchDownloadsStorageInfo,
+    fetchAvailableFreespace,
+    availableSpace,
     downloadRequestMap,
     addDownloadRequest,
     loading,

@@ -14,17 +14,17 @@
             <tr>
               <th> {{ coreString('totalSizeMyDownloads') }} </th>
               <td
-                v-if="!storageLoading.value"
+                v-if="!loading"
               >
-                {{ formattedSize(totalStorage) }}
+                {{ formattedSize(sizeOfMyDownloads) }}
               </td>
             </tr>
             <tr>
               <th> {{ coreString('availableStorage') }}</th>
               <td
-                v-if="!storageLoading.value"
+                v-if="!loading"
               >
-                {{ formattedSize(storage.value) }}
+                {{ formattedSize(availableSpace) }}
               </td>
             </tr>
           </table>
@@ -77,10 +77,10 @@
     setup() {
       const {
         downloadRequestMap,
-        totalStorage,
         loading,
         fetchUserDownloadRequests,
-        fetchDownloadsStorageInfo,
+        fetchAvailableFreespace,
+        availableSpace,
         removeDownloadRequest,
         removeDownloadsRequest,
       } = useDownloadRequests();
@@ -93,7 +93,6 @@
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort);
-      const totalDownloads = ref(25);
       const totalPageNumber = ref(0);
 
       const fetchDownloads = () => {
@@ -140,33 +139,33 @@
           }
         }
         set(totalPageNumber, Math.ceil(downloadsToDisplay.length / pageSizeNumber.value));
-        set(totalDownloads, downloadsToDisplay.length);
         return downloadsToDisplay;
       };
       fetchDownloads();
-      const storageLoading = ref(true);
-      const storage = ref({});
-      const fetchStorageInfo = () => {
-        const { loading: loadingFetch, storageInfo } = fetchDownloadsStorageInfo();
-        set(storageLoading, loadingFetch);
-        set(storage, storageInfo);
-      };
-      fetchStorageInfo();
-
+      fetchAvailableFreespace();
       watch(route, sortedFilteredDownloads);
 
       return {
         downloadRequestMap,
         loading,
-        totalDownloads,
+        availableSpace,
         totalPageNumber,
-        totalStorage,
-        storage,
-        storageLoading,
+        fetchAvailableFreespace,
         sortedFilteredDownloads,
         removeDownloadRequest,
         removeDownloadsRequest,
       };
+    },
+    computed: {
+      sizeOfMyDownloads() {
+        let totalSize = 0;
+        if (this.downloadRequestMap && this.downloadRequestMap.value) {
+          this.downloadRequestMap.value.map(
+            item => (totalSize = totalSize + item.metadata.file_size)
+          );
+        }
+        return totalSize;
+      },
     },
     methods: {
       formattedSize(size) {
