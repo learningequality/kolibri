@@ -20,6 +20,7 @@ from kolibri.core.content.utils.resource_import import (
 )
 from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
 from kolibri.core.content.utils.upgrade import diff_stats
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import IncompatibleVersionError
@@ -39,8 +40,8 @@ from kolibri.utils import conf
 from kolibri.utils.translation import ugettext as _
 from kolibri.utils.version import version_matches_range
 
-
 QUEUE = "content"
+SYNC_CANCEL_STATIC_ID = "783"
 
 
 def get_status(job):
@@ -356,6 +357,7 @@ def automatic_resource_import():
 
 
 @register_task(
+    job_id=SYNC_CANCEL_STATIC_ID,
     long_running=True,
     status_fn=get_status,
 )
@@ -365,14 +367,17 @@ def automatic_synchronize_content_requests_and_import():
     - Calls synchronize_content_requests for all facilities/datasets on the device.
     - Enqueues the automatic_resource_import task after synchronizing content requests.
     """
+    # A safety check to see if the device settings are changed already?
+    if get_device_setting("enable_automatic_download", default=False) is True:
+        return
+    else:
+        dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
 
-    dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
+        # Synchronize content requests for each dataset
+        for dataset_id in dataset_ids:
+            synchronize_content_requests(dataset_id, None)
 
-    # Synchronize content requests for each dataset
-    for dataset_id in dataset_ids:
-        synchronize_content_requests(dataset_id, None)
-
-    automatic_resource_import.enqueue()
+        automatic_resource_import.enqueue()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):

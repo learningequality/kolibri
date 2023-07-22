@@ -16,10 +16,13 @@ from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.device.utils import valid_app_key_on_request
+from kolibri.core.tasks.main import job_storage
 from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
+
+SYNC_CANCEL_STATIC_ID = "783"
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
@@ -281,7 +284,13 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                     and automatic_download_enabled
                     != initial_extra_settings.get("enable_automatic_download")
                 ):
+                    # Cancel any ongoing syncing before we kick start the new one
+                    job_storage.cancel_if_exists(SYNC_CANCEL_STATIC_ID)
+
                     automatic_synchronize_content_requests_and_import.enqueue()
+                else:
+                    # If the trigger is switched from on to off we need to cancle any ongoing syncing of resources
+                    job_storage.cancel_if_exists(SYNC_CANCEL_STATIC_ID)
 
         instance = super(DeviceSettingsSerializer, self).update(
             instance, validated_data
