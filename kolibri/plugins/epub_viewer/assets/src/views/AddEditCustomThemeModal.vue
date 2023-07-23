@@ -195,7 +195,7 @@
         this.submitting = true;
         if (this.formIsValid && this.isUserLoggedIn) {
           this.formSubmitted = true;
-          this.$emit('submit', this.tempTheme);
+          this.$emit('submit', { ...this.tempTheme, name: this.customThemeName });
         } else {
           this.showUIAlert = !this.isUserLoggedIn;
           this.submitting = false;
