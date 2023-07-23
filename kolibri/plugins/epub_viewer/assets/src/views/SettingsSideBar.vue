@@ -257,6 +257,9 @@
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.deleteCustomThemeName = null;
+        if (themeName === this.theme.name) {
+          this.$emit('setTheme', this.themes.WHITE); // apply the default theme
+        }
       },
     },
     $trs: {
