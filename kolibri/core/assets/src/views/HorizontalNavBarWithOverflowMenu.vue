@@ -120,7 +120,6 @@
   @import '~kolibri-design-system/lib/styles/definitions';
 
   .menu-icon {
-    position: absolute;
     right: 4px;
   }
 
