@@ -169,7 +169,7 @@ def main():
     plugin_path = os.path.realpath(args.plugin_path)
 
     # Add our plugin_path to the path
-    sys.path.append(plugin_path)
+    sys.path.insert(0, plugin_path)
 
     # Put environment variable setting first to allow customized builds within buildkite through env vars
     if "BUILD_TIME_PLUGINS" in os.environ and os.environ["BUILD_TIME_PLUGINS"]:

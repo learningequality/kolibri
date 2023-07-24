@@ -28,6 +28,18 @@
     }{% if not forloop.last %},{% endif %}
 {% endfor %}
   ],
+  "related_applications": [
+{% for app in related_applications %}
+    {
+      "platform": "{{ app.platform|escapejs }}",
+      "id": "{{ app.id|escapejs }}",
+      "url": "{{ app.url|escapejs }}"
+    }{% if not forloop.last %},{% endif %}
+{% endfor %}
+  ],
+{% if prefer_related_applications %}
+  "prefer_related_applications": true,
+{% endif %}
   "id": "{{ id|escapejs }}",
   "start_url": "{% url 'kolibri:core:root_redirect'|escapejs %}",
   "background_color": "{{ background_color|escapejs }}",

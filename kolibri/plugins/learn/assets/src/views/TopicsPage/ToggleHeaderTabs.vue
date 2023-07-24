@@ -90,7 +90,6 @@
         // navigates the main page to the search view
         if (this.topic) {
           const query = { ...this.$route.query };
-          delete query.dropdown;
           return {
             name: PageNames.TOPICS_TOPIC_SEARCH,
             params: {

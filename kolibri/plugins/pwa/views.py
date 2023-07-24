@@ -7,6 +7,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from urllib.parse import quote
+
 from django.utils.decorators import method_decorator
 from django.views.decorators.cache import cache_page
 from django.views.decorators.gzip import gzip_page
@@ -57,6 +59,46 @@ class PwaManifestView(TemplateView):
                 "purpose": "maskable" if logo.get("maskable", False) else "any",
             }
             for logo in theme.get("logos", [])
+        ]
+
+        # Related apps
+        # See [1] https://www.w3.org/TR/appmanifest/#related_applications-member
+        # and [2] https://developer.mozilla.org/en-US/docs/Web/Manifest/related_applications
+        #
+        # Currently this part of the PWA spec is only supported by Edge and
+        # Chrome for Android[2]. It may not advance to standardisation unless
+        # it gets implemented by more web engines[1]. So the use of it in Kolibri
+        # will need to be checked in future to see if either more platforms need
+        # to be supported, or if all support for it needs to be removed because
+        # it’s been dropped from the standard. If so, Kolibri will be left with
+        # a couple of deprecated config keys.
+        related_apps = []
+
+        for (config_key, platform_id, url_prefix) in [
+            (
+                "ANDROID_APPLICATION_ID",
+                "play",
+                "https://play.google.com/store/apps/details?id=",
+            ),
+            (
+                "WINDOWS_APPLICATION_ID",
+                "windows",
+                "https://apps.microsoft.com/store/detail/",
+            ),
+        ]:
+            app_id = OPTIONS["Pwa"][config_key]
+            if app_id:
+                related_apps.append(
+                    {
+                        "id": app_id,
+                        "platform": platform_id,
+                        "url": url_prefix + quote(app_id),
+                    }
+                )
+
+        context["related_applications"] = related_apps
+        context["prefer_related_applications"] = OPTIONS["Pwa"][
+            "PREFER_RELATED_APPLICATIONS"
         ]
 
         return context

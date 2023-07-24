@@ -67,6 +67,34 @@ class ConstrainedBitMaskTestCase(TestCase):
             "{} {}".format(field, label),
         )
 
+    def test_bitmasks_and_not_or(self):
+        for field in metadata_lookup.keys():
+            node = ContentNode.objects.create(
+                content_id=uuid4().hex,
+                channel_id=uuid4().hex,
+                description="Blah blah blah",
+                id=uuid4().hex,
+                license_name="GNU",
+                license_owner="",
+                license_description=None,
+                lang_id=None,
+                author="",
+                title="Test{}".format(field),
+                parent_id=None,
+                kind=content_kinds.VIDEO,
+                coach_content=False,
+                available=False,
+                **{field: ",".join(metadata_lookup[field])}
+            )
+            annotate_label_bitmasks(ContentNode.objects.filter(id=node.id))
+            self.assertEqual(
+                1,
+                ContentNode.objects.has_all_labels(
+                    field, metadata_lookup[field]
+                ).count(),
+                "{}".format(field),
+            )
+
 
 class RandomMetadataLabelsTestCase(TestCase):
     @classmethod

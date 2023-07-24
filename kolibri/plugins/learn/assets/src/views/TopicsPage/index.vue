@@ -45,20 +45,23 @@
               :style="tabPosition"
             />
             <SearchFiltersPanel
-              v-if="!!windowIsLarge"
+              v-if="!!windowIsLarge && searchActive"
               ref="sidePanel"
               v-model="searchTerms"
-              :topicsListDisplayed="!desktopSearchActive"
               class="side-panel"
-              topicPage="True"
-              :topics="topics"
-              :topicsLoading="topicMoreLoading"
-              :more="topicMore"
               :width="`${sidePanelWidth}px`"
               :showChannels="false"
-              position="embedded"
               :style="sidePanelStyleOverrides"
-              @currentCategory="handleShowSearchModal"
+            />
+            <TopicsPanelModal
+              v-else-if="!!windowIsLarge"
+              ref="sidePanel"
+              class="side-panel"
+              :topics="topics"
+              :topicMore="topicMore"
+              :topicsLoading="topicMoreLoading"
+              :width="`${sidePanelWidth}px`"
+              :style="sidePanelStyleOverrides"
               @loadMoreTopics="handleLoadMoreInTopic"
             />
           </template>
@@ -88,7 +91,7 @@
                 class="overlay-toggle-button"
                 :text="coreString('folders')"
                 :primary="false"
-                @click="toggleFolderSearchSidePanel('folder')"
+                @click="handleFoldersButton"
               />
               <KButton
                 icon="filter"
@@ -96,7 +99,7 @@
                 data-test="filter-button"
                 :text="coreString('filter')"
                 :primary="false"
-                @click="toggleFolderSearchSidePanel('search')"
+                @click="handleSearchButton"
               />
             </div>
 
@@ -170,56 +173,29 @@
           </div>
         </main>
 
-        <!-- Side Panels for filtering and searching  -->
-        <SearchPanelModal
-          v-if="!windowIsLarge && sidePanelIsOpen"
-          v-model="searchTerms"
-          :mobileSearchActive="mobileSearchActive"
-          :topicMore="topicMore"
-          :topics="topics"
-          :topicsLoading="topicMoreLoading"
-          @searchTerms="newTerms => searchTerms = newTerms"
-          @currentCategory="handleShowSearchModal"
-          @loadMoreTopics="handleLoadMoreInTopic"
-          @close="sidePanelIsOpen = false"
-        />
         <!-- The full screen side panel is used on smaller screens, and toggles as an overlay -->
-        <!-- FullScreen is a container component, and then the SearchFiltersPanel sits within -->
-        <SidePanelModal
-          v-if="!windowIsLarge && sidePanelIsOpen"
-          class="full-screen-side-panel"
-          alignment="left"
-          :closeButtonIconType="closeButtonIcon"
-          @closePanel="closeEventHandler()"
-          @shouldFocusFirstEl="findFirstEl()"
-        >
+        <template v-if="!windowIsLarge && sidePanelIsOpen">
           <SearchFiltersPanel
-            v-if="!currentCategory"
+            v-if="searchActive"
             ref="embeddedPanel"
             v-model="searchTerms"
-            :topicsListDisplayed="!mobileSearchActive"
-            topicPage="True"
-            :topics="topics"
-            :topicsLoading="topicMoreLoading"
-            :more="topicMore"
+            class="full-screen-side-panel"
             :showChannels="false"
-            position="overlay"
-            @currentCategory="handleShowSearchModal"
+            :style="sidePanelStyleOverrides"
+            @close="sidePanelIsOpen = false"
+          />
+          <TopicsPanelModal
+            v-else
+            ref="embeddedPanel"
+            class="full-screen-side-panel"
+            :topics="topics"
+            :topicMore="topicMore"
+            :topicsLoading="topicMoreLoading"
+            :style="sidePanelStyleOverrides"
             @loadMoreTopics="handleLoadMoreInTopic"
+            @close="sidePanelIsOpen = false"
           />
-          <CategorySearchModal
-            v-if="currentCategory && windowIsSmall"
-            :selectedCategory="currentCategory"
-            @cancel="currentCategory = null"
-            @input="handleCategory"
-          />
-        </SidePanelModal>
-        <CategorySearchModal
-          v-if="currentCategory"
-          :selectedCategory="currentCategory"
-          @cancel="currentCategory = null"
-          @input="handleCategory"
-        />
+        </template>
 
       </div>
 
@@ -228,7 +204,6 @@
       <SidePanelModal
         v-if="metadataSidePanelContent"
         alignment="right"
-        :closeButtonIconType="closeButtonIcon"
         @closePanel="metadataSidePanelContent = null"
         @shouldFocusFirstEl="findFirstEl()"
       >
@@ -277,6 +252,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { throttle } from 'frame-throttle';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
+  import plugin_data from 'plugin_data';
   import SidePanelModal from '../SidePanelModal';
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
@@ -286,16 +262,14 @@
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
   import LearningActivityChip from '../LearningActivityChip';
   import CustomContentRenderer from '../ChannelRenderer/CustomContentRenderer';
-  import CategorySearchModal from '../CategorySearchModal';
   import SearchResultsGrid from '../SearchResultsGrid';
   import DeviceConnectionStatus from '../DeviceConnectionStatus.vue';
   import TopicsHeader from './TopicsHeader';
   import ToggleHeaderTabs from './ToggleHeaderTabs';
   import TopicsMobileHeader from './TopicsMobileHeader';
   import TopicSubsection from './TopicSubsection';
-  import SearchPanelModal from './SearchPanelModal';
+  import TopicsPanelModal from './TopicsPanelModal';
   import commonLearnStrings from './../commonLearnStrings';
-  import plugin_data from 'plugin_data';
 
   export default {
     name: 'TopicsPage',
@@ -319,7 +293,6 @@
       ToggleHeaderTabs,
       LibraryAndChannelBrowserMainContent,
       CustomContentRenderer,
-      CategorySearchModal,
       SearchFiltersPanel,
       SidePanelModal,
       LearningActivityChip,
@@ -327,7 +300,7 @@
       SearchResultsGrid,
       TopicsMobileHeader,
       TopicSubsection,
-      SearchPanelModal,
+      TopicsPanelModal,
       ImmersivePage,
       DeviceConnectionStatus,
     },
@@ -346,7 +319,6 @@
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
@@ -360,7 +332,6 @@
         searchMore,
         removeFilterTag,
         clearSearch,
-        setCategory,
         back,
         genContentLinkKeepCurrentBackLink,
       };
@@ -379,15 +350,12 @@
       return {
         sidePanelStyleOverrides: {},
         tabPosition: {},
-        currentCategory: null,
-        showSearchModal: false,
         showMoreResources: false,
         sidePanelIsOpen: false,
         metadataSidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
         topicMoreLoading: false,
-        mobileSearchActive: false,
         currentSearchCardViewStyle: 'card',
       };
     },
@@ -424,18 +392,11 @@
           { text: this.topic.ancestors.length ? this.topic.title : this.channelTitle },
         ];
       },
-      desktopSearchActive() {
+      searchActive() {
         return this.$route.name === PageNames.TOPICS_TOPIC_SEARCH;
       },
       channelTitle() {
         return this.channel.name;
-      },
-      closeButtonIcon() {
-        if (this.windowIsSmall && this.currentCategory) {
-          return 'back';
-        } else {
-          return 'close';
-        }
       },
       resources() {
         return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
@@ -580,6 +541,31 @@
       topicMore() {
         return this.topic && this.topic.children && this.topic.children.more;
       },
+      foldersLink() {
+        if (this.topic) {
+          return {
+            name: PageNames.TOPICS_TOPIC,
+            params: {
+              ...this.$route.params,
+            },
+          };
+        }
+        return {};
+      },
+      searchTabLink() {
+        // navigates the main page to the search view
+        if (this.topic) {
+          const query = { ...this.$route.query };
+          return {
+            name: PageNames.TOPICS_TOPIC_SEARCH,
+            params: {
+              ...this.$route.params,
+            },
+            query: query,
+          };
+        }
+        return {};
+      },
     },
     watch: {
       subTopicId(newValue, oldValue) {
@@ -589,10 +575,9 @@
       },
       searchTerms(newVal, oldVal) {
         // When there are search terms and the Folders link is clicked,
-        // this ensures that we don't redirect to the search page when the
+        // this ensures that we don't close the side panel when the
         // user wanted to go to the Folders page.
         if (this.$route.name === PageNames.TOPICS_TOPIC) {
-          this.sidePanelIsOpen = false;
           return;
         }
         if (!isEqual(newVal, oldVal)) {
@@ -625,27 +610,20 @@
       throttledHandleScroll() {
         this.throttledStickyCalculation();
       },
-      handleShowSearchModal(value) {
-        this.currentCategory = value;
-        this.showSearchModal = true;
-        !this.windowIsSmall ? (this.sidePanelIsOpen = false) : '';
-      },
-      handleCategory(category) {
-        this.setCategory(category);
-        this.currentCategory = null;
-      },
       toggleInfoPanel(content) {
         this.metadataSidePanelContent = content;
       },
-      toggleFolderSearchSidePanel(option) {
-        option == 'search' ? (this.mobileSearchActive = true) : (this.mobileSearchActive = false);
-        this.sidePanelIsOpen = !this.sidePanelIsOpen;
-      },
-      closeEventHandler() {
-        if (this.windowIsSmall && this.currentCategory) {
-          this.currentCategory = null;
+      handleFoldersButton() {
+        this.sidePanelIsOpen = true;
+        if (this.searchActive) {
+          this.$router.push(this.foldersLink);
         }
-        this.toggleFolderSearchSidePanel();
+      },
+      handleSearchButton() {
+        this.sidePanelIsOpen = true;
+        if (!this.searchActive) {
+          this.$router.push(this.searchTabLink);
+        }
       },
       // Stick the side panel to top. That can be on the very top of the viewport
       // or right under the 'Browse channel' toolbar, depending on whether the toolbar
