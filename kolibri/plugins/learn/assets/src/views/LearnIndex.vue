@@ -14,8 +14,8 @@
 
   import { mapGetters, mapState } from 'vuex';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
-  import { PageNames } from '../constants';
   import plugin_data from 'plugin_data';
+  import { PageNames } from '../constants';
 
   export default {
     name: 'LearnIndex',

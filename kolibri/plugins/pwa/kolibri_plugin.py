@@ -34,6 +34,7 @@ class PwaPlugin(KolibriPluginBase):
     You must also provide a themed logo in scalable, 192px and 512px versions.
     """
 
+    kolibri_options = "options"
     translated_view_urls = "urls"
     root_view_urls = "root_urls"
 

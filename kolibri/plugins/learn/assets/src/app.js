@@ -1,10 +1,10 @@
 import router from 'kolibri.coreVue.router';
+import KolibriApp from 'kolibri_app';
 import RootVue from './views/LearnIndex';
 import routes from './routes';
 import { prepareLearnApp } from './composables/useCoreLearn';
 import pluginModule from './modules/pluginModule';
 import { PageNames } from './constants';
-import KolibriApp from 'kolibri_app';
 
 class LearnModule extends KolibriApp {
   get stateSetters() {

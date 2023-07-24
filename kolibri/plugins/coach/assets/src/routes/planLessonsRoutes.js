@@ -8,9 +8,10 @@ import {
   showLessonResourceBookmarks,
   showLessonResourceBookmarksMain,
 } from '../modules/lessonResources/handlers';
-import { showLessonsRootPage } from '../modules/lessonsRoot/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { LessonsPageNames } from '../constants/lessonsConstants';
+
+import { useLessons } from '../composables/useLessons';
 
 import LessonsRootPage from '../views/plan/LessonsRootPage';
 import LessonSummaryPage from '../views/plan/LessonSummaryPage';
@@ -30,6 +31,8 @@ const PREVIEW = '/preview/:contentId';
 function path(...args) {
   return args.join('');
 }
+
+const { showLessonsRootPage } = useLessons();
 
 export default [
   {

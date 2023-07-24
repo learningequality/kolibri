@@ -20,10 +20,11 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
+import plugin_data from 'plugin_data';
 import { deduplicateResources } from '../utils/contentNode';
 import useContentNodeProgress from './useContentNodeProgress';
 import useDevices from './useDevices';
-import plugin_data from 'plugin_data';
+import { setLanguages } from './useLanguages';
 
 export const logging = logger.getLogger(__filename);
 
@@ -162,7 +163,7 @@ export default function useSearch(descendant, store, router) {
   router = router || getCurrentInstance().proxy.$router;
   const route = computed(() => store.state.route);
 
-  const searchLoading = ref(false);
+  const searchResultsLoading = ref(false);
   const moreLoading = ref(false);
   const _results = ref([]);
   const more = ref(null);
@@ -243,7 +244,7 @@ export default function useSearch(descendant, store, router) {
     if (get(displayingSearchResults)) {
       getParams.max_results = 25;
       const terms = get(searchTerms);
-      set(searchLoading, true);
+      set(searchResultsLoading, true);
       for (const key of searchKeys) {
         if (key === 'categories') {
           if (terms[key][AllCategories]) {
@@ -272,7 +273,7 @@ export default function useSearch(descendant, store, router) {
         set(_results, data.results || []);
         set(more, data.more);
         _setAvailableLabels(data.labels);
-        set(searchLoading, false);
+        set(searchResultsLoading, false);
       });
     } else if (descValue) {
       getParams.max_results = 1;
@@ -323,10 +324,6 @@ export default function useSearch(descendant, store, router) {
     set(searchTerms, {});
   }
 
-  function setCategory(category) {
-    set(searchTerms, { ...get(searchTerms), categories: { [category]: true } });
-  }
-
   watch(searchTerms, search);
 
   if (descendant) {
@@ -355,10 +352,16 @@ export default function useSearch(descendant, store, router) {
 
   const otherDeviceGlobalLabels = ref(null);
 
+  const globalLabelsLoading = ref(false);
+
+  const searchLoading = computed(() => get(searchResultsLoading) || get(globalLabelsLoading));
+
   function ensureGlobalLabels() {
+    set(globalLabelsLoading, true);
     const currentBaseUrl = get(baseurl);
     // If no baseurl, we're browsing the local device, so the global labels are already set.
     if (!currentBaseUrl) {
+      set(globalLabelsLoading, false);
       return;
     }
     ContentNodeResource.fetchCollection({
@@ -375,8 +378,12 @@ export default function useSearch(descendant, store, router) {
           languagesList: labels.languages || [],
           channelsList: labels.channels || [],
         });
+        setLanguages(labels.languages || []);
       })
-      .catch(err => logging.error('Failed to fetch search labels from remote', err));
+      .catch(err => logging.error('Failed to fetch search labels from remote', err))
+      .then(() => {
+        set(globalLabelsLoading, false);
+      });
   }
 
   ensureGlobalLabels();
@@ -441,7 +448,6 @@ export default function useSearch(descendant, store, router) {
     searchMore,
     removeFilterTag,
     clearSearch,
-    setCategory,
   };
 }
 
