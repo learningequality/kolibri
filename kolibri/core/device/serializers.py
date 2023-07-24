@@ -10,6 +10,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.serializers import FacilitySerializer
 from kolibri.core.content.tasks import automatic_synchronize_content_requests_and_import
+from kolibri.core.content.tasks import SYNC_CANCEL_STATIC_ID
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
@@ -21,8 +22,6 @@ from kolibri.plugins.app.utils import GET_OS_USER
 from kolibri.plugins.app.utils import interface
 from kolibri.utils.filesystem import check_is_directory
 from kolibri.utils.filesystem import get_path_permission
-
-SYNC_CANCEL_STATIC_ID = "783"
 
 
 class DevicePermissionsSerializer(serializers.ModelSerializer):
