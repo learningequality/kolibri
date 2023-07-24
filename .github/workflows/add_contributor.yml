@@ -54,4 +54,9 @@ jobs:
       - name: Create PR
         id: create_pr
         if: steps.check_contributor.outputs.exists == 'false'
-        uses: pre-commit-ci/lite-action@v1.0.1
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          title: "Add $GITHUB_ACTOR to AUTHORS.md"
+          body: "This pull request adds $GITHUB_ACTOR to the AUTHORS.md file."
+          branch: ${{ github.event.pull_request.head.ref }}
