@@ -6,6 +6,8 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.content.models import FacilityUser
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.tasks import automatic_resource_import
@@ -286,17 +288,17 @@ class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
         deletion_request = ContentRemovalRequest.objects.filter(
             contentnode_id=validated_data["contentnode_id"],
             source_id=user.id,
+            reason=ContentRequestReason.UserInitiated,
+            source_model=FacilityUser.morango_model_name,
         )
 
-        if deletion_request.exists():
-            ContentRemovalRequest.objects.filter(
-                contentnode_id=validated_data["contentnode_id"],
-                source_id=user.id,
-            ).delete()
+        deletion_request.delete()
 
         existing_request = ContentDownloadRequest.objects.filter(
             contentnode_id=validated_data["contentnode_id"],
             source_id=user.id,
+            reason=ContentRequestReason.UserInitiated,
+            source_model=FacilityUser.morango_model_name,
         ).first()
 
         if existing_request:
