@@ -1388,11 +1388,10 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             if existing_deletion_request.status == ContentRequestStatus.Failed:
                 existing_deletion_request.status = ContentRequestStatus.Pending
                 existing_deletion_request.save()
-            return Response(status=status.HTTP_204_NO_CONTENT)
-
-        content_request = ContentRemovalRequest.build_for_user(request.user)
-        content_request.contentnode_id = existing_download_request.contentnode_id
-        content_request.save()
+        else:
+            content_request = ContentRemovalRequest.build_for_user(request.user)
+            content_request.contentnode_id = existing_download_request.contentnode_id
+            content_request.save()
 
         automatic_resource_import.enqueue()
         return Response(status=status.HTTP_204_NO_CONTENT)
