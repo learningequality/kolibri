@@ -771,7 +771,7 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
                 return ContentSessionLog.objects.get(id=session_id, user__isnull=True)
             else:
                 return ContentSessionLog.objects.get(id=session_id, user=user)
-        except ContentSessionLog.DoesNotExist:
+        except (ValueError, ContentSessionLog.DoesNotExist):
             raise Http404(
                 "ContentSessionLog with id {} does not exist".format(session_id)
             )
