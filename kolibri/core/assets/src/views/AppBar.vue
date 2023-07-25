@@ -10,7 +10,7 @@
 
       <UiToolbar
         :title="title"
-        :removeNavIcon="isAppContext"
+        :removeNavIcon="isAppContext && !windowIsLarge"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -19,7 +19,7 @@
         :removeBrandDivider="true"
       >
         <template
-          v-if="!isAppContext"
+          v-if="windowIsLarge || !isAppContext"
           #icon
         >
           <KIconButton
@@ -41,7 +41,7 @@
         </template>
 
         <template
-          v-if="windowIsLarge && !isAppContext"
+          v-if="windowIsLarge"
           #navigation
         >
           <slot name="sub-nav"></slot>
@@ -330,5 +330,9 @@
     margin-left: 8px;
     font-size: 14px;
   }
+
+  // .subpage-nav {
+  //   margin-top: 0;
+  // }
 
 </style>
