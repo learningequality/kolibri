@@ -167,7 +167,7 @@ public class PythonActivity extends Activity {
             mWebView = new WebView(PythonActivity.mActivity);
             mWebView.getSettings().setJavaScriptEnabled(true);
             mWebView.getSettings().setDomStorageEnabled(true);
-            mWebView.loadUrl("file:///android_asset/_load.html");
+            mWebView.loadData(PythonActivity.mActivity.getString(R.string.loading_page_html), "text/html", "UTF-8");
             mWebView.getSettings().setAllowFileAccessFromFileURLs(true);
             mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
             mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
