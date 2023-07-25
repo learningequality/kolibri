@@ -20,7 +20,6 @@
     </div>
     <span v-if="overflowMenuLinks && overflowMenuLinks.length > 0">
       <KIconButton
-        class="menu-icon"
         :tooltip="coreString('moreOptions')"
         tooltipPosition="top"
         :ariaLabel="coreString('moreOptions')"
@@ -118,10 +117,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .menu-icon {
-    right: 4px;
-  }
 
   .navcontainer {
     display: flex;
