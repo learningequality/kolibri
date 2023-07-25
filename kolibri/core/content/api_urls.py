@@ -9,6 +9,7 @@ from .api import ContentNodeProgressViewset
 from .api import ContentNodeSearchViewset
 from .api import ContentNodeTreeViewset
 from .api import ContentNodeViewset
+from .api import ContentRequestViewset
 from .api import FileViewset
 from .api import RemoteChannelViewSet
 from .api import UserContentNodeViewset
@@ -32,6 +33,11 @@ router.register(
 router.register(r"file", FileViewset, basename="file")
 router.register(
     r"contentnodeprogress", ContentNodeProgressViewset, basename="contentnodeprogress"
+)
+router.register(
+    r"contentrequest",
+    ContentRequestViewset,
+    basename="contentrequest",
 )
 router.register(
     r"contentnode_granular",
