@@ -21,6 +21,7 @@ export { default as ExamResource } from './exam';
 export { default as FacilityDatasetResource } from './facilityDataset';
 export { default as UserProgressResource } from './userProgress';
 export { default as UserSyncStatusResource } from './userSyncStatus';
+export { default as ContentRequestResource } from './contentRequest';
 export { default as ContentNodeProgressResource } from './contentNodeProgress';
 export { default as DevicePermissionsResource } from './devicePermissions';
 export { default as RemoteChannelResource } from './remoteChannel';
