@@ -308,7 +308,9 @@ class NetworkClientTestCase(TestCase):
         response = client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("Kolibri/{0}".format(kolibri.__version__) in client.headers["User-Agent"])
+        self.assertTrue(
+            "Kolibri/{0}".format(kolibri.__version__) in client.headers["User-Agent"]
+        )
 
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://url.qqq/")

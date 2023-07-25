@@ -48,9 +48,11 @@ class NetworkClient(requests.Session):
         self.session = None
         self.device_info = None
         self.remote_ip = None
-        self.headers.update({
-            'User-Agent': get_user_agent(),
-        })
+        self.headers.update(
+            {
+                "User-Agent": get_user_agent(),
+            }
+        )
 
     @classmethod
     def build_for_address(cls, address, timeout=None):
@@ -248,4 +250,6 @@ class NetworkClient(requests.Session):
 
 
 def get_user_agent():
-    return "Kolibri/{0} python-requests/{1}".format(kolibri.__version__, requests.__version__)
+    return "Kolibri/{0} python-requests/{1}".format(
+        kolibri.__version__, requests.__version__
+    )
