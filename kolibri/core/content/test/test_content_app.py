@@ -1122,6 +1122,23 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         for i in range(len(titles)):
             self.assertEqual(response.data[i]["title"], titles[i])
 
+    def test_contentnode_content_id(self):
+        node = content.ContentNode.objects.get(title="c2c2")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"content_id": node.content_id},
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], node.title)
+
+    def test_contentnode_bad_content_id(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"content_id": "this is not a uuid"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
     def test_contentnode_parent(self):
         parent = content.ContentNode.objects.get(title="c2")
         children = parent.get_children()
