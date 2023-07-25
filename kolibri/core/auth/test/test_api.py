@@ -675,6 +675,11 @@ class FacilityAPITestCase(APITestCase):
             models.FacilityUser.objects.filter(facility_id=self.facility1.id).count(),
             len(response.data),
         )
+        for item in response.data:
+            self.assertEqual(
+                self.facility1.id,
+                item["facility"],
+            )
 
 
 class UserCreationTestCase(APITestCase):

@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from itertools import groupby
+from uuid import UUID
 from uuid import uuid4
 
 from django.contrib.auth import authenticate
@@ -337,9 +338,13 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     }
 
     def get_queryset(self):
-        facility_id = self.request.query_params.get("facility_id", None)
-        if facility_id is None:
-            facility_id = self.request.user.facility_id
+        facility_id = self.request.query_params.get(
+            "facility_id", self.request.user.facility_id
+        )
+        try:
+            facility_id = UUID(facility_id).hex
+        except ValueError:
+            return self.queryset.none()
 
         # if user has admin rights for the facility returns the list of users
         queryset = self.queryset.filter(facility_id=facility_id)
