@@ -1278,6 +1278,17 @@ class FacilityDatasetAPITestCase(APITestCase):
         response = self.client.get(reverse("kolibri:core:facilitydataset-list"))
         self.assertEqual(len(response.data), len(models.FacilityDataset.objects.all()))
 
+    def test_filter_facility_id_for_an_admin(self):
+        self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:facilitydataset-list"),
+            {"facility_id": self.facility.id},
+        )
+        self.assertEqual(
+            len(response.data),
+            len(models.FacilityDataset.objects.filter(collection=self.facility.id)),
+        )
+
     def test_admin_can_edit_dataset_for_which_they_are_admin(self):
         self.client.login(username=self.admin.username, password=DUMMY_PASSWORD)
         response = self.client.patch(
