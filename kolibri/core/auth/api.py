@@ -824,7 +824,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
 
         try:
             user = FacilityUser.objects.get(username=username, facility=facility_id)
-        except ObjectDoesNotExist:
+        except (ValueError, ObjectDoesNotExist):
             raise Http404(error_message)
 
         if user.password != NOT_SPECIFIED:
@@ -859,7 +859,7 @@ class SessionViewSet(viewsets.ViewSet):
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility_id
             )
-        except ObjectDoesNotExist:
+        except (ValueError, ObjectDoesNotExist):
             return Response(
                 [
                     {
