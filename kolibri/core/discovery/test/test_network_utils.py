@@ -304,11 +304,11 @@ class NetworkClientTestCase(TestCase):
 
     @mock.patch.object(requests.Session, "get", mock_response(200))
     def test_request__user_agent(self):
-        client = NetworkClient()
-        response = client.get("https://example.com")
+        client = NetworkClient("https://example.com")
+        response = client.get("/")
 
         self.assertEqual(response.status_code, 200)
-        self.assertTrue("kolibri/{0}".format(kolibri.__version__) in client.headers["User-Agent"])
+        self.assertTrue("Kolibri/{0}".format(kolibri.__version__) in client.headers["User-Agent"])
 
     @mock.patch.object(
         requests.Session, "request", mock_happy_request("https://url.qqq/")
