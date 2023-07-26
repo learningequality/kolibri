@@ -99,7 +99,7 @@ def get_urls_by_role(role):
             yield hook.url
 
 
-def get_url_by_role(role, full_facility_import=False):
+def get_url_by_role(role, full_facility_import=False, on_my_own_device=False):
     obj = next(
         (
             hook
@@ -107,6 +107,7 @@ def get_url_by_role(role, full_facility_import=False):
             if role in hook.roles
             and hook.url
             and (full_facility_import or not hook.require_full_facility)
+            and (not on_my_own_device or not hook.require_no_on_my_own_facility)
         ),
         None,
     )
@@ -150,6 +151,7 @@ class RootURLRedirectView(View):
                 url = url or get_url_by_role(
                     user_kinds.SUPERUSER,
                     full_facility_import=request.user.full_facility_import,
+                    on_my_own_device=request.user.full_facility_on_my_own_setup,
                 )
             roles = set(
                 Role.objects.filter(user_id=request.user.id)
@@ -160,15 +162,18 @@ class RootURLRedirectView(View):
                 url = url or get_url_by_role(
                     user_kinds.ADMIN,
                     full_facility_import=request.user.full_facility_import,
+                    on_my_own_device=request.user.full_facility_on_my_own_setup,
                 )
             if user_kinds.COACH in roles or user_kinds.ASSIGNABLE_COACH in roles:
                 url = url or get_url_by_role(
                     user_kinds.COACH,
                     full_facility_import=request.user.full_facility_import,
+                    on_my_own_device=request.user.full_facility_on_my_own_setup,
                 )
             url = url or get_url_by_role(
                 user_kinds.LEARNER,
                 full_facility_import=request.user.full_facility_import,
+                on_my_own_device=request.user.full_facility_on_my_own_setup,
             )
         else:
             url = get_url_by_role(user_kinds.ANONYMOUS)

@@ -31,6 +31,7 @@ class FacilityManagementAsset(WebpackBundleHook):
 class FacilityRedirect(RoleBasedRedirectHook):
     roles = (ADMIN,)
     require_full_facility = True
+    require_no_on_my_own_facility = True
 
     @property
     def url(self):
