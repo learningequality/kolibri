@@ -77,7 +77,7 @@ jobs:
         make kolibri.apk.unsigned
     - name: Get APK filename
       id: get-apk-filename
-      run: echo "::set-output name=apk-file-name::$(ls dist | grep .apk | cat)"
+      run: echo "apk-file-name=$(ls dist | grep .apk | cat)" >> $GITHUB_OUTPUT
     - uses: actions/upload-artifact@v3
       with:
         name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
