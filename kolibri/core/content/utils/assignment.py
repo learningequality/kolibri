@@ -1,10 +1,12 @@
 from collections import namedtuple
 
 from django.core.exceptions import ImproperlyConfigured
+from django.db import models
 from django.db.models import Q
+from django.dispatch import receiver
 from morango.models.core import Store
-from morango.models.core import SyncableModel
 
+from kolibri.core.auth.models import AbstractFacilityDataModel
 
 ContentAssignment = namedtuple(
     "ContentAssignment", ["contentnode_id", "source_model", "source_id", "metadata"]
@@ -54,18 +56,20 @@ class ContentAssignmentManager(object):
         self.lookup_field = lookup_field
         self.lookup_func = lookup_func
 
-    def contribute_to_class(self, model, name):
+    def contribute_to_class(self, model, attribute_name):
         """
         This is a special method associated with Django. When an instance of this class is
         set on a Django model, it will call this method, which gives the ability to make the
         association with the model
 
-        :type model: SyncableModel
-        :type name: str
+        :type model: AbstractFacilityDataModel
+        :type attribute_name: str
         """
-        if not issubclass(model, SyncableModel):
+        if not issubclass(model, AbstractFacilityDataModel):
             raise ImproperlyConfigured(
-                "{} is only valid on SyncableModels".format(self.__class__.__name__)
+                "{} is only valid on AbstractFacilityDataModels".format(
+                    self.__class__.__name__
+                )
             )
 
         if self.one_to_many and self.lookup_func is None:
@@ -74,9 +78,35 @@ class ContentAssignmentManager(object):
             )
 
         self.model = model
-        self.name = name
-        setattr(model, name, self)
-        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({model.__class__.__name__: self})
+        self.name = attribute_name
+        setattr(model, attribute_name, self)
+        CONTENT_ASSIGNMENT_MANAGER_REGISTRY.update({id(model): self})
+
+    @classmethod
+    def on_any_downloadable_assignment(cls, callable_func):
+        """
+        Connects the provided callable to the post_save signal of all the associated models.
+        Executes the callable with any downloadable assignments from the model instances
+        if they match the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        :type callable_func: callable
+        """
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            manager.on_downloadable_assignment(callable_func)
+
+    @classmethod
+    def on_any_removable_assignment(cls, callable_func):
+        """
+        Connects the provided callable to the post_save signal of all associated models.
+        Executes the callable with any removable assignments from the model instances
+        if they match the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        :type callable_func: callable
+        """
+        for manager in CONTENT_ASSIGNMENT_MANAGER_REGISTRY.values():
+            manager.on_removable_assignment(callable_func)
 
     @classmethod
     def find_all_downloadable_assignments(
@@ -158,6 +188,51 @@ class ContentAssignmentManager(object):
                         metadata,
                     )
                     contentnode_ids.update([contentnode_id])
+
+    def on_downloadable_assignment(self, callable_func):
+        """
+        Connects the provided callable to the post_save signal of the attached model.
+        Executes the callable with the downloadable assignments from the model instance
+        if it matches the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        :type callable_func: callable
+        """
+        # since this is a local function, we need use `weak=False` to prevent garbage collection
+        @receiver(models.signals.post_save, sender=self.model, weak=False)
+        def on_save(sender, instance, **kwargs):
+            queryset = self.model.objects.filter(pk=instance.pk)
+            if self.filters:
+                queryset = queryset.filter(**self.filters)
+            if queryset.exists():
+                assignments = self._get_assignments(queryset)
+                callable_func(instance.dataset_id, assignments)
+
+    def on_removable_assignment(self, callable_func):
+        """
+        Connects the provided callable to the post_save signal of the associated models.
+        Executes the callable with the removable assignments from the model instance
+        if it matches the filters (if defined).
+
+        :param callable_func: The callable function to be executed with the new assignments.
+        :type callable_func: callable
+        """
+        # since these are local functions, we need use `weak=False` to prevent garbage collection
+        @receiver(models.signals.post_save, sender=self.model, weak=False)
+        def on_save(sender, instance, **kwargs):
+            queryset = self.model.objects.filter(pk=instance.pk)
+            if self.filters:
+                queryset = queryset.exclude(**self.filters)
+            if queryset.exists():
+                assignments = self._get_assignments(queryset)
+                callable_func(instance.dataset_id, assignments)
+
+        @receiver(models.signals.post_delete, sender=self.model, weak=False)
+        def on_delete(sender, instance, **kwargs):
+            callable_func(
+                instance.dataset_id,
+                [DeletedAssignment(self.model.morango_model_name, instance.pk)],
+            )
 
     def find_downloadable_assignments(self, dataset_id=None, transfer_session_id=None):
         """

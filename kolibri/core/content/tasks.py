@@ -4,11 +4,13 @@ from rest_framework import serializers
 from six import with_metaclass
 from six.moves.urllib.parse import urljoin
 
+from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
 from kolibri.core.content.utils.content_request import process_content_requests
+from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.content.utils.resource_import import DiskChannelResourceImportManager
@@ -18,6 +20,7 @@ from kolibri.core.content.utils.resource_import import (
 )
 from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
 from kolibri.core.content.utils.upgrade import diff_stats
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import IncompatibleVersionError
@@ -37,8 +40,8 @@ from kolibri.utils import conf
 from kolibri.utils.translation import ugettext as _
 from kolibri.utils.version import version_matches_range
 
-
 QUEUE = "content"
+SYNC_CANCEL_STATIC_ID = "783"
 
 
 def get_status(job):
@@ -351,6 +354,30 @@ def automatic_resource_import():
     Processes content download and removal requests
     """
     process_content_requests()
+
+
+@register_task(
+    job_id=SYNC_CANCEL_STATIC_ID,
+    long_running=True,
+    status_fn=get_status,
+)
+def automatic_synchronize_content_requests_and_import():
+    """
+    Task that synchronizes content requests for all facilities/datasets on the device and enqueues the automatic_resource_import task afterwards.
+    - Calls synchronize_content_requests for all facilities/datasets on the device.
+    - Enqueues the automatic_resource_import task after synchronizing content requests.
+    """
+    # A safety check to see if the device settings are changed already?
+    if get_device_setting("enable_automatic_download", default=False) is True:
+        return
+    else:
+        dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
+
+        # Synchronize content requests for each dataset
+        for dataset_id in dataset_ids:
+            synchronize_content_requests(dataset_id, None)
+
+        automatic_resource_import.enqueue()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
