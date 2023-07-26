@@ -3,9 +3,17 @@ import uuid
 import mock
 from django.test import TestCase
 
+from kolibri.core.auth.models import Classroom
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.utils.assignment import ContentAssignment
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
+from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import IndividualSyncableExam
+from kolibri.core.lessons.models import IndividualSyncableLesson
+from kolibri.core.lessons.models import Lesson
 
 
 _module = "kolibri.core.content.utils.assignment."
@@ -171,3 +179,377 @@ class ContentAssignmentManagerTestCase(TestCase):
                     transfer_session_id="test_transfer_session",
                 )
             )
+
+    def test_get_assignments__no_lookup_func(self):
+        self.manager.lookup_field = "test_lookup_field"
+
+        source_id1 = uuid.uuid4().hex
+        source_id2 = uuid.uuid4().hex
+        contentnode_id1 = uuid.uuid4().hex
+        contentnode_id2 = uuid.uuid4().hex
+
+        qs = mock.MagicMock()
+        qs.values_list.return_value = [
+            # (source_id, contentnode_id)
+            (source_id1, contentnode_id1),
+            (source_id2, contentnode_id2),
+        ]
+
+        assignments = list(self.manager._get_assignments(qs))
+        qs.values_list.assert_called_once_with("id", "test_lookup_field")
+        self.assertEqual(len(assignments), 2)
+
+        self.assertEqual(assignments[0].contentnode_id, contentnode_id1)
+        self.assertEqual(assignments[0].source_id, source_id1)
+
+        self.assertEqual(assignments[1].contentnode_id, contentnode_id2)
+        self.assertEqual(assignments[1].source_id, source_id2)
+
+        for assignment in assignments:
+            self.assertEqual(assignment.source_model, self.model.morango_model_name)
+            self.assertEqual(assignment.metadata, None)
+
+    def test_get_assignments__lookup_func(self):
+        metadata = {"test": "test"}
+        self.manager.lookup_field = "test_lookup_field"
+        self.manager.lookup_func = lambda x: (x, metadata)
+
+        source_id1 = uuid.uuid4().hex
+        source_id2 = uuid.uuid4().hex
+        contentnode_id1 = uuid.uuid4().hex
+        contentnode_id2 = uuid.uuid4().hex
+
+        qs = mock.MagicMock()
+        qs.values_list.return_value = [
+            # (source_id, contentnode_id)
+            (source_id1, contentnode_id1),
+            (source_id2, contentnode_id2),
+        ]
+
+        assignments = list(self.manager._get_assignments(qs))
+        qs.values_list.assert_called_once_with("id", "test_lookup_field")
+        self.assertEqual(len(assignments), 2)
+
+        self.assertEqual(assignments[0].contentnode_id, contentnode_id1)
+        self.assertEqual(assignments[0].source_id, source_id1)
+
+        self.assertEqual(assignments[1].contentnode_id, contentnode_id2)
+        self.assertEqual(assignments[1].source_id, source_id2)
+
+        for assignment in assignments:
+            self.assertEqual(assignment.source_model, self.model.morango_model_name)
+            self.assertEqual(assignment.metadata, metadata)
+
+    def test_get_assignments__one_to_many(self):
+        metadata = {"test": "test"}
+
+        self.manager.one_to_many = True
+        self.manager.lookup_field = "test_lookup_field"
+        self.manager.lookup_func = lambda node_ids: [
+            (node_id, metadata) for node_id in node_ids
+        ]
+
+        source_id1 = uuid.uuid4().hex
+        source_id2 = uuid.uuid4().hex
+        source_id3 = uuid.uuid4().hex
+        contentnode_id1 = uuid.uuid4().hex
+        contentnode_id2 = uuid.uuid4().hex
+        contentnode_id3 = uuid.uuid4().hex
+
+        qs = mock.MagicMock()
+
+        # source_id1 tests deduplication
+        qs.values_list.return_value = [
+            # (source_id, lookup_field_value)
+            (source_id1, [contentnode_id1, contentnode_id1, contentnode_id2]),
+            (source_id2, [contentnode_id2]),
+            (source_id3, [contentnode_id3]),
+        ]
+
+        assignments = list(self.manager._get_assignments(qs))
+        qs.values_list.assert_called_once_with("id", "test_lookup_field")
+        self.assertEqual(len(assignments), 4)
+
+        self.assertEqual(assignments[0].contentnode_id, contentnode_id1)
+        self.assertEqual(assignments[0].source_id, source_id1)
+
+        self.assertEqual(assignments[1].contentnode_id, contentnode_id2)
+        self.assertEqual(assignments[1].source_id, source_id1)
+
+        self.assertEqual(assignments[2].contentnode_id, contentnode_id2)
+        self.assertEqual(assignments[2].source_id, source_id2)
+
+        self.assertEqual(assignments[3].contentnode_id, contentnode_id3)
+        self.assertEqual(assignments[3].source_id, source_id3)
+
+        for assignment in assignments:
+            self.assertEqual(assignment.source_model, self.model.morango_model_name)
+            self.assertEqual(assignment.metadata, metadata)
+
+
+class ContentAssignmentManagerIntegrationTestCase(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(ContentAssignmentManagerIntegrationTestCase, cls).setUpClass()
+
+        provision_device()
+        cls.facility = Facility.objects.create(name="My Facility")
+        cls.classroom = Classroom.objects.create(
+            name="My Classroom", parent=cls.facility
+        )
+
+        cls.admin_user = FacilityUser.objects.create(
+            username="admin", facility=cls.facility
+        )
+        cls.admin_user.set_password("password")
+        cls.admin_user.save()
+
+        cls.learner = FacilityUser.objects.create(
+            username="learner", facility=cls.facility
+        )
+        cls.classroom.add_member(cls.learner)
+
+        cls.facility.add_coach(cls.admin_user)
+
+    def test_on_downloadable_assignment__lesson(self):
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_downloadable_assignment(callable_mock)
+
+        resources = [
+            {
+                "contentnode_id": uuid.uuid4().hex,
+                "content_id": uuid.uuid4().hex,
+                "channel_id": uuid.uuid4().hex,
+            }
+        ]
+
+        lesson = Lesson(
+            title="My Lesson",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=False,
+            resources=resources,
+        )
+        lesson.save()
+        callable_mock.assert_not_called()
+
+        lesson.is_active = True
+        lesson.save()
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, resources[0]["contentnode_id"])
+        self.assertEqual(assignments[0].source_id, lesson.id)
+        self.assertEqual(assignments[0].source_model, Lesson.morango_model_name)
+        self.assertEqual(
+            assignments[0].metadata,
+            {
+                "channel_id": resources[0]["channel_id"],
+            },
+        )
+
+    def test_on_removable_assignment__lesson(self):
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        resources = [
+            {
+                "contentnode_id": uuid.uuid4().hex,
+                "content_id": uuid.uuid4().hex,
+                "channel_id": uuid.uuid4().hex,
+            }
+        ]
+
+        lesson = Lesson(
+            title="My Lesson",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            resources=resources,
+        )
+        lesson.save()
+        callable_mock.assert_not_called()
+
+        lesson.is_active = False
+        lesson.save()
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, resources[0]["contentnode_id"])
+        self.assertEqual(assignments[0].source_id, lesson.id)
+        self.assertEqual(assignments[0].source_model, Lesson.morango_model_name)
+        self.assertEqual(
+            assignments[0].metadata,
+            {
+                "channel_id": resources[0]["channel_id"],
+            },
+        )
+
+    def test_on_removable_assignment__lesson__deletion(self):
+        callable_mock = mock.MagicMock()
+        ContentAssignmentManager.on_any_removable_assignment(callable_mock)
+
+        resources = [
+            {
+                "contentnode_id": uuid.uuid4().hex,
+                "content_id": uuid.uuid4().hex,
+                "channel_id": uuid.uuid4().hex,
+            }
+        ]
+
+        lesson = Lesson(
+            title="My Lesson",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            resources=resources,
+        )
+        lesson.save()
+        callable_mock.assert_not_called()
+
+        pk = lesson.pk
+        lesson.delete()
+        callable_mock.assert_called_once()
+
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], DeletedAssignment)
+        self.assertEqual(assignments[0].source_id, pk)
+        self.assertEqual(assignments[0].source_model, Lesson.morango_model_name)
+
+    def test_on_downloadable_assignment__individual_syncable_lesson(self):
+        callable_mock = mock.MagicMock()
+        IndividualSyncableLesson.content_assignments.on_downloadable_assignment(
+            callable_mock
+        )
+
+        resources = [
+            {
+                "contentnode_id": uuid.uuid4().hex,
+                "content_id": uuid.uuid4().hex,
+                "channel_id": uuid.uuid4().hex,
+            }
+        ]
+
+        lesson = Lesson(
+            title="My Lesson",
+            collection=self.classroom,
+            created_by=self.admin_user,
+            is_active=True,
+            resources=resources,
+        )
+        lesson.save()
+        callable_mock.assert_not_called()
+
+        syncable_lesson = IndividualSyncableLesson(
+            user=self.learner,
+            collection=self.classroom,
+            lesson_id=lesson.pk,
+            serialized_lesson=IndividualSyncableLesson.serialize_lesson(lesson),
+        )
+        syncable_lesson.save()
+
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, resources[0]["contentnode_id"])
+        self.assertEqual(assignments[0].source_id, syncable_lesson.id)
+        self.assertEqual(
+            assignments[0].source_model, IndividualSyncableLesson.morango_model_name
+        )
+        self.assertEqual(
+            assignments[0].metadata,
+            {
+                "channel_id": resources[0]["channel_id"],
+            },
+        )
+
+    def test_on_downloadable_assignment__exam(self):
+        callable_mock = mock.MagicMock()
+        Exam.content_assignments.on_downloadable_assignment(callable_mock)
+
+        resources = [
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Test questions",
+                "counter_in_exercise": 1,
+            }
+        ]
+
+        exam = Exam(
+            title="My Lesson",
+            question_count=1,
+            collection=self.classroom,
+            creator=self.admin_user,
+            active=False,
+            question_sources=resources,
+        )
+        exam.save()
+        callable_mock.assert_not_called()
+
+        exam.active = True
+        exam.save()
+
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, resources[0]["exercise_id"])
+        self.assertEqual(assignments[0].source_id, exam.id)
+        self.assertEqual(assignments[0].source_model, Exam.morango_model_name)
+        self.assertEqual(assignments[0].metadata, None)
+
+    def test_on_downloadable_assignment__individual_syncable_exam(self):
+        callable_mock = mock.MagicMock()
+        IndividualSyncableExam.content_assignments.on_downloadable_assignment(
+            callable_mock
+        )
+
+        resources = [
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Test questions",
+                "counter_in_exercise": 1,
+            }
+        ]
+
+        exam = Exam(
+            title="My Lesson",
+            question_count=1,
+            collection=self.classroom,
+            creator=self.admin_user,
+            active=True,
+            question_sources=resources,
+        )
+        exam.save()
+        callable_mock.assert_not_called()
+
+        syncable_exam = IndividualSyncableExam(
+            user=self.learner,
+            collection=self.classroom,
+            exam_id=exam.pk,
+            serialized_exam=IndividualSyncableExam.serialize_exam(exam),
+        )
+        syncable_exam.save()
+
+        callable_mock.assert_called_once()
+        self.assertEqual(callable_mock.call_args[0][0], self.facility.dataset_id)
+        assignments = list(callable_mock.call_args[0][1])
+        self.assertEqual(len(assignments), 1)
+        self.assertIsInstance(assignments[0], ContentAssignment)
+        self.assertEqual(assignments[0].contentnode_id, resources[0]["exercise_id"])
+        self.assertEqual(assignments[0].source_id, syncable_exam.id)
+        self.assertEqual(
+            assignments[0].source_model, IndividualSyncableExam.morango_model_name
+        )
+        self.assertEqual(assignments[0].metadata, None)
