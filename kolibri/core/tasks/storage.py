@@ -258,30 +258,20 @@ class Storage(object):
 
             return job
 
-    def get_canceling_jobs(self, queues=None):
-        return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
-
-    def get_running_jobs(self, queues=None):
-        return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
-
-    def get_jobs_by_state(self, state, queues=None):
-        with self.engine.connect() as conn:
-            q = select(ORMJob).where(ORMJob.state == state)
-
-            if queues:
-                q = q.where(ORMJob.queue.in_(queues))
-
-            q = q.order_by(ORMJob.time_created)
-            jobs = conn.execute(q)
-
-            return [self._orm_to_job(job) for job in jobs]
-
-    def get_all_jobs(self, queue=None, repeating=None):
+    def filter_jobs(self, queue=None, queues=None, state=None, repeating=None):
+        if queue and queues:
+            raise ValueError("Cannot specify both queue and queues")
         with self.engine.connect() as conn:
             q = select(ORMJob)
 
             if queue:
                 q = q.where(ORMJob.queue == queue)
+
+            if queues:
+                q = q.where(ORMJob.queue.in_(queues))
+
+            if state:
+                q = q.where(ORMJob.state == state)
 
             if repeating is True:
                 q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
@@ -291,6 +281,18 @@ class Storage(object):
             orm_jobs = conn.execute(q)
 
             return [self._orm_to_job(o) for o in orm_jobs]
+
+    def get_canceling_jobs(self, queues=None):
+        return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
+
+    def get_running_jobs(self, queues=None):
+        return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
+
+    def get_jobs_by_state(self, state, queues=None):
+        return self.filter_jobs(state=state, queues=queues)
+
+    def get_all_jobs(self, queue=None, repeating=None):
+        return self.filter_jobs(queue=queue, repeating=repeating)
 
     def test_table_readable(self):
         """
