@@ -487,7 +487,14 @@ class Storage(object):
                 if priority is not None:
                     orm_job.priority = priority
                 for kwarg in kwargs:
-                    setattr(job, kwarg, kwargs[kwarg])
+                    if kwarg in Job.UPDATEABLE_KEYS:
+                        setattr(job, kwarg, kwargs[kwarg])
+                    else:
+                        logger.error(
+                            "Tried to update job with id {} with non-updateable key {}".format(
+                                job_id, kwarg
+                            )
+                        )
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
                 for hook in self._hooks:

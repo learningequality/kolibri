@@ -121,6 +121,27 @@ class Job(object):
     to the workers.
     """
 
+    UPDATEABLE_KEYS = {
+        "state",
+        "exception",
+        "traceback",
+        "track_progress",
+        "cancellable",
+        "extra_metadata",
+        "progress",
+        "total_progress",
+        "result",
+    }
+
+    JSON_KEYS = UPDATEABLE_KEYS | {
+        "job_id",
+        "facility_id",
+        "args",
+        "kwargs",
+        "func",
+        "long_running",
+    }
+
     def to_json(self):
         """
         Creates and returns a JSON-serialized string representing this Job.
@@ -128,26 +149,8 @@ class Job(object):
         This storage method is why task exceptions are stored as strings.
         """
 
-        keys = [
-            "job_id",
-            "facility_id",
-            "state",
-            "exception",
-            "traceback",
-            "track_progress",
-            "cancellable",
-            "extra_metadata",
-            "progress",
-            "total_progress",
-            "args",
-            "kwargs",
-            "func",
-            "result",
-            "long_running",
-        ]
-
         working_dictionary = {
-            key: self.__dict__[key] for key in keys if key in self.__dict__
+            key: self.__dict__[key] for key in self.JSON_KEYS if key in self.__dict__
         }
 
         try:
