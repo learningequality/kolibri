@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
-from sqlalchemy import func
+from sqlalchemy import func as sql_func
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import or_
@@ -50,6 +50,9 @@ class ORMJob(Base):
     # The job's state. Inflated here for easier querying to the job's state.
     state = Column(String, index=True)
 
+    # The job's function string. Inflated here for easier querying of which task type it is.
+    func = Column(String, index=True)
+
     # The job's priority. Helps to decide which job to run next.
     priority = Column(Integer, index=True)
 
@@ -59,8 +62,8 @@ class ORMJob(Base):
     # The JSON string that represents the job
     saved_job = Column(String)
 
-    time_created = Column(DateTime(timezone=True), server_default=func.now())
-    time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())
+    time_created = Column(DateTime(timezone=True), server_default=sql_func.now())
+    time_updated = Column(DateTime(timezone=True), server_onupdate=sql_func.now())
 
     # Repeat interval in seconds.
     interval = Column(Integer, default=0)
@@ -103,7 +106,7 @@ class Storage(object):
         Returns the number of jobs currently in the storage.
         """
         with self.engine.connect() as conn:
-            return conn.execute(func.count(ORMJob.id)).scalar()
+            return conn.execute(sql_func.count(ORMJob.id)).scalar()
 
     def __contains__(self, item):
         """
@@ -258,7 +261,9 @@ class Storage(object):
 
             return job
 
-    def filter_jobs(self, queue=None, queues=None, state=None, repeating=None):
+    def filter_jobs(
+        self, queue=None, queues=None, state=None, repeating=None, func=None
+    ):
         if queue and queues:
             raise ValueError("Cannot specify both queue and queues")
         with self.engine.connect() as conn:
@@ -277,6 +282,9 @@ class Storage(object):
                 q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
             elif repeating is False:
                 q = q.where(ORMJob.repeat == 0)
+
+            if func:
+                q = q.where(ORMJob.func == func)
 
             orm_jobs = conn.execute(q)
 
@@ -609,6 +617,7 @@ class Storage(object):
             orm_job = ORMJob(
                 id=job.job_id,
                 state=job.state,
+                func=job.func,
                 priority=priority,
                 queue=queue,
                 interval=interval,
