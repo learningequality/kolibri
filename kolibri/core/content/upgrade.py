@@ -341,4 +341,4 @@ def synchronize_content_requests_upgrade():
     for dataset_id in dataset_ids:
         synchronize_content_requests(dataset_id, None)
 
-    automatic_resource_import.enqueue()
+    automatic_resource_import.enqueue_if_not()

@@ -1393,7 +1393,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             content_request.contentnode_id = existing_download_request.contentnode_id
             content_request.save()
 
-        automatic_resource_import.enqueue()
+        automatic_resource_import.enqueue_if_not()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

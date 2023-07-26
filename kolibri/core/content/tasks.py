@@ -377,7 +377,7 @@ def automatic_synchronize_content_requests_and_import():
         for dataset_id in dataset_ids:
             synchronize_content_requests(dataset_id, None)
 
-        automatic_resource_import.enqueue()
+        automatic_resource_import.enqueue_if_not()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):
