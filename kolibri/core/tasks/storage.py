@@ -401,6 +401,16 @@ class Storage(object):
         except JobNotFound:
             pass
 
+    def cancel_jobs(
+        self, queue=None, queues=None, state=None, repeating=None, func=None
+    ):
+        """
+        Cancel all jobs matching the given criteria.
+        """
+        jobs = self.filter_jobs(queue=queue, queues=queues, state=state, func=func)
+        for job in jobs:
+            self.cancel(job.job_id)
+
     def clear(self, queue=None, job_id=None, force=False):
         """
         Clear the queue and the job data.

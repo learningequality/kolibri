@@ -240,6 +240,10 @@ class RegisteredTask(object):
     def __repr__(self):
         return "<RegisteredJob: {func}>".format(func=self.func)
 
+    @property
+    def func_string(self):
+        return stringify_func(self)
+
     def _validate_permissions_classes(self, permission_classes):
         for permission_class in permission_classes:
             if not isinstance(permission_class, BasePermission) and not issubclass(
@@ -263,7 +267,7 @@ class RegisteredTask(object):
     def validate_job_data(self, user, data):
         # Run validator with `user` and `data` as its argument.
         if "type" not in data:
-            data["type"] = stringify_func(self)
+            data["type"] = self.func_string
         validator = self.validator(data=data, context={"user": user})
         validator.is_valid(raise_exception=True)
         validated_data = validator.validated_data
@@ -277,6 +281,9 @@ class RegisteredTask(object):
             )
 
         return job, enqueue_args_validated_data
+
+    def cancel_all(self):
+        return job_storage.cancel_jobs(func=self.func_string)
 
     def enqueue(self, job=None, retry_interval=None, priority=None, **job_kwargs):
         """

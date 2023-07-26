@@ -41,7 +41,6 @@ from kolibri.utils.translation import ugettext as _
 from kolibri.utils.version import version_matches_range
 
 QUEUE = "content"
-SYNC_CANCEL_STATIC_ID = "783"
 
 
 def get_status(job):
@@ -357,7 +356,6 @@ def automatic_resource_import():
 
 
 @register_task(
-    job_id=SYNC_CANCEL_STATIC_ID,
     long_running=True,
     status_fn=get_status,
 )
