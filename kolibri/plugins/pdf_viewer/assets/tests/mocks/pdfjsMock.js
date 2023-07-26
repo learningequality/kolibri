@@ -42,4 +42,10 @@ export const AnnotationMode = {
   ENABLE_FORMS: 'ENABLE_FORMS',
 };
 
+export class PDFWorker {
+  constructor() {
+    this.promise = Promise.resolve();
+  }
+}
+
 /* eslint-enable */

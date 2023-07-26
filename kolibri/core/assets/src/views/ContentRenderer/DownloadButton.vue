@@ -1,6 +1,7 @@
 <template>
 
   <KButton
+    v-if="canDownload"
     ref="button"
     hasDropdown
     :primary="$attrs.primary"
@@ -19,7 +20,9 @@
 
 <script>
 
+  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import { getFilePresetString } from './filePresetStrings';
+  import { getRenderableFiles } from './utils';
 
   export default {
     name: 'DownloadButton',
@@ -34,6 +37,12 @@
       },
     },
     computed: {
+      downloadableFiles() {
+        return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
+      },
+      canDownload() {
+        return !isEmbeddedWebView && this.downloadableFiles.length;
+      },
       fileOptions() {
         const options = this.files.map(file => {
           const label = getFilePresetString(file);
@@ -41,7 +50,7 @@
             label,
             url: file.storage_url,
             fileName: this.$tr('downloadFilename', {
-              resourceTitle: this.nodeTitle,
+              resourceTitle: this.nodeTitle.length ? this.nodeTitle : file.checksum,
               fileExtension: file.extension,
               fileId: file.checksum.slice(0, 6),
             }),

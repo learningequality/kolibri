@@ -160,6 +160,7 @@
       };
 
       return {
+        errored,
         progress,
         time_spent,
         extra_fields,

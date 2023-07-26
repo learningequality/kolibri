@@ -85,7 +85,7 @@ describe('PdfRendererIndex', () => {
       makeWrapper({
         data: { defaultFile: { storage_url: DUMMY_PDF_URL } },
       });
-      expect(mockPDFJS.getDocument).toHaveBeenCalledWith(DUMMY_PDF_URL);
+      expect(mockPDFJS.getDocument.mock.calls[0][0].url).toEqual(DUMMY_PDF_URL);
     });
 
     it('should get the pdf Document Outline', async () => {

@@ -116,8 +116,8 @@
     </div>
 
     <DownloadButton
-      v-if="canDownload"
-      :files="downloadableFiles"
+      v-if="canDownloadContent"
+      :files="content.files"
       :nodeTitle="content.title"
       class="download-button"
       data-test="download-button"
@@ -130,10 +130,9 @@
 
 <script>
 
-  import { ContentNodeKinds, ContentLevels } from 'kolibri.coreVue.vuex.constants';
+  import { ContentLevels } from 'kolibri.coreVue.vuex.constants';
   import camelCase from 'lodash/camelCase';
 
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import LearnerNeeds from 'kolibri-constants/labels/Needs';
   import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -189,19 +188,6 @@
           get(this, 'content.license_name', null),
           get(this, 'content.license_description', null)
         );
-      },
-      downloadableFiles() {
-        return this.content.files.filter(file => !file.preset.endsWith('thumbnail'));
-      },
-      canDownload() {
-        if (this.canDownloadContent) {
-          return (
-            this.downloadableFiles.length &&
-            this.content.kind !== ContentNodeKinds.EXERCISE &&
-            !isEmbeddedWebView
-          );
-        }
-        return false;
       },
     },
     mounted() {

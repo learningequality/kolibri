@@ -219,7 +219,7 @@ export default {
         this._errorComponent = new ContentRendererErrorComponent({
           el: domNode,
           parent: this,
-          propsData: { error: this._resourceError },
+          propsData: { error: this._resourceError, files: this.files },
         });
       }
     },
