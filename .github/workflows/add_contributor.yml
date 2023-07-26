@@ -42,21 +42,7 @@ jobs:
           full_name=${{ steps.get_full_name.outputs.full_name }}
           echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
 
-      - name: Commit changes
+      - name: Commit and push changes to branch
         id: commit_changes
         if: steps.check_contributor.outputs.exists == 'false'
-        run: |
-            git config  --local user.email "action@github.com"
-            git config  --local user.name "GitHub Action"
-            git add AUTHORS.md
-            git commit -m "Add $GITHUB_ACTOR to AUTHORS.md"
-
-      - name: Create PR
-        id: create_pr
-        if: steps.check_contributor.outputs.exists == 'false'
-        uses: peter-evans/create-pull-request@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          title: "Add $GITHUB_ACTOR to AUTHORS.md"
-          body: "This pull request adds $GITHUB_ACTOR to the AUTHORS.md file."
-          branch: ${{ github.event.pull_request.head.ref }}
+        uses: pre-commit-ci/lite-action@v1.0.1
