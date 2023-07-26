@@ -46,3 +46,5 @@ jobs:
         id: commit_changes
         if: steps.check_contributor.outputs.exists == 'false'
         uses: pre-commit-ci/lite-action@v1.0.1
+        with:
+          msg: Add ${{ env.GITHUB_ACTOR }} to AUTHORS.md
