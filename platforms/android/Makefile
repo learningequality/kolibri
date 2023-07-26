@@ -72,6 +72,10 @@ src/kolibri: clean
 	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/py2only*" -d src/
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
 	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' src/kolibri/dist/django/db/migrations/loader.py
+	$(MAKE) create-strings
+
+create-strings:
+	python scripts/create_strings.py
 
 # Checks to see if we have any uncommitted changes in the Android project
 # use this to prevent losing uncommitted changes when updating or rebuilding the P4A project
