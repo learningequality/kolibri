@@ -186,6 +186,25 @@ class Storage(object):
             )
             return job.job_id
 
+    def enqueue_job_if_not_enqueued(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no queued job for the same task.
+
+        N.B. This method does not curently match by job arguments (args and kwargs) but only by the function name.
+
+        :return: enqueued job's id.
+        """
+
+        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=State.QUEUED)
+        if queued_jobs:
+            return queued_jobs[0].job_id
+
+        return self.enqueue_job(
+            job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        )
+
     def mark_job_as_canceled(self, job_id):
         """
         Mark the job as canceled. Does not actually try to cancel a running job.
