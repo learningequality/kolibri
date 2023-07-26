@@ -72,6 +72,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
       test: /\.(js|mjs)$/,
       loader: 'babel-loader',
       exclude: [
+        // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
         // \\ for Windows, / for macOS and Linux
         /node_modules[\\/]core-js/,
         /node_modules[\\/]webpack[\\/]buildin/,

@@ -9,6 +9,7 @@ for (const item of toPolyfill) {
   if (Object.prototype.hasOwnProperty.call(item, 'append')) {
     continue;
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Element/append
   Object.defineProperty(item, 'append', {
     configurable: true,
     enumerable: true,
@@ -32,6 +33,7 @@ for (const item of toPolyfill) {
   if (Object.prototype.hasOwnProperty.call(item, 'prepend')) {
     continue;
   }
+  // See https://developer.mozilla.org/en-US/docs/Web/API/Element/prepend
   Object.defineProperty(item, 'prepend', {
     configurable: true,
     enumerable: true,
