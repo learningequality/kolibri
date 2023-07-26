@@ -283,9 +283,6 @@ class DeviceSettingsSerializer(DeviceSerializerMixin, serializers.ModelSerialize
                     and automatic_download_enabled
                     != initial_extra_settings.get("enable_automatic_download")
                 ):
-                    # Cancel any ongoing syncing before we kick start the new one
-                    job_storage.cancel_if_exists(SYNC_CANCEL_STATIC_ID)
-
                     automatic_synchronize_content_requests_and_import.enqueue()
                 else:
                     # If the trigger is switched from on to off we need to cancle any ongoing syncing of resources
