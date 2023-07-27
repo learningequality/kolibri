@@ -131,13 +131,13 @@ class Job(object):
         "progress",
         "total_progress",
         "result",
+        "args",
+        "kwargs",
     }
 
     JSON_KEYS = UPDATEABLE_KEYS | {
         "job_id",
         "facility_id",
-        "args",
-        "kwargs",
         "func",
         "long_running",
     }

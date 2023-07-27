@@ -56,6 +56,11 @@ class JobTest(TestCase):
         with self.assertRaises(ReferenceError):
             self.job.save_as_cancellable(cancellable=cancellable)
 
+    def test_job_retry_in(self):
+        dt = timedelta(seconds=15)
+        self.job.retry_in(dt)
+        self.job.storage.retry_job_in.assert_called_once_with(self.job.job_id, dt)
+
 
 class TestRegisteredTask(TestCase):
     def setUp(self):
