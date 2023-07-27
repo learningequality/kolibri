@@ -52,6 +52,31 @@ class Exam(AbstractFacilityDataModel):
     """
     The `question_sources` field contains different values depending on the 'data_model_version' field.
 
+    V3:
+        Represents a list of questions of V2 objects each of which are now a "Exam/Quiz Section"
+        and extends it with an additional description field
+
+        # Exam
+        [
+            # Section 1
+            {
+                  "section_title": <section title>,
+                  "description": <section description>,
+                  "resource_pool": [ <contentnode_ids of pool of resources> ],
+                  "questions": [
+                    {
+                        "exercise_id": <exercise_pk>,
+                        "question_id": <item_id_within_exercise>,
+                        "title": <title of question>
+                        "counter_in_exercise": <unique_count_for_question>
+                    },
+                  ]
+            },
+
+            # Section 2
+            {...}
+        ]
+
     V2:
         Similar to V1, but with a `counter_in_exercise` field
         [
@@ -176,7 +201,7 @@ class Exam(AbstractFacilityDataModel):
     Certain fields that are only relevant for older model versions get prefixed
     with their version numbers.
     """
-    data_model_version = models.SmallIntegerField(default=2)
+    data_model_version = models.SmallIntegerField(default=3)
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("collection")

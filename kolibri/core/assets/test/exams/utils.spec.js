@@ -1,5 +1,5 @@
 import map from 'lodash/map';
-import { convertExamQuestionSources } from '../../src/exams/utils';
+import { convertExamQuestionSources, convertExamQuestionSourcesToV3 } from '../../src/exams/utils';
 
 // map of content IDs to lists of question IDs
 const QUESTION_IDS = {
@@ -81,6 +81,63 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
 });
 
 describe('exam utils', () => {
+  describe('convertExamQuestionSourcesToV3 converting from any previous version to V3', () => {
+    it('returns an array of newly structured objects with old question sources in questions', () => {
+      // Stolen from test below to ensure we're getting expected V2 values... as expected
+      const exam = {
+        data_model_version: 1,
+        question_sources: [
+          {
+            exercise_id: 'E1',
+            question_id: 'Q1',
+            title: 'Question 1',
+          },
+          {
+            exercise_id: 'E1',
+            question_id: 'Q2',
+            title: 'Question 2',
+          },
+          {
+            exercise_id: 'E2',
+            question_id: 'Q1',
+            title: 'Question 1',
+          },
+        ],
+      };
+      const expectedSources = [
+        {
+          exercise_id: 'E1',
+          question_id: 'Q1',
+          title: 'Question 1',
+          counter_in_exercise: 1,
+          item: 'E1:Q1',
+        },
+        {
+          exercise_id: 'E1',
+          question_id: 'Q2',
+          title: 'Question 2',
+          counter_in_exercise: 2,
+          item: 'E1:Q2',
+        },
+        {
+          exercise_id: 'E2',
+          question_id: 'Q1',
+          title: 'Question 1',
+          counter_in_exercise: 1,
+          item: 'E2:Q1',
+        },
+      ].sort();
+      const converted = convertExamQuestionSourcesToV3(exam);
+      expect(converted).toEqual([
+        {
+          section_title: '',
+          description: '',
+          resource_pool: [],
+          questions: expectedSources.sort(),
+        },
+      ]);
+    });
+  });
   describe('convertExamQuestionSources converting from V1 to V2', () => {
     it('returns a question_sources array with a counter_in_exercise field', () => {
       const exam = {

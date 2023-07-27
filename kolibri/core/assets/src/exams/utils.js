@@ -82,6 +82,32 @@ function annotateQuestionsWithItem(questions) {
   });
 }
 
+/* Given a V2 question_sources, return V3 structure with those questions within one new section */
+export function convertV2toV3(questionSources = []) {
+  return {
+    section_title: '', // TODO Get a default string for the section title in here that is translated
+    description: '',
+    resource_pool: [],
+    questions: annotateQuestionsWithItem(questionSources),
+  };
+}
+
+export function revertV3toV2(questionSources) {
+  if (!questionSources.length) {
+    return [];
+  }
+  return questionSources[0].questions;
+}
+
+export function convertExamQuestionSourcesToV3(exam, extraArgs = {}) {
+  if (exam.data_model_version !== 3) {
+    const V2_sources = convertExamQuestionSources(exam, extraArgs);
+    return [convertV2toV3(V2_sources)];
+  }
+
+  return exam.question_sources;
+}
+
 export function convertExamQuestionSources(exam, extraArgs = {}) {
   const { data_model_version } = exam;
   if (data_model_version === 0) {
@@ -107,12 +133,22 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
   if (data_model_version === 1) {
     return annotateQuestionsWithItem(convertExamQuestionSourcesV1V2(exam.question_sources));
   }
+  // For backwards compatibility. If you are using V3, use the convertExamQuestionSourcesToV3 func
+  if (data_model_version === 3) {
+    return revertV3toV2(exam.question_sources);
+  }
+
   return annotateQuestionsWithItem(exam.question_sources);
 }
 
 export function fetchNodeDataAndConvertExam(exam) {
   const { data_model_version } = exam;
-  if (data_model_version >= 2) {
+  if (data_model_version >= 3) {
+    /* For backwards compatibility, we need to convert V3 to V2 */
+    exam.question_sources = revertV3toV2(exam.question_sources);
+    return Promise.resolve(exam);
+  }
+  if (data_model_version == 2) {
     exam.question_sources = annotateQuestionsWithItem(exam.question_sources);
     return Promise.resolve(exam);
   }
