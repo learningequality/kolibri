@@ -48,6 +48,9 @@ class DeviceRedirect(RoleBasedRedirectHook):
     # more likely to be a superuser managing a device rather than a learner
     # with on their own device.
     require_full_facility = True
+    # Also only do this redirect if the user is not using the 'on my own'
+    # facility setup flow.
+    require_no_on_my_own_facility = True
 
     @property
     def url(self):

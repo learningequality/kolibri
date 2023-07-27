@@ -864,6 +864,12 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             .exists()
         )
 
+    @cached_property
+    def full_facility_on_my_own_setup(self):
+        if self.dataset.extra_fields is not None:
+            return self.dataset.extra_fields.get("on_my_own_setup", False)
+        return False
+
     @property
     def can_manage_content(self):
         return self.get_permission("can_manage_content")

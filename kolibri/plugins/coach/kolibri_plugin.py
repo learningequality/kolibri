@@ -33,6 +33,7 @@ class Coach(KolibriPluginBase):
 class CoachRedirect(RoleBasedRedirectHook):
     roles = (COACH,)
     require_full_facility = True
+    require_no_on_my_own_facility = True
 
     @property
     def url(self):

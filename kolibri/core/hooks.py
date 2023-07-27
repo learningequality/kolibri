@@ -37,6 +37,10 @@ class RoleBasedRedirectHook(KolibriHook):
     # of a full facility import
     require_full_facility = False
 
+    # If True, will only be used to redirect if the user is not
+    # in an 'on my own' facility
+    require_no_on_my_own_facility = False
+
     # User role to redirect for
     @abstractproperty
     def roles(self):
