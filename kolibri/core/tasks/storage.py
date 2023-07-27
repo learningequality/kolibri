@@ -5,7 +5,7 @@ from datetime import timedelta
 
 from sqlalchemy import Column
 from sqlalchemy import DateTime
-from sqlalchemy import func
+from sqlalchemy import func as sql_func
 from sqlalchemy import Index
 from sqlalchemy import Integer
 from sqlalchemy import or_
@@ -50,6 +50,9 @@ class ORMJob(Base):
     # The job's state. Inflated here for easier querying to the job's state.
     state = Column(String, index=True)
 
+    # The job's function string. Inflated here for easier querying of which task type it is.
+    func = Column(String, index=True)
+
     # The job's priority. Helps to decide which job to run next.
     priority = Column(Integer, index=True)
 
@@ -59,8 +62,8 @@ class ORMJob(Base):
     # The JSON string that represents the job
     saved_job = Column(String)
 
-    time_created = Column(DateTime(timezone=True), server_default=func.now())
-    time_updated = Column(DateTime(timezone=True), server_onupdate=func.now())
+    time_created = Column(DateTime(timezone=True), server_default=sql_func.now())
+    time_updated = Column(DateTime(timezone=True), server_onupdate=sql_func.now())
 
     # Repeat interval in seconds.
     interval = Column(Integer, default=0)
@@ -103,7 +106,7 @@ class Storage(object):
         Returns the number of jobs currently in the storage.
         """
         with self.engine.connect() as conn:
-            return conn.execute(func.count(ORMJob.id)).scalar()
+            return conn.execute(sql_func.count(ORMJob.id)).scalar()
 
     def __contains__(self, item):
         """
@@ -183,6 +186,25 @@ class Storage(object):
             )
             return job.job_id
 
+    def enqueue_job_if_not_enqueued(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        """
+        Enqueue the function with arguments passed to this method if there is no queued job for the same task.
+
+        N.B. This method does not curently match by job arguments (args and kwargs) but only by the function name.
+
+        :return: enqueued job's id.
+        """
+
+        queued_jobs = self.filter_jobs(func=job.func, queue=queue, state=State.QUEUED)
+        if queued_jobs:
+            return queued_jobs[0].job_id
+
+        return self.enqueue_job(
+            job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+        )
+
     def mark_job_as_canceled(self, job_id):
         """
         Mark the job as canceled. Does not actually try to cancel a running job.
@@ -258,6 +280,35 @@ class Storage(object):
 
             return job
 
+    def filter_jobs(
+        self, queue=None, queues=None, state=None, repeating=None, func=None
+    ):
+        if queue and queues:
+            raise ValueError("Cannot specify both queue and queues")
+        with self.engine.connect() as conn:
+            q = select(ORMJob)
+
+            if queue:
+                q = q.where(ORMJob.queue == queue)
+
+            if queues:
+                q = q.where(ORMJob.queue.in_(queues))
+
+            if state:
+                q = q.where(ORMJob.state == state)
+
+            if repeating is True:
+                q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
+            elif repeating is False:
+                q = q.where(ORMJob.repeat == 0)
+
+            if func:
+                q = q.where(ORMJob.func == func)
+
+            orm_jobs = conn.execute(q)
+
+            return [self._orm_to_job(o) for o in orm_jobs]
+
     def get_canceling_jobs(self, queues=None):
         return self.get_jobs_by_state(state=State.CANCELING, queues=queues)
 
@@ -265,32 +316,10 @@ class Storage(object):
         return self.get_jobs_by_state(state=State.RUNNING, queues=queues)
 
     def get_jobs_by_state(self, state, queues=None):
-        with self.engine.connect() as conn:
-            q = select(ORMJob).where(ORMJob.state == state)
-
-            if queues:
-                q = q.where(ORMJob.queue.in_(queues))
-
-            q = q.order_by(ORMJob.time_created)
-            jobs = conn.execute(q)
-
-            return [self._orm_to_job(job) for job in jobs]
+        return self.filter_jobs(state=state, queues=queues)
 
     def get_all_jobs(self, queue=None, repeating=None):
-        with self.engine.connect() as conn:
-            q = select(ORMJob)
-
-            if queue:
-                q = q.where(ORMJob.queue == queue)
-
-            if repeating is True:
-                q = q.where(or_(ORMJob.repeat > 0, ORMJob.repeat == None))  # noqa E711
-            elif repeating is False:
-                q = q.where(ORMJob.repeat == 0)
-
-            orm_jobs = conn.execute(q)
-
-            return [self._orm_to_job(o) for o in orm_jobs]
+        return self.filter_jobs(queue=queue, repeating=repeating)
 
     def test_table_readable(self):
         """
@@ -371,6 +400,16 @@ class Storage(object):
             self.cancel(job_id)
         except JobNotFound:
             pass
+
+    def cancel_jobs(
+        self, queue=None, queues=None, state=None, repeating=None, func=None
+    ):
+        """
+        Cancel all jobs matching the given criteria.
+        """
+        jobs = self.filter_jobs(queue=queue, queues=queues, state=state, func=func)
+        for job in jobs:
+            self.cancel(job.job_id)
 
     def clear(self, queue=None, job_id=None, force=False):
         """
@@ -485,7 +524,14 @@ class Storage(object):
                 if priority is not None:
                     orm_job.priority = priority
                 for kwarg in kwargs:
-                    setattr(job, kwarg, kwargs[kwarg])
+                    if kwarg in Job.UPDATEABLE_KEYS:
+                        setattr(job, kwarg, kwargs[kwarg])
+                    else:
+                        logger.error(
+                            "Tried to update job with id {} with non-updateable key {}".format(
+                                job_id, kwarg
+                            )
+                        )
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
                 for hook in self._hooks:
@@ -600,6 +646,7 @@ class Storage(object):
             orm_job = ORMJob(
                 id=job.job_id,
                 state=job.state,
+                func=job.func,
                 priority=priority,
                 queue=queue,
                 interval=interval,

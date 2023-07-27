@@ -15,7 +15,7 @@ from kolibri.core.tasks.job import State
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.utils.time_utils import local_now
 
 
@@ -56,7 +56,7 @@ class TestBackend:
         new_job = defaultbackend.get_job(job_id)
 
         # Does the returned job record the function we set to run?
-        assert str(new_job.func) == stringify_func(func)
+        assert str(new_job.func) == callable_to_import_path(func)
 
         # Does the job have the right state (QUEUED)?
         assert new_job.state == State.QUEUED

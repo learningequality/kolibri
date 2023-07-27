@@ -36,7 +36,7 @@ def get_current_job():
     return getattr(current_state_tracker, "job", None)
 
 
-def stringify_func(func):
+def callable_to_import_path(func):
     if callable(func):
         funcstring = "{module}.{funcname}".format(
             module=func.__module__, funcname=func.__name__
@@ -49,7 +49,7 @@ def stringify_func(func):
     return funcstring
 
 
-def import_stringified_func(funcstring):
+def import_path_to_callable(funcstring):
     """
     Import a string that represents a module and function, e.g. {module}.{funcname}.
 

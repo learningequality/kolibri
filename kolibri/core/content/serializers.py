@@ -309,5 +309,5 @@ class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
         content_request.contentnode_id = validated_data["contentnode_id"]
 
         content_request.save()
-        automatic_resource_import.enqueue()
+        automatic_resource_import.enqueue_if_not()
         return content_request

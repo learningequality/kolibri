@@ -8,9 +8,9 @@ from collections import namedtuple
 from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import current_state_tracker
-from kolibri.core.tasks.utils import import_stringified_func
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import import_path_to_callable
 from kolibri.utils import translation
 from kolibri.utils.translation import ugettext as _
 
@@ -121,6 +121,27 @@ class Job(object):
     to the workers.
     """
 
+    UPDATEABLE_KEYS = {
+        "state",
+        "exception",
+        "traceback",
+        "track_progress",
+        "cancellable",
+        "extra_metadata",
+        "progress",
+        "total_progress",
+        "result",
+    }
+
+    JSON_KEYS = UPDATEABLE_KEYS | {
+        "job_id",
+        "facility_id",
+        "args",
+        "kwargs",
+        "func",
+        "long_running",
+    }
+
     def to_json(self):
         """
         Creates and returns a JSON-serialized string representing this Job.
@@ -128,26 +149,8 @@ class Job(object):
         This storage method is why task exceptions are stored as strings.
         """
 
-        keys = [
-            "job_id",
-            "facility_id",
-            "state",
-            "exception",
-            "traceback",
-            "track_progress",
-            "cancellable",
-            "extra_metadata",
-            "progress",
-            "total_progress",
-            "args",
-            "kwargs",
-            "func",
-            "result",
-            "long_running",
-        ]
-
         working_dictionary = {
-            key: self.__dict__[key] for key in keys if key in self.__dict__
+            key: self.__dict__[key] for key in self.JSON_KEYS if key in self.__dict__
         }
 
         try:
@@ -238,7 +241,7 @@ class Job(object):
         self.args = args
         self.kwargs = kwargs or {}
         self._storage = None
-        self.func = stringify_func(func)
+        self.func = callable_to_import_path(func)
 
     def _check_storage_attached(self):
         if self._storage is None:
@@ -325,7 +328,7 @@ class Job(object):
 
         We don't bother caching this property, as we rely on the Python module import cache instead.
         """
-        return import_stringified_func(self.func)
+        return import_path_to_callable(self.func)
 
     @property
     def percentage_progress(self):

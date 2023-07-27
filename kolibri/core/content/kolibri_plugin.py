@@ -84,4 +84,4 @@ class ContentSyncHook(FacilityDataSyncHook):
         # TODO: we need determine total space for new downloads and if there isn't sufficient space
         # save the `LearnerDeviceStatus` with the insufficient storage status
 
-        automatic_resource_import.enqueue()
+        automatic_resource_import.enqueue_if_not()

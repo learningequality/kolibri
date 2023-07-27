@@ -9,9 +9,9 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.test.base import connection
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import get_current_job
-from kolibri.core.tasks.utils import import_stringified_func
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import import_path_to_callable
 from kolibri.core.tasks.worker import Worker
 
 
@@ -233,8 +233,8 @@ class TestJobStorage(object):
         assert job.state == State.FAILED
 
     def test_stringify_func_is_importable(self):
-        funcstring = stringify_func(set_flag)
-        func = import_stringified_func(funcstring)
+        funcstring = callable_to_import_path(set_flag)
+        func = import_path_to_callable(funcstring)
 
         assert set_flag == func
 

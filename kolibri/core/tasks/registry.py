@@ -12,7 +12,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.validation import JobValidator
 
 
@@ -100,7 +100,7 @@ class _registry(dict):
                 pass
 
     def _register_task(self, registered_task):
-        funcstring = stringify_func(registered_task)
+        funcstring = callable_to_import_path(registered_task)
         self[funcstring] = registered_task
         logger.debug("Successfully registered '%s' as task.", funcstring)
 
@@ -240,6 +240,10 @@ class RegisteredTask(object):
     def __repr__(self):
         return "<RegisteredJob: {func}>".format(func=self.func)
 
+    @property
+    def func_string(self):
+        return callable_to_import_path(self)
+
     def _validate_permissions_classes(self, permission_classes):
         for permission_class in permission_classes:
             if not isinstance(permission_class, BasePermission) and not issubclass(
@@ -263,7 +267,7 @@ class RegisteredTask(object):
     def validate_job_data(self, user, data):
         # Run validator with `user` and `data` as its argument.
         if "type" not in data:
-            data["type"] = stringify_func(self)
+            data["type"] = self.func_string
         validator = self.validator(data=data, context={"user": user})
         validator.is_valid(raise_exception=True)
         validated_data = validator.validated_data
@@ -278,6 +282,9 @@ class RegisteredTask(object):
 
         return job, enqueue_args_validated_data
 
+    def cancel_all(self):
+        return job_storage.cancel_jobs(func=self.func_string)
+
     def enqueue(self, job=None, retry_interval=None, priority=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method.
@@ -285,6 +292,21 @@ class RegisteredTask(object):
         :return: enqueued job's id.
         """
         return job_storage.enqueue_job(
+            job or self._ready_job(**job_kwargs),
+            queue=self.queue,
+            priority=priority or self.priority,
+            retry_interval=retry_interval,
+        )
+
+    def enqueue_if_not(
+        self, job=None, retry_interval=None, priority=None, **job_kwargs
+    ):
+        """
+        Enqueue the function with arguments passed to this method if a job of this type is not already enqueued.
+
+        :return: enqueued job's id.
+        """
+        return job_storage.enqueue_job_if_not_enqueued(
             job or self._ready_job(**job_kwargs),
             queue=self.queue,
             priority=priority or self.priority,
