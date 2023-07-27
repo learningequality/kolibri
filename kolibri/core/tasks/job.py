@@ -8,9 +8,9 @@ from collections import namedtuple
 from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import current_state_tracker
-from kolibri.core.tasks.utils import import_stringified_func
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import import_path_to_callable
 from kolibri.utils import translation
 from kolibri.utils.translation import ugettext as _
 
@@ -241,7 +241,7 @@ class Job(object):
         self.args = args
         self.kwargs = kwargs or {}
         self._storage = None
-        self.func = stringify_func(func)
+        self.func = callable_to_import_path(func)
 
     def _check_storage_attached(self):
         if self._storage is None:
@@ -328,7 +328,7 @@ class Job(object):
 
         We don't bother caching this property, as we rely on the Python module import cache instead.
         """
-        return import_stringified_func(self.func)
+        return import_path_to_callable(self.func)
 
     @property
     def percentage_progress(self):

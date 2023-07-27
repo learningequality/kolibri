@@ -12,7 +12,7 @@ from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
-from kolibri.core.tasks.utils import stringify_func
+from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.validation import JobValidator
 
 
@@ -100,7 +100,7 @@ class _registry(dict):
                 pass
 
     def _register_task(self, registered_task):
-        funcstring = stringify_func(registered_task)
+        funcstring = callable_to_import_path(registered_task)
         self[funcstring] = registered_task
         logger.debug("Successfully registered '%s' as task.", funcstring)
 
@@ -242,7 +242,7 @@ class RegisteredTask(object):
 
     @property
     def func_string(self):
-        return stringify_func(self)
+        return callable_to_import_path(self)
 
     def _validate_permissions_classes(self, permission_classes):
         for permission_class in permission_classes:
