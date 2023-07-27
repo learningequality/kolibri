@@ -113,7 +113,7 @@ export default function useDownloadRequests(store) {
     if (!content || !content.id) {
       return false;
     }
-    const downloadRequest = downloadRequestMap.downloads[this.content.id];
+    const downloadRequest = downloadRequestMap[this.content.id];
     return Boolean(downloadRequest && !downloadRequest.status === 'COMPLETED');
   }
 
@@ -121,7 +121,7 @@ export default function useDownloadRequests(store) {
     if (!content || !content.id) {
       return false;
     }
-    const downloadRequest = downloadRequestMap.downloads[this.content.id];
+    const downloadRequest = downloadRequestMap[this.content.id];
     return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
   }
 
