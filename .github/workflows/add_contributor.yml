@@ -1,0 +1,50 @@
+name: Add Contributor to AUTHORS.md
+on:
+  pull_request:
+      types:
+        - opened
+        - synchronize
+
+jobs:
+  add_contributor:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Check if contributor already exists
+        id: check_contributor
+        run: |
+          exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md || true)
+          if [[ $exists -gt 0 ]]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Get contributor's full name
+        id: get_full_name
+        if: steps.check_contributor.outputs.exists == 'false'
+        run: |
+          username=$GITHUB_ACTOR
+          access_token=$GITHUB_TOKEN
+          full_name=$(curl -s -H "Authorization: token $access_token" "https://api.github.com/users/$username" | jq -r '.name')
+          if [[ "$full_name" == "" || "$full_name" == "null" ]]; then
+            full_name='-'
+          fi
+          echo "full_name=$full_name" >> $GITHUB_OUTPUT
+
+      - name: Append contributor to AUTHORS.md
+        id: append_contributor
+        if: steps.check_contributor.outputs.exists == 'false'
+        run: |
+          full_name=${{ steps.get_full_name.outputs.full_name }}
+          echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
+
+      - name: Commit and push changes to branch
+        id: commit_changes
+        if: steps.check_contributor.outputs.exists == 'false'
+        uses: pre-commit-ci/lite-action@v1.0.1
+        with:
+          msg: Add ${{ env.GITHUB_ACTOR }} to AUTHORS.md
