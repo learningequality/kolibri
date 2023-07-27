@@ -81,12 +81,13 @@
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-          <RecycleList
+          <RecycleScroller
             ref="recycleList"
             :items="pdfPages"
             :itemHeight="itemHeight"
             :emitUpdate="true"
             :style="{ height: `${elementHeight - 40}px` }"
+            :buffer="1.5 * elementHeight"
             class="pdf-container"
             keyField="index"
             @update="handleUpdate"
@@ -104,7 +105,7 @@
                 :eventBus="eventBus"
               />
             </template>
-          </RecycleList>
+          </RecycleScroller>
         </KGridItem>
       </KGrid>
     </template>
@@ -119,7 +120,7 @@
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
-  import { RecycleList } from 'vue-virtual-scroller';
+  import { RecycleScroller } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
@@ -140,7 +141,7 @@
     components: {
       SideBar,
       PdfPage,
-      RecycleList,
+      RecycleScroller,
       CoreFullscreen,
     },
     mixins: [responsiveWindowMixin, responsiveElementMixin, commonCoreStrings],
