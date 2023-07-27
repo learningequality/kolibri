@@ -4,11 +4,11 @@ import requests
 from six import raise_from
 from six.moves.urllib.parse import urlparse
 
+import kolibri
 from . import errors
 from .urls import get_normalized_url_variations
 from .urls import HTTP_PORTS
 from .urls import HTTPS_PORTS
-import kolibri
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import join_url
