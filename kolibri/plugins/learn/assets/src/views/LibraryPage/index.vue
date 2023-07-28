@@ -512,7 +512,12 @@
       },
     },
     created() {
+      const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+
       this.search();
+      if (window.sessionStorage.getItem(welcomeDimissalKey) !== 'true') {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
       if (this.isUserLoggedIn) {
         this.refreshDevices();
       }

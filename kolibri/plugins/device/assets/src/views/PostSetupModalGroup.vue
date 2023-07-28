@@ -4,6 +4,7 @@
     <WelcomeModal
       v-if="step === Steps.WELCOME"
       :importedFacility="importedFacility"
+      :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
     />
 
@@ -54,6 +55,12 @@
       SelectDeviceForm,
     },
     mixins: [commonSyncElements],
+    props: {
+      isOnMyOwnUser: {
+        type: Boolean,
+        required: false,
+      },
+    },
     data() {
       return {
         step: Steps.WELCOME,

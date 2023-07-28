@@ -11,4 +11,7 @@ export default {
   SET_ROOT_NODES_LOADING(state, valToSet) {
     state.rootNodesLoading = valToSet;
   },
+  SET_WELCOME_MODAL_VISIBLE(state, visibility) {
+    state.welcomeModalVisible = visibility;
+  },
 };
