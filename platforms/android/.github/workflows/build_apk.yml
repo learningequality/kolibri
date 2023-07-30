@@ -38,6 +38,22 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: 3.9
+    - name: Install Apt Dependencies
+      # Dependencies installed here are taken from the buildozer Dockerfile:
+      # https://github.com/kivy/buildozer/blob/master/Dockerfile#L45
+      # with items that are already installed on the Ubuntu 22.04 image removed:
+      # https://github.com/actions/runner-images/blob/main/images/linux/Ubuntu2204-Readme.md#installed-apt-packages
+      run: |
+        sudo apt update -qq > /dev/null \
+        && DEBIAN_FRONTEND=noninteractive sudo apt install -qq --yes --no-install-recommends \
+        build-essential \
+        ccache \
+        cmake \
+        gettext \
+        libffi-dev \
+        libltdl-dev \
+        patch \
+        zlib1g-dev
     - uses: actions/cache@v3
       with:
         # This is where python for android puts its intermediary build
@@ -70,12 +86,6 @@ jobs:
       run: make setup
     - name: Build the app
       run: |
-        # No need to set the ANDROID_HOME environment variable here that is used for
-        # setting up the ANDROID SDK and ANDROID NDK, as the github actions images
-        # have these SDKs and NDKs already installed.
-        # https://github.com/actions/virtual-environments/blob/main/images/linux/Ubuntu2004-Readme.md#environment-variables-3
-        export ANDROIDSDK=$ANDROID_SDK_ROOT
-        export ANDROIDNDK=$ANDROID_SDK_ROOT/ndk-bundle
         make kolibri.apk.unsigned
     - name: Get APK filename
       id: get-apk-filename
