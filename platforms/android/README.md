@@ -20,12 +20,10 @@ This project was primarily developed on Docker, so this method is more rigorousl
 
 2. Install the Android SDK and Android NDK.
 
-Set the `ANDROID_HOME` environment variable to the location you would like these to be installed, e.g.:
-`export ANDROID_HOME=./android_root`
+N.B. if you would like these to be installed to a different location then you can set an environment variable, e.g.:
+By default it is set to `export ANDROID_SDK_ROOT=./android_root`
 
 Run `make setup`.
-
-Follow the instructions from the command to set the additional environment variables.
 
 3. Install the Python dependencies:
 

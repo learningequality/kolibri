@@ -20,7 +20,16 @@ endif
 ANDROID_API := 31
 ANDROIDNDKVER := 25.2.9519653
 
-SDK := ${ANDROID_HOME}/android-sdk-$(PLATFORM)
+ifdef ANDROID_SDK_ROOT
+else
+	ANDROID_SDK_ROOT := $(shell pwd)/android_root
+endif
+
+SDK := ${ANDROID_SDK_ROOT}
+
+export ANDROID_HOME := $(SDK)
+export ANDROIDSDK := $(SDK)
+export ANDROIDNDK := $(SDK)/ndk-bundle
 
 ADB := adb
 DOCKER := docker
@@ -39,8 +48,7 @@ guard-%:
 	fi
 
 needs-android-dirs:
-	$(MAKE) guard-ANDROIDSDK
-	$(MAKE) guard-ANDROIDNDK
+	$(MAKE) guard-ANDROID_SDK_ROOT
 
 # Clear out apks
 clean:
@@ -187,12 +195,8 @@ sdk: $(SDK)/cmdline-tools/latest/bin/sdkmanager
 # All of these commands are non-destructive, so if the cmdline-tools are already installed, make will skip
 # based on the directory existing.
 # The SDK installations will take a little time, but will not attempt to redownload if already installed.
-setup:
-	$(MAKE) guard-ANDROID_HOME
+setup: needs-android-dirs
 	$(MAKE) sdk
-	@echo "Make sure to set the necessary environment variables"
-	@echo "export ANDROIDSDK=$(SDK)"
-	@echo "export ANDROIDNDK=$(SDK)/ndk-bundle"
 
 clean-tools:
-	rm -rf ${ANDROID_HOME}
+	rm -rf ${ANDROID_SDK_ROOT}
