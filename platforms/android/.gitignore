@@ -13,7 +13,6 @@ python-for-android/dists/kolibri/templates
 python-for-android/dists/kolibri/obj
 python-for-android/dists/kolibri/src/res_initial
 python-for-android/dists/kolibri/src/main/assets/private.tar
-python-for-android/dists/kolibri/src/main/AndroidManifest.xml
 python-for-android/dists/kolibri/webview_includes
 python-for-android/dists/kolibri/*.*
 python-for-android/dists/kolibri/gradlew
