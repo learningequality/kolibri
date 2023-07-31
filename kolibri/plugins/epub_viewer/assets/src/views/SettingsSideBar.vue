@@ -66,6 +66,41 @@
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
       <KFixedGrid numCols="4" gutter="8">
+        <!-- Buttons for already created custom themes -->
+        <KFixedGridItem
+          v-for="(value, key) in customThemes"
+          :key="key"
+          span="1"
+          style="margin-bottom: 8px;"
+        >
+          <KButton
+            class="settings-button theme-button"
+            :aria-label="generateCustomThemeAriaLabel(key)"
+            :appearanceOverrides="generateStyle(value)"
+            @click="$emit('setTheme', value)"
+          >
+            <KIcon
+              v-if="isCurrentlySelectedTheme(value) "
+              icon="check"
+              :style="{ fill: value.textColor }"
+              style="top: 0; width: 24px; height: 24px;"
+            />
+          </KButton>
+          <KButton
+            class="delete-edit-button"
+            :text="$tr('delete')"
+            :primary="true"
+            @click="deleteCustomThemeName = key"
+          />
+          <KButton
+            class="delete-edit-button"
+            :text="$tr('edit')"
+            :secondary="true"
+            @click="editCustomThemeName = key, editCustomTheme = value"
+          />
+
+        </KFixedGridItem>
+
         <!-- Button to add a new custom theme -->
         <KFixedGridItem
           v-if="Object.keys(customThemes).length < 8"
@@ -120,6 +155,9 @@
     data() {
       return {
         customThemes: {},
+        deleteCustomThemeName: null,
+        editCustomThemeName: null,
+        editCustomTheme: null,
         addCustomTheme: null,
       };
     },
@@ -154,6 +192,9 @@
           default:
             return '';
         }
+      },
+      generateCustomThemeAriaLabel(themeName) {
+        return this.$tr('setCustomTheme', { themeName });
       },
       isCurrentlySelectedTheme(theme) {
         return (
@@ -215,6 +256,16 @@
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to add a new theme.",
       },
+      delete: {
+        message: 'Delete',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to delete a theme.",
+      },
+      edit: {
+        message: 'Edit',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to edit a theme.",
+      },
       setWhiteTheme: {
         message: 'Set white theme',
         context:
@@ -234,6 +285,11 @@
         message: 'Set black theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
+      },
+      setCustomTheme: {
+        message: 'Set custom theme {themeName}',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
       },
     },
   };
@@ -258,6 +314,17 @@
     height: 44.5px;
     border-style: solid;
     border-width: 2px;
+  }
+
+  .delete-edit-button {
+    width: calc(100% - 4px);
+    min-width: unset;
+    height: calc(100% - 4px);
+    padding: 0;
+    margin: 2px;
+    font-size: 10px;
+    line-height: unset;
+    transition: none;
   }
 
   .o-f-h {
