@@ -127,6 +127,16 @@
         @submit="deleteTheme(deleteCustomThemeName)"
         @cancel="deleteCustomThemeName = null"
       />
+
+      <!-- Modal to configure a custom theme -->
+      <AddEditCustomThemeModal
+        v-if="addCustomTheme || editCustomThemeName"
+        :modalMode="addCustomTheme ? 'add' : 'edit'"
+        :theme="addCustomTheme ? theme : editCustomTheme"
+        :themeName="addCustomTheme ? addCustomTheme : editCustomThemeName"
+        @submit="addNewTheme($event)"
+        @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
+      />
     </div>
   </SideBar>
 
@@ -139,12 +149,14 @@
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
+  import AddEditCustomThemeModal from './AddEditCustomThemeModal.vue';
 
   export default {
     name: 'SettingsSideBar',
     components: {
       SideBar,
       DeleteCustomThemeModal,
+      AddEditCustomThemeModal,
     },
     props: {
       theme: {
@@ -221,13 +233,7 @@
           },
         };
       },
-      /**
-       * Save a new custom theme in local storage.
-       *
-       * @public
-       */
       addNewTheme(tempTheme) {
-        // console.log(tempTheme);
         this.addCustomTheme = null;
         this.editCustomThemeName = null;
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
