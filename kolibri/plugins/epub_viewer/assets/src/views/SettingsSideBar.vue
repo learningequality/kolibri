@@ -92,6 +92,7 @@
 
 <script>
 
+  import Lockr from 'lockr';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
 
@@ -136,6 +137,9 @@
         };
       },
     },
+    mounted() {
+      this.customThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+    },
     methods: {
       generateThemeAriaLabel(themeName) {
         switch (themeName) {
@@ -165,6 +169,21 @@
             backgroundColor: theme.hoverColor,
           },
         };
+      },
+      /**
+       * Save a new custom theme in local storage.
+       *
+       * @public
+       */
+      addNewTheme(tempTheme) {
+        // console.log(tempTheme);
+        this.addCustomTheme = null;
+        this.editCustomThemeName = null;
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        savedCustomThemes[tempTheme.name] = tempTheme;
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
+        this.customThemes = savedCustomThemes;
+        this.$emit('setTheme', tempTheme);
       },
     },
     $trs: {
