@@ -119,6 +119,14 @@
 
         </KFixedGridItem>
       </KFixedGrid>
+
+      <!-- Modal to confirm deletion of a custom theme -->
+      <DeleteCustomThemeModal
+        v-if="deleteCustomThemeName"
+        :themeName="deleteCustomThemeName"
+        @submit="deleteTheme(deleteCustomThemeName)"
+        @cancel="deleteCustomThemeName = null"
+      />
     </div>
   </SideBar>
 
@@ -130,11 +138,13 @@
   import Lockr from 'lockr';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
+  import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
 
   export default {
     name: 'SettingsSideBar',
     components: {
       SideBar,
+      DeleteCustomThemeModal,
     },
     props: {
       theme: {
@@ -225,6 +235,16 @@
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.$emit('setTheme', tempTheme);
+      },
+      deleteTheme(themeName) {
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        delete savedCustomThemes[themeName];
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
+        this.customThemes = savedCustomThemes;
+        this.deleteCustomThemeName = null;
+        if (themeName === this.theme.name) {
+          this.$emit('setTheme', this.themes.WHITE); // apply the default theme
+        }
       },
     },
     $trs: {
