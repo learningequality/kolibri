@@ -282,6 +282,9 @@
       textColor() {
         return this.theme.textColor;
       },
+      linkColor() {
+        return this.theme.linkColor || '#0000EE'; //default to blue
+      },
       themeStyle() {
         const colorStyle = {
           'background-color': `${this.backgroundColor}!important`,
@@ -320,6 +323,7 @@
           // help media not overflow their columns
           video: { 'max-width': '100%' },
           img: { 'max-width': '100%' },
+          a: { color: `${this.linkColor}!important` },
         };
       },
       tocSideBarIsOpen() {
