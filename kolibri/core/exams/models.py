@@ -54,7 +54,8 @@ class Exam(AbstractFacilityDataModel):
 
     V3:
         Represents a list of questions of V2 objects each of which are now a "Exam/Quiz Section"
-        and extends it with an additional description field
+        and extends it with an additional description field. The `learners_see_fixed_order` field
+        will now be persisted within each section itself, rather than for the whole quiz.
 
         # Exam
         [
@@ -67,8 +68,9 @@ class Exam(AbstractFacilityDataModel):
                     {
                         "exercise_id": <exercise_pk>,
                         "question_id": <item_id_within_exercise>,
-                        "title": <title of question>
-                        "counter_in_exercise": <unique_count_for_question>
+                        "title": <title of question>,
+                        "counter_in_exercise": <unique_count_for_question>,
+                        "learners_see_fixed_order": <bool>,
                     },
                   ]
             },

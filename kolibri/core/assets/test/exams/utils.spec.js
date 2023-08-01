@@ -82,51 +82,52 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
 
 describe('exam utils', () => {
   describe('convertExamQuestionSourcesToV3 converting from any previous version to V3', () => {
-    it('returns an array of newly structured objects with old question sources in questions', () => {
-      // Stolen from test below to ensure we're getting expected V2 values... as expected
-      const exam = {
-        data_model_version: 1,
-        question_sources: [
-          {
-            exercise_id: 'E1',
-            question_id: 'Q1',
-            title: 'Question 1',
-          },
-          {
-            exercise_id: 'E1',
-            question_id: 'Q2',
-            title: 'Question 2',
-          },
-          {
-            exercise_id: 'E2',
-            question_id: 'Q1',
-            title: 'Question 1',
-          },
-        ],
-      };
-      const expectedSources = [
+    // Stolen from test below to ensure we're getting expected V2 values... as expected
+    const exam = {
+      data_model_version: 1,
+      learners_see_fixed_order: true,
+      question_sources: [
         {
           exercise_id: 'E1',
           question_id: 'Q1',
           title: 'Question 1',
-          counter_in_exercise: 1,
-          item: 'E1:Q1',
         },
         {
           exercise_id: 'E1',
           question_id: 'Q2',
           title: 'Question 2',
-          counter_in_exercise: 2,
-          item: 'E1:Q2',
         },
         {
           exercise_id: 'E2',
           question_id: 'Q1',
           title: 'Question 1',
-          counter_in_exercise: 1,
-          item: 'E2:Q1',
         },
-      ].sort();
+      ],
+    };
+    const expectedSources = [
+      {
+        exercise_id: 'E1',
+        question_id: 'Q1',
+        title: 'Question 1',
+        counter_in_exercise: 1,
+        item: 'E1:Q1',
+      },
+      {
+        exercise_id: 'E1',
+        question_id: 'Q2',
+        title: 'Question 2',
+        counter_in_exercise: 2,
+        item: 'E1:Q2',
+      },
+      {
+        exercise_id: 'E2',
+        question_id: 'Q1',
+        title: 'Question 1',
+        counter_in_exercise: 1,
+        item: 'E2:Q1',
+      },
+    ];
+    it('returns an array of newly structured objects with old question sources in questions', () => {
       const converted = convertExamQuestionSourcesToV3(exam);
       expect(converted).toEqual([
         {
@@ -134,6 +135,7 @@ describe('exam utils', () => {
           description: '',
           resource_pool: [],
           questions: expectedSources.sort(),
+          learners_see_fixed_order: true,
         },
       ]);
     });
