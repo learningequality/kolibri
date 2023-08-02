@@ -27,6 +27,7 @@ from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
+from kolibri.utils.sql_alchemy import db_matches_schema
 from kolibri.utils.time_utils import local_now
 from kolibri.utils.time_utils import naive_utc_datetime
 
@@ -322,12 +323,10 @@ class Storage(object):
         return self.filter_jobs(queue=queue, repeating=repeating)
 
     def test_table_readable(self):
-        """
-        Do a quick query to raise errors if the database is unusable.
-        """
-        with self.engine.connect() as conn:
-            q = conn.execute(select(ORMJob))
-            q.first()
+        # Have to use the self-referential `self.engine.engine` as the inspection
+        # used inside this function complains if we use the `self.engine` object
+        # as it is a Django SimpleLazyObject and it doesn't like it!
+        db_matches_schema({ORMJob.__tablename__: ORMJob}, self.engine.engine)
 
     def get_job(self, job_id):
         orm_job = self.get_orm_job(job_id)
