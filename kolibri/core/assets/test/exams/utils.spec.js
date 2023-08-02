@@ -86,6 +86,7 @@ describe('exam utils', () => {
     const exam = {
       data_model_version: 1,
       learners_see_fixed_order: true,
+      question_count: 8,
       question_sources: [
         {
           exercise_id: 'E1',
@@ -136,6 +137,7 @@ describe('exam utils', () => {
           resource_pool: [],
           questions: expectedSources.sort(),
           learners_see_fixed_order: true,
+          question_count: 8,
         },
       ]);
     });

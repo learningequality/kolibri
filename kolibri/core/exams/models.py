@@ -64,6 +64,7 @@ class Exam(AbstractFacilityDataModel):
                   "section_title": <section title>,
                   "description": <section description>,
                   "resource_pool": [ <contentnode_ids of pool of resources> ],
+                  "question_count": <number of questions in section>,
                   "questions": [
                     {
                         "exercise_id": <exercise_pk>,

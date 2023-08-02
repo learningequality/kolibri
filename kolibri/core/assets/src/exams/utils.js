@@ -90,7 +90,7 @@ function annotateQuestionsWithItem(questions) {
  *                         on each section, so it should be passed in here
  * @returns V3 formatted question_sources
  */
-export function convertV2toV3(questionSources, learners_see_fixed_order) {
+export function convertV2toV3(questionSources, exam) {
   questionSources = questionSources || []; // Default value while requiring all params
   const questions = annotateQuestionsWithItem(questionSources);
   return {
@@ -98,7 +98,8 @@ export function convertV2toV3(questionSources, learners_see_fixed_order) {
     description: '',
     resource_pool: [],
     questions,
-    learners_see_fixed_order,
+    learners_see_fixed_order: exam.learners_see_fixed_order,
+    question_count: exam.question_count,
   };
 }
 
@@ -116,7 +117,7 @@ export function revertV3toV2(questionSources) {
 export function convertExamQuestionSourcesToV3(exam, extraArgs = {}) {
   if (exam.data_model_version !== 3) {
     const V2_sources = convertExamQuestionSources(exam, extraArgs);
-    return [convertV2toV3(V2_sources, exam.learners_see_fixed_order)];
+    return [convertV2toV3(V2_sources, exam)];
   }
 
   return exam.question_sources;
