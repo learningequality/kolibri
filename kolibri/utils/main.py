@@ -282,6 +282,16 @@ def initialize(  # noqa C901
     if not skip_update:
         _upgrades_before_django_setup(updated, version)
 
+        try:
+            ensure_job_tables_created()
+        except Exception as e:
+            logging.error(
+                "The job tables were not fully migrated. Tried to "
+                "create them in the database and an error occurred: "
+                "{}".format(e)
+            )
+            raise
+
     _setup_django()
 
     _post_django_initialization()
@@ -307,16 +317,6 @@ def initialize(  # noqa C901
         run_plugin_updates()
 
         check_django_stack_ready()
-
-        try:
-            ensure_job_tables_created()
-        except Exception as e:
-            logging.error(
-                "The job tables were not fully migrated. Tried to "
-                "create them in the database and an error occurred: "
-                "{}".format(e)
-            )
-            raise
 
         try:
             check_database_is_migrated()
