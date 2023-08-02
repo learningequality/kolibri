@@ -118,7 +118,9 @@ def matches_version(version, version_range):
 
 def get_upgrades(app_configs=None):
     if app_configs is None:
-        app_configs = apps.get_app_configs()
+        app_configs = filter(
+            lambda x: not getattr(x, "kolibri_plugin", False), apps.get_app_configs()
+        )
     version_upgrades = []
     for app_config in app_configs:
         try:
