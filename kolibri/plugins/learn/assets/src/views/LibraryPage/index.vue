@@ -234,6 +234,7 @@
         ref="resourcePanel"
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
+        :canDownloadContent="canDownload && !deviceId"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -255,6 +256,7 @@
   import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
+  import useCoreLearn from '../../composables/useCoreLearn';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
   import useSearch from '../../composables/useSearch';
@@ -316,6 +318,7 @@
         windowIsMedium,
         windowIsSmall,
       } = useKResponsiveWindow();
+      const { canDownload } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
@@ -330,6 +333,7 @@
       });
 
       return {
+        canDownload,
         displayingSearchResults,
         searchTerms,
         searchLoading,

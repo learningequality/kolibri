@@ -188,6 +188,13 @@
       </div>
     </div>
 
+    <div v-if="canDownloadContent" class="section" data-test="download">
+      <DownloadButton
+        :files="content.files"
+        :nodeTitle="content.title"
+      />
+    </div>
+
   </section>
 
 </template>
@@ -199,6 +206,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import camelCase from 'lodash/camelCase';
   import { ContentLevels } from 'kolibri.coreVue.vuex.constants';
+  import DownloadButton from 'kolibri.coreVue.components.DownloadButton';
   import get from 'lodash/get';
   import {
     licenseShortName,
@@ -215,6 +223,7 @@
   export default {
     name: 'BrowseResourceMetadata',
     components: {
+      DownloadButton,
       LearningActivityIcon,
       TimeDuration,
       ContentNodeThumbnail,
@@ -230,6 +239,10 @@
         required: true,
       },
       showLocationsInChannel: {
+        type: Boolean,
+        default: false,
+      },
+      canDownloadContent: {
         type: Boolean,
         default: false,
       },
