@@ -9,6 +9,7 @@ try:
 except ImportError:
     BitOr = None
 
+from django.core.exceptions import EmptyResultSet
 from django.db import connections
 from django.db.models import Aggregate
 from django.db.models import Case
@@ -39,6 +40,11 @@ metadata_bitmasks = {}
 
 bitmask_fieldnames = {}
 
+empty_labels = {
+    "languages": [],
+    "channels": [],
+}
+
 
 for key, labels in metadata_lookup.items():
     bitmask_lookup = {}
@@ -57,6 +63,7 @@ for key, labels in metadata_lookup.items():
             bitmask_fieldnames[bitmask_field_name].append(info)
         i += 64
     metadata_bitmasks[key] = bitmask_lookup
+    empty_labels[key] = []
 
 
 def _get_available_languages(base_queryset):
@@ -98,14 +105,17 @@ class SQLiteBitwiseORAggregate(Aggregate):
         )
 
 
-def get_available_metadata_labels(base_queryset):
+def get_available_metadata_labels(base_queryset):  # noqa: C901
     from kolibri.core.device.models import ContentCacheKey
 
     content_cache_key = ContentCacheKey.get_cache_key()
-    cache_key = "search-labels:{}:{}".format(
-        content_cache_key,
-        hashlib.md5(str(base_queryset.query).encode("utf8")).hexdigest(),
-    )
+    try:
+        cache_key = "search-labels:{}:{}".format(
+            content_cache_key,
+            hashlib.md5(str(base_queryset.query).encode("utf8")).hexdigest(),
+        )
+    except EmptyResultSet:
+        return empty_labels
     if cache_key not in cache:
         base_queryset = base_queryset.order_by()
         aggregates = {}
