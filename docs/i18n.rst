@@ -92,9 +92,35 @@ A pattern we use in order to avoid having to define the same string across multi
 
 In order to avoid bloating the common modules, we typically will not add a string we are duplicating to a common module unless it is being used across three or more files.
 
-Common strings modules should typically have the following components:
+Common strings modules should typically have a translator created using the ``createTranslator`` function in which strings are defined - these can then be used in the setup function of a component to expose specific strings as functions:
 
-- A translator created using the ``createTranslator`` function in which strings are defined.
+.. code-block:: javascript
+
+  import commonStringsModule from '../common/commonStringsModule';
+
+
+  export default {
+    name: 'someComponent',
+    setup() {
+      const { myCoolString$, stringWithArgument$ } = commonStringsModule();
+      return {
+        myCoolString$, stringWithArgument$
+      };
+    },
+  };
+
+.. code-block:: html
+
+  <template>
+    <div>
+      <p>{{ myCoolString$() }}</p>
+      <p>{{ stringWithArgument$({ count: 4 }) }}</p>
+    </div>
+  </template>
+
+
+Previously, this has been handled via mixins, which has required this additional complexity in the modules. You may see modules that include the translator object and the following:
+
 - An exported function that accepts a ``string`` and an ``object`` - which it then passes to the ``$tr()`` function to get a string from the translator in the module.
 - An exported Vue mixin that exposes the exported function as a ``method``. This allows Vue components to use the mixin and have the exported function to get a translated string readily at hand easily.
 
