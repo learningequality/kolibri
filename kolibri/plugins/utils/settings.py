@@ -95,6 +95,7 @@ def _apply_base_settings(plugin_instance, settings_module):
     # or Kolibri core plugins.
     app_config = AppConfig.create(plugin_instance.module_path)
     app_config.label = plugin_instance.module_path
+    app_config.kolibri_plugin = True
     # Register the plugin as an installed app
     _set_setting_value("INSTALLED_APPS", (app_config,), settings_module)
     plugin_instance.INSTALLED_APPS.append(app_config)
