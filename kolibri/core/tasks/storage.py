@@ -80,6 +80,9 @@ class ORMJob(Base):
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
+NO_VALUE = object()
+
+
 class Storage(object):
     def __init__(self, connection, Base=Base):
         self.engine = connection
@@ -515,26 +518,73 @@ class Storage(object):
                         self._now() + timedelta(seconds=orm_job.interval)
                     )
 
-    def _update_job(self, job_id, state=None, priority=None, **kwargs):
+    def _update_orm_job_fields(
+        self,
+        orm_job,
+        priority=None,
+        interval=None,
+        repeat=NO_VALUE,
+        retry_interval=NO_VALUE,
+    ):
+        if priority is not None:
+            orm_job.priority = priority
+        if interval is not None:
+            orm_job.interval = interval
+        if repeat is not NO_VALUE:
+            orm_job.repeat = repeat
+        if retry_interval is not NO_VALUE:
+            orm_job.retry_interval = retry_interval
+
+    def _update_job_fields(self, job, **kwargs):
+        for kwarg in kwargs:
+            if kwarg in Job.UPDATEABLE_KEYS:
+                setattr(job, kwarg, kwargs[kwarg])
+            else:
+                logger.error(
+                    "Tried to update job with id {} with non-updateable key {}".format(
+                        job.job_id, kwarg
+                    )
+                )
+
+    def _update_job(
+        self,
+        job_id,
+        state=None,
+        priority=None,
+        interval=None,
+        repeat=NO_VALUE,
+        retry_interval=NO_VALUE,
+        **kwargs
+    ):
+        """
+        Because repeat and retry_interval are nullable, None is a semantic value, so we need to use a sentinel value NO_VALUE
+        as the default when no value is passed in.
+        """
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
                 self._handle_state_update(orm_job, job, state)
-                if priority is not None:
-                    orm_job.priority = priority
-                for kwarg in kwargs:
-                    if kwarg in Job.UPDATEABLE_KEYS:
-                        setattr(job, kwarg, kwargs[kwarg])
-                    else:
-                        logger.error(
-                            "Tried to update job with id {} with non-updateable key {}".format(
-                                job_id, kwarg
-                            )
-                        )
+                self._update_orm_job_fields(
+                    orm_job,
+                    priority=priority,
+                    interval=interval,
+                    repeat=repeat,
+                    retry_interval=retry_interval,
+                )
+                self._update_job_fields(job, **kwargs)
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
                 for hook in self._hooks:
-                    hook.update(job, orm_job, state=state, **kwargs)
+                    hook.update(
+                        job,
+                        orm_job,
+                        state=state,
+                        priority=priority,
+                        interval=interval,
+                        repeat=repeat,
+                        retry_interval=retry_interval,
+                        **kwargs
+                    )
                 return job, orm_job
             except JobNotFound:
                 if state:
