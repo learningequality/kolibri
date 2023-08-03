@@ -352,10 +352,13 @@ export default function useProgressTracking(store) {
         data.extra_fields = extraFields;
       }
       // Don't try to make a new save until the previous save
-      // has completed.
-      savingPromise = savingPromise.then(() => {
-        return makeRequestWithRetry(makeSessionUpdateRequest, data);
-      });
+      // has completed or there's no data to sent because the quiz has already
+      // been completed.
+      if (Object.keys(data).length !== 0) {
+        savingPromise = savingPromise.then(() => {
+          return makeRequestWithRetry(makeSessionUpdateRequest, data);
+        });
+      }
     }
     // Splice all the resolve/reject handlers off the stack
     // so that only those that have already been added by the time of this
