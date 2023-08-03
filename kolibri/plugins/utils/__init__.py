@@ -2,6 +2,7 @@ import importlib
 import logging
 import os
 import shutil
+import sys
 
 from django.apps import AppConfig
 from django.apps import apps
@@ -10,6 +11,15 @@ from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.urls import reverse
 from semver import VersionInfo
+
+if sys.version_info < (3, 10):
+    from importlib_metadata import entry_points
+    from importlib_metadata import distribution
+    from importlib_metadata import PackageNotFoundError
+else:
+    from importlib.metadata import entry_points
+    from importlib.metadata import distribution
+    from importlib.metadata import PackageNotFoundError
 
 import kolibri
 from kolibri.core.upgrade import matches_version
@@ -220,15 +230,10 @@ def disable_plugin(plugin_name, initialize_hooks=False):
 def _get_plugin_version(plugin_name):
     if is_external_plugin(plugin_name):
         top_level_module = plugin_name.split(".")[0]
-        # pkg_resources is very slow to import, so we defer
-        # its import until needed to avoid imports at module scope
-        # c.f. https://github.com/pypa/setuptools/issues/926
-        from pkg_resources import DistributionNotFound
-        from pkg_resources import get_distribution
 
         try:
-            return get_distribution(top_level_module).version
-        except (DistributionNotFound, AttributeError):
+            return distribution(top_level_module).version
+        except (PackageNotFoundError, AttributeError):
             try:
                 module = importlib.import_module(plugin_name)
                 return module.__version__
@@ -467,15 +472,10 @@ def check_plugin_config_file_location(version):
 
 
 def iterate_plugins():
-    # pkg_resources is very slow to import, so we defer
-    # its import until needed to avoid imports at module scope
-    # c.f. https://github.com/pypa/setuptools/issues/926
-    from pkg_resources import iter_entry_points
-
     # Use to dedupe plugins
     plugin_ids = set()
-    for entry_point in iter_entry_points("kolibri.plugins"):
-        name = entry_point.module_name
+    for entry_point in entry_points()["kolibri.plugins"]:
+        name = entry_point.name
         if name not in plugin_ids:
             plugin_ids.add(name)
             try:
