@@ -17,14 +17,14 @@ from sqlalchemy.pool import NullPool
 from sqlalchemy.sql import operators
 from sqlalchemy.sql.elements import UnaryExpression
 
-from .check_schema_db import db_matches_schema
-from .check_schema_db import DBSchemaError
 from kolibri.core.content.constants.schema_versions import CONTENT_DB_SCHEMA_VERSIONS
 from kolibri.core.content.constants.schema_versions import CURRENT_SCHEMA_VERSION
 from kolibri.core.mixins import UUIDValidationError
 from kolibri.core.mixins import validate_uuids
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
+from kolibri.utils.sql_alchemy import db_matches_schema
+from kolibri.utils.sql_alchemy import DBSchemaError
 
 
 def set_sqlite_connection_pragma(dbapi_connection, connection_record):
@@ -296,7 +296,7 @@ class Bridge(object):
             for version in CONTENT_DB_SCHEMA_VERSIONS:
                 self.schema_version = version
                 try:
-                    db_matches_schema(BASES[self.schema_version], self.engine)
+                    db_matches_schema(BASES[self.schema_version].classes, self.engine)
                     break
                 except DBSchemaError as e:
                     logging.debug(e)

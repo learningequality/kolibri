@@ -12,6 +12,7 @@ from sqlalchemy.exc import ProgrammingError as SQLAlchemyProgrammingError
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
 from .options import generate_empty_options_file
+from kolibri.utils.sql_alchemy import DBSchemaError
 
 logger = logging.getLogger(__name__)
 
@@ -125,7 +126,7 @@ def ensure_job_tables_created():
 
     try:
         job_storage.test_table_readable()
-    except (SQLAlchemyOperationalError, SQLAlchemyProgrammingError):
+    except (SQLAlchemyOperationalError, SQLAlchemyProgrammingError, DBSchemaError):
         logger.warning("Database table for job storage was not accessible, recreating.")
         Storage.recreate_default_tables(connection)
     except Exception as e:
