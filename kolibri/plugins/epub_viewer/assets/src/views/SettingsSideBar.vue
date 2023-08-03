@@ -1,6 +1,6 @@
 <template>
 
-  <SideBar>
+  <SideBar class="epub-sidebar">
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
       <KFixedGrid numCols="2" gutter="8">
@@ -39,7 +39,7 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
-      <KFixedGrid numCols="4" gutter="8">
+      <KFixedGrid numCols="3" gutter="16">
         <KFixedGridItem
           v-for="(value, key) in themes"
           :key="key"
@@ -49,14 +49,17 @@
             class="settings-button theme-button"
             :aria-label="generateThemeAriaLabel(key)"
             :appearanceOverrides="generateStyle(value)"
+            :text="key"
             @click="$emit('setTheme', value)"
           >
-            <KIcon
-              v-if="isCurrentlySelectedTheme(value) "
-              icon="check"
-              :style="{ fill: value.textColor }"
-              style="top: 0; width: 24px; height: 24px;"
-            />
+            <div style="display: flex; flex-direction: row; justify-content: center;">
+              <KIcon
+                v-if="isCurrentlySelectedTheme(value) "
+                icon="check"
+                :style="{ fill: value.textColor }"
+                style="top: 0; width: 24px; height: 24px;"
+              />
+            </div>
           </KButton>
 
         </KFixedGridItem>
@@ -236,6 +239,7 @@
         return {
           ...this.settingsButtonFocus,
           backgroundColor: theme.backgroundColor,
+          color: theme.textColor,
           ':hover': {
             backgroundColor: theme.hoverColor,
           },
@@ -358,9 +362,11 @@
   }
 
   .theme-button {
-    height: 44.5px;
+    height: 64px;
+    margin-top: 16px;
     border-style: solid;
     border-width: 2px;
+    border-radius: 8px;
   }
 
   .delete-edit-button {
@@ -380,6 +386,10 @@
 
   .truncate {
     @include truncate-text;
+  }
+
+  .epub-sidebar {
+    width: 500px;
   }
 
 </style>
