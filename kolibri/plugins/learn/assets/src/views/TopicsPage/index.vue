@@ -122,7 +122,6 @@
               <!-- display all resources at the top level of the folder -->
               <LibraryAndChannelBrowserMainContent
                 v-if="resources.length"
-                :gridType="2"
                 :allowDownloads="allowDownloads"
                 data-test="search-results"
                 :contents="resourcesDisplayed"

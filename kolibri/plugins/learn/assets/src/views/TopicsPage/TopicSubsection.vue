@@ -35,7 +35,6 @@
       :contents="topic.children"
       :allowDownloads="allowDownloads"
       currentCardViewStyle="card"
-      :gridType="2"
       :keepCurrentBackLink="true"
       @toggleInfoPanel="$emit('toggleInfoPanel', $event)"
     />
