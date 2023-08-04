@@ -43,6 +43,11 @@ function makeWrapper(propsData) {
     propsData,
     localVue,
     router,
+    data() {
+      return {
+        loading: false,
+      };
+    },
   });
 }
 
