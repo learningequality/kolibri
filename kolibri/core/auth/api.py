@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 from datetime import timedelta
 from itertools import groupby
+from uuid import UUID
 from uuid import uuid4
 
 from django.contrib.auth import authenticate
@@ -33,6 +34,7 @@ from django_filters.rest_framework import ChoiceFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
+from django_filters.rest_framework import UUIDFilter
 from morango.api.permissions import BasicMultiArgumentAuthentication
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
@@ -163,9 +165,22 @@ class IsPINValidPermissions(DenyAll):
         return self.has_permission(request, view)
 
 
+class FacilityDatasetFilter(FilterSet):
+
+    facility_id = UUIDFilter(field_name="collection")
+
+    class Meta:
+        model = FacilityDataset
+        fields = ["facility_id"]
+
+
 class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (KolibriAuthPermissionsFilter,)
+    filter_backends = (
+        KolibriAuthPermissionsFilter,
+        DjangoFilterBackend,
+    )
+    filter_class = FacilityDatasetFilter
     serializer_class = FacilityDatasetSerializer
 
     values = (
@@ -187,13 +202,9 @@ class FacilityDatasetViewSet(ValuesViewset):
     field_map = {"allow_guest_access": lambda x: allow_guest_access()}
 
     def get_queryset(self):
-        queryset = FacilityDataset.objects.filter(
+        return FacilityDataset.objects.filter(
             collection__kind=collection_kinds.FACILITY
         )
-        facility_id = self.request.query_params.get("facility_id", None)
-        if facility_id is not None:
-            queryset = queryset.filter(collection__id=facility_id)
-        return queryset
 
     @decorators.action(methods=["post"], detail=True)
     def resetsettings(self, request, pk):
@@ -327,9 +338,13 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     }
 
     def get_queryset(self):
-        facility_id = self.request.query_params.get("facility_id", None)
-        if facility_id is None:
-            facility_id = self.request.user.facility_id
+        facility_id = self.request.query_params.get(
+            "facility_id", self.request.user.facility_id
+        )
+        try:
+            facility_id = UUID(facility_id).hex
+        except ValueError:
+            return self.queryset.none()
 
         # if user has admin rights for the facility returns the list of users
         queryset = self.queryset.filter(facility_id=facility_id)
@@ -809,7 +824,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
 
         try:
             user = FacilityUser.objects.get(username=username, facility=facility_id)
-        except ObjectDoesNotExist:
+        except (ValueError, ObjectDoesNotExist):
             raise Http404(error_message)
 
         if user.password != NOT_SPECIFIED:
@@ -844,7 +859,7 @@ class SessionViewSet(viewsets.ViewSet):
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility_id
             )
-        except ObjectDoesNotExist:
+        except (ValueError, ObjectDoesNotExist):
             return Response(
                 [
                     {
