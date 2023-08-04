@@ -177,7 +177,11 @@
 <style lang="scss" scoped>
 
   .section:not(:first-child) {
-    margin-top: 42px;
+    margin-top: 32px;
+  }
+
+  .section:first-child {
+    margin-top: 16px;
   }
 
 </style>
