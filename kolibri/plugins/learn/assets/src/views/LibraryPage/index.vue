@@ -375,7 +375,7 @@
     },
     computed: {
       ...mapState(['rootNodes']),
-      ...mapGetters(['isSuperuser', 'isUserLoggedIn', 'getRootNodesLoading']),
+      ...mapGetters(['isUserLoggedIn', 'getRootNodesLoading']),
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
       },
@@ -397,10 +397,7 @@
         //display Kolibri studio for superusers only
         return cloneDeep(this.devices).filter(device => {
           device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
-          return (
-            device.channels?.length > 0 &&
-            (device.instance_id !== this.studioId || this.isSuperuser)
-          );
+          return device.channels?.length > 0;
         });
       },
       devicesWithChannelsExist() {
