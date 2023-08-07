@@ -74,6 +74,7 @@
         ref="resourcePanel"
         :content="sidePanelContent"
         :showLocationsInChannel="true"
+        :canDownloadContent="canDownload"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -91,6 +92,7 @@
   import urls from 'kolibri.urls';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
+  import useCoreLearn from '../composables/useCoreLearn';
   import SidePanelModal from './SidePanelModal';
   import commonLearnStrings from './commonLearnStrings';
   import LearnAppBarPage from './LearnAppBarPage';
@@ -117,9 +119,10 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
+      const { canDownload } = useCoreLearn();
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
+      return { canDownload, fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
     },
     data() {
       return {
