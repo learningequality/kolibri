@@ -68,43 +68,17 @@
 
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
-      <KFixedGrid numCols="4" gutter="8">
-        <!-- Buttons for already created custom themes -->
-        <KFixedGridItem
+
+      <div>
+        <CustomThemeItem
           v-for="(value, key) in customThemes"
           :key="key"
-          span="1"
-          style="margin-bottom: 8px;"
-        >
-          <KButton
-            class="settings-button theme-button"
-            :aria-label="generateCustomThemeAriaLabel(key)"
-            :appearanceOverrides="generateStyle(value)"
-            @click="$emit('setTheme', value)"
-          >
-            <KIcon
-              v-if="isCurrentlySelectedTheme(value) "
-              icon="check"
-              :style="{ fill: value.textColor }"
-              style="top: 0; width: 24px; height: 24px;"
-            />
-          </KButton>
-          <KButton
-            class="delete-edit-button"
-            :aria-label="generateCustomThemeDeleteAriaLabel(key)"
-            :text="$tr('delete')"
-            :primary="true"
-            @click="deleteCustomThemeName = key"
-          />
-          <KButton
-            class="delete-edit-button"
-            :aria-label="generateCustomThemeEditAriaLabel(key)"
-            :text="$tr('edit')"
-            :secondary="true"
-            @click="editCustomThemeName = key, editCustomTheme = value"
-          />
-
-        </KFixedGridItem>
+          :theme="value"
+          :isApplied="isCurrentlySelectedTheme(value)"
+          @setCustomTheme="$emit('setTheme', value)"
+          @deleteCustomTheme="deleteCustomThemeName = key"
+          @editCustomTheme="editCustomThemeName = key, editCustomTheme = value"
+        />
 
         <!-- Button to add a new custom theme -->
         <KFixedGridItem
@@ -121,9 +95,8 @@
               style="top: 0; width: 24px; height: 24px;"
             />
           </KButton>
-
         </KFixedGridItem>
-      </KFixedGrid>
+      </div>
 
       <!-- Modal to confirm deletion of a custom theme -->
       <DeleteCustomThemeModal
@@ -155,6 +128,7 @@
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
   import AddEditCustomThemeModal from './AddEditCustomThemeModal.vue';
+  import CustomThemeItem from './CustomThemeItem.vue';
 
   export default {
     name: 'SettingsSideBar',
@@ -162,6 +136,7 @@
       SideBar,
       DeleteCustomThemeModal,
       AddEditCustomThemeModal,
+      CustomThemeItem,
     },
     props: {
       theme: {
@@ -219,15 +194,6 @@
           default:
             return '';
         }
-      },
-      generateCustomThemeAriaLabel(themeName) {
-        return this.$tr('setCustomTheme', { themeName });
-      },
-      generateCustomThemeDeleteAriaLabel(themeName) {
-        return this.$tr('deleteCustomTheme', { themeName });
-      },
-      generateCustomThemeEditAriaLabel(themeName) {
-        return this.$tr('editCustomTheme', { themeName });
       },
       isCurrentlySelectedTheme(theme) {
         return (
@@ -297,16 +263,6 @@
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to add a new theme.",
       },
-      delete: {
-        message: 'Delete',
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to delete a theme.",
-      },
-      edit: {
-        message: 'Edit',
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to edit a theme.",
-      },
       setWhiteTheme: {
         message: 'Set white theme',
         context:
@@ -326,21 +282,6 @@
         message: 'Set black theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
-      },
-      setCustomTheme: {
-        message: "Set custom theme '{themeName}'",
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
-      },
-      deleteCustomTheme: {
-        message: "Delete custom theme '{themeName}'",
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be deleted.",
-      },
-      editCustomTheme: {
-        message: "Edit custom theme '{themeName}'",
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be edited.",
       },
     },
   };
@@ -367,17 +308,6 @@
     border-style: solid;
     border-width: 2px;
     border-radius: 8px;
-  }
-
-  .delete-edit-button {
-    width: calc(100% - 4px);
-    min-width: unset;
-    height: calc(100% - 4px);
-    padding: 0;
-    margin: 2px;
-    font-size: 10px;
-    line-height: unset;
-    transition: none;
   }
 
   .o-f-h {
