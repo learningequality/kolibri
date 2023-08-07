@@ -18,6 +18,7 @@ from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import set_app_key_on_response
 from kolibri.core.device.utils import valid_app_key
 from kolibri.core.device.utils import valid_app_key_on_request
+from kolibri.plugins.app.utils import CHECK_IS_METERED
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
 
@@ -46,6 +47,12 @@ class AppCommandsViewset(ViewSet):
                 )
             interface.share_file(filename, message)
             return Response()
+
+    if CHECK_IS_METERED in interface:
+
+        @action(detail=False, methods=["get"])
+        def check_is_metered(self, request):
+            return Response({"value": interface.check_is_metered()})
 
 
 class InitializeAppView(APIView):
