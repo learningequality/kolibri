@@ -70,8 +70,6 @@
 
 <script>
 
-  import { mapGetters } from 'vuex';
-
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
@@ -116,7 +114,6 @@
       };
     },
     computed: {
-      ...mapGetters(['isSuperuser']),
       areMoreDevicesAvailable() {
         return this.unpinnedDevices?.length > 0;
       },
@@ -129,12 +126,7 @@
         );
       },
       networkDevicesWithChannels() {
-        //display Kolibri studio for superusers only
-        return this.networkDevices.filter(
-          device =>
-            device.channels?.length > 0 &&
-            (device.instance_id !== this.studioId || this.isSuperuser)
-        );
+        return this.networkDevices.filter(device => device.channels?.length > 0);
       },
       pageHeaderStyle() {
         return {
