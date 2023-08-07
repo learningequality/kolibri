@@ -1,6 +1,6 @@
 src/kolibri
 tmpenv
-whl/*
+tar
 python-for-android/build/
 python-for-android/packages/**
 python-for-android/dists/kolibri/_python*

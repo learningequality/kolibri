@@ -4,12 +4,12 @@ on:
   workflow_dispatch:
     # Inputs the workflow accepts.
     inputs:
-      whl-url:
-        description: 'URL for Kolibri whl file'
+      tar-url:
+        description: 'URL for Kolibri tar file'
         required: true
   workflow_call:
     inputs:
-      whl-file-name:
+      tar-file-name:
         required: true
         type: string
       ref:
@@ -71,15 +71,15 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Download the whlfile from URL
-      if: ${{ github.event.inputs.whl-url }}
-      run: make get-whl whl=${{ github.event.inputs.whl-url }}
-    - name: Download the whlfile from artifacts
-      if: ${{ inputs.whl-file-name }}
+    - name: Download the tarfile from URL
+      if: ${{ github.event.inputs.tar-url }}
+      run: make get-tar tar=${{ github.event.inputs.tar-url }}
+    - name: Download the tarfile from artifacts
+      if: ${{ inputs.tar-file-name }}
       uses: actions/download-artifact@v3
       with:
-        name: ${{ inputs.whl-file-name }}
-        path: whl
+        name: ${{ inputs.tar-file-name }}
+        path: tar
     - name: Install dependencies
       run: pip install -r requirements.txt
     - name: Ensure that Android SDK dependencies are installed

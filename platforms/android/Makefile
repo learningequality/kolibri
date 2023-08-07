@@ -61,26 +61,29 @@ deepclean: clean
 	yes y | $(DOCKER) system prune -a || true
 	rm build_docker 2> /dev/null
 
-.PHONY: clean-whl
-clean-whl:
-	rm -rf whl
-	mkdir whl
+.PHONY: clean-tar
+clean-tar:
+	rm -rf tar
+	mkdir tar
 
-.PHONY: get-whl
-get-whl: clean-whl
+.PHONY: get-tar
+get-tar: clean-tar
 # The eval and shell commands here are evaluated when the recipe is parsed, so we put the cleanup
 # into a prerequisite make step, in order to ensure they happen prior to the download.
-	$(eval DLFILE = $(shell wget --content-disposition -P whl/ "${whl}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
-	$(eval WHLFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
-	[ "${DLFILE}" = "${WHLFILE}" ] || mv "${DLFILE}" "${WHLFILE}"
+	$(eval DLFILE = $(shell wget --content-disposition -P tar/ "${tar}" 2>&1 | grep "Saving to: " | sed 's/Saving to: ‘//' | sed 's/’//'))
+	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
+	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
 
-# Extract the whl file
-src/kolibri: clean
-	rm -r src/kolibri 2> /dev/null || true
-	unzip -qo "whl/kolibri*.whl" "kolibri/*" -x "kolibri/dist/py2only*" -d src/
+# Extract the tar file
+install-tar: clean
+	$(eval TARFILE = $(shell echo ""tar/kolibri*.tar.gz"" | sed "s/tar\///"))
+	echo "Installing ${TARFILE}"
+	rm -rf tar/patched
+	mkdir -p tar/patched
+	tar xvf "tar/${TARFILE}" --exclude="kolibri/dist/py2only*" --exclude="kolibri/dist/cext/*" --directory="tar/patched/" --strip-components=1
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
-	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' src/kolibri/dist/django/db/migrations/loader.py
-	$(MAKE) create-strings
+	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' tar/patched/kolibri/dist/django/db/migrations/loader.py
+	pip3 install --no-cache-dir --force-reinstall "tar/patched"
 
 create-strings:
 	python scripts/create_strings.py
@@ -102,7 +105,7 @@ p4a_android_distro: needs-android-dirs check-android-clean
 # Update the python-for-android project bootstrap, discarding any changes that are made to committed files
 # this should be the usually run command in normal workflows.
 .PHONY: p4a_android_project
-p4a_android_project: p4a_android_distro src/kolibri needs-version
+p4a_android_project: install-tar p4a_android_distro create-strings needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
@@ -111,7 +114,7 @@ p4a_android_project: p4a_android_distro src/kolibri needs-version
 # this command should only be run when it is known there is an update from the upstream p4a bootstrap
 # that is needed, although it will probably normally be easier to manually vendor the changes.
 .PHONY: update_project_from_p4a
-update_project_from_p4a: p4a_android_distro src/kolibri needs-version
+update_project_from_p4a: install-tar p4a_android_distro create-strings needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 
 .PHONY: needs-version

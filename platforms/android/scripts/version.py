@@ -8,9 +8,9 @@ def kolibri_version():
     """
     Returns the major.minor version of Kolibri if it exists
     """
-    with open("./src/kolibri/VERSION", "r") as version_file:
-        # p4a only likes digits and decimals
-        return version_file.read().strip()
+    import kolibri
+
+    return kolibri.__version__
 
 
 def commit_hash():

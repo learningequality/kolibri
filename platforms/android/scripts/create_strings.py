@@ -2,8 +2,9 @@
 Tooling for generating i18n strings using Kolibri's translation machinery.
 """
 import os
-import sys
 import tempfile
+
+from version import apk_version
 
 
 # By default we will map the locale code to e.g. "en-us" to "en-rUS"
@@ -31,9 +32,7 @@ def generate_loading_pages(output_dir):
     Run the Django management command to generate the loading pages.
     """
     # Add the local Kolibri source directory to the path
-    sys.path = [os.path.join(os.path.dirname(__file__), "../src")] + sys.path
 
-    import kolibri
     from kolibri.main import initialize
     from django.core.management import call_command
 
@@ -44,7 +43,7 @@ def generate_loading_pages(output_dir):
         "--output-dir",
         output_dir,
         "--version-text",
-        kolibri.__version__,
+        apk_version(),
     )
 
 
