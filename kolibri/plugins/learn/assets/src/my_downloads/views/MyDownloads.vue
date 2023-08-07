@@ -37,7 +37,7 @@
           <SortFilter />
         </KGridItem>
       </KGrid>
-      <KCircularLoader v-if="loading" />
+      <KCircularLoader v-if="shouldStopSpinning" />
       <DownloadsList
         v-else
         :downloads="sortedFilteredDownloads()"
@@ -165,6 +165,20 @@
           );
         }
         return totalSize;
+      },
+      shouldStopSpinning() {
+        return (
+          this.loading && this.sortedFilteredDownloads && this.sortedFilteredDownloads.length === 0
+        );
+      },
+    },
+    watch: {
+      shouldStopSpinning(newValue) {
+        if (newValue) {
+          setTimeout(() => {
+            this.loading = false;
+          }, 100);
+        }
       },
     },
     methods: {
