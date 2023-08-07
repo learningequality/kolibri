@@ -28,9 +28,10 @@ from gettext import gettext as _
 
 from django.db import connection
 from django.db import models
+from django.db.models import Exists
 from django.db.models import F
 from django.db.models import Min
-from django.db.models import Q
+from django.db.models import OuterRef
 from django.db.models import QuerySet
 from django.utils.encoding import python_2_unicode_compatible
 from le_utils.constants import content_kinds
@@ -283,9 +284,13 @@ class File(base_models.File):
 
 class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
     def delete_unused_files(self):
-        for file in self.get_unused_files():
+        for file in self.get_unused_files().values("id", "extension"):
             try:
-                os.remove(paths.get_content_storage_file_path(file.get_filename()))
+                os.remove(
+                    paths.get_content_storage_file_path(
+                        paths.get_content_file_name(file)
+                    )
+                )
                 yield True, file
             except (IOError, OSError, InvalidStorageFilenameError):
                 yield False, file
@@ -298,13 +303,16 @@ class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
         return self.filter(files__isnull=True).delete()
 
     def get_unused_files(self):
-        ids = LocalFile.objects.filter(
-            Q(files__contentnode__available=False) | Q(files__isnull=True)
-        )
         return (
-            self.filter(id__in=ids)
-            .exclude(files__contentnode__available=True)
-            .filter(available=True)
+            self.filter(available=True)
+            .annotate(
+                has_available_contentnode=Exists(
+                    ContentNode.objects.filter(available=True)
+                    .filter(files__local_file=OuterRef("id"))
+                    .values("id")
+                )
+            )
+            .filter(has_available_contentnode=False)
         )
 
 
@@ -364,6 +372,9 @@ class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
     pass
 
 
+BATCH_SIZE = 1000
+
+
 @python_2_unicode_compatible
 class ChannelMetadata(base_models.ChannelMetadata):
     """
@@ -395,7 +406,22 @@ class ChannelMetadata(base_models.ChannelMetadata):
 
     def delete_content_tree_and_files(self):
         # Use Django ORM to ensure cascading delete:
-        self.root.delete()
+        right_value = self.root.rght
+        # Disable MPTT updates during the deletion as everything
+        # is being deleted anyway, so no need to make any updates!
+        with ContentNode.objects.disable_mptt_updates():
+            if right_value // 2 > BATCH_SIZE:
+                # If there are more than 1000 nodes in the tree, delete in batches to limit memory usage
+                left_value = self.root.lft
+                while left_value < right_value:
+                    qs = ContentNode.objects.filter(
+                        lft__gt=left_value,
+                        rght__lt=left_value + BATCH_SIZE,
+                        tree_id=self.root.tree_id,
+                    )
+                    qs.delete()
+                    left_value += BATCH_SIZE
+            self.root.delete()
         ContentCacheKey.update_cache_key()
 
 

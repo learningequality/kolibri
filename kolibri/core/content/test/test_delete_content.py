@@ -68,18 +68,15 @@ class UnavailableContentDeletion(TransactionTestCase):
 
     def delete_content(self):
         num_deleted = 0
-        freed_bytes = 0
         for deleted, file in LocalFile.objects.delete_unused_files():
             if deleted:
                 num_deleted += 1
-                freed_bytes += file.file_size
-        return num_deleted, freed_bytes
+        return num_deleted
 
     def test_delete_unavailable_stored_files(self):
         self.assertEqual(LocalFile.objects.get_unused_files().count(), 1)
-        deleted, freed_bytes = self.delete_content()
+        deleted = self.delete_content()
         self.assertEqual(deleted, 1)
-        self.assertEqual(freed_bytes, self.stored_local_file.file_size)
 
         self.assertEqual(os.path.exists(self.path), False)
         self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
@@ -99,7 +96,7 @@ class UnavailableContentDeletion(TransactionTestCase):
             id=uuid.uuid4().hex,
         )
         self.assertEqual(LocalFile.objects.get_unused_files().count(), 0)
-        deleted, freed_bytes = self.delete_content()
+        deleted = self.delete_content()
         self.assertEqual(deleted, 0)
 
     def tearDown(self):
