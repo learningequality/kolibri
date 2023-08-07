@@ -81,21 +81,20 @@
         />
 
         <!-- Button to add a new custom theme -->
-        <KFixedGridItem
-          v-if="Object.keys(customThemes).length < 8"
-          span="1"
-        >
-          <KButton
-            class="settings-button theme-button"
-            :aria-label="$tr('addNewTheme')"
-            @click="addCustomTheme = 'myTheme' + ((Object.keys(customThemes).length + 1))"
+        <KFixedGrid numCols="3" gutter="16">
+          <KFixedGridItem
+            v-if="Object.keys(customThemes).length < 8"
+            span="3"
           >
-            <KIcon
-              icon="plus"
-              style="top: 0; width: 24px; height: 24px;"
+            <KButton
+              class="settings-button theme-button"
+              :aria-label="$tr('addNewTheme')"
+              :text="$tr('addNewTheme')"
+              :icon="'plus'"
+              @click="addCustomTheme = 'myTheme' + ((Object.keys(customThemes).length + 1))"
             />
-          </KButton>
-        </KFixedGridItem>
+          </KFixedGridItem>
+        </KFixedGrid>
       </div>
 
       <!-- Modal to confirm deletion of a custom theme -->
