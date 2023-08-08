@@ -1,0 +1,101 @@
+// Top-level build file where you can add configuration options common to all sub-projects/modules.
+buildscript {
+    repositories {
+       google()
+       jcenter()
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:7.1.2'
+    }
+}
+
+allprojects {
+    repositories {
+        google()
+        jcenter()
+        flatDir {
+            dirs 'libs'
+        }
+    }
+}
+
+
+apply plugin: 'com.android.application'
+
+
+android {
+    compileSdkVersion 31
+    buildToolsVersion '34.0.0'
+    def versionPropsFile = file('version.properties')
+    Properties versionProps = new Properties()
+
+    if (versionPropsFile.canRead()) {
+        versionProps.load(new FileInputStream(versionPropsFile))
+    }
+    else {
+        throw AssertionError("version.properties has not been defined")
+    }
+
+    def code = versionProps['VERSION_CODE'].toInteger()
+    def name = versionProps['VERSION_NAME']
+
+    defaultConfig {
+        minSdkVersion 23
+        targetSdkVersion 31
+        versionCode code
+        versionName name
+        manifestPlaceholders = [:]
+        multiDexEnabled true
+    }
+
+
+	packagingOptions {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+        doNotStrip '**/*.so'
+
+	}
+
+
+
+
+
+
+    buildTypes {
+        debug {
+        }
+        release {
+
+        }
+    }
+
+    compileOptions {
+
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDir 'libs'
+            java {
+                }
+        }
+    }
+
+    aaptOptions {
+        noCompress "tflite"
+    }
+
+}
+
+dependencies {
+    implementation 'com.android.support:support-v4:26.1.0'
+    implementation 'com.android.support:multidex:1.0.3'
+    implementation 'androidx.annotation:annotation:1.3.0'
+    implementation 'androidx.concurrent:concurrent-futures:1.1.0'
+    implementation 'androidx.work:work-runtime:2.7.1'
+    implementation 'androidx.work:work-multiprocess:2.7.1'
+}

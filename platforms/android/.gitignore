@@ -17,6 +17,7 @@ python-for-android/dists/kolibri/webview_includes
 python-for-android/dists/kolibri/*.*
 python-for-android/dists/kolibri/gradlew
 python-for-android/dists/kolibri/src/main/res/*/html_content.xml
+!python-for-android/dists/kolibri/build.gradle
 
 # File format for signing key
 *.jks

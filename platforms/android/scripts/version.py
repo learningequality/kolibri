@@ -85,8 +85,27 @@ def build_number():
     return alt_build_number
 
 
+def fileoutput():
+    """
+    Writes the version to a version.properties file
+    in the kolibri android project.
+    """
+    with open(
+        os.path.join(
+            os.path.dirname(__file__),
+            "../python-for-android/dists/kolibri",
+            "version.properties",
+        ),
+        "w",
+    ) as f:
+        f.write("VERSION_NAME:{}\n".format(apk_version()))
+        f.write("VERSION_CODE:{}\n".format(build_number()))
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "apk_version":
         print(apk_version())
     elif sys.argv[1] == "build_number":
         print(build_number())
+    elif sys.argv[1] == "write_version":
+        fileoutput()

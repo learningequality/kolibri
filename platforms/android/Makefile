@@ -109,6 +109,7 @@ p4a_android_project: install-tar p4a_android_distro create-strings needs-version
 	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
+	$(MAKE) write-version
 
 # Update the python-for-android project bootstrap, keeping any changes that are made to committed files
 # this command should only be run when it is known there is an update from the upstream p4a bootstrap
@@ -121,6 +122,11 @@ update_project_from_p4a: install-tar p4a_android_distro create-strings needs-ver
 needs-version:
 	$(eval APK_VERSION ?= $(shell python3 scripts/version.py apk_version))
 	$(eval BUILD_NUMBER ?= $(shell python3 scripts/version.py build_number))
+
+
+.PHONY: write-version
+write-version: needs-version
+	python3 scripts/version.py write_version
 
 .PHONY: kolibri.apk
 # Build the signed version of the apk
