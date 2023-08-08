@@ -10,8 +10,7 @@ import { Exercise, Quiz, QuizQuestion, QuizSection } from './quizCreationSpecs.j
  * of the properties. */
 
 function validateQuiz(quiz) {
-  const quizDefaults = objectWithDefaults({}, Quiz);
-  return validateObject({ ...quizDefaults, ...quiz }, Quiz);
+  return validateObject(quiz, Quiz);
 }
 
 /*
@@ -40,7 +39,22 @@ export function useQuizCreation() {
    * @returns {QuizSection}
    * @affects _quiz - Updates the section with the given section_id with the given param
    * @throws {TypeError} if section is not a valid QuizSection */
-  function updateSection({ section_id, ...section }) {}
+  function updateSection({ section_id, ...updates }) {
+    const targetSection = get(allSections).find(section => section.section_id === section_id);
+    if (!targetSection) {
+      throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
+    }
+    set(_quiz, {
+      ...get(quiz),
+      // Update matching QuizSections with the updates object
+      question_sources: get(allSections).map(section => {
+        if (section.section_id === section_id) {
+          return { ...section, ...updates };
+        }
+        return section;
+      }),
+    });
+  }
 
   /* @param {QuizQuestion[]} newQuestions
    * @affects _quiz - Updates the active section's `questions` property
@@ -54,13 +68,19 @@ export function useQuizCreation() {
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
-    updateQuiz({question_sources: [...get(quiz).question_sources, newSection]});
+    updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
     return newSection;
   }
 
   /* @throws {Error} if section not found
    * Deletes the given section by section_id */
-  function removeSection(section_id) {}
+  function removeSection(section_id) {
+    const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
+    if (updatedSections.length === get(allSections).length) {
+      throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+    }
+    updateQuiz({ question_sources: updatedSections });
+  }
 
   /* @param {string} [section_id]
    * @affects _activeSectionId
@@ -77,6 +97,7 @@ export function useQuizCreation() {
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
   function initializeQuiz() {
+    set(_quiz, objectWithDefaults({}, Quiz));
     const newSection = addSection();
     setActiveSection(newSection.section_id);
   }
@@ -86,7 +107,7 @@ export function useQuizCreation() {
    * @affects _quiz
    * Validates the input type and then updates _quiz with the given updates */
   function updateQuiz(updates) {
-    if(!validateQuiz(updates)) {
+    if (!validateQuiz(updates)) {
       throw new TypeError('updates must be a valid Quiz object');
     }
     set(_quiz, { ...get(_quiz), ...updates });
@@ -98,8 +119,8 @@ export function useQuizCreation() {
   /* @returns {QuizSection[]} The value of _quiz's `question_sources` */
   const allSections = computed(() => get(quiz).question_sources);
   /* @returns {QuizSection} The active section */
-  const activeSection = computed(
-    () => get(allSections).find((s) => s.section_id === get(_activeSectionId))
+  const activeSection = computed(() =>
+    get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
   /* @returns {Exercise[]} The active section's `exercise_pool` - that is, Exercises from which
    *                       we will enumerate all available questions */
@@ -110,7 +131,6 @@ export function useQuizCreation() {
   /* @returns {QuizQuestion[]} Questions in the active section's `exercise_pool` that are not in
    *                           `questions` */
   const replacementQuestions = computed(() => {});
-
 
   return {
     // Methods
