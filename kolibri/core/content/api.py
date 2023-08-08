@@ -1333,7 +1333,7 @@ class ContentNodeBookmarksViewset(
 
 
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
-    serializer_class = serializers.ContentDownloadRequestSeralizer
+    serializer_class = serializers.ContentDownloadRequestSerializer
 
     pagination_class = OptionalPageNumberPagination
 
