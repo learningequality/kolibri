@@ -516,9 +516,21 @@ def process_download_request(download_request):
     Processes a download request
     :type download_request: ContentDownloadRequest
     """
+    peers = []
     # we do not need to filter by version, since content import should work for any
-    peer = _get_preferred_network_location()
-    if not peer:
+    preferred_peer = _get_preferred_network_location(
+        instance_id=download_request.source_instance_id
+    )
+    if preferred_peer:
+        peers.append(preferred_peer)
+
+    # if we had a preferred peer, add a fallback peer
+    if download_request.source_instance_id is not None:
+        fallback_peer = _get_preferred_network_location()
+        if fallback_peer:
+            peers.append(fallback_peer)
+
+    if not peers:
         # if we're processing download requests, and this happens, no use continuing
         raise NoPeerAvailable("Could not find available peer for content import")
 
@@ -536,14 +548,22 @@ def process_download_request(download_request):
         channel_id = ContentNode.objects.get(
             pk=download_request.contentnode_id
         ).channel_id
-        import_manager = ContentDownloadRequestResourceImportManager(
-            channel_id,
-            peer_id=peer.id,
-            baseurl=peer.base_url,
-            node_ids=[download_request.contentnode_id],
-            download_request=download_request,
-        )
-        import_manager.run()
+
+        for peer in peers:
+            import_manager = ContentDownloadRequestResourceImportManager(
+                channel_id,
+                peer_id=peer.id,
+                baseurl=peer.base_url,
+                node_ids=[download_request.contentnode_id],
+                download_request=download_request,
+            )
+            _, count = import_manager.run()
+            if count > 0:
+                break
+        else:
+            raise NoPeerAvailable(
+                "Unable to import {} from peers".format(download_request.contentnode_id)
+            )
 
         download_request.status = ContentRequestStatus.Completed
         download_request.save()
