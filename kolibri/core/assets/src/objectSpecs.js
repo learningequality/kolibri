@@ -75,10 +75,18 @@ function _validateObjectData(data, options, dataKey) {
 
   // object sub-spec
   if (hasData && options.spec) {
+    // If it is an array, we will validate each item in the array
+    if (isArray(data)) {
+      for (const item of data) {
+        if (!validateObject(item, options.spec)) {
+          return _fail('Object in Array sub-spec failed', dataKey, data);
+        }
+      }
+    }
     if (!isObject(data)) {
       return _fail('Only objects can have sub-specs', dataKey, data);
     }
-    if (!validateObject(data, options.spec)) {
+    if (isObject(data) && !isArray(data) && !validateObject(data, options.spec)) {
       return _fail('Validator sub-spec failed', dataKey, data);
     }
   }
