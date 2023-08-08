@@ -6,7 +6,7 @@ python-for-android/packages/**
 python-for-android/dists/kolibri/_python*
 python-for-android/dists/kolibri/.gradle
 python-for-android/dists/kolibri/build
-python-for-android/dists/kolibri/gradle
+python-for-android/dists/kolibri/gradle/*
 python-for-android/dists/kolibri/jni
 python-for-android/dists/kolibri/libs
 python-for-android/dists/kolibri/templates
@@ -18,6 +18,7 @@ python-for-android/dists/kolibri/*.*
 python-for-android/dists/kolibri/gradlew
 python-for-android/dists/kolibri/src/main/res/*/html_content.xml
 !python-for-android/dists/kolibri/build.gradle
+!python-for-android/dists/kolibri/gradle.properties
 
 # File format for signing key
 *.jks
