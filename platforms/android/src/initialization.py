@@ -2,6 +2,7 @@ import os
 import re
 import sys
 
+import kolibri  # noqa: F401  Import Kolibri here so we can import modules from dist folder
 from android_utils import get_context
 from android_utils import get_home_folder
 from android_utils import get_signature_key_issuing_organization
@@ -11,8 +12,6 @@ from jnius import autoclass
 
 script_dir = os.path.dirname(os.path.abspath(__file__))
 sys.path.append(script_dir)
-sys.path.append(os.path.join(script_dir, "kolibri", "dist"))
-sys.path.append(os.path.join(script_dir, "extra-packages"))
 
 os.environ["KOLIBRI_HOME"] = get_home_folder()
 os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
