@@ -22,8 +22,7 @@ class KolibriRecipe(PythonRecipe):
 
     def should_build(self, arch):
         # Always clean the build to ensure that we always update Kolibri
-        self.clean_build(arch)
-        super().should_build(arch)
+        return True
 
 
 recipe = KolibriRecipe()
