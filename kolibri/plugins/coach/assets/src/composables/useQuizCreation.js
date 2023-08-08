@@ -1,5 +1,12 @@
 import { v4 as uuidv4 } from 'uuid';
 import uniq from 'lodash/uniq';
+import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import {
+  ContentNodeResource,
+  BookmarksResource,
+  ContentNodeSearchResource,
+  ChannelResource,
+} from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, onMounted } from 'kolibri.lib.vueCompositionApi';
@@ -32,9 +39,11 @@ export function useQuizCreation() {
    * The questions that are currently selected for action in the active section */
   const _selectedQuestions = ref([]);
 
-  // API
+  // API / METHODS
 
+  // ------------------
   // Section Management
+  // ------------------
 
   /* @param   {QuizSection} section
    * @returns {QuizSection}
@@ -91,16 +100,20 @@ export function useQuizCreation() {
     set(_activeSectionId, section_id);
   }
 
-  // Quiz Management
+  // ------------
+  // Quiz General
+  // ------------
 
   /* @affects _quiz
    * @affects _activeSectionId
+   * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
   function initializeQuiz() {
     set(_quiz, objectWithDefaults({}, Quiz));
     const newSection = addSection();
     setActiveSection(newSection.section_id);
+    _fetchChannels();
   }
 
   /* @param  {Quiz} updates
@@ -114,7 +127,9 @@ export function useQuizCreation() {
     set(_quiz, { ...get(_quiz), ...updates });
   }
 
-  // Questions management
+  // --------------------------------
+  // Questions / Exercises management
+  // --------------------------------
 
   /* @param {QuizQuestion} question
    * @affects _selectedQuestions - Adds question to _selectedQuestions if it isn't there already */
@@ -128,6 +143,29 @@ export function useQuizCreation() {
     set(
       _selectedQuestions,
       get(_selectedQuestions).filter(id => id !== question_id)
+    );
+  }
+
+  /* A list of all channels available which have exercises */
+  const _channels = ref([]);
+
+  /* @affects _channels - Fetches all channels with exercises and sets them to _channels */
+  function _fetchChannels() {
+    ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
+      response => {
+        set(
+          _channels,
+          response.map(chnl => {
+            return {
+              ...chnl,
+              id: chnl.root,
+              title: chnl.name,
+              kind: ContentNodeKinds.CHANNEL,
+              is_leaf: false,
+            };
+          })
+        );
+      }
     );
   }
 
@@ -146,10 +184,13 @@ export function useQuizCreation() {
   /* @returns {QuizQuestion[]} All questions in the active section's `questions` property,
    *                           those which are currently selected to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
+  /* @returns {QuizQuestion[]} All questions the user has selected for the active section */
+  const selectedActiveQuestions = computed(() => get(_selectedQuestions));
   /* @returns {QuizQuestion[]} Questions in the active section's `exercise_pool` that are not in
    *                           `questions` */
-  const selectedActiveQuestions = computed(() => get(_selectedQuestions));
-  const replacementQuestions = computed(() => {});
+  const replacementQuestionPool = computed(() => {});
+  /* @returns {Array} A list of all channels available which have exercises */
+  const channels = computed(() => get(_channels));
 
   return {
     // Methods
@@ -164,12 +205,13 @@ export function useQuizCreation() {
     removeQuestionFromSelection,
 
     // Computed
+    channels,
     quiz,
     allSections,
     activeSection,
     activeExercisePool,
     activeQuestions,
     selectedActiveQuestions,
-    replacementQuestions,
+    replacementQuestionPool,
   };
 }

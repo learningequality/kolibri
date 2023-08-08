@@ -1,4 +1,5 @@
 import { get, set } from '@vueuse/core';
+import { ChannelResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { Exercise, Quiz, QuizQuestion, QuizSection } from '../src/composables/quizCreationSpecs.js';
 import { useQuizCreation } from '../src/composables/useQuizCreation.js';
@@ -16,14 +17,18 @@ const {
   removeQuestionFromSelection,
 
   // Computed
+  channels,
   quiz,
   allSections,
   activeSection,
   activeExercisePool,
   activeQuestions,
   selectedActiveQuestions,
-  replacementQuestions,
+  replacementQuestionPool,
 } = useQuizCreation();
+
+const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
+ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
 
 describe('useQuizCreation', () => {
   describe('Quiz initialization', () => {
@@ -45,6 +50,10 @@ describe('useQuizCreation', () => {
       expect(get(allSections)).toHaveLength(2);
       initializeQuiz();
       expect(get(allSections)).toHaveLength(1);
+    });
+
+    it('Populates the channels list', () => {
+      expect(get(channels)).toHaveLength(1);
     });
   });
 
@@ -101,7 +110,7 @@ describe('useQuizCreation', () => {
       });
     });
 
-    describe('Question (de)selection', () => {
+    describe('Question list (de)selection', () => {
       beforeEach(() => {
         initializeQuiz();
         const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
@@ -127,6 +136,16 @@ describe('useQuizCreation', () => {
         addQuestionToSelection(question_id);
         expect(get(selectedActiveQuestions)).toHaveLength(1);
       });
+    });
+
+    describe('Question replacement', () => {
+      beforeEach(() => {
+        initializeQuiz();
+        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
+        const { section_id } = get(activeSection);
+        updateSection({ section_id, questions });
+      });
+      it('Can give a list of questions in the exercise pool but not in the selected questions', () => {});
     });
   });
 });
