@@ -1,4 +1,6 @@
 import { get, set } from '@vueuse/core';
+import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import { Exercise, Quiz, QuizQuestion, QuizSection } from '../src/composables/quizCreationSpecs.js';
 import { useQuizCreation } from '../src/composables/useQuizCreation.js';
 
 const {
@@ -10,6 +12,8 @@ const {
   setActiveSection,
   initializeQuiz,
   updateQuiz,
+  addQuestionToSelection,
+  removeQuestionFromSelection,
 
   // Computed
   quiz,
@@ -17,6 +21,7 @@ const {
   activeSection,
   activeExercisePool,
   activeQuestions,
+  selectedActiveQuestions,
   replacementQuestions,
 } = useQuizCreation();
 
@@ -85,14 +90,42 @@ describe('useQuizCreation', () => {
       it('Can update any section', () => {
         const addedSection = addSection();
         const newTitle = 'New Title';
-        updateSection({ section_id: addedSection.section_id, title: newTitle });
-        expect(get(allSections).find(s => s.section_id === addedSection.section_id).title).toEqual(
-          newTitle
-        );
+        updateSection({ section_id: addedSection.section_id, section_title: newTitle });
+        expect(
+          get(allSections).find(s => s.section_id === addedSection.section_id).section_title
+        ).toEqual(newTitle);
       });
 
       it('Throws a TypeError if trying to update a section with a bad section shape', () => {
         expect(() => updateSection({ section_id: null, title: 1 })).toThrow(TypeError);
+      });
+    });
+
+    describe('Question (de)selection', () => {
+      beforeEach(() => {
+        initializeQuiz();
+        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
+        const { section_id } = get(activeSection);
+        updateSection({ section_id, questions });
+      });
+      it('Can add a question to the selected questions', () => {
+        const { question_id } = get(activeQuestions)[0];
+        addQuestionToSelection(question_id);
+        expect(get(selectedActiveQuestions)).toHaveLength(1);
+      });
+      it("Can remove a question from the active section's selected questions", () => {
+        const { question_id } = get(activeQuestions)[0];
+        addQuestionToSelection(question_id);
+        expect(get(selectedActiveQuestions)).toHaveLength(1);
+        removeQuestionFromSelection(question_id);
+        expect(get(selectedActiveQuestions)).toHaveLength(0);
+      });
+      it('Does not hold duplicates, so adding an existing question does nothing', () => {
+        const { question_id } = get(activeQuestions)[0];
+        addQuestionToSelection(question_id);
+        expect(get(selectedActiveQuestions)).toHaveLength(1);
+        addQuestionToSelection(question_id);
+        expect(get(selectedActiveQuestions)).toHaveLength(1);
       });
     });
   });

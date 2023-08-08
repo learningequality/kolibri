@@ -19,27 +19,27 @@
 export const Exercise = {
   ancestor_id: {
     type: String,
-    required: true,
+    default: '',
   },
   question_id: {
     type: String,
-    required: true,
+    default: '',
   },
   id: {
     type: String,
-    required: true,
+    default: '',
   },
   is_leaf: {
     type: Boolean,
-    required: true,
+    default: true,
   },
   kind: {
     type: String,
-    required: true,
+    default: '',
   },
   title: {
     type: String,
-    required: true,
+    default: '',
   },
 };
 
@@ -113,7 +113,7 @@ export const QuizSection = {
   },
   exercise_pool: {
     type: Array,
-    default: () =>  [],
+    default: () => [],
     spec: Exercise,
   },
 };
