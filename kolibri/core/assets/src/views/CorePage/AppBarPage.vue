@@ -55,14 +55,12 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import { get } from '@vueuse/core';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
   import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
@@ -80,11 +78,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      let userDeviceStatus = null;
-      const { isLearnerOnlyImport } = useUser();
-      if (get(isLearnerOnlyImport)) {
-        userDeviceStatus = useUserSyncStatus().deviceStatus;
-      }
+      const userDeviceStatus = useUserSyncStatus().deviceStatus;
       const { windowBreakpoint, windowIsSmall } = useKResponsiveWindow();
       return {
         userDeviceStatus,
