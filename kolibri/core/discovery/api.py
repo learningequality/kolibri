@@ -6,6 +6,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .models import DynamicNetworkLocation
+from .models import LocationTypes
 from .models import NetworkLocation
 from .models import PinnedDevice
 from .models import StaticNetworkLocation
@@ -26,7 +27,7 @@ from kolibri.core.utils.urls import reverse_path
 class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
-    queryset = NetworkLocation.objects.all()
+    queryset = NetworkLocation.objects.exclude(location_type=LocationTypes.Reserved)
     filter_backends = [DjangoFilterBackend]
     filter_fields = [
         "id",
