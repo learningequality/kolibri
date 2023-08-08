@@ -60,6 +60,8 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
     def plugin_data(self):
         from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
         from kolibri.core.content.api import ChannelMetadataViewSet
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
+        from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
         channel_viewset = ChannelMetadataViewSet()
 
@@ -80,7 +82,8 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
             "learnerNeeds": label_metadata["learner_needs"],
-            "studio_baseurl": conf.OPTIONS["Urls"]["CENTRAL_CONTENT_BASE_URL"],
+            "studio_baseurl": CENTRAL_CONTENT_BASE_URL,
+            "studio_instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
         }
 
 

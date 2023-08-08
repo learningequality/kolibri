@@ -13,7 +13,7 @@ import { learnStrings } from '../views/commonLearnStrings';
 
 /**
  * The ref is defined in the outer scope so it can be used as a shared store
- * @type {Ref<NetworkLocation>}
+ * @type {Ref<NetworkLocation|null>}
  */
 const currentDevice = ref(null);
 
