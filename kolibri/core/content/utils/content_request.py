@@ -160,6 +160,11 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
             "-last_activity_timestamp"
         ).values_list("server_instance_id", flat=True)
 
+    # if we're on a metered connection, we only want to download from local peers
+    # TODO: check if this is a metered connection
+    if not get_device_setting("allow_download_on_metered_connection"):
+        filters.update(is_local=True)
+
     # we can't combine this into one SQL query because the tables live in separate sqlite DBs
     for instance_id in instance_ids:
         try:
