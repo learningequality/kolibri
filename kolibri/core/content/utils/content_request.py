@@ -135,27 +135,39 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     create_content_removal_requests(facility, removable_assignments)
 
 
-def _get_preferred_network_location(version_filter=None):
+def _get_preferred_network_location(instance_id=None, version_filter=None):
     """
     Finds the preferred network location (peer) for importing content
 
+    :param instance_id: an ID to check if available, instead of the most recent sync peers
     :param version_filter: a version range used to filter instances
     :return: A NetworkLocation if available
     :rtype: NetworkLocation
     """
-    # find the server instance ID for the latest sync session having a matching network location
-    # that is not a SoUD and its connection status is currently okay
-    instance_ids = SyncSession.objects.order_by("-last_activity_timestamp").values_list(
-        "server_instance_id", flat=True
-    )
+    filters = dict()
+    # if we're looking for a specific instance ID, we don't worry about filtering on
+    # subset_of_users_device
+    if instance_id is None:
+        filters.update(subset_of_users_device=False)
+
+    if instance_id:
+        # we assume this peer is a somewhat trusted peer
+        instance_ids = [instance_id]
+    else:
+        # find the server instance ID for the latest sync session having a matching network location
+        # that is not a SoUD and its connection status is currently okay
+        instance_ids = SyncSession.objects.order_by(
+            "-last_activity_timestamp"
+        ).values_list("server_instance_id", flat=True)
 
     # we can't combine this into one SQL query because the tables live in separate sqlite DBs
     for instance_id in instance_ids:
         try:
+
             peer = NetworkLocation.objects.get(
                 instance_id=instance_id.hex,
                 connection_status=ConnectionStatus.Okay,
-                subset_of_users_device=False,
+                **filters
             )
             # ensure version is applicable according to filter
             if version_filter is not None and not peer.matches_version(version_filter):
@@ -325,6 +337,10 @@ def _import_metadata(client, contentnode_ids):
         if isinstance(contentnode_ids, QuerySet)
         else len(contentnode_ids)
     )
+    # quick exit, without log noise, if nothing to do
+    if not total_count:
+        logging.debug("No content metadata to import")
+        return
     processed_count = 0
     logger.info("Importing content metadata for {} nodes".format(total_count))
     for contentnode_id in contentnode_ids:
@@ -352,24 +368,53 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
     :type incomplete_downloads_without_metadata: django.db.models.QuerySet
     """
-    peer = _get_preferred_network_location(version_filter=">=0.16.0")
-    if not peer:
-        # can't import metadata without peers having minimum version 0.16.0
-        logger.info("No acceptable peer network device for importing content metadata")
-        return
+    source_instance_ids = list(
+        incomplete_downloads_without_metadata.values_list(
+            "source_instance_id", flat=True
+        ).distinct()
+    )
+    # append `None` which will bypass the explicit peer selection and use a trusted peer
+    # of a recent sync, if available, during the last step of the process
+    source_instance_ids.append(None)
+    peers = []
 
-    # during processing, if there's a critical failure in making requests to the peer, this will
-    # capture those errors, and obviously the raise exceptions will interrupt processing
-    with capture_connection_state(peer):
-        with NetworkClient.build_from_network_location(peer) as client:
-            # test connection
-            client.connect()
-            _import_metadata(
-                client,
-                incomplete_downloads_without_metadata.values_list(
-                    "contentnode_id", flat=True
-                ),
+    for source_instance_id in source_instance_ids:
+        # get the peer for this source instance
+        peer = _get_preferred_network_location(
+            instance_id=source_instance_id, version_filter=">=0.16.0"
+        )
+        if not peer:
+            continue
+
+        # store all available peers, so we can fall back to them if later preferred peers fail
+        peers.append(peer)
+        filters = dict()
+        if source_instance_id is not None:
+            filters["source_instance_id"] = source_instance_id
+
+        # start with the most recent peer, and work backwards
+        for peer in reversed(peers):
+            # during processing, if there's a critical failure in making requests to the peer,
+            # this will capture those errors, and obviously the raising of exceptions
+            # will interrupt processing
+            with capture_connection_state(peer):
+                with NetworkClient.build_from_network_location(peer) as client:
+                    # test connection
+                    client.connect()
+                    _import_metadata(
+                        client,
+                        incomplete_downloads_without_metadata.filter(
+                            **filters
+                        ).values_list("contentnode_id", flat=True),
+                    )
+
+    unprocessed_count = incomplete_downloads_without_metadata.count()
+    if unprocessed_count > 0:
+        logger.info(
+            "No acceptable peer device for importing content metadata for {} nodes".format(
+                unprocessed_count
             )
+        )
 
 
 def _process_content_requests(incomplete_downloads):
