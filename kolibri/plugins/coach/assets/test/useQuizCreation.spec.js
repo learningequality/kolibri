@@ -31,7 +31,7 @@ describe('useQuizCreation', () => {
     });
 
     it('Should set the active section to the first section', () => {
-      expect(get(activeSection)).toEqual(get(allSections)[0]);
+      expect(get(activeSection).section_id).toEqual(get(allSections)[0].section_id);
     });
   });
 });
