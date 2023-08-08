@@ -42,7 +42,6 @@
     <p v-else-if="!loading">
       {{ $tr('noClasses') }}
     </p>
-    <KCircularLoader v-else />
   </section>
 
 </template>
@@ -80,11 +79,14 @@
         required: false,
         default: false,
       },
+      loading: {
+        type: Boolean,
+        default: null,
+      },
     },
     data() {
       return {
         classAssignmentsLink,
-        loading: true,
       };
     },
     computed: {
@@ -103,15 +105,6 @@
       displayAllClassesLink() {
         return this.classes && this.classes.length > this.visibleClasses.length;
       },
-    },
-    mounted() {
-      // Wait some time for array of classes to completely load
-      setTimeout(
-        () => {
-          this.loading = false;
-        },
-        this.classes && this.classes.length === 0 ? 2200 : 0
-      );
     },
     $trs: {
       yourClassesHeader: {
