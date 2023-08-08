@@ -46,6 +46,26 @@ const simpleSpec = {
       };
     },
   },
+  arrayOfNum: {
+    type: Array,
+    default: () => [],
+    spec: {
+      type: Number,
+      required: true,
+    },
+  },
+  arrayOfObj: {
+    type: Array,
+    default: () => [],
+    spec: {
+      type: Object,
+      required: true,
+      spec: {
+        prop_C: 'val_C',
+        prop_D: 'val_D',
+      },
+    },
+  },
 };
 
 describe('validateObject basic operation', () => {
@@ -99,6 +119,13 @@ describe('validateObject basic operation', () => {
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
+  test('validateObject should test all children of an Array that has a spec', () => {
+    const obj = {
+      arrayOfNum: [1, 2, 3, 4, 5],
+      arrayOfObj: { prop_C: 'val_C', prop_D: 'val_D' },
+    };
+    expect(validateObject(obj, simpleSpec)).toBe(true);
+  });
 });
 
 describe('validateObject rejects bad specs', () => {
@@ -126,7 +153,7 @@ describe('validateObject rejects bad specs', () => {
     };
     expect(validateObject(obj, badSpec)).toBe(false);
   });
-  test('non-object cannot have sub-spec', () => {
+  test('non-object/array cannot have sub-spec', () => {
     const badSpec = {
       str1: {
         type: String,
@@ -155,6 +182,16 @@ describe('validateObject rejects bad specs', () => {
       str1: 'A',
     };
     expect(validateObject(obj, badSpec)).toBe(false);
+  });
+  test('A specced array rejects an array even if any value is bad', () => {
+    const badNumArrayObj = {
+      arrayOfNum: [1, 2, 3, 4, 5, 'A'],
+    };
+    expect(validateObject(badNumArrayObj, simpleSpec)).toBe(false);
+    const badObjArrayObj = {
+      arrayOfObj: [{ foo: 'bar', prop_c: 'val_c' }],
+    };
+    expect(validateObject(badObjArrayObj, simpleSpec)).toBe(false);
   });
 });
 
