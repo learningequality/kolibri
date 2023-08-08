@@ -56,6 +56,9 @@ def capture_network_state(network_location, client):
 
     # update all device info
     for key in device_info_keys.get(DEVICE_INFO_VERSION, []):
+        # don't update the instance ID if it's a reserved location
+        if key == "instance_id" and network_location.reserved:
+            continue
         setattr(network_location, key, client.device_info.get(key))
 
 
@@ -129,7 +132,8 @@ def update_network_location(network_location):
                         "Instance does not have matching facility"
                     )
             elif (
-                network_location.instance_id
+                not network_location.reserved
+                and network_location.instance_id
                 and network_location.instance_id
                 != client.device_info.get("instance_id")
             ):

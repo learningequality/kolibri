@@ -128,6 +128,10 @@ class NetworkLocation(models.Model):
         """
         self.location_type = LocationTypes.Dynamic if value else LocationTypes.Static
 
+    @property
+    def reserved(self):
+        return self.location_type == LocationTypes.Reserved
+
     @classmethod
     def has_field(cls, field):
         try:
