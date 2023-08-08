@@ -18,27 +18,27 @@
  */
 export const Exercise = {
   ancestor_id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   question_id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   is_leaf: {
-    type: 'boolean',
+    type: Boolean,
     required: true,
   },
   kind: {
-    type: 'string',
+    type: String,
     required: true,
   },
   title: {
-    type: 'string',
+    type: String,
     required: true,
   },
 };
@@ -54,15 +54,15 @@ export const Exercise = {
  */
 export const QuizQuestion = {
   exercise_id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   question_id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   title: {
-    type: 'string',
+    type: String,
     default: '',
   },
   counter_in_exercise: {
@@ -70,7 +70,7 @@ export const QuizQuestion = {
     default: 0,
   },
   missing_resource: {
-    type: 'boolean',
+    type: Boolean,
     default: false,
   },
 };
@@ -91,29 +91,29 @@ export const QuizQuestion = {
  */
 export const QuizSection = {
   section_id: {
-    type: 'string',
+    type: String,
     required: true,
   },
   section_title: {
-    type: 'string',
-    required: true,
+    type: String,
+    default: '',
   },
   description: {
-    type: 'string',
-    required: true,
+    type: String,
+    default: '',
   },
   questions: {
     type: Array,
-    default: [],
+    default: () => [],
     spec: QuizQuestion,
   },
   learners_see_fixed_order: {
-    type: 'boolean',
+    type: Boolean,
     default: false,
   },
   exercise_pool: {
     type: Array,
-    default: [],
+    default: () =>  [],
     spec: Exercise,
   },
 };
@@ -125,12 +125,12 @@ export const QuizSection = {
  */
 export const Quiz = {
   title: {
-    type: 'string',
+    type: String,
     default: '',
   },
   question_sources: {
     type: Array,
-    default: [],
+    default: () => [],
     spec: QuizSection,
   },
 };
