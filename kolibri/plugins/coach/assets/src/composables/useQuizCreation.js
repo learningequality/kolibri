@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import uniq from 'lodash/uniq';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, onMounted } from 'kolibri.lib.vueCompositionApi';
@@ -113,6 +114,23 @@ export function useQuizCreation() {
     set(_quiz, { ...get(_quiz), ...updates });
   }
 
+  // Questions management
+
+  /* @param {QuizQuestion} question
+   * @affects _selectedQuestions - Adds question to _selectedQuestions if it isn't there already */
+  function addQuestionToSelection(question_id) {
+    set(_selectedQuestions, uniq([...get(_selectedQuestions), question_id]));
+  }
+
+  /* @param {QuizQuestion} question
+   * @affects _selectedQuestions - Removes question from _selectedQuestions if it is there */
+  function removeQuestionFromSelection(question_id) {
+    set(
+      _selectedQuestions,
+      get(_selectedQuestions).filter(id => id !== question_id)
+    );
+  }
+
   // Computed properties
   /* @returns {Quiz} The value of _quiz */
   const quiz = computed(() => get(_quiz));
@@ -130,6 +148,7 @@ export function useQuizCreation() {
   const activeQuestions = computed(() => get(activeSection).questions);
   /* @returns {QuizQuestion[]} Questions in the active section's `exercise_pool` that are not in
    *                           `questions` */
+  const selectedActiveQuestions = computed(() => get(_selectedQuestions));
   const replacementQuestions = computed(() => {});
 
   return {
@@ -141,6 +160,8 @@ export function useQuizCreation() {
     setActiveSection,
     initializeQuiz,
     updateQuiz,
+    addQuestionToSelection,
+    removeQuestionFromSelection,
 
     // Computed
     quiz,
@@ -148,6 +169,7 @@ export function useQuizCreation() {
     activeSection,
     activeExercisePool,
     activeQuestions,
+    selectedActiveQuestions,
     replacementQuestions,
   };
 }
