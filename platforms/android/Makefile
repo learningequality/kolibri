@@ -80,7 +80,7 @@ install-tar: clean
 	echo "Installing ${TARFILE}"
 	rm -rf tar/patched
 	mkdir -p tar/patched
-	tar xvf "tar/${TARFILE}" --exclude="kolibri/dist/py2only*" --exclude="kolibri/dist/cext/*" --directory="tar/patched/" --strip-components=1
+	tar xvf "tar/${TARFILE}" --exclude="kolibri/dist/py2only*" --exclude="kolibri/dist/cext/*" --exclude="kolibri/dist/ifaddr*" --directory="tar/patched/" --strip-components=1
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
 	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' tar/patched/kolibri/dist/django/db/migrations/loader.py
 	pip3 install --no-cache-dir --force-reinstall "tar/patched"

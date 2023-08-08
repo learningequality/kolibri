@@ -4,7 +4,7 @@
 --name "Kolibri"
 --dist_name "kolibri"
 --private "src"
---requirements python3==3.9.13,hostpython3==3.9.13,android,pyjnius,genericndkbuild,sqlite3,cryptography,twisted,attrs,bcrypt,service_identity,pyasn1,pyasn1_modules,pyopenssl,openssl,six,kolibri
+--requirements python3==3.9.13,hostpython3==3.9.13,android,pyjnius,genericndkbuild,sqlite3,cryptography,twisted,attrs,bcrypt,service_identity,pyasn1,pyasn1_modules,pyopenssl,openssl,six,kolibri,ifaddr
 --android-api 31
 --minsdk 23
 --ndk-api 23
