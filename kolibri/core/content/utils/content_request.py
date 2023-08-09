@@ -1,4 +1,5 @@
 import logging
+import uuid
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
@@ -170,7 +171,9 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
         try:
 
             peer = NetworkLocation.objects.get(
-                instance_id=instance_id.hex,
+                instance_id=instance_id.hex
+                if isinstance(instance_id, uuid.UUID)
+                else instance_id,
                 connection_status=ConnectionStatus.Okay,
                 **filters
             )
