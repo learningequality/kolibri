@@ -233,7 +233,7 @@
         ref="resourcePanel"
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
-        :canDownloadContent="canDownload && !deviceId"
+        :canDownloadExternally="canDownloadExternally && !deviceId"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -317,7 +317,7 @@
         windowIsMedium,
         windowIsSmall,
       } = useKResponsiveWindow();
-      const { canDownload } = useCoreLearn();
+      const { canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
@@ -332,7 +332,7 @@
       });
 
       return {
-        canDownload,
+        canDownloadExternally,
         displayingSearchResults,
         searchTerms,
         searchLoading,

@@ -230,7 +230,7 @@
           ref="resourcePanel"
           :content="metadataSidePanelContent"
           :showLocationsInChannel="true"
-          :canDownloadContent="canDownload && !deviceId"
+          :canDownloadExternally="canDownloadExternally && !deviceId"
         />
       </SidePanelModal>
 
@@ -307,7 +307,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
-      const { canDownload } = useCoreLearn();
+      const { canDownloadExternally } = useCoreLearn();
       const store = getCurrentInstance().proxy.$store;
       const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
@@ -324,7 +324,7 @@
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
-        canDownload,
+        canDownloadExternally,
         searchTerms,
         displayingSearchResults,
         searchLoading,

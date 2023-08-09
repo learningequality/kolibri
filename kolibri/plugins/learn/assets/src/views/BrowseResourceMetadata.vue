@@ -188,7 +188,7 @@
       </div>
     </div>
 
-    <div v-if="canDownloadContent" class="section" data-test="download">
+    <div v-if="canDownloadExternally" class="section" data-test="download">
       <DownloadButton
         :files="content.files"
         :nodeTitle="content.title"
@@ -242,7 +242,7 @@
         type: Boolean,
         default: false,
       },
-      canDownloadContent: {
+      canDownloadExternally: {
         type: Boolean,
         default: false,
       },
