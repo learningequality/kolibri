@@ -84,6 +84,10 @@ install-tar: clean
 	# patch Django to allow migrations to be pyc files, as p4a compiles and deletes the originals
 	sed -i 's/if name.endswith(".py"):/if name.endswith(".py") or name.endswith(".pyc"):/g' tar/patched/kolibri/dist/django/db/migrations/loader.py
 	pip3 install --no-cache-dir --force-reinstall "tar/patched"
+	# Proactively clean up any kolibri installs from the built dist
+	rm -rf python-for-android/dists/kolibri/_python_bundle__*/_python_bundle/site-packages/kolibri* | true
+	rm -rf python-for-android/build/python-installs/kolibri/*/kolibri* | true
+	rm -rf python-for-android/build/other_builds/kolibri | true
 
 create-strings:
 	python scripts/create_strings.py
