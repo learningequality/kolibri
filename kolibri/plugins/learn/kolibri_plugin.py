@@ -71,6 +71,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
         label_metadata = get_all_contentnode_label_metadata()
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
+            "allowLearnerDownloads": get_device_setting(
+                "allow_learner_download_resources"
+            ),
             "allowLearnerUnassignedResourceAccess": allow_learner_unassigned_resource_access(),
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
@@ -82,8 +85,10 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "gradeLevels": label_metadata["grade_levels"],
             "accessibilityLabels": label_metadata["accessibility_labels"],
             "learnerNeeds": label_metadata["learner_needs"],
-            "studio_baseurl": CENTRAL_CONTENT_BASE_URL,
-            "studio_instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
+            "studioDevice": {
+                "base_url": CENTRAL_CONTENT_BASE_URL,
+                "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
+            },
         }
 
 

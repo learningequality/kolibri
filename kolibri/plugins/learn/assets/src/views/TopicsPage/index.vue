@@ -307,7 +307,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
-      const { canDownloadExternally } = useCoreLearn();
+      const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const store = getCurrentInstance().proxy.$store;
       const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
@@ -324,6 +324,7 @@
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
+        canAddDownloads,
         canDownloadExternally,
         searchTerms,
         displayingSearchResults,
@@ -365,7 +366,7 @@
     computed: {
       ...mapState('topicsTree', ['channel', 'contents', 'isRoot', 'topic']),
       allowDownloads() {
-        return Boolean(this.deviceId);
+        return this.canAddDownloads && Boolean(this.deviceId);
       },
       barTitle() {
         return this.deviceId

@@ -18,9 +18,8 @@ import { learnStrings } from '../views/commonLearnStrings';
 const currentDevice = ref(null);
 
 const KolibriStudioDeviceData = {
+  ...plugin_data.studioDevice,
   id: KolibriStudioId,
-  instance_id: plugin_data.studio_instance_id || '2d04ed86aa8c519fae78a250e03d8482',
-  base_url: plugin_data.studio_baseurl,
   get device_name() {
     return learnStrings.$tr('kolibriLibrary');
   },
@@ -78,7 +77,7 @@ export function setCurrentDevice(id) {
 function computedDevice(routingDeviceId, callback) {
   return computed(() => {
     const device = get(currentDevice);
-    if (device && device.id === get(routingDeviceId)) {
+    if (device && device.instance_id === get(routingDeviceId)) {
       return callback(device);
     }
     return null;

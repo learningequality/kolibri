@@ -35,7 +35,7 @@ const availableSpace = ref(0);
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
 
-  const { instanceId } = useDevices();
+  const { instanceId } = useDevices(store);
 
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
