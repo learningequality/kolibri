@@ -12,7 +12,9 @@ def _is_test():
     Check if we are running in a test environment, this migration doesn't work in a test environment
     but works otherwise.
     """
-    return "pytest" in sys.modules
+    from django.conf import settings
+
+    return settings.TESTING
 
 
 def set_location_type(apps, schema_editor):
