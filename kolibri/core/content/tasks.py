@@ -1,4 +1,5 @@
 import requests
+from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from rest_framework import serializers
 from six import with_metaclass
@@ -19,8 +20,8 @@ from kolibri.core.content.utils.resource_import import (
     RemoteChannelResourceImportManager,
 )
 from kolibri.core.content.utils.resource_import import RemoteChannelUpdateManager
+from kolibri.core.content.utils.settings import automatic_download_enabled
 from kolibri.core.content.utils.upgrade import diff_stats
-from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import IncompatibleVersionError
@@ -343,7 +344,16 @@ def remoteresourceimport(
     import_manager.run()
 
 
+class AutomaticDownloadValidator(JobValidator):
+    def validate(self, data):
+        job_data = super(AutomaticDownloadValidator, self).validate(data)
+        if not automatic_download_enabled():
+            raise ValidationError("Automatic download is not enabled")
+        return job_data
+
+
 @register_task(
+    validator=AutomaticDownloadValidator,
     queue=QUEUE,
     long_running=True,
     status_fn=get_status,
@@ -352,6 +362,8 @@ def automatic_resource_import():
     """
     Processes content download and removal requests
     """
+    if not automatic_download_enabled():
+        return
     process_content_requests()
 
 
@@ -366,16 +378,20 @@ def automatic_synchronize_content_requests_and_import():
     - Enqueues the automatic_resource_import task after synchronizing content requests.
     """
     # A safety check to see if the device settings are changed already?
-    if get_device_setting("enable_automatic_download", default=False) is True:
+    if not automatic_download_enabled():
         return
-    else:
-        dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
 
-        # Synchronize content requests for each dataset
-        for dataset_id in dataset_ids:
-            synchronize_content_requests(dataset_id, None)
+    dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
 
-        automatic_resource_import.enqueue_if_not()
+    # Synchronize content requests for each dataset
+    for dataset_id in dataset_ids:
+        # in case it takes a long time to synchronize content requests for a dataset, we want to
+        # check if the device settings are changed
+        if not automatic_download_enabled():
+            return
+        synchronize_content_requests(dataset_id, None)
+
+    automatic_resource_import.enqueue_if_not()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):

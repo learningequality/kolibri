@@ -3,15 +3,20 @@ import uuid
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
+from django.db.models import BooleanField
+from django.db.models import Case
 from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import QuerySet
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.models import Value
+from django.db.models import When
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
@@ -222,7 +227,7 @@ def incomplete_downloads_queryset():
     Returns a queryset used to determine the incomplete downloads, with and without metadata, as
     well as the total import size if it does have metadata
     """
-    return (
+    qs = (
         ContentDownloadRequest.objects.filter(status__in=INCOMPLETE_STATUSES)
         .order_by("requested_at")
         .annotate(
@@ -230,8 +235,25 @@ def incomplete_downloads_queryset():
                 ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
             ),
             total_size=_total_size_annotation(),
+            is_learner_download=Case(
+                When(
+                    source_model=FacilityUser.morango_model_name,
+                    then=Exists(
+                        FacilityUser.objects.filter(
+                            id=OuterRef("source_id"),
+                            roles__isnull=True,
+                        )
+                    ),
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
         )
     )
+    # if we're not allowing learner downloads, filter them out
+    if not get_device_setting("allow_learner_download_resources"):
+        qs = qs.exclude(is_learner_download=True)
+    return qs
 
 
 def completed_downloads_queryset():
