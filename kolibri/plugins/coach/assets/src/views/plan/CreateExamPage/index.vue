@@ -60,7 +60,7 @@
           :layout12="{ span:2 }"
         >
           <label>
-           <KIcon icon="plus"/>  {{ $tr('addSection') }}
+           <KIcon icon="plus" @click="addSection"/>  {{ $tr('addSection') }}
           </label>
         </KGridItem>
       </KGrid>
@@ -74,12 +74,13 @@
         <p>{{ $tr('selectResourceGuide') }}</p>
 
         <KButton 
-          primary="raised-button'"
+          primary
           icon="plus"> 
            {{  $tr('addQuestion') }}
         </KButton>
       </div>
     </KPageContainer>
+    <AddSection />
 
 
 
@@ -217,6 +218,8 @@
           @moreresults="handleMoreResults"
         />
       </div>
+      
+
       <BottomAppBar v-if="inSearchMode">
         <KRouterLink
           appearance="raised-button"
@@ -237,7 +240,9 @@
       </BottomAppBar>
 
     </KPageContainer>
+   
   </CoachImmersivePage>
+  
 
 </template>
 
@@ -262,7 +267,7 @@
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
-
+  import AddSection from './AddSection.vue';
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
@@ -275,6 +280,7 @@
       ContentCardList,
       BottomAppBar,
       BookmarkIcon,
+      AddSection
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -291,6 +297,7 @@
         bookmarksCount: 0,
         bookmarks: [],
         more: null,
+        showSectionSettingsMenu:false
       };
     },
     computed: {
@@ -691,6 +698,9 @@
           this.numQuestions = this.maxQs;
         }
       },
+      addSection(){
+        this.showSectionSettingsMenu=true;
+      }
     },
     $trs: {
       resources: {
