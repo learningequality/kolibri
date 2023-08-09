@@ -21,7 +21,7 @@
     "js-cookie": "^3.0.5",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.2.0",
-    "kolibri-design-system": "https://github.com/LianaHarris360/kolibri-design-system#kdaterange-date-input",
+    "kolibri-design-system": "https://github.com/LianaHarris360/kolibri-design-system#107036b42d6e507c6ad29ca515414b1728fba860",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",
