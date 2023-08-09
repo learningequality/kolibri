@@ -80,7 +80,7 @@ function computedDevice(routingDeviceId, callback) {
     if (device && device.instance_id === get(routingDeviceId)) {
       return callback(device);
     }
-    return null;
+    return undefined;
   });
 }
 

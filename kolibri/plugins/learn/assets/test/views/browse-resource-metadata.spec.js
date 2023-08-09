@@ -78,9 +78,9 @@ function makeContentNode(metadata = {}) {
   return { ...baseContentNode, ...metadata };
 }
 
-function makeWrapper(metadata = {}, options = {}, canDownloadContent = false) {
+function makeWrapper(metadata = {}, options = {}, canDownloadExternally = false) {
   const content = makeContentNode(metadata);
-  const propsData = { content, canDownloadContent };
+  const propsData = { content, canDownloadExternally };
   return shallowMount(BrowseResourceMetadata, {
     localVue,
     propsData,
@@ -195,11 +195,11 @@ describe('BrowseResourceMetadata', () => {
     });
   });
   describe('download button gets toggled by prop', () => {
-    it('should display the button when canDownloadContent is true', () => {
+    it('should display the button when canDownloadExternally is true', () => {
       const wrapper = makeWrapper({}, {}, true);
       expect(wrapper.find("[data-test='download']").exists()).toBeTruthy();
     });
-    it('should not display the button when canDownloadContent is false', () => {
+    it('should not display the button when canDownloadExternally is false', () => {
       const wrapper = makeWrapper({}, {}, false);
       expect(wrapper.find("[data-test='download']").exists()).toBeFalsy();
     });

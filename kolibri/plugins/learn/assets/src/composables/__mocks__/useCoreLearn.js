@@ -32,11 +32,13 @@
  */
 
 export const inClasses = false;
-export const canDownload = true;
+export const canAddDownloads = true;
+export const canDownloadExternally = true;
 
 const MOCK_DEFAULTS = {
   inClasses,
-  canDownload,
+  canAddDownloads,
+  canDownloadExternally,
 };
 
 export function useCoreLearnMock(overrides = {}) {
