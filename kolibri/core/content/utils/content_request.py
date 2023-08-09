@@ -165,6 +165,8 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
     :rtype: NetworkLocation
     """
     filters = dict()
+    allow_metered_download = get_device_setting("allow_download_on_metered_connection")
+
     # if we're looking for a specific instance ID, we don't worry about filtering on
     # subset_of_users_device
     if instance_id is None:
@@ -180,24 +182,33 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
             "-last_activity_timestamp"
         ).values_list("server_instance_id", flat=True)
 
-    # if we're on a metered connection, we only want to download from local peers
-    # TODO: check if this is a metered connection
-    if not get_device_setting("allow_download_on_metered_connection"):
-        filters.update(is_local=True)
-
     # we can't combine this into one SQL query because the tables live in separate sqlite DBs
     for instance_id in instance_ids:
         try:
-
             peer = NetworkLocation.objects.get(
                 instance_id=instance_id.hex
                 if isinstance(instance_id, uuid.UUID)
                 else instance_id,
-                connection_status=ConnectionStatus.Okay,
                 **filters
             )
+            # if we're on a metered connection, we only want to download from local peers
+            # TODO: check if Kolibri is using a metered connection
+            if not peer.is_local and not allow_metered_download:
+                logger.debug(
+                    "Non-local peer {} excluded when using metered connection".format(
+                        instance_id
+                    )
+                )
+                continue
+            # ensure peer is available, unless reserved
+            if not peer.reserved and peer.connection_status != ConnectionStatus.Okay:
+                logger.debug("Peer {} is not available".format(instance_id))
+                continue
             # ensure version is applicable according to filter
             if version_filter is not None and not peer.matches_version(version_filter):
+                logger.debug(
+                    "Peer {} does not match version filter".format(instance_id)
+                )
                 continue
             return peer
         except NetworkLocation.DoesNotExist:

@@ -295,6 +295,7 @@ def _refresh_reserved_locations():
         base_url=CENTRAL_CONTENT_BASE_URL,
         location_type=LocationTypes.Reserved,
         is_local=False,
+        kolibri_version="0.16.0",
     )
 
 
