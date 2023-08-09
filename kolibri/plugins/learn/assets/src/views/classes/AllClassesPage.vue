@@ -7,6 +7,7 @@
     <YourClasses
       v-if="isUserLoggedIn"
       :classes="classrooms"
+      :loading="loading"
     />
     <AuthMessage v-else authorizedRole="learner" />
   </LearnAppBarPage>
@@ -42,6 +43,9 @@
     computed: {
       ...mapGetters(['isUserLoggedIn']),
       ...mapState('classes', ['classrooms']),
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       breadcrumbs() {
         return [
           {
