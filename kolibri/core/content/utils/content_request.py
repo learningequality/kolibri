@@ -31,6 +31,7 @@ from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.resource_import import (
     ContentDownloadRequestResourceImportManager,
 )
+from kolibri.core.content.utils.settings import allow_non_local_download
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.utils import get_device_setting
@@ -165,7 +166,6 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
     :rtype: NetworkLocation
     """
     filters = dict()
-    allow_metered_download = get_device_setting("allow_download_on_metered_connection")
 
     # if we're looking for a specific instance ID, we don't worry about filtering on
     # subset_of_users_device
@@ -192,8 +192,7 @@ def _get_preferred_network_location(instance_id=None, version_filter=None):
                 **filters
             )
             # if we're on a metered connection, we only want to download from local peers
-            # TODO: check if Kolibri is using a metered connection
-            if not peer.is_local and not allow_metered_download:
+            if not peer.is_local and not allow_non_local_download():
                 logger.debug(
                     "Non-local peer {} excluded when using metered connection".format(
                         instance_id
