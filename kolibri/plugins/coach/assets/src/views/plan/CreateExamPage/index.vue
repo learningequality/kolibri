@@ -11,7 +11,10 @@
 
     <KPageContainer>
 
-      <h1>{{ $tr('createNewExamLabel') }}</h1>
+      <h1>{{ $tr('quizBuilderLabel') }}</h1>
+      <p>{{ $tr('quizBuilderDescription') }}</p>
+
+
 
       <UiAlert
         v-if="showError && !inSearchMode"
@@ -21,9 +24,66 @@
         {{ selectionIsInvalidText }}
       </UiAlert>
 
-      <h2>{{ coachString('detailsLabel') }}</h2>
+      <!-- <h2>{{ coachString('detailsLabel') }}</h2> -->
 
       <KGrid>
+        <KGridItem 
+          :layout12="{ span:1 }">
+          <KIcon 
+            icon="quiz"
+            class="style_icon"
+          />
+        </KGridItem>
+
+        <KGridItem 
+          :layout12="{ span:11 }"
+          >
+          <KTextbox
+            ref="title"
+            v-model.trim="examTitle"
+            :label="coachString('titleLabel')"
+            :autofocus="true"
+            :maxlength="100"
+            style="width:100%"
+          />
+        </KGridItem>
+      </KGrid>
+
+      <KGrid>
+        <KGridItem
+          :layout12="{ span:8 }">
+          <label>
+            {{ $tr('sectionLabel') }}
+          </label>
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span:2 }"
+        >
+          <label>
+           <KIcon icon="plus"/>  {{ $tr('addSection') }}
+          </label>
+        </KGridItem>
+      </KGrid>
+
+    <KPageContainer>
+      <div style="text-align:center">
+        <KIcon icon="help"/>
+
+        <p class="no-question-style">{{ $tr('noQuestionsLabel') }}</p>
+
+        <p>{{ $tr('selectResourceGuide') }}</p>
+
+        <KButton 
+          primary="raised-button'"
+          icon="plus"> 
+           {{  $tr('addQuestion') }}
+        </KButton>
+      </div>
+    </KPageContainer>
+
+
+
+      <!-- <KGrid>
         <KGridItem :layout12="{ span: 6 }">
           <KTextbox
             ref="title"
@@ -32,6 +92,7 @@
             :autofocus="true"
             :maxlength="100"
           />
+          
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
           <KGrid>
@@ -75,9 +136,9 @@
             </KGridItem>
           </KGrid>
         </KGridItem>
-      </KGrid>
+      </KGrid> -->
 
-      <h2>{{ $tr('chooseExercises') }}</h2>
+      <!-- <h2>{{ $tr('chooseExercises') }}</h2> -->
       <div v-if="bookmarksRoute">
         <strong>
           <KRouterLink
@@ -121,10 +182,10 @@
       </div>
 
       <div v-if="examCreationRoute || examTopicRoute || inSearchMode">
-        <LessonsSearchBox
+        <!-- <LessonsSearchBox
           class="search-box"
           @searchterm="handleSearchTerm"
-        />
+        /> -->
 
         <LessonsSearchFilters
           v-if="inSearchMode"
@@ -167,7 +228,7 @@
       <BottomAppBar v-else>
         <KButtonGroup>
           <KButton
-            :text="coreString('continueAction')"
+            :text="coreString('saveAction')"
             primary
             :disabled="!exercisesHaveBeenSelected"
             @click="continueProcess"
@@ -684,6 +745,34 @@
         context:
           "Indicates the number of resources selected by the coach. For example: '3 of 5 resources selected'.\n\nOnly translate 'of' and 'resource/resources selected'",
       },
+      quizBuilderLabel:{
+        message:'Quiz builder',
+        context:"Label for the creating a new quiz",
+      },
+      quizBuilderDescription:{
+        message:"Build unique quiz sections with a variety of questions and topics, tailored to your learners needs.",
+        context:"Briefly explains what the quiz builder consists",
+      },
+      sectionLabel:{
+        message:"section 1",
+        context:"Indicates the section number created",
+      },
+      addSection:{
+        message:"add section",
+        context:"Label for adding the number of quiz sections",
+      },
+      noQuestionsLabel:{
+        message:"No Questions yet",
+        context:"Indicates that there is no question in the quiz",
+      },
+      selectResourceGuide:{
+        message:"Select resources from the channels to add the questions to this quiz section.",
+        context:"Explains a way of adding a question",
+      },
+      addQuestion:{
+        message:"Add Questions",
+        context:"Button label for adding a new question",
+      }
     },
   };
 
@@ -721,6 +810,14 @@
 
   .text {
     margin-left: 15rem;
+  }
+  .no-question-style{
+    font-weight:bold;
+  }
+
+  .style_icon{
+    width:50px;
+    height:50px;
   }
 
 </style>
