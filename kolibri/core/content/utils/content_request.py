@@ -13,6 +13,8 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models import Value
 from django.db.models import When
+from django.db.models.expressions import CombinedExpression
+from django.db.models.functions import Coalesce
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
@@ -52,6 +54,18 @@ INCOMPLETE_STATUSES = [
     ContentRequestStatus.Failed,
     ContentRequestStatus.Pending,
 ]
+
+
+class FixedExists(Exists):
+    """
+    Exists() subquery that allows positional arguments, to get around issue:
+    TypeError: resolve_expression() takes from 1 to 2 positional arguments but 6 were given
+    """
+
+    def resolve_expression(self, query=None, *args, **kwargs):
+        # @see Exists.resolve_expression
+        self.queryset = self.queryset.order_by()
+        return Subquery.resolve_expression(self, query, *args, **kwargs)
 
 
 def create_content_download_requests(facility, assignments):
@@ -199,9 +213,29 @@ def _total_size(*querysets):
     total_size = 0
     for queryset in querysets:
         total_size += (
-            queryset.aggregate(total_size=Sum("total_size")).get("total_size", 0) or 0
+            queryset.aggregate(sum_size=Sum("total_size")).get("sum_size", 0) or 0
         )
     return total_size
+
+
+def _node_total_size(contentnode_id):
+    """
+    Returns a subquery to determine the total size of needed files not yet imported
+    :param contentnode_id: A contentnode ID or OuterRef to ID field
+    """
+    return Coalesce(
+        Subquery(
+            File.objects.filter(
+                contentnode_id=contentnode_id,
+                local_file__available=False,
+            )
+            .annotate(total_size=Sum("local_file__file_size"))
+            .values("total_size"),
+            output_field=BigIntegerField(),
+        ),
+        Value(0),
+        output_field=BigIntegerField(),
+    )
 
 
 def _total_size_annotation():
@@ -210,14 +244,21 @@ def _total_size_annotation():
     """
     # we check the parent and the node itself, since we'll generally want to import the parent
     # topic/folder for the resource, and it may have thumbnails
-    return Subquery(
-        File.objects.filter(
-            Q(contentnode_id=OuterRef("contentnode_id"))
-            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
-            & Q(local_file__available=False)
-        )
-        .annotate(total_size=Sum("local_file__file_size"))
-        .values("total_size"),
+    return CombinedExpression(
+        # the requested node's size
+        _node_total_size(OuterRef("contentnode_id")),
+        "+",
+        # the requested node's parent's size
+        Coalesce(
+            Subquery(
+                ContentNode.objects.filter(id=OuterRef("contentnode_id"))
+                .annotate(parent_total_size=_node_total_size(OuterRef("parent_id")))
+                .values("parent_total_size"),
+                output_field=BigIntegerField(),
+            ),
+            Value(0),
+            output_field=BigIntegerField(),
+        ),
         output_field=BigIntegerField(),
     )
 
@@ -238,7 +279,7 @@ def incomplete_downloads_queryset():
             is_learner_download=Case(
                 When(
                     source_model=FacilityUser.morango_model_name,
-                    then=Exists(
+                    then=FixedExists(
                         FacilityUser.objects.filter(
                             id=OuterRef("source_id"),
                             roles__isnull=True,
