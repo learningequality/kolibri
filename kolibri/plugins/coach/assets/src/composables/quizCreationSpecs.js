@@ -130,6 +130,10 @@ export const QuizSection = {
     default: () => [],
     spec: QuizQuestion,
   },
+  question_count: {
+    type: Number,
+    default: 10,
+  },
   learners_see_fixed_order: {
     type: Boolean,
     default: false,
@@ -141,10 +145,15 @@ export const QuizSection = {
   },
 };
 
+function getRandomInt() {
+  return Math.floor(Math.random() * 1000);
+}
+
 /*
  * @typedef  {Object}         Quiz                The overall primary Quiz object
  * @property {string}         title               The title of the whole quiz
  * @property {QuizSection[]}  question_sources    A list of the QuizSection objects that make up the
+ * @property {number}         seed                A random number used to seed the randomization
  */
 export const Quiz = {
   title: {
@@ -155,6 +164,10 @@ export const Quiz = {
     type: Array,
     default: () => [],
     spec: QuizSection,
+  },
+  seed: {
+    type: Number,
+    default: getRandomInt(),
   },
 };
 
