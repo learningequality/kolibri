@@ -152,7 +152,7 @@ class NotificationsAPITestCase(APITestCase):
         # user1 has one lesson:
         lessons = get_assignments(self.user1, self.summarylog1, attempt=False)
         assert len(lessons) > 0
-        assert type(lessons[0][0]) == dict
+        assert isinstance(lessons[0][0], dict)
         assert "assignment_collections" in lessons[0][0]
         # being the node an Exercise, it should be available for attempts:
         lessons = get_assignments(self.user1, self.summarylog1, attempt=True)

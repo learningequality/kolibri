@@ -78,9 +78,9 @@ function makeContentNode(metadata = {}) {
   return { ...baseContentNode, ...metadata };
 }
 
-function makeWrapper(metadata = {}, options = {}) {
+function makeWrapper(metadata = {}, options = {}, canDownloadContent = false) {
   const content = makeContentNode(metadata);
-  const propsData = { content };
+  const propsData = { content, canDownloadContent };
   return shallowMount(BrowseResourceMetadata, {
     localVue,
     propsData,
@@ -192,6 +192,16 @@ describe('BrowseResourceMetadata', () => {
 
     it('does not show license description section without the data', () => {
       expect(wrapper.find("[data-test='license-desc']").exists()).toBeFalsy();
+    });
+  });
+  describe('download button gets toggled by prop', () => {
+    it('should display the button when canDownloadContent is true', () => {
+      const wrapper = makeWrapper({}, {}, true);
+      expect(wrapper.find("[data-test='download']").exists()).toBeTruthy();
+    });
+    it('should not display the button when canDownloadContent is false', () => {
+      const wrapper = makeWrapper({}, {}, false);
+      expect(wrapper.find("[data-test='download']").exists()).toBeFalsy();
     });
   });
 });

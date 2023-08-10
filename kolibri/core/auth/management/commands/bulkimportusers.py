@@ -237,7 +237,7 @@ def reverse_dict(original):
     """
     final = {}
     for k, value in original.items():
-        if type(value) == list:
+        if isinstance(value, list):
             for v in value:
                 final.setdefault(v, []).append(k)
         else:

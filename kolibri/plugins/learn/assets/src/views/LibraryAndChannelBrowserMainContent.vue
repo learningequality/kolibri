@@ -4,7 +4,6 @@
     <component
       :is="!windowIsSmall && currentCardViewStyle === 'list' ? 'div' : 'CardGrid'"
       :data-test="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
-      :gridType="grid"
     >
       <component
         :is="componentType"
@@ -74,14 +73,6 @@
           return ['card', 'list'].includes(value);
         },
       },
-      // Used to define the "type" (number of columns) for <CardGrid />
-      // Currently only either `1` or `2`
-      // See props in CardGrid.vue for more details on # of cards per level
-      gridType: {
-        type: Number,
-        required: true,
-        default: 1,
-      },
       keepCurrentBackLink: {
         type: Boolean,
         default: false,
@@ -101,12 +92,6 @@
           return 'HybridLearningContentCard';
         }
         return 'CardList';
-      },
-      grid() {
-        if (this.windowIsSmall) {
-          return 1;
-        }
-        return this.gridType;
       },
     },
     methods: {

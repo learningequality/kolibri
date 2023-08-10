@@ -1,3 +1,5 @@
+import uuid
+
 from django.core.management import call_command
 from django.test import TransactionTestCase
 from mock import call
@@ -38,10 +40,30 @@ class DeleteChannelTestCase(TransactionTestCase):
             id=new_id,
             content_id=c2c1.content_id,
             kind=c2c1.kind,
-            channel_id=c2c1.channel_id,
+            channel_id=uuid.uuid4().hex,
             available=True,
             title=c2c1.title,
         )
+        self.delete_channel()
+        self.assertEqual(1, content.ContentNode.objects.count())
+
+    def test_channelmetadata_delete_batched_leave_unrelated_contentnodes(self):
+        c2c1 = content.ContentNode.objects.get(title="c2c1")
+        new_id = c2c1.id[:-1] + "1"
+        content.ContentNode.objects.create(
+            id=new_id,
+            content_id=c2c1.content_id,
+            kind=c2c1.kind,
+            channel_id=uuid.uuid4().hex,
+            available=True,
+            title=c2c1.title,
+        )
+        root = content.ContentNode.objects.get(
+            parent__isnull=True, channel_id=self.the_channel_id
+        )
+        # Artificially inflate the rght value to trigger batch deletion behaviour as a sanity check.
+        root.rght = 5000
+        root.save_base()
         self.delete_channel()
         self.assertEqual(1, content.ContentNode.objects.count())
 

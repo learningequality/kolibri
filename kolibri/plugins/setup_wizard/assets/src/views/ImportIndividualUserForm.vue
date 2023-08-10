@@ -254,13 +254,6 @@
           }
         }
 
-        if (!this.wizardService.state.context.firstImportedLodUser) {
-          this.wizardService.send({
-            type: 'SET_FIRST_LOD',
-            value: { username: this.username, password },
-          });
-        }
-
         TaskResource.startTask(params)
           .then(task => {
             let user = {};
@@ -271,6 +264,14 @@
             }
             task['device_id'] = this.deviceId;
             task['facility_name'] = this.facility.name;
+
+            if (!this.wizardService.state.context.firstImportedLodUser) {
+              this.wizardService.send({
+                type: 'SET_FIRST_LOD',
+                value: { username: this.username, password },
+              });
+            }
+
             this.wizardService.send({
               type: 'CONTINUE',
               value: { ...task, ...user },

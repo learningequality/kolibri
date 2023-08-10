@@ -8,6 +8,8 @@ from django.conf import settings
 from django.db.backends.signals import connection_created
 from django.db.models.query import F
 from django.db.utils import DatabaseError
+from django_filters.filters import UUIDFilter
+from django_filters.rest_framework.filterset import FilterSet
 
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
@@ -40,6 +42,11 @@ class KolibriCoreConfig(AppConfig):
             )
         )
         self.check_redis_settings()
+        # Do this to add an automapping from the Morango UUIDField to the UUIDFilter so that it automatically
+        # maps to this filter when using the UUIDField in a filter.
+        from morango.models import UUIDField
+
+        FilterSet.FILTER_DEFAULTS.update({UUIDField: {"filter_class": UUIDFilter}})
         # Register any django apps that may have kolibri plugin
         # modules inside them
         registered_plugins.register_non_plugins(settings.INSTALLED_APPS)

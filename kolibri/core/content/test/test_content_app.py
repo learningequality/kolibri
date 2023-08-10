@@ -425,6 +425,15 @@ class ContentNodeAPIBase(object):
         )
         self.assertEqual(response.status_code, 404)
 
+    def test_contentnode_tree_bad_pk(self):
+        response = self.client.get(
+            reverse(
+                "kolibri:core:contentnode_tree-detail",
+                kwargs={"pk": "this is not a UUID"},
+            )
+        )
+        self.assertEqual(response.status_code, 404)
+
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]
         == "django.db.backends.postgresql",
@@ -1112,6 +1121,23 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         self.assertEqual(len(response.data), 2)
         for i in range(len(titles)):
             self.assertEqual(response.data[i]["title"], titles[i])
+
+    def test_contentnode_content_id(self):
+        node = content.ContentNode.objects.get(title="c2c2")
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"content_id": node.content_id},
+        )
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["title"], node.title)
+
+    def test_contentnode_bad_content_id(self):
+        response = self.client.get(
+            reverse("kolibri:core:contentnode-list"),
+            data={"content_id": "this is not a uuid"},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
 
     def test_contentnode_parent(self):
         parent = content.ContentNode.objects.get(title="c2")

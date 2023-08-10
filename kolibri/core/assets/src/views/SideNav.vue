@@ -234,7 +234,6 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
-  import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -287,15 +286,14 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
     setup() {
-      let userSyncStatus = null;
-      let userLastSynced = null;
       const { isLearnerOnlyImport } = useUser();
-      if (get(isLearnerOnlyImport)) {
-        const { status, lastSynced } = useUserSyncStatus();
-        userSyncStatus = status;
-        userLastSynced = lastSynced;
-      }
-      return { isLearnerOnlyImport, themeConfig, userSyncStatus, userLastSynced };
+      const { status, lastSynced } = useUserSyncStatus();
+      return {
+        isLearnerOnlyImport,
+        themeConfig,
+        userSyncStatus: status,
+        userLastSynced: lastSynced,
+      };
     },
     props: {
       navShown: {

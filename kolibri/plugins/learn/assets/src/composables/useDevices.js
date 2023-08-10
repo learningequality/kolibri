@@ -6,6 +6,7 @@ import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi
 import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
+import useUser from 'kolibri.coreVue.composables.useUser';
 import plugin_data from 'plugin_data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
@@ -26,21 +27,29 @@ const KolibriStudioDeviceData = {
 
 const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
 
+const { isLearnerOnlyImport, canManageContent } = useUser();
+
+function canAccessStudio() {
+  return !get(isLearnerOnlyImport) && get(canManageContent);
+}
+
 function fetchDevices() {
   return Promise.all([
-    RemoteChannelResource.getKolibriStudioStatus(),
+    canAccessStudio() ? RemoteChannelResource.getKolibriStudioStatus() : Promise.resolve(null),
     NetworkLocationResource.list(),
   ]).then(([studioResponse, devices]) => {
-    const studio = studioResponse.data;
-    devices = devices.filter(device => isMinimumKolibriVersion(device.kolibri_version));
-    if (studio.available && isMinimumKolibriVersion(studio.kolibri_version || '0.15.0')) {
-      return [
-        {
-          ...studio,
-          ...KolibriStudioDeviceData,
-        },
-        ...devices,
-      ];
+    if (canAccessStudio()) {
+      const studio = studioResponse.data;
+      devices = devices.filter(device => isMinimumKolibriVersion(device.kolibri_version));
+      if (studio.available && isMinimumKolibriVersion(studio.kolibri_version || '0.15.0')) {
+        return [
+          {
+            ...studio,
+            ...KolibriStudioDeviceData,
+          },
+          ...devices,
+        ];
+      }
     }
     return devices;
   });
@@ -48,6 +57,9 @@ function fetchDevices() {
 
 export function setCurrentDevice(id) {
   if (id === KolibriStudioId) {
+    if (!canAccessStudio()) {
+      return Promise.reject('Cannot access Kolibri Studio');
+    }
     set(currentDevice, KolibriStudioDeviceData);
     return Promise.resolve(KolibriStudioDeviceData);
   }

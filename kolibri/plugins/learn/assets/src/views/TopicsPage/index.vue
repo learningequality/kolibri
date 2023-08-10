@@ -122,7 +122,6 @@
               <!-- display all resources at the top level of the folder -->
               <LibraryAndChannelBrowserMainContent
                 v-if="resources.length"
-                :gridType="2"
                 :allowDownloads="allowDownloads"
                 data-test="search-results"
                 :contents="resourcesDisplayed"
@@ -231,6 +230,7 @@
           ref="resourcePanel"
           :content="metadataSidePanelContent"
           :showLocationsInChannel="true"
+          :canDownloadContent="canDownload && !deviceId"
         />
       </SidePanelModal>
 
@@ -257,6 +257,7 @@
   import { PageNames } from '../../constants';
   import useSearch from '../../composables/useSearch';
   import useContentLink from '../../composables/useContentLink';
+  import useCoreLearn from '../../composables/useCoreLearn';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -306,6 +307,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
+      const { canDownload } = useCoreLearn();
       const store = getCurrentInstance().proxy.$store;
       const topic = computed(() => store.state.topicsTree && store.state.topicsTree.topic);
       const {
@@ -322,6 +324,7 @@
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
+        canDownload,
         searchTerms,
         displayingSearchResults,
         searchLoading,

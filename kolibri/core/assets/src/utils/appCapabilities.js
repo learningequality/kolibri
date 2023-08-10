@@ -18,6 +18,23 @@ export const checkCapability = key => store.getters.isAppContext && appCapabilit
 // checks and exposing the functions.
 
 export default {
+  /**
+   * @returns fn -> Promise<{ value: (boolean | null) }>
+   * Returns a function that returns a Promise that resolves to something responding to
+   * `data.value` whether it succeeds or fails.
+   */
+  checkIsMetered() {
+    if (!checkCapability('check_is_metered')) {
+      return Promise.resolve(null);
+    }
+
+    const urlFunction = urls['kolibri:kolibri.plugins.app:appcommands-check-is-metered'];
+    if (!urlFunction || !checkCapability('check_is_metered')) {
+      logging.warn('Checking if the device is metered is not supported on this platform');
+      return Promise.resolve(null);
+    }
+    return client({ url: urlFunction(), method: 'GET' }).then(response => response.data.value);
+  },
   get shareFile() {
     if (!checkCapability('share_file')) {
       return; // eslint-disable-line getter-return

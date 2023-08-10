@@ -48,7 +48,14 @@ def os_user(auth_token):
     return ("os_user", True)
 
 
+def check_is_metered():
+    # Set this to the value that suits your needs for testing if on a metered connection
+    return True
+
+
 interface.register(get_os_user=os_user)
+interface.register(check_is_metered=check_is_metered)
+
 
 kolibri_bus = KolibriProcessBus(port=8000)
 app_plugin = AppPlugin(kolibri_bus)

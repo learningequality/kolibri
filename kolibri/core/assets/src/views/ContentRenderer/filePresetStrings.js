@@ -41,6 +41,9 @@ export function getFilePresetString(file) {
   if (preset.endsWith('thumbnail')) {
     return filePresetTranslator.$tr('thumbnail', params);
   }
+  if (preset === 'h5p') {
+    return filePresetTranslator.$tr('html5_zip', params);
+  }
   if (filePresetStrings[preset]) {
     return filePresetTranslator.$tr(preset, params);
   }

@@ -458,7 +458,7 @@ def _check_file_availability(files):
 
 
 def set_local_file_availability_from_disk(checksums=None, destination=None):
-    if type(checksums) == list and len(checksums) > CHUNKSIZE:
+    if isinstance(checksums, list) and len(checksums) > CHUNKSIZE:
         for i in range(0, len(checksums), CHUNKSIZE):
             set_local_file_availability_from_disk(
                 checksums=checksums[i : i + CHUNKSIZE], destination=destination
@@ -477,7 +477,7 @@ def set_local_file_availability_from_disk(checksums=None, destination=None):
         logger.info(
             "Setting availability of LocalFile objects based on disk availability"
         )
-    elif type(checksums) == list:
+    elif isinstance(checksums, list):
         logger.info(
             "Setting availability of {number} LocalFile objects based on disk availability".format(
                 number=len(checksums)

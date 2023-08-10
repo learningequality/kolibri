@@ -1,14 +1,13 @@
+# Modified from https://gist.github.com/miohtama/278fd4eeb9e5272d061c
 from sqlalchemy import inspect
 from sqlalchemy.orm import RelationshipProperty
-
-# Modified from https://gist.github.com/miohtama/278fd4eeb9e5272d061c
 
 
 class DBSchemaError(Exception):
     pass
 
 
-def db_matches_schema(Base, engine):
+def db_matches_schema(classes, engine):
     """
     Check whether the current database matches the models declared in model base.
     Currently we check that all tables exist with all columns.
@@ -22,7 +21,7 @@ def db_matches_schema(Base, engine):
     tables = iengine.get_table_names()
 
     # Go through all SQLAlchemy models
-    for table, klass in Base.classes.items():
+    for table, klass in classes.items():
 
         if table in tables:
 

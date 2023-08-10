@@ -39,10 +39,9 @@
       </CardLink>
     </CardGrid>
 
-    <p v-else>
+    <p v-else-if="!loading">
       {{ $tr('noClasses') }}
     </p>
-
   </section>
 
 </template>
@@ -79,6 +78,10 @@
         type: Boolean,
         required: false,
         default: false,
+      },
+      loading: {
+        type: Boolean,
+        default: null,
       },
     },
     data() {

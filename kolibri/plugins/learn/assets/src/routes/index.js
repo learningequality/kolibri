@@ -106,7 +106,9 @@ export default [
       if (unassignedContentGuard()) {
         return unassignedContentGuard();
       }
-      showLibrary(store, to.query, to.params.deviceId);
+      showLibrary(store, to.query, to.params.deviceId).catch(() => {
+        router.replace({ name: PageNames.ROOT });
+      });
     },
     component: LibraryPage,
     props: route => {
@@ -159,7 +161,9 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, toRoute);
+      showTopicsTopic(store, toRoute).catch(() => {
+        router.replace({ name: PageNames.ROOT });
+      });
     },
     component: TopicsPage,
     props: true,
@@ -176,7 +180,9 @@ export default [
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, toRoute);
+      showTopicsTopic(store, toRoute).catch(() => {
+        router.replace({ name: PageNames.ROOT });
+      });
     },
     component: TopicsPage,
     props: true,
@@ -185,7 +191,9 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: `/topics${optionalDeviceIdPathSegment}/c/:id`,
     handler: toRoute => {
-      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId);
+      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId).catch(() => {
+        router.replace({ name: PageNames.ROOT });
+      });
     },
     component: TopicsContentPage,
     props: true,

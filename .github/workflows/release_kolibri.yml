@@ -14,6 +14,12 @@ jobs:
     with:
       filename: ${{ needs.whl.outputs.whl-file-name }}
       release_id: ${{ github.event.release.id }}
+  upload_tar:
+    uses: ./.github/workflows/upload_github_release_asset.yml
+    needs: whl
+    with:
+      filename: ${{ needs.whl.outputs.tar-file-name }}
+      release_id: ${{ github.event.release.id }}
   pex:
     name: Build PEX file
     needs: whl
