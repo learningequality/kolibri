@@ -9,137 +9,19 @@
     :route="toolbarRoute"
   >
 
-    <KPageContainer>
-
-      <h1>{{ $tr('quizBuilderLabel') }}</h1>
-      <p>{{ $tr('quizBuilderDescription') }}</p>
-
-
-
-      <UiAlert
-        v-if="showError && !inSearchMode"
-        type="error"
-        :dismissible="false"
-      >
-        {{ selectionIsInvalidText }}
-      </UiAlert>
-
-      <!-- <h2>{{ coachString('detailsLabel') }}</h2> -->
-
-      <KGrid>
-        <KGridItem 
-          :layout12="{ span:1 }">
-          <KIcon 
-            icon="quiz"
-            class="style_icon"
-          />
-        </KGridItem>
-
-        <KGridItem 
-          :layout12="{ span:11 }"
-          >
-          <KTextbox
-            ref="title"
-            v-model.trim="examTitle"
-            :label="coachString('titleLabel')"
-            :autofocus="true"
-            :maxlength="100"
-            style="width:100%"
-          />
-        </KGridItem>
-      </KGrid>
-
-      <KGrid>
-        <KGridItem
-          :layout12="{ span:8 }">
-          <label>
-            {{ $tr('sectionLabel') }}
-          </label>
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span:2 }"
-        >
-          <label>
-           <KIcon icon="plus" @click="addSection"/>  {{ $tr('addSection') }}
-          </label>
-        </KGridItem>
-      </KGrid>
+    <UiAlert
+      v-if="showError && !inSearchMode"
+      type="error"
+      :dismissible="false"
+    >
+      {{ selectionIsInvalidText }}
+    </UiAlert>
 
     <KPageContainer>
-      <div style="text-align:center">
-        <KIcon icon="help"/>
+       
+      <CreateQuizSection/>
 
-        <p class="no-question-style">{{ $tr('noQuestionsLabel') }}</p>
-
-        <p>{{ $tr('selectResourceGuide') }}</p>
-
-        <KButton 
-          primary
-          icon="plus"> 
-           {{  $tr('addQuestion') }}
-        </KButton>
-      </div>
-    </KPageContainer>
-    <AddSection />
-
-
-
-      <!-- <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
-          <KTextbox
-            ref="title"
-            v-model.trim="examTitle"
-            :label="coachString('titleLabel')"
-            :autofocus="true"
-            :maxlength="100"
-          />
-          
-        </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
-          <KGrid>
-            <KGridItem
-              :layout4="{ span: 2 }"
-              :layout8="{ span: 5 }"
-              :layout12="{ span: 8 }"
-            >
-              <KTextbox
-                ref="questionsInput"
-                v-model.trim.number="numQuestions"
-                type="number"
-                :min="1"
-                :max="maxQs"
-                :invalid="Boolean(showError && numQuestIsInvalidText)"
-                :invalidText="numQuestIsInvalidText"
-                :label="$tr('numQuestions')"
-                @blur="handleNumberQuestionsBlur"
-              />
-            </KGridItem>
-            <KGridItem
-              :layout4="{ span: 2 }"
-              :layout8="{ span: 3 }"
-              :layout12="{ span: 4 }"
-              :style="{ marginTop: '16px' }"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="numQuestions === 1"
-                @click="numQuestions -= 1"
-              />
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="numQuestions === maxQs"
-                @click="numQuestions += 1"
-              />
-            </KGridItem>
-          </KGrid>
-        </KGridItem>
-      </KGrid> -->
-
-      <!-- <h2>{{ $tr('chooseExercises') }}</h2> -->
+      
       <div v-if="bookmarksRoute">
         <strong>
           <KRouterLink
@@ -267,7 +149,8 @@
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
-  import AddSection from './AddSection.vue';
+  import CreateQuizSection from './CreateQuizSection.vue';
+
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
@@ -280,7 +163,7 @@
       ContentCardList,
       BottomAppBar,
       BookmarkIcon,
-      AddSection
+      CreateQuizSection,
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
@@ -755,34 +638,7 @@
         context:
           "Indicates the number of resources selected by the coach. For example: '3 of 5 resources selected'.\n\nOnly translate 'of' and 'resource/resources selected'",
       },
-      quizBuilderLabel:{
-        message:'Quiz builder',
-        context:"Label for the creating a new quiz",
-      },
-      quizBuilderDescription:{
-        message:"Build unique quiz sections with a variety of questions and topics, tailored to your learners needs.",
-        context:"Briefly explains what the quiz builder consists",
-      },
-      sectionLabel:{
-        message:"section 1",
-        context:"Indicates the section number created",
-      },
-      addSection:{
-        message:"add section",
-        context:"Label for adding the number of quiz sections",
-      },
-      noQuestionsLabel:{
-        message:"No Questions yet",
-        context:"Indicates that there is no question in the quiz",
-      },
-      selectResourceGuide:{
-        message:"Select resources from the channels to add the questions to this quiz section.",
-        context:"Explains a way of adding a question",
-      },
-      addQuestion:{
-        message:"Add Questions",
-        context:"Button label for adding a new question",
-      }
+      
     },
   };
 
@@ -820,14 +676,6 @@
 
   .text {
     margin-left: 15rem;
-  }
-  .no-question-style{
-    font-weight:bold;
-  }
-
-  .style_icon{
-    width:50px;
-    height:50px;
   }
 
 </style>
