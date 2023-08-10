@@ -1,7 +1,12 @@
 import { get, set } from '@vueuse/core';
 import { ChannelResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
-import { Exercise, Quiz, QuizQuestion, QuizSection } from '../src/composables/quizCreationSpecs.js';
+import {
+  ExerciseResource,
+  Quiz,
+  QuizQuestion,
+  QuizSection,
+} from '../src/composables/quizCreationSpecs.js';
 import { useQuizCreation } from '../src/composables/useQuizCreation.js';
 
 const {
@@ -29,6 +34,30 @@ const {
 
 const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
 ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
+
+/**
+ * @param num {number} - The number of questions to create
+ * @param overrides {object} - Any overrides to apply to the default question
+ */
+function generateQuestions(num=0) {
+  const qs = [];
+  for (let i = 0; i < num; i++) {
+    const question = objectWithDefaults({ question_id: i, counter_in_exercise: i }, QuizQuestion);
+    qs.push(question);
+  }
+  return qs;
+}
+
+/** @param numQuestions {number} - The number of questions to create within the exercise
+ *  @returns {Exercise} - An exercise with the given number of questions
+ *  A helper function to mock an exercise with a given number of questions (for `resource_pool`)
+ */
+function generateExercise(numQuestions) {
+  const exercise = objectWithDefaults({ resource_id: 'exercise_1' }, ExerciseResource);
+  exercise.questions = generateQuestions(numQuestions);
+  return exercise;
+}
+
 
 describe('useQuizCreation', () => {
   describe('Quiz initialization', () => {
@@ -103,6 +132,36 @@ describe('useQuizCreation', () => {
         expect(
           get(allSections).find(s => s.section_id === addedSection.section_id).section_title
         ).toEqual(newTitle);
+      });
+
+      it('Will update `questions` to match `question_count` property when it is changed', () => {
+        // Setup a mock exercise w/ some questions; update the activeSection with their values
+        const exercise = generateExercise(10);
+        const questions = exercise.questions;
+        updateSection(
+          { section_id: get(activeSection).section_id, questions, resource_pool: [exercise] }
+        );
+        expect(get(activeQuestions)).toHaveLength(questions.length);
+        expect(get(activeQuestions).length).not.toEqual(0);
+        expect(get(activeSection).resource_pool).toHaveLength(1);
+
+        // Now let's change the question count and see if the questions array is updated
+        const newQuestionCount = 5;
+        updateSection(
+          { section_id: get(activeSection).section_id, question_count: newQuestionCount }
+        );
+        // Now questions should only be as long as newQuestionCount
+        expect(get(activeQuestions)).toHaveLength(newQuestionCount);
+        // And it should have split it into head & tail and kept the head so indexes 0 and 4 ought
+        // to be the same as the first and last questions in the updated questions array
+        expect(get(activeQuestions)[0].question_id).toEqual(questions[0].question_id);
+        expect(get(activeQuestions)[4].question_id).toEqual(questions[4].question_id);
+
+        const newQuestionCount2 = 10;
+        updateSection(
+          { section_id: get(activeSection).section_id, question_count: newQuestionCount2 }
+        );
+        expect(get(activeQuestions)).toHaveLength(newQuestionCount2);
       });
 
       it('Throws a TypeError if trying to update a section with a bad section shape', () => {

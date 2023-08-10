@@ -10,6 +10,8 @@ import {
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, onMounted } from 'kolibri.lib.vueCompositionApi';
+// TODO: Probably move this to this file's local dir
+import selectQuestions from '../modules/examCreation/selectQuestions.js';
 import { Exercise, Quiz, QuizQuestion, QuizSection } from './quizCreationSpecs.js';
 
 /** Validators **/
@@ -19,6 +21,14 @@ import { Exercise, Quiz, QuizQuestion, QuizSection } from './quizCreationSpecs.j
 
 function validateQuiz(quiz) {
   return validateObject(quiz, Quiz);
+}
+
+/**
+ * @param {QuizResource} o - The resource to check
+ * @returns {boolean} - True if the resource is a valid QuizResource
+ */
+function isExercise(o) {
+  return o.kind === ContentNodeKinds.EXERCISE;
 }
 
 /*
@@ -45,6 +55,8 @@ export function useQuizCreation() {
   // Section Management
   // ------------------
 
+  /* @returns
+
   /* @param   {QuizSection} section
    * @returns {QuizSection}
    * @affects _quiz - Updates the section with the given section_id with the given param
@@ -54,6 +66,26 @@ export function useQuizCreation() {
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
     }
+    const { question_count } = updates;
+    if (question_count) {
+      if (question_count < (targetSection.question_count || 0)) {
+        // If the question_count is being reduced, we need to remove any questions that are now
+        // outside the bounds of the new question_count
+        updates.questions = targetSection.questions.slice(0, question_count);
+      } else if (question_count > (targetSection.question_count || 0)) {
+        // If the question_count is being increased, we need to add new questions to the end of the
+        // questions array
+        const newQuestions = selectQuestions(
+          question_count - (targetSection.question_count || 0),
+          targetSection.resource_pool.map(r => r.content_id),
+          targetSection.resource_pool.map(r => r.title),
+          targetSection.resource_pool.map(r => r.questions.map(q => q.question_id)),
+          get(_quiz).seed
+        );
+        updates.questions = [...targetSection.questions, ...newQuestions];
+      }
+    }
+
     set(_quiz, {
       ...get(quiz),
       // Update matching QuizSections with the updates object
@@ -122,7 +154,7 @@ export function useQuizCreation() {
    * Validates the input type and then updates _quiz with the given updates */
   function updateQuiz(updates) {
     if (!validateQuiz(updates)) {
-      throw new TypeError('updates must be a valid Quiz object');
+      throw new TypeError(`Updates are not a valid Quiz object: ${JSON.stringify(updates)}`);
     }
     set(_quiz, { ...get(_quiz), ...updates });
   }
@@ -169,6 +201,21 @@ export function useQuizCreation() {
     );
   }
 
+  // Utilities
+  /**
+   * @params  {string} section_id - The section_id whose resource_pool we'll use.
+   * @returns {QuizQuestion[]}
+   */
+  function _getQuestionsFromSection(section_id) {
+    const section = get(allSections).find(s => s.section_id === section_id);
+    if (!section) {
+      throw new Error(`Section with id ${section_id} not found.`);
+    }
+    return section.resource_pool.reduce((acc, exercise) => {
+      return [...acc, ...exercise.questions];
+    }, []);
+  }
+
   // Computed properties
   /* @returns {Quiz} The value of _quiz */
   const quiz = computed(() => get(_quiz));
@@ -178,11 +225,15 @@ export function useQuizCreation() {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
-  /* @returns {Exercise[]} The active section's `resource_pool` - that is, Exercises from which
-   *                       we will enumerate all available questions */
-  const activeExercisePool = computed(() => get(activeSection).resource_pool);
+  /* @returns {QuizResource[]} The active section's `resource_pool` */
+  const activeResourcePool = computed(() => get(activeSection).resource_pool);
+  /* @returns {ExerciseResource[]} The active section's `resource_pool` - that is, Exercises from
+   *                               which we will enumerate all available questions */
+  const activeExercisePool = computed(() => get(activeResourcePool).filter(isExercise));
+  /* @returns {QuizQuestion[]} All questions in the active section's `resource_pool` exercises */
+  const activeQuestionsPool = computed(() => _getQuestionsFromSection(get(_activeSectionId)));
   /* @returns {QuizQuestion[]} All questions in the active section's `questions` property,
-   *                           those which are currently selected to be used in the section */
+   *                           those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
   /* @returns {QuizQuestion[]} All questions the user has selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestions));
