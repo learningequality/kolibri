@@ -256,6 +256,7 @@ class IncompleteDownloadsQuerysetTestCase(TestCase):
         return (parent, node)
 
     def setUp(self):
+        super(IncompleteDownloadsQuerysetTestCase, self).setUp()
         self.admin_request = ContentDownloadRequest.build_for_user(self.admin)
         self.admin_request.contentnode_id = uuid.uuid4().hex
         self.admin_request.save()
