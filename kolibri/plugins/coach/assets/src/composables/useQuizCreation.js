@@ -178,15 +178,15 @@ export function useQuizCreation() {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
-  /* @returns {Exercise[]} The active section's `exercise_pool` - that is, Exercises from which
+  /* @returns {Exercise[]} The active section's `resource_pool` - that is, Exercises from which
    *                       we will enumerate all available questions */
-  const activeExercisePool = computed(() => get(activeSection).exercise_pool);
+  const activeExercisePool = computed(() => get(activeSection).resource_pool);
   /* @returns {QuizQuestion[]} All questions in the active section's `questions` property,
    *                           those which are currently selected to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
   /* @returns {QuizQuestion[]} All questions the user has selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestions));
-  /* @returns {QuizQuestion[]} Questions in the active section's `exercise_pool` that are not in
+  /* @returns {QuizQuestion[]} Questions in the active section's `resource_pool` that are not in
    *                           `questions` */
   const replacementQuestionPool = computed(() => {});
   /* @returns {Array} A list of all channels available which have exercises */

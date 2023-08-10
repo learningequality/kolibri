@@ -6,66 +6,27 @@
  * Note also that any file importing this should also have the JSDoc typedefs available to your IDE.
  */
 
-/**
- * TODO: Work this out better for the mental mapping. What we get from the API re: content needs
- * to be translated into the objects we need to create a Quiz, at a high level.
- *
- * Keywords to consider: Assessment, Exercise, ContentNode, Topic, QuizQuestion...
- *
- *
- * FIXME: #11025 defines the `resource_pool` property which needs to be added to the `QuizSection`
- * object -- this means we have an in-data-structure representation of the resource pool and can
- * just keep that up to date and derive UI, and such from there
- *
- * ## Assessments
- * This is used as the name for the questions within an exercise when we get them from the API.
- * Assessments are individual questions within a given Exercise. When we get a piece of content
- * that is an Exercise kind, it should have some `assessment_metadata` which will have everything
- * we need to enumerate the QuizQuestions associated with an Exercise.
- *
- * ## ContentNode & Exercises
- * ContentNodes are the objects that represent the content. They have a `kind` which, in our case,
- * will be one of either TOPIC or EXERCISE. Any ContentNode can provide a list of its ancestors and
- * can be used to get a list of its descendants.
- *
- * TOPICS, in our case, are navigation nodes and, if they are "selected" then all of their
- * descendants are also "selected".
- *
- * EXERCISES, on the other hand, are the actual content that we want to use in our Quiz. They will
- * have the IDs for the assessments we will use to create and show the QuizQuestions.
- *
- *
- * ## QuizQuestions
- * These are the data which will be persisted in the `question_sources` property of a Quiz - in
- * each of the QuizSections therein. They should represent everything we need to:
- * - Render a question preview
- * - Differentiate one question from another within the exercise
- */
-
 /*
- * @typedef   {Object}  Topic           A topic - a collection of exercises
- * @property  {Array}   ancestors       A list of objects with ID and Title (for breadcrumbs)
- * @property
-
-/*
- * @typedef   {Object}  Exercise        A particular exercise that can be selected within a quiz
+ * @typedef   {Object}  QuizResource    An object referencing an exercise or topic to be used
+ *                                      within the `QuizSeciton.resource_pool` property.
+ * @property  {string}  title           The resource title
  * @property  {string}  ancestor_id     The ID of the parent contentnode
  * @property  {string}  content_id      The ID for the piece of content
  * @property  {string}  id              Unique ID for this exercise
- * @property  {bool}    is_leaf         More or less means "is_not_a_topic"
- * @property  {string}  kind            Exercise or Topic in our case, most likely see
- *                                      kolibri.core.assets.src.constants.ContentNodeKinds
- * @property  {Array}   assessment_ids  A list of assessment item IDs that are associated with
- *                                      this exercise
- * @property  {string}  contentnode     The contentnode ID for the Assessment
- * @property  {string}  title           The resource title
+ * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
+ * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
  */
-export const Exercise = {
+
+export const QuizResource = {
+  title: {
+    type: String,
+    default: '',
+  },
   ancestor_id: {
     type: String,
     default: '',
   },
-  question_id: {
+  content_id: {
     type: String,
     default: '',
   },
@@ -75,16 +36,25 @@ export const Exercise = {
   },
   is_leaf: {
     type: Boolean,
-    default: true,
+    default: false,
   },
   kind: {
     type: String,
     default: '',
   },
-  title: {
-    type: String,
-    default: '',
-  },
+};
+
+/*
+ * @typedef   {Object}  ExerciseResource        A particular exercise that can be selected within a
+ *                                              quiz. An ExerciseResource here is a QuizResource
+ *                                              with assessment metadata attached.
+ * @extends   {QuizResource}
+ * @property  {Array}   assessment_ids  A list of assessment item IDs that are associated with
+ *                                      this exercise
+ * @property  {string}  contentnode     The contentnode ID for the Assessment
+ */
+export const ExerciseResource = {
+  ...QuizResource,
   assessment_ids: {
     type: Array,
     default: () => [],
@@ -96,13 +66,14 @@ export const Exercise = {
 };
 
 /*
- * @typedef  {Object} QuizQuestion         A particular question in a Quiz
+ * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
+ *                                         from an ExerciseResource.
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
- * @property {string} title                A title for the question
+ * @property {string} title                A title for the question, editable by the user
  * @property {number} counter_in_exercise  A number assigned to separate questions which have the
- *                                         same title to differentiate them
+ *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
   exercise_id: {
@@ -128,18 +99,18 @@ export const QuizQuestion = {
 };
 
 /*
- * @typedef  {Object}           QuizSection                Defines a single section of the quiz
- * @property {string}           section_id                 A unique ID for the section - this is
- *                                                         only used on the front-end
- * @property {string}           section_title              The title of the quiz section
- * @property {string}           description                A text blob associated with the section
- * @property {number}           question_count             The number of questions in the section
- * @property {QuizQuestion[]}   questions                  The list of QuizQuestion objects in the
- *                                                         section
- * @property {boolean}          learners_see_fixed_order   A bool flag indicating whether this
- *                                                         section is shown in the same order, or
- *                                                         randomized, to the learners
- * @property {ExerciseMap}      exercise_pool              An array of contentnode ids indicat
+ * @typedef  {Object}             QuizSection                Defines a single section of the quiz
+ * @property {string}             section_id                 A unique ID for the section - this is
+ *                                                           only used on the front-end
+ * @property {string}             section_title              The title of the quiz section
+ * @property {string}             description                A text blob associated with the section
+ * @property {number}             question_count             The number of questions in the section
+ * @property {QuizQuestion[]}     questions                  The list of QuizQuestion objects in the
+ *                                                           section
+ * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
+ *                                                           section is shown in the same order, or
+ *                                                           randomized, to the learners
+ * @property {ExerciseResource[]} resource_pool              An array of contentnode ids indicat
  */
 export const QuizSection = {
   section_id: {
@@ -163,10 +134,10 @@ export const QuizSection = {
     type: Boolean,
     default: false,
   },
-  exercise_pool: {
+  resource_pool: {
     type: Array,
     default: () => [],
-    spec: Exercise,
+    spec: ExerciseResource,
   },
 };
 
@@ -187,6 +158,7 @@ export const Quiz = {
   },
 };
 
+/**
 [
   {
     id: 'b5092f8637e64d24a54ad82913ff6409',
@@ -405,3 +377,4 @@ export const Quiz = {
     is_leaf: true,
   },
 ];
+*/
