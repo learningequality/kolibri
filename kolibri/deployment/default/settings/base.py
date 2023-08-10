@@ -446,3 +446,6 @@ MORANGO_DESERIALIZE_OPERATIONS = (
 MORANGO_CLEANUP_OPERATIONS = (
     SYNC_OPERATIONS + morango_settings.MORANGO_CLEANUP_OPERATIONS
 )
+
+# whether Kolibri is running within tests
+TESTING = False
