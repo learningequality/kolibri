@@ -3,7 +3,7 @@ Feature: Device setup
   Background:
     Given that the Kolibri installation was successful
 
-	Scenario: Load the Kolibri app for the first time during device setup
+	Scenario: Load the Kolibri app for the first time during device setup #NOT IMPLEMENTED
 		When I open the app for the first time
 		Then I see a static image of the Kolibri logo
 			And I see messages under the logo
@@ -15,7 +15,7 @@ Feature: Device setup
 	Scenario: *On my own* setup
 		Given I am using a desktop browser
 			And Kolibri has finished loading after opening it for the first time
-		When I click *Get started*
+		When I click *Get started* #this step is not implemented yet
 		Then I see *How are you using Kolibri?*
 			And I see that the checkbox for *On my own* is selected by default
 		When I click *Continue*
@@ -38,7 +38,7 @@ Feature: Device setup
 			And I see *Setting up Kolibri*
 			And I see *This may take several minutes*
 		When Kolibri finishes loading
-		Then I see a modal *Add materials*
+		Then I see a modal *Welcome to Kolibri!*
 		When I click *Continue*
 		Then I am at *Learn > Library* page
 
@@ -58,10 +58,10 @@ Feature: Device setup
 		Then I am at the *What kind of learning environment is your facility?* page
 			And I see that the *Non-formal* option is selected
 		When I click *Continue*
-		Then I am at the *Enable guest access?* page
+		Then I am at the *Enable users to explore Kolibri without an account?* page
 			And I see that the *Yes* option is selected
 		When I click *Continue*
-		Then I am at the *Allow anyone to create their own learner account?* page
+		Then I am at the *Allow learners to join this facility?* page
 			And I see that the *Yes* option is selected
 		When I click *Continue*
 		Then I am at the *Enable passwords on learner accounts?* page
@@ -75,7 +75,7 @@ Feature: Device setup
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
 		Then I am at the *Device > Channels* page
-			And I can see the *Add materials* modal
+			And I can see the *Welcome to Kolibri!* modal
 
 	Scenario: Group learning - Full device - Create a formal facility
 		Given I am at the *How are you using Kolibri?* page
@@ -96,7 +96,7 @@ Feature: Device setup
 		Then I am at the *Enable guest access?* page
 			And I see that the *No. Users must have an account to view resources on Kolibri* option is selected
 		When I click *Continue*
-		Then I am at the *Allow anyone to create their own learner account?* page
+		Then I am at the *Allow learners to join this facility?* page
 			And I see that the *No. Admins must create all accounts* option is selected
 		When I click *Continue*
 		Then I am at the *Enable passwords on learner accounts?* page
@@ -110,7 +110,7 @@ Feature: Device setup
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
 		Then I am at the *Device > Channels* page
-			And I can see the *Add materials* modal
+			And I can see the *Welcome to Kolibri!* modal
 
 	Scenario: Group learning - Full device - Import all data from an existing learning facility
 		Given I am at the *Set up the learning facility for this full device* page
@@ -124,7 +124,7 @@ Feature: Device setup
 		When I select a facility
 			And I click *Continue*
 		Then I am at the *Import learning facility - 1 of 4* page
-			And I see *Import facility*
+			And I see *Import learning facility*
     	And I see the name of the device from which I am importing
     	And I see the network address of that device
     	And I see *Enter the username and password for a facility admin of '<facility>' or a super admin of '<device>'*
@@ -136,7 +136,7 @@ Feature: Device setup
 		When the facility has finished loading
 		Then I see the status *Finished*
 			And I see a green check icon
-			And I see *'<facility>' successfully loaded to this device*
+			And I see *The '<facility>' learning facility has been successfully loaded to this device*
 		When I click *Continue*
 		Then I am at the *Import learning facility - 3 of 4* page
 			And I see *Select super admin*
@@ -147,11 +147,39 @@ Feature: Device setup
 		Then I am at the *Import facility - 4 of 4* page
 			And I see *Responsibilities as an administrator*
 			And a the *Usage and privacy* link
-		When I click *Finish*
+		When I click *Continue*
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
 		Then I am at the *Device > Channels* page
-			And I can see the *Add materials* modal
+			And I can see the *Welcome to Kolibri!* modal
+
+	Scenario: Group learning - Learn-only - Join a facility
+		Given I am at the *Select a facility setup for this device* page
+		When I select *Create a new user account for an existing facility*
+			And I click *Continue*
+		Then I am at the  *Select facility* page #this page is shown only if there's more than 1 facility on the selected device
+			And I see a list of facilities in my network
+			And I see *Don't see your facility?*
+			And I see *Add new address*
+		When I click *Continue*
+		Then I am at the page *Create your account*
+			And I see text fields for *Full name*, *Username*, *Password* and *Re-enter password*
+			And I see the *Usage and privacy* link
+		When I fill in *Full name*, *Username*, *Password* and *Re-enter password*
+			And I click *Continue*
+		Then I am at the *Load user account* page
+			And I see a progress bar
+		When the process is complete
+		Then I see *'<full name>' from <facility> successfully loaded to this device*
+			And I see a green check icon
+		When I click *Finish*
+		Then I see *Setting up Kolibri*
+			And I see *This may take several minutes*
+			And I see the Kolibri loading icon
+		When the setup has finished
+		Then I can see the *Welcome to Kolibri!* modal
+		When I click *Continue*
+		Then I am at the *Learn > Library* page
 
 	Scenario: Group learning - Learn-only - Import individual users
 		Given I am at the *Select a facility setup for this learn-only device* page
@@ -178,41 +206,13 @@ Feature: Device setup
 		Then I am at the *Loading user* page
 			And I see a green check icon
 			And I see *'<full name>' from <facility> successfully loaded to this device*
-			And I see an *Import another user* link
+			And I see an *Import another user account* link
 		When I click *Finish*
 		Then I see the *Setting up Kolibri* page
 		When the setup has finished
-		Then I can see the *Welcome* modal
+		Then I can see the *Welcome to Kolibri!* modal
 		When I click *Continue*
 		Then I am at the *Learn > Home* page
-
-	Scenario: Group learning - Learn-only - Join a facility
-		Given I am at the *Select a facility setup for this device* page
-		When I select *Create a new user account for an existing facility*
-			And I click *Continue*
-		Then I am at the  *Select facility* page #this page is shown only if there's more than 1 facility on the selected device
-			And I see a list of facilities in my network
-			And I see *Don't see your facility?*
-			And I see *Add new address*
-		When I click *Continue*
-		Then I am at the page *Create your account*
-			And I see text fields for *Full name*, *Username*, *Password* and *Re-enter password*
-			And I see the *Usage and privacy* link
-		When I fill in *Full name*, *Username*, *Password* and *Re-enter password*
-			And I click *Continue*
-		Then I am at the *Load user account* page
-			And I see a progress bar
-		When the process is complete
-		Then I see *'<full name>' from <facility> successfully loaded to this device*
-			And I see a green check icon
-		When I click *Finish*
-		Then I see *Setting up Kolibri*
-			And I see *This may take several minutes*
-			And I see the Kolibri loading icon
-		When the setup has finished
-		Then I can see the *Add materials* modal
-		When I click *Continue*
-		Then I am at the *Learn > Library* page
 
 	Scenario: Group learning - Learn-only - Facility not available in *Join a facility* setup path
 		Given I selected the *Group learning* setup option
