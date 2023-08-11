@@ -37,7 +37,21 @@
           <SortFilter />
         </KGridItem>
       </KGrid>
-      <KCircularLoader v-if="shouldStopSpinning" />
+
+
+
+      <div v-if="loading">
+        <!-- <KCircularLoader v-if="setLazyLoading" /> -->
+
+        <p
+          class="text-center"
+        >
+          {{ coreString('noResourcesDownloaded') }}
+        </p>
+
+      </div>
+
+      <!--  -->
       <DownloadsList
         v-else
         :downloads="sortedFilteredDownloads()"
@@ -166,20 +180,9 @@
         }
         return totalSize;
       },
-      shouldStopSpinning() {
-        return (
-          this.loading && this.sortedFilteredDownloads && this.sortedFilteredDownloads.length === 0
-        );
-      },
     },
-    watch: {
-      shouldStopSpinning(newValue) {
-        if (newValue) {
-          setTimeout(() => {
-            this.loading = false;
-          }, 100);
-        }
-      },
+    beforeMount() {
+      this.setLazyLoading();
     },
     methods: {
       formattedSize(size) {
@@ -195,6 +198,13 @@
         } else {
           this.removeDownloadsRequest(resources.map(resource => ({ id: resource })));
         }
+      },
+      setLazyLoading() {
+        var isloading = true;
+        setTimeout(function() {
+          isloading = false;
+          return isloading;
+        }, 1000);
       },
     },
   };
@@ -231,6 +241,10 @@
     height: 2em;
     padding-right: 24px;
     font-size: 14px;
+  }
+
+  .text-center {
+    text-align: center;
   }
 
 </style>
