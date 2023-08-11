@@ -1,0 +1,51 @@
+name: Release Android App
+
+on:
+  workflow_dispatch:
+    # Inputs the workflow accepts.
+    inputs:
+      version-code:
+        description: 'The version code to promote to the open testing track'
+        required: true
+        type: string
+  workflow_call:
+    inputs:
+      version-code:
+        description: 'The version code to promote to the open testing track'
+        required: true
+        type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
+    secrets:
+      KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON:
+        required: false
+
+jobs:
+  release_apk:
+    runs-on: ubuntu-latest
+    env:
+      SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
+    steps:
+      - uses: actions/checkout@v3
+        if: ${{ !inputs.ref }}
+      - uses: actions/checkout@v3
+        if: ${{ inputs.ref }}
+        with:
+          repository: learningequality/kolibri-android-installer
+          ref: ${{ inputs.ref }}
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.9
+      - uses: actions/cache@v3
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: Release APK
+        run: python scripts/play_store_api.py release "${{ inputs.version-code }}"

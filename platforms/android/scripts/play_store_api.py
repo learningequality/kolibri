@@ -164,8 +164,53 @@ def upload_dist_aab():
     print("Universal APK downloaded to {}".format(filepath))
 
 
+def release_app(version_code):
+    service = _get_service()
+    edit_id = _create_edit(service)
+    internal_track = (
+        service.edits()
+        .tracks()
+        .get(track="internal", editId=edit_id, packageName=package_name)
+        .execute()
+    )
+    release = None
+    for r in internal_track["releases"]:
+        if version_code in r["versionCodes"]:
+            release = r
+            break
+    else:
+        raise RuntimeError(
+            "Version code {} not found in internal track.".format(version_code)
+        )
+
+    # Assign this release to the open testing track
+    service.edits().tracks().update(
+        editId=edit_id,
+        track="beta",
+        packageName=package_name(),
+        body={"releases": [release]},
+    ).execute()
+
+    print("Open testing track updated with release: {}".format(str(release)))
+
+    # Commit changes for edit.
+    commit_response = (
+        service.edits().commit(editId=edit_id, packageName=package_name()).execute()
+    )
+
+    print("Edit id {} has been committed".format(commit_response["id"]))
+    print("App version {} has been promoted to open testing.".format(version_code))
+
+
 if __name__ == "__main__":
     if sys.argv[1] == "upload":
         upload_dist_aab()
+    elif sys.argv[1] == "release":
+        try:
+            release_app(sys.argv[2])
+        except IndexError:
+            raise RuntimeError(
+                "You must specify the version code of the release to promote to production."
+            )
     else:
         raise RuntimeError("Unknown command {}".format(sys.argv[1]))
