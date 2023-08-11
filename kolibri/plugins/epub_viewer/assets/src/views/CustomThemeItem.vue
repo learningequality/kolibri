@@ -2,6 +2,7 @@
 
   <div style="margin: 16px 0 0 0;">
     <KButton
+      ref="colorButton"
       class="theme-color-button"
       :aria-label="generateCustomThemeAriaLabel(theme.name)"
       :appearanceOverrides="generateStyle(theme)"
@@ -11,6 +12,7 @@
     />
 
     <KButton
+      ref="deleteButton"
       class="theme-settings-button"
       :aria-label="generateCustomThemeDeleteAriaLabel(theme.name)"
       :text="$tr('delete')"
@@ -20,6 +22,7 @@
     />
 
     <KButton
+      ref="editButton"
       class="theme-settings-button"
       :aria-label="generateCustomThemeEditAriaLabel(theme.name)"
       :text="$tr('edit')"

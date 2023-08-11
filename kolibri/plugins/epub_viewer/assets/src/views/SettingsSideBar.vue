@@ -72,6 +72,7 @@
       <div>
         <CustomThemeItem
           v-for="(value, key) in customThemes"
+          :ref="key"
           :key="key"
           :theme="value"
           :isApplied="isCurrentlySelectedTheme(value)"
@@ -87,6 +88,7 @@
             span="3"
           >
             <KButton
+              ref="addCustomThemeButton"
               class="settings-button theme-button"
               :aria-label="$tr('addNewTheme')"
               :text="$tr('addNewTheme')"
@@ -111,8 +113,8 @@
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :theme="addCustomTheme ? theme : editCustomTheme"
         :themeName="addCustomTheme ? addCustomTheme : editCustomThemeName"
-        @submit="addNewTheme($event)"
-        @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
+        @submit="addCustomTheme ? addTheme($event) : editTheme($event)"
+        @cancel="addCustomTheme ? addThemeCancel() : editThemeCancel(editCustomTheme)"
       />
     </div>
   </SideBar>
@@ -210,7 +212,18 @@
           },
         };
       },
-      addNewTheme(tempTheme) {
+      addTheme(tempTheme) {
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        savedCustomThemes[tempTheme.name] = tempTheme;
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
+        this.customThemes = savedCustomThemes;
+        this.$emit('setTheme', tempTheme);
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.colorButton.$refs.button.focus();
+        });
+        this.addCustomTheme = null;
+      },
+      editTheme(tempTheme) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
         if (this.editCustomThemeName && this.editCustomThemeName !== tempTheme.name) {
           delete savedCustomThemes[this.editCustomThemeName];
@@ -219,8 +232,11 @@
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.$emit('setTheme', tempTheme);
-        this.addCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.editButton.$refs.button.focus();
+        });
         this.editCustomThemeName = null;
+        this.editCustomTheme = null;
       },
       deleteTheme(themeName) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
@@ -231,6 +247,22 @@
         if (themeName === this.theme.name) {
           this.$emit('setTheme', this.themes.WHITE); // apply the default theme
         }
+        this.$nextTick(() => {
+          this.$refs.addCustomThemeButton.$refs.button.focus();
+        });
+      },
+      addThemeCancel() {
+        this.addCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs.addCustomThemeButton.$refs.button.focus();
+        });
+      },
+      editThemeCancel(tempTheme) {
+        this.editCustomThemeName = null;
+        this.editCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.editButton.$refs.button.focus();
+        });
       },
     },
     $trs: {
