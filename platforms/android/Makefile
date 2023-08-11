@@ -74,6 +74,7 @@ get-tar: clean-tar
 	$(eval TARFILE = $(shell echo "${DLFILE}" | sed "s/\?.*//"))
 	[ "${DLFILE}" = "${TARFILE}" ] || mv "${DLFILE}" "${TARFILE}"
 
+.PHONY: install-tar
 # Extract the tar file
 install-tar: clean
 	$(eval TARFILE = $(shell echo ""tar/kolibri*.tar.gz"" | sed "s/tar\///"))
@@ -89,6 +90,7 @@ install-tar: clean
 	rm -rf python-for-android/build/python-installs/kolibri/*/kolibri* | true
 	rm -rf python-for-android/build/other_builds/kolibri | true
 
+.PHONY: create-strings
 create-strings:
 	python scripts/create_strings.py
 
