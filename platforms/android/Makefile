@@ -111,8 +111,8 @@ p4a_android_distro: needs-android-dirs check-android-clean
 # Update the python-for-android project bootstrap, discarding any changes that are made to committed files
 # this should be the usually run command in normal workflows.
 .PHONY: p4a_android_project
-p4a_android_project: install-tar p4a_android_distro create-strings needs-version
-	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+p4a_android_project: install-tar p4a_android_distro create-strings
+	$(P4A) bootstrap $(ARCH_OPTIONS) --version="None" --numeric-version=1
 # Stash any changes to our python-for-android directory
 	@git stash push --quiet --include-untracked -- python-for-android
 	$(MAKE) write-version
@@ -121,18 +121,15 @@ p4a_android_project: install-tar p4a_android_distro create-strings needs-version
 # this command should only be run when it is known there is an update from the upstream p4a bootstrap
 # that is needed, although it will probably normally be easier to manually vendor the changes.
 .PHONY: update_project_from_p4a
-update_project_from_p4a: install-tar p4a_android_distro create-strings needs-version
-	$(P4A) bootstrap $(ARCH_OPTIONS) --version=$(APK_VERSION) --numeric-version=$(BUILD_NUMBER)
+update_project_from_p4a: install-tar p4a_android_distro create-strings
+	$(P4A) bootstrap $(ARCH_OPTIONS) --version="None" --numeric-version=1
 
-.PHONY: needs-version
-needs-version:
-	$(eval APK_VERSION ?= $(shell python3 scripts/version.py apk_version))
-	$(eval BUILD_NUMBER ?= $(shell python3 scripts/version.py build_number))
-
+.version-code:
+	python3 scripts/version.py set_version_code
 
 .PHONY: write-version
-write-version: needs-version
-	python3 scripts/version.py write_version
+write-version: .version-code
+	python3 scripts/version.py write_version_properties
 
 .PHONY: kolibri.apk
 # Build the signed version of the apk
@@ -144,7 +141,7 @@ kolibri.apk: p4a_android_project
 	@echo "--- :android: Build APK"
 	cd python-for-android/dists/kolibri && ./gradlew clean assembleRelease
 	mkdir -p dist
-	cp python-for-android/dists/kolibri/build/outputs/apk/release/kolibri-release.apk dist/kolibri-release-$(APK_VERSION).apk
+	cp python-for-android/dists/kolibri/build/outputs/apk/release/*.apk dist/
 
 .PHONY: kolibri.apk.unsigned
 # Build the unsigned debug version of the apk
@@ -152,7 +149,7 @@ kolibri.apk.unsigned: p4a_android_project
 	@echo "--- :android: Build APK (unsigned)"
 	cd python-for-android/dists/kolibri && ./gradlew clean assembleDebug
 	mkdir -p dist
-	cp python-for-android/dists/kolibri/build/outputs/apk/debug/kolibri-debug.apk dist/kolibri-debug-$(APK_VERSION).apk
+	cp python-for-android/dists/kolibri/build/outputs/apk/debug/*.apk dist/
 
 .PHONY: kolibri.aab
 # Build the signed version of the aab
@@ -164,7 +161,7 @@ kolibri.aab: p4a_android_project
 	@echo "--- :android: Build AAB"
 	cd python-for-android/dists/kolibri && ./gradlew clean bundleRelease
 	mkdir -p dist
-	cp python-for-android/dists/kolibri/build/outputs/bundle/release/kolibri-release.aab dist/kolibri-release-$(APK_VERSION).aab
+	cp python-for-android/dists/kolibri/build/outputs/bundle/release/*.aab dist/
 
 # DOCKER BUILD
 

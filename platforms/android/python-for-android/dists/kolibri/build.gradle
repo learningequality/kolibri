@@ -39,6 +39,12 @@ android {
     def code = versionProps['VERSION_CODE'].toInteger()
     def name = versionProps['VERSION_NAME']
 
+    // If we are doing a debug build, we'll end up with -debug-debug
+    // so we strip that here.
+    // For release builds, we'll either have -dev-release
+    // or -official-release so it is more informative.
+    def nameNoDebug = name.replace("-debug", "")
+
     defaultConfig {
         minSdkVersion 23
         targetSdkVersion 31
@@ -46,6 +52,7 @@ android {
         versionName name
         manifestPlaceholders = [:]
         multiDexEnabled true
+        setProperty("archivesBaseName", "kolibri-$nameNoDebug")
     }
 
 
