@@ -9,8 +9,6 @@
     :route="toolbarRoute"
   >
 
-<<<<<<< Updated upstream
-=======
     <UiAlert
       v-if="showError && !inSearchMode"
       type="error"
@@ -19,27 +17,6 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-<<<<<<< HEAD
->>>>>>> Stashed changes
-    <KPageContainer>
-
-      <h1>{{ $tr('createNewExamLabel') }}</h1>
-
-    <UiAlert
-      v-if="showError && !inSearchMode"
-      type="error"
-      :dismissible="false"
-    >
-      {{ selectionIsInvalidText }}
-    </UiAlert>
-
-<<<<<<< Updated upstream
-      <h2>{{ coachString('detailsLabel') }}</h2>
-
-
-      <h2>{{ $tr('chooseExercises') }}</h2>
-=======
-=======
     <KPageContainer
       :style="maxContainerHeight"
     >
@@ -47,8 +24,6 @@
       <CreateQuizSection />
 
 
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
->>>>>>> Stashed changes
       <div v-if="bookmarksRoute">
         <strong>
           <KRouterLink
@@ -167,19 +142,9 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants/';
-<<<<<<< Updated upstream
-  import { MAX_QUESTIONS } from '../../../constants/examConstants';
-  import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchBox';
-=======
   // import { MAX_QUESTIONS } from '../../../constants/examConstants';
-<<<<<<< HEAD
-  // import LessonsSearchBox from '../../plan/LessonResourceSelectionPage
-  // /SearchTools/LessonsSearchBox';
-=======
   // import LessonsSearchBox from '../../plan/LessonResourceSelectionPage/
   // SearchTools/LessonsSearchBox';
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
->>>>>>> Stashed changes
   import LessonsSearchFilters from '../../plan/LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from '../../plan/LessonResourceSelectionPage/ContentCardList';
@@ -217,14 +182,7 @@
         bookmarksCount: 0,
         bookmarks: [],
         more: null,
-<<<<<<< Updated upstream
-=======
-<<<<<<< HEAD
-        // showSectionSettingsMenu: false,
-=======
         // showSectionSettingsMenu:false
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
->>>>>>> Stashed changes
       };
     },
     computed: {
@@ -268,43 +226,9 @@
       examTopicRoute() {
         return this.pageName === PageNames.EXAM_CREATION_TOPIC;
       },
-<<<<<<< HEAD
-
-<<<<<<< Updated upstream
-      examTitle: {
-        get() {
-          return this.$store.state.examCreation.title;
-        },
-        set(value) {
-          this.$store.commit('examCreation/SET_TITLE', value);
-        },
-      },
-      numQuestions: {
-        get() {
-          return this.numberOfQuestions;
-        },
-        set(value) {
-          // If value in the input doesn't match state, update it
-          if (value !== Number(this.$refs.questionsInput.currentText)) {
-            this.$refs.questionsInput.currentText = value;
-          }
-          // If it is cleared out, then set vuex state to null so it can be caught during
-          // validation
-          if (value === '') {
-            this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', null);
-          }
-          if (value && value >= 1 && value <= this.maxQs) {
-            this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
-            this.$store.dispatch('examCreation/updateSelectedQuestions');
-          }
-        },
-      },
-=======
-=======
       maxContainerHeight() {
         return { maxHeight: '1000px' };
       },
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
       // examTitle: {
       //   get() {
       //     return this.$store.state.examCreation.title;
@@ -333,7 +257,6 @@
       //     }
       //   },
       // },
->>>>>>> Stashed changes
       filteredContentList() {
         const { role } = this.filters || {};
         if (!this.inSearchMode) {
@@ -652,17 +575,6 @@
           },
         };
       },
-<<<<<<< Updated upstream
-      handleNumberQuestionsBlur() {
-        this.numQuestionsBlurred = true;
-        if (Number(this.$refs.questionsInput.currentText) < 0) {
-          this.numQuestions = 1;
-        }
-        if (Number(this.$refs.questionsInput.currentText) > this.maxQs) {
-          this.numQuestions = this.maxQs;
-        }
-      },
-=======
       // handleNumberQuestionsBlur() {
       //   this.numQuestionsBlurred = true;
       //   if (Number(this.$refs.questionsInput.currentText) < 0) {
@@ -672,13 +584,9 @@
       //     this.numQuestions = this.maxQs;
       //   }
       // },
-<<<<<<< HEAD
-=======
       // addSection(){
       //   this.showSectionSettingsMenu=true;
       // }
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
->>>>>>> Stashed changes
     },
     $trs: {
       resources: {
@@ -689,47 +597,12 @@
         message: 'Create new quiz',
         context: "Title of the screen launched from the 'New quiz' button on the 'Plan' tab.",
       },
-<<<<<<< Updated upstream
-      chooseExercises: {
-        message: 'Select folders or exercises from these channels',
-        context:
-          'When creating a new quiz, coaches can choose which folders or exercises they want to include in the quiz from the channels that contain exercise resources.',
-      },
-      numQuestions: {
-        message: 'Number of questions',
-        context: 'Indicates the number of questions that the quiz will have.',
-      },
-      numQuestionsBetween: {
-        message: 'Enter a number between 1 and 50',
-        context:
-          "Refers to an error if the coach inputs a number of quiz questions that's not between 1 and 50. Quizzes cannot have less than 1 or more than 50 questions. ",
-      },
-      numQuestionsExceed: {
-        message:
-          'The max number of questions based on the exercises you selected is {maxQuestionsFromSelection}. Select more exercises to reach {inputNumQuestions} questions, or lower the number of questions to {maxQuestionsFromSelection}.',
-        context:
-          'This message displays if the learning resource has less questions than the number selected by the coach initially.',
-      },
-      numQuestionsExceedNoExercises: {
-        message:
-          'The max number of questions based on the exercises you selected is 0. Select more exercises to reach {inputNumQuestions} questions.',
-
-        context:
-          'This message displays if the learning resource selected by the coach has less questions then the number of questions coach wants to use in the quiz.\n',
-      },
-=======
       // chooseExercises: {
       //   message: 'Select folders or exercises from these channels',
       //   context:
-<<<<<<< HEAD
-      //     'When creating a new quiz, coaches can choose which folder
-      // s or exercises they want to include in the quiz from the channels
-      //  that contain exercise resources.',
-=======
       //     'When creating a new quiz, coaches can choose which folders or
       //      exercises they want to include in the quiz from the channels that
       //      contain exercise resources.',
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
       // },
       // numQuestions: {
       //   message: 'Number of questions',
@@ -738,28 +611,6 @@
       // numQuestionsBetween: {
       //   message: 'Enter a number between 1 and 50',
       //   context:
-<<<<<<< HEAD
-      //     "Refers to an error if the coach inputs a number of quiz questions that's
-      // not between 1 and 50. Quizzes cannot have less than 1 or more than 50 questions. ",
-      // },
-      // numQuestionsExceed: {
-      //   message:
-      //     'The max number of questions based on the exercises you selected is {maxQuestionsFro
-      // mSelection}. Select more exercises to reach {inputNumQuestions} questions, o
-      // r lower the number of questions to {maxQuestionsFromSelection}.',
-      //   context:
-      //     'This message displays if the learning resource has less questions than the number se
-      // lected by the coach initially.',
-      // },
-      // numQuestionsExceedNoExercises: {
-      //   message:
-      //     'The max number of questions based on the exercises you selected is 0. Select
-      // more exercises to reach {inputNumQuestions} questions.',
-
-      //   context:
-      //     'This message displays if the learning resource selected by the coach has
-      //  less questions then the number of questions coach wants to use in the quiz.\n',
-=======
       //     "Refers to an error if the coach inputs a number of
       // quiz questions that's not between 1 and 50. Quizzes cannot have less
       // than 1 or more than 50 questions. ",
@@ -785,9 +636,7 @@
       //     'This message displays if the learning resource selected
       // by the coach has less questions then the number of questions
       // coach wants to use in the quiz.\n',
->>>>>>> 2ac610a4d3 (added ktab to display the quiz sections)
       // },
->>>>>>> Stashed changes
       noneSelected: {
         message: 'No exercises are selected',
         context:
