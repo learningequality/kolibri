@@ -105,6 +105,8 @@
                     <KIcon
                       v-if="windowIsSmall"
                       icon="wifi"
+                      class="wifi-svg"
+
                     />
                   </span>
                   &nbsp;&nbsp;
@@ -115,11 +117,12 @@
                     appearance="basic-link"
                     @click="refreshDevices"
                   />
-                  &nbsp;
+                  &nbsp;&nbsp;
                   <span>
                     <KIcon
                       v-if="!windowIsSmall"
                       icon="wifi"
+                      class="wifi-svg"
                     />
                   </span>
                 </span>
@@ -463,9 +466,6 @@
       },
       showingAllLibrariesLabel() {
         let label = this.$tr('showingAllLibraries');
-        if (label.slice(-1) === '.') {
-          label = label.slice(0, -1);
-        }
         return label;
       },
       studioId() {
@@ -677,6 +677,12 @@
   .view-all-text {
     margin: auto;
     font-size: 16px;
+  }
+
+  .wifi-svg{
+    transform: scale(1.5);
+    top:0px;
+
   }
 
 </style>
