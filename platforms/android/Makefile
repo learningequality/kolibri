@@ -163,6 +163,12 @@ kolibri.aab: p4a_android_project
 	mkdir -p dist
 	cp python-for-android/dists/kolibri/build/outputs/bundle/release/*.aab dist/
 
+.PHONY: playstore-upload
+# Upload the aab to the play store
+playstore-upload:
+	python3 scripts/play_store_api.py upload
+
+
 # DOCKER BUILD
 
 # Build the docker image. Should only ever need to be rebuilt if project requirements change.
