@@ -38,11 +38,9 @@
         </KGridItem>
       </KGrid>
       <KCircularLoader v-if="loading" />
+
       <DownloadsList
         v-else
-        :downloads="sortedFilteredDownloads()"
-        :totalDownloads="sortedFilteredDownloads().length"
-        :totalPageNumber="totalPageNumber"
         :loading="false"
         @removeResources="removeResources"
       />
@@ -60,6 +58,7 @@
   import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import Vue from 'kolibri.lib.vue';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';
@@ -103,47 +102,12 @@
           activityType: activityType.value,
         });
       };
-      const sortedFilteredDownloads = () => {
-        let downloadsToDisplay;
-        if (downloadRequestMap && downloadRequestMap.value.length > 0) {
-          downloadsToDisplay = downloadRequestMap.value;
-          if (sort) {
-            switch (sort.value) {
-              case 'newest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
-                );
-                break;
-              case 'oldest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
-                );
-                break;
-              case 'smallest':
-                downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
-                break;
-              case 'largest':
-                downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
-                break;
-              default:
-                // If no valid sort option provided, return unsorted array
-                break;
-            }
-          }
-          if (activityType) {
-            if (activityType.value !== 'all') {
-              downloadsToDisplay = downloadsToDisplay.filter(download =>
-                download.metadata.learning_activities.includes(activityType.value)
-              );
-            }
-          }
-        }
-        set(totalPageNumber, Math.ceil(downloadsToDisplay.length / pageSizeNumber.value));
-        return downloadsToDisplay;
-      };
       fetchDownloads();
       fetchAvailableFreespace();
-      watch(route, sortedFilteredDownloads);
+      watch(route, fetchDownloads);
+      watch(downloadRequestMap, () => {
+        set(totalPageNumber, downloadRequestMap.totalPageNumber);
+      });
 
       return {
         downloadRequestMap,
@@ -151,20 +115,21 @@
         availableSpace,
         totalPageNumber,
         fetchAvailableFreespace,
-        sortedFilteredDownloads,
+        sort,
         removeDownloadRequest,
         removeDownloadsRequest,
       };
     },
     computed: {
       sizeOfMyDownloads() {
-        let totalSize = 0;
+        let size;
         if (this.downloadRequestMap && this.downloadRequestMap.value) {
-          this.downloadRequestMap.value.map(
-            item => (totalSize = totalSize + item.metadata.file_size)
+          size = Object.values(this.downloadRequestMap.value).reduce(
+            (acc, object) => acc + object.metadata.file_size,
+            0
           );
         }
-        return totalSize;
+        return size;
       },
     },
     methods: {
@@ -178,8 +143,12 @@
       removeResources(resources) {
         if (resources.length === 1) {
           this.removeDownloadRequest(resources[0]);
+          Vue.delete(this.downloadRequestMap.value, resources[0].id);
         } else {
-          this.removeDownloadsRequest(resources.map(resource => ({ id: resource })));
+          resources.map(resource => {
+            this.removeDownloadsRequest({ id: resource.id });
+            Vue.delete(this.downloadRequestMap.value, resource.id);
+          });
         }
       },
     },

@@ -4,7 +4,6 @@
 
 import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
-import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
@@ -40,7 +39,11 @@ export default function useDownloadRequests(store) {
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
-        set(downloadRequestMap, downloadRequests);
+        const downloads = downloadRequests.reduce((acc, obj) => {
+          acc[obj.id] = obj;
+          return acc;
+        }, {});
+        set(downloadRequestMap, downloads);
         set(loading, false);
       })
       .then(store.dispatch('notLoading'));
@@ -100,7 +103,7 @@ export default function useDownloadRequests(store) {
     ContentRequestResource.deleteModel({
       id: content.id,
       contentnode_id: content.contentnode_id,
-    }).then(Vue.delete(downloadRequestMap, content.id));
+    });
     return Promise.resolve();
   }
 
@@ -109,7 +112,7 @@ export default function useDownloadRequests(store) {
       ContentRequestResource.deleteModel({
         id: content.id,
         contentnode_id: content.contentnode_id,
-      }).then(Vue.delete(downloadRequestMap, content.id));
+      });
     });
     return Promise.resolve();
   }
