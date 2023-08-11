@@ -35,31 +35,44 @@
     <hr class="bottom-border">
     <br>
 
-    <KGrid style="margin:0;padding:0">
+
+    <KGrid
+      class="kgrid-alignment-style"
+    >
       <KGridItem
-        :layout12="{ span: 8 }"
+        :layout12="{ span: 6 }"
+        :style="noKgridItemPadding"
       >
-        <span class="active-section">
-          {{ ($tr('sectionLabel')).toUpperCase() }}
-        </span>
+        <KTabs
+          tabsId="coachReportsTabs"
+          ariaLabel="Coach reports"
+          :tabs="tabs"
+        >
+          <template>
+
+          </template>
+        </KTabs>
       </KGridItem>
 
       <KGridItem
-        :layout12="{ span: 4 }"
+        :layout12="{ span: 6 }"
+        :style="noKgridItemPadding"
       >
         <KButton
-          class="add-section-button"
+          class="float-button"
           appearance="flat-button"
           icon="plus"
         >
           {{ ($tr('addSection')).toUpperCase() }}
         </KButton>
       </KGridItem>
+
     </KGrid>
 
     <hr class="bottom-border">
 
     <div class="no-question-layout">
+
       <div class="question-mark-layout">
         <span class="help-icon-style">?</span>
       </div>
@@ -77,7 +90,9 @@
         {{ $tr('addQuestion') }}
       </KButton>
 
+
     </div>
+
   </div>
 
 </template>
@@ -91,6 +106,19 @@
   export default {
     name: 'CreateQuizSection',
     mixins: [commonCoreStrings, commonCoach],
+    data() {
+      return {
+        tabs: [{ id: '', label: this.$tr('sectionLabel') }],
+      };
+    },
+    computed: {
+      noKgridItemPadding() {
+        return {
+          paddingLeft: '0px',
+          paddingRight: '0px',
+        };
+      },
+    },
     $trs: {
       sectionLabel: {
         message: 'section 1',
@@ -136,8 +164,7 @@
   }
 
   .no-question-layout {
-    gap: 40px;
-    width: 952px;
+    width: auto;
     height: 265px;
     padding: 40px;
     text-align: center;
@@ -178,6 +205,22 @@
 
   .no-question-style {
     font-weight: bold;
+  }
+
+  .float-button {
+    float: right;
+    background-color: #f5f5f5;
+  }
+
+  .bottom-border {
+    border: 1px solid #dedede;
+  }
+
+  .kgrid-alignment-style {
+    padding-right: 12px;
+    padding-left: 0;
+    margin-bottom: -25px;
+    text-align: left;
   }
 
 </style>
