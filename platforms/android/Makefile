@@ -134,10 +134,10 @@ write-version: .version-code
 .PHONY: kolibri.apk
 # Build the signed version of the apk
 kolibri.apk: p4a_android_project
-	$(MAKE) guard-P4A_RELEASE_KEYSTORE
-	$(MAKE) guard-P4A_RELEASE_KEYALIAS
-	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
-	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
+	$(MAKE) guard-RELEASE_KEYSTORE
+	$(MAKE) guard-RELEASE_KEYALIAS
+	$(MAKE) guard-RELEASE_KEYSTORE_PASSWD
+	$(MAKE) guard-RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build APK"
 	cd python-for-android/dists/kolibri && ./gradlew clean assembleRelease
 	mkdir -p dist
@@ -154,10 +154,10 @@ kolibri.apk.unsigned: p4a_android_project
 .PHONY: kolibri.aab
 # Build the signed version of the aab
 kolibri.aab: p4a_android_project
-	$(MAKE) guard-P4A_RELEASE_KEYSTORE
-	$(MAKE) guard-P4A_RELEASE_KEYALIAS
-	$(MAKE) guard-P4A_RELEASE_KEYSTORE_PASSWD
-	$(MAKE) guard-P4A_RELEASE_KEYALIAS_PASSWD
+	$(MAKE) guard-RELEASE_KEYSTORE
+	$(MAKE) guard-RELEASE_KEYALIAS
+	$(MAKE) guard-RELEASE_KEYSTORE_PASSWD
+	$(MAKE) guard-RELEASE_KEYALIAS_PASSWD
 	@echo "--- :android: Build AAB"
 	cd python-for-android/dists/kolibri && ./gradlew clean bundleRelease
 	mkdir -p dist

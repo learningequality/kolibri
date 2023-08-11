@@ -55,25 +55,29 @@ android {
         setProperty("archivesBaseName", "kolibri-$nameNoDebug")
     }
 
-
-	packagingOptions {
+    packagingOptions {
         jniLibs {
             useLegacyPackaging = true
         }
-        doNotStrip '**/*.so'
+        exclude 'lib/**/gdbserver'
+        exclude 'lib/**/gdb.setup'
+    }
 
-	}
-
-
-
-
-
+    signingConfigs {
+        release {
+            storeFile file(System.getenv("RELEASE_KEYSTORE") ?: "empty")
+            keyAlias System.getenv("RELEASE_KEYALIAS") ?: ""
+            storePassword System.getenv("RELEASE_KEYSTORE_PASSWD") ?: ""
+            keyPassword System.getenv("RELEASE_KEYALIAS_PASSWD") ?: ""
+        }
+    }
 
     buildTypes {
         debug {
+            debuggable true
         }
         release {
-
+            signingConfig signingConfigs.release
         }
     }
 
