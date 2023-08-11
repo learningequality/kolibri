@@ -130,8 +130,11 @@ describe('exam utils', () => {
     ];
     it('returns an array of newly structured objects with old question sources in questions', () => {
       const converted = convertExamQuestionSourcesToV3(exam);
+      // The section id is randomly generated so just test that it is there and is set on the object
+      expect(converted[0].section_id).toBeTruthy();
       expect(converted).toEqual([
         {
+          section_id: converted[0].section_id,
           section_title: '',
           description: '',
           resource_pool: [],
@@ -141,12 +144,18 @@ describe('exam utils', () => {
         },
       ]);
     });
+    it('sets the fixed order property to what the exam property value is', () => {
+      exam.learners_see_fixed_order = false;
+      const converted = convertExamQuestionSourcesToV3(exam);
+      expect(converted[0].learners_see_fixed_order).toEqual(false);
+    });
     it('always sets the question_count and learners_see_fixed_order properties to the original exam values', () => {
       exam.learners_see_fixed_order = false;
       exam.question_count = 49;
       const converted = convertExamQuestionSourcesToV3(exam);
       expect(converted).toEqual([
         {
+          section_id: converted[0].section_id,
           section_title: '',
           description: '',
           resource_pool: [],

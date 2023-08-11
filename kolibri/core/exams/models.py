@@ -61,17 +61,18 @@ class Exam(AbstractFacilityDataModel):
         [
             # Section 1
             {
+                  "section_id": <a uuid unique to this section>,
                   "section_title": <section title>,
                   "description": <section description>,
                   "resource_pool": [ <contentnode_ids of pool of resources> ],
                   "question_count": <number of questions in section>,
+                  "learners_see_fixed_order": <bool>,
                   "questions": [
                     {
                         "exercise_id": <exercise_pk>,
                         "question_id": <item_id_within_exercise>,
                         "title": <title of question>,
                         "counter_in_exercise": <unique_count_for_question>,
-                        "learners_see_fixed_order": <bool>,
                     },
                   ]
             },

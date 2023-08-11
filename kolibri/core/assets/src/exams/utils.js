@@ -1,5 +1,6 @@
 import every from 'lodash/every';
 import uniq from 'lodash/uniq';
+import { v4 as uuidv4 } from 'uuid';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
@@ -94,6 +95,7 @@ export function convertV2toV3(questionSources, exam) {
   questionSources = questionSources || []; // Default value while requiring all params
   const questions = annotateQuestionsWithItem(questionSources);
   return {
+    section_id: uuidv4(),
     section_title: '',
     description: '',
     resource_pool: [],
