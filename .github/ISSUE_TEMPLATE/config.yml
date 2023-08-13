@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Kolibri GitHub Discussions
+    url: https://github.com/learningequality/kolibri/discussions
+    about: Please ask general questions about contributing to Kolibri or report development server issues here.
