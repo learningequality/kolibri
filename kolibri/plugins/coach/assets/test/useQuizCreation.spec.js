@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import { ChannelResource } from 'kolibri.resources';
+import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { ExerciseResource, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import { useQuizCreation } from '../src/composables/useQuizCreation.js';
@@ -15,6 +15,7 @@ const {
   updateQuiz,
   addQuestionToSelection,
   removeQuestionFromSelection,
+  saveQuiz,
 
   // Computed
   channels,
@@ -29,6 +30,7 @@ const {
 
 const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
 ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
+ExamResource.saveModel = jest.fn(() => Promise.resolve());
 
 /**
  * @param num {number} - The number of questions to create
@@ -87,6 +89,11 @@ describe('useQuizCreation', () => {
     });
 
     describe('Quiz CRUD', () => {
+      it('Can save the quiz', () => {
+        expect(() => saveQuiz()).not.toThrow();
+        expect(ExamResource.saveModel).toHaveBeenCalled();
+      });
+
       it('Can update the quiz given a subset of valid properties', () => {
         const newTitle = 'New Title';
         updateQuiz({ title: newTitle });

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ChannelResource } from 'kolibri.resources';
+import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref } from 'kolibri.lib.vueCompositionApi';
@@ -153,6 +153,17 @@ export function useQuizCreation() {
   }
 
   /**
+   * @returns {Promise<Quiz>}
+   * @throws {Error} if quiz is not valid
+   */
+  function saveQuiz() {
+    if (!validateQuiz(get(_quiz))) {
+      throw new Error(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
+    }
+    return ExamResource.saveModel({ data: get(_quiz) });
+  }
+
+  /**
    * @param  {Quiz} updates
    * @throws {TypeError} if updates is not a valid Quiz object
    * @affects _quiz
@@ -252,6 +263,7 @@ export function useQuizCreation() {
 
   return {
     // Methods
+    saveQuiz,
     updateSection,
     replaceSelectedQuestions,
     addSection,
