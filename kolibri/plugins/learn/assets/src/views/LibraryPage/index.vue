@@ -398,10 +398,12 @@
       },
       devicesWithChannels() {
         //display Kolibri studio for superusers only
-        return cloneDeep(this.devices).filter(device => {
-          device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
-          return device.channels?.length > 0;
-        });
+        return cloneDeep(this.devices)
+        .filter(device => device.channels?.length > 0)
+        .map(device => ({
+          ...device,
+          channels: device.channels.slice(0, 5), 
+        }));
       },
       devicesWithChannelsExist() {
         return this.devicesWithChannels.length > 0;
@@ -433,7 +435,7 @@
         if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
           span = 4;
         } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 6;
+          span = 4;
         }
         return span;
       },
