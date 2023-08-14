@@ -59,10 +59,10 @@ const simpleSpec = {
     default: () => [],
     spec: {
       type: Object,
-      required: true,
+      default: null,
       spec: {
-        prop_C: 'val_C',
-        prop_D: 'val_D',
+        prop_C: { type: String, default: 'val_C' },
+        prop_D: { type: String, default: 'val_D' },
       },
     },
   },
@@ -121,8 +121,9 @@ describe('validateObject basic operation', () => {
   });
   test('validateObject should test all children of an Array that has a spec', () => {
     const obj = {
+      str1: 'A',
       arrayOfNum: [1, 2, 3, 4, 5],
-      arrayOfObj: { prop_C: 'val_C', prop_D: 'val_D' },
+      arrayOfObj: [{ prop_C: 'val_C', prop_D: 'val_D' }],
     };
     expect(validateObject(obj, simpleSpec)).toBe(true);
   });
