@@ -245,8 +245,18 @@ class ProgressTracker:
     def update_progress(self, increment, message):
         self.progress += increment
 
+        # Ensure that we don't go over the total
+        if self.progress > self.total:
+            logger.debug(
+                "Attempted to increment progress by {} on current progress {} and total progress {}".format(
+                    increment, self.progress - increment, self.total
+                )
+            )
+            self.progress = min(self.progress, self.total)
+
         if self.progressbar:
             # Click only enforces integers on the total (because it is implemented assuming a length)
+            # it also handles clamping to the total internally.
             self.progressbar.update(increment)
             if message:
                 self.progressbar.label = message
@@ -271,9 +281,15 @@ class JobProgressMixin(object):
         if self.progresstracker:
             self.progresstracker.update_progress(increment, message)
         if self.job:
-            self.job.update_progress(
-                self.job.progress + increment, self.job.total_progress
-            )
+            if self.job.progress + increment > self.job.total_progress:
+                logger.debug(
+                    "Attempted to increment progress by {} on current progress {} and total progress {}".format(
+                        increment, self.job.progress, self.job.total_progress
+                    )
+                )
+                # Only set the job progress to a max of the total progress
+                increment = self.job.total_progress - self.job.progress
+            self.job.update_progress(increment, self.job.total_progress)
             if extra_data and isinstance(extra_data, dict):
                 self.job.update_metadata(**extra_data)
 
