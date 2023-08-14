@@ -98,6 +98,6 @@
     "npm": ">= 8"
   },
   "devDependencies": {
-    "rewire": "^6.0.0"
+    "rewire": "^7.0.0"
   }
 }
