@@ -4,12 +4,12 @@
 
 import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
-import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
+import Vue from 'kolibri.lib.vue';
 import useDevices from './useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
@@ -40,7 +40,9 @@ export default function useDownloadRequests(store) {
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
-        set(downloadRequestMap, downloadRequests);
+        for (const obj of downloadRequests) {
+          set(downloadRequestMap, obj.id, obj);
+        }
         set(loading, false);
       })
       .then(store.dispatch('notLoading'));
@@ -100,17 +102,8 @@ export default function useDownloadRequests(store) {
     ContentRequestResource.deleteModel({
       id: content.id,
       contentnode_id: content.contentnode_id,
-    }).then(Vue.delete(downloadRequestMap, content.id));
-    return Promise.resolve();
-  }
-
-  function removeDownloadsRequest(contentList) {
-    contentList.forEach(content => {
-      ContentRequestResource.deleteModel({
-        id: content.id,
-        contentnode_id: content.contentnode_id,
-      }).then(Vue.delete(downloadRequestMap, content.id));
     });
+    Vue.delete(downloadRequestMap, content.id);
     return Promise.resolve();
   }
 
@@ -138,7 +131,6 @@ export default function useDownloadRequests(store) {
     addDownloadRequest,
     loading,
     removeDownloadRequest,
-    removeDownloadsRequest,
     downloadRequestsTranslator,
     isDownloadingByLearner,
     isDownloadedByLearner,
