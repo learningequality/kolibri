@@ -5,6 +5,7 @@ import logging
 import time
 
 from django.core.exceptions import ValidationError
+from django.db import IntegrityError
 from django.db.utils import OperationalError
 
 from kolibri.core.device.task_notifications import status_fn
@@ -78,6 +79,12 @@ def _store_dynamic_instance(broadcast_id, instance):
             raise
         logger.debug(
             "Encountered locked database while creating `DynamicNetworkLocation`"
+        )
+    except IntegrityError as e:
+        if "UNIQUE constraint failed: discovery_networklocation.id" not in str(e):
+            raise
+        logger.debug(
+            "Encountered unique constraint error while creating `DynamicNetworkLocation` - instance is probably being announced twice on the network"
         )
     return network_location
 
