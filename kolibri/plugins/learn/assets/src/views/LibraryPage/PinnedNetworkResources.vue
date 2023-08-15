@@ -7,11 +7,17 @@
       v-for="device in devices"
       :key="device.id"
     >
+
       <KGridItem>
         <h2>
           <KIcon :icon="getDeviceIcon(device)" />
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
+        <p>
+                  {{ totalRemoteChannelsCount }} channels | 
+                  Internet connection needed to browse and download resources
+        </p>
+
       </KGridItem>
       <ChannelCardGroupGrid
         data-test="channel-cards"
@@ -66,6 +72,10 @@
         default() {
           return [];
         },
+      },
+      totalRemoteChannelsCount: {
+        type: Number,
+        required: true,
       },
     },
     computed: {

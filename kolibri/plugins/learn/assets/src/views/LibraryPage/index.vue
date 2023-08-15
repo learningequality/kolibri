@@ -153,6 +153,7 @@
             v-if="pinnedDevicesExist"
             data-test="pinned-resources"
             :devices="pinnedDevices"
+            :totalRemoteChannelsCount="totalRemoteChannelsCount"
           />
 
           <!-- More  -->
@@ -381,6 +382,18 @@
       ...mapGetters(['isUserLoggedIn', 'getRootNodesLoading']),
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
+      },
+      totalRemoteChannelsCount() {
+        let totalRemoteChannelsCount = 0;
+
+        // Count channels from remote libraries
+        if (this.devicesWithChannelsExist) {
+          this.devicesWithChannels.forEach(device => {
+            totalRemoteChannelsCount += device.total_count;
+          });
+        }
+
+        return totalRemoteChannelsCount;
       },
       channelsLabel() {
         if (this.deviceId) {
