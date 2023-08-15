@@ -13,7 +13,6 @@ Talk to us
 * Get product support in our `Community Forums <http://community.learningequality.org/>`__.
 * Get development contributions support in `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__.
 * Email us at info@learningequality.org
-* Visit the ``#kolibri`` room on Freenode IRC
 
 Translate
 ---------
