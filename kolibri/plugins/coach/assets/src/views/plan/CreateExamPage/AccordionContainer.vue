@@ -56,7 +56,7 @@
           name="list"
           class="wrapper"
         >
-          <AccordionItem :key="item" v-for="item in placeholderList" />
+          <AccordionItem v-for="item in placeholderList" :key="item" />
         </transition-group>
       </DragContainer>
 
@@ -87,7 +87,7 @@
     },
     computed: {
       placeholderList() {
-        return [{},{}]
+        return [{}, {}];
       },
     },
     $trs: {

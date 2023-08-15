@@ -88,9 +88,9 @@
 
 <script>
 
-  import AnswerOption from './AnswerOption.vue';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import AnswerOption from './AnswerOption.vue';
 
   export default {
     name: 'AccordionItem',

@@ -18,10 +18,10 @@
     </UiAlert>
 
     <KPageContainer>
-   
+
       <CreateQuizSection />
 
-  
+
       <div v-if="bookmarksRoute">
         <strong>
           <KRouterLink
@@ -100,7 +100,7 @@
           @moreresults="handleMoreResults"
         />
       </div>
-  
+
 
       <BottomAppBar v-if="inSearchMode">
         <KRouterLink
