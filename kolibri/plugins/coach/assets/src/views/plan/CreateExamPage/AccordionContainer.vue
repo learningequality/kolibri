@@ -1,100 +1,107 @@
 <template>
-<div>
+
+  <div>
     <div>
-        <p class="question-list-style">{{ $tr('Questionlist')}}</p>
+      <p class="question-list-style">
+        {{ $tr('Questionlist') }}
+      </p>
 
-        <KGrid
-            class="question-row"
+      <KGrid class="question-row">
+        <KGridItem :layout12="{ span: 6 }">
+          <div class="left-column-alignment-style">
+            <div>
+              <p>
+                <KCheckbox />
+              </p>
+            </div>
+
+            <div>
+              <p>{{ $tr('selectAllLabel') }}</p>
+            </div>
+          </div>
+        </KGridItem>
+
+        <KGridItem :layout12="{ span: 6 }">
+          <div class="right-alignment-style">
+            <KGrid>
+              <KGridItem :layout12="{ span: 4 }">
+                <div style="max-height:5px">
+                  <KIcon class="icon-size" icon="chevronDown" />
+                  <KIcon class="icon-size" icon="chevronUp" />
+                </div>
+
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="refresh"
+                />
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="trash"
+                />
+              </KGridItem>
+            </KGrid>
+          </div>
+        </KGridItem>
+      </KGrid>
+
+      <DragContainer :items="placeholderList">
+        <transition-group
+          tag="div"
+          name="list"
+          class="wrapper"
         >
-            <KGridItem
-                :layout12="{ span : 6}"
-            >
-                <div 
-                    class="left-column-alignment-style"
-                    >
-
-                    <div>
-                        <p>
-                            <KCheckbox/>
-                        </p>
-                    </div>
-
-                    <div>
-                        <p>{{ $tr('selectAllLabel') }}</p>
-                    </div>
-                </div>
-            </KGridItem>
-
-            <KGridItem
-                :layout12="{ span : 6}"
-            >
-                <div
-                    class="right-alignment-style"
-                    >
-                    <KGrid>
-                        <KGridItem
-                            :layout12="{ span :4 }"
-                        >
-                            <div style="max-height:5px">
-                                <KIcon class="icon-size" icon="chevronDown"/>
-                                <KIcon class="icon-size" icon="chevronUp"/>
-                            </div>
-                            
-                        </KGridItem>
-
-                        <KGridItem
-                            :layout12="{ span :4 }"
-                        >
-                            <KIcon 
-                                class="icon-size"
-                                icon="refresh"/>
-                        </KGridItem>
-
-                        <KGridItem
-                            :layout12="{ span :4 }"
-                        >
-                            <KIcon 
-                                class="icon-size"
-                                icon="trash"/>
-                        </KGridItem>
-                    </KGrid>
-                </div>
-            </KGridItem>
-        </KGrid>
-
-        <AccordionItem/>
-
-        <AccordionItem/>
-
-        <AccordionItem/>
-
-        <AccordionItem/>
+          <AccordionItem :key="item" v-for="item in placeholderList" />
+        </transition-group>
+      </DragContainer>
 
     </div>
-</div>
+  </div>
+
 </template>
 
 
 <script>
-import CoreTable from 'kolibri.coreVue.components.CoreTable';
-import AccordionItem from './AccordionItem.vue';
-export default {
-    name:"AccordionContainer",
-    components:{
-        CoreTable,
-        AccordionItem
+
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
+  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  import AccordionItem from './AccordionItem.vue';
+
+  export default {
+    name: 'AccordionContainer',
+    components: {
+      DragSortWidget,
+      DragContainer,
+      DragHandle,
+      Draggable,
+      CoreTable,
+      AccordionItem,
     },
-    $trs:{
-        Questionlist:{
-            message:"Question list",
-            context:"Subtitle indicating the question in the section"
-        },
-        selectAllLabel:{
-            message:"Select all",
-            context:"Label indicates that all available options can be chosen at once."
-        }
-    }
-}
+    computed: {
+      placeholderList() {
+        return [{},{}]
+      },
+    },
+    $trs: {
+      Questionlist: {
+        message: 'Question list',
+        context: 'Subtitle indicating the question in the section',
+      },
+      selectAllLabel: {
+        message: 'Select all',
+        context: 'Label indicates that all available options can be chosen at once.',
+      },
+    },
+  };
+
 </script>
 
 <style scoped>
