@@ -1,5 +1,6 @@
 import logging
 import uuid
+from itertools import chain
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
@@ -54,6 +55,10 @@ INCOMPLETE_STATUSES = [
 ]
 
 
+def _uuid_to_hex(_uuid):
+    return _uuid.hex if isinstance(_uuid, uuid.UUID) else uuid.UUID(_uuid).hex
+
+
 class FixedExists(Exists):
     """
     Exists() subquery that allows positional arguments, to get around issue:
@@ -66,7 +71,15 @@ class FixedExists(Exists):
         return Subquery.resolve_expression(self, query, *args, **kwargs)
 
 
-def create_content_download_requests(facility, assignments):
+def create_content_download_requests(facility, assignments, source_instance_id=None):
+    """
+    Creates sync-initiated content download requests and removes corresponding removals
+    for a given set of assignments.
+
+    :param facility: A Facility model instance
+    :param assignments: A list of ContentAssignment objects
+    :param source_instance_id: The UUID of the instance that most likely has the content
+    """
     logger.info("Processing new content assignment requests")
     for assignment in assignments:
         related_removals = ContentRemovalRequest.objects.filter(
@@ -82,6 +95,7 @@ def create_content_download_requests(facility, assignments):
                 facility_id=facility.id,
                 reason=ContentRequestReason.SyncInitiated,
                 status=ContentRequestStatus.Pending,
+                source_instance_id=source_instance_id,
             ),
             source_model=assignment.source_model,
             source_id=assignment.source_id,
@@ -90,6 +104,13 @@ def create_content_download_requests(facility, assignments):
 
 
 def create_content_removal_requests(facility, removable_assignments):
+    """
+    Creates sync-initiated content removal requests and removes corresponding downloads
+    for a given set of assignments.
+
+    :param facility: A Facility model instance
+    :param removable_assignments: A list of ContentAssignment or DeletedAssignment objects
+    """
     logger.info("Processing new content removal requests")
     for assignment in removable_assignments:
         related_downloads = ContentDownloadRequest.objects.filter(
@@ -149,67 +170,140 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
         **find_kwargs
     )
 
-    create_content_download_requests(facility, assignments)
+    # if we have a transfer session, we can use it to determine the source instance ID, which
+    # will be used to determine the preferred network locations, as it's the most likely
+    # place to find the content
+    source_instance_id = None
+    if transfer_session:
+        sync_session = transfer_session.sync_session
+        # this is only invoked with a transfer session when *receiving* data,
+        # so we can use the push/pull direction to determine the source instance ID
+        source_instance_id = (
+            sync_session.client_instance_id
+            if transfer_session.is_push
+            else sync_session.server_instance_id
+        )
+
+    create_content_download_requests(
+        facility, assignments, source_instance_id=source_instance_id
+    )
     create_content_removal_requests(facility, removable_assignments)
 
 
-def _get_preferred_network_location(instance_id=None, version_filter=None):
+class PreferredDevices(object):
     """
-    Finds the preferred network location (peer) for importing content
+    A class that produces a generator returning preferred network locations (devices), given a list
+    of instance IDs, and a filter for the version of Kolibri running on the server.
 
-    :param instance_id: an ID to check if available, instead of the most recent sync peers
-    :param version_filter: a version range used to filter instances
-    :return: A NetworkLocation if available
-    :rtype: NetworkLocation
+    The instance IDs are used to filter the devices, and only those devices that are available and
+    possibly matching the version filter are returned.
     """
-    filters = dict()
 
-    # if we're looking for a specific instance ID, we don't worry about filtering on
-    # subset_of_users_device
-    if instance_id is None:
+    def __init__(self, instance_ids, version_filter=None, filters=None):
+        """
+        :param instance_ids: A list or iterator of instance IDs to filter by
+        :param version_filter: A version filter to apply to the network locations
+        :param filters: Additional filters to apply to the network locations
+        """
+        self.instance_ids = instance_ids
+        self._version_filter = version_filter
+        self._filters = filters or {}
+
+    @classmethod
+    def build_from_sync_sessions(cls, version_filter=None, filters=None):
+        """
+        Build a PreferredNetworkLocations object from recent sync sessions
+
+        :param version_filter: A version filter to apply to the network locations
+        :param filters: Additional filters to apply to the network locations
+        :return: A PreferredNetworkLocations object
+        """
+        filters = filters or {}
+        # only include devices that are not a subset of the user's device
         filters.update(subset_of_users_device=False)
+        instance_ids = (
+            SyncSession.objects.order_by("-last_activity_timestamp")
+            .values_list("server_instance_id", flat=True)
+            .distinct()
+        )
+        return cls(
+            instance_ids,
+            version_filter=version_filter,
+            filters=filters,
+        )
 
-    if instance_id:
-        # we assume this peer is a somewhat trusted peer
-        instance_ids = [instance_id]
-    else:
-        # find the server instance ID for the latest sync session having a matching network location
-        # that is not a SoUD and its connection status is currently okay
-        instance_ids = SyncSession.objects.order_by(
-            "-last_activity_timestamp"
-        ).values_list("server_instance_id", flat=True)
-
-    # we can't combine this into one SQL query because the tables live in separate sqlite DBs
-    for instance_id in instance_ids:
+    def _get_and_validate_peer(self, instance_id):
+        """
+        Get a peer by instance ID, and validate that it is available and matches the version filter
+        :param instance_id: A UUID or hex string representing the instance ID
+        :type instance_id: str|UUID
+        :return: The NetworkLocation object, or None if it is not available or does not match the
+                 validation conditions
+        """
         try:
             peer = NetworkLocation.objects.get(
-                instance_id=instance_id.hex
-                if isinstance(instance_id, uuid.UUID)
-                else instance_id,
-                **filters
+                instance_id=_uuid_to_hex(instance_id), **self._filters
             )
-            # if we're on a metered connection, we only want to download from local peers
-            if not peer.is_local and not allow_non_local_download():
-                logger.debug(
-                    "Non-local peer {} excluded when using metered connection".format(
-                        instance_id
-                    )
-                )
-                continue
-            # ensure peer is available, unless reserved
-            if not peer.reserved and peer.connection_status != ConnectionStatus.Okay:
-                logger.debug("Peer {} is not available".format(instance_id))
-                continue
-            # ensure version is applicable according to filter
-            if version_filter is not None and not peer.matches_version(version_filter):
-                logger.debug(
-                    "Peer {} does not match version filter".format(instance_id)
-                )
-                continue
-            return peer
         except NetworkLocation.DoesNotExist:
-            continue
-    return None
+            return None
+
+        # if we're on a metered connection, we only want to download from local peers
+        if not peer.is_local and not allow_non_local_download():
+            logger.debug(
+                "Non-local peer {} excluded when using metered connection".format(
+                    instance_id
+                )
+            )
+            return None
+        # ensure peer is available, unless reserved
+        if not peer.reserved and peer.connection_status != ConnectionStatus.Okay:
+            logger.debug("Peer {} is not available".format(instance_id))
+            return None
+        # ensure version is applicable according to filter
+        if self._version_filter is not None and not peer.matches_version(
+            self._version_filter
+        ):
+            logger.debug("Peer {} does not match version filter".format(instance_id))
+            return None
+        return peer
+
+    def __iter__(self):
+        """
+        Iterate over the network locations, yielding one at a time
+        :return: The network location object yielded
+        :rtype: Generator<NetworkLocation>
+        """
+        for instance_id in self.instance_ids:
+            # if null, skip
+            if not instance_id:
+                continue
+            peer = self._get_and_validate_peer(instance_id)
+            if peer:
+                # yield resulting peer
+                yield peer
+
+
+class PreferredDevicesWithClient(PreferredDevices):
+    """
+    A class that produces a generator that returns preferred network locations (devices) and
+    individual network clients for each, given a list of instance IDs, and a filter for the version
+    of Kolibri.
+    """
+
+    def __iter__(self):
+        """
+        Iterate over the network locations, yielding the network location and a network client
+        :rtype: Generator<(NetworkLocation, NetworkClient)>
+        """
+        for peer in super(PreferredDevicesWithClient, self).__iter__():
+            # during processing, if there's a critical failure in making requests to the peer,
+            # this will capture those errors, and obviously the raising of exceptions
+            # will interrupt processing
+            with capture_connection_state(peer):
+                with NetworkClient.build_from_network_location(peer) as client:
+                    # test connection
+                    client.connect()
+                    yield (peer, client)
 
 
 def _total_size(*querysets):
@@ -398,6 +492,7 @@ def _import_metadata(client, contentnode_ids):
     :type client: NetworkClient
     :param contentnode_ids: a values_list QuerySet of content node ids or list of them
     :type contentnode_ids: QuerySet or list
+    :return: A boolean indicating whether all metadata was imported successfully
     """
     total_count = (
         contentnode_ids.count()
@@ -427,6 +522,7 @@ def _import_metadata(client, contentnode_ids):
                 "Failed to import content metadata for {}".format(contentnode_id)
             )
     logger.info("Imported content metadata for {} nodes".format(processed_count))
+    return total_count == processed_count
 
 
 def process_metadata_import(incomplete_downloads_without_metadata):
@@ -435,48 +531,48 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
     :type incomplete_downloads_without_metadata: django.db.models.QuerySet
     """
-    source_instance_ids = list(
+    preferred_instance_ids = list(
         incomplete_downloads_without_metadata.values_list(
             "source_instance_id", flat=True
         ).distinct()
     )
-    # append `None` which will bypass the explicit peer selection and use a trusted peer
-    # of a recent sync, if available, during the last step of the process
-    source_instance_ids.append(None)
-    peers = []
+    version_filter = ">=0.16.0"
+    preferred_peers = PreferredDevicesWithClient(
+        preferred_instance_ids, version_filter=version_filter
+    )
 
-    for source_instance_id in source_instance_ids:
-        # get the peer for this source instance
-        peer = _get_preferred_network_location(
-            instance_id=source_instance_id, version_filter=">=0.16.0"
+    # first, try to import metadata from the preferred peers, filtering the requests
+    # by the matching instance_id
+    for peer, client in preferred_peers:
+        _import_metadata(
+            client,
+            incomplete_downloads_without_metadata.filter(
+                source_instance_id=_uuid_to_hex(peer.instance_id),
+            ).values_list("contentnode_id", flat=True),
         )
-        if not peer:
-            continue
 
-        # store all available peers, so we can fall back to them if later preferred peers fail
-        peers.append(peer)
-        filters = dict()
-        if source_instance_id is not None:
-            filters["source_instance_id"] = source_instance_id
+    # if we've completed the import, then we can stop
+    if not incomplete_downloads_without_metadata.exists():
+        return
 
-        # start with the most recent peer, and work backwards
-        for peer in reversed(peers):
-            # during processing, if there's a critical failure in making requests to the peer,
-            # this will capture those errors, and obviously the raising of exceptions
-            # will interrupt processing
-            with capture_connection_state(peer):
-                with NetworkClient.build_from_network_location(peer) as client:
-                    # test connection
-                    client.connect()
-                    _import_metadata(
-                        client,
-                        incomplete_downloads_without_metadata.filter(
-                            **filters
-                        ).values_list("contentnode_id", flat=True),
-                    )
-
-    unprocessed_count = incomplete_downloads_without_metadata.count()
-    if unprocessed_count > 0:
+    # otherwise, try to import metadata without filtering the requests by matching instance_id,
+    # first from the same preferred peers, then by any fallback peers
+    fallback_peers = PreferredDevicesWithClient.build_from_sync_sessions(
+        version_filter=version_filter
+    )
+    for peer, client in chain(preferred_peers, fallback_peers):
+        is_complete = _import_metadata(
+            client,
+            incomplete_downloads_without_metadata.exclude(
+                source_instance_id=_uuid_to_hex(peer.instance_id)
+            ).values_list("contentnode_id", flat=True),
+        )
+        # if we've completed the import, then we can stop
+        if is_complete:
+            break
+    else:
+        # if we haven't completed the import by this point, then we can log a warning
+        unprocessed_count = incomplete_downloads_without_metadata.count()
         logger.info(
             "No acceptable peer device for importing content metadata for {} nodes".format(
                 unprocessed_count
@@ -528,20 +624,23 @@ def _process_content_requests(incomplete_downloads):
     complete_user_downloads = ContentDownloadRequest.objects.filter(
         status=ContentRequestStatus.Completed, reason=ContentRequestReason.UserInitiated
     )
+    # track failed so we can exclude them from the loop
+    failed_ids = []
+    qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
-    while incomplete_downloads_with_metadata.exists():
+    while qs.exists():
         free_space = get_free_space_for_downloads(
             completed_size=_total_size(completed_downloads_queryset())
         )
 
         # grab the next request that will fit within current free space
-        download_request = incomplete_downloads_with_metadata.filter(
-            total_size__lte=free_space
-        ).first()
+        download_request = qs.filter(total_size__lte=free_space).first()
 
         if download_request is not None:
-            process_download_request(download_request)
+            if not process_download_request(download_request):
+                failed_ids.append(download_request.id)
+                qs = incomplete_downloads_with_metadata.exclude(id__in=failed_ids)
         else:
             logger.debug(
                 "Did not find suitable download request for free space {}".format(
@@ -574,23 +673,17 @@ def process_download_request(download_request):
     Processes a download request
     :type download_request: ContentDownloadRequest
     """
-    peers = []
-    # we do not need to filter by version, since content import should work for any
-    preferred_peer = _get_preferred_network_location(
-        instance_id=download_request.source_instance_id
-    )
-    if preferred_peer:
-        peers.append(preferred_peer)
+    peer_sets = [
+        # we do not need to filter by version, since content import should work for any
+        PreferredDevices.build_from_sync_sessions(),
+    ]
 
-    # if we had a preferred peer, add a fallback peer
-    if download_request.source_instance_id is not None:
-        fallback_peer = _get_preferred_network_location()
-        if fallback_peer:
-            peers.append(fallback_peer)
-
-    if not peers:
-        # if we're processing download requests, and this happens, no use continuing
-        raise NoPeerAvailable("Could not find available peer for content import")
+    # prepend the preferred by source instance id, if it exists
+    if download_request.source_instance_id:
+        # we do not need to filter by version, since content import should work for any
+        peer_sets.insert(
+            0, PreferredDevices(instance_ids=[download_request.source_instance_id])
+        )
 
     logger.info(
         "Processing content import request for node {}".format(
@@ -607,16 +700,23 @@ def process_download_request(download_request):
             pk=download_request.contentnode_id
         ).channel_id
 
-        for peer in peers:
+        # we try to import from the source instance first
+        for peer in chain(*peer_sets):
             import_manager = ContentDownloadRequestResourceImportManager(
                 channel_id,
                 peer_id=peer.id,
                 baseurl=peer.base_url,
                 node_ids=[download_request.contentnode_id],
                 download_request=download_request,
+                fail_on_error=True,
             )
             _, count = import_manager.run()
-            if count > 0:
+
+            # can't trust the count, fail if there's an exception
+            if getattr(import_manager, "exception", None):
+                raise getattr(import_manager, "exception")
+            else:
+                # without an exception, we can assume the import was successful
                 break
         else:
             raise NoPeerAvailable(
@@ -625,10 +725,12 @@ def process_download_request(download_request):
 
         download_request.status = ContentRequestStatus.Completed
         download_request.save()
+        return True
     except Exception as e:
         logger.exception(e)
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
+        return False
 
 
 def process_user_downloads_for_removal():
