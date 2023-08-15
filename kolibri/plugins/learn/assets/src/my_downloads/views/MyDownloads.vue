@@ -52,13 +52,12 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import Vue from 'kolibri.lib.vue';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';
@@ -81,7 +80,6 @@
         fetchAvailableFreespace,
         availableSpace,
         removeDownloadRequest,
-        removeDownloadsRequest,
       } = useDownloadRequests();
 
       const store = getCurrentInstance().proxy.$store;
@@ -105,9 +103,6 @@
       fetchDownloads();
       fetchAvailableFreespace();
       watch(route, fetchDownloads);
-      watch(downloadRequestMap, () => {
-        set(totalPageNumber, downloadRequestMap.totalPageNumber);
-      });
 
       return {
         downloadRequestMap,
@@ -117,19 +112,14 @@
         fetchAvailableFreespace,
         sort,
         removeDownloadRequest,
-        removeDownloadsRequest,
       };
     },
     computed: {
       sizeOfMyDownloads() {
-        let size;
-        if (this.downloadRequestMap && this.downloadRequestMap.value) {
-          size = Object.values(this.downloadRequestMap.value).reduce(
-            (acc, object) => acc + object.metadata.file_size,
-            0
-          );
-        }
-        return size;
+        return Object.values(this.downloadRequestMap).reduce(
+          (acc, object) => acc + object.metadata.file_size,
+          0
+        );
       },
     },
     methods: {
@@ -143,11 +133,9 @@
       removeResources(resources) {
         if (resources.length === 1) {
           this.removeDownloadRequest(resources[0]);
-          Vue.delete(this.downloadRequestMap.value, resources[0].id);
         } else {
-          resources.map(resource => {
-            this.removeDownloadsRequest({ id: resource.id });
-            Vue.delete(this.downloadRequestMap.value, resource.id);
+          resources.forEach(resource => {
+            this.removeDownloadRequest({ id: resource.id });
           });
         }
       },

@@ -9,6 +9,7 @@ import { get, set } from '@vueuse/core';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
+import Vue from 'kolibri.lib.vue';
 import useDevices from './useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
@@ -39,11 +40,9 @@ export default function useDownloadRequests(store) {
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
-        const downloads = downloadRequests.reduce((acc, obj) => {
-          acc[obj.id] = obj;
-          return acc;
-        }, {});
-        set(downloadRequestMap, downloads);
+        for (const obj of downloadRequests) {
+          set(downloadRequestMap, obj.id, obj);
+        }
         set(loading, false);
       })
       .then(store.dispatch('notLoading'));
@@ -104,16 +103,7 @@ export default function useDownloadRequests(store) {
       id: content.id,
       contentnode_id: content.contentnode_id,
     });
-    return Promise.resolve();
-  }
-
-  function removeDownloadsRequest(contentList) {
-    contentList.forEach(content => {
-      ContentRequestResource.deleteModel({
-        id: content.id,
-        contentnode_id: content.contentnode_id,
-      });
-    });
+    Vue.delete(downloadRequestMap, content.id);
     return Promise.resolve();
   }
 
@@ -141,7 +131,6 @@ export default function useDownloadRequests(store) {
     addDownloadRequest,
     loading,
     removeDownloadRequest,
-    removeDownloadsRequest,
     downloadRequestsTranslator,
     isDownloadingByLearner,
     isDownloadedByLearner,

@@ -68,7 +68,7 @@
                   v-else
                   :text="coreString('viewAction')"
                   appearance="flat-button"
-                  :href="genExternalContentURLBackLinkCurrentPage(download.id)"
+                  :href="genExternalContentURLBackLinkCurrentPage(download.contentnode_id)"
                 />
               </td>
               <td class="resource-action">
@@ -143,8 +143,15 @@
       const sortedFilteredDownloads = () => {
         let downloadsToDisplay = [];
         if (downloadRequestMap) {
-          for (const [, value] of Object.entries(downloadRequestMap.value)) {
+          for (const [, value] of Object.entries(downloadRequestMap)) {
             downloadsToDisplay.push(value);
+          }
+          if (activityType) {
+            if (activityType.value !== 'all') {
+              downloadsToDisplay = downloadsToDisplay.filter(download =>
+                download.metadata.learning_activities.includes(activityType.value)
+              );
+            }
           }
           if (sort) {
             switch (sort.value) {
@@ -167,13 +174,6 @@
               default:
                 // If no valid sort option provided, return unsorted array
                 break;
-            }
-          }
-          if (activityType) {
-            if (activityType.value !== 'all') {
-              downloadsToDisplay = downloadsToDisplay.filter(download =>
-                download.metadata.learning_activities.includes(activityType.value)
-              );
             }
           }
         }
@@ -295,10 +295,8 @@
       },
       removeResources() {
         this.$emit('removeResources', this.resourcesToDelete);
-        this.selectedDownloads = this.selectedDownloads.filter(
-          resourceId => !this.resourcesToDelete.includes(resourceId)
-        );
         this.resourcesToDelete = [];
+        this.sortedFilteredDownloads();
       },
       getIcon(activities) {
         return this.getLearningActivityIcon(activities);
