@@ -716,6 +716,12 @@ def process_download_request(download_request):
             if getattr(import_manager, "exception", None):
                 raise getattr(import_manager, "exception")
             else:
+                if count == 0:
+                    logger.warning(
+                        "ContentNode files may not have imported successfully: {}".format(
+                            download_request.contentnode_id
+                        )
+                    )
                 # without an exception, we can assume the import was successful
                 break
         else:
