@@ -474,7 +474,7 @@ def check_plugin_config_file_location(version):
 def iterate_plugins():
     # Use to dedupe plugins
     plugin_ids = set()
-    for entry_point in entry_points()["kolibri.plugins"]:
+    for entry_point in entry_points().get("kolibri.plugins", []):
         name = entry_point.name
         if name not in plugin_ids:
             plugin_ids.add(name)
