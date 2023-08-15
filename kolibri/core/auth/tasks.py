@@ -631,5 +631,5 @@ def cleanupsync(**kwargs):
             pull=is_pull,
             sync_filter=str(sync_filter),
             expiration=0,
-            **instance_attribute,
+            **instance_attribute
         )
