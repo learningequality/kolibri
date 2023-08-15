@@ -5,6 +5,7 @@ Tech stack overview
 
 Kolibri is a web application built primarily using `Python <https://www.python.org/>`__ on the server-side and `JavaScript <https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference>`__ on the client-side.
 
+Note that since Kolibri is still in development, the APIs are subject to change, and a lot of code is still in flux.
 
 Server
 ------
