@@ -599,3 +599,33 @@ def deletefacility(facility):
         facility=facility,
         noninteractive=True,
     )
+
+
+@register_task(
+    track_progress=False,
+    cancellable=False,
+    long_running=True,
+    queue=facility_task_queue,
+    status_fn=status_fn,
+)
+def cleanupsync(**kwargs):
+    is_pull = kwargs.get("is_pull")
+    is_push = kwargs.get("is_push")
+    sync_filter = kwargs.get("sync_filter")
+    is_server = kwargs.get("is_server")
+    instance_id = kwargs.get("instance_id")
+    instance_name = "server" if is_server else "client"
+    instance_attribute_name = f"{instance_name}-instance-id"
+    if (
+        is_pull is not None
+        and is_push is not None
+        and sync_filter is not None
+        and instance_id is not None
+    ):
+        call_command(
+            "cleanupsyncs",
+            push=is_push,
+            pull=is_pull,
+            sync_filter=str(sync_filter),
+            **{instance_attribute_name: instance_id},
+        )
