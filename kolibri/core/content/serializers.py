@@ -265,18 +265,14 @@ class ContentDownloadRequestMetadataSerializer(serializers.Serializer):
     )
 
 
-class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
-
+class ContentDownloadRequestSerializer(serializers.ModelSerializer):
+    source_instance_id = serializers.UUIDField(required=False, allow_null=True)
     metadata = ContentDownloadRequestMetadataSerializer()
 
     class Meta:
 
         model = ContentDownloadRequest
-        fields = (
-            "id",
-            "contentnode_id",
-            "metadata",
-        )
+        fields = ("id", "contentnode_id", "metadata", "source_instance_id")
 
     def create(self, validated_data):
         # if there is an existing deletion request, delete the deletion request
@@ -307,6 +303,7 @@ class ContentDownloadRequestSeralizer(serializers.ModelSerializer):
         content_request = ContentDownloadRequest.build_for_user(user)
         content_request.metadata = validated_data["metadata"]
         content_request.contentnode_id = validated_data["contentnode_id"]
+        content_request.source_instance_id = validated_data.get("source_instance_id")
 
         content_request.save()
         automatic_resource_import.enqueue_if_not()

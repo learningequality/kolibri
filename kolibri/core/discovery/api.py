@@ -2,10 +2,10 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
 
 from .models import DynamicNetworkLocation
+from .models import LocationTypes
 from .models import NetworkLocation
 from .models import PinnedDevice
 from .models import StaticNetworkLocation
@@ -26,16 +26,39 @@ from kolibri.core.utils.urls import reverse_path
 class NetworkLocationViewSet(viewsets.ModelViewSet):
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
     serializer_class = NetworkLocationSerializer
-    queryset = NetworkLocation.objects.all()
+    queryset = NetworkLocation.objects.exclude(location_type=LocationTypes.Reserved)
     filter_backends = [DjangoFilterBackend]
     filter_fields = [
         "id",
         "subset_of_users_device",
+        "instance_id",
     ]
+
+    def get_object(self, id_filter=None):
+        """
+        Override get_object to use the unrestricted queryset for the detail view
+        """
+        queryset = self.filter_queryset(NetworkLocation.objects.all())
+
+        if not id_filter:
+            id_filter = self.kwargs["pk"]
+
+        # allow detail lookup by id or instance_id
+        for filter_key in ("id", "instance_id"):
+            try:
+                obj = queryset.get({filter_key: id_filter})
+                break
+            except NetworkLocation.DoesNotExist:
+                pass
+        else:
+            raise NotFound()
+
+        self.check_object_permissions(self.request, obj)
+        return obj
 
     @decorators.action(methods=("post",), detail=True)
     def update_connection_status(self, request, pk=None):
-        network_location = get_object_or_404(self.get_queryset(), pk=pk)
+        network_location = self.get_object(id_filter=pk)
         try:
             update_network_location(network_location)
         except errors.NetworkClientError:
@@ -80,6 +103,7 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
         return Response(
             {
                 "device_id": peer_device.id,
+                "instance_id": peer_device.instance_id,
                 "device_name": peer_device.nickname or peer_device.device_name,
                 "device_address": base_url,
                 "facilities": facilities,

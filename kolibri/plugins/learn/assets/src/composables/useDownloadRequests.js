@@ -6,10 +6,11 @@ import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi
 import { ContentRequestResource } from 'kolibri.resources';
 import Vue from 'kolibri.lib.vue';
 import { createTranslator } from 'kolibri.utils.i18n';
-import { set } from '@vueuse/core';
+import { get, set } from '@vueuse/core';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
+import useDevices from './useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -33,6 +34,9 @@ const availableSpace = ref(0);
 
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
+
+  const { instanceId } = useDevices(store);
+
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
@@ -71,6 +75,7 @@ export default function useDownloadRequests(store) {
       contentnode_id: content.id,
       metadata,
       source_id: store.getters.currentUserId,
+      source_instance_id: get(instanceId),
       reason: 'UserInitiated',
       facility: store.getters.currentFacilityId,
       status: 'Pending',

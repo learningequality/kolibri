@@ -1,6 +1,7 @@
 from django.http.request import QueryDict
 from django.urls import reverse
 
+from kolibri.core.content.utils import settings
 from kolibri.plugins.app.kolibri_plugin import App
 from kolibri.plugins.registry import registered_plugins
 
@@ -31,6 +32,9 @@ class AppInterface(object):
         for capability in CAPABILITES:
             if capability in kwargs:
                 self._capabilities[capability] = kwargs[capability]
+                # override the settings module with the function
+                if capability == CHECK_IS_METERED:
+                    settings.using_metered_connection = kwargs[capability]
 
     def get_initialize_url(self, next_url=None, auth_token=None):
         if not self.enabled:

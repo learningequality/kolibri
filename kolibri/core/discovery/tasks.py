@@ -12,10 +12,13 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.discovery.models import LocationTypes
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.models import StaticNetworkLocation
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstance
 from kolibri.core.discovery.utils.network.connections import update_network_location
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
@@ -280,6 +283,22 @@ def remove_dynamic_network_location(broadcast_id, instance):
     network_location.delete()
 
 
+def _refresh_reserved_locations():
+    """
+    TODO handle this a bit smarter with: https://github.com/learningequality/kolibri/issues/10431
+    """
+    NetworkLocation.objects.filter(location_type=LocationTypes.Reserved).delete()
+    NetworkLocation.objects.create(
+        id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
+        instance_id=CENTRAL_CONTENT_BASE_INSTANCE_ID,
+        nickname="Kolibri Studio",
+        base_url=CENTRAL_CONTENT_BASE_URL,
+        location_type=LocationTypes.Reserved,
+        is_local=False,
+        kolibri_version="0.16.0",
+    )
+
+
 @register_task(
     job_id=CONNECTION_RESET_JOB_ID, priority=Priority.HIGH, status_fn=status_fn
 )
@@ -288,6 +307,8 @@ def reset_connection_states(broadcast_id):
     Handles resetting all connection states when a network change occurs
     :param broadcast_id: The hex UUID of the new broadcast
     """
+    _refresh_reserved_locations()
+
     for network_location in NetworkLocation.objects.exclude(
         broadcast_id=broadcast_id
     ).filter(connection_status=ConnectionStatus.Okay):

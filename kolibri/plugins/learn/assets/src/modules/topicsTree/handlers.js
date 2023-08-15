@@ -13,7 +13,7 @@ const { fetchContentNodeTreeProgress } = useContentNodeProgress();
 
 function _loadTopicsContent(store, id, baseurl) {
   const shouldResolve = samePageCheckGenerator(store);
-  ContentNodeResource.fetchModel({ id, getParams: { baseurl } }).then(
+  return ContentNodeResource.fetchModel({ id, getParams: { baseurl } }).then(
     content => {
       if (shouldResolve()) {
         const currentChannel = get(channelsMap)[content.channel_id];
