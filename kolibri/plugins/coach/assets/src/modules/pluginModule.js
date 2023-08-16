@@ -123,7 +123,7 @@ export default {
             .then(summary => store.dispatch('setClassList', summary.facility_id)),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
-          store.dispatch('handleError', error);
+          store.dispatch('handleApiError', error);
         });
       } else {
         // otherwise refresh but don't block

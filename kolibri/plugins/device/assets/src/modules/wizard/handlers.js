@@ -63,8 +63,8 @@ function handleError(store, error) {
     return store.commit('manageContent/wizard/SET_WIZARD_STATUS', errorType);
   }
   // handle other errors generically
-  store.dispatch('handleApiError', error);
   store.commit('manageContent/wizard/RESET_STATE');
+  store.dispatch('handleApiError', error);
 }
 
 // Handler for when user goes directly to the Available Channels URL.
