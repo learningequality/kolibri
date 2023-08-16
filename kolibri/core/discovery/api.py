@@ -46,7 +46,7 @@ class NetworkLocationViewSet(viewsets.ModelViewSet):
         # allow detail lookup by id or instance_id
         for filter_key in ("id", "instance_id"):
             try:
-                obj = queryset.get({filter_key: id_filter})
+                obj = queryset.get(**{filter_key: id_filter})
                 break
             except NetworkLocation.DoesNotExist:
                 pass
