@@ -149,9 +149,10 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
     # This will raise an exception if not
     _import_python_module(plugin_name)
 
+    plugin_module_name = plugin_name + ".kolibri_plugin"
     try:
         # Exceptions are expected to be thrown from here.
-        plugin_module = importlib.import_module(plugin_name + ".kolibri_plugin")
+        plugin_module = importlib.import_module(plugin_module_name)
         if not was_configured and django_settings.configured:
             raise PluginLoadsApp(
                 "Importing plugin module {} caused Django settings to be configured".format(
@@ -187,7 +188,12 @@ def initialize_kolibri_plugin(plugin_name, initialize_hooks=True):
     except ImportError as e:
         # Python 2: message, Python 3: msg
         exc_message = getattr(e, "message", getattr(e, "msg", None))
-        if exc_message.startswith("No module named"):
+        # On Python 3, the message is the full path to the module
+        # On Python 2, the message is the last part of the path
+        if (
+            exc_message == "No module named '{}'".format(plugin_module_name)
+            or exc_message == "No module named kolibri_plugin"
+        ):
             msg = (
                 "Plugin '{}' exists but does not have an importable kolibri_plugin module"
             ).format(plugin_name)

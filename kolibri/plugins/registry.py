@@ -157,7 +157,7 @@ class Registry(object):
                     raise PluginExistsInApp(
                         "Django app {} contains multiple plugin definitions".format(app)
                     )
-                except (PluginDoesNotExist, ImportError):
+                except PluginDoesNotExist:
                     # Register so that we don't do this twice.
                     self._apps[app] = None
 
