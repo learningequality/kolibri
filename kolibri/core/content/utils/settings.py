@@ -35,7 +35,7 @@ def allow_non_local_download():
     from kolibri.core.device.utils import get_device_setting
 
     return not using_metered_connection() or get_device_setting(
-        "allow_download_on_metered_connection"
+        "allow_download_on_metered_connection", default=False
     )
 
 
@@ -52,7 +52,7 @@ def get_free_space_for_downloads(completed_size=0):
     free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
 
     # if a limit is set, subtract the total content storage size from the limit
-    if get_device_setting("set_limit_for_autodownload", False):
+    if get_device_setting("set_limit_for_autodownload", default=False):
         # compute total space used by automatic and learner initiated downloads
         # convert limit_for_autodownload from GB to bytes
         auto_download_limit = bytes_from_humans(
