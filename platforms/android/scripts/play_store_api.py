@@ -1,6 +1,8 @@
 import glob
 import json
+import mimetypes
 import os
+import socket
 import sys
 import time
 
@@ -9,7 +11,14 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 
-SCOPES = ["https://www.googleapis.com/auth/sqlservice.admin"]
+# Register mimetypes for aab and apk files
+mimetypes.add_type("application/octet-stream", ".apk")
+mimetypes.add_type("application/octet-stream", ".aab")
+
+# Set a timeout of 7 days for all requests.
+socket.setdefaulttimeout(7 * 24 * 60 * 60)
+
+SCOPES = ["https://www.googleapis.com/auth/androidpublisher"]
 
 
 def package_name():
@@ -79,6 +88,9 @@ def upload_dist_aab():
             "Expected exactly one aab file in dist, found {}".format(len(aabs))
         )
     aab_path = aabs[0]
+
+    print("Uploading AAB: {}".format(aab_path))
+
     bundle_upload = (
         service.edits()
         .bundles()
