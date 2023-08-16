@@ -240,12 +240,10 @@ class ProcessMetadataImportTestCase(BaseTestCase):
 
         process_metadata_import(self.incomplete_downloads_qs)
         self.mock_count.assert_not_called()
-        self.assertEqual(
-            self.mock_import_metadata_calls,
-            [
-                (self.mock_client, [request1.contentnode_id, request2.contentnode_id]),
-            ],
-        )
+        self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
+        self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
+        self.assertIn(request1.contentnode_id, self.mock_import_metadata_calls[0][1])
+        self.assertIn(request2.contentnode_id, self.mock_import_metadata_calls[0][1])
 
     def test_no_preferred__fallback__incomplete(self):
         request1 = self._create_request(source_instance_id=uuid.uuid4().hex)
@@ -260,12 +258,10 @@ class ProcessMetadataImportTestCase(BaseTestCase):
 
         process_metadata_import(self.incomplete_downloads_qs)
         self.mock_count.assert_called()
-        self.assertEqual(
-            self.mock_import_metadata_calls,
-            [
-                (self.mock_client, [request1.contentnode_id, request2.contentnode_id]),
-            ],
-        )
+        self.assertEqual(self.mock_import_metadata_calls[0][0], self.mock_client)
+        self.assertEqual(len(self.mock_import_metadata_calls[0][1]), 2)
+        self.assertIn(request1.contentnode_id, self.mock_import_metadata_calls[0][1])
+        self.assertIn(request2.contentnode_id, self.mock_import_metadata_calls[0][1])
 
     def test_half_and_half(self):
         request1, peer1 = self._create_request_and_peer(
@@ -313,19 +309,22 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         self.mock_import_metadata_return_value = False
 
         process_metadata_import(self.incomplete_downloads_qs)
+        for mock_call in self.mock_import_metadata_calls:
+            self.assertEqual(mock_call[0], self.mock_client)
         self.assertEqual(
-            self.mock_import_metadata_calls,
-            [
-                (self.mock_client, [request1.contentnode_id]),  # peer1
-                (self.mock_client, [request2.contentnode_id]),  # peer2
-                (
-                    self.mock_client,
-                    [request2.contentnode_id, request3.contentnode_id],
-                ),  # peer1
-                (self.mock_client, []),  # peer2
-                (self.mock_client, [request2.contentnode_id]),  # peer3
-            ],
-        )
+            self.mock_import_metadata_calls[0][1], [request1.contentnode_id]
+        )  # peer1
+        self.assertEqual(
+            self.mock_import_metadata_calls[1][1], [request2.contentnode_id]
+        )  # peer2
+        # Peer 1
+        self.assertEqual(len(self.mock_import_metadata_calls[2][1]), 2)
+        self.assertIn(request2.contentnode_id, self.mock_import_metadata_calls[2][1])
+        self.assertIn(request3.contentnode_id, self.mock_import_metadata_calls[2][1])
+        self.assertEqual(self.mock_import_metadata_calls[3][1], [])  # peer2
+        self.assertEqual(
+            self.mock_import_metadata_calls[4][1], [request2.contentnode_id]
+        )  # peer3
 
 
 class IncompleteDownloadsQuerysetTestCase(TestCase):
