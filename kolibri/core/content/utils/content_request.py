@@ -438,6 +438,15 @@ class NoPeerAvailable(Exception):
     pass
 
 
+class AlreadyAvailable(Exception):
+    """
+    Dedicated exception with which we can halt content request processing when we detect
+    that the content is already available
+    """
+
+    pass
+
+
 def process_content_requests():
     """
     Wrapper around the processing of content requests to capture errors
@@ -677,18 +686,6 @@ def process_download_request(download_request):
     Processes a download request
     :type download_request: ContentDownloadRequest
     """
-    peer_sets = [
-        # we do not need to filter by version, since content import should work for any
-        PreferredDevices.build_from_sync_sessions(),
-    ]
-
-    # prepend the preferred by source instance id, if it exists
-    if download_request.source_instance_id:
-        # we do not need to filter by version, since content import should work for any
-        peer_sets.insert(
-            0, PreferredDevices(instance_ids=[download_request.source_instance_id])
-        )
-
     logger.info(
         "Processing content import request for node {}".format(
             download_request.contentnode_id
@@ -700,14 +697,28 @@ def process_download_request(download_request):
 
     try:
         # by this point we should have a ContentNode
-        channel_id = ContentNode.objects.get(
-            pk=download_request.contentnode_id
-        ).channel_id
+        node = ContentNode.objects.get(pk=download_request.contentnode_id)
+        if node.available:
+            raise AlreadyAvailable(
+                "ContentNode {} is already available".format(node.id)
+            )
+
+        peer_sets = [
+            # we do not need to filter by version, since content import should work for any
+            PreferredDevices.build_from_sync_sessions(),
+        ]
+
+        # prepend the preferred by source instance id, if it exists
+        if download_request.source_instance_id:
+            # we do not need to filter by version, since content import should work for any
+            peer_sets.insert(
+                0, PreferredDevices(instance_ids=[download_request.source_instance_id])
+            )
 
         # we try to import from the source instance first
         for peer in chain(*peer_sets):
             import_manager = ContentDownloadRequestResourceImportManager(
-                channel_id,
+                node.channel_id,
                 peer_id=peer.id,
                 baseurl=peer.base_url,
                 node_ids=[download_request.contentnode_id],
@@ -732,15 +743,22 @@ def process_download_request(download_request):
             raise NoPeerAvailable(
                 "Unable to import {} from peers".format(download_request.contentnode_id)
             )
-
-        download_request.status = ContentRequestStatus.Completed
-        download_request.save()
-        return True
+    except AlreadyAvailable as e:
+        # do nothing, since the content is already available
+        logger.debug(str(e))
     except Exception as e:
-        logger.exception(e)
+        if isinstance(e, NoPeerAvailable):
+            logger.warning(e)
+        else:
+            logger.exception(e)
+
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
         return False
+
+    download_request.status = ContentRequestStatus.Completed
+    download_request.save()
+    return True
 
 
 def process_user_downloads_for_removal():
