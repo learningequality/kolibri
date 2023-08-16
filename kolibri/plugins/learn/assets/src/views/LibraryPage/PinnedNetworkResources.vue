@@ -14,8 +14,7 @@
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
         <p>
-                  {{ totalRemoteChannelsCount }} channels | 
-                  Internet connection needed to browse and download resources
+            {{ translatedChannelsNumber }}
         </p>
 
       </KGridItem>
@@ -73,10 +72,13 @@
           return [];
         },
       },
-      totalRemoteChannelsCount: {
-        type: Number,
+      translatedChannelsNumber: {
+        type: String,
         required: true,
-      },
+        default() {
+          return "";
+        },
+      }
     },
     computed: {
       layoutSpan() {
