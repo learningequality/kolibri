@@ -20,12 +20,13 @@
 <script>
 
   import { mapGetters, mapState } from 'vuex';
+  import { useSessionStorage } from '@vueuse/core';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import plugin_data from 'plugin_data';
   import { PageNames } from '../constants';
   import PostSetupModalGroup from '../../../../device/assets/src/views/PostSetupModalGroup.vue';
 
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  const welcomeDismissalKey = useSessionStorage('DEVICE_WELCOME_MODAL_DISMISSED', '');
 
   export default {
     name: 'LearnIndex',
@@ -42,10 +43,7 @@
         loading: state => state.core.loading,
       }),
       welcomeModalVisible() {
-        return (
-          this.welcomeModalVisibleState &&
-          window.sessionStorage.getItem(welcomeDimissalKey) !== 'true'
-        );
+        return this.welcomeModalVisibleState && welcomeDismissalKey.value !== 'true';
       },
       userIsAuthorized() {
         if (this.pageName === PageNames.BOOKMARKS) {
@@ -58,7 +56,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
+        welcomeDismissalKey.value = 'true';
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
     },
