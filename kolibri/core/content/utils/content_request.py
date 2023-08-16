@@ -148,7 +148,9 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
 
     :param dataset_id: The UUID of the dataset
+    :type dataset_id: str
     :param transfer_session: The sync's transfer session model, if available
+    :type transfer_session: morango.models.core.TransferSession
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
@@ -180,7 +182,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
         # so we can use the push/pull direction to determine the source instance ID
         source_instance_id = (
             sync_session.client_instance_id
-            if transfer_session.is_push
+            if transfer_session.push
             else sync_session.server_instance_id
         )
 
@@ -398,7 +400,7 @@ def incomplete_downloads_queryset():
         )
     )
     # if we're not allowing learner downloads, filter them out
-    if not get_device_setting("allow_learner_download_resources"):
+    if not get_device_setting("allow_learner_download_resources", default=False):
         qs = qs.exclude(is_learner_download=True)
     return qs
 
@@ -631,7 +633,9 @@ def _process_content_requests(incomplete_downloads):
     # loop while we have pending downloads
     while qs.exists():
         free_space = get_free_space_for_downloads(
-            completed_size=_total_size(completed_downloads_queryset())
+            completed_size=_total_size(
+                completed_downloads_queryset().filter(has_metadata=True)
+            )
         )
 
         # grab the next request that will fit within current free space
@@ -787,6 +791,30 @@ def process_user_downloads_for_removal():
     )
 
 
+def _remove_corresponding_download_requests(removal_qs):
+    """
+    Removes any corresponding download requests for the given removal requests
+    :param removal_qs: a ContentRemovalRequest queryset
+    :type removal_qs: django.db.models.QuerySet
+    """
+    return (
+        ContentDownloadRequest.objects.annotate(
+            has_removal=Exists(
+                # completed, same node, same requester (model+source), and requested before
+                removal_qs.filter(
+                    contentnode_id=OuterRef("contentnode_id"),
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    requested_at__lte=OuterRef("requested_at"),
+                    status=ContentRequestStatus.Completed,
+                )
+            )
+        )
+        .filter(has_removal=True)
+        .delete()
+    )
+
+
 def process_content_removal_requests(queryset):
     """
     Garbage collects content requests marked for removal (removed_at is not null)
@@ -796,9 +824,11 @@ def process_content_removal_requests(queryset):
     """
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
-        admin_imported=False,
         id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
         available=True,
+    ).exclude(
+        # could be null, so we exclude True instead of filtering False
+        admin_imported=True,
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
@@ -815,13 +845,16 @@ def process_content_removal_requests(queryset):
                 node_ids=list(contentnode_ids),
                 force_delete=True,
             )
+            # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)
+            # finally, delete all corresponding download requests
+            _remove_corresponding_download_requests(channel_requests)
         except Exception as e:
             logger.exception(e)
             channel_requests.update(status=ContentRequestStatus.Failed)
 
-    # lastly, update all incomplete as completed, since they must have been excluded
-    # as already unavailable
-    queryset.filter(status__in=INCOMPLETE_STATUSES).update(
-        status=ContentRequestStatus.Completed
-    )
+    # lastly, remove any downloads for those we're unable to process (admin imported) or are
+    # already unavailable and update them completed
+    remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
+    _remove_corresponding_download_requests(remaining_pending)
+    remaining_pending.update(status=ContentRequestStatus.Completed)
