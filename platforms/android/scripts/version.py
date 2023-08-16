@@ -52,6 +52,9 @@ def _generate_build_number():
     # why our versionCodes are so high - also, we use this base build number to
     # make sure the time based build number is not higher than the maximum value
     # of 2100000000, so it still serves a purpose!
+    # It also has the additional advantage of ensuring that the build number
+    # for the dev build is always lower than the build number for the official build.
+    # Meaning we shouldn't accidentally release a development build.
     # Patch, due to a build error.
     # Envar was not being passed into the container this runs in, and the
     # build submitted to the play store ended up using the dev build number.

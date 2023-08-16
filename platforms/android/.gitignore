@@ -37,3 +37,4 @@ android_root/
 *.apk
 .env
 .version-code
+*.keystore
