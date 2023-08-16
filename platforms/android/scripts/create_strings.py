@@ -43,7 +43,7 @@ def generate_loading_pages(output_dir):
         "--output-dir",
         output_dir,
         "--version-text",
-        apk_version(),
+        apk_version().replace("-official", ""),
     )
 
 
