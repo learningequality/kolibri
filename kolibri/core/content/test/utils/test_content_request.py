@@ -1,6 +1,7 @@
 import uuid
 from contextlib import contextmanager
 from datetime import timedelta
+from functools import partial
 
 import mock
 from django.test import TestCase
@@ -11,12 +12,20 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
+from kolibri.core.content.utils.content_request import _process_content_requests
 from kolibri.core.content.utils.content_request import _total_size
+from kolibri.core.content.utils.content_request import completed_downloads_queryset
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
+from kolibri.core.content.utils.content_request import incomplete_removals_queryset
+from kolibri.core.content.utils.content_request import InsufficientStorage
 from kolibri.core.content.utils.content_request import PreferredDevices
 from kolibri.core.content.utils.content_request import PreferredDevicesWithClient
+from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.discovery.models import ConnectionStatus
@@ -327,10 +336,10 @@ class ProcessMetadataImportTestCase(BaseTestCase):
         )  # peer3
 
 
-class IncompleteDownloadsQuerysetTestCase(TestCase):
+class BaseQuerysetTestCase(BaseTestCase):
     @classmethod
     def setUpTestData(cls):
-        super(IncompleteDownloadsQuerysetTestCase, cls).setUpTestData()
+        super(BaseQuerysetTestCase, cls).setUpTestData()
         cls.facility = Facility.objects.create(name="a")
         cls.learner = FacilityUser.objects.create(
             username="learner", password="password", facility=cls.facility
@@ -340,32 +349,37 @@ class IncompleteDownloadsQuerysetTestCase(TestCase):
         )
         cls.facility.add_admin(cls.admin)
 
-    def _create_resources(self):
+    def _create_resources(self, node_id, available=False):
         parent = ContentNode.objects.create(
             id=uuid.uuid4().hex,
             title="parent",
             kind="topic",
             channel_id=uuid.uuid4().hex,
             content_id=uuid.uuid4().hex,
+            available=available,
         )
         node = ContentNode.objects.create(
-            id=self.admin_request.contentnode_id,
+            id=node_id,
             title="test",
             kind="video",
             parent=parent,
             channel_id=parent.channel_id,
             content_id=uuid.uuid4().hex,
+            available=available,
         )
+        # parent thumbnail
         File.objects.create(
             id=uuid.uuid4().hex,
             contentnode=parent,
+            thumbnail=True,
             local_file=LocalFile.objects.create(
                 id=uuid.uuid4().hex,
-                file_size=100,
-                available=False,
+                file_size=10,
+                available=available,
                 extension="png",
             ),
         )
+        # primary node file
         File.objects.create(
             id=uuid.uuid4().hex,
             contentnode=node,
@@ -373,12 +387,41 @@ class IncompleteDownloadsQuerysetTestCase(TestCase):
             local_file=LocalFile.objects.create(
                 id=uuid.uuid4().hex,
                 file_size=1000,
-                available=False,
+                available=available,
                 extension="mp4",
             ),
         )
+        # secondary node file
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            contentnode=node,
+            preset="low_res_video",
+            local_file=LocalFile.objects.create(
+                id=uuid.uuid4().hex,
+                file_size=100,
+                available=available,
+                extension="mp4",
+            ),
+        )
+        # supplementary node file
+        File.objects.create(
+            id=uuid.uuid4().hex,
+            contentnode=node,
+            preset="document",
+            supplementary=True,
+            local_file=LocalFile.objects.create(
+                id=uuid.uuid4().hex,
+                file_size=33,
+                available=available,
+                extension="pdf",
+            ),
+        )
+        node.refresh_from_db()
+        self.assertEqual(node.files.all().count(), 3)
         return (parent, node)
 
+
+class IncompleteDownloadsQuerysetTestCase(BaseQuerysetTestCase):
     def setUp(self):
         super(IncompleteDownloadsQuerysetTestCase, self).setUp()
         self.admin_request = ContentDownloadRequest.build_for_user(self.admin)
@@ -430,16 +473,16 @@ class IncompleteDownloadsQuerysetTestCase(TestCase):
 
     @mock.patch(_module + "get_device_setting", return_value=True)
     def test_total_size(self, mock_get_device_setting):
-        self._create_resources()
+        self._create_resources(self.admin_request.contentnode_id)
         qs = incomplete_downloads_queryset().filter(has_metadata=True)
         self.assertEqual(
             _total_size(qs),
-            1100,
+            1110,
         )
 
     @mock.patch(_module + "get_device_setting", return_value=True)
     def test_total_size__availability(self, mock_get_device_setting):
-        parent, _ = self._create_resources()
+        parent, _ = self._create_resources(self.admin_request.contentnode_id)
         parent_file = parent.files.first()
         parent_file.local_file.available = True
         parent_file.local_file.save()
@@ -447,7 +490,69 @@ class IncompleteDownloadsQuerysetTestCase(TestCase):
         qs = incomplete_downloads_queryset().filter(has_metadata=True)
         self.assertEqual(
             _total_size(qs),
-            1000,
+            1100,
+        )
+
+
+class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
+    def setUp(self):
+        super(CompletedDownloadsQuerysetTestCase, self).setUp()
+        self.request = ContentDownloadRequest.build_for_user(self.learner)
+        self.request.contentnode_id = uuid.uuid4().hex
+        self.request.status = ContentRequestStatus.Completed
+        self.request.save()
+
+    def test_basic(self):
+        qs = completed_downloads_queryset()
+        self.assertEqual(
+            qs.count(),
+            1,
+        )
+
+    def test_has_metadata__yes(self):
+        _, node = self._create_resources(self.request.contentnode_id)
+        self.assertEqual(node.files.all().count(), 3)
+        qs = completed_downloads_queryset().filter(has_metadata=True)
+        self.assertEqual(
+            qs.count(),
+            1,
+        )
+
+    def test_has_metadata__no(self):
+        qs = completed_downloads_queryset().filter(has_metadata=True)
+        self.assertEqual(
+            qs.count(),
+            0,
+        )
+
+    def test_total_size__not_available(self):
+        _, node = self._create_resources(self.request.contentnode_id)
+
+        qs = completed_downloads_queryset()
+        self.assertEqual(
+            _total_size(qs),
+            0,
+        )
+
+    def test_total_size__available(self):
+        _, node = self._create_resources(self.request.contentnode_id, available=True)
+
+        qs = completed_downloads_queryset()
+        self.assertEqual(
+            _total_size(qs),
+            1110,
+        )
+
+    def test_total_size__partially_available(self):
+        _, node = self._create_resources(self.request.contentnode_id, available=True)
+        low_res_video = node.files.all().get(preset="low_res_video")
+        low_res_video.local_file.available = False
+        low_res_video.local_file.save()
+
+        qs = completed_downloads_queryset()
+        self.assertEqual(
+            _total_size(qs),
+            1010,
         )
 
 
@@ -617,3 +722,200 @@ class PreferredDevicesWithClientTestCase(BaseTestCase):
         peers = list(instance)
         self.assertEqual(len(peers), 2)
         self.assertEqual(len(self.mock_capture_errors), 1)
+
+
+class ProcessContentRequestsTestCase(BaseQuerysetTestCase):
+    def setUp(self):
+        super(ProcessContentRequestsTestCase, self).setUp()
+        self.request = ContentDownloadRequest.build_for_user(self.learner)
+        self.request.contentnode_id = uuid.uuid4().hex
+        self.request.save()
+
+        _, self.node = self._create_resources(self.request.contentnode_id)
+
+        get_free_space_patcher = mock.patch(_module + "get_free_space_for_downloads")
+        self.mock_get_free_space = get_free_space_patcher.start()
+        self.mock_get_free_space.return_value = 2000
+        self.addCleanup(get_free_space_patcher.stop)
+
+        # allow_learner_download_resources
+        get_setting_patcher = mock.patch(_module + "get_device_setting")
+        self.mock_get_setting = get_setting_patcher.start()
+        self.mock_get_setting.return_value = True
+        self.addCleanup(get_setting_patcher.stop)
+
+        process_download_patcher = mock.patch(_module + "process_download_request")
+        self.mock_process_download = process_download_patcher.start()
+        self.addCleanup(process_download_patcher.stop)
+
+        process_content_removal_requests_patcher = mock.patch(
+            _module + "process_content_removal_requests"
+        )
+        self.mock_process_removals = process_content_removal_requests_patcher.start()
+        self.addCleanup(process_content_removal_requests_patcher.stop)
+
+        process_user_downloads_for_removal_patcher = mock.patch(
+            _module + "process_user_downloads_for_removal"
+        )
+        self.mock_process_user_downloads_for_removal = (
+            process_user_downloads_for_removal_patcher.start()
+        )
+        self.addCleanup(process_user_downloads_for_removal_patcher.stop)
+
+        self.qs = incomplete_downloads_queryset()
+
+    def _side_effect_success(self, request):
+        if isinstance(request, (ContentDownloadRequest, ContentRemovalRequest)):
+            request.status = ContentRequestStatus.Completed
+            request.save()
+        else:
+            request.update(status=ContentRequestStatus.Completed)
+        return True
+
+    def _side_effect_fail(self, request):
+        if isinstance(request, (ContentDownloadRequest, ContentRemovalRequest)):
+            request.status = ContentRequestStatus.Failed
+            request.save()
+        else:
+            request.update(status=ContentRequestStatus.Failed)
+        return False
+
+    def _side_effect_delete(self, request):
+        request.delete()
+        return True
+
+    def test_basic(self):
+        self.assertEqual(self.qs.count(), 1)
+        self.mock_process_download.side_effect = self._side_effect_success
+        _process_content_requests(self.qs)
+        self.mock_process_download.assert_called_once_with(self.request)
+
+    def test_fail(self):
+        """
+        Ensure it doesn't loop forever if the request fails
+        """
+        self.assertEqual(self.qs.count(), 1)
+        self.mock_process_download.side_effect = self._side_effect_fail
+        _process_content_requests(self.qs)
+        self.mock_process_download.assert_called_once_with(self.request)
+
+    def test_no_free_space__sync_removal(self):
+        self.assertEqual(self.qs.count(), 1)
+
+        sync_session, _ = self._create_sync_and_network_location()
+        removal = ContentRemovalRequest(
+            facility=self.facility,
+            source_model=Facility.morango_model_name,
+            source_id=self.facility.id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Pending,
+            contentnode_id=uuid.uuid4().hex,
+        )
+        removal.save()
+        self.mock_get_free_space.side_effect = [
+            0,
+            2000,
+        ]
+        self.mock_process_removals.side_effect = self._side_effect_success
+        self.mock_process_download.side_effect = self._side_effect_success
+        _process_content_requests(self.qs)
+        self.mock_process_download.assert_called_once_with(self.request)
+
+    def test_no_free_space__user_removal(self):
+        self.assertEqual(self.qs.count(), 1)
+
+        sync_session, _ = self._create_sync_and_network_location()
+        removal = ContentRemovalRequest.build_for_user(self.learner)
+        removal.contentnode_id = uuid.uuid4().hex
+        removal.save()
+        self.mock_get_free_space.side_effect = [
+            0,
+            2000,
+        ]
+        self.mock_process_removals.side_effect = self._side_effect_success
+        self.mock_process_download.side_effect = self._side_effect_success
+        _process_content_requests(self.qs)
+        self.mock_process_download.assert_called_once_with(self.request)
+
+    def test_no_free_space__user_downloads(self):
+        self.assertEqual(self.qs.count(), 1)
+
+        sync_session, _ = self._create_sync_and_network_location()
+        download = ContentDownloadRequest.build_for_user(self.learner)
+        download.contentnode_id = uuid.uuid4().hex
+        download.status = ContentRequestStatus.Completed
+        download.save()
+        self.mock_get_free_space.side_effect = [
+            0,
+            2000,
+        ]
+        self.mock_process_user_downloads_for_removal.side_effect = partial(
+            self._side_effect_delete, download
+        )
+        self.mock_process_download.side_effect = self._side_effect_success
+        _process_content_requests(self.qs)
+        self.mock_process_download.assert_called_once_with(self.request)
+
+    def test_no_free_space__insufficient(self):
+        self.assertEqual(self.qs.count(), 1)
+
+        self.mock_get_free_space.return_value = 0
+        with self.assertRaises(InsufficientStorage):
+            _process_content_requests(self.qs)
+
+
+class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
+    def setUp(self):
+        super(ProcessContentRemovalRequestsTestCase, self).setUp()
+        self.download = ContentDownloadRequest.build_for_user(self.learner)
+        self.download.contentnode_id = uuid.uuid4().hex
+        self.download.status = ContentRequestStatus.Completed
+        self.download.save()
+
+        self.request = ContentRemovalRequest.build_for_user(self.learner)
+        self.request.contentnode_id = self.download.contentnode_id
+        self.request.save()
+
+        _, self.node = self._create_resources(
+            self.request.contentnode_id, available=True
+        )
+
+        call_command_patcher = mock.patch(_module + "call_command")
+        self.mock_call_command = call_command_patcher.start()
+        self.addCleanup(call_command_patcher.stop)
+
+        self.qs = incomplete_removals_queryset()
+
+    def test_basic(self):
+        self.assertEqual(self.qs.count(), 1)
+        process_content_removal_requests(self.qs)
+        self.mock_call_command.assert_called_once_with(
+            "deletecontent",
+            self.node.channel_id,
+            node_ids=[self.request.contentnode_id],
+            force_delete=True,
+        )
+        self.assertEqual(self.qs.count(), 0)
+        self.assertEqual(ContentDownloadRequest.objects.count(), 0)
+
+    def test_basic__unavailable(self):
+        self.assertEqual(self.qs.count(), 1)
+        self.node.available = False
+        self.node.save()
+
+        process_content_removal_requests(self.qs)
+        self.mock_call_command.assert_not_called()
+        # should be marked completed
+        self.assertEqual(self.qs.count(), 0)
+        self.assertEqual(ContentDownloadRequest.objects.count(), 1)
+
+    def test_basic__admin_imported(self):
+        self.assertEqual(self.qs.count(), 1)
+        self.node.admin_imported = True
+        self.node.save()
+
+        process_content_removal_requests(self.qs)
+        self.mock_call_command.assert_not_called()
+        # should be marked completed
+        self.assertEqual(self.qs.count(), 0)
+        self.assertEqual(ContentDownloadRequest.objects.count(), 1)

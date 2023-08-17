@@ -148,7 +148,9 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
 
     :param dataset_id: The UUID of the dataset
+    :type dataset_id: str
     :param transfer_session: The sync's transfer session model, if available
+    :type transfer_session: morango.models.core.TransferSession
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
@@ -180,7 +182,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
         # so we can use the push/pull direction to determine the source instance ID
         source_instance_id = (
             sync_session.client_instance_id
-            if transfer_session.is_push
+            if transfer_session.push
             else sync_session.server_instance_id
         )
 
@@ -319,10 +321,11 @@ def _total_size(*querysets):
     return total_size
 
 
-def _node_total_size(contentnode_id, available=False):
+def _node_total_size(contentnode_id, thumbnail=False, available=False):
     """
     Returns a subquery to determine the total size of needed files not yet imported
     :param contentnode_id: A contentnode ID or OuterRef to ID field
+    :param thumbnail: Whether to filter on thumbnails
     :param available: Whether to filter on available files
     """
     return Coalesce(
@@ -330,9 +333,15 @@ def _node_total_size(contentnode_id, available=False):
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
+                thumbnail=thumbnail,
+                supplementary=False,
             )
+            .values(
+                _no_group_by=Value(0)
+            )  # dummy value to allow aggregation, without group by
             .annotate(total_size=Sum("local_file__file_size"))
-            .values("total_size"),
+            .values("total_size")
+            .order_by(),
             output_field=BigIntegerField(),
         ),
         Value(0),
@@ -354,9 +363,14 @@ def _total_size_annotation(available=False):
         Coalesce(
             Subquery(
                 ContentNode.objects.filter(id=OuterRef("contentnode_id"))
+                .values(
+                    _no_group_by=Value(0)
+                )  # dummy value to allow aggregation, without group by
                 .annotate(
                     parent_total_size=_node_total_size(
-                        OuterRef("parent_id"), available=available
+                        OuterRef("parent_id"),
+                        thumbnail=True,
+                        available=available,
                     )
                 )
                 .values("parent_total_size"),
@@ -398,7 +412,7 @@ def incomplete_downloads_queryset():
         )
     )
     # if we're not allowing learner downloads, filter them out
-    if not get_device_setting("allow_learner_download_resources"):
+    if not get_device_setting("allow_learner_download_resources", default=False):
         qs = qs.exclude(is_learner_download=True)
     return qs
 
@@ -409,7 +423,7 @@ def completed_downloads_queryset():
     well as the total import size if it does have metadata
     """
     return (
-        ContentDownloadRequest.objects.filter(status__in=ContentRequestStatus.Completed)
+        ContentDownloadRequest.objects.filter(status=ContentRequestStatus.Completed)
         .order_by("requested_at")
         .annotate(
             has_metadata=Exists(
@@ -431,6 +445,15 @@ class InsufficientStorage(Exception):
 class NoPeerAvailable(Exception):
     """
     Dedicated exception with which we can halt content request processing when we don't have a peer
+    """
+
+    pass
+
+
+class AlreadyAvailable(Exception):
+    """
+    Dedicated exception with which we can halt content request processing when we detect
+    that the content is already available
     """
 
     pass
@@ -580,16 +603,16 @@ def process_metadata_import(incomplete_downloads_without_metadata):
         )
 
 
-def _process_content_requests(incomplete_downloads):
+def incomplete_removals_queryset():
     """
-    Processes content requests, both for downloading and removing content
+    Produces a queryset of incomplete ContentRemovalRequests that are not admin imported and are
+    applicable for removal (does not have another download request for the same content node)
+    :return: A queryset of incomplete ContentRemovalRequests that are not admin imported
+    :rtype: django.db.models.QuerySet
     """
-    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
-
-    # obtain the incomplete removals, that do not have an associated download
-    incomplete_removals = (
+    return (
         ContentRemovalRequest.objects.annotate(
-            has_download=Exists(
+            has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
                 ).exclude(
@@ -610,11 +633,21 @@ def _process_content_requests(incomplete_downloads):
         )
         .exclude(
             # hoping using exclude creates SQL like `NOT EXISTS`
-            has_download=True,
+            has_other_download=True,
             is_admin_imported=True,
         )
         .order_by("requested_at")
     )
+
+
+def _process_content_requests(incomplete_downloads):
+    """
+    Processes content requests, both for downloading and removing content
+    """
+    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
+
+    # obtain the incomplete removals, that do not have an associated download
+    incomplete_removals = incomplete_removals_queryset()
     incomplete_sync_removals = incomplete_removals.filter(
         reason=ContentRequestReason.SyncInitiated
     )
@@ -626,6 +659,9 @@ def _process_content_requests(incomplete_downloads):
     )
     # track failed so we can exclude them from the loop
     failed_ids = []
+    has_processed_sync_removals = False
+    has_processed_user_removals = False
+    has_processed_user_downloads = False
     qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
@@ -647,18 +683,21 @@ def _process_content_requests(incomplete_downloads):
                     free_space
                 )
             )
-            if incomplete_sync_removals.exists():
+            if not has_processed_sync_removals and incomplete_sync_removals.exists():
                 # process, then repeat
+                has_processed_sync_removals = True
                 logger.info("Processing sync-initiated content removal requests")
                 process_content_removal_requests(incomplete_sync_removals)
                 continue
-            if incomplete_user_removals.exists():
+            if not has_processed_user_removals and incomplete_user_removals.exists():
                 # process, then repeat
+                has_processed_user_removals = True
                 logger.info("Processing user-initiated content removal requests")
                 process_content_removal_requests(incomplete_user_removals)
                 continue
-            if complete_user_downloads.exists():
+            if not has_processed_user_downloads and complete_user_downloads.exists():
                 # process, then repeat
+                has_processed_user_downloads = True
                 process_user_downloads_for_removal()
                 continue
             raise InsufficientStorage(
@@ -673,18 +712,6 @@ def process_download_request(download_request):
     Processes a download request
     :type download_request: ContentDownloadRequest
     """
-    peer_sets = [
-        # we do not need to filter by version, since content import should work for any
-        PreferredDevices.build_from_sync_sessions(),
-    ]
-
-    # prepend the preferred by source instance id, if it exists
-    if download_request.source_instance_id:
-        # we do not need to filter by version, since content import should work for any
-        peer_sets.insert(
-            0, PreferredDevices(instance_ids=[download_request.source_instance_id])
-        )
-
     logger.info(
         "Processing content import request for node {}".format(
             download_request.contentnode_id
@@ -696,14 +723,28 @@ def process_download_request(download_request):
 
     try:
         # by this point we should have a ContentNode
-        channel_id = ContentNode.objects.get(
-            pk=download_request.contentnode_id
-        ).channel_id
+        node = ContentNode.objects.get(pk=download_request.contentnode_id)
+        if node.available:
+            raise AlreadyAvailable(
+                "ContentNode {} is already available".format(node.id)
+            )
+
+        peer_sets = [
+            # we do not need to filter by version, since content import should work for any
+            PreferredDevices.build_from_sync_sessions(),
+        ]
+
+        # prepend the preferred by source instance id, if it exists
+        if download_request.source_instance_id:
+            # we do not need to filter by version, since content import should work for any
+            peer_sets.insert(
+                0, PreferredDevices(instance_ids=[download_request.source_instance_id])
+            )
 
         # we try to import from the source instance first
         for peer in chain(*peer_sets):
             import_manager = ContentDownloadRequestResourceImportManager(
-                channel_id,
+                node.channel_id,
                 peer_id=peer.id,
                 baseurl=peer.base_url,
                 node_ids=[download_request.contentnode_id],
@@ -728,15 +769,22 @@ def process_download_request(download_request):
             raise NoPeerAvailable(
                 "Unable to import {} from peers".format(download_request.contentnode_id)
             )
-
-        download_request.status = ContentRequestStatus.Completed
-        download_request.save()
-        return True
+    except AlreadyAvailable as e:
+        # do nothing, since the content is already available
+        logger.debug(str(e))
     except Exception as e:
-        logger.exception(e)
+        if isinstance(e, NoPeerAvailable):
+            logger.warning(e)
+        else:
+            logger.exception(e)
+
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
         return False
+
+    download_request.status = ContentRequestStatus.Completed
+    download_request.save()
+    return True
 
 
 def process_user_downloads_for_removal():
@@ -749,7 +797,7 @@ def process_user_downloads_for_removal():
             status=ContentRequestStatus.Completed,
         )
         .annotate(
-            total_size=_total_size_annotation(),
+            total_size=_total_size_annotation(available=True),
             has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
@@ -787,6 +835,30 @@ def process_user_downloads_for_removal():
     )
 
 
+def _remove_corresponding_download_requests(removal_qs):
+    """
+    Removes any corresponding download requests for the given removal requests
+    :param removal_qs: a ContentRemovalRequest queryset
+    :type removal_qs: django.db.models.QuerySet
+    """
+    return (
+        ContentDownloadRequest.objects.annotate(
+            has_removal=Exists(
+                # completed, same node, same requester (model+source), and requested before
+                removal_qs.filter(
+                    contentnode_id=OuterRef("contentnode_id"),
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                    status=ContentRequestStatus.Completed,
+                )
+            )
+        )
+        .filter(status=ContentRequestStatus.Completed, has_removal=True)
+        .delete()
+    )
+
+
 def process_content_removal_requests(queryset):
     """
     Garbage collects content requests marked for removal (removed_at is not null)
@@ -796,32 +868,45 @@ def process_content_removal_requests(queryset):
     """
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
-        admin_imported=False,
         id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
         available=True,
+    ).exclude(
+        # could be null, so we exclude True instead of filtering False
+        admin_imported=True,
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
     for channel_id in channel_ids:
-        contentnode_ids = removable_nodes.filter(channel_id=channel_id).values_list(
-            "id", flat=True
+        # cast to list immediately to avoid issues with lazy evaluation
+        contentnode_ids = list(
+            removable_nodes.filter(channel_id=channel_id).values_list("id", flat=True)
         )
-        channel_requests = queryset.filter(contentnode_id__in=contentnode_ids)
+        # queryset unfiltered by status
+        channel_requests = ContentRemovalRequest.objects.filter(
+            id__in=list(
+                queryset.filter(contentnode_id__in=contentnode_ids).values_list(
+                    "id", flat=True
+                )
+            ),
+        )
         channel_requests.update(status=ContentRequestStatus.InProgress)
         try:
             call_command(
                 "deletecontent",
                 channel_id,
-                node_ids=list(contentnode_ids),
+                node_ids=contentnode_ids,
                 force_delete=True,
             )
+            # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)
+            # finally, delete all corresponding download requests
+            _remove_corresponding_download_requests(channel_requests)
         except Exception as e:
             logger.exception(e)
             channel_requests.update(status=ContentRequestStatus.Failed)
 
-    # lastly, update all incomplete as completed, since they must have been excluded
-    # as already unavailable
-    queryset.filter(status__in=INCOMPLETE_STATUSES).update(
-        status=ContentRequestStatus.Completed
-    )
+    # lastly, remove any downloads for those we're unable to process (admin imported) or are
+    # already unavailable and update them completed
+    remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
+    _remove_corresponding_download_requests(remaining_pending)
+    remaining_pending.update(status=ContentRequestStatus.Completed)
