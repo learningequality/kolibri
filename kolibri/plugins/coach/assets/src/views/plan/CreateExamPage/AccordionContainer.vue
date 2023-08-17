@@ -50,13 +50,18 @@
         </KGridItem>
       </KGrid>
 
-      <DragContainer :items="placeholderList">
+      <DragContainer
+        :items="placeholderList"
+      >
         <transition-group
           tag="div"
           name="list"
           class="wrapper"
         >
-          <AccordionItem v-for="item in placeholderList" :key="item" />
+          <AccordionItem
+            v-for="item in placeholderList"
+            :key="item"
+          />
         </transition-group>
       </DragContainer>
 
@@ -68,26 +73,26 @@
 
 <script>
 
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  // import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import CoreTable from 'kolibri.coreVue.components.CoreTable';
+  // import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  // import Draggable from 'kolibri.coreVue.components.Draggable';
+  // import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import AccordionItem from './AccordionItem.vue';
 
   export default {
     name: 'AccordionContainer',
     components: {
-      DragSortWidget,
+      // DragSortWidget,
       DragContainer,
-      DragHandle,
-      Draggable,
-      CoreTable,
+      // DragHandle,
+      // Draggable,
+      // CoreTable,
       AccordionItem,
     },
     computed: {
       placeholderList() {
-        return [{}, {}];
+        return [{}, {}, {}, {}];
       },
     },
     $trs: {
@@ -103,6 +108,7 @@
   };
 
 </script>
+
 
 <style scoped>
 .question-list-style{

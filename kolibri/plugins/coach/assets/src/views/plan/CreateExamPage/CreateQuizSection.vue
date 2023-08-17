@@ -31,7 +31,7 @@
 
     <p>{{ $tr('addSectionsDescription') }}</p>
 
-    <hr id="bottom-border">
+    <hr class="bottom-border">
     <br>
 
     <KGrid>
@@ -56,7 +56,7 @@
       </KGridItem>
     </KGrid>
 
-    <hr id="bottom-border">
+    <hr class="bottom-border">
 
 
     <AccordionContainer
@@ -70,8 +70,10 @@
       <div class="question-mark-layout">
         <span id="help-icon-style">?</span>
       </div>
-
-      <p class="no-question-style">
+      
+      <p 
+        class="no-question-style"
+      >
         {{ $tr('noQuestionsLabel') }}
       </p>
 
@@ -137,6 +139,7 @@
 
 </script>
 
+
 <style lang="scss"  scoped>
 
   .style_icon {
@@ -149,7 +152,7 @@
     width: 902px;
   }
 
-  #bottom-border {
+  .bottom-border {
     margin-bottom: 10px;
     line-height: 1.2;
     color: #dedede;
@@ -157,8 +160,8 @@
 
   .no-question-layout {
     gap: 40px;
-    width: fill (952px);
-    height: fill (265px);
+    width: 952px;
+    height: 265px;
     padding: 40px;
     text-align: center;
     background-color: #fafafa;

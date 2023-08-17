@@ -115,10 +115,6 @@
     },
 
     $trs: {
-      selectAllLabel: {
-        message: 'Select all',
-        context: 'Label indicates that all available options can be chosen at once.',
-      },
       questionPhrase: {
         message: 'Select the word that has the following vowel sound.',
         context: 'Placholder for the question',
@@ -139,6 +135,7 @@
   };
 
 </script>
+
 
 <style scoped>
     .icon-size{
