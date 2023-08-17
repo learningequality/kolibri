@@ -13,6 +13,7 @@ class KolibriRecipe(PythonRecipe):
     # Needed because our setup.py depends on setuptools
     # See https://github.com/kivy/python-for-android/issues/2078#issuecomment-754205392
     call_hostpython_via_targetpython = False
+    depends = ["python3", "setuptools"]
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
