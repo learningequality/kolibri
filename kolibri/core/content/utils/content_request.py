@@ -321,10 +321,11 @@ def _total_size(*querysets):
     return total_size
 
 
-def _node_total_size(contentnode_id, available=False):
+def _node_total_size(contentnode_id, thumbnail=False, available=False):
     """
     Returns a subquery to determine the total size of needed files not yet imported
     :param contentnode_id: A contentnode ID or OuterRef to ID field
+    :param thumbnail: Whether to filter on thumbnails
     :param available: Whether to filter on available files
     """
     return Coalesce(
@@ -332,9 +333,15 @@ def _node_total_size(contentnode_id, available=False):
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
+                thumbnail=thumbnail,
+                supplementary=False,
             )
+            .values(
+                _no_group_by=Value(0)
+            )  # dummy value to allow aggregation, without group by
             .annotate(total_size=Sum("local_file__file_size"))
-            .values("total_size"),
+            .values("total_size")
+            .order_by(),
             output_field=BigIntegerField(),
         ),
         Value(0),
@@ -356,9 +363,14 @@ def _total_size_annotation(available=False):
         Coalesce(
             Subquery(
                 ContentNode.objects.filter(id=OuterRef("contentnode_id"))
+                .values(
+                    _no_group_by=Value(0)
+                )  # dummy value to allow aggregation, without group by
                 .annotate(
                     parent_total_size=_node_total_size(
-                        OuterRef("parent_id"), available=available
+                        OuterRef("parent_id"),
+                        thumbnail=True,
+                        available=available,
                     )
                 )
                 .values("parent_total_size"),
@@ -411,7 +423,7 @@ def completed_downloads_queryset():
     well as the total import size if it does have metadata
     """
     return (
-        ContentDownloadRequest.objects.filter(status__in=ContentRequestStatus.Completed)
+        ContentDownloadRequest.objects.filter(status=ContentRequestStatus.Completed)
         .order_by("requested_at")
         .annotate(
             has_metadata=Exists(
@@ -591,16 +603,16 @@ def process_metadata_import(incomplete_downloads_without_metadata):
         )
 
 
-def _process_content_requests(incomplete_downloads):
+def incomplete_removals_queryset():
     """
-    Processes content requests, both for downloading and removing content
+    Produces a queryset of incomplete ContentRemovalRequests that are not admin imported and are
+    applicable for removal (does not have another download request for the same content node)
+    :return: A queryset of incomplete ContentRemovalRequests that are not admin imported
+    :rtype: django.db.models.QuerySet
     """
-    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
-
-    # obtain the incomplete removals, that do not have an associated download
-    incomplete_removals = (
+    return (
         ContentRemovalRequest.objects.annotate(
-            has_download=Exists(
+            has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
                 ).exclude(
@@ -621,11 +633,21 @@ def _process_content_requests(incomplete_downloads):
         )
         .exclude(
             # hoping using exclude creates SQL like `NOT EXISTS`
-            has_download=True,
+            has_other_download=True,
             is_admin_imported=True,
         )
         .order_by("requested_at")
     )
+
+
+def _process_content_requests(incomplete_downloads):
+    """
+    Processes content requests, both for downloading and removing content
+    """
+    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
+
+    # obtain the incomplete removals, that do not have an associated download
+    incomplete_removals = incomplete_removals_queryset()
     incomplete_sync_removals = incomplete_removals.filter(
         reason=ContentRequestReason.SyncInitiated
     )
@@ -637,14 +659,15 @@ def _process_content_requests(incomplete_downloads):
     )
     # track failed so we can exclude them from the loop
     failed_ids = []
+    has_processed_sync_removals = False
+    has_processed_user_removals = False
+    has_processed_user_downloads = False
     qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
     while qs.exists():
         free_space = get_free_space_for_downloads(
-            completed_size=_total_size(
-                completed_downloads_queryset().filter(has_metadata=True)
-            )
+            completed_size=_total_size(completed_downloads_queryset())
         )
 
         # grab the next request that will fit within current free space
@@ -660,18 +683,21 @@ def _process_content_requests(incomplete_downloads):
                     free_space
                 )
             )
-            if incomplete_sync_removals.exists():
+            if not has_processed_sync_removals and incomplete_sync_removals.exists():
                 # process, then repeat
+                has_processed_sync_removals = True
                 logger.info("Processing sync-initiated content removal requests")
                 process_content_removal_requests(incomplete_sync_removals)
                 continue
-            if incomplete_user_removals.exists():
+            if not has_processed_user_removals and incomplete_user_removals.exists():
                 # process, then repeat
+                has_processed_user_removals = True
                 logger.info("Processing user-initiated content removal requests")
                 process_content_removal_requests(incomplete_user_removals)
                 continue
-            if complete_user_downloads.exists():
+            if not has_processed_user_downloads and complete_user_downloads.exists():
                 # process, then repeat
+                has_processed_user_downloads = True
                 process_user_downloads_for_removal()
                 continue
             raise InsufficientStorage(
@@ -771,7 +797,7 @@ def process_user_downloads_for_removal():
             status=ContentRequestStatus.Completed,
         )
         .annotate(
-            total_size=_total_size_annotation(),
+            total_size=_total_size_annotation(available=True),
             has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
@@ -823,12 +849,12 @@ def _remove_corresponding_download_requests(removal_qs):
                     contentnode_id=OuterRef("contentnode_id"),
                     source_model=OuterRef("source_model"),
                     source_id=OuterRef("source_id"),
-                    requested_at__lte=OuterRef("requested_at"),
+                    requested_at__gte=OuterRef("requested_at"),
                     status=ContentRequestStatus.Completed,
                 )
             )
         )
-        .filter(has_removal=True)
+        .filter(status=ContentRequestStatus.Completed, has_removal=True)
         .delete()
     )
 
@@ -851,16 +877,24 @@ def process_content_removal_requests(queryset):
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
     for channel_id in channel_ids:
-        contentnode_ids = removable_nodes.filter(channel_id=channel_id).values_list(
-            "id", flat=True
+        # cast to list immediately to avoid issues with lazy evaluation
+        contentnode_ids = list(
+            removable_nodes.filter(channel_id=channel_id).values_list("id", flat=True)
         )
-        channel_requests = queryset.filter(contentnode_id__in=contentnode_ids)
+        # queryset unfiltered by status
+        channel_requests = ContentRemovalRequest.objects.filter(
+            id__in=list(
+                queryset.filter(contentnode_id__in=contentnode_ids).values_list(
+                    "id", flat=True
+                )
+            ),
+        )
         channel_requests.update(status=ContentRequestStatus.InProgress)
         try:
             call_command(
                 "deletecontent",
                 channel_id,
-                node_ids=list(contentnode_ids),
+                node_ids=contentnode_ids,
                 force_delete=True,
             )
             # mark all as completed
