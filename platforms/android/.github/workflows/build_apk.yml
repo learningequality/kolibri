@@ -131,7 +131,7 @@ jobs:
         RELEASE_KEYALIAS_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD }}
       run: |
         echo -n "${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}" | base64 --decode > production.keystore
-        echo "RELEASE_KEYSTORE=$(realpath production.keystore)" >> "$GITHUB_ENV"
+        export RELEASE_KEYSTORE=$(realpath production.keystore)
         make kolibri.aab
         # Upload to Play Store - this will also download the universal APK into the dist folder
         make playstore-upload
@@ -143,7 +143,7 @@ jobs:
         RELEASE_KEYALIAS_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYALIAS_PASSWORD }}
       run: |
         echo -n "${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE }}" | base64 --decode > development.keystore
-        echo "RELEASE_KEYSTORE=$(realpath development.keystore)" >> "$GITHUB_ENV"
+        export RELEASE_KEYSTORE=$(realpath development.keystore)
         make kolibri.apk
     - name: Get APK filename
       id: get-apk-filename
