@@ -83,13 +83,10 @@ def _local_event_handler(func):
 
 
 @_local_event_handler
-def pre_transfer_handler(**kwargs):
+def _pre_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
-            logger.debug(
-                "Invoking sync hook {}.pre_transfer".format(hook.__class__.__name__)
-            )
             hook.pre_transfer(**kwargs)
         except Exception as e:
             logger.error(
@@ -99,16 +96,18 @@ def pre_transfer_handler(**kwargs):
 
 
 @_local_event_handler
-def post_transfer_handler(**kwargs):
+def _post_transfer_handler(**kwargs):
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
-            logger.debug(
-                "Invoking sync hook {}.post_transfer".format(hook.__class__.__name__)
-            )
             hook.post_transfer(**kwargs)
         except Exception as e:
             logger.error(
                 "{}.post_transfer hook failed".format(hook.__class__.__name__),
                 exc_info=e,
             )
+
+
+def register_sync_event_handlers(session_controller):
+    session_controller.signals.initializing.completed.connect(_pre_transfer_handler)
+    session_controller.signals.cleanup.completed.connect(_post_transfer_handler)
