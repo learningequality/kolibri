@@ -73,6 +73,12 @@ jobs:
       with:
         repository: learningequality/kolibri-installer-android
         ref: ${{ inputs.ref }}
+    - name: Get SHA of current commit
+      id: get-commit
+      # Note that we do this, so that we get the same commit regardless
+      # of whether this is being run from the local repository with workflow_dispatch
+      # or from another repository with workflow_call.
+      run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
     - name: Set up Python 3.9
       uses: actions/setup-python@v4
       with:
@@ -100,8 +106,11 @@ jobs:
         # aggressive in clearing the cache whenever any file changes
         # in the repository, especially as we commit files to this folder
         # too, so we don't want the cache to override these files.
+        # We achieve this by just caching on the currently checked out commit.
+        # Every time we update this repository, this commit will change,
+        # but repeated workflow calls for this commit will use the cache.
         path: ./python-for-android
-        key: ${{ runner.os }}-python-for-android-${{ hashFiles('*') }}
+        key: ${{ runner.os }}-python-for-android-${{ steps.get-commit.outputs.sha }}
         restore-keys: |
           ${{ runner.os }}-python-for-android-
     - uses: actions/cache@v3
