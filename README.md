@@ -20,6 +20,16 @@ This repository is for software developers wishing to contribute to Kolibri. If 
 
 Developed with and for the community by [Learning Equality](https://learningequality.org/).
 
+## How can I use it?
+
+Kolibri is [available for download](https://learningequality.org/download/) from our website.
+
+## How do I get help or give feedback?
+
+You can ask questions, make suggestions, and report issues in the [community forums](https://community.learningequality.org/).
+
+If you have found a bug and are comfortable using Github and Markdown, you can create a [Github issue](https://github.com/learningequality/kolibri/issues) following the instructions in the issue template.
+
 <!-- Also update CONTRIBUTING.md (duplicate) -->
 ## How can I contribute?
 
@@ -37,14 +47,3 @@ Note that in times of increased contributions activity, it may take us a few day
 - Visit [Kolibri GitHub Discussions](https://github.com/learningequality/kolibri/discussions) to ask about anything related to contributing to Kolibri, troubleshoot development server issues, or connect with other contributors.
 
 *Thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference.*
-
-## How can I use it?
-
-Kolibri is [available for download](https://learningequality.org/download/) from our website.
-
-
-## How do I get help or give feedback?
-
-You can ask questions, make suggestions, and report issues in the [community forums](https://community.learningequality.org/).
-
-If you have found a bug and are comfortable using Github and Markdown, you can create a [Github issue](https://github.com/learningequality/kolibri/issues) following the instructions in the issue template.
