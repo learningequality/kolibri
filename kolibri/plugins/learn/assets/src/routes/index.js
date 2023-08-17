@@ -52,7 +52,7 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      if (get(isUserLoggedIn)) {
+      if (get(isUserLoggedIn) && get(channels).length) {
         return router.replace({ name: PageNames.HOME });
       }
       return router.replace({ name: PageNames.LIBRARY });
