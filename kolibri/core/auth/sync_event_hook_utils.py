@@ -108,6 +108,12 @@ def _post_transfer_handler(**kwargs):
             )
 
 
-def register_sync_event_handlers(session_controller):
-    session_controller.signals.initializing.completed.connect(_pre_transfer_handler)
-    session_controller.signals.cleanup.completed.connect(_post_transfer_handler)
+def register_sync_event_handlers(signals):
+    """
+    Attaches the pre and post transfer handlers to the morango session controller signals.
+
+    :param signals: The signals object from the morango session controller
+    :type signals: morango.sync.controller.SessionControllerSignals
+    """
+    signals.initializing.started.connect(_pre_transfer_handler)
+    signals.cleanup.completed.connect(_post_transfer_handler)

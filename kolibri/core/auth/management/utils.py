@@ -1,6 +1,7 @@
 """
 Utility methods for syncing.
 """
+import copy
 import getpass
 import json
 import logging
@@ -15,6 +16,7 @@ from morango.models import Certificate
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
+from morango.sync.controller import SessionControllerSignals
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
@@ -399,7 +401,9 @@ class MorangoSyncCommand(AsyncCommand):
         )
 
         client_cert = sync_session_client.sync_session.client_certificate
-        register_sync_event_handlers(sync_session_client.controller)
+        # we create a custom signals, so we can fire them outside of transaction blocks
+        custom_signals = SessionControllerSignals()
+        register_sync_event_handlers(custom_signals)
 
         filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
         dataset_id = scope_params.get("dataset_id")
@@ -432,6 +436,7 @@ class MorangoSyncCommand(AsyncCommand):
                     sync_session_client,
                     noninteractive,
                     pull_filter,
+                    custom_signals,
                 )
                 # and push our own data to server
             if not no_push:
@@ -439,6 +444,7 @@ class MorangoSyncCommand(AsyncCommand):
                     sync_session_client,
                     noninteractive,
                     push_filter,
+                    custom_signals,
                 )
 
             if not no_provision:
@@ -494,16 +500,32 @@ class MorangoSyncCommand(AsyncCommand):
         if self.is_cancelled() and (not self.job or self.job.cancellable):
             raise UserCancelledError()
 
+    def _fire_signal_with_context_clone(self, signal, context, sync_filter=None):
+        """
+        Adding the sync_filter more than once raises an error
+
+        :type signal: morango.sync.utils.SyncSignal
+        :type context: morango.sync.context.CompositeSessionContext
+        :type sync_filter: Filter|str
+        """
+        context_clone = copy.deepcopy(context)
+        if sync_filter:
+            # context_clone.filter = sync_filter
+            context_clone._update_attrs(sync_filter=sync_filter)
+        signal.fire(context=context_clone)
+
     def _pull(
         self,
         sync_session_client,
         noninteractive,
         sync_filter,
+        custom_signals,
     ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type sync_filter: Filter
+        :type custom_signals: SessionControllerSignals
         """
         sync_client = sync_session_client.get_pull_client()
         sync_client.signals.queuing.connect(self._raise_cancel)
@@ -533,22 +555,31 @@ class MorangoSyncCommand(AsyncCommand):
             noninteractive,
         )
 
+        # update sync filter manually because sync hooks connected to signals need it,
+        # see how `sync_client.initialize` does this
+        self._fire_signal_with_context_clone(
+            custom_signals.initializing.started, sync_client.context, sync_filter
+        )
         sync_client.initialize(sync_filter)
 
         sync_client.run()
         with self._lock():
             sync_client.finalize()
+        # fire completed signal outside of transaction block
+        custom_signals.cleanup.completed.fire(context=sync_client.context)
 
     def _push(
         self,
         sync_session_client,
         noninteractive,
         sync_filter,
+        custom_signals,
     ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type sync_filter: Filter
+        :type custom_signals: SessionControllerSignals
         """
         sync_client = sync_session_client.get_push_client()
         sync_client.signals.transferring.connect(self._raise_cancel)
@@ -577,6 +608,13 @@ class MorangoSyncCommand(AsyncCommand):
             noninteractive,
         )
 
+        # update sync filter manually because sync hooks connected to signals need it,
+        # see how `sync_client.initialize` does this
+        # fire signal outside of transaction block
+        self._fire_signal_with_context_clone(
+            custom_signals.initializing.started, sync_client.context, sync_filter
+        )
+
         with self._lock():
             sync_client.initialize(sync_filter)
 
@@ -589,6 +627,8 @@ class MorangoSyncCommand(AsyncCommand):
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
         sync_client.finalize()
+        # fire completed signal
+        custom_signals.cleanup.completed.fire(context=sync_client.context)
 
     def _session_tracker_adapter(self, signal_group, noninteractive):
         """

@@ -19,4 +19,4 @@ class KolibriAuthConfig(AppConfig):
         )  # noqa: F401
         from morango.api.viewsets import session_controller  # noqa: F401
 
-        register_sync_event_handlers(session_controller)
+        register_sync_event_handlers(session_controller.signals)
