@@ -401,12 +401,14 @@
   }
 
   .active-section {
+    margin-bottom: -8px;
     color: #996189;
     border-bottom: 1px solid #996189;
   }
 
   .add-section-button {
     float: right;
+    margin-bottom: -8px;
     background-color: #f5f5f5;
   }
 
