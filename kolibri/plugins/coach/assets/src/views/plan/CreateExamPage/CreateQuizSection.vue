@@ -139,7 +139,7 @@
                       <DragHandle>
                         <!-- FIXME: Needs vertically centered -->
                         <KIcon
-                          class="icon-size"
+                          class="drag-icon icon-size"
                           icon="dragVertical"
                         />
                       </DragHandle>
@@ -182,7 +182,7 @@
                 v-if="isItemExpanded(item.id)"
                 #content=""
               >
-                <div>
+                <div class="accordion-detail-container">
                   <KGrid>
                     <KGridItem :layout12="{ span: 8 }">
                       <p>{{ $tr('questionPhrase') }}</p>
@@ -441,6 +441,14 @@
   .right-alignment-style {
     float: right;
     margin-top: 10px;
+  }
+
+  .drag-icon {
+    margin-top: 14px;
+  }
+
+  .accordion-detail-container {
+    margin-left: 35px;
   }
 
 </style>
