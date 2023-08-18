@@ -106,7 +106,6 @@
                       v-if="windowIsSmall"
                       icon="wifi"
                       class="wifi-svg"
-
                     />
                   </span>
                   &nbsp;&nbsp;
@@ -470,7 +469,7 @@
         }
       },
       showingAllLibrariesLabel() {
-        let label = this.$tr('showingAllLibraries');
+        const label = this.$tr('showingAllLibraries');
         return label;
       },
       studioId() {
@@ -689,10 +688,9 @@
     font-size: 16px;
   }
 
-  .wifi-svg{
+  .wifi-svg {
+    top: 0;
     transform: scale(1.5);
-    top:0px;
-
   }
 
 </style>
