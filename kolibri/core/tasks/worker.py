@@ -69,10 +69,11 @@ class Worker(object):
         # First cancel all running jobs
         # Coerce to a list, as otherwise the iterable can change size
         # during iteration, as jobs are cancelled and removed from the mapping
-        job_ids = list(self.future_job_mapping.keys())
-        for job_id in job_ids:
-            logger.info("Canceling job id {}.".format(job_id))
-            self.cancel(job_id)
+        for job in self.storage.get_running_jobs():
+            logger.info("Canceling job id {}.".format(job.job_id))
+            self.storage.mark_job_as_canceling(job.job_id)
+            if self.cancel(job.job_id):
+                self.storage.mark_job_as_canceled(job.job_id)
         # Now shutdown the workers
         self.workers.shutdown(wait=wait)
 
@@ -96,9 +97,11 @@ class Worker(object):
     def shutdown(self, wait=True):
         logger.info("Asking job schedulers to shut down.")
         self.job_checker.stop()
-        self.shutdown_workers(wait=wait)
+        # Wait for the job checker to finish
+        # before attempting to pause any running jobs
         if wait:
             self.job_checker.join()
+        self.shutdown_workers(wait=wait)
 
     def start_job_checker(self):
         """
