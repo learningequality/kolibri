@@ -399,16 +399,14 @@
         }
       },
       channelsToDisplay() {
-        return this.windowIsSmall ? 3 : 7;
+        return this.windowIsSmall ? 3 : 5;
       },
       devicesWithChannels() {
         //display Kolibri studio for superusers only
-        return cloneDeep(this.devices)
-        .filter(device => device.channels?.length > 0)
-        .map(device => ({
-          ...device,
-          channels: device.channels.slice(0, 5), 
-        }));
+        return cloneDeep(this.devices).filter(device => {
+          device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
+          return device.channels?.length > 0;
+        });
       },
       devicesWithChannelsExist() {
         return this.devicesWithChannels.length > 0;
