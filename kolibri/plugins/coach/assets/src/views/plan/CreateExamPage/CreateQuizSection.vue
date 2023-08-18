@@ -9,7 +9,7 @@
       >
         <KIcon
           icon="quiz"
-          class="style_icon"
+          class="style-icon"
         />
       </KGridItem>
 
@@ -58,20 +58,181 @@
 
     <hr class="bottom-border">
 
+    <div v-if="isQuestionAvailable">
+      <KGrid
+        class="question-row"
+      >
+        <KGridItem
+          :layout12="{ span: 6 }"
+        >
+          <div class="left-column-alignment-style">
+            <div>
+              <p>
+                <KCheckbox />
+              </p>
+            </div>
 
-    <AccordionContainer
-      v-if="isQuestionAvailable"
-    />
+            <div>
+              <p>{{ $tr('selectAllLabel') }}</p>
+            </div>
+          </div>
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span: 6 }"
+        >
+          <div class="right-alignment-style">
+            <KGrid>
+              <KGridItem :layout12="{ span: 4 }">
+                <div style="max-height:5px">
+                  <KIcon class="icon-size" icon="chevronDown" />
+                  <KIcon class="icon-size" icon="chevronUp" />
+                </div>
+
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="refresh"
+                />
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="trash"
+                />
+              </KGridItem>
+            </KGrid>
+          </div>
+        </KGridItem>
+
+      </KGrid>
+
+      <AccordionContainer
+        :items="placeholderList"
+      >
+
+        <template
+          #default="{ isItemExpanded, toggleItemState }"
+        >
+          <div
+            v-for="item in placeholderList"
+            :key="item.id"
+          >
+            <AccordionItem
+              :id="item.id"
+              :key="item.id"
+              :items="placeholderList"
+              :title="item.title"
+              :expanded="isItemExpanded(item.id)"
+              @click="toggleItemID(item.id)"
+            >
+              <template
+                #heading="{ title }"
+                :accordionToggle="onAccordionToggle(item.id)"
+              >
+                <KGrid class="question-row">
+                  <KGridItem :layout12="{ span: 6 }">
+                    <div class="left-column-alignment-style">
+                      <DragHandle>
+                        <!-- FIXME: Needs vertically centered -->
+                        <KIcon
+                          class="icon-size"
+                          icon="dragVertical"
+                        />
+                      </DragHandle>
+
+                      <div>
+                        <p>
+                          <KCheckbox />
+                        </p>
+                      </div>
+
+                      <div>
+                        <p>
+                          {{ title }}
+                        </p>
+                      </div>
+                    </div>
+                  </KGridItem>
+
+                  <KGridItem :layout12="{ span: 6 }">
+                    <div class="right-alignment-style">
+                      <KIconButton
+                        v-if="setActiveItem"
+                        class="icon-size"
+                        icon="chevronUp"
+                        @click="toggleItemState(item.id)"
+                      />
+
+                      <KIconButton
+                        v-else
+                        class="icon-size"
+                        icon="chevronRight"
+                        @click="toggleItemState(item.id)"
+                      />
+                    </div>
+                  </KGridItem>
+                </KGrid>
+              </template>
+
+              <template
+                v-if="isItemExpanded(item.id)"
+                #content=""
+              >
+                <div>
+                  <KGrid>
+                    <KGridItem :layout12="{ span: 8 }">
+                      <p>{{ $tr('questionPhrase') }}</p>
+                      <p>{{ $tr('questionSubtitle') }}</p>
+                    </KGridItem>
+
+                    <KGridItem :layout12="{ span: 4 }">
+                      <KIcon class="float-item-left-style" icon="edit" />
+                    </KGridItem>
+                  </KGrid>
+
+                  <div class="choose-question question">
+                    <p class="space-content">
+                      {{ $tr('chooseQuestionLabel') }}
+                    </p>
+                  </div>
+
+                  <div class="question">
+                    <AnswerOption />
+                  </div>
+
+                  <div class="question">
+                    <AnswerOption />
+                  </div>
+
+                  <KButton
+                    style="width:100%;margin-bottom:10px"
+                    appearance="raised-button"
+                    icon="plus"
+                  >
+                    {{ $tr('addAnswer') }}
+                  </KButton>
+                  <hr>
+                </div>
+              </template>
+            </AccordionItem>
+          </div>
+        </template>
+      </AccordionContainer>
+    </div>
 
     <div
       v-else
       class="no-question-layout"
     >
       <div class="question-mark-layout">
-        <span id="help-icon-style">?</span>
+        <span class="help-icon-style">?</span>
       </div>
-      
-      <p 
+
+      <p
         class="no-question-style"
       >
         {{ $tr('noQuestionsLabel') }}
@@ -85,29 +246,67 @@
       >
         {{ $tr('addQuestion') }}
       </KButton>
-
     </div>
+
   </div>
 
 </template>
 
+
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
+  import AccordionItem from './AccordionItem.vue';
+  import AnswerOption from './AnswerOption.vue';
 
   export default {
     name: 'CreateQuizSection',
     components: {
       AccordionContainer,
+      AccordionItem,
+      DragHandle,
+      AnswerOption,
     },
     mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
         isQuestionAvailable: true,
+        setActiveItem: false,
       };
     },
+    computed: {
+      placeholderList() {
+        return [
+          {
+            id: 1,
+            title: 'question 1',
+            visible: false,
+          },
+          {
+            id: 2,
+            title: 'question 2',
+            visible: false,
+          },
+          {
+            id: 3,
+            title: 'question 3',
+            visible: false,
+          },
+        ];
+      },
+    },
+    methods: {
+      onAccordionToggle(index) {
+        this.placeholderList[index].visible = !this.placeholderList[index].visible;
+      },
+      toggleItemID(id) {
+        console.log(id);
+      },
+    },
+
     $trs: {
       sectionLabel: {
         message: 'section 1',
@@ -134,6 +333,26 @@
         context:
           'This message indicates that more than one section can be added when creating a quiz.',
       },
+      questionPhrase: {
+        message: 'Select the word that has the following vowel sound.',
+        context: 'Placholder for the question',
+      },
+      questionSubtitle: {
+        message: ' Short <e>, [e]</e>',
+        context: 'Placholder content for the question description',
+      },
+      chooseQuestionLabel: {
+        message: 'Choose 1 answer:',
+        context: 'Label to indicate the question to be chosen',
+      },
+      addAnswer: {
+        message: 'Add answer',
+        context: 'Button text to indicate that more answers can be added to the question.',
+      },
+      selectAllLabel: {
+        message: 'Select all',
+        context: 'Label indicates that all available options can be chosen at once.',
+      },
     },
   };
 
@@ -142,7 +361,7 @@
 
 <style lang="scss"  scoped>
 
-  .style_icon {
+  .style-icon {
     width: 40px;
     height: 40px;
     margin: 20px;
@@ -177,7 +396,7 @@
     background-color: #dbc3d4;
   }
 
-  #help-icon-style {
+  .help-icon-style {
     font-size: 24px;
     font-weight: 700;
     line-height: 34px;
@@ -197,6 +416,31 @@
   .text-box-style {
     width: 1000px;
     padding: 15px;
+  }
+
+  .question-label {
+    margin-top: 10px;
+  }
+
+  .icon-size {
+    width: 24px;
+    height: 24px;
+  }
+
+  .question-row {
+    background-color: #fafafa;
+    border-top: 2px solid #fafafa;
+    border-bottom: 2px solid #fafafa;
+  }
+
+  .left-column-alignment-style {
+    display: inline-flex;
+    margin-left: 35px;
+  }
+
+  .right-alignment-style {
+    float: right;
+    margin-top: 10px;
   }
 
 </style>

@@ -1,135 +1,46 @@
 <template>
 
-  <Draggable :key="new Date()">
-    <KGrid class="question-row">
-      <KGridItem :layout12="{ span: 6 }">
-        <div class="left-column-alignment-style">
-          <DragHandle>
-            <!-- FIXME: Needs vertically centered -->
-            <KIcon
-              class="icon-size"
-              icon="dragVertical"
-            />
-          </DragHandle>
-
-          <div>
-            <p>
-              <KCheckbox />
-            </p>
-          </div>
-
-          <div>
-            <p @click="toggleQuestionAnswers">
-              TODO: Question title;
-            </p>
-          </div>
-        </div>
-      </KGridItem>
-
-      <KGridItem :layout12="{ span: 6 }">
-        <div class="right-alignment-style">
-          <KIcon
-            v-if="showAnswers"
-            class="icon-size"
-            icon="chevronUp"
-          />
-
-          <KIcon
-            v-else
-            class="icon-size"
-            icon="chevronRight"
-          />
-        </div>
-      </KGridItem>
-    </KGrid>
-
-    <div v-if="showAnswers" class="answers-section">
-
-      <KGrid>
-        <KGridItem :layout12="{ span: 8 }">
-          <p>{{ $tr('questionPhrase') }}</p>
-          <p>{{ $tr('questionSubtitle') }}</p>
-        </KGridItem>
-
-        <KGridItem :layout12="{ span: 4 }">
-          <KIcon class="float-item-left-style" icon="edit" />
-        </KGridItem>
-      </KGrid>
-
-      <hr>
-
-      <div class="choose-question question">
-        <p class="space-content">
-          {{ $tr('chooseQuestionLabel') }}
-        </p>
+  <Draggable>
+    <div class="">
+      <div>
+        <slot
+          name="heading"
+          :title="title"
+        >
+        </slot>
       </div>
 
-      <div class="question">
-        <AnswerOption />
+      <div>
+        <slot
+          :id="id"
+          name="content"
+          :answers="title"
+        >
+        </slot>
       </div>
-
-      <div class="question">
-        <AnswerOption />
-      </div>
-
-      <KButton
-        style="width:100%;margin-bottom:10px"
-        appearance="raised-button"
-        icon="plus"
-      >
-        {{ $tr('addAnswer') }}
-      </KButton>
-
     </div>
-
   </Draggable>
 
 </template>
 
+
 <script>
 
   import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import AnswerOption from './AnswerOption.vue';
 
   export default {
     name: 'AccordionItem',
     components: {
-      AnswerOption,
       Draggable,
-      DragHandle,
     },
-    data() {
-      return {
-        showAnswers: false,
-      };
-    },
-    methods: {
-      toggleQuestionAnswers() {
-        if (this.showAnswers) {
-          this.showAnswers = false;
-        } else {
-          this.showAnswers = true;
-        }
+    props: {
+      title: {
+        type: String,
+        required: true,
       },
-    },
-
-    $trs: {
-      questionPhrase: {
-        message: 'Select the word that has the following vowel sound.',
-        context: 'Placholder for the question',
-      },
-      questionSubtitle: {
-        message: ' Short <e>, [e]</e>',
-        context: 'Placholder content for the question description',
-      },
-      chooseQuestionLabel: {
-        message: 'Choose 1 answer:',
-        context: 'Label to indicate the question to be chosen',
-      },
-      addAnswer: {
-        message: 'Add answer',
-        context: 'Button text to indicate that more answers can be added to the question.',
+      id: {
+        type: Number,
+        required: true,
       },
     },
   };
