@@ -161,7 +161,7 @@
                   <KGridItem :layout12="{ span: 6 }">
                     <div class="right-alignment-style">
                       <KIconButton
-                        v-if="setActiveItem"
+                        v-if="isItemExpanded(item.id)"
                         class="icon-size"
                         icon="chevronUp"
                         @click="toggleItemState(item.id)"
@@ -274,7 +274,6 @@
     data() {
       return {
         isQuestionAvailable: true,
-        setActiveItem: false,
       };
     },
     computed: {
@@ -449,6 +448,12 @@
 
   .accordion-detail-container {
     margin-left: 35px;
+  }
+
+  .float-item-left-style {
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
   }
 
 </style>
