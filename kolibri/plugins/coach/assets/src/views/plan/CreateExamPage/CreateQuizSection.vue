@@ -24,7 +24,6 @@
           :label="coachString('titleLabel')"
           :autofocus="true"
           :maxlength="100"
-          class="text-box-style"
         />
       </KGridItem>
     </KGrid>
@@ -38,11 +37,16 @@
       <KGridItem
         :layout12="{ span: 8 }"
       >
-        <span class="active-section">
-          {{ ($tr('sectionLabel')).toUpperCase() }}
-        </span>
+        <KTabs
+          tabsId="coachReportsTabs"
+          ariaLabel="Coach reports"
+          :tabs="tabs"
+          class="active-section"
+        >
+          <template>
+          </template>
+        </KTabs>
       </KGridItem>
-
       <KGridItem
         :layout12="{ span: 4 }"
       >
@@ -113,7 +117,7 @@
         :items="placeholderList"
       >
         <template
-          #default="{ isItemExpanded, toggleItemState }"
+          #default="{ isItemExpanded, toggleItemState, isOptionSelected, isAnswerSelected }"
         >
           <div
             v-for="item in placeholderList"
@@ -199,13 +203,31 @@
                   </div>
 
                   <div class="question">
-                    <AnswerOption />
+                    <AnswerOption
+                      v-for="answer in item.placeholderAnswers"
+                      :key="answer.id"
+                      :optionId="answer.id"
+                      :isOptionSelected="isOptionSelected"
+                      :isAnswerSelected="isAnswerSelected(answer.id)"
+                    >
+                      <template
+                        #optionId
+                      >
+                        <div>
+                          {{ answer.id }}
+                        </div>
+                      </template>
+                      <template
+                        #answerSection
+                      >
+                        <div>
+                          {{ answer.option }}
+                        </div>
+                      </template>
+                    </AnswerOption>
                   </div>
 
-                  <div class="question">
-                    <AnswerOption />
-                  </div>
-
+                  <hr class="bottom-border">
                   <KButton
                     style="width:100%;margin-bottom:10px"
                     appearance="raised-button"
@@ -272,6 +294,7 @@
     data() {
       return {
         isQuestionAvailable: true,
+        tabs: [{ id: '', label: this.$tr('sectionLabel') }],
       };
     },
     computed: {
@@ -281,16 +304,40 @@
             id: 1,
             title: 'question 1',
             visible: false,
+            placeholderAnswers: [
+              {
+                id: 1,
+                option: 'bit',
+              },
+              {
+                id: 2,
+                option: 'but',
+              },
+              {
+                id: 3,
+                option: 'bite',
+              },
+              {
+                id: 4,
+                option: 'bait',
+              },
+              {
+                id: 5,
+                option: 'bet',
+              },
+            ],
           },
           {
             id: 2,
             title: 'question 2',
             visible: false,
+            placeholderAnswers: [],
           },
           {
             id: 3,
             title: 'question 3',
             visible: false,
+            placeholderAnswers: [],
           },
         ];
       },
@@ -359,13 +406,13 @@
 <style lang="scss"  scoped>
 
   .style-icon {
-    width: 40px;
-    height: 40px;
+    width: 30px;
+    height: 30px;
     margin: 20px;
   }
 
   /deep/ .ui-textbox-label {
-    width: 902px;
+    width: 1400px;
   }
 
   .bottom-border {
@@ -401,14 +448,14 @@
   }
 
   .active-section {
-    margin-bottom: -8px;
+    margin-bottom: -25px;
+    margin-left: -10px;
     color: #996189;
-    border-bottom: 1px solid #996189;
   }
 
   .add-section-button {
     float: right;
-    margin-bottom: -8px;
+    margin-bottom: -10px;
     background-color: #f5f5f5;
   }
 
@@ -468,6 +515,19 @@
     align-items: center;
     padding: 0;
     margin: 0;
+  }
+
+  .choose-question {
+    height: 40px;
+    background-color: #fafafa;
+    border: 1px solid #dedede;
+    border-radius: 2px;
+  }
+
+  .space-content {
+    margin: 8px;
+    font-size: 14px;
+    font-weight: 700;
   }
 
 </style>

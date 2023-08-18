@@ -10,7 +10,12 @@
           name="list"
           class="wrapper"
         >
-          <slot :toggleItemState="toggleItemState" :isItemExpanded="isItemExpanded"></slot>
+          <slot
+            :toggleItemState="toggleItemState"
+            :isItemExpanded="isItemExpanded"
+            :isOptionSelected="isOptionSelected"
+            :isAnswerSelected="isAnswerSelected"
+          ></slot>
         </transition-group>
       </DragContainer>
     </div>
@@ -38,6 +43,7 @@
     data() {
       return {
         itemIds: [],
+        optionsIdList: [],
       };
     },
     methods: {
@@ -51,6 +57,21 @@
       },
       isItemExpanded(id) {
         if (this.itemIds.includes(id)) {
+          return true;
+        } else {
+          return false;
+        }
+      },
+      isOptionSelected(optionId) {
+        const index = this.itemIds.indexOf(optionId);
+        if (index === -1) {
+          this.optionsIdList.push(optionId);
+        } else {
+          this.optionsIdList.splice(optionId);
+        }
+      },
+      isAnswerSelected(optionId) {
+        if (this.optionsIdList.includes(optionId)) {
           return true;
         } else {
           return false;
