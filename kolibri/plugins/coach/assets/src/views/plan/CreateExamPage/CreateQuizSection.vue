@@ -293,7 +293,7 @@
     mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
-        isQuestionAvailable: true,
+        isQuestionAvailable: false,
         tabs: [{ id: '', label: this.$tr('sectionLabel') }],
       };
     },
