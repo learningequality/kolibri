@@ -50,6 +50,7 @@ from kolibri.core.content import models
 from kolibri.core.content import serializers
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.tasks import automatic_resource_import
@@ -1333,7 +1334,7 @@ class ContentNodeBookmarksViewset(
 
 
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
-    serializer_class = serializers.ContentDownloadRequestSeralizer
+    serializer_class = serializers.ContentDownloadRequestSerializer
 
     pagination_class = OptionalPageNumberPagination
 
@@ -1349,7 +1350,9 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     )
 
     def get_queryset(self):
-        return ContentDownloadRequest.objects.filter(source_id=self.request.user.id)
+        return ContentDownloadRequest.objects.filter(
+            source_id=self.request.user.id, reason=ContentRequestReason.UserInitiated
+        )
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
@@ -1373,11 +1376,12 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             )
 
         existing_download_request = (
-            existing_deletion_request
-        ) = ContentRemovalRequest.objects.filter(
-            id=request_id,
-            source_id=request.user.id,
-        ).first()
+            self.get_queryset()
+            .filter(
+                id=request_id,
+            )
+            .first()
+        )
 
         if existing_download_request is None:
             return Response(
@@ -1386,7 +1390,8 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             )
 
         existing_deletion_request = ContentRemovalRequest.objects.filter(
-            id=request_id,
+            contentnode_id=existing_download_request.contentnode_id,
+            reason=existing_download_request.reason,
             source_id=request.user.id,
         ).first()
 

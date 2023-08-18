@@ -74,7 +74,7 @@
         ref="resourcePanel"
         :content="sidePanelContent"
         :showLocationsInChannel="true"
-        :canDownloadContent="canDownload"
+        :canDownloadExternally="canDownloadExternally"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -119,10 +119,10 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
-      const { canDownload } = useCoreLearn();
+      const { canDownloadExternally } = useCoreLearn();
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { canDownload, fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
+      return { canDownloadExternally, fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
     },
     data() {
       return {

@@ -311,6 +311,9 @@ class KolibriHookMeta(SingletonMeta):
                         )
                     )
         cls._registered_hooks[hook.unique_id] = hook
+        logger.debug(
+            "{} added to registry for defined hook: {}".format(hook.unique_id, cls)
+        )
 
     def get_hook(cls, unique_id):
         """

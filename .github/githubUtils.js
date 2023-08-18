@@ -3,6 +3,11 @@ const path = require('path');
 
 
 const file_manifest = {
+  "apk": {
+    "extension": "apk",
+    "description": "Android Package (APK)",
+    "content_type": "application/vnd.android.package-archive",
+  },
   "deb": {
     "extension": "deb",
     "description": "Debian Package",
@@ -46,6 +51,7 @@ const file_order = [
   "exe",
   "deb",
   "dmg",
+  "apk",
   "zip",
   "gz",
 ]

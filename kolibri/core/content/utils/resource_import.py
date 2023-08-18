@@ -188,11 +188,14 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
     def run(self):
         """
         Convenience method to just run the whole import.
+        :return: a tuple of the transferred data size and number of resources imported
+        :rtype: (int, int)
         """
         self.prepare_for_import()
         self.initialize_standalone_progress_tracking()
-        self.run_import()
+        results = self.run_import()
         self.finalize_standalone_progress_tracking()
+        return results
 
     def prepare_for_import(self):
         (

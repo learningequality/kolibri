@@ -21,6 +21,7 @@ class BaseTestCase(TestCase):
             instance_id=None,
             connection_status=ConnectionStatus.Unknown,
             connection_faults=0,
+            reserved=False,
         )
 
 

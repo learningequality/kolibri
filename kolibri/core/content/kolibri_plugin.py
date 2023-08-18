@@ -28,19 +28,14 @@ class ContentRequestsOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         :type context: morango.sync.context.LocalSessionContext
         """
-        from kolibri.core.device.utils import get_device_setting
-        from kolibri.core.device.utils import device_provisioned
+        from kolibri.core.content.utils.settings import automatic_download_enabled
 
         # only needs to synchronize requests when on receiving end of a sync
         self._assert(context.is_receiver)
 
         # either the device setting is enabled, or we haven't provisioned yet. If the device isn't
         # provisioned, we allow this because the default will be True after provisioning
-        self._assert(
-            get_device_setting(
-                "enable_automatic_download", default=not device_provisioned()
-            )
-        )
+        self._assert(automatic_download_enabled())
 
         dataset_id = get_dataset_id(context)
         logger.info(
@@ -69,8 +64,10 @@ class ContentSyncHook(FacilityDataSyncHook):
         Processes content import using the post_transfer hook, outside of the sync process, but
         between push and pulls (since this processes when receiving)
         """
+        from kolibri.core.content.utils.settings import automatic_download_enabled
+
         # only process upon receiving
-        if not context.is_receiver:
+        if not context.is_receiver or not automatic_download_enabled():
             return
 
         # process metadata import for new requests without metadata

@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import uuid
+
 import mock
 import requests
 from django.urls import reverse
@@ -43,6 +45,31 @@ class NetworkLocationAPITestCase(APITestCase):
         self.client.login(
             username=user.username, password=DUMMY_PASSWORD, facility=user.facility
         )
+
+    def test_get__pk(self):
+        self.login(self.superuser)
+        response = self.client.get(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.pk},
+            )
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["base_url"], self.existing_happy_netloc.base_url)
+
+    def test_get__instance_id(self):
+        self.login(self.superuser)
+        self.existing_happy_netloc.instance_id = uuid.uuid4().hex
+        self.existing_happy_netloc.save()
+
+        response = self.client.get(
+            reverse(
+                "kolibri:core:staticnetworklocation-detail",
+                kwargs={"pk": self.existing_happy_netloc.instance_id},
+            )
+        )
+        self.assertEqual(response.status_code, HTTP_200_OK)
+        self.assertEqual(response.data["base_url"], self.existing_happy_netloc.base_url)
 
     def test_creating_good_address(self):
         self.login(self.superuser)

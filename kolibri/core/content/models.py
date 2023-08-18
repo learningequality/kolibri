@@ -463,6 +463,8 @@ class ContentRequest(models.Model):
     source_model = models.CharField(max_length=40)
     # the source model's PK, could be the user's ID
     source_id = UUIDField()
+    # the instance ID of the preferred device from which to source/download the content
+    source_instance_id = UUIDField(null=True, blank=True)
 
     requested_at = DateTimeTzField(default=local_now)
 

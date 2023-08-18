@@ -34,6 +34,11 @@
         type: Object,
         default: null,
       },
+      isOnMyOwnUser: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
     },
     computed: {
       paragraphs() {
@@ -46,6 +51,9 @@
               ? this.$tr('learnOnlyDeviceWelcomeMessage2')
               : this.$tr('postSyncWelcomeMessage2', { facilityName: facility.name });
           return [this.$tr('learnOnlyDeviceWelcomeMessage1'), sndParagraph];
+        }
+        if (this.isOnMyOwnUser) {
+          return [this.coreString('nothingInLibraryLearner')];
         }
         if (this.importedFacility) {
           return [

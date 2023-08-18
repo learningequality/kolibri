@@ -44,7 +44,7 @@
   import PinAuthenticationModal from './PinAuthenticationModal';
   import plugin_data from 'plugin_data';
 
-  const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+  const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'DeviceIndex',
@@ -85,7 +85,7 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.sessionStorage.getItem(welcomeDimissalKey) !== 'true'
+          window.sessionStorage.getItem(welcomeDismissalKey) !== 'true'
         );
       },
       pageName() {
@@ -112,7 +112,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.sessionStorage.setItem(welcomeDimissalKey, true);
+        window.sessionStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
       closePinModal() {
