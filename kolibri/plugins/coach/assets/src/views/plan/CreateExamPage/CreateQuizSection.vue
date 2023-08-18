@@ -84,11 +84,10 @@
           <div class="right-alignment-style">
             <KGrid>
               <KGridItem :layout12="{ span: 4 }">
-                <div style="max-height:5px">
-                  <KIcon class="icon-size" icon="chevronDown" />
-                  <KIcon class="icon-size" icon="chevronUp" />
+                <div class="icon-container">
+                  <KIcon class="reduce-chervon-spacing" icon="chevronDown" />
+                  <KIcon class="reduce-chervon-spacing" icon="chevronUp" />
                 </div>
-
               </KGridItem>
 
               <KGridItem :layout12="{ span: 4 }">
@@ -113,7 +112,6 @@
       <AccordionContainer
         :items="placeholderList"
       >
-
         <template
           #default="{ isItemExpanded, toggleItemState }"
         >
@@ -454,6 +452,20 @@
     float: right;
     margin-top: 10px;
     margin-right: 10px;
+  }
+
+  .reduce-chervon-spacing {
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
   }
 
 </style>
