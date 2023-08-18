@@ -37,6 +37,15 @@ class ConnectionStatus(ChoicesEnum):
     Okay = "Okay"
 
 
+class LocationTypes(ChoicesEnum):
+    # reserved locations like Studio and KDP
+    Reserved = "reserved"
+    # static locations added by the user
+    Static = "static"
+    # dynamic locations discovered by the Kolibri instance
+    Dynamic = "dynamic"
+
+
 class NetworkLocation(models.Model):
     """
     ``NetworkLocation`` stores information about a network address through which an instance of Kolibri can be accessed,
@@ -51,7 +60,12 @@ class NetworkLocation(models.Model):
     id = models.CharField(
         primary_key=True, max_length=36, default=_uuid_string, editable=False
     )
-    dynamic = models.BooleanField(default=False)
+    location_type = models.CharField(
+        max_length=8,
+        blank=False,
+        choices=LocationTypes.choices(),
+        default=LocationTypes.Static,
+    )
 
     base_url = models.CharField(max_length=100)
     nickname = models.CharField(max_length=100, blank=True)
@@ -103,6 +117,21 @@ class NetworkLocation(models.Model):
 
         return self.connection_status == ConnectionStatus.Okay
 
+    @property
+    def dynamic(self):
+        return self.location_type == LocationTypes.Dynamic
+
+    @dynamic.setter
+    def dynamic(self, value):
+        """
+        TODO: remove this setter once we've migrated to the new location_type field
+        """
+        self.location_type = LocationTypes.Dynamic if value else LocationTypes.Static
+
+    @property
+    def reserved(self):
+        return self.location_type == LocationTypes.Reserved
+
     @classmethod
     def has_field(cls, field):
         try:
@@ -125,7 +154,7 @@ class NetworkLocation(models.Model):
 class StaticNetworkLocationManager(models.Manager):
     def get_queryset(self):
         queryset = super(StaticNetworkLocationManager, self).get_queryset()
-        return queryset.filter(dynamic=False).all()
+        return queryset.filter(location_type=LocationTypes.Static).all()
 
 
 class StaticNetworkLocation(NetworkLocation):
@@ -135,14 +164,14 @@ class StaticNetworkLocation(NetworkLocation):
         proxy = True
 
     def save(self, *args, **kwargs):
-        self.dynamic = False
+        self.location_type = LocationTypes.Static
         return super(StaticNetworkLocation, self).save(*args, **kwargs)
 
 
 class DynamicNetworkLocationManager(models.Manager):
     def get_queryset(self):
         queryset = super(DynamicNetworkLocationManager, self).get_queryset()
-        return queryset.filter(dynamic=True).all()
+        return queryset.filter(location_type=LocationTypes.Dynamic).all()
 
     def create(self, *args, **kwargs):
         kwargs = _filter_out_unsupported_fields(kwargs)
@@ -163,7 +192,7 @@ class DynamicNetworkLocation(NetworkLocation):
         proxy = True
 
     def save(self, *args, **kwargs):
-        self.dynamic = True
+        self.location_type = LocationTypes.Dynamic
         self.is_local = True
 
         if self.id and self.instance_id and self.id != self.instance_id:

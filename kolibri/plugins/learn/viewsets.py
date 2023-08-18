@@ -28,9 +28,14 @@ user_contentnode_viewset = UserContentNodeViewset()
 
 class LearnStateView(APIView):
     def get(self, request, format=None):
+        """
+        Returns some configuration variables applicable to users navigating learn.
+        - in_classes: Whether the user is in any classes
+        - can_download_externally: Whether the user can download content externally from Kolibri
+        """
         if request.user.is_anonymous:
             default_facility = Facility.get_default_facility()
-            can_download_content = (
+            can_download_externally = (
                 default_facility.dataset.show_download_button_in_learn
                 if default_facility
                 else True
@@ -38,13 +43,13 @@ class LearnStateView(APIView):
             return Response(
                 {
                     "in_classes": False,
-                    "can_download_content": can_download_content,
+                    "can_download_externally": can_download_externally,
                 }
             )
         return Response(
             {
                 "in_classes": request.user.memberships.exists(),
-                "can_download_content": request.user.dataset.show_download_button_in_learn,
+                "can_download_externally": request.user.dataset.show_download_button_in_learn,
             }
         )
 

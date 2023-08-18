@@ -26,3 +26,5 @@ CACHES = {
 
 if process_cache:
     CACHES["process_cache"] = process_cache
+
+TESTING = True

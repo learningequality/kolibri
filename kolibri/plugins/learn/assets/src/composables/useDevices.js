@@ -11,13 +11,15 @@ import plugin_data from 'plugin_data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
 
-// The refs are defined in the outer scope so they can be used as a shared store
+/**
+ * The ref is defined in the outer scope so it can be used as a shared store
+ * @type {Ref<NetworkLocation|null>}
+ */
 const currentDevice = ref(null);
 
 const KolibriStudioDeviceData = {
+  ...plugin_data.studioDevice,
   id: KolibriStudioId,
-  instance_id: KolibriStudioId,
-  base_url: plugin_data.studio_baseurl,
   get device_name() {
     return learnStrings.$tr('kolibriLibrary');
   },
@@ -67,31 +69,37 @@ export function setCurrentDevice(id) {
   });
 }
 
+/**
+ * @param {string|null} routingDeviceId
+ * @param {function(NetworkLocation):*} callback
+ * @return {ComputedRef<*|null>}
+ */
+function computedDevice(routingDeviceId, callback) {
+  return computed(() => {
+    const device = get(currentDevice);
+    if (device && device.instance_id === get(routingDeviceId)) {
+      return callback(device);
+    }
+    return undefined;
+  });
+}
+
 export default function useDevices(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store && store.state.route);
-  const deviceId = computed(() => {
+  const routingDeviceId = computed(() => {
     const params = get(route) && get(route).params;
     return params && params.deviceId;
   });
-  const baseurl = computed(() => {
-    const device = get(currentDevice);
-    if (device && device.id === get(deviceId)) {
-      return device.base_url;
-    }
-    return;
-  });
-  const deviceName = computed(() => {
-    const device = get(currentDevice);
-    if (device && device.id === get(deviceId)) {
-      return device.device_name;
-    }
-    return;
-  });
+
+  const instanceId = computedDevice(routingDeviceId, device => device.instance_id);
+  const baseurl = computedDevice(routingDeviceId, device => device.base_url);
+  const deviceName = computedDevice(routingDeviceId, device => device.device_name);
 
   return {
     fetchDevices,
     setCurrentDevice,
+    instanceId,
     baseurl,
     deviceName,
   };
