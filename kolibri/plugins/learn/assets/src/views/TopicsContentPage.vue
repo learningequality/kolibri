@@ -107,7 +107,7 @@
       </template>
       <CurrentlyViewedResourceMetadata
         :content="sidePanelContent"
-        :canDownloadContent="canDownload"
+        :canDownloadExternally="canDownloadExternally"
       />
     </SidePanelModal>
 
@@ -217,7 +217,7 @@
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
     setup() {
-      const { canDownload } = useCoreLearn();
+      const { canDownloadExternally } = useCoreLearn();
       const {
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
@@ -236,7 +236,7 @@
       return {
         baseurl,
         deviceName,
-        canDownload,
+        canDownloadExternally,
         contentNodeProgressMap,
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,

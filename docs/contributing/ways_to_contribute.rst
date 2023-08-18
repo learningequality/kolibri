@@ -10,9 +10,9 @@ little bit helps, and credit will always be given.
 Talk to us
 ----------
 
-* Get support in our `Community Forums <http://community.learningequality.org/>`__.
+* Get product support in our `Community Forums <http://community.learningequality.org/>`__.
+* Get development contributions support in `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__.
 * Email us at info@learningequality.org
-* Visit the ``#kolibri`` room on Freenode IRC
 
 Translate
 ---------
@@ -36,15 +36,7 @@ Please make sure to use the template. Replace the HTML comments (the ``<!-- ... 
 Write code
 ----------
 
-Before your first contribution, please make sure to check out :ref:`getting_started`. In addition to that, :ref:`howtos` have step by step guides for common tasks in getting started and working on Kolibri.
-
-We encourage you to visit `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__ to ask questions about contributing to Kolibri, troubleshoot development server issues, or connect with other contributors.
-
-Even though you're welcome to ask for an assignment of any issue you find interesting, we recommend especially issues tagged as `help wanted <https://github.com/learningequality/kolibri/labels/TAG%3A%20help%20wanted>`__. If you're looking for your first issue or a smaller, self-contained issue, issues tagged as `beginner friendly <https://github.com/learningequality/kolibri/labels/TAG%3A%20beginner%20friendly>`__ are a good place to start.
-
-For questions related to a specific issue or assignment requests, feel free to use the issue's comment section. Note that in times of increased contributor activity, it may take us a few days to reply. If you don't hear from us within a week, please reach out through `Kolibri GitHub Discussions <https://github.com/learningequality/kolibri/discussions>`__.
-
-Note that since Kolibri is still in development, the APIs are subject to change, and a lot of code is still in flux.
+See `How can I contribute? <https://github.com/learningequality/kolibri/blob/develop/CONTRIBUTING.md>`__
 
 Write documentation
 -------------------

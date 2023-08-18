@@ -16,6 +16,7 @@ from kolibri.core.content.utils.importability_annotation import (
 from kolibri.core.content.utils.importability_annotation import (
     get_channel_stats_from_peer,
 )
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
 
 CHUNKSIZE = 10000
@@ -83,7 +84,7 @@ def filter_by_file_availability(nodes_to_include, channel_id, drive_id, peer_id)
             channel_id, drive_id
         ).keys()
 
-    if peer_id:
+    if peer_id and peer_id != CENTRAL_CONTENT_BASE_INSTANCE_ID:
         file_based_node_id_list = get_channel_stats_from_peer(
             channel_id, peer_id
         ).keys()

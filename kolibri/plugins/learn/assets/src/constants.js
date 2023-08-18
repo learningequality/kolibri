@@ -1,3 +1,5 @@
+import plugin_data from 'plugin_data';
+
 // a name for every URL pattern
 export const PageNames = {
   ROOT: 'ROOT',
@@ -50,4 +52,4 @@ export const pageNameToModuleMap = {
   [PageNames.TOPICS_TOPIC_SEARCH]: 'topicsTree',
 };
 
-export const KolibriStudioId = 'kolibri-studio';
+export const KolibriStudioId = plugin_data.studioDevice?.instance_id;

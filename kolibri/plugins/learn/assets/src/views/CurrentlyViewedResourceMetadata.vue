@@ -116,7 +116,7 @@
     </div>
 
     <DownloadButton
-      v-if="canDownloadContent"
+      v-if="canDownloadExternally"
       :files="content.files"
       :nodeTitle="content.title"
       class="download-button"
@@ -155,7 +155,7 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     props: {
-      canDownloadContent: {
+      canDownloadExternally: {
         type: Boolean,
         required: false,
         default: false,

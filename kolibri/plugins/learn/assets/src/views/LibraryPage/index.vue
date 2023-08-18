@@ -177,6 +177,7 @@
       <SearchResultsGrid
         v-else-if="displayingSearchResults"
         data-test="search-results"
+        :allowDownloads="allowDownloads"
         :results="results"
         :removeFilterTag="removeFilterTag"
         :clearSearch="clearSearch"
@@ -236,7 +237,7 @@
         ref="resourcePanel"
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
-        :canDownloadContent="canDownload && !deviceId"
+        :canDownloadExternally="canDownloadExternally && !deviceId"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -320,7 +321,7 @@
         windowIsMedium,
         windowIsSmall,
       } = useKResponsiveWindow();
-      const { canDownload } = useCoreLearn();
+      const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
@@ -335,7 +336,8 @@
       });
 
       return {
-        canDownload,
+        canAddDownloads,
+        canDownloadExternally,
         displayingSearchResults,
         searchTerms,
         searchLoading,
@@ -382,6 +384,9 @@
     computed: {
       ...mapState(['rootNodes']),
       ...mapGetters(['isUserLoggedIn', 'getRootNodesLoading']),
+      allowDownloads() {
+        return this.canAddDownloads && Boolean(this.deviceId);
+      },
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
       },
@@ -507,7 +512,12 @@
       },
     },
     created() {
+      const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+
       this.search();
+      if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
       if (this.isUserLoggedIn) {
         this.refreshDevices();
       }
