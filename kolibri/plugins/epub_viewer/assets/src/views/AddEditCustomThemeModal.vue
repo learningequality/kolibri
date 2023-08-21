@@ -54,6 +54,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
+            :aria-label="generateSelectColorAriaLabel('backgroundColor')"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.backgroundColor)"
             @click="showColorPicker = 'backgroundColor'"
           />
@@ -63,6 +64,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
+            :aria-label="generateSelectColorAriaLabel('textColor')"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.textColor)"
             @click="showColorPicker = 'textColor'"
           />
@@ -72,6 +74,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
+            :aria-label="generateSelectColorAriaLabel('linkColor')"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.linkColor)"
             @click="showColorPicker = 'linkColor'"
           />
@@ -222,6 +225,9 @@
         }
         this.showColorPicker = null;
       },
+      generateSelectColorAriaLabel(color) {
+        return this.$tr('select', { color });
+      },
     },
     $trs: {
       customThemePreview: {
@@ -260,6 +266,10 @@
         message: 'Sign in or create an account to save your new theme',
         context:
           'Message that a learner will see upon trying to save a custom theme if they are not signed in to Kolibri.',
+      },
+      select: {
+        message: 'Select {color}',
+        context: 'Aria label for the button to select a color for a custom theme',
       },
     },
   };
