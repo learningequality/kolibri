@@ -18,10 +18,14 @@ from django.utils.translation.trans_real import get_supported_language_variant
 from django.utils.translation.trans_real import language_code_re
 from django.utils.translation.trans_real import parse_accept_lang_header
 
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 
 
 def get_device_language():
+    if not device_provisioned():
+        return None
+
     language_id = get_device_setting("language_id")
     try:
         return get_supported_language_variant(language_id)
