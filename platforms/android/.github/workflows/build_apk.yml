@@ -7,6 +7,11 @@ on:
       tar-url:
         description: 'URL for Kolibri tar file'
         required: true
+      signed:
+        description: 'Should this be signed with the development key? (mutually exclusive with release)'
+        required: false
+        type: boolean
+        default: false
       release:
         description: 'Is this a release asset?'
         required: false
@@ -21,6 +26,11 @@ on:
         description: 'A ref for this workflow to check out its own repo'
         required: true
         type: string
+      signed:
+        description: 'Should this be signed with the development key? (mutually exclusive with release)'
+        required: false
+        type: boolean
+        default: false
       release:
         description: 'Is this a release asset?'
         required: false
@@ -66,6 +76,11 @@ jobs:
       apk-file-name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
       version-code: ${{ steps.get-version-code.outputs.version-code}}
     steps:
+    - name: Validate inputs
+      if: ${{ (inputs.release == true || github.event.inputs.release == 'true') && (inputs.signed == true || github.event.inputs.signed == 'true') }}
+      run: |
+        echo "Cannot build a release and signed development APK at the same time."
+        exit 1
     - uses: actions/checkout@v3
       if: ${{ !inputs.ref }}
     - uses: actions/checkout@v3
@@ -145,7 +160,7 @@ jobs:
         # Upload to Play Store - this will also download the universal APK into the dist folder
         make playstore-upload
     - name: Build the apk
-      if: ${{ inputs.release != true && github.event.inputs.release != 'true' }}
+      if: ${{ inputs.signed == true || github.event.inputs.signed == 'true' }}
       env:
         RELEASE_KEYALIAS: LE_DEV_KEY
         RELEASE_KEYSTORE_PASSWD: ${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE_PASSWORD }}
@@ -154,6 +169,9 @@ jobs:
         echo -n "${{ secrets.KOLIBRI_ANDROID_APP_DEVELOPER_KEYSTORE }}" | base64 --decode > development.keystore
         export RELEASE_KEYSTORE=$(realpath development.keystore)
         make kolibri.apk
+    - name: Build the debug apk
+      if: ${{ inputs.signed != true && github.event.inputs.signed != 'true' && inputs.release != true && github.event.inputs.release != 'true'}}
+      run: make kolibri.apk.unsigned
     - name: Get APK filename
       id: get-apk-filename
       run: echo "apk-file-name=$(ls dist | grep .apk | cat)" >> $GITHUB_OUTPUT
