@@ -128,7 +128,7 @@ class DeviceSettings(models.Model):
     is_provisioned = models.BooleanField(default=False)
     # What is the default language that Kolibri is displayed in for this device?
     language_id = models.CharField(
-        max_length=15, default=lambda: settings.LANGUAGE_CODE, blank=True, null=True
+        max_length=15, default=settings.LANGUAGE_CODE, blank=True, null=True
     )
     # What is the default facility for this device?
     default_facility = models.ForeignKey(

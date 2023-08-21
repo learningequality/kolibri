@@ -8,6 +8,7 @@ import logging
 import os
 import platform
 
+from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.db import transaction
 from django.db.utils import OperationalError
@@ -101,7 +102,10 @@ def set_device_settings(**kwargs):
     try:
         device_settings = DeviceSettings.objects.get()
     except DeviceSettings.DoesNotExist:
-        device_settings = DeviceSettings()
+        device_settings = DeviceSettings(
+            # model field's default is a static value, which could during unit tests
+            language_id=settings.LANGUAGE_CODE
+        )
 
     extra_settings_properties = extra_settings_schema.get("properties", {})
     extra_settings = device_settings.extra_settings or {}
