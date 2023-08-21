@@ -242,13 +242,16 @@
         };
       },
       addNewTheme(tempTheme) {
-        this.addCustomTheme = null;
-        this.editCustomThemeName = null;
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        if (this.editCustomThemeName && this.editCustomThemeName !== tempTheme.name) {
+          delete savedCustomThemes[this.editCustomThemeName];
+        }
         savedCustomThemes[tempTheme.name] = tempTheme;
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.$emit('setTheme', tempTheme);
+        this.addCustomTheme = null;
+        this.editCustomThemeName = null;
       },
       deleteTheme(themeName) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
