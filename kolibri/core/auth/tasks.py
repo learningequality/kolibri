@@ -457,6 +457,8 @@ def peerusersync(command, **kwargs):
     cleanup = False
     resync_interval = kwargs["resync_interval"]
     kwargs["keep_alive"] = True
+    if command == "resumesync":
+        kwargs["id"] = kwargs["sync_session_id"]
     try:
         call_command(command, **kwargs)
     except Exception as e:
