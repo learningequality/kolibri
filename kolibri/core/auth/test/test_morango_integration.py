@@ -102,6 +102,7 @@ class CertificateAuthenticationTestCase(TestCase):
             "--facilities",
             "2",
         )
+        server.manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility_1 = Facility.objects.using(server.db_alias).first()
         facility_2 = Facility.objects.using(server.db_alias).last()
@@ -180,6 +181,7 @@ class CertificateAuthenticationTestCase(TestCase):
         server.manage("loaddata", "scopedefinitions")
         server.manage("loaddata", "content_test")
         server.manage("generateuserdata", "--no-onboarding", "--num-content-items", "1")
+        server.manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility = Facility.objects.using(server.db_alias).first()
         facility.dataset.learner_can_login_with_no_password = True
@@ -464,7 +466,13 @@ class EcosystemTestCase(TestCase):
             Exam,
             title=exam_title,
             question_count=1,
-            question_sources=["a"],
+            question_sources=[
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "question_id": uuid.uuid4().hex,
+                    "title": "a",
+                }
+            ],
             collection_id=classroom_id,
             creator_id=alto_user.id,
             active=True,
@@ -652,6 +660,7 @@ class EcosystemSingleUserTestCase(TestCase):
         servers[0].manage(
             "generateuserdata", "--no-onboarding", "--num-content-items", "1"
         )
+        servers[0].manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility_id = Facility.objects.using(s0_alias).get().id
 
@@ -1018,7 +1027,13 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
                 Exam,
                 title=title,
                 question_count=1,
-                question_sources=["a"],
+                question_sources=[
+                    {
+                        "exercise_id": uuid.uuid4().hex,
+                        "question_id": uuid.uuid4().hex,
+                        "title": "a",
+                    }
+                ],
                 collection_id=self.classroom.id,
                 creator_id=self.teacher.id,
                 active=True,
@@ -1034,7 +1049,13 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
             self.laptop_a.create_model(
                 Lesson,
                 title=title,
-                resources=["a"],
+                resources=[
+                    {
+                        "contentnode_id": uuid.uuid4().hex,
+                        "content_id": uuid.uuid4().hex,
+                        "channel_id": uuid.uuid4().hex,
+                    }
+                ],
                 collection_id=self.classroom.id,
                 created_by_id=self.teacher.id,
                 is_active=True,
