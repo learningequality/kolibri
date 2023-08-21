@@ -251,7 +251,7 @@ def add_dynamic_network_location(broadcast_id, instance):
         return
 
     priority = Priority.REGULAR
-    is_self_soud = get_device_setting("subset_of_users_device", default=False)
+    is_self_soud = get_device_setting("subset_of_users_device")
     if is_self_soud and network_location.subset_of_users_device:
         # if we're both SoUDs, prioritize connection checks lower than normal
         priority = Priority.LOW

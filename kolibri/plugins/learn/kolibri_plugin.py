@@ -131,7 +131,7 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
         from kolibri.core.auth.tasks import begin_request_soud_sync
 
         if (
-            get_device_setting("subset_of_users_device", default=False)
+            get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device
         ):
             for user_id in _learner_ids():
@@ -144,7 +144,7 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
         from kolibri.core.auth.tasks import stop_request_soud_sync
 
         if (
-            get_device_setting("subset_of_users_device", default=False)
+            get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device
         ):
             for user_id in _learner_ids():

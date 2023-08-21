@@ -412,7 +412,7 @@ def incomplete_downloads_queryset():
         )
     )
     # if we're not allowing learner downloads, filter them out
-    if not get_device_setting("allow_learner_download_resources", default=False):
+    if not get_device_setting("allow_learner_download_resources"):
         qs = qs.exclude(is_learner_download=True)
     return qs
 

@@ -261,7 +261,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return data
 
     def check_queue(self, request, pk=None):
-        is_SoUD = get_device_setting("subset_of_users_device", False)
+        is_SoUD = get_device_setting("subset_of_users_device")
         if is_SoUD:
             content = "I'm a Subset of users device. Nothing to do here"
             # would love to use HTTP 418, but it's not fully usable in browsers

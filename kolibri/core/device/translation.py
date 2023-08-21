@@ -22,7 +22,7 @@ from kolibri.core.device.utils import get_device_setting
 
 
 def get_device_language():
-    language_id = get_device_setting("language_id", None)
+    language_id = get_device_setting("language_id")
     try:
         return get_supported_language_variant(language_id)
     except LookupError:

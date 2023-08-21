@@ -312,7 +312,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         # If this is a subset of users device, we should just return no data
         # if there are no possible devices we could sync to.
         if (
-            get_device_setting("subset_of_users_device", False)
+            get_device_setting("subset_of_users_device")
             and not DynamicNetworkLocation.objects.filter(
                 subset_of_users_device=False
             ).exists()

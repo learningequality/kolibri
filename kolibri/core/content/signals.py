@@ -39,7 +39,7 @@ def add_download_requests(dataset_id, assignments):
     :param assignments: A list of assignments representing the content to be downloaded.
     :type assignments: list
     """
-    if get_device_setting("enable_automatic_download", default=False) is True:
+    if get_device_setting("enable_automatic_download"):
         facility = Facility.objects.get(dataset_id=dataset_id)
         create_content_download_requests(facility, assignments)
 
@@ -53,6 +53,6 @@ def add_removal_requests(dataset_id, assignments):
     :param assignments: A list of assignments representing the content to be removed.
     :type assignments: list
     """
-    if get_device_setting("enable_automatic_download", default=False) is True:
+    if get_device_setting("enable_automatic_download"):
         facility = Facility.objects.get(dataset_id=dataset_id)
         create_content_removal_requests(facility, assignments)

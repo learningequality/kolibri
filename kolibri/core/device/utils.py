@@ -35,69 +35,90 @@ class DeviceNotProvisioned(Exception):
 no_default_value = object()
 
 
-def get_device_setting(setting, default=no_default_value):
+def get_device_setting(setting):
+    """
+    Get a device setting from the database, or return the default value if it is not set or
+    the device is not provisioned.
+    :param setting: a string key to the model attribute or property
+    :return: the value of the setting
+    """
     from .models import DeviceSettings
     from kolibri.core.auth.models import Facility
 
     try:
         device_settings = DeviceSettings.objects.get()
-        if device_settings is None:
-            raise DeviceSettings.DoesNotExist
-        return getattr(device_settings, setting)
-    except (DeviceSettings.DoesNotExist, OperationalError, ProgrammingError):
-        if default is not no_default_value:
-            return default
-        raise DeviceNotProvisioned
-    except Facility.DoesNotExist:
-        return None
+    except (
+        DeviceSettings.DoesNotExist,
+        OperationalError,
+        ProgrammingError,
+        Facility.DoesNotExist,
+    ):
+        # create an unsaved model object to leverage the defaults
+        device_settings = DeviceSettings()
+
+    return getattr(device_settings, setting)
 
 
 def device_provisioned():
-    return get_device_setting("is_provisioned", False)
+    return get_device_setting("is_provisioned")
 
 
 def is_landing_page(landing_page):
-    return get_device_setting("landing_page", LANDING_PAGE_SIGN_IN) == landing_page
+    return get_device_setting("landing_page") == landing_page
 
 
 def allow_guest_access():
-    if get_device_setting("allow_guest_access", False):
+    if not device_provisioned() and get_device_setting("allow_guest_access"):
         return True
 
     return is_landing_page(LANDING_PAGE_LEARN)
 
 
 def allow_learner_unassigned_resource_access():
-    if get_device_setting("allow_learner_unassigned_resource_access", True):
+    if get_device_setting("allow_learner_unassigned_resource_access"):
         return True
 
     return is_landing_page(LANDING_PAGE_LEARN)
 
 
 def allow_peer_unlisted_channel_import():
-    return get_device_setting("allow_peer_unlisted_channel_import", False)
+    return get_device_setting("allow_peer_unlisted_channel_import")
 
 
 def allow_other_browsers_to_connect():
-    return get_device_setting("allow_other_browsers_to_connect", True)
+    return get_device_setting("allow_other_browsers_to_connect")
 
 
 def set_device_settings(**kwargs):
+    """
+    Set the device settings, or raise an exception if the device is not provisioned.
+    :param kwargs:
+    :return:
+    """
     from .models import DeviceSettings
+    from .models import extra_settings_schema
 
     try:
         device_settings = DeviceSettings.objects.get()
-        for key, value in kwargs.items():
-            setattr(device_settings, key, value)
-        device_settings.save()
     except DeviceSettings.DoesNotExist:
-        raise DeviceNotProvisioned
+        device_settings = DeviceSettings()
+
+    extra_settings_properties = extra_settings_schema.get("properties", {})
+    extra_settings = device_settings.extra_settings or {}
+
+    for key, value in kwargs.items():
+        if key not in extra_settings_properties:
+            setattr(device_settings, key, value)
+        else:
+            extra_settings[key] = value
+    device_settings.save()
 
 
 def provision_device(device_name=None, is_provisioned=True, **kwargs):
     from .models import DeviceSettings
 
-    device_settings, _ = DeviceSettings.objects.get_or_create(defaults=kwargs)
+    set_device_settings(**kwargs)
+    device_settings = DeviceSettings.objects.get()
     if device_name is not None:
         device_settings.name = device_name
     device_settings.is_provisioned = is_provisioned
@@ -425,11 +446,10 @@ def get_device_info(version=DEVICE_INFO_VERSION):
     from morango.models import InstanceIDModel
 
     instance_model = InstanceIDModel.get_or_create_current_instance()[0]
-    try:
+    if device_provisioned():
         device_name = get_device_setting("name")
         subset_of_users_device = get_device_setting("subset_of_users_device")
-    # When Koliri starts at the first time, and device hasn't been created
-    except DeviceNotProvisioned:
+    else:
         device_name = instance_model.hostname
         subset_of_users_device = False
 
