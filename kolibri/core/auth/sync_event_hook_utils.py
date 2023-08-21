@@ -72,9 +72,11 @@ def _local_event_handler(func):
     @wraps(func)
     def wrapper(context):
         """
-        :type context: morango.sync.context.CompositeSessionContext
+        :type context:
+            morango.sync.context.CompositeSessionContext|morango.sync.context.LocalSessionContext
         """
-        for sub_context in context.children:
+        children = getattr(context, "children", [context])
+        for sub_context in children:
             if isinstance(sub_context, LocalSessionContext):
                 kwargs = _extract_kwargs_from_context(sub_context)
                 return func(**kwargs)
