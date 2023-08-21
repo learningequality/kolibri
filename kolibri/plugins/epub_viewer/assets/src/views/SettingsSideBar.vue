@@ -88,12 +88,14 @@
           </KButton>
           <KButton
             class="delete-edit-button"
+            :aria-label="generateCustomThemeDeleteAriaLabel(key)"
             :text="$tr('delete')"
             :primary="true"
             @click="deleteCustomThemeName = key"
           />
           <KButton
             class="delete-edit-button"
+            :aria-label="generateCustomThemeEditAriaLabel(key)"
             :text="$tr('edit')"
             :secondary="true"
             @click="editCustomThemeName = key, editCustomTheme = value"
@@ -218,6 +220,12 @@
       generateCustomThemeAriaLabel(themeName) {
         return this.$tr('setCustomTheme', { themeName });
       },
+      generateCustomThemeDeleteAriaLabel(themeName) {
+        return this.$tr('deleteCustomTheme', { themeName });
+      },
+      generateCustomThemeEditAriaLabel(themeName) {
+        return this.$tr('editCustomTheme', { themeName });
+      },
       isCurrentlySelectedTheme(theme) {
         return (
           theme.backgroundColor === this.theme.backgroundColor &&
@@ -316,6 +324,16 @@
         message: 'Set custom theme {themeName}',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
+      },
+      deleteCustomTheme: {
+        message: 'Delete custom theme {themeName}',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be deleted.",
+      },
+      editCustomTheme: {
+        message: 'Edit custom theme {themeName}',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be edited.",
       },
     },
   };
