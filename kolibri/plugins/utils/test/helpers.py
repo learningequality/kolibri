@@ -34,17 +34,17 @@ def _reset_plugin_dependent_modules():
 @contextmanager
 def plugin_enabled(*plugin_names):
     registered_plugins.register_plugins(plugin_names)
-
     _reset_plugin_dependent_modules()
 
-    yield
-
-    for plugin_name in plugin_names:
-        try:
-            del registered_plugins._apps[plugin_name]
-        except KeyError:
-            pass
-    _reset_plugin_dependent_modules()
+    try:
+        yield
+    finally:
+        for plugin_name in plugin_names:
+            try:
+                del registered_plugins._apps[plugin_name]
+            except KeyError:
+                pass
+        _reset_plugin_dependent_modules()
 
 
 @contextmanager
@@ -57,7 +57,8 @@ def plugin_disabled(*plugin_names):
 
     _reset_plugin_dependent_modules()
 
-    yield
-
-    registered_plugins.register_plugins(plugin_names)
-    _reset_plugin_dependent_modules()
+    try:
+        yield
+    finally:
+        registered_plugins.register_plugins(plugin_names)
+        _reset_plugin_dependent_modules()

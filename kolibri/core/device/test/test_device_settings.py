@@ -65,4 +65,10 @@ class DeviceSettingsTestCase(TestCase):
         }
 
         for setting_key, setting_default in defaults.items():
-            self.assertEqual(get_device_setting(setting_key), setting_default)
+            self.assertEqual(
+                get_device_setting(setting_key),
+                setting_default,
+                "Default value for setting '{}' is not '{}'".format(
+                    setting_key, setting_default
+                ),
+            )

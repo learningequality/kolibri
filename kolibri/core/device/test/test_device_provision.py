@@ -79,6 +79,7 @@ class DeviceProvisionCommandTestCase(TestCase):
     """
 
     def setUp(self):
+        clear_process_cache()
         self.preset = list(presets.keys())[0]
         call_command(
             "provisiondevice",

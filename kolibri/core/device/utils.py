@@ -111,6 +111,8 @@ def set_device_settings(**kwargs):
             setattr(device_settings, key, value)
         else:
             extra_settings[key] = value
+
+    device_settings.extra_settings = extra_settings
     device_settings.save()
 
 
