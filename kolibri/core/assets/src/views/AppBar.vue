@@ -99,6 +99,10 @@
         </template>
       </UiToolbar>
     </header>
+    <!-- IF making changes to the sub nav, make sure to make -->
+    <!-- corresponding changes in SideNav.vue in regards to  -->
+    <!-- Window size and app context. Changes may need to be made -->
+    <!-- in parallel in both files for non-breaking updates -->
     <div
       v-if="!windowIsLarge && !isAppContext"
       class="subpage-nav"
@@ -330,9 +334,5 @@
     margin-left: 8px;
     font-size: 14px;
   }
-
-  // .subpage-nav {
-  //   margin-top: 0;
-  // }
 
 </style>

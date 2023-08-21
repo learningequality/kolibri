@@ -329,6 +329,15 @@
         return this.isLearnerOnlyImport && (this.isSuperuser || this.isAdmin || this.isCoach);
       },
       showAppNavView() {
+        // IF making changes to the sub nav, make sure to make
+        // corresponding changes in SideNav.vue in regards to
+        //  Window size and app context. Changes may need to be made
+        // in parallel in both files for non-breaking updates
+        // The expected behavior is:
+        // In an app context, on small and medium screens,
+        // show the app Nav
+        // In browser based contexts, and large screen app view
+        // use the "non-app" upper navigation bar
         return this.isAppContext && !this.windowIsLarge;
       },
       footerMsg() {
