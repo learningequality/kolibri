@@ -23,3 +23,19 @@ class NetworkLocationDiscoveryHook(KolibriHook):
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
         pass
+
+
+@define_hook
+class NetworkLocationBroadcastHook(KolibriHook):
+    def on_renew(self, instance, network_locations):
+        """
+        Invoked when the current device's broadcast is renewed
+        (i.e. the information in the broadcast changes)
+
+        :param instance: The KolibriInstance for the current device
+        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+        :param network_locations: The list of NetworkLocation models for
+            other accessible Kolibri instances
+        :type network_locations: kolibri.core.discovery.models.NetworkLocation[]
+        """
+        pass
