@@ -105,6 +105,7 @@
                     <KIcon
                       v-if="windowIsSmall"
                       icon="wifi"
+                      class="wifi-svg"
                     />
                   </span>
                   &nbsp;&nbsp;
@@ -115,11 +116,12 @@
                     appearance="basic-link"
                     @click="refreshDevices"
                   />
-                  &nbsp;
+                  &nbsp;&nbsp;
                   <span>
                     <KIcon
                       v-if="!windowIsSmall"
                       icon="wifi"
+                      class="wifi-svg"
                     />
                   </span>
                 </span>
@@ -174,6 +176,7 @@
       <SearchResultsGrid
         v-else-if="displayingSearchResults"
         data-test="search-results"
+        :allowDownloads="allowDownloads"
         :results="results"
         :removeFilterTag="removeFilterTag"
         :clearSearch="clearSearch"
@@ -233,7 +236,7 @@
         ref="resourcePanel"
         :content="metadataSidePanelContent"
         :showLocationsInChannel="true"
-        :canDownloadContent="canDownload && !deviceId"
+        :canDownloadExternally="canDownloadExternally && !deviceId"
       />
     </SidePanelModal>
   </LearnAppBarPage>
@@ -317,7 +320,7 @@
         windowIsMedium,
         windowIsSmall,
       } = useKResponsiveWindow();
-      const { canDownload } = useCoreLearn();
+      const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName, fetchDevices } = useDevices();
@@ -332,7 +335,8 @@
       });
 
       return {
-        canDownload,
+        canAddDownloads,
+        canDownloadExternally,
         displayingSearchResults,
         searchTerms,
         searchLoading,
@@ -379,6 +383,9 @@
     computed: {
       ...mapState(['rootNodes']),
       ...mapGetters(['isUserLoggedIn', 'getRootNodesLoading']),
+      allowDownloads() {
+        return this.canAddDownloads && Boolean(this.deviceId);
+      },
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
       },
@@ -462,10 +469,7 @@
         }
       },
       showingAllLibrariesLabel() {
-        let label = this.$tr('showingAllLibraries');
-        if (label.slice(-1) === '.') {
-          label = label.slice(0, -1);
-        }
+        const label = this.$tr('showingAllLibraries');
         return label;
       },
       studioId() {
@@ -507,7 +511,12 @@
       },
     },
     created() {
+      const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+
       this.search();
+      if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
       if (this.isUserLoggedIn) {
         this.refreshDevices();
       }
@@ -677,6 +686,11 @@
   .view-all-text {
     margin: auto;
     font-size: 16px;
+  }
+
+  .wifi-svg {
+    top: 0;
+    transform: scale(1.5);
   }
 
 </style>

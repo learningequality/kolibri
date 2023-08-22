@@ -96,6 +96,25 @@ jobs:
     with:
       filename: ${{ needs.zip.outputs.zip-file-name }}
       release_id: ${{ github.event.release.id }}
+  apk:
+    name: Build Android APK
+    needs: whl
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@develop
+    with:
+      tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
+      release: true
+      ref: develop
+    secrets:
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD }}
+      KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYALIAS_PASSWORD }}
+      KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON: ${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}
+  upload_apk:
+    uses: ./.github/workflows/upload_github_release_asset.yml
+    needs: apk
+    with:
+      filename: ${{ needs.apk.outputs.apk-file-name }}
+      release_id: ${{ github.event.release.id }}
   test_pypi_upload:
     name: Upload to TestPyPi
     needs: whl
@@ -138,7 +157,7 @@ jobs:
     name: Upload to Google Cloud Storage
     if: ${{ !github.event.release.prerelease }}
     runs-on: ubuntu-latest
-    needs: [block_release_step, whl, pex, dmg, deb, exe, zip]
+    needs: [block_release_step, whl, pex, dmg, deb, exe, zip, apk]
     strategy:
       matrix:
         filename: [
@@ -149,6 +168,7 @@ jobs:
           '${{ needs.deb.outputs.deb-file-name }}',
           '${{ needs.exe.outputs.exe-file-name }}',
           '${{ needs.zip.outputs.zip-file-name }}',
+          '${{ needs.apk.outputs.apk-file-name }}',
         ]
     steps:
     - name: Download ${{ matrix.filename }} artifact
@@ -172,3 +192,13 @@ jobs:
       with:
         path: 'dist/${{ matrix.filename }}'
         destination: '${{ secrets.BCK_PROD_BUILD_ARTIFACT_GCS_BUCKET }}/${{ matrix.filename }}'
+  android_release:
+    name: Release Android App
+    if: ${{ !github.event.release.prerelease }}
+    needs: [apk, block_release_step]
+    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@develop
+    with:
+      version-code: ${{ needs.apk.outputs.version-code }}
+      ref: develop
+    secrets:
+      KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON: ${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}

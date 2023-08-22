@@ -186,8 +186,8 @@
           data: this.deviceProvisioningData,
         })
           .then(() => {
-            const welcomeDimissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
-            window.sessionStorage.setItem(welcomeDimissalKey, false);
+            const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+            window.sessionStorage.setItem(welcomeDismissalKey, false);
 
             Lockr.rm('savedState'); // Clear out saved state machine
             redirectBrowser();

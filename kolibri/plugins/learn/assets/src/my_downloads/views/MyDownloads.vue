@@ -38,11 +38,9 @@
         </KGridItem>
       </KGrid>
       <KCircularLoader v-if="loading" />
+
       <DownloadsList
         v-else
-        :downloads="sortedFilteredDownloads()"
-        :totalDownloads="sortedFilteredDownloads().length"
-        :totalPageNumber="totalPageNumber"
         :loading="false"
         @removeResources="removeResources"
       />
@@ -54,7 +52,7 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
@@ -82,7 +80,6 @@
         fetchAvailableFreespace,
         availableSpace,
         removeDownloadRequest,
-        removeDownloadsRequest,
       } = useDownloadRequests();
 
       const store = getCurrentInstance().proxy.$store;
@@ -103,47 +100,9 @@
           activityType: activityType.value,
         });
       };
-      const sortedFilteredDownloads = () => {
-        let downloadsToDisplay;
-        if (downloadRequestMap && downloadRequestMap.value.length > 0) {
-          downloadsToDisplay = downloadRequestMap.value;
-          if (sort) {
-            switch (sort.value) {
-              case 'newest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
-                );
-                break;
-              case 'oldest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
-                );
-                break;
-              case 'smallest':
-                downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
-                break;
-              case 'largest':
-                downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
-                break;
-              default:
-                // If no valid sort option provided, return unsorted array
-                break;
-            }
-          }
-          if (activityType) {
-            if (activityType.value !== 'all') {
-              downloadsToDisplay = downloadsToDisplay.filter(download =>
-                download.metadata.learning_activities.includes(activityType.value)
-              );
-            }
-          }
-        }
-        set(totalPageNumber, Math.ceil(downloadsToDisplay.length / pageSizeNumber.value));
-        return downloadsToDisplay;
-      };
       fetchDownloads();
       fetchAvailableFreespace();
-      watch(route, sortedFilteredDownloads);
+      watch(route, fetchDownloads);
 
       return {
         downloadRequestMap,
@@ -151,20 +110,16 @@
         availableSpace,
         totalPageNumber,
         fetchAvailableFreespace,
-        sortedFilteredDownloads,
+        sort,
         removeDownloadRequest,
-        removeDownloadsRequest,
       };
     },
     computed: {
       sizeOfMyDownloads() {
-        let totalSize = 0;
-        if (this.downloadRequestMap && this.downloadRequestMap.value) {
-          this.downloadRequestMap.value.map(
-            item => (totalSize = totalSize + item.metadata.file_size)
-          );
-        }
-        return totalSize;
+        return Object.values(this.downloadRequestMap).reduce(
+          (acc, object) => acc + object.metadata.file_size,
+          0
+        );
       },
     },
     methods: {
@@ -179,7 +134,9 @@
         if (resources.length === 1) {
           this.removeDownloadRequest(resources[0]);
         } else {
-          this.removeDownloadsRequest(resources.map(resource => ({ id: resource })));
+          resources.forEach(resource => {
+            this.removeDownloadRequest({ id: resource.id });
+          });
         }
       },
     },

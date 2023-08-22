@@ -370,9 +370,13 @@ class KolibriBroadcast(object):
         self.register()
 
         # manually add our service browser to Zeroconf so it's automatically cleaned up on close
-        self.zeroconf.browsers["bus"] = ServiceBrowser(
-            self.zeroconf, SERVICE_TYPE, handlers=[self.events.publish_zeroconf_change]
-        )
+        # Check that the zeroconf attribute has not been set to None by a previous call to stop_broadcast
+        if self.zeroconf is not None:
+            self.zeroconf.browsers["bus"] = ServiceBrowser(
+                self.zeroconf,
+                SERVICE_TYPE,
+                handlers=[self.events.publish_zeroconf_change],
+            )
 
     def update_broadcast(self, instance=None, interfaces=None):
         """
@@ -504,7 +508,8 @@ class KolibriBroadcast(object):
 
         # very important to publish the event first, to avoid race conditions
         self.events.publish(EVENT_UNREGISTER_INSTANCE, self.instance)
-        self.zeroconf.unregister_service(self.instance.service_info)
+        if self.instance.service_info is not None:
+            self.zeroconf.unregister_service(self.instance.service_info)
         self.instance.reset_broadcasting()
 
     def add_listener(self, listener_cls):

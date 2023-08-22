@@ -85,7 +85,7 @@
     },
     mixins: [commonCoreStrings, responsiveWindowMixin],
     setup() {
-      var sidePanelContent = ref(null);
+      const sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
 
       return {

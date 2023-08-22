@@ -4,6 +4,7 @@ import urls from 'kolibri.urls';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import useUser from 'kolibri.coreVue.composables.useUser';
+import logger from 'kolibri.lib.logging';
 import useChannels from '../composables/useChannels';
 import { setClasses, setResumableContentNodes } from '../composables/useLearnerResources';
 import { setContentNodeProgress } from '../composables/useContentNodeProgress';
@@ -28,8 +29,7 @@ function unassignedContentGuard() {
     // If there are no memberships and it is allowed, redirect to topics page
     return router.replace({ name: ClassesPageNames.ALL_CLASSES });
   }
-  // Otherwise return nothing
-  return;
+  return false;
 }
 
 function hydrateHomePage() {
@@ -52,7 +52,7 @@ export default [
     name: PageNames.ROOT,
     path: '/',
     handler: () => {
-      if (get(isUserLoggedIn)) {
+      if (get(isUserLoggedIn) && get(channels).length) {
         return router.replace({ name: PageNames.HOME });
       }
       return router.replace({ name: PageNames.LIBRARY });
@@ -104,9 +104,10 @@ export default [
       }
 
       if (unassignedContentGuard()) {
-        return unassignedContentGuard();
+        return;
       }
-      showLibrary(store, to.query, to.params.deviceId).catch(() => {
+      showLibrary(store, to.query, to.params.deviceId).catch(e => {
+        logger.error(e);
         router.replace({ name: PageNames.ROOT });
       });
     },
@@ -154,14 +155,15 @@ export default [
     path: `/topics${optionalDeviceIdPathSegment}/t/:id/search`,
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
-        return unassignedContentGuard();
+        return;
       }
       // If navigation is triggered by a custom navigation updating the
       // context query param, do not run the handler
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, toRoute).catch(() => {
+      showTopicsTopic(store, toRoute).catch(e => {
+        logger.error(e);
         router.replace({ name: PageNames.ROOT });
       });
     },
@@ -173,14 +175,15 @@ export default [
     path: `/topics${optionalDeviceIdPathSegment}/t/:id/:subtopic?/folders`,
     handler: (toRoute, fromRoute) => {
       if (unassignedContentGuard()) {
-        return unassignedContentGuard();
+        return;
       }
       // If navigation is triggered by a custom navigation updating the
       // context query param, do not run the handler
       if (toRoute.params.id === fromRoute.params.id) {
         return;
       }
-      showTopicsTopic(store, toRoute).catch(() => {
+      showTopicsTopic(store, toRoute).catch(e => {
+        logger.error(e);
         router.replace({ name: PageNames.ROOT });
       });
     },
@@ -191,7 +194,8 @@ export default [
     name: PageNames.TOPICS_CONTENT,
     path: `/topics${optionalDeviceIdPathSegment}/c/:id`,
     handler: toRoute => {
-      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId).catch(() => {
+      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId).catch(e => {
+        logger.error(e);
         router.replace({ name: PageNames.ROOT });
       });
     },
@@ -203,7 +207,7 @@ export default [
     path: '/bookmarks',
     handler: () => {
       if (unassignedContentGuard()) {
-        return unassignedContentGuard();
+        return;
       }
       store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
       store.commit('CORE_SET_PAGE_LOADING', false);
@@ -219,9 +223,7 @@ export default [
         router.replace({ name: PageNames.LIBRARY });
         return;
       }
-      if (unassignedContentGuard()) {
-        return unassignedContentGuard();
-      }
+      unassignedContentGuard();
     },
   },
   {

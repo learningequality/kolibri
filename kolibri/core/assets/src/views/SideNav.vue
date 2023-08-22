@@ -6,11 +6,11 @@
     tabindex="0"
     @keyup.esc="toggleNav"
   >
-    <transition :name="isAppContext ? 'bottom-nav' : 'side-nav'">
+    <transition :name="showAppNavView ? 'bottom-nav' : 'side-nav'">
       <div
         v-show="navShown"
         class="side-nav"
-        :class="isAppContext ? 'bottom-offset' : ''"
+        :class="showAppNavView ? 'bottom-offset' : ''"
         :style="{
           width: `${width}`,
           color: $themeTokens.text,
@@ -26,8 +26,8 @@
 
 
           <div
-            :class="isAppContext ? 'bottom-nav-scrollable-area' : 'side-nav-scrollable-area'"
-            :style="isAppContext ?
+            :class="showAppNavView ? 'bottom-nav-scrollable-area' : 'side-nav-scrollable-area'"
+            :style="showAppNavView ?
               { width: `${width}` } :
               { top: `${topBarHeight}px`, width: `${width}` }"
           >
@@ -40,8 +40,8 @@
             >
 
 
-            <div v-if="userIsLearner || isAppContext" class="user-information">
-              <div v-if="isAppContext" style="margin-bottom:10px;margin-left:-15px">
+            <div v-if="userIsLearner || showAppNavView" class="user-information">
+              <div v-if="showAppNavView" style="margin-bottom:10px;margin-left:-15px">
                 <KIconButton
                   ref="closeButton"
                   icon="close"
@@ -170,7 +170,7 @@
             </div>
           </div>
           <div
-            v-if="!isAppContext"
+            v-if="!isAppContext || windowIsLarge"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
@@ -198,7 +198,7 @@
     </transition>
 
     <BottomNavigationBar
-      v-if="isAppContext"
+      v-if="showAppNavView"
       :bottomMenuOptions="bottomMenuOptions"
       :navShown="navShown"
       @toggleNav="toggleNav()"
@@ -323,10 +323,22 @@
         fullName: state => state.core.session.full_name,
       }),
       width() {
-        return this.isAppContext ? '100vw' : `${this.topBarHeight * 4.5}px`;
+        return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
         return this.isLearnerOnlyImport && (this.isSuperuser || this.isAdmin || this.isCoach);
+      },
+      showAppNavView() {
+        // IF making changes to the sub nav, make sure to make
+        // corresponding changes in SideNav.vue in regards to
+        //  Window size and app context. Changes may need to be made
+        // in parallel in both files for non-breaking updates
+        // The expected behavior is:
+        // In an app context, on small and medium screens,
+        // show the app Nav
+        // In browser based contexts, and large screen app view
+        // use the "non-app" upper navigation bar
+        return this.isAppContext && !this.windowIsLarge;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });

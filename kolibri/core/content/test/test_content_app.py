@@ -553,6 +553,8 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
     Testcase for content API methods
     """
 
+    maxDiff = None
+
     def test_prerequisite_for_filter(self):
         c1_id = content.ContentNode.objects.get(title="c1").id
         response = self.client.get(
@@ -1839,6 +1841,8 @@ class KolibriStudioAPITestCase(APITestCase):
 
 
 class ProxyContentMetadataTestCase(ContentNodeAPIBase, LiveServerTestCase):
+    maxDiff = None
+
     @property
     def baseurl(self):
         return self.live_server_url

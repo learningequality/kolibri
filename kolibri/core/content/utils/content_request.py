@@ -1,16 +1,24 @@
 import logging
+import uuid
+from itertools import chain
 
 from django.core.management import call_command
 from django.db.models import BigIntegerField
+from django.db.models import BooleanField
+from django.db.models import Case
 from django.db.models import Exists
 from django.db.models import OuterRef
-from django.db.models import Q
 from django.db.models import QuerySet
 from django.db.models import Subquery
 from django.db.models import Sum
+from django.db.models import Value
+from django.db.models import When
+from django.db.models.expressions import CombinedExpression
+from django.db.models.functions import Coalesce
 from morango.models.core import SyncSession
 
 from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
@@ -23,6 +31,8 @@ from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.resource_import import (
     ContentDownloadRequestResourceImportManager,
 )
+from kolibri.core.content.utils.settings import allow_non_local_download
+from kolibri.core.content.utils.settings import get_free_space_for_downloads
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.utils import get_device_setting
@@ -32,10 +42,7 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.urls import reverse_path
-from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
-from kolibri.utils.data import bytes_from_humans
-from kolibri.utils.system import get_free_space
 
 
 logger = logging.getLogger(__name__)
@@ -48,7 +55,31 @@ INCOMPLETE_STATUSES = [
 ]
 
 
-def create_content_download_requests(facility, assignments):
+def _uuid_to_hex(_uuid):
+    return _uuid.hex if isinstance(_uuid, uuid.UUID) else uuid.UUID(_uuid).hex
+
+
+class FixedExists(Exists):
+    """
+    Exists() subquery that allows positional arguments, to get around issue:
+    TypeError: resolve_expression() takes from 1 to 2 positional arguments but 6 were given
+    """
+
+    def resolve_expression(self, query=None, *args, **kwargs):
+        # @see Exists.resolve_expression
+        self.queryset = self.queryset.order_by()
+        return Subquery.resolve_expression(self, query, *args, **kwargs)
+
+
+def create_content_download_requests(facility, assignments, source_instance_id=None):
+    """
+    Creates sync-initiated content download requests and removes corresponding removals
+    for a given set of assignments.
+
+    :param facility: A Facility model instance
+    :param assignments: A list of ContentAssignment objects
+    :param source_instance_id: The UUID of the instance that most likely has the content
+    """
     logger.info("Processing new content assignment requests")
     for assignment in assignments:
         related_removals = ContentRemovalRequest.objects.filter(
@@ -64,6 +95,7 @@ def create_content_download_requests(facility, assignments):
                 facility_id=facility.id,
                 reason=ContentRequestReason.SyncInitiated,
                 status=ContentRequestStatus.Pending,
+                source_instance_id=source_instance_id,
             ),
             source_model=assignment.source_model,
             source_id=assignment.source_id,
@@ -72,6 +104,13 @@ def create_content_download_requests(facility, assignments):
 
 
 def create_content_removal_requests(facility, removable_assignments):
+    """
+    Creates sync-initiated content removal requests and removes corresponding downloads
+    for a given set of assignments.
+
+    :param facility: A Facility model instance
+    :param removable_assignments: A list of ContentAssignment or DeletedAssignment objects
+    """
     logger.info("Processing new content removal requests")
     for assignment in removable_assignments:
         related_downloads = ContentDownloadRequest.objects.filter(
@@ -109,7 +148,9 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     Lessons and Exams. Any model that attaches the `ContentAssignmentManager` will allow this.
 
     :param dataset_id: The UUID of the dataset
+    :type dataset_id: str
     :param transfer_session: The sync's transfer session model, if available
+    :type transfer_session: morango.models.core.TransferSession
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
@@ -131,39 +172,140 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
         **find_kwargs
     )
 
-    create_content_download_requests(facility, assignments)
+    # if we have a transfer session, we can use it to determine the source instance ID, which
+    # will be used to determine the preferred network locations, as it's the most likely
+    # place to find the content
+    source_instance_id = None
+    if transfer_session:
+        sync_session = transfer_session.sync_session
+        # this is only invoked with a transfer session when *receiving* data,
+        # so we can use the push/pull direction to determine the source instance ID
+        source_instance_id = (
+            sync_session.client_instance_id
+            if transfer_session.push
+            else sync_session.server_instance_id
+        )
+
+    create_content_download_requests(
+        facility, assignments, source_instance_id=source_instance_id
+    )
     create_content_removal_requests(facility, removable_assignments)
 
 
-def _get_preferred_network_location(version_filter=None):
+class PreferredDevices(object):
     """
-    Finds the preferred network location (peer) for importing content
+    A class that produces a generator returning preferred network locations (devices), given a list
+    of instance IDs, and a filter for the version of Kolibri running on the server.
 
-    :param version_filter: a version range used to filter instances
-    :return: A NetworkLocation if available
-    :rtype: NetworkLocation
+    The instance IDs are used to filter the devices, and only those devices that are available and
+    possibly matching the version filter are returned.
     """
-    # find the server instance ID for the latest sync session having a matching network location
-    # that is not a SoUD and its connection status is currently okay
-    instance_ids = SyncSession.objects.order_by("-last_activity_timestamp").values_list(
-        "server_instance_id", flat=True
-    )
 
-    # we can't combine this into one SQL query because the tables live in separate sqlite DBs
-    for instance_id in instance_ids:
+    def __init__(self, instance_ids, version_filter=None, filters=None):
+        """
+        :param instance_ids: A list or iterator of instance IDs to filter by
+        :param version_filter: A version filter to apply to the network locations
+        :param filters: Additional filters to apply to the network locations
+        """
+        self.instance_ids = instance_ids
+        self._version_filter = version_filter
+        self._filters = filters or {}
+
+    @classmethod
+    def build_from_sync_sessions(cls, version_filter=None, filters=None):
+        """
+        Build a PreferredNetworkLocations object from recent sync sessions
+
+        :param version_filter: A version filter to apply to the network locations
+        :param filters: Additional filters to apply to the network locations
+        :return: A PreferredNetworkLocations object
+        """
+        filters = filters or {}
+        # only include devices that are not a subset of the user's device
+        filters.update(subset_of_users_device=False)
+        instance_ids = (
+            SyncSession.objects.order_by("-last_activity_timestamp")
+            .values_list("server_instance_id", flat=True)
+            .distinct()
+        )
+        return cls(
+            instance_ids,
+            version_filter=version_filter,
+            filters=filters,
+        )
+
+    def _get_and_validate_peer(self, instance_id):
+        """
+        Get a peer by instance ID, and validate that it is available and matches the version filter
+        :param instance_id: A UUID or hex string representing the instance ID
+        :type instance_id: str|UUID
+        :return: The NetworkLocation object, or None if it is not available or does not match the
+                 validation conditions
+        """
         try:
             peer = NetworkLocation.objects.get(
-                instance_id=instance_id.hex,
-                connection_status=ConnectionStatus.Okay,
-                subset_of_users_device=False,
+                instance_id=_uuid_to_hex(instance_id), **self._filters
             )
-            # ensure version is applicable according to filter
-            if version_filter is not None and not peer.matches_version(version_filter):
-                continue
-            return peer
         except NetworkLocation.DoesNotExist:
-            continue
-    return None
+            return None
+
+        # if we're on a metered connection, we only want to download from local peers
+        if not peer.is_local and not allow_non_local_download():
+            logger.debug(
+                "Non-local peer {} excluded when using metered connection".format(
+                    instance_id
+                )
+            )
+            return None
+        # ensure peer is available, unless reserved
+        if not peer.reserved and peer.connection_status != ConnectionStatus.Okay:
+            logger.debug("Peer {} is not available".format(instance_id))
+            return None
+        # ensure version is applicable according to filter
+        if self._version_filter is not None and not peer.matches_version(
+            self._version_filter
+        ):
+            logger.debug("Peer {} does not match version filter".format(instance_id))
+            return None
+        return peer
+
+    def __iter__(self):
+        """
+        Iterate over the network locations, yielding one at a time
+        :return: The network location object yielded
+        :rtype: Generator<NetworkLocation>
+        """
+        for instance_id in self.instance_ids:
+            # if null, skip
+            if not instance_id:
+                continue
+            peer = self._get_and_validate_peer(instance_id)
+            if peer:
+                # yield resulting peer
+                yield peer
+
+
+class PreferredDevicesWithClient(PreferredDevices):
+    """
+    A class that produces a generator that returns preferred network locations (devices) and
+    individual network clients for each, given a list of instance IDs, and a filter for the version
+    of Kolibri.
+    """
+
+    def __iter__(self):
+        """
+        Iterate over the network locations, yielding the network location and a network client
+        :rtype: Generator<(NetworkLocation, NetworkClient)>
+        """
+        for peer in super(PreferredDevicesWithClient, self).__iter__():
+            # during processing, if there's a critical failure in making requests to the peer,
+            # this will capture those errors, and obviously the raising of exceptions
+            # will interrupt processing
+            with capture_connection_state(peer):
+                with NetworkClient.build_from_network_location(peer) as client:
+                    # test connection
+                    client.connect()
+                    yield (peer, client)
 
 
 def _total_size(*querysets):
@@ -174,25 +316,69 @@ def _total_size(*querysets):
     total_size = 0
     for queryset in querysets:
         total_size += (
-            queryset.aggregate(total_size=Sum("total_size")).get("total_size", 0) or 0
+            queryset.aggregate(sum_size=Sum("total_size")).get("sum_size", 0) or 0
         )
     return total_size
 
 
-def _total_size_annotation():
+def _node_total_size(contentnode_id, thumbnail=False, available=False):
+    """
+    Returns a subquery to determine the total size of needed files not yet imported
+    :param contentnode_id: A contentnode ID or OuterRef to ID field
+    :param thumbnail: Whether to filter on thumbnails
+    :param available: Whether to filter on available files
+    """
+    return Coalesce(
+        Subquery(
+            File.objects.filter(
+                contentnode_id=contentnode_id,
+                local_file__available=available,
+                thumbnail=thumbnail,
+                supplementary=False,
+            )
+            .values(
+                _no_group_by=Value(0)
+            )  # dummy value to allow aggregation, without group by
+            .annotate(total_size=Sum("local_file__file_size"))
+            .values("total_size")
+            .order_by(),
+            output_field=BigIntegerField(),
+        ),
+        Value(0),
+        output_field=BigIntegerField(),
+    )
+
+
+def _total_size_annotation(available=False):
     """
     Returns a subquery to determine the total size of needed files not yet imported
     """
     # we check the parent and the node itself, since we'll generally want to import the parent
     # topic/folder for the resource, and it may have thumbnails
-    return Subquery(
-        File.objects.filter(
-            Q(contentnode_id=OuterRef("contentnode_id"))
-            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
-            & Q(local_file__available=False)
-        )
-        .annotate(total_size=Sum("local_file__file_size"))
-        .values("total_size"),
+    return CombinedExpression(
+        # the requested node's size
+        _node_total_size(OuterRef("contentnode_id"), available=available),
+        "+",
+        # the requested node's parent's size
+        Coalesce(
+            Subquery(
+                ContentNode.objects.filter(id=OuterRef("contentnode_id"))
+                .values(
+                    _no_group_by=Value(0)
+                )  # dummy value to allow aggregation, without group by
+                .annotate(
+                    parent_total_size=_node_total_size(
+                        OuterRef("parent_id"),
+                        thumbnail=True,
+                        available=available,
+                    )
+                )
+                .values("parent_total_size"),
+                output_field=BigIntegerField(),
+            ),
+            Value(0),
+            output_field=BigIntegerField(),
+        ),
         output_field=BigIntegerField(),
     )
 
@@ -202,7 +388,7 @@ def incomplete_downloads_queryset():
     Returns a queryset used to determine the incomplete downloads, with and without metadata, as
     well as the total import size if it does have metadata
     """
-    return (
+    qs = (
         ContentDownloadRequest.objects.filter(status__in=INCOMPLETE_STATUSES)
         .order_by("requested_at")
         .annotate(
@@ -210,8 +396,25 @@ def incomplete_downloads_queryset():
                 ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
             ),
             total_size=_total_size_annotation(),
+            is_learner_download=Case(
+                When(
+                    source_model=FacilityUser.morango_model_name,
+                    then=FixedExists(
+                        FacilityUser.objects.filter(
+                            id=OuterRef("source_id"),
+                            roles__isnull=True,
+                        )
+                    ),
+                ),
+                default=Value(False),
+                output_field=BooleanField(),
+            ),
         )
     )
+    # if we're not allowing learner downloads, filter them out
+    if not get_device_setting("allow_learner_download_resources", default=False):
+        qs = qs.exclude(is_learner_download=True)
+    return qs
 
 
 def completed_downloads_queryset():
@@ -220,30 +423,14 @@ def completed_downloads_queryset():
     well as the total import size if it does have metadata
     """
     return (
-        ContentDownloadRequest.objects.filter(status__in=ContentRequestStatus.Completed)
+        ContentDownloadRequest.objects.filter(status=ContentRequestStatus.Completed)
         .order_by("requested_at")
         .annotate(
             has_metadata=Exists(
                 ContentNode.objects.filter(pk=OuterRef("contentnode_id"))
             ),
-            total_size=_total_size_of_imported_files_annotation(),
+            total_size=_total_size_annotation(available=True),
         )
-    )
-
-
-def _total_size_of_imported_files_annotation():
-    """
-    Returns a subquery to determine the total size of imported files
-    """
-    return Subquery(
-        File.objects.filter(
-            Q(contentnode_id=OuterRef("contentnode_id"))
-            | Q(contentnode__parent_id=OuterRef("contentnode_id"))
-            & Q(local_file__available=True)
-        )
-        .annotate(total_size=Sum("local_file__file_size"))
-        .values("total_size"),
-        output_field=BigIntegerField(),
     )
 
 
@@ -258,6 +445,15 @@ class InsufficientStorage(Exception):
 class NoPeerAvailable(Exception):
     """
     Dedicated exception with which we can halt content request processing when we don't have a peer
+    """
+
+    pass
+
+
+class AlreadyAvailable(Exception):
+    """
+    Dedicated exception with which we can halt content request processing when we detect
+    that the content is already available
     """
 
     pass
@@ -319,12 +515,17 @@ def _import_metadata(client, contentnode_ids):
     :type client: NetworkClient
     :param contentnode_ids: a values_list QuerySet of content node ids or list of them
     :type contentnode_ids: QuerySet or list
+    :return: A boolean indicating whether all metadata was imported successfully
     """
     total_count = (
         contentnode_ids.count()
         if isinstance(contentnode_ids, QuerySet)
         else len(contentnode_ids)
     )
+    # quick exit, without log noise, if nothing to do
+    if not total_count:
+        logging.debug("No content metadata to import")
+        return
     processed_count = 0
     logger.info("Importing content metadata for {} nodes".format(total_count))
     for contentnode_id in contentnode_ids:
@@ -344,6 +545,7 @@ def _import_metadata(client, contentnode_ids):
                 "Failed to import content metadata for {}".format(contentnode_id)
             )
     logger.info("Imported content metadata for {} nodes".format(processed_count))
+    return total_count == processed_count
 
 
 def process_metadata_import(incomplete_downloads_without_metadata):
@@ -352,36 +554,65 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     :param incomplete_downloads_without_metadata: a ContentDownloadRequest queryset
     :type incomplete_downloads_without_metadata: django.db.models.QuerySet
     """
-    peer = _get_preferred_network_location(version_filter=">=0.16.0")
-    if not peer:
-        # can't import metadata without peers having minimum version 0.16.0
-        logger.info("No acceptable peer network device for importing content metadata")
+    preferred_instance_ids = list(
+        incomplete_downloads_without_metadata.values_list(
+            "source_instance_id", flat=True
+        ).distinct()
+    )
+    version_filter = ">=0.16.0"
+    preferred_peers = PreferredDevicesWithClient(
+        preferred_instance_ids, version_filter=version_filter
+    )
+
+    # first, try to import metadata from the preferred peers, filtering the requests
+    # by the matching instance_id
+    for peer, client in preferred_peers:
+        _import_metadata(
+            client,
+            incomplete_downloads_without_metadata.filter(
+                source_instance_id=_uuid_to_hex(peer.instance_id),
+            ).values_list("contentnode_id", flat=True),
+        )
+
+    # if we've completed the import, then we can stop
+    if not incomplete_downloads_without_metadata.exists():
         return
 
-    # during processing, if there's a critical failure in making requests to the peer, this will
-    # capture those errors, and obviously the raise exceptions will interrupt processing
-    with capture_connection_state(peer):
-        with NetworkClient.build_from_network_location(peer) as client:
-            # test connection
-            client.connect()
-            _import_metadata(
-                client,
-                incomplete_downloads_without_metadata.values_list(
-                    "contentnode_id", flat=True
-                ),
+    # otherwise, try to import metadata without filtering the requests by matching instance_id,
+    # first from the same preferred peers, then by any fallback peers
+    fallback_peers = PreferredDevicesWithClient.build_from_sync_sessions(
+        version_filter=version_filter
+    )
+    for peer, client in chain(preferred_peers, fallback_peers):
+        is_complete = _import_metadata(
+            client,
+            incomplete_downloads_without_metadata.exclude(
+                source_instance_id=_uuid_to_hex(peer.instance_id)
+            ).values_list("contentnode_id", flat=True),
+        )
+        # if we've completed the import, then we can stop
+        if is_complete:
+            break
+    else:
+        # if we haven't completed the import by this point, then we can log a warning
+        unprocessed_count = incomplete_downloads_without_metadata.count()
+        logger.info(
+            "No acceptable peer device for importing content metadata for {} nodes".format(
+                unprocessed_count
             )
+        )
 
 
-def _process_content_requests(incomplete_downloads):
+def incomplete_removals_queryset():
     """
-    Processes content requests, both for downloading and removing content
+    Produces a queryset of incomplete ContentRemovalRequests that are not admin imported and are
+    applicable for removal (does not have another download request for the same content node)
+    :return: A queryset of incomplete ContentRemovalRequests that are not admin imported
+    :rtype: django.db.models.QuerySet
     """
-    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
-
-    # obtain the incomplete removals, that do not have an associated download
-    incomplete_removals = (
+    return (
         ContentRemovalRequest.objects.annotate(
-            has_download=Exists(
+            has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
                 ).exclude(
@@ -402,11 +633,21 @@ def _process_content_requests(incomplete_downloads):
         )
         .exclude(
             # hoping using exclude creates SQL like `NOT EXISTS`
-            has_download=True,
+            has_other_download=True,
             is_admin_imported=True,
         )
         .order_by("requested_at")
     )
+
+
+def _process_content_requests(incomplete_downloads):
+    """
+    Processes content requests, both for downloading and removing content
+    """
+    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
+
+    # obtain the incomplete removals, that do not have an associated download
+    incomplete_removals = incomplete_removals_queryset()
     incomplete_sync_removals = incomplete_removals.filter(
         reason=ContentRequestReason.SyncInitiated
     )
@@ -416,47 +657,47 @@ def _process_content_requests(incomplete_downloads):
     complete_user_downloads = ContentDownloadRequest.objects.filter(
         status=ContentRequestStatus.Completed, reason=ContentRequestReason.UserInitiated
     )
+    # track failed so we can exclude them from the loop
+    failed_ids = []
+    has_processed_sync_removals = False
+    has_processed_user_removals = False
+    has_processed_user_downloads = False
+    qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
-    while incomplete_downloads_with_metadata.exists():
-        free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
-
-        # if a limit is set, subtract the total content storage size from the limit
-        if get_device_setting("set_limit_for_autodownload", False):
-            # compute total space used by automatic and learner initiated downloads
-            completed_downloads_size = _total_size(completed_downloads_queryset())
-            # convert limit_for_autodownload from GB to bytes
-            auto_download_limit = bytes_from_humans(
-                str(get_device_setting("limit_for_autodownload", "0")) + "GB"
-            )
-            # returning smallest argument as to not exceed the space available on disk
-            free_space = min(free_space, auto_download_limit - completed_downloads_size)
+    while qs.exists():
+        free_space = get_free_space_for_downloads(
+            completed_size=_total_size(completed_downloads_queryset())
+        )
 
         # grab the next request that will fit within current free space
-        download_request = incomplete_downloads_with_metadata.filter(
-            total_size__lte=free_space
-        ).first()
+        download_request = qs.filter(total_size__lte=free_space).first()
 
         if download_request is not None:
-            process_download_request(download_request)
+            if not process_download_request(download_request):
+                failed_ids.append(download_request.id)
+                qs = incomplete_downloads_with_metadata.exclude(id__in=failed_ids)
         else:
             logger.debug(
                 "Did not find suitable download request for free space {}".format(
                     free_space
                 )
             )
-            if incomplete_sync_removals.exists():
+            if not has_processed_sync_removals and incomplete_sync_removals.exists():
                 # process, then repeat
+                has_processed_sync_removals = True
                 logger.info("Processing sync-initiated content removal requests")
                 process_content_removal_requests(incomplete_sync_removals)
                 continue
-            if incomplete_user_removals.exists():
+            if not has_processed_user_removals and incomplete_user_removals.exists():
                 # process, then repeat
+                has_processed_user_removals = True
                 logger.info("Processing user-initiated content removal requests")
                 process_content_removal_requests(incomplete_user_removals)
                 continue
-            if complete_user_downloads.exists():
+            if not has_processed_user_downloads and complete_user_downloads.exists():
                 # process, then repeat
+                has_processed_user_downloads = True
                 process_user_downloads_for_removal()
                 continue
             raise InsufficientStorage(
@@ -471,12 +712,6 @@ def process_download_request(download_request):
     Processes a download request
     :type download_request: ContentDownloadRequest
     """
-    # we do not need to filter by version, since content import should work for any
-    peer = _get_preferred_network_location()
-    if not peer:
-        # if we're processing download requests, and this happens, no use continuing
-        raise NoPeerAvailable("Could not find available peer for content import")
-
     logger.info(
         "Processing content import request for node {}".format(
             download_request.contentnode_id
@@ -488,24 +723,68 @@ def process_download_request(download_request):
 
     try:
         # by this point we should have a ContentNode
-        channel_id = ContentNode.objects.get(
-            pk=download_request.contentnode_id
-        ).channel_id
-        import_manager = ContentDownloadRequestResourceImportManager(
-            channel_id,
-            peer_id=peer.id,
-            baseurl=peer.base_url,
-            node_ids=[download_request.contentnode_id],
-            download_request=download_request,
-        )
-        import_manager.run()
+        node = ContentNode.objects.get(pk=download_request.contentnode_id)
+        if node.available:
+            raise AlreadyAvailable(
+                "ContentNode {} is already available".format(node.id)
+            )
 
-        download_request.status = ContentRequestStatus.Completed
-        download_request.save()
+        peer_sets = [
+            # we do not need to filter by version, since content import should work for any
+            PreferredDevices.build_from_sync_sessions(),
+        ]
+
+        # prepend the preferred by source instance id, if it exists
+        if download_request.source_instance_id:
+            # we do not need to filter by version, since content import should work for any
+            peer_sets.insert(
+                0, PreferredDevices(instance_ids=[download_request.source_instance_id])
+            )
+
+        # we try to import from the source instance first
+        for peer in chain(*peer_sets):
+            import_manager = ContentDownloadRequestResourceImportManager(
+                node.channel_id,
+                peer_id=peer.id,
+                baseurl=peer.base_url,
+                node_ids=[download_request.contentnode_id],
+                download_request=download_request,
+                fail_on_error=True,
+            )
+            _, count = import_manager.run()
+
+            # can't trust the count, fail if there's an exception
+            if getattr(import_manager, "exception", None):
+                raise getattr(import_manager, "exception")
+            else:
+                if count == 0:
+                    logger.warning(
+                        "ContentNode files may not have imported successfully: {}".format(
+                            download_request.contentnode_id
+                        )
+                    )
+                # without an exception, we can assume the import was successful
+                break
+        else:
+            raise NoPeerAvailable(
+                "Unable to import {} from peers".format(download_request.contentnode_id)
+            )
+    except AlreadyAvailable as e:
+        # do nothing, since the content is already available
+        logger.debug(str(e))
     except Exception as e:
-        logger.exception(e)
+        if isinstance(e, NoPeerAvailable):
+            logger.warning(e)
+        else:
+            logger.exception(e)
+
         download_request.status = ContentRequestStatus.Failed
         download_request.save()
+        return False
+
+    download_request.status = ContentRequestStatus.Completed
+    download_request.save()
+    return True
 
 
 def process_user_downloads_for_removal():
@@ -518,7 +797,7 @@ def process_user_downloads_for_removal():
             status=ContentRequestStatus.Completed,
         )
         .annotate(
-            total_size=_total_size_annotation(),
+            total_size=_total_size_annotation(available=True),
             has_other_download=Exists(
                 ContentDownloadRequest.objects.filter(
                     contentnode_id=OuterRef("contentnode_id")
@@ -556,6 +835,30 @@ def process_user_downloads_for_removal():
     )
 
 
+def _remove_corresponding_download_requests(removal_qs):
+    """
+    Removes any corresponding download requests for the given removal requests
+    :param removal_qs: a ContentRemovalRequest queryset
+    :type removal_qs: django.db.models.QuerySet
+    """
+    return (
+        ContentDownloadRequest.objects.annotate(
+            has_removal=Exists(
+                # completed, same node, same requester (model+source), and requested before
+                removal_qs.filter(
+                    contentnode_id=OuterRef("contentnode_id"),
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                    status=ContentRequestStatus.Completed,
+                )
+            )
+        )
+        .filter(status=ContentRequestStatus.Completed, has_removal=True)
+        .delete()
+    )
+
+
 def process_content_removal_requests(queryset):
     """
     Garbage collects content requests marked for removal (removed_at is not null)
@@ -565,32 +868,45 @@ def process_content_removal_requests(queryset):
     """
     # exclude admin imported nodes
     removable_nodes = ContentNode.objects.filter(
-        admin_imported=False,
         id__in=queryset.values_list("contentnode_id", flat=True).distinct(),
         available=True,
+    ).exclude(
+        # could be null, so we exclude True instead of filtering False
+        admin_imported=True,
     )
     channel_ids = removable_nodes.values_list("channel_id", flat=True).distinct()
 
     for channel_id in channel_ids:
-        contentnode_ids = removable_nodes.filter(channel_id=channel_id).values_list(
-            "id", flat=True
+        # cast to list immediately to avoid issues with lazy evaluation
+        contentnode_ids = list(
+            removable_nodes.filter(channel_id=channel_id).values_list("id", flat=True)
         )
-        channel_requests = queryset.filter(contentnode_id__in=contentnode_ids)
+        # queryset unfiltered by status
+        channel_requests = ContentRemovalRequest.objects.filter(
+            id__in=list(
+                queryset.filter(contentnode_id__in=contentnode_ids).values_list(
+                    "id", flat=True
+                )
+            ),
+        )
         channel_requests.update(status=ContentRequestStatus.InProgress)
         try:
             call_command(
                 "deletecontent",
                 channel_id,
-                node_ids=list(contentnode_ids),
+                node_ids=contentnode_ids,
                 force_delete=True,
             )
+            # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)
+            # finally, delete all corresponding download requests
+            _remove_corresponding_download_requests(channel_requests)
         except Exception as e:
             logger.exception(e)
             channel_requests.update(status=ContentRequestStatus.Failed)
 
-    # lastly, update all incomplete as completed, since they must have been excluded
-    # as already unavailable
-    queryset.filter(status__in=INCOMPLETE_STATUSES).update(
-        status=ContentRequestStatus.Completed
-    )
+    # lastly, remove any downloads for those we're unable to process (admin imported) or are
+    # already unavailable and update them completed
+    remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
+    _remove_corresponding_download_requests(remaining_pending)
+    remaining_pending.update(status=ContentRequestStatus.Completed)
