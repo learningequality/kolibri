@@ -1,18 +1,13 @@
 import { v4 as uuidv4 } from 'uuid';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import {
-  ContentNodeResource,
-  BookmarksResource,
-  ContentNodeSearchResource,
-  ChannelResource,
-} from 'kolibri.resources';
+import { ChannelResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, onMounted } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
-import { Exercise, Quiz, QuizQuestion, QuizSection } from './quizCreationSpecs.js';
+import { Quiz, QuizSection } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -31,36 +26,39 @@ function isExercise(o) {
   return o.kind === ContentNodeKinds.EXERCISE;
 }
 
-/*
+/**
  * Composable function presenting primary interface for Quiz Creation
  */
 export function useQuizCreation() {
-  // STATE
+  // -----------
+  // Local state
+  // -----------
 
-  /* @type {ref<Quiz>}
+  /** @type {ref<Quiz>}
    * The "source of truth" quiz object from which all reactive properties should derive */
   const _quiz = ref(objectWithDefaults({}, Quiz));
 
-  /* @type {ref<QuizSection>}
+  /** @type {ref<QuizSection>}
    * The section that is currently selected for editing */
   const _activeSectionId = ref(null);
 
-  /* @type {ref<QuizQuestion[]>}
+  /** @type {ref<QuizQuestion[]>}
    * The questions that are currently selected for action in the active section */
   const _selectedQuestions = ref([]);
 
-  // API / METHODS
+  /** @type {ref<>} A list of all channels available which have exercises */
+  const _channels = ref([]);
 
   // ------------------
   // Section Management
   // ------------------
 
-  /* @returns
-
-  /* @param   {QuizSection} section
+  /**
+   * @param   {QuizSection} section
    * @returns {QuizSection}
    * @affects _quiz - Updates the section with the given section_id with the given param
-   * @throws {TypeError} if section is not a valid QuizSection */
+   * @throws {TypeError} if section is not a valid QuizSection
+   **/
   function updateSection({ section_id, ...updates }) {
     const targetSection = get(allSections).find(section => section.section_id === section_id);
     if (!targetSection) {
@@ -98,15 +96,19 @@ export function useQuizCreation() {
     });
   }
 
-  /* @param {QuizQuestion[]} newQuestions
+  /**
+   * @param {QuizQuestion[]} newQuestions
    * @affects _quiz - Updates the active section's `questions` property
    * @affects _selectedQuestions - Clears this back to an empty array
    * @throws {TypeError} if newQuestions is not a valid array of QuizQuestions
    * Updates the active section's `questions` property with the given newQuestions, and clears
    * _selectedQuestions from it. Then it resets _selectedQuestions to an empty array */
-  function replaceSelectedQuestions(newQuestions) {}
+  // TODO WRITE THIS FUNCTION
+  function replaceSelectedQuestions(newQuestions) {
+    return newQuestions;
+  }
 
-  /* @returns {QuizSection}
+  /** @returns {QuizSection}
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
@@ -114,7 +116,8 @@ export function useQuizCreation() {
     return newSection;
   }
 
-  /* @throws {Error} if section not found
+  /**
+   * @throws {Error} if section not found
    * Deletes the given section by section_id */
   function removeSection(section_id) {
     const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
@@ -124,7 +127,8 @@ export function useQuizCreation() {
     updateQuiz({ question_sources: updatedSections });
   }
 
-  /* @param {string} [section_id]
+  /**
+   * @param {string} [section_id]
    * @affects _activeSectionId
    * Sets the given section_id as the active section ID, however, if the ID is not found or is null
    * it will set the activeId to the first section in _quiz.question_sources */
@@ -136,7 +140,7 @@ export function useQuizCreation() {
   // Quiz General
   // ------------
 
-  /* @affects _quiz
+  /** @affects _quiz
    * @affects _activeSectionId
    * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
@@ -148,7 +152,8 @@ export function useQuizCreation() {
     _fetchChannels();
   }
 
-  /* @param  {Quiz} updates
+  /**
+   * @param  {Quiz} updates
    * @throws {TypeError} if updates is not a valid Quiz object
    * @affects _quiz
    * Validates the input type and then updates _quiz with the given updates */
@@ -163,13 +168,14 @@ export function useQuizCreation() {
   // Questions / Exercises management
   // --------------------------------
 
-  /* @param {QuizQuestion} question
+  /** @param {QuizQuestion} question
    * @affects _selectedQuestions - Adds question to _selectedQuestions if it isn't there already */
   function addQuestionToSelection(question_id) {
     set(_selectedQuestions, uniq([...get(_selectedQuestions), question_id]));
   }
 
-  /* @param {QuizQuestion} question
+  /**
+   * @param {QuizQuestion} question
    * @affects _selectedQuestions - Removes question from _selectedQuestions if it is there */
   function removeQuestionFromSelection(question_id) {
     set(
@@ -178,10 +184,8 @@ export function useQuizCreation() {
     );
   }
 
-  /* A list of all channels available which have exercises */
-  const _channels = ref([]);
-
-  /* @affects _channels - Fetches all channels with exercises and sets them to _channels */
+  /**
+   * @affects _channels - Fetches all channels with exercises and sets them to _channels */
   function _fetchChannels() {
     ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
       response => {
@@ -211,36 +215,39 @@ export function useQuizCreation() {
     if (!section) {
       throw new Error(`Section with id ${section_id} not found.`);
     }
-    return section.resource_pool.reduce((acc, exercise) => {
+    return get(activeExercisePool).reduce((acc, exercise) => {
       return [...acc, ...exercise.questions];
     }, []);
   }
 
   // Computed properties
-  /* @returns {Quiz} The value of _quiz */
+  /** @type {ComputedRef<Quiz>} The value of _quiz */
   const quiz = computed(() => get(_quiz));
-  /* @returns {QuizSection[]} The value of _quiz's `question_sources` */
+  /** @type {ComputedRef<QuizSection[]>} The value of _quiz's `question_sources` */
   const allSections = computed(() => get(quiz).question_sources);
-  /* @returns {QuizSection} The active section */
+  /** @type {ComputedRef<QuizSection>} The active section */
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
-  /* @returns {QuizResource[]} The active section's `resource_pool` */
+  /** @type {ComputedRef<QuizResource[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
-  /* @returns {ExerciseResource[]} The active section's `resource_pool` - that is, Exercises from
-   *                               which we will enumerate all available questions */
+  /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
+   *                                          Exercises from which we will enumerate all
+   *                                          available questions */
   const activeExercisePool = computed(() => get(activeResourcePool).filter(isExercise));
-  /* @returns {QuizQuestion[]} All questions in the active section's `resource_pool` exercises */
+  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
+   *                                      exercises */
   const activeQuestionsPool = computed(() => _getQuestionsFromSection(get(_activeSectionId)));
-  /* @returns {QuizQuestion[]} All questions in the active section's `questions` property,
-   *                           those which are currently set to be used in the section */
+  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
+   *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
-  /* @returns {QuizQuestion[]} All questions the user has selected for the active section */
+  /** @type {ComputedRef<QuizQuestion[]>} All questions the user has selected for the active
+   *                                         section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestions));
-  /* @returns {QuizQuestion[]} Questions in the active section's `resource_pool` that are not in
-   *                           `questions` */
+  /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's `resource_pool` that
+   *                                         are not in `questions` */
   const replacementQuestionPool = computed(() => {});
-  /* @returns {Array} A list of all channels available which have exercises */
+  /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
 
   return {
@@ -261,6 +268,7 @@ export function useQuizCreation() {
     allSections,
     activeSection,
     activeExercisePool,
+    activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
