@@ -31,25 +31,12 @@ class Application(Adw.Application):
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
 
-    CSS_OVERRIDE: str = ""
-
-    css_provider: Gtk.CssProvider
-
     def __init__(self, *args, context: KolibriContext = None, **kwargs):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
 
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
         self.__context.connect("open-external-url", self.__context_on_open_external_url)
-
-        # TODO: There may be an API to do this from Adw itself in the future.
-        self.css_provider = Gtk.CssProvider()
-        Gtk.StyleContext.add_provider_for_display(
-            Gdk.Display.get_default(),
-            self.css_provider,
-            Gtk.STYLE_PROVIDER_PRIORITY_THEME + 1,
-        )
-        self.css_provider.load_from_data(self.CSS_OVERRIDE, -1)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
