@@ -23,7 +23,8 @@ def test_learner_ids():
 
 
 @mock.patch(
-    "kolibri.plugins.learn.kolibri_plugin._learner_ids", return_value=["abc123"]
+    "kolibri.plugins.learn.kolibri_plugin.DiscoveryHookMixin._learner_ids",
+    return_value=["abc123"],
 )
 class NetworkDiscoveryForSoUDHookTestCase(TestCase):
     def setUp(self):

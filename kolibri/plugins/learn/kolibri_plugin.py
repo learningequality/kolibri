@@ -153,11 +153,14 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook, DiscoveryHookMix
         """
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
+        from kolibri.core.auth.tasks import stop_request_soud_sync
+
         if (
             get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device
         ):
-            self._begin_request_soud_sync(network_location)
+            for user_id in self._learner_ids():
+                stop_request_soud_sync(network_location.base_url, user_id)
 
 
 @register_hook
