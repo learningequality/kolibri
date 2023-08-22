@@ -147,8 +147,7 @@ oriented data synchronization.
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
-  import { createTranslator } from 'kolibri.utils.i18n';
-  import { defaultLanguage } from 'kolibri-design-system/lib/utils/i18n';
+  import { createTranslator, defaultLanguage } from 'kolibri.utils.i18n';
   import LessonMasteryBar from './LessonMasteryBar';
   import ExerciseAttempts from './ExerciseAttempts';
 
