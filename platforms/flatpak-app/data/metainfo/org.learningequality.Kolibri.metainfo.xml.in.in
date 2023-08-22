@@ -22,6 +22,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.3.0" date="2023-09-22" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            The application runtime is updated to GNOME 44.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="2.2.1" date="2023-03-21" type="stable">
       <description>
         <p>Changes included in this release:</p>
