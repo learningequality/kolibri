@@ -21,16 +21,20 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import begin_request_soud_sync
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
+from kolibri.core.auth.tasks import peerusersync
 from kolibri.core.auth.tasks import request_soud_sync
 from kolibri.core.auth.tasks import SyncJobValidator
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.public.constants.user_sync_statuses import QUEUED
 from kolibri.core.public.constants.user_sync_statuses import SYNC
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State as JobState
+from kolibri.core.tasks.main import job_storage
 
 
 DUMMY_PASSWORD = "password"
@@ -695,7 +699,18 @@ class TestRequestSoUDSync(TestCase):
 
     @patch("kolibri.core.auth.tasks.request_soud_sync")
     @patch(
-        "kolibri.core.device.utils.get_device_setting",
+        "kolibri.core.auth.tasks.get_device_setting",
+        return_value=False,
+    )
+    def test_begin_request_soud_sync__not_soud(
+        self, mock_device_info, request_soud_sync
+    ):
+        begin_request_soud_sync("whatever_server", self.test_user.id)
+        request_soud_sync.enqueue.assert_not_called()
+
+    @patch("kolibri.core.auth.tasks.request_soud_sync")
+    @patch(
+        "kolibri.core.auth.tasks.get_device_setting",
         return_value=True,
     )
     def test_begin_request_soud_sync(self, mock_device_info, request_soud_sync):
@@ -703,6 +718,95 @@ class TestRequestSoUDSync(TestCase):
         request_soud_sync.enqueue.assert_called_with(
             args=("whatever_server", self.test_user.id)
         )
+
+    @patch("kolibri.core.auth.tasks.request_soud_sync")
+    @patch(
+        "kolibri.core.auth.tasks.get_device_setting",
+        return_value=True,
+    )
+    def test_begin_request_soud_sync__no_sync_session(
+        self, mock_device_info, request_soud_sync
+    ):
+        UserSyncStatus.objects.create(
+            user=self.test_user,
+            queued=False,
+        )
+        begin_request_soud_sync("whatever_server", self.test_user.id)
+        request_soud_sync.enqueue.assert_called_with(
+            args=("whatever_server", self.test_user.id)
+        )
+
+    @patch("kolibri.core.auth.tasks.NetworkClient.build_for_address")
+    @patch("kolibri.core.auth.tasks.request_soud_sync")
+    @patch(
+        "kolibri.core.auth.tasks.get_device_setting",
+        return_value=True,
+    )
+    def test_begin_request_soud_sync__queued(
+        self, mock_device_info, request_soud_sync, mock_build_for_address
+    ):
+        mock_build_for_address.return_value = MagicMock(
+            base_url="http://127.0.0.1:8888"
+        )
+
+        job, enqueue_args = peerusersync.validate_job_data(
+            self.test_user,
+            {
+                "baseurl": "http://127.0.0.1:8888",
+                "user_id": self.test_user.id,
+                "resync_interval": 5,
+                "facility": self.facility.id,
+                "sync_session_id": None,
+                "command": "sync",
+            },
+        )
+        peerusersync.enqueue_in(datetime.timedelta(days=365), job=job)
+
+        UserSyncStatus.objects.create(
+            user=self.test_user,
+            queued=True,
+        )
+        begin_request_soud_sync("whatever_server", self.test_user.id)
+        request_soud_sync.enqueue.assert_not_called()
+
+    @patch("kolibri.core.auth.tasks.NetworkClient.build_for_address")
+    @patch("kolibri.core.auth.tasks.request_soud_sync")
+    @patch(
+        "kolibri.core.auth.tasks.get_device_setting",
+        return_value=True,
+    )
+    def test_begin_request_soud_sync__failed_jobs(
+        self, mock_device_info, request_soud_sync, mock_build_for_address
+    ):
+        mock_build_for_address.return_value = MagicMock(
+            base_url="http://127.0.0.1:8888"
+        )
+
+        job, enqueue_args = peerusersync.validate_job_data(
+            self.test_user,
+            {
+                "baseurl": "http://127.0.0.1:8888",
+                "user_id": self.test_user.id,
+                "resync_interval": 5,
+                "facility": self.facility.id,
+                "sync_session_id": None,
+                "command": "sync",
+            },
+        )
+        # never intend this job to actually run
+        peerusersync.enqueue_in(datetime.timedelta(days=365), job=job)
+        job_storage._update_job(job.job_id, JobState.FAILED)
+
+        UserSyncStatus.objects.create(
+            user=self.test_user,
+            queued=True,
+        )
+        begin_request_soud_sync("whatever_server", self.test_user.id)
+        request_soud_sync.enqueue.assert_called_with(
+            args=("whatever_server", self.test_user.id)
+        )
+        sync_status = UserSyncStatus.objects.get(user=self.test_user)
+        self.assertFalse(sync_status.queued)
 
     @patch("kolibri.core.tasks.registry.job_storage")
     @patch("kolibri.core.auth.tasks.get_current_job")
