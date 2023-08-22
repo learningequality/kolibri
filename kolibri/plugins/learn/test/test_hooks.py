@@ -2,7 +2,7 @@ import mock
 import pytest
 from django.test import TestCase
 
-from ..kolibri_plugin import _learner_ids
+from ..kolibri_plugin import DiscoveryHookMixin
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import create_superuser
@@ -12,11 +12,12 @@ from kolibri.core.discovery.models import NetworkLocation
 
 @pytest.mark.django_db(transaction=True)
 def test_learner_ids():
+    mixin = DiscoveryHookMixin()
     facility = Facility.objects.create()
     create_superuser(facility)
     user1 = FacilityUser.objects.create(username="buster.0", facility=facility)
     user2 = FacilityUser.objects.create(username="buster.1", facility=facility)
-    user_ids = list(_learner_ids())
+    user_ids = list(mixin._learner_ids())
     assert user1.pk in user_ids
     assert user2.pk in user_ids
 
