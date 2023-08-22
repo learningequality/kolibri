@@ -522,6 +522,8 @@
           style = {
             minHeight: '900px',
           };
+        } else {
+          style.top = '60px';
         }
         if (this.isRtl) {
           style.marginRight = `${this.sidePanelWidth + 24}px`;

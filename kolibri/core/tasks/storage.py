@@ -23,6 +23,7 @@ from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import JobNotRunning
 from kolibri.core.tasks.exceptions import JobRunning
+from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import Priority
@@ -493,6 +494,8 @@ class Storage(object):
         if not isinstance(delta_t, timedelta):
             raise TypeError("Time argument must be a timedelta object.")
         orm_job = self.get_orm_job(job_id)
+        if orm_job.state == State.CANCELING:
+            raise UserCancelledError("Job has been marked for cancellation.")
         if orm_job.state != State.RUNNING:
             raise JobNotRunning("Job is not running, cannot retry.")
         if orm_job.retry_interval is not None or orm_job.repeat != 0:
