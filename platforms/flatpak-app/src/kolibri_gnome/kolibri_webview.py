@@ -40,9 +40,6 @@ class KolibriWebView(WebKit.WebView):
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
 
-        # FIXME: These events are also handled by the webview itself, which is a
-        #        problem. How do we stop it from doing that?
-
         click_back_gesture = Gtk.GestureClick(
             button=MOUSE_BUTTON_BACK, propagation_phase=Gtk.PropagationPhase.CAPTURE
         )
@@ -72,12 +69,14 @@ class KolibriWebView(WebKit.WebView):
         self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
     ) -> bool:
         self.go_back()
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED);
         return True
 
     def __on_forward_button_pressed(
         self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
     ) -> bool:
         self.go_forward()
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED);
         return True
 
     def __continue_load_kolibri_url(self):
