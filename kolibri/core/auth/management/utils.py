@@ -4,7 +4,6 @@ Utility methods for syncing.
 import getpass
 import json
 import logging
-import math
 import sys
 from contextlib import contextmanager
 from functools import wraps
@@ -659,23 +658,19 @@ class MorangoSyncCommand(AsyncCommand):
 
         def started(transfer_session):
             stats(transfer_session)
-            self.start_progress(total=100)
+            self.start_progress(total=transfer_session.records_total or 100)
 
         def handler(transfer_session):
             """
             :type transfer_session: morango.models.core.TransferSession
             """
             if transfer_session.records_total > 0:
-                progress = (
-                    100
-                    * transfer_session.records_transferred
-                    / float(transfer_session.records_total)
-                )
+                progress = transfer_session.records_transferred
             else:
                 progress = 100
 
             self.update_progress(
-                increment=math.ceil(progress - self.progresstracker.progress),
+                current_progress=progress,
                 message=stats_msg(transfer_session),
                 extra_data=dict(
                     bytes_sent=transfer_session.bytes_sent,
@@ -703,7 +698,7 @@ class MorangoSyncCommand(AsyncCommand):
         """
 
         def started(transfer_session):
-            self.start_progress(total=2)
+            self.start_progress(total=1)
             dataset_cache.clear()
             if noninteractive or self.progresstracker.progressbar is None:
                 if (
