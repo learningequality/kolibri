@@ -160,16 +160,6 @@ class Application(Adw.Application):
 
         window.connect("open-in-browser", self.__window_on_open_in_browser)
         window.connect("open-new-window", self.__window_on_open_new_window)
-
-        # Set WM_CLASS for improved window management
-        # FIXME: GTK+ strongly discourages doing this:
-        #        <https://docs.gtk.org/gtk3/method.Window.set_wmclass.html>
-        #        However, our WM_CLASS becomes `"main.py", "Main.py"`, which
-        #        causes GNOME Shell to treat unique instances of this
-        #        application (with different application IDs) as the same.
-        # FIXME: !!!
-        # window.set_wmclass("Kolibri", self.get_application_id())
-
         window.load_kolibri_url(target_url, present=True)
 
         # Maximize windows on Endless OS
