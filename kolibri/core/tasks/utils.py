@@ -242,9 +242,16 @@ class ProgressTracker:
             except RuntimeError:
                 self.progressbar = None
 
+    def set_progress(self, current_progress, message):
+        increment = current_progress - self.progress
+        self.progress = current_progress
+        self._update_progress_state(increment, message)
+
     def update_progress(self, increment, message):
         self.progress += increment
+        self._update_progress_state(increment, message)
 
+    def _update_progress_state(self, increment, message):
         # Ensure that we don't go over the total
         if self.progress > self.total:
             logger.debug(
@@ -277,19 +284,31 @@ class JobProgressMixin(object):
         self.job = get_current_job()
         super(JobProgressMixin, self).__init__(*args, **kwargs)
 
-    def update_progress(self, increment=1, message="", extra_data=None):
+    def update_progress(
+        self, increment=None, message="", current_progress=None, extra_data=None
+    ):
+        if current_progress is None and increment is None:
+            increment = 1
         if self.progresstracker:
-            self.progresstracker.update_progress(increment, message)
+            if current_progress is not None:
+                self.progresstracker.set_progress(current_progress, message)
+            else:
+                self.progresstracker.update_progress(increment, message)
         if self.job:
-            if self.job.progress + increment > self.job.total_progress:
+            new_progress = (
+                self.job.progress + increment
+                if increment is not None
+                else current_progress
+            )
+            if new_progress > self.job.total_progress:
                 logger.debug(
                     "Attempted to increment progress by {} on current progress {} and total progress {}".format(
                         increment, self.job.progress, self.job.total_progress
                     )
                 )
                 # Only set the job progress to a max of the total progress
-                increment = self.job.total_progress - self.job.progress
-            self.job.update_progress(increment, self.job.total_progress)
+                new_progress = self.job.total_progress
+            self.job.update_progress(new_progress, self.job.total_progress)
             if extra_data and isinstance(extra_data, dict):
                 self.job.update_metadata(**extra_data)
 
