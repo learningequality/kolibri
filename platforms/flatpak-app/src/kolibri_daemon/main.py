@@ -20,12 +20,9 @@ def main():
     setproctitle(PROCESS_NAME)
 
     kolibri_service = KolibriServiceManager()
-    kolibri_service.init()
-
     search_handler = LocalSearchHandler()
-    search_handler.init()
-
     application = Application(kolibri_service, search_handler)
+
     signal.signal(signal.SIGTERM, partial(application_signal_handler, application))
 
     return application.run(sys.argv)
