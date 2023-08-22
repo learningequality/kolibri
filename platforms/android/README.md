@@ -2,34 +2,22 @@
 
 Wraps Kolibri in an android-compatibility layer. Relies on Python-For-Android to build the APK and for compatibility on the Android platform.
 
-## Build on Docker
-
-This project was primarily developed on Docker, so this method is more rigorously tested.
-
-1. Install [docker](https://www.docker.com/community-edition)
-
-2. Build or download a Kolibri WHL file, and place in the `whl/` directory.
-
-3. Run `make run_docker`.
-
-4. The generated APK will end up in the `bin/` folder.
-
 ## Development Flow
 
 1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
 
-2. Install the Android SDK and Android NDK.
+2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
+
+3. The `make setup` command will install the Android SDK and Android NDK.
 
 N.B. if you would like these to be installed to a different location then you can set an environment variable, e.g.:
 By default it is set to `export ANDROID_SDK_ROOT=./android_root`
 
 Run `make setup`.
 
-3. Install the Python dependencies:
+4. Install the Python dependencies:
 
 `pip install -r requirements.txt`
-
-4. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
 
 5. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
 
@@ -87,6 +75,18 @@ You could also do so using [Weinre](https://people.apache.org/~pmuellr/weinre/do
     - Logcat also has a large variety of filtering options. Check out the docs for those.
   - Uninstall from terminal using `adb shell pm uninstall org.learningequality.Kolibri`. ([Docs](https://developer.android.com/studio/command-line/adb#pm))
 - Docker shouldn't be rebuilding very often, so it shouldn't be using that much storage. But if it does, you can run `docker system prune` to clear out all "dangling" images, containers, and layers. If you've been constantly rebuilding, it will likely get you several gigabytes of storage.
+
+## Build on Docker
+
+This project was previously developed on Docker, but this method has not recently been tested.
+
+1. Install [docker](https://www.docker.com/community-edition)
+
+2. Build or download a Kolibri WHL file, and place in the `whl/` directory.
+
+3. Run `make run_docker`.
+
+4. The generated APK will end up in the `bin/` folder.
 
 ## Docker Implementation Notes
 The image was optimized to limit rebuilding and to be run in a developer-centric way. `scripts/rundocker.sh` describes the options needed to get the build running properly.
