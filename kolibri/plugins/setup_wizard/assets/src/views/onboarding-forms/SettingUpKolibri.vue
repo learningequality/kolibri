@@ -194,7 +194,7 @@
           })
           .catch(e => {
             this.restart = e.response.status === 400;
-            this.$store.dispatch('handleApiError', e);
+            this.$store.dispatch('handleApiError', { error: e });
           });
       },
     },

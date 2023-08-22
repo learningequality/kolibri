@@ -54,12 +54,17 @@ export function useGroups() {
                 store.dispatch('clearError');
               }
             },
-            error => (shouldResolve() ? store.dispatch('handleApiError', error) : null)
+            error =>
+              shouldResolve()
+                ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+                : null
           );
         }
       },
       error => {
-        shouldResolve() ? store.dispatch('handleApiError', error) : null;
+        shouldResolve()
+          ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+          : null;
       }
     );
   }

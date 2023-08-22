@@ -43,7 +43,7 @@ export default [
           }
           store.dispatch('notLoading');
         },
-        error => store.dispatch('handleApiError', error)
+        error => store.dispatch('handleApiError', { error, reloadOnReconnect: true })
       );
     },
     meta: {

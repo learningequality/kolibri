@@ -64,7 +64,7 @@ function handleError(store, error) {
   }
   // handle other errors generically
   store.commit('manageContent/wizard/RESET_STATE');
-  store.dispatch('handleApiError', error);
+  store.dispatch('handleApiError', { error });
 }
 
 // Handler for when user goes directly to the Available Channels URL.

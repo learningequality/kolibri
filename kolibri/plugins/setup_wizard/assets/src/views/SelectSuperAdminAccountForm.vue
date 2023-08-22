@@ -147,7 +147,7 @@
             this.loading = false;
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       resetFormAndRefocus() {

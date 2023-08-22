@@ -30,7 +30,7 @@ function _loadTopicsContent(store, id, baseurl) {
       }
     },
     error => {
-      shouldResolve() ? store.dispatch('handleApiError', error) : null;
+      shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
     }
   );
 }
@@ -145,7 +145,7 @@ function _loadTopicsTopic(store, { route, baseurl } = {}) {
           router.replace({ name: PageNames.LIBRARY });
           return;
         }
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       }
     }
   );
@@ -170,7 +170,7 @@ export function showTopicsTopic(store, route) {
                 router.replace({ name: PageNames.LIBRARY });
                 return;
               }
-              store.dispatch('handleApiError', error);
+              store.dispatch('handleApiError', { error, reloadOnReconnect: true });
             }
           });
       });

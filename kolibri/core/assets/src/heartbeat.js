@@ -225,7 +225,6 @@ export class HeartBeat {
     if (store.getters.connected) {
       // We have not already registered that we have been disconnected
       store.commit('CORE_SET_CONNECTED', false);
-      store.commit('CORE_SET_DISCONNECTED_WHILE_LOADING', store.state.core.loading);
       let reconnectionTime;
       if (store.state.pageVisible) {
         // If current page is not visible, back off completely
@@ -252,7 +251,7 @@ export class HeartBeat {
     store.commit('CORE_SET_CONNECTED', true);
     store.commit('CORE_SET_RECONNECT_TIME', null);
     createReconnectedSnackbar(store);
-    if (store.state.core.connection.disconnectedWhileLoading) {
+    if (store.state.core.connection.reloadOnReconnect) {
       // If we were disconnected while loading, we need to reload the page
       // to ensure that we are in a consistent state.
       window.location.reload();

@@ -264,7 +264,7 @@
             }
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       setChannelData(installedChannel, sourceChannel) {
@@ -278,7 +278,7 @@
       loadChannelInfo() {
         return fetchChannelAtSource(this.params).catch(error => {
           // Useful errors will still appear on AppError
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error });
         });
       },
       startDiffStatsTask() {

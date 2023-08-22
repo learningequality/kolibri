@@ -51,7 +51,7 @@ function _showChannels(store, query, channels, baseurl) {
       }
     },
     error => {
-      shouldResolve() ? store.dispatch('handleApiError', error) : null;
+      shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
       store.commit('SET_ROOT_NODES_LOADING', false);
     }
   );

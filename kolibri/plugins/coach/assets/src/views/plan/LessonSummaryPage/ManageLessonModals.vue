@@ -106,7 +106,7 @@
                 actionCallback: () => this.$store.commit('CORE_CLEAR_SNACKBAR'),
               });
             } else {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             }
             this.closeModal();
           });
@@ -120,7 +120,7 @@
             });
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
     },

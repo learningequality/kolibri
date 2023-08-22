@@ -80,7 +80,7 @@
               this.showError = true;
               this.showTitleError = true;
             } else {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             }
           });
       },

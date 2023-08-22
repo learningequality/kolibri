@@ -2,7 +2,7 @@ export default {
   state: {
     connected: true,
     reconnectTime: null,
-    disconnectedWhileLoading: false,
+    reloadOnReconnect: false,
   },
   getters: {
     connected(state) {
@@ -19,8 +19,8 @@ export default {
     CORE_SET_RECONNECT_TIME(state, reconnectTime) {
       state.reconnectTime = reconnectTime;
     },
-    CORE_SET_DISCONNECTED_WHILE_LOADING(state, disconnectedWhileLoading) {
-      state.disconnectedWhileLoading = disconnectedWhileLoading;
+    CORE_SET_RELOAD_ON_RECONNECT(state, reloadOnReconnect) {
+      state.reloadOnReconnect = reloadOnReconnect;
     },
   },
 };

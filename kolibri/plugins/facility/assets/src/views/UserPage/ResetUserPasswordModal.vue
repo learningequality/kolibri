@@ -72,7 +72,7 @@
             this.$emit('cancel');
             this.showSnackbarNotification('passwordReset');
           })
-          .catch(error => this.$store.dispatch('handleApiError', error));
+          .catch(error => this.$store.dispatch('handleApiError', { error }));
       },
       focusOnInvalidField() {
         this.$nextTick().then(() => {

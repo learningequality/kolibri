@@ -50,7 +50,7 @@ export default {
             store.commit('ADD_MORE_CONTENTS', data);
           })
           .catch(err => {
-            store.dispatch('handleApiError', err);
+            store.dispatch('handleApiError', { error: err });
           });
       }
     },
@@ -68,7 +68,7 @@ export default {
             store.commit('ADD_MORE_CHILD_CONTENTS', data);
           })
           .catch(err => {
-            store.dispatch('handleApiError', err);
+            store.dispatch('handleApiError', { error: err });
           });
       }
     },

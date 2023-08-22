@@ -204,7 +204,7 @@
       },
       retryImport() {
         TaskResource.restart(this.loadingTask.id).catch(error => {
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error });
         });
       },
       cancelTask() {

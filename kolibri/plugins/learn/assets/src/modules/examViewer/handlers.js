@@ -92,13 +92,17 @@ export function showExam(store, params, alreadyOnQuiz) {
               }
             },
             error => {
-              shouldResolve() ? store.dispatch('handleApiError', error) : null;
+              shouldResolve()
+                ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+                : null;
             }
           );
         }
       },
       error => {
-        shouldResolve() ? store.dispatch('handleApiError', error) : null;
+        shouldResolve()
+          ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+          : null;
       }
     );
   }

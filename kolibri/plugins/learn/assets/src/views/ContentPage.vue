@@ -268,7 +268,7 @@
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       navigateTo(message) {
@@ -280,7 +280,7 @@
             );
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       onFinished() {

@@ -237,7 +237,7 @@
         return this.editingSelf && this.newUserKind && this.newUserKind !== UserKinds.ADMIN;
       },
     },
-    mounted() {
+    created() {
       FacilityUserResource.fetchModel({
         id: this.$route.params.id,
       })
@@ -252,7 +252,7 @@
           this.loading = false;
         })
         .catch(error => {
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         });
     },
     methods: {
@@ -356,7 +356,7 @@
         if (this.caughtErrors.length > 0) {
           this.focusOnInvalidField();
         } else {
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error });
         }
       },
       focusOnInvalidField() {
