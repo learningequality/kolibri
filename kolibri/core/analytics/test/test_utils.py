@@ -25,6 +25,7 @@ from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
@@ -62,6 +63,7 @@ class BaseDeviceSetupMixin(object):
 
     def setUp(self):
         super(BaseDeviceSetupMixin, self).setUp()
+        clear_process_cache()
         # create dummy channel
         channel_id = uuid.uuid4().hex
         root = ContentNode.objects.create(
