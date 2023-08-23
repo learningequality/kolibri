@@ -56,11 +56,7 @@
         }
       },
       isItemExpanded(id) {
-        if (this.expandedItemIds.includes(id)) {
-          return true;
-        } else {
-          return false;
-        }
+        return this.expandedItemIds.includes(id);
       },
       isOptionSelected(optionId) {
         const index = this.expandedItemIds.indexOf(optionId);
