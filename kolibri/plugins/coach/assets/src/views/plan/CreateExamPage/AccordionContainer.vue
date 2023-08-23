@@ -42,28 +42,28 @@
     },
     data() {
       return {
-        itemIds: [],
+        expandedItemIds: [],
         optionsIdList: [],
       };
     },
     methods: {
       toggleItemState(id) {
-        const index = this.itemIds.indexOf(id);
+        const index = this.expandedItemIds.indexOf(id);
         if (index === -1) {
-          this.itemIds.push(id);
+          this.expandedItemIds.push(id);
         } else {
-          this.itemIds.splice(index, 1);
+          this.expandedItemIds.splice(index, 1);
         }
       },
       isItemExpanded(id) {
-        if (this.itemIds.includes(id)) {
+        if (this.expandedItemIds.includes(id)) {
           return true;
         } else {
           return false;
         }
       },
       isOptionSelected(optionId) {
-        const index = this.itemIds.indexOf(optionId);
+        const index = this.expandedItemIds.indexOf(optionId);
         if (index === -1) {
           this.optionsIdList.push(optionId);
         } else {
