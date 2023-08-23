@@ -125,7 +125,7 @@
         :items="placeholderList"
       >
         <template
-          #default="{ isItemExpanded, toggleItemState, isOptionSelected, isAnswerSelected }"
+          #default="{ isItemExpanded, toggleItemState }"
         >
           <div
             v-for="item in placeholderList"
@@ -209,30 +209,6 @@
                     </p>
                   </div>
 
-                  <div class="question">
-                    <AnswerOption
-                      v-for="answer in item.placeholderAnswers"
-                      :key="answer.id"
-                      :optionId="answer.id"
-                      :isOptionSelected="isOptionSelected"
-                      :isAnswerSelected="isAnswerSelected(answer.id)"
-                    >
-                      <template
-                        #optionId
-                      >
-                        <div>
-                          {{ answer.id }}
-                        </div>
-                      </template>
-                      <template
-                        #answerSection
-                      >
-                        <div>
-                          {{ answer.option }}
-                        </div>
-                      </template>
-                    </AnswerOption>
-                  </div>
 
                   <hr class="bottom-border">
                   <KButton
@@ -289,14 +265,12 @@
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
-  import AnswerOption from './AnswerOption.vue';
 
   export default {
     name: 'CreateQuizSection',
     components: {
       AccordionContainer,
       AccordionItem,
-      AnswerOption,
       DragHandle,
     },
     mixins: [commonCoreStrings, commonCoach],
@@ -357,6 +331,7 @@
         ];
       },
     },
+    methods: {},
     $trs: {
       sectionLabel: {
         message: 'section 1',
