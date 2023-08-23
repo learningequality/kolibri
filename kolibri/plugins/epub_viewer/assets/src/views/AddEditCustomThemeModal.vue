@@ -46,7 +46,7 @@
       >
         <p>
           The quick brown fox jumps over the lazy dog.
-          <a :style="{ color: tempTheme.linkColor }">This is a link</a>
+          <a :style="{ color: tempTheme.linkColor }">{{ $tr('linkPreviewText') }}</a>
         </p>
       </div>
 
@@ -54,7 +54,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="generateSelectColorAriaLabel('backgroundColor')"
+            :aria-label="$tr('select', { color: $tr('themeBackgroundColorButtonDescription') })"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.backgroundColor)"
             @click="showColorPicker = 'backgroundColor'"
           />
@@ -64,7 +64,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="generateSelectColorAriaLabel('textColor')"
+            :aria-label="$tr('select', { color: $tr('themeTextColorButtonDescription') })"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.textColor)"
             @click="showColorPicker = 'textColor'"
           />
@@ -74,7 +74,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="generateSelectColorAriaLabel('linkColor')"
+            :aria-label="$tr('select', { color: $tr('themeLinkColorButtonDescription') })"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.linkColor)"
             @click="showColorPicker = 'linkColor'"
           />
@@ -92,7 +92,6 @@
       @submit="setThemeColor($event)"
       @cancel="showColorPicker = null"
     />
-    <!-- @submit="setThemeColor($event)" -->
 
   </div>
 
@@ -225,9 +224,6 @@
         }
         this.showColorPicker = null;
       },
-      generateSelectColorAriaLabel(color) {
-        return this.$tr('select', { color });
-      },
     },
     $trs: {
       customThemePreview: {
@@ -268,8 +264,12 @@
           'Message that a learner will see upon trying to save a custom theme if they are not signed in to Kolibri.',
       },
       select: {
-        message: 'Select {color}',
+        message: 'Select {color} color',
         context: 'Aria label for the button to select a color for a custom theme',
+      },
+      linkPreviewText: {
+        message: 'This is a link',
+        context: 'Text that is a link in the preview of the custom theme',
       },
     },
   };

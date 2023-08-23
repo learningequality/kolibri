@@ -324,17 +324,17 @@
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
       },
       setCustomTheme: {
-        message: 'Set custom theme {themeName}',
+        message: "Set custom theme '{themeName}'",
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
       },
       deleteCustomTheme: {
-        message: 'Delete custom theme {themeName}',
+        message: "Delete custom theme '{themeName}'",
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be deleted.",
       },
       editCustomTheme: {
-        message: 'Edit custom theme {themeName}',
+        message: "Edit custom theme '{themeName}'",
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be edited.",
       },
