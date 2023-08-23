@@ -189,7 +189,7 @@
 
               <template
                 v-if="isItemExpanded(item.id)"
-                #content=""
+                #content
               >
                 <div class="accordion-detail-container">
                   <KGrid>
