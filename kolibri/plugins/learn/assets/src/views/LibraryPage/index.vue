@@ -155,7 +155,6 @@
             v-if="pinnedDevicesExist"
             data-test="pinned-resources"
             :devices="pinnedDevices"
-            :translatedChannelsNumber="getChannelsnumber"
           />
 
           <!-- More  -->

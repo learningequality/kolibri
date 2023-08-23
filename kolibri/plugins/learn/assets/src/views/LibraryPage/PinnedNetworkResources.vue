@@ -7,7 +7,6 @@
       v-for="device in devices"
       :key="device.id"
     >
-
       <KGridItem>
         <h2>
           <KIcon :icon="getDeviceIcon(device)" />
