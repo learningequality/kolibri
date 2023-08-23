@@ -38,8 +38,7 @@ RUN dpkg --add-architecture i386 && \
     python3 \
     && apt-get clean
 
-# Use java 1.8 because Ubuntu's gradle version doesn't support 1.11
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV PATH=$PATH:$JAVA_HOME
 
 RUN curl https://bootstrap.pypa.io/pip/3.6/get-pip.py -o get-pip.py && python3 get-pip.py

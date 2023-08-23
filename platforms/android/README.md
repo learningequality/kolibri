@@ -6,7 +6,7 @@ Wraps Kolibri in an android-compatibility layer. Relies on Python-For-Android to
 
 1. Setup a Python virtual environment in which to do development. The Kolibri developer documentation has a [How To guide for doing this with pyenv](https://kolibri-dev.readthedocs.io/en/develop/howtos/pyenv_virtualenv.html) but any Python virtualenv should work.
 
-2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies).
+2. Ensure you have all [necessary packages for Python for Android](https://python-for-android.readthedocs.io/en/latest/quickstart/#installing-dependencies). Ensure you install java version 1.11, `sudo apt install openjdk-11-jdk` ,  and set it as the default java version: `sudo update-alternatives --auto javac` and `sudo update-alternatives --auto java`.
 
 3. The `make setup` command will install the Android SDK and Android NDK.
 
@@ -19,13 +19,13 @@ Run `make setup`.
 
 `pip install -r requirements.txt`
 
-5. Build or download a Kolibri WHL file, and place it in the `whl/` directory.
+5. Build or download a Kolibri tar file, and place it in the `tar/` directory.
 
-To download a Kolibri WHL file, you can use `make get-whl whl=<URL>` from the command line. It will download it and put it in the correct directory.
+To download a Kolibri WHL file, you can use `make get-tar tar=<URL>` from the command line. It will download it and put it in the correct directory.
 
 6. By default the APK/AAB will be built for most architectures supported by Python for Android. To build for a smaller set of architectures, set the `ARCHES` environment variable. Run `p4a archs` to see the available targets.
 
-7. Run `make p4a_android_project` this will do all of the Python for Android setup up until the point of actually building an APK or AAB.
+7. Run `make p4a_android_project` this will do all of the Python for Android setup up. After, you can run `make kolibri.apk` or `make kolibri.apk.unsigned` if you want to build the apk in the console.
 
 N.B. You will need to rerun this step any time you update the Kolibri WHL file you are using, or any time you update the Python code in this repository.
 
