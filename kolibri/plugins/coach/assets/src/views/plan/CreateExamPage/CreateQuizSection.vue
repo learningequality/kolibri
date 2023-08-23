@@ -70,8 +70,193 @@
     </KGrid>
 
     <hr class="bottom-border">
+    <div v-if="isQuestionAvailable">
+      <KGrid
+        class="question-row"
+      >
+        <KGridItem
+          :layout12="{ span: 6 }"
+        >
+          <div class="left-column-alignment-style">
+            <div>
+              <p>
+                <KCheckbox />
+              </p>
+            </div>
 
-    <div class="no-question-layout">
+            <div>
+              <p>{{ $tr('selectAllLabel') }}</p>
+            </div>
+          </div>
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span: 6 }"
+        >
+          <div class="right-alignment-style">
+            <KGrid>
+              <KGridItem :layout12="{ span: 4 }">
+                <div class="icon-container">
+                  <KIcon class="reduce-chervon-spacing" icon="chevronDown" />
+                  <KIcon class="reduce-chervon-spacing" icon="chevronUp" />
+                </div>
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="refresh"
+                />
+              </KGridItem>
+
+              <KGridItem :layout12="{ span: 4 }">
+                <KIcon
+                  class="icon-size"
+                  icon="trash"
+                />
+              </KGridItem>
+            </KGrid>
+          </div>
+        </KGridItem>
+
+      </KGrid>
+
+      <AccordionContainer
+        :items="placeholderList"
+      >
+        <template
+          #default="{ isItemExpanded, toggleItemState, isOptionSelected, isAnswerSelected }"
+        >
+          <div
+            v-for="item in placeholderList"
+            :key="item.id"
+          >
+            <AccordionItem
+              :id="item.id"
+              :key="item.id"
+              :items="placeholderList"
+              :title="item.title"
+              :expanded="isItemExpanded(item.id)"
+              @click="toggleItemID(item.id)"
+            >
+              <template
+                #heading="{ title }"
+                :accordionToggle="onAccordionToggle(item.id)"
+              >
+                <KGrid class="question-row">
+                  <KGridItem :layout12="{ span: 6 }">
+                    <div class="left-column-alignment-style">
+                      <DragHandle>
+                        <!-- FIXME: Needs vertically centered -->
+                        <KIcon
+                          class="drag-icon icon-size"
+                          icon="dragVertical"
+                        />
+                      </DragHandle>
+
+                      <div>
+                        <p>
+                          <KCheckbox />
+                        </p>
+                      </div>
+
+                      <div>
+                        <p>
+                          {{ title }}
+                        </p>
+                      </div>
+                    </div>
+                  </KGridItem>
+
+                  <KGridItem :layout12="{ span: 6 }">
+                    <div class="right-alignment-style">
+                      <KIconButton
+                        v-if="isItemExpanded(item.id)"
+                        class="icon-size"
+                        icon="chevronUp"
+                        @click="toggleItemState(item.id)"
+                      />
+
+                      <KIconButton
+                        v-else
+                        class="icon-size"
+                        icon="chevronRight"
+                        @click="toggleItemState(item.id)"
+                      />
+                    </div>
+                  </KGridItem>
+                </KGrid>
+              </template>
+
+              <template
+                v-if="isItemExpanded(item.id)"
+                #content=""
+              >
+                <div class="accordion-detail-container">
+                  <KGrid>
+                    <KGridItem :layout12="{ span: 8 }">
+                      <p>{{ $tr('questionPhrase') }}</p>
+                      <p>{{ $tr('questionSubtitle') }}</p>
+                    </KGridItem>
+
+                    <KGridItem :layout12="{ span: 4 }">
+                      <KIcon class="float-item-left-style" icon="edit" />
+                    </KGridItem>
+                  </KGrid>
+
+                  <div class="choose-question question">
+                    <p class="space-content">
+                      {{ $tr('chooseQuestionLabel') }}
+                    </p>
+                  </div>
+
+                  <div class="question">
+                    <AnswerOption
+                      v-for="answer in item.placeholderAnswers"
+                      :key="answer.id"
+                      :optionId="answer.id"
+                      :isOptionSelected="isOptionSelected"
+                      :isAnswerSelected="isAnswerSelected(answer.id)"
+                    >
+                      <template
+                        #optionId
+                      >
+                        <div>
+                          {{ answer.id }}
+                        </div>
+                      </template>
+                      <template
+                        #answerSection
+                      >
+                        <div>
+                          {{ answer.option }}
+                        </div>
+                      </template>
+                    </AnswerOption>
+                  </div>
+
+                  <hr class="bottom-border">
+                  <KButton
+                    style="width:100%;margin-bottom:10px"
+                    appearance="raised-button"
+                    icon="plus"
+                  >
+                    {{ $tr('addAnswer') }}
+                  </KButton>
+                  <hr>
+                </div>
+              </template>
+            </AccordionItem>
+          </div>
+        </template>
+      </AccordionContainer>
+    </div>
+
+
+    <div
+      v-else
+      class="no-question-layout"
+    >
 
       <div class="question-mark-layout">
         <span class="help-icon-style">?</span>
@@ -109,6 +294,7 @@
     data() {
       return {
         tabs: [{ id: '', label: this.$tr('sectionLabel') }],
+        isQuestionAvailable: true,
       };
     },
     computed: {
@@ -144,6 +330,26 @@
         message: 'Add one or more sections to your quiz, according to your needs',
         context:
           'This message indicates that more than one section can be added when creating a quiz.',
+      },
+      questionPhrase: {
+        message: 'Select the word that has the following vowel sound.',
+        context: 'Placholder for the question',
+      },
+      questionSubtitle: {
+        message: ' Short <e>, [e]</e>',
+        context: 'Placholder content for the question description',
+      },
+      chooseQuestionLabel: {
+        message: 'Choose 1 answer:',
+        context: 'Label to indicate the question to be chosen',
+      },
+      addAnswer: {
+        message: 'Add answer',
+        context: 'Button text to indicate that more answers can be added to the question.',
+      },
+      selectAllLabel: {
+        message: 'Select all',
+        context: 'Label indicates that all available options can be chosen at once.',
       },
     },
   };
