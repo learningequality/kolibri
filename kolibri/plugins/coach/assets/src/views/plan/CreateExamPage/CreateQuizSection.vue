@@ -147,7 +147,6 @@
                   <KGridItem :layout12="{ span: 6 }">
                     <div class="left-column-alignment-style">
                       <DragHandle>
-                        <!-- FIXME: Needs vertically centered -->
                         <KIcon
                           class="drag-icon icon-size"
                           icon="dragVertical"
@@ -286,6 +285,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
@@ -297,6 +297,7 @@
       AccordionContainer,
       AccordionItem,
       AnswerOption,
+      DragHandle,
     },
     mixins: [commonCoreStrings, commonCoach],
     data() {
@@ -478,6 +479,57 @@
     padding-left: 0;
     margin-bottom: -25px;
     text-align: left;
+  }
+
+  .left-column-alignment-style {
+    display: inline-flex;
+    margin-left: 35px;
+  }
+
+  .right-alignment-style {
+    float: right;
+    margin-top: 10px;
+  }
+
+  .drag-icon {
+    margin-top: 14px;
+  }
+
+  .accordion-detail-container {
+    margin-left: 35px;
+  }
+
+  .float-item-left-style {
+    float: right;
+    margin-top: 10px;
+    margin-right: 10px;
+  }
+
+  .reduce-chervon-spacing {
+    padding: 0;
+    margin: 0;
+    font-size: 16px;
+  }
+
+  .icon-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+  }
+
+  .choose-question {
+    height: 40px;
+    background-color: #fafafa;
+    border: 1px solid #dedede;
+    border-radius: 2px;
+  }
+
+  .space-content {
+    margin: 8px;
+    font-size: 14px;
+    font-weight: 700;
   }
 
 </style>
