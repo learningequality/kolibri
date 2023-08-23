@@ -445,18 +445,6 @@
     color: #996189;
   }
 
-  .active-section {
-    padding: 14px;
-    color: #996189;
-    border-bottom: 2px solid #996189;
-  }
-
-  .add-section-button {
-    float: right;
-    margin-bottom: -8px;
-    background-color: #f5f5f5;
-  }
-
   .add-padding {
     padding-top: 15px;
   }
