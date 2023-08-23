@@ -251,7 +251,7 @@
   import { onMounted } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
-  import { currentLanguage,crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { currentLanguage } from 'kolibri.utils.i18n';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId } from '../../constants';
@@ -268,13 +268,11 @@
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
-  import LibraryItem from '../ExploreLibrariesPage/LibraryItem';
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
 
-const PinStrings = crossComponentTranslator(LibraryItem);
   export default {
     name: 'LibraryPage',
     metaInfo() {
@@ -389,19 +387,6 @@ const PinStrings = crossComponentTranslator(LibraryItem);
       },
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
-      },
-      totalRemoteChannelsCount() {
-        let totalRemoteChannelsCount = 0;
-        if (this.devicesWithChannelsExist) {
-          this.devicesWithChannels.forEach(device => {
-            totalRemoteChannelsCount += device.total_count;
-          });
-        }
-        return totalRemoteChannelsCount;
-      },
-      getChannelsnumber() {
-      const translatedLabel = PinStrings.$tr('channels', { channels:this.totalRemoteChannelsCount});
-      return translatedLabel;
       },
       channelsLabel() {
         if (this.deviceId) {
@@ -580,7 +565,6 @@ const PinStrings = crossComponentTranslator(LibraryItem);
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
       },
-      
     },
     $trs: {
       libraryOf: {

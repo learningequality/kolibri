@@ -13,10 +13,6 @@
           <KIcon :icon="getDeviceIcon(device)" />
           <span class="device-name">{{ device.device_name }}</span>
         </h2>
-        <p>
-            {{ translatedChannelsNumber }}
-        </p>
-
       </KGridItem>
       <ChannelCardGroupGrid
         data-test="channel-cards"
@@ -72,13 +68,6 @@
           return [];
         },
       },
-      translatedChannelsNumber: {
-        type: String,
-        required: true,
-        default() {
-          return "";
-        },
-      }
     },
     computed: {
       layoutSpan() {

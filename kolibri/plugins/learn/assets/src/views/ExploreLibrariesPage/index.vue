@@ -25,9 +25,9 @@
       :deviceName="device['device_name']"
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
-      :totalChannels="device['total_channels']"
+      :totalChannels="device['total_count']"
       :pinIcon="getPinIcon(true)"
-      :disablePinDevice="device['instance_id'] === studioId"
+      :showDescription="device['instance_id'] === studioId"
       @togglePin="handlePinToggle"
     />
     <div v-if="areMoreDevicesAvailable">
