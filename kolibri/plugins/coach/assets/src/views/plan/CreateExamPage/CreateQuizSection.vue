@@ -287,9 +287,17 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
+  import AccordionContainer from './AccordionContainer.vue';
+  import AccordionItem from './AccordionItem.vue';
+  import AnswerOption from './AnswerOption.vue';
 
   export default {
     name: 'CreateQuizSection',
+    components: {
+      AccordionContainer,
+      AccordionItem,
+      AnswerOption,
+    },
     mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
@@ -303,6 +311,49 @@
           paddingLeft: '0px',
           paddingRight: '0px',
         };
+      },
+      placeholderList() {
+        return [
+          {
+            id: 1,
+            title: 'question 1',
+            visible: false,
+            placeholderAnswers: [
+              {
+                id: 1,
+                option: 'bit',
+              },
+              {
+                id: 2,
+                option: 'but',
+              },
+              {
+                id: 3,
+                option: 'bite',
+              },
+              {
+                id: 4,
+                option: 'bait',
+              },
+              {
+                id: 5,
+                option: 'bet',
+              },
+            ],
+          },
+          {
+            id: 2,
+            title: 'question 2',
+            visible: false,
+            placeholderAnswers: [],
+          },
+          {
+            id: 3,
+            title: 'question 3',
+            visible: false,
+            placeholderAnswers: [],
+          },
+        ];
       },
     },
     $trs: {
