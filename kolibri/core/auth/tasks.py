@@ -468,8 +468,8 @@ def peerusersync(command, **kwargs):
             # override to reschedule a sync sooner in this case
             resync_interval = 5
             logger.warning(
-                "Failed to resume sync session for user {} to server {}; queuing its cleanup".format(
-                    kwargs["user"], kwargs["baseurl"]
+                "Failed to resume sync session for user {} to server {}: {}".format(
+                    kwargs["user"], kwargs["baseurl"], str(e)
                 )
             )
         elif isinstance(e, UserCancelledError):
@@ -551,7 +551,6 @@ def stoppeerusersync(server, user_id):
     if sync_session is None:
         return
 
-    logger.debug("Enqueuing cleanup of SoUD sync session {}".format(sync_session.id))
     return queue_soud_sync_cleanup(sync_session.id)
 
 
@@ -786,6 +785,9 @@ def queue_soud_sync_cleanup(*sync_session_ids):
 
     :param sync_session_ids: ID's of sync sessions we should cleanup
     """
+    logger.info(
+        "Enqueueing cleanup of sync sessions: {}".format(", ".join(sync_session_ids))
+    )
     return soud_sync_cleanup.enqueue(kwargs=dict(pk__in=sync_session_ids))
 
 
