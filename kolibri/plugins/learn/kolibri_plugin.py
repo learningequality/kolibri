@@ -164,7 +164,7 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook, DiscoveryHookMix
 
 
 @register_hook
-class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook):
+class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook, DiscoveryHookMixin):
     """
     This hook is used to hook into the broadcast of the SoUD status of this device to other
     devices on the network. So when this device is updated, possibly to SoUD, it will
