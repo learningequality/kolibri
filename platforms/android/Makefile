@@ -191,14 +191,13 @@ logcat:
 
 $(SDK)/cmdline-tools/latest/bin/sdkmanager:
 	@echo "Downloading Android SDK command line tools"
-	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-7583922_latest.zip
+	wget https://dl.google.com/android/repository/commandlinetools-$(PLATFORM)-9477386_latest.zip
 	rm -rf cmdline-tools
-	unzip commandlinetools-$(PLATFORM)-7583922_latest.zip
-# This is unfortunate since it will download the command line tools
-# again, but after this it will be properly installed and updatable.
-	yes y | ./cmdline-tools/bin/sdkmanager "cmdline-tools;latest" --sdk_root=$(SDK)
-	rm -rf cmdline-tools
-	rm commandlinetools-$(PLATFORM)-7583922_latest.zip
+	unzip commandlinetools-$(PLATFORM)-9477386_latest.zip -d $(SDK)
+	mv $(SDK)/cmdline-tools $(SDK)/latest
+	mkdir -p $(SDK)/cmdline-tools
+	mv $(SDK)/latest $(SDK)/cmdline-tools/latest
+	rm commandlinetools-$(PLATFORM)-9477386_latest.zip
 
 sdk: $(SDK)/cmdline-tools/latest/bin/sdkmanager
 	yes y | $(SDK)/cmdline-tools/latest/bin/sdkmanager "platform-tools"
