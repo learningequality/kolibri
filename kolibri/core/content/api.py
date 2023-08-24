@@ -159,7 +159,6 @@ class RemoteMixin(object):
         baseurl = request.GET[self.remote_url_param]
         qs = request.GET.copy()
         del qs[self.remote_url_param]
-        qs.pop("contentCacheKey", None)
         try:
             validator(baseurl)
         except ValidationError:
