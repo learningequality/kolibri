@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import re
 from collections import OrderedDict
@@ -14,8 +15,9 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
-from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes
+from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import etag
@@ -97,30 +99,25 @@ def metadata_cache(some_func):
     """
     Decorator for patch_response_headers function
     """
-    # Approximately 1 year
-    # Source: https://stackoverflow.com/a/3001556/405682
-    cache_timeout = 31556926
 
     @etag(get_cache_key)
     def wrapper_func(*args, **kwargs):
-        response = some_func(*args, **kwargs)
         try:
             request = args[0]
             request = kwargs.get("request", request)
         except IndexError:
             request = kwargs.get("request", None)
-        if response.status_code < 400 or response.status_code == 404:
-            # By default cache for 60 seconds to prevent repeated requests
-            # and we are returning a non-error response.
-            # or if there was a 404.
-
-            timeout = 60
-            if "contentCacheKey" in request.GET:
-                # Do long running caching if the contentCacheKey is explicitly
-                # set in the URL.
-                timeout = cache_timeout
-            patch_response_headers(response, cache_timeout=timeout)
-
+        key_prefix = get_cache_key()
+        url_key = hashlib.md5(
+            force_bytes(iri_to_uri(request.build_absolute_uri()))
+        ).hexdigest()
+        cache_key = "{}:{}".format(key_prefix, url_key)
+        response = cache.get(cache_key)
+        if response is None:
+            response = some_func(*args, **kwargs)
+            response.add_post_render_callback(
+                lambda r: cache.set(cache_key, r, timeout=3600)
+            )
         return response
 
     return session_exempt(wrapper_func)
