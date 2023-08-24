@@ -33,6 +33,10 @@ class DeviceNotProvisioned(Exception):
     pass
 
 
+class DeviceAlreadyProvisioned(Exception):
+    pass
+
+
 no_default_value = object()
 
 
@@ -69,7 +73,7 @@ def is_landing_page(landing_page):
 
 
 def allow_guest_access():
-    if not device_provisioned() and get_device_setting("allow_guest_access"):
+    if device_provisioned() and get_device_setting("allow_guest_access"):
         return True
 
     return is_landing_page(LANDING_PAGE_LEARN)
@@ -107,7 +111,7 @@ def set_device_settings(**kwargs):
             language_id=settings.LANGUAGE_CODE
         )
 
-    extra_settings_properties = extra_settings_schema.get("properties", {})
+    extra_settings_properties = extra_settings_schema.get("properties", {}).keys()
     extra_settings = device_settings.extra_settings or {}
 
     for key, value in kwargs.items():
@@ -122,6 +126,9 @@ def set_device_settings(**kwargs):
 
 def provision_device(device_name=None, is_provisioned=True, **kwargs):
     from .models import DeviceSettings
+
+    if is_provisioned and device_provisioned():
+        raise DeviceAlreadyProvisioned("Device has already been provisioned.")
 
     set_device_settings(**kwargs)
     device_settings = DeviceSettings.objects.get()

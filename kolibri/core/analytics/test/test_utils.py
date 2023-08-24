@@ -10,7 +10,7 @@ import os
 import random
 import uuid
 
-from django.test import TransactionTestCase
+from django.test import TestCase
 from le_utils.constants import content_kinds
 
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
@@ -27,12 +27,12 @@ from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -222,10 +222,10 @@ class BaseDeviceSetupMixin(object):
 
     def tearDown(self):
         super(BaseDeviceSetupMixin, self).tearDown()
-        DeviceSettings.objects.all().delete()
+        DeviceSettings.objects.delete()
 
 
-class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     def test_extract_facility_statistics(self):
         provision_device(allow_guest_access=True)
         facility = self.facilities[0]
@@ -327,7 +327,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert actual["l"] is None
 
 
-class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     n_facilities = 1
     n_superusers = 0
     n_users = 2
@@ -344,7 +344,7 @@ class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         self.assertEqual(expected_soud_hash, actual.pop("sh"))
 
 
-class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
+class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
         birth_year_list_learners = [
@@ -392,7 +392,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         assert actual == expected
 
 
-class CreateUpdateNotificationsTestCase(TransactionTestCase):
+class CreateUpdateNotificationsTestCase(TestCase):
     def setUp(self):
         self.msg = {
             "i18n": {},

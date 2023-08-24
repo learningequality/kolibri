@@ -14,7 +14,6 @@ from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
 from rest_framework.test import APITestCase
-from rest_framework.test import APITransactionTestCase
 from six import iteritems
 
 import kolibri
@@ -100,7 +99,7 @@ def create_mini_channel(
     )
 
 
-class PublicAPITestCase(APITransactionTestCase):
+class PublicAPITestCase(APITestCase):
     """
     IMPORTANT: These tests are to never be changed. They are enforcing a
     public API contract. If the tests fail, then the implementation needs
@@ -291,7 +290,6 @@ class SyncQueueViewSetTestCase(APITestCase):
     multi_db = True
 
     def setUp(self):
-        provision_device()
         setup_device()
         self.facility = Facility.get_default_facility()
         self.learner = FacilityUser.objects.create(

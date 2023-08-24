@@ -47,8 +47,10 @@ class DeviceProvisionTestCase(TestCase):
         setup_device()
         default_facility = Facility.get_default_facility()
         self.assertIsNotNone(default_facility)
+
+    def test_setup_device_and_facility__no_facility_creation(self):
         setup_device_and_facility(None, None, None, None, {}, None, None)
-        self.assertEqual(Facility.objects.all().count(), 1)
+        self.assertEqual(Facility.objects.all().count(), 0)
 
     def test_create_device_settings_provisioned(self):
         facility = Facility.objects.create(name="Test")
