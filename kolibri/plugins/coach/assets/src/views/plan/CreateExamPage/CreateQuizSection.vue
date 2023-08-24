@@ -153,7 +153,7 @@
                         />
                       </DragHandle>
 
-                      <div>
+                      <div class="check-box-style">
                         <p>
                           <KCheckbox />
                         </p>
@@ -283,8 +283,8 @@
     computed: {
       noKgridItemPadding() {
         return {
-          paddingLeft: '0px',
-          paddingRight: '0px',
+          paddingLeft: '0em',
+          paddingRight: '0em',
         };
       },
       placeholderList() {
@@ -387,41 +387,41 @@
 <style lang="scss"  scoped>
 
   .style-icon {
-    width: 40px;
-    height: 40px;
-    margin: 20px;
+    width: 2.5em;
+    height: 2.5em;
+    margin: 1.5em;
   }
 
   /deep/ .ui-textbox-label {
-    width: 1220px;
+    width: 76.5em;
   }
 
   .no-question-layout {
     width: auto;
-    height: 265px;
-    padding: 40px;
+    height: 16.5em;
+    padding: 2.5em;
     text-align: center;
     background-color: #fafafa;
     border: 1px;
-    border-radius: 10px;
+    border-radius: 0.5em;
   }
 
   .question-mark-layout {
     align-items: center;
-    width: 40px;
-    height: 40px;
+    width: 2.5em;
+    height: 2.5em;
     margin: auto;
     background-color: #dbc3d4;
   }
 
   .help-icon-style {
-    font-size: 24px;
+    font-size: 1.5em;
     font-weight: 700;
     color: #996189;
   }
 
   .add-padding {
-    padding-top: 15px;
+    padding-top: 2rem;
   }
 
   .no-question-style {
@@ -438,40 +438,41 @@
   }
 
   .kgrid-alignment-style {
-    padding-right: 12px;
+    padding-right: 1em;
     padding-left: 0;
-    margin-bottom: -25px;
+    margin-bottom: -1.5em;
     text-align: left;
   }
 
   .left-column-alignment-style {
     display: inline-flex;
-    margin-left: 35px;
+    margin-left: 3em;
   }
 
   .right-alignment-style {
     float: right;
-    margin-top: 10px;
+    margin-top: 1em;
   }
 
   .drag-icon {
-    margin-top: 14px;
+    margin-top: 1em;
+    font-size: 1em;
   }
 
   .accordion-detail-container {
-    margin-left: 35px;
+    margin-left: 3em;
   }
 
   .float-item-left-style {
     float: right;
-    margin-top: 10px;
-    margin-right: 10px;
+    margin-top: 1em;
+    margin-right: 1em;
   }
 
   .reduce-chervon-spacing {
     padding: 0;
     margin: 0;
-    font-size: 16px;
+    font-size: 1em;
   }
 
   .icon-container {
@@ -490,9 +491,13 @@
   }
 
   .space-content {
-    margin: 8px;
-    font-size: 14px;
+    margin: 0.5em;
+    font-size: 1em;
     font-weight: 700;
+  }
+
+  .check-box-style {
+    margin-left: 0.5em;
   }
 
 </style>
