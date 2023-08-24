@@ -83,6 +83,7 @@
     "stylelint-scss": "5.1.0",
     "temp": "^0.8.3",
     "terser-webpack-plugin": "^5.3.9",
+    "toml": "^3.0.0",
     "url-loader": "^4.1.1",
     "vue-jest": "^3.0.0",
     "vue-loader": "^15.10.2",
