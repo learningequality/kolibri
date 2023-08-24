@@ -372,6 +372,7 @@ class BaseQuerysetTestCase(BaseTestCase):
             id=uuid.uuid4().hex,
             contentnode=parent,
             thumbnail=True,
+            supplementary=True,
             local_file=LocalFile.objects.create(
                 id=uuid.uuid4().hex,
                 file_size=10,
@@ -403,21 +404,8 @@ class BaseQuerysetTestCase(BaseTestCase):
                 extension="mp4",
             ),
         )
-        # supplementary node file
-        File.objects.create(
-            id=uuid.uuid4().hex,
-            contentnode=node,
-            preset="document",
-            supplementary=True,
-            local_file=LocalFile.objects.create(
-                id=uuid.uuid4().hex,
-                file_size=33,
-                available=available,
-                extension="pdf",
-            ),
-        )
         node.refresh_from_db()
-        self.assertEqual(node.files.all().count(), 3)
+        self.assertEqual(node.files.all().count(), 2)
         return (parent, node)
 
 
@@ -511,7 +499,6 @@ class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
 
     def test_has_metadata__yes(self):
         _, node = self._create_resources(self.request.contentnode_id)
-        self.assertEqual(node.files.all().count(), 3)
         qs = completed_downloads_queryset().filter(has_metadata=True)
         self.assertEqual(
             qs.count(),
