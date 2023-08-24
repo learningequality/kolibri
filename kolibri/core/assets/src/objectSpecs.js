@@ -78,6 +78,7 @@ function _validateObjectData(data, options, dataKey) {
     if (!isObject(data) && !isArray(data)) {
       return _fail('Only objects or arrays can have sub-specs', dataKey, data);
     }
+
     // If it is an array, we will validate each item in the array
     if (isArray(data)) {
       for (const item of data) {
@@ -86,6 +87,9 @@ function _validateObjectData(data, options, dataKey) {
         }
       }
     }
+
+    // Here we know it is an Object, but we need to be sure it isn't an Array to avoid
+    // checking it again after we already validated the Array in the block above.
     if (isObject(data) && !isArray(data) && !validateObject(data, options.spec)) {
       return _fail('Validator sub-spec failed', dataKey, data);
     }
