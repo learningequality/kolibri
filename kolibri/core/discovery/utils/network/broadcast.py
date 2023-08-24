@@ -87,7 +87,7 @@ class KolibriInstance(object):
     ):
         # Zeroconf wants socket.inet_aton() format, so make sure we have string with this class
         # which we convert when interfacing with Zeroconf
-        if not isinstance(ip, str):
+        if ip is not None and not isinstance(ip, str):
             raise TypeError("IP must be a string")
 
         self.id = instance_id
@@ -161,11 +161,14 @@ class KolibriInstance(object):
             properties[key] = json.dumps(val)
         properties["prefix"] = json.dumps(self.prefix)
 
+        # convert to format Zeroconf wants
+        address = socket.inet_aton(self.ip) if self.ip else None
+
         return ServiceInfo(
             SERVICE_TYPE,
             self.name,
             server=self.server,
-            address=socket.inet_aton(self.ip),  # convert to format Zeroconf wants
+            address=address,
             port=self.port or DEFAULT_PORT,
             properties=properties,
         )
