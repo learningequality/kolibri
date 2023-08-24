@@ -22,7 +22,6 @@
       >
         <KTextbox
           ref="title"
-          v-model.trim="examTitle"
           :label="coachString('titleLabel')"
           :autofocus="true"
           :maxlength="100"
@@ -137,54 +136,62 @@
               :items="placeholderList"
               :title="item.title"
               :expanded="isItemExpanded(item.id)"
-              @click="toggleItemID(item.id)"
             >
               <template
                 #heading="{ title }"
                 :accordionToggle="onAccordionToggle(item.id)"
               >
-                <KGrid class="question-row">
-                  <KGridItem :layout12="{ span: 6 }">
-                    <div class="left-column-alignment-style">
-                      <DragHandle>
+                <a
+                  @click="toggleItemState(item.id)"
+                >
+
+                  <KGrid
+                    class="question-row"
+                  >
+                    <KGridItem :layout12="{ span: 6 }">
+                      <div class="left-column-alignment-style">
+                        <DragHandle>
+                          <KIcon
+                            class="drag-icon icon-size"
+                            icon="dragVertical"
+                          />
+                        </DragHandle>
+
+                        <div class="check-box-style">
+                          <p>
+                            <a
+                              @click.prevent="toggleItemState(item.id)"
+                            >
+                              <KCheckbox />
+                            </a>
+                          </p>
+                        </div>
+
+                        <div>
+                          <p>
+                            {{ title }}
+                          </p>
+                        </div>
+                      </div>
+                    </KGridItem>
+
+                    <KGridItem :layout12="{ span: 6 }">
+                      <div class="right-alignment-style">
                         <KIcon
-                          class="drag-icon icon-size"
-                          icon="dragVertical"
+                          v-if="isItemExpanded(item.id)"
+                          class="icon-size toggle-icon"
+                          icon="chevronUp"
                         />
-                      </DragHandle>
 
-                      <div class="check-box-style">
-                        <p>
-                          <KCheckbox />
-                        </p>
+                        <KIcon
+                          v-else
+                          class="icon-size toggle-icon"
+                          icon="chevronRight"
+                        />
                       </div>
-
-                      <div>
-                        <p>
-                          {{ title }}
-                        </p>
-                      </div>
-                    </div>
-                  </KGridItem>
-
-                  <KGridItem :layout12="{ span: 6 }">
-                    <div class="right-alignment-style">
-                      <KIconButton
-                        v-if="isItemExpanded(item.id)"
-                        class="icon-size"
-                        icon="chevronUp"
-                        @click="toggleItemState(item.id)"
-                      />
-
-                      <KIconButton
-                        v-else
-                        class="icon-size"
-                        icon="chevronRight"
-                        @click="toggleItemState(item.id)"
-                      />
-                    </div>
-                  </KGridItem>
-                </KGrid>
+                    </KGridItem>
+                  </KGrid>
+                </a>
               </template>
 
               <template
@@ -212,7 +219,7 @@
 
                   <hr class="bottom-border">
                   <KButton
-                    style="width:100%;margin-bottom:10px"
+                    style="width:100%;margin-bottom:0.5em"
                     appearance="raised-button"
                     icon="plus"
                   >
@@ -498,6 +505,11 @@
 
   .check-box-style {
     margin-left: 0.5em;
+  }
+
+  .toggle-icon {
+    margin: 0.5em;
+    font-size: 1em;
   }
 
 </style>
