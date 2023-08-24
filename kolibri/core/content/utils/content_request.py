@@ -328,13 +328,17 @@ def _node_total_size(contentnode_id, thumbnail=False, available=False):
     :param thumbnail: Whether to filter on thumbnails
     :param available: Whether to filter on available files
     """
+    filters = {}
+    if thumbnail:
+        filters["thumbnail"] = True
+        filters["supplementary"] = True
+
     return Coalesce(
         Subquery(
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
-                thumbnail=thumbnail,
-                supplementary=False,
+                **filters
             )
             .values(
                 _no_group_by=Value(0)
