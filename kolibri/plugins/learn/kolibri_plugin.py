@@ -58,17 +58,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
-        from kolibri.core.content.api import ChannelMetadataViewSet
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
-        channel_viewset = ChannelMetadataViewSet()
-
-        channels = channel_viewset.serialize(
-            channel_viewset.get_queryset().filter(root__available=True)
-        )
-        label_metadata = get_all_contentnode_label_metadata()
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerDownloads": get_device_setting(
@@ -78,13 +70,6 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
             ],
-            "categories": label_metadata["categories"],
-            "learningActivities": label_metadata["learning_activities"],
-            "languages": label_metadata["languages"],
-            "channels": channels,
-            "gradeLevels": label_metadata["grade_levels"],
-            "accessibilityLabels": label_metadata["accessibility_labels"],
-            "learnerNeeds": label_metadata["learner_needs"],
             "studioDevice": {
                 "base_url": CENTRAL_CONTENT_BASE_URL,
                 "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
