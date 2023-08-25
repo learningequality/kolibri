@@ -77,7 +77,7 @@
           :layout12="{ span: 6 }"
         >
           <div class="left-column-alignment-style">
-            <div>
+            <div class="align-kcheckbox-style">
               <p>
                 <KCheckbox />
               </p>
@@ -102,6 +102,7 @@
               </KGridItem>
 
               <KGridItem :layout12="{ span: 4 }">
+
                 <KIcon
                   class="icon-size"
                   icon="refresh"
@@ -151,12 +152,11 @@
                     <KGridItem :layout12="{ span: 6 }">
                       <div class="left-column-alignment-style">
                         <DragHandle>
-                          <KIcon
+                          <KIconButton
                             class="drag-icon icon-size"
                             icon="dragVertical"
                           />
                         </DragHandle>
-
                         <div class="check-box-style">
                           <p>
                             <a
@@ -453,7 +453,7 @@
 
   .left-column-alignment-style {
     display: inline-flex;
-    margin-left: 3em;
+    margin-left: 1em;
   }
 
   .right-alignment-style {
@@ -462,7 +462,7 @@
   }
 
   .drag-icon {
-    margin-top: 1em;
+    margin-top: 0.5em;
     font-size: 1em;
   }
 
@@ -510,6 +510,10 @@
   .toggle-icon {
     margin: 0.5em;
     font-size: 1em;
+  }
+
+  .align-kcheckbox-style {
+    margin-left: 3em;
   }
 
 </style>
