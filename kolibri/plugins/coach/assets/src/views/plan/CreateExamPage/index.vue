@@ -29,12 +29,10 @@
     </UiAlert>
 
     <KPageContainer
-      :style="maxContainerHeight"
+      :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
     >
 
       <CreateQuizSection />
-
-
       <div v-if="bookmarksRoute">
         <strong>
           <KRouterLink
