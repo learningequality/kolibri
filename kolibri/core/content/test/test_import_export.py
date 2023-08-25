@@ -661,7 +661,6 @@ class ImportChannelTestCase(TestCase):
     return_value=False,
 )
 @patch("kolibri.core.content.utils.resource_import.get_import_export_data")
-@patch("kolibri.core.content.utils.resource_import.annotation")
 @override_option("Paths", "CONTENT_DIR", tempfile.mkdtemp())
 class ImportContentTestCase(TestCase):
     """
@@ -678,6 +677,10 @@ class ImportContentTestCase(TestCase):
 
     def setUp(self):
         LocalFile.objects.update(available=False)
+        patcher = patch("kolibri.core.content.utils.resource_import.annotation")
+        self.addCleanup(patcher.stop)
+        self.annotation_mock = patcher.start()
+        self.annotation_mock.calculate_dummy_progress_for_annotation.return_value = 1
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
     @patch(
@@ -692,7 +695,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         FileDownloadMock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -708,9 +710,9 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock.assert_has_calls([call()])
         FileDownloadMock.assert_not_called()
         cancel_mock.assert_called_with()
-        annotation_mock.mark_local_files_as_available.assert_not_called()
-        annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_annotation_up_tree.assert_not_called()
+        self.annotation_mock.mark_local_files_as_available.assert_not_called()
+        self.annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
+        self.annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_remote_url"
@@ -733,7 +735,6 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock,
         local_path_mock,
         remote_path_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -767,9 +768,9 @@ class ImportContentTestCase(TestCase):
         )
         # Check that the command itself was also cancelled.
         cancel_mock.assert_called_with()
-        annotation_mock.mark_local_files_as_available.assert_not_called()
-        annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_annotation_up_tree.assert_not_called()
+        self.annotation_mock.mark_local_files_as_available.assert_not_called()
+        self.annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
+        self.annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.utils.resource_import.transfer.Transfer._checksum_correct",
@@ -797,7 +798,6 @@ class ImportContentTestCase(TestCase):
         local_path_mock,
         remote_path_mock,
         checksum_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -826,7 +826,7 @@ class ImportContentTestCase(TestCase):
         cancel_mock.assert_called_with()
         # Check that the temp file we created where the first file was being downloaded to has not been deleted
         self.assertTrue(os.path.exists(local_path_1))
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileCopy")
     @patch(
@@ -841,7 +841,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         FileCopyMock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -859,9 +858,9 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock.assert_has_calls([call()])
         FileCopyMock.assert_not_called()
         cancel_mock.assert_called_with()
-        annotation_mock.mark_local_files_as_available.assert_not_called()
-        annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
-        annotation_mock.recurse_annotation_up_tree.assert_not_called()
+        self.annotation_mock.mark_local_files_as_available.assert_not_called()
+        self.annotation_mock.set_leaf_node_availability_from_local_file_availability.assert_not_called()
+        self.annotation_mock.recurse_annotation_up_tree.assert_not_called()
 
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_file_path"
@@ -880,7 +879,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock,
         FileCopyMock,
         local_path_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -911,7 +909,7 @@ class ImportContentTestCase(TestCase):
             cancel_check=is_cancelled_mock,
         )
         cancel_mock.assert_called_with()
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch(
         "kolibri.utils.file_transfer.FileDownload._run_download",
@@ -929,7 +927,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         cancel_mock,
         run_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -956,7 +953,7 @@ class ImportContentTestCase(TestCase):
         )
         manager.run()
         cancel_mock.assert_called_with()
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(
@@ -966,7 +963,6 @@ class ImportContentTestCase(TestCase):
         self,
         path_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1005,7 +1001,7 @@ class ImportContentTestCase(TestCase):
         manager.run()
         logger_mock.assert_called_once()
         self.assertIn("4 files are skipped", logger_mock.call_args_list[0][0][0])
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
             node_ids={self.c2c1_node_id},
@@ -1017,7 +1013,6 @@ class ImportContentTestCase(TestCase):
     def test_remote_import_httperror_500(
         self,
         file_download_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1036,7 +1031,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(HTTPError):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id, [], node_ids=None, exclude_node_ids=None, public=False
         )
 
@@ -1057,7 +1052,6 @@ class ImportContentTestCase(TestCase):
         path_mock,
         move_dest_mock,
         get_free_space_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1106,7 +1100,6 @@ class ImportContentTestCase(TestCase):
         path_mock,
         _move_tmp_to_dest_mock,
         get_free_space_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1141,7 +1134,7 @@ class ImportContentTestCase(TestCase):
         with self.assertRaises(InsufficientStorageSpaceError):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             ["6bdfea4a01830fdd4a585181c0b8068c"],
             exclude_node_ids=None,
@@ -1167,7 +1160,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock,
         error_mock,
         sleep_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1194,7 +1186,7 @@ class ImportContentTestCase(TestCase):
         )
         manager.run()
         cancel_mock.assert_called_with()
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(
@@ -1213,7 +1205,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock,
         path_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1233,7 +1224,7 @@ class ImportContentTestCase(TestCase):
         )
         manager.run()
         self.assertIn("1 files are skipped", logger_mock.call_args_list[0][0][0])
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.error")
     @patch("kolibri.utils.file_transfer.os.path.getsize")
@@ -1245,7 +1236,6 @@ class ImportContentTestCase(TestCase):
         path_mock,
         getsize_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1262,7 +1252,7 @@ class ImportContentTestCase(TestCase):
             manager = DiskChannelResourceImportManager(self.the_channel_id)
             manager.run()
             self.assertIn("Permission denied", logger_mock.call_args_list[0][0][0])
-            annotation_mock.set_content_visibility.assert_called()
+            self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.transfer.os.remove")
     @patch(
@@ -1277,7 +1267,6 @@ class ImportContentTestCase(TestCase):
         path_mock,
         isfile_mock,
         remove_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1330,7 +1319,6 @@ class ImportContentTestCase(TestCase):
         cancel_mock,
         path_mock,
         isfile_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1397,7 +1385,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         path_mock,
         _move_tmp_to_dest_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1429,7 +1416,7 @@ class ImportContentTestCase(TestCase):
                 self.the_channel_id, node_ids=[self.c1_node_id]
             )
             manager.run()
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
             exclude_node_ids=None,
@@ -1452,7 +1439,6 @@ class ImportContentTestCase(TestCase):
         is_cancelled_mock,
         path_mock,
         _move_tmp_to_dest_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1485,7 +1471,7 @@ class ImportContentTestCase(TestCase):
         )
         manager = RemoteChannelResourceImportManager(self.the_channel_id)
         manager.run()
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [
                 "6bdfea4a01830fdd4a585181c0b8068c",
@@ -1498,7 +1484,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_detected_manifest_file(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1545,7 +1530,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_detected_manifest_file_and_unlisted_channel(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1582,7 +1566,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_local_manifest_file_and_node_ids(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1644,7 +1627,6 @@ class ImportContentTestCase(TestCase):
     def test_local_import_with_local_manifest_file_with_multiple_versions(
         self,
         warning_logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1702,7 +1684,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_detected_manifest_file_and_node_ids(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1769,7 +1750,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_detected_manifest_file_and_manifest_file(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1830,7 +1810,6 @@ class ImportContentTestCase(TestCase):
 
     def test_local_import_with_no_detect_manifest(
         self,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1886,7 +1865,6 @@ class ImportContentTestCase(TestCase):
         self,
         is_cancelled_mock,
         file_download_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1932,7 +1910,6 @@ class ImportContentTestCase(TestCase):
         self,
         path_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -1956,7 +1933,7 @@ class ImportContentTestCase(TestCase):
             )
             manager.run()
         self.assertEqual(err.exception.errno, 2)
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch(
@@ -1966,7 +1943,6 @@ class ImportContentTestCase(TestCase):
         self,
         path_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2006,7 +1982,7 @@ class ImportContentTestCase(TestCase):
                 fail_on_error=True,
             )
             manager.run()
-        annotation_mock.set_content_visibility.assert_called_with(
+        self.annotation_mock.set_content_visibility.assert_called_with(
             self.the_channel_id,
             [],
             node_ids={self.c2c1_node_id},
@@ -2022,7 +1998,6 @@ class ImportContentTestCase(TestCase):
         self,
         path_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2047,7 +2022,7 @@ class ImportContentTestCase(TestCase):
                 fail_on_error=True,
             )
             manager.run()
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload.finalize")
@@ -2059,7 +2034,6 @@ class ImportContentTestCase(TestCase):
         path_mock,
         finalize_dest_mock,
         logger_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
@@ -2082,7 +2056,7 @@ class ImportContentTestCase(TestCase):
                 fail_on_error=True,
             )
             manager.run()
-        annotation_mock.set_content_visibility.assert_called()
+        self.annotation_mock.set_content_visibility.assert_called()
 
     @patch(
         "kolibri.core.content.utils.resource_import.paths.get_content_storage_remote_url"
@@ -2101,7 +2075,6 @@ class ImportContentTestCase(TestCase):
         FileDownloadMock,
         local_path_mock,
         remote_path_mock,
-        annotation_mock,
         get_import_export_mock,
         channel_list_status_mock,
     ):
