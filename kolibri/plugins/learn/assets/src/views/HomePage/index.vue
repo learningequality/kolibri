@@ -39,10 +39,10 @@
         :channels="channels"
         class="section"
         data-test="exploreChannels"
-        :short="displayClasses ||
+        :short="Boolean(displayClasses ||
           continueLearning ||
           hasActiveClassesLessons ||
-          hasActiveClassesQuizzes
+          hasActiveClassesQuizzes)
         "
       />
 
@@ -90,7 +90,7 @@
     setup() {
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
-      const { channels } = useChannels();
+      const { localChannelsCache } = useChannels();
       const {
         classes,
         activeClassesLessons,
@@ -127,7 +127,7 @@
           get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
       );
       const hasChannels = computed(() => {
-        return get(channels) && get(channels).length > 0;
+        return get(localChannelsCache).length > 0;
       });
       const displayExploreChannels = computed(() => {
         return (
@@ -150,7 +150,7 @@
 
       return {
         isUserLoggedIn,
-        channels,
+        channels: localChannelsCache,
         classes,
         activeClassesLessons,
         activeClassesQuizzes,

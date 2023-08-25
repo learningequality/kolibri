@@ -367,7 +367,7 @@
     },
     watch: {
       content(newContent, oldContent) {
-        if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
+        if (newContent && (!oldContent || newContent.id !== oldContent.id)) {
           this.initializeState();
         }
       },
