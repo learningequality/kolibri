@@ -4297,10 +4297,10 @@ csv-generator-client@^2.1.1:
     babel-polyfill "^6.26.0"
     lodash "^4.17.4"
 
-csv-parse@^5.4.0:
-  version "5.4.0"
-  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.4.0.tgz#6793210a4a49a9a74b3fde3f9d00f3f52044fd89"
-  integrity sha512-JiQosUWiOFgp4hQn0an+SBoV9IKdqzhROM0iiN4LB7UpfJBlsSJlWl9nq4zGgxgMAzHJ6V4t29VAVD+3+2NJAg==
+csv-parse@^5.4.1:
+  version "5.4.1"
+  resolved "https://registry.yarnpkg.com/csv-parse/-/csv-parse-5.4.1.tgz#4159247bcc4473685c0492ace5f99f98b2f71c0f"
+  integrity sha512-DL6gLkEatPgB8Fkwf5igeiSIBTY2MVDWb0Edp+cdbK/U+5IXVvVEEOjno9yA8+Dgyu0HaRZ5P/kOVqgUzGJGUA==
 
 csv-writer@^1.3.0:
   version "1.6.0"
