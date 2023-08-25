@@ -491,13 +491,20 @@
 <style lang="scss"  scoped>
 
   .style-icon {
-    width: 2.5em;
-    height: 2.5em;
-    margin: 1.5em;
+    width: 32px;
+    height: 32px;
+    margin-top: 8px;
+    margin-left: 16px;
   }
 
   /deep/ .ui-textbox-label {
-    width: 76.5em;
+    width: 100% !important;
+  }
+
+  /deep/ .textbox {
+    width: 100% !important;
+    max-width: 100%;
+    margin-left: -1em;
   }
 
   .no-question-layout {
