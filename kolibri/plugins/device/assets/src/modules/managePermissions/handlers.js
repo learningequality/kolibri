@@ -34,6 +34,8 @@ export function showManagePermissionsPage(store) {
     })
     .catch(error => {
       store.commit('managePermissions/SET_LOADING_FACILITY_USERS', false);
-      return shouldResolve() ? store.dispatch('handleError', error) : null;
+      return shouldResolve()
+        ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+        : null;
     });
 }

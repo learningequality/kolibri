@@ -26,5 +26,5 @@ export function addOrUpdateUserPermissions(store, payload) {
         }
       );
     })
-    .catch(error => store.dispatch('handleApiError', error, { root: true }));
+    .catch(error => store.dispatch('handleApiError', { error }, { root: true }));
 }

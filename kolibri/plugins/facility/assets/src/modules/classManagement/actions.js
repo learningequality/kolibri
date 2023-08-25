@@ -15,7 +15,7 @@ export function createClass(store, name) {
       store.commit('ADD_CLASS', classroom);
     },
     error => {
-      store.dispatch('handleApiError', error, { root: true });
+      store.dispatch('handleApiError', { error }, { root: true });
     }
   );
 }

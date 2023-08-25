@@ -78,7 +78,7 @@
             TaskResource.startTask(params)
               .then(() => this.wizardService.send('CONTINUE'))
               .catch(err => {
-                this.$store.dispatch('handleApiError', err);
+                this.$store.dispatch('handleApiError', { error: err });
               });
           } else {
             const errorData = JSON.parse(data);

@@ -208,7 +208,7 @@
           if (errorsCaught) {
             this.caughtErrors.push(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
           } else {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           }
         });
       },
@@ -286,7 +286,7 @@
                 this.goToFirstStep();
                 this.focusOnInvalidField();
               } else {
-                this.$store.dispatch('handleApiError', error);
+                this.$store.dispatch('handleApiError', { error });
               }
             });
         } else {

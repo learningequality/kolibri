@@ -59,7 +59,7 @@
             this.$store.dispatch('createSnackbar', this.$tr('passwordChangedNotification'));
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       focusOnInvalidField() {

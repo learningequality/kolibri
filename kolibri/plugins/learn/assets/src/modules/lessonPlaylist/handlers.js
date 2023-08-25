@@ -31,7 +31,7 @@ export function showLessonPlaylist(store, { lessonId }) {
         store.dispatch('notLoading');
       })
       .catch(error => {
-        return store.dispatch('handleApiError', error);
+        return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       });
   });
 }

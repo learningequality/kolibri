@@ -76,7 +76,7 @@ export default {
           store.commit('SET_DATA_LOADING', false);
         })
         .catch(error => {
-          store.dispatch('handleApiError', error);
+          store.dispatch('handleApiError', { error });
           store.commit('SET_DATA_LOADING', false);
         });
     },
@@ -89,9 +89,9 @@ export default {
       const authErrorCodes = [401, 403, 404, 407];
       logging.error(errorObject);
       if (errorObject.response.status && authErrorCodes.includes(errorObject.response.status)) {
-        store.dispatch('handleApiError', '');
+        store.dispatch('handleApiError', { error: '' });
       } else {
-        store.dispatch('handleApiError', errorObject);
+        store.dispatch('handleApiError', { error: errorObject, reloadOnReconnect: true });
       }
     },
     resetModuleState(store, { toRoute, fromRoute }) {
@@ -123,13 +123,13 @@ export default {
             .then(summary => store.dispatch('setClassList', summary.facility_id)),
           store.dispatch('coachNotifications/fetchNotificationsForClass', classId),
         ]).catch(error => {
-          store.dispatch('handleError', error);
+          store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         });
       } else {
         // otherwise refresh but don't block
         return store
           .dispatch('classSummary/loadClassSummary', classId)
-          .catch(error => store.dispatch('handleApiError', error));
+          .catch(error => store.dispatch('handleApiError', { error }));
       }
     },
   },

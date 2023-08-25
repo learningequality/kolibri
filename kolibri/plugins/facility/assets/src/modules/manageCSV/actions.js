@@ -28,7 +28,7 @@ function getCSVLogRequest(store, logType, facility) {
       }
     })
     .catch(error => {
-      return store.dispatch('handleApiError', error, { root: true });
+      return store.dispatch('handleApiError', { error }, { root: true });
     });
 }
 

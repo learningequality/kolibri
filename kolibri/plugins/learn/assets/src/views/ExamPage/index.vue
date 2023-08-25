@@ -370,7 +370,7 @@
               },
             });
           }
-          this.$store.dispatch('handleApiError', err);
+          this.$store.dispatch('handleApiError', { error: err });
         });
     },
     methods: {

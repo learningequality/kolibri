@@ -476,7 +476,7 @@ export default {
             store.commit('SET_CLASS_LESSONS_SIZES', sizes);
           })
           .catch(error => {
-            return store.dispatch('handleApiError', error, { root: true });
+            return store.dispatch('handleApiError', { error }, { root: true });
           });
       }
       return Promise.resolve();
@@ -488,7 +488,7 @@ export default {
             store.commit('SET_CLASS_QUIZZES_SIZES', sizes);
           })
           .catch(error => {
-            return store.dispatch('handleApiError', error, { root: true });
+            return store.dispatch('handleApiError', { error }, { root: true });
           });
       }
       return Promise.resolve();

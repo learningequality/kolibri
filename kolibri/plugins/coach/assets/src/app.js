@@ -50,7 +50,7 @@ class CoachToolsModule extends KolibriApp {
       }
       if (promises.length > 0) {
         Promise.all(promises).then(next, error => {
-          this.store.dispatch('handleApiError', error);
+          this.store.dispatch('handleApiError', { error });
         });
       } else {
         next();
