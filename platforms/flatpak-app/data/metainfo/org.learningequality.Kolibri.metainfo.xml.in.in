@@ -22,7 +22,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="2.3.0" date="2023-09-22" type="stable">
+    <release version="2.3.0" date="2023-08-22" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
