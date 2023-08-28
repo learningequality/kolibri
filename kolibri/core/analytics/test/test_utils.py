@@ -10,7 +10,7 @@ import os
 import random
 import uuid
 
-from django.test import TestCase
+from django.test import TransactionTestCase
 from le_utils.constants import content_kinds
 
 from kolibri.core.analytics.constants.nutrition_endpoints import PINGBACK
@@ -225,7 +225,7 @@ class BaseDeviceSetupMixin(object):
         DeviceSettings.objects.delete()
 
 
-class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
+class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_facility_statistics(self):
         provision_device(allow_guest_access=True)
         facility = self.facilities[0]
@@ -327,7 +327,7 @@ class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         assert actual["l"] is None
 
 
-class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
+class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     n_facilities = 1
     n_superusers = 0
     n_users = 2
@@ -344,7 +344,7 @@ class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         self.assertEqual(expected_soud_hash, actual.pop("sh"))
 
 
-class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
+class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
     def test_extract_channel_statistics(self):
         actual = extract_channel_statistics(self.channel)
         birth_year_list_learners = [
@@ -392,7 +392,7 @@ class ChannelStatisticsTestCase(BaseDeviceSetupMixin, TestCase):
         assert actual == expected
 
 
-class CreateUpdateNotificationsTestCase(TestCase):
+class CreateUpdateNotificationsTestCase(TransactionTestCase):
     def setUp(self):
         self.msg = {
             "i18n": {},
