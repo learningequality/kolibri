@@ -221,8 +221,28 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
     """
     links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
     for link in links:
-        r = session.get(link + name)
-        if r.status_code == 200:
+        url = link + name
+        for _ in range(5):
+            try:
+                r = session.get(url)
+                r.raise_for_status()
+            except Exception as e:
+                print("Error retrieving {}: {}".format(url, e))
+            else:
+                if r.status_code == 200:
+                    # Got a valid response
+                    break
+
+                print(
+                    "Unexpected response from {}: {} {}".format(
+                        url, r.status_code, r.reason
+                    )
+                )
+
+            # Clear the response in case this is the last iteration
+            r = None
+
+        if r:
             files = BeautifulSoup(r.content, "html.parser")
             parse_package_page(files, pk_version, link, cache_path)
         else:
