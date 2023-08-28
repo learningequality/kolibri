@@ -36,14 +36,15 @@
         {{ $tr('signIn') }}
       </UiAlert>
 
-      <h3 id="theme-preview-h3">
+      <h2 id="theme-preview-h3">
         {{ $tr('customThemePreview') }}
-      </h3>
+      </h2>
 
       <div
         class="theme-preview"
         :style="{ backgroundColor: tempTheme.backgroundColor, color: tempTheme.textColor }"
       >
+        <h3>{{ $tr('thisIsASampleText') }}</h3>
         <p>
           The quick brown fox jumps over the lazy dog.
           <a :style="{ color: tempTheme.linkColor }">{{ $tr('linkPreviewText') }}</a>
@@ -274,6 +275,10 @@
         message: 'This is a link',
         context: 'Text that is a link in the preview of the custom theme',
       },
+      thisIsASampleText: {
+        message: 'This is a sample text.',
+        context: 'Language specific sample text in the preview of the custom theme',
+      },
     },
   };
 
@@ -293,7 +298,7 @@
     border-radius: 4px;
   }
 
-  #theme-preview-h3 {
+  #theme-preview-h2 {
     margin: 0 24px;
   }
 
