@@ -118,7 +118,7 @@ kolibri_daemon_get_default_bus_type(void)
     }
   else if (use_system_instance && local_kolibri_exists())
     {
-      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "Local Kolibri data already exists, so ignoring KOLIBRI_USE_SYSTEM_INSTANCE");
+      g_log(G_LOG_DOMAIN, G_LOG_LEVEL_MESSAGE, "Local Kolibri data already exists, so ignoring " PROFILE_ENV_PREFIX "USE_SYSTEM_INSTANCE");
       return G_BUS_TYPE_SESSION;
     }
   else if (use_system_instance)
