@@ -54,7 +54,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="$tr('select', { color: $tr('themeBackgroundColorButtonDescription') })"
+            :aria-label="generateAriaLabel($tr('themeBackgroundColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.backgroundColor)"
             @click="showColorPicker = 'backgroundColor'"
           />
@@ -64,7 +64,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="$tr('select', { color: $tr('themeTextColorButtonDescription') })"
+            :aria-label="generateAriaLabel($tr('themeTextColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.textColor)"
             @click="showColorPicker = 'textColor'"
           />
@@ -74,7 +74,7 @@
         <div class="theme-option-container">
           <KButton
             class="theme-color-button"
-            :aria-label="$tr('select', { color: $tr('themeLinkColorButtonDescription') })"
+            :aria-label="generateAriaLabel($tr('themeLinkColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.linkColor)"
             @click="showColorPicker = 'linkColor'"
           />
@@ -223,6 +223,9 @@
           this.tempTheme.linkColor = color.hex;
         }
         this.showColorPicker = null;
+      },
+      generateAriaLabel(color) {
+        return this.$tr('select', { color: color.toLowerCase() });
       },
     },
     $trs: {
