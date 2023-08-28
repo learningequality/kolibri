@@ -10,17 +10,12 @@ from . import config
 
 logger = logging.getLogger(__name__)
 
-if config.BUILD_PROFILE == "development":
-    profile_environ_prefix = "KOLIBRI_DEVEL_"
-else:
-    profile_environ_prefix = "KOLIBRI_"
-
-KOLIBRI_APP_DEVELOPER_EXTRAS = os.environ.get(
-    profile_environ_prefix + "APP_DEVELOPER_EXTRAS"
+APP_DEVELOPER_EXTRAS = os.environ.get(
+    config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS"
 )
 
-KOLIBRI_APP_FORCE_AUTOMATIC_LOGIN = os.environ.get(
-    profile_environ_prefix + "APP_FORCE_AUTOMATIC_LOGIN"
+APP_FORCE_AUTOMATIC_LOGIN = os.environ.get(
+    config.PROFILE_ENV_PREFIX + "APP_FORCE_AUTOMATIC_LOGIN"
 )
 
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")

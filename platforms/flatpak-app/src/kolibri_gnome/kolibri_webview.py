@@ -5,7 +5,7 @@ import typing
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
-from kolibri_app.globals import KOLIBRI_APP_DEVELOPER_EXTRAS
+from kolibri_app.globals import APP_DEVELOPER_EXTRAS
 
 from .kolibri_context import KolibriContext
 
@@ -35,7 +35,7 @@ class KolibriWebView(WebKit.WebView):
 
         self.__context = context
 
-        if KOLIBRI_APP_DEVELOPER_EXTRAS:
+        if APP_DEVELOPER_EXTRAS:
             self.get_settings().set_enable_developer_extras(True)
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
