@@ -102,7 +102,6 @@ class CertificateAuthenticationTestCase(TestCase):
             "--facilities",
             "2",
         )
-        server.manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility_1 = Facility.objects.using(server.db_alias).first()
         facility_2 = Facility.objects.using(server.db_alias).last()
@@ -181,7 +180,6 @@ class CertificateAuthenticationTestCase(TestCase):
         server.manage("loaddata", "scopedefinitions")
         server.manage("loaddata", "content_test")
         server.manage("generateuserdata", "--no-onboarding", "--num-content-items", "1")
-        server.manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility = Facility.objects.using(server.db_alias).first()
         facility.dataset.learner_can_login_with_no_password = True
@@ -660,7 +658,6 @@ class EcosystemSingleUserTestCase(TestCase):
         servers[0].manage(
             "generateuserdata", "--no-onboarding", "--num-content-items", "1"
         )
-        servers[0].manage("devicesettings", "set", "--no-enable-automatic-download")
 
         facility_id = Facility.objects.using(s0_alias).get().id
 
