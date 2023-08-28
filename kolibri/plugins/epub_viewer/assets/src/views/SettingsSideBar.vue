@@ -192,6 +192,10 @@
             return this.$tr('setGreyTheme');
           case 'BLACK':
             return this.$tr('setBlackTheme');
+          case 'YELLOW':
+            return this.$tr('setYellowTheme');
+          case 'BLUE':
+            return this.$tr('setBlueTheme');
           default:
             return '';
         }
@@ -313,6 +317,16 @@
         message: 'Set black theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
+      },
+      setYellowTheme: {
+        message: 'Set yellow theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to yellow.",
+      },
+      setBlueTheme: {
+        message: 'Set blue theme',
+        context:
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to blue.",
       },
     },
   };
