@@ -75,7 +75,6 @@
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
-                  :disabled="nonCompleteStatus(download)"
                   @click="removeResource(download)"
                 />
               </td>
@@ -111,8 +110,8 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
-  import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
-  import { get, set } from '@vueuse/core';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
   import useContentLink from '../../../composables/useContentLink';
   import useLearningActivities from '../../../composables/useLearningActivities';
   import useDownloadRequests from '../../../composables/useDownloadRequests';
@@ -132,14 +131,12 @@
       const { genExternalContentURLBackLinkCurrentPage } = useContentLink();
       const { getLearningActivityIcon } = useLearningActivities();
       const { downloadRequestMap, availableSpace } = useDownloadRequests();
-      const totalPageNumber = ref(0);
       const store = getCurrentInstance().proxy.$store;
       const query = computed(() => get(route).query);
       const route = computed(() => store.state.route);
       const sort = computed(() => query.value.sort);
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
-      const downloads = ref([]);
       const sortedFilteredDownloads = () => {
         let downloadsToDisplay = [];
         if (downloadRequestMap) {
@@ -148,7 +145,7 @@
           }
           if (activityType) {
             if (activityType.value !== 'all') {
-              downloadsToDisplay = downloadsToDisplay.filter(download =>
+              downloadsToDisplay = this.downloadsToDisplay.filter(download =>
                 download.metadata.learning_activities.includes(activityType.value)
               );
             }
@@ -177,19 +174,13 @@
             }
           }
         }
-        set(totalPageNumber, Math.ceil(downloadsToDisplay.length / pageSizeNumber.value));
-        set(downloads, downloadsToDisplay);
       };
       sortedFilteredDownloads();
-      watch(route, () => {
-        sortedFilteredDownloads();
-      });
       return {
         downloadRequestMap,
-        downloads,
+        pageSizeNumber,
         getLearningActivityIcon,
         sortedFilteredDownloads,
-        totalPageNumber,
         availableSpace,
         genExternalContentURLBackLinkCurrentPage,
       };
@@ -239,18 +230,28 @@
         },
       },
       paginatedDownloads() {
-        const startIndex = (this.currentPage - 1) * this.itemsPerPage;
-        const endIndex = startIndex + this.itemsPerPage;
-        return this.downloads.slice(startIndex, endIndex);
+        if (this.downloads && this.downloads.length > 0) {
+          const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+          const endIndex = startIndex + this.itemsPerPage;
+          return this.downloads.slice(startIndex, endIndex);
+        } else {
+          return [];
+        }
+      },
+      downloads() {
+        return this.sortedFilteredDownloads;
+      },
+      totalPageNumber() {
+        if (this.downloadsToDisplay && this.downloadsToDisplay.length) {
+          return Math.ceil(this.downloadsToDisplay.length / this.pageSizeNumber.value);
+        }
+        return 1;
       },
       areAllSelected() {
         return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
       },
       areAnyAvailable() {
-        if (this.downloads && this.downloads.length > 0) {
-          return this.downloads.filter(download => download.status === 'COMPLETED').length > 0;
-        }
-        return false;
+        return this.downloads && this.downloads.length > 0;
       },
     },
     watch: {
@@ -332,7 +333,10 @@
             message = this.$formatRelative(download.requested_at, { now: this.now });
             break;
           case 'FAILED':
+            // if (check source id is on the network) {
             message = this.coreString('downloadFailedWillRetry');
+            // }
+            message = this.coreString('downloadedFailedCanNotRetry');
             break;
           default:
             // If no valid sort option provided, return unsorted array
