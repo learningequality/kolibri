@@ -25,8 +25,9 @@
       :deviceName="device['device_name']"
       :deviceIcon="getDeviceIcon(device)"
       :channels="device.channels"
-      :totalChannels="device['total_channels']"
+      :totalChannels="device['total_count']"
       :pinIcon="getPinIcon(true)"
+      :showDescription="device['instance_id'] === studioId"
       :disablePinDevice="device['instance_id'] === studioId"
       @togglePin="handlePinToggle"
     />
@@ -51,7 +52,7 @@
         :deviceName="device['device_name']"
         :deviceIcon="getDeviceIcon(device)"
         :channels="device.channels"
-        :totalChannels="device['total_channels']"
+        :totalChannels="device['total_count']"
         :pinIcon="getPinIcon(false)"
         @togglePin="handlePinToggle"
       />
