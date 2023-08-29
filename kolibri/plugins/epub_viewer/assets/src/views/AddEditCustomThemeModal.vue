@@ -226,7 +226,13 @@
         this.showColorPicker = null;
       },
       generateAriaLabel(color) {
-        return this.$tr('select', { color: color.toLowerCase() });
+        if (color === 'Background') {
+          return this.$tr('selectBackgroundColor');
+        } else if (color === 'Text') {
+          return this.$tr('selectTextColor');
+        } else if (color === 'Links') {
+          return this.$tr('selectLinkColor');
+        }
       },
     },
     $trs: {
@@ -267,9 +273,17 @@
         context:
           'Message that a learner will see upon trying to save a custom theme if they are not signed in to Kolibri.',
       },
-      select: {
-        message: 'Select {color} color',
-        context: 'Aria label for the button to select a color for a custom theme',
+      selectBackgroundColor: {
+        message: 'Select background color',
+        context: 'Aria label for the button to select the background color of the custom theme',
+      },
+      selectTextColor: {
+        message: 'Select text color',
+        context: 'Aria label for the button to select the text color of the custom theme',
+      },
+      selectLinkColor: {
+        message: 'Select link color',
+        context: 'Aria label for the button to select the link color of the custom theme',
       },
       linkPreviewText: {
         message: 'This is a link',
