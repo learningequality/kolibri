@@ -1,3 +1,10 @@
 __pycache__
 
+# Meson build
 /build
+
+# Flatpak build
+.flatpak-builder/
+_flatpak/
+_repo/
+*.flatpak

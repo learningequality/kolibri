@@ -69,14 +69,14 @@ class KolibriWebView(WebKit.WebView):
         self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
     ) -> bool:
         self.go_back()
-        gesture.set_state(Gtk.EventSequenceState.CLAIMED);
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
         return True
 
     def __on_forward_button_pressed(
         self, gesture: Gtk.GestureClick, n_press: int, x: int, y: int
     ) -> bool:
         self.go_forward()
-        gesture.set_state(Gtk.EventSequenceState.CLAIMED);
+        gesture.set_state(Gtk.EventSequenceState.CLAIMED)
         return True
 
     def __continue_load_kolibri_url(self):
