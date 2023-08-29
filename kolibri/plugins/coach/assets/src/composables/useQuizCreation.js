@@ -29,7 +29,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export function useQuizCreation() {
+export default () => {
   // -----------
   // Local state
   // -----------
@@ -285,4 +285,4 @@ export function useQuizCreation() {
     selectedActiveQuestions,
     replacementQuestionPool,
   };
-}
+};
