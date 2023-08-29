@@ -60,6 +60,9 @@
     props: {
       topic: {
         type: Object,
+        default() {
+          return {};
+        },
         required: true,
       },
       topics: {

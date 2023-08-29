@@ -38,7 +38,7 @@
         >
           <template #sticky-sidebar>
             <ToggleHeaderTabs
-              v-if="!!windowIsLarge"
+              v-if="!!windowIsLarge && topic"
               :topic="topic"
               :topics="topics"
               :width="sidePanelWidth"
