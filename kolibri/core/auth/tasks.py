@@ -554,6 +554,23 @@ def stoppeerusersync(server, user_id):
     return queue_soud_sync_cleanup(sync_session.id)
 
 
+def fetch_soud_jobs(user_id, state):
+    """
+    Fetch all SoUD (`peerusersync`) jobs for a user with a given state
+    :param user_id: The user ID scope for the sync job
+    :param state: The status of the job(s) to fetch
+    :rtype: kolibri.core.tasks.job.Job[]
+    """
+    jobs = []
+    for job in job_storage.filter_jobs(
+        func=peerusersync.func_string,
+        state=state,
+    ):
+        if job.kwargs.get("user", None) == user_id:
+            jobs.append(job)
+    return jobs
+
+
 def begin_request_soud_sync(server, user_id):
     """
     Enqueue a task to request this SoUD to be
@@ -576,14 +593,7 @@ def begin_request_soud_sync(server, user_id):
             return
 
         if users[0]["queued"]:
-            failed_jobs = [
-                j
-                for j in job_storage.filter_jobs(
-                    func=peerusersync.func_string,
-                    state=State.FAILED,
-                )
-                if j.kwargs.get("user", None) == user_id
-            ]
+            failed_jobs = fetch_soud_jobs(user_id, State.FAILED)
             if failed_jobs:
                 for j in failed_jobs:
                     job_storage.clear(job_id=j.job_id)
@@ -591,18 +601,9 @@ def begin_request_soud_sync(server, user_id):
                 UserSyncStatus.objects.update_or_create(
                     user_id=user_id, defaults={"queued": False}
                 )
-            else:
-                queued_jobs = iter(
-                    j
-                    for j in job_storage.filter_jobs(
-                        func=peerusersync.func_string,
-                        state=State.QUEUED,
-                    )
-                    if j.kwargs.get("user", None) == user_id
-                )
+            elif any(fetch_soud_jobs(user_id, State.QUEUED)):
                 # If there are pending and not failed jobs, don't enqueue a new one
-                if any(queued_jobs):
-                    return
+                return
 
     logger.info(
         "Queuing SoUD syncing request against server {} for user {}".format(
