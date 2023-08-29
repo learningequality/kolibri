@@ -59,8 +59,64 @@
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
+      /**
+       * TODO
+       * const {
+          // Methods
+          saveQuiz,
+          updateSection,
+          replaceSelectedQuestions,
+          addSection,
+          removeSection,
+          setActiveSection,
+          initializeQuiz,
+          updateQuiz,
+          addQuestionToSelection,
+          removeQuestionFromSelection,
+
+          // Computed
+          channels,
+          quiz,
+          allSections,
+          activeSection,
+          activeExercisePool,
+          activeQuestionsPool,
+          activeQuestions,
+          selectedActiveQuestions,
+          replacementQuestionPool,
+          } = quizForge;
+
+          or can I just ...quizForge in the return?
+      **/
+
       return {
         quizForge,
+      };
+    },
+    /**
+     * @returns {object}
+     * @property {object} quizForge - see useQuizCreation for details; this is a reflection of
+     *                                the object returned by that function which is initialized
+     *                                within this component
+     * add `inject: ['quizForge']` to any descendant component to access this
+     */
+    provide() {
+      return {
+        quizForge: this.quizForge,
+        showError: false,
+        moreResultsState: null,
+        // null corresponds to 'All' filter value
+        filters: {
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
+        },
+        // numQuestionsBlurred: false,
+        bookmarksCount: 0,
+        bookmarks: [],
+        more: null,
+        quizForge,
+        // showSectionSettingsMenu:false
       };
     },
     /**
