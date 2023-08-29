@@ -23,6 +23,7 @@
           :label="coachString('titleLabel')"
           :autofocus="true"
           :maxlength="100"
+          @blur="e => quizForge.updateQuiz({ title: e.target.value })"
         />
       </KGridItem>
     </KGrid>
@@ -39,7 +40,7 @@
       class="kgrid-alignment-style"
     >
       <KGridItem
-        :layout12="{ span: 6 }"
+        :layout12="{ span: 10 }"
         :style="noKgridItemPadding"
       >
         <KTabs
@@ -47,18 +48,15 @@
           ariaLabel="Coach reports"
           :tabs="tabs"
         >
-          <template>
-
-          </template>
+          <template></template>
         </KTabs>
       </KGridItem>
 
       <KGridItem
-        :layout12="{ span: 6 }"
+        :layout12="{ span: 2 }"
         :style="noKgridItemPadding"
       >
         <KButton
-          class="float-button"
           appearance="flat-button"
           icon="plus"
         >
@@ -344,6 +342,7 @@
       DragSortWidget,
     },
     mixins: [commonCoreStrings, commonCoach],
+    inject: ['quizForge'],
     data() {
       return {
         tabs: [{ id: '', label: this.$tr('sectionLabel') }],
@@ -537,11 +536,6 @@
 
   .no-question-style {
     font-weight: bold;
-  }
-
-  .float-button {
-    float: right;
-    background-color: #f5f5f5;
   }
 
   .bottom-border {

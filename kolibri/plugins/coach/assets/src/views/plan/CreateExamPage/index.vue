@@ -162,8 +162,11 @@
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
+  import useQuizCreation from '../../../composables/useQuizCreation';
   import CreateQuizSection from './CreateQuizSection.vue';
   import SectionSidePanel from './SectionSidePanel.vue';
+
+  const quizForge = useQuizCreation();
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
@@ -182,6 +185,36 @@
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     data() {
+      /**
+       * TODO
+       * const {
+          // Methods
+          saveQuiz,
+          updateSection,
+          replaceSelectedQuestions,
+          addSection,
+          removeSection,
+          setActiveSection,
+          initializeQuiz,
+          updateQuiz,
+          addQuestionToSelection,
+          removeQuestionFromSelection,
+
+          // Computed
+          channels,
+          quiz,
+          allSections,
+          activeSection,
+          activeExercisePool,
+          activeQuestionsPool,
+          activeQuestions,
+          selectedActiveQuestions,
+          replacementQuestionPool,
+          } = quizForge;
+
+          or can I just ...quizForge in the return?
+      **/
+
       return {
         showError: false,
         moreResultsState: null,
@@ -195,7 +228,20 @@
         bookmarksCount: 0,
         bookmarks: [],
         more: null,
+        quizForge,
         // showSectionSettingsMenu:false
+      };
+    },
+    /**
+     * @returns {object}
+     * @property {object} quizForge - see useQuizCreation for details; this is a reflection of
+     *                                the object returned by that function which is initialized
+     *                                within this component
+     * add `inject: ['quizForge']` to any descendant component to access this
+     */
+    provide() {
+      return {
+        quizForge: this.quizForge,
       };
     },
     computed: {
@@ -397,6 +443,7 @@
       },
     },
     created() {
+      this.quizForge.initializeQuiz();
       ContentNodeResource.fetchBookmarks({
         params: { limit: 25, kind: ContentNodeKinds.EXERCISE, available: true },
       }).then(data => {
