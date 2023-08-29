@@ -44,12 +44,9 @@
         :style="noKgridItemPadding"
       >
         <KTabs
-          tabsId="coachReportsTabs"
-          ariaLabel="Coach reports"
+          tabsId="quizSectionTabs"
           :tabs="tabs"
-        >
-          <template></template>
-        </KTabs>
+        />
       </KGridItem>
 
       <KGridItem
@@ -59,6 +56,7 @@
         <KButton
           appearance="flat-button"
           icon="plus"
+          @click="() => quizForge.addSection()"
         >
           {{ ($tr('addSection')).toUpperCase() }}
         </KButton>
@@ -322,6 +320,7 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import Draggable from 'kolibri.coreVue.components.Draggable';
@@ -343,59 +342,20 @@
     },
     mixins: [commonCoreStrings, commonCoach],
     inject: ['quizForge'],
-    data() {
-      return {
-        tabs: [{ id: '', label: this.$tr('sectionLabel') }],
-        isQuestionAvailable: true,
-        placeholderList: [
-          {
-            id: 1,
-            title: 'question 1',
-            visible: false,
-            placeholderAnswers: [
-              {
-                id: 1,
-                option: 'bit',
-              },
-              {
-                id: 2,
-                option: 'but',
-              },
-              {
-                id: 3,
-                option: 'bite',
-              },
-              {
-                id: 4,
-                option: 'bait',
-              },
-              {
-                id: 5,
-                option: 'bet',
-              },
-            ],
-          },
-          {
-            id: 2,
-            title: 'question 2',
-            visible: false,
-            placeholderAnswers: [],
-          },
-          {
-            id: 3,
-            title: 'question 3',
-            visible: false,
-            placeholderAnswers: [],
-          },
-        ],
-      };
-    },
     computed: {
       noKgridItemPadding() {
         return {
           paddingLeft: '0em',
           paddingRight: '0em',
         };
+      },
+      tabs() {
+        return get(this.quizForge.allSections).map((section, index) => {
+          const id = section.section_id;
+          const label = section.section_title ? section.section_title : `Section ${index + 1}`;
+
+          return { id, label };
+        });
       },
     },
     methods: {
@@ -420,10 +380,6 @@
       },
     },
     $trs: {
-      sectionLabel: {
-        message: 'section 1',
-        context: 'Indicates the section number created',
-      },
       addSection: {
         message: 'add section',
         context: 'Label for adding the number of quiz sections',
