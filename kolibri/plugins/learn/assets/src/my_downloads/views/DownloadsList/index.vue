@@ -190,6 +190,13 @@
         type: Boolean,
         required: false,
       },
+      networkDevices: {
+        type: Array,
+        required: false,
+        default() {
+          return [];
+        },
+      },
     },
     data() {
       return {
@@ -302,6 +309,9 @@
       getIcon(activities) {
         return this.getLearningActivityIcon(activities);
       },
+      sourceDeviceIsAvailable(download) {
+        return this.networkDevices.filter(device => device.id == download.source_id).length > 0;
+      },
       downloadStatusIcon(download) {
         let icon;
         switch (download.status) {
@@ -333,10 +343,11 @@
             message = this.$formatRelative(download.requested_at, { now: this.now });
             break;
           case 'FAILED':
-            // if (check source id is on the network) {
-            message = this.coreString('downloadFailedWillRetry');
-            // }
-            message = this.coreString('downloadedFailedCanNotRetry');
+            if (this.sourceDeviceIsAvailable(download)) {
+              message = this.coreString('downloadFailedWillRetry');
+            } else {
+              message = this.coreString('downloadedFailedCanNotRetry');
+            }
             break;
           default:
             // If no valid sort option provided, return unsorted array
