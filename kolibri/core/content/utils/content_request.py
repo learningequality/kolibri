@@ -745,10 +745,8 @@ def process_download_request(download_request):
         for peer in chain(*peer_sets):
             import_manager = ContentDownloadRequestResourceImportManager(
                 node.channel_id,
-                peer_id=peer.id,
-                baseurl=peer.base_url,
-                node_ids=[download_request.contentnode_id],
-                download_request=download_request,
+                peer,
+                download_request,
                 fail_on_error=True,
             )
             _, count = import_manager.run()
