@@ -70,9 +70,7 @@
 
     <hr class="bottom-border">
     <div v-if="isQuestionAvailable">
-      <KGrid
-        class="question-row"
-      >
+      <KGrid>
         <KGridItem
           :layout12="{ span: 6 }"
         >
@@ -145,52 +143,59 @@
                 <a
                   @click="toggleItemState(item.id)"
                 >
-
-                  <KGrid
-                    class="question-row"
-                  >
-                    <KGridItem :layout12="{ span: 6 }">
-                      <div class="left-column-alignment-style">
-                        <DragHandle>
-                          <KIconButton
-                            class="drag-icon icon-size"
-                            icon="dragVertical"
-                          />
-                        </DragHandle>
-                        <div class="check-box-style">
-                          <p>
-                            <a
-                              @click.prevent="toggleItemState(item.id)"
-                            >
-                              <KCheckbox />
-                            </a>
-                          </p>
-                        </div>
-
-                        <div>
-                          <p>
-                            {{ title }}
-                          </p>
-                        </div>
-                      </div>
-                    </KGridItem>
-
-                    <KGridItem :layout12="{ span: 6 }">
-                      <div class="right-alignment-style">
-                        <KIcon
-                          v-if="isItemExpanded(item.id)"
-                          class="icon-size toggle-icon"
-                          icon="chevronUp"
+                  <div class="flex-div">
+                    <div class="left-column-alignment-style">
+                      <DragHandle>
+                        <KIconButton
+                          class="drag-icon icon-size"
+                          icon="dragVertical"
                         />
-
-                        <KIcon
-                          v-else
-                          class="icon-size toggle-icon"
-                          icon="chevronRight"
-                        />
+                      </DragHandle>
+                      <div class="check-box-style">
+                        <p>
+                          <a
+                            @click.prevent="toggleItemState(item.id)"
+                          >
+                            <KCheckbox />
+                          </a>
+                        </p>
                       </div>
-                    </KGridItem>
-                  </KGrid>
+                    </div>
+
+                    <div class="occupy-remaining-space">
+                      <button
+                        class="remove-button-style"
+                      >
+                        <KGrid>
+                          <KGridItem
+                            :layout12="{ span: 6 }"
+                          >
+                            <div style="margin-top:1em;">
+                              {{ title }}
+                            </div>
+                          </KGridItem>
+
+                          <KGridItem
+                            :layout12="{ span: 6 }"
+                          >
+                            <div class="right-alignment-style">
+                              <KIcon
+                                v-if="isItemExpanded(item.id)"
+                                class="icon-size toggle-icon"
+                                icon="chevronUp"
+                              />
+                              <KIcon
+                                v-else
+                                class="icon-size toggle-icon"
+                                icon="chevronRight"
+                              />
+
+                            </div>
+                          </KGridItem>
+                        </KGrid>
+                      </button>
+                    </div>
+                  </div>
                 </a>
               </template>
 
@@ -514,6 +519,21 @@
 
   .align-kcheckbox-style {
     margin-left: 3em;
+  }
+
+  .remove-button-style {
+    width: 100%;
+    padding: 0;
+    background-color: transparent;
+    border: 0;
+  }
+
+  .occupy-remaining-space {
+    flex-grow: 1;
+  }
+
+  .flex-div {
+    display: flex;
   }
 
 </style>
