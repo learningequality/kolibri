@@ -155,10 +155,9 @@ class KolibriDaemonManager(GObject.GObject):
         soup_session = Soup.Session.new()
         soup_message = Soup.Message.new(method, url)
         if request_body is not None:
-            soup_message.set_request(
+            soup_message.set_request_body_from_bytes(
                 "application/json",
-                Soup.MemoryUse.COPY,
-                self.__request_body_object_to_bytes(request_body),
+                GLib.Bytes(self.__request_body_object_to_bytes(request_body)),
             )
         soup_session.send_async(
             soup_message,
