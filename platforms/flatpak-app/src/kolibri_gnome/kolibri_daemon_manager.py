@@ -218,7 +218,6 @@ class KolibriDaemonManager(GObject.GObject):
                 "Error initializing Kolibri daemon proxy: {error}".format(error=error)
             )
             self.props.has_error = True
-            self.__on_dbus_proxy_changed()
         else:
             self.__dbus_proxy_on_notify_g_name_owner(self.__dbus_proxy)
 
