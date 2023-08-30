@@ -206,12 +206,26 @@
                 <div class="accordion-detail-container">
                   <KGrid>
                     <KGridItem :layout12="{ span: 8 }">
-                      <p>{{ $tr('questionPhrase') }}</p>
-                      <p>{{ $tr('questionSubtitle') }}</p>
+                      <button
+                        class="remove-button-style text-align-start"
+                      >
+                        {{ $tr('questionPhrase') }}
+                      </button>
+
+                      <button
+                        class="remove-button-style text-align-start text-vertical-spacing"
+                      >
+                        {{ $tr('questionSubtitle') }}
+                      </button>
                     </KGridItem>
 
-                    <KGridItem :layout12="{ span: 4 }">
-                      <KIcon class="float-item-left-style" icon="edit" />
+                    <KGridItem
+                      :layout12="{ span: 4 }"
+                    >
+                      <KIconButton
+                        class="float-item-left-style"
+                        icon="edit"
+                      />
                     </KGridItem>
                   </KGrid>
 
@@ -478,7 +492,7 @@
   .float-item-left-style {
     float: right;
     margin-top: 1em;
-    margin-right: 1em;
+    margin-right: 0.5em;
   }
 
   .reduce-chervon-spacing {
@@ -497,6 +511,7 @@
 
   .choose-question {
     height: 40px;
+    margin-top: 0.5em;
     background-color: #fafafa;
     border: 1px solid #dedede;
     border-radius: 2px;
@@ -534,6 +549,14 @@
 
   .flex-div {
     display: flex;
+  }
+
+  .text-align-start {
+    text-align: start;
+  }
+
+  .text-vertical-spacing {
+    margin-top: 0.5em;
   }
 
 </style>
