@@ -46,7 +46,7 @@
         />
       </div>
       <LibraryItem
-        v-for="(device, index) in moreDevices"
+        v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
         :key="index"
         :deviceId="device['instance_id']"
         :deviceName="device['device_name']"
@@ -73,7 +73,7 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useContentLink from '../../composables/useContentLink';
@@ -109,8 +109,8 @@
     data() {
       return {
         loading: false,
-        networkDevices: [],
-        moreDevices: [],
+        networkDevices: {},
+        moreDevices: 0,
         usersPins: [],
       };
     },
@@ -119,15 +119,23 @@
         return this.unpinnedDevices?.length > 0;
       },
       displayShowButton() {
-        return this.moreDevices.length === 0;
+        return this.moreDevices === 0 && this.areMoreDevicesAvailable;
       },
       displayShowMoreButton() {
-        return (
-          this.moreDevices.length > 0 && this.moreDevices.length < this.unpinnedDevices?.length
-        );
+        return this.moreDevices < this.unpinnedDevices?.length;
       },
       networkDevicesWithChannels() {
-        return this.networkDevices.filter(device => device.channels?.length > 0);
+        return Object.values(this.networkDevices)
+          .filter(device => device.channels?.length > 0)
+          .sort((a, b) => {
+            if (a.instance_id === this.studioId) {
+              return 1;
+            }
+            if (b.instance_id === this.studioId) {
+              return -1;
+            }
+            return localeCompare(a.device_name, b.device_name);
+          });
       },
       pageHeaderStyle() {
         return {
@@ -182,6 +190,9 @@
           const instance_id = pin.instance_id.replace(/-/g, '');
           return { ...pin, instance_id };
         });
+        if (this.usersPins.length === 0) {
+          this.loadMoreDevices();
+        }
       });
 
       this.fetchDevices().then(devices => {
@@ -209,7 +220,9 @@
     },
     methods: {
       addNetworkDevice(device, channels) {
-        this.networkDevices.push(
+        this.$set(
+          this.networkDevices,
+          device.instance_id,
           Object.assign(device, {
             channels: channels.slice(0, 4),
             total_count: channels.length,
@@ -220,8 +233,7 @@
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;
           this.usersPins = [...this.usersPins, { instance_id, id }];
-          this.moreDevices = this.unpinnedDevices;
-
+          this.moreDevices = 0;
           // eslint-disable-next-line
           this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
         });
@@ -230,8 +242,9 @@
         return this.deletePinForUser(pinId).then(() => {
           // Remove this pin from the usersPins
           this.usersPins = this.usersPins.filter(pin => pin.instance_id != instance_id);
-          this.moreDevices = this.unpinnedDevices;
-
+          if (this.usersPins.length === 0) {
+            this.loadMoreDevices();
+          }
           // eslint-disable-next-line
           this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
         });
@@ -257,10 +270,7 @@
         return pinned ? 'pinned' : 'notPinned';
       },
       loadMoreDevices() {
-        const start = this.moreDevices.length;
-        const end = start + 4;
-        const nextDevices = this.unpinnedDevices.slice(start, end);
-        this.moreDevices.push(...nextDevices);
+        this.moreDevices += 4;
       },
     },
     $trs: {
