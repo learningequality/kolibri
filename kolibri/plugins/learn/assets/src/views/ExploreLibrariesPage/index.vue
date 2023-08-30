@@ -185,17 +185,26 @@
       });
 
       this.fetchDevices().then(devices => {
-        this.loading = false;
+        const promises = [];
         for (const device of devices) {
           const baseurl = device.base_url;
-          this.fetchChannels({ baseurl })
+          const promise = this.fetchChannels({ baseurl })
             .then(channels => {
               this.addNetworkDevice(device, channels);
+              // Set loading to false once we have successfully fetched channels
+              // for any device.
+              this.loading = false;
             })
             .catch(() => {
               this.addNetworkDevice(device, []);
             });
+          promises.push(promise);
         }
+        Promise.all(promises).then(() => {
+          // In case we don't successfully fetch any channels, don't do a perpetual loading
+          // state.
+          this.loading = false;
+        });
       });
     },
     methods: {
