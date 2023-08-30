@@ -28,6 +28,7 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.tasks.utils import fd_safe_executor
 from kolibri.core.tasks.utils import JobProgressMixin
 from kolibri.core.utils.urls import reverse_path
@@ -551,36 +552,39 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
 
     def run(self):
         node = ContentNode.objects.get(pk=self.download_request.contentnode_id)
-        required_checksums = (
-            node.files()
-            .filter(supplementary=False)
-            .values_list("local_file_id", flat=True)
-        )
-        with NetworkClient.build_from_network_location(self.peer) as client:
-            try:
-                response = client.post(
-                    reverse_path("get_public_file_checksums", kwargs={"version": "1"}),
-                    data=required_checksums,
-                )
-                integer_mask = int(response.content)
+        if self.peer.id != CENTRAL_CONTENT_BASE_INSTANCE_ID:
+            required_checksums = (
+                node.files()
+                .filter(supplementary=False)
+                .values_list("local_file_id", flat=True)
+            )
+            with NetworkClient.build_from_network_location(self.peer) as client:
+                try:
+                    response = client.post(
+                        reverse_path(
+                            "get_public_file_checksums", kwargs={"version": "1"}
+                        ),
+                        data=required_checksums,
+                    )
+                    integer_mask = int(response.content)
 
-                expected_mask = generate_checksum_integer_mask(
-                    required_checksums, required_checksums
-                )
+                    expected_mask = generate_checksum_integer_mask(
+                        required_checksums, required_checksums
+                    )
 
-                if integer_mask != expected_mask:
-                    raise ValueError
-            except (
-                ValueError,
-                TypeError,
-                NetworkLocationResponseFailure,
-                NetworkLocationResponseTimeout,
-            ):
-                # Bad JSON parsing will throw ValueError
-                # If the result of the json.loads is not iterable, a TypeError will be thrown
-                # If we end up here, just set checksums to None to allow us to cleanly continue
-                if self.fail_on_error:
-                    raise LocationError("Required files not available from remote")
+                    if integer_mask != expected_mask:
+                        raise ValueError
+                except (
+                    ValueError,
+                    TypeError,
+                    NetworkLocationResponseFailure,
+                    NetworkLocationResponseTimeout,
+                ):
+                    # Bad JSON parsing will throw ValueError
+                    # If the result of the json.loads is not iterable, a TypeError will be thrown
+                    # If we end up here, just set checksums to None to allow us to cleanly continue
+                    if self.fail_on_error:
+                        raise LocationError("Required files not available from remote")
 
         return super(ContentDownloadRequestResourceImportManager, self).run()
 
