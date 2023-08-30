@@ -96,9 +96,8 @@ def allow_other_browsers_to_connect():
 
 def set_device_settings(**kwargs):
     """
-    Set the device settings, or raise an exception if the device is not provisioned.
-    :param kwargs:
-    :return:
+    Set the device settings, even if unprovisioned.
+    :param kwargs: a dictionary of key-value pairs to set on the device settings model
     """
     from .models import DeviceSettings
     from .models import extra_settings_schema
@@ -107,7 +106,7 @@ def set_device_settings(**kwargs):
         device_settings = DeviceSettings.objects.get()
     except DeviceSettings.DoesNotExist:
         device_settings = DeviceSettings(
-            # model field's default is a static value, which could during unit tests
+            # model field's default is a static value, which could change during unit tests
             language_id=settings.LANGUAGE_CODE
         )
 

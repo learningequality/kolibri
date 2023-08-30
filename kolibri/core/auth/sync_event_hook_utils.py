@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.utils.functional import wraps
+from morango.sync.context import CompositeSessionContext
 from morango.sync.context import LocalSessionContext
 
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
@@ -72,14 +73,23 @@ def _local_event_handler(func):
     @wraps(func)
     def wrapper(context):
         """
-        :type context:
-            morango.sync.context.CompositeSessionContext|morango.sync.context.LocalSessionContext
+        :type context: CompositeSessionContext|LocalSessionContext
         """
-        children = getattr(context, "children", [context])
-        for sub_context in children:
-            if isinstance(sub_context, LocalSessionContext):
-                kwargs = _extract_kwargs_from_context(sub_context)
-                return func(**kwargs)
+        local_context = context if isinstance(context, LocalSessionContext) else None
+
+        try:
+            if not local_context and isinstance(context, CompositeSessionContext):
+                local_context = next(
+                    c for c in context.children if isinstance(c, LocalSessionContext)
+                )
+            else:
+                raise StopIteration("No local context found")
+        except StopIteration:
+            # no local context, so we can't do anything
+            return
+
+        kwargs = _extract_kwargs_from_context(local_context)
+        return func(**kwargs)
 
     return wrapper
 
