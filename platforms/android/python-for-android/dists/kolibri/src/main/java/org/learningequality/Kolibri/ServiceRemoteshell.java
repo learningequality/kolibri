@@ -3,7 +3,7 @@ package org.learningequality.Kolibri;
 import android.content.Intent;
 import android.content.Context;
 import org.kivy.android.PythonService;
-
+import android.util.Log;
 
 public class ServiceRemoteshell extends PythonService {
 
@@ -35,8 +35,15 @@ public class ServiceRemoteshell extends PythonService {
                                           String contentTitle, String contentText,
                                           String pythonServiceArgument) {
         Intent intent = new Intent(ctx, ServiceRemoteshell.class);
-        String argument = ctx.getFilesDir().getAbsolutePath() + "/app";
-        intent.putExtra("androidPrivate", ctx.getFilesDir().getAbsolutePath());
+
+        return putExtraRemoteShell(intent, ctx, smallIconName, contentTitle, contentText, pythonServiceArgument);
+
+    }
+
+    static public Intent putExtraRemoteShell(Intent intent, Context context, String smallIconName, String contentTitle, String contentText,
+                                      String pythonServiceArgument) {
+        String argument = context.getFilesDir().getAbsolutePath() + "/app";
+        intent.putExtra("androidPrivate", context.getFilesDir().getAbsolutePath());
         intent.putExtra("androidArgument", argument);
         intent.putExtra("serviceTitle", "Kolibri");
         intent.putExtra("serviceEntrypoint", "remoteshell.py");
@@ -49,6 +56,20 @@ public class ServiceRemoteshell extends PythonService {
         intent.putExtra("contentTitle", contentTitle);
         intent.putExtra("contentText", contentText);
         return intent;
+
+    }
+
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Context context = getApplicationContext();
+        if (intent == null) {
+            intent = getThisDefaultIntent(context, "");
+        }
+        else {
+            intent = putExtraRemoteShell(intent, context, "", "kolibri", "ssh service", "");
+        }
+        Log.d("python AndroidRuntime Remoteshell", "Service starting");
+        return super.onStartCommand(intent, flags, startId);
     }
 
     @Override
@@ -60,5 +81,6 @@ public class ServiceRemoteshell extends PythonService {
     static public void stop(Context ctx) {
         Intent intent = new Intent(ctx, ServiceRemoteshell.class);
         ctx.stopService(intent);
+        Log.d("python AndroidRuntime Remoteshell", "Service stopped");
     }
 }
