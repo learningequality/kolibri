@@ -22,13 +22,24 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.3.3" date="2023-08-30" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            An issue was resolved which caused Kolibri to crash when starting
+            for the first time on some systems.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="2.3.2" date="2023-08-25" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
           <li>
-            An issue which caused Kolibri to hang when using automatic login
-            was resolved.
+            An issue was resolved which caused Kolibri to hang when using
+            automatic login.
           </li>
         </ul>
       </description>
