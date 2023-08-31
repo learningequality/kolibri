@@ -137,6 +137,7 @@ def get_import_export_nodes(  # noqa: C901
     drive_id=None,
     peer_id=None,
     renderable_only=True,
+    check_file_availability=True,
 ):
     """
     Returns a list of queries for ContentNode objects matching the given
@@ -162,9 +163,10 @@ def get_import_export_nodes(  # noqa: C901
     if available is not None:
         nodes_to_include = nodes_to_include.filter(available=available)
 
-    nodes_to_include = filter_by_file_availability(
-        nodes_to_include, channel_id, drive_id, peer_id
-    )
+    if check_file_availability:
+        nodes_to_include = filter_by_file_availability(
+            nodes_to_include, channel_id, drive_id, peer_id
+        )
 
     while min_boundary < max_rght:
         max_boundary = min_boundary + dynamic_chunksize

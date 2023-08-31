@@ -37,6 +37,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+from kolibri.core.content.utils.file_availability import checksum_regex
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import UserSyncStatus
@@ -182,7 +183,14 @@ def get_public_file_checksums(request, version):
                 data = f.read()
         else:
             return HttpResponseBadRequest("POST body must be either json or gzip")
-        checksums = json.loads(data.decode("utf-8"))
+        try:
+            checksums = json.loads(data.decode("utf-8"))
+        except ValueError:
+            return HttpResponseBadRequest("POST body must be valid json")
+
+        checksums = [
+            checksum for checksum in checksums if checksum_regex.match(checksum)
+        ]
         available_checksums = set(
             LocalFile.objects.filter(available=True)
             .filter_by_uuids(checksums)
