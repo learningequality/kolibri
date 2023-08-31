@@ -1,11 +1,6 @@
 name: Build
 
-on:
-  push:
-    branches:
-      - main
-  pull_request:
-  workflow_dispatch:
+on: [push, pull_request, workflow_dispatch]
 
 jobs:
   lint:
@@ -26,6 +21,7 @@ jobs:
 
   flatpak:
     name: Flatpak
+    needs: lint
     runs-on: ubuntu-latest
 
     steps:
