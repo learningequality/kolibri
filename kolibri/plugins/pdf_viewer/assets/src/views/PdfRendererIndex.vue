@@ -423,6 +423,10 @@
           if (currentPage === this.totalPages - 1 && this.scrolledToEnd()) {
             this.storeVisitedPage(currentPage + 1);
           }
+          // If users has already zoomed then set the scale to that particular zoom scale.
+          if (localStorage.getItem('pdf_scale') != null) {
+            this.setScale(parseFloat(localStorage.getItem('pdf_scale')));
+          }
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
@@ -447,6 +451,7 @@
       },
       setScale: throttle(function(scaleValue) {
         this.scale = scaleValue;
+        localStorage.setItem('pdf_scale', scaleValue);
       }, 500),
       toggleSideBar() {
         this.showSideBar = !this.showSideBar;
