@@ -1,6 +1,17 @@
 <template>
 
-  <SideBar class="epub-sidebar">
+  <SideBar :class="['epub-sidebar', getClassByWindowSize]">
+    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+      <h2>{{ $tr('sideBarTitle') }}</h2>
+      <KIconButton
+        :ariaLabel="$tr('closeSideBar')"
+        icon="close"
+        @click="$emit('closeSideBar')"
+      />
+    </div>
+
+    <hr>
+
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
       <KFixedGrid numCols="2" gutter="8">
@@ -37,6 +48,8 @@
       </KFixedGrid>
     </div>
 
+    <hr style="margin-bottom: 16px; margin-top: 16px;">
+
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
       <KFixedGrid numCols="3" gutter="16">
@@ -65,6 +78,8 @@
         </KFixedGridItem>
       </KFixedGrid>
     </div>
+
+    <hr style="margin-top: 16px; margin-bottom: 16px;">
 
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
@@ -125,6 +140,7 @@
 <script>
 
   import Lockr from 'lockr';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
@@ -138,6 +154,14 @@
       DeleteCustomThemeModal,
       AddEditCustomThemeModal,
       CustomThemeItem,
+    },
+    setup() {
+      const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsMedium,
+        windowIsSmall,
+      };
     },
     props: {
       theme: {
@@ -176,6 +200,12 @@
             outlineWidth: '2px',
           },
         };
+      },
+      getClassByWindowSize() {
+        if (this.windowIsLarge) return 'large';
+        if (this.windowIsMedium) return 'medium';
+        if (this.windowIsSmall) return 'small';
+        return null;
       },
     },
     mounted() {
@@ -284,7 +314,7 @@
         context: 'Button used to make the EPUB reader text size larger.',
       },
       theme: {
-        message: 'Theme',
+        message: 'Default themes',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
       },
@@ -328,6 +358,16 @@
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to blue.",
       },
+      closeSideBar: {
+        message: 'Close settings',
+        context:
+          'Used to close the settings button where a learner can adjust things like the text size or the background color.',
+      },
+      sideBarTitle: {
+        message: 'THEMES & SETTINGS',
+        context:
+          'Used to open and close the settings button where a learner can adjust things like the text size or the background color.',
+      },
     },
   };
 
@@ -363,8 +403,19 @@
     @include truncate-text;
   }
 
-  .epub-sidebar {
+  .epub-sidebar.large {
     width: 500px;
+  }
+
+  .epub-sidebar.medium {
+    width: 400px;
+  }
+
+  .epub-sidebar.small {
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    height: 75%;
   }
 
 </style>

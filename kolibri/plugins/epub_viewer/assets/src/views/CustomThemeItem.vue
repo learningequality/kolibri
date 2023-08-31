@@ -16,8 +16,8 @@
       class="theme-settings-button"
       :aria-label="generateCustomThemeDeleteAriaLabel(theme.name)"
       :text="$tr('delete')"
-      :icon="'trash'"
       style="marginLeft: 16px; marginRight: 16px;"
+      :appearanceOverrides="{ padding: 0 }"
       @click="$emit('deleteCustomTheme', theme)"
     />
 
@@ -26,7 +26,7 @@
       class="theme-settings-button"
       :aria-label="generateCustomThemeEditAriaLabel(theme.name)"
       :text="$tr('edit')"
-      :icon="'edit'"
+      :appearanceOverrides="{ padding: 0 }"
       @click="$emit('editCustomTheme', theme)"
     />
   </div>
