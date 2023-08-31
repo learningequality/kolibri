@@ -140,24 +140,32 @@
                 #heading="{ title }"
                 :accordionToggle="onAccordionToggle(item.id)"
               >
-                <a
+                <button
+                  tabindex="-1"
+                  aria-expanded="false"
+                  aria-label="toggle-button"
+                  class="remove-button-style"
                   @click="toggleItemState(item.id)"
                 >
-                  <div class="flex-div">
-                    <div class="left-column-alignment-style">
+                  <div
+                    class="flex-div"
+                  >
+                    <div
+                      class="left-column-alignment-style"
+                    >
                       <DragHandle>
                         <KIconButton
                           class="drag-icon icon-size"
                           icon="dragVertical"
                         />
                       </DragHandle>
-                      <div class="check-box-style">
-                        <p>
-                          <a
-                            @click.prevent="toggleItemState(item.id)"
-                          >
-                            <KCheckbox />
-                          </a>
+                      <div
+                        class="check-box-style"
+                      >
+                        <p
+                          @click.prevent="toggleItemState(item.id)"
+                        >
+                          <KCheckbox />
                         </p>
                       </div>
                     </div>
@@ -196,7 +204,7 @@
                       </button>
                     </div>
                   </div>
-                </a>
+                </button>
               </template>
 
               <template
