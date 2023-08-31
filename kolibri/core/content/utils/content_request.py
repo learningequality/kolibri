@@ -150,7 +150,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     :param dataset_id: The UUID of the dataset
     :type dataset_id: str
     :param transfer_session: The sync's transfer session model, if available
-    :type transfer_session: morango.models.core.TransferSession
+    :type transfer_session: morango.models.core.TransferSession|None
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
@@ -758,14 +758,16 @@ def process_download_request(download_request):
             # can't trust the count, fail if there's an exception
             if getattr(import_manager, "exception", None):
                 raise getattr(import_manager, "exception")
-            else:
-                if count == 0:
-                    logger.warning(
-                        "ContentNode files may not have imported successfully: {}".format(
-                            download_request.contentnode_id
-                        )
+            elif not count or count == 0:
+                logger.warning(
+                    "ContentNode files may not have imported successfully: {}".format(
+                        download_request.contentnode_id
                     )
-                # without an exception, we can assume the import was successful
+                )
+                # if we have no count, we should try the next peer
+                continue
+            else:
+                # without an exception, and positive count, we can assume the import was successful
                 break
         else:
             raise NoPeerAvailable(
