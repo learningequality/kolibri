@@ -125,7 +125,7 @@
           <template
             #default="{ isItemExpanded, toggleItemState }"
           >
-            <div
+            <Draggable
               v-for="item in placeholderList"
               :key="item.id"
             >
@@ -136,7 +136,6 @@
                 :title="item.title"
                 :expanded="isItemExpanded(item.id)"
               >
-
                 <template
                   #heading="{ title }"
                   :accordionToggle="onAccordionToggle(item.id)"
@@ -244,7 +243,6 @@
                       </p>
                     </div>
 
-
                     <hr class="bottom-border">
                     <KButton
                       style="width:100%;margin-bottom:0.5em"
@@ -256,9 +254,8 @@
                     <hr>
                   </div>
                 </template>
-
               </AccordionItem>
-            </div>
+            </Draggable>
           </template>
         </AccordionContainer>
       </DragContainer>
@@ -299,7 +296,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  // import Draggable from 'kolibri.coreVue.components.Draggable';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
@@ -311,7 +308,7 @@
       AccordionContainer,
       AccordionItem,
       DragHandle,
-      // Draggable,
+      Draggable,
       DragContainer,
     },
     mixins: [commonCoreStrings, commonCoach],
