@@ -13,8 +13,6 @@
           <slot
             :toggleItemState="toggleItemState"
             :isItemExpanded="isItemExpanded"
-            :isOptionSelected="isOptionSelected"
-            :isAnswerSelected="isAnswerSelected"
           ></slot>
         </transition-group>
       </DragContainer>
@@ -43,7 +41,6 @@
     data() {
       return {
         expandedItemIds: [],
-        optionsIdList: [],
       };
     },
     methods: {
@@ -57,21 +54,6 @@
       },
       isItemExpanded(id) {
         return this.expandedItemIds.includes(id);
-      },
-      isOptionSelected(optionId) {
-        const index = this.expandedItemIds.indexOf(optionId);
-        if (index === -1) {
-          this.optionsIdList.push(optionId);
-        } else {
-          this.optionsIdList.splice(optionId);
-        }
-      },
-      isAnswerSelected(optionId) {
-        if (this.optionsIdList.includes(optionId)) {
-          return true;
-        } else {
-          return false;
-        }
       },
     },
   };
