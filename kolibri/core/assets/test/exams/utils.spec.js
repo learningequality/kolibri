@@ -150,19 +150,19 @@ describe('exam utils', () => {
       expect(converted[0].learners_see_fixed_order).toEqual(false);
     });
     it('always sets the question_count and learners_see_fixed_order properties to the original exam values', () => {
-      // exam.learners_see_fixed_order = false;
-      // exam.question_count = 49;
-      // const converted = convertExamQuestionSourcesToV3(exam);
-      // expect(converted).toEqual([
-      //   {
-      //     section_title: '',
-      //     description: '',
-      //     resource_pool: [],
-      //     questions: expectedSources.sort(),
-      //     learners_see_fixed_order: false,
-      //     question_count: 49,
-      //   },
-      // ]);
+      exam.learners_see_fixed_order = false;
+      exam.question_count = 49;
+      const converted = convertExamQuestionSourcesToV3(exam);
+      expect(converted).toEqual([
+        {
+          section_title: '',
+          description: '',
+          resource_pool: [],
+          questions: expectedSources.sort(),
+          learners_see_fixed_order: false,
+          question_count: 49,
+        },
+      ]);
     });
   });
   describe('convertExamQuestionSources converting from V1 to V2', () => {
