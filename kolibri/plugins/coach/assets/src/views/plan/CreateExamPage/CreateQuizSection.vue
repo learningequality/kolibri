@@ -128,6 +128,7 @@
             <Draggable
               v-for="item in placeholderList"
               :key="item.id"
+              tabindex="-1"
             >
               <AccordionItem
                 :id="item.id"
@@ -172,13 +173,13 @@
 
                       <div class="occupy-remaining-space">
                         <button
-                          class="remove-button-style"
+                          class="limit-height remove-button-style"
                         >
                           <KGrid>
                             <KGridItem
                               :layout12="{ span: 6 }"
                             >
-                              <div style="margin-top:1em;">
+                              <div style="margin-top:.5em;">
                                 {{ title }}
                               </div>
                             </KGridItem>
@@ -569,6 +570,11 @@
 
   .text-vertical-spacing {
     margin-top: 0.5em;
+  }
+
+  .limit-height {
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
   }
 
 </style>
