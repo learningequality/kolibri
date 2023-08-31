@@ -118,147 +118,150 @@
         </KGridItem>
 
       </KGrid>
-
-      <AccordionContainer
+      <DragContainer
         :items="placeholderList"
       >
-        <template
-          #default="{ isItemExpanded, toggleItemState }"
-        >
-          <div
-            v-for="item in placeholderList"
-            :key="item.id"
+        <AccordionContainer>
+          <template
+            #default="{ isItemExpanded, toggleItemState }"
           >
-            <AccordionItem
-              :id="item.id"
+            <div
+              v-for="item in placeholderList"
               :key="item.id"
-              :items="placeholderList"
-              :title="item.title"
-              :expanded="isItemExpanded(item.id)"
             >
-              <template
-                #heading="{ title }"
-                :accordionToggle="onAccordionToggle(item.id)"
+              <AccordionItem
+                :id="item.id"
+                :key="item.id"
+                :items="placeholderList"
+                :title="item.title"
+                :expanded="isItemExpanded(item.id)"
               >
-                <button
-                  tabindex="-1"
-                  aria-expanded="false"
-                  aria-label="toggle-button"
-                  class="remove-button-style"
-                  @click="toggleItemState(item.id)"
+
+                <template
+                  #heading="{ title }"
+                  :accordionToggle="onAccordionToggle(item.id)"
                 >
-                  <div
-                    class="flex-div"
+                  <button
+                    tabindex="-1"
+                    aria-expanded="false"
+                    aria-label="toggle-button"
+                    class="remove-button-style"
+                    @click="toggleItemState(item.id)"
                   >
                     <div
-                      class="left-column-alignment-style"
+                      class="flex-div"
                     >
-                      <DragHandle>
-                        <KIconButton
-                          class="drag-icon icon-size"
-                          icon="dragVertical"
-                        />
-                      </DragHandle>
                       <div
-                        class="check-box-style"
+                        class="left-column-alignment-style"
                       >
-                        <p
-                          @click.prevent="toggleItemState(item.id)"
+                        <DragHandle>
+                          <KIconButton
+                            class="drag-icon icon-size"
+                            icon="dragVertical"
+                          />
+                        </DragHandle>
+                        <div
+                          class="check-box-style"
                         >
-                          <KCheckbox />
-                        </p>
+                          <p
+                            @click.prevent="toggleItemState(item.id)"
+                          >
+                            <KCheckbox />
+                          </p>
+                        </div>
+                      </div>
+
+                      <div class="occupy-remaining-space">
+                        <button
+                          class="remove-button-style"
+                        >
+                          <KGrid>
+                            <KGridItem
+                              :layout12="{ span: 6 }"
+                            >
+                              <div style="margin-top:1em;">
+                                {{ title }}
+                              </div>
+                            </KGridItem>
+
+                            <KGridItem
+                              :layout12="{ span: 6 }"
+                            >
+                              <div class="right-alignment-style">
+                                <KIcon
+                                  v-if="isItemExpanded(item.id)"
+                                  class="icon-size toggle-icon"
+                                  icon="chevronUp"
+                                />
+                                <KIcon
+                                  v-else
+                                  class="icon-size toggle-icon"
+                                  icon="chevronRight"
+                                />
+
+                              </div>
+                            </KGridItem>
+                          </KGrid>
+                        </button>
                       </div>
                     </div>
+                  </button>
+                </template>
 
-                    <div class="occupy-remaining-space">
-                      <button
-                        class="remove-button-style"
+                <template
+                  v-if="isItemExpanded(item.id)"
+                  #content
+                >
+                  <div class="accordion-detail-container">
+                    <KGrid>
+                      <KGridItem :layout12="{ span: 8 }">
+                        <button
+                          class="remove-button-style text-align-start"
+                        >
+                          {{ $tr('questionPhrase') }}
+                        </button>
+
+                        <button
+                          class="remove-button-style text-align-start text-vertical-spacing"
+                        >
+                          {{ $tr('questionSubtitle') }}
+                        </button>
+                      </KGridItem>
+
+                      <KGridItem
+                        :layout12="{ span: 4 }"
                       >
-                        <KGrid>
-                          <KGridItem
-                            :layout12="{ span: 6 }"
-                          >
-                            <div style="margin-top:1em;">
-                              {{ title }}
-                            </div>
-                          </KGridItem>
+                        <KIconButton
+                          class="float-item-left-style"
+                          icon="edit"
+                        />
+                      </KGridItem>
+                    </KGrid>
 
-                          <KGridItem
-                            :layout12="{ span: 6 }"
-                          >
-                            <div class="right-alignment-style">
-                              <KIcon
-                                v-if="isItemExpanded(item.id)"
-                                class="icon-size toggle-icon"
-                                icon="chevronUp"
-                              />
-                              <KIcon
-                                v-else
-                                class="icon-size toggle-icon"
-                                icon="chevronRight"
-                              />
-
-                            </div>
-                          </KGridItem>
-                        </KGrid>
-                      </button>
+                    <div class="choose-question question">
+                      <p class="space-content">
+                        {{ $tr('chooseQuestionLabel') }}
+                      </p>
                     </div>
-                  </div>
-                </button>
-              </template>
 
-              <template
-                v-if="isItemExpanded(item.id)"
-                #content
-              >
-                <div class="accordion-detail-container">
-                  <KGrid>
-                    <KGridItem :layout12="{ span: 8 }">
-                      <button
-                        class="remove-button-style text-align-start"
-                      >
-                        {{ $tr('questionPhrase') }}
-                      </button>
 
-                      <button
-                        class="remove-button-style text-align-start text-vertical-spacing"
-                      >
-                        {{ $tr('questionSubtitle') }}
-                      </button>
-                    </KGridItem>
-
-                    <KGridItem
-                      :layout12="{ span: 4 }"
+                    <hr class="bottom-border">
+                    <KButton
+                      style="width:100%;margin-bottom:0.5em"
+                      appearance="raised-button"
+                      icon="plus"
                     >
-                      <KIconButton
-                        class="float-item-left-style"
-                        icon="edit"
-                      />
-                    </KGridItem>
-                  </KGrid>
-
-                  <div class="choose-question question">
-                    <p class="space-content">
-                      {{ $tr('chooseQuestionLabel') }}
-                    </p>
+                      {{ $tr('addAnswer') }}
+                    </KButton>
+                    <hr>
                   </div>
+                </template>
 
-
-                  <hr class="bottom-border">
-                  <KButton
-                    style="width:100%;margin-bottom:0.5em"
-                    appearance="raised-button"
-                    icon="plus"
-                  >
-                    {{ $tr('addAnswer') }}
-                  </KButton>
-                  <hr>
-                </div>
-              </template>
-            </AccordionItem>
-          </div>
-        </template>
-      </AccordionContainer>
+              </AccordionItem>
+            </div>
+          </template>
+        </AccordionContainer>
+      </DragContainer>
     </div>
 
 
@@ -296,6 +299,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  // import Draggable from 'kolibri.coreVue.components.Draggable';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
@@ -306,6 +311,8 @@
       AccordionContainer,
       AccordionItem,
       DragHandle,
+      // Draggable,
+      DragContainer,
     },
     mixins: [commonCoreStrings, commonCoach],
     data() {

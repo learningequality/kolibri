@@ -1,22 +1,16 @@
 <template>
 
   <div>
-    <div>
-      <DragContainer
-        :items="items"
-      >
-        <transition-group
-          tag="div"
-          name="list"
-          class="wrapper"
-        >
-          <slot
-            :toggleItemState="toggleItemState"
-            :isItemExpanded="isItemExpanded"
-          ></slot>
-        </transition-group>
-      </DragContainer>
-    </div>
+    <transition-group
+      tag="div"
+      name="list"
+      class="wrapper"
+    >
+      <slot
+        :toggleItemState="toggleItemState"
+        :isItemExpanded="isItemExpanded"
+      ></slot>
+    </transition-group>
   </div>
 
 </template>
@@ -24,20 +18,8 @@
 
 <script>
 
-  // import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-
   export default {
     name: 'AccordionContainer',
-    components: {
-      DragContainer,
-    },
-    props: {
-      items: {
-        type: Array,
-        required: true,
-      },
-    },
     data() {
       return {
         expandedItemIds: [],
