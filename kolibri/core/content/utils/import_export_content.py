@@ -105,6 +105,7 @@ def get_import_export_data(
     renderable_only=True,
     topic_thumbnails=True,
     all_thumbnails=False,
+    check_file_availability=True,
 ):
     """
     Helper function that calls get_import_export_nodes followed by
@@ -119,6 +120,7 @@ def get_import_export_data(
         drive_id=drive_id,
         peer_id=peer_id,
         renderable_only=renderable_only,
+        check_file_availability=check_file_availability,
     )
     return get_content_nodes_data(
         channel_id,
