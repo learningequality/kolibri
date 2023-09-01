@@ -18,6 +18,10 @@ APP_FORCE_AUTOMATIC_LOGIN = os.environ.get(
     config.PROFILE_ENV_PREFIX + "APP_FORCE_AUTOMATIC_LOGIN"
 )
 
+APP_DISABLE_AUTOMATIC_PROVISION = os.environ.get(
+    config.PROFILE_ENV_PREFIX + "APP_DISABLE_AUTOMATIC_PROVISION"
+)
+
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
 
 # Logic for KOLIBRI_HOME is from kolibri.utils.conf. We avoid importing it from
