@@ -63,13 +63,26 @@
                   />
                 </td>
                 <td>
-                  <KSwitch
-                    name="toggle-lesson-visibility"
-                    label=""
-                    :checked="lesson.is_active"
-                    :value="lesson.is_active"
-                    @change="toggleModal(lesson)"
-                  />
+                  <div :style="{ height: '28px' }">
+                    <KTransition kind="component-fade-out-in">
+                      <KCircularLoader
+                        v-if="show(lesson.id, isUpdatingVisibility(lesson.id), 2000)"
+                        :key="`loader-${lesson.id}`"
+                        disableDefaultTransition
+                        :style="{ display: 'inline-block', marginLeft: '6px' }"
+                        :size="26"
+                      />
+                      <KSwitch
+                        v-else
+                        :key="`switch-${lesson.id}`"
+                        name="toggle-lesson-visibility"
+                        label=""
+                        :checked="lesson.is_active"
+                        :value="lesson.is_active"
+                        @change="toggleModal(lesson)"
+                      />
+                    </KTransition>
+                  </div>
                 </td>
               </tr>
             </transition-group>
@@ -148,6 +161,7 @@
 
 <script>
 
+  import Vue from 'vue';
   import { mapState, mapActions } from 'vuex';
   import { LessonResource } from 'kolibri.resources';
   import countBy from 'lodash/countBy';
@@ -159,6 +173,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKShow from 'kolibri.coreVue.composables.useKShow';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
@@ -179,8 +194,9 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const { show } = useKShow();
       const { lessonsAreLoading } = useLessons();
-      return { lessonsAreLoading };
+      return { show, lessonsAreLoading };
     },
     data() {
       return {
@@ -194,6 +210,9 @@
         detailsModalIsDisabled: false,
         dontShowAgainChecked: false,
         learnOnlyDevicesExist: false,
+        // contains ids of lessons whose visibility
+        // status is currently being updated
+        updatingVisibilityLessons: {},
       };
     },
     computed: {
@@ -290,18 +309,35 @@
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
-        const promise = LessonResource.saveModel({
+        this.manageModalVisibilityAndPreferences();
+
+        Vue.set(this.updatingVisibilityLessons, lesson.id, lesson.id);
+        return LessonResource.saveModel({
           id: lesson.id,
           data: {
             is_active: newActiveState,
           },
           exists: true,
-        });
-        this.manageModalVisibilityAndPreferences();
-        return promise.then(() => {
-          this.$store.dispatch('lessonsRoot/refreshClassLessons', this.$route.params.classId);
-          this.$store.dispatch('createSnackbar', snackbarMessage);
-        });
+        })
+          .then(() => {
+            return this.$store.dispatch(
+              'lessonsRoot/refreshClassLessons',
+              this.$route.params.classId
+            );
+          })
+          .then(() => {
+            Vue.delete(this.updatingVisibilityLessons, lesson.id);
+            // slightly delay to sync a bit better with the toggle loader
+            setTimeout(() => {
+              this.$store.dispatch('createSnackbar', snackbarMessage);
+            }, 1000);
+          })
+          .catch(() => {
+            Vue.delete(this.updatingVisibilityLessons, lesson.id);
+          });
+      },
+      isUpdatingVisibility(lessonId) {
+        return Object.keys(this.updatingVisibilityLessons).includes(lessonId);
       },
       toggleModal(lesson) {
         // has the user set their preferences to not have a modal confirmation?
