@@ -93,22 +93,32 @@
           <div class="right-alignment-style">
             <KGrid>
               <KGridItem :layout12="{ span: 4 }">
-                <div class="icon-container">
-                  <KIcon class="reduce-chervon-spacing" icon="chevronDown" />
-                  <KIcon class="reduce-chervon-spacing" icon="chevronUp" />
-                </div>
+                <button class="icon-container remove-button-style">
+                  <KIcon
+                    class="reduce-chervon-spacing"
+                    icon="chevronDown"
+                  />
+                  <KIcon
+                    class="reduce-chervon-spacing"
+                    icon="chevronUp"
+                  />
+                </button>
               </KGridItem>
 
-              <KGridItem :layout12="{ span: 4 }">
+              <KGridItem
+                :layout12="{ span: 4 }"
+              >
 
-                <KIcon
+                <KIconButton
                   class="icon-size"
                   icon="refresh"
                 />
               </KGridItem>
 
-              <KGridItem :layout12="{ span: 4 }">
-                <KIcon
+              <KGridItem
+                :layout12="{ span: 4 }"
+              >
+                <KIconButton
                   class="icon-size"
                   icon="trash"
                 />
@@ -126,7 +136,7 @@
             #default="{ isItemExpanded, toggleItemState }"
           >
             <Draggable
-              v-for="item in placeholderList"
+              v-for="(item,index) in placeholderList"
               :key="item.id"
               tabindex="-1"
             >
@@ -154,25 +164,39 @@
                       <div
                         class="left-column-alignment-style"
                       >
-                        <DragHandle>
-                          <KIconButton
-                            class="drag-icon icon-size"
-                            icon="dragVertical"
-                          />
-                        </DragHandle>
+                        <Draggable>
+                          <DragHandle>
+                            <DragSortWidget
+                              class="drag-icon sort-widget"
+                              :moveUpText="$tr('upLabel', { name: item.name })"
+                              :moveDownText="$tr('downLabel', { name: item.name })"
+                              :isFirst="index === 0"
+                              :isLast="index === placeholderList.length - 1"
+                              @moveUp="shiftOne(index, -1)"
+                              @moveDown="shiftOne(index, +1)"
+                              @click.prevent="toggleItemState(item.id)"
+                            />
+                          </DragHandle>
+                        </Draggable>
                         <div
                           class="check-box-style"
                         >
                           <p
                             @click.prevent="toggleItemState(item.id)"
                           >
-                            <KCheckbox />
+                            <KCheckbox
+                              :aria-label="$tr('checkBoxLabel',{ name: item.title })"
+                            />
                           </p>
                         </div>
                       </div>
 
                       <div class="occupy-remaining-space">
                         <button
+                          :id="item.id"
+                          :aria-controls="item.id"
+                          aria-expanded="true"
+                          aria-labelledby="question-title2 question-title-context"
                           class="limit-height remove-button-style"
                         >
                           <KGrid>
@@ -212,7 +236,11 @@
                   v-if="isItemExpanded(item.id)"
                   #content
                 >
-                  <div class="accordion-detail-container">
+                  <div
+                    id="sect1"
+                    aria-labelledby="accordion1id"
+                    class="accordion-detail-container"
+                  >
                     <KGrid>
                       <KGridItem :layout12="{ span: 8 }">
                         <button
@@ -299,6 +327,7 @@
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
@@ -311,6 +340,7 @@
       DragHandle,
       Draggable,
       DragContainer,
+      DragSortWidget,
     },
     mixins: [commonCoreStrings, commonCoach],
     data() {
@@ -416,6 +446,18 @@
       selectAllLabel: {
         message: 'Select all',
         context: 'Label indicates that all available options can be chosen at once.',
+      },
+      upLabel: {
+        message: 'Move {name} up one',
+        context: 'Label to rearrange question order. Not seen on UI.',
+      },
+      downLabel: {
+        message: 'Move {name} down one',
+        context: 'Label to rearrange question order. Not seen on UI.',
+      },
+      checkBoxLabel: {
+        message: 'Select {name} question"',
+        context: 'Checkbox to select the question',
       },
     },
   };
