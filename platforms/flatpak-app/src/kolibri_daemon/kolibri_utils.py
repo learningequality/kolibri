@@ -92,20 +92,6 @@ def _get_automatic_provision_path() -> typing.Optional[Path]:
     if not path.is_file():
         return None
 
-    with path.open("r") as in_file:
-        try:
-            data = json.load(in_file)
-        except json.JSONDecodeError as error:
-            logger.warning(
-                f"Error reading automatic provision data from '{path.as_posix()}': {error}"
-            )
-            return None
-
-    if not data.keys().isdisjoint(["facility", "superusername", "superuserpassword"]):
-        # If a file has an attribute unique to the old format, we will asume it
-        # is outdated.
-        return None
-
     return path
 
 
