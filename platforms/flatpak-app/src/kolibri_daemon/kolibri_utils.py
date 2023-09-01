@@ -42,13 +42,13 @@ def init_kolibri(**kwargs):
 
     from kolibri.utils.main import initialize
 
-    initialize(**kwargs)
-
     for plugin_name in REQUIRED_PLUGINS:
         _enable_kolibri_plugin(plugin_name)
 
     for plugin_name in OPTIONAL_PLUGINS:
         _enable_kolibri_plugin(plugin_name, optional=True)
+
+    initialize(**kwargs)
 
 
 def _init_kolibri_env():
@@ -104,22 +104,21 @@ def _get_automatic_provision_path() -> typing.Optional[Path]:
 def _get_automatic_provision_data():
     facility_name = _("Kolibri on {host}").format(host=platform.node() or "localhost")
     return {
-        "facility": {
-            "name": facility_name,
+        "facility_name": facility_name,
+        "preset": "formal",
+        "facility_settings": {
             "learner_can_login_with_no_password": False,
         },
-        "preset": "formal",
+        "device_settings": {
+            "language_id": None,
+            "landing_page": "learn",
+            "allow_guest_access": False,
+            "allow_other_browsers_to_connect": False,
+        },
         "superuser": {
             "username": None,
             "password": None,
         },
-        "language_id": None,
-        "device_name": None,
-        "settings": {
-            "landing_page": "learn",
-            "allow_other_browsers_to_connect": False,
-        },
-        "allow_guest_access": False,
     }
 
 

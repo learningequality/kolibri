@@ -1,10 +1,8 @@
 from __future__ import annotations
 
 import logging
-import platform
 import re
 import typing
-from gettext import gettext as _
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
@@ -245,7 +243,6 @@ class _KolibriSetupHelper(GObject.GObject):
 
     is_app_key_cookie_ready = GObject.Property(type=bool, default=False)
     is_session_cookie_ready = GObject.Property(type=bool, default=False)
-    is_facility_ready = GObject.Property(type=bool, default=False)
 
     is_setup_complete = GObject.Property(type=bool, default=False)
 
@@ -270,23 +267,19 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__kolibri_daemon.connect(
             "notify::app-key-cookie", self.__kolibri_daemon_on_notify_app_key_cookie
         )
-        self.__kolibri_daemon.connect(
-            "notify::is-started", self.__kolibri_daemon_on_notify_is_started
-        )
 
         await_properties(
             [
-                (self, "is-facility-ready"),
+                (self.__kolibri_daemon, "is-started"),
                 (self, "login-token"),
             ],
-            self.__on_await_facility_ready_and_login_token,
+            self.__on_await_kolibri_is_started_and_login_token,
         )
 
         map_properties(
             [
                 (self, "is-app-key-cookie-ready"),
                 (self, "is-session-cookie-ready"),
-                (self, "is-facility-ready"),
             ],
             self.__update_is_setup_complete,
         )
@@ -311,83 +304,16 @@ class _KolibriSetupHelper(GObject.GObject):
         else:
             self.props.is_session_cookie_ready = True
 
-    def __kolibri_daemon_on_notify_is_started(
-        self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
-    ):
-        self.props.is_facility_ready = False
-
-        if not self.__kolibri_daemon.props.is_started:
-            return
-
-        if not self.__kolibri_daemon.do_automatic_login:
-            # No automatic login so we don't need a facility:
-            self.props.is_facility_ready = True
-            return
-
-        self.__kolibri_daemon.kolibri_api_get_async(
-            "/api/public/v1/facility/",
-            result_cb=self.__on_kolibri_api_facility_response,
-        )
-
-    def __on_kolibri_api_facility_response(self, data: typing.Any):
-        if isinstance(data, list) and data:
-            self.props.is_facility_ready = True
-            return
-
-        # There is no facility, so automatically provision the device:
-        self.__automatic_device_provision()
-
-    def __automatic_device_provision(self):
-        # TODO: In the future, this could be done in kolibri-daemon itself by
-        #       using a simple automatic_provision.json file in the Kolibri home
-        #       template. We need to do it here for now because we are only
-        #       using this configuration with automatic login, which is only
-        #       enabled in certain cases.
-        logger.info("Provisioning device…")
-        facility_name = _("Kolibri on {host}").format(
-            host=platform.node() or "localhost"
-        )
-        request_body_data = {
-            "facility": {
-                "name": facility_name,
-                "learner_can_login_with_no_password": False,
-            },
-            "preset": "formal",
-            "superuser": None,
-            "language_id": None,
-            "device_name": None,
-            "settings": {
-                "landing_page": "learn",
-                "allow_other_browsers_to_connect": False,
-            },
-            "allow_guest_access": False,
-        }
-        self.__kolibri_daemon.kolibri_api_post_async(
-            "/api/device/deviceprovision/",
-            result_cb=self.__on_kolibri_api_deviceprovision_response,
-            request_body=request_body_data,
-        )
-
-    def __on_kolibri_api_deviceprovision_response(self, data: dict):
-        logger.info("Device provisioned.")
-        self.props.is_facility_ready = True
-
-    def __on_await_facility_ready_and_login_token(
-        self, is_facility_ready: bool, login_token: str
-    ):
-        if self.props.is_session_cookie_ready:
-            return
-
-        login_url = self.__kolibri_daemon.get_absolute_url(
-            self.AUTOLOGIN_URL_TEMPLATE.format(token=login_token)
-        )
-
-        self.__login_webview.load_uri(login_url)
-
     def __kolibri_daemon_on_login_token_ready(
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
         self.props.login_token = login_token
+
+    def __on_await_kolibri_is_started_and_login_token(
+        self, is_started: bool, login_token: str
+    ):
+        if self.props.is_session_cookie_ready:
+            return
 
         if login_token is None:
             # If we are unable to get a login token, pretend the session cookie
@@ -395,6 +321,11 @@ class _KolibriSetupHelper(GObject.GObject):
             # in an edge case where kolibri-daemon is running on the system bus
             # but is unable to communicate with AccountsService.
             self.props.is_session_cookie_ready = True
+        elif self.__kolibri_daemon.do_automatic_login:
+            login_url = self.__kolibri_daemon.get_absolute_url(
+                self.AUTOLOGIN_URL_TEMPLATE.format(token=login_token)
+            )
+            self.__login_webview.load_uri(login_url)
 
     def __kolibri_daemon_on_notify_app_key_cookie(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
