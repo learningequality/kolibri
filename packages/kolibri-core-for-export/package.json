@@ -24,7 +24,7 @@
     "intl": "^1.2.4",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.2.0",
-    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#2e5c1e8fc9a5239eaf3780639953619f34b6a2be",
+    "kolibri-design-system": "https://github.com/MisRob/kolibri-design-system#cfd99deadd301aae83598afb5c6290085f8351fb",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",

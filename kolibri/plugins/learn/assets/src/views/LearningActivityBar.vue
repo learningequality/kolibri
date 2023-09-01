@@ -40,7 +40,7 @@
           -->
           <span ref="downloadingLoader">
             <KCircularLoader
-              :show="isDownloading"
+              :shouldShow="isDownloading"
               :minVisibleTime="3000"
               data-test="downloadingLoader"
               :size="24"
