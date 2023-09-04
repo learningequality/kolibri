@@ -73,13 +73,14 @@ class BackgroundJobOperationTestCase(BaseTestCase):
                 "kwargs": {
                     "id": "def456",
                     "target_stage": "other",
-                    "capabilities": list(self.context.capabilities),
-                    "start_stage": self.context.stage,
-                    "extra_metadata": {"type": "SYNCPROCEEDTO", "dataset_id": "123abc"},
+                    "capabilities": [],
+                    "start_stage": "dequeuing",
                 },
             },
         )
-
+        self.assertEqual(
+            job.extra_metadata, {"type": "SYNCPROCEEDTO", "dataset_id": "123abc"}
+        )
         mock_set_job_id.assert_called_once_with(self.context, "xyz789")
 
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.job_storage")

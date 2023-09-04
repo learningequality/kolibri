@@ -85,10 +85,10 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
                 "target_stage": target_stage,
                 "capabilities": list(context.capabilities),
                 "start_stage": context.stage,
-                "extra_metadata": {
-                    "type": "SYNCPROCEEDTO",
-                    "dataset_id": cert.get_root().id,
-                },
+            },
+            extra_metadata={
+                "type": "SYNCPROCEEDTO",
+                "dataset_id": cert.get_root().id,
             },
         )
         job_id = job_storage.enqueue_job(job)
