@@ -1,5 +1,4 @@
 import mock
-from django.core.management import call_command
 from kolibri.core.tasks.job import State
 from morango.constants import capabilities
 from morango.constants import transfer_stages
@@ -50,11 +49,13 @@ class SyncExtrasLocalOperationTestCase(BaseTestCase):
 
 class BackgroundJobOperationTestCase(BaseTestCase):
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.set_job_id")
-    @mock.patch("kolibri_sync_extras_plugin.sync.operations.queue")
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.job_storage")
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.get_job_id")
-    def test_get_or_queue_job__new(self, mock_get_job_id, mock_queue, mock_set_job_id):
+    def test_get_or_queue_job__new(
+        self, mock_get_job_id, mock_job_storage, mock_set_job_id
+    ):
         mock_get_job_id.return_value = None
-        mock_queue.enqueue.return_value = "xyz789"
+        mock_job_storage.enqueue_job.return_value = "xyz789"
         self.context.sync_session.server_certificate.get_root.return_value.id = "123abc"
 
         operation = BackgroundJobOperation()
@@ -62,27 +63,35 @@ class BackgroundJobOperationTestCase(BaseTestCase):
             State.QUEUED, operation._get_or_queue_job(self.context, "other")
         )
         mock_get_job_id.assert_called_once_with(self.context)
-        mock_queue.fetch_job.assert_not_called()
-        mock_queue.enqueue.assert_called_with(
-            call_command,
-            "sync_proceed_to",
-            id="def456",
-            target_stage="other",
-            capabilities=list(self.context.capabilities),
-            start_stage=self.context.stage,
-            extra_metadata={"type": "SYNCPROCEEDTO", "dataset_id": "123abc"},
+        mock_job_storage.get_job.assert_not_called()
+
+        job = mock_job_storage.enqueue_job.call_args[0][0]
+        self.assertEqual(
+            job.kwargs,
+            {
+                "args": "sync_proceed_to",
+                "kwargs": {
+                    "id": "def456",
+                    "target_stage": "other",
+                    "capabilities": [],
+                    "start_stage": "dequeuing",
+                },
+            },
+        )
+        self.assertEqual(
+            job.extra_metadata, {"type": "SYNCPROCEEDTO", "dataset_id": "123abc"}
         )
         mock_set_job_id.assert_called_once_with(self.context, "xyz789")
 
-    @mock.patch("kolibri_sync_extras_plugin.sync.operations.queue")
+    @mock.patch("kolibri_sync_extras_plugin.sync.operations.job_storage")
     @mock.patch("kolibri_sync_extras_plugin.sync.operations.get_job_id")
-    def test_get_or_queue_job__exists(self, mock_get_job_id, mock_queue):
+    def test_get_or_queue_job__exists(self, mock_get_job_id, mock_job_storage):
         mock_get_job_id.return_value = "xyz789"
-        mock_queue.fetch_job.return_value.state = "testing"
+        mock_job_storage.get_job.return_value.state = "testing"
         operation = BackgroundJobOperation()
         self.assertEqual("testing", operation._get_or_queue_job(self.context, "other"))
         mock_get_job_id.assert_called_once_with(self.context)
-        mock_queue.fetch_job.assert_called_once_with("xyz789")
+        mock_job_storage.get_job.assert_called_once_with("xyz789")
 
     def test_validate__pass(self):
         operation = BackgroundJobOperation()

@@ -1,8 +1,9 @@
 import logging
 
 from django.core.management import call_command
+from kolibri.core.tasks.job import Job
 from kolibri.core.tasks.job import State
-from kolibri.core.tasks.main import queue
+from kolibri.core.tasks.main import job_storage
 from kolibri.utils.conf import OPTIONS
 from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
@@ -68,25 +69,29 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
 
         # check the job state
         if job_id is not None:
-            return queue.fetch_job(job_id).state
+            job = job_storage.get_job(job_id)
+            return job.state
 
         # get certificate so we can attach the dataset_id
         cert = context.sync_session.client_certificate
         if context.is_server:
             cert = context.sync_session.server_certificate
 
-        job_id = queue.enqueue(
+        job = Job(
             call_command,
-            "sync_proceed_to",
-            id=context.transfer_session.id,
-            target_stage=target_stage,
-            capabilities=list(context.capabilities),
-            start_stage=context.stage,
+            args=("sync_proceed_to"),
+            kwargs={
+                "id": context.transfer_session.id,
+                "target_stage": target_stage,
+                "capabilities": list(context.capabilities),
+                "start_stage": context.stage,
+            },
             extra_metadata={
                 "type": "SYNCPROCEEDTO",
                 "dataset_id": cert.get_root().id,
             },
         )
+        job_id = job_storage.enqueue_job(job)
         set_job_id(context, job_id)
         logger.info("Enqueued sync_proceed_to: {}".format(job_id))
         return State.QUEUED
