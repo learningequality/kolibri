@@ -255,6 +255,7 @@
   import { currentLanguage } from 'kolibri.utils.i18n';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
+  import { ConnectionStatus } from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/constants';
   import { KolibriStudioId } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
@@ -404,10 +405,13 @@
         return this.windowIsSmall ? 3 : 7;
       },
       devicesWithChannels() {
-        //display Kolibri studio for superusers only
         return cloneDeep(this.devices).filter(device => {
+          const connectionStatus = device['connection_status'];
+          const unallowedStatuses = [ConnectionStatus.Conflict, ConnectionStatus.ConnectionFailure];
+          const connectionIsOkay = !unallowedStatuses.includes(connectionStatus);
+
           device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
-          return device.channels?.length > 0;
+          return device.channels?.length > 0 && connectionIsOkay;
         });
       },
       devicesWithChannelsExist() {
