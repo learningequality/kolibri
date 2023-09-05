@@ -544,7 +544,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             channel_id,
             peer_id=peer.id,
             baseurl=peer.base_url,
-            node_ids=[download_request.node_id],
+            node_ids=[download_request.contentnode_id],
             exclude_node_ids=None,
             renderable_only=renderable_only,
             fail_on_error=fail_on_error,
