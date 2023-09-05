@@ -578,9 +578,10 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                 try:
                     response = client.post(
                         reverse_path(
-                            "get_public_file_checksums", kwargs={"version": "1"}
+                            "kolibri:core:get_public_file_checksums",
+                            kwargs={"version": "v1"},
                         ),
-                        data=required_checksums,
+                        json=list(required_checksums),
                     )
                     integer_mask = int(response.content)
 
@@ -589,13 +590,16 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     )
 
                     if integer_mask != expected_mask:
-                        raise ValueError
+                        raise ValueError("Checksums do not match")
                 except (
                     ValueError,
                     TypeError,
                     NetworkLocationResponseFailure,
                     NetworkLocationResponseTimeout,
-                ):
+                ) as e:
+                    logging.debug(
+                        "Failed to retrieve or validate checksums: {}".format(e)
+                    )
                     # Bad JSON parsing will throw ValueError
                     # If the result of the json.loads is not iterable, a TypeError will be thrown
                     # If we end up here, just set checksums to None to allow us to cleanly continue
