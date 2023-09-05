@@ -90,7 +90,7 @@ class ContentSyncHook(FacilityDataSyncHook):
 class NetworkDiscoveryForAutomaticResourceImportHook(NetworkLocationDiscoveryHook):
     """
     Trigger automatic resource import when a new Kolibri instance is discovered, but only if
-    the local and remove devices are not a subset of the users device. If we're a SoUD, then
+    the local and remote devices are not a subset of the users device. If we're a SoUD, then
     we would trigger automatic syncing which would trigger automatic resource import anyway
     (see above hook).
     """

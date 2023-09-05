@@ -1,3 +1,5 @@
+from abc import abstractmethod
+
 from kolibri.plugins.hooks import define_hook
 from kolibri.plugins.hooks import KolibriHook
 
@@ -27,6 +29,7 @@ class NetworkLocationDiscoveryHook(KolibriHook):
 
 @define_hook
 class NetworkLocationBroadcastHook(KolibriHook):
+    @abstractmethod
     def on_renew(self, instance, network_locations):
         """
         Invoked when the current device's broadcast is renewed
