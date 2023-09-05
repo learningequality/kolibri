@@ -16,6 +16,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.db import transaction
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -60,6 +61,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
+from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
@@ -620,6 +622,20 @@ class FacilityViewSet(ValuesViewset):
                 )
             )
         )
+
+    @decorators.action(methods=["post"], detail=False)
+    def create_facility(self, request):
+        serializer = CreateFacilitySerializer(data=request.data)
+        if serializer.is_valid():
+            with transaction.atomic():
+                facility_dataset = FacilityDataset.objects.create(
+                    preset=serializer.validated_data.get("preset")
+                )
+                Facility.objects.create(
+                    name=serializer.validated_data.get("name"), dataset=facility_dataset
+                )
+            return Response()
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):

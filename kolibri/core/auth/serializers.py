@@ -6,6 +6,7 @@ from django.core.validators import MinLengthValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
+from .constants import facility_presets
 from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
@@ -135,6 +136,14 @@ class FacilitySerializer(serializers.ModelSerializer):
         model = Facility
         extra_kwargs = {"id": {"read_only": True}}
         fields = ("id", "name")
+
+
+class CreateFacilitySerializer(serializers.ModelSerializer):
+    preset = serializers.ChoiceField(choices=facility_presets.choices)
+
+    class Meta:
+        model = Facility
+        fields = ("id", "name", "preset")
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
