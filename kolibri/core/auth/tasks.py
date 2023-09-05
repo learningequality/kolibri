@@ -755,12 +755,8 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
         )
     )
     dt = datetime.timedelta(seconds=interval)
-    current_job = get_current_job()
-    if current_job:
-        current_job.retry_in(dt)
-    else:
-        JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
-        request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
+    JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
+    request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
 
 
 @register_task(
