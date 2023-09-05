@@ -24,7 +24,7 @@ jobs:
       run: |
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
         apt-get install git-lfs
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         lfs: true
