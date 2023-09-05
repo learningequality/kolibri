@@ -29,9 +29,9 @@ jobs:
     outputs:
       deb-file-name: ${{ steps.get-deb-filename.outputs.deb-file-name }}
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-installer-debian
