@@ -524,10 +524,26 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         content_dir=None,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
+        """
+        :param channel_id: A hex UUID string
+        :type channel_id: str
+        :param peer: A NetworkLocation model object
+        :type peer: NetworkLocation
+        :param download_request: A ContentDownloadRequest model object
+        :type download_request: ContentDownloadRequest
+        :param renderable_only: Whether to only import renderable content
+        :type renderable_only: bool
+        :param fail_on_error: Whether to fail on import errors
+        :type fail_on_error: bool
+        :param content_dir: The directory to download content to
+        :type content_dir: str
+        :param timeout: The timeout for the download request
+        :type timeout: int
+        """
         super(ContentDownloadRequestResourceImportManager, self).__init__(
             channel_id,
             peer_id=peer.id,
-            baseurl=peer.baseurl,
+            baseurl=peer.base_url,
             node_ids=[download_request.node_id],
             exclude_node_ids=None,
             renderable_only=renderable_only,
