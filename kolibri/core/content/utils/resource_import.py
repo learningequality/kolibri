@@ -570,7 +570,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         node = ContentNode.objects.get(pk=self.download_request.contentnode_id)
         if self.peer.id != CENTRAL_CONTENT_BASE_INSTANCE_ID:
             required_checksums = (
-                node.files()
+                node.files.all()
                 .filter(supplementary=False)
                 .values_list("local_file_id", flat=True)
             )
