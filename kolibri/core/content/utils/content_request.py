@@ -28,6 +28,7 @@ from kolibri.core.content.models import File
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.channel_import import import_channel_from_data
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.resource_import import (
     ContentDownloadRequestResourceImportManager,
 )
@@ -747,27 +748,8 @@ def process_download_request(download_request):
 
         # we try to import from the source instance first
         for peer in chain(*peer_sets):
-            import_manager = ContentDownloadRequestResourceImportManager(
-                node.channel_id,
-                peer,
-                download_request,
-                fail_on_error=True,
-            )
-            _, count = import_manager.run()
-
-            # can't trust the count, fail if there's an exception
-            if getattr(import_manager, "exception", None):
-                raise getattr(import_manager, "exception")
-            elif not count or count == 0:
-                logger.warning(
-                    "ContentNode files may not have imported successfully: {}".format(
-                        download_request.contentnode_id
-                    )
-                )
-                # if we have no count, we should try the next peer
-                continue
-            else:
-                # without an exception, and positive count, we can assume the import was successful
+            if _process_download(download_request, node.channel_id, peer):
+                # if we successfully imported, break out of the loop
                 break
         else:
             raise NoPeerAvailable(
@@ -789,6 +771,49 @@ def process_download_request(download_request):
     download_request.status = ContentRequestStatus.Completed
     download_request.save()
     return True
+
+
+def _process_download(download_request, channel_id, peer):
+    """
+    Processes an import for a download request
+    :param download_request: The download request model instance
+    :type download_request: ContentDownloadRequest
+    :param channel_id: The channel id for the contentnode referenced by the download request
+    :type channel_id: str
+    :param peer: The peer to import from
+    :type peer: NetworkLocation
+    :return: True if the import was successful, False otherwise
+    :rtype: bool
+    """
+    try:
+        import_manager = ContentDownloadRequestResourceImportManager(
+            channel_id,
+            peer,
+            download_request,
+            fail_on_error=True,
+        )
+        _, count = import_manager.run()
+
+        # re-raise if there's an exception
+        if getattr(import_manager, "exception", None):
+            raise getattr(import_manager, "exception")
+        elif not count or count == 0:
+            logger.warning(
+                "ContentNode files may not have imported successfully: {}".format(
+                    download_request.contentnode_id
+                )
+            )
+            # if we have no count, we should try the next peer
+            return False
+        # without an exception, and non-zero count, we can assume the import was successful
+        return True
+    except LocationError:
+        # content not found on peer, try the next one
+        return False
+    except Exception as e:
+        # some other error occurred, log it and try the next peer
+        logger.exception(e)
+        return False
 
 
 def process_user_downloads_for_removal():
