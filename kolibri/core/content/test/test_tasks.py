@@ -266,6 +266,10 @@ class ValidateLocalImportTaskTestCase(TestCase):
 
 
 class AutomaticDownloadTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="a")
+
     @mock.patch(
         "kolibri.core.content.tasks.automatic_download_enabled", return_value=True
     )
@@ -304,7 +308,7 @@ class AutomaticDownloadTestCase(TestCase):
             reason=ContentRequestReason.UserInitiated,
             source_model="test",
             source_id=uuid.uuid4().hex,
-            facility_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
             contentnode_id=uuid.uuid4().hex,
             status=ContentRequestStatus.Completed,
         ).save()
@@ -317,7 +321,7 @@ class AutomaticDownloadTestCase(TestCase):
             reason=ContentRequestReason.UserInitiated,
             source_model="test",
             source_id=uuid.uuid4().hex,
-            facility_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
             source_instance_id=uuid.uuid4().hex,
             contentnode_id=uuid.uuid4().hex,
             status=ContentRequestStatus.Completed,
@@ -332,7 +336,7 @@ class AutomaticDownloadTestCase(TestCase):
             reason=ContentRequestReason.UserInitiated,
             source_model="test",
             source_id=uuid.uuid4().hex,
-            facility_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
             contentnode_id=uuid.uuid4().hex,
             status=ContentRequestStatus.Pending,
         ).save()
@@ -345,7 +349,7 @@ class AutomaticDownloadTestCase(TestCase):
             reason=ContentRequestReason.UserInitiated,
             source_model="test",
             source_id=uuid.uuid4().hex,
-            facility_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
             source_instance_id=uuid.uuid4().hex,
             contentnode_id=uuid.uuid4().hex,
             status=ContentRequestStatus.Pending,
