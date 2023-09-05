@@ -54,13 +54,20 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
-  import useLearnerResources from '../../composables/useLearnerResources';
+  import useLearnerResources, {
+    setClasses,
+    setResumableContentNodes,
+  } from '../../composables/useLearnerResources';
+  import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
+  import { PageNames } from '../../constants';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
@@ -88,9 +95,13 @@
     },
     mixins: [commonLearnStrings],
     setup() {
+      const currentInstance = getCurrentInstance().proxy;
+      const store = currentInstance.$store;
+      const router = currentInstance.$router;
+
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
-      const { localChannelsCache } = useChannels();
+      const { localChannelsCache, fetchChannels } = useChannels();
       const {
         classes,
         activeClassesLessons,
@@ -146,6 +157,40 @@
           get(activeClassesLessons).some(l => l.missing_resource) ||
           get(activeClassesQuizzes).some(q => q.missing_resource)
         );
+      });
+
+      function hydrateHomePage() {
+        return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(
+          response => {
+            setClasses(response.data.classrooms);
+            setResumableContentNodes(
+              response.data.resumable_resources.results || [],
+              response.data.resumable_resources.more || null
+            );
+            for (const progress of response.data.resumable_resources_progress) {
+              setContentNodeProgress(progress);
+            }
+          }
+        );
+      }
+
+      fetchChannels().then(channels => {
+        if (!channels.length) {
+          router.replace({ name: PageNames.LIBRARY });
+          return;
+        }
+
+        // force fetch classes and resumable content nodes to make sure that the home
+        // page is up-to-date when navigating to other 'Learn' pages and then back
+        // to the home page
+        return hydrateHomePage()
+          .then(() => {
+            store.commit('SET_PAGE_NAME', PageNames.HOME);
+            store.dispatch('notLoading');
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          });
       });
 
       return {

@@ -22,7 +22,6 @@ export function showExam(store, params, alreadyOnQuiz) {
     const promises = [
       LearnerClassroomResource.fetchModel({ id: classId }),
       ExamResource.fetchModel({ id: examId }),
-      store.dispatch('setAndCheckChannels'),
     ];
     const shouldResolve = samePageCheckGenerator(store);
     Promise.all(promises).then(
