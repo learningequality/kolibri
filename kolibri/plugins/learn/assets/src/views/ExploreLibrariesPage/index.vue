@@ -75,7 +75,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
-  import { ConnectionStatus } from '../../../../../../core/assets/src/views/sync/SelectDeviceModalGroup/constants';
   import useChannels from '../../composables/useChannels';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
@@ -128,12 +127,9 @@
         );
       },
       networkDevicesWithChannels() {
-        return this.networkDevices.filter(device => {
-          const connectionStatus = device['connection_status'];
-          const unallowedStatuses = [ConnectionStatus.Conflict, ConnectionStatus.ConnectionFailure];
-          const connectionIsOkay = !unallowedStatuses.includes(connectionStatus);
-          return device.channels?.length > 0 && connectionIsOkay;
-        });
+        return this.networkDevices.filter(
+          device => device.channels?.length > 0 && Boolean(device['available'])
+        );
       },
       pageHeaderStyle() {
         return {
