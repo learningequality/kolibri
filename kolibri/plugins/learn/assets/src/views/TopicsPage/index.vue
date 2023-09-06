@@ -42,7 +42,7 @@
               v-if="!!windowIsLarge"
               :topic="topic"
               :topics="topics"
-              :style="tabPosition"
+              :width="sidePanelWidth"
             />
             <SearchFiltersPanel
               v-if="!!windowIsLarge && searchActive"
@@ -353,7 +353,6 @@
     data: function() {
       return {
         sidePanelStyleOverrides: {},
-        tabPosition: {},
         showMoreResources: false,
         sidePanelIsOpen: false,
         metadataSidePanelContent: null,
