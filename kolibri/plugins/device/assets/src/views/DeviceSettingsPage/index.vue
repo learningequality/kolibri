@@ -638,10 +638,10 @@
         if (set_limit_for_autodownload === false) {
           if (this.freeSpace === 0) {
             this.setFreeSpace().then(() => {
-              this.limitForAutodownload = (this.freeSpace * 0.8).toString();
+              this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
             });
           } else {
-            this.limitForAutodownload = (this.freeSpace * 0.8).toString();
+            this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
           }
         } else {
           this.limitForAutodownload = limit_for_autodownload.toString();
