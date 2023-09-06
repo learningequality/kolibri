@@ -404,7 +404,6 @@
         return this.windowIsSmall ? 3 : 7;
       },
       devicesWithChannels() {
-        console.log(this.devices);
         return cloneDeep(this.devices).filter(device => {
           device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
           return device.channels?.length > 0 && Boolean(device['available']);
