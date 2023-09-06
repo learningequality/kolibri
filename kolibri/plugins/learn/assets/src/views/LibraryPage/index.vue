@@ -401,7 +401,7 @@
         }
       },
       channelsToDisplay() {
-        return this.windowIsSmall ? 3 : 7;
+        return this.windowIsSmall ? 3 : 5;
       },
       devicesWithChannels() {
         //display Kolibri studio for superusers only
@@ -440,7 +440,7 @@
         if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
           span = 4;
         } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 6;
+          span = 4;
         }
         return span;
       },
