@@ -35,8 +35,9 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { Presets, FooterMessageTypes } from '../../constants';
+  import { FooterMessageTypes } from '../../constants';
 
   export default {
     name: 'CreateLearnerAccountForm',
