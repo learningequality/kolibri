@@ -244,6 +244,7 @@
   import { get, set } from '@vueuse/core';
   import isEqual from 'lodash/isEqual';
   import lodashSet from 'lodash/set';
+  import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
@@ -658,7 +659,7 @@
         if (
           plugin_data.enableCustomChannelNav &&
           this.topic &&
-          this.topic.options.modality === 'CUSTOM_NAVIGATION'
+          lodashGet(this.topic, ['options', 'modality']) === 'CUSTOM_NAVIGATION'
         ) {
           return true;
         }
