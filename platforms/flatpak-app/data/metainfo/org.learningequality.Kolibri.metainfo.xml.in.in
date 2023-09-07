@@ -203,5 +203,5 @@
   <content_rating type="oars-1.1" />
   <update_contact>info_at_learningequality.org</update_contact>
   <translation type="gettext">kolibri-gnome</translation>
-  <compulsory_for_desktop>endless</compulsory_for_desktop>
+  <compulsory_for_desktop>Endless</compulsory_for_desktop>
 </component>
