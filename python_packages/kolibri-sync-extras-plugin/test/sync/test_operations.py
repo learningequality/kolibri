@@ -69,7 +69,7 @@ class BackgroundJobOperationTestCase(BaseTestCase):
         self.assertEqual(
             job.kwargs,
             {
-                "args": "sync_proceed_to",
+                "args": ("sync_proceed_to",),
                 "kwargs": {
                     "id": "def456",
                     "target_stage": "other",
