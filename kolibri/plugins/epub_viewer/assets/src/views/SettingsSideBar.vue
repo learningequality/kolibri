@@ -314,7 +314,7 @@
         context: 'Button used to make the EPUB reader text size larger.',
       },
       theme: {
-        message: 'Default themes',
+        message: 'Themes',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
       },
