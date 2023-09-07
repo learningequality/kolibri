@@ -62,9 +62,10 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {
@@ -73,7 +74,17 @@
       Backdrop,
       FocusTrap,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
+        // @type {RefImpl<number>}
+        windowBreakpoint,
+        fixedHeaderHeight: '0px',
+        lastFocus: null,
+      };
+    },
     props: {
       /* CloseButtonIconType icon from parent component */
       closeButtonIconType: {
@@ -104,16 +115,12 @@
         default: null,
       },
     },
-    data() {
-      return {
-        /* Will be calculated in mounted() as it will get the height of the fixedHeader then */
-        fixedHeaderHeight: '0px',
-        lastFocus: null,
-      };
-    },
     computed: {
       isMobile() {
-        return this.windowBreakpoint == 0;
+        if (!get(this.windowBreakpoint)) {
+          return false;
+        }
+        return get(this.windowBreakpoint) == 0;
       },
       /* Returns an object with properties left or right set to the appropriate value
            depending on isRtl and this.alignment */
