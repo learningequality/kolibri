@@ -79,7 +79,7 @@ class BackgroundJobOperation(SyncExtrasLocalOperation):
 
         job = Job(
             call_command,
-            args=("sync_proceed_to"),
+            args=("sync_proceed_to",),
             kwargs={
                 "id": context.transfer_session.id,
                 "target_stage": target_stage,
