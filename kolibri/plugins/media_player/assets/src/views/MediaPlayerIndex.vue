@@ -366,7 +366,7 @@
           this.$refs.wrapper.style.height = `100%`;
           return;
         }
-        const aspectRatio = 16 / 9;
+        const aspectRatio = 2.6;
         const adjustedHeight = this.$refs.wrapper.clientWidth * (1 / aspectRatio);
         this.$refs.wrapper.style.height = `${adjustedHeight}px`;
       },
