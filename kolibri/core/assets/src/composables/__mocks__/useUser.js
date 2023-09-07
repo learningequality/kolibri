@@ -32,7 +32,13 @@
  */
 
 const MOCK_DEFAULTS = {
+  isLearnerOnlyImport: false,
   isUserLoggedIn: false,
+  currentUserId: null,
+  isCoach: false,
+  isAdmin: false,
+  isSuperuser: false,
+  canManageContent: false,
 };
 
 export function useUserMock(overrides = {}) {

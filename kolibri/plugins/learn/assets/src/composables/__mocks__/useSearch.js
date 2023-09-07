@@ -72,3 +72,17 @@ export function useSearchMock(overrides = {}) {
 }
 
 export default jest.fn(() => useSearchMock());
+
+export const injectSearch = jest.fn(() => ({
+  availableLearningActivities: [],
+  availableLibraryCategories: [],
+  availableResourcesNeeded: [],
+  availableGradeLevels: [],
+  availableAccessibilityOptions: [],
+  availableLanguages: [],
+  availableChannels: [],
+  searchableLabels: [],
+  activeSearchTerms: [],
+}));
+
+export const searchKeys = [];
