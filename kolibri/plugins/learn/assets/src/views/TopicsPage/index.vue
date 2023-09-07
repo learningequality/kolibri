@@ -419,11 +419,7 @@
 
             id = childrenResults.id;
 
-            const redirected = _handleTopicRedirect(route, children, id, skipped);
-
-            if (redirected) {
-              return;
-            }
+            _handleTopicRedirect(route, children, id, skipped);
 
             set(isRoot, rootTopic);
 
