@@ -65,9 +65,15 @@
             ],
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "https://github.com/learningequality/kolibri-installer-gnome.git",
-                    "branch" : "master"
+                    "type" : "dir",
+                    "path" : "../..",
+                    "skip" : [
+                        ".git",
+                        ".flatpak-builder",
+                        "build",
+                        "flatpak_app",
+                        "repo"
+                    ]
                 }
             ]
         }
