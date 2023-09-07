@@ -148,8 +148,9 @@ class Application(Adw.Application):
         window.connect("open-new-window", self.__window_on_open_new_window)
         window.load_kolibri_url(target_url, present=True)
 
-        # Maximize windows on Endless OS
-        if XDG_CURRENT_DESKTOP == "endless:GNOME":
+        # Maximize windows on Endless OS. Typically $XDG_CURRENT_DESKTOP will be
+        # `endless:GNOME` or `Endless:GNOME`.
+        if XDG_CURRENT_DESKTOP and "endless" in XDG_CURRENT_DESKTOP.lower().split(":"):
             window.maximize()
 
         window.connect("auto-close", self.__kolibri_window_on_auto_close)
