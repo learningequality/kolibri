@@ -95,7 +95,7 @@ def get_cache_key(*args, **kwargs):
     return str(ContentCacheKey.get_cache_key())
 
 
-def metadata_cache(some_func):
+def metadata_cache(view_func):
     """
     Decorator for patch_response_headers function
     """
@@ -114,7 +114,7 @@ def metadata_cache(some_func):
         cache_key = "{}:{}".format(key_prefix, url_key)
         response = cache.get(cache_key)
         if response is None:
-            response = some_func(*args, **kwargs)
+            response = view_func(*args, **kwargs)
             response.add_post_render_callback(
                 lambda r: cache.set(cache_key, r, timeout=3600)
             )
