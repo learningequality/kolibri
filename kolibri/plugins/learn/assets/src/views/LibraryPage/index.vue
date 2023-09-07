@@ -28,7 +28,7 @@
         - Otherwise, show search results.
       -->
       <KCircularLoader
-        v-if="searchLoading"
+        v-if="rootNodesLoading || searchLoading"
         class="loader"
         type="indeterminate"
         :delay="false"
@@ -417,7 +417,7 @@
             store.commit('CORE_SET_PAGE_LOADING', false);
             store.commit('CORE_SET_ERROR', null);
             store.commit('SET_PAGE_NAME', PageNames.LIBRARY);
-            set(rootNodesLoading, true);
+            set(rootNodesLoading, false);
             return Promise.resolve();
           }
           return _showChannels(channels, baseurl);
