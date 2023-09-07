@@ -44,7 +44,7 @@
        * Calls the currently displayed ref's focusFirstEl method.
        */
       findFirstEl() {
-        this.$refs[this.$route.name].focusFirstEl();
+        this.$refs.resourcePanel.focusFirstEl();
       },
     },
   };
