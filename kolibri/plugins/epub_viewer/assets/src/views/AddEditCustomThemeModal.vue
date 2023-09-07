@@ -18,7 +18,7 @@
         class="theme-name"
         type="text"
         :label="$tr('customThemeNameLabel')"
-        :autofocus="true"
+        :autofocus="false"
         :disabled="submitting"
         :invalid="customThemeNameIsInvalid"
         :invalidText="customThemeNameIsInvalidText"
@@ -54,6 +54,7 @@
       <div :class="{ 'color-select-container-mobile': windowIsSmall }">
         <div class="theme-option-container">
           <KButton
+            ref="backgroundColorButton"
             class="theme-color-button"
             :aria-label="generateAriaLabel($tr('themeBackgroundColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.backgroundColor)"
@@ -64,6 +65,7 @@
 
         <div class="theme-option-container">
           <KButton
+            ref="textColorButton"
             class="theme-color-button"
             :aria-label="generateAriaLabel($tr('themeTextColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.textColor)"
@@ -74,6 +76,7 @@
 
         <div class="theme-option-container">
           <KButton
+            ref="linkColorButton"
             class="theme-color-button"
             :aria-label="generateAriaLabel($tr('themeLinkColorButtonDescription'))"
             :appearanceOverrides="themeColorOptionStyles(tempTheme.linkColor)"
@@ -90,8 +93,8 @@
       v-if="showColorPicker"
       :colorPicker="showColorPicker"
       :color="tempTheme[showColorPicker]"
-      @submit="setThemeColor($event)"
-      @cancel="showColorPicker = null"
+      @submit="handleColorPickerSubmit($event)"
+      @cancel="handleColorPickerCancel"
     />
 
   </div>
@@ -192,6 +195,7 @@
         const selectedThemeIndex = this.existingCustomThemeNames.indexOf(this.themeName);
         this.existingCustomThemeNames.splice(selectedThemeIndex, 1);
       }
+      this.$refs.customThemeName.focus();
     },
     methods: {
       handleSubmit() {
@@ -204,6 +208,21 @@
           this.submitting = false;
           this.$refs.customThemeName.focus();
         }
+      },
+      handleColorPickerCancel() {
+        const buttonRef = this.showColorPicker + 'Button';
+        this.showColorPicker = null;
+        this.$nextTick(() => {
+          this.$refs[buttonRef].$refs.button.focus();
+        });
+      },
+      handleColorPickerSubmit(color) {
+        this.setThemeColor(color);
+        const buttonRef = this.showColorPicker + 'Button';
+        this.showColorPicker = null;
+        this.$nextTick(() => {
+          this.$refs[buttonRef].$refs.button.focus();
+        });
       },
       themeColorOptionStyles(bgColor) {
         return {
@@ -222,8 +241,10 @@
           this.tempTheme.textColor = color.hex;
         } else if (this.showColorPicker == 'linkColor') {
           this.tempTheme.linkColor = color.hex;
+        } else {
+          // not supposed to happen
+          return;
         }
-        this.showColorPicker = null;
       },
       generateAriaLabel(color) {
         if (color === 'Background') {

@@ -1,6 +1,17 @@
 <template>
 
-  <SideBar>
+  <SideBar :class="['epub-sidebar', getClassByWindowSize]">
+    <div class="sidebar-titlebar">
+      <h2>{{ $tr('sideBarTitle') }}</h2>
+      <KIconButton
+        :ariaLabel="$tr('closeSideBar')"
+        icon="close"
+        @click="$emit('closeSideBar')"
+      />
+    </div>
+
+    <hr>
+
     <div class="o-f-h">
       <h3>{{ $tr('textSize') }}</h3>
       <KFixedGrid numCols="2" gutter="8">
@@ -12,7 +23,7 @@
             @click="$emit('decreaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="minus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon icon="minus" class="font-size-icon" />
             </template>
             <div class="truncate">
               {{ $tr('decrease') }}
@@ -27,7 +38,7 @@
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="plus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon icon="plus" class="font-size-icon" />
             </template>
             <div class="truncate">
               {{ $tr('increase') }}
@@ -37,9 +48,11 @@
       </KFixedGrid>
     </div>
 
+    <hr>
+
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
-      <KFixedGrid numCols="4" gutter="8">
+      <KFixedGrid numCols="3" gutter="16">
         <KFixedGridItem
           v-for="(value, key) in themes"
           :key="key"
@@ -49,78 +62,57 @@
             class="settings-button theme-button"
             :aria-label="generateThemeAriaLabel(key)"
             :appearanceOverrides="generateStyle(value)"
+            :text="key"
             @click="$emit('setTheme', value)"
           >
-            <KIcon
-              v-if="isCurrentlySelectedTheme(value) "
-              icon="check"
-              :style="{ fill: value.textColor }"
-              style="top: 0; width: 24px; height: 24px;"
-            />
+            <div class="default-theme-selected">
+              <KIcon
+                v-if="isCurrentlySelectedTheme(value) "
+                icon="check"
+                :style="{ fill: value.textColor }"
+                class="default-theme-selected-icon"
+              />
+            </div>
           </KButton>
 
         </KFixedGridItem>
       </KFixedGrid>
     </div>
 
+    <hr>
+
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
-      <KFixedGrid numCols="4" gutter="8">
-        <!-- Buttons for already created custom themes -->
-        <KFixedGridItem
-          v-for="(value, key) in customThemes"
-          :key="key"
-          span="1"
-          style="margin-bottom: 8px;"
-        >
-          <KButton
-            class="settings-button theme-button"
-            :aria-label="generateCustomThemeAriaLabel(key)"
-            :appearanceOverrides="generateStyle(value)"
-            @click="$emit('setTheme', value)"
-          >
-            <KIcon
-              v-if="isCurrentlySelectedTheme(value) "
-              icon="check"
-              :style="{ fill: value.textColor }"
-              style="top: 0; width: 24px; height: 24px;"
-            />
-          </KButton>
-          <KButton
-            class="delete-edit-button"
-            :aria-label="generateCustomThemeDeleteAriaLabel(key)"
-            :text="$tr('delete')"
-            :primary="true"
-            @click="deleteCustomThemeName = key"
-          />
-          <KButton
-            class="delete-edit-button"
-            :aria-label="generateCustomThemeEditAriaLabel(key)"
-            :text="$tr('edit')"
-            :secondary="true"
-            @click="editCustomThemeName = key, editCustomTheme = value"
-          />
 
-        </KFixedGridItem>
+      <div>
+        <CustomThemeItem
+          v-for="(value, key) in customThemes"
+          :ref="key"
+          :key="key"
+          :theme="value"
+          :isApplied="isCurrentlySelectedTheme(value)"
+          @setCustomTheme="$emit('setTheme', value)"
+          @deleteCustomTheme="deleteCustomThemeName = key"
+          @editCustomTheme="editCustomThemeName = key, editCustomTheme = value"
+        />
 
         <!-- Button to add a new custom theme -->
-        <KFixedGridItem
-          v-if="Object.keys(customThemes).length < 8"
-          span="1"
-        >
-          <KButton
-            class="settings-button theme-button"
-            :aria-label="$tr('addNewTheme')"
-            @click="addCustomTheme = 'myTheme' + ((Object.keys(customThemes).length + 1))"
+        <KFixedGrid numCols="3" gutter="16">
+          <KFixedGridItem
+            v-if="Object.keys(customThemes).length < 8"
+            span="3"
           >
-            <KIcon
-              icon="plus"
-              style="top: 0; width: 24px; height: 24px;"
+            <KButton
+              ref="addCustomThemeButton"
+              class="settings-button theme-button"
+              :aria-label="$tr('addNewTheme')"
+              :text="$tr('addNewTheme')"
+              :icon="'plus'"
+              @click="addCustomTheme = 'myTheme' + ((Object.keys(customThemes).length + 1))"
             />
-          </KButton>
-
-        </KFixedGridItem>
-      </KFixedGrid>
+          </KFixedGridItem>
+        </KFixedGrid>
+      </div>
 
       <!-- Modal to confirm deletion of a custom theme -->
       <DeleteCustomThemeModal
@@ -136,8 +128,8 @@
         :modalMode="addCustomTheme ? 'add' : 'edit'"
         :theme="addCustomTheme ? theme : editCustomTheme"
         :themeName="addCustomTheme ? addCustomTheme : editCustomThemeName"
-        @submit="addNewTheme($event)"
-        @cancel="addCustomTheme = null, editCustomThemeName = null, editCustomTheme = null"
+        @submit="addCustomTheme ? addTheme($event) : editTheme($event)"
+        @cancel="addCustomTheme ? addThemeCancel() : editThemeCancel(editCustomTheme)"
       />
     </div>
   </SideBar>
@@ -148,10 +140,12 @@
 <script>
 
   import Lockr from 'lockr';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { THEMES } from './EpubConstants';
   import SideBar from './SideBar';
   import DeleteCustomThemeModal from './DeleteCustomThemeModal.vue';
   import AddEditCustomThemeModal from './AddEditCustomThemeModal.vue';
+  import CustomThemeItem from './CustomThemeItem.vue';
 
   export default {
     name: 'SettingsSideBar',
@@ -159,6 +153,15 @@
       SideBar,
       DeleteCustomThemeModal,
       AddEditCustomThemeModal,
+      CustomThemeItem,
+    },
+    setup() {
+      const { windowIsLarge, windowIsMedium, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsMedium,
+        windowIsSmall,
+      };
     },
     props: {
       theme: {
@@ -198,6 +201,12 @@
           },
         };
       },
+      getClassByWindowSize() {
+        if (this.windowIsLarge) return 'large';
+        if (this.windowIsMedium) return 'medium';
+        if (this.windowIsSmall) return 'small';
+        return null;
+      },
     },
     mounted() {
       this.customThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
@@ -213,18 +222,13 @@
             return this.$tr('setGreyTheme');
           case 'BLACK':
             return this.$tr('setBlackTheme');
+          case 'YELLOW':
+            return this.$tr('setYellowTheme');
+          case 'BLUE':
+            return this.$tr('setBlueTheme');
           default:
             return '';
         }
-      },
-      generateCustomThemeAriaLabel(themeName) {
-        return this.$tr('setCustomTheme', { themeName });
-      },
-      generateCustomThemeDeleteAriaLabel(themeName) {
-        return this.$tr('deleteCustomTheme', { themeName });
-      },
-      generateCustomThemeEditAriaLabel(themeName) {
-        return this.$tr('editCustomTheme', { themeName });
       },
       isCurrentlySelectedTheme(theme) {
         return (
@@ -236,12 +240,24 @@
         return {
           ...this.settingsButtonFocus,
           backgroundColor: theme.backgroundColor,
+          color: theme.textColor,
           ':hover': {
             backgroundColor: theme.hoverColor,
           },
         };
       },
-      addNewTheme(tempTheme) {
+      addTheme(tempTheme) {
+        const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
+        savedCustomThemes[tempTheme.name] = tempTheme;
+        Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
+        this.customThemes = savedCustomThemes;
+        this.$emit('setTheme', tempTheme);
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.colorButton.$refs.button.focus();
+        });
+        this.addCustomTheme = null;
+      },
+      editTheme(tempTheme) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
         if (this.editCustomThemeName && this.editCustomThemeName !== tempTheme.name) {
           delete savedCustomThemes[this.editCustomThemeName];
@@ -250,8 +266,11 @@
         Lockr.set('kolibriEpubRendererCustomThemes', { ...savedCustomThemes });
         this.customThemes = savedCustomThemes;
         this.$emit('setTheme', tempTheme);
-        this.addCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.editButton.$refs.button.focus();
+        });
         this.editCustomThemeName = null;
+        this.editCustomTheme = null;
       },
       deleteTheme(themeName) {
         const savedCustomThemes = Lockr.get('kolibriEpubRendererCustomThemes') || {};
@@ -262,6 +281,22 @@
         if (themeName === this.theme.name) {
           this.$emit('setTheme', this.themes.WHITE); // apply the default theme
         }
+        this.$nextTick(() => {
+          this.$refs.addCustomThemeButton.$refs.button.focus();
+        });
+      },
+      addThemeCancel() {
+        this.addCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs.addCustomThemeButton.$refs.button.focus();
+        });
+      },
+      editThemeCancel(tempTheme) {
+        this.editCustomThemeName = null;
+        this.editCustomTheme = null;
+        this.$nextTick(() => {
+          this.$refs[tempTheme.name][0].$refs.editButton.$refs.button.focus();
+        });
       },
     },
     $trs: {
@@ -279,7 +314,7 @@
         context: 'Button used to make the EPUB reader text size larger.',
       },
       theme: {
-        message: 'Theme',
+        message: 'Themes',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option.",
       },
@@ -292,16 +327,6 @@
         message: 'Add new theme',
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to add a new theme.",
-      },
-      delete: {
-        message: 'Delete',
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to delete a theme.",
-      },
-      edit: {
-        message: 'Edit',
-        context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'Custom Themes' option. This button allows learners to edit a theme.",
       },
       setWhiteTheme: {
         message: 'Set white theme',
@@ -323,20 +348,25 @@
         context:
           "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to black.",
       },
-      setCustomTheme: {
-        message: "Set custom theme '{themeName}'",
+      setYellowTheme: {
+        message: 'Set yellow theme',
         context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be set to {themeName}.",
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to yellow.",
       },
-      deleteCustomTheme: {
-        message: "Delete custom theme '{themeName}'",
+      setBlueTheme: {
+        message: 'Set blue theme',
         context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be deleted.",
+          "The EPUB reader allows learners to set the background of the reader to different shades of colors using the 'Theme' option. In this case it can be set to blue.",
       },
-      editCustomTheme: {
-        message: "Edit custom theme '{themeName}'",
+      closeSideBar: {
+        message: 'Close settings',
         context:
-          "The EPUB reader allows learners to set the background of the reader to different shades of user preferred colors using the 'My themes' option. In this case it can be edited.",
+          'Used to close the settings button where a learner can adjust things like the text size or the background color.',
+      },
+      sideBarTitle: {
+        message: 'Settings',
+        context:
+          'Used to open and close the settings button where a learner can adjust things like the text size or the background color.',
       },
     },
   };
@@ -348,6 +378,23 @@
 
   @import './EpubStyles';
 
+  hr {
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-titlebar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .font-size-icon {
+    top: 0;
+    width: 24px;
+    height: 24px;
+  }
+
   .settings-button {
     width: calc(100% - 4px);
     min-width: unset;
@@ -358,20 +405,23 @@
   }
 
   .theme-button {
-    height: 44.5px;
+    height: 64px;
+    margin-top: 16px;
     border-style: solid;
     border-width: 2px;
+    border-radius: 8px;
   }
 
-  .delete-edit-button {
-    width: calc(100% - 4px);
-    min-width: unset;
-    height: calc(100% - 4px);
-    padding: 0;
-    margin: 2px;
-    font-size: 10px;
-    line-height: unset;
-    transition: none;
+  .default-theme-selected {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .default-theme-selected-icon {
+    top: 0;
+    width: 24px;
+    height: 24px;
   }
 
   .o-f-h {
@@ -380,6 +430,21 @@
 
   .truncate {
     @include truncate-text;
+  }
+
+  .epub-sidebar.large {
+    width: 500px;
+  }
+
+  .epub-sidebar.medium {
+    width: 400px;
+  }
+
+  .epub-sidebar.small {
+    position: absolute;
+    top: 25%;
+    width: 100%;
+    height: 75%;
   }
 
 </style>

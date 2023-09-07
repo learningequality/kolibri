@@ -71,6 +71,7 @@
           @decreaseFontSize="handleChangeFontSize(-1)"
           @increaseFontSize="handleChangeFontSize(+1)"
           @setTheme="setTheme"
+          @closeSideBar="handleSettingToggle"
         />
       </FocusLock>
 
