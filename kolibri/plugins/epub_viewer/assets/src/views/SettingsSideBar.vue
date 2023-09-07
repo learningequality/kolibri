@@ -1,7 +1,7 @@
 <template>
 
   <SideBar :class="['epub-sidebar', getClassByWindowSize]">
-    <div style="display: flex; flex-direction: row; justify-content: space-between;">
+    <div class="sidebar-titlebar">
       <h2>{{ $tr('sideBarTitle') }}</h2>
       <KIconButton
         :ariaLabel="$tr('closeSideBar')"
@@ -23,7 +23,7 @@
             @click="$emit('decreaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="minus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon icon="minus" class="font-size-icon" />
             </template>
             <div class="truncate">
               {{ $tr('decrease') }}
@@ -38,7 +38,7 @@
             @click="$emit('increaseFontSize')"
           >
             <template #icon>
-              <KIcon icon="plus" style="top: 0; width: 24px; height: 24px;" />
+              <KIcon icon="plus" class="font-size-icon" />
             </template>
             <div class="truncate">
               {{ $tr('increase') }}
@@ -48,7 +48,7 @@
       </KFixedGrid>
     </div>
 
-    <hr style="margin-bottom: 16px; margin-top: 16px;">
+    <hr>
 
     <div class="o-f-h">
       <h3>{{ $tr('theme') }}</h3>
@@ -65,12 +65,12 @@
             :text="key"
             @click="$emit('setTheme', value)"
           >
-            <div style="display: flex; flex-direction: row; justify-content: center;">
+            <div class="default-theme-selected">
               <KIcon
                 v-if="isCurrentlySelectedTheme(value) "
                 icon="check"
                 :style="{ fill: value.textColor }"
-                style="top: 0; width: 24px; height: 24px;"
+                class="default-theme-selected-icon"
               />
             </div>
           </KButton>
@@ -79,7 +79,7 @@
       </KFixedGrid>
     </div>
 
-    <hr style="margin-top: 16px; margin-bottom: 16px;">
+    <hr>
 
     <div class="o-f-h">
       <h3>{{ $tr('customTheme') }}</h3>
@@ -364,7 +364,7 @@
           'Used to close the settings button where a learner can adjust things like the text size or the background color.',
       },
       sideBarTitle: {
-        message: 'THEMES & SETTINGS',
+        message: 'Settings',
         context:
           'Used to open and close the settings button where a learner can adjust things like the text size or the background color.',
       },
@@ -377,6 +377,23 @@
 <style lang="scss" scoped>
 
   @import './EpubStyles';
+
+  hr {
+    margin-top: 16px;
+    margin-bottom: 16px;
+  }
+
+  .sidebar-titlebar {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .font-size-icon {
+    top: 0;
+    width: 24px;
+    height: 24px;
+  }
 
   .settings-button {
     width: calc(100% - 4px);
@@ -393,6 +410,18 @@
     border-style: solid;
     border-width: 2px;
     border-radius: 8px;
+  }
+
+  .default-theme-selected {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+  }
+
+  .default-theme-selected-icon {
+    top: 0;
+    width: 24px;
+    height: 24px;
   }
 
   .o-f-h {

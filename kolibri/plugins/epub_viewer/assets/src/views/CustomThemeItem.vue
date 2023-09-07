@@ -1,6 +1,6 @@
 <template>
 
-  <div style="margin: 16px 0 0 0;">
+  <div class="theme-item">
     <KButton
       ref="colorButton"
       class="theme-color-button"
@@ -108,6 +108,10 @@
 
 
 <style lang="scss" scoped>
+
+  .theme-item {
+    margin-top: 16px;
+  }
 
   .theme-color-button {
     width: calc(50% - 4px);

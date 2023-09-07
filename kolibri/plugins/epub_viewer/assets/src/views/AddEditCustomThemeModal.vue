@@ -241,6 +241,9 @@
           this.tempTheme.textColor = color.hex;
         } else if (this.showColorPicker == 'linkColor') {
           this.tempTheme.linkColor = color.hex;
+        } else {
+          // not supposed to happen
+          return;
         }
       },
       generateAriaLabel(color) {
