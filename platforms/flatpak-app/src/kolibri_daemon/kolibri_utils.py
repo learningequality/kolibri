@@ -73,7 +73,6 @@ def _init_kolibri_env():
 
 def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
     from kolibri.plugins import config as plugins_config
-    from kolibri.plugins.registry import registered_plugins
     from kolibri.plugins.utils import enable_plugin
 
     if optional and not importlib.util.find_spec(plugin_name):
@@ -81,7 +80,6 @@ def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
 
     if plugin_name not in plugins_config.ACTIVE_PLUGINS:
         logger.info(f"Enabling plugin {plugin_name}")
-        registered_plugins.register_plugins([plugin_name])
         enable_plugin(plugin_name)
 
     return True
