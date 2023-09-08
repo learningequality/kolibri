@@ -25,7 +25,7 @@ if appstreamcli.found()
         input: metainfo_file,
         command: [
             'sed',
-            's|<compulsory_for_desktop>endless</compulsory_for_desktop>||g',
+            's|<compulsory_for_desktop>Endless</compulsory_for_desktop>||g',
             '@INPUT@',
         ],
         capture: true,
