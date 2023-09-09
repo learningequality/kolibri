@@ -26,7 +26,8 @@ export default [
     path: '/classes',
     component: CoachClassListPage,
     handler(toRoute) {
-      store.dispatch('loading');
+      // loading state is handled locally
+      store.dispatch('notLoading');
       // if user only has access to one facility, facility_id will not be accessible from URL,
       // but always defaulting to userFacilityId would cause problems for multi-facility admins
       const facilityId = toRoute.query.facility_id || store.getters.userFacilityId;
@@ -41,7 +42,6 @@ export default [
             });
             return;
           }
-          store.dispatch('notLoading');
         },
         error => store.dispatch('handleApiError', { error, reloadOnReconnect: true })
       );
