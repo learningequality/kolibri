@@ -28,6 +28,7 @@ class CoachToolsModule extends KolibriApp {
         redirectBrowser();
         return;
       }
+      this.store.dispatch('loading');
       const promises = [];
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
