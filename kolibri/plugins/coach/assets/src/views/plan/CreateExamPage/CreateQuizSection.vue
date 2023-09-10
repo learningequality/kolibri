@@ -164,7 +164,9 @@
                       <div
                         class="left-column-alignment-style"
                       >
-                        <Draggable>
+                        <Draggable
+                          v-if="!isItemExpanded(item.id)"
+                        >
                           <DragHandle>
                             <DragSortWidget
                               class="drag-icon sort-widget"
@@ -178,6 +180,19 @@
                             />
                           </DragHandle>
                         </Draggable>
+
+                        <DragSortWidget
+                          v-else
+                          class="drag-icon sort-widget"
+                          :moveUpText="$tr('upLabel', { name: item.name })"
+                          :moveDownText="$tr('downLabel', { name: item.name })"
+                          :isFirst="index === 0"
+                          :isLast="index === placeholderList.length - 1"
+                          @moveUp="shiftOne(index, -1)"
+                          @moveDown="shiftOne(index, +1)"
+                          @click.prevent="toggleItemState(item.id)"
+                        />
+
                         <div
                           class="check-box-style"
                         >
