@@ -27,10 +27,7 @@ class HasPermissionDuringLODSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import get_device_setting
 
-        subset_of_users_device = get_device_setting(
-            "subset_of_users_device", default=False
-        )
-        return subset_of_users_device
+        return get_device_setting("subset_of_users_device")
 
 
 class SetupWizardResource(ViewSet):

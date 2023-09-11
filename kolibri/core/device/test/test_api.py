@@ -275,6 +275,7 @@ class DeviceSettingsTestCase(APITestCase):
 
     def setUp(self):
         super(DeviceSettingsTestCase, self).setUp()
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -321,6 +322,7 @@ class DeviceSettingsTestCase(APITestCase):
 class DevicePermissionsTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
+        clear_process_cache()
         provision_device()
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
@@ -358,6 +360,7 @@ class DevicePermissionsTestCase(APITestCase):
 @override_option("Deployment", "MINIMUM_DISK_SPACE", 0)
 class FreeSpaceTestCase(APITestCase):
     def setUp(self):
+        clear_process_cache()
         provision_device()
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
@@ -403,6 +406,7 @@ class DeviceInfoTestCase(APITestCase):
         cls.superuser = create_superuser(cls.facility)
 
     def setUp(self):
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -501,6 +505,7 @@ class DeviceNameTestCase(APITestCase):
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
+        clear_process_cache()
         super(DeviceNameTestCase, self).setUp()
         self.client.login(
             username=self.superuser.username,
@@ -620,6 +625,7 @@ class UserSyncStatusTestCase(APITestCase):
         )
 
     def setUp(self):
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,

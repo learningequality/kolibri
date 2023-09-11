@@ -291,7 +291,6 @@ class SyncQueueViewSetTestCase(APITestCase):
     multi_db = True
 
     def setUp(self):
-        provision_device()
         setup_device()
         self.facility = Facility.get_default_facility()
         self.learner = FacilityUser.objects.create(

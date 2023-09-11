@@ -5,6 +5,7 @@ import traceback
 import uuid
 from collections import namedtuple
 
+from six import raise_from
 from six import string_types
 
 from kolibri.core.tasks.exceptions import UserCancelledError
@@ -159,9 +160,7 @@ class Job(object):
         except TypeError as e:
             # A Job's arguments, results, or metadata are prime suspects for
             # what might cause this error.
-            raise TypeError(
-                "Job objects need to be JSON-serializable: {}".format(str(e))
-            )
+            raise_from(TypeError("Job objects need to be JSON-serializable"), e)
         return string_result
 
     @classmethod

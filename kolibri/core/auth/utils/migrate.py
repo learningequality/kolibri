@@ -221,7 +221,7 @@ def migrate_facility(facility):
     a new facility, and then deletes the old facility, including from the morango store.
     """
     new_dataset = fork_facility(facility)
-    default_facility = get_device_setting("default_facility", None)
+    default_facility = get_device_setting("default_facility")
     if default_facility and default_facility.id == facility.id:
         new_facility = Facility.objects.get(dataset_id=new_dataset.id)
         set_device_settings(default_facility=new_facility)

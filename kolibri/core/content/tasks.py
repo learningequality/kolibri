@@ -1,12 +1,16 @@
 import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
+from django.db.models import Q
 from rest_framework import serializers
 from six import with_metaclass
 from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestStatus
+from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
@@ -345,6 +349,29 @@ def remoteresourceimport(
     import_manager.run()
 
 
+def enqueue_automatic_resource_import_if_needed(instance_id=None):
+    """
+    Enqueues automatic_resource_import if there are any pending content requests, and optionally
+    filters by instance_id for Downloads
+    :param instance_id: UUID of the instance to filter by for preferred instance downloads
+    :type instance_id: str
+    """
+    reqs = ContentRequest.objects.exclude(
+        status__in=[
+            ContentRequestStatus.Completed,
+            ContentRequestStatus.InProgress,
+        ]
+    )
+    if instance_id:
+        reqs = reqs.filter(
+            Q(type=ContentRequestType.Download, source_instance_id=instance_id)
+            | Q(type=ContentRequestType.Removal)
+        )
+
+    if reqs.exists():
+        automatic_resource_import.enqueue_if_not()
+
+
 class AutomaticDownloadValidator(JobValidator):
     def validate(self, data):
         job_data = super(AutomaticDownloadValidator, self).validate(data)
@@ -363,9 +390,8 @@ def automatic_resource_import():
     """
     Processes content download and removal requests
     """
-    if not automatic_download_enabled():
-        return
-    process_content_requests()
+    if automatic_download_enabled():
+        process_content_requests()
 
 
 @register_task(
@@ -392,7 +418,7 @@ def automatic_synchronize_content_requests_and_import():
             return
         synchronize_content_requests(dataset_id, None)
 
-    automatic_resource_import.enqueue_if_not()
+    enqueue_automatic_resource_import_if_needed()
 
 
 class ExportChannelResourcesValidator(LocalMixin, ChannelResourcesValidator):

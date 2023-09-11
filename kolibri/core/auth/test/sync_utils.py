@@ -41,6 +41,7 @@ class KolibriServer(object):
         kolibri_home=None,
         seeded_kolibri_home=None,
         env=None,
+        enable_automatic_download=False,
     ):
         self.env = os.environ.copy()
         self.env["KOLIBRI_HOME"] = kolibri_home or tempfile.mkdtemp()
@@ -55,6 +56,7 @@ class KolibriServer(object):
         self.db_alias = uuid.uuid4().hex
         self.port = get_free_tcp_port()
         self.baseurl = "http://127.0.0.1:{}/".format(self.port)
+        self.enable_automatic_download = enable_automatic_download
         if seeded_kolibri_home is not None:
             shutil.rmtree(self.env["KOLIBRI_HOME"])
             shutil.copytree(seeded_kolibri_home, self.env["KOLIBRI_HOME"])
@@ -67,6 +69,8 @@ class KolibriServer(object):
             env=self.env,
         )
         self._wait_for_server_start()
+        if not self.enable_automatic_download:
+            self.manage("devicesettings", "set", "--disable-automatic-download")
 
     def manage(self, *args):
         subprocess.call(
