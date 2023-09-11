@@ -24,6 +24,13 @@ from .utils import map_properties
 
 logger = logging.getLogger(__name__)
 
+LEARN_PATH_PREFIX = "/learn/#/"
+
+STATIC_PATHS_RE = r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?"
+SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?"
+AUTH_PLUGIN_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?"
+CONTENT_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?learn\/?"
+
 
 class KolibriContext(GObject.GObject):
     """
@@ -178,23 +185,23 @@ class KolibriContext(GObject.GObject):
     def _get_kolibri_content_path(self, node_id: str, search: str = None) -> str:
         if search:
             query = {"keywords": search, "last": "TOPICS_TOPIC_SEARCH"}
-            return f"/learn#/topics/c/{node_id}?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}topics/c/{node_id}?{urlencode(query)}"
         else:
-            return f"/learn#/topics/c/{node_id}"
+            return f"{LEARN_PATH_PREFIX}topics/c/{node_id}"
 
     def _get_kolibri_topic_path(self, node_id: str, search: str = None) -> str:
         if search:
             query = {"keywords": search}
-            return f"/learn#/topics/t/{node_id}/search?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}topics/t/{node_id}/search?{urlencode(query)}"
         else:
-            return f"/learn#/topics/t/{node_id}"
+            return f"{LEARN_PATH_PREFIX}topics/t/{node_id}"
 
     def _get_kolibri_library_path(self, search: str = None) -> str:
         if search:
             query = {"keywords": search}
-            return f"/learn#/library?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}library?{urlencode(query)}"
         else:
-            return "/learn/#/home"
+            return f"{LEARN_PATH_PREFIX}home"
 
     def url_to_x_kolibri_app(self, url: str) -> str:
         return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
@@ -370,7 +377,7 @@ class KolibriChannelContext(KolibriContext):
 
     @property
     def __default_path(self) -> str:
-        return f"/learn#/topics/t/{self.__channel_id}"
+        return f"{LEARN_PATH_PREFIX}topics/{self.__channel_id}"
 
     def _get_kolibri_library_path(self, search: str = None) -> str:
         if search:
@@ -394,22 +401,13 @@ class KolibriChannelContext(KolibriContext):
         url_tuple = urlsplit(url)
         url_path = url_tuple.path.lstrip("/")
 
-        if re.match(
-            r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?",
-            url_path,
-        ):
+        if re.match(STATIC_PATHS_RE, url_path):
             return True
-        elif re.match(
-            r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?",
-            url_path,
-        ):
+        elif re.match(SYSTEM_PATHS_RE, url_path):
             return True
-        elif re.match(
-            r"^(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?",
-            url_path,
-        ):
+        elif re.match(AUTH_PLUGIN_PATHS_RE, url_path):
             return True
-        elif re.match(r"^(?P<lang>[\w\-]+\/)?learn\/?", url_path):
+        elif re.match(CONTENT_PATHS_RE, url_path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
         else:
             return False
