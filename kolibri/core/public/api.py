@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
+from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
@@ -109,7 +110,18 @@ def _get_channel_list_v1(params, identifier=None):
     return channels.filter(root__available=True).distinct()
 
 
-@method_decorator(metadata_cache, name="dispatch")
+def public_metadata_cache(view_func):
+    view_func = metadata_cache(view_func)
+
+    def wrapped_view(*args, **kwargs):
+        response = view_func(*args, **kwargs)
+        patch_cache_control(response, max_age=60)
+        return response
+
+    return wrapped_view
+
+
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
     def get_queryset(self):
         return (
@@ -119,12 +131,12 @@ class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViews
         )
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
     pass
 
