@@ -12,7 +12,6 @@
         "--socket=fallback-x11",
         "--socket=pulseaudio",
         "--socket=wayland",
-        "--socket=x11",
         "--system-talk-name=org.learningequality.Kolibri.Devel.Daemon",
         "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri",
         "--env=KOLIBRI_HTTP_PORT=0",
