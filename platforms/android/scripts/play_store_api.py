@@ -61,7 +61,7 @@ def get_latest_version_code():
     )
     versionCode = 0
     for track in tracks:
-        for release in track["releases"]:
+        for release in track.get("releases", []):
             for vc in release.get("versionCodes", []):
                 versionCode = max(versionCode, int(vc))
     # Clean up after ourselves!
