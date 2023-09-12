@@ -224,8 +224,13 @@ describe('side nav component', () => {
           await wrapper.vm.$nextTick();
           expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
         });
+        it('shows the SyncStatusDisplay to Learners who are admins on LODs', async () => {
+          setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
+          await wrapper.vm.$nextTick();
+          expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
+        });
 
-        it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.ANONYMOUS])(
+        it.each([UserKinds.COACH, UserKinds.ANONYMOUS])(
           'does not show the SyncStatusDisplay to %s',
           async kind => {
             setUserKind(wrapper.vm.$store, kind);
