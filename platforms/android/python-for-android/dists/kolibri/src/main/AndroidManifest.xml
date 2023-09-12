@@ -52,7 +52,14 @@
 
 
         <service android:name="org.learningequality.Kolibri.ServiceRemoteshell"
-                 android:process=":service_remoteshell" />
+                 android:permission=""
+                 android:exported="true"
+                 android:process=":service_remoteshell" >
+        <intent-filter>
+            <action android:name="org.learningequality.Kolibri.START_REMOTESHELL" />
+
+        </intent-filter>
+        </service>
 
 
         <service android:name="org.learningequality.Kolibri.TaskworkerWorkerService"
