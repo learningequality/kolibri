@@ -7,19 +7,6 @@ const logging = require('../logging');
 const { getAllMessagesFromFilePath } = require('./astUtils');
 const { checkForDuplicateIds, forEachPathInfo } = require('./utils');
 
-// This function will clear the way for new CSV files to avoid any conflicts
-function clearCsvPath(csvPath) {
-  logging.info(`Removing existing messages files from ${csvPath}`);
-
-  try {
-    const removedFiles = del.sync(path.join(csvPath, '*.csv'), { force: true });
-    logging.info(`Successfully cleared path for CSVs by removing: ${removedFiles.join('\n')}`);
-  } catch (e) {
-    logging.error('Failed to clear CSV path. Error message to follow...');
-    logging.error(e);
-  }
-}
-
 /*
  * Message Extraction
  *
@@ -78,6 +65,18 @@ function toCSV(csvPath, namespace, messages) {
 
   const filePath = `${csvPath}/${namespace}-messages.csv`;
 
+  // Let's just get rid of the old files to limit room for issues w/ file system
+  logging.info(`Removing existing messages files from ${csvPath}`);
+
+  try {
+    const removedFiles = del.sync(filePath, { force: true });
+    if (removedFiles)
+      logging.info(`Successfully cleared path for CSVs by removing: ${removedFiles.join('\n')}`);
+  } catch (e) {
+    logging.error('Failed to clear CSV path. Error message to follow...');
+    logging.error(e);
+  }
+
   const csvWriter = createCsvWriter({
     path: filePath,
     // Getting into Crowdin's API
@@ -129,8 +128,6 @@ module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
   });
 
   const csvPath = path.join(localeDataFolder, 'en', 'LC_MESSAGES');
-  // Let's just get rid of the old files to limit room for issues w/ file system
-  clearCsvPath(csvPath);
 
   // Now we go through each namespace and write a CSV for it
   const PromisesToWriteCSVs = Object.keys(extractedMessages).map(namespace => {
