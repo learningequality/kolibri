@@ -7,15 +7,15 @@ export default {
   },
   classHome: {
     name: PageNames.HOME_PAGE,
-    path: '/:classId/home',
+    path: '/:classId?/home',
   },
   plan: {
     name: PageNames.PLAN_PAGE,
-    path: '/:classId/plan',
-    redirect: '/:classId/plan/lessons',
+    path: '/:classId?/plan',
+    redirect: '/:classId?/plan/lessons',
   },
   reports: {
     name: PageNames.REPORTS_PAGE,
-    path: '/:classId/reports',
+    path: '/:classId?/reports',
   },
 };

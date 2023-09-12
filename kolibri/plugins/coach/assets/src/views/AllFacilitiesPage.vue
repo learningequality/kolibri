@@ -53,27 +53,35 @@
       CoreTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    props: {
+      subtopicName: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       facilities() {
         return this.$store.state.core.facilities;
       },
     },
     beforeMount() {
-      // Redirect to single-facility landing page if user/device isn't supposed
-      // to manage multiple facilities
       if (!this.$store.getters.userIsMultiFacilityAdmin) {
-        this.$router.replace(this.coachClassListPageLink());
+        const singleFacility = { id: this.$store.getters.userFacilityId };
+        this.$router.replace(this.coachClassListPageLink(singleFacility));
       }
     },
     methods: {
       coachClassListPageLink(facility) {
-        const query = {};
+        const params = {};
         if (facility) {
-          query.facility_id = facility.id;
+          params.facility_id = facility.id;
         }
+        params.subtopicName = this.subtopicName;
+
         return {
           name: 'CoachClassListPage',
-          query,
+          params,
         };
       },
     },

@@ -1,4 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
+import router from 'kolibri.coreVue.router';
 import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
 import {
@@ -16,7 +17,7 @@ import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 
 const ACTIVITY = '/activity';
-const CLASS = '/:classId/reports';
+const CLASS = '/:classId?/reports';
 const GROUPS = '/groups';
 const GROUP = '/groups/:groupId';
 const LEARNERS = '/learners';
@@ -39,6 +40,16 @@ function path(...args) {
 
 function defaultHandler() {
   store.dispatch('notLoading');
+}
+
+function classIdParamRequiredGuard(toRoute, subtopicName) {
+  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.classId) {
+    router.replace({
+      name: 'AllFacilitiesPage',
+      params: { subtopicName },
+    });
+    return true;
+  }
 }
 
 export default [
@@ -445,7 +456,13 @@ export default [
   {
     path: path(CLASS, LESSONS),
     component: pages.ReportsLessonListPage,
-    handler: defaultHandler,
+    handler: toRoute => {
+      if (classIdParamRequiredGuard(toRoute, 'ReportsLessonListPage')) {
+        return;
+      }
+      defaultHandler();
+    },
+
     meta: {
       titleParts: ['lessonsLabel', 'CLASS_NAME'],
     },

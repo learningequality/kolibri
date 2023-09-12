@@ -79,7 +79,7 @@
         if (this.$store.getters.userIsMultiFacilityAdmin) {
           facility_id = this.$store.state.classSummary.facility_id;
         }
-        return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
+        return this.$router.getRoute('CoachClassListPage', { facility_id });
       },
       classLearnersListRoute() {
         const { query } = this.$route;
