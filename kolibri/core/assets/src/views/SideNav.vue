@@ -369,10 +369,10 @@
         return this.coreString('kolibriLabel');
       },
       userIsLearner() {
-        return this.getUserKind == UserKinds.LEARNER;
+        return this.getUserKind == UserKinds.LEARNER || this.isLearnerOnlyImport;
       },
       loggedInUserKind() {
-        if (this.getUserKind === UserKinds.LEARNER) {
+        if (this.userIsLearner) {
           return this.coreString('learnerLabel');
         }
         if (this.getUserKind === UserKinds.ADMIN) {
