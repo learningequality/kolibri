@@ -81,9 +81,9 @@ jobs:
       run: |
         echo "Cannot build a release and signed development APK at the same time."
         exit 1
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: ${{ inputs.ref }}
       with:
         repository: learningequality/kolibri-installer-android

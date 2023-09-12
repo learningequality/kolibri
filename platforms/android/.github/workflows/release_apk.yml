@@ -28,9 +28,9 @@ jobs:
     env:
       SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ !inputs.ref }}
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         if: ${{ inputs.ref }}
         with:
           repository: learningequality/kolibri-android-installer
