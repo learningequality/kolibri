@@ -754,6 +754,7 @@
   .main-grid {
     margin-top: 110px;
     margin-right: 24px;
+    margin-bottom: 96px;
   }
 
   .channels-label {
