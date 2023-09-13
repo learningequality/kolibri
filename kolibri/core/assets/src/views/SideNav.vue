@@ -369,10 +369,14 @@
         return this.coreString('kolibriLabel');
       },
       userIsLearner() {
-        return this.getUserKind == UserKinds.LEARNER;
+        // learners and SOUD learners should display
+        return (
+          this.getUserKind == UserKinds.LEARNER ||
+          (this.getUserKind !== UserKinds.ANONYMOUS && this.isLearnerOnlyImport)
+        );
       },
       loggedInUserKind() {
-        if (this.getUserKind === UserKinds.LEARNER) {
+        if (this.userIsLearner) {
           return this.coreString('learnerLabel');
         }
         if (this.getUserKind === UserKinds.ADMIN) {
