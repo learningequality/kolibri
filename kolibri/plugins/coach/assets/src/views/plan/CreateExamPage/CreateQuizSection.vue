@@ -412,6 +412,7 @@
     },
     methods: {
       postNewOrder(questionIds) {
+        // TO DO  : add an api for reordering a question
         return client({
           url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
           method: 'POST',
