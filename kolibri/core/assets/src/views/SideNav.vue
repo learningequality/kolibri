@@ -372,7 +372,7 @@
         // learners and SOUD learners should display
         return (
           this.getUserKind == UserKinds.LEARNER ||
-          (this.getUserKind == UserKinds.ADMIN && this.isLearnerOnlyImport)
+          (this.getUserKind !== UserKinds.ANONYMOUS && this.isLearnerOnlyImport)
         );
       },
       loggedInUserKind() {
