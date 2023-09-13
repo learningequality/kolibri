@@ -130,10 +130,11 @@
       </KGrid>
       <DragContainer
         :items="placeholderList"
+        @sort="handleOrderChange"
       >
         <AccordionContainer>
           <template
-            #default="{ isItemExpanded, toggleItemState }"
+            #default="{ isItemExpanded, toggleItemState, closeAccordionPanel }"
           >
             <Draggable
               v-for="(item,index) in placeholderList"
@@ -151,100 +152,92 @@
                   #heading="{ title }"
                   :accordionToggle="onAccordionToggle(item.id)"
                 >
-                  <button
-                    tabindex="-1"
-                    aria-expanded="false"
-                    aria-label="toggle-button"
-                    class="remove-button-style"
-                    @click="toggleItemState(item.id)"
-                  >
-                    <div
-                      class="flex-div"
+                  <DragHandle>
+                    <button
+                      tabindex="-1"
+                      aria-expanded="false"
+                      aria-label="toggle-button"
+                      class="remove-button-style"
                     >
                       <div
-                        class="left-column-alignment-style"
+                        class="flex-div"
                       >
-                        <Draggable
-                          v-if="!isItemExpanded(item.id)"
+                        <div
+                          class="left-column-alignment-style"
                         >
-                          <DragHandle>
+                          
+                          <button
+                            class="remove-button-style"
+                            @click="closeAccordionPanel(item.id)"
+                          >
                             <DragSortWidget
                               class="drag-icon sort-widget"
-                              :moveUpText="$tr('upLabel', { name: item.name })"
-                              :moveDownText="$tr('downLabel', { name: item.name })"
+                              :moveUpText="$tr('upLabel', { name: item.title })"
+                              :moveDownText="$tr('downLabel', { name: item.title })"
                               :isFirst="index === 0"
                               :isLast="index === placeholderList.length - 1"
                               @moveUp="shiftOne(index, -1)"
                               @moveDown="shiftOne(index, +1)"
-                              @click.prevent="toggleItemState(item.id)"
                             />
-                          </DragHandle>
-                        </Draggable>
+                          </button>
+  
 
-                        <DragSortWidget
-                          v-else
-                          class="drag-icon sort-widget"
-                          :moveUpText="$tr('upLabel', { name: item.name })"
-                          :moveDownText="$tr('downLabel', { name: item.name })"
-                          :isFirst="index === 0"
-                          :isLast="index === placeholderList.length - 1"
-                          @moveUp="shiftOne(index, -1)"
-                          @moveDown="shiftOne(index, +1)"
-                          @click.prevent="toggleItemState(item.id)"
-                        />
-
-                        <div
-                          class="check-box-style"
-                        >
-                          <p
-                            @click.prevent="toggleItemState(item.id)"
+  
+  
+                          <div
+                            class="check-box-style"
                           >
-                            <KCheckbox
-                              :aria-label="$tr('checkBoxLabel',{ name: item.title })"
-                            />
-                          </p>
+                            <p
+                              @click.prevent="toggleItemState(item.id)"
+                            >
+                              <KCheckbox
+                                :aria-label="$tr('checkBoxLabel',{ name: item.title })"
+                              />
+                            </p>
+                          </div>
+                        </div>
+  
+                        <div class="occupy-remaining-space">
+                          <button
+                            :id="item.id"
+                            :aria-controls="item.id"
+                            :aria-expanded="isItemExpanded(item.id)"
+                            aria-labelledby="question-title2 question-title-context"
+                            class="limit-height remove-button-style"
+                            @click="toggleItemState(item.id)"
+                          >
+                            <KGrid>
+                              <KGridItem
+                                :layout12="{ span: 6 }"
+                              >
+                                <div style="margin-top:.5em;">
+                                  {{ title }}
+                                </div>
+                              </KGridItem>
+  
+                              <KGridItem
+                                :layout12="{ span: 6 }"
+                              >
+                                <div class="right-alignment-style">
+                                  <KIcon
+                                    v-if="isItemExpanded(item.id)"
+                                    class="icon-size toggle-icon"
+                                    icon="chevronUp"
+                                  />
+                                  <KIcon
+                                    v-else
+                                    class="icon-size toggle-icon"
+                                    icon="chevronRight"
+                                  />
+  
+                                </div>
+                              </KGridItem>
+                            </KGrid>
+                          </button>
                         </div>
                       </div>
-
-                      <div class="occupy-remaining-space">
-                        <button
-                          :id="item.id"
-                          :aria-controls="item.id"
-                          aria-expanded="true"
-                          aria-labelledby="question-title2 question-title-context"
-                          class="limit-height remove-button-style"
-                        >
-                          <KGrid>
-                            <KGridItem
-                              :layout12="{ span: 6 }"
-                            >
-                              <div style="margin-top:.5em;">
-                                {{ title }}
-                              </div>
-                            </KGridItem>
-
-                            <KGridItem
-                              :layout12="{ span: 6 }"
-                            >
-                              <div class="right-alignment-style">
-                                <KIcon
-                                  v-if="isItemExpanded(item.id)"
-                                  class="icon-size toggle-icon"
-                                  icon="chevronUp"
-                                />
-                                <KIcon
-                                  v-else
-                                  class="icon-size toggle-icon"
-                                  icon="chevronRight"
-                                />
-
-                              </div>
-                            </KGridItem>
-                          </KGrid>
-                        </button>
-                      </div>
-                    </div>
-                  </button>
+                    </button>
+                  </DragHandle>
                 </template>
 
                 <template
@@ -343,6 +336,8 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
@@ -415,7 +410,39 @@
         ];
       },
     },
-    methods: {},
+    methods: {
+      postNewOrder(questionIds) {
+        return client({
+          url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
+          method: 'POST',
+          data: questionIds,
+        });
+      },
+      handleOrderChange(event) {
+        const oldArray = [...this.placeholderList];
+
+        this.placeholder = [...event.newArray];
+        this.postNewOrder(event.newArray.map(x => x.id))
+          .then(() => {
+            this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
+          })
+          .catch(() => {
+            this.placeholderList = [];
+            this.$nextTick().then(() => {
+              this.placeholderList = oldArray;
+            });
+            this.$store.dispatch('createSnackbar', this.$tr('failureNotification'));
+          });
+      },
+      shiftOne(index, delta) {
+        const newArray = [...this.placeholderList];
+        const adjacentItem = newArray[index + delta];
+        newArray[index + delta] = newArray[index];
+        newArray[index] = adjacentItem;
+    
+        this.handleOrderChange({ newArray });
+      },
+    },
     $trs: {
       sectionLabel: {
         message: 'section 1',
@@ -473,6 +500,15 @@
       checkBoxLabel: {
         message: 'Select {name} question"',
         context: 'Checkbox to select the question',
+      },
+      successNotification: {
+        message: 'Question order saved',
+        context: 'Success message shown when the admin re-orders question',
+      },
+      failureNotification: {
+        message: 'There was a problem reordering the question',
+        context:
+          "Error message that displays if there is a problem reordering question.",
       },
     },
   };
@@ -551,7 +587,7 @@
   }
 
   .drag-icon {
-    margin-top: 0.5em;
+    margin-top: -0.5em;
     font-size: 1em;
   }
 
