@@ -8,6 +8,7 @@ from gi.repository import Gio
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
+from kolibri_app.config import BUILD_PROFILE
 
 from .kolibri_context import KolibriContext
 from .kolibri_webview import KolibriWebView
@@ -71,6 +72,9 @@ class KolibriWindow(Adw.ApplicationWindow):
         )
 
         self.set_default_size(DEFAULT_WIDTH, DEFAULT_HEIGHT)
+
+        if BUILD_PROFILE == "development":
+            self.add_css_class("devel")
 
         content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
         self.set_content(content_box)
