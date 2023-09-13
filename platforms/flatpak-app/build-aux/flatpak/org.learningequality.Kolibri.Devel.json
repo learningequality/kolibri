@@ -4,7 +4,7 @@
     "runtime-version" : "44",
     "sdk" : "org.gnome.Sdk",
     "command" : "/app/bin/kolibri-gnome",
-    "desktop-file-name-suffix" : " ☢️",
+    "desktop-file-name-suffix" : " (Dev)",
     "finish-args" : [
         "--device=dri",
         "--share=ipc",
