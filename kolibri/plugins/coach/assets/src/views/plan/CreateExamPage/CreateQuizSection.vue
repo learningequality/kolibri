@@ -165,7 +165,7 @@
                         <div
                           class="left-column-alignment-style"
                         >
-                          
+
                           <button
                             class="remove-button-style"
                             @click="closeAccordionPanel(item.id)"
@@ -180,23 +180,16 @@
                               @moveDown="shiftOne(index, +1)"
                             />
                           </button>
-  
 
-  
-  
                           <div
                             class="check-box-style"
                           >
-                            <p
-                              @click.prevent="toggleItemState(item.id)"
-                            >
-                              <KCheckbox
-                                :aria-label="$tr('checkBoxLabel',{ name: item.title })"
-                              />
-                            </p>
+                            <KCheckbox
+                              :aria-label="$tr('checkBoxLabel',{ name: item.title })"
+                            />
                           </div>
                         </div>
-  
+
                         <div class="occupy-remaining-space">
                           <button
                             :id="item.id"
@@ -214,7 +207,7 @@
                                   {{ title }}
                                 </div>
                               </KGridItem>
-  
+
                               <KGridItem
                                 :layout12="{ span: 6 }"
                               >
@@ -229,7 +222,7 @@
                                     class="icon-size toggle-icon"
                                     icon="chevronRight"
                                   />
-  
+
                                 </div>
                               </KGridItem>
                             </KGrid>
@@ -412,7 +405,7 @@
     },
     methods: {
       postNewOrder(questionIds) {
-        // TO DO  : add an api for reordering a question. 
+        // TO DO  : add an api for reordering a question.
         return client({
           url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
           method: 'POST',
@@ -441,7 +434,7 @@
         const adjacentItem = newArray[index + delta];
         newArray[index + delta] = newArray[index];
         newArray[index] = adjacentItem;
-    
+
         this.handleOrderChange({ newArray });
       },
     },
@@ -509,8 +502,7 @@
       },
       failureNotification: {
         message: 'There was a problem reordering the question',
-        context:
-          "Error message that displays if there is a problem reordering question.",
+        context: 'Error message that displays if there is a problem reordering question.',
       },
     },
   };
@@ -632,6 +624,7 @@
   }
 
   .check-box-style {
+    margin-top: 0.5em;
     margin-left: 0.5em;
   }
 
