@@ -451,6 +451,57 @@ class TestTransferDownloadByteRangeSupport(BaseTestTransfer):
             "Content does not match chunked_file content",
         )
 
+    def test_download_run_simultaneous(self):
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
+        ) as fd2:
+            # Once the file download has been opened,
+            # its ChunkedFile object has already been initialized.
+            # We then run another FileDownload with the same destination
+            # to test that we can open the same file for simultaneous downloads.
+            with FileDownload(
+                self.source,
+                self.dest,
+                self.checksum,
+                session=self.mock_session,
+                full_ranges=self.full_ranges,
+            ) as fd1:
+                fd1.run()
+            fd2.run()
+        self._assert_downloaded_content()
+        self.assertEqual(
+            self.mock_session.get.call_count,
+            self.chunks_count
+            if self.byte_range_support and not self.full_ranges
+            else 1,
+        )
+        self._assert_request_calls()
+
+    def test_download_run_cleaned_up_after_open_retry(self):
+        with FileDownload(
+            self.source,
+            self.dest,
+            self.checksum,
+            session=self.mock_session,
+            full_ranges=self.full_ranges,
+            retry_wait=0,
+        ) as fd:
+            fd.dest_file_obj.delete()
+            fd.dest_file_obj.close()
+            fd.run()
+        self._assert_downloaded_content()
+        self.assertEqual(
+            self.mock_session.get.call_count,
+            self.chunks_count
+            if self.byte_range_support and not self.full_ranges
+            else 1,
+        )
+        self._assert_request_calls()
+
 
 class TestTransferNoFullRangesDownloadByteRangeSupport(
     TestTransferDownloadByteRangeSupport
