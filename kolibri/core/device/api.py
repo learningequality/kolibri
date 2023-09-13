@@ -5,6 +5,7 @@ from sys import version_info
 from django.conf import settings
 from django.contrib.auth import login
 from django.db.models import Exists
+from django.db.models import F
 from django.db.models import Max
 from django.db.models import OuterRef
 from django.db.models.expressions import Subquery
@@ -283,8 +284,7 @@ def map_status(record):
         return RECENTLY_SYNCED
     elif queued:
         return QUEUED
-    elif record["last_synced"] and not recent:
-        return NOT_RECENTLY_SYNCED
+    return NOT_RECENTLY_SYNCED
 
 
 class UserSyncStatusViewSet(ReadOnlyValuesViewset):
@@ -323,7 +323,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     def annotate_queryset(self, queryset):
 
         queryset = queryset.annotate(
-            last_synced=Max("sync_session__last_activity_timestamp")
+            last_synced=F("sync_session__last_activity_timestamp")
         )
 
         most_recent_sync_status = (

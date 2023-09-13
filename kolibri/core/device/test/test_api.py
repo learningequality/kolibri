@@ -836,6 +836,29 @@ class UserSyncStatusTestCase(APITestCase):
             response.data[0]["status"], user_sync_statuses.NOT_RECENTLY_SYNCED
         )
 
+    def test_usersyncstatus_list_learner_no_sync_session(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self.syncstatus1.queued = False
+        previous_sync_session = self.syncstatus1.sync_session
+        self.syncstatus1.sync_session = None
+        self.syncstatus1.save()
+
+        try:
+            response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+            self.assertEqual(len(response.data), 1)
+            self.assertEqual(response.data[0]["user"], self.user1.id)
+            self.assertEqual(
+                response.data[0]["status"], user_sync_statuses.NOT_RECENTLY_SYNCED
+            )
+        finally:
+            # Not doing this leads to weird unexpected test contagion.
+            self.syncstatus1.sync_session = previous_sync_session
+            self.syncstatus1.save()
+
     def test_usersyncstatus_list__insufficient_storage(self):
         self.client.login(
             username=self.user1.username,
