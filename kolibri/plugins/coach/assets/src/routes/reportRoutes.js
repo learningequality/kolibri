@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
 import { PageNames } from '../constants';
 import pages from '../views/reports/allReportsPages';
 import {
@@ -15,6 +14,7 @@ import { generateQuestionListHandler } from '../modules/questionList/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
+import { classIdParamRequiredGuard } from './utils';
 
 const ACTIVITY = '/activity';
 const CLASS = '/:classId?/reports';
@@ -40,16 +40,6 @@ function path(...args) {
 
 function defaultHandler() {
   store.dispatch('notLoading');
-}
-
-function classIdParamRequiredGuard(toRoute, subtopicName) {
-  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.classId) {
-    router.replace({
-      name: 'AllFacilitiesPage',
-      params: { subtopicName },
-    });
-    return true;
-  }
 }
 
 export default [

@@ -1,5 +1,4 @@
 import store from 'kolibri.coreVue.vuex.store';
-import router from 'kolibri.coreVue.router';
 import {
   showLessonResourceContentPreview,
   showLessonResourceSelectionRootPage,
@@ -20,6 +19,7 @@ import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPa
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
+import { classIdParamRequiredGuard } from './utils';
 
 const CLASS = '/:classId?/plan';
 const LESSON = '/lessons/:lessonId';
@@ -34,16 +34,6 @@ function path(...args) {
 }
 
 const { showLessonsRootPage } = useLessons();
-
-function classIdParamRequiredGuard(toRoute, subtopicName) {
-  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.classId) {
-    router.replace({
-      name: 'AllFacilitiesPage',
-      params: { subtopicName },
-    });
-    return true;
-  }
-}
 
 export default [
   {

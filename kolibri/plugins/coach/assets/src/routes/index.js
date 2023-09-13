@@ -11,16 +11,7 @@ import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
-
-function classIdParamRequiredGuard(toRoute, subtopicName) {
-  if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.classId) {
-    router.replace({
-      name: 'AllFacilitiesPage',
-      params: { subtopicName },
-    });
-    return true;
-  }
-}
+import { classIdParamRequiredGuard } from './utils';
 
 export default [
   ...planRoutes,
