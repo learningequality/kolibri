@@ -87,8 +87,8 @@ class KolibriInstance(object):
     ):
         # Zeroconf wants socket.inet_aton() format, so make sure we have string with this class
         # which we convert when interfacing with Zeroconf
-        if ip is not None and not isinstance(ip, str):
-            raise TypeError("IP must be a string")
+        if ip is not None and not isinstance(ip, string_types):
+            raise TypeError("IP must be a string, not {}".format(type(ip)))
 
         self.id = instance_id
         self.zeroconf_id = instance_id
