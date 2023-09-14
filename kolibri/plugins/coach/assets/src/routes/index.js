@@ -18,7 +18,7 @@ export default [
   ...reportRoutes,
   {
     name: 'AllFacilitiesPage',
-    path: '/:subtopicName?/facilities',
+    path: '/facilities/:subtopicName?',
     component: AllFacilitiesPage,
     props: true,
     handler() {
@@ -26,7 +26,7 @@ export default [
     },
   },
   {
-    path: '/:subtopicName?/:facility_id?/classes',
+    path: '/:facility_id?/classes/:subtopicName?',
     component: CoachClassListPage,
     props: true,
     handler(toRoute) {
