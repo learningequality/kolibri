@@ -76,17 +76,19 @@ def _local_event_handler(func):
         :type context: CompositeSessionContext|LocalSessionContext
         """
         local_context = context if isinstance(context, LocalSessionContext) else None
-
-        try:
-            if not local_context and isinstance(context, CompositeSessionContext):
-                local_context = next(
-                    c for c in context.children if isinstance(c, LocalSessionContext)
-                )
-            else:
-                raise StopIteration("No local context found")
-        except StopIteration:
-            # no local context, so we can't do anything
-            return
+        if local_context is None:
+            try:
+                if isinstance(context, CompositeSessionContext):
+                    local_context = next(
+                        c
+                        for c in context.children
+                        if isinstance(c, LocalSessionContext)
+                    )
+                else:
+                    raise StopIteration("No local context found")
+            except StopIteration:
+                # no local context, so we can't do anything
+                return
 
         kwargs = _extract_kwargs_from_context(local_context)
         return func(**kwargs)
