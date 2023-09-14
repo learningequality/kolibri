@@ -72,7 +72,6 @@ export const MeteredConnectionDownloadOptions = {
   ALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'ALLOW_DOWNLOAD_ON_METERED_CONNECTION',
 };
 
-export const Presets = Object.freeze({
-  FORMAL: 'formal',
-  NONFORMAL: 'nonformal',
-});
+export const ImportFacility = 'import_facility';
+
+export const CreateNewFacility = 'create_new_facility';

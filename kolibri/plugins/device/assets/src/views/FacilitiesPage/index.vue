@@ -207,7 +207,7 @@
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import some from 'lodash/some';
   import DeviceAppBarPage from '../DeviceAppBarPage';
-  import { PageNames } from '../../constants';
+  import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
@@ -263,12 +263,12 @@
       options() {
         return [
           {
-            label: 'Import facility',
-            value: 'import_facility',
+            label: this.$tr('importFacilityLabel'),
+            value: ImportFacility,
           },
           {
-            label: 'Create new facility',
-            value: 'create_new_facility',
+            label: this.$tr('createNewFacilityLabel'),
+            value: CreateNewFacility,
           },
         ];
       },
@@ -421,7 +421,7 @@
           });
       },
       handleSelect(option) {
-        if (option.value == 'import_facility') {
+        if (option.value == ImportFacility) {
           this.showImportModal = true;
         } else {
           this.showCreateFacilityModal = true;
@@ -442,6 +442,14 @@
       createFacilityLabel: {
         message: 'ADD FACILITY',
         context: 'Label for a button used to create new facility.',
+      },
+      importFacilityLabel: {
+        message: 'Import facility',
+        context: 'Label for the dropdown option of import facility',
+      },
+      createNewFacilityLabel: {
+        message: 'Create new facility',
+        context: 'Label for the dropdown option of create new facility',
       },
     },
   };

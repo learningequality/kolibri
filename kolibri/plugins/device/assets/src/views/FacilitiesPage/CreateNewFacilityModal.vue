@@ -50,7 +50,7 @@
     data() {
       return {
         facilityName: '',
-        preset: 'nonformal',
+        preset: Presets.NONFORMAL,
         Presets,
       };
     },
