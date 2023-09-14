@@ -14,9 +14,10 @@ import { generateQuestionListHandler } from '../modules/questionList/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
+import { classIdParamRequiredGuard } from './utils';
 
 const ACTIVITY = '/activity';
-const CLASS = '/:classId/reports';
+const CLASS = '/:classId?/reports';
 const GROUPS = '/groups';
 const GROUP = '/groups/:groupId';
 const LEARNERS = '/learners';
@@ -445,7 +446,13 @@ export default [
   {
     path: path(CLASS, LESSONS),
     component: pages.ReportsLessonListPage,
-    handler: defaultHandler,
+    handler: toRoute => {
+      if (classIdParamRequiredGuard(toRoute, 'ReportsLessonListPage')) {
+        return;
+      }
+      defaultHandler();
+    },
+
     meta: {
       titleParts: ['lessonsLabel', 'CLASS_NAME'],
     },

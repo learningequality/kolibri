@@ -42,7 +42,8 @@ class CoachToolsModule extends KolibriApp {
           to.name
         )
       ) {
-        promises.push(this.store.dispatch('initClassInfo', to.params.classId));
+        if (to.params.classId)
+          promises.push(this.store.dispatch('initClassInfo', to.params.classId));
       } else {
         this.store.dispatch('coachNotifications/stopPolling');
       }

@@ -19,8 +19,9 @@ import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPa
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
+import { classIdParamRequiredGuard } from './utils';
 
-const CLASS = '/:classId/plan';
+const CLASS = '/:classId?/plan';
 const LESSON = '/lessons/:lessonId';
 const ALL_LESSONS = '/lessons';
 const SELECTION = '/selection';
@@ -40,6 +41,9 @@ export default [
     path: path(CLASS, ALL_LESSONS),
     component: LessonsRootPage,
     handler(toRoute) {
+      if (classIdParamRequiredGuard(toRoute, 'PLAN_PAGE')) {
+        return;
+      }
       showLessonsRootPage(store, toRoute.params.classId);
     },
     meta: {
