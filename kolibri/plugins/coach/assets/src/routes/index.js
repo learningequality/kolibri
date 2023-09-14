@@ -26,7 +26,7 @@ export default [
     },
   },
   {
-    path: '/:facility_id?/classes',
+    path: '/:subtopicName?/:facility_id?/classes',
     component: CoachClassListPage,
     props: true,
     handler(toRoute) {
