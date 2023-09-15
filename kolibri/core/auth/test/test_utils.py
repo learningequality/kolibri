@@ -11,6 +11,9 @@ import mock
 from django.core.management.base import CommandError
 from django.test import TestCase
 from morango.registry import syncable_models
+from morango.sync.context import CompositeSessionContext
+from morango.sync.context import LocalSessionContext
+from morango.sync.context import NetworkSessionContext
 
 from ..models import Facility
 from kolibri.core.auth.management import utils
@@ -18,6 +21,7 @@ from kolibri.core.auth.models import AdHocGroup
 from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
+from kolibri.core.auth.sync_event_hook_utils import _local_event_handler
 from kolibri.core.auth.test.test_api import ClassroomFactory
 from kolibri.core.auth.test.test_api import FacilityFactory
 from kolibri.core.auth.test.test_api import FacilityUserFactory
@@ -673,3 +677,45 @@ class TestDeleteFacilityDeletesAllFacilityModels(TestCase):
         delete_group = get_delete_group_for_facility(facility)
         all_deleted_models = set(qs.model for qs in delete_group.get_querysets())
         self.assertTrue(all_deleted_models.issuperset(all_facility_models))
+
+
+class TestLocalEventHandler(TestCase):
+    def setUp(self):
+        self.mock_method = mock.Mock()
+
+        # Wrap the mock method in a regular function to avoid functools complaining about
+        # trying to wrap a mock object
+        def method(*args, **kwargs):
+            self.mock_method(*args, **kwargs)
+
+        self.method = method
+
+    def test_local_event_handler_local_context(self):
+        """
+        Test that the local event handler calls the wrapped method when there is a local session context
+        """
+        context = LocalSessionContext()
+        context.sync_session = mock.Mock()
+        _local_event_handler(self.method)(context)
+        self.mock_method.assert_called_once()
+
+    def test_local_event_handler_composite_context(self):
+        """
+        Test that the local event handler calls the wrapped method when there is a local session context
+        """
+        local_context = LocalSessionContext()
+        network_context = NetworkSessionContext(mock.Mock())
+        context = CompositeSessionContext([network_context, local_context])
+        local_context.sync_session = mock.Mock()
+        _local_event_handler(self.method)(context)
+        self.mock_method.assert_called_once()
+
+    def test_local_event_handler_composite_context_no_local_child(self):
+        """
+        Test that the local event handler calls the wrapped method when there is a local session context
+        """
+        network_context1 = NetworkSessionContext(mock.Mock())
+        network_context2 = NetworkSessionContext(mock.Mock())
+        context = CompositeSessionContext([network_context1, network_context2])
+        _local_event_handler(self.method)(context)
+        self.mock_method.assert_not_called()
