@@ -58,7 +58,7 @@
               class="link"
               :href="href"
               :class="isActive ? subRouteActiveClass : subRouteInactiveClass"
-              @click="e => isActive ? toggleAndroidMenu() : navigate(e)"
+              @click="e => isActive ? toggleMenu() : toggleMenu() && navigate(e)"
             >
               {{ subRoute.label }}
             </a>
@@ -197,11 +197,11 @@
         }
         return false;
       },
-      toggleAndroidMenu() {
-        if (this.disabled) {
-          return;
+      toggleMenu() {
+        if (!this.disabled) {
+          this.$emit('toggleMenu');
         }
-        this.$emit('toggleAndroidMenu');
+        return true;
       },
       generateNavRoute(route) {
         const params = this.$route.params;
