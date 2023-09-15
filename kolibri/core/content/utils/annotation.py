@@ -18,6 +18,7 @@ from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy.sql.expression import literal
+from sqlalchemy.sql.functions import coalesce
 
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
@@ -300,7 +301,7 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
 
 def set_leaf_node_availability_from_local_file_availability(
-    channel_id, node_ids=None, exclude_node_ids=None
+    channel_id, node_ids=None, exclude_node_ids=None, admin_imported=None
 ):
     """
     Set nodes in a channel as available, based on their required files.
@@ -369,6 +370,15 @@ def set_leaf_node_availability_from_local_file_availability(
         )
     )
 
+    values_dict = {
+        "available": exists(contentnode_statement),
+    }
+
+    if admin_imported is not None:
+        values_dict["admin_imported"] = or_(
+            admin_imported, coalesce(ContentNodeTable.c.admin_imported, False)
+        )
+
     while min_boundary < max_rght:
         batch_statement = _create_batch_update_statement(
             bridge,
@@ -381,9 +391,7 @@ def set_leaf_node_availability_from_local_file_availability(
 
         # Execute the update for this batch
         connection.execute(
-            batch_statement.values(
-                available=exists(contentnode_statement)
-            ).execution_options(autocommit=True)
+            batch_statement.values(**values_dict).execution_options(autocommit=True)
         )
         min_boundary += dynamic_chunksize
 
@@ -691,10 +699,13 @@ def reannotate_all_channels():
 
 
 def update_content_metadata(
-    channel_id, node_ids=None, exclude_node_ids=None, public=None
+    channel_id, node_ids=None, exclude_node_ids=None, public=None, admin_imported=None
 ):
     set_leaf_node_availability_from_local_file_availability(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+        channel_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        admin_imported=admin_imported,
     )
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id, public=public)
@@ -705,11 +716,20 @@ def update_content_metadata(
 
 
 def set_content_visibility(
-    channel_id, checksums, node_ids=None, exclude_node_ids=None, public=None
+    channel_id,
+    checksums,
+    node_ids=None,
+    exclude_node_ids=None,
+    public=None,
+    admin_imported=None,
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public
+        channel_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        public=public,
+        admin_imported=admin_imported,
     )
 
 

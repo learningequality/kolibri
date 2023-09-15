@@ -375,7 +375,7 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
             ContentNode.objects.filter(title="c2c1", available=True).count(), 1
         )
 
-    def test_all_local_files_available_include_orignial_exclude_duplicate_topic(self):
+    def test_all_local_files_available_include_original_exclude_duplicate_topic(self):
         ContentNode.objects.all().update(available=False)
         LocalFile.objects.all().update(available=True)
         parent = ContentNode.objects.get(title="c3")
@@ -418,6 +418,76 @@ class AnnotationFromLocalFileAvailability(TransactionTestCase):
         )
         node.refresh_from_db()
         self.assertTrue(node.available)
+
+    def test_all_local_files_admin_imported_true(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id, admin_imported=True
+        )
+        node.refresh_from_db()
+        self.assertTrue(node.admin_imported)
+
+    def test_all_local_files_admin_imported_true_overwrites(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        node.admin_imported = False
+        node.save()
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id, admin_imported=True
+        )
+        node.refresh_from_db()
+        self.assertTrue(node.admin_imported)
+
+    def test_all_local_files_admin_imported_false(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id, admin_imported=False
+        )
+        node.refresh_from_db()
+        self.assertFalse(node.admin_imported)
+
+    def test_all_local_files_admin_imported_false_no_overwrite(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        node.admin_imported = True
+        node.save()
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id, admin_imported=False
+        )
+        node.refresh_from_db()
+        self.assertTrue(node.admin_imported)
+
+    def test_all_local_files_admin_imported_none_no_effect(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        set_leaf_node_availability_from_local_file_availability(test_channel_id)
+        node.refresh_from_db()
+        self.assertIsNone(node.admin_imported)
+
+    def test_all_local_files_admin_imported_non_include_exclude_unaffected(self):
+        ContentNode.objects.all().update(available=False)
+        LocalFile.objects.all().update(available=True)
+        exclude = ContentNode.objects.get(title="c3")
+        include = ContentNode.objects.get(title="c2")
+        node = ContentNode.objects.get(title="copy", kind=content_kinds.VIDEO)
+        self.assertFalse(node.available)
+        node.admin_imported = False
+        node.save()
+        set_leaf_node_availability_from_local_file_availability(
+            test_channel_id,
+            node_ids=[include.id],
+            exclude_node_ids=[exclude.id],
+            admin_imported=True,
+        )
+        node.refresh_from_db()
+        self.assertFalse(node.admin_imported)
 
     def tearDown(self):
         call_command("flush", interactive=False)

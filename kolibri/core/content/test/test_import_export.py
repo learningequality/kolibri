@@ -1007,6 +1007,7 @@ class ImportContentTestCase(TestCase):
             node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
+            admin_imported=True,
         )
 
     @patch("kolibri.core.content.utils.resource_import.transfer.FileDownload")
@@ -1032,7 +1033,12 @@ class ImportContentTestCase(TestCase):
             manager = RemoteChannelResourceImportManager(self.the_channel_id)
             manager.run()
         self.annotation_mock.set_content_visibility.assert_called_with(
-            self.the_channel_id, [], node_ids=None, exclude_node_ids=None, public=False
+            self.the_channel_id,
+            [],
+            node_ids=None,
+            exclude_node_ids=None,
+            public=False,
+            admin_imported=True,
         )
 
     @patch("kolibri.core.content.utils.resource_import.get_free_space")
@@ -1140,6 +1146,7 @@ class ImportContentTestCase(TestCase):
             exclude_node_ids=None,
             node_ids=None,
             public=False,
+            admin_imported=True,
         )
 
     @patch("kolibri.utils.file_transfer.sleep")
@@ -1422,6 +1429,7 @@ class ImportContentTestCase(TestCase):
             exclude_node_ids=None,
             node_ids={self.c1_node_id},
             public=False,
+            admin_imported=True,
         )
 
     @patch(
@@ -1480,6 +1488,7 @@ class ImportContentTestCase(TestCase):
             exclude_node_ids=None,
             node_ids=None,
             public=False,
+            admin_imported=True,
         )
 
     def test_local_import_with_detected_manifest_file(
@@ -1988,6 +1997,7 @@ class ImportContentTestCase(TestCase):
             node_ids={self.c2c1_node_id},
             exclude_node_ids=None,
             public=False,
+            admin_imported=True,
         )
 
     @patch("kolibri.core.content.utils.resource_import.logger.warning")
