@@ -150,6 +150,9 @@
         return this.wizardService.state.context.importedUsers;
       },
       pollImportTask() {
+        if (this.wizardService.state.context.importedUsers.length > 0) {
+          this.wizardService.send('LOADING');
+        }
         TaskResource.list({ queue: SoudQueue }).then(tasks => {
           if (tasks.length) {
             tasks.forEach(task => {
