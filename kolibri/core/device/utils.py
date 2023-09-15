@@ -217,14 +217,14 @@ def validate_facility_settings(new_settings):
     return new_settings
 
 
-def validate_device_settings(language_id=None, facility=None, **new_settings):
+def validate_device_settings(facility=None, **new_settings):
     # Override any settings passed in
     for key in new_settings:
         check_device_setting(key)
 
     settings_to_set = dict(new_settings)
-    if language_id is not None:
-        settings_to_set["language_id"] = language_id
+    if "language_id" in new_settings:
+        settings_to_set["language_id"] = new_settings["language_id"]
     if facility is not None:
         settings_to_set["default_facility"] = facility
 
