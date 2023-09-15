@@ -924,7 +924,6 @@ def process_content_removal_requests(queryset):
                 "deletecontent",
                 channel_id,
                 node_ids=contentnode_ids,
-                force_delete=True,
             )
             # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)
