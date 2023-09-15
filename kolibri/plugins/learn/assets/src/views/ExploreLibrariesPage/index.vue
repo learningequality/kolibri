@@ -94,7 +94,7 @@
     setup() {
       const { fetchChannels } = useChannels();
       const { back } = useContentLink();
-      const { fetchDevices } = useDevices();
+      const { networkDevices } = useDevices();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
 
       return {
@@ -102,14 +102,13 @@
         createPinForUser,
         fetchPinsForUser,
         fetchChannels,
-        fetchDevices,
+        networkDevices,
         back,
       };
     },
     data() {
       return {
         loading: false,
-        networkDevices: {},
         moreDevices: 0,
         usersPins: [],
       };
@@ -125,6 +124,7 @@
         return this.moreDevices < this.unpinnedDevices?.length;
       },
       networkDevicesWithChannels() {
+        console.log('network devices', Object.values(this.networkDevices));
         return Object.values(this.networkDevices)
           .filter(device => device.channels?.length > 0)
           .sort((a, b) => {
@@ -195,20 +195,19 @@
         }
       });
 
-      this.fetchDevices().then(devices => {
+      let currentDevice;
+      Object.keys(this.networkDevices).forEach(key => {
         const promises = [];
-        for (const device of devices) {
-          const baseurl = device.base_url;
-          const promise = this.fetchChannels({ baseurl })
-            .then(channels => {
-              this.addNetworkDevice(device, channels);
-              // Set loading to false once we have successfully fetched channels
-              // for any device.
-              this.loading = false;
-            })
-            .catch(() => {
-              this.addNetworkDevice(device, []);
-            });
+        currentDevice = this.networkDevices[key];
+        // does the device id already have channel data associated with it?
+        if (!currentDevice.channels) {
+          const baseurl = currentDevice.base_url;
+          const promise = this.fetchChannels({ baseurl }).then(channels => {
+            this.updateDeviceChannels(currentDevice, channels);
+            // Set loading to false once we have successfully fetched channels
+            // for any device.
+            this.loading = false;
+          });
           promises.push(promise);
         }
         Promise.all(promises).then(() => {
@@ -219,15 +218,13 @@
       });
     },
     methods: {
-      addNetworkDevice(device, channels) {
-        this.$set(
-          this.networkDevices,
-          device.instance_id,
-          Object.assign(device, {
-            channels: channels.slice(0, 4),
-            total_count: channels.length,
-          })
-        );
+      updateDeviceChannels(device, channels) {
+        const updatedDevice = {
+          ...device,
+          channels: channels.slice(0, 4),
+          total_count: channels.length,
+        };
+        this.$set(this.networkDevices, device.instance_id, updatedDevice);
       },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {

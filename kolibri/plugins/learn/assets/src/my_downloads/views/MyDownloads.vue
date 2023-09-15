@@ -41,7 +41,6 @@
 
       <DownloadsList
         v-else
-        :networkDevices="networkDevices"
         :loading="false"
         @removeResources="removeResources"
       />
@@ -56,7 +55,7 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import useDownloadRequests from '../../composables/useDownloadRequests';
@@ -93,7 +92,6 @@
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort);
-      const totalPageNumber = ref(0);
 
       const fetchDownloads = () => {
         fetchUserDownloadRequests({
@@ -111,16 +109,10 @@
         loading,
         fetchDownloads,
         availableSpace,
-        totalPageNumber,
         fetchAvailableFreespace,
         fetchDevices,
         sort,
         removeDownloadRequest,
-      };
-    },
-    data() {
-      return {
-        networkDevices: [],
       };
     },
     computed: {
@@ -157,11 +149,6 @@
       startPolling() {
         this.pollingInterval = setInterval(async () => {
           await this.fetchDownloads();
-          this.fetchDevices().then(devices => {
-            for (const device of devices) {
-              this.networkDevices.push(Object.assign(device));
-            }
-          });
           this.calculatePollingInterval();
         }, 1000); // Initial interval of 1 second
       },
@@ -184,11 +171,6 @@
           clearInterval(this.pollingInterval);
           this.pollingInterval = setInterval(async () => {
             await this.fetchDownloads();
-            this.fetchDevices().then(devices => {
-              for (const device of devices) {
-                this.networkDevices.push(Object.assign(device));
-              }
-            });
             this.calculatePollingInterval();
           }, pollingInterval);
         }

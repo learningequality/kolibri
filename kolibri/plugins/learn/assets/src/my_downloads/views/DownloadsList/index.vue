@@ -194,13 +194,6 @@
         type: Boolean,
         required: false,
       },
-      networkDevices: {
-        type: Array,
-        required: false,
-        default() {
-          return [];
-        },
-      },
     },
     data() {
       return {
