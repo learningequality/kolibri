@@ -1,0 +1,30 @@
+name: Check for updates
+on:
+  schedule:
+    - cron: "0 * * * *" # run every hour
+  workflow_dispatch:
+
+jobs:
+  flatpak-external-data-checker:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        branch: [ main ] # list all branches to check
+
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ matrix.branch }}
+
+      - uses: docker://ghcr.io/flathub/flatpak-external-data-checker:latest
+        env:
+          GIT_AUTHOR_NAME: Flatpak External Data Checker
+          GIT_COMMITTER_NAME: Flatpak External Data Checker
+          # email sets "github-actions[bot]" as commit author, see https://github.community/t/github-actions-bot-email-address/17204/6
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: --update --verbose --never-fork build-aux/flatpak/org.learningequality.Kolibri.Devel.json
