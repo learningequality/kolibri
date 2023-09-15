@@ -1329,9 +1329,19 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
+class ContentRequestFilter(FilterSet):
+    contentnode_id = UUIDFilter()
+    contentnode_id__in = UUIDInFilter(field_name="contentnode_id")
+
+    class Meta:
+        model = ContentDownloadRequest
+        fields = ("contentnode_id", "contentnode_id__in")
+
+
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSerializer
-
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
 
     values = (
