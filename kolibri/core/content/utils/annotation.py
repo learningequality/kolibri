@@ -253,7 +253,9 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     return max_rght, dynamic_chunksize
 
 
-def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
+def set_leaf_nodes_invisible(
+    channel_id, node_ids=None, exclude_node_ids=None, clear_admin_imported=False
+):
     """
     Set nodes in a channel as unavailable.
     With no additional arguments, this will hide an entire channel.
@@ -280,6 +282,13 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
         )
     )
 
+    values_dict = {
+        "available": False,
+    }
+
+    if clear_admin_imported:
+        values_dict["admin_imported"] = False
+
     while min_boundary < max_rght:
         batch_statement = _create_batch_update_statement(
             bridge,
@@ -292,7 +301,7 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
         # Execute the update for this batch
         connection.execute(
-            batch_statement.values(available=False).execution_options(autocommit=True)
+            batch_statement.values(**values_dict).execution_options(autocommit=True)
         )
 
         min_boundary += dynamic_chunksize
@@ -738,8 +747,13 @@ def set_content_visibility_from_disk(channel_id):
     update_content_metadata(channel_id)
 
 
-def set_content_invisible(channel_id, node_ids, exclude_node_ids):
-    set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
+def set_content_invisible(channel_id, node_ids, exclude_node_ids, clear_admin_imported):
+    set_leaf_nodes_invisible(
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        clear_admin_imported=clear_admin_imported,
+    )
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()

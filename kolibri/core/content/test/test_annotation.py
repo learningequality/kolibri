@@ -194,6 +194,28 @@ class SetContentNodesInvisibleTestCase(TransactionTestCase):
         node.refresh_from_db()
         self.assertTrue(node.available)
 
+    def test_all_leaves_clear_admin_imported(self):
+        ContentNode.objects.all().update(available=True)
+        set_leaf_nodes_invisible(test_channel_id, clear_admin_imported=True)
+        self.assertFalse(
+            any(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "admin_imported", flat=True
+                )
+            )
+        )
+
+    def test_all_leaves_no_clear_admin_imported(self):
+        ContentNode.objects.all().update(available=True, admin_imported=True)
+        set_leaf_nodes_invisible(test_channel_id)
+        self.assertTrue(
+            all(
+                ContentNode.objects.exclude(kind=content_kinds.TOPIC).values_list(
+                    "admin_imported", flat=True
+                )
+            )
+        )
+
     def tearDown(self):
         call_command("flush", interactive=False)
         super(SetContentNodesInvisibleTestCase, self).tearDown()
