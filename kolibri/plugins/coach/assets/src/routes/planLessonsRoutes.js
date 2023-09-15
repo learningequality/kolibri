@@ -10,6 +10,7 @@ import {
 } from '../modules/lessonResources/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { LessonsPageNames } from '../constants/lessonsConstants';
+import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
 
@@ -41,7 +42,7 @@ export default [
     path: path(CLASS, ALL_LESSONS),
     component: LessonsRootPage,
     handler(toRoute, fromRoute, next) {
-      if (classIdParamRequiredGuard(toRoute, 'PLAN_PAGE', next)) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.PLAN_PAGE, next)) {
         return;
       }
       showLessonsRootPage(store, toRoute.params.classId);

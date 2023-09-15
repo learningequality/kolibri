@@ -92,9 +92,11 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { mapState, mapActions } from 'vuex';
+  // TODO: Cleanup this import by moving it into kolibri-common
   import SyncStatusDisplay from '../../../../../core/assets/src/views/SyncStatusDisplay';
   import SyncStatusDescription from '../../../../../core/assets/src/views/SyncStatusDescription';
   import CoachImmersivePage from '../views/CoachImmersivePage';
+  import { PageNames } from '../constants';
   import StorageNotificationBanner from './StorageNotificationBanner';
 
   export default {
@@ -133,13 +135,11 @@
         return options;
       },
       backlink() {
-        let backRoute;
         if (this.$route.query.last === 'homepage') {
-          backRoute = this.$router.getRoute('HomePage');
+          return { name: PageNames.HOME_PAGE, params: { classId: this.$route.params.classId } };
         } else {
-          backRoute = this.$router.getRoute('ReportsQuizListPage');
+          return { name: 'ReportsQuizListPage', params: { classId: this.$route.params.classId } };
         }
-        return backRoute;
       },
       learnerHasInsufficientStorage() {
         for (const learner in this.learnerMap) {
