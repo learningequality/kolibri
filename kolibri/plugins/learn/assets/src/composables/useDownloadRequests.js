@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
@@ -107,6 +107,45 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
+  function sortedFilteredDownloads() {
+    const query = computed(() => get(route).query);
+    const route = computed(() => store.state.route);
+    const sort = computed(() => query.value.sort);
+    const activityType = computed(() => query.value.activity || 'all');
+    let downloadsToDisplay = [];
+    if (downloadRequestMap) {
+      for (const [, value] of Object.entries(downloadRequestMap)) {
+        downloadsToDisplay.push(value);
+      }
+      if (activityType) {
+        if (activityType.value !== 'all') {
+          downloadsToDisplay = downloadsToDisplay.filter(download =>
+            download.metadata.learning_activities.includes(activityType.value)
+          );
+        }
+      }
+      if (sort) {
+        switch (sort.value) {
+          case 'newest':
+            downloadsToDisplay.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at));
+            break;
+          case 'oldest':
+            downloadsToDisplay.sort((a, b) => new Date(a.requested_at) - new Date(b.requested_at));
+            break;
+          case 'smallest':
+            downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
+            break;
+          case 'largest':
+            downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
+            break;
+          default:
+            // If no valid sort option provided, return unsorted array
+            break;
+        }
+      }
+    }
+  }
+
   function isDownloadingByLearner(content) {
     if (!content || !content.id) {
       return false;
@@ -123,6 +162,8 @@ export default function useDownloadRequests(store) {
     return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
   }
 
+  const downloads = computed(() => this.sortedFilteredDownloads());
+
   return {
     fetchUserDownloadRequests,
     fetchAvailableFreespace,
@@ -130,6 +171,8 @@ export default function useDownloadRequests(store) {
     downloadRequestMap,
     addDownloadRequest,
     loading,
+    downloads,
+    sortedFilteredDownloads,
     removeDownloadRequest,
     downloadRequestsTranslator,
     isDownloadingByLearner,

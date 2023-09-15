@@ -3,10 +3,11 @@
   <form>
 
     <PaginatedListContainerWithBackend
+      v-if="downloadRequestMap"
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPageNumber"
-      :numFilteredItems="downloads.length"
+      :numFilteredItems="Object.keys(downloadRequestMap).length"
     >
       <CoreTable>
         <template #headers>
@@ -145,7 +146,7 @@
           }
           if (activityType) {
             if (activityType.value !== 'all') {
-              downloadsToDisplay = this.downloadsToDisplay.filter(download =>
+              downloadsToDisplay = downloadsToDisplay.filter(download =>
                 download.metadata.learning_activities.includes(activityType.value)
               );
             }
@@ -174,12 +175,15 @@
             }
           }
         }
+        return downloadsToDisplay;
       };
       sortedFilteredDownloads();
+      const downloads = computed(() => sortedFilteredDownloads());
       return {
         downloadRequestMap,
         pageSizeNumber,
         getLearningActivityIcon,
+        downloads,
         sortedFilteredDownloads,
         availableSpace,
         genExternalContentURLBackLinkCurrentPage,
@@ -245,17 +249,21 @@
           return [];
         }
       },
-      downloads() {
-        return this.sortedFilteredDownloads;
-      },
       totalPageNumber() {
-        if (this.downloadsToDisplay && this.downloadsToDisplay.length) {
+        if (
+          this.downloadsToDisplay &&
+          this.downloadsToDisplay.length &&
+          this.pageSizeNumber.value
+        ) {
           return Math.ceil(this.downloadsToDisplay.length / this.pageSizeNumber.value);
         }
         return 1;
       },
       areAllSelected() {
-        return Object.keys(this.downloads).every(id => this.selectedDownloads.includes(id));
+        return (
+          this.downloads &&
+          this.downloads.filter(id => this.selectedDownloads.includes(id)).length > 0
+        );
       },
       areAnyAvailable() {
         return this.downloads && this.downloads.length > 0;
@@ -310,7 +318,9 @@
         return this.getLearningActivityIcon(activities);
       },
       sourceDeviceIsAvailable(download) {
-        return this.networkDevices.filter(device => device.id == download.source_id).length > 0;
+        return (
+          this.networkDevices.filter(device => device.instance_id == download.source_id).length > 0
+        );
       },
       downloadStatusIcon(download) {
         let icon;
