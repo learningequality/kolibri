@@ -108,7 +108,11 @@ def _get_automatic_provision_data():
             "learner_can_login_with_no_password": False,
         },
         "device_settings": {
-            "language_id": None,
+            # Kolibri interprets None as "the system language at setup time",
+            # while an empty string causes Kolibri to always use the current
+            # browser language:
+            # <https://github.com/learningequality/kolibri/issues/11248>
+            "language_id": "",
             "landing_page": "learn",
             "allow_guest_access": False,
             "allow_other_browsers_to_connect": False,
