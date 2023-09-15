@@ -49,12 +49,17 @@ merge_models = [ContentTag, LocalFile, Language]
 
 models_not_to_overwrite = [LocalFile]
 
-models_to_exclude = [
-    apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages"),
+# Models that are in the content app, but for which we do not want to generate a schema
+# using SQLAlchemy.
+no_schema_models = [
     apps.get_model(CONTENT_APP_NAME, "ContentRequest"),
     apps.get_model(CONTENT_APP_NAME, "ContentDownloadRequest"),
     apps.get_model(CONTENT_APP_NAME, "ContentRemovalRequest"),
 ]
+
+models_to_exclude = [
+    apps.get_model(CONTENT_APP_NAME, "ChannelMetadata_included_languages"),
+] + no_schema_models
 
 
 SOURCE_DB_ALIAS = "sourcedb"
