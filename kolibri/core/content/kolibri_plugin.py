@@ -8,7 +8,10 @@ from kolibri.core.auth.sync_operations import KolibriSyncOperationMixin
 from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
 from kolibri.core.content.utils.content_request import process_metadata_import
+from kolibri.core.content.utils.content_request import StorageCalculator
 from kolibri.core.content.utils.content_request import synchronize_content_requests
+from kolibri.core.device.models import DeviceStatus
+from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.plugins.hooks import register_hook
@@ -80,8 +83,11 @@ class ContentSyncHook(FacilityDataSyncHook):
         if incomplete_downloads_without_metadata.exists():
             process_metadata_import(incomplete_downloads_without_metadata)
 
-        # TODO: we need determine total space for new downloads and if there isn't sufficient space
-        # save the `LearnerDeviceStatus` with the insufficient storage status
+        calc = StorageCalculator(incomplete_downloads)
+        if calc.free_space < sum([dl.total_size for dl in incomplete_downloads]):
+            LearnerDeviceStatus.save_learner_status(
+                single_user_id, DeviceStatus.InsufficientStorage
+            )
 
         enqueue_automatic_resource_import_if_needed()
 
