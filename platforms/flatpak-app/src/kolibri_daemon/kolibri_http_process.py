@@ -12,6 +12,7 @@ from kolibri_app.globals import KOLIBRI_HOME_PATH
 from .kolibri_service_context import KolibriServiceContext
 from .kolibri_service_context import KolibriServiceProcess
 from .kolibri_utils import init_kolibri
+from .kolibri_utils import kolibri_automatic_provision
 
 logger = logging.getLogger(__name__)
 
@@ -32,6 +33,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
     __kolibri_bus: ProcessBus
 
     class Command(Enum):
+        AUTOMATIC_PROVISION = auto()
         START_KOLIBRI = auto()
         STOP_KOLIBRI = auto()
         SHUTDOWN = auto()
@@ -43,6 +45,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
         self.__command_rx = command_rx
         self.__keep_alive = True
         self.__commands = {
+            self.Command.AUTOMATIC_PROVISION: self.__automatic_provision,
             self.Command.START_KOLIBRI: self.__start_kolibri,
             self.Command.STOP_KOLIBRI: self.__stop_kolibri,
             self.Command.SHUTDOWN: self.__shutdown,
@@ -97,6 +100,9 @@ class KolibriHttpProcess(KolibriServiceProcess):
             raise ValueError("Unknown command '{}'".format(command))
 
         return fn()
+
+    def __automatic_provision(self):
+        kolibri_automatic_provision()
 
     def __start_kolibri(self):
         if _process_bus_has_transition(self.__kolibri_bus, "START"):

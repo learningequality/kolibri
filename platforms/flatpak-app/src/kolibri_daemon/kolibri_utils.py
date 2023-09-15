@@ -7,12 +7,11 @@ import logging
 import os
 import platform
 import shutil
-import typing
+import tempfile
 from gettext import gettext as _
 from pathlib import Path
 
 from kolibri_app.config import KOLIBRI_HOME_TEMPLATE_DIR
-from kolibri_app.globals import APP_DISABLE_AUTOMATIC_PROVISION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
 from .content_extensions_manager import ContentExtensionsManager
@@ -59,14 +58,6 @@ def _init_kolibri_env():
     # workload, we can use a smaller number of threads.
     os.environ.setdefault("KOLIBRI_CHERRYPY_THREAD_POOL", "10")
 
-    # Automatically provision with $KOLIBRI_HOME/automatic_provision.json or a
-    # generated automatic_provision.json if applicable.
-    automatic_provision_path = _get_automatic_provision_path()
-    if automatic_provision_path:
-        os.environ.setdefault(
-            "KOLIBRI_AUTOMATIC_PROVISION_FILE", automatic_provision_path.as_posix()
-        )
-
     content_extensions_manager = ContentExtensionsManager()
     content_extensions_manager.apply(os.environ)
 
@@ -85,21 +76,24 @@ def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
     return True
 
 
-def _get_automatic_provision_path() -> typing.Optional[Path]:
-    path = KOLIBRI_HOME_PATH.joinpath("automatic_provision.json")
+def kolibri_automatic_provision():
+    from kolibri.core.device.utils import device_provisioned
+    from kolibri.core.device.utils import provision_from_file
 
-    if path.is_file():
-        return path
-    elif not APP_DISABLE_AUTOMATIC_PROVISION:
-        # TODO: Only do this if Kolibri does not have a facility configured.
-        with path.open("w") as file:
-            json.dump(_get_automatic_provision_data(), file)
-        return path
-    else:
-        return None
+    if device_provisioned():
+        return
+
+    # It is better to create a TemporaryDirectory containing a file, because
+    # provision_from_file deals with file paths instead of open files, and it
+    # deletes the provided file, which confuses tempfile.NamedTemporaryFile.
+    with tempfile.TemporaryDirectory() as directory:
+        file = Path(directory, "automatic_provision.json").open("w")
+        json.dump(_get_automatic_provision_data(), file)
+        file.flush()
+        provision_from_file(file.name)
 
 
-def _get_automatic_provision_data():
+def _get_automatic_provision_data() -> dict:
     facility_name = _("Kolibri on {host}").format(host=platform.node() or "localhost")
     return {
         "facility_name": facility_name,

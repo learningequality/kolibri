@@ -12,6 +12,7 @@ from gi.repository import KolibriDaemonDBus
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
+from kolibri_app.globals import APP_AUTOMATIC_PROVISION
 
 from .dbus_helpers import DBusManagerProxy
 from .desktop_users import AccountsServiceManager
@@ -571,6 +572,10 @@ class Application(Gio.Application):
     def do_startup(self):
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
+
+        if APP_AUTOMATIC_PROVISION:
+            self.__kolibri_service.automatic_provision()
+
         Gio.Application.do_startup(self)
 
     def do_shutdown(self):
