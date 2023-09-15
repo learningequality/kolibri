@@ -329,8 +329,6 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import client from 'kolibri.client';
-  import urls from 'kolibri.urls';
   import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
@@ -350,17 +348,7 @@
       return {
         tabs: [{ id: '', label: this.$tr('sectionLabel') }],
         isQuestionAvailable: true,
-      };
-    },
-    computed: {
-      noKgridItemPadding() {
-        return {
-          paddingLeft: '0em',
-          paddingRight: '0em',
-        };
-      },
-      placeholderList() {
-        return [
+        placeholderList: [
           {
             id: 1,
             title: 'question 1',
@@ -400,34 +388,28 @@
             visible: false,
             placeholderAnswers: [],
           },
-        ];
+        ],
+      };
+    },
+    computed: {
+      noKgridItemPadding() {
+        return {
+          paddingLeft: '0em',
+          paddingRight: '0em',
+        };
       },
     },
     methods: {
-      postNewOrder(questionIds) {
-        // TO DO  : add an api for reordering a question.
-        return client({
-          url: urls['kolibri:kolibri.plugins.device:devicechannelorder'](),
-          method: 'POST',
-          data: questionIds,
-        });
-        //  please note that the above api was for testing
-      },
       handleOrderChange(event) {
-        const oldArray = [...this.placeholderList];
-
-        this.placeholder = [...event.newArray];
-        this.postNewOrder(event.newArray.map(x => x.id))
-          .then(() => {
-            this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
-          })
-          .catch(() => {
-            this.placeholderList = [];
-            this.$nextTick().then(() => {
-              this.placeholderList = oldArray;
-            });
-            this.$store.dispatch('createSnackbar', this.$tr('failureNotification'));
-          });
+        const reorderedList = event.newArray.map(x => {
+          if (x.isPlaceholder) {
+            return this.placeholderList.find(item => item.id === x.id);
+          }
+          return x;
+        });
+        this.placeholderList = reorderedList;
+        localStorage.setItem('reorderedList', JSON.stringify(reorderedList));
+        this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
       },
       shiftOne(index, delta) {
         const newArray = [...this.placeholderList];
@@ -499,10 +481,6 @@
       successNotification: {
         message: 'Question order saved',
         context: 'Success message shown when the admin re-orders question',
-      },
-      failureNotification: {
-        message: 'There was a problem reordering the question',
-        context: 'Error message that displays if there is a problem reordering question.',
       },
     },
   };
