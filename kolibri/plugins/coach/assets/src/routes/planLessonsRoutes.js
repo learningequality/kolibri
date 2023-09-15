@@ -40,8 +40,8 @@ export default [
     name: LessonsPageNames.PLAN_LESSONS_ROOT,
     path: path(CLASS, ALL_LESSONS),
     component: LessonsRootPage,
-    handler(toRoute) {
-      if (classIdParamRequiredGuard(toRoute, 'PLAN_PAGE')) {
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, 'PLAN_PAGE', next)) {
         return;
       }
       showLessonsRootPage(store, toRoute.params.classId);
