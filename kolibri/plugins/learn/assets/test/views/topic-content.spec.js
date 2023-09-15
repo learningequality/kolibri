@@ -246,7 +246,7 @@ describe('TopicsContentPage', () => {
           const addDownloadRequest = jest.fn();
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              downloadRequestMap: { downloads: {} },
+              downloadRequestMap: {},
               addDownloadRequest,
             })
           );
