@@ -10,6 +10,7 @@ export function classIdParamRequiredGuard(toRoute, subtopicName, next) {
       name: redirectPage,
       params: { subtopicName },
     });
+    store.commit('CORE_SET_PAGE_LOADING', false);
     return true;
   }
 }
