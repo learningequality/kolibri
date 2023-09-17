@@ -71,6 +71,7 @@
         createFacility(payload)
           .then(() => {
             this.$emit('success');
+            this.showSnackbarNotification('newLearningFacilityCreated');
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', error);

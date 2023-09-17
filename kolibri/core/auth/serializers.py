@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.validators import MinLengthValidator
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -144,6 +145,17 @@ class CreateFacilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = Facility
         fields = ("id", "name", "preset")
+
+    def create(self, validated_data):
+        with transaction.atomic():
+            facility_dataset = FacilityDataset.objects.create(
+                preset=validated_data.get("preset")
+            )
+            facility = Facility.objects.create(
+                name=validated_data.get("name"), dataset=facility_dataset
+            )
+            facility.dataset.reset_to_default_settings(validated_data.get("preset"))
+        return facility
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):
