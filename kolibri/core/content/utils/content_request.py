@@ -969,8 +969,7 @@ class StorageCalculator:
         ).annotate(
             total_size=_total_size_annotation(available=True),
         )
-
-        self._calculate_space_available()
+        self.free_space = 0
 
     def _calculate_space_available(self):
         free_space = get_free_space_for_downloads(
@@ -984,4 +983,5 @@ class StorageCalculator:
         self.free_space = free_space
 
     def is_space_sufficient(self):
+        self._calculate_space_available()
         return self.free_space > _total_size(self.incomplete_downloads)
