@@ -39,6 +39,9 @@
       };
     },
     computed: {
+      quizRootRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
+      },
       panel() {
         return pageNameComponentMap[this.$route.name];
       },

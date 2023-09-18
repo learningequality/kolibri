@@ -455,6 +455,10 @@
     text-align: left;
   }
 
+    margin-bottom: -8px;
+    text-align: left;
+  }
+
   .options-button {
     width: 36px !important;
     height: 36px !important;

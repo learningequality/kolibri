@@ -113,6 +113,7 @@ export default () => {
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
+    setActiveSection(newSection.section_id);
     return newSection;
   }
 
