@@ -982,3 +982,6 @@ class StorageCalculator:
         free_space += _total_size(self.complete_user_downloads)
 
         self.free_space = free_space
+
+    def is_space_sufficient(self):
+        return self.free_space > _total_size(self.incomplete_downloads)
