@@ -43,10 +43,39 @@
         :layout12="{ span: 10 }"
         :style="noKgridItemPadding"
       >
-        <KTabs
+        <KTabsList
           tabsId="quizSectionTabs"
+          :appearanceOverrides="{ padding: '0px' }"
+          :activeTabId="quizForge.activeSection && quizForge.activeSection.value.section_id"
+          backgroundColor="transparent"
+          hoverBackgroundColor="transparent"
           :tabs="tabs"
-        />
+        >
+          <template #tab="{ tab, isActive }">
+            <KButton
+              appearance="flat-button"
+              :appearanceOverrides="tabStyles"
+              @click="() => quizForge.setActiveSection(tab.id)"
+            >
+              {{ tab.label }}
+            </KButton>
+            <KIconButton
+              icon="optionsVertical"
+              class="options-button"
+              @click="() => null"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="sectionOptions"
+                  @select="opt => handleSectionOptionSelect(opt, tab.id, isActive)"
+                />
+              </template>
+            </KIconButton>
+          </template>
+        </KTabsList>
       </KGridItem>
 
       <KGridItem
@@ -291,6 +320,10 @@
     <div
       v-else
       class="no-question-layout"
+    <KTabsPanel
+      class="no-question-layout"
+      tabsId="quizSectionTabs"
+      :activeTabId="quizForge.activeSection.value.section_id"
     >
 
       <div class="question-mark-layout">
@@ -311,7 +344,7 @@
       </KButton>
 
 
-    </div>
+    </KTabsPanel>
 
   </div>
 
@@ -352,10 +385,51 @@
       tabs() {
         return get(this.quizForge.allSections).map((section, index) => {
           const id = section.section_id;
+          // TODO The "Section N" label should probably be set directly on the Section object
+          // at creation rather than this
           const label = section.section_title ? section.section_title : `Section ${index + 1}`;
 
           return { id, label };
         });
+      },
+      tabStyles() {
+        return {
+          margin: '0px',
+        };
+      },
+      sectionOptions() {
+        return [
+          {
+            // TODO This should be a $tr
+            label: 'Edit',
+            icon: 'edit',
+          },
+          {
+            // TODO This should be a $tr
+            label: 'Delete',
+            icon: 'delete',
+          },
+        ];
+      },
+    },
+    methods: {
+      handleSectionOptionSelect({ label }, section_id, isActive) {
+        switch (label) {
+          case 'Edit':
+            console.log('Edit');
+            this.$router.replace({ path: 'new/' + section_id + '/edit' });
+            break;
+          case 'Delete':
+            console.log('Delete');
+            if (isActive) {
+              if (get(this.quizForge.inactiveSections).length > 0) {
+                console.log('inactivesectwdatdgat');
+                this.quizForge.setActiveSection(get(this.quizForge.inactiveSections)[0].section_id);
+              }
+            }
+            this.quizForge.removeSection(section_id);
+            break;
+        }
       },
     },
     methods: {
@@ -598,6 +672,15 @@
   .limit-height {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
+    margin-bottom: -8px;
+    text-align: left;
+  }
+
+  .options-button {
+    width: 36px !important;
+    height: 36px !important;
+    margin: 0;
+    border-radius: 0 !important;
   }
 
 </style>

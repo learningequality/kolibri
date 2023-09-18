@@ -113,6 +113,7 @@ export default () => {
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
+    setActiveSection(newSection.section_id);
     return newSection;
   }
 
@@ -123,6 +124,12 @@ export default () => {
     const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
     if (updatedSections.length === get(allSections).length) {
       throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+    }
+    if (!updatedSections.length) {
+      console.log('Deleting last section...');
+      // Here, if they are removing the last section, we create a new one and basically just replace
+      // the removed one with a new empty section
+      addSection();
     }
     updateQuiz({ question_sources: updatedSections });
   }
@@ -240,6 +247,10 @@ export default () => {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
+  /** @type {Arrayc<ComputedRef<QuizSection>>} The inactive sections */
+  const inactiveSections = computed(() =>
+    get(allSections).filter(s => s.section_id !== get(_activeSectionId))
+  );
   /** @type {ComputedRef<QuizResource[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
   /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
@@ -279,6 +290,7 @@ export default () => {
     quiz,
     allSections,
     activeSection,
+    inactiveSections,
     activeExercisePool,
     activeQuestionsPool,
     activeQuestions,

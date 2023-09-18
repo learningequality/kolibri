@@ -5,7 +5,7 @@
     ref="resourcePanel"
     alignment="right"
     :closeButtonIconType="closeIcon"
-    @closePanel="$router.back()"
+    @closePanel="$router.replace(quizRootRoute)"
     @shouldFocusFirstEl="findFirstEl()"
   >
     <component :is="panel" :ref="$route.name" />
@@ -32,6 +32,9 @@
     name: 'SectionSidePanel',
     components: { SidePanelModal, SectionEditor, ReplaceQuestions, ResourceSelection },
     computed: {
+      quizRootRoute() {
+        return { name: PageNames.EXAM_CREATION_ROOT };
+      },
       panel() {
         return pageNameComponentMap[this.$route.name];
       },
