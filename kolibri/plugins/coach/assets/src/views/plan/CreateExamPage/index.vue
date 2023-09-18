@@ -8,6 +8,17 @@
     :pageTitle="$tr('createNewExamLabel')"
     :route="toolbarRoute"
   >
+    <KRouterLink
+      appearance="raised-button"
+      :to="{ path: 'new/123/edit' }"
+      text="Test Section Editor"
+    />
+
+    <KRouterLink
+      appearance="raised-button"
+      :to="{ path: 'new/123/replace-questions' }"
+      text="Test Replace Questions"
+    />
 
     <UiAlert
       v-if="showError && !inSearchMode"
@@ -125,6 +136,8 @@
 
     </KPageContainer>
 
+    <SectionSidePanel />
+
   </CoachImmersivePage>
 
 </template>
@@ -152,11 +165,13 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon';
   import CreateQuizSection from './CreateQuizSection.vue';
+  import SectionSidePanel from './SectionSidePanel.vue';
 
   export default {
     // TODO: Rename this to 'ExamCreationPage'
     name: 'CreateExamPage',
     components: {
+      SectionSidePanel,
       UiAlert,
       CoachImmersivePage,
       // LessonsSearchBox,
