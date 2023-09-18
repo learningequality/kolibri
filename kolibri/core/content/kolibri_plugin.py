@@ -84,7 +84,7 @@ class ContentSyncHook(FacilityDataSyncHook):
             process_metadata_import(incomplete_downloads_without_metadata)
 
         calc = StorageCalculator(incomplete_downloads)
-        if not calc.is_space_sufficient():
+        if local_is_single_user and not calc.is_space_sufficient():
             LearnerDeviceStatus.save_learner_status(
                 single_user_id, DeviceStatus.InsufficientStorage
             )
