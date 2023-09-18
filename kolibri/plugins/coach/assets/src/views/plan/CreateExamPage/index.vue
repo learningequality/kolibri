@@ -6,25 +6,28 @@
     authorizedRole="adminOrCoach"
     icon="close"
     :pageTitle="$tr('createNewExamLabel')"
-    :route="$router.back()"
+    :route="backRoute"
   >
-    <KRouterLink
-      appearance="raised-button"
-      :to="{ path: 'new/123/edit' }"
-      text="Test Section Editor"
-    />
-
-    <KRouterLink
-      appearance="raised-button"
-      :to="{ path: 'new/123/replace-questions' }"
-      text="Test Replace Questions"
-    />
 
     <KPageContainer
       :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
     >
 
       <CreateQuizSection />
+      <!-- These buttons & br don't belong here but are here for testing purposes -->
+      <KButtonGroup style="margin-top: 1em auto;">
+        <KRouterLink
+          appearance="raised-button"
+          :to="{ path: 'new/123/edit' }"
+          text="Test Section Editor"
+        />
+
+        <KRouterLink
+          appearance="raised-button"
+          :to="{ path: 'new/123/replace-questions' }"
+          text="Test Replace Questions"
+        />
+      </KButtonGroup>
 
       <BottomAppBar>
         <KButtonGroup>
@@ -51,6 +54,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
@@ -63,7 +67,6 @@
     name: 'CreateExamPage',
     components: {
       SectionSidePanel,
-      UiAlert,
       CoachImmersivePage,
       BottomAppBar,
       CreateQuizSection,
@@ -89,6 +92,9 @@
     computed: {
       maxContainerHeight() {
         return { maxHeight: '1000px' };
+      },
+      backRoute() {
+        return { name: PageNames.EXAMS };
       },
     },
     watch: {
