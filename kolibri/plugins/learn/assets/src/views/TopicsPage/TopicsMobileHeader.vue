@@ -9,9 +9,9 @@
       :layout4="{ span: 3 }"
     >
       <h1 class="mobile-title" data-test="mobile-title">
-        <TextTruncator
+        <TextTruncatorCss
           :text="topic.title"
-          :maxHeight="110"
+          :maxLines="2"
         />
       </h1>
     </KGridItem>
@@ -30,11 +30,11 @@
 
 <script>
 
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
 
   export default {
     name: 'TopicsMobileHeader',
-    components: { TextTruncator },
+    components: { TextTruncatorCss },
     props: {
       topic: {
         type: Object,
