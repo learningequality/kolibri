@@ -34,7 +34,7 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: pip cache
       uses: actions/cache@v3
       with:
@@ -74,7 +74,7 @@ jobs:
       run:
         shell: bash
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: pip cache
       uses: actions/cache@v3
       with:

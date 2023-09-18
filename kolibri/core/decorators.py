@@ -205,7 +205,7 @@ class ParamValidator(object):
             self.default = value
 
         elif suffix == "field":
-            if not isinstance(suffix, str):
+            if not isinstance(suffix, string_types):
                 raise AssertionError
             self.field = value
         else:

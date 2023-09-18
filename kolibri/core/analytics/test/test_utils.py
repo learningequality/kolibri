@@ -25,13 +25,14 @@ from kolibri.core.auth.constants import demographics
 from kolibri.core.auth.constants import facility_presets
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.auth.test.helpers import create_superuser
+from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
 from kolibri.core.exams.models import Exam
 from kolibri.core.lessons.models import Lesson
@@ -62,6 +63,7 @@ class BaseDeviceSetupMixin(object):
 
     def setUp(self):
         super(BaseDeviceSetupMixin, self).setUp()
+        clear_process_cache()
         # create dummy channel
         channel_id = uuid.uuid4().hex
         root = ContentNode.objects.create(
@@ -220,7 +222,7 @@ class BaseDeviceSetupMixin(object):
 
     def tearDown(self):
         super(BaseDeviceSetupMixin, self).tearDown()
-        DeviceSettings.objects.all().delete()
+        DeviceSettings.objects.delete()
 
 
 class FacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):

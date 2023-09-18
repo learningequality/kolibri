@@ -4,7 +4,7 @@
     <p>
       <BackLink
         v-if="classListPageEnabled || userIsMultiFacilityAdmin"
-        :to="$router.getRoute('HomePage')"
+        :to="$router.getRoute('HomePage', { classId: this.$route.params.classId })"
         :text="coreString('classHome')"
       />
     </p>

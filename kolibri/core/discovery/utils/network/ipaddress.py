@@ -64,7 +64,7 @@ def _is_ascii(string):
 
 
 def _is_number(x):
-    return str(x).isdigit() if not isinstance(x, str) else False
+    return str(x).isdigit() if not isinstance(x, six.string_types) else False
 
 
 def _to_bytes(n, length=1, byteorder="big"):

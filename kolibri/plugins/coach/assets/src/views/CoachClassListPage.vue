@@ -43,7 +43,7 @@
               <td>
                 <KRouterLink
                   :text="classObj.name"
-                  :to="$router.getRoute('HomePage', { classId: classObj.id })"
+                  :to="$router.getRoute(getNextPageName, { classId: classObj.id })"
                   icon="classes"
                 />
               </td>
@@ -78,6 +78,13 @@
       CoachAppBarPage,
     },
     mixins: [commonCoach, commonCoreStrings],
+    props: {
+      subtopicName: {
+        type: String,
+        required: false,
+        default: null,
+      },
+    },
     computed: {
       ...mapGetters(['isAdmin', 'isClassCoach', 'isFacilityCoach', 'userIsMultiFacilityAdmin']),
       ...mapState(['classList', 'dataLoading']),
@@ -99,16 +106,20 @@
         const facilityUrl = urls['kolibri:kolibri.plugins.facility:facility_management'];
         if (facilityUrl) {
           if (this.userIsMultiFacilityAdmin) {
-            return `${facilityUrl()}#/${this.$route.query.facility_id}/classes`;
+            return `${facilityUrl()}#/${this.$route.params.facility_id}/classes`;
           }
           return facilityUrl();
         }
 
         return '';
       },
+      getNextPageName() {
+        return this.subtopicName || 'HomePage';
+      },
       appBarTitle() {
         let facilityName;
-        const { facility_id } = this.$route.query;
+        const { facility_id } = this.$route.params;
+
         if (facility_id) {
           const match = find(this.$store.state.core.facilities, { id: facility_id }) || {};
           facilityName = match.name;

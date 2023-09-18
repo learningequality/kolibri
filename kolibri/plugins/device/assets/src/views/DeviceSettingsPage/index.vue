@@ -344,6 +344,7 @@
 
 <script>
 
+  import store from 'kolibri.coreVue.vuex.store';
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
@@ -360,6 +361,7 @@
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
+  import { showDeviceInfoPage } from '../../modules/deviceInfo/handlers';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -536,6 +538,9 @@
         }
       },
       deviceIsAndroid() {
+        if (this.deviceInfo === undefined) {
+          showDeviceInfoPage(store);
+        }
         if (this.getDeviceOS === undefined) {
           return true;
         }

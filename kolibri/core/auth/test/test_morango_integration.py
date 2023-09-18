@@ -464,7 +464,13 @@ class EcosystemTestCase(TestCase):
             Exam,
             title=exam_title,
             question_count=1,
-            question_sources=["a"],
+            question_sources=[
+                {
+                    "exercise_id": uuid.uuid4().hex,
+                    "question_id": uuid.uuid4().hex,
+                    "title": "a",
+                }
+            ],
             collection_id=classroom_id,
             creator_id=alto_user.id,
             active=True,
@@ -1018,7 +1024,13 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
                 Exam,
                 title=title,
                 question_count=1,
-                question_sources=["a"],
+                question_sources=[
+                    {
+                        "exercise_id": uuid.uuid4().hex,
+                        "question_id": uuid.uuid4().hex,
+                        "title": "a",
+                    }
+                ],
                 collection_id=self.classroom.id,
                 creator_id=self.teacher.id,
                 active=True,
@@ -1034,7 +1046,13 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
             self.laptop_a.create_model(
                 Lesson,
                 title=title,
-                resources=["a"],
+                resources=[
+                    {
+                        "contentnode_id": uuid.uuid4().hex,
+                        "content_id": uuid.uuid4().hex,
+                        "channel_id": uuid.uuid4().hex,
+                    }
+                ],
                 collection_id=self.classroom.id,
                 created_by_id=self.teacher.id,
                 is_active=True,

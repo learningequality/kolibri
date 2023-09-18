@@ -11,7 +11,7 @@ from ..models import FacilityUser
 from ..models import LearnerGroup
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.device.models import DevicePermissions
-from kolibri.core.device.utils import provision_device  # noqa
+from kolibri.core.device.utils import provision_device as _provision_device  # noqa
 
 DUMMY_PASSWORD = "password"
 
@@ -22,6 +22,11 @@ def clear_process_cache():
         process_cache.clear()
     except InvalidCacheBackendError:
         pass
+
+
+def provision_device(*args, **kwargs):
+    clear_process_cache()
+    return _provision_device(*args, **kwargs)
 
 
 def create_superuser(facility, username="superuser"):

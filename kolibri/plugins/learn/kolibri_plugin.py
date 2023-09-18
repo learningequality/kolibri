@@ -11,6 +11,7 @@ from kolibri.core.device.utils import allow_learner_unassigned_resource_access
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page
 from kolibri.core.device.utils import LANDING_PAGE_LEARN
+from kolibri.core.discovery.hooks import NetworkLocationBroadcastHook
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
@@ -58,17 +59,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 
     @property
     def plugin_data(self):
-        from kolibri.core.content.utils.search import get_all_contentnode_label_metadata
-        from kolibri.core.content.api import ChannelMetadataViewSet
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_URL
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
-        channel_viewset = ChannelMetadataViewSet()
-
-        channels = channel_viewset.serialize(
-            channel_viewset.get_queryset().filter(root__available=True)
-        )
-        label_metadata = get_all_contentnode_label_metadata()
         return {
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerDownloads": get_device_setting(
@@ -78,13 +71,6 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
             "enableCustomChannelNav": conf.OPTIONS["Learn"][
                 "ENABLE_CUSTOM_CHANNEL_NAV"
             ],
-            "categories": label_metadata["categories"],
-            "learningActivities": label_metadata["learning_activities"],
-            "languages": label_metadata["languages"],
-            "channels": channels,
-            "gradeLevels": label_metadata["grade_levels"],
-            "accessibilityLabels": label_metadata["accessibility_labels"],
-            "learnerNeeds": label_metadata["learner_needs"],
             "studioDevice": {
                 "base_url": CENTRAL_CONTENT_BASE_URL,
                 "instance_id": CENTRAL_CONTENT_BASE_INSTANCE_ID,
@@ -116,26 +102,37 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
             )
 
 
-def _learner_ids():
-    from kolibri.core.auth.models import FacilityUser
+class DiscoveryHookMixin(object):
+    def _learner_ids(self):
+        """
+        :return: A list of all learner ids
+        :rtype: str[]
+        """
+        from kolibri.core.auth.models import FacilityUser
 
-    return FacilityUser.objects.all().values_list("id", flat=True)
+        return FacilityUser.objects.all().values_list("id", flat=True)
 
-
-@register_hook
-class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
-    def on_connect(self, network_location):
+    def _begin_request_soud_sync(self, network_location):
         """
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
         from kolibri.core.auth.tasks import begin_request_soud_sync
 
+        for user_id in self._learner_ids():
+            begin_request_soud_sync(network_location.base_url, user_id)
+
+
+@register_hook
+class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook, DiscoveryHookMixin):
+    def on_connect(self, network_location):
+        """
+        :type network_location: kolibri.core.discovery.models.NetworkLocation
+        """
         if (
-            get_device_setting("subset_of_users_device", default=False)
+            get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device
         ):
-            for user_id in _learner_ids():
-                begin_request_soud_sync(network_location.base_url, user_id)
+            self._begin_request_soud_sync(network_location)
 
     def on_disconnect(self, network_location):
         """
@@ -144,11 +141,32 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
         from kolibri.core.auth.tasks import stop_request_soud_sync
 
         if (
-            get_device_setting("subset_of_users_device", default=False)
+            get_device_setting("subset_of_users_device")
             and not network_location.subset_of_users_device
         ):
-            for user_id in _learner_ids():
+            for user_id in self._learner_ids():
                 stop_request_soud_sync(network_location.base_url, user_id)
+
+
+@register_hook
+class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook, DiscoveryHookMixin):
+    """
+    This hook is used to hook into the broadcast of the SoUD status of this device to other
+    devices on the network. So when this device is updated, possibly to SoUD, it will
+    enqueue SoUD syncs to all other non-SoUD devices on the network.
+    """
+
+    def on_renew(self, instance, network_locations):
+        """
+        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+        :type network_locations: kolibri.core.discovery.models.NetworkLocation[]
+        """
+        if not get_device_setting("subset_of_users_device"):
+            return
+
+        for network_location in network_locations:
+            if not network_location.subset_of_users_device:
+                self._begin_request_soud_sync(network_location)
 
 
 @register_hook

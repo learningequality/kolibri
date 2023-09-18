@@ -524,11 +524,27 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         content_dir=None,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
+        """
+        :param channel_id: A hex UUID string
+        :type channel_id: str
+        :param peer: A NetworkLocation model object
+        :type peer: NetworkLocation
+        :param download_request: A ContentDownloadRequest model object
+        :type download_request: ContentDownloadRequest
+        :param renderable_only: Whether to only import renderable content
+        :type renderable_only: bool
+        :param fail_on_error: Whether to fail on import errors
+        :type fail_on_error: bool
+        :param content_dir: The directory to download content to
+        :type content_dir: str
+        :param timeout: The timeout for the download request
+        :type timeout: int
+        """
         super(ContentDownloadRequestResourceImportManager, self).__init__(
             channel_id,
             peer_id=peer.id,
-            baseurl=peer.baseurl,
-            node_ids=[download_request.node_id],
+            baseurl=peer.base_url,
+            node_ids=[download_request.contentnode_id],
             exclude_node_ids=None,
             renderable_only=renderable_only,
             fail_on_error=fail_on_error,
@@ -554,7 +570,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         node = ContentNode.objects.get(pk=self.download_request.contentnode_id)
         if self.peer.id != CENTRAL_CONTENT_BASE_INSTANCE_ID:
             required_checksums = (
-                node.files()
+                node.files.all()
                 .filter(supplementary=False)
                 .values_list("local_file_id", flat=True)
             )
@@ -562,9 +578,10 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                 try:
                     response = client.post(
                         reverse_path(
-                            "get_public_file_checksums", kwargs={"version": "1"}
+                            "kolibri:core:get_public_file_checksums",
+                            kwargs={"version": "v1"},
                         ),
-                        data=required_checksums,
+                        json=list(required_checksums),
                     )
                     integer_mask = int(response.content)
 
@@ -573,13 +590,16 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
                     )
 
                     if integer_mask != expected_mask:
-                        raise ValueError
+                        raise ValueError("Checksums do not match")
                 except (
                     ValueError,
                     TypeError,
                     NetworkLocationResponseFailure,
                     NetworkLocationResponseTimeout,
-                ):
+                ) as e:
+                    logging.debug(
+                        "Failed to retrieve or validate checksums: {}".format(e)
+                    )
                     # Bad JSON parsing will throw ValueError
                     # If the result of the json.loads is not iterable, a TypeError will be thrown
                     # If we end up here, just set checksums to None to allow us to cleanly continue
