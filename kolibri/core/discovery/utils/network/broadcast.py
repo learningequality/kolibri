@@ -1,6 +1,7 @@
 import json
 import logging
 import socket
+import time
 import uuid
 
 from magicbus.base import Bus
@@ -80,6 +81,7 @@ class KolibriInstance(object):
         "device_info",
         "service_info",
         "prefix",
+        "last_seen",
     )
 
     def __init__(
@@ -99,6 +101,22 @@ class KolibriInstance(object):
         self.is_self = False
         self.service_info = None
         self.prefix = prefix
+        self.last_seen = time.time()
+
+    def __eq__(self, other):
+        if self.id != other.id:
+            return False
+        if self.ip != other.ip:
+            return False
+        if self.port != other.port:
+            return False
+        if self.host != other.host:
+            return False
+        if self.device_info != other.device_info:
+            return False
+        if self.prefix != other.prefix:
+            return False
+        return True
 
     @property
     def name(self):
@@ -580,6 +598,16 @@ class KolibriBroadcast(object):
 
         instance = self._build_instance(service_info)
         if not instance.is_self:
+            if name in self.other_instances:
+                # if we already have the instance in our cache, we should check to
+                # see if we actually have any updated information. If not, we can
+                # just ignore the update
+                current_instance = self.other_instances[name]
+                if (
+                    current_instance == instance
+                    and instance.last_seen - current_instance.last_seen < SERVICE_TTL
+                ):
+                    return
             self.other_instances[name] = instance
             logger.info(
                 "Kolibri instance '%s' updated zeroconf network; device info: %s"
