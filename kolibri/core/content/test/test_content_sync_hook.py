@@ -17,10 +17,8 @@ class KolibriContentSyncHookTestCase(IncompleteDownloadsQuerysetTestCase):
 
     @mock.patch("kolibri.core.device.models.LearnerDeviceStatus.save_learner_status")
     @mock.patch("kolibri.core.content.utils.content_request.StorageCalculator")
-    @mock.patch("kolibri.core.content.kolibri_plugin.ContentSyncHook")
     def test_post_transfer_sets_insufficient_storage(
         self,
-        mock_hook,
         mock_calc,
         mock_save_learner_status,
     ):
@@ -33,10 +31,8 @@ class KolibriContentSyncHookTestCase(IncompleteDownloadsQuerysetTestCase):
                 return_value=0,
             ):
                 self._create_resources(self.admin_request.contentnode_id)
-                mock_hook.post_transfer = lambda *args: ContentSyncHook.post_transfer(
-                    mock_hook, *args
-                )
-                mock_hook.post_transfer(
+                hook = ContentSyncHook()
+                hook.post_transfer(
                     self.facility.dataset_id,
                     True,
                     True,
