@@ -1,5 +1,7 @@
 import logging
 
+from kolibri.core.device.utils import get_device_setting
+from kolibri.core.discovery.models import DynamicNetworkLocation
 from kolibri.core.discovery.tasks import add_dynamic_network_location
 from kolibri.core.discovery.tasks import dispatch_broadcast_hooks
 from kolibri.core.discovery.tasks import generate_job_id
@@ -8,6 +10,7 @@ from kolibri.core.discovery.tasks import reset_connection_states
 from kolibri.core.discovery.tasks import TYPE_ADD
 from kolibri.core.discovery.tasks import TYPE_REMOVE
 from kolibri.core.discovery.utils.network.broadcast import KolibriInstanceListener
+from kolibri.core.tasks.job import Priority
 
 logger = logging.getLogger(__name__)
 
@@ -41,9 +44,25 @@ class NetworkLocationListener(KolibriInstanceListener):
         """
         :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
         """
+        priority = Priority.REGULAR
+        is_current_device_lod = get_device_setting("subset_of_users_device")
+        discovered_device = DynamicNetworkLocation.objects.filter(
+            broadcast_id=self.broadcast.id
+        ).first()
+
+        # If the current device is not an LOD,
+        # OR
+        # the current device is an LOD and the discovered device is not an LOD,
+        # then enqueue with high priority.
+        if (not is_current_device_lod) or (
+            is_current_device_lod and not discovered_device.subset_of_users_device
+        ):
+            priority = Priority.HIGH
+
         add_dynamic_network_location.enqueue(
             job_id=generate_job_id(TYPE_ADD, self.broadcast.id, instance.id),
             args=(self.broadcast.id, instance.to_dict()),
+            priority=priority,
         )
 
     def update_instance(self, instance):
