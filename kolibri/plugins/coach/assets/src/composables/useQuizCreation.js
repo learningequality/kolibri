@@ -113,7 +113,6 @@ export default () => {
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
-    setActiveSection(newSection.section_id);
     return newSection;
   }
 
@@ -125,11 +124,12 @@ export default () => {
     if (updatedSections.length === get(allSections).length) {
       throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
     }
-    if (!updatedSections.length) {
+    if (updatedSections.length === 0) {
       console.log('Deleting last section...');
-      // Here, if they are removing the last section, we create a new one and basically just replace
-      // the removed one with a new empty section
-      addSection();
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+    } else {
+      setActiveSection(get(updatedSections)[0].section_id);
     }
     updateQuiz({ question_sources: updatedSections });
   }
