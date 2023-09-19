@@ -38,7 +38,7 @@ class NetworkLocationListenerTestCase(TransactionTestCase):
         mock_enqueue.assert_called_once_with(
             job_id="9e89d3ea5256721c9cd631eac36feafe",
             args=(self.mock_broadcast.id, self.instance.to_dict()),
-            priority=Priority.HIGH
+            priority=Priority.HIGH,
         )
 
     @mock.patch(SEARCH_MODULE + "add_dynamic_network_location.enqueue")
@@ -47,6 +47,7 @@ class NetworkLocationListenerTestCase(TransactionTestCase):
         mock_enqueue.assert_called_once_with(
             job_id="9e89d3ea5256721c9cd631eac36feafe",
             args=(self.mock_broadcast.id, self.instance.to_dict()),
+            priority=Priority.HIGH,
         )
 
     @mock.patch(SEARCH_MODULE + "remove_dynamic_network_location.enqueue")

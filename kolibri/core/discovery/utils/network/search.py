@@ -38,10 +38,7 @@ class NetworkLocationListener(KolibriInstanceListener):
         # when we stop broadcasting, enqueue task to reset all connection states
         reset_connection_states.enqueue(args=(self.broadcast.id,))
 
-    def add_instance(self, instance):
-        """
-        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
-        """
+    def _get_dynamic_network_location_task_priority(self, instance):
         priority = Priority.REGULAR
         is_current_device_lod = self.broadcast.instance.device_info.get(
             "subset_of_users_device"
@@ -56,6 +53,13 @@ class NetworkLocationListener(KolibriInstanceListener):
             is_current_device_lod and not is_discovered_device_lod
         ):
             priority = Priority.HIGH
+        return priority
+
+    def add_instance(self, instance):
+        """
+        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+        """
+        priority = self._get_dynamic_network_location_task_priority(instance)
 
         add_dynamic_network_location.enqueue(
             job_id=generate_job_id(TYPE_ADD, self.broadcast.id, instance.id),
@@ -69,9 +73,12 @@ class NetworkLocationListener(KolibriInstanceListener):
         """
         # enqueue as 'add' because update event could fire immediately after 'add', so this dedupes
         # the tasks, and it also doesn't do anything differently anyway
+        priority = self._get_dynamic_network_location_task_priority(instance)
+
         add_dynamic_network_location.enqueue(
             job_id=generate_job_id(TYPE_ADD, self.broadcast.id, instance.id),
             args=(self.broadcast.id, instance.to_dict()),
+            priority=priority,
         )
 
     def remove_instance(self, instance):
