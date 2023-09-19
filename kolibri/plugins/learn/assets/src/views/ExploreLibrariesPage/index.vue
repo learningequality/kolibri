@@ -110,6 +110,7 @@
       return {
         loading: false,
         moreDevices: 0,
+        deviceChannelsMap: {},
         usersPins: [],
       };
     },
@@ -124,8 +125,7 @@
         return this.moreDevices < this.unpinnedDevices?.length;
       },
       networkDevicesWithChannels() {
-        console.log('network devices', Object.values(this.networkDevices));
-        return Object.values(this.networkDevices)
+        return Object.values(this.deviceChannelsMap)
           .filter(device => device.channels?.length > 0)
           .sort((a, b) => {
             if (a.instance_id === this.studioId) {
@@ -200,7 +200,7 @@
         const promises = [];
         currentDevice = this.networkDevices[key];
         // does the device id already have channel data associated with it?
-        if (!currentDevice.channels) {
+        if (!this.deviceChannelsMap[currentDevice.instance_id]) {
           const baseurl = currentDevice.base_url;
           const promise = this.fetchChannels({ baseurl }).then(channels => {
             this.updateDeviceChannels(currentDevice, channels);
@@ -224,7 +224,7 @@
           channels: channels.slice(0, 4),
           total_count: channels.length,
         };
-        this.$set(this.networkDevices, device.instance_id, updatedDevice);
+        this.deviceChannelsMap[device.instance_id] = updatedDevice;
       },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {
