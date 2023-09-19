@@ -69,6 +69,7 @@
   import find from 'lodash/find';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import urls from 'kolibri.urls';
+  import { PageNames } from '../constants';
   import CoachAppBarPage from './CoachAppBarPage';
   import commonCoach from './common';
 
@@ -114,7 +115,7 @@
         return '';
       },
       getNextPageName() {
-        return this.subtopicName || 'HomePage';
+        return this.subtopicName || PageNames.HOME_PAGE;
       },
       appBarTitle() {
         let facilityName;

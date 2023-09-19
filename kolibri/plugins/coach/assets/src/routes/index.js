@@ -58,8 +58,8 @@ export default [
     name: PageNames.HOME_PAGE,
     path: '/:classId?/home',
     component: HomePage,
-    handler: toRoute => {
-      if (classIdParamRequiredGuard(toRoute, HomePage.name)) {
+    handler: (toRoute, fromRoute, next) => {
+      if (classIdParamRequiredGuard(toRoute, HomePage.name, next)) {
         return;
       }
       store.dispatch('notLoading');
