@@ -47,7 +47,7 @@ class NetworkLocationListener(KolibriInstanceListener):
         priority = Priority.REGULAR
         is_current_device_lod = get_device_setting("subset_of_users_device")
         discovered_device = DynamicNetworkLocation.objects.filter(
-            broadcast_id=self.broadcast.id
+            broadcast_id=self.broadcast.id, pk=instance.zeroconf_id
         ).first()
 
         # If the current device is not an LOD,
