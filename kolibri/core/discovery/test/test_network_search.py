@@ -3,7 +3,7 @@ from django.test import TransactionTestCase
 
 from ..utils.network.broadcast import KolibriInstance
 from ..utils.network.search import NetworkLocationListener
-
+from kolibri.core.tasks.job import Priority
 
 MOCK_INTERFACE_IP = "111.222.111.222"
 MOCK_PORT = 555
@@ -38,6 +38,7 @@ class NetworkLocationListenerTestCase(TransactionTestCase):
         mock_enqueue.assert_called_once_with(
             job_id="9e89d3ea5256721c9cd631eac36feafe",
             args=(self.mock_broadcast.id, self.instance.to_dict()),
+            priority=Priority.HIGH
         )
 
     @mock.patch(SEARCH_MODULE + "add_dynamic_network_location.enqueue")
