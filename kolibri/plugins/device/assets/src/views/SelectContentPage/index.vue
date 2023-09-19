@@ -173,7 +173,7 @@
         return title;
       },
       backRoute() {
-        return { name: ContentWizardPages.AVAILABLE_CHANNELS };
+        return { name: PageNames.MANAGE_CONTENT_PAGE };
       },
       channelId() {
         return this.$route.params.channel_id;
