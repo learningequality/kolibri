@@ -326,6 +326,8 @@
       :activeTabId="quizForge.activeSection.value.section_id"
     >
 
+      <h1>{{ quizForge.activeSection.value.section_id }}</h1>
+      <!-- TODO This should be a separate component like "empty section container" or something -->
       <div class="question-mark-layout">
         <span class="help-icon-style">?</span>
       </div>
@@ -342,6 +344,7 @@
       >
         {{ $tr('addQuestion') }}
       </KButton>
+      <!-- END TODO -->
 
 
     </KTabsPanel>
