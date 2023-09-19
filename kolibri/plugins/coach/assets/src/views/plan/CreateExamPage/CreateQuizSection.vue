@@ -51,7 +51,7 @@
           hoverBackgroundColor="transparent"
           :tabs="tabs"
         >
-          <template #tab="{ tab, isActive }">
+          <template #tab="{ tab }">
             <KButton
               appearance="flat-button"
               :appearanceOverrides="tabStyles"
@@ -70,7 +70,7 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="sectionOptions"
-                  @select="opt => handleSectionOptionSelect(opt, tab.id, isActive)"
+                  @select="opt => handleSectionOptionSelect(opt, tab.id)"
                 />
               </template>
             </KIconButton>
@@ -326,7 +326,7 @@
       :activeTabId="quizForge.activeSection.value.section_id"
     >
 
-      <h1>{{ quizForge.activeSection.value.section_id }}</h1>
+      <p>{{ quizForge.activeSection.value.section_id }}</p>
       <!-- TODO This should be a separate component like "empty section container" or something -->
       <div class="question-mark-layout">
         <span class="help-icon-style">?</span>
@@ -341,6 +341,7 @@
       <KButton
         primary
         icon="plus"
+        @click="openSelectResources(quizForge.activeSection.value.section_id)"
       >
         {{ $tr('addQuestion') }}
       </KButton>
@@ -416,23 +417,18 @@
       },
     },
     methods: {
-      handleSectionOptionSelect({ label }, section_id, isActive) {
+      handleSectionOptionSelect({ label }, section_id) {
         switch (label) {
           case 'Edit':
-            console.log('Edit');
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
           case 'Delete':
-            console.log('Delete');
-            if (isActive) {
-              if (get(this.quizForge.inactiveSections).length > 0) {
-                console.log('inactivesectwdatdgat');
-                this.quizForge.setActiveSection(get(this.quizForge.inactiveSections)[0].section_id);
-              }
-            }
             this.quizForge.removeSection(section_id);
             break;
         }
+      },
+      openSelectResources(section_id) {
+        this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
     },
     methods: {
@@ -541,8 +537,7 @@
 
   .no-question-layout {
     width: auto;
-    height: 16.5em;
-    padding: 2.5em;
+    padding: 40px;
     text-align: center;
     background-color: #fafafa;
     border: 1px;

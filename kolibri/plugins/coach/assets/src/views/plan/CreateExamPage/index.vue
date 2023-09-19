@@ -14,20 +14,6 @@
     >
 
       <CreateQuizSection />
-      <!-- These buttons & br don't belong here but are here for testing purposes -->
-      <KButtonGroup style="margin-top: 1em auto;">
-        <KRouterLink
-          appearance="raised-button"
-          :to="{ path: 'new/123/edit' }"
-          text="Test Section Editor"
-        />
-
-        <KRouterLink
-          appearance="raised-button"
-          :to="{ path: 'new/123/replace-questions' }"
-          text="Test Replace Questions"
-        />
-      </KButtonGroup>
 
       <BottomAppBar>
         <KButtonGroup>
