@@ -9898,10 +9898,10 @@ rimraf@^3.0.2:
   dependencies:
     glob "^7.1.3"
 
-rtlcss@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/rtlcss/-/rtlcss-4.1.0.tgz#f69b78d9752c970ddfe2aa590896f44353ab1c98"
-  integrity sha512-W+N4hh0nVqVrrn3mRkHakxpB+c9cQ4CRT67O39kgA+1DjyhrdsqyCqIuHXyvWaXn4/835n+oX3fYJCi4+G/06A==
+rtlcss@4.1.1:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/rtlcss/-/rtlcss-4.1.1.tgz#f20409fcc197e47d1925996372be196fee900c0c"
+  integrity sha512-/oVHgBtnPNcggP2aVXQjSy6N1mMAfHg4GSag0QtZBlD5bdDgAHwr4pydqJGd+SUCu9260+Pjqbjwtvu7EMH1KQ==
   dependencies:
     escalade "^3.1.1"
     picocolors "^1.0.0"

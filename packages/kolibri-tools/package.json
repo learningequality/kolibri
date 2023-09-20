@@ -67,7 +67,7 @@
     "query-ast": "^1.0.5",
     "readline-sync": "^1.4.9",
     "recast": "^0.23.4",
-    "rtlcss": "4.1.0",
+    "rtlcss": "4.1.1",
     "sass-loader": "13.3.2",
     "scss-parser": "^1.0.6",
     "semver": "^7.5.4",
