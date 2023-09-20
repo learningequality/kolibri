@@ -38,12 +38,12 @@
       isItemExpanded(id) {
         return this.expandedItemIds.includes(id);
       },
-      closeAccordionPanel(id){
-        if(this.expandedItemIds.includes(id)){
+      closeAccordionPanel(id) {
+        if (this.expandedItemIds.includes(id)) {
           const index = this.expandedItemIds.indexOf(id);
           this.expandedItemIds.splice(index, 1);
         }
-      }
+      },
     },
   };
 
