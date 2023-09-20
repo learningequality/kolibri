@@ -39,23 +39,26 @@
         :layout12="{ span: 10 }"
         :style="noKgridItemPadding"
       >
-        <KTabsList
+        <TabsWithOverflow
           tabsId="quizSectionTabs"
+          :tabs="tabs"
           :appearanceOverrides="{ padding: '0px' }"
           :activeTabId="quizForge.activeSection && quizForge.activeSection.value.section_id"
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
-          :tabs="tabs"
         >
-          <template #tab="{ tab }">
+          <template #tab="{ tab, tabIsVisible }">
             <KButton
+              v-show="tabIsVisible"
               appearance="flat-button"
+              style="flex: 1;"
               :appearanceOverrides="tabStyles"
               @click="() => quizForge.setActiveSection(tab.id)"
             >
               {{ tab.label }}
             </KButton>
             <KIconButton
+              v-show="tabIsVisible"
               icon="optionsVertical"
               class="options-button"
               @click="() => null"
@@ -71,7 +74,24 @@
               </template>
             </KIconButton>
           </template>
-        </KTabsList>
+
+          <template #overflow="{ overflowTabs }">
+            <KIconButton
+              icon="optionsHorizontal"
+              style="height: 40px; width: 40px;"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="overflowTabs"
+                  @select="opt => handleSectionOptionSelect(opt, tab.id)"
+                />
+              </template>
+            </KIconButton>
+          </template>
+        </TabsWithOverflow>
       </KGridItem>
 
       <KGridItem
@@ -152,6 +172,11 @@
       DragSortWidget,
     },
     */
+  import TabsWithOverflow from './TabsWithOverflow.vue';
+
+  export default {
+    name: 'CreateQuizSection',
+    components: { TabsWithOverflow },
     mixins: [commonCoreStrings, commonCoach],
     inject: ['quizForge'],
     computed: {
