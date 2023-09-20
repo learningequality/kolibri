@@ -155,6 +155,7 @@ describe('exam utils', () => {
       const converted = convertExamQuestionSourcesToV3(exam);
       expect(converted).toEqual([
         {
+          section_id: converted[0].section_id,
           section_title: '',
           description: '',
           resource_pool: [],
