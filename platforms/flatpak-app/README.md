@@ -128,3 +128,20 @@ URIs like `kolibri-channel://`, `x-kolibri-dispatch://` and converts
 them into kolibri-gnome arguments. Starts kolibri-gnome with a
 specific application ID depending on the URI. This is why a launcher
 process is needed instead of handling these URIs in kolibri-gnome.
+
+#### Creating releases
+
+Before creating a release, be sure you update [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in)
+with information about the new release, and mark it as stable.
+
+Next, use [bump2version](<https://pypi.org/project/bump2version/>). This will
+create a new git tag and update the `VERSION` file in the project root:
+
+```
+bump2version minor
+git push
+git push --tags
+```
+
+Note that it is possible to increment either the `major`, `minor`, or `patch`
+component of the project's version number.
