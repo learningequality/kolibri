@@ -55,6 +55,11 @@ export default [
     name: LessonsPageNames.LESSON_CREATION_ROOT,
     path: path(CLASS, ALL_LESSONS, '/new'),
     component: LessonCreationPage,
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.PLAN_PAGE, next)) {
+        return;
+      }
+    },
   },
   {
     name: LessonsPageNames.SUMMARY,
