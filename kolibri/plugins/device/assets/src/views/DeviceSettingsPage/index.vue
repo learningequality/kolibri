@@ -441,7 +441,7 @@
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
         limitForAutodownload: '0',
-        freeSpace: 0,
+        freeSpace: null,
         deviceUrls: [],
         showChangePrimaryLocationModal: false,
         showAddStorageLocationModal: false,
@@ -565,7 +565,7 @@
     },
     created() {
       this.setDeviceURLs();
-      if (this.freeSpace === 0) this.setFreeSpace();
+      if (this.freeSpace === null) this.setFreeSpace();
     },
     beforeMount() {
       this.getDeviceSettings()
