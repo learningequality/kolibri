@@ -1,24 +1,17 @@
 <template>
 
   <div>
-    <div>
-      <DragContainer
-        :items="items"
-      >
-        <transition-group
-          tag="div"
-          name="list"
-          class="wrapper"
-        >
-          <slot
-            :toggleItemState="toggleItemState"
-            :isItemExpanded="isItemExpanded"
-            :isOptionSelected="isOptionSelected"
-            :isAnswerSelected="isAnswerSelected"
-          ></slot>
-        </transition-group>
-      </DragContainer>
-    </div>
+    <transition-group
+      tag="div"
+      name="list"
+      class="wrapper"
+    >
+      <slot
+        :toggleItemState="toggleItemState"
+        :isItemExpanded="isItemExpanded"
+        :closeAccordionPanel="closeAccordionPanel"
+      ></slot>
+    </transition-group>
   </div>
 
 </template>
@@ -26,55 +19,29 @@
 
 <script>
 
-  // import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-
   export default {
     name: 'AccordionContainer',
-    components: {
-      DragContainer,
-    },
-    props: {
-      items: {
-        type: Array,
-        required: true,
-      },
-    },
     data() {
       return {
-        itemIds: [],
-        optionsIdList: [],
+        expandedItemIds: [],
       };
     },
     methods: {
       toggleItemState(id) {
-        const index = this.itemIds.indexOf(id);
+        const index = this.expandedItemIds.indexOf(id);
         if (index === -1) {
-          this.itemIds.push(id);
+          this.expandedItemIds.push(id);
         } else {
-          this.itemIds.splice(index, 1);
+          this.expandedItemIds.splice(index, 1);
         }
       },
       isItemExpanded(id) {
-        if (this.itemIds.includes(id)) {
-          return true;
-        } else {
-          return false;
-        }
+        return this.expandedItemIds.includes(id);
       },
-      isOptionSelected(optionId) {
-        const index = this.itemIds.indexOf(optionId);
-        if (index === -1) {
-          this.optionsIdList.push(optionId);
-        } else {
-          this.optionsIdList.splice(optionId);
-        }
-      },
-      isAnswerSelected(optionId) {
-        if (this.optionsIdList.includes(optionId)) {
-          return true;
-        } else {
-          return false;
+      closeAccordionPanel(id) {
+        if (this.expandedItemIds.includes(id)) {
+          const index = this.expandedItemIds.indexOf(id);
+          this.expandedItemIds.splice(index, 1);
         }
       },
     },
