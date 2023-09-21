@@ -177,7 +177,7 @@
       } else if (props.filterLODAvailable) {
         useDevicesResult = useDevicesForLearnOnlyDevice();
       } else {
-        useDevicesResult = useDevices();
+        useDevicesResult = useDevices({ subset_of_users_device: false });
       }
 
       const {
