@@ -33,12 +33,8 @@
     </p>
 
     <hr class="bottom-border">
-    <br>
 
-
-    <KGrid
-      class="kgrid-alignment-style"
-    >
+    <KGrid>
       <KGridItem
         :layout12="{ span: 10 }"
         :style="noKgridItemPadding"
@@ -94,232 +90,7 @@
     </KGrid>
 
     <hr class="bottom-border">
-    <div v-if="isQuestionAvailable">
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-        >
-          <div class="left-column-alignment-style">
-            <div class="align-kcheckbox-style">
-              <p>
-                <KCheckbox />
-              </p>
-            </div>
 
-            <div>
-              <p>{{ $tr('selectAllLabel') }}</p>
-            </div>
-          </div>
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 6 }"
-        >
-          <div class="right-alignment-style">
-            <KGrid>
-              <KGridItem :layout12="{ span: 4 }">
-                <button class="icon-container remove-button-style">
-                  <KIcon
-                    class="reduce-chervon-spacing"
-                    icon="chevronDown"
-                  />
-                  <KIcon
-                    class="reduce-chervon-spacing"
-                    icon="chevronUp"
-                  />
-                </button>
-              </KGridItem>
-
-              <KGridItem
-                :layout12="{ span: 4 }"
-              >
-
-                <KIconButton
-                  class="icon-size"
-                  icon="refresh"
-                />
-              </KGridItem>
-
-              <KGridItem
-                :layout12="{ span: 4 }"
-              >
-                <KIconButton
-                  class="icon-size"
-                  icon="trash"
-                />
-              </KGridItem>
-            </KGrid>
-          </div>
-        </KGridItem>
-
-      </KGrid>
-      <DragContainer
-        :items="placeholderList"
-        @sort="handleOrderChange"
-      >
-        <AccordionContainer>
-          <template
-            #default="{ isItemExpanded, toggleItemState, closeAccordionPanel }"
-          >
-            <Draggable
-              v-for="(item,index) in placeholderList"
-              :key="item.id"
-              tabindex="-1"
-            >
-              <AccordionItem
-                :id="item.id"
-                :key="item.id"
-                :items="placeholderList"
-                :title="item.title"
-                :expanded="isItemExpanded(item.id)"
-              >
-                <template
-                  #heading="{ title }"
-                  :accordionToggle="onAccordionToggle(item.id)"
-                >
-                  <DragHandle>
-                    <button
-                      tabindex="-1"
-                      aria-expanded="false"
-                      aria-label="toggle-button"
-                      class="remove-button-style"
-                    >
-                      <div
-                        class="flex-div"
-                      >
-                        <div
-                          class="left-column-alignment-style"
-                        >
-
-                          <button
-                            class="remove-button-style"
-                            @click="closeAccordionPanel(item.id)"
-                          >
-                            <DragSortWidget
-                              class="drag-icon sort-widget"
-                              :moveUpText="$tr('upLabel', { name: item.title })"
-                              :moveDownText="$tr('downLabel', { name: item.title })"
-                              :isFirst="index === 0"
-                              :isLast="index === placeholderList.length - 1"
-                              @moveUp="shiftOne(index, -1)"
-                              @moveDown="shiftOne(index, +1)"
-                            />
-                          </button>
-
-                          <div
-                            class="check-box-style"
-                          >
-                            <KCheckbox
-                              :aria-label="$tr('checkBoxLabel',{ name: item.title })"
-                            />
-                          </div>
-                        </div>
-
-                        <div class="occupy-remaining-space">
-                          <button
-                            :id="item.id"
-                            :aria-controls="item.id"
-                            :aria-expanded="isItemExpanded(item.id)"
-                            aria-labelledby="question-title2 question-title-context"
-                            class="limit-height remove-button-style"
-                            @click="toggleItemState(item.id)"
-                          >
-                            <KGrid>
-                              <KGridItem
-                                :layout12="{ span: 6 }"
-                              >
-                                <div style="margin-top:.5em;">
-                                  {{ title }}
-                                </div>
-                              </KGridItem>
-
-                              <KGridItem
-                                :layout12="{ span: 6 }"
-                              >
-                                <div class="right-alignment-style">
-                                  <KIcon
-                                    v-if="isItemExpanded(item.id)"
-                                    class="icon-size toggle-icon"
-                                    icon="chevronUp"
-                                  />
-                                  <KIcon
-                                    v-else
-                                    class="icon-size toggle-icon"
-                                    icon="chevronRight"
-                                  />
-
-                                </div>
-                              </KGridItem>
-                            </KGrid>
-                          </button>
-                        </div>
-                      </div>
-                    </button>
-                  </DragHandle>
-                </template>
-
-                <template
-                  v-if="isItemExpanded(item.id)"
-                  #content
-                >
-                  <div
-                    id="sect1"
-                    aria-labelledby="accordion1id"
-                    class="accordion-detail-container"
-                  >
-                    <KGrid>
-                      <KGridItem :layout12="{ span: 8 }">
-                        <button
-                          class="remove-button-style text-align-start"
-                        >
-                          {{ $tr('questionPhrase') }}
-                        </button>
-
-                        <button
-                          class="remove-button-style text-align-start text-vertical-spacing"
-                        >
-                          {{ $tr('questionSubtitle') }}
-                        </button>
-                      </KGridItem>
-
-                      <KGridItem
-                        :layout12="{ span: 4 }"
-                      >
-                        <KIconButton
-                          class="float-item-left-style"
-                          icon="edit"
-                        />
-                      </KGridItem>
-                    </KGrid>
-
-                    <div class="choose-question question">
-                      <p class="space-content">
-                        {{ $tr('chooseQuestionLabel') }}
-                      </p>
-                    </div>
-
-                    <hr class="bottom-border">
-                    <KButton
-                      style="width:100%;margin-bottom:0.5em"
-                      appearance="raised-button"
-                      icon="plus"
-                    >
-                      {{ $tr('addAnswer') }}
-                    </KButton>
-                    <hr>
-                  </div>
-                </template>
-              </AccordionItem>
-            </Draggable>
-          </template>
-        </AccordionContainer>
-      </DragContainer>
-    </div>
-
-
-    <div
-      v-else
-      class="no-question-layout"
     <KTabsPanel
       class="no-question-layout"
       tabsId="quizSectionTabs"
@@ -359,16 +130,19 @@
 
   import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoach from '../../common';
+  /*
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import commonCoach from '../../common';
   import AccordionContainer from './AccordionContainer.vue';
   import AccordionItem from './AccordionItem.vue';
+  */
 
   export default {
     name: 'CreateQuizSection',
+    /*
     components: {
       AccordionContainer,
       AccordionItem,
@@ -377,6 +151,7 @@
       DragContainer,
       DragSortWidget,
     },
+    */
     mixins: [commonCoreStrings, commonCoach],
     inject: ['quizForge'],
     computed: {
@@ -430,8 +205,7 @@
       openSelectResources(section_id) {
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
-    },
-    methods: {
+      /*
       handleOrderChange(event) {
         const reorderedList = event.newArray.map(x => {
           if (x.isPlaceholder) {
@@ -451,6 +225,7 @@
 
         this.handleOrderChange({ newArray });
       },
+          */
     },
     $trs: {
       addSection: {
@@ -474,6 +249,7 @@
         context:
           'This message indicates that more than one section can be added when creating a quiz.',
       },
+      /*
       questionPhrase: {
         message: 'Select the word that has the following vowel sound.',
         context: 'Placholder for the question',
@@ -510,6 +286,7 @@
         message: 'Question order saved',
         context: 'Success message shown when the admin re-orders question',
       },
+        */
     },
   };
 
@@ -567,13 +344,13 @@
   }
 
   .bottom-border {
+    margin-block-start: -2px;
     border: 1px solid #dedede;
   }
 
   .kgrid-alignment-style {
     padding-right: 1em;
     padding-left: 0;
-    margin-bottom: -1.5em;
     text-align: left;
   }
 
