@@ -2,7 +2,7 @@ import { get } from '@vueuse/core';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { ExerciseResource, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
-import { useQuizCreation } from '../src/composables/useQuizCreation.js';
+import useQuizCreation from '../src/composables/useQuizCreation.js';
 
 const {
   // Methods
