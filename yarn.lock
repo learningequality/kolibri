@@ -7625,6 +7625,11 @@ known-css-properties@^0.25.0:
   resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.25.0.tgz#6ebc4d4b412f602e5cfbeb4086bd544e34c0a776"
   integrity sha512-b0/9J1O9Jcyik1GC6KC42hJ41jKwdO/Mq8Mdo5sYN+IuRTXs2YFHZC3kZSx6ueusqa95x3wLYe/ytKjbAfGixA==
 
+known-css-properties@^0.28.0:
+  version "0.28.0"
+  resolved "https://registry.yarnpkg.com/known-css-properties/-/known-css-properties-0.28.0.tgz#8a8be010f368b3036fe6ab0ef4bbbed972bd6274"
+  integrity sha512-9pSL5XB4J+ifHP0e0jmmC98OGC1nL8/JjS+fi6mnTlIf//yt/MfVLtKg7S6nCtj/8KTcWX7nRlY0XywoYY1ISQ==
+
 knuth-shuffle-seeded@^1.0.6:
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/knuth-shuffle-seeded/-/knuth-shuffle-seeded-1.0.6.tgz#01f1b65733aa7540ee08d8b0174164d22081e4e1"
@@ -10772,11 +10777,12 @@ stylelint-order@6.x:
     postcss "^8.4.21"
     postcss-sorting "^8.0.2"
 
-stylelint-scss@5.2.0:
-  version "5.2.0"
-  resolved "https://registry.yarnpkg.com/stylelint-scss/-/stylelint-scss-5.2.0.tgz#08a85ab5fe6196fa9bbe4723fb9536f2b05dcbc1"
-  integrity sha512-m/os6B7xHKakM9TkEbnity0gnDEqNbISpclvjOwIU+xIHk/8dQNGcTI2UlC5/QLzaG+tzQ9eMFZH8Iq7roQI2w==
+stylelint-scss@5.2.1:
+  version "5.2.1"
+  resolved "https://registry.yarnpkg.com/stylelint-scss/-/stylelint-scss-5.2.1.tgz#810299e4141fa38852bd14536a90e4942c8f387f"
+  integrity sha512-ZoTJUM85/qqpQHfEppjW/St//8s6p9Qsg8deWlYlr56F9iUgC9vXeIDQvH4odkRRJLTLFQzYMALSOFCQ3MDkgw==
   dependencies:
+    known-css-properties "^0.28.0"
     postcss-media-query-parser "^0.2.3"
     postcss-resolve-nested-selector "^0.1.1"
     postcss-selector-parser "^6.0.13"
