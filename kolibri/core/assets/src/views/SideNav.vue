@@ -95,6 +95,7 @@
                   :link="component.url"
                   :icon="component.icon"
                   data-test="side-nav-component"
+                  @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
                 <CoreMenuOption
@@ -106,13 +107,15 @@
                   :icon="component.icon"
                   style="cursor: pointer;"
                   data-test="side-nav-component"
+                  @toggleMenu="toggleNav"
                 />
                 <LogoutSideNavEntry v-if="isUserLoggedIn" />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
                   class="pointer"
-                  @select="handleShowLanguageModal()"
+                  @select="handleShowLanguageModal"
+                  @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
               </template>
@@ -201,7 +204,7 @@
       v-if="showAppNavView"
       :bottomMenuOptions="bottomMenuOptions"
       :navShown="navShown"
-      @toggleNav="toggleNav()"
+      @toggleNav="toggleNav"
     />
 
 
@@ -418,6 +421,7 @@
       },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;
+        this.toggleNav();
       },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:

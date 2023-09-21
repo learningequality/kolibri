@@ -26,7 +26,8 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.sync_event_hook_utils import register_sync_event_handlers
+from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
@@ -403,7 +404,8 @@ class MorangoSyncCommand(AsyncCommand):
         client_cert = sync_session_client.sync_session.client_certificate
         # we create a custom signals, so we can fire them outside of transaction blocks
         custom_signals = SessionControllerSignals()
-        register_sync_event_handlers(custom_signals)
+        custom_signals.initializing.started.connect(pre_sync_transfer_handler)
+        custom_signals.cleanup.completed.connect(post_sync_transfer_handler)
 
         filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
         dataset_id = scope_params.get("dataset_id")

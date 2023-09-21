@@ -97,7 +97,10 @@ def _local_event_handler(func):
 
 
 @_local_event_handler
-def _pre_transfer_handler(**kwargs):
+def pre_sync_transfer_handler(**kwargs):
+    """
+    Used to attach to signals like those on morango.sync.controller.SessionControllerSignals
+    """
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
@@ -110,7 +113,10 @@ def _pre_transfer_handler(**kwargs):
 
 
 @_local_event_handler
-def _post_transfer_handler(**kwargs):
+def post_sync_transfer_handler(**kwargs):
+    """
+    Used to attach to signals like those on morango.sync.controller.SessionControllerSignals
+    """
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
@@ -120,14 +126,3 @@ def _post_transfer_handler(**kwargs):
                 "{}.post_transfer hook failed".format(hook.__class__.__name__),
                 exc_info=e,
             )
-
-
-def register_sync_event_handlers(signals):
-    """
-    Attaches the pre and post transfer handlers to the morango session controller signals.
-
-    :param signals: The signals object from the morango session controller
-    :type signals: morango.sync.controller.SessionControllerSignals
-    """
-    signals.initializing.started.connect(_pre_transfer_handler)
-    signals.cleanup.completed.connect(_post_transfer_handler)

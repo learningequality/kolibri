@@ -446,8 +446,8 @@ export default [
   {
     path: path(CLASS, LESSONS),
     component: pages.ReportsLessonListPage,
-    handler: toRoute => {
-      if (classIdParamRequiredGuard(toRoute, 'ReportsLessonListPage')) {
+    handler: (toRoute, fromRoute, next) => {
+      if (classIdParamRequiredGuard(toRoute, 'ReportsLessonListPage', next)) {
         return;
       }
       defaultHandler();

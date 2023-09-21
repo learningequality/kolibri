@@ -15,8 +15,14 @@ class KolibriAuthConfig(AppConfig):
         from .signals import cascade_delete_user  # noqa: F401
 
         from kolibri.core.auth.sync_event_hook_utils import (
-            register_sync_event_handlers,
+            pre_sync_transfer_handler,
+            post_sync_transfer_handler,
         )  # noqa: F401
         from morango.api.viewsets import session_controller  # noqa: F401
 
-        register_sync_event_handlers(session_controller.signals)
+        # attach to `initializing.completed` signal so that the context has all information needed
+        # for the handler and any hooks invoked by it
+        session_controller.signals.initializing.completed.connect(
+            pre_sync_transfer_handler
+        )
+        session_controller.signals.cleanup.completed.connect(post_sync_transfer_handler)

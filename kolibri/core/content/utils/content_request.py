@@ -486,6 +486,7 @@ def process_content_requests():
         LearnerDeviceStatus.clear_statuses()
     except InsufficientStorage as e:
         logger.warning(str(e))
+
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
     except NoPeerAvailable as e:
         logger.warning(str(e))
@@ -649,19 +650,14 @@ def _process_content_requests(incomplete_downloads):
     """
     Processes content requests, both for downloading and removing content
     """
-    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
+
+    calc = StorageCalculator(incomplete_downloads)
+
+    incomplete_downloads_with_metadata = calc.incomplete_downloads.filter(
+        has_metadata=True
+    )
 
     # obtain the incomplete removals, that do not have an associated download
-    incomplete_removals = incomplete_removals_queryset()
-    incomplete_sync_removals = incomplete_removals.filter(
-        reason=ContentRequestReason.SyncInitiated
-    )
-    incomplete_user_removals = incomplete_removals.filter(
-        reason=ContentRequestReason.UserInitiated
-    )
-    complete_user_downloads = ContentDownloadRequest.objects.filter(
-        status=ContentRequestStatus.Completed, reason=ContentRequestReason.UserInitiated
-    )
     # track failed so we can exclude them from the loop
     failed_ids = []
     has_processed_sync_removals = False
@@ -688,19 +684,28 @@ def _process_content_requests(incomplete_downloads):
                     free_space
                 )
             )
-            if not has_processed_sync_removals and incomplete_sync_removals.exists():
+            if (
+                not has_processed_sync_removals
+                and calc.incomplete_sync_removals.exists()
+            ):
                 # process, then repeat
                 has_processed_sync_removals = True
                 logger.info("Processing sync-initiated content removal requests")
-                process_content_removal_requests(incomplete_sync_removals)
+                process_content_removal_requests(calc.incomplete_sync_removals)
                 continue
-            if not has_processed_user_removals and incomplete_user_removals.exists():
+            if (
+                not has_processed_user_removals
+                and calc.incomplete_user_removals.exists()
+            ):
                 # process, then repeat
                 has_processed_user_removals = True
                 logger.info("Processing user-initiated content removal requests")
-                process_content_removal_requests(incomplete_user_removals)
+                process_content_removal_requests(calc.incomplete_user_removals)
                 continue
-            if not has_processed_user_downloads and complete_user_downloads.exists():
+            if (
+                not has_processed_user_downloads
+                and calc.complete_user_downloads.exists()
+            ):
                 # process, then repeat
                 has_processed_user_downloads = True
                 process_user_downloads_for_removal()
@@ -939,3 +944,44 @@ def process_content_removal_requests(queryset):
     remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
     _remove_corresponding_download_requests(remaining_pending)
     remaining_pending.update(status=ContentRequestStatus.Completed)
+
+
+class StorageCalculator:
+    def __init__(self, incomplete_downloads_queryset):
+        incomplete_removals = incomplete_removals_queryset()
+
+        self.incomplete_downloads = incomplete_downloads_queryset
+        self.incomplete_sync_removals = incomplete_removals.filter(
+            reason=ContentRequestReason.SyncInitiated
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+
+        self.incomplete_user_removals = incomplete_removals.filter(
+            reason=ContentRequestReason.UserInitiated
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+
+        self.complete_user_downloads = ContentDownloadRequest.objects.filter(
+            status=ContentRequestStatus.Completed,
+            reason=ContentRequestReason.UserInitiated,
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+        self.free_space = 0
+
+    def _calculate_space_available(self):
+        free_space = get_free_space_for_downloads(
+            completed_size=_total_size(completed_downloads_queryset())
+        )
+        free_space -= _total_size(self.incomplete_downloads)
+        free_space += _total_size(self.incomplete_sync_removals)
+        free_space += _total_size(self.incomplete_user_removals)
+        free_space += _total_size(self.complete_user_downloads)
+
+        self.free_space = free_space
+
+    def is_space_sufficient(self):
+        self._calculate_space_available()
+        return self.free_space > _total_size(self.incomplete_downloads)
