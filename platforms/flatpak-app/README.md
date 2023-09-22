@@ -129,6 +129,15 @@ them into kolibri-gnome arguments. Starts kolibri-gnome with a
 specific application ID depending on the URI. This is why a launcher
 process is needed instead of handling these URIs in kolibri-gnome.
 
+#### Additional tips and tricks
+
+- For development builds, kolibri-gnome enables WebKit developer extras. You can
+  open the web inspector by pressing F12, or by right clicking and choosing
+  "Inspect Element" from the context menu. If this is not available, try running
+  the application with `ENDLESS_KEY_APP_DEVELOPER_EXTRAS=1` for a production
+  build, or `ENDLESS_KEY_DEVEL_APP_DEVELOPER_EXTRAS=1` for a development build.
+
+
 #### Creating releases
 
 Before creating a release, be sure you update [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in)
