@@ -7,19 +7,22 @@ import typing
 from pathlib import Path
 
 from . import config
+from .utils import getenv_as_bool
 
 logger = logging.getLogger(__name__)
 
-APP_DEVELOPER_EXTRAS = os.environ.get(
+USE_SYSTEM_INSTANCE = getenv_as_bool(config.PROFILE_ENV_PREFIX + "USE_SYSTEM_INSTANCE", default=False)
+
+APP_DEVELOPER_EXTRAS = getenv_as_bool(
     config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS",
-    config.BUILD_PROFILE == "development",
+    default=config.BUILD_PROFILE == "development",
 )
 
-APP_DISABLE_AUTOMATIC_LOGIN = os.environ.get(
+APP_AUTOMATIC_LOGIN = getenv_as_bool(
     config.PROFILE_ENV_PREFIX + "APP_DISABLE_AUTOMATIC_LOGIN"
 )
 
-APP_DISABLE_AUTOMATIC_PROVISION = os.environ.get(
+APP_AUTOMATIC_PROVISION = getenv_as_bool(
     config.PROFILE_ENV_PREFIX + "APP_DISABLE_AUTOMATIC_PROVISION"
 )
 

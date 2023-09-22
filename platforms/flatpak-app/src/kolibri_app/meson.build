@@ -3,6 +3,7 @@ python_installation.install_sources(
         'globals.py',
         '__init__.py',
         'kolibri_settings.py',
+        'utils.py',
     ],
     subdir: 'kolibri_app'
 )
@@ -37,5 +38,11 @@ configure_file(
 configure_file(
     input: 'kolibri_settings.py',
     output: 'kolibri_settings.py',
+    copy: true
+)
+
+configure_file(
+    input: 'utils.py',
+    output: 'utils.py',
     copy: true
 )
