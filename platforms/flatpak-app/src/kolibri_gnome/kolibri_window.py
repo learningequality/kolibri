@@ -5,6 +5,7 @@ from gettext import gettext as _
 
 from gi.repository import Adw
 from gi.repository import Gio
+from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
@@ -69,6 +70,7 @@ class KolibriWindow(Adw.ApplicationWindow):
                 ("zoom-reset", self.__on_zoom_reset),
                 ("zoom-in", self.__on_zoom_in),
                 ("zoom-out", self.__on_zoom_out),
+                ("show-web-inspector", None, None, "false", None),
             ]
         )
 
@@ -142,8 +144,27 @@ class KolibriWindow(Adw.ApplicationWindow):
         bubble_signal(self.__webview_stack, "open-new-window", self)
         bubble_signal(self.__webview_stack, "main-webview-blank", self, "auto-close")
 
+        # These two properties are different types (GVariant and boolean), so we
+        # need to convert between them. Unfortunately, Object.bind_property_full
+        # isn't available with PyGObject, so we need two signal handlers.
+        self.lookup_action("show-web-inspector").connect(
+            "notify::state",
+            self.__show_web_inspector_action_on_notify_show_web_inspector,
+        )
+        self.__webview_stack.connect(
+            "notify::show-web-inspector",
+            self.__webview_stack_on_notify_show_web_inspector,
+        )
+
         self.__webview_stack.connect(
             "main-webview-ready", self.__webview_stack_on_main_webview_ready
+        )
+
+        self.__webview_stack.bind_property(
+            "enable_developer_extras",
+            self.lookup_action("show-web-inspector"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
         )
 
         self.__webview_stack.bind_property(
@@ -203,6 +224,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         application.set_accels_for_action("win.zoom-reset", ["<Control>0"])
         application.set_accels_for_action("win.zoom-in", ["<Control>plus"])
         application.set_accels_for_action("win.zoom-out", ["<Control>minus"])
+        application.set_accels_for_action("win.show-web-inspector", ["F12"])
         application.set_accels_for_action("win.close", ["<Control>w"])
 
     def load_kolibri_url(self, url: str, present=False):
@@ -248,6 +270,18 @@ class KolibriWindow(Adw.ApplicationWindow):
         self.__webview_stack.set_zoom_step(self.__webview_stack.zoom_step - 1)
         self.__update_zoom_actions()
 
+    def __webview_stack_on_notify_show_web_inspector(
+        self, webview_stack: KolibriWebViewStack, pspec: GObject.ParamSpec
+    ):
+        self.lookup_action("show-web-inspector").set_state(
+            GLib.Variant.new_boolean(webview_stack.show_web_inspector)
+        )
+
+    def __show_web_inspector_action_on_notify_show_web_inspector(
+        self, action: Gio.Action, pspec: GObject.ParamSpec
+    ):
+        self.__webview_stack.show_web_inspector = action.get_state().get_boolean()
+
     def __update_zoom_actions(self):
         self.lookup_action("zoom-reset").set_enabled(
             self.__webview_stack.zoom_step != self.__webview_stack.default_zoom_step
@@ -292,6 +326,13 @@ class _KolibriWindowMenu(Gio.Menu):
             Gio.MenuItem.new(_("Open in Browser"), "win.open-in-browser")
         )
         self.append_section(None, view_section)
+
+        if APP_DEVELOPER_EXTRAS:
+            dev_section = Gio.Menu()
+            dev_section.append_item(
+                Gio.MenuItem.new(_("Show Developer Tools"), "win.show-web-inspector")
+            )
+            self.append_section(None, dev_section)
 
         help_section = Gio.Menu()
         help_section.append_item(

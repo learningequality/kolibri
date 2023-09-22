@@ -7,6 +7,7 @@ from gi.repository import Gtk
 from gi.repository import WebKit
 
 from .kolibri_context import KolibriContext
+from .utils import map_properties
 
 
 MOUSE_BUTTON_BACK = 8
@@ -161,6 +162,7 @@ class KolibriWebViewStack(Gtk.Stack):
     ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5]
 
     enable_developer_extras = GObject.Property(type=bool, default=False)
+    show_web_inspector = GObject.Property(type=bool, default=False)
     is_main_visible = GObject.Property(type=bool, default=False)
     can_go_back = GObject.Property(type=bool, default=False)
     can_go_forward = GObject.Property(type=bool, default=False)
@@ -234,6 +236,21 @@ class KolibriWebViewStack(Gtk.Stack):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
+        map_properties(
+            [
+                (self, "show-web-inspector"),
+                (self, "visible-child"),
+            ],
+            self.__update_web_inspectors,
+        )
+
+        self.__loading_webview.get_inspector().connect(
+            "closed", self.__on_inspector_closed
+        )
+        self.__main_webview.get_inspector().connect(
+            "closed", self.__on_inspector_closed
+        )
+
         self.show_loading()
 
     @property
@@ -257,6 +274,18 @@ class KolibriWebViewStack(Gtk.Stack):
         zoom_level = self.ZOOM_STEPS[zoom_step]
         self.__main_webview.set_zoom_level(zoom_level)
         self.__loading_webview.set_zoom_level(zoom_level)
+
+    def __update_web_inspectors(self, show_web_inspector, visible_child):
+        if not show_web_inspector:
+            self.__loading_webview.get_inspector().close()
+            self.__main_webview.get_inspector().close()
+        elif visible_child == self.__loading_webview:
+            self.__loading_webview.get_inspector().show()
+        else:
+            self.__main_webview.get_inspector().show()
+
+    def __on_inspector_closed(self, web_inspector: WebKit.WebInspector):
+        self.show_web_inspector = False
 
     def show_loading(self):
         self.is_main_visible = False
