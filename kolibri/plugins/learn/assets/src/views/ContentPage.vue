@@ -3,7 +3,7 @@
   <div>
 
     <template v-if="sessionReady">
-      <KContentRenderer
+      <ContentRenderer
         v-if="!content.assessmentmetadata"
         class="content-renderer"
         :kind="content.kind"

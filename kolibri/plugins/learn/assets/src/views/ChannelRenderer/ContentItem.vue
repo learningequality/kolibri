@@ -2,7 +2,7 @@
 
   <div>
     <template v-if="sessionReady">
-      <KContentRenderer
+      <ContentRenderer
         v-if="!assessment"
         class="content-renderer"
         v-bind="contentProps"

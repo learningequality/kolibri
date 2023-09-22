@@ -4,7 +4,7 @@
     <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
-    <KContentRenderer
+    <ContentRenderer
       v-if="content.available"
       :class="{ hof: isExercise }"
       :showCorrectAnswer="true"
