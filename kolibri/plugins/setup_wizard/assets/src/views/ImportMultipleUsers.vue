@@ -151,7 +151,10 @@
       },
       pollImportTask() {
         // TO DO :: This has to be removed once the multiple user syncing has been fixed.
-        if (this.wizardService.state.context.importedUsers.length > 0) {
+        if (
+          this.learnersBeingImported.length > 0 ||
+          this.wizardService.state.context.importedUsers.length > 0
+        ) {
           this.wizardService.send('LOADING');
         }
         TaskResource.list({ queue: SoudQueue }).then(tasks => {
