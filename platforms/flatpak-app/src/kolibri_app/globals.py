@@ -11,7 +11,8 @@ from . import config
 logger = logging.getLogger(__name__)
 
 APP_DEVELOPER_EXTRAS = os.environ.get(
-    config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS"
+    config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS",
+    config.BUILD_PROFILE == "development",
 )
 
 APP_DISABLE_AUTOMATIC_LOGIN = os.environ.get(
