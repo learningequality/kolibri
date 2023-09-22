@@ -5,7 +5,6 @@ import typing
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
-from kolibri_app.globals import APP_DEVELOPER_EXTRAS
 
 from .kolibri_context import KolibriContext
 
@@ -34,9 +33,6 @@ class KolibriWebView(WebKit.WebView):
         super().__init__(*args, **kwargs)
 
         self.__context = context
-
-        if APP_DEVELOPER_EXTRAS:
-            self.get_settings().set_enable_developer_extras(True)
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
 
@@ -164,6 +160,7 @@ class KolibriWebViewStack(Gtk.Stack):
 
     ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5]
 
+    enable_developer_extras = GObject.Property(type=bool, default=False)
     is_main_visible = GObject.Property(type=bool, default=False)
     can_go_back = GObject.Property(type=bool, default=False)
     can_go_forward = GObject.Property(type=bool, default=False)
@@ -221,6 +218,20 @@ class KolibriWebViewStack(Gtk.Stack):
         self.__main_webview.connect("create", self.__main_webview_on_create)
         self.__main_webview.get_back_forward_list().connect(
             "changed", self.__main_webview_back_forward_list_on_changed
+        )
+
+        self.bind_property(
+            "enable_developer_extras",
+            self.__loading_webview.get_settings(),
+            "enable_developer_extras",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+
+        self.bind_property(
+            "enable_developer_extras",
+            self.__main_webview.get_settings(),
+            "enable_developer_extras",
+            GObject.BindingFlags.SYNC_CREATE,
         )
 
         self.show_loading()

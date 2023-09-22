@@ -9,6 +9,7 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
 from kolibri_app.config import BUILD_PROFILE
+from kolibri_app.globals import APP_DEVELOPER_EXTRAS
 
 from .kolibri_context import KolibriContext
 from .kolibri_webview import KolibriWebView
@@ -131,6 +132,7 @@ class KolibriWindow(Adw.ApplicationWindow):
             transition_duration=300,
             vexpand=True,
             hexpand=True,
+            enable_developer_extras=APP_DEVELOPER_EXTRAS,
         )
         content_box.append(self.__webview_stack)
 
