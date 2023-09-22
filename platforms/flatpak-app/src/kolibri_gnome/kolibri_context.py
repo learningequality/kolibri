@@ -72,7 +72,7 @@ class KolibriContext(GObject.GObject):
         self.__loader_url = loader_path.as_uri()
 
         self.__webkit_web_context = WebKit.WebContext()
-        self.__webkit_web_context.set_cache_model(WebKit.CacheModel.DOCUMENT_VIEWER)
+        self.__webkit_web_context.set_cache_model(WebKit.CacheModel.DOCUMENT_BROWSER)
 
         bubble_signal(WebKit.NetworkSession.get_default(), "download-started", self)
 
