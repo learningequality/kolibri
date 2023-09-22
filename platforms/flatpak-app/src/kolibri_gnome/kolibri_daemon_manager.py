@@ -14,7 +14,7 @@ from gi.repository import KolibriDaemonDBus
 from gi.repository import Soup
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
-from kolibri_app.globals import APP_DISABLE_AUTOMATIC_LOGIN
+from kolibri_app.globals import APP_AUTOMATIC_LOGIN
 
 from .utils import GioInputStreamIO
 
@@ -32,7 +32,6 @@ class KolibriDaemonManager(GObject.GObject):
 
     __dbus_proxy: KolibriDaemonDBus.MainProxy
 
-    __do_automatic_login: bool = False
     __did_init: bool = False
     __dbus_proxy_owner: typing.Optional[str] = None
 
@@ -50,8 +49,6 @@ class KolibriDaemonManager(GObject.GObject):
 
         g_bus_type = KolibriDaemonDBus.get_default_bus_type()
 
-        self.__do_automatic_login = not APP_DISABLE_AUTOMATIC_LOGIN
-
         self.__dbus_proxy = KolibriDaemonDBus.MainProxy(
             g_bus_type=g_bus_type,
             g_name=DAEMON_APPLICATION_ID,
@@ -67,7 +64,7 @@ class KolibriDaemonManager(GObject.GObject):
 
     @property
     def do_automatic_login(self) -> bool:
-        return self.__do_automatic_login
+        return APP_AUTOMATIC_LOGIN
 
     @property
     def kolibri_version(self) -> str:

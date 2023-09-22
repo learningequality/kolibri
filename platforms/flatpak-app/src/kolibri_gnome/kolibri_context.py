@@ -377,7 +377,7 @@ class KolibriChannelContext(KolibriContext):
 
     @property
     def __default_path(self) -> str:
-        return f"{LEARN_PATH_PREFIX}topics/{self.__channel_id}"
+        return f"{LEARN_PATH_PREFIX}topics/t/{self.__channel_id}"
 
     def _get_kolibri_library_path(self, search: str = None) -> str:
         if search:
