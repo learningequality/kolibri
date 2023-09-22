@@ -22,6 +22,17 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="2.3.4" date="2023-09-21" type="stable">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            An issue was resolved where the application was failing to save
+            files selected using the file chooser dialog.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="2.3.3" date="2023-08-30" type="stable">
       <description>
         <p>Changes included in this release:</p>
