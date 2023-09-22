@@ -124,7 +124,9 @@ class KolibriServiceContext(object):
             self.__is_bus_ready_set_event.set()
         self.push_has_changes()
 
-    def await_is_bus_ready(self, timeout: int = None) -> typing.Optional[bool]:
+    def await_is_bus_ready(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
         self.__is_bus_ready_set_event.wait(timeout)
         return self.is_bus_ready
 
@@ -145,7 +147,9 @@ class KolibriServiceContext(object):
             self.__is_starting_set_event.set()
         self.push_has_changes()
 
-    def await_is_starting(self, timeout: int = None) -> typing.Optional[bool]:
+    def await_is_starting(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
         self.__is_starting_set_event.wait(timeout)
         return self.is_starting
 
@@ -166,7 +170,9 @@ class KolibriServiceContext(object):
             self.__is_started_set_event.set()
         self.push_has_changes()
 
-    def await_is_started(self, timeout: int = None) -> typing.Optional[bool]:
+    def await_is_started(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
         self.__is_started_set_event.wait(timeout)
         return self.is_started
 
@@ -190,7 +196,7 @@ class KolibriServiceContext(object):
         self.push_has_changes()
 
     def await_start_error(
-        self, timeout: int = None
+        self, timeout: typing.Optional[int] = None
     ) -> typing.Optional[KolibriServiceContext.StartError]:
         self.__start_error_set_event.wait(timeout)
         return self.start_error
@@ -212,7 +218,9 @@ class KolibriServiceContext(object):
             self.__app_key_set_event.set()
         self.push_has_changes()
 
-    def await_app_key(self, timeout: int = None) -> typing.Optional[str]:
+    def await_app_key(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
         self.__app_key_set_event.wait(timeout)
         return self.app_key
 
@@ -233,7 +241,9 @@ class KolibriServiceContext(object):
             self.__base_url_set_event.set()
         self.push_has_changes()
 
-    def await_base_url(self, timeout: int = None) -> typing.Optional[str]:
+    def await_base_url(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
         self.__base_url_set_event.wait(timeout)
         return self.base_url
 
@@ -254,7 +264,9 @@ class KolibriServiceContext(object):
             self.__extra_url_set_event.set()
         self.push_has_changes()
 
-    def await_extra_url(self, timeout: int = None) -> typing.Optional[str]:
+    def await_extra_url(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
         self.__extra_url_set_event.wait(timeout)
         return self.extra_url
 
@@ -275,7 +287,9 @@ class KolibriServiceContext(object):
             self.__kolibri_home_set_event.set()
         self.push_has_changes()
 
-    def await_kolibri_home(self, timeout: int = None) -> typing.Optional[str]:
+    def await_kolibri_home(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
         self.__kolibri_home_set_event.wait(timeout)
         return self.kolibri_home
 
@@ -296,7 +310,9 @@ class KolibriServiceContext(object):
             self.__kolibri_version_set_event.set()
         self.push_has_changes()
 
-    def await_kolibri_version(self, timeout: int = None) -> typing.Optional[str]:
+    def await_kolibri_version(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[str]:
         self.__kolibri_version_set_event.wait(timeout)
         return self.kolibri_version
 

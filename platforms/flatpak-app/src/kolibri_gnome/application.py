@@ -30,7 +30,9 @@ class Application(Adw.Application):
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
 
-    def __init__(self, *args, context: KolibriContext = None, **kwargs):
+    def __init__(
+        self, *args, context: typing.Optional[KolibriContext] = None, **kwargs
+    ):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
 
         self.__context = context or KolibriContext()
@@ -134,7 +136,7 @@ class Application(Adw.Application):
         file_launcher.launch(None, None, None)
 
     def open_kolibri_window(
-        self, target_url: str = None, **kwargs
+        self, target_url: typing.Optional[str] = None, **kwargs
     ) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.__context.default_url
 

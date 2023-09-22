@@ -182,21 +182,25 @@ class KolibriContext(GObject.GObject):
         else:
             return self._get_kolibri_library_path(url_search)
 
-    def _get_kolibri_content_path(self, node_id: str, search: str = None) -> str:
+    def _get_kolibri_content_path(
+        self, node_id: str, search: typing.Optional[str] = None
+    ) -> str:
         if search:
             query = {"keywords": search, "last": "TOPICS_TOPIC_SEARCH"}
             return f"{LEARN_PATH_PREFIX}topics/c/{node_id}?{urlencode(query)}"
         else:
             return f"{LEARN_PATH_PREFIX}topics/c/{node_id}"
 
-    def _get_kolibri_topic_path(self, node_id: str, search: str = None) -> str:
+    def _get_kolibri_topic_path(
+        self, node_id: str, search: typing.Optional[str] = None
+    ) -> str:
         if search:
             query = {"keywords": search}
             return f"{LEARN_PATH_PREFIX}topics/t/{node_id}/search?{urlencode(query)}"
         else:
             return f"{LEARN_PATH_PREFIX}topics/t/{node_id}"
 
-    def _get_kolibri_library_path(self, search: str = None) -> str:
+    def _get_kolibri_library_path(self, search: typing.Optional[str] = None) -> str:
         if search:
             query = {"keywords": search}
             return f"{LEARN_PATH_PREFIX}library?{urlencode(query)}"
@@ -379,7 +383,7 @@ class KolibriChannelContext(KolibriContext):
     def __default_path(self) -> str:
         return f"{LEARN_PATH_PREFIX}topics/t/{self.__channel_id}"
 
-    def _get_kolibri_library_path(self, search: str = None) -> str:
+    def _get_kolibri_library_path(self, search: typing.Optional[str] = None) -> str:
         if search:
             query = {"keywords": search}
             return f"{self.__default_path}/search?{urlencode(query)}"
