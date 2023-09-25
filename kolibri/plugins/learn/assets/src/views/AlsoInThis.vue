@@ -288,6 +288,8 @@
 
   .text-and-time {
     display: inline-block;
+    display: flex;
+    flex-direction: column;
     width: calc(100% - #{$icon-size} - #{$progress-width});
   }
 
@@ -321,6 +323,7 @@
     }
     // Without the progress on the same line, don't incl it in calcs
     .content-meta {
+      display: flex;
       width: calc(100% - #{$icon-size});
     }
 
@@ -339,7 +342,6 @@
     .progress {
       position: relative;
       display: block;
-      width: 100%;
       margin-top: 8px;
     }
 
