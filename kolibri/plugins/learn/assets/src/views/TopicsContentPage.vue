@@ -462,8 +462,20 @@
         }
       },
       showViewResourcesSidePanel(newVal, oldVal) {
+        if (newVal === true) {
+          this.stopMainScroll(true);
+        } else {
+          this.stopMainScroll(false);
+        }
         if (newVal && !oldVal) {
           this.getSidebarInfo();
+        }
+      },
+      sidePanelContent(newVal) {
+        if (newVal !== null) {
+          this.stopMainScroll(true);
+        } else {
+          this.stopMainScroll(false);
         }
       },
     },
@@ -644,6 +656,14 @@
       },
       goToAllLibraries() {
         this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
+      },
+      stopMainScroll(sidePanelVisible) {
+        const mainWrapperElement = this.$refs.mainWrapper;
+        if (sidePanelVisible) {
+          mainWrapperElement.style.position = 'fixed';
+        } else {
+          mainWrapperElement.style.position = null;
+        }
       },
     },
     $trs: {
