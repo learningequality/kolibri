@@ -288,9 +288,9 @@
 
   .text-and-time {
     display: inline-block;
-    width: calc(100% - #{$icon-size} - #{$progress-width});
     display: flex;
     flex-direction: column;
+    width: calc(100% - #{$icon-size} - #{$progress-width});
   }
 
   .progress {
@@ -323,8 +323,8 @@
     }
     // Without the progress on the same line, don't incl it in calcs
     .content-meta {
+      display: flex;
       width: calc(100% - #{$icon-size});
-       display: flex;
     }
 
     .time-duration {
@@ -349,7 +349,7 @@
       right: auto;
       bottom: 0;
       left: 0;
-    } 
+    }
   }
 
   /** Most of the styles for the footer piece */
