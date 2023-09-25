@@ -114,6 +114,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import useContentLink from '../../../composables/useContentLink';
+  import useDevices from '../../../composables/useDevices';
   import useLearningActivities from '../../../composables/useLearningActivities';
   import useDownloadRequests from '../../../composables/useDownloadRequests';
   import SelectionBottomBar from './SelectionBottomBar.vue';
@@ -132,6 +133,7 @@
       const { genExternalContentURLBackLinkCurrentPage } = useContentLink();
       const { getLearningActivityIcon } = useLearningActivities();
       const { downloadRequestMap, availableSpace } = useDownloadRequests();
+      const { networkDevices } = useDevices();
       const store = getCurrentInstance().proxy.$store;
       const query = computed(() => get(route).query);
       const route = computed(() => store.state.route);
@@ -184,6 +186,7 @@
         pageSizeNumber,
         getLearningActivityIcon,
         downloads,
+        networkDevices,
         sortedFilteredDownloads,
         availableSpace,
         genExternalContentURLBackLinkCurrentPage,
