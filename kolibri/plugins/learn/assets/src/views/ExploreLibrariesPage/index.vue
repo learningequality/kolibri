@@ -4,7 +4,7 @@
     :appBarTitle="learnString('exploreLibraries')"
     :route="back"
     :primary="false"
-    :loading="loading"
+    :loading="loading.value"
   >
     <div
       class="page-header"
@@ -74,6 +74,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
+  import { ref, reactive, watch, set } from 'kolibri.lib.vueCompositionApi';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useContentLink from '../../composables/useContentLink';
@@ -92,15 +93,49 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
-      const { fetchChannels } = useChannels();
-      const { back } = useContentLink();
       const { networkDevices } = useDevices();
+      const { fetchChannels } = useChannels();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
+      const { back } = useContentLink();
+      const deviceChannelsMap = reactive({});
+      const loading = ref(false);
+
+      function _updateDeviceChannels(device, channels) {
+        const updatedDevice = {
+          ...device,
+          channels: channels.slice(0, 4),
+          total_count: channels.length,
+        };
+        set(deviceChannelsMap, device.instance_id, updatedDevice);
+      }
+
+      function loadDeviceChannels() {
+        let currentDevice;
+        Object.keys(networkDevices.value).forEach(key => {
+          const promises = [];
+          currentDevice = networkDevices.value[key];
+          if (!deviceChannelsMap[currentDevice.instance_id]) {
+            const baseurl = currentDevice.base_url;
+            const promise = fetchChannels({ baseurl }).then(channels => {
+              _updateDeviceChannels(currentDevice, channels);
+              loading.value = false;
+            });
+            promises.push(promise);
+          }
+          Promise.all(promises).then(() => {
+            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
+            loading.value = false;
+          });
+        });
+      }
+      loadDeviceChannels();
+      watch(networkDevices, loadDeviceChannels);
 
       return {
         deletePinForUser,
         createPinForUser,
         fetchPinsForUser,
+        deviceChannelsMap,
         fetchChannels,
         networkDevices,
         back,
@@ -110,7 +145,6 @@
       return {
         loading: false,
         moreDevices: 0,
-        deviceChannelsMap: {},
         usersPins: [],
       };
     },
@@ -182,50 +216,7 @@
         immediate: false,
       },
     },
-    created() {
-      this.loading = true;
-      // Fetch user's pins
-      this.fetchPinsForUser().then(resp => {
-        this.usersPins = resp.map(pin => {
-          const instance_id = pin.instance_id.replace(/-/g, '');
-          return { ...pin, instance_id };
-        });
-        if (this.usersPins.length === 0) {
-          this.loadMoreDevices();
-        }
-      });
-
-      let currentDevice;
-      Object.keys(this.networkDevices).forEach(key => {
-        const promises = [];
-        currentDevice = this.networkDevices[key];
-        // does the device id already have channel data associated with it?
-        if (!this.deviceChannelsMap[currentDevice.instance_id]) {
-          const baseurl = currentDevice.base_url;
-          const promise = this.fetchChannels({ baseurl }).then(channels => {
-            this.updateDeviceChannels(currentDevice, channels);
-            // Set loading to false once we have successfully fetched channels
-            // for any device.
-            this.loading = false;
-          });
-          promises.push(promise);
-        }
-        Promise.all(promises).then(() => {
-          // In case we don't successfully fetch any channels, don't do a perpetual loading
-          // state.
-          this.loading = false;
-        });
-      });
-    },
     methods: {
-      updateDeviceChannels(device, channels) {
-        const updatedDevice = {
-          ...device,
-          channels: channels.slice(0, 4),
-          total_count: channels.length,
-        };
-        this.deviceChannelsMap[device.instance_id] = updatedDevice;
-      },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;
