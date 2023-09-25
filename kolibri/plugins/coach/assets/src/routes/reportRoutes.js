@@ -17,7 +17,8 @@ import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 import { classIdParamRequiredGuard } from './utils';
 
 const ACTIVITY = '/activity';
-const CLASS = '/:classId?/reports';
+const OPTIONAL_CLASS = '/:classId?/reports';
+const CLASS = '/:classId/reports';
 const GROUPS = '/groups';
 const GROUP = '/groups/:groupId';
 const LEARNERS = '/learners';
@@ -45,7 +46,7 @@ function defaultHandler() {
 export default [
   {
     name: PageNames.REPORTS_PAGE,
-    path: path(CLASS),
+    path: path(OPTIONAL_CLASS),
     redirect: { name: 'ReportsLessonListPage' },
   },
   {
@@ -444,7 +445,7 @@ export default [
     },
   },
   {
-    path: path(CLASS, LESSONS),
+    path: path(OPTIONAL_CLASS, LESSONS),
     component: pages.ReportsLessonListPage,
     handler: (toRoute, fromRoute, next) => {
       if (classIdParamRequiredGuard(toRoute, 'ReportsLessonListPage', next)) {

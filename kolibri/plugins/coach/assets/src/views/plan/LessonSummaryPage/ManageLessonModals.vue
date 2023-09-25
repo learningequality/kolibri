@@ -115,9 +115,12 @@
         const { id } = this.currentLesson;
         return LessonResource.deleteModel({ id })
           .then(() => {
-            this.$router.replace(this.$router.getRoute('PLAN_LESSONS_ROOT'), () => {
-              this.showSnackbarNotification('lessonDeleted');
-            });
+            this.$router.replace(
+              this.$router.getRoute('PLAN_LESSONS_ROOT', { classId: this.classId }),
+              () => {
+                this.showSnackbarNotification('lessonDeleted');
+              }
+            );
           })
           .catch(error => {
             this.$store.dispatch('handleApiError', { error });
