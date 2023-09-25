@@ -641,7 +641,7 @@
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
         if (set_limit_for_autodownload === false) {
-          if (this.freeSpace === 0) {
+          if (this.freeSpace === null) {
             this.setFreeSpace().then(() => {
               this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
             });
