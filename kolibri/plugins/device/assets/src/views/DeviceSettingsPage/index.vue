@@ -441,7 +441,7 @@
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
         limitForAutodownload: '0',
-        freeSpace: 0,
+        freeSpace: null,
         deviceUrls: [],
         showChangePrimaryLocationModal: false,
         showAddStorageLocationModal: false,
@@ -565,7 +565,7 @@
     },
     created() {
       this.setDeviceURLs();
-      this.setFreeSpace();
+      if (this.freeSpace === null) this.setFreeSpace();
     },
     beforeMount() {
       this.getDeviceSettings()
@@ -640,7 +640,17 @@
         }
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
-        this.limitForAutodownload = limit_for_autodownload.toString();
+        if (set_limit_for_autodownload === false) {
+          if (this.freeSpace === null) {
+            this.setFreeSpace().then(() => {
+              this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+            });
+          } else {
+            this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+          }
+        } else {
+          this.limitForAutodownload = limit_for_autodownload.toString();
+        }
         this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {
