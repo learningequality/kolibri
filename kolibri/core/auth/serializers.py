@@ -2,10 +2,15 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+import logging
+
 from django.core.validators import MinLengthValidator
+from django.db import transaction
 from rest_framework import serializers
+from rest_framework.exceptions import ParseError
 from rest_framework.validators import UniqueTogetherValidator
 
+from .constants import facility_presets
 from .errors import IncompatibleDeviceSettingError
 from .errors import InvalidCollectionHierarchy
 from .errors import InvalidMembershipError
@@ -18,6 +23,9 @@ from .models import Membership
 from .models import Role
 from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+
+
+logger = logging.getLogger(__name__)
 
 
 class RoleSerializer(serializers.ModelSerializer):
@@ -135,6 +143,27 @@ class FacilitySerializer(serializers.ModelSerializer):
         model = Facility
         extra_kwargs = {"id": {"read_only": True}}
         fields = ("id", "name")
+
+
+class CreateFacilitySerializer(serializers.ModelSerializer):
+    preset = serializers.ChoiceField(choices=facility_presets.choices)
+
+    class Meta:
+        model = Facility
+        fields = ("id", "name", "preset")
+
+    def create(self, validated_data):
+        preset = validated_data.get("preset")
+        name = validated_data.get("name")
+        with transaction.atomic():
+            try:
+                facility_dataset = FacilityDataset.objects.create(preset=preset)
+                facility = Facility.objects.create(name=name, dataset=facility_dataset)
+                facility.dataset.reset_to_default_settings(preset)
+            except Exception as e:
+                logger.error("Error occured while creating facility: %s", str(e))
+                raise ParseError("Error occured while creating facility")
+        return facility
 
 
 class PublicFacilitySerializer(serializers.ModelSerializer):

@@ -139,6 +139,10 @@ export default createTranslator('NotificationStrings', {
     message: 'Device not removed',
     context: 'Snackbar message when a device fails to be removed from he sync schedule',
   },
+  newLearningFacilityCreated: {
+    message: 'New learning facility created',
+    context: 'Snackbar message when a new facility created',
+  },
   // TODO move more messages into this namespace:
   // - "Quiz started"
   // - "Quiz Ended"
