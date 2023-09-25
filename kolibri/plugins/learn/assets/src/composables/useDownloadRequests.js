@@ -10,7 +10,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 import Vue from 'kolibri.lib.vue';
-import useDevices from './useDevices';
+import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -35,7 +35,7 @@ const availableSpace = ref(0);
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
 
-  const { instanceId } = useDevices(store);
+  const { instanceId } = currentDeviceData(store);
 
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
