@@ -41,9 +41,11 @@ class NetworkLocationListener(KolibriInstanceListener):
     def _get_dynamic_network_location_task_priority(self, instance):
         priority = Priority.REGULAR
         is_current_device_lod = self.broadcast.instance.device_info.get(
-            "subset_of_users_device"
+            "subset_of_users_device", False
         )
-        is_discovered_device_lod = instance.device_info.get("subset_of_users_device")
+        is_discovered_device_lod = instance.device_info.get(
+            "subset_of_users_device", False
+        )
 
         # If the current device is not an LOD,
         # OR
