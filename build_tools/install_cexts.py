@@ -215,14 +215,34 @@ def parse_package_page(files, pk_version, index_url, cache_path):
     install_package(package_name, pk_version, index_url, result, cache_path)
 
 
-def parse_pypi_and_piwheels(name, pk_version, cache_path):
+def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
     """
     Start installing from the pypi and piwheels pages of the package.
     """
     links = [PYPI_DOWNLOAD, PIWHEEL_DOWNLOAD]
     for link in links:
-        r = requests.get(link + name)
-        if r.status_code == 200:
+        url = link + name
+        for _ in range(5):
+            try:
+                r = session.get(url)
+                r.raise_for_status()
+            except Exception as e:
+                print("Error retrieving {}: {}".format(url, e))
+            else:
+                if r.status_code == 200:
+                    # Got a valid response
+                    break
+
+                print(
+                    "Unexpected response from {}: {} {}".format(
+                        url, r.status_code, r.reason
+                    )
+                )
+
+            # Clear the response in case this is the last iteration
+            r = None
+
+        if r:
             files = BeautifulSoup(r.content, "html.parser")
             parse_package_page(files, pk_version, link, cache_path)
         else:
@@ -264,6 +284,9 @@ def parse_requirements(args):
             "pip version is lower or equal to 19.3.1. Please upgrade the pip version to run this script."
         )
 
+    # Start a requests session to reuse HTTP connections
+    session = requests.Session()
+
     with open(args.file) as f:
         cache_path = os.path.realpath(args.cache_path)
         cache_path = check_cache_path_writable(cache_path)
@@ -273,7 +296,7 @@ def parse_requirements(args):
                 # Parse PyPi and Piwheels pages to install package according to
                 # its name and version
                 parse_pypi_and_piwheels(
-                    char_list[0].strip(), char_list[1].strip(), cache_path
+                    char_list[0].strip(), char_list[1].strip(), cache_path, session
                 )
             # Ignore comments
             elif not line.startswith("#"):

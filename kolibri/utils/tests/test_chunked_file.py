@@ -5,6 +5,7 @@ import shutil
 import unittest
 
 from kolibri.utils.file_transfer import ChunkedFile
+from kolibri.utils.file_transfer import ChunkedFileDoesNotExist
 
 
 class TestChunkedFile(unittest.TestCase):
@@ -264,12 +265,25 @@ class TestChunkedFile(unittest.TestCase):
     def test_file_removed_by_parallel_process_after_opening(self):
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
         self.chunked_file._file_size = None
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChunkedFileDoesNotExist):
             self.chunked_file.file_size
 
     def test_file_finalized_by_parallel_process_after_opening(self):
         self.chunked_file.finalize_file()
         self.chunked_file.delete()
         self.chunked_file._file_size = None
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChunkedFileDoesNotExist):
             self.chunked_file.file_size
+
+    def test_file_finalized_by_parallel_process_after_opening_writing(self):
+        self.chunked_file.finalize_file()
+        self.chunked_file.delete()
+        with self.assertRaises(ChunkedFileDoesNotExist):
+            self.chunked_file.write_chunk(0, self.data[0 : self.chunk_size])
+
+    def test_file_finalized_by_parallel_process_after_opening_locking(self):
+        self.chunked_file.finalize_file()
+        self.chunked_file.delete()
+        with self.assertRaises(ChunkedFileDoesNotExist):
+            with self.chunked_file.lock_chunks(0):
+                pass

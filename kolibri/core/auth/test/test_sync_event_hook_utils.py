@@ -3,8 +3,8 @@ from django.test import SimpleTestCase
 from morango.sync.context import CompositeSessionContext
 from morango.sync.context import LocalSessionContext
 
-from kolibri.core.auth.sync_event_hook_utils import post_transfer_handler
-from kolibri.core.auth.sync_event_hook_utils import pre_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler
 
 
 MODULE_NAME = "kolibri.core.auth.sync_event_hook_utils"
@@ -33,7 +33,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
     def test_pre_transfer(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.pre_transfer.assert_not_called()
-        pre_transfer_handler(self.context)
+        pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_called_once_with(
             context=self.local_context,
             dataset_id="123",
@@ -46,7 +46,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         self.context.children = [mock.Mock()]
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.pre_transfer.assert_not_called()
-        pre_transfer_handler(self.context)
+        pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_not_called()
 
     @mock.patch("kolibri.core.auth.sync_event_hook_utils.logger")
@@ -54,7 +54,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.pre_transfer.assert_not_called()
         self.hook.pre_transfer.side_effect = RuntimeError()
-        pre_transfer_handler(self.context)
+        pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_called()
         mock_logger.error.assert_called_once_with(
             "TestHook.pre_transfer hook failed",
@@ -65,13 +65,13 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.pre_transfer.assert_not_called()
         self.hook.pre_transfer.side_effect = RuntimeError()
-        pre_transfer_handler(self.context)
+        pre_sync_transfer_handler(self.context)
         self.hook.pre_transfer.assert_called()
 
     def test_post_transfer(self, mock_hook_registry):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.post_transfer.assert_not_called()
-        post_transfer_handler(self.context)
+        post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_called_once_with(
             context=self.local_context,
             dataset_id="123",
@@ -84,7 +84,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         self.context.children = [mock.Mock()]
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.post_transfer.assert_not_called()
-        post_transfer_handler(self.context)
+        post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_not_called()
 
     @mock.patch("kolibri.core.auth.sync_event_hook_utils.logger")
@@ -92,7 +92,7 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.post_transfer.assert_not_called()
         self.hook.post_transfer.side_effect = RuntimeError()
-        post_transfer_handler(self.context)
+        post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_called()
         mock_logger.error.assert_called_once_with(
             "TestHook.post_transfer hook failed",
@@ -103,5 +103,5 @@ class FacilityDataSyncHooksTestCase(SimpleTestCase):
         mock_hook_registry.registered_hooks = [self.hook]
         self.hook.post_transfer.assert_not_called()
         self.hook.post_transfer.side_effect = RuntimeError()
-        post_transfer_handler(self.context)
+        post_sync_transfer_handler(self.context)
         self.hook.post_transfer.assert_called()

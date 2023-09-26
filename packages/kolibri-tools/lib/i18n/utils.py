@@ -138,13 +138,19 @@ def json_dump_formatted(data, file_path, file_name):
 
 def read_config_file():
     output = {}
-    config_file = os.path.join(os.getcwd(), "setup.cfg")
+    config_file = os.path.join(os.getcwd(), "pyproject.toml")
+    section_name = "tool.kolibri.i18n"
+
+    if not os.path.exists(config_file):
+        config_file = os.path.join(os.getcwd(), "setup.cfg")
+        section_name = "kolibri:i18n"
+
     if os.path.exists(config_file):
         config = configparser.ConfigParser()
         config.read(config_file)
-        if "kolibri:i18n" in config:
-            for key in config["kolibri:i18n"]:
-                output[key] = config["kolibri:i18n"][key]
+        if section_name in config:
+            for key in config[section_name]:
+                output[key] = config[section_name][key]
     return output
 
 

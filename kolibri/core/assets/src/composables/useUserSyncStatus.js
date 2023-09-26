@@ -30,7 +30,7 @@ export function fetchUserSyncStatus(params) {
       return syncData;
     },
     error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', { error });
       return error;
     }
   );

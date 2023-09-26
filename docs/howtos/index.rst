@@ -12,3 +12,4 @@ These guides are step by step guides for common tasks in getting started and wor
   installing_pyenv
   pyenv_virtualenv
   nodeenv
+  another_kolibri_instance

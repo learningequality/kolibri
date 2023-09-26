@@ -344,6 +344,7 @@
 
 <script>
 
+  import store from 'kolibri.coreVue.vuex.store';
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
@@ -360,6 +361,7 @@
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
+  import { showDeviceInfoPage } from '../../modules/deviceInfo/handlers';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -439,7 +441,7 @@
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
         limitForAutodownload: '0',
-        freeSpace: 0,
+        freeSpace: null,
         deviceUrls: [],
         showChangePrimaryLocationModal: false,
         showAddStorageLocationModal: false,
@@ -536,6 +538,9 @@
         }
       },
       deviceIsAndroid() {
+        if (this.deviceInfo === undefined) {
+          showDeviceInfoPage(store);
+        }
         if (this.getDeviceOS === undefined) {
           return true;
         }
@@ -560,7 +565,7 @@
     },
     created() {
       this.setDeviceURLs();
-      this.setFreeSpace();
+      if (this.freeSpace === null) this.setFreeSpace();
     },
     beforeMount() {
       this.getDeviceSettings()
@@ -635,7 +640,17 @@
         }
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
-        this.limitForAutodownload = limit_for_autodownload.toString();
+        if (set_limit_for_autodownload === false) {
+          if (this.freeSpace === null) {
+            this.setFreeSpace().then(() => {
+              this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+            });
+          } else {
+            this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+          }
+        } else {
+          this.limitForAutodownload = limit_for_autodownload.toString();
+        }
         this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {

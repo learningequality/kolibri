@@ -16,6 +16,8 @@ const ensureDist = require('./ensureDist');
  * node js require - however, they are properly handled by our webpack build process.
  */
 
+const ecmaVersion = 2023;
+
 // Find the API specification file relative to this file.
 const specFilePath = path.resolve(
   path.join(__dirname, '../../../kolibri/core/assets/src/core-app/apiSpec.js')
@@ -36,7 +38,7 @@ function specModule(filePath) {
   // Our strict linting rules should ensure that this regex suffices.
   const apiSpecFile = fs.readFileSync(filePath, { encoding: 'utf-8' });
 
-  const apiSpecTree = espree.parse(apiSpecFile, { sourceType: 'module', ecmaVersion: 2018 });
+  const apiSpecTree = espree.parse(apiSpecFile, { sourceType: 'module', ecmaVersion });
 
   const pathLookup = {};
 
@@ -152,7 +154,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
   const files = [];
 
   function parseJSDependencies(sourceContents, destinationFolder, sourceFolder) {
-    const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion: 2018 });
+    const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion });
     const importNodes = esquery.query(
       sourceTree,
       '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]'

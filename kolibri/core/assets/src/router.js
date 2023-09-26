@@ -18,10 +18,27 @@ class Router {
   }
 
   _hook(toRoute, fromRoute, next) {
+    // We do this so that synchronous code in the handler can call `next`
+    // but if the handler is asynchronous, any calls to `next` will be ignored
+    let nextCalled = false;
+    const nextOnce = (...args) => {
+      if (!nextCalled) {
+        next(...args);
+        nextCalled = true;
+      } else {
+        logging.warn(
+          'next() called multiple times - this may happen if you are invoking next() in an asynchronous handler'
+        );
+      }
+    };
+
     if (this._actions[toRoute.name]) {
-      this._actions[toRoute.name](toRoute, fromRoute);
+      this._actions[toRoute.name](toRoute, fromRoute, nextOnce);
     }
-    next();
+    if (!nextCalled) {
+      next();
+      nextCalled = true;
+    }
   }
 
   initRouter(options = {}) {

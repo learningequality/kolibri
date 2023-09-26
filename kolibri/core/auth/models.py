@@ -70,7 +70,7 @@ from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
-from kolibri.core.device.utils import DeviceNotProvisioned
+from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
@@ -1408,11 +1408,12 @@ class Facility(Collection):
 
     @classmethod
     def get_default_facility(cls):
-        try:
-            default_facility = get_device_setting("default_facility")
-        except DeviceNotProvisioned:
+        if not device_provisioned():
             # device has not been provisioned yet, so just return None in this case
             return None
+
+        default_facility = get_device_setting("default_facility")
+
         if not default_facility:
             # Legacy databases will not have this explicitly set.
             # Set this here to ensure future default facility queries are

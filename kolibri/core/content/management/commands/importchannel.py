@@ -196,12 +196,11 @@ class Command(AsyncCommand):
     ):
         progress_extra_data = {"channel_id": channel_id}
 
-        with filetransfer, self.start_progress(
-            total=filetransfer.transfer_size
-        ) as progress_update:
+        with filetransfer:
+            self.start_progress(total=filetransfer.transfer_size)
 
             def progress_callback(bytes):
-                progress_update(bytes, progress_extra_data)
+                self.update_progress(bytes, extra_data=progress_extra_data)
 
             filetransfer.run(progress_callback)
             # if upgrading, import the channel

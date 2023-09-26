@@ -31,7 +31,7 @@ export function setLessonSummaryState(store, params) {
       });
     })
     .catch(error => {
-      return store.dispatch('handleApiError', error);
+      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     });
 }
 

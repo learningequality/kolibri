@@ -10,7 +10,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'FacilitiesConfigPage' }
+            params: { subtopicName: 'FacilityConfigPage' }
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"

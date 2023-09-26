@@ -33,6 +33,7 @@ from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.device.translation import get_device_language
 from kolibri.core.device.translation import get_settings_language
 from kolibri.core.device.utils import get_device_info
+from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
@@ -457,6 +458,8 @@ def peerusersync(command, **kwargs):
     cleanup = False
     resync_interval = kwargs["resync_interval"]
     kwargs["keep_alive"] = True
+    if command == "resumesync":
+        kwargs["id"] = kwargs["sync_session_id"]
     try:
         call_command(command, **kwargs)
     except Exception as e:
@@ -465,8 +468,8 @@ def peerusersync(command, **kwargs):
             # override to reschedule a sync sooner in this case
             resync_interval = 5
             logger.warning(
-                "Failed to resume sync session for user {} to server {}; queuing its cleanup".format(
-                    kwargs["user"], kwargs["baseurl"]
+                "Failed to resume sync session for user {} to server {}: {}".format(
+                    kwargs["user"], kwargs["baseurl"], str(e)
                 )
             )
         elif isinstance(e, UserCancelledError):
@@ -548,62 +551,66 @@ def stoppeerusersync(server, user_id):
     if sync_session is None:
         return
 
-    logger.debug("Enqueuing cleanup of SoUD sync session {}".format(sync_session.id))
     return queue_soud_sync_cleanup(sync_session.id)
 
 
-def begin_request_soud_sync(server, user):
+def fetch_soud_jobs(user_id, state):
+    """
+    Fetch all SoUD (`peerusersync`) jobs for a user with a given state
+    :param user_id: The user ID scope for the sync job
+    :param state: The status of the job(s) to fetch
+    :rtype: kolibri.core.tasks.job.Job[]
+    """
+    jobs = []
+    for job in job_storage.filter_jobs(
+        func=peerusersync.func_string,
+        state=state,
+    ):
+        if job.kwargs.get("user", None) == user_id:
+            jobs.append(job)
+    return jobs
+
+
+def begin_request_soud_sync(server, user_id):
     """
     Enqueue a task to request this SoUD to be
     synced with a server
     """
-    info = get_device_info()
-    if not info["subset_of_users_device"]:
+    if not get_device_setting("subset_of_users_device"):
         # this does not make sense unless this is a SoUD
         logger.warning("Only Subsets of Users Devices can do automated SoUD syncing.")
         return
-    users = UserSyncStatus.objects.filter(user_id=user).values(
+    users = UserSyncStatus.objects.filter(user_id=user_id).values(
         "queued", "sync_session__last_activity_timestamp"
     )
     if users:
         SYNC_INTERVAL = OPTIONS["Deployment"]["SYNC_INTERVAL"]
         dt = datetime.timedelta(seconds=SYNC_INTERVAL)
-        if timezone.now() - users[0]["sync_session__last_activity_timestamp"] < dt:
-            schedule_new_sync(server, user)
+        last_sync = users[0]["sync_session__last_activity_timestamp"]
+
+        if last_sync is not None and timezone.now() - last_sync < dt:
+            schedule_new_sync(server, user_id)
             return
 
         if users[0]["queued"]:
-            all_jobs = job_storage.get_all_jobs()
-            failed_jobs = [
-                j
-                for j in all_jobs
-                if j.state == State.FAILED
-                and j.extra_metadata.get("started_by", None) == user
-                and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
-            ]
-            queued_jobs = [
-                j
-                for j in all_jobs
-                if j.state == State.QUEUED
-                and j.extra_metadata.get("started_by", None) == user
-                and j.extra_metadata.get("type", None) == "SYNCPEER/SINGLE"
-            ]
+            failed_jobs = fetch_soud_jobs(user_id, State.FAILED)
             if failed_jobs:
                 for j in failed_jobs:
                     job_storage.clear(job_id=j.job_id)
                 # if previous sync jobs have failed, unblock UserSyncStatus to try again:
                 UserSyncStatus.objects.update_or_create(
-                    user_id=user, defaults={"queued": False}
+                    user_id=user_id, defaults={"queued": False}
                 )
-            elif queued_jobs:
-                return  # If there are pending and not failed jobs, don't enqueue a new one
+            elif any(fetch_soud_jobs(user_id, State.QUEUED)):
+                # If there are pending and not failed jobs, don't enqueue a new one
+                return
 
     logger.info(
         "Queuing SoUD syncing request against server {} for user {}".format(
-            server, user
+            server, user_id
         )
     )
-    request_soud_sync.enqueue(args=(server, user))
+    request_soud_sync.enqueue(args=(server, user_id))
 
 
 def stop_request_soud_sync(server, user):
@@ -748,12 +755,8 @@ def schedule_new_sync(server, user, interval=OPTIONS["Deployment"]["SYNC_INTERVA
         )
     )
     dt = datetime.timedelta(seconds=interval)
-    current_job = get_current_job()
-    if current_job:
-        current_job.retry_in(dt)
-    else:
-        JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
-        request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
+    JOB_ID = hashlib.md5("{}:{}".format(server, user).encode()).hexdigest()
+    request_soud_sync.enqueue_in(dt, args=(server, user), job_id=JOB_ID)
 
 
 @register_task(
@@ -779,6 +782,9 @@ def queue_soud_sync_cleanup(*sync_session_ids):
 
     :param sync_session_ids: ID's of sync sessions we should cleanup
     """
+    logger.info(
+        "Enqueueing cleanup of sync sessions: {}".format(", ".join(sync_session_ids))
+    )
     return soud_sync_cleanup.enqueue(kwargs=dict(pk__in=sync_session_ids))
 
 

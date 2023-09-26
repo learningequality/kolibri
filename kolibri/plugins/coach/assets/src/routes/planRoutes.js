@@ -14,8 +14,8 @@ export default [
   ...planExamRoutes,
   {
     name: PageNames.PLAN_PAGE,
-    path: '/:classId/plan',
-    redirect: '/:classId/plan/lessons',
+    path: '/:classId?/plan',
+    redirect: '/:classId?/plan/lessons',
   },
   {
     name: GroupsPage.name,

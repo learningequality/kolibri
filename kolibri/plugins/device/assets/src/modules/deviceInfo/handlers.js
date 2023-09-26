@@ -52,7 +52,9 @@ export function showDeviceInfoPage(store) {
         }
       })
       .catch(function onFailure(error) {
-        shouldResolve() ? store.dispatch('handleError', error) : null;
+        shouldResolve()
+          ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+          : null;
       });
   }
   return Promise.resolve();

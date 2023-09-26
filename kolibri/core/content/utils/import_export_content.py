@@ -105,6 +105,7 @@ def get_import_export_data(
     renderable_only=True,
     topic_thumbnails=True,
     all_thumbnails=False,
+    check_file_availability=True,
 ):
     """
     Helper function that calls get_import_export_nodes followed by
@@ -119,6 +120,7 @@ def get_import_export_data(
         drive_id=drive_id,
         peer_id=peer_id,
         renderable_only=renderable_only,
+        check_file_availability=check_file_availability,
     )
     return get_content_nodes_data(
         channel_id,
@@ -137,6 +139,7 @@ def get_import_export_nodes(  # noqa: C901
     drive_id=None,
     peer_id=None,
     renderable_only=True,
+    check_file_availability=True,
 ):
     """
     Returns a list of queries for ContentNode objects matching the given
@@ -162,9 +165,10 @@ def get_import_export_nodes(  # noqa: C901
     if available is not None:
         nodes_to_include = nodes_to_include.filter(available=available)
 
-    nodes_to_include = filter_by_file_availability(
-        nodes_to_include, channel_id, drive_id, peer_id
-    )
+    if check_file_availability:
+        nodes_to_include = filter_by_file_availability(
+            nodes_to_include, channel_id, drive_id, peer_id
+        )
 
     while min_boundary < max_rght:
         max_boundary = min_boundary + dynamic_chunksize

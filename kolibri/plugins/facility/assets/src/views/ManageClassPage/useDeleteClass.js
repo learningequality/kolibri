@@ -29,7 +29,7 @@ export default function useDeleteClass(classroomProp) {
         $store.commit('classManagement/DELETE_CLASS', deleteId);
       },
       error => {
-        $store.dispatch('handleApiError', error);
+        $store.dispatch('handleApiError', { error });
       }
     );
   }

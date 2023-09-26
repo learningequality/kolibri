@@ -18,6 +18,7 @@ from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.content_request import _process_content_requests
+from kolibri.core.content.utils.content_request import _process_download
 from kolibri.core.content.utils.content_request import _total_size
 from kolibri.core.content.utils.content_request import completed_downloads_queryset
 from kolibri.core.content.utils.content_request import incomplete_downloads_queryset
@@ -26,8 +27,10 @@ from kolibri.core.content.utils.content_request import InsufficientStorage
 from kolibri.core.content.utils.content_request import PreferredDevices
 from kolibri.core.content.utils.content_request import PreferredDevicesWithClient
 from kolibri.core.content.utils.content_request import process_content_removal_requests
+from kolibri.core.content.utils.content_request import process_download_request
 from kolibri.core.content.utils.content_request import process_metadata_import
 from kolibri.core.content.utils.content_request import synchronize_content_requests
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkError
@@ -372,6 +375,7 @@ class BaseQuerysetTestCase(BaseTestCase):
             id=uuid.uuid4().hex,
             contentnode=parent,
             thumbnail=True,
+            supplementary=True,
             local_file=LocalFile.objects.create(
                 id=uuid.uuid4().hex,
                 file_size=10,
@@ -403,21 +407,8 @@ class BaseQuerysetTestCase(BaseTestCase):
                 extension="mp4",
             ),
         )
-        # supplementary node file
-        File.objects.create(
-            id=uuid.uuid4().hex,
-            contentnode=node,
-            preset="document",
-            supplementary=True,
-            local_file=LocalFile.objects.create(
-                id=uuid.uuid4().hex,
-                file_size=33,
-                available=available,
-                extension="pdf",
-            ),
-        )
         node.refresh_from_db()
-        self.assertEqual(node.files.all().count(), 3)
+        self.assertEqual(node.files.all().count(), 2)
         return (parent, node)
 
 
@@ -511,7 +502,6 @@ class CompletedDownloadsQuerysetTestCase(BaseQuerysetTestCase):
 
     def test_has_metadata__yes(self):
         _, node = self._create_resources(self.request.contentnode_id)
-        self.assertEqual(node.files.all().count(), 3)
         qs = completed_downloads_queryset().filter(has_metadata=True)
         self.assertEqual(
             qs.count(),
@@ -919,3 +909,178 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         # should be marked completed
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 1)
+
+
+class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
+    def setUp(self):
+        super(ProcessDownloadRequestTestCase, self).setUp()
+        self.request = ContentDownloadRequest.build_for_user(self.learner)
+        self.request.contentnode_id = uuid.uuid4().hex
+        self.request.save()
+        self.node = ContentNode.objects.create(
+            pk=self.request.contentnode_id,
+            title="test",
+            available=False,
+            content_id=uuid.uuid4().hex,
+            channel_id=uuid.uuid4().hex,
+        )
+        mock_devices_patcher = mock.patch(_module + "PreferredDevices")
+        self.mock_devices = mock_devices_patcher.start()
+        self.addCleanup(mock_devices_patcher.stop)
+
+        self.mock_sync_peers = self.mock_devices.build_from_sync_sessions.return_value
+        self.mock_sync_peer = mock.MagicMock()
+        self.mock_sync_peers.__iter__.return_value = [self.mock_sync_peer]
+
+        self.mock_preferred_peers = self.mock_devices.return_value
+        self.mock_preferred_peer = mock.MagicMock()
+        self.mock_preferred_peers.__iter__.return_value = [self.mock_preferred_peer]
+
+    @mock.patch(_module + "_process_download")
+    def test_without_source_instance_id__fail(self, mock_process):
+        mock_process.return_value = False
+        process_download_request(self.request)
+        self.mock_devices.build_from_sync_sessions.assert_called_once()
+        self.mock_devices.assert_not_called()
+        mock_process.assert_called_once_with(
+            self.request,
+            self.node.channel_id,
+            self.mock_sync_peer,
+        )
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+
+    @mock.patch(_module + "_process_download")
+    def test_without_source_instance_id__success(self, mock_process):
+        mock_process.return_value = True
+        process_download_request(self.request)
+        self.mock_devices.build_from_sync_sessions.assert_called_once()
+        self.mock_devices.assert_not_called()
+        mock_process.assert_called_once_with(
+            self.request,
+            self.node.channel_id,
+            self.mock_sync_peer,
+        )
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Completed)
+
+    @mock.patch(_module + "_process_download")
+    def test_with_source_instance_id__all_fail(self, mock_process):
+        self.request.source_instance_id = uuid.uuid4().hex
+        self.request.save()
+
+        mock_process.return_value = False
+        process_download_request(self.request)
+        self.mock_devices.build_from_sync_sessions.assert_called_once()
+        self.mock_devices.assert_called_once_with(
+            instance_ids=[self.request.source_instance_id]
+        )
+        mock_process.assert_has_calls(
+            [
+                # calls preferred peer first
+                mock.call(
+                    self.request,
+                    self.node.channel_id,
+                    self.mock_preferred_peer,
+                ),
+                mock.call(
+                    self.request,
+                    self.node.channel_id,
+                    self.mock_sync_peer,
+                ),
+            ]
+        )
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Failed)
+
+    @mock.patch(_module + "_process_download")
+    def test_with_source_instance_id__preferred_fail(self, mock_process):
+        self.request.source_instance_id = uuid.uuid4().hex
+        self.request.save()
+
+        mock_process.side_effect = [False, True]
+        process_download_request(self.request)
+        self.mock_devices.build_from_sync_sessions.assert_called_once()
+        self.mock_devices.assert_called_once_with(
+            instance_ids=[self.request.source_instance_id]
+        )
+        mock_process.assert_has_calls(
+            [
+                # calls preferred peer first
+                mock.call(
+                    self.request,
+                    self.node.channel_id,
+                    self.mock_preferred_peer,
+                ),
+                mock.call(
+                    self.request,
+                    self.node.channel_id,
+                    self.mock_sync_peer,
+                ),
+            ]
+        )
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Completed)
+
+    @mock.patch(_module + "_process_download")
+    def test_with_source_instance_id__preferred_success(self, mock_process):
+        self.request.source_instance_id = uuid.uuid4().hex
+        self.request.save()
+
+        mock_process.side_effect = [True]
+        process_download_request(self.request)
+        self.mock_devices.build_from_sync_sessions.assert_called_once()
+        self.mock_devices.assert_called_once_with(
+            instance_ids=[self.request.source_instance_id]
+        )
+        mock_process.assert_has_calls(
+            [
+                # calls preferred peer first
+                mock.call(
+                    self.request,
+                    self.node.channel_id,
+                    self.mock_preferred_peer,
+                ),
+            ]
+        )
+        self.request.refresh_from_db()
+        self.assertEqual(self.request.status, ContentRequestStatus.Completed)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_download__exception(self, mock_import_manager):
+        mock_import_manager.return_value.run.side_effect = Exception("test")
+        result = _process_download(
+            self.request, self.node.channel_id, self.mock_preferred_peer
+        )
+        mock_import_manager.return_value.run.assert_called_once()
+        self.assertFalse(result)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_download__manager_exception(self, mock_import_manager):
+        mock_import_manager.return_value.run.return_value = [None, None]
+        mock_import_manager.return_value.exception = LocationError("test")
+        result = _process_download(
+            self.request, self.node.channel_id, self.mock_preferred_peer
+        )
+        mock_import_manager.return_value.run.assert_called_once()
+        self.assertFalse(result)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_download__no_count(self, mock_import_manager):
+        mock_import_manager.return_value.run.return_value = [None, 0]
+        mock_import_manager.return_value.exception = None
+        result = _process_download(
+            self.request, self.node.channel_id, self.mock_preferred_peer
+        )
+        mock_import_manager.return_value.run.assert_called_once()
+        self.assertFalse(result)
+
+    @mock.patch(_module + "ContentDownloadRequestResourceImportManager")
+    def test_download__success(self, mock_import_manager):
+        mock_import_manager.return_value.run.return_value = [None, 1]
+        mock_import_manager.return_value.exception = None
+        result = _process_download(
+            self.request, self.node.channel_id, self.mock_preferred_peer
+        )
+        mock_import_manager.return_value.run.assert_called_once()
+        self.assertTrue(result)

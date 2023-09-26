@@ -11,39 +11,43 @@ import { ClassesPageNames } from '../../../../learn/assets/src/constants';
 import { PageNames } from '../constants';
 import reportRoutes from './reportRoutes';
 import planRoutes from './planRoutes';
+import { classIdParamRequiredGuard } from './utils';
 
 export default [
   ...planRoutes,
   ...reportRoutes,
   {
-    path: '/facilities',
+    name: 'AllFacilitiesPage',
+    path: '/facilities/:subtopicName?',
     component: AllFacilitiesPage,
+    props: true,
     handler() {
       store.dispatch('notLoading');
     },
   },
   {
-    path: '/classes',
+    path: '/:facility_id?/classes/:subtopicName?',
     component: CoachClassListPage,
+    props: true,
     handler(toRoute) {
-      store.dispatch('loading');
+      // loading state is handled locally
+      store.dispatch('notLoading');
       // if user only has access to one facility, facility_id will not be accessible from URL,
       // but always defaulting to userFacilityId would cause problems for multi-facility admins
-      const facilityId = toRoute.query.facility_id || store.getters.userFacilityId;
+      const facilityId = toRoute.params.facility_id || store.getters.userFacilityId;
       store.dispatch('setClassList', facilityId).then(
         () => {
           if (!store.getters.classListPageEnabled) {
-            // If no class list page, redirect to
-            // the first (and only) class.
+            // If no class list page, redirect to the first (and only) class and
+            // to the originally-selected subtopic, if available
             router.replace({
-              name: HomePage.name,
+              name: toRoute.params.subtopicName || HomePage.name,
               params: { classId: store.state.classList[0].id },
             });
             return;
           }
-          store.dispatch('notLoading');
         },
-        error => store.dispatch('handleApiError', error)
+        error => store.dispatch('handleApiError', { error, reloadOnReconnect: true })
       );
     },
     meta: {
@@ -52,9 +56,12 @@ export default [
   },
   {
     name: PageNames.HOME_PAGE,
-    path: '/:classId/home',
+    path: '/:classId?/home',
     component: HomePage,
-    handler() {
+    handler: (toRoute, fromRoute, next) => {
+      if (classIdParamRequiredGuard(toRoute, HomePage.name, next)) {
+        return;
+      }
       store.dispatch('notLoading');
     },
     meta: {
@@ -71,7 +78,6 @@ export default [
       titleParts: ['activityLabel', 'CLASS_NAME'],
     },
   },
-
   {
     name: ClassesPageNames.CLASS_LEARNERS_LIST_VIEWER,
     path: '/:classId/learners',

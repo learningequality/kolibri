@@ -172,7 +172,7 @@ export default {
   },
   logos: {
     type: Array,
-    default: [],
+    default: () => [],
     spec: _imageSpec,
   },
 };

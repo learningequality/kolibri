@@ -202,7 +202,7 @@
           this.setUpPage(pageData);
         })
         .catch(error => {
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         });
     },
     methods: {
@@ -240,7 +240,7 @@
               }
             })
             .catch(error => {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             });
         }
       },
@@ -327,7 +327,7 @@
             if (error.response.status === 404) {
               this.$router.replace({ name: PageNames.MANAGE_CONTENT_PAGE });
             } else {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             }
           });
       },

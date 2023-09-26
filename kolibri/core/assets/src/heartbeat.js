@@ -251,6 +251,11 @@ export class HeartBeat {
     store.commit('CORE_SET_CONNECTED', true);
     store.commit('CORE_SET_RECONNECT_TIME', null);
     createReconnectedSnackbar(store);
+    if (store.state.core.connection.reloadOnReconnect) {
+      // If we were disconnected while loading, we need to reload the page
+      // to ensure that we are in a consistent state.
+      window.location.reload();
+    }
     this._wait();
   }
   /*

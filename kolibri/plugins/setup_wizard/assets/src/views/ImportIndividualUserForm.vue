@@ -339,7 +339,7 @@
             ]);
             if (errorsCaught) {
               this.error = true;
-            } else this.$store.dispatch('handleApiError', error);
+            } else this.$store.dispatch('handleApiError', { error });
           });
       },
     },

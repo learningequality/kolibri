@@ -64,7 +64,7 @@ export function showUserPermissionsPage(store, userId) {
         if (error.response.status === 404) {
           setUserPermissionsState({ user: null, permissions: {} });
         }
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         stopLoading();
       }
     });
