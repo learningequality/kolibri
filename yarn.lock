@@ -1459,10 +1459,10 @@
   resolved "https://registry.yarnpkg.com/@pkgjs/parseargs/-/parseargs-0.11.0.tgz#a77ea742fab25775145434eb1d2328cf5013ac33"
   integrity sha512-+1VkjdD0QBLPodGrJUeqarH8VAIvQODIbwh9XpP5Syisf7YoQgsJKPNFoqqLQlu+VQ/tVSshMR6loPMn8U+dPg==
 
-"@shopify/draggable@^1.0.0-beta.8":
-  version "1.0.0-beta.8"
-  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.0-beta.8.tgz#2eb3c2f72298ce3e53fe16f34ab124cc495cd4fc"
-  integrity sha512-9IeBPQM93Ad4qFKUopwuTClzoST/1OId4MaSd/8FB5ScCL2tl25UaOGNR8E2hjiL7xK4LN5+I1Ews6amS7YAiA==
+"@shopify/draggable@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@shopify/draggable/-/draggable-1.0.1.tgz#ffb7529288d6b1dec11e6f59567ea9c64325399e"
+  integrity sha512-j3P0VNSAYX4++ggIQuJ1q0+Vo28WO7gBDbubNJsBuh2DD7gyObAL641MuFO9ancEAx3BXaAK/7SdLMwG3GXHkw==
 
 "@sinclair/typebox@^0.27.8":
   version "0.27.8"
