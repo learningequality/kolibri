@@ -7,6 +7,8 @@ from django.apps import apps
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.utils.lock import db_lock
+from kolibri.utils.conf import OPTIONS
+from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
 from kolibri.utils.time_utils import local_now
 
 
@@ -67,5 +69,30 @@ def schedule_vacuum():
     # Repeat indefinitely
     try:
         perform_vacuum.enqueue_at(vacuum_time, repeat=None, interval=24 * 60 * 60)
+    except JobRunning:
+        pass
+
+
+# Constant job id for streamed cache cleanup task
+STREAMED_CACHE_CLEANUP_JOB_ID = "streamed_cache_cleanup"
+
+
+@register_task(job_id=STREAMED_CACHE_CLEANUP_JOB_ID)
+def streamed_cache_cleanup():
+    manager = ChunkedFileDirectoryManager(OPTIONS["Paths"]["CONTENT_DIR"])
+    manager.limit_files(OPTIONS["Cache"]["STREAMED_FILE_CACHE_SIZE"])
+
+
+def schedule_streamed_cache_cleanup():
+    current_dt = local_now()
+    cleanup_time = current_dt.replace(hour=1, minute=0, second=0, microsecond=0)
+    if cleanup_time < current_dt:
+        # If it is past 1AM, change the day to tomorrow.
+        cleanup_time = cleanup_time + timedelta(days=1)
+    # Repeat indefinitely
+    try:
+        streamed_cache_cleanup.enqueue_at(
+            cleanup_time, repeat=None, interval=24 * 60 * 60
+        )
     except JobRunning:
         pass

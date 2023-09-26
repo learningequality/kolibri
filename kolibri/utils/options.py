@@ -404,6 +404,16 @@ base_option_spec = {
             "default": "",
             "description": "Eviction policy to use when using Redis for caching, Redis only.",
         },
+        "STREAMED_FILE_CACHE_SIZE": {
+            "type": "bytes",
+            "default": "500MB",
+            "description": """
+                Disk space to be used for caching streamed files. This is used for caching files that are
+                being streamed from remote libraries, if these files are later imported, these should be cleaned up,
+                and will no longer count to this cache size.
+                Value can either be a number suffixed with a unit (e.g. MB, GB, TB) or an integer number of bytes.
+            """,
+        },
     },
     "Database": {
         "DATABASE_ENGINE": {

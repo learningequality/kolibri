@@ -159,22 +159,25 @@ class TestServerDefaultScheduledTasks(object):
             # two userdefined and two server defined (pingback and vacuum)
             from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
             from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
+            from kolibri.core.deviceadmin.tasks import STREAMED_CACHE_CLEANUP_JOB_ID
 
-            assert len(job_storage) == 4
+            assert len(job_storage) == 5
             assert job_storage.get_job(test1) is not None
             assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 
             # Restart services
             default_scheduled_tasks_plugin.START()
 
             # Make sure all scheduled jobs persist after restart
-            assert len(job_storage) == 4
+            assert len(job_storage) == 5
             assert job_storage.get_job(test1) is not None
             assert job_storage.get_job(test2) is not None
             assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
             assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 
 
 class TestZeroConfPlugin(object):
