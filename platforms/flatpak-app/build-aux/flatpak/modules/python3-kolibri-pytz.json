@@ -7,8 +7,12 @@
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/9c/3d/a121f284241f08268b21359bd425f7d4825cffc5ac5cd0e1b3d82ffd2b10/pytz-2024.1-py2.py3-none-any.whl",
-            "sha256": "328171f4e3623139da4983451950b28e95ac706e13f3f2630a879749e7a8b319"
+            "url": "https://files.pythonhosted.org/packages/90/26/9f1f00a5d021fff16dee3de13d43e5e978f3d58928e129c3a62cf7eb9738/pytz-2024.1.tar.gz",
+            "sha256": "2a29735ea9c18baf14b448846bde5a48030ed267578472d8955cd0e7443a9812",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "pytz"
+            }
         }
     ]
 }
