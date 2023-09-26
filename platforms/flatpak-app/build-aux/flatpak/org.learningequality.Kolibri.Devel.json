@@ -53,7 +53,6 @@
         "modules/python3-kolibri-app-desktop-xdg-plugin.json",
         "modules/python3-kolibri-desktop-auth-plugin.json",
         "modules/python3-setproctitle.json",
-        "modules/python3-virtualenv-api.json",
         "modules/kolibri-content-dir.json",
         "modules/kolibri-plugins-dir.json",
         {
