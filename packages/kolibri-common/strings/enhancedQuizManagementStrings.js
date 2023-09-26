@@ -44,7 +44,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Quiz resource selection',
   },
   selectResourcesFromChannels: {
-    messages: 'Select resources from channels',
+    message: 'Select resources from channels',
   },
   sectionOrder: {
     message: 'Section order',
