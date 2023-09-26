@@ -422,3 +422,38 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
                 ),
             ],
         )
+
+    def test_limit_files_no_eviction_needed(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TEST_FILE_SIZE * 3)
+        self.assertEqual(
+            list(manager._get_chunked_file_dirs()),
+            [
+                os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
+                os.path.join(
+                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
+                ),
+            ],
+        )
+
+    def test_limit_files_some_eviction_needed(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TEST_FILE_SIZE * 2)
+        self.assertEqual(
+            list(manager._get_chunked_file_dirs()),
+            [
+                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
+                os.path.join(
+                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
+                ),
+            ],
+        )
+
+    def test_limit_files_all_evicted(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TEST_FILE_SIZE - 12)
+        self.assertEqual(
+            list(manager._get_chunked_file_dirs()),
+            [],
+        )

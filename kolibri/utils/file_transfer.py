@@ -137,6 +137,21 @@ class ChunkedFileDirectoryManager(object):
             stats[chunked_file_dir] = file_stats
         return stats
 
+    def _do_file_eviction(self, chunked_file_stats, file_size):
+        chunked_file_dirs = sorted(
+            chunked_file_stats.keys(),
+            key=lambda x: chunked_file_stats[x]["last_access_time"],
+        )
+        evicted_file_size = 0
+        for chunked_file_dir in chunked_file_dirs:
+            # Do the check here to catch the edge case where file_size is <= 0
+            if file_size <= evicted_file_size:
+                break
+            file_stats = chunked_file_stats[chunked_file_dir]
+            evicted_file_size += file_stats["size"]
+            shutil.rmtree(chunked_file_dir)
+        return evicted_file_size
+
     def evict_files(self, file_size):
         """
         Attempt to clean up file_size bytes of space in the chunked file directory.
@@ -144,19 +159,20 @@ class ChunkedFileDirectoryManager(object):
         until the target file size is reached.
         """
         chunked_file_stats = self._get_chunked_file_stats()
-        chunked_file_dirs = sorted(
-            chunked_file_stats.keys(),
-            key=lambda x: chunked_file_stats[x]["last_access_time"],
+        return self._do_file_eviction(chunked_file_stats, file_size)
+
+    def limit_files(self, max_size):
+        """
+        Limits the total size used to a certain number of bytes.
+        If the total size of all chunked files exceeds max_size, the oldest files are evicted.
+        """
+        chunked_file_stats = self._get_chunked_file_stats()
+
+        total_size = sum(
+            file_stats["size"] for file_stats in chunked_file_stats.values()
         )
-        evicted_file_size = 0
-        for chunked_file_dir in chunked_file_dirs:
-            # Do the check here to catch the edge case where file_size is 0
-            if file_size <= evicted_file_size:
-                break
-            file_stats = chunked_file_stats[chunked_file_dir]
-            evicted_file_size += file_stats["size"]
-            shutil.rmtree(chunked_file_dir)
-        return evicted_file_size
+
+        return self._do_file_eviction(chunked_file_stats, total_size - max_size)
 
 
 class ChunkedFile(BufferedIOBase):
