@@ -248,13 +248,8 @@ class ZipContentServerPlugin(ServerPlugin):
     START.priority = 75
 
 
-class ServicesPlugin(SimplePlugin):
-    def __init__(self, bus):
-        self.bus = bus
-        self.worker = None
-
+class DefaultScheduledTasksPlugin(SimplePlugin):
     def START(self):
-        from kolibri.core.tasks.main import initialize_workers
         from kolibri.core.analytics.tasks import schedule_ping
         from kolibri.core.deviceadmin.tasks import schedule_vacuum
 
@@ -263,6 +258,15 @@ class ServicesPlugin(SimplePlugin):
 
         # schedule the vacuum job if not already scheduled
         schedule_vacuum()
+
+
+class ServicesPlugin(SimplePlugin):
+    def __init__(self, bus):
+        self.bus = bus
+        self.worker = None
+
+    def START(self):
+        from kolibri.core.tasks.main import initialize_workers
 
         # Initialize the iceqube engine to handle queued tasks
         self.worker = initialize_workers()
@@ -733,6 +737,9 @@ class BaseKolibriProcessBus(ProcessBus):
 
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
+
+        default_scheduled_tasks_plugin = DefaultScheduledTasksPlugin(self)
+        default_scheduled_tasks_plugin.subscribe()
 
     def run(self):
         self.graceful()
