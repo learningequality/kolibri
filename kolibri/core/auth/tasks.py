@@ -46,6 +46,7 @@ from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.job import JobStatus
+from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import IsAdminForJob
@@ -627,9 +628,7 @@ def stop_request_soud_sync(server, user):
     stoppeerusersync(server, user)
 
 
-@register_task(
-    queue=soud_sync_queue,
-)
+@register_task(queue=soud_sync_queue, priority=Priority.HIGH, status_fn=status_fn)
 def request_soud_sync(server, user, queue_id=None, ttl=4):
     """
     Make a request to the serverurl endpoint to sync this SoUD (Subset of Users Device)
