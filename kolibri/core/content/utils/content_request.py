@@ -970,12 +970,13 @@ class StorageCalculator:
             total_size=_total_size_annotation(available=True),
         )
         self.free_space = 0
+        self.incomplete_downloads_size = 0
 
     def _calculate_space_available(self):
+        self.incomplete_downloads_size = _total_size(self.incomplete_downloads)
         free_space = get_free_space_for_downloads(
             completed_size=_total_size(completed_downloads_queryset())
         )
-        free_space -= _total_size(self.incomplete_downloads)
         free_space += _total_size(self.incomplete_sync_removals)
         free_space += _total_size(self.incomplete_user_removals)
         free_space += _total_size(self.complete_user_downloads)
@@ -984,4 +985,4 @@ class StorageCalculator:
 
     def is_space_sufficient(self):
         self._calculate_space_available()
-        return self.free_space > _total_size(self.incomplete_downloads)
+        return self.free_space > self.incomplete_downloads_size
