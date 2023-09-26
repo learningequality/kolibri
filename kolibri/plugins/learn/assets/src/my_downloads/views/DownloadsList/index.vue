@@ -3,11 +3,11 @@
   <form>
 
     <PaginatedListContainerWithBackend
-      v-if="downloadRequestMap"
+      v-if="downloadItemsListLength > 0"
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPageNumber"
-      :numFilteredItems="Object.keys(downloadRequestMap).length"
+      :numFilteredItems="downloadItemsListLength"
     >
       <CoreTable>
         <template #headers>
@@ -83,7 +83,7 @@
           </tbody>
         </template>
       </CoreTable>
-      <p v-if="!loading && (!downloadRequestMap || !Object.keys(downloadRequestMap).length)">
+      <p v-if="!loading && (!downloadRequestMap || !downloadItemsListLength)">
         {{ coreString('noResourcesDownloaded') }}
       </p>
     </PaginatedListContainerWithBackend>
@@ -140,7 +140,7 @@
       const sort = computed(() => query.value.sort);
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
       const activityType = computed(() => query.value.activity || 'all');
-      const sortedFilteredDownloads = () => {
+      const downloads = computed(() => {
         let downloadsToDisplay = [];
         if (downloadRequestMap) {
           for (const [, value] of Object.entries(downloadRequestMap)) {
@@ -178,16 +178,13 @@
           }
         }
         return downloadsToDisplay;
-      };
-      sortedFilteredDownloads();
-      const downloads = computed(() => sortedFilteredDownloads());
+      });
       return {
         downloadRequestMap,
         pageSizeNumber,
         getLearningActivityIcon,
         downloads,
         networkDevices,
-        sortedFilteredDownloads,
         availableSpace,
         genExternalContentURLBackLinkCurrentPage,
       };
@@ -237,13 +234,16 @@
         },
       },
       paginatedDownloads() {
-        if (this.downloads && this.downloads.length > 0) {
+        if (this.downloads.length > 0) {
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;
           const endIndex = startIndex + this.itemsPerPage;
           return this.downloads.slice(startIndex, endIndex);
         } else {
           return [];
         }
+      },
+      downloadItemsListLength() {
+        return Object.keys(this.downloadRequestMap).length;
       },
       totalPageNumber() {
         if (
@@ -303,12 +303,10 @@
       },
       removeResource(download) {
         this.$emit('removeResources', [download]);
-        this.sortedFilteredDownloads();
       },
       removeResources() {
         this.$emit('removeResources', this.resourcesToDelete);
         this.resourcesToDelete = [];
-        this.sortedFilteredDownloads();
       },
       getIcon(activities) {
         return this.getLearningActivityIcon(activities);

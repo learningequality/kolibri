@@ -4,7 +4,7 @@
     :appBarTitle="learnString('exploreLibraries')"
     :route="back"
     :primary="false"
-    :loading="loading.value"
+    :loading="loading"
   >
     <div
       class="page-header"
@@ -98,15 +98,10 @@
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
       const { back } = useContentLink();
       const deviceChannelsMap = reactive({});
-      const loading = ref(false);
+      const loading = ref(true);
 
       function _updateDeviceChannels(device, channels) {
-        const updatedDevice = {
-          ...device,
-          channels: channels.slice(0, 4),
-          total_count: channels.length,
-        };
-        set(deviceChannelsMap, device.instance_id, updatedDevice);
+        set(deviceChannelsMap, device.instance_id, channels);
       }
 
       function loadDeviceChannels() {
@@ -159,8 +154,8 @@
         return this.moreDevices < this.unpinnedDevices?.length;
       },
       networkDevicesWithChannels() {
-        return Object.values(this.deviceChannelsMap)
-          .filter(device => device.channels?.length > 0)
+        return Object.values(this.networkDevices)
+          .filter(device => this.deviceChannelsMap[device.instance_id]?.length > 0)
           .sort((a, b) => {
             if (a.instance_id === this.studioId) {
               return 1;

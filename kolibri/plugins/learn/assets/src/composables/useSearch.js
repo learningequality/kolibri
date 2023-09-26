@@ -21,7 +21,7 @@ import {
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
 import { deduplicateResources } from '../utils/contentNode';
-import { currentDeviceData } from '../composables/useDevices';
+import { currentDeviceData } from './useDevices';
 import useContentNodeProgress from './useContentNodeProgress';
 import { setLanguages } from './useLanguages';
 

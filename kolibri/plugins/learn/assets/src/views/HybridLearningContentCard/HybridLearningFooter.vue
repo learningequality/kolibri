@@ -149,15 +149,7 @@
         return !this.isTopic && this.allowDownloads;
       },
       downloadedByLearner() {
-        let downloaded = null;
-        for (const key in this.downloadRequestMap) {
-          const item = this.downloadRequestMap[key];
-          if (item.contentnode_id === this.contentNode.id) {
-            downloaded = item;
-            break;
-          }
-        }
-        return this.downloadEnabled && Boolean(downloaded);
+        return this.downloadEnabled && Boolean(this.downloadRequestMap[this.contentNode.id]);
       },
       downloadableByLearner() {
         return (
