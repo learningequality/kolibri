@@ -214,6 +214,20 @@ class Command(AsyncCommand):
                         .exclude(kind=content_kinds.TOPIC)
                         .values_list("id", flat=True)
                     )
+                    admin_imported_ids = list(
+                        ContentNode.objects.filter(
+                            channel_id=channel_id, available=True, admin_imported=True
+                        )
+                        .exclude(kind=content_kinds.TOPIC)
+                        .values_list("id", flat=True)
+                    )
+                    not_admin_imported_ids = list(
+                        ContentNode.objects.filter(
+                            channel_id=channel_id, available=True, admin_imported=False
+                        )
+                        .exclude(kind=content_kinds.TOPIC)
+                        .values_list("id", flat=True)
+                    )
                     import_ran = import_channel_by_id(
                         channel_id, self.is_cancelled, contentfolder
                     )
@@ -221,6 +235,16 @@ class Command(AsyncCommand):
                         if node_ids:
                             # annotate default channel db based on previously annotated leaf nodes
                             update_content_metadata(channel_id, node_ids=node_ids)
+                            if admin_imported_ids:
+                                # Reset admin_imported flag for nodes that were imported by admin
+                                ContentNode.objects.filter_by_uuids(
+                                    admin_imported_ids
+                                ).update(admin_imported=True)
+                            if not_admin_imported_ids:
+                                # Reset admin_imported flag for nodes that were not imported by admin
+                                ContentNode.objects.filter_by_uuids(
+                                    not_admin_imported_ids
+                                ).update(admin_imported=False)
                         else:
                             # ensure the channel is available to the frontend
                             ContentCacheKey.update_cache_key()
