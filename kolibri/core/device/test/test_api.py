@@ -275,6 +275,7 @@ class DeviceSettingsTestCase(APITestCase):
 
     def setUp(self):
         super(DeviceSettingsTestCase, self).setUp()
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -321,6 +322,7 @@ class DeviceSettingsTestCase(APITestCase):
 class DevicePermissionsTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
+        clear_process_cache()
         provision_device()
         cls.facility = FacilityFactory.create()
         cls.superuser = create_superuser(cls.facility)
@@ -358,6 +360,7 @@ class DevicePermissionsTestCase(APITestCase):
 @override_option("Deployment", "MINIMUM_DISK_SPACE", 0)
 class FreeSpaceTestCase(APITestCase):
     def setUp(self):
+        clear_process_cache()
         provision_device()
         self.facility = FacilityFactory.create()
         self.superuser = create_superuser(self.facility)
@@ -403,6 +406,7 @@ class DeviceInfoTestCase(APITestCase):
         cls.superuser = create_superuser(cls.facility)
 
     def setUp(self):
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -501,6 +505,7 @@ class DeviceNameTestCase(APITestCase):
         cls.user = FacilityUserFactory.create(facility=cls.facility)
 
     def setUp(self):
+        clear_process_cache()
         super(DeviceNameTestCase, self).setUp()
         self.client.login(
             username=self.superuser.username,
@@ -620,6 +625,7 @@ class UserSyncStatusTestCase(APITestCase):
         )
 
     def setUp(self):
+        clear_process_cache()
         self.client.login(
             username=self.superuser.username,
             password=DUMMY_PASSWORD,
@@ -829,6 +835,29 @@ class UserSyncStatusTestCase(APITestCase):
         self.assertEqual(
             response.data[0]["status"], user_sync_statuses.NOT_RECENTLY_SYNCED
         )
+
+    def test_usersyncstatus_list_learner_no_sync_session(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+        self.syncstatus1.queued = False
+        previous_sync_session = self.syncstatus1.sync_session
+        self.syncstatus1.sync_session = None
+        self.syncstatus1.save()
+
+        try:
+            response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
+            self.assertEqual(len(response.data), 1)
+            self.assertEqual(response.data[0]["user"], self.user1.id)
+            self.assertEqual(
+                response.data[0]["status"], user_sync_statuses.NOT_RECENTLY_SYNCED
+            )
+        finally:
+            # Not doing this leads to weird unexpected test contagion.
+            self.syncstatus1.sync_session = previous_sync_session
+            self.syncstatus1.save()
 
     def test_usersyncstatus_list__insufficient_storage(self):
         self.client.login(

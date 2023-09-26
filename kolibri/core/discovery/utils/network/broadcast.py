@@ -1,6 +1,7 @@
 import json
 import logging
 import socket
+import time
 import uuid
 
 from magicbus.base import Bus
@@ -80,11 +81,17 @@ class KolibriInstance(object):
         "device_info",
         "service_info",
         "prefix",
+        "last_seen",
     )
 
     def __init__(
         self, instance_id, ip=None, port=None, host=None, device_info=None, prefix="/"
     ):
+        # Zeroconf wants socket.inet_aton() format, so make sure we have string with this class
+        # which we convert when interfacing with Zeroconf
+        if ip is not None and not isinstance(ip, string_types):
+            raise TypeError("IP must be a string, not {}".format(type(ip)))
+
         self.id = instance_id
         self.zeroconf_id = instance_id
         self.ip = ip
@@ -94,6 +101,22 @@ class KolibriInstance(object):
         self.is_self = False
         self.service_info = None
         self.prefix = prefix
+        self.last_seen = time.time()
+
+    def __eq__(self, other):
+        if self.id != other.id:
+            return False
+        if self.ip != other.ip:
+            return False
+        if self.port != other.port:
+            return False
+        if self.host != other.host:
+            return False
+        if self.device_info != other.device_info:
+            return False
+        if self.prefix != other.prefix:
+            return False
+        return True
 
     @property
     def name(self):
@@ -156,11 +179,14 @@ class KolibriInstance(object):
             properties[key] = json.dumps(val)
         properties["prefix"] = json.dumps(self.prefix)
 
+        # convert to format Zeroconf wants
+        address = socket.inet_aton(self.ip) if self.ip else None
+
         return ServiceInfo(
             SERVICE_TYPE,
             self.name,
             server=self.server,
-            address=self.ip,
+            address=address,
             port=self.port or DEFAULT_PORT,
             properties=properties,
         )
@@ -249,7 +275,7 @@ def build_broadcast_instance(port):
         device_info.get("instance_id"),
         port=port,
         device_info=device_info,
-        ip=USE_IP_OF_OUTGOING_INTERFACE,
+        ip=socket.inet_ntoa(USE_IP_OF_OUTGOING_INTERFACE),
         prefix=OPTIONS["Deployment"]["URL_PATH_PREFIX"],
     )
 
@@ -257,9 +283,9 @@ def build_broadcast_instance(port):
 class KolibriBroadcastEvents(Bus):
     """Event bus for handling events from Zeroconf"""
 
-    # The base magicbus Bus requires this to exist in error handling
-    # but does not set a default value.
-    throws = tuple()
+    # Provides better stack traces for errors when you list potential exception types here.
+    # Adding `Exception` here will re-raise all errors, but making it easier to debug.
+    throws = (Exception,)
 
     event_map = {
         ServiceStateChange.Added: EVENT_ADD_SERVICE,
@@ -572,6 +598,16 @@ class KolibriBroadcast(object):
 
         instance = self._build_instance(service_info)
         if not instance.is_self:
+            if name in self.other_instances:
+                # if we already have the instance in our cache, we should check to
+                # see if we actually have any updated information. If not, we can
+                # just ignore the update
+                current_instance = self.other_instances[name]
+                if (
+                    current_instance == instance
+                    and instance.last_seen - current_instance.last_seen < SERVICE_TTL
+                ):
+                    return
             self.other_instances[name] = instance
             logger.info(
                 "Kolibri instance '%s' updated zeroconf network; device info: %s"

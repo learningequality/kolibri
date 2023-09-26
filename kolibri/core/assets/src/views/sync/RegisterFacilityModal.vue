@@ -102,7 +102,7 @@
               this.invalid = true;
               this.submitting = false;
             } else {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             }
           });
       },

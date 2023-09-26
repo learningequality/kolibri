@@ -1,11 +1,11 @@
-import { shallowMount, mount, createLocalVue } from '@vue/test-utils';
+import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-import { ClassesPageNames } from '../../../constants';
+import { ClassesPageNames, PageNames } from '../../../constants';
 import HomePage from '../index';
 /* eslint-disable import/named */
 import useChannels, { useChannelsMock } from '../../../composables/useChannels';
@@ -14,6 +14,8 @@ import useLearnerResources, {
   useLearnerResourcesMock,
 } from '../../../composables/useLearnerResources';
 /* eslint-enable import/named */
+jest.mock('kolibri.client');
+jest.mock('kolibri.urls');
 jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('../../../composables/useChannels');
 jest.mock('kolibri.coreVue.composables.useUser');
@@ -27,16 +29,21 @@ jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(VueRouter);
-const mockStore = new Vuex.Store({
-  state: { core: { loading: false } },
-  getters: {
-    isUserLoggedIn: jest.fn(),
-    isAppContext: jest.fn(),
-    isLearner: jest.fn(),
-  },
-});
 
 function makeWrapper() {
+  const mockStore = new Vuex.Store({
+    state: { core: { loading: false } },
+    getters: {
+      isUserLoggedIn: jest.fn(),
+      isAppContext: jest.fn(),
+      isLearner: jest.fn(),
+      isPageLoading: jest.fn(() => false),
+    },
+    actions: {
+      handleApiError: jest.fn(),
+    },
+  });
+
   const router = new VueRouter({
     routes: [
       {
@@ -47,9 +54,18 @@ function makeWrapper() {
         name: ClassesPageNames.ALL_CLASSES,
         path: '/classes',
       },
+      {
+        name: PageNames.LIBRARY,
+        path: '/library',
+      },
+      {
+        name: PageNames.TOPICS_TOPIC,
+        path: '/topics/',
+      },
     ],
   });
-  router.push('/');
+
+  router.push = jest.fn();
 
   return mount(HomePage, {
     localVue,
@@ -104,12 +120,15 @@ describe(`HomePage`, () => {
         },
       ],
     });
+    useChannels.mockImplementation(() =>
+      useChannelsMock({
+        fetchChannels: jest.fn(() => Promise.resolve([{ id: 'channel-1', name: 'Channel 1' }])),
+      })
+    );
   });
 
   it(`smoke test`, () => {
-    const wrapper = shallowMount(HomePage, {
-      store: mockStore,
-    });
+    const wrapper = makeWrapper();
     expect(wrapper.exists()).toBe(true);
   });
 
@@ -220,12 +239,11 @@ describe(`HomePage`, () => {
         );
       });
 
-      it(`clicking a quiz navigates to the class quiz page`, () => {
+      it(`clicking a quiz navigates to the class quiz page`, async () => {
         const wrapper = makeWrapper();
         expect(wrapper.vm.$route.path).toBe('/');
         const links = getContinueLearningFromClassesSection(wrapper).findAll('a');
-        links.at(2).trigger('click');
-        expect(wrapper.vm.$route.path).toBe('/class-quiz');
+        expect(links.at(2).attributes('href')).toBe('#/class-quiz');
       });
     });
   });
@@ -363,7 +381,13 @@ describe(`HomePage`, () => {
 
     describe(`when there are some channels available`, () => {
       beforeEach(() => {
-        useChannels.mockImplementation(() => useChannelsMock({ channels: [{ id: 'channel-1' }] }));
+        const channels = [{ id: 'channel-1' }];
+        useChannels.mockImplementation(() =>
+          useChannelsMock({
+            localChannelsCache: channels,
+            fetchChannels: jest.fn(() => Promise.resolve(channels)),
+          })
+        );
       });
 
       it(`the section is not displayed for a signed in user

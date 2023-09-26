@@ -210,7 +210,7 @@ export function showExamCreationPreviewPage(store, params, fromRoute, query = {}
       })
       .catch(error => {
         store.dispatch('notLoading');
-        return store.dispatch('handleApiError', error);
+        return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       });
   });
 }
@@ -229,7 +229,7 @@ export function showPracticeQuizCreationPreviewPage(store, params) {
       })
       .catch(error => {
         store.dispatch('notLoading');
-        return store.dispatch('handleApiError', error);
+        return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       });
   });
 }
@@ -248,7 +248,7 @@ function _prepPracticeQuizContentPreview(store, classId, contentId) {
       return contentNode;
     },
     error => {
-      return store.dispatch('handleApiError', error);
+      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     }
   );
 }
@@ -266,7 +266,7 @@ function _prepExamContentPreview(store, classId, contentId) {
       return contentNode;
     },
     error => {
-      return store.dispatch('handleApiError', error);
+      return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     }
   );
 }
@@ -332,4 +332,5 @@ export function showExamCreationQuestionSelectionPage(store, toRoute, fromRoute)
   store.commit('SET_PAGE_NAME', 'EXAM_CREATION_QUESTION_SELECTION');
   store.commit('SET_TOOLBAR_ROUTE', { name: fromRoute.name, params: fromRoute.params });
   store.dispatch('examCreation/updateSelectedQuestions');
+  store.dispatch('notLoading');
 }

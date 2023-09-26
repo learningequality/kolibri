@@ -20,7 +20,6 @@ import {
   NoCategories,
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
-import plugin_data from 'plugin_data';
 import { deduplicateResources } from '../utils/contentNode';
 import useContentNodeProgress from './useContentNodeProgress';
 import useDevices from './useDevices';
@@ -132,16 +131,6 @@ function _generateLibraryCategoriesLookup(categories) {
   }
   return libraryCategories;
 }
-
-const localDeviceGlobalLabels = {
-  learningActivitiesShown: _generateLearningActivitiesShown(plugin_data.learningActivities),
-  libraryCategories: _generateLibraryCategoriesLookup(plugin_data.categories),
-  resourcesNeeded: _generateResourcesNeeded(plugin_data.learnerNeeds),
-  gradeLevelsList: _generateGradeLevelsList(plugin_data.gradeLevels || []),
-  accessibilityOptionsList: _generateAccessibilityOptionsList(plugin_data.accessibilityLabels),
-  languagesList: plugin_data.languages || [],
-  channelsList: plugin_data.channels || [],
-};
 
 export const searchKeys = [
   'learning_activities',
@@ -350,7 +339,7 @@ export default function useSearch(descendant, store, router) {
   // component to setup the available labels for child components
   // to consume them.
 
-  const otherDeviceGlobalLabels = ref(null);
+  const globalLabels = ref(null);
 
   const globalLabelsLoading = ref(false);
 
@@ -359,17 +348,12 @@ export default function useSearch(descendant, store, router) {
   function ensureGlobalLabels() {
     set(globalLabelsLoading, true);
     const currentBaseUrl = get(baseurl);
-    // If no baseurl, we're browsing the local device, so the global labels are already set.
-    if (!currentBaseUrl) {
-      set(globalLabelsLoading, false);
-      return;
-    }
     ContentNodeResource.fetchCollection({
       getParams: { max_results: 1, baseurl: currentBaseUrl },
     })
       .then(data => {
         const labels = data.labels;
-        set(otherDeviceGlobalLabels, {
+        set(globalLabels, {
           learningActivitiesShown: _generateLearningActivitiesShown(labels.learning_activities),
           libraryCategories: _generateLibraryCategoriesLookup(labels.categories),
           resourcesNeeded: _generateResourcesNeeded(labels.learner_needs),
@@ -390,7 +374,7 @@ export default function useSearch(descendant, store, router) {
   watch(baseurl, ensureGlobalLabels);
 
   function _getGlobalLabels(name, defaultValue) {
-    const lookup = get(baseurl) ? get(otherDeviceGlobalLabels) : localDeviceGlobalLabels;
+    const lookup = get(globalLabels);
     if (lookup) {
       return lookup[name];
     }

@@ -9,12 +9,9 @@ def automatic_download_enabled():
     provisioned, we allow this because the default will be True after provisioning
     :return: a boolean indicating whether automatic download is enabled
     """
-    from kolibri.core.device.utils import device_provisioned
     from kolibri.core.device.utils import get_device_setting
 
-    return get_device_setting(
-        "enable_automatic_download", default=not device_provisioned()
-    )
+    return get_device_setting("enable_automatic_download")
 
 
 def using_metered_connection():
@@ -35,7 +32,7 @@ def allow_non_local_download():
     from kolibri.core.device.utils import get_device_setting
 
     return not using_metered_connection() or get_device_setting(
-        "allow_download_on_metered_connection", default=False
+        "allow_download_on_metered_connection"
     )
 
 
@@ -52,11 +49,11 @@ def get_free_space_for_downloads(completed_size=0):
     free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
 
     # if a limit is set, subtract the total content storage size from the limit
-    if get_device_setting("set_limit_for_autodownload", default=False):
+    if get_device_setting("set_limit_for_autodownload"):
         # compute total space used by automatic and learner initiated downloads
         # convert limit_for_autodownload from GB to bytes
         auto_download_limit = bytes_from_humans(
-            str(get_device_setting("limit_for_autodownload", "0")) + "GB"
+            str(get_device_setting("limit_for_autodownload") or "0") + "GB"
         )
         # returning smallest argument as to not exceed the space available on disk
         free_space = min(free_space, auto_download_limit - completed_size)

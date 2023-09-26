@@ -58,7 +58,7 @@ function checkTaskStatus(store, newTasks, taskType, taskId, commitStart, commitF
       store.commit(commitFinish, task);
     } else if (task && task.status === TaskStatuses.FAILED) {
       if (typeof task.extra_metadata.overall_error === 'undefined') {
-        store.dispatch('handleApiError', task.traceback, { root: true });
+        store.dispatch('handleApiError', { error: task.traceback }, { root: true });
       }
 
       store.commit('SET_FAILED', task);

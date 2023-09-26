@@ -26,7 +26,7 @@ export function refreshClassLessons(store, classId) {
       }
     })
     .catch(error => {
-      return store.dispatch('handleApiError', error, { root: true });
+      return store.dispatch('handleApiError', { error }, { root: true });
     });
 }
 
@@ -36,7 +36,7 @@ export function fetchLessonsSizes(store, classId) {
       store.commit('SET_CLASS_LESSONS_SIZES', sizes);
     })
     .catch(error => {
-      return store.dispatch('handleApiError', error, { root: true });
+      return store.dispatch('handleApiError', { error }, { root: true });
     });
 }
 

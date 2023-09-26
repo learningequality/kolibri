@@ -94,7 +94,7 @@
         this.$store.dispatch('notLoading');
       },
       setError(error) {
-        this.$store.dispatch('handleApiError', error);
+        this.$store.dispatch('handleApiError', { error });
         this.loading = false;
         this.$store.dispatch('notLoading');
       },

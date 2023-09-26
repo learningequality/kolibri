@@ -32,7 +32,7 @@ export function showUserPage(store, toRoute, fromRoute) {
       store.dispatch('notLoading');
     })
     .catch(error => {
-      shouldResolve() ? store.dispatch('handleError', error) : null;
+      shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
       store.commit('userManagement/SET_STATE', { dataLoading: false });
       store.dispatch('notLoading');
     });

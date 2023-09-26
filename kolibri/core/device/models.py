@@ -60,11 +60,16 @@ class DeviceSettingsQuerySet(QuerySet):
 
 class DeviceSettingsManager(models.Manager.from_queryset(DeviceSettingsQuerySet)):
     def get(self, **kwargs):
-        if DEVICE_SETTINGS_CACHE_KEY not in cache:
+        model = None
+
+        # load from cache
+        if DEVICE_SETTINGS_CACHE_KEY in cache:
+            model = cache.get(DEVICE_SETTINGS_CACHE_KEY)
+
+        # ensure cached value is of correct type, otherwise allow .get to raise if not created
+        if not isinstance(model, DeviceSettings):
             model = super(DeviceSettingsManager, self).get(**kwargs)
             cache.set(DEVICE_SETTINGS_CACHE_KEY, model, 600)
-        else:
-            model = cache.get(DEVICE_SETTINGS_CACHE_KEY)
         return model
 
 
@@ -464,9 +469,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         :param status: A status tuple of which to save, see `DeviceStatus`
         :type status: tuple(string, int)
         """
-        if get_device_setting(
-            "subset_of_users_device", default=not device_provisioned()
-        ):
+        if not device_provisioned() or get_device_setting("subset_of_users_device"):
             for user_id in FacilityUser.objects.all().values_list("id", flat=True):
                 cls.save_learner_status(user_id, status)
 
@@ -503,9 +506,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         provisioned as a `subset_of_users_device`
         :return:
         """
-        if get_device_setting(
-            "subset_of_users_device", default=not device_provisioned()
-        ):
+        if not device_provisioned() or get_device_setting("subset_of_users_device"):
             for user_id in FacilityUser.objects.all().values_list("id", flat=True):
                 cls.clear_learner_status(user_id)
 

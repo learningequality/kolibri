@@ -177,7 +177,7 @@
       } else if (props.filterLODAvailable) {
         useDevicesResult = useDevicesForLearnOnlyDevice();
       } else {
-        useDevicesResult = useDevices();
+        useDevicesResult = useDevices({ subset_of_users_device: false });
       }
 
       const {
@@ -289,7 +289,7 @@
       },
       isDeviceAvailable() {
         return function(deviceId) {
-          return Boolean(this.availableDeviceIds.find(id => id === deviceId));
+          return this.availableDeviceIds.some(id => id === deviceId);
         };
       },
       submitDisabled() {
@@ -298,6 +298,8 @@
             this.isDeleting ||
             this.fetchFailed ||
             this.isSubmitChecking ||
+            !this.canLearnerSignUp(this.selectedDeviceId) ||
+            !this.isDeviceAvailable(this.selectedDeviceId) ||
             this.availableDeviceIds.length === 0
         );
       },

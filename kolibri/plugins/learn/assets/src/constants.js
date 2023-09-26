@@ -24,14 +24,6 @@ export const ExternalPagePaths = {
   [ExternalPageNames.MY_DOWNLOADS]: '/my-downloads',
 };
 
-// switch between modes
-export const PageModes = {
-  TOPICS: 'TOPICS',
-  RECOMMENDED: 'RECOMMENDED',
-  SEARCH: 'SEARCH',
-  EXAM: 'EXAM',
-};
-
 export const ClassesPageNames = {
   ALL_CLASSES: 'ALL_CLASSES',
   CLASS_ASSIGNMENTS: 'CLASS_ASSIGNMENTS',
@@ -47,9 +39,6 @@ export const pageNameToModuleMap = {
   [ClassesPageNames.EXAM_VIEWER]: 'examViewer',
   [ClassesPageNames.EXAM_REPORT_VIEWER]: 'examReportViewer',
   [ClassesPageNames.LESSON_PLAYLIST]: 'lessonPlaylist',
-  [PageNames.TOPICS_CONTENT]: 'topicsTree',
-  [PageNames.TOPICS_TOPIC]: 'topicsTree',
-  [PageNames.TOPICS_TOPIC_SEARCH]: 'topicsTree',
 };
 
 export const KolibriStudioId = plugin_data.studioDevice?.instance_id;

@@ -23,7 +23,7 @@ def get_installed_app_locale_path(appname):
 
         if os.path.isdir(module_locale_path):
             return module_locale_path
-    except ImportError:
+    except (ImportError, TypeError):
         pass
     return None
 

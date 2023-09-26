@@ -1,4 +1,3 @@
-import time
 from collections import namedtuple
 from datetime import timedelta
 
@@ -109,9 +108,7 @@ def get_requests_info():
     """
 
     def format_url(url, base_url):
-        formatted = "{base_url}{url}&contentCacheKey={cache}".format(
-            base_url=base_url, url=url, cache=time.time()
-        )
+        formatted = "{base_url}{url}".format(base_url=base_url, url=url)
         return formatted
 
     _, port = get_kolibri_process_info()

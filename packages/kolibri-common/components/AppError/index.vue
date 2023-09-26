@@ -118,7 +118,7 @@
       },
     },
     methods: {
-      ...mapActions(['handleError']),
+      ...mapActions(['clearError']),
       revealDetailsModal() {
         this.showDetailsModal = true;
       },
@@ -130,7 +130,7 @@
         global.location.reload();
       },
       handleClickBackToHome() {
-        this.handleError('');
+        this.clearError();
         this.$router.push({ path: '/' });
       },
     },

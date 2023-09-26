@@ -97,6 +97,10 @@ def replace(file_path, new_file_path):
     os.rename(file_path, new_file_path)
 
 
+class ChunkedFileDoesNotExist(Exception):
+    pass
+
+
 class ChunkedFile(BufferedIOBase):
     # Set chunk size to 128KB
     chunk_size = 128 * 1024
@@ -110,6 +114,7 @@ class ChunkedFile(BufferedIOBase):
         self._file_size = None
 
     def _open_cache(self):
+        self._check_for_chunk_dir()
         return Cache(self.cache_dir)
 
     @property
@@ -137,6 +142,10 @@ class ChunkedFile(BufferedIOBase):
             cache.set(".file_size", value)
             self._file_size = value
 
+    def _check_for_chunk_dir(self):
+        if not os.path.isdir(self.chunk_dir):
+            raise ChunkedFileDoesNotExist("Chunked file does not exist")
+
     def _get_chunk_file_name(self, index):
         return os.path.join(self.chunk_dir, ".chunk_{index}".format(index=index))
 
@@ -159,6 +168,7 @@ class ChunkedFile(BufferedIOBase):
         """
         Takes a position argument which will be modified and returned by the read operation.
         """
+        self._check_for_chunk_dir()
         if size < 0:
             size = self.file_size - position
 
@@ -199,6 +209,7 @@ class ChunkedFile(BufferedIOBase):
                     index, self.chunks_count
                 )
             )
+        self._check_for_chunk_dir()
         chunk_file = self._get_chunk_file_name(index)
         chunk_file_size = self._get_expected_chunk_size(index)
         if len(data) != chunk_file_size:
@@ -537,6 +548,9 @@ class FileDownload(Transfer):
             source, dest, checksum=checksum, cancel_check=cancel_check
         )
 
+        self._initialize_chunked_file()
+
+    def _initialize_chunked_file(self):
         self.dest_file_obj = ChunkedFile(self.dest)
 
         self.completed = self.dest_file_obj.is_complete(
@@ -602,11 +616,19 @@ class FileDownload(Transfer):
                     func(self, *args, **kwargs)
                     succeeded = True
                 except Exception as e:
-                    retry = retry_import(e)
-                    if not retry:
-                        raise
-                    # Catch exceptions to check if we should resume file downloading
-                    logger.error("Error reading download stream: {}".format(e))
+                    if not isinstance(e, ChunkedFileDoesNotExist):
+                        retry = retry_import(e)
+                        if not retry:
+                            raise
+                        # Catch exceptions to check if we should resume file downloading
+                        logger.error("Error reading download stream: {}".format(e))
+                    else:
+                        logger.error(
+                            "Error writing to chunked file, retrying: {}".format(e)
+                        )
+                        self._initialize_chunked_file()
+                        self._headers_set = False
+                        self._set_headers()
                     logger.info(
                         "Waiting {}s before retrying import: {}".format(
                             self.retry_wait, self.source
@@ -621,7 +643,15 @@ class FileDownload(Transfer):
     @_catch_exception_and_retry
     def run(self, progress_update=None):
         if not self.completed:
-            self._run_download(progress_update=progress_update)
+            try:
+                self._run_download(progress_update=progress_update)
+            except ChunkedFileDoesNotExist:
+                # If the chunked file does not exist, we need to start from the beginning
+                # unless a simultaneous download has already completed the file.
+                if not os.path.exists(self.dest):
+                    raise
+                # Set as finalized as the file already exists
+                self.finalized = True
         self.complete_close_and_finalize()
 
     @property

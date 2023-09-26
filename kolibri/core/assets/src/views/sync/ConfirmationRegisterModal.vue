@@ -95,7 +95,7 @@
               this.submitting = false;
               this.alreadyRegistered = true;
             } else {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             }
           });
       },

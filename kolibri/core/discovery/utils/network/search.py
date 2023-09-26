@@ -1,6 +1,7 @@
 import logging
 
 from kolibri.core.discovery.tasks import add_dynamic_network_location
+from kolibri.core.discovery.tasks import dispatch_broadcast_hooks
 from kolibri.core.discovery.tasks import generate_job_id
 from kolibri.core.discovery.tasks import remove_dynamic_network_location
 from kolibri.core.discovery.tasks import reset_connection_states
@@ -22,6 +23,12 @@ class NetworkLocationListener(KolibriInstanceListener):
         """
         # when we start broadcasting, enqueue task to reset all connection states
         reset_connection_states.enqueue(args=(self.broadcast.id,))
+
+    def renew_instance(self, instance):
+        """
+        :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+        """
+        dispatch_broadcast_hooks.enqueue(args=("on_renew", instance.to_dict()))
 
     def unregister_instance(self, instance):
         """
