@@ -66,6 +66,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
     ):
         self.channel_id = channel_id
 
@@ -81,6 +82,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         self.all_thumbnails = all_thumbnails
         self.fail_on_error = fail_on_error
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
+        self.admin_imported = admin_imported
         super(ResourceImportManagerBase, self).__init__()
 
     @classmethod
@@ -301,6 +303,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             node_ids=self.node_ids,
             exclude_node_ids=self.exclude_node_ids,
             public=self.public,
+            admin_imported=self.admin_imported,
         )
 
         self.resources_after_transfer = (
@@ -347,6 +350,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
         super(RemoteResourceImportManagerBase, self).__init__(
@@ -357,6 +361,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
         )
         self.timeout = timeout
         self.peer_id = peer_id
@@ -405,6 +410,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
     ):
         self.drive_id = drive_id
         if drive_id and not path:
@@ -420,6 +426,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
             all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
         )
 
     @staticmethod
@@ -523,6 +530,9 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
         fail_on_error=False,
         content_dir=None,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        # As this is primarily used for importing non-admin imported content
+        # we reverse the default here.
+        admin_imported=False,
     ):
         """
         :param channel_id: A hex UUID string
@@ -549,6 +559,7 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
             renderable_only=renderable_only,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
             timeout=timeout,
         )
         self.peer = peer

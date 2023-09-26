@@ -883,7 +883,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
             "deletecontent",
             self.node.channel_id,
             node_ids=[self.request.contentnode_id],
-            force_delete=True,
+            ignore_admin_flags=True,
         )
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 0)
