@@ -125,10 +125,12 @@
         </KGridItem>
 
         <KGridItem
-          :layout12="{ span: 4 }"
+          :layout12="{ span: 5 }"
           class="current-section-style"
         >
-          <p>{{ $tr('currentSection') }}</p>
+          <p class="space-content">
+            {{ $tr('currentSection') }}
+          </p>
         </KGridItem>
       </KGrid>
     </div>
@@ -270,17 +272,17 @@
 
   .number-field {
     display: inline-block;
-    max-width: 250px;
-    margin-right: 8px;
+    max-width: 31em;
+    margin-right: 0.5em;
   }
 
   .section-settings-heading {
-    font-size: 18px;
+    font-size: 1em;
     font-weight: 600;
   }
 
   .section-order-list {
-    height: 40px;
+    height: 2.5em;
     margin-top: 0.5em;
     border: 1px solid #dedede;
     border-radius: 2px;
@@ -288,6 +290,7 @@
 
   .space-content {
     margin: 0.5em;
+    font-size: 1em;
   }
 
   .number-input-grid-item {
@@ -325,7 +328,7 @@
   .current-section-style {
     float: left;
     margin-left: auto;
-    font-size: 12px;
+    font-size: 1em;
     color: #616161;
   }
 
