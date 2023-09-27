@@ -6,11 +6,6 @@
     >
       {{ $tr('sectionSettingsHeading') }}
     </h5>
-    <!-- <h2>
-      <KRouterLink appearance="raised-button" :to="{ path: 'select-resources' }">
-        Select resources
-      </KRouterLink>
-    </h2> -->
 
     <KGrid>
       <KGridItem
@@ -23,37 +18,49 @@
       </KGridItem>
       <KGridItem
         :layout12="{ span: 6 }"
-        class="number-input-grid-item"
       >
-        <KTextbox
-          ref="numQuest"
-          v-model="numQuestions"
-          type="number"
-          :label="$tr('numberOfQuestion')"
-          class="number-field"
-        />
-        <KIconButton
-          icon="minus"
-          aria-hidden="true"
-          class="number-btn"
-          :disabled="numQuestions === 1"
-          @click="numQuestions -= 1"
-        />
-        <KIconButton
-          icon="plus"
-          aria-hidden="true"
-          class="number-btn"
-          @click="numQuestions += 1"
-        />
+        <div class="number-question">
+          <div>
+            <KTextbox
+              ref="numQuest"
+              v-model="numQuestions"
+              type="number"
+              :label="$tr('numberOfQuestion')"
+            />
+          </div>
+          <div>
+            <div
+              class="group-button-border"
+            >
+              <KIconButton
+                icon="minus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="numQuestions === 1"
+                @click="numQuestions -= 1"
+              />
+              <span
+                class="button-separating-border"
+              > | </span>
+              <KIconButton
+                icon="plus"
+                aria-hidden="true"
+                class="number-btn"
+                @click="numQuestions += 1"
+              />
+            </div>
+          </div>
+        </div>
       </KGridItem>
     </KGrid>
 
     <KTextbox
       :label="$tr('descriptionLabel')"
       :maxlength="400"
+      :textArea="true"
     />
 
-    <hr>
+    <hr class="divider-style">
 
     <div>
       <h2>{{ $tr('questionOrder') }}</h2>
@@ -65,6 +72,7 @@
             v-model="selectedQuestionOrder"
             :label="$tr('randomizedLabel')"
             :value="$tr('randomizedLabel')"
+            :description="$tr('randomizedOptionDescription')"
           />
         </KGridItem>
         <KGridItem :layout12="{ span: 6 }">
@@ -72,12 +80,13 @@
             v-model="selectedQuestionOrder"
             :label="$tr('fixedLabel')"
             :value="$tr('fixedLabel')"
+            :description="$tr('fixedOptionDescription')"
           />
         </KGridItem>
       </KGrid>
     </div>
 
-    <hr>
+    <hr class="divider-style">
 
     <h2>{{ $tr('quizResourceSelection') }}</h2>
     <p>{{ $tr('selectedResources', { count: 2 }) }}</p>
@@ -85,19 +94,25 @@
     <KButton
       :text="$tr('changeResourceButton')"
       iconAfter="forward"
+      class="change-resource-button-style"
     />
 
-    <hr>
+    <hr class="divider-style">
 
-    <h2>{{ $tr('sectionOrderTitle') }}</h2>
+    <h6
+      class="section-order-style"
+    >
+      {{ $tr('sectionOrderTitle') }}
+    </h6>
 
-    <div class="section-order-list">
+    <div class="current-section section-order-list">
       <KGrid>
         <KGridItem
           :layout12="{ span: 1 }"
         >
           <KIcon
             icon="dragVertical"
+            class="space-content"
           />
         </KGridItem>
 
@@ -105,19 +120,40 @@
           :layout12="{ span: 6 }"
         >
           <p class="space-content">
-            {{ $tr('sectionOrderTitle') }}
+            {{ $tr('sectionOrderTitle').toUpperCase() }}
           </p>
         </KGridItem>
 
         <KGridItem
           :layout12="{ span: 4 }"
+          class="current-section-style"
         >
           <p>{{ $tr('currentSection') }}</p>
         </KGridItem>
       </KGrid>
     </div>
+    <div class="section-order-list">
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 1 }"
+        >
+          <KIcon
+            icon="dragVertical"
+            class="space-content"
+          />
+        </KGridItem>
 
-    <div style="position:absolute;bottom: 0;margin-bottom:3em;">
+        <KGridItem
+          :layout12="{ span: 10 }"
+        >
+          <p class="space-content">
+            {{ $tr('uniqueTitle').toUpperCase() }}
+          </p>
+        </KGridItem>
+      </KGrid>
+    </div>
+
+    <div class="bottom-buttons-style">
       <KGrid>
         <KGridItem
           :layout12="{ span: 6 }"
@@ -130,7 +166,6 @@
           :layout12="{ span: 6 }"
         >
           <KButton
-            style="width:200px"
             :primary="true"
             :text="$tr('applySettingsButton')"
           />
@@ -151,7 +186,7 @@
     data() {
       return {
         selectedQuestionOrder: '',
-        numQuestions: null,
+        numQuestions: 1,
       };
     },
     $trs: {
@@ -177,11 +212,19 @@
       },
       randomizedLabel: {
         message: 'Randomized',
-        context: 'Settings section randomized radio button label.',
+        context: 'Radio button label for displaying random questions to learners.',
+      },
+      randomizedOptionDescription: {
+        message: 'Each learner sees a different question order',
+        context: 'Describes how the randomize radio button works when selected.',
       },
       fixedLabel: {
         message: 'Fixed',
-        context: 'Settings section fixed radio button label.',
+        context: 'Radio button label for displaying same question order to learners.',
+      },
+      fixedOptionDescription: {
+        message: 'Each learner sees the same question order',
+        context: 'Describes how the fixed radio button works when selected.',
       },
       quizResourceSelection: {
         message: 'Quiz resource selection',
@@ -211,6 +254,10 @@
         message: 'Apply settings',
         context: 'Button to save the new section settings.',
       },
+      uniqueTitle: {
+        message: 'Section 2 / unique title',
+        context: 'Label for the other sections other than the current section.',
+      },
     },
   };
 
@@ -227,13 +274,6 @@
     margin-right: 8px;
   }
 
-  .number-btn {
-    position: relative;
-    top: 16px;
-    display: inline-block;
-    vertical-align: top;
-  }
-
   .section-settings-heading {
     font-size: 18px;
     font-weight: 600;
@@ -242,7 +282,6 @@
   .section-order-list {
     height: 40px;
     margin-top: 0.5em;
-    background-color: #fafafa;
     border: 1px solid #dedede;
     border-radius: 2px;
   }
@@ -253,6 +292,51 @@
 
   .number-input-grid-item {
     display: inline-flex;
+  }
+
+  .button-separating-border {
+    margin-top: 0.5em;
+    color: #dedede;
+  }
+
+  .group-button-border {
+    display: inline-flex;
+    border: 1px solid #dedede;
+  }
+
+  .number-question {
+    display: inline-flex;
+  }
+
+  .divider-style {
+    color: #dedede;
+  }
+
+  .change-resource-button-style {
+    display: block;
+    width: 100%;
+    margin-bottom: 1.5em;
+  }
+
+  .section-order-style {
+    font-size: 1em;
+  }
+
+  .current-section-style {
+    float: left;
+    margin-left: auto;
+    font-size: 12px;
+    color: #616161;
+  }
+
+  .current-section {
+    background-color: #f5f5f5;
+  }
+
+  .bottom-buttons-style {
+    position: absolute;
+    bottom: 0;
+    margin-bottom: 2.5em;
   }
 
 </style>
