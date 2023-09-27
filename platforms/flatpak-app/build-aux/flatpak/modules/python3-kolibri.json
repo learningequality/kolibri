@@ -9,7 +9,17 @@
         {
             "type": "file",
             "url": "https://files.pythonhosted.org/packages/49/c6/1ddd5696f192b273b6d4d959c18a6ed02fac543abefad6b893868091f980/kolibri-0.16.1-py2.py3-none-any.whl",
-            "sha256": "d5c7fdd3af22ab00e9eb52b895b4ee5c3aa91ccf540a9738adc65ef94202524e"
+            "sha256": "d5c7fdd3af22ab00e9eb52b895b4ee5c3aa91ccf540a9738adc65ef94202524e",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "kolibri",
+                "packagetype": "bdist_wheel",
+                "versions": {
+                    ">=": "0.16.0",
+                    "<": "0.17.0"
+                },
+                "stable-only": true
+            }
         },
         {
             "type": "dir",
