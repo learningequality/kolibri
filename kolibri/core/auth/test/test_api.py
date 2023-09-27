@@ -702,13 +702,16 @@ class FacilityAPITestCase(APITestCase):
         )
         response_data = response.json()
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert response_data[0]["id"] == "REQUIRED"
-        assert response_data[0]["metadata"]["field"] == "name"
-        assert response_data[0]["metadata"]["message"] == "This field is required."
-
-        assert response_data[1]["id"] == "REQUIRED"
-        assert response_data[1]["metadata"]["field"] == "preset"
-        assert response_data[1]["metadata"]["message"] == "This field is required."
+        missing_name = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        missing_preset = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        assert missing_name in response_data
+        assert missing_preset in response_data
 
     def test_create_new_facility_invalid_preset_option_fails(self):
         self.client.login(
