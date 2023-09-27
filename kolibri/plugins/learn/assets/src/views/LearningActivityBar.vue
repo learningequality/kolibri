@@ -15,7 +15,13 @@
           />
         </template>
         <TextTruncatorCss
-          :text="resourceTitle"
+          v-if="windowBreakpoint <= 3"
+          :text="resourceTitle | truncateText(50)"
+          :maxLines="1"
+        />
+        <TextTruncatorCss
+          v-else
+          :text="resourceTitle | truncateText(70)"
           :maxLines="1"
         />
       </KLabeledIcon>
@@ -194,6 +200,14 @@
       SuggestedTime,
       DeviceConnectionStatus,
     },
+    filters: {
+      truncateText(value, maxLength) {
+        if (value && value.length > maxLength) {
+          return value.substring(0, maxLength) + '...';
+        }
+        return value;
+      },
+    },
     mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
     /**
      * Emits the following events:
@@ -343,6 +357,7 @@
         nextStepsAnimate: false,
       };
     },
+
     computed: {
       deviceId() {
         return get(this.$route, 'params.deviceId');
@@ -419,9 +434,9 @@
       },
       numBarActions() {
         let maxSize = 1;
-        if (this.windowBreakpoint === 1) {
+        if (this.windowBreakpoint === 1 || this.windowBreakpoint === 2) {
           maxSize = 2;
-        } else if (this.windowBreakpoint > 1) {
+        } else if (this.windowBreakpoint > 2) {
           // Ensure to hide the mark complete button in the dropdown
           // to prevent instinctive points grabbing!
           maxSize = this.showMarkComplete ? 3 : 4;

@@ -4,6 +4,7 @@ const path = require('path');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
+const toml = require('toml');
 const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
@@ -13,6 +14,9 @@ const readWebpackJson = require('./read_webpack_json');
 const cliLogging = logger.getLogger('Kolibri CLI');
 
 function list(val) {
+  // Handle the differences between the TOML and cfg parsers: TOML returns an array already,
+  // but cfg needs some post-processing
+  if (Array.isArray(val)) return val;
   return val.split(',');
 }
 
@@ -23,13 +27,25 @@ function filePath(val) {
 }
 
 let configFile;
+let configSectionPath;
+let config;
 try {
-  configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+  configFile = fs.readFileSync(path.join(process.cwd(), './pyproject.toml'), 'utf-8');
+  // The group `[tool.kolibri.i18n]` in TOML is turned into nested objects by
+  // the parser, so needs nested lookups to get its keys; hence a path.
+  configSectionPath = ['tool', 'kolibri', 'i18n'];
+  config = toml.parse(configFile);
 } catch (e) {
-  // do nothing
+  try {
+    // try the old-style setup.cfg
+    configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+    configSectionPath = ['kolibri:i18n'];
+    config = ini.parse(configFile);
+  } catch (e) {
+    // do nothing, use a default empty config
+    config = ini.parse('');
+  }
 }
-
-const config = ini.parse(configFile || '');
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
@@ -425,10 +441,14 @@ program
     }
   });
 
-const localeDataFolderDefault = filePath(get(config, ['kolibri:i18n', 'locale_data_folder']));
-const globalWebpackConfigDefault = filePath(get(config, ['kolibri:i18n', 'webpack_config']));
-const langInfoConfigDefault = filePath(get(config, ['kolibri:i18n', 'lang_info']));
-const langIgnoreDefaults = list(get(config, ['kolibri:i18n', 'ignore'], ''));
+const localeDataFolderDefault = filePath(
+  get(config, configSectionPath.concat(['locale_data_folder']))
+);
+const globalWebpackConfigDefault = filePath(
+  get(config, configSectionPath.concat(['webpack_config']))
+);
+const langInfoConfigDefault = filePath(get(config, configSectionPath.concat(['lang_info'])));
+const langIgnoreDefaults = list(get(config, configSectionPath.concat(['ignore']), ''));
 
 // Path to the kolibri locale language_info file, which we use if we are running
 // from inside the Kolibri repository.

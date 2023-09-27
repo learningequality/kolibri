@@ -93,6 +93,7 @@ class ContentContentnode(Base):
     learner_needs_bitmask_0 = Column(BigInteger)
     learning_activities_bitmask_0 = Column(BigInteger)
     ancestors = Column(Text)
+    admin_imported = Column(Boolean)
     parent_id = Column(ForeignKey("content_contentnode.id"), index=True)
 
     lang = relationship("ContentLanguage")

@@ -54,6 +54,7 @@
         const user = {
           username: this.$store.state.onboardingData.user.username,
           password: this.$store.state.onboardingData.user.password,
+          full_name: this.$store.state.onboardingData.user.full_name,
         };
 
         this.loading = true;

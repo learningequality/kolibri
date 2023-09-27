@@ -17,6 +17,7 @@ from kolibri.core.content.utils import annotation
 from kolibri.core.content.utils import paths
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.content_manifest import ContentManifest
+from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.import_export_content import get_import_export_data
 from kolibri.core.content.utils.paths import get_channel_lookup_url
@@ -25,8 +26,12 @@ from kolibri.core.content.utils.upgrade import get_import_data_for_update
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
+from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseTimeout
+from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 from kolibri.core.tasks.utils import fd_safe_executor
 from kolibri.core.tasks.utils import JobProgressMixin
+from kolibri.core.utils.urls import reverse_path
 from kolibri.utils import conf
 from kolibri.utils import file_transfer as transfer
 from kolibri.utils.system import get_free_space
@@ -61,6 +66,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
     ):
         self.channel_id = channel_id
 
@@ -76,6 +82,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
         self.all_thumbnails = all_thumbnails
         self.fail_on_error = fail_on_error
         self.content_dir = content_dir or conf.OPTIONS["Paths"]["CONTENT_DIR"]
+        self.admin_imported = admin_imported
         super(ResourceImportManagerBase, self).__init__()
 
     @classmethod
@@ -296,6 +303,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             node_ids=self.node_ids,
             exclude_node_ids=self.exclude_node_ids,
             public=self.public,
+            admin_imported=self.admin_imported,
         )
 
         self.resources_after_transfer = (
@@ -342,6 +350,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
     ):
         super(RemoteResourceImportManagerBase, self).__init__(
@@ -352,6 +361,7 @@ class RemoteResourceImportManagerBase(ResourceImportManagerBase):
             all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
         )
         self.timeout = timeout
         self.peer_id = peer_id
@@ -400,6 +410,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
         all_thumbnails=False,
         fail_on_error=False,
         content_dir=None,
+        admin_imported=True,
     ):
         self.drive_id = drive_id
         if drive_id and not path:
@@ -415,6 +426,7 @@ class DiskResourceImportManagerBase(ResourceImportManagerBase):
             all_thumbnails=all_thumbnails,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
         )
 
     @staticmethod
@@ -512,28 +524,100 @@ class ContentDownloadRequestResourceImportManager(RemoteChannelResourceImportMan
     def __init__(
         self,
         channel_id,
-        peer_id=None,
-        baseurl=None,
-        node_ids=None,
-        exclude_node_ids=None,
+        peer,
+        download_request,
         renderable_only=True,
         fail_on_error=False,
         content_dir=None,
-        download_request=None,
         timeout=transfer.Transfer.DEFAULT_TIMEOUT,
+        # As this is primarily used for importing non-admin imported content
+        # we reverse the default here.
+        admin_imported=False,
     ):
+        """
+        :param channel_id: A hex UUID string
+        :type channel_id: str
+        :param peer: A NetworkLocation model object
+        :type peer: NetworkLocation
+        :param download_request: A ContentDownloadRequest model object
+        :type download_request: ContentDownloadRequest
+        :param renderable_only: Whether to only import renderable content
+        :type renderable_only: bool
+        :param fail_on_error: Whether to fail on import errors
+        :type fail_on_error: bool
+        :param content_dir: The directory to download content to
+        :type content_dir: str
+        :param timeout: The timeout for the download request
+        :type timeout: int
+        """
         super(ContentDownloadRequestResourceImportManager, self).__init__(
             channel_id,
-            peer_id=peer_id,
-            baseurl=baseurl,
-            node_ids=node_ids,
-            exclude_node_ids=exclude_node_ids,
+            peer_id=peer.id,
+            baseurl=peer.base_url,
+            node_ids=[download_request.contentnode_id],
+            exclude_node_ids=None,
             renderable_only=renderable_only,
             fail_on_error=fail_on_error,
             content_dir=content_dir,
+            admin_imported=admin_imported,
             timeout=timeout,
         )
+        self.peer = peer
         self.download_request = download_request
+
+    def get_import_data(self):
+        return get_import_export_data(
+            self.channel_id,
+            self.node_ids,
+            self.exclude_node_ids,
+            False,
+            renderable_only=self.renderable_only,
+            all_thumbnails=self.all_thumbnails,
+            peer_id=self.peer_id,
+            check_file_availability=False,
+        )
+
+    def run(self):
+        node = ContentNode.objects.get(pk=self.download_request.contentnode_id)
+        if self.peer.id != CENTRAL_CONTENT_BASE_INSTANCE_ID:
+            required_checksums = (
+                node.files.all()
+                .filter(supplementary=False)
+                .values_list("local_file_id", flat=True)
+            )
+            with NetworkClient.build_from_network_location(self.peer) as client:
+                try:
+                    response = client.post(
+                        reverse_path(
+                            "kolibri:core:get_public_file_checksums",
+                            kwargs={"version": "v1"},
+                        ),
+                        json=list(required_checksums),
+                    )
+                    integer_mask = int(response.content)
+
+                    expected_mask = generate_checksum_integer_mask(
+                        required_checksums, required_checksums
+                    )
+
+                    if integer_mask != expected_mask:
+                        raise ValueError("Checksums do not match")
+                except (
+                    ValueError,
+                    TypeError,
+                    NetworkLocationResponseFailure,
+                    NetworkLocationResponseTimeout,
+                ) as e:
+                    logging.debug(
+                        "Failed to retrieve or validate checksums: {}".format(e)
+                    )
+                    # Bad JSON parsing will throw ValueError
+                    # If the result of the json.loads is not iterable, a TypeError will be thrown
+                    # If we end up here, just set checksums to None to allow us to cleanly continue
+                    if self.fail_on_error:
+                        raise LocationError("Required files not available from remote")
+
+        return super(ContentDownloadRequestResourceImportManager, self).run()
 
     def start_progress(self, total=100):
         super(ContentDownloadRequestResourceImportManager, self).start_progress(total)

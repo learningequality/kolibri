@@ -55,10 +55,12 @@ function fetchDevices() {
   });
 }
 
+export const StudioNotAllowedError = 'Cannot access Kolibri Studio';
+
 export function setCurrentDevice(id) {
   if (id === KolibriStudioId) {
     if (!canAccessStudio()) {
-      return Promise.reject('Cannot access Kolibri Studio');
+      return Promise.reject(StudioNotAllowedError);
     }
     set(currentDevice, KolibriStudioDeviceData);
     return Promise.resolve(KolibriStudioDeviceData);

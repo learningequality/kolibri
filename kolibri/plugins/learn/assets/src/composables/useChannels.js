@@ -1,27 +1,24 @@
 /**
  * A composable function containing logic related to channels
  */
-
+import pickBy from 'lodash/pickBy';
 import { ref, reactive } from 'kolibri.lib.vueCompositionApi';
 import { ChannelResource } from 'kolibri.resources';
 import { get, set } from '@vueuse/core';
-import plugin_data from 'plugin_data';
-
-const channelsArray = plugin_data.channels ? plugin_data.channels : [];
-const chanMap = {};
-
-for (const channel of channelsArray) {
-  chanMap[channel.id] = channel;
-}
 
 // The refs are defined in the outer scope so they can be used as a shared store
-const channels = ref(channelsArray);
-const channelsMap = reactive(chanMap);
+const channelsMap = reactive({});
+
+const localChannelsCache = ref([]);
 
 function fetchChannels(params) {
-  return ChannelResource.list(params).then(channels => {
+  params = pickBy(params || {});
+  return ChannelResource.list({ available: true, ...params }).then(channels => {
     for (const channel of channels) {
       set(channelsMap, channel.id, channel);
+    }
+    if (Object.keys(params).length === 0) {
+      set(localChannelsCache, channels);
     }
     return channels;
   });
@@ -45,8 +42,8 @@ function getChannelTitle(channelId) {
 
 export default function useChannels() {
   return {
-    channels,
     channelsMap,
+    localChannelsCache,
     fetchChannels,
     getChannelThumbnail,
     getChannelTitle,

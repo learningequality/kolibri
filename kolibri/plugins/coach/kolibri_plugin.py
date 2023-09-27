@@ -70,7 +70,7 @@ class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
         from kolibri.core.auth.tasks import queue_soud_server_sync_cleanup
 
         if (
-            not get_device_setting("subset_of_users_device", default=False)
+            not get_device_setting("subset_of_users_device")
             and network_location.subset_of_users_device
         ):
             logger.debug("SoUD listener: triggering cleanup of SoUD sync")
