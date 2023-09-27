@@ -318,14 +318,21 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
     def test_listing_chunked_files(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_get_chunked_file_stats(self):
@@ -347,8 +354,8 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 3))
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
         )
 
     def test_evict_files_more_than_file_size_sum(self):
@@ -357,46 +364,65 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 3 + 12)
         )
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
         )
 
     def test_evict_files_exact_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(TEST_FILE_SIZE, manager.evict_files(TEST_FILE_SIZE))
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_evict_files_less_than_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(TEST_FILE_SIZE, manager.evict_files(TEST_FILE_SIZE - 12))
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_evict_files_more_than_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(TEST_FILE_SIZE * 2, manager.evict_files(TEST_FILE_SIZE + 12))
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_evict_files_more_than_twice_file_size(self):
@@ -405,55 +431,76 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
             TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 2 + 12)
         )
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
         )
 
     def test_evict_files_zero_bytes(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(0, manager.evict_files(0))
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_limit_files_no_eviction_needed(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TEST_FILE_SIZE * 3)
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_limit_files_some_eviction_needed(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TEST_FILE_SIZE * 2)
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [
-                os.path.join(self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX),
-                os.path.join(
-                    self.base_dir, "nested", "nested_twice", "file3.txt" + CHUNK_SUFFIX
-                ),
-            ],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
         )
 
     def test_limit_files_all_evicted(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         manager.limit_files(TEST_FILE_SIZE - 12)
         self.assertEqual(
-            list(manager._get_chunked_file_dirs()),
-            [],
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
         )
