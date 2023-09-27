@@ -52,7 +52,7 @@ oriented data synchronization.
         />
       </UiAlert>
       <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
-        <KContentRenderer
+        <ContentRenderer
           ref="contentRenderer"
           :kind="kind"
           :lang="lang"
