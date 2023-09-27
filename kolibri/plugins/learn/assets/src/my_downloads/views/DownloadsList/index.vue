@@ -3,11 +3,10 @@
   <form>
 
     <PaginatedListContainerWithBackend
-      v-if="downloadItemsListLength > 0"
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
       :totalPageNumber="totalPageNumber"
-      :numFilteredItems="downloadItemsListLength"
+      :numFilteredItems="downloadItemListLength"
     >
       <CoreTable>
         <template #headers>
@@ -26,7 +25,7 @@
           <th> {{ coreString('dateAdded') }} </th>
         </template>
         <template #tbody>
-          <tbody v-if="!loading && downloadRequestMap">
+          <tbody v-if="!loading">
             <tr
               v-for="download in paginatedDownloads"
               :key="download.contentnode_id"
@@ -83,7 +82,7 @@
           </tbody>
         </template>
       </CoreTable>
-      <p v-if="!loading && (!downloadRequestMap || !downloadItemsListLength)">
+      <p v-if="!loading && !downloadItemListLength">
         {{ coreString('noResourcesDownloaded') }}
       </p>
     </PaginatedListContainerWithBackend>
@@ -137,53 +136,11 @@
       const store = getCurrentInstance().proxy.$store;
       const query = computed(() => get(route).query);
       const route = computed(() => store.state.route);
-      const sort = computed(() => query.value.sort);
       const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
-      const activityType = computed(() => query.value.activity || 'all');
-      const downloads = computed(() => {
-        let downloadsToDisplay = [];
-        if (downloadRequestMap) {
-          for (const [, value] of Object.entries(downloadRequestMap)) {
-            downloadsToDisplay.push(value);
-          }
-          if (activityType) {
-            if (activityType.value !== 'all') {
-              downloadsToDisplay = downloadsToDisplay.filter(download =>
-                download.metadata.learning_activities.includes(activityType.value)
-              );
-            }
-          }
-          if (sort) {
-            switch (sort.value) {
-              case 'newest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
-                );
-                break;
-              case 'oldest':
-                downloadsToDisplay.sort(
-                  (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
-                );
-                break;
-              case 'smallest':
-                downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
-                break;
-              case 'largest':
-                downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
-                break;
-              default:
-                // If no valid sort option provided, return unsorted array
-                break;
-            }
-          }
-        }
-        return downloadsToDisplay;
-      });
       return {
         downloadRequestMap,
         pageSizeNumber,
         getLearningActivityIcon,
-        downloads,
         networkDevices,
         availableSpace,
         genExternalContentURLBackLinkCurrentPage,
@@ -233,8 +190,45 @@
           });
         },
       },
+      downloads() {
+        const sort = this.$route.query.sort;
+        const activityType = this.$route.query.activity;
+        console.log(Object.values(this.downloadRequestMap));
+        const downloadsToDisplay = Object.values(this.downloadRequestMap).filter(download => {
+          if (activityType && activityType !== 'all') {
+            return download.metadata.learning_activities.includes(activityType);
+          }
+          return true;
+        });
+
+        if (sort) {
+          switch (sort) {
+            case 'newest':
+              downloadsToDisplay.sort(
+                (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
+              );
+              break;
+            case 'oldest':
+              downloadsToDisplay.sort(
+                (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
+              );
+              break;
+            case 'smallest':
+              downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
+              break;
+            case 'largest':
+              downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
+              break;
+            default:
+              // If no valid sort option provided, return unsorted array
+              break;
+          }
+        }
+        return downloadsToDisplay;
+      },
       paginatedDownloads() {
-        if (this.downloads.length > 0) {
+        console.log([...this.downloads]);
+        if (this.downloads && this.downloads.length > 0) {
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;
           const endIndex = startIndex + this.itemsPerPage;
           return this.downloads.slice(startIndex, endIndex);
@@ -242,16 +236,12 @@
           return [];
         }
       },
-      downloadItemsListLength() {
-        return Object.keys(this.downloadRequestMap).length;
+      downloadItemListLength() {
+        return this.downloads ? this.downloads.length : 0;
       },
       totalPageNumber() {
-        if (
-          this.downloadsToDisplay &&
-          this.downloadsToDisplay.length &&
-          this.pageSizeNumber.value
-        ) {
-          return Math.ceil(this.downloadsToDisplay.length / this.pageSizeNumber.value);
+        if (this.downloads && this.downloads.length && this.pageSizeNumber) {
+          return Math.ceil(this.downloads.length / this.pageSizeNumber);
         }
         return 1;
       },

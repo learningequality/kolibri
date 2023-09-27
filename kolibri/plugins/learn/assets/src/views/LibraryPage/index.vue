@@ -262,7 +262,7 @@
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
-  import {
+  import useDevices, {
     currentDeviceData,
     setCurrentDevice,
     StudioNotAllowedError,
@@ -337,7 +337,8 @@
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
-      const { baseurl, deviceName, fetchDevices } = currentDeviceData();
+      const { baseurl, deviceName } = currentDeviceData();
+      const { fetchDevices } = useDevices();
       const { fetchChannels } = useChannels();
       const { fetchPinsForUser } = usePinnedDevices();
 

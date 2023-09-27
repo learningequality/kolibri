@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { computed, getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
+import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
@@ -41,7 +41,7 @@ export default function useDownloadRequests(store) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
         for (const obj of downloadRequests) {
-          set(downloadRequestMap, obj.id, obj);
+          set(downloadRequestMap, obj.contentnode_id, obj);
         }
         set(loading, false);
       })
@@ -67,14 +67,14 @@ export default function useDownloadRequests(store) {
     redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
   }
 
-  function addDownloadRequest(content) {
+  function addDownloadRequest(contentNode) {
     const metadata = {
-      title: content.title,
-      file_size: content.files.reduce((size, f) => size + f.file_size, 0),
-      learning_activities: content.learning_activities,
+      title: contentNode.title,
+      file_size: contentNode.files.reduce((size, f) => size + f.file_size, 0),
+      learning_activities: contentNode.learning_activities,
     };
     const data = {
-      contentnode_id: content.id,
+      contentnode_id: contentNode.id,
       metadata,
       source_id: store.getters.currentUserId,
       source_instance_id: get(instanceId),
@@ -84,7 +84,7 @@ export default function useDownloadRequests(store) {
       date_added: new Date(),
     };
     ContentRequestResource.create(data).then(downloadRequest => {
-      set(downloadRequestMap, downloadRequest.node_id, downloadRequest);
+      set(downloadRequestMap, downloadRequest.contentnode_id, downloadRequest);
     });
 
     store.commit('CORE_CREATE_SNACKBAR', {
@@ -98,52 +98,12 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
-  function removeDownloadRequest(content) {
+  function removeDownloadRequest(contentRequest) {
     ContentRequestResource.deleteModel({
-      id: content.id,
-      contentnode_id: content.contentnode_id,
+      id: contentRequest.id,
     });
-    Vue.delete(downloadRequestMap, content.id);
+    Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
     return Promise.resolve();
-  }
-
-  function sortedFilteredDownloads() {
-    const query = computed(() => get(route).query);
-    const route = computed(() => store.state.route);
-    const sort = computed(() => query.value.sort);
-    const activityType = computed(() => query.value.activity || 'all');
-    let downloadsToDisplay = [];
-    if (downloadRequestMap) {
-      for (const [, value] of Object.entries(downloadRequestMap)) {
-        downloadsToDisplay.push(value);
-      }
-      if (activityType) {
-        if (activityType.value !== 'all') {
-          downloadsToDisplay = downloadsToDisplay.filter(download =>
-            download.metadata.learning_activities.includes(activityType.value)
-          );
-        }
-      }
-      if (sort) {
-        switch (sort.value) {
-          case 'newest':
-            downloadsToDisplay.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at));
-            break;
-          case 'oldest':
-            downloadsToDisplay.sort((a, b) => new Date(a.requested_at) - new Date(b.requested_at));
-            break;
-          case 'smallest':
-            downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
-            break;
-          case 'largest':
-            downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
-            break;
-          default:
-            // If no valid sort option provided, return unsorted array
-            break;
-        }
-      }
-    }
   }
 
   function isDownloadingByLearner(content) {
@@ -162,8 +122,6 @@ export default function useDownloadRequests(store) {
     return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
   }
 
-  const downloads = computed(() => this.sortedFilteredDownloads());
-
   return {
     fetchUserDownloadRequests,
     fetchAvailableFreespace,
@@ -171,8 +129,6 @@ export default function useDownloadRequests(store) {
     downloadRequestMap,
     addDownloadRequest,
     loading,
-    downloads,
-    sortedFilteredDownloads,
     removeDownloadRequest,
     downloadRequestsTranslator,
     isDownloadingByLearner,
