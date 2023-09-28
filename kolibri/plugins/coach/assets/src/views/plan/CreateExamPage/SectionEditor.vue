@@ -58,6 +58,7 @@
       :label="$tr('descriptionLabel')"
       :maxlength="400"
       :textArea="true"
+      class="description-ktextbox-style"
     />
 
     <hr class="divider-style">
@@ -298,12 +299,13 @@
   }
 
   .button-separating-border {
-    margin-top: 0.5em;
     color: #dedede;
   }
 
   .group-button-border {
     display: inline-flex;
+    align-items: center;
+    height: 3.5em;
     border: 1px solid #dedede;
   }
 
@@ -338,6 +340,10 @@
 
   .bottom-buttons-style {
     bottom: 0;
+  }
+
+  .description-ktextbox-style /deep/ .ui-textbox-label {
+    width: 150%;
   }
 
 </style>
