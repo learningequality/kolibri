@@ -159,18 +159,19 @@
     <div class="bottom-buttons-style">
       <KGrid>
         <KGridItem
-          :layout12="{ span: 6 }"
+          :layout12="{ span: 4 }"
         >
           <KButton
             :text="$tr('deleteSectionButton')"
           />
         </KGridItem>
         <KGridItem
-          :layout12="{ span: 6 }"
+          :layout12="{ span: 8 }"
         >
           <KButton
             :primary="true"
             :text="$tr('applySettingsButton')"
+            class="apply-settings-style"
           />
 
         </KGridItem>
@@ -311,6 +312,7 @@
 
   .number-question {
     display: inline-flex;
+    float: right;
   }
 
   .divider-style {
@@ -343,7 +345,11 @@
   }
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 150%;
+    width: 155%;
+  }
+
+  /deep/ .KButton-noKey-0_1xktocf {
+    width: 100%;
   }
 
 </style>
