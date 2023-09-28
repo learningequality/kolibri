@@ -124,7 +124,7 @@
       },
     },
     created() {
-      this.startPolling();
+      this.fetchDownloads().then(this.startPolling);
     },
     beforeDestroy() {
       clearInterval(this.pollingInterval);

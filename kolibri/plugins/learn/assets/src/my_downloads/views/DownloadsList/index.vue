@@ -23,6 +23,7 @@
           </th>
           <th> {{ coreString('fileSize') }} </th>
           <th> {{ coreString('dateAdded') }} </th>
+          <th> {{ coreString('statusLabel') }} </th>
         </template>
         <template #tbody>
           <tbody v-if="!loading">
@@ -47,6 +48,9 @@
               </td>
               <td>
                 {{ formattedResourceSize(download) }}
+              </td>
+              <td>
+                {{ formatDownloadRequestedDate(download) }}
               </td>
               <td>
                 <KIcon
@@ -112,12 +116,20 @@
   import PaginatedListContainerWithBackend from 'kolibri-common/components/PaginatedListContainerWithBackend';
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import { createTranslator } from 'kolibri.utils.i18n';
   import useContentLink from '../../../composables/useContentLink';
   import useDevices from '../../../composables/useDevices';
   import useLearningActivities from '../../../composables/useLearningActivities';
   import useDownloadRequests from '../../../composables/useDownloadRequests';
   import SelectionBottomBar from './SelectionBottomBar.vue';
   import ConfirmationDeleteModal from './ConfirmationDeleteModal.vue';
+
+  const ChannelContentsSummaryStrings = createTranslator('ChannelContentsSummary', {
+    onDeviceRow: {
+      message: 'On your device',
+      context: "Indicates resources that are on the user's device.",
+    },
+  });
 
   export default {
     name: 'DownloadsList',
@@ -193,7 +205,6 @@
       downloads() {
         const sort = this.$route.query.sort;
         const activityType = this.$route.query.activity;
-        console.log(Object.values(this.downloadRequestMap));
         const downloadsToDisplay = Object.values(this.downloadRequestMap).filter(download => {
           if (activityType && activityType !== 'all') {
             return download.metadata.learning_activities.includes(activityType);
@@ -227,7 +238,6 @@
         return downloadsToDisplay;
       },
       paginatedDownloads() {
-        console.log([...this.downloads]);
         if (this.downloads && this.downloads.length > 0) {
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;
           const endIndex = startIndex + this.itemsPerPage;
@@ -321,6 +331,9 @@
         }
         return icon;
       },
+      formatDownloadRequestedDate(download) {
+        return this.$formatRelative(download.requested_at, { now: this.now });
+      },
       formattedDownloadStatus(download) {
         let message = '';
         switch (download.status) {
@@ -330,11 +343,10 @@
           case 'IN_PROGRESS':
             message = this.coreString('inProgressLabel');
             break;
-          case 'COMPLETED' && this.now - download.requested_at < 10000:
-            message = this.coreString('justNow');
-            break;
           case 'COMPLETED':
-            message = this.$formatRelative(download.requested_at, { now: this.now });
+            /* eslint-disable kolibri/vue-no-undefined-string-uses */
+            message = ChannelContentsSummaryStrings.$tr('onDeviceRow');
+            /* eslint-enable */
             break;
           case 'FAILED':
             if (this.sourceDeviceIsAvailable(download)) {
