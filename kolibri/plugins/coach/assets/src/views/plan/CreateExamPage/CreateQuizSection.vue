@@ -1,7 +1,21 @@
 <template>
 
-  <div class="add-padding">
-    <KGrid>
+  <div>
+    <KRouterLink
+      appearance="raised-button"
+      :to="{ path: 'new/123/edit' }"
+      text="Edit section"
+    />
+
+    <KRouterLink
+      appearance="raised-button"
+      :to="{ path: 'new/123/replace-questions' }"
+      text="replace question"
+    />
+
+    <KGrid
+      class="add-padding"
+    >
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 1 }"
