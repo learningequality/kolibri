@@ -109,7 +109,7 @@
           </div>
         </div>
 
-        <div v-if="deviceIsAndroid" class="fieldset">
+        <div v-if="canCheckMeteredConnection" class="fieldset">
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
@@ -285,7 +285,7 @@
         </ul>
       </section>
 
-      <section v-if="deviceIsAndroid || isAppContext" class="android-bar">
+      <section v-if="isAppContext" class="android-bar">
         <KButton
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
@@ -344,7 +344,6 @@
 
 <script>
 
-  import store from 'kolibri.coreVue.vuex.store';
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
@@ -355,13 +354,13 @@
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
   import { getFreeSpaceOnServer } from '../AvailableChannelsPage/api';
   import useDeviceRestart from '../../composables/useDeviceRestart';
   import usePlugins from '../../composables/usePlugins';
-  import { showDeviceInfoPage } from '../../modules/deviceInfo/handlers';
   import { getDeviceSettings, getPathsPermissions, saveDeviceSettings, getDeviceURLs } from './api';
   import PrimaryStorageLocationModal from './PrimaryStorageLocationModal';
   import AddStorageLocationModal from './AddStorageLocationModal';
@@ -460,7 +459,7 @@
     },
     computed: {
       ...mapGetters(['isAppContext', 'isPageLoading']),
-      ...mapGetters('deviceInfo', ['getDeviceOS', 'canRestart', 'isRemoteContent']),
+      ...mapGetters('deviceInfo', ['canRestart', 'isRemoteContent']),
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
       },
@@ -537,16 +536,9 @@
           };
         }
       },
-      deviceIsAndroid() {
-        if (this.deviceInfo === undefined) {
-          showDeviceInfoPage(store);
-        }
-        if (this.getDeviceOS === undefined) {
-          return true;
-        }
-        return this.getDeviceOS.includes('Android');
+      canCheckMeteredConnection() {
+        return checkCapability('check_is_metered');
       },
-
       showDisabledAlert() {
         return this.isRemoteContent || !this.canRestart;
       },
