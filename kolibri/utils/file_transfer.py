@@ -122,14 +122,16 @@ class ChunkedFileDirectoryManager(object):
             for dir in dirs:
                 if dir.endswith(CHUNK_SUFFIX):
                     yield os.path.join(root, dir)
+                    # Don't continue to walk down the directory tree
+                    dirs.remove(dir)
 
     def _get_chunked_file_stats(self):
         stats = {}
         for chunked_file_dir in self._get_chunked_file_dirs():
             file_stats = {"last_access_time": 0, "size": 0}
-            for file in os.listdir(chunked_file_dir):
-                file_path = os.path.join(chunked_file_dir, file)
-                if os.path.isfile(file_path):
+            for dirpath, _, filenames in os.walk(chunked_file_dir):
+                for file in filenames:
+                    file_path = os.path.join(dirpath, file)
                     file_stats["last_access_time"] = max(
                         file_stats["last_access_time"], os.path.getatime(file_path)
                     )

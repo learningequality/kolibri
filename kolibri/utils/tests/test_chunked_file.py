@@ -299,6 +299,14 @@ class TestChunkedFile(unittest.TestCase):
                 pass
 
 
+# The expected number of bytes taken up by files used in the diskcache
+# for chunked files.
+EXPECTED_DISKCACHE_SIZE = 32768
+
+
+TOTAL_CHUNKED_FILE_SIZE = TEST_FILE_SIZE + EXPECTED_DISKCACHE_SIZE
+
+
 class TestChunkedFileDirectoryManager(unittest.TestCase):
     def setUp(self):
         self.base_dir = tempfile.mkdtemp()
@@ -340,19 +348,22 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
         stats = manager._get_chunked_file_stats()
 
         for file_path, file_stats in stats.items():
-            self.assertEqual(file_stats["size"], TEST_FILE_SIZE)
+            self.assertEqual(file_stats["size"], TOTAL_CHUNKED_FILE_SIZE)
             expected_last_access_time = 0
-            for file in os.listdir(file_path):
-                if os.path.isfile(os.path.join(file_path, file)):
+            for dirpath, _, filenames in os.walk(file_path):
+                for filename in filenames:
                     expected_last_access_time = max(
                         expected_last_access_time,
-                        os.path.getatime(os.path.join(file_path, file)),
+                        os.path.getatime(os.path.join(dirpath, filename)),
                     )
             self.assertEqual(file_stats["last_access_time"], expected_last_access_time)
 
     def test_evict_files_exact_file_size_sum(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        self.assertEqual(TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 3))
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3),
+        )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted([]),
@@ -361,7 +372,8 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
     def test_evict_files_more_than_file_size_sum(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(
-            TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 3 + 12)
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3 + 12),
         )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
@@ -370,7 +382,9 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_evict_files_exact_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        self.assertEqual(TEST_FILE_SIZE, manager.evict_files(TEST_FILE_SIZE))
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE)
+        )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted(
@@ -390,7 +404,9 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_evict_files_less_than_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        self.assertEqual(TEST_FILE_SIZE, manager.evict_files(TEST_FILE_SIZE - 12))
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE - 12)
+        )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted(
@@ -410,7 +426,10 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_evict_files_more_than_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        self.assertEqual(TEST_FILE_SIZE * 2, manager.evict_files(TEST_FILE_SIZE + 12))
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 2,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE + 12),
+        )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted(
@@ -428,7 +447,8 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
     def test_evict_files_more_than_twice_file_size(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
         self.assertEqual(
-            TEST_FILE_SIZE * 3, manager.evict_files(TEST_FILE_SIZE * 2 + 12)
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 2 + 12),
         )
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
@@ -458,7 +478,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_limit_files_no_eviction_needed(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        manager.limit_files(TEST_FILE_SIZE * 3)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 3)
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted(
@@ -479,7 +499,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_limit_files_some_eviction_needed(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        manager.limit_files(TEST_FILE_SIZE * 2)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 2)
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted(
@@ -499,7 +519,7 @@ class TestChunkedFileDirectoryManager(unittest.TestCase):
 
     def test_limit_files_all_evicted(self):
         manager = ChunkedFileDirectoryManager(self.base_dir)
-        manager.limit_files(TEST_FILE_SIZE - 12)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE - 12)
         self.assertEqual(
             sorted(list(manager._get_chunked_file_dirs())),
             sorted([]),
