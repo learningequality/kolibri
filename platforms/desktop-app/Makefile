@@ -33,6 +33,10 @@ install-whl:
 	# Delete sqlalchemy from the dist folder
 	rm -rf kolibrisrc/kolibri/dist/sqlalchemy
 	rm -rf kolibrisrc/kolibri/dist/SQLAlchemy*
+	# Cleanup the py2only folder
+	rm -rf kolibrisrc/kolibri/dist/py2only
+	# Delete cextensions folder
+	rm -rf kolibrisrc/kolibri/dist/cext
 	# This doesn't exist in 0.15, so don't error if it doesn't exist.
 	echo "3.3.1" > kolibrisrc/kolibri/dist/importlib_resources/version.txt || true
 	$(MAKE) loading-pages
