@@ -89,7 +89,19 @@
           </template>
         </CoreTable>
 
-        <p v-if="!hasVisibleLessons">
+        <p
+          v-if="!hasVisibleLessons &&
+            lessons.length"
+        >
+
+          {{ coreString('noResultsLabel') }}
+        </p>
+
+        <p
+          v-if="!hasNotVisibleLessons &&
+            lessons.length"
+        >
+
           {{ coreString('noResultsLabel') }}
         </p>
 
@@ -240,6 +252,11 @@
       hasVisibleLessons() {
         return !(
           !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
+        );
+      },
+      hasNotVisibleLessons() {
+        return !(
+          !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
         );
       },
       calcTotalSizeOfVisibleLessons() {
