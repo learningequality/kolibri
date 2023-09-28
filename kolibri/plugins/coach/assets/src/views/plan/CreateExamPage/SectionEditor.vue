@@ -2,7 +2,7 @@
 
   <div>
     <h5
-      class="section-settings-heading"
+      class="section-settings-top-heading"
     >
       {{ $tr('sectionSettingsHeading') }}
     </h5>
@@ -64,7 +64,11 @@
     <hr class="divider-style">
 
     <div>
-      <h2>{{ $tr('questionOrder') }}</h2>
+      <h5
+        class="section-settings-heading"
+      >
+        {{ $tr('questionOrder') }}
+      </h5>
       <KGrid>
         <KGridItem
           :layout12="{ span: 6 }"
@@ -89,7 +93,11 @@
 
     <hr class="divider-style">
 
-    <h2>{{ $tr('quizResourceSelection') }}</h2>
+    <h5
+      class="section-settings-heading"
+    >
+      {{ $tr('quizResourceSelection') }}
+    </h5>
     <p>{{ $tr('selectedResources', { count: 2 }) }}</p>
 
     <KButton
@@ -100,11 +108,11 @@
 
     <hr class="divider-style">
 
-    <h6
-      class="section-order-style"
+    <h5
+      class="section-order-style section-settings-heading"
     >
       {{ $tr('sectionOrderTitle') }}
-    </h6>
+    </h5>
 
     <div class="current-section section-order-list">
       <KGrid>
@@ -129,7 +137,7 @@
           :layout12="{ span: 5 }"
           class="current-section-style"
         >
-          <p class="space-content">
+          <p class="current-section-text space-content">
             {{ $tr('currentSection') }}
           </p>
         </KGridItem>
@@ -283,6 +291,11 @@
     font-weight: 600;
   }
 
+  .section-settings-top-heading {
+    font-size: 18px;
+    font-weight: 600;
+  }
+
   .section-order-list {
     height: 2.5em;
     margin-top: 0.5em;
@@ -330,8 +343,6 @@
   }
 
   .current-section-style {
-    float: left;
-    margin-left: auto;
     font-size: 1em;
     color: #616161;
   }
@@ -342,14 +353,20 @@
 
   .bottom-buttons-style {
     bottom: 0;
+    margin-top: 4em;
+    margin-bottom: 1em;
   }
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 155%;
+    width: 160%;
   }
 
   /deep/ .KButton-noKey-0_1xktocf {
     width: 100%;
+  }
+
+  .current-section-text {
+    text-align: right;
   }
 
 </style>
