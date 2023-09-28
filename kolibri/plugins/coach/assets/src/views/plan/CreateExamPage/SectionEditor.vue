@@ -337,9 +337,7 @@
   }
 
   .bottom-buttons-style {
-    position: absolute;
     bottom: 0;
-    margin-bottom: 2.5em;
   }
 
 </style>
