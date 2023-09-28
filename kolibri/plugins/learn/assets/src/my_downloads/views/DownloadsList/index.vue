@@ -54,7 +54,6 @@
               </td>
               <td>
                 <KIcon
-                  v-if="downloadStatusIcon(download)"
                   :icon="downloadStatusIcon(download)"
                   :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
                   class="icon"
@@ -319,6 +318,9 @@
       downloadStatusIcon(download) {
         let icon;
         switch (download.status) {
+          case 'COMPLETED':
+            icon = 'correct';
+            break;
           case 'PENDING':
             icon = 'timer';
             break;
@@ -398,14 +400,8 @@
     text-align: right;
   }
 
-  .icon {
-    width: 24px !important;
-    height: 24px !important;
-  }
-
   .status-text {
     position: relative;
-    top: -4px;
     padding: 8px;
   }
 
