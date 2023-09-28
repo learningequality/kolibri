@@ -165,6 +165,8 @@ export default [
       if (!unassignedContentGuard(next)) {
         return;
       }
+      store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
+      store.commit('CORE_SET_PAGE_LOADING', false);
       if (!get(isUserLoggedIn)) {
         next({ name: PageNames.LIBRARY, replace: true });
         return;

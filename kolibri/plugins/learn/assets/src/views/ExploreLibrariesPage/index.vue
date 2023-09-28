@@ -18,51 +18,56 @@
         {{ $tr('showingLibraries') }}
       </p>
     </div>
-    <LibraryItem
-      v-for="device in pinnedDevices"
-      :key="device['instance_id']"
-      :deviceId="device['instance_id']"
-      :deviceName="device['device_name']"
-      :deviceIcon="getDeviceIcon(device)"
-      :channels="deviceChannelsMap[device['instance_id']]"
-      :totalChannels="device['total_count']"
-      :pinIcon="getPinIcon(true)"
-      :showDescription="device['instance_id'] === studioId"
-      :disablePinDevice="device['instance_id'] === studioId"
-      @togglePin="handlePinToggle"
-    />
-    <div v-if="areMoreDevicesAvailable">
-      <div
-        v-if="pinnedDevicesExist"
-        data-test="more-libraries"
-      >
-        <h2>{{ learnString('moreLibraries') }}</h2>
-        <KButton
-          v-if="displayShowButton"
-          data-test="show-button"
-          :text="coreString('showAction')"
-          :primary="false"
-          @click="loadMoreDevices"
-        />
-      </div>
+    <div v-if="loading">
+      <KCircularLoader />
+    </div>
+    <div v-else>
       <LibraryItem
-        v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
-        :key="index"
+        v-for="device in pinnedDevices"
+        :key="device['instance_id']"
         :deviceId="device['instance_id']"
         :deviceName="device['device_name']"
         :deviceIcon="getDeviceIcon(device)"
         :channels="deviceChannelsMap[device['instance_id']]"
         :totalChannels="device['total_count']"
-        :pinIcon="getPinIcon(false)"
+        :pinIcon="getPinIcon(true)"
+        :showDescription="device['instance_id'] === studioId"
+        :disablePinDevice="device['instance_id'] === studioId"
         @togglePin="handlePinToggle"
       />
-      <KButton
-        v-if="displayShowMoreButton"
-        data-test="show-more-button"
-        :text="coreString('showMoreAction')"
-        :primary="false"
-        @click="loadMoreDevices"
-      />
+      <div v-if="areMoreDevicesAvailable">
+        <div
+          v-if="pinnedDevicesExist"
+          data-test="more-libraries"
+        >
+          <h2>{{ learnString('moreLibraries') }}</h2>
+          <KButton
+            v-if="displayShowButton"
+            data-test="show-button"
+            :text="coreString('showAction')"
+            :primary="false"
+            @click="loadMoreDevices"
+          />
+        </div>
+        <LibraryItem
+          v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
+          :key="index"
+          :deviceId="device['instance_id']"
+          :deviceName="device['device_name']"
+          :deviceIcon="getDeviceIcon(device)"
+          :channels="deviceChannelsMap[device['instance_id']]"
+          :totalChannels="device['total_count']"
+          :pinIcon="getPinIcon(false)"
+          @togglePin="handlePinToggle"
+        />
+        <KButton
+          v-if="displayShowMoreButton"
+          data-test="show-more-button"
+          :text="coreString('showMoreAction')"
+          :primary="false"
+          @click="loadMoreDevices"
+        />
+      </div>
     </div>
   </ImmersivePage>
 
