@@ -2,7 +2,6 @@ const fs = require('fs');
 const path = require('path');
 const intersection = require('lodash/intersection');
 const { parse } = require('csv-parse/sync');
-const { lint } = require('kolibri-tools/lib/lint');
 const { addAliases, resetAliases } = require('kolibri-tools/lib/alias_import_resolver');
 const glob = require('../glob');
 const logging = require('../logging');
@@ -25,16 +24,6 @@ function checkForDuplicateIds(obj1, obj2) {
     }
   }
   return Boolean(actualDuplicates.length);
-}
-
-function writeSourceToFile(filePath, fileSource) {
-  fs.writeFileSync(filePath, fileSource, { encoding: 'utf-8' });
-
-  lint({
-    file: filePath,
-    write: true,
-    silent: true,
-  });
 }
 
 // Compile all of the defined strings & context from the CSVs that have been downloaded
@@ -91,7 +80,6 @@ function forEachPathInfo(pathInfo, callback) {
 module.exports = {
   parseCSVDefinitions,
   toLocale,
-  writeSourceToFile,
   forEachPathInfo,
   checkForDuplicateIds,
 };
