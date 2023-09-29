@@ -89,19 +89,7 @@
           </template>
         </CoreTable>
 
-        <p
-          v-if="!hasVisibleLessons &&
-            lessons.length"
-        >
-
-          {{ coreString('noResultsLabel') }}
-        </p>
-
-        <p
-          v-if="!hasNotVisibleLessons &&
-            lessons.length"
-        >
-
+        <p v-if="showNoResultsLabel">
           {{ coreString('noResultsLabel') }}
         </p>
 
@@ -250,14 +238,21 @@
         return { name: LessonsPageNames.LESSON_CREATION_ROOT };
       },
       hasVisibleLessons() {
-        return !(
-          !this.activeLessonCounts.true && this.filterSelection.value === 'filterLessonVisible'
-        );
+        return this.activeLessonCounts.true;
       },
-      hasNotVisibleLessons() {
-        return !(
-          !this.activeLessonCounts.false && this.filterSelection.value === 'filterLessonNotVisible'
-        );
+      hasNonVisibleLessons() {
+        return this.activeLessonCounts.false;
+      },
+      showNoResultsLabel() {
+        if (!this.lessons.length) {
+          return false;
+        } else if (this.filterSelection.value === 'filterLessonVisible') {
+          return !this.hasVisibleLessons;
+        } else if (this.filterSelection.value === 'filterLessonNotVisible') {
+          return !this.hasNonVisibleLessons;
+        } else {
+          return false;
+        }
       },
       calcTotalSizeOfVisibleLessons() {
         if (this.lessons && this.lessons.length) {
