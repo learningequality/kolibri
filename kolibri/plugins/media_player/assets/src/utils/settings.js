@@ -14,7 +14,7 @@ class Settings {
   }
 
   set playerMuted(playerMuted) {
-    return this.save({ playerMuted });
+    this.save({ playerMuted });
   }
 
   get playerMuted() {
@@ -22,7 +22,7 @@ class Settings {
   }
 
   set playerRate(playerRate) {
-    return this.save({ playerRate });
+    this.save({ playerRate });
   }
 
   get playerRate() {
@@ -30,7 +30,7 @@ class Settings {
   }
 
   set playerVolume(playerVolume) {
-    return this.save({ playerVolume });
+    this.save({ playerVolume });
   }
 
   get playerVolume() {
@@ -38,7 +38,7 @@ class Settings {
   }
 
   set captionLanguage(captionLanguage) {
-    return this.save({ captionLanguage });
+    this.save({ captionLanguage });
   }
 
   get captionLanguage() {
@@ -46,7 +46,7 @@ class Settings {
   }
 
   set captionSubtitles(captionSubtitles) {
-    return this.save({ captionSubtitles });
+    this.save({ captionSubtitles });
   }
 
   get captionSubtitles() {
@@ -54,7 +54,7 @@ class Settings {
   }
 
   set captionTranscript(captionTranscript) {
-    return this.save({ captionTranscript });
+    this.save({ captionTranscript });
   }
 
   get captionTranscript() {
@@ -62,7 +62,7 @@ class Settings {
   }
 
   set videoLangCode(videoLangCode) {
-    return this.save({ videoLangCode });
+    this.save({ videoLangCode });
   }
 
   get videoLangCode() {
