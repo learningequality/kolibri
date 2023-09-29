@@ -45,7 +45,9 @@
               label: this.$tr('copyLessonAction'),
               value: 'COPY',
             },
-            { label: this.coreString('deleteAction'), value: 'DELETE' },
+            { label: this.coreString('deleteAction'),
+              value: 'DELETE',
+            },
           ];
         }
 
