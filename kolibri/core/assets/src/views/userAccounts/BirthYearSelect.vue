@@ -85,8 +85,12 @@
     methods: {
       makeYearOptions(max, min) {
         return range(max, min, -1).map(n => {
+          // Because of timezone, year could be mismatched when localized in any timezone that less than UTC
+          // for ex- 2022 will be shown instead of 2023
+          let date = new Date();
+          date.setFullYear(n);
           return {
-            label: this.$formatDate(String(n), { year: 'numeric' }),
+            label: this.$formatDate(String(date), { year: 'numeric' }),
             value: String(n),
           };
         });
