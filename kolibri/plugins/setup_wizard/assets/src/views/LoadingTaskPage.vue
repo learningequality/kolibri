@@ -35,7 +35,7 @@
       </template>
       <span v-else></span>
     </template>
-    <!-- To DO: to be roled back when multiple user syncing is working in the upcoming release -->
+    <!-- TODO: to be roled back when multiple user syncing is working in the upcoming release -->
     <!-- <KButton
       v-if="loadingTask.status === 'COMPLETED' && isImportingSoud"
       appearance="basic-link"
@@ -130,7 +130,7 @@
       isSoud() {
         return this.queue === SoudQueue;
       },
-      // To Do: role this back when multiple user syncing is working in the upcoming release!
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
       // isImportingSoud() {
       //   return this.wizardService.state.context.lodImportOrJoin === LodTypePresets.IMPORT;
       // },
@@ -150,7 +150,7 @@
       this.pollTask();
     },
     methods: {
-      // To Do: role this back when multiple user syncing is working in the upcoming release!
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
       // importAnother() {
       //   this.isPolling = false;
       //   this.wizardService.send('IMPORT_ANOTHER');
@@ -234,7 +234,7 @@
       },
     },
     $trs: {
-      // To Do: role this back when multiple user syncing is working in the upcoming release!
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
       // importAnother: {
       //   message: 'Import another user account',
       //   context: 'Link to restart the import step for another user. ',

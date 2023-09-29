@@ -150,7 +150,7 @@
         return this.wizardService.state.context.importedUsers;
       },
       pollImportTask() {
-        // TO DO :: This has to be removed once the multiple user syncing has been fixed.
+        // TODO :: This has to be removed once the multiple user syncing has been fixed.
         if (
           this.learnersBeingImported.length > 0 ||
           this.wizardService.state.context.importedUsers.length > 0
