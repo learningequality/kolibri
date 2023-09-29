@@ -145,7 +145,7 @@
             </template>
 
             <template
-
+              v-if="isItemExpanded(item)"
               #content
             >
               <div
