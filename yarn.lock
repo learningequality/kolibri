@@ -9189,10 +9189,10 @@ postcss-sass@^0.5.0:
     gonzales-pe "^4.3.0"
     postcss "^8.2.14"
 
-postcss-scss@^4.0.2, postcss-scss@^4.0.6, postcss-scss@^4.0.8:
-  version "4.0.8"
-  resolved "https://registry.yarnpkg.com/postcss-scss/-/postcss-scss-4.0.8.tgz#12a4991a902a782d4e9b86b1f217d5181c6c4f32"
-  integrity sha512-Cr0X8Eu7xMhE96PJck6ses/uVVXDtE5ghUTKNUYgm8ozgP2TkgV3LWs3WgLV1xaSSLq8ZFiXaUrj0LVgG1fGEA==
+postcss-scss@^4.0.2, postcss-scss@^4.0.6, postcss-scss@^4.0.9:
+  version "4.0.9"
+  resolved "https://registry.yarnpkg.com/postcss-scss/-/postcss-scss-4.0.9.tgz#a03c773cd4c9623cb04ce142a52afcec74806685"
+  integrity sha512-AjKOeiwAitL/MXxQW2DliT28EKukvvbEWx3LBmJIRN8KfBGZbRTxNYW0kSqi1COiTZ57nZ9NW06S6ux//N1c9A==
 
 postcss-selector-parser@^6.0.10, postcss-selector-parser@^6.0.11, postcss-selector-parser@^6.0.13, postcss-selector-parser@^6.0.2, postcss-selector-parser@^6.0.4, postcss-selector-parser@^6.0.5, postcss-selector-parser@^6.0.7:
   version "6.0.13"
