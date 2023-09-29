@@ -15,7 +15,8 @@ const {
   extractContext,
   printAST,
 } = require('./astUtils');
-const { forEachPathInfo, parseCSVDefinitions, writeSourceToFile } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
+const writeSourceToFile = require('./writeSourceToFile');
 
 // Glob path patterns
 // All JS files
