@@ -5,10 +5,10 @@
     ref="resourcePanel"
     alignment="right"
     :closeButtonIconType="closeIcon"
-    @closePanel="$router.replace(closePanelRoute)"
+    sidePanelWidth="700px"
+    @closePanel="$router.back()"
     @shouldFocusFirstEl="findFirstEl()"
   >
-    <p>{{ quizForge.activeSection.value.section_id }}</p>
     <component :is="panel" :ref="$route.name" />
   </SidePanelModal>
 
@@ -32,40 +32,12 @@
   export default {
     name: 'SectionSidePanel',
     components: { SidePanelModal, SectionEditor, ReplaceQuestions, ResourceSelection },
-    inject: ['quizForge'],
-    data() {
-      return {
-        prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
-      };
-    },
     computed: {
       panel() {
         return pageNameComponentMap[this.$route.name];
       },
-      closePanelRoute() {
-        if (this.closeIcon === 'close') {
-          return { name: PageNames.EXAM_CREATION_ROOT };
-        } else {
-          return this.prevRoute;
-        }
-      },
-      /**
-       * When the previous route was the root page OR select resources, we want an X icon.
-       * Otherwise, we want a back icon.
-       * X  means "close this side panel"
-       * <- means "go back to last view of this panel" - which we only want when we were selecting
-       *           resources.
-       */
       closeIcon() {
-        return this.prevRoute.name === PageNames.EXAM_CREATION_ROOT ||
-          this.prevRoute.name === PageNames.QUIZ_SELECT_RESOURCES
-          ? 'close'
-          : 'back';
-      },
-    },
-    watch: {
-      $route: function(_, o) {
-        this.prevRoute = o;
+        return this.$route.name === PageNames.QUIZ_SELECT_RESOURCES ? 'back' : 'close';
       },
     },
     methods: {
