@@ -119,19 +119,19 @@
           v-else-if="statusSelected.value === coachString('filterQuizStarted') &&
             !startedExams.length"
         >
-          {{ $tr('noStartedExams') }}
+          {{ coreString('noResultsLabel') }}
         </p>
         <p
           v-else-if=" statusSelected.value === coachString('filterQuizNotStarted') &&
             !notStartedExams.length"
         >
-          {{ coreString('noResults') }}
+          {{ coreString('noResultsLabel') }}
         </p>
         <p
           v-else-if=" statusSelected.value === coachString('filterQuizEnded') &&
             !endedExams.length"
         >
-          {{ coreString('noResults') }}
+          {{ coreString('noResultsLabel') }}
         </p>
 
         <!-- Modals for Close & Open of quiz from right-most column -->
@@ -338,11 +338,6 @@
       noExams: {
         message: 'You do not have any quizzes',
         context: 'Message displayed when there are no quizzes within a class.',
-      },
-      noStartedExams: {
-        message: 'No started quizzes',
-        context:
-          'Message displayed when there are no started quizes. Started quizzes are those that are in progress.',
       },
       newQuiz: {
         message: 'Create new quiz',
