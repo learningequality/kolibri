@@ -24,6 +24,7 @@ from rest_framework.test import APITestCase as BaseTestCase
 from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
+from ..models import Facility
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -680,6 +681,104 @@ class FacilityAPITestCase(APITestCase):
                 self.facility1.id,
                 item["facility"],
             )
+
+    def test_create_new_facility_non_superuser_permission_denied(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.post(reverse("kolibri:core:facility-create-facility"))
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_create_new_facility_empty_data_fails(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data={}
+        )
+        response_data = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        missing_name = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        missing_preset = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        assert missing_name in response_data
+        assert missing_preset in response_data
+
+    def test_create_new_facility_invalid_preset_option_fails(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "formal facility", "preset": "invalid"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        response_data = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response_data[0]["id"] == "INVALID_CHOICE"
+        assert response_data[0]["metadata"]["field"] == "preset"
+
+    def test_create_new_facility_valid_data_preset_formal(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "formal facility", "preset": "formal"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        # Test that correct preset is saved
+        facility = Facility.objects.get(name=data["name"])
+        assert facility.dataset.preset == data["preset"]
+
+        # Test that setting have been applied based on the preset
+        dataset = facility.dataset
+        assert dataset.learner_can_edit_username is False
+        assert dataset.learner_can_edit_name is False
+        assert dataset.learner_can_edit_password is False
+        assert dataset.learner_can_sign_up is False
+        assert dataset.learner_can_delete_account is False
+        assert dataset.learner_can_login_with_no_password is True
+        assert dataset.show_download_button_in_learn is False
+
+    def test_create_new_facility_valid_data_preset_nonformal(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "non-formal facility", "preset": "nonformal"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        # Test that correct preset is saved
+        facility = Facility.objects.get(name=data["name"])
+        assert facility.dataset.preset == data["preset"]
+
+        # Test that setting have been applied based on the preset
+        dataset = facility.dataset
+        assert dataset.learner_can_edit_username is True
+        assert dataset.learner_can_edit_name is True
+        assert dataset.learner_can_edit_password is True
+        assert dataset.learner_can_sign_up is True
+        assert dataset.learner_can_delete_account is True
+        assert dataset.learner_can_login_with_no_password is False
+        assert dataset.show_download_button_in_learn is True
 
 
 class UserCreationTestCase(APITestCase):
