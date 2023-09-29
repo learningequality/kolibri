@@ -26,9 +26,6 @@ export default {
     },
   },
   getters: {
-    getDeviceOS(state) {
-      return state.deviceInfo.os;
-    },
     getDataLoading(state) {
       return state.dataLoading;
     },
