@@ -135,3 +135,4 @@ tmpenv
 whl
 package
 kolibrisrc
+hooks/kolibri_plugins_entrypoints_hook.py
