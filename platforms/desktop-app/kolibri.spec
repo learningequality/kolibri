@@ -4,6 +4,7 @@ import sys
 
 from datetime import datetime
 from glob import glob
+from importlib.metadata import entry_points
 
 
 block_cipher = None
@@ -24,6 +25,47 @@ locale_datas = [
     for mo_file in glob('src/kolibri_app/locales/**/LC_MESSAGES/*.mo')
 ]
 
+entry_point_packages = dict()
+
+# List of packages that should have there Distutils entrypoints included.
+ep_packages = ["kolibri.plugins"]
+
+for ep_package in ep_packages:
+    packages = []
+    for ep in entry_points(group=ep_package):
+        packages.append((ep.name, ep.value, ep.group))
+    if packages:
+        entry_point_packages[ep_package] = packages
+
+    try:
+        os.mkdir('./generated')
+    except FileExistsError:
+        pass
+
+with open("./hooks/kolibri_plugins_entrypoints_hook.py", "w") as f:
+    f.write("""# Runtime hook generated from spec file to support importlib.metadata entry_points.
+from importlib import metadata
+
+ep_packages = {}
+
+default_entry_points = metadata.entry_points
+
+def _generate_entry_points_object_for_group(group):
+    return metadata.EntryPoints(metadata.EntryPoint(*ep) for ep in ep_packages[group])
+
+def monkey_patched_entry_points(**params):
+    value = default_entry_points(**params)
+    group = params.get("group")
+    if group is not None and group in ep_packages:
+        value[group] = _generate_entry_points_object_for_group(group)
+    if not params:
+        for group in ep_packages:
+            value[group] = _generate_entry_points_object_for_group(group)
+    return value
+
+metadata.entry_points = monkey_patched_entry_points
+""".format(entry_point_packages))
+
 a = Analysis(
     [os.path.join('src', 'kolibri_app', '__main__.py')],
     pathex=['kolibrisrc', os.path.join('kolibrisrc', 'kolibri', 'dist')],
@@ -31,7 +73,7 @@ a = Analysis(
     datas=[('src/kolibri_app/assets', 'kolibri_app/assets')] + locale_datas,
     hiddenimports=[],
     hookspath=['hooks'],
-    runtime_hooks=['hooks/pyi_rth_kolibri.py'],
+    runtime_hooks=['hooks/pyi_rth_kolibri.py', 'hooks/kolibri_plugins_entrypoints_hook.py'],
     excludes=['numpy', 'six.moves.urllib.parse', 'PIL'],
     win_no_prefer_redirects=False,
     win_private_assemblies=False,
