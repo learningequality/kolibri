@@ -35,23 +35,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: |
         python -m pip install --upgrade pip
         pip install "tox<4"
     - name: tox env cache
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: tox -e py${{ matrix.python-version }}
   unit_test27:
     name: Python unit tests (2.7)
@@ -62,18 +62,18 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Install tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: |
         python -m pip install --upgrade pip
         pip install "tox<4"
     - name: tox env cache
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}/.tox/py2.7
         key: ${{ runner.os }}-tox-py2.7-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: tox -e py2.7
   postgres:
     name: Python postgres unit tests
@@ -101,23 +101,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python 3.9 for Postgres
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/setup-python@v4
       with:
         python-version: 3.9
     - name: Install tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: |
         python -m pip install --upgrade pip
         pip install "tox<4"
     - name: tox env cache
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}/.tox/py3.9
         key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: tox -e postgres
   macos:
     name: Python unit tests on Mac OS
@@ -131,23 +131,23 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: |
         python -m pip install --upgrade pip
         pip install "tox<4"
     - name: tox env cache
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/cache@v3
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
     - name: Test with tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: tox -e py${{ matrix.python-version }}
   windows:
     name: Python unit tests on Windows Server
@@ -161,15 +161,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: |
         python -m pip install --upgrade pip
         pip install "tox<4"
     - name: Test with tox
-      if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+      if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
       run: tox -e py${{ matrix.python-version }}

@@ -26,7 +26,7 @@ jobs:
   c_ext:
     name: C Extensions
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-20.04
     container:
       image: python:2.7.18-buster
@@ -66,7 +66,7 @@ jobs:
   no_c_ext:
     name: No C Extensions
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-20.04
     container:
       image: python:2.7.18-buster
