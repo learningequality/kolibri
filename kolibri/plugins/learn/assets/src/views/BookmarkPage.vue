@@ -1,7 +1,7 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div id="main" role="main">
+    <div id="main" ref="bookmarkWrapper" role="main">
 
       <h1>
         {{ $tr('bookmarksHeader') }}
@@ -132,6 +132,15 @@
         sidePanelContent: null,
       };
     },
+    watch: {
+      sidePanelContent(newVal) {
+        if (newVal !== null) {
+          this.stopMainScroll(true);
+        } else {
+          this.stopMainScroll(false);
+        }
+      },
+    },
     created() {
       ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
         this.more = data.more;
@@ -169,6 +178,16 @@
       },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
+      },
+      stopMainScroll(sidePanelVisible) {
+        const bookmarkElement = this.$refs.bookmarkWrapper;
+        if (sidePanelVisible) {
+          bookmarkElement.style.position = 'fixed';
+          bookmarkElement.style.width = '84.65%';
+        } else {
+          bookmarkElement.style.position = null;
+          bookmarkElement.style.width = '100%';
+        }
       },
     },
     $trs: {
