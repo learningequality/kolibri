@@ -175,7 +175,6 @@
       },
       backRoute() {
         if(this.inRemoteImportMode){
-          console.log("hello");
           return availableChannelsPageLink();
         }
         else if(this.inPeerImportMode) {
