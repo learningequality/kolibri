@@ -66,7 +66,6 @@
     watch: {
       $route: function(_, o) {
         this.prevRoute = o;
-        console.log('prevroute', this.prevRoute);
       },
     },
     methods: {
