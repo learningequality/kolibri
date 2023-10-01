@@ -151,32 +151,29 @@
   import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../../common';
-  /*
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import AccordionContainer from './AccordionContainer.vue';
-  import AccordionItem from './AccordionItem.vue';
-  */
-
-  export default {
-    name: 'CreateQuizSection',
-    /*
-    components: {
-      AccordionContainer,
-      AccordionItem,
-      DragHandle,
-      Draggable,
-      DragContainer,
-      DragSortWidget,
-    },
-    */
   import TabsWithOverflow from './TabsWithOverflow.vue';
 
+  /*
+    import DragHandle from 'kolibri.coreVue.components.DragHandle';
+    import Draggable from 'kolibri.coreVue.components.Draggable';
+    import DragContainer from 'kolibri.coreVue.components.DragContainer';
+    import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+    import AccordionContainer from './AccordionContainer.vue';
+    import AccordionItem from './AccordionItem.vue';
+    */
   export default {
     name: 'CreateQuizSection',
-    components: { TabsWithOverflow },
+    components: {
+      TabsWithOverflow,
+      /*
+        AccordionContainer,
+        AccordionItem,
+        DragHandle,
+        Draggable,
+        DragContainer,
+        DragSortWidget,
+        */
+    },
     mixins: [commonCoreStrings, commonCoach],
     inject: ['quizForge'],
     computed: {
@@ -235,26 +232,26 @@
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
       /*
-      handleOrderChange(event) {
-        const reorderedList = event.newArray.map(x => {
-          if (x.isPlaceholder) {
-            return this.placeholderList.find(item => item.id === x.id);
-          }
-          return x;
-        });
-        this.placeholderList = reorderedList;
-        localStorage.setItem('reorderedList', JSON.stringify(reorderedList));
-        this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
-      },
-      shiftOne(index, delta) {
-        const newArray = [...this.placeholderList];
-        const adjacentItem = newArray[index + delta];
-        newArray[index + delta] = newArray[index];
-        newArray[index] = adjacentItem;
+        handleOrderChange(event) {
+          const reorderedList = event.newArray.map(x => {
+            if (x.isPlaceholder) {
+              return this.placeholderList.find(item => item.id === x.id);
+            }
+            return x;
+          });
+          this.placeholderList = reorderedList;
+          localStorage.setItem('reorderedList', JSON.stringify(reorderedList));
+          this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
+        },
+        shiftOne(index, delta) {
+          const newArray = [...this.placeholderList];
+          const adjacentItem = newArray[index + delta];
+          newArray[index + delta] = newArray[index];
+          newArray[index] = adjacentItem;
 
-        this.handleOrderChange({ newArray });
-      },
-          */
+          this.handleOrderChange({ newArray });
+        },
+            */
     },
     $trs: {
       addSection: {
@@ -279,43 +276,43 @@
           'This message indicates that more than one section can be added when creating a quiz.',
       },
       /*
-      questionPhrase: {
-        message: 'Select the word that has the following vowel sound.',
-        context: 'Placholder for the question',
-      },
-      questionSubtitle: {
-        message: ' Short <e>, [e]</e>',
-        context: 'Placholder content for the question description',
-      },
-      chooseQuestionLabel: {
-        message: 'Choose 1 answer:',
-        context: 'Label to indicate the question to be chosen',
-      },
-      addAnswer: {
-        message: 'Add answer',
-        context: 'Button text to indicate that more answers can be added to the question.',
-      },
-      selectAllLabel: {
-        message: 'Select all',
-        context: 'Label indicates that all available options can be chosen at once.',
-      },
-      upLabel: {
-        message: 'Move {name} up one',
-        context: 'Label to rearrange question order. Not seen on UI.',
-      },
-      downLabel: {
-        message: 'Move {name} down one',
-        context: 'Label to rearrange question order. Not seen on UI.',
-      },
-      checkBoxLabel: {
-        message: 'Select {name} question"',
-        context: 'Checkbox to select the question',
-      },
-      successNotification: {
-        message: 'Question order saved',
-        context: 'Success message shown when the admin re-orders question',
-      },
-        */
+        questionPhrase: {
+          message: 'Select the word that has the following vowel sound.',
+          context: 'Placholder for the question',
+        },
+        questionSubtitle: {
+          message: ' Short <e>, [e]</e>',
+          context: 'Placholder content for the question description',
+        },
+        chooseQuestionLabel: {
+          message: 'Choose 1 answer:',
+          context: 'Label to indicate the question to be chosen',
+        },
+        addAnswer: {
+          message: 'Add answer',
+          context: 'Button text to indicate that more answers can be added to the question.',
+        },
+        selectAllLabel: {
+          message: 'Select all',
+          context: 'Label indicates that all available options can be chosen at once.',
+        },
+        upLabel: {
+          message: 'Move {name} up one',
+          context: 'Label to rearrange question order. Not seen on UI.',
+        },
+        downLabel: {
+          message: 'Move {name} down one',
+          context: 'Label to rearrange question order. Not seen on UI.',
+        },
+        checkBoxLabel: {
+          message: 'Select {name} question"',
+          context: 'Checkbox to select the question',
+        },
+        successNotification: {
+          message: 'Question order saved',
+          context: 'Success message shown when the admin re-orders question',
+        },
+          */
     },
   };
 
@@ -476,10 +473,6 @@
   .limit-height {
     margin-top: 0.5em;
     margin-bottom: 0.5em;
-    margin-bottom: -8px;
-    text-align: left;
-  }
-
     margin-bottom: -8px;
     text-align: left;
   }
