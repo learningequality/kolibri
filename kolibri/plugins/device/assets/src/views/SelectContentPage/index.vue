@@ -100,6 +100,7 @@
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
   import plugin_data from 'plugin_data';
+  import { availableChannelsPageLink } from '../ManageContentPage/manageContentLinks';
 
   export default {
     name: 'SelectContentPage',
@@ -173,7 +174,16 @@
         return title;
       },
       backRoute() {
-        return { name: PageNames.MANAGE_CONTENT_PAGE };
+        if(this.inRemoteImportMode){
+          console.log("hello");
+          return availableChannelsPageLink();
+        }
+        else if(this.inPeerImportMode) {
+          return availableChannelsPageLink({addressId: this.selectedPeer.id})
+        }
+        else if(this.inLocalImportMode) { 
+          return availableChannelsPageLink({driveId: this.selectedDrive.id});
+        }
       },
       channelId() {
         return this.$route.params.channel_id;
