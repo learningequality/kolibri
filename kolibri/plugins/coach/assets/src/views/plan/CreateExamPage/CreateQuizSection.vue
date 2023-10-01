@@ -81,7 +81,7 @@
         <KButton
           appearance="flat-button"
           icon="plus"
-          @click="() => quizForge.addSection()"
+          @click="handleAddSection"
         >
           {{ ($tr('addSection')).toUpperCase() }}
         </KButton>
@@ -192,6 +192,10 @@
       },
     },
     methods: {
+      handleAddSection() {
+        const newSection = this.quizForge.addSection();
+        this.quizForge.setActiveSection(get(newSection).section_id);
+      },
       handleSectionOptionSelect({ label }, section_id) {
         switch (label) {
           case 'Edit':
