@@ -35,10 +35,10 @@
       };
     },
     props: {
-      pxReservedForOverflowButton: {
-        type: Number,
-        default: 40,
-      },
+      //pxReservedForOverflowButton: {
+      //type: Number,
+      //default: 40,
+      //},
       tabs: {
         type: Array,
         required: true,
@@ -64,12 +64,14 @@
     },
     mounted() {
       this.mounted = true;
-      this.$nextTick(() => {
-        console.log(this.$slots);
-        console.log(this.$refs);
-      });
+      this.setWrappingButtonTabIndex();
     },
     methods: {
+      setWrappingButtonTabIndex() {
+        for (const child of this.$refs.tabsWrapper.$el.children) {
+          child.setAttribute('tabindex', -1);
+        }
+      },
       tabIsVisible(tab) {
         return !this.overflowTabs.map(t => t.id).includes(tab.id);
       },
@@ -82,11 +84,15 @@
 <style scoped lang="scss">
 
   .tabs-wrapper {
+    z-index: 24;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    max-height: 40px;
-    overflow: hidden;
+    max-height: 6em;
+  }
+
+  /deep/ .tab {
+    overflow: visible; // Keep outline fully visible
   }
 
 </style>
