@@ -300,10 +300,10 @@
 <style lang="scss"  scoped>
 
   .style-icon {
-    width: 32px;
-    height: 32px;
-    margin-top: 8px;
-    margin-left: 16px;
+    width: 2em;
+    height: 2em;
+    margin-top: 0.5em;
+    margin-left: 1em;
   }
 
   /deep/ .ui-textbox-label {
