@@ -125,7 +125,6 @@ export default () => {
       throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
     }
     if (updatedSections.length === 0) {
-      console.log('Deleting last section...');
       const newSection = addSection();
       setActiveSection(newSection.section_id);
     } else {
@@ -247,7 +246,7 @@ export default () => {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
-  /** @type {Arrayc<ComputedRef<QuizSection>>} The inactive sections */
+  /** @type {ComputedRef<QuizSection[]>} The inactive sections */
   const inactiveSections = computed(() =>
     get(allSections).filter(s => s.section_id !== get(_activeSectionId))
   );
