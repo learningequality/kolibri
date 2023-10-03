@@ -6,7 +6,7 @@
       class="tabs-wrapper"
       v-bind="$attrs"
       :activeTabId="activeTabId"
-      :tabs="visibleTabs"
+      :tabs="tabs"
     >
       <template #tab="{ tab }">
         <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
@@ -57,11 +57,6 @@
     },
     data() {
       return { mounted: false, overflowTabs: [] };
-    },
-    computed: {
-      visibleTabs() {
-        return this.tabs.filter(this.tabIsVisible);
-      },
     },
     watch: {
       tabs() {
@@ -114,7 +109,8 @@
     overflow: hidden;
   }
 
-  /deep/ .tab > button {
+  /deep/ .tab > button,
+  .tab {
     max-width: calc(200px - 40px);
     text-overflow: ellipsis;
 
@@ -125,7 +121,7 @@
   }
 
   /deep/ .tab {
-    flex: 0 0 auto;
+    display: inline-block;
     height: 2.5em;
     overflow: visible; // Keep outline fully visible
   }

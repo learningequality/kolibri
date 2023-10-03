@@ -47,9 +47,8 @@
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
         >
-          <template #tab="{ tab, tabIsVisible }">
+          <template #tab="{ tab }">
             <KButton
-              v-show="tabIsVisible"
               appearance="flat-button"
               style="display: inline-block;"
               :appearanceOverrides="tabStyles"
@@ -58,7 +57,6 @@
               {{ tab.label }}
             </KButton>
             <KIconButton
-              v-show="tabIsVisible"
               icon="optionsVertical"
               class="options-button"
               @click="() => null"
@@ -88,7 +86,34 @@
                   :hasIcons="true"
                   :options="overflowTabs"
                   @select="opt => quizForge.setActiveSection(opt.id)"
-                />
+                >
+                  <template #option="{ option }">
+                    <KButton
+                      appearance="flat-button"
+                      style="display: inline-block;"
+                      :appearanceOverrides="tabStyles"
+                      @click="() => quizForge.setActiveSection(option.id)"
+                    >
+                      {{ option.label }}
+                    </KButton>
+                    <KIconButton
+                      icon="optionsVertical"
+                      style="position: absolute; right: 0;"
+                      @click="() => null"
+                    >
+                      <template #menu>
+                        <KDropdownMenu
+                          :primary="false"
+                          :disabled="false"
+                          :hasIcons="true"
+                          :containFocus="false"
+                          :options="sectionOptions"
+                          @select="opt => handleSectionOptionSelect(opt, option.id)"
+                        />
+                      </template>
+                    </KIconButton>
+                  </template>
+                </KDropdownMenu>
               </template>
             </KIconButton>
           </template>
