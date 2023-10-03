@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="section-settings-content">
     <h5
       class="section-settings-top-heading"
     >
@@ -367,6 +367,10 @@
 
   .current-section-text {
     text-align: right;
+  }
+
+  .section-settings-content {
+    margin-top: -50px;
   }
 
 </style>
