@@ -383,6 +383,7 @@ class EcosystemTestCase(TestCase):
         s1.create_model(Role, collection_id=fac.id, user_id=alk_user.id, kind="admin")
         s0.create_model(Role, collection_id=fac.id, user_id=alk_user.id, kind="admin")
         s1.sync(s0, facility)
+        s2.sync(s0, facility)
         role = Role.objects.using(s1.db_alias).get(user=alk_user)
         admin_role = Store.objects.using(s1.db_alias).get(id=role.id)
         self.assertTrue(admin_role.conflicting_serialized_data)
@@ -396,6 +397,41 @@ class EcosystemTestCase(TestCase):
             .exists()
         )
         self.assertTrue(Store.objects.using(s1.db_alias).get(id=alk_user.id).deleted)
+
+        # assert deleted object is transitively propagated
+        s2.sync(s1, facility)
+        self.assertFalse(
+            FacilityUser.objects.using(s2.db_alias)
+            .filter(username="Antemblowind")
+            .exists()
+        )
+        self.assertTrue(Store.objects.using(s2.db_alias).get(id=alk_user.id).deleted)
+
+        # assert deletion takes priority over update
+        alk_user = FacilityUser.objects.using(s0.db_alias).create(
+            username="Antemblowind", facility=facility
+        )
+        # Sync to both devices
+        s1.sync(s0, facility)
+        s2.sync(s0, facility)
+
+        # delete on s0
+        s0.delete_model(FacilityUser, id=alk_user.id)
+        # update on s1
+        s1.update_model(FacilityUser, alk_user.id, username="Antemblowind2")
+        # Sync deletion to s2
+        s2.sync(s0, facility)
+        self.assertFalse(
+            FacilityUser.objects.using(s2.db_alias).filter(id=alk_user.id).exists()
+        )
+        # Sync update to s2
+        s2.sync(s1, facility)
+        self.assertFalse(
+            FacilityUser.objects.using(s2.db_alias).filter(id=alk_user.id).exists()
+        )
+        self.assertFalse(
+            FacilityUser.objects.using(s1.db_alias).filter(id=alk_user.id).exists()
+        )
 
         # # role deletion and re-creation
         # Change roles for users
@@ -847,6 +883,22 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
                 self.assert_existence(
                     self.tablet, kind, assignment_id, should_exist=False
                 )
+                if disable_assignment == self.deactivate:
+                    # If we're deactivating the assignment, try reactivating it to check that we
+                    # can make it active again
+                    self.set_active_state(self.laptop_a, kind, assignment_id, True)
+                    self.sync_full_facility_servers()
+                    self.assert_existence(
+                        self.tablet, kind, assignment_id, should_exist=False
+                    )
+                    self.assert_existence(
+                        self.laptop_b, kind, assignment_id, should_exist=True
+                    )
+                    self.sync_single_user(self.laptop_a)
+                    # import IPython; IPython.embed()
+                    self.assert_existence(
+                        self.tablet, kind, assignment_id, should_exist=True
+                    )
 
         # Create exam on Laptop A, single-user sync to tablet, then modify exam on Laptop A and
         # single-user sync again to check that "updating" works
