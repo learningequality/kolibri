@@ -95,12 +95,12 @@
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
   import { ContentWizardErrors, PageNames } from '../../constants';
+  import { availableChannelsPageLink } from '../ManageContentPage/manageContentLinks';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
   import { startImportTask } from './api';
   import plugin_data from 'plugin_data';
-  import { availableChannelsPageLink } from '../ManageContentPage/manageContentLinks';
 
   export default {
     name: 'SelectContentPage',
@@ -174,14 +174,12 @@
         return title;
       },
       backRoute() {
-        if(this.inRemoteImportMode){
+        if (this.inRemoteImportMode) {
           return availableChannelsPageLink();
-        }
-        else if(this.inPeerImportMode) {
-          return availableChannelsPageLink({addressId: this.selectedPeer.id})
-        }
-        else if(this.inLocalImportMode) { 
-          return availableChannelsPageLink({driveId: this.selectedDrive.id});
+        } else if (this.inPeerImportMode) {
+          return availableChannelsPageLink({ addressId: this.selectedPeer.id });
+        } else if (this.inLocalImportMode) {
+          return availableChannelsPageLink({ driveId: this.selectedDrive.id });
         }
         return availableChannelsPageLink();
       },
