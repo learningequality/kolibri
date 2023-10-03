@@ -1,4 +1,5 @@
 import requests
+from django.core.exceptions import RelatedObjectDoesNotExist
 from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
@@ -156,6 +157,16 @@ def mergeuser(command, **kwargs):
     job.extra_metadata["remote_user_pk"] = remote_user_pk
     job.save_meta()
     job.update_progress(1.0, 1.0)
+
+    try:
+        # If the local user is associated with an OSUser
+        # then transfer to the new remote user to maintain
+        # the association
+        os_user = local_user.os_user
+        os_user.user = remote_user
+        os_user.save()
+    except RelatedObjectDoesNotExist:
+        pass
 
     # check if current user should be set as superuser:
     set_as_super_user = kwargs.get("set_as_super_user")
