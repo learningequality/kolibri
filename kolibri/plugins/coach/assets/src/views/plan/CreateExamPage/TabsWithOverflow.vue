@@ -62,6 +62,7 @@
       tabs() {
         this.$nextTick(() => {
           this.setOverflowTabs();
+          this.setWrappingButtonTabIndex();
         });
       },
     },
@@ -85,6 +86,7 @@
               })
             : [];
       },
+      // The buttons are wrapped with a button that we aren't going to use due to KTabsList
       setWrappingButtonTabIndex() {
         for (const child of this.$refs.tabsWrapper.$el.children) {
           child.setAttribute('tabindex', -1);

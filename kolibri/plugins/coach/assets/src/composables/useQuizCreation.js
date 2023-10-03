@@ -128,6 +128,7 @@ export default () => {
     if (updatedSections.length === 0) {
       const newSection = addSection();
       setActiveSection(newSection.section_id);
+      updatedSections.push(newSection);
     } else {
       setActiveSection(get(updatedSections)[0].section_id);
     }

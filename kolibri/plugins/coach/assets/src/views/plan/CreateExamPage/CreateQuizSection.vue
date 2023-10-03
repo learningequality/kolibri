@@ -43,7 +43,9 @@
           tabsId="quizSectionTabs"
           :tabs="tabs"
           :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
-          :activeTabId="quizForge.activeSection && quizForge.activeSection.value.section_id"
+          :activeTabId="quizForge.activeSection.value ?
+            quizForge.activeSection.value.section_id :
+            '' "
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
         >
@@ -77,6 +79,7 @@
           <template #overflow="{ overflowTabs }">
             <KIconButton
               v-if="overflowTabs.length"
+              tabindex="-1"
               icon="optionsHorizontal"
               :style="overflowButtonStyles(overflowTabs)"
             >
@@ -133,7 +136,7 @@
           icon="plus"
           @click="handleAddSection"
         >
-          {{ ($tr('addSection')).toUpperCase() }}
+          {{ (eqmStrings.$tr('addSectionLabel')) }}
         </KButton>
       </KGridItem>
 
@@ -142,9 +145,10 @@
     <hr class="bottom-border">
 
     <KTabsPanel
+      v-if="quizForge.activeSection.value"
       class="no-question-layout"
       tabsId="quizSectionTabs"
-      :activeTabId="quizForge.activeSection.value.section_id"
+      :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
     >
 
       <p>{{ quizForge.activeSection.value.section_id }}</p>
@@ -180,32 +184,22 @@
 
   import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
   import TabsWithOverflow from './TabsWithOverflow.vue';
 
-  /*
-    import DragHandle from 'kolibri.coreVue.components.DragHandle';
-    import Draggable from 'kolibri.coreVue.components.Draggable';
-    import DragContainer from 'kolibri.coreVue.components.DragContainer';
-    import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-    import AccordionContainer from './AccordionContainer.vue';
-    import AccordionItem from './AccordionItem.vue';
-    */
   export default {
     name: 'CreateQuizSection',
     components: {
       TabsWithOverflow,
-      /*
-        AccordionContainer,
-        AccordionItem,
-        DragHandle,
-        Draggable,
-        DragContainer,
-        DragSortWidget,
-        */
     },
     mixins: [commonCoreStrings, commonCoach],
     inject: ['quizForge'],
+    data() {
+      return {
+        eqmStrings: enhancedQuizManagementStrings,
+      };
+    },
     computed: {
       noKgridItemPadding() {
         return {
@@ -218,9 +212,7 @@
           const id = section.section_id;
           // TODO The "Section N" label should probably be set directly on the Section object
           // at creation rather than this
-          const label = section.section_title
-            ? section.section_title
-            : `Section asdfjla askjljf lasjdfkj aslf${index + 1}`;
+          const label = section.section_title ? section.section_title : `Section ${index + 1}`;
 
           return { id, label };
         });
@@ -301,10 +293,6 @@
             */
     },
     $trs: {
-      addSection: {
-        message: 'add section',
-        context: 'Label for adding the number of quiz sections',
-      },
       noQuestionsLabel: {
         message: 'There are no questions in this section',
         context: 'Indicates that there is no question in the particular section',

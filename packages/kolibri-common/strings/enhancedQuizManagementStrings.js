@@ -1,6 +1,9 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManagementStrings', {
+  sectionLabel: {
+    message: 'Section',
+  },
   createNewQuiz: {
     message: 'Create new quiz',
   },
