@@ -1,16 +1,27 @@
 <template>
 
-  <KTabsList
-    ref="tabsWrapper"
-    class="tabs-wrapper"
-    v-bind="$attrs"
-    :tabs="tabs"
-  >
-    <template #tab="{ tab }">
-      <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
-    </template>
-    <slot name="overflow" :overflowTabs="overflowTabs"></slot>
-  </KTabsList>
+  <div class="container">
+    <KTabsList
+      ref="tabsWrapper"
+      class="tabs-wrapper"
+      v-bind="$attrs"
+      :activeTabId="activeTabId"
+      :tabs="visibleTabs"
+    >
+      <template #tab="{ tab }">
+        <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
+      </template>
+    </KTabsList>
+
+    <!-- TODO Write issue in KDS to implement the default slot to render after the #tab slot -->
+    <!-- This should be within the KTabsList to simplify rendering, but there is no slot.
+      The absolute styling isn't as nice as if it were part of the flex container instead, but
+      it ought to work -->
+    <div style="position: absolute; right: 0; top: -7px;">
+      <slot name="overflow" :overflowTabs="overflowTabs"></slot>
+    </div>
+
+  </div>
 
 </template>
 
@@ -35,31 +46,28 @@
       };
     },
     props: {
-      //pxReservedForOverflowButton: {
-      //type: Number,
-      //default: 40,
-      //},
       tabs: {
         type: Array,
         required: true,
       },
+      activeTabId: {
+        type: String,
+        required: true,
+      },
     },
     data() {
-      return { mounted: false };
+      return { mounted: false, overflowTabs: [] };
     },
     computed: {
-      overflowTabs() {
-        return this.mounted && this.windowWidth
-          ? this.tabs.filter((_, idx) => {
-              const tabRef = this.$refs.tabsWrapper.$children[idx].$el;
-              const tabRefTop = tabRef.offsetTop;
-
-              const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
-              const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
-
-              return tabRefTop >= containerBottom;
-            })
-          : [];
+      visibleTabs() {
+        return this.tabs.filter(this.tabIsVisible);
+      },
+    },
+    watch: {
+      tabs() {
+        this.$nextTick(() => {
+          this.setOverflowTabs();
+        });
       },
     },
     mounted() {
@@ -67,6 +75,21 @@
       this.setWrappingButtonTabIndex();
     },
     methods: {
+      setOverflowTabs() {
+        this.overflowTabs =
+          this.mounted && this.windowWidth
+            ? this.tabs.filter((_, idx) => {
+                const tabRef = this.$refs.tabsWrapper.$el.children[idx];
+                const tabRefTop = tabRef.offsetTop;
+
+                const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
+                const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
+
+                console.log(tabRef, tabRefTop, containerTop, containerBottom);
+                return tabRefTop >= containerBottom;
+              })
+            : [];
+      },
       setWrappingButtonTabIndex() {
         for (const child of this.$refs.tabsWrapper.$el.children) {
           child.setAttribute('tabindex', -1);
@@ -84,15 +107,32 @@
 <style scoped lang="scss">
 
   .tabs-wrapper {
-    z-index: 24;
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    max-height: 6em;
+    height: 2.25em;
+    overflow: hidden;
+  }
+
+  /deep/ .tab > button {
+    max-width: calc(200px - 40px);
+    text-overflow: ellipsis;
+
+    /* We *need* the overflow to be hidden for our calculations of which to show work properly.
+       The default value clips the outline during keyboard navigation so this ensures it is fully
+       visible without overlapping the actual content */
+    outline-offset: -0.25em !important;
   }
 
   /deep/ .tab {
+    flex: 0 0 auto;
+    height: 2.5em;
     overflow: visible; // Keep outline fully visible
+  }
+
+  .container {
+    position: relative;
+    max-height: 2.25em;
   }
 
 </style>

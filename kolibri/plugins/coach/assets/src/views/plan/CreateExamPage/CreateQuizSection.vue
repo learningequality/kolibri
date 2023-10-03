@@ -42,7 +42,7 @@
         <TabsWithOverflow
           tabsId="quizSectionTabs"
           :tabs="tabs"
-          :appearanceOverrides="{ padding: '0px' }"
+          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
           :activeTabId="quizForge.activeSection && quizForge.activeSection.value.section_id"
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
@@ -51,7 +51,7 @@
             <KButton
               v-show="tabIsVisible"
               appearance="flat-button"
-              style="flex: 1;"
+              style="display: inline-block;"
               :appearanceOverrides="tabStyles"
               @click="() => quizForge.setActiveSection(tab.id)"
             >
@@ -77,6 +77,7 @@
 
           <template #overflow="{ overflowTabs }">
             <KIconButton
+              v-if="overflowTabs.length"
               icon="optionsHorizontal"
               style="height: 40px; width: 40px;"
             >
@@ -86,7 +87,7 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="overflowTabs"
-                  @select="opt => handleSectionOptionSelect(opt, tab.id)"
+                  @select="opt => quizForge.setActiveSection(opt.id)"
                 />
               </template>
             </KIconButton>
