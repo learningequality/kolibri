@@ -94,7 +94,7 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
-  import { ContentWizardPages, ContentWizardErrors, PageNames } from '../../constants';
+  import { ContentWizardErrors, PageNames } from '../../constants';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -183,6 +183,7 @@
         else if(this.inLocalImportMode) { 
           return availableChannelsPageLink({driveId: this.selectedDrive.id});
         }
+        return availableChannelsPageLink();
       },
       channelId() {
         return this.$route.params.channel_id;
