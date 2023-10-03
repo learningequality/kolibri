@@ -59,6 +59,7 @@
             <KIconButton
               icon="optionsVertical"
               class="options-button"
+              size="small"
               @click="() => null"
             >
               <template #menu>
@@ -77,7 +78,7 @@
             <KIconButton
               v-if="overflowTabs.length"
               icon="optionsHorizontal"
-              style="height: 40px; width: 40px;"
+              :style="overflowButtonStyles(overflowTabs)"
             >
               <template #menu>
                 <KDropdownMenu
@@ -88,17 +89,20 @@
                   @select="opt => quizForge.setActiveSection(opt.id)"
                 >
                   <template #option="{ option }">
+                    <!-- TODO Clean this up by moving it to another component -->
+                    <!-- Maybe not so easy since they're styled differently -->
                     <KButton
                       appearance="flat-button"
-                      style="display: inline-block;"
+                      :primary="quizForge.activeSection.value.section_id === option.id"
                       :appearanceOverrides="tabStyles"
+                      class="menu-button"
                       @click="() => quizForge.setActiveSection(option.id)"
                     >
                       {{ option.label }}
                     </KButton>
                     <KIconButton
                       icon="optionsVertical"
-                      style="position: absolute; right: 0;"
+                      style="position: absolute; right: 0; border-radius: 0!important;"
                       @click="() => null"
                     >
                       <template #menu>
@@ -214,7 +218,9 @@
           const id = section.section_id;
           // TODO The "Section N" label should probably be set directly on the Section object
           // at creation rather than this
-          const label = section.section_title ? section.section_title : `Section ${index + 1}`;
+          const label = section.section_title
+            ? section.section_title
+            : `Section asdfjla askjljf lasjdfkj aslf${index + 1}`;
 
           return { id, label };
         });
@@ -222,6 +228,8 @@
       tabStyles() {
         return {
           margin: '0px',
+          textOverflow: 'ellipsis',
+          maxWidth: '160px',
         };
       },
       sectionOptions() {
@@ -240,6 +248,19 @@
       },
     },
     methods: {
+      activeSectionIsHidden(overflow) {
+        const ids = overflow.map(i => i.id);
+        return ids.includes(get(this.quizForge.activeSection).section_id);
+      },
+      overflowButtonStyles(overflow) {
+        return {
+          height: '40px',
+          width: '40px',
+          border: this.activeSectionIsHidden(overflow)
+            ? '2px solid ' + this.$themeTokens.primary
+            : 'none',
+        };
+      },
       handleAddSection() {
         const newSection = this.quizForge.addSection();
         this.quizForge.setActiveSection(get(newSection).section_id);
@@ -508,6 +529,17 @@
     height: 36px !important;
     margin: 0;
     border-radius: 0 !important;
+  }
+
+  /deep/ .ui-menu {
+    min-width: 17rem;
+    max-width: 25rem;
+  }
+
+  .menu-button {
+    width: calc(100% - 40px);
+    max-width: calc(100% - 40px) !important;
+    min-height: 40px;
   }
 
 </style>
