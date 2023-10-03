@@ -5,7 +5,7 @@
     ref="resourcePanel"
     alignment="right"
     :closeButtonIconType="closeIcon"
-    sidePanelWidth="700px"
+    sidePanelWidth="600px"
     @closePanel="$router.back()"
     @shouldFocusFirstEl="findFirstEl()"
   >

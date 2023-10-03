@@ -1,11 +1,17 @@
 <template>
 
-  <div>
+  <div class="sidepanel">
+    <h5>
+      {{ $tr('sectionTitle') }}
+    </h5>
+
+    <hr class="horizontal-border">
     <h5
       class="title-style"
     >
       {{ $tr('replaceQuestionText') }}
     </h5>
+
     <p>{{ $tr('replaceQuestionDescription') }}</p>
     <hr class="horizontal-border">
 
@@ -14,7 +20,7 @@
       tabindex="-1"
       aria-expanded="false"
       aria-label="toggle-button"
-      class="remove-button-style"
+      class="remove-button-style select-all-row"
     >
       <div
         class="flex-div"
@@ -37,7 +43,7 @@
               <KGridItem
                 :layout12="{ span: 6 }"
               >
-                <div style="margin-top:.5em;">
+                <div class="select-all-label">
                   {{ $tr('selectAll') }}
                 </div>
               </KGridItem>
@@ -45,14 +51,14 @@
               <KGridItem
                 :layout12="{ span: 6 }"
               >
-                <div class="right-alignment-style">
-                  <div class="">
+                <div class="sort-icon-style">
+                  <div>
                     <KIcon
                       class="icon-size toggle-icon"
                       icon="chevronDown"
                     />
                   </div>
-                  <div class="">
+                  <div>
                     <KIcon
                       class="icon-size toggle-icon"
                       icon="chevronUp"
@@ -67,7 +73,9 @@
       </div>
     </button>
 
-    <AccordionContainer>
+    <AccordionContainer
+      class="accordion-border-shadow"
+    >
       <template
         #default="{ isItemExpanded, toggleItemState }"
       >
@@ -77,9 +85,9 @@
         >
           <AccordionItem
             :id="item"
-            :key="item.id"
+            :key="item"
             :items="placeholderList"
-            title="jddjjdjd"
+            :title="item"
             :expanded="isItemExpanded(item)"
           >
             <template
@@ -115,8 +123,11 @@
                         <KGridItem
                           :layout12="{ span: 10 }"
                         >
-                          <div style="margin-top:.5em;">
-                            {{ $tr('questionTopic') }}
+                          <div
+                            :class="
+                              isItemExpanded(item) ? 'accordion-panel-open' : 'accordion-title'"
+                          >
+                            {{ item }}
                           </div>
                         </KGridItem>
 
@@ -149,7 +160,7 @@
               #content
             >
               <div
-                id="sect1"
+                class="accordion-panel"
                 aria-labelledby="accordion1id"
               >
                 <KGrid>
@@ -194,25 +205,24 @@
                     :isSelected="option.selected"
                   />
                 </div>
-
-                <hr>
               </div>
             </template>
           </AccordionItem>
-
         </div>
       </template>
     </AccordionContainer>
 
-    <hr class="horizontal-border">
-
-    <footer style="float:right">
+    <hr
+      class="horizontal-border"
+      style="margin-top:100px;width:100%;"
+    >
+    <div class="bottom-bar-style">
       <KButton
         text="replace"
         :primary="true"
-        style="width:160%"
+        class="float-button-right"
       />
-    </footer>
+    </div>
 
   </div>
 
@@ -234,7 +244,6 @@
     },
     data() {
       return {
-        placeholderList: [2, 3, 5, 6, 7, 8, 9],
         placeholderOptions: [
           {
             index: 'A',
@@ -267,6 +276,16 @@
             selected: true,
           },
         ],
+        placeholderList: [
+          'Letters and Sounds Practice',
+          'Mathematics and Geometry',
+          'Algebra Practice',
+          'Long and Short Vowel Patterns: VCV and VCC Practice',
+          'Letters and Sounds Practice',
+          'Mathematics and Geometry',
+          'Algebra Practice',
+          'Long and Short Vowel Patterns: VCV and VCC Practice',
+        ],
       };
     },
     $trs: {
@@ -287,16 +306,16 @@
         context: 'Directs the user to select answer from the list of available options',
       },
       selectAll: {
-        message: 'Select All',
+        message: 'Select all',
         context: 'Option for use to select all questions at once',
       },
       questionTitle: {
         message: 'Select the word that has the following vowel sound.',
         context: 'Question title in a particular section.',
       },
-      questionTopic: {
-        message: 'Long and Short Vowel Patterns: VCV and VCC Practice',
-        context: 'Topic under which questions are set.',
+      sectionTitle: {
+        message: 'Section title',
+        context: 'Title for the section on the replace question side panel.',
       },
     },
   };
@@ -352,5 +371,45 @@
     border-bottom: 1px solid #DEDEDE;
     border-top:1px solid #DEDEDE;
     padding:.5em;
+  }
+
+  .button[data-v-5aa8aec4]{
+    min-width: 160px;
+  }
+  .float-button-right {
+    float: right;
+  }
+  .accordion-panel-open{
+    margin-top:.5em;
+    font-weight: 600;
+  }
+  .accordion-title{
+    margin-top:.5em;
+  }
+  .accordion-panel{
+    margin:.5em;
+  }
+  .accordion-border-shadow{
+    box-shadow: 0 0 2px 0;
+  }
+  .select-all-row{
+    background-color: #FAFAFA;
+    margin-top: .5em;
+  }
+  .select-all-label {
+    margin-top:.5em;
+  }
+
+  .sort-icon-style {
+    height:0px;
+    float: right;
+  }
+
+  .side-panel-content {
+    margin-top: 0;
+    padding:0 0 0 0;
+  }
+  .bottom-bar-style{
+    margin-bottom:4em;
   }
 </style>
