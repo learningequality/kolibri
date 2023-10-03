@@ -29,7 +29,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export function useQuizCreation() {
+export default () => {
   // -----------
   // Local state
   // -----------
@@ -123,6 +123,12 @@ export function useQuizCreation() {
     const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
     if (updatedSections.length === get(allSections).length) {
       throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+    }
+    if (updatedSections.length === 0) {
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+    } else {
+      setActiveSection(get(updatedSections)[0].section_id);
     }
     updateQuiz({ question_sources: updatedSections });
   }
@@ -240,6 +246,10 @@ export function useQuizCreation() {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
+  /** @type {ComputedRef<QuizSection[]>} The inactive sections */
+  const inactiveSections = computed(() =>
+    get(allSections).filter(s => s.section_id !== get(_activeSectionId))
+  );
   /** @type {ComputedRef<QuizResource[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
   /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
@@ -279,10 +289,11 @@ export function useQuizCreation() {
     quiz,
     allSections,
     activeSection,
+    inactiveSections,
     activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
   };
-}
+};

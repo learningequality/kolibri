@@ -125,7 +125,7 @@
 <style lang="scss" scoped>
 
   .coach-main {
-    margin: 85px auto 0;
+    margin: 0 auto;
   }
 
 </style>
