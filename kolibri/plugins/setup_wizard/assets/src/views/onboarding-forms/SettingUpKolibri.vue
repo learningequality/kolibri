@@ -120,9 +120,9 @@
       /** The data we will use to initialize the device during provisioning */
       deviceProvisioningData() {
         let superuser = null;
-        // We only need a superuser if we cannot get the OS user; null valued keys will be omitted
-        // in the eventual API call
-        if (!checkCapability('get_os_user')) {
+        // We need the superuser information unless the superuser will be created at login,
+        // based on the os user - this is only the case for on my own setup.
+        if (!(this.isOnMyOwnSetup && checkCapability('get_os_user'))) {
           // Here we see if we've set a firstImportedLodUser -- if they exist, they must be the
           // superuser as they were the first imported user.
           if (this.wizardContext('firstImportedLodUser')) {
@@ -154,7 +154,6 @@
             this.$tr('onMyOwnDeviceName', { name: get(superuser, 'full_name', '') }).slice(0, 50),
           allow_guest_access: Boolean(this.wizardContext('guestAccess')),
           is_provisioned: true,
-          os_user: checkCapability('get_os_user'),
           is_soud: this.wizardContext('fullOrLOD') === DeviceTypePresets.LOD,
         };
 
