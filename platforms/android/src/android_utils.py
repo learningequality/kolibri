@@ -2,11 +2,13 @@ import json
 import os
 import re
 from functools import cache
+from uuid import uuid4
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from jnius import autoclass
 from jnius import cast
+from le_utils.proquint import _from_int
 
 
 def is_service_context():
@@ -221,6 +223,15 @@ def get_signature_key_issuing_organization():
         value_cache.set(cache_key, value)
     else:
         print("Using cached value for issuing org")
+    return value
+
+
+def get_dummy_user_name():
+    cache_key = "DUMMY_USER_NAME"
+    value = value_cache.get(cache_key)
+    if value is None:
+        value = _from_int(int(uuid4().hex[:8], 16)).replace("-", "_")
+        value_cache.set(cache_key, value)
     return value
 
 
