@@ -81,7 +81,7 @@
   import { mapGetters, mapState } from 'vuex';
   import TechnicalTextBlock from 'kolibri-common/components/AppError/TechnicalTextBlock';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import DeviceAppBarPage from './DeviceAppBarPage';
   import { deviceString } from './commonDeviceStrings';
   import DeviceNameModal from './DeviceNameModal';
@@ -98,7 +98,13 @@
       DeviceNameModal,
       TechnicalTextBlock,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup(){
+      const windowIsSmall=useKResponsiveWindow();
+      return{
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         advancedShown: false,
