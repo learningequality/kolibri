@@ -1,5 +1,4 @@
 import requests
-from django.core.exceptions import RelatedObjectDoesNotExist
 from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
@@ -165,7 +164,7 @@ def mergeuser(command, **kwargs):
         os_user = local_user.os_user
         os_user.user = remote_user
         os_user.save()
-    except RelatedObjectDoesNotExist:
+    except FacilityUser.os_user.RelatedObjectDoesNotExist:
         pass
 
     # check if current user should be set as superuser:
