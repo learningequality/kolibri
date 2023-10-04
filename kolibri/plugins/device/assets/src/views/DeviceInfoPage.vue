@@ -99,9 +99,9 @@
       TechnicalTextBlock,
     },
     mixins: [commonCoreStrings],
-    setup(){
-      const windowIsSmall=useKResponsiveWindow();
-      return{
+    setup() {
+      const windowIsSmall = useKResponsiveWindow();
+      return {
         windowIsSmall,
       };
     },
