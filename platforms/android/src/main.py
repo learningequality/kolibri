@@ -1,6 +1,8 @@
 import logging
+from uuid import uuid4
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
+from android_utils import get_dummy_user_name
 from android_utils import is_active_network_metered
 from android_utils import share_by_intent
 from jnius import autoclass
@@ -24,6 +26,14 @@ configureWebview(PythonActivity.mActivity)
 
 loadUrl = Runnable(PythonActivity.mWebView.loadUrl)
 
+auth_token_value = uuid4().hex
+
+
+def os_user(auth_token):
+    if auth_token == auth_token_value:
+        return (get_dummy_user_name(), True)
+    return None, False
+
 
 class AppPlugin(SimplePlugin):
     def __init__(self, bus):
@@ -31,9 +41,9 @@ class AppPlugin(SimplePlugin):
         self.bus.subscribe("SERVING", self.SERVING)
 
     def SERVING(self, port):
-        start_url = (
-            "http://127.0.0.1:{port}".format(port=port) + interface.get_initialize_url()
-        )
+        start_url = "http://127.0.0.1:{port}".format(
+            port=port
+        ) + interface.get_initialize_url(auth_token=auth_token_value)
         loadUrl(start_url)
 
 
@@ -50,6 +60,7 @@ start_default_tasks()
 
 interface.register(share_file=share_by_intent)
 interface.register(check_is_metered=is_active_network_metered)
+interface.register(get_os_user=os_user)
 
 kolibri_bus = BaseKolibriProcessBus()
 # Setup zeroconf plugin
