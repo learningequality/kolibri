@@ -1,18 +1,6 @@
 <template>
 
   <div>
-    <KRouterLink
-      appearance="raised-button"
-      :to="{ path: 'new/123/edit' }"
-      text="Edit section"
-    />
-
-    <KRouterLink
-      appearance="raised-button"
-      :to="{ path: 'new/123/replace-questions' }"
-      text="replace question"
-    />
-
     <KGrid
       class="add-padding"
     >
