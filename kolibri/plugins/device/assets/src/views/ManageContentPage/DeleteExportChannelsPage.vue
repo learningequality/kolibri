@@ -54,7 +54,6 @@
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskResource } from 'kolibri.resources';
@@ -85,7 +84,7 @@
       DeleteChannelModal,
       SelectDriveModal,
     },
-    mixins: [KResponsiveWindowMixin, taskNotificationMixin],
+    mixins: [taskNotificationMixin],
     setup() {
       useContentTasks();
     },
