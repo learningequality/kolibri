@@ -46,7 +46,7 @@
     components: {
       ChannelDetails,
     },
-    setup(){
+    setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       return {
         windowIsSmall,

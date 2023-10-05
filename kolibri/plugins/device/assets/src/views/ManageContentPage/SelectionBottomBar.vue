@@ -48,7 +48,7 @@
     components: {
       BottomAppBar,
     },
-    mixins: [commonCoreStrings,
+    mixins: [commonCoreStrings],
     props: {
       // TODO remove this and only pass in resourceCounts object
       selectedObjects: {

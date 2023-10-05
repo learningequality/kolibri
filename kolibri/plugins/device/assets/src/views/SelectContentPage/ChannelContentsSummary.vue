@@ -30,12 +30,12 @@
           :span="windowIsSmall ? 4 : 1"
           class="version"
         >
-          <p :style="[windowIsSmall  ? { marginBottom: 0 } : {}]">
+          <p :style="[windowIsSmall ? { marginBottom: 0 } : {}]">
             {{ $tr('version', { version: versionNumber }) }}
           </p>
         </KFixedGridItem>
         <KFixedGridItem
-          :span="windowIsSmall  ? 4 : 3"
+          :span="windowIsSmall ? 4 : 3"
           :alignment="windowIsSmall ? 'left' : 'right'"
         >
           <p><slot></slot></p>
