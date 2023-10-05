@@ -61,7 +61,7 @@
   import differenceBy from 'lodash/differenceBy';
   import unionBy from 'lodash/unionBy';
   import uniqBy from 'lodash/uniqBy';
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -70,7 +70,13 @@
     components: {
       FilterTextbox,
     },
-    mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const windowIsLarge = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+      };
+    },
     props: {
       channels: {
         type: Array,
