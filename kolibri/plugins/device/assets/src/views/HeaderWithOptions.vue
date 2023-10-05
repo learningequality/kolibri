@@ -24,11 +24,16 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   export default {
     name: 'HeaderWithOptions',
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const windowIsSmall = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       headerText: {
         type: String,
