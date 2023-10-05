@@ -9,8 +9,15 @@ export function updateWithNotifications(store, notifications) {
   const contentLearnerStatusMapUpdates = [];
   const { learnerMap, examMap, contentNodeMap, lessonMap } = store.state;
 
-  for (const nIdx in notifications) {
-    const notification = notifications[nIdx];
+  if (!notifications || !notifications.length) {
+    return;
+  }
+  const sortedNotifications = notifications.sort((n1, n2) => {
+    return new Date(n1.timestamp) - new Date(n2.timestamp);
+  });
+
+  for (const nIdx in sortedNotifications) {
+    const notification = sortedNotifications[nIdx];
     const { object } = notification;
 
     // Short-circuit the update if there are missing learners, exams, lessons,
