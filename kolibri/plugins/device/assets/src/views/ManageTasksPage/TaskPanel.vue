@@ -1,6 +1,6 @@
 <template>
 
-  <div class="task-panel" :class="{ 'task-panel-sm': windowWidth<600 }">
+  <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
     <div class="icon">
       <transition mode="out-in">
         <KIcon
@@ -132,9 +132,9 @@
     name: 'TaskPanel',
     mixins: [commonCoreStrings],
     setup() {
-      const {windowWidth} = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
-        windowWidth,
+        windowIsSmall,
       };
     },
     props: {

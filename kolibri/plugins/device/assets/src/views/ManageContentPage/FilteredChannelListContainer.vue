@@ -72,7 +72,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const windowIsLarge = useKResponsiveWindow();
+      const { windowIsLarge } = useKResponsiveWindow();
       return {
         windowIsLarge,
       };

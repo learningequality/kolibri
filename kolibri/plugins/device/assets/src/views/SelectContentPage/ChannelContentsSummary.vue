@@ -27,16 +27,16 @@
 
       <KFixedGrid numCols="4">
         <KFixedGridItem
-          :span="windowWidth<600 ? 4 : 1"
+          :span="windowIsSmall ? 4 : 1"
           class="version"
         >
-          <p :style="[windowWidth<600  ? { marginBottom: 0 } : {}]">
+          <p :style="[windowIsSmall  ? { marginBottom: 0 } : {}]">
             {{ $tr('version', { version: versionNumber }) }}
           </p>
         </KFixedGridItem>
         <KFixedGridItem
-          :span="windowWidth<600  ? 4 : 3"
-          :alignment="windowWidth<600 ? 'left' : 'right'"
+          :span="windowIsSmall  ? 4 : 3"
+          :alignment="windowIsSmall ? 'left' : 'right'"
         >
           <p><slot></slot></p>
         </KFixedGridItem>
@@ -94,9 +94,9 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const windowWidth = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
-        windowWidth,
+        windowIsSmall,
       };
     },
     props: {
