@@ -27,16 +27,16 @@
 
       <KFixedGrid numCols="4">
         <KFixedGridItem
-          :span="windowIsSmall ? 4 : 1"
+          :span="windowWidth<600 ? 4 : 1"
           class="version"
         >
-          <p :style="[windowIsSmall ? { marginBottom: 0 } : {}]">
+          <p :style="[windowWidth<600  ? { marginBottom: 0 } : {}]">
             {{ $tr('version', { version: versionNumber }) }}
           </p>
         </KFixedGridItem>
         <KFixedGridItem
-          :span="windowIsSmall ? 4 : 3"
-          :alignment="windowIsSmall ? 'left' : 'right'"
+          :span="windowWidth<600  ? 4 : 3"
+          :alignment="windowWidth<600 ? 'left' : 'right'"
         >
           <p><slot></slot></p>
         </KFixedGridItem>
@@ -84,7 +84,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import plugin_data from 'plugin_data';
 
   export default {
@@ -92,7 +92,13 @@
     components: {
       TextTruncatorCss,
     },
-    mixins: [commonCoreStrings, KResponsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const windowWidth = useKResponsiveWindow();
+      return {
+        windowWidth,
+      };
+    },
     props: {
       channel: {
         type: Object,
