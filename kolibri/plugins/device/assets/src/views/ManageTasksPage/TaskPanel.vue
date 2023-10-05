@@ -1,6 +1,6 @@
 <template>
 
-  <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+  <div class="task-panel" :class="{ 'task-panel-sm': windowWidth<600 }">
     <div class="icon">
       <transition mode="out-in">
         <KIcon
@@ -89,7 +89,7 @@
   // Displays a single Task and its metadata, and provides buttons
   // to cancel or clear it.
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
@@ -130,7 +130,13 @@
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const {windowWidth} = useKResponsiveWindow();
+      return {
+        windowWidth,
+      };
+    },
     props: {
       task: {
         type: Object,
