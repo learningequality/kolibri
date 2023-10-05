@@ -8,7 +8,7 @@
       :totalPageNumber="totalPageNumber"
       :numFilteredItems="downloadItemListLength"
     >
-      <CoreTable>
+      <CoreTable v-if="windowIsLarge">
         <template #headers>
           <th>
             <KCheckbox
@@ -54,8 +54,13 @@
               </td>
               <td>
                 <KIcon
+                  v-if="download.status !== 'IN_PROGRESS'"
                   :icon="downloadStatusIcon(download)"
                   :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
+                  class="icon"
+                />
+                <KCircularLoader
+                  v-if="download.status === 'IN_PROGRESS'"
                   class="icon"
                 />
                 <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
@@ -75,6 +80,83 @@
                 />
               </td>
               <td class="resource-action">
+                <KButton
+                  :text="coreString('removeAction')"
+                  appearance="flat-button"
+                  @click="removeResource(download)"
+                />
+              </td>
+            </tr>
+          </tbody>
+        </template>
+      </CoreTable>
+      <!-- for small and medium screens, reorganize the table -->
+      <CoreTable v-else>
+        <template #headers>
+          <th>
+            <KCheckbox
+              showLabel
+              class="select-all"
+              :label="coreString('nameLabel')"
+              :checked="areAllSelected"
+              :disabled="!areAnyAvailable"
+              :style="{ color: $themeTokens.annotation }"
+              @change="selectAll($event)"
+            />
+          </th>
+        </template>
+        <template #tbody>
+          <tbody v-if="!loading">
+            <tr
+              v-for="download in paginatedDownloads"
+              :key="download.contentnode_id"
+              :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
+            >
+              <td class="small-resource-details">
+                <KCheckbox
+                  :checked="resourceIsSelected(download)"
+                  class="download-checkbox"
+                  @change="handleCheckResource(download, $event)"
+                >
+                  <KLabeledIcon
+                    v-if="download.metadata"
+                    :icon="getIcon(download.metadata.learning_activities)"
+                    :label="download.metadata.title"
+                    :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
+                  />
+                </KCheckbox>
+                <div class="small-screen-status">
+                  <p>
+                    {{ formattedResourceSize(download) }} |
+                    {{ formatDownloadRequestedDate(download) }}
+                  </p>
+                  <KIcon
+                    v-if="download.status !== 'IN_PROGRESS'"
+                    :icon="downloadStatusIcon(download)"
+                    :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
+                    class="icon"
+                  />
+                  <KCircularLoader
+                    v-if="download.status === 'IN_PROGRESS'"
+                    class="icon"
+                  />
+                  <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
+                </div>
+
+              </td>
+              <td class="resource-action">
+                <KButton
+                  v-if="nonCompleteStatus(download)"
+                  :text="coreString('viewAction')"
+                  appearance="flat-button"
+                  :disabled="true"
+                />
+                <KExternalLink
+                  v-else
+                  :text="coreString('viewAction')"
+                  appearance="flat-button"
+                  :href="genExternalContentURLBackLinkCurrentPage(download.contentnode_id)"
+                />
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
@@ -116,6 +198,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import { createTranslator } from 'kolibri.utils.i18n';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../../../composables/useContentLink';
   import useDevices from '../../../composables/useDevices';
   import useLearningActivities from '../../../composables/useLearningActivities';
@@ -144,6 +227,7 @@
       const { getLearningActivityIcon } = useLearningActivities();
       const { downloadRequestMap, availableSpace } = useDownloadRequests();
       const { networkDevices } = useDevices();
+      const { windowIsLarge } = useKResponsiveWindow();
       const store = getCurrentInstance().proxy.$store;
       const query = computed(() => get(route).query);
       const route = computed(() => store.state.route);
@@ -154,6 +238,7 @@
         getLearningActivityIcon,
         networkDevices,
         availableSpace,
+        windowIsLarge,
         genExternalContentURLBackLinkCurrentPage,
       };
     },
@@ -230,9 +315,11 @@
               downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
               break;
             default:
-              // If no valid sort option provided, return unsorted array
               break;
           }
+        } else {
+          // if no sort value, default to newest downloads shown first in the UI
+          downloadsToDisplay.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at));
         }
         return downloadsToDisplay;
       },
@@ -301,7 +388,7 @@
         return this.selectedDownloads.indexOf(id) !== -1;
       },
       removeResource(download) {
-        this.$emit('removeResources', [download]);
+        this.resourcesToDelete.push(download);
       },
       removeResources() {
         this.$emit('removeResources', this.resourcesToDelete);
@@ -325,6 +412,9 @@
             icon = 'timer';
             break;
           case 'FAILED':
+            icon = 'error';
+            break;
+          case 'IN_PROGRESS':
             icon = 'error';
             break;
           default:
@@ -396,13 +486,17 @@
   }
 
   .resource-action {
-    max-width: 70px !important;
     text-align: right;
   }
 
   .status-text {
     position: relative;
     padding: 8px;
+  }
+
+  .small-screen-status {
+    margin: 0 48px;
+    font-size: 12px;
   }
 
 </style>

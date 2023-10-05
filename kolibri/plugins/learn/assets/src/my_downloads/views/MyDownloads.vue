@@ -123,8 +123,8 @@
         );
       },
     },
-    created() {
-      this.fetchDownloads().then(this.startPolling);
+    mounted() {
+      this.startPolling();
     },
     beforeDestroy() {
       clearInterval(this.pollingInterval);
@@ -142,11 +142,12 @@
           this.removeDownloadRequest(resources[0]);
         } else {
           resources.forEach(resource => {
-            this.removeDownloadRequest({ id: resource.id });
+            this.removeDownloadRequest(resource);
           });
         }
       },
       startPolling() {
+        this.fetchDownloads();
         this.pollingInterval = setInterval(async () => {
           await this.fetchDownloads();
           this.calculatePollingInterval();
