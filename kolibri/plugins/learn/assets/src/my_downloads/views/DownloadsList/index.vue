@@ -83,7 +83,7 @@
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
-                  @click="removeResource(download)"
+                  @click="markSingleResourceForRemoval(download)"
                 />
               </td>
             </tr>
@@ -160,7 +160,7 @@
                 <KButton
                   :text="coreString('removeAction')"
                   appearance="flat-button"
-                  @click="removeResource(download)"
+                  @click="markSingleResourceForRemoval(download)"
                 />
               </td>
             </tr>
@@ -180,7 +180,7 @@
       v-if="resourcesToDelete.length"
       :resourcesToDelete="resourcesToDelete"
       @cancel="resourcesToDelete = []"
-      @success="removeResources"
+      @success="emitCurrentlySelectedResourcesForRemoval"
     />
   </form>
 
@@ -387,12 +387,15 @@
       resourceIsSelected(id) {
         return this.selectedDownloads.indexOf(id) !== -1;
       },
-      removeResource(download) {
+      markSingleResourceForRemoval(download) {
         this.resourcesToDelete.push(download);
       },
-      removeResources() {
+      emitCurrentlySelectedResourcesForRemoval() {
         this.$emit('removeResources', this.resourcesToDelete);
         this.resourcesToDelete = [];
+        this.$nextTick.then(() => {
+          this.selectedDownloads = [];
+        });
       },
       getIcon(activities) {
         return this.getLearningActivityIcon(activities);
