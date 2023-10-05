@@ -29,7 +29,7 @@
   export default {
     name: 'HeaderWithOptions',
     setup() {
-      const windowIsSmall = useKResponsiveWindow();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         windowIsSmall,
       };
