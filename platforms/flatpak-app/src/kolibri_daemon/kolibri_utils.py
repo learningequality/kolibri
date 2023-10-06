@@ -45,6 +45,7 @@ def init_kolibri(**kwargs):
 
 def _init_kolibri_env():
     os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.kolibri_settings"
+    os.environ["KOLIBRI_PROJECT"] = "kolibri-gnome"
 
     # Kolibri defaults to a very large thread pool. Because we expect this
     # application to be used in a single user environment with a limited
