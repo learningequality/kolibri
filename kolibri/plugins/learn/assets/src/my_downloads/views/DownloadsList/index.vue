@@ -395,6 +395,10 @@
         this.resourcesToDelete = [];
         this.$nextTick(() => {
           this.selectedDownloads = [];
+          if (this.paginatedDownloads.length == 0 && this.$route.query.page) {
+            const prevPage = this.currentPage - 1;
+            this.currentPage = prevPage;
+          }
         });
       },
       getIcon(activities) {

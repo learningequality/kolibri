@@ -55,7 +55,7 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import { computed, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import useDownloadRequests from '../../composables/useDownloadRequests';
@@ -88,26 +88,14 @@
       const route = computed(() => store.state.route);
       const query = computed(() => get(route).query);
 
-      const pageNumber = computed(() => Number(query.value.page || 1));
-      const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
-      const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort);
 
-      const fetchDownloads = () => {
-        fetchUserDownloadRequests({
-          sort: sort.value,
-          page: pageNumber.value,
-          pageSize: pageSizeNumber.value,
-          activityType: activityType.value,
-        });
-      };
       fetchAvailableFreespace();
-      watch(route, fetchDownloads);
 
       return {
         downloadRequestMap,
         loading,
-        fetchDownloads,
+        fetchDownloads: fetchUserDownloadRequests,
         availableSpace,
         fetchAvailableFreespace,
         fetchDevices,
@@ -141,7 +129,6 @@
         for (const resource of resources) {
           this.removeDownloadRequest(resource);
         }
-        this.fetchDownloads();
       },
       startPolling() {
         this.fetchDownloads();

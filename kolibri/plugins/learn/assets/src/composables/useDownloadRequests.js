@@ -40,12 +40,19 @@ export default function useDownloadRequests(store) {
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
+        if (downloadRequests.results) {
+          downloadRequests = downloadRequests.results;
+        }
         for (const obj of downloadRequests) {
           set(downloadRequestMap, obj.contentnode_id, obj);
         }
         set(loading, false);
+        return downloadRequests;
       })
-      .then(store.dispatch('notLoading'));
+      .then(downloadRequests => {
+        store.dispatch('notLoading');
+        return downloadRequests;
+      });
   }
 
   function fetchAvailableFreespace() {
