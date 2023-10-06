@@ -393,7 +393,7 @@
       emitCurrentlySelectedResourcesForRemoval() {
         this.$emit('removeResources', this.resourcesToDelete);
         this.resourcesToDelete = [];
-        this.$nextTick.then(() => {
+        this.$nextTick(() => {
           this.selectedDownloads = [];
         });
       },
