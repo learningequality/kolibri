@@ -11,6 +11,8 @@
     <KGrid>
       <KGridItem
         :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
         <KTextbox
           :label="$tr('sectionTitle')"
@@ -19,6 +21,8 @@
       </KGridItem>
       <KGridItem
         :layout12="{ span: 6 }"
+        :layout8="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
         <div class="number-question">
           <div>
@@ -74,6 +78,8 @@
       <KGrid>
         <KGridItem
           :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
         >
           <KRadioButton
             v-model="selectedQuestionOrder"
@@ -82,7 +88,11 @@
             :description="$tr('randomizedOptionDescription')"
           />
         </KGridItem>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
           <KRadioButton
             v-model="selectedQuestionOrder"
             :label="$tr('fixedLabel')"
@@ -123,6 +133,7 @@
       <KGrid>
         <KGridItem
           :layout12="{ span: 1 }"
+          :layout8="{ span: 1 }"
         >
           <KIcon
             icon="dragVertical"
@@ -132,6 +143,7 @@
 
         <KGridItem
           :layout12="{ span: 6 }"
+          :layout8="{ span: 5 }"
         >
           <p class="space-content">
             {{ $tr('sectionOrderTitle').toUpperCase() }}
@@ -140,6 +152,7 @@
 
         <KGridItem
           :layout12="{ span: 5 }"
+          :layout8="{ span: 3 }"
           class="current-section-style"
           :style="{ color: $themePalette.grey.v_700 }"
         >
@@ -156,6 +169,8 @@
       <KGrid>
         <KGridItem
           :layout12="{ span: 1 }"
+          :layout8="{ span: 1 }"
+          :layout4="{ span: 1 }"
         >
           <KIcon
             icon="dragVertical"
@@ -165,6 +180,8 @@
 
         <KGridItem
           :layout12="{ span: 10 }"
+          :layout8="{ span: 7 }"
+          :layout4="{ span: 3 }"
         >
           <p class="space-content">
             {{ $tr('uniqueTitle').toUpperCase() }}
@@ -177,6 +194,8 @@
       <KGrid>
         <KGridItem
           :layout12="{ span: 4 }"
+          :layout8="{ span: 2 }"
+          :layout4="{ span: 1 }"
         >
           <KButton
             :text="$tr('deleteSectionButton')"
@@ -184,6 +203,8 @@
         </KGridItem>
         <KGridItem
           :layout12="{ span: 8 }"
+          :layout8="{ span: 6 }"
+          :layout4="{ span: 3 }"
         >
           <KButton
             :primary="true"
