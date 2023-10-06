@@ -229,7 +229,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { canDownloadExternally } = useCoreLearn();
+      const { canDownloadExternally, canAddDownloads } = useCoreLearn();
       const {
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
@@ -322,6 +322,7 @@
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
+        canAddDownloads,
         back,
         genExternalBackURL,
         addDownloadRequest,
@@ -453,7 +454,10 @@
         return this.content.admin_imported || this.isDownloadedByLearner(this.content);
       },
       allowRemoteDownload() {
-        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
+        console.log(this.canAddDownloads);
+        return (
+          this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && this.canAddDownloads
+        );
       },
       allowBookmark() {
         return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
