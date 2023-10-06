@@ -138,13 +138,10 @@
         }
       },
       removeResources(resources) {
-        if (resources.length === 1) {
-          this.removeDownloadRequest(resources[0]);
-        } else {
-          resources.forEach(resource => {
-            this.removeDownloadRequest(resource);
-          });
+        for (const resource of resources) {
+          this.removeDownloadRequest(resource);
         }
+        this.fetchDownloads();
       },
       startPolling() {
         this.fetchDownloads();
