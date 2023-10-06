@@ -188,7 +188,7 @@
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { now } from 'kolibri.utils.serverClock';
@@ -219,6 +219,10 @@
       KDateRange,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return { windowIsLarge, windowIsSmall };
+    },
     data() {
       return {
         showLearnMoreSummaryModal: false,
@@ -249,8 +253,7 @@
         return this.$route.name === PageNames.DATA_EXPORT_PAGE;
       },
       windowSizeStyle() {
-        const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
-        if (windowIsMedium || windowIsSmall) {
+        if (this.windowIsMedium || this.windowIsSmall) {
           return 'section-buttons-flex';
         }
         return {};
