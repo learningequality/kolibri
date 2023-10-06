@@ -3,6 +3,7 @@
   <div class="section-settings-content">
     <h5
       class="section-settings-top-heading"
+      :style="{ color: $themeTokens.text }"
     >
       {{ $tr('sectionSettingsHeading') }}
     </h5>
@@ -30,6 +31,7 @@
           </div>
           <div>
             <div
+              :style="borderStyle"
               class="group-button-border"
             >
               <KIconButton
@@ -40,7 +42,7 @@
                 @click="numQuestions -= 1"
               />
               <span
-                class="button-separating-border"
+                :style="dividerStyle"
               > | </span>
               <KIconButton
                 icon="plus"
@@ -61,7 +63,7 @@
       class="description-ktextbox-style"
     />
 
-    <hr class="divider-style">
+    <hr :style="dividerStyle">
 
     <div>
       <h5
@@ -91,7 +93,7 @@
       </KGrid>
     </div>
 
-    <hr class="divider-style">
+    <hr :style="dividerStyle">
 
     <h5
       class="section-settings-heading"
@@ -106,7 +108,7 @@
       class="change-resource-button-style"
     />
 
-    <hr class="divider-style">
+    <hr :style="dividerStyle">
 
     <h5
       class="section-order-style section-settings-heading"
@@ -114,7 +116,10 @@
       {{ $tr('sectionOrderTitle') }}
     </h5>
 
-    <div class="current-section section-order-list">
+    <div
+      :style="activeSection"
+      class="section-order-list"
+    >
       <KGrid>
         <KGridItem
           :layout12="{ span: 1 }"
@@ -136,6 +141,7 @@
         <KGridItem
           :layout12="{ span: 5 }"
           class="current-section-style"
+          :style="{ color: $themePalette.grey.v_700 }"
         >
           <p class="current-section-text space-content">
             {{ $tr('currentSection') }}
@@ -143,7 +149,10 @@
         </KGridItem>
       </KGrid>
     </div>
-    <div class="section-order-list">
+    <div
+      :style="borderStyle"
+      class="section-order-list"
+    >
       <KGrid>
         <KGridItem
           :layout12="{ span: 1 }"
@@ -192,14 +201,36 @@
 
 <script>
 
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+
   export default {
     name: 'SectionEditor',
     components: {},
+    mixins: [enhancedQuizManagementStrings],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return { windowIsLarge, windowIsSmall };
+    },
     data() {
       return {
         selectedQuestionOrder: '',
         numQuestions: 1,
       };
+    },
+    computed: {
+      borderStyle() {
+        return `border: 1px solid ${this.$themeTokens.fineLine}`;
+      },
+      activeSection() {
+        return {
+          backgroundColor: this.$themePalette.grey.v_50,
+          border: `1px solid ${this.$themeTokens.fineLine}`,
+        };
+      },
+      dividerStyle() {
+        return `color : ${this.$themeTokens.fineLine}`;
+      },
     },
     $trs: {
       sectionSettingsHeading: {
@@ -299,7 +330,7 @@
   .section-order-list {
     height: 2.5em;
     margin-top: 0.5em;
-    border: 1px solid #dedede;
+    border: 1px solid;
     border-radius: 2px;
   }
 
@@ -312,24 +343,16 @@
     display: inline-flex;
   }
 
-  .button-separating-border {
-    color: #dedede;
-  }
-
   .group-button-border {
     display: inline-flex;
     align-items: center;
     height: 3.5em;
-    border: 1px solid #dedede;
+    border: 1px solid;
   }
 
   .number-question {
     display: inline-flex;
     float: right;
-  }
-
-  .divider-style {
-    color: #dedede;
   }
 
   .change-resource-button-style {
@@ -344,11 +367,6 @@
 
   .current-section-style {
     font-size: 1em;
-    color: #616161;
-  }
-
-  .current-section {
-    background-color: #f5f5f5;
   }
 
   .bottom-buttons-style {
