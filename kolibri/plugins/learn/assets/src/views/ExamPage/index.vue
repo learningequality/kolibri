@@ -181,7 +181,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -220,6 +220,11 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
+      const { 
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsSmall,
+      } = useKResponsiveWindow();
       return {
         pastattempts,
         time_spent,
@@ -227,6 +232,9 @@
         updateContentSession,
         startTrackingProgress,
         stopTrackingProgress,
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsSmall,
       };
     },
     data() {
