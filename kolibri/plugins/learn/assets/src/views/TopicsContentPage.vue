@@ -156,9 +156,7 @@
   import { mapState } from 'vuex';
   import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { ContentNodeResource } from 'kolibri.resources';
@@ -224,7 +222,7 @@
       CurrentlyViewedResourceMetadata,
       SkipNavigationLink,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
