@@ -50,6 +50,8 @@
       ResourceCard,
     },
 
+    mixins: [responsiveWindowMixin],
+
     setup() {
       const {
         genContentLinkBackLinkCurrentPage,
@@ -88,7 +90,7 @@
     },
     computed: {
       componentType() {
-        if (this.windowIsSmall) {
+        if (!this.windowIsSmall) {
           return 'ResourceCard';
         }
         if (this.currentCardViewStyle === 'card') {
