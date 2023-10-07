@@ -10,10 +10,10 @@
     @change="handleActivityTypeChange($event.value)"
   >
     <template #display>
-      <KLabeledIcon
-        :label="selected.label"
-        :icon="selected.icon"
-      />
+        <KLabeledIcon
+          :label="selected.label"
+          :icon="selected.icon"
+        />
     </template>
     <template #option="{ option }">
       <KLabeledIcon
