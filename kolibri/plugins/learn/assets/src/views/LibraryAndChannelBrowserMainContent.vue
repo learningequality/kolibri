@@ -30,7 +30,7 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useContentLink from '../composables/useContentLink';
   import CardGrid from './cards/CardGrid';
   import ResourceCard from './cards/ResourceCard';
@@ -50,14 +50,18 @@
       ResourceCard,
     },
 
-    mixins: [responsiveWindowMixin],
 
     setup() {
       const {
         genContentLinkBackLinkCurrentPage,
         genContentLinkKeepCurrentBackLink,
       } = useContentLink();
-      return { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink };
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        genContentLinkBackLinkCurrentPage, 
+        genContentLinkKeepCurrentBackLink,
+        windowIsSmall,
+      };
     },
 
     props: {
@@ -85,7 +89,7 @@
     },
     computed: {
       componentType() {
-        if (this.windowIsSmall) {
+        if (!this.windowIsSmall) {
           return 'ResourceCard';
         }
         if (this.currentCardViewStyle === 'card') {
