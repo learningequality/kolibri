@@ -210,7 +210,7 @@
       ImmersivePage,
       ResourceSyncingUiAlert,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const {
         pastattempts,
