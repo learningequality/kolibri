@@ -169,7 +169,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -200,6 +200,7 @@
       SuggestedTime,
       DeviceConnectionStatus,
     },
+    mixins: [KResponsiveWindowMixin, commonLearnStrings],
     filters: {
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
@@ -208,7 +209,12 @@
         return value;
       },
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
