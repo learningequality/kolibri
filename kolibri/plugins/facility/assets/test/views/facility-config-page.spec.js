@@ -1,7 +1,9 @@
 import { mount } from '@vue/test-utils';
+import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import ConfigPage from '../../src/views/FacilityConfigPage';
 import makeStore from '../makeStore';
 
+jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
 jest.mock('../../../../device/assets/src/views/DeviceSettingsPage/api.js', () => ({
   getDeviceSettings: jest.fn(),
 }));
@@ -31,6 +33,12 @@ function getElements(wrapper) {
 }
 
 describe('facility config page view', () => {
+  beforeAll(() => {
+    useKResponsiveWindow.mockImplementation(() => ({
+      windowIsSmall: false,
+    }));
+  });
+
   function assertModalIsUp(wrapper) {
     const { confirmResetModal } = getElements(wrapper);
     expect(confirmResetModal().exists()).toEqual(true);
