@@ -115,12 +115,9 @@
   }
 
   @keyframes bounce-in {
-    from {
-      animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-    }
-
     0% {
       transform: scale3d(1.05, 1.05, 1.05);
+      animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
     50% {
@@ -128,7 +125,7 @@
       animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }
 
-    to {
+    100% {
       transform: scale3d(1, 1, 1);
       animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
     }

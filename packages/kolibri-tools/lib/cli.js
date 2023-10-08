@@ -513,7 +513,7 @@ function _generatePathInfo({
       })
     );
   }
-  if (namespace && searchPath) {
+  if (namespace.length && namespace.length == searchPath.length) {
     let aliases;
     if (webpackConfig) {
       const webpack = require('webpack');
@@ -528,19 +528,25 @@ function _generatePathInfo({
       }
       aliases = buildConfig.resolve.alias;
     }
-    pathInfoArray.push({
-      moduleFilePath: searchPath,
-      namespace: namespace,
-      name: namespace,
-      aliases,
-    });
+    for (let i = 0; i < namespace.length; i++) {
+      pathInfoArray.push({
+        moduleFilePath: searchPath[i],
+        namespace: namespace[i],
+        name: namespace[i],
+        aliases,
+      });
+    }
   }
   if (pathInfoArray.length) {
     return pathInfoArray;
   }
   cliLogging.error('This command requires one or more of the following combinations of arguments:');
   cliLogging.error('1) The --pluginFile, --plugins, or --pluginPath argument.');
-  cliLogging.error('2) The --searchPath argument along with the --namespace argument.');
+  cliLogging.error('2) One or more pairs of the --searchPath and --namespace arguments.');
+}
+
+function _collect(value, previous) {
+  return previous.concat([value]);
 }
 
 function _addPathOptions(cmd) {
@@ -564,7 +570,12 @@ function _addPathOptions(cmd) {
       list,
       langIgnoreDefaults.length ? langIgnoreDefaults : ignoreDefaults
     )
-    .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+    .option(
+      '-n , --namespace <namespace>',
+      'Set namespace for string extraction; this may be specified multiple times, but there must be an equal number of --searchPath arguments',
+      _collect,
+      []
+    )
     .option(
       '--localeDataFolder <localeDataFolder>',
       'Set path to write locale files to',
@@ -573,7 +584,9 @@ function _addPathOptions(cmd) {
     )
     .option(
       '--searchPath <searchPath>',
-      'Set path to search for files containing strings to be extracted'
+      'Set path to search for files containing strings to be extracted; this may be specified multiple times, but there must be an equal number of --namespace arguments',
+      _collect,
+      []
     )
     .option(
       '--webpackConfig <webpackConfig>',

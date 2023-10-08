@@ -20,7 +20,9 @@ from kolibri.core.utils.lock import db_lock
 logger = logging.getLogger(__name__)
 
 
-def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
+def delete_metadata(
+    channel, node_ids, exclude_node_ids, force_delete, ignore_admin_flags
+):
     # Only delete all metadata if we are not doing selective deletion
     delete_all_metadata = not (node_ids or exclude_node_ids)
 
@@ -31,7 +33,9 @@ def delete_metadata(channel, node_ids, exclude_node_ids, force_delete):
     )
 
     # If we have been passed node ids do not do a full deletion pass
-    set_content_invisible(channel.id, node_ids, exclude_node_ids)
+    set_content_invisible(
+        channel.id, node_ids, exclude_node_ids, not ignore_admin_flags
+    )
     # If everything has been made invisible, delete all the metadata
     delete_all_metadata = delete_all_metadata or not channel.root.available
 
@@ -123,11 +127,20 @@ class Command(AsyncCommand):
             help="Ensure removal of files",
         )
 
+        parser.add_argument(
+            "--ignore_admin_flags",
+            action="store_false",
+            dest="ignore_admin_flags",
+            default=True,
+            help="Don't modify admin_imported values when deleting content",
+        )
+
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
         force_delete = options["force_delete"]
+        ignore_admin_flags = options["ignore_admin_flags"]
 
         try:
             channel = ChannelMetadata.objects.get(pk=channel_id)
@@ -136,10 +149,9 @@ class Command(AsyncCommand):
                 "Channel matching id {id} does not exist".format(id=channel_id)
             )
 
-        (
-            total_resource_number,
-            delete_all_metadata,
-        ) = delete_metadata(channel, node_ids, exclude_node_ids, force_delete)
+        (total_resource_number, delete_all_metadata,) = delete_metadata(
+            channel, node_ids, exclude_node_ids, force_delete, ignore_admin_flags
+        )
         unused_files = LocalFile.objects.get_unused_files()
         # Get the number of files that are being deleted
         unused_files_count = unused_files.count()
