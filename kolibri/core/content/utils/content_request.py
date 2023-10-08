@@ -930,6 +930,7 @@ def process_content_removal_requests(queryset):
                 channel_id,
                 node_ids=contentnode_ids,
                 ignore_admin_flags=True,
+                update_content_requests=False,
             )
             # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)

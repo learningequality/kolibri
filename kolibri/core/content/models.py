@@ -532,6 +532,20 @@ class ContentRequestManager(models.Manager):
 class ContentDownloadRequestManager(ContentRequestManager):
     request_type = ContentRequestType.Download
 
+    def propagate_removal(self, contentnode_ids):
+        """
+        Updates all ContentDownloadRequests for the passed in contentnode_ids
+        If matching ContentDownloadRequests were previously marked as Complete, they will be
+        updated to Pending - this means that if resources are deleted by an admin,
+        we can keep the status of the content download requests appropriately updated.
+        """
+        BATCH_SIZE = 250
+        for i in range(0, len(contentnode_ids), BATCH_SIZE):
+            batch = contentnode_ids[i : i + BATCH_SIZE]
+            self.filter(
+                contentnode_id__in=batch, status=ContentRequestStatus.Completed
+            ).update(status=ContentRequestStatus.Pending)
+
 
 class ContentDownloadRequest(ContentRequest):
     """

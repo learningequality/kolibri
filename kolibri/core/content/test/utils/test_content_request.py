@@ -884,6 +884,7 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
             self.node.channel_id,
             node_ids=[self.request.contentnode_id],
             ignore_admin_flags=True,
+            update_content_requests=False,
         )
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 0)
