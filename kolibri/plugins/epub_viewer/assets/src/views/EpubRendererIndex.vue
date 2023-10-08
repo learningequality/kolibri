@@ -227,7 +227,7 @@
       LoadingError,
     },
     mixins: [responsiveElementMixin],
-    setup(){
+    setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       return {
         windowIsSmall,
