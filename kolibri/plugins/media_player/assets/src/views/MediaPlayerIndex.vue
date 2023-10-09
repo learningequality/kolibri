@@ -89,7 +89,7 @@
   import { languageIdToCode } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
@@ -113,7 +113,11 @@
   export default {
     name: 'MediaPlayerIndex',
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
-    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin],
+    mixins: [commonCoreStrings, responsiveElementMixin],
+    setup() {
+      const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
+      return { windowIsSmall, windowIsPortrait };
+    },
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,
