@@ -117,7 +117,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -146,7 +146,13 @@
       BottomAppBar,
       BookmarkIcon,
     },
-    mixins: [commonCoach, commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         // null corresponds to 'All' filter value
