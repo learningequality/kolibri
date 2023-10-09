@@ -115,8 +115,8 @@
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
     mixins: [commonCoreStrings, responsiveElementMixin],
     setup() {
-      const { windowIsSmall } = useKResponsiveWindow();
-      return { windowIsSmall };
+      const { windowIsSmall,windowIsPortrait } = useKResponsiveWindow();
+      return { windowIsSmall,windowIsPortrait };
     },
     data: () => ({
       dummyTime: 0,
