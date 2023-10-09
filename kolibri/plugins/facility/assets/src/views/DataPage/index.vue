@@ -220,8 +220,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      return { windowIsLarge, windowIsSmall };
+      const { windowIsMedium, windowIsSmall } = useKResponsiveWindow();
+      return { windowIsMedium, windowIsSmall };
     },
     data() {
       return {
