@@ -38,9 +38,11 @@ public class Task {
             TaskworkerWorker.class, interval, TimeUnit.SECONDS
         );
 
-        if (expedite) {
-            workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
-        }
+        // Unlike the enqueueOnce method, we do no checking for the expedited
+        // boolean here, which is kept in the function signature, purely to keep
+        // them parallel. While undocumented, it is not possible for PeriodicWorkRequests
+        // to be expedited, as can be seen from the source code:
+        // https://android.googlesource.com/platform/frameworks/support/+/HEAD/work/work-runtime/src/main/java/androidx/work/PeriodicWorkRequest.kt#239
 
         if (retryInterval > 0) {
             workRequestBuilder.setBackoffCriteria(
@@ -62,7 +64,10 @@ public class Task {
 
         OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
 
-        if (expedite) {
+        // Tasks can only be expedited if they are set with no delay.
+        // This does not appear to be documented, but is evident in the Android Jetpack source code.
+        // https://android.googlesource.com/platform/frameworks/support/+/HEAD/work/work-runtime/src/main/java/androidx/work/WorkRequest.kt#271
+        if (expedite && delay == 0) {
             workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
         }
 
