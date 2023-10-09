@@ -157,6 +157,7 @@
   import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { ContentNodeResource } from 'kolibri.resources';

@@ -200,7 +200,6 @@
       SuggestedTime,
       DeviceConnectionStatus,
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings],
     filters: {
       truncateText(value, maxLength) {
         if (value && value.length > maxLength) {
@@ -209,6 +208,7 @@
         return value;
       },
     },
+    mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
       return {

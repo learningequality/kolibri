@@ -50,8 +50,6 @@
       ResourceCard,
     },
 
-    mixins: [responsiveWindowMixin],
-
     setup() {
       const {
         genContentLinkBackLinkCurrentPage,
