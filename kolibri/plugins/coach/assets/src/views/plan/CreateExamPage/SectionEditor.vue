@@ -128,6 +128,58 @@
       {{ $tr('sectionOrderTitle') }}
     </h5>
 
+
+    <DragContainer
+      :items="sectionOrderList"
+      @sort="handleSectionSort"
+    >
+      <transition-group>
+        <Draggable
+          v-for="(section,index) in sectionOrderList"
+          :key="index"
+        >
+          <DragHandle>
+            <div
+              :style="section.isActive ? activeSection : borderStyle "
+              class="section-order-list"
+            >
+              <KGrid>
+                <KGridItem
+                  :layout12="{ span: 1 }"
+                  :layout8="{ span: 1 }"
+                >
+                  <KIcon
+                    icon="dragVertical"
+                    class="space-content"
+                  />
+                </KGridItem>
+
+                <KGridItem
+                  :layout12="{ span: 6 }"
+                  :layout8="{ span: 5 }"
+                >
+                  <p class="space-content">
+                    {{ section.name }}
+                  </p>
+                </KGridItem>
+
+                <KGridItem
+                  :layout12="{ span: 5 }"
+                  :layout8="{ span: 3 }"
+                  class="current-section-style"
+                  :style="{ color: $themePalette.grey.v_700 }"
+                >
+                  <p class="current-section-text space-content">
+                    {{ section.current }}
+                  </p>
+                </KGridItem>
+              </KGrid>
+            </div>
+          </DragHandle>
+        </Draggable>
+      </transition-group>
+    </DragContainer>
+
     <div
       :style="activeSection"
       class="section-order-list"
@@ -164,6 +216,7 @@
         </KGridItem>
       </KGrid>
     </div>
+
     <div
       :style="borderStyle"
       class="section-order-list"
@@ -228,10 +281,17 @@
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
 
   export default {
     name: 'SectionEditor',
-    components: {},
+    components: {
+      Draggable,
+      DragContainer,
+      DragHandle,
+    },
     inject: ['quizForge'],
     mixins: [enhancedQuizManagementStrings],
     setup() {
@@ -244,6 +304,18 @@
         numQuestions: 1,
         descriptionLabel: '',
         sectionTitle: '',
+        sectionOrderList: [
+          {
+            name: this.$tr('sectionOrderTitle').toUpperCase(),
+            current: this.$tr('currentSection'),
+            isActive: true,
+          },
+          {
+            name: this.$tr('uniqueTitle').toUpperCase(),
+            current: null,
+            isActive: false,
+          },
+        ],
       };
     },
     computed: {
@@ -259,6 +331,9 @@
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
       },
+    },
+    methods: {
+      handleSectionSort() {},
     },
     $trs: {
       sectionSettingsHeading: {
