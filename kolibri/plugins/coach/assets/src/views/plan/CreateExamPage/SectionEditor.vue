@@ -84,7 +84,7 @@
           <KRadioButton
             v-model="selectedQuestionOrder"
             :label="$tr('randomizedLabel')"
-            :value="$tr('randomizedLabel')"
+            :value="true"
             :description="$tr('randomizedOptionDescription')"
           />
         </KGridItem>
@@ -96,7 +96,7 @@
           <KRadioButton
             v-model="selectedQuestionOrder"
             :label="$tr('fixedLabel')"
-            :value="$tr('fixedLabel')"
+            :value="false"
             :description="$tr('fixedOptionDescription')"
           />
         </KGridItem>
@@ -235,7 +235,7 @@
     },
     data() {
       return {
-        selectedQuestionOrder: '',
+        selectedQuestionOrder: true,
         numQuestions: 1,
       };
     },
