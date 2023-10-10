@@ -201,6 +201,7 @@
         >
           <KButton
             :text="$tr('deleteSectionButton')"
+            @click="quizForge.deleteSection(quizForge.activeSection.value.section_id)"
           />
         </KGridItem>
         <KGridItem
@@ -212,6 +213,7 @@
             :primary="true"
             :text="$tr('applySettingsButton')"
             class="apply-settings-style"
+            @click="quizForge.saveQuiz()"
           />
 
         </KGridItem>
@@ -230,6 +232,7 @@
   export default {
     name: 'SectionEditor',
     components: {},
+    inject: ['quizForge'],
     mixins: [enhancedQuizManagementStrings],
     setup() {
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
