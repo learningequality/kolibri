@@ -172,3 +172,11 @@ class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook, DiscoveryHookMix
 @register_hook
 class MyDownloadsNavAction(NavigationHook):
     bundle_id = "my_downloads_side_nav"
+
+    @property
+    def plugin_data(self):
+        return {
+            "allowLearnerDownloads": get_device_setting(
+                "allow_learner_download_resources"
+            ),
+        }

@@ -18,51 +18,56 @@
         {{ $tr('showingLibraries') }}
       </p>
     </div>
-    <LibraryItem
-      v-for="device in pinnedDevices"
-      :key="device['instance_id']"
-      :deviceId="device['instance_id']"
-      :deviceName="device['device_name']"
-      :deviceIcon="getDeviceIcon(device)"
-      :channels="device.channels"
-      :totalChannels="device['total_count']"
-      :pinIcon="getPinIcon(true)"
-      :showDescription="device['instance_id'] === studioId"
-      :disablePinDevice="device['instance_id'] === studioId"
-      @togglePin="handlePinToggle"
-    />
-    <div v-if="areMoreDevicesAvailable">
-      <div
-        v-if="pinnedDevicesExist"
-        data-test="more-libraries"
-      >
-        <h2>{{ learnString('moreLibraries') }}</h2>
+    <div v-if="loading">
+      <KCircularLoader />
+    </div>
+    <div v-else>
+      <LibraryItem
+        v-for="device in pinnedDevices"
+        :key="device['instance_id']"
+        :deviceId="device['instance_id']"
+        :deviceName="device['device_name']"
+        :deviceIcon="getDeviceIcon(device)"
+        :channels="deviceChannelsMap[device['instance_id']]"
+        :totalChannels="device['total_count']"
+        :pinIcon="getPinIcon(true)"
+        :showDescription="device['instance_id'] === studioId"
+        :disablePinDevice="device['instance_id'] === studioId"
+        @togglePin="handlePinToggle"
+      />
+      <div v-if="areMoreDevicesAvailable">
+        <div
+          v-if="pinnedDevicesExist"
+          data-test="more-libraries"
+        >
+          <h2>{{ learnString('moreLibraries') }}</h2>
+          <KButton
+            v-if="displayShowButton"
+            data-test="show-button"
+            :text="coreString('showAction')"
+            :primary="false"
+            @click="loadMoreDevices"
+          />
+        </div>
+        <LibraryItem
+          v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
+          :key="index"
+          :deviceId="device['instance_id']"
+          :deviceName="device['device_name']"
+          :deviceIcon="getDeviceIcon(device)"
+          :channels="deviceChannelsMap[device['instance_id']]"
+          :totalChannels="device['total_count']"
+          :pinIcon="getPinIcon(false)"
+          @togglePin="handlePinToggle"
+        />
         <KButton
-          v-if="displayShowButton"
-          data-test="show-button"
-          :text="coreString('showAction')"
+          v-if="displayShowMoreButton"
+          data-test="show-more-button"
+          :text="coreString('showMoreAction')"
           :primary="false"
           @click="loadMoreDevices"
         />
       </div>
-      <LibraryItem
-        v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
-        :key="index"
-        :deviceId="device['instance_id']"
-        :deviceName="device['device_name']"
-        :deviceIcon="getDeviceIcon(device)"
-        :channels="device.channels"
-        :totalChannels="device['total_count']"
-        :pinIcon="getPinIcon(false)"
-        @togglePin="handlePinToggle"
-      />
-      <KButton
-        v-if="displayShowMoreButton"
-        data-test="show-more-button"
-        :text="coreString('showMoreAction')"
-        :primary="false"
-        @click="loadMoreDevices"
-      />
     </div>
   </ImmersivePage>
 
@@ -74,6 +79,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
+  import { ref, reactive, watch, set } from 'kolibri.lib.vueCompositionApi';
   import commonLearnStrings from '../commonLearnStrings';
   import useChannels from '../../composables/useChannels';
   import useContentLink from '../../composables/useContentLink';
@@ -92,24 +98,52 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
+      const { networkDevices } = useDevices();
       const { fetchChannels } = useChannels();
-      const { back } = useContentLink();
-      const { fetchDevices } = useDevices();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
+      const { back } = useContentLink();
+      const deviceChannelsMap = reactive({});
+      const loading = ref(true);
+
+      function _updateDeviceChannels(device, channels) {
+        set(deviceChannelsMap, device.instance_id, channels);
+      }
+
+      function loadDeviceChannels() {
+        let currentDevice;
+        Object.keys(networkDevices.value).forEach(key => {
+          const promises = [];
+          currentDevice = networkDevices.value[key];
+          if (!deviceChannelsMap[currentDevice.instance_id]) {
+            const baseurl = currentDevice.base_url;
+            const promise = fetchChannels({ baseurl }).then(channels => {
+              _updateDeviceChannels(currentDevice, channels);
+              loading.value = false;
+            });
+            promises.push(promise);
+          }
+          Promise.all(promises).then(() => {
+            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
+            loading.value = false;
+          });
+        });
+      }
+      loadDeviceChannels();
+      watch(networkDevices, loadDeviceChannels);
 
       return {
         deletePinForUser,
         createPinForUser,
         fetchPinsForUser,
+        deviceChannelsMap,
         fetchChannels,
-        fetchDevices,
+        networkDevices,
         back,
       };
     },
     data() {
       return {
         loading: false,
-        networkDevices: {},
         moreDevices: 0,
         usersPins: [],
       };
@@ -126,7 +160,7 @@
       },
       networkDevicesWithChannels() {
         return Object.values(this.networkDevices)
-          .filter(device => device.channels?.length > 0)
+          .filter(device => this.deviceChannelsMap[device.instance_id]?.length > 0)
           .sort((a, b) => {
             if (a.instance_id === this.studioId) {
               return 1;
@@ -182,53 +216,7 @@
         immediate: false,
       },
     },
-    created() {
-      this.loading = true;
-      // Fetch user's pins
-      this.fetchPinsForUser().then(resp => {
-        this.usersPins = resp.map(pin => {
-          const instance_id = pin.instance_id.replace(/-/g, '');
-          return { ...pin, instance_id };
-        });
-        if (this.usersPins.length === 0) {
-          this.loadMoreDevices();
-        }
-      });
-
-      this.fetchDevices().then(devices => {
-        const promises = [];
-        for (const device of devices) {
-          const baseurl = device.base_url;
-          const promise = this.fetchChannels({ baseurl })
-            .then(channels => {
-              this.addNetworkDevice(device, channels);
-              // Set loading to false once we have successfully fetched channels
-              // for any device.
-              this.loading = false;
-            })
-            .catch(() => {
-              this.addNetworkDevice(device, []);
-            });
-          promises.push(promise);
-        }
-        Promise.all(promises).then(() => {
-          // In case we don't successfully fetch any channels, don't do a perpetual loading
-          // state.
-          this.loading = false;
-        });
-      });
-    },
     methods: {
-      addNetworkDevice(device, channels) {
-        this.$set(
-          this.networkDevices,
-          device.instance_id,
-          Object.assign(device, {
-            channels: channels.slice(0, 4),
-            total_count: channels.length,
-          })
-        );
-      },
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(response => {
           const id = response.id;

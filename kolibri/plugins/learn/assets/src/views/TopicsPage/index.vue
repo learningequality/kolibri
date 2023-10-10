@@ -38,7 +38,7 @@
         >
           <template #sticky-sidebar>
             <ToggleHeaderTabs
-              v-if="!!windowIsLarge"
+              v-if="!!windowIsLarge && topic"
               :topic="topic"
               :topics="topics"
               :width="sidePanelWidth"
@@ -57,7 +57,7 @@
               ref="sidePanel"
               class="side-panel"
               :topics="topics"
-              :topicMore="topicMore"
+              :topicMore="Boolean(topicMore)"
               :topicsLoading="topicMoreLoading"
               :width="`${sidePanelWidth}px`"
               :style="sidePanelStyleOverrides"
@@ -187,7 +187,7 @@
             ref="embeddedPanel"
             class="full-screen-side-panel"
             :topics="topics"
-            :topicMore="topicMore"
+            :topicMore="Boolean(topicMore)"
             :topicsLoading="topicMoreLoading"
             :style="sidePanelStyleOverrides"
             @loadMoreTopics="handleLoadMoreInTopic"

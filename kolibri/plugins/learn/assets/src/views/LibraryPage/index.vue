@@ -247,13 +247,17 @@
 <script>
 
   import { get, set } from '@vueuse/core';
-  import cloneDeep from 'lodash/cloneDeep';
 
-  import { onMounted, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
+  import {
+    onMounted,
+    getCurrentInstance,
+    ref,
+    reactive,
+    watch,
+  } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
-  import { currentLanguage } from 'kolibri.utils.i18n';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
   import SidePanelModal from '../SidePanelModal';
@@ -263,6 +267,7 @@
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
   import useDevices, {
+    currentDeviceData,
     setCurrentDevice,
     StudioNotAllowedError,
   } from '../../composables/useDevices';
@@ -336,9 +341,11 @@
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
-      const { baseurl, deviceName, fetchDevices } = useDevices();
+      const { baseurl, deviceName } = currentDeviceData();
+      const { fetchDevices, networkDevices } = useDevices();
       const { fetchChannels } = useChannels();
       const { fetchPinsForUser } = usePinnedDevices();
+      const deviceChannelsMap = reactive({});
 
       onMounted(() => {
         const keywords = currentRoute().query.keywords;
@@ -444,6 +451,34 @@
         return _showLibrary();
       }
 
+      const loading = ref(true);
+
+      function _updateDeviceChannels(device, channels) {
+        set(deviceChannelsMap, device.instance_id, channels);
+      }
+
+      function loadDeviceChannels() {
+        let currentDevice;
+        Object.keys(networkDevices.value).forEach(key => {
+          const promises = [];
+          currentDevice = networkDevices.value[key];
+          if (!deviceChannelsMap[currentDevice.instance_id]) {
+            const baseurl = currentDevice.base_url;
+            const promise = fetchChannels({ baseurl }).then(channels => {
+              _updateDeviceChannels(currentDevice, channels);
+              loading.value = false;
+            });
+            promises.push(promise);
+          }
+          Promise.all(promises).then(() => {
+            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
+            loading.value = false;
+          });
+        });
+      }
+      loadDeviceChannels();
+      watch(networkDevices, loadDeviceChannels);
+
       watch(() => props.deviceId, showLibrary);
 
       showLibrary();
@@ -471,7 +506,9 @@
         windowIsSmall,
         currentCardViewStyle,
         baseurl,
+        networkDevices,
         fetchDevices,
+        deviceChannelsMap,
         deviceName,
         fetchChannels,
         fetchPinsForUser,
@@ -515,15 +552,15 @@
           return this.coreString('yourLibrary');
         }
       },
-      channelsToDisplay() {
-        return this.windowIsSmall ? 3 : 5;
-      },
       devicesWithChannels() {
-        //display Kolibri studio for superusers only
-        return cloneDeep(this.devices).filter(device => {
-          device['channels'] = device.channels?.slice(0, this.channelsToDisplay);
-          return device.channels?.length > 0;
-        });
+        const localDeviceChannels = Object.values(this.networkDevices).filter(
+          device => this.deviceChannelsMap[device.instance_id]?.length > 0
+        );
+        for (const idx in localDeviceChannels) {
+          const device = localDeviceChannels[idx];
+          device.total_count = this.deviceChannelsMap[device.id].length;
+        }
+        return localDeviceChannels;
       },
       devicesWithChannelsExist() {
         return this.devicesWithChannels.length > 0;
@@ -560,12 +597,15 @@
         return span;
       },
       pinnedDevices() {
-        return this.devicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === this.studioId
-          );
-        });
+        if (Object.values(this.deviceChannelsMap).length > 0) {
+          return Object.values(this.deviceChannelsMap).filter(device => {
+            return (
+              this.usersPinsDeviceIds.includes(device.instance_id) ||
+              device.instance_id === this.studioId
+            );
+          });
+        }
+        return [];
       },
       pinnedDevicesExist() {
         return this.pinnedDevices.length > 0;
@@ -637,17 +677,6 @@
       }
     },
     methods: {
-      addDevice(device, channels) {
-        this.devices.push(
-          Object.assign(device, {
-            channels: channels.sort(this.currentLanguageChannelsFirst),
-            total_count: channels.length,
-          })
-        );
-      },
-      currentLanguageChannelsFirst(a, b) {
-        return b['lang_code'].indexOf(currentLanguage) - a['lang_code'].indexOf(currentLanguage);
-      },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
@@ -661,19 +690,13 @@
           });
         });
 
-        this.fetchDevices().then(devices => {
+        if (Object.values(this.networkDevices).length > 0) {
           this.searching = false;
-          for (const device of devices) {
-            const baseurl = device.base_url;
-            this.fetchChannels({ baseurl })
-              .then(channels => {
-                this.addDevice(device, channels);
-              })
-              .catch(() => {
-                this.addDevice(device, []);
-              });
-          }
-        });
+          return Object.values(this.networkDevices).filter(
+            device => this.deviceChannelsMap[device.instance_id]?.length > 0
+          );
+        }
+        this.searching = false;
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;

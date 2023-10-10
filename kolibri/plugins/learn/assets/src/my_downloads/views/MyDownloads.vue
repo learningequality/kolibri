@@ -55,10 +55,11 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import useDownloadRequests from '../../composables/useDownloadRequests';
+  import useDevices from '../../composables/useDevices';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';
   import SortFilter from './Filters/SortFilter.vue';
@@ -81,35 +82,23 @@
         availableSpace,
         removeDownloadRequest,
       } = useDownloadRequests();
+      const { fetchDevices } = useDevices();
 
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const query = computed(() => get(route).query);
 
-      const pageNumber = computed(() => Number(query.value.page || 1));
-      const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
-      const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort);
-      const totalPageNumber = ref(0);
 
-      const fetchDownloads = () => {
-        fetchUserDownloadRequests({
-          sort: sort.value,
-          page: pageNumber.value,
-          pageSize: pageSizeNumber.value,
-          activityType: activityType.value,
-        });
-      };
-      fetchDownloads();
       fetchAvailableFreespace();
-      watch(route, fetchDownloads);
 
       return {
         downloadRequestMap,
         loading,
+        fetchDownloads: fetchUserDownloadRequests,
         availableSpace,
-        totalPageNumber,
         fetchAvailableFreespace,
+        fetchDevices,
         sort,
         removeDownloadRequest,
       };
@@ -122,6 +111,12 @@
         );
       },
     },
+    mounted() {
+      this.startPolling();
+    },
+    beforeDestroy() {
+      clearInterval(this.pollingInterval);
+    },
     methods: {
       formattedSize(size) {
         if (size > 0) {
@@ -131,12 +126,38 @@
         }
       },
       removeResources(resources) {
-        if (resources.length === 1) {
-          this.removeDownloadRequest(resources[0]);
-        } else {
-          resources.forEach(resource => {
-            this.removeDownloadRequest({ id: resource.id });
-          });
+        for (const resource of resources) {
+          this.removeDownloadRequest(resource);
+        }
+      },
+      startPolling() {
+        this.fetchDownloads();
+        this.pollingInterval = setInterval(async () => {
+          await this.fetchDownloads();
+          this.calculatePollingInterval();
+        }, 1000); // Initial interval of 1 second
+      },
+      calculatePollingInterval() {
+        let pollingInterval = 30000; // Default interval of 30 seconds
+
+        for (const download in this.downloadRequestMap) {
+          const status = this.downloadRequestMap[download].status;
+
+          if (status === 'PENDING' || status === 'FAILED') {
+            pollingInterval = 5000; // Poll every 5 seconds
+            break;
+          } else if (status === 'IN_PROGRESS') {
+            pollingInterval = 1000; // Poll every 1 second
+            break;
+          }
+        }
+
+        if (pollingInterval !== this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = setInterval(async () => {
+            await this.fetchDownloads();
+            this.calculatePollingInterval();
+          }, pollingInterval);
         }
       },
     },

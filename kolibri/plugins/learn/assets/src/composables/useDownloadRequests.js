@@ -10,7 +10,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 import Vue from 'kolibri.lib.vue';
-import useDevices from './useDevices';
+import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -35,17 +35,24 @@ const availableSpace = ref(0);
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
 
-  const { instanceId } = useDevices(store);
+  const { instanceId } = currentDeviceData(store);
 
   function fetchUserDownloadRequests(params) {
     return ContentRequestResource.list(params)
       .then(downloadRequests => {
+        if (downloadRequests.results) {
+          downloadRequests = downloadRequests.results;
+        }
         for (const obj of downloadRequests) {
-          set(downloadRequestMap, obj.id, obj);
+          set(downloadRequestMap, obj.contentnode_id, obj);
         }
         set(loading, false);
+        return downloadRequests;
       })
-      .then(store.dispatch('notLoading'));
+      .then(downloadRequests => {
+        store.dispatch('notLoading');
+        return downloadRequests;
+      });
   }
 
   function fetchAvailableFreespace() {
@@ -67,14 +74,14 @@ export default function useDownloadRequests(store) {
     redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
   }
 
-  function addDownloadRequest(content) {
+  function addDownloadRequest(contentNode) {
     const metadata = {
-      title: content.title,
-      file_size: content.files.reduce((size, f) => size + f.file_size, 0),
-      learning_activities: content.learning_activities,
+      title: contentNode.title,
+      file_size: contentNode.files.reduce((size, f) => size + f.file_size, 0),
+      learning_activities: contentNode.learning_activities,
     };
     const data = {
-      contentnode_id: content.id,
+      contentnode_id: contentNode.id,
       metadata,
       source_id: store.getters.currentUserId,
       source_instance_id: get(instanceId),
@@ -84,7 +91,7 @@ export default function useDownloadRequests(store) {
       date_added: new Date(),
     };
     ContentRequestResource.create(data).then(downloadRequest => {
-      set(downloadRequestMap, downloadRequest.node_id, downloadRequest);
+      set(downloadRequestMap, downloadRequest.contentnode_id, downloadRequest);
     });
 
     store.commit('CORE_CREATE_SNACKBAR', {
@@ -98,12 +105,11 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
-  function removeDownloadRequest(content) {
+  function removeDownloadRequest(contentRequest) {
     ContentRequestResource.deleteModel({
-      id: content.id,
-      contentnode_id: content.contentnode_id,
+      id: contentRequest.id,
     });
-    Vue.delete(downloadRequestMap, content.id);
+    Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
     return Promise.resolve();
   }
 
@@ -111,7 +117,7 @@ export default function useDownloadRequests(store) {
     if (!content || !content.id) {
       return false;
     }
-    const downloadRequest = downloadRequestMap[this.content.id];
+    const downloadRequest = downloadRequestMap[content.id];
     return Boolean(downloadRequest && !downloadRequest.status === 'COMPLETED');
   }
 
@@ -119,7 +125,7 @@ export default function useDownloadRequests(store) {
     if (!content || !content.id) {
       return false;
     }
-    const downloadRequest = downloadRequestMap[this.content.id];
+    const downloadRequest = downloadRequestMap[content.id];
     return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
   }
 

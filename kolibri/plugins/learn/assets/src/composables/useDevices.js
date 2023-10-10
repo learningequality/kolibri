@@ -2,9 +2,9 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance, ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
 import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
-import { get, set } from '@vueuse/core';
+import { get, set, useTimeoutPoll } from '@vueuse/core';
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import plugin_data from 'plugin_data';
@@ -86,7 +86,7 @@ function computedDevice(routingDeviceId, callback) {
   });
 }
 
-export default function useDevices(store) {
+export function currentDeviceData(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store && store.state.route);
   const routingDeviceId = computed(() => {
@@ -99,10 +99,43 @@ export default function useDevices(store) {
   const deviceName = computedDevice(routingDeviceId, device => device.device_name);
 
   return {
+    instanceId,
+    baseurl,
+    deviceName,
+  };
+}
+
+export default function useDevices(store) {
+  const networkDevices = ref({});
+  const isLoading = ref(false);
+  const { instanceId, baseurl, deviceName } = currentDeviceData(store);
+
+  async function setNetworkDevices() {
+    isLoading.value = true;
+    const newNetworkDevices = {};
+    const devices = await fetchDevices();
+    for (const device of devices) {
+      newNetworkDevices[device.instance_id] = device;
+    }
+    networkDevices.value = newNetworkDevices;
+    isLoading.value = false;
+  }
+
+  // Start polling
+  const fetch = useTimeoutPoll(setNetworkDevices, 5000, { immediate: true });
+
+  // Stop polling
+  onBeforeUnmount(() => {
+    fetch.pause();
+  });
+
+  return {
     fetchDevices,
+    isLoading,
     setCurrentDevice,
     instanceId,
     baseurl,
     deviceName,
+    networkDevices,
   };
 }

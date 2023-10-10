@@ -21,8 +21,8 @@ import {
   ResourcesNeededTypes,
 } from 'kolibri.coreVue.vuex.constants';
 import { deduplicateResources } from '../utils/contentNode';
+import { currentDeviceData } from './useDevices';
 import useContentNodeProgress from './useContentNodeProgress';
-import useDevices from './useDevices';
 import { setLanguages } from './useLanguages';
 
 export const logging = logger.getLogger(__filename);
@@ -158,7 +158,7 @@ export default function useSearch(descendant, store, router) {
   const more = ref(null);
   const labels = ref(null);
 
-  const { baseurl } = useDevices(store);
+  const { baseurl } = currentDeviceData(store);
 
   const searchTerms = computed({
     get() {

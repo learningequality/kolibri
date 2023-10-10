@@ -178,7 +178,11 @@
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
-  import useDevices, { setCurrentDevice, StudioNotAllowedError } from '../composables/useDevices';
+  import {
+    currentDeviceData,
+    setCurrentDevice,
+    StudioNotAllowedError,
+  } from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
   import useDownloadRequests from '../composables/useDownloadRequests';
   import commonLearnStrings from './commonLearnStrings';
@@ -225,7 +229,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { canDownloadExternally } = useCoreLearn();
+      const { canDownloadExternally, canAddDownloads } = useCoreLearn();
       const {
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
@@ -234,7 +238,7 @@
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
-      const { baseurl, deviceName } = useDevices();
+      const { baseurl, deviceName } = currentDeviceData();
       const {
         addDownloadRequest,
         isDownloadedByLearner,
@@ -318,6 +322,7 @@
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
+        canAddDownloads,
         back,
         genExternalBackURL,
         addDownloadRequest,
@@ -449,7 +454,9 @@
         return this.content.admin_imported || this.isDownloadedByLearner(this.content);
       },
       allowRemoteDownload() {
-        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
+        return (
+          this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && this.canAddDownloads
+        );
       },
       allowBookmark() {
         return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
