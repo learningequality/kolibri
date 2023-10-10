@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
@@ -46,8 +47,11 @@ export default () => {
    * The questions that are currently selected for action in the active section */
   const _selectedQuestions = ref([]);
 
-  /** @type {ref<>} A list of all channels available which have exercises */
+  /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
+
+  /** @type {ref<Number>} A counter for use in naming new sections */
+  const _sectionLabelCounter = ref(1);
 
   // ------------------
   // Section Management
@@ -112,6 +116,9 @@ export default () => {
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
+    const { sectionLabel$ } = enhancedQuizManagementStrings;
+    newSection.section_title = `${sectionLabel$()} ${_sectionLabelCounter.value}`;
+    _sectionLabelCounter.value++;
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
     setActiveSection(newSection.section_id);
     return newSection;

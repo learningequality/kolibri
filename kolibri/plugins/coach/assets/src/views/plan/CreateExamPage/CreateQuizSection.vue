@@ -20,7 +20,7 @@
       >
         <KTextbox
           ref="title"
-          :label="coachString('titleLabel')"
+          :label="quizTitle$()"
           :autofocus="true"
           :maxlength="100"
           @blur="e => quizForge.updateQuiz({ title: e.target.value })"
@@ -29,7 +29,7 @@
     </KGrid>
 
     <p style="margin-top: 0px;">
-      {{ $tr('addSectionsDescription') }}
+      {{ addQuizSections$() }}
     </p>
 
     <hr class="bottom-border">
@@ -136,7 +136,7 @@
           icon="plus"
           @click="handleAddSection"
         >
-          {{ (eqmStrings.$tr('addSectionLabel')) }}
+          {{ addSectionLabel$() }}
         </KButton>
       </KGridItem>
 
@@ -158,17 +158,17 @@
       </div>
 
       <p class="no-question-style">
-        {{ $tr('noQuestionsLabel') }}
+        {{ noQuestionsInSection$() }}
       </p>
 
-      <p>{{ $tr('selectResourceGuide') }}</p>
+      <p>{{ addQuizSectionQuestionsInstructions$() }}</p>
 
       <KButton
         primary
         icon="plus"
         @click="openSelectResources(quizForge.activeSection.value.section_id)"
       >
-        {{ $tr('addQuestion') }}
+        {{ addQuestionsLabel$() }}
       </KButton>
       <!-- END TODO -->
 
@@ -183,6 +183,7 @@
 <script>
 
   import { get } from '@vueuse/core';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
@@ -194,12 +195,36 @@
       TabsWithOverflow,
     },
     mixins: [commonCoreStrings, commonCoach],
-    inject: ['quizForge'],
-    data() {
+    setup() {
+      const {
+        sectionLabel$,
+        addQuizSections$,
+        addSectionLabel$,
+        quizTitle$,
+        addQuestionsLabel$,
+        noQuestionsInSection$,
+        addQuizSectionQuestionsInstructions$,
+        editSectionLabel$,
+        deleteSectionLabel$,
+      } = enhancedQuizManagementStrings;
+
+      // The number we use for the default section title
+      const sectionCreationCount = ref(1);
+
       return {
-        eqmStrings: enhancedQuizManagementStrings,
+        sectionCreationCount,
+        sectionLabel$,
+        addQuizSections$,
+        addSectionLabel$,
+        quizTitle$,
+        addQuestionsLabel$,
+        noQuestionsInSection$,
+        addQuizSectionQuestionsInstructions$,
+        editSectionLabel$,
+        deleteSectionLabel$,
       };
     },
+    inject: ['quizForge'],
     computed: {
       noKgridItemPadding() {
         return {
@@ -208,12 +233,9 @@
         };
       },
       tabs() {
-        return get(this.quizForge.allSections).map((section, index) => {
+        return get(this.quizForge.allSections).map(section => {
           const id = section.section_id;
-          // TODO The "Section N" label should probably be set directly on the Section object
-          // at creation rather than this
-          const label = section.section_title ? section.section_title : `Section ${index + 1}`;
-
+          const label = section.section_title;
           return { id, label };
         });
       },
@@ -227,13 +249,11 @@
       sectionOptions() {
         return [
           {
-            // TODO This should be a $tr
-            label: 'Edit',
+            label: this.editSectionLabel$(),
             icon: 'edit',
           },
           {
-            // TODO This should be a $tr
-            label: 'Delete',
+            label: this.deleteSectionLabel$(),
             icon: 'delete',
           },
         ];
@@ -256,13 +276,14 @@
       handleAddSection() {
         const newSection = this.quizForge.addSection();
         this.quizForge.setActiveSection(get(newSection).section_id);
+        this.sectionCreationCount++;
       },
       handleSectionOptionSelect({ label }, section_id) {
         switch (label) {
-          case 'Edit':
+          case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
-          case 'Delete':
+          case this.deleteSectionLabel$():
             this.quizForge.removeSection(section_id);
             break;
         }
@@ -270,84 +291,6 @@
       openSelectResources(section_id) {
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
-      /*
-        handleOrderChange(event) {
-          const reorderedList = event.newArray.map(x => {
-            if (x.isPlaceholder) {
-              return this.placeholderList.find(item => item.id === x.id);
-            }
-            return x;
-          });
-          this.placeholderList = reorderedList;
-          localStorage.setItem('reorderedList', JSON.stringify(reorderedList));
-          this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
-        },
-        shiftOne(index, delta) {
-          const newArray = [...this.placeholderList];
-          const adjacentItem = newArray[index + delta];
-          newArray[index + delta] = newArray[index];
-          newArray[index] = adjacentItem;
-
-          this.handleOrderChange({ newArray });
-        },
-            */
-    },
-    $trs: {
-      noQuestionsLabel: {
-        message: 'There are no questions in this section',
-        context: 'Indicates that there is no question in the particular section',
-      },
-      selectResourceGuide: {
-        message: 'To add questions, select resources from the available channels.',
-        context: 'Explains a way of adding a question',
-      },
-      addQuestion: {
-        message: 'Add Questions',
-        context: 'Button label for adding a new question',
-      },
-      addSectionsDescription: {
-        message: 'Add one or more sections to your quiz, according to your needs',
-        context:
-          'This message indicates that more than one section can be added when creating a quiz.',
-      },
-      /*
-        questionPhrase: {
-          message: 'Select the word that has the following vowel sound.',
-          context: 'Placholder for the question',
-        },
-        questionSubtitle: {
-          message: ' Short <e>, [e]</e>',
-          context: 'Placholder content for the question description',
-        },
-        chooseQuestionLabel: {
-          message: 'Choose 1 answer:',
-          context: 'Label to indicate the question to be chosen',
-        },
-        addAnswer: {
-          message: 'Add answer',
-          context: 'Button text to indicate that more answers can be added to the question.',
-        },
-        selectAllLabel: {
-          message: 'Select all',
-          context: 'Label indicates that all available options can be chosen at once.',
-        },
-        upLabel: {
-          message: 'Move {name} up one',
-          context: 'Label to rearrange question order. Not seen on UI.',
-        },
-        downLabel: {
-          message: 'Move {name} down one',
-          context: 'Label to rearrange question order. Not seen on UI.',
-        },
-        checkBoxLabel: {
-          message: 'Select {name} question"',
-          context: 'Checkbox to select the question',
-        },
-        successNotification: {
-          message: 'Question order saved',
-          context: 'Success message shown when the admin re-orders question',
-        },
-          */
     },
   };
 
