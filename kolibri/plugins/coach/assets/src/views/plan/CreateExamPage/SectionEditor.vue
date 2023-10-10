@@ -114,11 +114,14 @@
     </h5>
     <p>{{ $tr('selectedResources', { count: 2 }) }}</p>
 
-    <KButton
-      :text="$tr('changeResourceButton')"
-      iconAfter="forward"
+    <KRouterLink
+      appearance="raised-button"
+      :to="{ path: 'select-resources' }"
       class="change-resource-button-style"
-    />
+      iconAfter="forward"
+    >
+      {{ $tr('changeResourceButton') }}
+    </KRouterLink>
 
     <hr :style="dividerStyle">
 
