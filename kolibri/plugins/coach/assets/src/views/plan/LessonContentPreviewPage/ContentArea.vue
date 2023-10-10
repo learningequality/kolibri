@@ -6,6 +6,7 @@
     </h2>
     <KContentRenderer
       v-if="content.available"
+      class="content-renderer"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -58,8 +59,8 @@
 
 <style lang="scss" scoped>
 
-  .hof {
-    overflow-x: hidden; // .solutionarea's negative margin oversteps
+  .content-renderer {
+    height: 100vh;
   }
 
   .header {
