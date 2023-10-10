@@ -13,12 +13,12 @@
         :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
         class="item"
         :class="[windowIsSmall && 'small',
-                 currentResource(content.content_id) &&
+                 content.id === currentResourceId &&
                    $computedClass(currentlyViewedItemStyle)]"
         :style="linkStyles"
       >
         <p
-          v-if="currentResource(content.content_id)"
+          v-if="content.id === currentResourceId"
           :style="currentlyViewingTextStyle"
         >
           {{ $tr('currentlyViewing') }}
@@ -148,7 +148,7 @@
         type: Boolean,
         default: false,
       },
-      currentResourceID: {
+      currentResourceId: {
         type: String,
         required: true,
       },
@@ -203,9 +203,6 @@
     methods: {
       progressFor(node) {
         return this.contentNodeProgressMap[node.content_id] || 0;
-      },
-      currentResource(contentId) {
-        return contentId === this.currentResourceID || '';
       },
     },
     $trs: {

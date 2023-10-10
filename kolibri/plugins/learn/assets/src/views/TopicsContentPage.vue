@@ -132,7 +132,7 @@
         :nextContent="nextContent"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
-        :currentResourceID="currentResourceID"
+        :currentResourceId="currentResourceId"
         :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
@@ -437,8 +437,8 @@
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
-      currentResourceID() {
-        return this.content ? this.content.content_id : '';
+      currentResourceId() {
+        return this.content ? this.content.id : '';
       },
       missingLessonResources() {
         return this.lesson && this.lesson.resources.some(c => !c.contentnode);
