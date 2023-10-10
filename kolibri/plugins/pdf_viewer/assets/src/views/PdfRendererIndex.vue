@@ -62,15 +62,17 @@
           </div>
         </div>
       </transition>
-      <KGrid gutter="0">
+      <KGrid class="full-height-container" gutter="0">
         <KGridItem
           v-if="showSideBar"
+          class="full-height-container"
           :layout8="{ span: 2 }"
           :layout12="{ span: 3 }"
-          class="sidebar-container"
-          :class="{ 'mt-40': showControls }"
         >
           <SideBar
+            id="sidebar-container"
+            class="scroller-height"
+            :style="{ position: 'sticky', top: 0 }"
             :outline="outline || []"
             :goToDestination="goToDestination"
             :focusDestPage="focusDestPage"
@@ -78,16 +80,17 @@
         </KGridItem>
         <KGridItem
           ref="pdfContainer"
+          class="full-height-container"
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
           <RecycleList
+            id="pdf-container"
             ref="recycleList"
             :items="pdfPages"
             :itemHeight="itemHeight"
             :emitUpdate="true"
-            :style="{ height: `${elementHeight - 40}px` }"
-            class="pdf-container"
+            class="pdf-container scroller-height"
             keyField="index"
             @update="handleUpdate"
           >
@@ -124,7 +127,6 @@
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
@@ -144,7 +146,7 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, responsiveElementMixin, commonCoreStrings],
+    mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
       progress: null,
       scale: null,
@@ -271,15 +273,7 @@
       PDFJSLib.GlobalWorkerOptions.workerSrc =
         __webpack_public_path__ + `pdfJSWorker-${__version}.js`;
     },
-    destroyed() {
-      // Reset the overflow on the HTML tag that we set to hidden in created()
-      window.document.getElementsByTagName('html')[0].style.overflow = 'auto';
-    },
     created() {
-      // Override, only on this component, the overflow style of the HTML tag
-      // so that PDFRenderer can scroll itself.
-      window.document.getElementsByTagName('html')[0].style.overflow = 'hidden';
-
       this.worker = new PDFJSLib.PDFWorker();
 
       this.worker.promise.catch(error => {
@@ -660,21 +654,22 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $controls-height: 40px;
-  $top-bar-height: 32px;
-  $tool-bar-height: 56px;
 
   .pdf-renderer {
     @extend %momentum-scroll;
     @extend %dropshadow-2dp;
 
     position: relative;
-    height: calc(100vh - #{$top-bar-height} - #{$controls-height} + 16px);
     overflow-y: hidden;
   }
 
   .pdf-container {
     position: relative;
-    top: $controls-height;
+    overflow-y: auto;
+  }
+
+  .scroller-height {
+    height: calc(100% - #{$controls-height});
   }
 
   .controls {
@@ -712,11 +707,6 @@
   }
 
   .fullscreen-header {
-    position: absolute;
-    top: 0;
-    right: 0;
-    left: 0;
-    z-index: 7;
     display: flex;
     height: $controls-height;
   }
@@ -738,27 +728,11 @@
     transform: translateY(-40px);
   }
 
-  .mt-40 {
-    margin-top: 40px;
+  .full-height-container {
+    height: 100%;
   }
 
-  .sidebar-container {
-    height: calc(100vh - #{$tool-bar-height});
-  }
-
-  .pdf-renderer.pdf-controls-open .sidebar-container {
-    height: calc(100vh - #{$tool-bar-height} - #{$controls-height});
-  }
-
-  .pdf-renderer.pdf-full-screen .sidebar-container {
-    height: 100vh;
-  }
-
-  .pdf-renderer.pdf-full-screen.pdf-controls-open .sidebar-container {
-    height: calc(100vh - #{$controls-height});
-  }
-
-  /deep/ .sidebar-container > div {
+  /deep/ .full-height-container > div {
     height: 100%;
   }
 
