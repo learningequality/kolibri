@@ -154,7 +154,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { set } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
@@ -244,6 +244,7 @@
         isDownloadedByLearner,
         isDownloadingByLearner,
         downloadRequestsTranslator,
+        fetchUserDownloadRequests,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -290,8 +291,9 @@
         if (deviceId) {
           promise = setCurrentDevice(deviceId).then(device => {
             const baseurl = device.base_url;
-            const { fetchUserDownloadRequests } = useDownloadRequests(store);
-            fetchUserDownloadRequests({ page: 1, pageSize: 20 });
+            if (get(canAddDownloads)) {
+              fetchUserDownloadRequests({ contentnode_id: props.id });
+            }
             return _loadTopicsContent(shouldResolve, baseurl);
           });
         } else {
