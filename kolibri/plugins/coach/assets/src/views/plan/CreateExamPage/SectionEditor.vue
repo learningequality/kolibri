@@ -15,6 +15,7 @@
         :layout4="{ span: 2 }"
       >
         <KTextbox
+          v-model="sectionTitle"
           :label="$tr('sectionTitle')"
           :maxlength="100"
         />
@@ -61,6 +62,7 @@
     </KGrid>
 
     <KTextbox
+      v-model="descriptionLabel"
       :label="$tr('descriptionLabel')"
       :maxlength="400"
       :textArea="true"
@@ -237,6 +239,8 @@
       return {
         selectedQuestionOrder: true,
         numQuestions: 1,
+        descriptionLabel: '',
+        sectionTitle: '',
       };
     },
     computed: {
