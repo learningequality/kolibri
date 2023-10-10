@@ -454,7 +454,6 @@
         return this.content.admin_imported || this.isDownloadedByLearner(this.content);
       },
       allowRemoteDownload() {
-        console.log(this.canAddDownloads);
         return (
           this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && this.canAddDownloads
         );
