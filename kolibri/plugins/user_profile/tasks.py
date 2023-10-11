@@ -13,6 +13,7 @@ from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
@@ -81,6 +82,16 @@ def status_fn(job):
     return JobStatus(account_transfer_in_progress, notification_text)
 
 
+def start_soud_sync(baseurl, user_id):
+    from kolibri.core.device import soud
+
+    network_location = NetworkLocation.objects.filter(
+        base_url=baseurl, subset_of_users_device=False
+    ).first()
+    if network_location:
+        soud.request_sync(soud.Context(user_id, network_location.instance_id))
+
+
 @register_task(
     queue="soud",
     validator=MergeUserValidator,
@@ -134,9 +145,7 @@ def mergeuser(command, **kwargs):
     except MorangoError:
         # error syncing with the server, probably a networking issue
         # syncing will happen later in scheduled syncs
-        from kolibri.core.auth.tasks import begin_request_soud_sync
-
-        begin_request_soud_sync(kwargs["baseurl"], remote_user.id)
+        start_soud_sync(kwargs["baseurl"], remote_user.id)
 
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id and local_user.is_superuser:

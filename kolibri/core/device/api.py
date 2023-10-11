@@ -52,7 +52,7 @@ from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
-from kolibri.core.discovery.models import DynamicNetworkLocation
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.fields import DateTimeTzField
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.core.public.constants.user_sync_statuses import INSUFFICIENT_STORAGE
@@ -313,7 +313,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         # if there are no possible devices we could sync to.
         if (
             get_device_setting("subset_of_users_device")
-            and not DynamicNetworkLocation.objects.filter(
+            and not NetworkLocation.objects.filter(
                 subset_of_users_device=False
             ).exists()
         ):
