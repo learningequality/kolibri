@@ -38,21 +38,17 @@ export default function useDownloadRequests(store) {
   const { instanceId } = currentDeviceData(store);
 
   function fetchUserDownloadRequests(params) {
-    return ContentRequestResource.list(params)
-      .then(downloadRequests => {
-        if (downloadRequests.results) {
-          downloadRequests = downloadRequests.results;
-        }
-        for (const obj of downloadRequests) {
-          set(downloadRequestMap, obj.contentnode_id, obj);
-        }
-        set(loading, false);
-        return downloadRequests;
-      })
-      .then(downloadRequests => {
-        store.dispatch('notLoading');
-        return downloadRequests;
-      });
+    return ContentRequestResource.list(params).then(downloadRequests => {
+      if (downloadRequests.results) {
+        downloadRequests = downloadRequests.results;
+      }
+      for (const obj of downloadRequests) {
+        set(downloadRequestMap, obj.contentnode_id, obj);
+      }
+      store.dispatch('notLoading');
+      set(loading, false);
+      return downloadRequests;
+    });
   }
 
   function fetchAvailableFreespace() {
@@ -85,11 +81,12 @@ export default function useDownloadRequests(store) {
       metadata,
       source_id: store.getters.currentUserId,
       source_instance_id: get(instanceId),
-      reason: 'UserInitiated',
+      reason: 'USER_INITIATED',
       facility: store.getters.currentFacilityId,
-      status: 'Pending',
+      status: 'PENDING',
       date_added: new Date(),
     };
+    set(downloadRequestMap, contentNode.id, data);
     ContentRequestResource.create(data).then(downloadRequest => {
       set(downloadRequestMap, downloadRequest.contentnode_id, downloadRequest);
     });
@@ -113,22 +110,6 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
-  function isDownloadingByLearner(content) {
-    if (!content || !content.id) {
-      return false;
-    }
-    const downloadRequest = downloadRequestMap[content.id];
-    return Boolean(downloadRequest && !downloadRequest.status === 'COMPLETED');
-  }
-
-  function isDownloadedByLearner(content) {
-    if (!content || !content.id) {
-      return false;
-    }
-    const downloadRequest = downloadRequestMap[content.id];
-    return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
-  }
-
   return {
     fetchUserDownloadRequests,
     fetchAvailableFreespace,
@@ -138,7 +119,5 @@ export default function useDownloadRequests(store) {
     loading,
     removeDownloadRequest,
     downloadRequestsTranslator,
-    isDownloadingByLearner,
-    isDownloadedByLearner,
   };
 }

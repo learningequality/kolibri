@@ -563,7 +563,7 @@
     },
     computed: {
       allowDownloads() {
-        return this.canAddDownloads && Boolean(this.deviceId);
+        return this.isUserLoggedIn && this.canAddDownloads && Boolean(this.deviceId);
       },
       barTitle() {
         return this.deviceId

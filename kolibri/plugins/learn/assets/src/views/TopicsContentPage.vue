@@ -23,7 +23,7 @@
       :allowMarkComplete="allowMarkComplete"
       :contentKind="contentKind"
       :showBookmark="allowBookmark"
-      :showDownloadButton="allowRemoteDownload"
+      :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
@@ -241,10 +241,10 @@
       const { baseurl, deviceName } = currentDeviceData();
       const {
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
         fetchUserDownloadRequests,
+        loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -328,13 +328,13 @@
         back,
         genExternalBackURL,
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
         deviceFormTranslator,
         content,
         channel,
         loading,
+        downloadRequestLoading,
         isUserLoggedIn,
         isCoach,
         isAdmin,
@@ -448,16 +448,34 @@
       isRemoteContent() {
         return Boolean(this.deviceId);
       },
+      allowDownloads() {
+        return this.isUserLoggedIn && this.canAddDownloads && this.isRemoteContent;
+      },
+      downloadRequestedByLearner() {
+        return this.allowDownloads && Boolean(this.downloadRequestMap[this.content?.id]);
+      },
+      downloadableByLearner() {
+        return this.allowDownloads && !this.content?.admin_imported;
+      },
       isDownloading() {
-        return this.isDownloadingByLearner(this.content);
+        return (
+          this.downloadRequestedByLearner &&
+          this.downloadRequestMap[this.content.id].status === 'PENDING'
+        );
       },
       isDownloaded() {
-        if (!this.content) return false;
-        return this.content.admin_imported || this.isDownloadedByLearner(this.content);
-      },
-      allowRemoteDownload() {
         return (
-          this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && this.canAddDownloads
+          this.content?.admin_imported ||
+          (this.downloadRequestedByLearner &&
+            this.downloadRequestMap[this.content?.id]?.status === 'COMPLETED')
+        );
+      },
+      showDownloadButton() {
+        return (
+          this.downloadableByLearner &&
+          !this.downloadRequestLoading &&
+          !this.loading &&
+          !this.isDownloaded
         );
       },
       allowBookmark() {

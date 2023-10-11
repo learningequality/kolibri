@@ -192,7 +192,12 @@ describe('TopicsContentPage', () => {
         beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadedByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'COMPLETED',
+                },
+              },
             })
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
@@ -212,7 +217,12 @@ describe('TopicsContentPage', () => {
         beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadingByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'PENDING',
+                },
+              },
             })
           );
           useCoreLearn.mockImplementation(() =>
