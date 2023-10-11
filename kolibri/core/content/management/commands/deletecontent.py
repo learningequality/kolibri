@@ -6,8 +6,8 @@ from django.db.models import Sum
 from le_utils.constants import content_kinds
 
 from kolibri.core.content.models import ChannelMetadata
-from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
@@ -84,7 +84,9 @@ def delete_metadata(
             channel.delete_content_tree_and_files()
 
     if update_content_requests and removed_resources:
-        ContentDownloadRequest.objects.propagate_removal(list(removed_resources))
+        ContentRequest.objects.propagate_removal_to_learner_initiated_requests(
+            list(removed_resources)
+        )
 
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
@@ -152,7 +154,7 @@ class Command(AsyncCommand):
             action="store_false",
             dest="update_content_requests",
             default=True,
-            help="Don't modify the status of ContentDownloadRequests pointing at the deleted content",
+            help="Don't modify the status of ContentRequests pointing at the deleted content",
         )
 
     def handle_async(self, *args, **options):

@@ -446,6 +446,33 @@ def _hex_uuid_str():
     return str(uuid.uuid4().hex)
 
 
+class ContentRequestManager(models.Manager):
+    request_type = None
+
+    def get_queryset(self):
+        """
+        Automatically filters on the request type for use with proxy models
+        :rtype: django.db.models.QuerySet
+        """
+        queryset = super(ContentRequestManager, self).get_queryset()
+        if self.request_type is not None:
+            queryset = queryset.filter(type=self.request_type)
+        return queryset
+
+    def propagate_removal_to_learner_initiated_requests(self, contentnode_ids):
+        """
+        Deletes all learner initiated ContentRequests for the passed in contentnode_ids
+        Matching learner initiated ContentRequests will be deleted - this means that if
+        resources are deleted by an admin, we remove any associated learner initiated requests.
+        """
+        BATCH_SIZE = 250
+        for i in range(0, len(contentnode_ids), BATCH_SIZE):
+            batch = contentnode_ids[i : i + BATCH_SIZE]
+            self.filter(
+                contentnode_id__in=batch, reason=ContentRequestReason.UserInitiated
+            ).delete()
+
+
 class ContentRequest(models.Model):
     """
     Model representing requests for specific content, either through user interaction or as a
@@ -474,6 +501,8 @@ class ContentRequest(models.Model):
 
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
+
+    objects = ContentRequestManager()
 
     class Meta:
         unique_together = ("type", "source_model", "source_id", "contentnode_id")
@@ -517,34 +546,8 @@ class ContentRequest(models.Model):
         return self.metadata.get("total_progress", 0) if self.metadata else 0
 
 
-class ContentRequestManager(models.Manager):
-    request_type = None
-
-    def get_queryset(self):
-        """
-        Automatically filters on the request type for use with proxy models
-        :rtype: django.db.models.QuerySet
-        """
-        queryset = super(ContentRequestManager, self).get_queryset()
-        return queryset.filter(type=self.request_type)
-
-
 class ContentDownloadRequestManager(ContentRequestManager):
     request_type = ContentRequestType.Download
-
-    def propagate_removal(self, contentnode_ids):
-        """
-        Updates all ContentDownloadRequests for the passed in contentnode_ids
-        If matching ContentDownloadRequests were previously marked as Complete, they will be
-        updated to Pending - this means that if resources are deleted by an admin,
-        we can keep the status of the content download requests appropriately updated.
-        """
-        BATCH_SIZE = 250
-        for i in range(0, len(contentnode_ids), BATCH_SIZE):
-            batch = contentnode_ids[i : i + BATCH_SIZE]
-            self.filter(
-                contentnode_id__in=batch, status=ContentRequestStatus.Completed
-            ).update(status=ContentRequestStatus.Pending)
 
 
 class ContentDownloadRequest(ContentRequest):
