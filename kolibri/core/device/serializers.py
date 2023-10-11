@@ -13,6 +13,7 @@ from kolibri.core.content.tasks import automatic_resource_import
 from kolibri.core.content.tasks import automatic_synchronize_content_requests_and_import
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import provision_device
 from kolibri.core.device.utils import provision_single_user_device
@@ -76,8 +77,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
     def validate(self, data):
         if (
-            "superuser" not in data
-            and GET_OS_USER in interface
+            GET_OS_USER in interface
             and "request" in self.context
             and valid_app_key_on_request(self.context["request"])
         ):
@@ -163,7 +163,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
             auth_token = validated_data.pop("auth_token", None)
 
-            if not auth_token:
+            if "superuser" in validated_data:
                 superuser_data = validated_data["superuser"]
                 # We've imported a facility if the username exists
                 try:
@@ -183,10 +183,21 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                         raise ParseError(
                             "`username`, `password`, or `full_name` are missing in `superuser`"
                         )
+                if auth_token:
+                    # If we have an auth token, we need to create an OSUser for the superuser
+                    # so that we can associate the user with the OSUser
+                    os_username, _ = interface.get_os_user(auth_token)
+                    OSUser.objects.update_or_create(
+                        os_username=os_username, defaults={"user": superuser}
+                    )
 
-            else:
+            elif auth_token:
                 superuser = FacilityUser.objects.get_or_create_os_user(
                     auth_token, facility=facility
+                )
+            else:
+                raise ParseError(
+                    "Either `superuser` or `auth_token` must be provided for provisioning"
                 )
 
             is_soud = validated_data.pop("is_soud")
