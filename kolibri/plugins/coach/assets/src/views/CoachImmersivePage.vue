@@ -12,7 +12,12 @@
       :loading="loading"
       :appearanceOverrides="appearanceOverrides"
     >
-      <div class="coach-main">
+      <KCircularLoader
+        v-if="coreLoading"
+        type="indeterminate"
+        :delay="true"
+      />
+      <div v-else class="coach-main">
         <slot></slot>
       </div>
     </ImmersivePage>
@@ -103,6 +108,7 @@
     },
     computed: {
       ...mapState({
+        coreLoading: state => state.core.loading,
         error: state => state.core.error,
       }),
     },
