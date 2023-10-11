@@ -10,7 +10,7 @@
 
       <UiToolbar
         :title="title"
-        :removeNavIcon="isAppContext && !windowIsLarge"
+        :removeNavIcon="isAppContext && isTouchDevice"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -151,7 +151,13 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner', 'isAppContext']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        'totalPoints',
+        'isLearner',
+        'isAppContext',
+        'isTouchDevice',
+      ]),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,

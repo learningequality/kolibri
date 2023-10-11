@@ -320,6 +320,7 @@
         'getUserKind',
         'isAppContext',
         'isUserLoggedIn',
+        'isTouchDevice',
       ]),
       ...mapState({
         username: state => state.core.session.username,
@@ -342,12 +343,6 @@
         // In browser based contexts, and large screen app view
         // use the "non-app" upper navigation bar
         return this.isAppContext && this.isTouchDevice;
-      },
-      isTouchDevice() {
-        // Check for presence of the touch event in DOM or multi-touch capabilities
-        return (
-          'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
-        );
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
