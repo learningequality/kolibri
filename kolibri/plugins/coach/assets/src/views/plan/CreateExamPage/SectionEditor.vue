@@ -5,7 +5,7 @@
       class="section-settings-top-heading"
       :style="{ color: $themeTokens.text }"
     >
-      {{ $tr('sectionSettingsHeading') }}
+      {{ sectionSettings$() }}
     </h5>
 
     <KGrid>
@@ -16,7 +16,7 @@
       >
         <KTextbox
           v-model="sectionTitle"
-          :label="$tr('sectionTitle')"
+          :label="sectionTitle$()"
           :maxlength="100"
         />
       </KGridItem>
@@ -31,7 +31,7 @@
               ref="numQuest"
               v-model="numQuestions"
               type="number"
-              :label="$tr('numberOfQuestion')"
+              :label="numberOfQuestionsLabel$()"
             />
           </div>
           <div>
@@ -63,7 +63,7 @@
 
     <KTextbox
       v-model="descriptionLabel"
-      :label="$tr('descriptionLabel')"
+      :label="optionalDescriptionLabel$()"
       :maxlength="400"
       :textArea="true"
       class="description-ktextbox-style"
@@ -110,9 +110,9 @@
     <h5
       class="section-settings-heading"
     >
-      {{ $tr('quizResourceSelection') }}
+      {{ quizResourceSelection$() }}
     </h5>
-    <p>{{ $tr('selectedResources', { count: 2 }) }}</p>
+    <p>{{ numberOfSelectedResources$({ count: 4 }) }}</p>
 
     <KRouterLink
       appearance="raised-button"
@@ -120,7 +120,7 @@
       class="change-resource-button-style"
       iconAfter="forward"
     >
-      {{ $tr('changeResourceButton') }}
+      {{ changeResources$() }}
     </KRouterLink>
 
     <hr :style="dividerStyle">
@@ -128,7 +128,7 @@
     <h5
       class="section-order-style section-settings-heading"
     >
-      {{ $tr('sectionOrderTitle') }}
+      {{ sectionOrder$() }}
     </h5>
 
 
@@ -191,7 +191,7 @@
           :layout4="{ span: 1 }"
         >
           <KButton
-            :text="$tr('deleteSectionButton')"
+            :text="deleteSection$()"
             @click="quizForge.deleteSection(quizForge.activeSection.value.section_id)"
           />
         </KGridItem>
@@ -202,7 +202,7 @@
         >
           <KButton
             :primary="true"
-            :text="$tr('applySettingsButton')"
+            :text="applySettings$()"
             class="apply-settings-style"
             @click="quizForge.saveQuiz()"
           />
@@ -232,9 +232,35 @@
     },
     inject: ['quizForge'],
     setup() {
-      const { stringLabel$, otherLabel$ } = enhancedQuizManagementStrings;
+      const {
+        sectionSettings$,
+        sectionTitle$,
+        numberOfQuestionsLabel$,
+        optionalDescriptionLabel$,
+        quizResourceSelection$,
+        numberOfSelectedResources$,
+        currentSection$,
+        deleteSection$,
+        applySettings$,
+        changeResources$,
+        sectionOrder$,
+      } = enhancedQuizManagementStrings;
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      return { windowIsLarge, windowIsSmall, stringLabel$, otherLabel$ };
+      return {
+        windowIsLarge,
+        windowIsSmall,
+        sectionSettings$,
+        sectionTitle$,
+        numberOfQuestionsLabel$,
+        optionalDescriptionLabel$,
+        quizResourceSelection$,
+        numberOfSelectedResources$,
+        currentSection$,
+        deleteSection$,
+        applySettings$,
+        changeResources$,
+        sectionOrder$,
+      };
     },
     data() {
       return {
@@ -245,7 +271,7 @@
         sectionOrderList: [
           {
             name: this.$tr('sectionOrderTitle').toUpperCase(),
-            current: this.$tr('currentSection'),
+            current: this.currentSection$(),
             isActive: true,
           },
           {
@@ -274,22 +300,6 @@
       handleSectionSort() {},
     },
     $trs: {
-      sectionSettingsHeading: {
-        message: 'Section settings',
-        context: 'Heading for the section settings side panel.',
-      },
-      sectionTitle: {
-        message: 'Section title',
-        context: 'Label for section settings title input field.',
-      },
-      numberOfQuestion: {
-        message: 'Number of questions',
-        context: 'label for section settings number of questions input field.',
-      },
-      descriptionLabel: {
-        message: 'Description (optional)',
-        context: 'Label for the section settings description input field.',
-      },
       questionOrder: {
         message: 'Question order',
         context: 'Heading for the question order',
@@ -310,33 +320,9 @@
         message: 'Each learner sees the same question order',
         context: 'Describes how the fixed radio button works when selected.',
       },
-      quizResourceSelection: {
-        message: 'Quiz resource selection',
-        context: 'Subtitle for quiz resource selection in the section settings side panel.',
-      },
-      selectedResources: {
-        message: '{count} resources selected from  {count} channels',
-        context: "Only translate  'resources selected from' and 'channels'.",
-      },
-      changeResourceButton: {
-        message: 'Change resources',
-        context: 'Button for changing the resources in the section settings sidepanel.',
-      },
       sectionOrderTitle: {
         message: 'Section order',
         context: 'Subheading for section ordering in the section settings sidepanel.',
-      },
-      currentSection: {
-        message: 'Current Section',
-        context: 'label for the currently ordered section.',
-      },
-      deleteSectionButton: {
-        message: 'Delete section',
-        context: 'Button for deleting section.',
-      },
-      applySettingsButton: {
-        message: 'Apply settings',
-        context: 'Button to save the new section settings.',
       },
       uniqueTitle: {
         message: 'Section 2 / unique title',
