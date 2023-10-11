@@ -75,7 +75,7 @@
       <h5
         class="section-settings-heading"
       >
-        {{ $tr('questionOrder') }}
+        {{ questionOrder$() }}
       </h5>
       <KGrid>
         <KGridItem
@@ -85,9 +85,9 @@
         >
           <KRadioButton
             v-model="selectedQuestionOrder"
-            :label="$tr('randomizedLabel')"
+            :label="randomizedLabel$()"
             :value="true"
-            :description="$tr('randomizedOptionDescription')"
+            :description="randomizedOptionDescription$()"
           />
         </KGridItem>
         <KGridItem
@@ -97,9 +97,9 @@
         >
           <KRadioButton
             v-model="selectedQuestionOrder"
-            :label="$tr('fixedLabel')"
+            :label="fixedLabel$()"
             :value="false"
-            :description="$tr('fixedOptionDescription')"
+            :description="fixedOptionDescription$()"
           />
         </KGridItem>
       </KGrid>
@@ -162,7 +162,7 @@
                   :layout8="{ span: 5 }"
                 >
                   <p class="space-content">
-                    {{ section.name }}
+                    {{ section.name.toUpperCase() }}
                   </p>
                 </KGridItem>
 
@@ -244,6 +244,11 @@
         applySettings$,
         changeResources$,
         sectionOrder$,
+        questionOrder$,
+        randomizedLabel$,
+        randomizedOptionDescription$,
+        fixedLabel$,
+        fixedOptionDescription$,
       } = enhancedQuizManagementStrings;
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
@@ -260,6 +265,11 @@
         applySettings$,
         changeResources$,
         sectionOrder$,
+        questionOrder$,
+        randomizedLabel$,
+        randomizedOptionDescription$,
+        fixedLabel$,
+        fixedOptionDescription$,
       };
     },
     data() {
@@ -270,12 +280,12 @@
         sectionTitle: '',
         sectionOrderList: [
           {
-            name: this.$tr('sectionOrderTitle').toUpperCase(),
+            name: 'Section order',
             current: this.currentSection$(),
             isActive: true,
           },
           {
-            name: this.$tr('uniqueTitle').toUpperCase(),
+            name: 'Section 2 / unique title',
             current: null,
             isActive: false,
           },
@@ -298,36 +308,6 @@
     },
     methods: {
       handleSectionSort() {},
-    },
-    $trs: {
-      questionOrder: {
-        message: 'Question order',
-        context: 'Heading for the question order',
-      },
-      randomizedLabel: {
-        message: 'Randomized',
-        context: 'Radio button label for displaying random questions to learners.',
-      },
-      randomizedOptionDescription: {
-        message: 'Each learner sees a different question order',
-        context: 'Describes how the randomize radio button works when selected.',
-      },
-      fixedLabel: {
-        message: 'Fixed',
-        context: 'Radio button label for displaying same question order to learners.',
-      },
-      fixedOptionDescription: {
-        message: 'Each learner sees the same question order',
-        context: 'Describes how the fixed radio button works when selected.',
-      },
-      sectionOrderTitle: {
-        message: 'Section order',
-        context: 'Subheading for section ordering in the section settings sidepanel.',
-      },
-      uniqueTitle: {
-        message: 'Section 2 / unique title',
-        context: 'Label for the other sections other than the current section.',
-      },
     },
   };
 
