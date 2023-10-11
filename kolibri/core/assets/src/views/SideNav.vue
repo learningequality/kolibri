@@ -337,11 +337,11 @@
         //  Window size and app context. Changes may need to be made
         // in parallel in both files for non-breaking updates
         // The expected behavior is:
-        // In an app context, on small and medium screens
-        // with touch capabilities, show the app Nav
+        // In an app context, on screens with touch capabilities,
+        // show the app Nav.
         // In browser based contexts, and large screen app view
         // use the "non-app" upper navigation bar
-        return this.isAppContext && !this.windowIsLarge && this.isTouchDevice;
+        return this.isAppContext && this.isTouchDevice;
       },
       isTouchDevice() {
         // Check for presence of the touch event in DOM or multi-touch capabilities
