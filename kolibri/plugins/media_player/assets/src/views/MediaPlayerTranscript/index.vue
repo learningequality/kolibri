@@ -3,7 +3,7 @@
   <section
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
-    :style="{ background: $themeTokens.surface }"
+    :style="{ background: $themeTokens.surface, position: cssPosition }"
     :aria-hidden="(!showing).toString()"
     :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
@@ -52,12 +52,17 @@
   import { throttle } from 'frame-throttle';
   import { getLangDir } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import TranscriptCue from './TranscriptCue';
 
   export default {
     name: 'MediaPlayerTranscript',
     components: { TranscriptCue },
     mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return { windowBreakpoint };
+    },
     data() {
       return {
         // TODO figure if this is supposed to be used
@@ -70,6 +75,9 @@
     computed: {
       ...mapState('mediaPlayer', ['player']),
       ...mapState('mediaPlayer/captions', ['transcript', 'language', 'cues', 'activeCueIds']),
+      cssPosition() {
+        return this.windowBreakpoint >= 3 ? 'absolute' : 'relative';
+      },
       showing() {
         return this.player && this.transcript;
       },
