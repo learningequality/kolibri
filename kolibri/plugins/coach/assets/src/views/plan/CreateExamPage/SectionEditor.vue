@@ -168,7 +168,7 @@
 
                 <KGridItem
                   :layout12="{ span: 5 }"
-                  :layout8="{ span: 3 }"
+                  :layout8="{ span: 2 }"
                   class="current-section-style"
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
@@ -182,71 +182,6 @@
         </Draggable>
       </transition-group>
     </DragContainer>
-
-    <div
-      :style="activeSection"
-      class="section-order-list"
-    >
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 1 }"
-          :layout8="{ span: 1 }"
-        >
-          <KIcon
-            icon="dragVertical"
-            class="space-content"
-          />
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 5 }"
-        >
-          <p class="space-content">
-            {{ $tr('sectionOrderTitle').toUpperCase() }}
-          </p>
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 5 }"
-          :layout8="{ span: 3 }"
-          class="current-section-style"
-          :style="{ color: $themePalette.grey.v_700 }"
-        >
-          <p class="current-section-text space-content">
-            {{ $tr('currentSection') }}
-          </p>
-        </KGridItem>
-      </KGrid>
-    </div>
-
-    <div
-      :style="borderStyle"
-      class="section-order-list"
-    >
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 1 }"
-          :layout8="{ span: 1 }"
-          :layout4="{ span: 1 }"
-        >
-          <KIcon
-            icon="dragVertical"
-            class="space-content"
-          />
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 10 }"
-          :layout8="{ span: 7 }"
-          :layout4="{ span: 3 }"
-        >
-          <p class="space-content">
-            {{ $tr('uniqueTitle').toUpperCase() }}
-          </p>
-        </KGridItem>
-      </KGrid>
-    </div>
 
     <div class="bottom-buttons-style">
       <KGrid>
@@ -296,10 +231,10 @@
       DragHandle,
     },
     inject: ['quizForge'],
-    mixins: [enhancedQuizManagementStrings],
     setup() {
+      const { stringLabel$, otherLabel$ } = enhancedQuizManagementStrings;
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      return { windowIsLarge, windowIsSmall };
+      return { windowIsLarge, windowIsSmall, stringLabel$, otherLabel$ };
     },
     data() {
       return {
