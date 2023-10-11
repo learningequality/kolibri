@@ -243,7 +243,7 @@
         addDownloadRequest,
         downloadRequestMap,
         downloadRequestsTranslator,
-        fetchUserDownloadRequests,
+        pollUserDownloadRequests,
         loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
@@ -292,7 +292,7 @@
           promise = setCurrentDevice(deviceId).then(device => {
             const baseurl = device.base_url;
             if (get(canAddDownloads)) {
-              fetchUserDownloadRequests({ contentnode_id: props.id });
+              pollUserDownloadRequests({ contentnode_id: props.id });
             }
             return _loadTopicsContent(shouldResolve, baseurl);
           });
