@@ -27,8 +27,6 @@
 
     </KPageContainer>
 
-    <SectionSidePanel />
-
   </CoachImmersivePage>
 
 </template>
@@ -45,14 +43,12 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import CreateQuizSection from './CreateQuizSection.vue';
-  import SectionSidePanel from './SectionSidePanel.vue';
 
   const quizForge = useQuizCreation();
 
   export default {
     name: 'CreateExamPage',
     components: {
-      SectionSidePanel,
       CoachImmersivePage,
       BottomAppBar,
       CreateQuizSection,

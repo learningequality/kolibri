@@ -51,6 +51,7 @@
         >
           <template #tab="{ tab }">
             <KButton
+              :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
               style="display: inline-block;"
               :appearanceOverrides="tabStyles"
@@ -175,6 +176,7 @@
 
     </KTabsPanel>
 
+    <SectionSidePanel @closePanel="focusActiveSectionTab()" />
   </div>
 
 </template>
@@ -187,12 +189,14 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
+  import SectionSidePanel from './SectionSidePanel.vue';
   import TabsWithOverflow from './TabsWithOverflow.vue';
 
   export default {
     name: 'CreateQuizSection',
     components: {
       TabsWithOverflow,
+      SectionSidePanel,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -260,6 +264,25 @@
       },
     },
     methods: {
+      tabRefLabel(section_id) {
+        return `section-tab-${section_id}`;
+      },
+      focusActiveSectionTab() {
+        const label = this.tabRefLabel(this.quizForge.activeSection.value.section_id);
+        const tabRef = this.$refs[label];
+        // TODO Consider the "Delete section" button on the side panel; maybe we need to await
+        // nextTick if we're getting the error
+        if (tabRef) {
+          tabRef.$el.focus();
+        } else {
+          console.error(
+            'Tried to focus active tab id: ',
+            label,
+            ' - but the tab is not in the refs: ',
+            this.$refs
+          );
+        }
+      },
       activeSectionIsHidden(overflow) {
         const ids = overflow.map(i => i.id);
         return ids.includes(get(this.quizForge.activeSection).section_id);
@@ -279,6 +302,9 @@
         this.sectionCreationCount++;
       },
       handleSectionOptionSelect({ label }, section_id) {
+        // Always set the active section to the one that is having its side panel opened
+        this.quizForge.setActiveSection(section_id);
+
         switch (label) {
           case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });

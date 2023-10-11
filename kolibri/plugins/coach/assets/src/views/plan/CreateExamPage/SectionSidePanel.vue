@@ -5,7 +5,7 @@
     ref="resourcePanel"
     alignment="right"
     :closeButtonIconType="closeIcon"
-    @closePanel="$router.replace(closePanelRoute)"
+    @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
     <p>{{ quizForge.activeSection.value.section_id }}</p>
@@ -69,6 +69,10 @@
       },
     },
     methods: {
+      handleClosePanel() {
+        this.$emit('closePanel');
+        this.$router.replace(this.closePanelRoute);
+      },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
        */
