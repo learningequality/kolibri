@@ -405,9 +405,7 @@
         return this.getLearningActivityIcon(activities);
       },
       sourceDeviceIsAvailable(download) {
-        return (
-          this.networkDevices.filter(device => device.instance_id == download.source_id).length > 0
-        );
+        return Boolean(this.networkDevices[download.source_id]);
       },
       downloadStatusIcon(download) {
         let icon;
