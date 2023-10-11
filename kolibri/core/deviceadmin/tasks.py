@@ -84,15 +84,9 @@ def streamed_cache_cleanup():
 
 
 def schedule_streamed_cache_cleanup():
-    current_dt = local_now()
-    cleanup_time = current_dt.replace(hour=1, minute=0, second=0, microsecond=0)
-    if cleanup_time < current_dt:
-        # If it is past 1AM, change the day to tomorrow.
-        cleanup_time = cleanup_time + timedelta(days=1)
-    # Repeat indefinitely
     try:
-        streamed_cache_cleanup.enqueue_at(
-            cleanup_time, repeat=None, interval=24 * 60 * 60
+        streamed_cache_cleanup.enqueue_in(
+            timedelta(hours=1), repeat=None, interval=60 * 60
         )
     except JobRunning:
         pass
