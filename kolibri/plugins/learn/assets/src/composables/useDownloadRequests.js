@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
+import { getCurrentInstance, onBeforeUnmount, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
@@ -51,6 +51,50 @@ export default function useDownloadRequests(store) {
     });
   }
 
+  const defaultPollingInterval = 30000; // Default interval of 30 seconds
+
+  const calculatePollingInterval = () => {
+    return Object.values(downloadRequestMap).reduce((interval, download) => {
+      let pollingInterval = defaultPollingInterval;
+      if (download.status === 'PENDING' || download.status === 'FAILED') {
+        pollingInterval = 5000; // Poll every 5 seconds
+      } else if (download.status === 'IN_PROGRESS') {
+        pollingInterval = 1000; // Poll every 1 second
+      }
+      return Math.min(interval, pollingInterval);
+    }, defaultPollingInterval);
+  };
+
+  let poller;
+
+  const pollingParams = ref({});
+
+  const pollRequests = () => {
+    poller = setTimeout(() => {
+      fetchUserDownloadRequests(get(pollingParams)).then(() => {
+        pollRequests();
+      });
+    }, calculatePollingInterval());
+  };
+
+  const clearPolling = () => {
+    clearTimeout(poller);
+  };
+
+  const restartPolling = () => {
+    if (poller) {
+      clearPolling();
+      pollRequests();
+    }
+  };
+
+  const pollUserDownloadRequests = params => {
+    set(pollingParams, params);
+    fetchUserDownloadRequests(get(pollingParams)).then(() => {
+      pollRequests();
+    });
+  };
+
   function fetchAvailableFreespace() {
     const loading = ref(true);
     const freespace = 0;
@@ -89,6 +133,7 @@ export default function useDownloadRequests(store) {
     set(downloadRequestMap, contentNode.id, data);
     ContentRequestResource.create(data).then(downloadRequest => {
       set(downloadRequestMap, downloadRequest.contentnode_id, downloadRequest);
+      restartPolling();
     });
 
     store.commit('CORE_CREATE_SNACKBAR', {
@@ -110,8 +155,13 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
+  onBeforeUnmount(() => {
+    clearPolling();
+  });
+
   return {
     fetchUserDownloadRequests,
+    pollUserDownloadRequests,
     fetchAvailableFreespace,
     availableSpace,
     downloadRequestMap,

@@ -38,6 +38,7 @@ const MOCK_DEFAULTS = {
   downloadRequestMap: {},
   addDownloadRequest: jest.fn(),
   fetchUserDownloadRequests: jest.fn(() => Promise.resolve([])),
+  pollUserDownloadRequests: jest.fn(),
   loading: false,
 };
 
