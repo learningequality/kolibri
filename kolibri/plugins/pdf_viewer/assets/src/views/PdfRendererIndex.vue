@@ -254,11 +254,6 @@
           });
         }
       },
-      elementHeight() {
-        if (this.recycleListIsMounted) {
-          this.debounceForceUpdateRecycleList();
-        }
-      },
       showSideBar() {
         this.$nextTick(() => {
           if (!this.$refs.pdfContainer || !this.$refs.pdfContainer.$el) {
@@ -309,7 +304,7 @@
             const viewPort = firstPage.getViewport({ scale: 1 });
             this.firstPageHeight = viewPort.height;
             this.firstPageWidth = viewPort.width;
-            this.scale = this.elementWidth / (this.firstPageWidth * this.screenSizeMultiplier);
+            this.scale = this.$el.clientWidth / (this.firstPageWidth * this.screenSizeMultiplier);
 
             // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
             // from PDFJS when we do our initial render
@@ -322,6 +317,9 @@
             pdfDocument.getOutline().then(outline => {
               this.outline = outline;
               this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
+              // Reduce the scale slightly if we are showing the sidebar
+              // at first load.
+              this.scale = this.showSideBar ? 0.75 * this.scale : this.scale;
             });
           });
         })
@@ -467,11 +465,10 @@
       calculateRecycleListHeight() {
         return this.$refs.recycleList.$el.scrollHeight;
       },
-      debounceForceUpdateRecycleList: debounce(function() {
-        this.forceUpdateRecycleList();
-      }, renderDebounceTime),
       forceUpdateRecycleList() {
-        this.$refs.recycleList.updateVisibleItems(false);
+        if (this.$refs.recycleList) {
+          this.$refs.recycleList.updateVisibleItems(false);
+        }
       },
       updateProgress() {
         if (this.forceDurationBasedProgress) {
