@@ -24,6 +24,7 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 import kolibri
@@ -116,7 +117,7 @@ class DeviceProvisionView(viewsets.GenericViewSet):
 
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = (CanManageContent,)
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         path = request.query_params.get("path")

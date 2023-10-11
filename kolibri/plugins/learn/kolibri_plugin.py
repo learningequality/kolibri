@@ -82,6 +82,13 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
 class MyDownloadsAsset(webpack_hooks.WebpackBundleHook):
     bundle_id = "my_downloads_app"
 
+    @property
+    def plugin_data(self):
+        return {
+            "setLimitForAutodownload": get_device_setting("set_limit_for_autodownload"),
+            "limitForAutodownload": get_device_setting("limit_for_autodownload"),
+        }
+
 
 @register_hook
 class LearnContentNodeHook(ContentNodeDisplayHook):
