@@ -70,6 +70,7 @@
             query: pickBy({
               ...this.$route.query,
               sort: value,
+              page: 1,
             }),
           });
         },
