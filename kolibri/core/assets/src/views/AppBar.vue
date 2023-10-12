@@ -19,7 +19,7 @@
         :removeBrandDivider="true"
       >
         <template
-          v-if="windowIsLarge || !isAppContext"
+          v-if="windowIsLarge || !isAppContext || !isTouchDevice"
           #icon
         >
           <KIconButton

@@ -173,7 +173,7 @@
             </div>
           </div>
           <div
-            v-if="!isAppContext || windowIsLarge"
+            v-if="!isAppContext || !isTouchDevice || windowIsLarge"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
