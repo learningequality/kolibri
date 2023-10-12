@@ -204,7 +204,7 @@
             :primary="true"
             :text="applySettings$()"
             class="apply-settings-style"
-            @click="quizForge.saveQuiz()"
+            @click="quizForge.updateSection()"
           />
 
         </KGridItem>
