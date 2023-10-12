@@ -3,13 +3,19 @@
  */
 
 import { ref } from 'kolibri.lib.vueCompositionApi';
+import heartbeat from 'kolibri.heartbeat';
 import client from 'kolibri.client';
+import clientFactory from 'kolibri.utils.clientFactory';
 import urls from 'kolibri.urls';
 import plugin_data from 'plugin_data';
 
 // The refs are defined in the outer scope so they can be used as a shared store
 const restarting = ref(false);
 const canRestart = plugin_data.canRestart;
+
+// Use this for checking if the device is restarting to avoid triggering
+// the connection error detection.
+const baseClient = clientFactory();
 
 // POST to /api/device/devicerestart
 export function restartDevice() {
@@ -20,7 +26,7 @@ export function restartDevice() {
 }
 
 export function isDeviceRestarting() {
-  return client({
+  return baseClient({
     url: urls['kolibri:core:devicerestart'](),
   })
     .then(resp => Boolean(resp.data))
@@ -32,6 +38,7 @@ function restart() {
     return Promise.reject('Device restart is not supported with current server configuration');
   }
   restarting.value = true;
+  heartbeat.stopPolling();
   let statusPromise = restartDevice();
   const checkStatus = expectedStatus => {
     return statusPromise.then(status => {
@@ -48,7 +55,8 @@ function restart() {
   // First wait for the device to be restarting
   return checkStatus(true).then(() => {
     // Then wait for it to have finished restarting
-    checkStatus(false).then(() => {
+    return checkStatus(false).then(() => {
+      heartbeat.startPolling();
       restarting.value = false;
     });
   });
