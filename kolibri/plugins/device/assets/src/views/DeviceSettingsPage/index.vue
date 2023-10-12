@@ -767,6 +767,8 @@
         } = this.getContentSettings();
         this.getExtraSettings();
 
+        const pluginsChanged = this.checkPluginChanges();
+
         this.checkAndTogglePlugins();
 
         this.saveDeviceSettings({
@@ -780,12 +782,19 @@
           secondaryStorageLocations: this.secondaryStorageLocations,
           primaryStorageLocation: this.primaryStorageLocation,
         })
-          .then(() => {
+          .then(didSave => {
+            didSave = didSave || pluginsChanged;
             this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
             this.showRestartModal = false;
-            if (this.restartSetting !== null) {
-              this.restart();
+            if (this.canRestart && this.restartSetting !== null) {
               this.restartSetting = null;
+              return this.restart().then(() => didSave);
+            }
+            return didSave;
+          })
+          .then(shouldReload => {
+            if (shouldReload) {
+              window.location.reload();
             }
           })
           .catch(() => {
