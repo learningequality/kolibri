@@ -970,8 +970,8 @@
 
   .end-button-block {
     width: 100%;
-    margin-top: 16px;
     padding-bottom: 16px;
+    margin-top: 16px;
     text-align: center;
   }
 
