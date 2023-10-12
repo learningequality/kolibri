@@ -55,7 +55,7 @@ from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.tasks import automatic_resource_import
+from kolibri.core.content.tasks import automatic_user_imported_resource_cleanup
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -1400,7 +1400,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             content_request.contentnode_id = existing_download_request.contentnode_id
             content_request.save()
 
-        automatic_resource_import.enqueue_if_not()
+        automatic_user_imported_resource_cleanup.enqueue_if_not()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
