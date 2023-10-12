@@ -144,22 +144,22 @@
               :text="$tr('changeLocation')"
               :primary="true"
               appearance="basic-link"
-              :disabled="!multipleWritablePaths || isRemoteContent"
+              :disabled="!multipleWritablePaths || isRemoteContent || !canRestart"
               :class="{ 'disabled': !multipleWritablePaths }"
               @click="showChangePrimaryLocationModal = true"
             />
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL && (secondaryStorageLocations.length === 0)"
+            v-if="secondaryStorageLocations.length === 0"
             :text="$tr('addLocation')"
-            :disabled="isRemoteContent"
+            :disabled="isRemoteContent || !canRestart"
             appearance="raised-button"
             secondary
             @click="showAddStorageLocationModal = true"
           />
         </div>
 
-        <div v-show="browserLocationMatchesServerURL && (secondaryStorageLocations.length > 0)">
+        <div v-show="secondaryStorageLocations.length > 0">
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
@@ -173,7 +173,7 @@
             hasDropdown
             secondary
             appearance="raised-button"
-            :disabled="isRemoteContent"
+            :disabled="isRemoteContent || !canRestart"
             :text="coreString('optionsLabel')"
           >
             <template #menu>
@@ -487,12 +487,6 @@
       },
       storageLocationOptions() {
         return [this.$tr('addStorageLocation'), this.$tr('removeStorageLocation')];
-      },
-      browserLocationMatchesServerURL() {
-        return (
-          window.location.hostname.includes('127.0.0.1') ||
-          window.location.hostname.includes('localhost')
-        );
       },
       notEnoughFreeSpace() {
         return this.freeSpace === 0;
