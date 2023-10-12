@@ -57,7 +57,8 @@
         :style="{
           left: isRtl ? '16px' : 'auto',
           right: isRtl ? 'auto' : '16px',
-          position: 'absolute'
+          position: 'absolute',
+          zIndex: 7,
         }"
         :raised="true"
         :isOpen="isMenuOpen"
