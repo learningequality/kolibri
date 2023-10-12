@@ -278,18 +278,6 @@
         numQuestions: 1,
         descriptionLabel: '',
         sectionTitle: '',
-        sectionOrderList: [
-          {
-            name: 'Section order',
-            current: this.currentSection$(),
-            isActive: true,
-          },
-          {
-            name: 'Section 2 / unique title',
-            current: null,
-            isActive: false,
-          },
-        ],
       };
     },
     computed: {
@@ -304,6 +292,20 @@
       },
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
+      },
+      sectionOrderList() {
+        return [
+          {
+            name: 'Section order',
+            current: this.currentSection$(),
+            isActive: true,
+          },
+          {
+            name: 'Section 2 / unique title',
+            current: null,
+            isActive: false,
+          },
+        ];
       },
     },
     methods: {
