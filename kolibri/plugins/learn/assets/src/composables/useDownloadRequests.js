@@ -147,7 +147,11 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
-  function removeDownloadRequest(contentRequest) {
+  function removeDownloadRequest(contentNodeId) {
+    const contentRequest = downloadRequestMap[contentNodeId];
+    if (!contentRequest) {
+      return Promise.resolve();
+    }
     ContentRequestResource.deleteModel({
       id: contentRequest.id,
     });
