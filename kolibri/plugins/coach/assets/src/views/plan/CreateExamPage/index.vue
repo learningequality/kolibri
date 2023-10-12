@@ -20,7 +20,7 @@
       :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
     >
 
-      <CreateQuizSection />
+      <CreateQuizSection v-if="quizInitialized" />
 
       <BottomAppBar>
         <KButtonGroup>
@@ -41,6 +41,8 @@
 
 <script>
 
+  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -50,8 +52,6 @@
   import useQuizCreation from '../../../composables/useQuizCreation';
   import CreateQuizSection from './CreateQuizSection.vue';
 
-  const quizForge = useQuizCreation();
-
   export default {
     name: 'CreateExamPage',
     components: {
@@ -59,9 +59,13 @@
       BottomAppBar,
       CreateQuizSection,
     },
-    mixins: [commonCoreStrings, commonCoach],
-    data() {
+    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
+    setup() {
+      const quizForge = useQuizCreation();
+      const quizInitialized = ref(false);
+
       return {
+        quizInitialized,
         quizForge,
       };
     },
@@ -107,6 +111,7 @@
     },
     created() {
       this.quizForge.initializeQuiz();
+      this.quizInitialized = true;
     },
     mounted() {
       this.$store.dispatch('notLoading');

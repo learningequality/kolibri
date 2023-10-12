@@ -153,27 +153,50 @@
       tabsId="quizSectionTabs"
       :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
     >
-
-      <p>{{ quizForge.activeSection.value.section_id }}</p>
       <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div class="question-mark-layout">
-        <span class="help-icon-style">?</span>
+      <div v-if="!accordionQuestions.length">
+        <div class="question-mark-layout">
+          <span class="help-icon-style">?</span>
+        </div>
+
+        <p class="no-question-style">
+          {{ noQuestionsInSection$() }}
+        </p>
+
+        <p>{{ addQuizSectionQuestionsInstructions$() }}</p>
+
+        <KButton
+          primary
+          icon="plus"
+          @click="openSelectResources(quizForge.activeSection.value.section_id)"
+        >
+          {{ addQuestionsLabel$() }}
+        </KButton>
       </div>
-
-      <p class="no-question-style">
-        {{ noQuestionsInSection$() }}
-      </p>
-
-      <p>{{ addQuizSectionQuestionsInstructions$() }}</p>
-
-      <KButton
-        primary
-        icon="plus"
-        @click="openSelectResources(quizForge.activeSection.value.section_id)"
-      >
-        {{ addQuestionsLabel$() }}
-      </KButton>
       <!-- END TODO -->
+
+      <AccordionContainer v-else>
+        <template #default="{ toggleItemState, isItemExpanded, /* closeAccordionPanel */ }">
+          <AccordionItem
+            v-for="question in accordionQuestions"
+            :id="question.id"
+            :key="question.id"
+            :title="question.title"
+          >
+            <template #heading>
+              <button @click="toggleItemState(question.id)">
+                {{ question.title }}
+              </button>
+            </template>
+
+            <template #content>
+              <div v-if="isItemExpanded(question.id)">
+                TODO: Use actual resources, render questions here
+              </div>
+            </template>
+          </AccordionItem>
+        </template>
+      </AccordionContainer>
 
 
     </KTabsPanel>
@@ -191,12 +214,16 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
-  import SectionSidePanel from './SectionSidePanel.vue';
-  import TabsWithOverflow from './TabsWithOverflow.vue';
+  import SectionSidePanel from './SectionSidePanel';
+  import TabsWithOverflow from './TabsWithOverflow';
+  import AccordionContainer from './AccordionContainer';
+  import AccordionItem from './AccordionItem';
 
   export default {
     name: 'CreateQuizSection',
     components: {
+      AccordionContainer,
+      AccordionItem,
       TabsWithOverflow,
       SectionSidePanel,
     },
@@ -263,6 +290,10 @@
             icon: 'delete',
           },
         ];
+      },
+      accordionQuestions() {
+        const mapQuestionToAccordionItem = q => ({ id: q.question_id, title: q.title });
+        return get(this.quizForge.activeQuestions).map(mapQuestionToAccordionItem);
       },
     },
     methods: {

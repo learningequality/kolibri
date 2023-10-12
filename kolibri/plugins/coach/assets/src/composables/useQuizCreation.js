@@ -8,7 +8,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
-import { Quiz, QuizSection } from './quizCreationSpecs.js';
+import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -30,7 +30,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export default () => {
+export default (DEBUG = true) => {
   // -----------
   // Local state
   // -----------
@@ -52,6 +52,38 @@ export default () => {
 
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
+
+  // Debug Data Generators
+  function _quizQuestions(num = 5) {
+    const questions = [];
+    for (let i = 0; i <= num; i++) {
+      const overrides = {
+        title: `Quiz Question ${i}`,
+        question_id: `${i}`,
+      };
+      questions.push(objectWithDefaults(overrides, QuizQuestion));
+    }
+    return questions;
+  }
+
+  function _quizSections(num = 5, numQuestions = 5) {
+    const sections = [];
+    for (let i = 0; i <= num; i++) {
+      const overrides = {
+        section_id: `${i}`,
+        section_title: `A section ${i}`,
+        questions: _quizQuestions(numQuestions),
+      };
+      sections.push(objectWithDefaults(overrides, QuizSection));
+    }
+    return sections;
+  }
+
+  function _generateTestData(numSections = 5, numQuestions = 5) {
+    const sections = _quizSections(numSections, numQuestions);
+    updateQuiz({ question_sources: sections });
+    setActiveSection(sections[0].section_id);
+  }
 
   // ------------------
   // Section Management
@@ -162,8 +194,12 @@ export default () => {
    * use */
   function initializeQuiz() {
     set(_quiz, objectWithDefaults({}, Quiz));
-    const newSection = addSection();
-    setActiveSection(newSection.section_id);
+    if (DEBUG) {
+      _generateTestData();
+    } else {
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+    }
     _fetchChannels();
   }
 
