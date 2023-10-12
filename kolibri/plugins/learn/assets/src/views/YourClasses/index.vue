@@ -39,6 +39,8 @@
       </CardLink>
     </CardGrid>
 
+    <KCircularLoader v-else-if="loading" />
+
     <p v-else-if="!loading">
       {{ $tr('noClasses') }}
     </p>
