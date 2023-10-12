@@ -336,6 +336,11 @@
         @submit="handleServerRestart"
       />
 
+      <ServerRestartModal
+        v-if="restarting"
+        :restarting="true"
+      />
+
     </KPageContainer>
   </DeviceAppBarPage>
 
@@ -391,7 +396,7 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
-      const { restart } = useDeviceRestart();
+      const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const dataPlugins = ref(null);
 
@@ -419,7 +424,14 @@
         return !unchanged;
       }
 
-      return { restart, dataPlugins, checkPluginChanges, checkAndTogglePlugins };
+      return {
+        canRestart,
+        restart,
+        restarting,
+        dataPlugins,
+        checkPluginChanges,
+        checkAndTogglePlugins,
+      };
     },
     data() {
       return {
@@ -459,7 +471,7 @@
     },
     computed: {
       ...mapGetters(['isAppContext', 'isPageLoading']),
-      ...mapGetters('deviceInfo', ['canRestart', 'isRemoteContent']),
+      ...mapGetters('deviceInfo', ['isRemoteContent']),
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
       },
