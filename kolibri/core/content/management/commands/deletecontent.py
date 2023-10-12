@@ -84,9 +84,7 @@ def delete_metadata(
             channel.delete_content_tree_and_files()
 
     if update_content_requests and removed_resources:
-        ContentRequest.objects.propagate_removal_to_learner_initiated_requests(
-            list(removed_resources)
-        )
+        ContentRequest.objects.propagate_removal(list(removed_resources))
 
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
