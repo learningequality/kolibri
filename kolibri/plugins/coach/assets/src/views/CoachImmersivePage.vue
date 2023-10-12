@@ -120,12 +120,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .coach-main {
-    margin: 85px auto 0;
-  }
-
-</style>
