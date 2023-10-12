@@ -309,7 +309,9 @@
       },
     },
     methods: {
-      handleSectionSort() {},
+      handleSectionSort() {
+        this.quizForge.updateQuiz();
+      },
     },
   };
 
