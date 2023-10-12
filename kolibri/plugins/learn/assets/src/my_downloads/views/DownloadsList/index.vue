@@ -8,7 +8,7 @@
       :totalPageNumber="totalPageNumber"
       :numFilteredItems="downloadItemListLength"
     >
-      <CoreTable v-if="windowIsLarge">
+      <CoreTable>
         <template #headers>
           <th>
             <KCheckbox
@@ -16,93 +16,20 @@
               class="select-all"
               :label="coreString('nameLabel')"
               :checked="areAllSelected"
+              :indeterminate="areAnySelected && !areAllSelected"
               :disabled="!areAnyAvailable"
               :style="{ color: $themeTokens.annotation }"
               @change="selectAll($event)"
             />
           </th>
-          <th> {{ coreString('fileSize') }} </th>
-          <th> {{ coreString('dateAdded') }} </th>
-          <th> {{ coreString('statusLabel') }} </th>
-        </template>
-        <template #tbody>
-          <tbody v-if="!loading">
-            <tr
-              v-for="download in paginatedDownloads"
-              :key="download.contentnode_id"
-              :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
-            >
-              <td>
-                <KCheckbox
-                  :checked="resourceIsSelected(download)"
-                  class="download-checkbox"
-                  @change="handleCheckResource(download, $event)"
-                >
-                  <KLabeledIcon
-                    v-if="download.metadata"
-                    :icon="getIcon(download.metadata.learning_activities)"
-                    :label="download.metadata.title"
-                    :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
-                  />
-                </KCheckbox>
-              </td>
-              <td>
-                {{ formattedResourceSize(download) }}
-              </td>
-              <td>
-                {{ formatDownloadRequestedDate(download) }}
-              </td>
-              <td>
-                <KIcon
-                  v-if="download.status !== 'IN_PROGRESS'"
-                  :icon="downloadStatusIcon(download)"
-                  :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
-                  class="icon"
-                />
-                <KCircularLoader
-                  v-if="download.status === 'IN_PROGRESS'"
-                  class="icon"
-                />
-                <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
-              </td>
-              <td class="resource-action">
-                <KButton
-                  v-if="nonCompleteStatus(download)"
-                  :text="coreString('viewAction')"
-                  appearance="flat-button"
-                  :disabled="true"
-                />
-                <KExternalLink
-                  v-else
-                  :text="coreString('viewAction')"
-                  appearance="flat-button"
-                  :href="genExternalContentURLBackLinkCurrentPage(download.contentnode_id)"
-                />
-              </td>
-              <td class="resource-action">
-                <KButton
-                  :text="coreString('removeAction')"
-                  appearance="flat-button"
-                  @click="markSingleResourceForRemoval(download)"
-                />
-              </td>
-            </tr>
-          </tbody>
-        </template>
-      </CoreTable>
-      <!-- for small and medium screens, reorganize the table -->
-      <CoreTable v-else>
-        <template #headers>
-          <th>
-            <KCheckbox
-              showLabel
-              class="select-all"
-              :label="coreString('nameLabel')"
-              :checked="areAllSelected"
-              :disabled="!areAnyAvailable"
-              :style="{ color: $themeTokens.annotation }"
-              @change="selectAll($event)"
-            />
+          <th v-if="windowIsLarge">
+            {{ coreString('fileSize') }}
+          </th>
+          <th v-if="windowIsLarge">
+            {{ coreString('dateAdded') }}
+          </th>
+          <th v-if="windowIsLarge">
+            {{ coreString('statusLabel') }}
           </th>
         </template>
         <template #tbody>
@@ -112,11 +39,11 @@
               :key="download.contentnode_id"
               :style="download.status !== 'COMPLETED' ? { color: $themeTokens.annotation } : {}"
             >
-              <td class="small-resource-details">
+              <td :class="{ 'small-resource-details': !windowIsLarge }">
                 <KCheckbox
-                  :checked="resourceIsSelected(download)"
+                  :checked="Boolean(selectedDownloadsMap[download.contentnode_id])"
                   class="download-checkbox"
-                  @change="handleCheckResource(download, $event)"
+                  @change="handleCheckResource(download.contentnode_id, $event)"
                 >
                   <KLabeledIcon
                     v-if="download.metadata"
@@ -125,9 +52,9 @@
                     :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
                   />
                 </KCheckbox>
-                <div class="small-screen-status">
+                <div v-if="!windowIsLarge" class="small-screen-status">
                   <p>
-                    {{ formattedResourceSize(download) }} |
+                    {{ formattedResourceSize(download) }} &nbsp;&nbsp;
                     {{ formatDownloadRequestedDate(download) }}
                   </p>
                   <KIcon
@@ -142,7 +69,25 @@
                   />
                   <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
                 </div>
-
+              </td>
+              <td v-if="windowIsLarge">
+                {{ formattedResourceSize(download) }}
+              </td>
+              <td v-if="windowIsLarge">
+                {{ formatDownloadRequestedDate(download) }}
+              </td>
+              <td v-if="windowIsLarge">
+                <KIcon
+                  v-if="download.status !== 'IN_PROGRESS'"
+                  :icon="downloadStatusIcon(download)"
+                  :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
+                  class="icon"
+                />
+                <KCircularLoader
+                  v-if="download.status === 'IN_PROGRESS'"
+                  class="icon"
+                />
+                <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
               </td>
               <td class="resource-action">
                 <KButton
@@ -172,9 +117,9 @@
       </p>
     </PaginatedListContainerWithBackend>
     <SelectionBottomBar
-      :count="selectedDownloads.length"
-      :size="formattedSelectedSize()"
-      @click-remove="resourcesToDelete = selectedDownloads"
+      :count="Object.keys(selectedDownloadsMap).length"
+      :size="formattedSelectedSize"
+      @click-remove="removeSelectedResources"
     />
     <ConfirmationDeleteModal
       v-if="resourcesToDelete.length"
@@ -251,8 +196,7 @@
     data() {
       return {
         now: now(),
-        selectedDownloadsSize: 0,
-        selectedDownloads: [],
+        selectedDownloadsMap: {},
         resourcesToDelete: [],
       };
     },
@@ -295,32 +239,19 @@
           }
           return true;
         });
-
-        if (sort) {
-          switch (sort) {
-            case 'newest':
-              downloadsToDisplay.sort(
-                (a, b) => new Date(b.requested_at) - new Date(a.requested_at)
-              );
-              break;
-            case 'oldest':
-              downloadsToDisplay.sort(
-                (a, b) => new Date(a.requested_at) - new Date(b.requested_at)
-              );
-              break;
-            case 'smallest':
-              downloadsToDisplay.sort((a, b) => a.metadata.file_size - b.metadata.file_size);
-              break;
-            case 'largest':
-              downloadsToDisplay.sort((a, b) => b.metadata.file_size - a.metadata.file_size);
-              break;
-            default:
-              break;
+        downloadsToDisplay.sort((a, b) => {
+          if (sort === 'oldest') {
+            return new Date(a.requested_at) - new Date(b.requested_at);
           }
-        } else {
-          // if no sort value, default to newest downloads shown first in the UI
-          downloadsToDisplay.sort((a, b) => new Date(b.requested_at) - new Date(a.requested_at));
-        }
+          if (sort === 'smallest') {
+            return a.metadata.file_size - b.metadata.file_size;
+          }
+          if (sort === 'largest') {
+            return b.metadata.file_size - a.metadata.file_size;
+          }
+          // By default always sort by newest.
+          return new Date(b.requested_at) - new Date(a.requested_at);
+        });
         return downloadsToDisplay;
       },
       paginatedDownloads() {
@@ -328,9 +259,8 @@
           const startIndex = (this.currentPage - 1) * this.itemsPerPage;
           const endIndex = startIndex + this.itemsPerPage;
           return this.downloads.slice(startIndex, endIndex);
-        } else {
-          return [];
         }
+        return [];
       },
       downloadItemListLength() {
         return this.downloads ? this.downloads.length : 0;
@@ -343,58 +273,58 @@
       },
       areAllSelected() {
         return (
-          this.downloads &&
-          this.downloads.filter(id => this.selectedDownloads.includes(id)).length > 0
+          this.areAnySelected &&
+          this.paginatedDownloads.every(download =>
+            Boolean(this.selectedDownloadsMap[download.contentnode_id])
+          )
+        );
+      },
+      areAnySelected() {
+        return this.paginatedDownloads.some(download =>
+          Boolean(this.selectedDownloadsMap[download.contentnode_id])
         );
       },
       areAnyAvailable() {
-        return this.downloads && this.downloads.length > 0;
+        return this.paginatedDownloads.length > 0;
       },
-    },
-    watch: {
-      selectedDownloads(newVal) {
-        this.selectedDownloadsSize = newVal.reduce(
-          (acc, object) => acc + object.metadata.file_size,
-          0
+      formattedSelectedSize() {
+        return bytesForHumans(
+          Object.keys(this.selectedDownloadsMap).reduce((acc, contentnode_id) => {
+            return acc + (this.downloadRequestMap[contentnode_id]?.metadata?.file_size || 0);
+          }, 0)
         );
       },
-    },
-    mounted() {
-      this.areAnyAvailable;
     },
     methods: {
       nonCompleteStatus(download) {
         return download.status !== 'COMPLETED';
       },
       selectAll() {
-        if (this.areAllSelected) {
-          this.selectedDownloads = this.selectedDownloads.filter(
-            download => !this.paginatedDownloads.includes(download)
-          );
-        } else {
-          this.selectedDownloads = this.selectedDownloads.concat(
-            this.paginatedDownloads.filter(download => !this.selectedDownloads.includes(download))
-          );
+        const notAllSelected = !this.areAllSelected;
+        for (const download of this.paginatedDownloads) {
+          this.handleCheckResource(download.contentnode_id, notAllSelected);
         }
       },
-      handleCheckResource(id, checked) {
+      handleCheckResource(contentnode_id, checked) {
         if (checked) {
-          this.selectedDownloads = this.selectedDownloads.concat(id);
-          return;
+          this.$set(this.selectedDownloadsMap, contentnode_id, checked);
+        } else {
+          this.$delete(this.selectedDownloadsMap, contentnode_id);
         }
-        this.selectedDownloads = this.selectedDownloads.filter(resourceId => resourceId !== id);
-      },
-      resourceIsSelected(id) {
-        return this.selectedDownloads.indexOf(id) !== -1;
       },
       markSingleResourceForRemoval(download) {
         this.resourcesToDelete.push(download);
+      },
+      removeSelectedResources() {
+        this.resourcesToDelete = this.downloads.filter(download =>
+          Boolean(this.selectedDownloadsMap[download.contentnode_id])
+        );
       },
       emitCurrentlySelectedResourcesForRemoval() {
         this.$emit('removeResources', this.resourcesToDelete);
         this.resourcesToDelete = [];
         this.$nextTick(() => {
-          this.selectedDownloads = [];
+          this.selectedDownloadsMap = {};
           if (this.paginatedDownloads.length == 0 && this.$route.query.page) {
             const prevPage = this.currentPage - 1;
             this.currentPage = prevPage;
@@ -462,9 +392,6 @@
         if (download.metadata && download.metadata.file_size) {
           return bytesForHumans(download.metadata.file_size);
         }
-      },
-      formattedSelectedSize() {
-        return bytesForHumans(this.selectedDownloadsSize);
       },
     },
   };
