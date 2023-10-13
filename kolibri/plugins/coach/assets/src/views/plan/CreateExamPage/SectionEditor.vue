@@ -282,7 +282,6 @@
         numQuestions: 1,
         descriptionLabel: '',
         sectionTitle: '',
-        formData: [],
       };
     },
     computed: {
@@ -310,11 +309,10 @@
         this.quizForge.updateQuiz({ question_sources: e.newArray });
       },
       applySettings() {
-        this.formData.push({
+        this.quizForge.updateSection({
           section_id: this.quizForge.activeSection.value.section_id,
           section_title: this.sectionTitle,
         });
-        this.quizForge.updateQuiz({ question_sources: this.formData });
       },
     },
   };
