@@ -162,15 +162,16 @@ export default [
     path: '/explore_libraries',
     component: ExploreLibrariesPage,
     handler: (to, from, next) => {
-      if (!unassignedContentGuard(next)) {
+      if (unassignedContentGuard(next)) {
         return;
       }
       if (!get(isUserLoggedIn)) {
-        store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
-        store.commit('CORE_SET_PAGE_LOADING', false);
         next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
+      store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      next();
     },
   },
   {
