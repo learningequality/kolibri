@@ -470,7 +470,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading']),
+      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
@@ -784,20 +784,34 @@
         })
           .then(didSave => {
             didSave = didSave || pluginsChanged;
-            this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
-            this.showRestartModal = false;
-            if (this.canRestart && this.restartSetting !== null) {
-              this.restartSetting = null;
-              return this.restart().then(() => didSave);
+            if (didSave) {
+              this.$store.commit('CORE_CREATE_SNACKBAR', {
+                text: this.$tr('saveSuccessNotification'),
+                autoDismiss: true,
+                duration: 2000,
+              });
+              this.showRestartModal = false;
+              if (this.canRestart && this.restartSetting !== null) {
+                this.restartSetting = null;
+                return this.restart().then(() => didSave);
+              }
             }
             return didSave;
           })
           .then(shouldReload => {
             if (shouldReload) {
-              window.location.reload();
+              if (this.snackbarIsVisible) {
+                const unwatch = this.$watch('snackbarIsVisible', () => {
+                  unwatch && unwatch();
+                  window.location.reload();
+                });
+              } else {
+                window.location.reload();
+              }
             }
           })
-          .catch(() => {
+          .catch(err => {
+            console.error(err);
             this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
           });
       },
