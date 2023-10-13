@@ -115,7 +115,9 @@ export default function useDevices(store) {
     const newNetworkDevices = {};
     const devices = await fetchDevices();
     for (const device of devices) {
-      newNetworkDevices[device.instance_id] = device;
+      if (device['available']) {
+        newNetworkDevices[device.instance_id] = device;
+      }
     }
     networkDevices.value = newNetworkDevices;
     isLoading.value = false;
