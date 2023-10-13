@@ -12,12 +12,7 @@
       :loading="loading"
       :appearanceOverrides="appearanceOverrides"
     >
-      <KCircularLoader
-        v-if="coreLoading"
-        type="indeterminate"
-        :delay="true"
-      />
-      <div v-else class="coach-main">
+      <div v-if="!coreLoading" class="coach-main">
         <slot></slot>
       </div>
     </ImmersivePage>
