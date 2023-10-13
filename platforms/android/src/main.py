@@ -13,7 +13,6 @@ from kolibri.utils.server import BaseKolibriProcessBus
 from kolibri.utils.server import KolibriServerPlugin
 from kolibri.utils.server import ZeroConfPlugin
 from kolibri.utils.server import ZipContentServerPlugin
-from kolibri_tasks import start_default_tasks
 from magicbus.plugins import SimplePlugin
 from runnable import Runnable
 
@@ -55,8 +54,6 @@ enable_plugin("android_app_plugin")
 
 # we need to initialize Kolibri to allow us to access the app key
 initialize()
-
-start_default_tasks()
 
 interface.register(share_file=share_by_intent)
 interface.register(check_is_metered=is_active_network_metered)
