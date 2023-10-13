@@ -25,13 +25,8 @@ public class NetworkUtils {
         for (NetworkInterface networkInterface : networkInterfaces) {
             try {
                 // Check if the network interface is up (active)
-                if (!networkInterface.isUp() || networkInterface.isLoopback()) {
-                    continue;  // Skip inactive interfaces, and loopback ones
-                }
-
-                // Check if the network interface supports multicast
-                if (!networkInterface.supportsMulticast()) {
-                    continue;  // Skip interfaces that don't support multicast
+                if (!networkInterface.isUp() || !networkInterface.supportsMulticast()) {
+                    continue;  // Skip inactive interfaces, and interfaces that don't support multicast
                 }
 
                 // Get all IP addresses associated with the interface
