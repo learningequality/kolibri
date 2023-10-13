@@ -52,9 +52,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   currentSection: {
     message: 'Current section',
   },
-  deleteSection: {
-    message: 'Delect section',
-  },
   applySettings: {
     message: 'Apply settings',
   },

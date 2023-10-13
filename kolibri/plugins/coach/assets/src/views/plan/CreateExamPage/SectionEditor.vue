@@ -195,7 +195,7 @@
           :layout4="{ span: 1 }"
         >
           <KButton
-            :text="deleteSection$()"
+            :text="deleteSectionLabel$()"
             @click="quizForge.deleteSection(quizForge.activeSection.value.section_id)"
           />
         </KGridItem>
@@ -208,7 +208,7 @@
             :primary="true"
             :text="applySettings$()"
             class="apply-settings-style"
-            @click="quizForge.updateSection({ section_title: e.target.value })"
+            @click="applySettings"
           />
 
         </KGridItem>
@@ -244,7 +244,7 @@
         quizResourceSelection$,
         numberOfSelectedResources$,
         currentSection$,
-        deleteSection$,
+        deleteSectionLabel$,
         applySettings$,
         changeResources$,
         sectionOrder$,
@@ -265,7 +265,7 @@
         quizResourceSelection$,
         numberOfSelectedResources$,
         currentSection$,
-        deleteSection$,
+        deleteSectionLabel$,
         applySettings$,
         changeResources$,
         sectionOrder$,
@@ -282,6 +282,7 @@
         numQuestions: 1,
         descriptionLabel: '',
         sectionTitle: '',
+        formData: [],
       };
     },
     computed: {
@@ -307,6 +308,13 @@
     methods: {
       handleSectionSort(e) {
         this.quizForge.updateQuiz({ question_sources: e.newArray });
+      },
+      applySettings() {
+        this.formData.push({
+          section_id: this.quizForge.activeSection.value.section_id,
+          section_title: this.sectionTitle,
+        });
+        this.quizForge.updateQuiz({ question_sources: this.formData });
       },
     },
   };
