@@ -54,7 +54,7 @@
     </div>
     <div class="library-channels">
       <KGridItem
-        v-for="channel in channels"
+        v-for="channel in channels.slice(0, cardsPerRow)"
         :key="channel.id"
         :layout="{ span: layoutSpan }"
       >
@@ -123,11 +123,6 @@
         required: true,
         default: null,
       },
-      totalChannels: {
-        type: Number,
-        required: false,
-        default: 0,
-      },
       showDescription: {
         type: Boolean,
         required: false,
@@ -140,6 +135,18 @@
       },
     },
     computed: {
+      cardsPerRow() {
+        if (this.windowIsSmall) {
+          return 1;
+        }
+        if (this.windowBreakpoint < 4) {
+          return 2;
+        }
+        if (this.windowBreakpoint < 6) {
+          return 3;
+        }
+        return 4;
+      },
       layoutSpan() {
         /**
          * The breakpoints below represent the window widths
@@ -156,13 +163,16 @@
          * For example, if the total number of columns is 12, and
          * column span for each cards is 4, then X is 3.
          */
-        let span = 3;
-        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
-          span = 4;
-        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 6;
+        if (this.windowBreakpoint < 2) {
+          return 4 / this.cardsPerRow;
         }
-        return span;
+        if (this.windowBreakpoint === 2) {
+          return 8 / this.cardsPerRow;
+        }
+        return 12 / this.cardsPerRow;
+      },
+      totalChannels() {
+        return this.channels.length;
       },
     },
     $trs: {

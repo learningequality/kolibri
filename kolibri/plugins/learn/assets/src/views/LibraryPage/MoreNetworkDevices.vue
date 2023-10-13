@@ -9,6 +9,7 @@
       >
         <UnPinnedDevices
           :device="device"
+          :channelCount="deviceChannelsMap[device.id].length"
           :routeTo="genLibraryPageBackLink(device.id, false)"
         />
       </KGridItem>
@@ -52,6 +53,13 @@
       devices: {
         type: Array,
         required: true,
+      },
+      deviceChannelsMap: {
+        type: Object,
+        required: true,
+        default() {
+          return {};
+        },
       },
     },
     computed: {

@@ -143,6 +143,8 @@
             v-if="pinnedDevicesExist"
             data-test="pinned-resources"
             :devices="pinnedDevices"
+            :deviceChannelsMap="deviceChannelsMap"
+            :channelsToDisplay="cardsPerRow * 2 - 1"
           />
 
           <!-- More  -->
@@ -156,6 +158,7 @@
             v-if="unpinnedDevicesExist"
             data-test="more-devices"
             :devices="unpinnedDevices"
+            :deviceChannelsMap="deviceChannelsMap"
           />
         </div>
 
@@ -520,6 +523,18 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px`, marginTop }
           : { marginLeft: `${this.sidePanelWidth + 24}px`, marginTop };
       },
+      cardsPerRow() {
+        if (this.windowIsSmall) {
+          return 1;
+        }
+        if (this.windowBreakpoint < 5) {
+          return 2;
+        }
+        if (this.windowBreakpoint < 6) {
+          return 3;
+        }
+        return 4;
+      },
       layoutSpan() {
         /**
          * The breakpoints below represent the window widths
@@ -530,19 +545,20 @@
          * 4: < 1280px | Large screen  | 12 columns
          * 5: < 1440px | Large screen  | 12 columns
          * 6: < 1600px | Large screen  | 12 columns
+         * 7: > 1600px | Large screen  | 12 columns
          *
          * On resize, display X cards per row where:
          * X = total columns in grid / column span for each card.
          * For example, if the total number of columns is 12, and
          * column span for each cards is 4, then X is 3.
          */
-        let span = 3;
-        if ([0, 1, 2, 6].includes(this.windowBreakpoint)) {
-          span = 4;
-        } else if ([3, 4, 5].includes(this.windowBreakpoint)) {
-          span = 4;
+        if (this.windowBreakpoint < 2) {
+          return 4 / this.cardsPerRow;
         }
-        return span;
+        if (this.windowBreakpoint === 2) {
+          return 8 / this.cardsPerRow;
+        }
+        return 12 / this.cardsPerRow;
       },
       pinnedDevices() {
         return this.networkDevicesWithChannels.filter(device => {

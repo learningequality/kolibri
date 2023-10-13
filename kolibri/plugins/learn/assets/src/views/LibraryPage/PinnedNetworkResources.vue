@@ -3,34 +3,36 @@
   <!-- eslint-disable vue/html-indent -->
 
   <KGrid v-if="devices !== null">
-    <KGridItem
-      v-for="device in devices"
-      :key="device.id"
-    >
-      <KGridItem>
-        <h2>
-          <KIcon :icon="getDeviceIcon(device)" />
-          <span class="device-name">{{ device.device_name }}</span>
-        </h2>
-      </KGridItem>
-      <ChannelCardGroupGrid
-        data-test="channel-cards"
-        :deviceId="device.id"
-        :contents="device.channels"
-        :isRemote="true"
+    <FadeInTransitionGroup>
+      <KGridItem
+        v-for="device in devices"
+        :key="device.id"
       >
-        <KGridItem :layout="{ span: layoutSpan }">
-          <ChannelCard
-            :key="exploreString.toLowerCase()"
-            :isMobile="windowIsSmall"
-            :title="exploreString"
-            :link="genLibraryPageBackLink(device.id, false)"
-            :explore="true"
-          />
+        <KGridItem>
+          <h2>
+            <KIcon :icon="getDeviceIcon(device)" />
+            <span class="device-name">{{ device.device_name }}</span>
+          </h2>
         </KGridItem>
-      </ChannelCardGroupGrid>
+        <ChannelCardGroupGrid
+          data-test="channel-cards"
+          :deviceId="device.id"
+          :contents="deviceChannelsMap[device.instance_id].slice(0, channelsToDisplay)"
+          :isRemote="true"
+        >
+          <KGridItem :layout="{ span: layoutSpan }">
+            <ChannelCard
+              :key="exploreString.toLowerCase()"
+              :isMobile="windowIsSmall"
+              :title="exploreString"
+              :link="genLibraryPageBackLink(device.id, false)"
+              :explore="true"
+            />
+          </KGridItem>
+        </ChannelCardGroupGrid>
 
-    </KGridItem>
+      </KGridItem>
+    </FadeInTransitionGroup>
   </KGrid>
 
 </template>
@@ -41,6 +43,7 @@
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useContentLink from '../../composables/useContentLink';
+  import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import ChannelCard from '../ChannelCard';
   import ChannelCardGroupGrid from './../ChannelCardGroupGrid';
 
@@ -49,6 +52,7 @@
     components: {
       ChannelCard,
       ChannelCardGroupGrid,
+      FadeInTransitionGroup,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -66,6 +70,17 @@
         default() {
           return [];
         },
+      },
+      deviceChannelsMap: {
+        type: Object,
+        required: true,
+        default() {
+          return {};
+        },
+      },
+      channelsToDisplay: {
+        type: Number,
+        required: true,
       },
     },
     computed: {
