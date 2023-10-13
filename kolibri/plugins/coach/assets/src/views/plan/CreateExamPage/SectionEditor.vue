@@ -43,8 +43,8 @@
                 icon="minus"
                 aria-hidden="true"
                 class="number-btn"
-                :disabled="numQuestions === 1"
-                @click="numQuestions -= 1"
+                :disabled="numberOfQuestions === 1"
+                @click="numberOfQuestions -= 1"
               />
               <span
                 :style="dividerStyle"
@@ -53,7 +53,7 @@
                 icon="plus"
                 aria-hidden="true"
                 class="number-btn"
-                @click="numQuestions += 1"
+                @click="numberOfQuestions += 1"
               />
             </div>
           </div>
@@ -163,7 +163,7 @@
                   :layout8="{ span: 5 }"
                 >
                   <p class="space-content">
-                    {{ section.section_title }}
+                    {{ section.section_title.toUpperCase() }}
                   </p>
                 </KGridItem>
 
