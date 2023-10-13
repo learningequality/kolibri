@@ -215,15 +215,16 @@
             >
               <KTextbox
                 ref="autoDownloadLimit"
-                v-model="limitForAutodownload"
+                v-model="limitForAutodownloadInput"
                 class="download-limit-textbox"
                 :disabled="notEnoughFreeSpace || isRemoteContent"
                 type="number"
                 :label="$tr('sizeInGigabytesLabel')"
                 :min="0"
-                :max="freeSpace"
+                :max="toGigabytes(freeSpace)"
                 :invalid="notEnoughFreeSpace"
                 :invalidText="$tr('notEnoughFreeSpace')"
+                @input="updateLimitForAutodownload"
               />
               <div class="slider-section">
                 <input
@@ -235,13 +236,14 @@
                   min="0"
                   :max="freeSpace"
                   step="1"
+                  @input="updateLimitForAutodownloadInput"
                 >
                 <div class="slider-constraints">
                   <p class="slider-min-max">
                     0
                   </p>
                   <p class="slider-min-max">
-                    {{ freeSpace }}
+                    {{ toGigabytes(freeSpace) }}
                   </p>
                 </div>
               </div>
@@ -560,6 +562,14 @@
         }
         return this.$tr('alertDisabledOptions');
       },
+      limitForAutodownloadInput: {
+        get() {
+          return this.toGigabytes(this.limitForAutodownload);
+        },
+        set(value) {
+          this.limitForAutodownload = this.toBytes(value);
+        },
+      },
     },
     created() {
       this.setDeviceURLs();
@@ -702,7 +712,7 @@
       },
       setFreeSpace() {
         return getFreeSpaceOnServer().then(({ freeSpace }) => {
-          this.freeSpace = parseInt(bytesForHumans(freeSpace).substring(0, 3));
+          this.freeSpace = freeSpace;
         });
       },
       handleLandingPageChange(option) {
@@ -900,6 +910,18 @@
           return this.$tr('readOnly');
         }
         return '';
+      },
+      updateLimitForAutodownload() {
+        this.limitForAutodownload = this.toBytes(this.limitForAutodownloadInput);
+      },
+      updateLimitForAutodownloadInput() {
+        this.limitForAutodownloadInput = this.toGigabytes(this.limitForAutodownload);
+      },
+      toBytes(gigabytes) {
+        return parseInt(Math.round(gigabytes * 10 ** 9));
+      },
+      toGigabytes(bytes) {
+        return parseInt(bytesForHumans(bytes).replace(/[^0-9.]/g, ''));
       },
     },
     $trs: {
