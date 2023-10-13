@@ -43,7 +43,9 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.urls import reverse_path
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
+from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
 
 
 logger = logging.getLogger(__name__)
@@ -663,6 +665,7 @@ def _process_content_requests(incomplete_downloads):
     has_processed_sync_removals = False
     has_processed_user_removals = False
     has_processed_user_downloads = False
+    has_freed_space_in_stream_cache = False
     qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
@@ -709,6 +712,16 @@ def _process_content_requests(incomplete_downloads):
                 # process, then repeat
                 has_processed_user_downloads = True
                 process_user_downloads_for_removal()
+                continue
+            if not has_freed_space_in_stream_cache:
+                # try to clear space, then repeat
+                has_freed_space_in_stream_cache = True
+                chunked_file_manager = ChunkedFileDirectoryManager(
+                    OPTIONS["Paths"]["CONTENT_DIR"]
+                )
+                chunked_file_manager.evict_files(
+                    calc.get_additional_free_space_needed()
+                )
                 continue
             raise InsufficientStorage(
                 "Content download requests need {} of free space".format(
@@ -970,12 +983,13 @@ class StorageCalculator:
             total_size=_total_size_annotation(available=True),
         )
         self.free_space = 0
+        self.incomplete_downloads_size = 0
 
     def _calculate_space_available(self):
+        self.incomplete_downloads_size = _total_size(self.incomplete_downloads)
         free_space = get_free_space_for_downloads(
             completed_size=_total_size(completed_downloads_queryset())
         )
-        free_space -= _total_size(self.incomplete_downloads)
         free_space += _total_size(self.incomplete_sync_removals)
         free_space += _total_size(self.incomplete_user_removals)
         free_space += _total_size(self.complete_user_downloads)
@@ -984,4 +998,8 @@ class StorageCalculator:
 
     def is_space_sufficient(self):
         self._calculate_space_available()
-        return self.free_space > _total_size(self.incomplete_downloads)
+        return self.free_space > self.incomplete_downloads_size
+
+    def get_additional_free_space_needed(self):
+        self._calculate_space_available()
+        return self.incomplete_downloads_size - self.free_space

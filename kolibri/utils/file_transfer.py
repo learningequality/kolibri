@@ -101,13 +101,89 @@ class ChunkedFileDoesNotExist(Exception):
     pass
 
 
+CHUNK_SUFFIX = ".chunks"
+
+
+class ChunkedFileDirectoryManager(object):
+    """
+    A class to manage all chunked files in a directory and all its descendant directories.
+    Its main purpose is to allow for the deletion of chunked files based on a least recently used
+    metric, as indicated by last access time on any of the files in the chunked file directory.
+    """
+
+    def __init__(self, chunked_file_dir):
+        self.chunked_file_dir = chunked_file_dir
+
+    def _get_chunked_file_dirs(self):
+        """
+        Returns a generator of all chunked file directories in the chunked file directory.
+        """
+        for root, dirs, _ in os.walk(self.chunked_file_dir):
+            for dir in dirs:
+                if dir.endswith(CHUNK_SUFFIX):
+                    yield os.path.join(root, dir)
+                    # Don't continue to walk down the directory tree
+                    dirs.remove(dir)
+
+    def _get_chunked_file_stats(self):
+        stats = {}
+        for chunked_file_dir in self._get_chunked_file_dirs():
+            file_stats = {"last_access_time": 0, "size": 0}
+            for dirpath, _, filenames in os.walk(chunked_file_dir):
+                for file in filenames:
+                    file_path = os.path.join(dirpath, file)
+                    file_stats["last_access_time"] = max(
+                        file_stats["last_access_time"], os.path.getatime(file_path)
+                    )
+                    file_stats["size"] += os.path.getsize(file_path)
+            stats[chunked_file_dir] = file_stats
+        return stats
+
+    def _do_file_eviction(self, chunked_file_stats, file_size):
+        chunked_file_dirs = sorted(
+            chunked_file_stats.keys(),
+            key=lambda x: chunked_file_stats[x]["last_access_time"],
+        )
+        evicted_file_size = 0
+        for chunked_file_dir in chunked_file_dirs:
+            # Do the check here to catch the edge case where file_size is <= 0
+            if file_size <= evicted_file_size:
+                break
+            file_stats = chunked_file_stats[chunked_file_dir]
+            evicted_file_size += file_stats["size"]
+            shutil.rmtree(chunked_file_dir)
+        return evicted_file_size
+
+    def evict_files(self, file_size):
+        """
+        Attempt to clean up file_size bytes of space in the chunked file directory.
+        Iterate through all chunked file directories, and delete the oldest chunked files
+        until the target file size is reached.
+        """
+        chunked_file_stats = self._get_chunked_file_stats()
+        return self._do_file_eviction(chunked_file_stats, file_size)
+
+    def limit_files(self, max_size):
+        """
+        Limits the total size used to a certain number of bytes.
+        If the total size of all chunked files exceeds max_size, the oldest files are evicted.
+        """
+        chunked_file_stats = self._get_chunked_file_stats()
+
+        total_size = sum(
+            file_stats["size"] for file_stats in chunked_file_stats.values()
+        )
+
+        return self._do_file_eviction(chunked_file_stats, total_size - max_size)
+
+
 class ChunkedFile(BufferedIOBase):
     # Set chunk size to 128KB
     chunk_size = 128 * 1024
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.chunk_dir = filepath + ".chunks"
+        self.chunk_dir = filepath + CHUNK_SUFFIX
         mkdirp(self.chunk_dir, exist_ok=True)
         self.cache_dir = os.path.join(self.chunk_dir, ".cache")
         self.position = 0
