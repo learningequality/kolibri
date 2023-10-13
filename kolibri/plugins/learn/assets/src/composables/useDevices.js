@@ -2,14 +2,23 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, ref, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+import {
+  computed,
+  getCurrentInstance,
+  reactive,
+  ref,
+  onBeforeUnmount,
+  watch,
+} from 'kolibri.lib.vueCompositionApi';
 import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
 import { get, set, useTimeoutPoll } from '@vueuse/core';
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
 import useUser from 'kolibri.coreVue.composables.useUser';
+import { localeCompare } from 'kolibri.utils.i18n';
 import plugin_data from 'plugin_data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
+import useChannels from './useChannels';
 
 /**
  * The ref is defined in the outer scope so it can be used as a shared store
@@ -27,7 +36,7 @@ const KolibriStudioDeviceData = {
 
 const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
 
-const { isLearnerOnlyImport, canManageContent } = useUser();
+const { isLearnerOnlyImport, canManageContent, isUserLoggedIn } = useUser();
 
 function canAccessStudio() {
   return !get(isLearnerOnlyImport) && get(canManageContent);
@@ -106,9 +115,36 @@ export function currentDeviceData(store) {
 }
 
 export default function useDevices(store) {
+  const { fetchChannels } = useChannels();
   const networkDevices = ref({});
   const isLoading = ref(false);
   const { instanceId, baseurl, deviceName } = currentDeviceData(store);
+
+  const deviceChannelsMap = reactive({});
+  const isLoadingChannels = ref(true);
+
+  function _updateDeviceChannels(device, channels) {
+    set(deviceChannelsMap, device.instance_id, channels);
+  }
+
+  function loadDeviceChannels() {
+    const promises = [];
+    for (const currentDevice of Object.values(networkDevices.value)) {
+      if (!deviceChannelsMap[currentDevice.instance_id]) {
+        const baseurl = currentDevice.base_url;
+        const promise = fetchChannels({ baseurl }).then(channels => {
+          _updateDeviceChannels(currentDevice, channels);
+          isLoadingChannels.value = false;
+          console.log(isLoadingChannels.value);
+        });
+        promises.push(promise);
+      }
+    }
+    Promise.all(promises).then(() => {
+      // In case we don't successfully fetch any channels, don't do a perpetual loading state.
+      isLoadingChannels.value = false;
+    });
+  }
 
   async function setNetworkDevices() {
     isLoading.value = true;
@@ -124,20 +160,46 @@ export default function useDevices(store) {
   }
 
   // Start polling
-  const fetch = useTimeoutPoll(setNetworkDevices, 5000, { immediate: true });
+  if (get(isUserLoggedIn)) {
+    const fetch = useTimeoutPoll(setNetworkDevices, 5000, { immediate: true });
+    // Stop polling
+    onBeforeUnmount(() => {
+      fetch.pause();
+    });
+  }
 
-  // Stop polling
-  onBeforeUnmount(() => {
-    fetch.pause();
+  function keepDeviceChannelsUpdated() {
+    if (get(isUserLoggedIn)) {
+      loadDeviceChannels();
+      watch(networkDevices, loadDeviceChannels);
+    }
+  }
+
+  const networkDevicesWithChannels = computed(() => {
+    return Object.values(get(networkDevices))
+      .filter(device => deviceChannelsMap[device.instance_id]?.length > 0)
+      .sort((a, b) => {
+        if (a.instance_id === KolibriStudioId) {
+          return 1;
+        }
+        if (b.instance_id === KolibriStudioId) {
+          return -1;
+        }
+        return localeCompare(a.device_name, b.device_name);
+      });
   });
 
   return {
     fetchDevices,
+    deviceChannelsMap,
+    keepDeviceChannelsUpdated,
+    isLoadingChannels,
     isLoading,
     setCurrentDevice,
     instanceId,
     baseurl,
     deviceName,
     networkDevices,
+    networkDevicesWithChannels,
   };
 }

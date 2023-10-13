@@ -78,10 +78,8 @@
 
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
-  import { ref, reactive, watch, set } from 'kolibri.lib.vueCompositionApi';
+  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
-  import useChannels from '../../composables/useChannels';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
@@ -98,52 +96,29 @@
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
-      const { networkDevices } = useDevices();
-      const { fetchChannels } = useChannels();
+      const {
+        networkDevicesWithChannels,
+        keepDeviceChannelsUpdated,
+        deviceChannelsMap,
+        isLoadingChannels,
+      } = useDevices();
       const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
       const { back } = useContentLink();
-      const deviceChannelsMap = reactive({});
-      const loading = ref(true);
 
-      function _updateDeviceChannels(device, channels) {
-        set(deviceChannelsMap, device.instance_id, channels);
-      }
-
-      function loadDeviceChannels() {
-        let currentDevice;
-        Object.keys(networkDevices.value).forEach(key => {
-          const promises = [];
-          currentDevice = networkDevices.value[key];
-          if (!deviceChannelsMap[currentDevice.instance_id]) {
-            const baseurl = currentDevice.base_url;
-            const promise = fetchChannels({ baseurl }).then(channels => {
-              _updateDeviceChannels(currentDevice, channels);
-              loading.value = false;
-            });
-            promises.push(promise);
-          }
-          Promise.all(promises).then(() => {
-            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
-            loading.value = false;
-          });
-        });
-      }
-      loadDeviceChannels();
-      watch(networkDevices, loadDeviceChannels);
+      keepDeviceChannelsUpdated();
 
       return {
         deletePinForUser,
         createPinForUser,
         fetchPinsForUser,
         deviceChannelsMap,
-        fetchChannels,
-        networkDevices,
+        networkDevicesWithChannels,
         back,
+        loading: isLoadingChannels,
       };
     },
     data() {
       return {
-        loading: false,
         moreDevices: 0,
         usersPins: [],
       };
@@ -157,19 +132,6 @@
       },
       displayShowMoreButton() {
         return this.moreDevices < this.unpinnedDevices?.length;
-      },
-      networkDevicesWithChannels() {
-        return Object.values(this.networkDevices)
-          .filter(device => this.deviceChannelsMap[device.instance_id]?.length > 0)
-          .sort((a, b) => {
-            if (a.instance_id === this.studioId) {
-              return 1;
-            }
-            if (b.instance_id === this.studioId) {
-              return -1;
-            }
-            return localeCompare(a.device_name, b.device_name);
-          });
       },
       pageHeaderStyle() {
         return {

@@ -111,12 +111,6 @@
                   &nbsp;&nbsp;
                   <span data-test="showing-all-label">{{ showingAllLibrariesLabel }}</span>
                   &nbsp;&nbsp;
-                  <KButton
-                    :text="coreString('refresh')"
-                    appearance="basic-link"
-                    @click="refreshDevices"
-                  />
-                  &nbsp;&nbsp;
                   <span>
                     <KIcon
                       v-if="!windowIsSmall"
@@ -134,12 +128,6 @@
                   </span>
                   &nbsp;&nbsp;
                   <span data-test="no-other-label">{{ $tr('noOtherLibraries') }}</span>
-                  &nbsp;&nbsp;
-                  <KButton
-                    :text="coreString('refresh')"
-                    appearance="basic-link"
-                    @click="refreshDevices"
-                  />
                 </span>
               </div>
             </KGridItem>
@@ -248,13 +236,7 @@
 
   import { get, set } from '@vueuse/core';
 
-  import {
-    onMounted,
-    getCurrentInstance,
-    ref,
-    reactive,
-    watch,
-  } from 'kolibri.lib.vueCompositionApi';
+  import { onMounted, getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
@@ -342,10 +324,14 @@
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName } = currentDeviceData();
-      const { fetchDevices, networkDevices } = useDevices();
+      const {
+        isLoadingChannels,
+        networkDevicesWithChannels,
+        keepDeviceChannelsUpdated,
+        deviceChannelsMap,
+      } = useDevices();
       const { fetchChannels } = useChannels();
       const { fetchPinsForUser } = usePinnedDevices();
-      const deviceChannelsMap = reactive({});
 
       onMounted(() => {
         const keywords = currentRoute().query.keywords;
@@ -451,33 +437,7 @@
         return _showLibrary();
       }
 
-      const loading = ref(true);
-
-      function _updateDeviceChannels(device, channels) {
-        set(deviceChannelsMap, device.instance_id, channels);
-      }
-
-      function loadDeviceChannels() {
-        let currentDevice;
-        Object.keys(networkDevices.value).forEach(key => {
-          const promises = [];
-          currentDevice = networkDevices.value[key];
-          if (!deviceChannelsMap[currentDevice.instance_id]) {
-            const baseurl = currentDevice.base_url;
-            const promise = fetchChannels({ baseurl }).then(channels => {
-              _updateDeviceChannels(currentDevice, channels);
-              loading.value = false;
-            });
-            promises.push(promise);
-          }
-          Promise.all(promises).then(() => {
-            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
-            loading.value = false;
-          });
-        });
-      }
-      loadDeviceChannels();
-      watch(networkDevices, loadDeviceChannels);
+      keepDeviceChannelsUpdated();
 
       watch(() => props.deviceId, showLibrary);
 
@@ -506,8 +466,7 @@
         windowIsSmall,
         currentCardViewStyle,
         baseurl,
-        networkDevices,
-        fetchDevices,
+        networkDevicesWithChannels,
         deviceChannelsMap,
         deviceName,
         fetchChannels,
@@ -516,6 +475,7 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
+        searching: isLoadingChannels,
       };
     },
     props: {
@@ -529,8 +489,6 @@
         isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
-        devices: [],
-        searching: true,
         usersPins: [],
       };
     },
@@ -552,18 +510,8 @@
           return this.coreString('yourLibrary');
         }
       },
-      devicesWithChannels() {
-        const localDeviceChannels = Object.values(this.networkDevices).filter(
-          device => this.deviceChannelsMap[device.instance_id]?.length > 0
-        );
-        for (const idx in localDeviceChannels) {
-          const device = localDeviceChannels[idx];
-          device.total_count = this.deviceChannelsMap[device.id].length;
-        }
-        return localDeviceChannels;
-      },
       devicesWithChannelsExist() {
-        return this.devicesWithChannels.length > 0;
+        return this.networkDevicesWithChannels.length > 0;
       },
       gridOffset() {
         const marginTop =
@@ -597,15 +545,12 @@
         return span;
       },
       pinnedDevices() {
-        if (Object.values(this.deviceChannelsMap).length > 0) {
-          return Object.values(this.deviceChannelsMap).filter(device => {
-            return (
-              this.usersPinsDeviceIds.includes(device.instance_id) ||
-              device.instance_id === this.studioId
-            );
-          });
-        }
-        return [];
+        return this.networkDevicesWithChannels.filter(device => {
+          return (
+            this.usersPinsDeviceIds.includes(device.instance_id) ||
+            device.instance_id === this.studioId
+          );
+        });
       },
       pinnedDevicesExist() {
         return this.pinnedDevices.length > 0;
@@ -631,7 +576,7 @@
         return KolibriStudioId;
       },
       unpinnedDevices() {
-        return this.devicesWithChannels.filter(device => {
+        return this.networkDevicesWithChannels.filter(device => {
           return (
             !this.usersPinsDeviceIds.includes(device.instance_id) &&
             device.instance_id !== this.studioId
@@ -673,30 +618,20 @@
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
       if (this.isUserLoggedIn) {
-        this.refreshDevices();
+        this.fetchPins();
       }
     },
     methods: {
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
-      refreshDevices() {
-        this.searching = true;
-        this.devices = [];
+      fetchPins() {
         this.fetchPinsForUser().then(resp => {
           this.usersPins = resp.map(pin => {
             const instance_id = pin.instance_id.replace(/-/g, '');
             return { ...pin, instance_id };
           });
         });
-
-        if (Object.values(this.networkDevices).length > 0) {
-          this.searching = false;
-          return Object.values(this.networkDevices).filter(
-            device => this.deviceChannelsMap[device.instance_id]?.length > 0
-          );
-        }
-        this.searching = false;
       },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
