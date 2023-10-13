@@ -10,6 +10,7 @@ from functools import partial
 from subprocess import CalledProcessError
 from subprocess import check_output
 
+import ifaddr
 import requests
 from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
@@ -1006,6 +1007,25 @@ def get_status():  # noqa: max-complexity=16
     # raise NotRunning(STATUS_UNKNOW)
 
 
+def _get_local_ips():
+    """
+    Don't rely on the zeroconf get_all_addresses here as it's possible that it could have been modified to only detect
+    interfaces that support multicasting. This is a fallback to get all the local IP addresses of the machine, whether they
+    are multicast or not.
+
+    However, we still exclude known dummy Windows 169.254.*.* addresses as these are not useful for the user to see.
+    :return: a list of IP addresses
+    """
+    return list(
+        set(
+            addr.ip
+            for iface in ifaddr.get_adapters()
+            for addr in iface.ips
+            if addr.is_IPv4 and not addr.ip.startswith("169.254")
+        )
+    )
+
+
 def get_urls(listen_port=None):
     """
     :param listen_port: if set, will not try to determine the listen port from
@@ -1020,7 +1040,7 @@ def get_urls(listen_port=None):
         if port:
             try:
                 all_addresses = (
-                    get_all_addresses()
+                    _get_local_ips()
                     if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
                     else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
                 )
