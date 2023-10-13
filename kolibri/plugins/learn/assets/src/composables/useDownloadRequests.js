@@ -156,6 +156,12 @@ export default function useDownloadRequests(store) {
       id: contentRequest.id,
     });
     Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
+    store.commit('CORE_CREATE_SNACKBAR', {
+      text: downloadRequestsTranslator.$tr('resourceRemoved'),
+      backdrop: false,
+      forceReuse: true,
+      autoDismiss: true,
+    });
     return Promise.resolve();
   }
 
