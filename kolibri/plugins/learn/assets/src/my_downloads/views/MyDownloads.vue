@@ -105,7 +105,7 @@
       return {
         downloadRequestMap,
         loading,
-        fetchDownloads: fetchUserDownloadRequests,
+        availableSpace,
         fetchAvailableFreespace,
         fetchDevices,
         sort,
