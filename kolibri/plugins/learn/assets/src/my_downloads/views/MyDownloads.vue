@@ -119,9 +119,9 @@
           return bytesForHumans(0);
         }
       },
-      removeResources(resources) {
-        for (const resource of resources) {
-          this.removeDownloadRequest(resource);
+      removeResources(contentNodeIds) {
+        for (const contentNodeId of contentNodeIds) {
+          this.removeDownloadRequest(contentNodeId);
         }
       },
     },

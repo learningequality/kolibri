@@ -313,12 +313,10 @@
         }
       },
       markSingleResourceForRemoval(download) {
-        this.resourcesToDelete.push(download);
+        this.resourcesToDelete.push(download.contentnode_id);
       },
       removeSelectedResources() {
-        this.resourcesToDelete = this.downloads.filter(download =>
-          Boolean(this.selectedDownloadsMap[download.contentnode_id])
-        );
+        this.resourcesToDelete = Object.keys(this.selectedDownloadsMap);
       },
       emitCurrentlySelectedResourcesForRemoval() {
         this.$emit('removeResources', this.resourcesToDelete);
