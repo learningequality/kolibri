@@ -23,7 +23,7 @@
       :allowMarkComplete="allowMarkComplete"
       :contentKind="contentKind"
       :showBookmark="allowBookmark"
-      :showDownloadButton="allowRemoteDownload"
+      :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
@@ -154,7 +154,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { set } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
@@ -241,9 +241,10 @@
       const { baseurl, deviceName } = currentDeviceData();
       const {
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
+        pollUserDownloadRequests,
+        loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -290,8 +291,9 @@
         if (deviceId) {
           promise = setCurrentDevice(deviceId).then(device => {
             const baseurl = device.base_url;
-            const { fetchUserDownloadRequests } = useDownloadRequests(store);
-            fetchUserDownloadRequests({ page: 1, pageSize: 20 });
+            if (get(canAddDownloads)) {
+              pollUserDownloadRequests({ contentnode_id: props.id });
+            }
             return _loadTopicsContent(shouldResolve, baseurl);
           });
         } else {
@@ -326,13 +328,13 @@
         back,
         genExternalBackURL,
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
         deviceFormTranslator,
         content,
         channel,
         loading,
+        downloadRequestLoading,
         isUserLoggedIn,
         isCoach,
         isAdmin,
@@ -446,16 +448,34 @@
       isRemoteContent() {
         return Boolean(this.deviceId);
       },
+      allowDownloads() {
+        return this.isUserLoggedIn && this.canAddDownloads && this.isRemoteContent;
+      },
+      downloadRequestedByLearner() {
+        return this.allowDownloads && Boolean(this.downloadRequestMap[this.content?.id]);
+      },
+      downloadableByLearner() {
+        return this.allowDownloads && !this.content?.admin_imported;
+      },
       isDownloading() {
-        return this.isDownloadingByLearner(this.content);
+        return (
+          this.downloadRequestedByLearner &&
+          this.downloadRequestMap[this.content.id].status === 'PENDING'
+        );
       },
       isDownloaded() {
-        if (!this.content) return false;
-        return this.content.admin_imported || this.isDownloadedByLearner(this.content);
-      },
-      allowRemoteDownload() {
         return (
-          this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded && this.canAddDownloads
+          this.content?.admin_imported ||
+          (this.downloadRequestedByLearner &&
+            this.downloadRequestMap[this.content?.id]?.status === 'COMPLETED')
+        );
+      },
+      showDownloadButton() {
+        return (
+          this.downloadableByLearner &&
+          !this.downloadRequestLoading &&
+          !this.loading &&
+          !this.isDownloaded
         );
       },
       allowBookmark() {

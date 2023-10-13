@@ -77,7 +77,7 @@
       const {
         downloadRequestMap,
         loading,
-        fetchUserDownloadRequests,
+        pollUserDownloadRequests,
         fetchAvailableFreespace,
         availableSpace,
         removeDownloadRequest,
@@ -91,11 +91,11 @@
       const sort = computed(() => query.value.sort);
 
       fetchAvailableFreespace();
+      pollUserDownloadRequests();
 
       return {
         downloadRequestMap,
         loading,
-        fetchDownloads: fetchUserDownloadRequests,
         availableSpace,
         fetchAvailableFreespace,
         fetchDevices,
@@ -111,12 +111,6 @@
         );
       },
     },
-    mounted() {
-      this.startPolling();
-    },
-    beforeDestroy() {
-      clearInterval(this.pollingInterval);
-    },
     methods: {
       formattedSize(size) {
         if (size > 0) {
@@ -128,36 +122,6 @@
       removeResources(resources) {
         for (const resource of resources) {
           this.removeDownloadRequest(resource);
-        }
-      },
-      startPolling() {
-        this.fetchDownloads();
-        this.pollingInterval = setInterval(async () => {
-          await this.fetchDownloads();
-          this.calculatePollingInterval();
-        }, 1000); // Initial interval of 1 second
-      },
-      calculatePollingInterval() {
-        let pollingInterval = 30000; // Default interval of 30 seconds
-
-        for (const download in this.downloadRequestMap) {
-          const status = this.downloadRequestMap[download].status;
-
-          if (status === 'PENDING' || status === 'FAILED') {
-            pollingInterval = 5000; // Poll every 5 seconds
-            break;
-          } else if (status === 'IN_PROGRESS') {
-            pollingInterval = 1000; // Poll every 1 second
-            break;
-          }
-        }
-
-        if (pollingInterval !== this.pollingInterval) {
-          clearInterval(this.pollingInterval);
-          this.pollingInterval = setInterval(async () => {
-            await this.fetchDownloads();
-            this.calculatePollingInterval();
-          }, pollingInterval);
         }
       },
     },

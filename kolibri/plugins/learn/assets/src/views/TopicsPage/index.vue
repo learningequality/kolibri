@@ -361,13 +361,39 @@
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
       const { channelsMap, fetchChannels } = useChannels();
-      const { fetchContentNodeTreeProgress } = useContentNodeProgress();
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { fetchUserDownloadRequests } = useDownloadRequests(store);
 
       const isRoot = ref(false);
       const channel = ref(null);
       const contents = ref([]);
       const loading = ref(true);
+
+      const _getAllDescendantChildren = topic => {
+        const contentnode_id__in = [];
+        const children = topic.children ? topic.children.results : [];
+        for (const child of children) {
+          if (child.kind === ContentNodeKinds.TOPIC) {
+            contentnode_id__in.push(..._getAllDescendantChildren(child));
+          } else {
+            contentnode_id__in.push(child.id);
+          }
+        }
+        return contentnode_id__in;
+      };
+
+      const fetchRemoteBrowsingContentNodeUserData = topic => {
+        if (get(isUserLoggedIn) && props.deviceId) {
+          const contentnode_id__in = _getAllDescendantChildren(topic);
+          if (contentnode_id__in.length) {
+            if (get(canAddDownloads)) {
+              fetchUserDownloadRequests({ contentnode_id__in });
+            }
+            fetchContentNodeProgress({ ids: contentnode_id__in });
+          }
+        }
+      };
 
       function _handleTopicRedirect(route, children, id, skipped) {
         if (!children.some(c => !c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
@@ -378,7 +404,6 @@
             params: { ...route.params, id },
             query: route.query,
           });
-          return true;
         } else if (skipped) {
           // If we have skipped down the topic tree, replace to the new top level topic
           router.replace({ name: route.name, params: { ...route.params, id }, query: route.query });
@@ -419,7 +444,16 @@
 
             id = childrenResults.id;
 
-            _handleTopicRedirect(route, children, id, skipped);
+            const redirectedToNewTopic = _handleTopicRedirect(route, children, id, skipped);
+
+            if (redirectedToNewTopic) {
+              // If we have encountered the skip logic, we need to reload the topic
+              // with the new id, which will be triggered by our watch statement below
+              // so we can just return here
+              return;
+            }
+
+            fetchRemoteBrowsingContentNodeUserData(fetchedTopic);
 
             set(isRoot, rootTopic);
 
@@ -451,8 +485,6 @@
           if (props.deviceId) {
             promise = setCurrentDevice(props.deviceId).then(device => {
               const baseurl = device.base_url;
-              const { fetchUserDownloadRequests } = useDownloadRequests(store);
-              fetchUserDownloadRequests({ page: 1, pageSize: 100 });
               return _loadTopicsTopic({ baseurl, shouldResolve });
             });
           } else {
@@ -477,6 +509,7 @@
       showTopicsTopic();
 
       return {
+        fetchRemoteBrowsingContentNodeUserData,
         canAddDownloads,
         canDownloadExternally,
         searchTerms,
@@ -530,7 +563,7 @@
     },
     computed: {
       allowDownloads() {
-        return this.canAddDownloads && Boolean(this.deviceId);
+        return this.isUserLoggedIn && this.canAddDownloads && Boolean(this.deviceId);
       },
       barTitle() {
         return this.deviceId
@@ -827,7 +860,7 @@
         const parent = parentIndex > -1 ? this.contents[parentIndex] : null;
         const more = parent && parent.children && parent.children.more;
         if (more) {
-          if (this.isUserLoggedIn) {
+          if (this.isUserLoggedIn && !this.deviceId) {
             this.fetchContentNodeTreeProgress(more);
           }
           return ContentNodeResource.fetchTree(more)
@@ -840,6 +873,7 @@
                 child,
                 ...this.contents.slice(parentIndex + 1),
               ];
+              this.fetchRemoteBrowsingContentNodeUserData(data);
             })
             .catch(err => {
               this.$store.dispatch('handleApiError', { error: err });
@@ -855,7 +889,7 @@
       loadMoreTopics() {
         const more = this.topic.children.more;
         if (more) {
-          if (this.isUserLoggedIn) {
+          if (this.isUserLoggedIn && !this.deviceId) {
             this.fetchContentNodeTreeProgress(more);
           }
           return ContentNodeResource.fetchTree(more)
@@ -868,6 +902,7 @@
                   more: data.children.more,
                 },
               };
+              this.fetchRemoteBrowsingContentNodeUserData(data);
             })
             .catch(err => {
               this.$store.dispatch('handleApiError', { error: err });
