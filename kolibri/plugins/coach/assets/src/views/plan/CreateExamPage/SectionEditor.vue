@@ -133,6 +133,7 @@
 
 
     <DragContainer
+      v-if="sectionOrderList.length > 0"
       :items="sectionOrderList"
       @sort="handleSectionSort"
     >
@@ -162,7 +163,7 @@
                   :layout8="{ span: 5 }"
                 >
                   <p class="space-content">
-                    {{ section.name.toUpperCase() }}
+                    {{ section.section_title }}
                   </p>
                 </KGridItem>
 
@@ -172,8 +173,11 @@
                   class="current-section-style"
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
-                  <p class="current-section-text space-content">
-                    {{ section.current }}
+                  <p
+                    v-if="quizForge.activeSection.value.section_id === section.section_id"
+                    class="current-section-text space-content"
+                  >
+                    {{ currentSection$() }}
                   </p>
                 </KGridItem>
               </KGrid>
@@ -204,7 +208,7 @@
             :primary="true"
             :text="applySettings$()"
             class="apply-settings-style"
-            @click="quizForge.updateSection()"
+            @click="quizForge.updateSection({ section_title: e.target.value })"
           />
 
         </KGridItem>
@@ -293,24 +297,16 @@
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
       },
+      /**
+       * @returns { QuizSection[] }
+       */
       sectionOrderList() {
-        return [
-          {
-            name: 'Section order',
-            current: this.currentSection$(),
-            isActive: true,
-          },
-          {
-            name: 'Section 2 / unique title',
-            current: null,
-            isActive: false,
-          },
-        ];
+        return this.quizForge.allSections.value;
       },
     },
     methods: {
-      handleSectionSort() {
-        this.quizForge.updateQuiz();
+      handleSectionSort(e) {
+        this.quizForge.updateQuiz({ question_sources: e.newArray });
       },
     },
   };
