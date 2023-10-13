@@ -24,7 +24,9 @@ export function getDeviceSettings() {
         ...data.extra_settings,
       },
       primaryStorageLocation: data.primary_storage_location,
-      secondaryStorageLocations: data.secondary_storage_locations,
+      // Spread the secondary storage locations array to ensure
+      // we are returning a novel array from the one stored in the _dataCache
+      secondaryStorageLocations: [...data.secondary_storage_locations],
     };
   });
 }
@@ -50,6 +52,9 @@ export function saveDeviceSettings(settings) {
     url,
     method: 'PATCH',
     data,
+  }).then(response => {
+    Object.assign(_dataCache, response.data); // Update the cache
+    return true;
   });
 }
 
