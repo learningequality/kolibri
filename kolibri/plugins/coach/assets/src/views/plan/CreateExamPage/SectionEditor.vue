@@ -29,7 +29,7 @@
           <div>
             <KTextbox
               ref="numQuest"
-              v-model="numQuestions"
+              v-model="numberOfQuestions"
               type="number"
               :label="numberOfQuestionsLabel$()"
             />
@@ -62,7 +62,7 @@
     </KGrid>
 
     <KTextbox
-      v-model="descriptionLabel"
+      v-model="descriptionText"
       :label="optionalDescriptionLabel$()"
       :maxlength="400"
       :textArea="true"
@@ -279,8 +279,8 @@
     data() {
       return {
         selectedQuestionOrder: true,
-        numQuestions: 1,
-        descriptionLabel: '',
+        numberOfQuestions: 1,
+        descriptionText: '',
         sectionTitle: '',
       };
     },
@@ -312,6 +312,9 @@
         this.quizForge.updateSection({
           section_id: this.quizForge.activeSection.value.section_id,
           section_title: this.sectionTitle,
+          description: this.descriptionText,
+          question_count: this.numberOfQuestions,
+          learners_see_fixed_order: this.selectedQuestionOrder,
         });
       },
     },
