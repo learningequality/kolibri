@@ -1,4 +1,5 @@
 cython~=0.29
+ifaddr
 virtualenv
 setuptools
 git+https://github.com/learningequality/python-for-android@4a3c74caf67cad4495f2352ae56ba2b0f1b266c5#egg=python-for-android
