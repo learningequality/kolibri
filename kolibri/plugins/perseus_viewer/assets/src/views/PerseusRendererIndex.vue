@@ -90,7 +90,7 @@
   import JSZip from 'jszip';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
@@ -125,7 +125,6 @@
 
   export default {
     name: 'PerseusRendererIndex',
-    mixins: [responsiveWindowMixin],
     data: () => ({
       // Is the perseus item renderer loading?
       loading: true,
@@ -138,6 +137,14 @@
       // Store a copy of the blank state of a question to clear set answers later
       blankState: null,
     }),
+    setup(){
+      const {
+        windowBreakpoint
+      } = useKResponsiveWindow();
+      return {
+        windowBreakpoint
+      };
+    },
     computed: {
       isMobile() {
         return this.windowBreakpoint < 3;
