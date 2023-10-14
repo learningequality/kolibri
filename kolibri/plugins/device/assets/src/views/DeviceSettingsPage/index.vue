@@ -359,7 +359,6 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import commonDeviceStrings from '../commonDeviceStrings';
@@ -921,7 +920,7 @@
         return parseInt(Math.round(gigabytes * 10 ** 9));
       },
       toGigabytes(bytes) {
-        return parseInt(bytesForHumans(bytes).replace(/[^0-9.]/g, ''));
+        return parseInt(Math.round(bytes / 10 ** 9));
       },
     },
     $trs: {
