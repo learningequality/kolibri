@@ -1,8 +1,6 @@
-FROM ubuntu:bionic
+FROM ubuntu:jammy
 
 ENV NODE_VERSION=16.20.0
-ENV LC_ALL C.UTF-8
-ENV LANG C.UTF-8
 
 # install required packages
 RUN apt-get update && \
@@ -41,6 +39,5 @@ COPY . /kolibri
 # do the time-consuming base install commands
 RUN cd /kolibri \
     && pip3 install -r requirements/dev.txt \
-    && pip3 install -r requirements/build.txt \
     && pip3 install -r requirements/test.txt \
     && yarn install --network-timeout 100000
