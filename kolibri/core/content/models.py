@@ -459,27 +459,6 @@ class ContentRequestManager(models.Manager):
             queryset = queryset.filter(type=self.request_type)
         return queryset
 
-    def propagate_removal(self, contentnode_ids):
-        """
-        Deletes all learner initiated ContentRequests for the passed in contentnode_ids
-        Matching learner initiated ContentRequests will be deleted - this means that if
-        resources are deleted by an admin, we remove any associated learner initiated requests.
-        Also updates the status of any COMPLETED non-learner initiated ContentDownloadRequests to PENDING
-        """
-        BATCH_SIZE = 250
-        for i in range(0, len(contentnode_ids), BATCH_SIZE):
-            batch = contentnode_ids[i : i + BATCH_SIZE]
-            self.filter(
-                contentnode_id__in=batch, reason=ContentRequestReason.UserInitiated
-            ).delete()
-            self.filter(
-                contentnode_id__in=batch,
-                type=ContentRequestType.Download,
-                status=ContentRequestStatus.Completed,
-            ).exclude(reason=ContentRequestReason.UserInitiated).update(
-                status=ContentRequestStatus.Pending
-            )
-
 
 class ContentRequest(models.Model):
     """

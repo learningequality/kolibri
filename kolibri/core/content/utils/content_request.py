@@ -22,6 +22,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
@@ -945,6 +946,27 @@ def process_content_removal_requests(queryset):
     remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
     _remove_corresponding_download_requests(remaining_pending)
     remaining_pending.update(status=ContentRequestStatus.Completed)
+
+
+def propagate_contentnode_removal(contentnode_ids):
+    """
+    Deletes all learner initiated ContentRequests for the passed in contentnode_ids
+    Matching learner initiated ContentRequests will be deleted - this means that if
+    resources are deleted by an admin, we remove any associated learner initiated requests.
+    Also updates the status of any COMPLETED non-learner initiated ContentDownloadRequests to PENDING
+    """
+    BATCH_SIZE = 250
+    for i in range(0, len(contentnode_ids), BATCH_SIZE):
+        batch = contentnode_ids[i : i + BATCH_SIZE]
+        ContentRequest.objects.filter(
+            contentnode_id__in=batch, reason=ContentRequestReason.UserInitiated
+        ).delete()
+        ContentDownloadRequest.objects.filter(
+            contentnode_id__in=batch,
+            status=ContentRequestStatus.Completed,
+        ).exclude(reason=ContentRequestReason.UserInitiated).update(
+            status=ContentRequestStatus.Pending
+        )
 
 
 class StorageCalculator:

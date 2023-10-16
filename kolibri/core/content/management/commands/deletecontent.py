@@ -7,11 +7,11 @@ from le_utils.constants import content_kinds
 
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
+from kolibri.core.content.utils.content_request import propagate_contentnode_removal
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -84,7 +84,7 @@ def delete_metadata(
             channel.delete_content_tree_and_files()
 
     if update_content_requests and removed_resources:
-        ContentRequest.objects.propagate_removal(list(removed_resources))
+        propagate_contentnode_removal(list(removed_resources))
 
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
