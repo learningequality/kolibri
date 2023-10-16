@@ -59,7 +59,7 @@ export default (DEBUG = true) => {
     for (let i = 0; i <= num; i++) {
       const overrides = {
         title: `Quiz Question ${i}`,
-        question_id: `${i}`,
+        question_id: uuidv4(),
       };
       questions.push(objectWithDefaults(overrides, QuizQuestion));
     }
@@ -70,7 +70,7 @@ export default (DEBUG = true) => {
     const sections = [];
     for (let i = 0; i <= num; i++) {
       const overrides = {
-        section_id: `${i}`,
+        section_id: uuidv4(),
         section_title: `A section ${i}`,
         questions: _quizQuestions(numQuestions),
       };
