@@ -81,7 +81,6 @@
                 const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
                 const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
 
-                console.log(tabRef, tabRefTop, containerTop, containerBottom);
                 return tabRefTop >= containerBottom;
               })
             : [];
