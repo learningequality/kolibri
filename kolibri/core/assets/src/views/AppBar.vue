@@ -104,7 +104,7 @@
     <!-- Window size and app context. Changes may need to be made -->
     <!-- in parallel in both files for non-breaking updates -->
     <div
-      v-if="!windowIsLarge && !isAppContext"
+      v-if="!windowIsLarge && (!isAppContext || (isAppContext && !isTouchDevice))"
       class="subpage-nav"
     >
       <slot name="sub-nav"></slot>
