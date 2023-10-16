@@ -3,6 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.validators import MinLengthValidator
+from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -63,6 +64,16 @@ class FacilityUserSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         username = attrs.get("username")
+        username_validator = RegexValidator(
+            r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
+            "Enter a valid username. This value can contain only letters, numbers, and underscores.",
+            code=error_constants.INVALID,
+            inverse_match=True,
+        )
+        try:
+            username_validator(username)
+        except serializers.ValidationError as e:
+            raise e
         # first condition is for creating object, second is for updating
         facility = attrs.get("facility") or getattr(self.instance, "facility")
         if (
