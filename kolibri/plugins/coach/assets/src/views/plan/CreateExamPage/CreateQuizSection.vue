@@ -154,7 +154,7 @@
       :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
     >
       <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div v-if="!accordionQuestions.length">
+      <div v-if="!quizForge.activeQuestions.value.length">
         <div class="question-mark-layout">
           <span class="help-icon-style">?</span>
         </div>
@@ -175,29 +175,129 @@
       </div>
       <!-- END TODO -->
 
-      <AccordionContainer v-else>
-        <template #default="{ toggleItemState, isItemExpanded, /* closeAccordionPanel */ }">
-          <AccordionItem
-            v-for="question in accordionQuestions"
-            :id="question.id"
-            :key="question.id"
-            :title="question.title"
+
+      <div v-else>
+        <KGrid>
+          <KGridItem
+            :layout12="{ span: 6 }"
           >
-            <template #heading>
-              <button @click="toggleItemState(question.id)">
-                {{ question.title }}
-              </button>
-            </template>
-
-            <template #content>
-              <div v-if="isItemExpanded(question.id)">
-                TODO: Use actual resources, render questions here
+            <div class="left-column-alignment-style">
+              <div class="align-kcheckbox-style">
+                <p>
+                  <KCheckbox />
+                </p>
               </div>
-            </template>
-          </AccordionItem>
-        </template>
-      </AccordionContainer>
 
+              <div>
+                <p> "SELECT ALL FIX ME"</p>
+              </div>
+            </div>
+          </KGridItem>
+
+          <KGridItem
+            :layout12="{ span: 6 }"
+          >
+            <div class="right-alignment-style">
+              <KGrid>
+                <KGridItem :layout12="{ span: 4 }">
+                  <button class="icon-container remove-button-style">
+                    <KIcon
+                      class="reduce-chervon-spacing"
+                      icon="chevronDown"
+                    />
+                    <KIcon
+                      class="reduce-chervon-spacing"
+                      icon="chevronUp"
+                    />
+                  </button>
+                </KGridItem>
+
+                <KGridItem
+                  :layout12="{ span: 4 }"
+                >
+
+                  <KIconButton
+                    class="icon-size"
+                    icon="refresh"
+                  />
+                </KGridItem>
+
+                <KGridItem
+                  :layout12="{ span: 4 }"
+                >
+                  <KIconButton
+                    class="icon-size"
+                    icon="trash"
+                  />
+                </KGridItem>
+              </KGrid>
+            </div>
+          </KGridItem>
+
+        </KGrid>
+
+        <AccordionContainer v-slot="{ toggleItemState, isItemExpanded }">
+          <DragContainer
+            key="drag-container"
+            :items="quizForge.activeQuestions.value"
+            @sort="handleQuestionOrderChange"
+          >
+            <transition-group
+              tag="div"
+              name="list"
+              class="wrapper"
+            >
+              <Draggable
+                v-for="(question, index) in quizForge.activeQuestions.value"
+                :key="`drag-${question.question_id}`"
+                tabindex="-1"
+                style="background: white"
+              >
+                <AccordionItem :id="question.question_id" :title="question.title">
+                  <template #heading="{ title }">
+                    <div class="accordion-header">
+                      <DragHandle>
+                        <div>
+                          <DragSortWidget
+                            class="sort-widget"
+                            moveUpText="up"
+                            moveDownText="down"
+                            :isFirst="index === 0"
+                            :isLast="index === quizForge.activeQuestions.value.length - 1"
+                            @moveUp="shiftOne(index, -1)"
+                            @moveDown="shiftOne(index, +1)"
+                          />
+                        </div>
+                      </DragHandle>
+                      <KCheckbox style="padding-left: 0.5em" />
+                      <a
+                        class="accordion-header-label"
+                        @click="toggleItemState(question.question_id)"
+                      >
+                        {{ title }}
+                      </a>
+                      <a
+                        class="accordion-header-chevron"
+                        @click="toggleItemState(question.question_id)"
+                      >
+                        <KIcon
+                          :icon="isItemExpanded(question.question_id) ?
+                            'chevronUp' : 'chevronRight'"
+                        />
+                      </a>
+                    </div>
+                  </template>
+                  <template #content="">
+                    <h1 v-if="isItemExpanded(question.question_id)">
+                      {{ question.title }}
+                    </h1>
+                  </template>
+                </AccordionItem>
+              </Draggable>
+            </transition-group>
+          </DragContainer>
+        </AccordionContainer>
+      </div>
 
     </KTabsPanel>
 
@@ -213,6 +313,10 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import DragContainer from 'kolibri.coreVue.components.DragContainer';
+  import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
+  import Draggable from 'kolibri.coreVue.components.Draggable';
   import commonCoach from '../../common';
   import SectionSidePanel from './SectionSidePanel';
   import TabsWithOverflow from './TabsWithOverflow';
@@ -224,6 +328,10 @@
     components: {
       AccordionContainer,
       AccordionItem,
+      DragContainer,
+      Draggable,
+      DragSortWidget,
+      DragHandle,
       TabsWithOverflow,
       SectionSidePanel,
     },
@@ -291,10 +399,6 @@
           },
         ];
       },
-      accordionQuestions() {
-        const mapQuestionToAccordionItem = q => ({ id: q.question_id, title: q.title });
-        return get(this.quizForge.activeQuestions).map(mapQuestionToAccordionItem);
-      },
     },
     methods: {
       tabRefLabel(section_id) {
@@ -328,6 +432,13 @@
             ? '2px solid ' + this.$themeTokens.primary
             : 'none',
         };
+      },
+      handleQuestionOrderChange({ newArray }) {
+        const payload = {
+          section_id: get(this.quizForge.activeSection).section_id,
+          questions: newArray,
+        };
+        this.quizForge.updateSection(payload);
       },
       handleAddSection() {
         const newSection = this.quizForge.addSection();
@@ -432,10 +543,6 @@
     font-size: 1em;
   }
 
-  .accordion-detail-container {
-    margin-left: 3em;
-  }
-
   .float-item-left-style {
     float: right;
     margin-top: 1em;
@@ -530,6 +637,33 @@
     width: calc(100% - 40px);
     max-width: calc(100% - 40px) !important;
     min-height: 40px;
+  }
+
+  .accordion-header {
+    display: flex;
+    flex-wrap: nowrap;
+    align-items: center;
+    padding: 0 0.5em;
+  }
+
+  .accordion-header-label {
+    flex-grow: 1;
+    align-self: stretch;
+    padding: 0 0 0 1em;
+    line-height: 2.75em;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .accordion-header-chevron {
+    display: flex;
+    align-items: center;
+    align-self: stretch;
+    cursor: pointer;
+  }
+
+  /deep/ .checkbox-icon {
+    top: 2px;
   }
 
 </style>
