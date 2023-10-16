@@ -481,10 +481,11 @@ def check_plugin_config_file_location(version):
 def iterate_plugins():
     # Use to dedupe plugins
     plugin_ids = set()
+    all_entry_points = entry_points()
     eps = (
-        entry_points().get("kolibri.plugins", [])
-        if type(entry_points()) == dict
-        else entry_points().select(group="kolibri.plugins")
+        all_entry_points.get("kolibri.plugins", [])
+        if type(all_entry_points) == dict
+        else all_entry_points.select(group="kolibri.plugins")
     )
     for entry_point in eps:
         name = entry_point.name
