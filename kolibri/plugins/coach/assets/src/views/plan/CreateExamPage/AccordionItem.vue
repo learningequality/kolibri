@@ -13,7 +13,6 @@
       <slot
         :id="id"
         name="content"
-        :answers="title"
       >
       </slot>
     </div>
