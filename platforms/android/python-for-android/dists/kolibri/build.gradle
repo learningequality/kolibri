@@ -24,7 +24,7 @@ apply plugin: 'com.android.application'
 
 
 android {
-    compileSdkVersion 31
+    compileSdk 33
     buildToolsVersion '34.0.0'
     def versionPropsFile = file('version.properties')
     Properties versionProps = new Properties()

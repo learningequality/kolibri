@@ -3,6 +3,7 @@ import re
 import sys
 
 import kolibri  # noqa: F401  Import Kolibri here so we can import modules from dist folder
+import monkey_patch_zeroconf  # noqa: F401 Import this to patch zeroconf
 from android_utils import get_context
 from android_utils import get_home_folder
 from android_utils import get_signature_key_issuing_organization

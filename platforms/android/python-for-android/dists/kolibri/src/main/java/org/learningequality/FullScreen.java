@@ -35,7 +35,7 @@ public class FullScreen {
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setAllowFileAccess(true);
-        webSettings.setAppCacheEnabled(true);
+        webSettings.setCacheMode(WebSettings.LOAD_DEFAULT);
     }
 
     private class MyChrome extends WebChromeClient {
