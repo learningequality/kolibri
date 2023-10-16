@@ -20,8 +20,8 @@
 
 <script>
 
-  import { computed, onBeforeMount, onBeforeUnmount, ref } from 'kolibri.lib.vueCompositionApi';
-  import { get, set } from '@vueuse/core';
+  import { computed, onBeforeMount, onBeforeUnmount } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
@@ -60,7 +60,6 @@
       const className = computed(() => (get(classroom) ? get(classroom).name : ''));
       const activeLessons = computed(() => getClassActiveLessons(get(classId)));
       const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId)));
-      const loading = ref(true);
 
       let pollTimeoutId;
 
@@ -70,7 +69,6 @@
 
       function pollForUpdates() {
         fetchClass({ classId, force: true }).then(() => {
-          set(loading, false);
           schedulePoll();
         });
       }
@@ -87,8 +85,13 @@
         className,
         activeLessons,
         activeQuizzes,
-        loading,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       breadcrumbs() {
