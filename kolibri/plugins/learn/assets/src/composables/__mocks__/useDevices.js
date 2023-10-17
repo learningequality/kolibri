@@ -37,6 +37,10 @@ const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),
   baseurl: null,
   networkDevices: ref({}),
+  networkDevicesWithChannels: ref([]),
+  keepDeviceChannelsUpdated: jest.fn(),
+  isLoadingChannels: false,
+  isLoading: false,
 };
 
 export function useDevicesMock(overrides = {}) {
