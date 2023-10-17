@@ -11,7 +11,6 @@ from .models import NetworkLocation
 from .models import PinnedDevice
 from .utils.network import errors
 from .utils.network.client import NetworkClient
-from kolibri.core.auth.models import FacilityUser
 from kolibri.core.serializers import HexOnlyUUIDField
 
 
@@ -76,9 +75,16 @@ class PinnedDeviceSerializer(ModelSerializer):
     """
 
     id = HexOnlyUUIDField(required=False)
-    user = serializers.PrimaryKeyRelatedField(queryset=FacilityUser.objects.all())
     instance_id = HexOnlyUUIDField()
 
     class Meta:
         model = PinnedDevice
-        fields = ("instance_id", "user", "id")
+        fields = ("instance_id", "id")
+
+    def create(self, validated_data):
+        if "request" in self.context and self.context["request"].user is not None:
+            user = self.context["request"].user
+        else:
+            raise serializers.ValidationError("User must be defined")
+        validated_data["user"] = user
+        return super(PinnedDeviceSerializer, self).create(validated_data)
