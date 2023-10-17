@@ -135,7 +135,6 @@ export default function useDevices(store) {
         const promise = fetchChannels({ baseurl }).then(channels => {
           _updateDeviceChannels(currentDevice, channels);
           isLoadingChannels.value = false;
-          console.log(isLoadingChannels.value);
         });
         promises.push(promise);
       }

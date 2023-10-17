@@ -85,7 +85,7 @@
             >
               <div class="sync-status">
                 <span
-                  v-show="searching"
+                  v-show="searchingOtherLibraries"
                   data-test="searching"
                 >
                   <span data-test="searching-label">{{ $tr('searchingOtherLibrary') }}</span>
@@ -98,7 +98,7 @@
                   </span>
                 </span>
                 <span
-                  v-show="!searching && devicesWithChannelsExist"
+                  v-show="!searchingOtherLibraries && devicesWithChannelsExist"
                   data-test="showing-all"
                 >
                   <span>
@@ -120,7 +120,7 @@
                   </span>
                 </span>
                 <span
-                  v-show="!searching && !devicesWithChannelsExist"
+                  v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
                   data-test="no-other"
                 >
                   <span>
@@ -133,6 +133,11 @@
             </KGridItem>
           </KGrid>
 
+          <KCircularLoader
+            v-if="searchingOtherLibraries"
+            type="indeterminate"
+            :delay="false"
+          />
           <h2
             v-if="pinnedDevicesExist && unpinnedDevicesExist"
             data-test="pinned-label"
@@ -479,7 +484,7 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
-        searching: isLoadingChannels,
+        searchingOtherLibraries: isLoadingChannels,
       };
     },
     props: {
