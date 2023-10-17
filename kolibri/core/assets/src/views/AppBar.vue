@@ -10,7 +10,7 @@
 
       <UiToolbar
         :title="title"
-        :removeNavIcon="isAppContext && !windowIsLarge"
+        :removeNavIcon="isAppContext && isTouchDevice"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -19,7 +19,7 @@
         :removeBrandDivider="true"
       >
         <template
-          v-if="windowIsLarge || !isAppContext"
+          v-if="windowIsLarge || !isAppContext || !isTouchDevice"
           #icon
         >
           <KIconButton
@@ -104,7 +104,7 @@
     <!-- Window size and app context. Changes may need to be made -->
     <!-- in parallel in both files for non-breaking updates -->
     <div
-      v-if="!windowIsLarge && !isAppContext"
+      v-if="!windowIsLarge && (!isAppContext || (isAppContext && !isTouchDevice))"
       class="subpage-nav"
     >
       <slot name="sub-nav"></slot>
@@ -151,7 +151,13 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner', 'isAppContext']),
+      ...mapGetters([
+        'isUserLoggedIn',
+        'totalPoints',
+        'isLearner',
+        'isAppContext',
+        'isTouchDevice',
+      ]),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
