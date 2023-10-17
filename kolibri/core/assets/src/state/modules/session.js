@@ -84,12 +84,6 @@ export default {
     isLearnerOnlyImport(state) {
       return !state.full_facility_import;
     },
-    isTouchDevice() {
-      // Check for presence of the touch event in DOM or multi-touch capabilities
-      return (
-        'ontouchstart' in window || navigator.maxTouchPoints > 0 || navigator.msMaxTouchPoints > 0
-      );
-    },
   },
   mutations: {
     CORE_SET_SESSION(state, value) {
