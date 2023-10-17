@@ -134,10 +134,12 @@ export default function useDevices(store) {
     for (const currentDevice of Object.values(networkDevices.value)) {
       if (!get(deviceChannelsMap)[currentDevice.instance_id]) {
         const baseurl = currentDevice.base_url;
-        const promise = fetchChannels({ baseurl }).then(channels => {
-          _updateDeviceChannels(currentDevice, channels);
-          isLoadingChannels.value = false;
-        });
+        const promise = fetchChannels({ baseurl })
+          .then(channels => {
+            _updateDeviceChannels(currentDevice, channels);
+            isLoadingChannels.value = false;
+          })
+          .catch(() => {});
         promises.push(promise);
       }
     }
