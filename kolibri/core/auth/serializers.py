@@ -2,6 +2,8 @@ from __future__ import absolute_import
 from __future__ import print_function
 from __future__ import unicode_literals
 
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.core.validators import MaxLengthValidator
 from django.core.validators import MinLengthValidator
 from django.core.validators import RegexValidator
 from rest_framework import serializers
@@ -72,8 +74,18 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         )
         try:
             username_validator(username)
-        except serializers.ValidationError as e:
-            raise e
+        except DjangoValidationError as e:
+            raise serializers.ValidationError({"username": e.message})
+
+        try:
+            MaxLengthValidator(
+                30, "Required. 30 characters or fewer. Letters and digits only"
+            )(username)
+        except DjangoValidationError as e:
+            raise serializers.ValidationError(
+                {"username": e.message}, code=error_constants.MAX_LENGTH
+            )
+
         # first condition is for creating object, second is for updating
         facility = attrs.get("facility") or getattr(self.instance, "facility")
         if (

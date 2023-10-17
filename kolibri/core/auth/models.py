@@ -348,10 +348,14 @@ def validate_username(value):
     try:
         validators.EmailValidator()(value)
     except ValidationError:
+        # for kolibri backwards compatibility, if the username is not an email:
         validators.RegexValidator(
             r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
             "Enter a valid username. This value can either be an email or contain only letters, numbers, and underscores.",
             inverse_match=True,
+        )(value)
+        validators.MaxLengthValidator(
+            30, "Required. 30 characters or fewer. Letters and digits only"
         )(value)
 
 
@@ -371,8 +375,8 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     username = models.CharField(
         "username",
-        max_length=30,
-        help_text="Required. 30 characters or fewer. Letters and digits only",
+        max_length=254,
+        help_text="Required. 254 characters or fewer.",
         validators=[validate_username],
     )
     full_name = models.CharField("full name", max_length=120, blank=True)
