@@ -422,6 +422,7 @@
 
       function showLibrary() {
         set(rootNodesLoading, true);
+        store.commit('CORE_SET_PAGE_LOADING', true);
         if (props.deviceId) {
           return setCurrentDevice(props.deviceId)
             .then(device => {

@@ -68,7 +68,6 @@ export default [
         next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
-      store.commit('CORE_SET_PAGE_LOADING', true);
     },
     component: LibraryPage,
     props: route => {
