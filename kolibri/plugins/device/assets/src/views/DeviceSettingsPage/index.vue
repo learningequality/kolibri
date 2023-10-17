@@ -224,6 +224,7 @@
                 :max="toGigabytes(freeSpace)"
                 :invalid="notEnoughFreeSpace"
                 :invalidText="$tr('notEnoughFreeSpace')"
+                :floatingLabel="false"
                 @input="updateLimitForAutodownload"
               />
               <div class="slider-section">
