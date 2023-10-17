@@ -5,7 +5,6 @@
 import {
   computed,
   getCurrentInstance,
-  reactive,
   ref,
   onBeforeUnmount,
   watch,
@@ -120,17 +119,20 @@ export default function useDevices(store) {
   const isLoading = ref(false);
   const { instanceId, baseurl, deviceName } = currentDeviceData(store);
 
-  const deviceChannelsMap = reactive({});
+  const deviceChannelsMap = ref({});
   const isLoadingChannels = ref(true);
 
   function _updateDeviceChannels(device, channels) {
-    set(deviceChannelsMap, device.instance_id, channels);
+    set(deviceChannelsMap, {
+      ...get(deviceChannelsMap),
+      [device.instance_id]: channels,
+    });
   }
 
   function loadDeviceChannels() {
     const promises = [];
     for (const currentDevice of Object.values(networkDevices.value)) {
-      if (!deviceChannelsMap[currentDevice.instance_id]) {
+      if (!get(deviceChannelsMap)[currentDevice.instance_id]) {
         const baseurl = currentDevice.base_url;
         const promise = fetchChannels({ baseurl }).then(channels => {
           _updateDeviceChannels(currentDevice, channels);
@@ -176,7 +178,7 @@ export default function useDevices(store) {
 
   const networkDevicesWithChannels = computed(() => {
     return Object.values(get(networkDevices))
-      .filter(device => deviceChannelsMap[device.instance_id]?.length > 0)
+      .filter(device => get(deviceChannelsMap)[device.instance_id]?.length > 0)
       .sort((a, b) => {
         if (a.instance_id === KolibriStudioId) {
           return 1;
