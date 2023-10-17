@@ -126,8 +126,6 @@ jobs:
         # but repeated workflow calls for this commit will use the cache.
         path: ./python-for-android
         key: ${{ runner.os }}-python-for-android-${{ steps.get-commit.outputs.sha }}
-        restore-keys: |
-          ${{ runner.os }}-python-for-android-
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pip
