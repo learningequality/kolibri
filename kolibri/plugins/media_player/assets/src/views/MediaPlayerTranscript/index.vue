@@ -3,7 +3,7 @@
   <section
     :dir="languageDir"
     :class="['media-player-transcript', { showing }]"
-    :style="{ background: $themeTokens.surface, position: cssPosition }"
+    :style="{ background: $themeTokens.surface }"
     :aria-hidden="(!showing).toString()"
     :aria-label="coreString('transcript')"
     @mouseenter="hovering = true"
