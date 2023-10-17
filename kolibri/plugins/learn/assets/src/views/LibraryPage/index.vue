@@ -63,109 +63,12 @@
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
-        <!-- Other Libraires -->
-        <div
+        <!-- Other Libraries -->
+        <OtherLibraries
           v-if="!deviceId && isUserLoggedIn"
-          data-test="other-libraries"
-        >
-          <KGrid gutter="12">
-            <KGridItem
-              :layout12="{ span: 6 }"
-              :layout8="{ span: 4 }"
-              :layout4="{ span: 4 }"
-            >
-              <h1>
-                {{ $tr('otherLibraries') }}
-              </h1>
-            </KGridItem>
-            <KGridItem
-              :layout12="{ span: 6 }"
-              :layout8="{ span: 4 }"
-              :layout4="{ span: 4 }"
-            >
-              <div class="sync-status">
-                <span
-                  v-show="searchingOtherLibraries"
-                  data-test="searching"
-                >
-                  <span data-test="searching-label">{{ $tr('searchingOtherLibrary') }}</span>
-                  &nbsp;&nbsp;
-                  <span>
-                    <KCircularLoader
-                      type="indeterminate"
-                      :stroke="6"
-                    />
-                  </span>
-                </span>
-                <span
-                  v-show="!searchingOtherLibraries && devicesWithChannelsExist"
-                  data-test="showing-all"
-                >
-                  <span>
-                    <KIcon
-                      v-if="windowIsSmall"
-                      icon="wifi"
-                      class="wifi-svg"
-                    />
-                  </span>
-                  &nbsp;&nbsp;
-                  <span data-test="showing-all-label">{{ showingAllLibrariesLabel }}</span>
-                  &nbsp;&nbsp;
-                  <span>
-                    <KIcon
-                      v-if="!windowIsSmall"
-                      icon="wifi"
-                      class="wifi-svg"
-                    />
-                  </span>
-                </span>
-                <span
-                  v-show="!searchingOtherLibraries && !devicesWithChannelsExist"
-                  data-test="no-other"
-                >
-                  <span>
-                    <KIcon icon="disconnected" />
-                  </span>
-                  &nbsp;&nbsp;
-                  <span data-test="no-other-label">{{ $tr('noOtherLibraries') }}</span>
-                </span>
-              </div>
-            </KGridItem>
-          </KGrid>
-
-          <KCircularLoader
-            v-if="searchingOtherLibraries"
-            type="indeterminate"
-            :delay="false"
-          />
-          <h2
-            v-if="pinnedDevicesExist && unpinnedDevicesExist"
-            data-test="pinned-label"
-          >
-            {{ $tr('pinned') }}
-          </h2>
-          <PinnedNetworkResources
-            v-if="pinnedDevicesExist"
-            data-test="pinned-resources"
-            :devices="pinnedDevices"
-            :deviceChannelsMap="deviceChannelsMap"
-            :channelsToDisplay="cardsPerRow * 2 - 1"
-          />
-
-          <!-- More  -->
-          <h2
-            v-if="pinnedDevicesExist && unpinnedDevicesExist"
-            data-test="more-label"
-          >
-            {{ $tr('moreLibraries') }}
-          </h2>
-          <MoreNetworkDevices
-            v-if="unpinnedDevicesExist"
-            data-test="more-devices"
-            :devices="unpinnedDevices"
-            :deviceChannelsMap="deviceChannelsMap"
-          />
-        </div>
+          :injectedtr="injecttr"
+          :cardsPerRow="cardsPerRow"
+        />
 
       </div>
 
@@ -256,12 +159,11 @@
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
-  import useDevices, {
+  import {
     currentDeviceData,
     setCurrentDevice,
     StudioNotAllowedError,
   } from '../../composables/useDevices';
-  import usePinnedDevices from '../../composables/usePinnedDevices';
   import useSearch, { searchKeys } from '../../composables/useSearch';
   import useLearnerResources from '../../composables/useLearnerResources';
   import BrowseResourceMetadata from '../BrowseResourceMetadata';
@@ -272,8 +174,7 @@
   import LearnAppBarPage from '../LearnAppBarPage';
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
-  import PinnedNetworkResources from './PinnedNetworkResources';
-  import MoreNetworkDevices from './MoreNetworkDevices';
+  import OtherLibraries from './OtherLibraries';
 
   export default {
     name: 'LibraryPage',
@@ -291,8 +192,7 @@
       SearchResultsGrid,
       SearchFiltersPanel,
       LearnAppBarPage,
-      PinnedNetworkResources,
-      MoreNetworkDevices,
+      OtherLibraries,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -332,14 +232,7 @@
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
       const { baseurl, deviceName } = currentDeviceData();
-      const {
-        isLoadingChannels,
-        networkDevicesWithChannels,
-        keepDeviceChannelsUpdated,
-        deviceChannelsMap,
-      } = useDevices();
       const { fetchChannels } = useChannels();
-      const { fetchPinsForUser } = usePinnedDevices();
 
       onMounted(() => {
         const keywords = currentRoute().query.keywords;
@@ -446,8 +339,6 @@
         return _showLibrary();
       }
 
-      keepDeviceChannelsUpdated();
-
       watch(() => props.deviceId, showLibrary);
 
       showLibrary();
@@ -475,16 +366,12 @@
         windowIsSmall,
         currentCardViewStyle,
         baseurl,
-        networkDevicesWithChannels,
-        deviceChannelsMap,
         deviceName,
         fetchChannels,
-        fetchPinsForUser,
         back,
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
-        searchingOtherLibraries: isLoadingChannels,
       };
     },
     props: {
@@ -498,7 +385,6 @@
         isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
-        usersPins: [],
       };
     },
     computed: {
@@ -518,9 +404,6 @@
         } else {
           return this.coreString('yourLibrary');
         }
-      },
-      devicesWithChannelsExist() {
-        return this.networkDevicesWithChannels.length > 0;
       },
       gridOffset() {
         const marginTop =
@@ -566,17 +449,6 @@
         }
         return 12 / this.cardsPerRow;
       },
-      pinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === this.studioId
-          );
-        });
-      },
-      pinnedDevicesExist() {
-        return this.pinnedDevices.length > 0;
-      },
       sidePanelWidth() {
         if (
           this.windowIsSmall ||
@@ -590,26 +462,8 @@
           return 346;
         }
       },
-      showingAllLibrariesLabel() {
-        const label = this.$tr('showingAllLibraries');
-        return label;
-      },
       studioId() {
         return KolibriStudioId;
-      },
-      unpinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            !this.usersPinsDeviceIds.includes(device.instance_id) &&
-            device.instance_id !== this.studioId
-          );
-        });
-      },
-      unpinnedDevicesExist() {
-        return this.unpinnedDevices.length > 0;
-      },
-      usersPinsDeviceIds() {
-        return this.usersPins.map(pin => pin.instance_id);
       },
     },
     provide() {
@@ -639,24 +493,16 @@
       if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
       }
-      if (this.isUserLoggedIn) {
-        this.fetchPins();
-      }
     },
     methods: {
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
-      fetchPins() {
-        this.fetchPinsForUser().then(resp => {
-          this.usersPins = resp.map(pin => {
-            const instance_id = pin.instance_id.replace(/-/g, '');
-            return { ...pin, instance_id };
-          });
-        });
-      },
       toggleSidePanelVisibility() {
         this.mobileSidePanelIsOpen = !this.mobileSidePanelIsOpen;
+      },
+      injecttr(...args) {
+        return this.$tr(...args);
       },
     },
     $trs: {
@@ -664,6 +510,8 @@
         message: 'Library of {device}',
         context: 'A header for a device Library',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      // These are mostly used in the OtherLibraries component and passed in from here.
       otherLibraries: {
         message: 'Other libraries',
         context: 'Header for viewing other remote content Library',
@@ -672,12 +520,10 @@
         message: 'Searching for libraries around you.',
         context: 'Connection state for showing other library',
       },
-      /* eslint-disable kolibri/vue-no-unused-translations */
       noOtherLibraries: {
         message: 'No other libraries around you right now',
         context: 'Connection state when there is no other libraries around',
       },
-      /* eslint-enable kolibri/vue-no-unused-translations */
       showingAllLibraries: {
         message: 'Showing all available libraries around you.',
         context: 'Connection state when the device is connected and shows other libraries',
@@ -690,6 +536,7 @@
         message: 'Pinned',
         context: 'Sub heading for the pinned devices',
       },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
@@ -761,32 +608,6 @@
   .chip {
     margin-bottom: 8px;
     margin-left: 8px;
-  }
-
-  .sync-status {
-    display: flex;
-    justify-content: flex-end;
-    margin: 30px 0 10px;
-
-    span {
-      display: inline-flex;
-      vertical-align: bottom;
-    }
-  }
-
-  .network-device-refresh {
-    display: inline-block;
-    margin: 0 4px;
-  }
-
-  .view-all-text {
-    margin: auto;
-    font-size: 16px;
-  }
-
-  .wifi-svg {
-    top: 0;
-    transform: scale(1.5);
   }
 
 </style>
