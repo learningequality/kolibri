@@ -121,6 +121,7 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri.themeConfig';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -151,13 +152,7 @@
       };
     },
     computed: {
-      ...mapGetters([
-        'isUserLoggedIn',
-        'totalPoints',
-        'isLearner',
-        'isAppContext',
-        'isTouchDevice',
-      ]),
+      ...mapGetters(['isUserLoggedIn', 'totalPoints', 'isLearner', 'isAppContext']),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
@@ -165,6 +160,9 @@
       // temp hack for the VF plugin
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
+      },
+      isTouchDevice() {
+        return isTouchDevice;
       },
     },
     created() {

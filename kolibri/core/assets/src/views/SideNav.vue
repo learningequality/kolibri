@@ -251,6 +251,7 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import navComponentsMixin from '../mixins/nav-components';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
@@ -320,12 +321,14 @@
         'getUserKind',
         'isAppContext',
         'isUserLoggedIn',
-        'isTouchDevice',
       ]),
       ...mapState({
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
       }),
+      isTouchDevice() {
+        return isTouchDevice;
+      },
       width() {
         return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
