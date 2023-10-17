@@ -66,6 +66,7 @@
         <!-- Other Libraries -->
         <OtherLibraries
           v-if="!deviceId && isUserLoggedIn"
+          data-test="other-libraries"
           :injectedtr="injecttr"
           :cardsPerRow="cardsPerRow"
         />

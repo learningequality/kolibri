@@ -1,8 +1,6 @@
 <template>
 
-  <div
-    data-test="other-libraries"
-  >
+  <div>
     <KGrid gutter="12">
       <KGridItem
         :layout12="{ span: 6 }"
@@ -68,11 +66,6 @@
       </KGridItem>
     </KGrid>
 
-    <KCircularLoader
-      :shouldShow="searchingOtherLibraries"
-      :delay="false"
-      :minVisibleTime="300"
-    />
     <h2
       v-if="pinnedDevicesExist && unpinnedDevicesExist"
       data-test="pinned-label"
