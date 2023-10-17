@@ -189,7 +189,7 @@ class PinnedDeviceAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        response_ids = sorted([item["instance_id"].hex for item in response.data])
+        response_ids = sorted([item["instance_id"] for item in response.data])
         self.assertEqual(response_ids, pin_ids)
         self.assertNotIn(other_pin.instance_id, response_ids)
 

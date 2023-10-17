@@ -74,7 +74,6 @@ class PinnedDeviceSerializer(ModelSerializer):
     Serializer for handling requests regarding a user's Pinned Devices
     """
 
-    id = HexOnlyUUIDField(required=False)
     instance_id = HexOnlyUUIDField()
 
     class Meta:
