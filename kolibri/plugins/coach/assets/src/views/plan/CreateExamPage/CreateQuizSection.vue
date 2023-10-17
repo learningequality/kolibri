@@ -270,13 +270,18 @@
                         </div>
                       </DragHandle>
                       <KCheckbox style="padding-left: 0.5em" />
-                      <a
+                      <KButton
+                        tabindex="0"
+                        appearance="basic-link"
+                        :style="accordionStyleOverrides"
                         class="accordion-header-label"
                         @click="toggleItemState(question.question_id)"
                       >
                         {{ title }}
-                      </a>
-                      <a
+                      </KButton>
+                      <KButton
+                        appearance="basic-link"
+                        :style="accordionStyleOverrides"
                         class="accordion-header-chevron"
                         @click="toggleItemState(question.question_id)"
                       >
@@ -284,7 +289,7 @@
                           :icon="isItemExpanded(question.question_id) ?
                             'chevronUp' : 'chevronRight'"
                         />
-                      </a>
+                      </KButton>
                     </div>
                   </template>
                   <template #content="">
@@ -367,6 +372,12 @@
     },
     inject: ['quizForge'],
     computed: {
+      accordionStyleOverrides() {
+        return {
+          color: this.$themeTokens.text + '!important',
+          textDecoration: 'none',
+        };
+      },
       noKgridItemPadding() {
         return {
           paddingLeft: '0em',
@@ -664,6 +675,10 @@
 
   /deep/ .checkbox-icon {
     top: 2px;
+  }
+
+  /deep/ .grip {
+    top: 2px !important;
   }
 
 </style>
