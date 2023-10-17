@@ -206,7 +206,6 @@
       defaultDuration() {
         return this.player.duration();
       },
-      /* eslint-enable kolibri/vue-no-unused-properties */
       transcriptWrap() {
         return this.windowIsPortrait || (!this.isFullscreen && this.windowIsSmall);
       },
@@ -656,6 +655,7 @@
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
+    position: absolute;
     top: 0;
     width: 33.333%;
 
@@ -665,6 +665,7 @@
   }
 
   .wrapper.transcript-wrap .media-player-transcript {
+    position: relative;
     left: 0;
     height: #{$transcript-wrap-height};
 
