@@ -196,7 +196,7 @@
         this.disableRequestButtons = false;
       },
       confirmRemoveRequest() {
-        this.removeDownloadRequest(this.contentNode).then(() => {
+        this.removeDownloadRequest(this.contentNode.id).then(() => {
           this.removeConfirmationModalOpen = false;
         });
       },
