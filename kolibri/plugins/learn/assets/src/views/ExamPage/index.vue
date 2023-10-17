@@ -4,7 +4,8 @@
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
-    <KGrid :gridStyle="gridStyle">
+    <KCircularLoader v-if="loading" />
+    <KGrid v-else :gridStyle="gridStyle">
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
         v-if="windowIsLarge"
@@ -237,6 +238,9 @@
       };
     },
     computed: {
+      ...mapState({
+        loading: state => state.core.loading,
+      }),
       ...mapState('examViewer', ['exam', 'contentNodeMap', 'questions', 'questionNumber']),
       gridStyle() {
         if (!this.windowIsSmall) {

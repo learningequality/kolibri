@@ -43,6 +43,7 @@
         {{ $tr('noResourcesInLesson') }}
       </p>
     </div>
+    <KCircularLoader v-else />
   </LearnAppBarPage>
 
 </template>
