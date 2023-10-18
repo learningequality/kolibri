@@ -76,7 +76,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import AttemptLogItem from './AttemptLogItem';
 
   export default {
@@ -84,7 +83,7 @@
     components: {
       AttemptLogItem,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     props: {
       attemptLogs: {
         type: Array,

@@ -239,7 +239,7 @@
   import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
@@ -288,11 +288,14 @@
       LogoutSideNavEntry,
       BottomNavigationBar,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin, navComponentsMixin],
+    mixins: [commonCoreStrings, responsiveElementMixin, navComponentsMixin],
     setup() {
+      const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const { isLearnerOnlyImport } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
       return {
+        windowIsLarge,
+        windowIsSmall,
         isLearnerOnlyImport,
         themeConfig,
         userSyncStatus: status,

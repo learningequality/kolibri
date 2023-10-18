@@ -44,7 +44,7 @@
 <script>
 
   import { currentLanguage } from 'kolibri.utils.i18n';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import languageSwitcherMixin from './mixin';
@@ -52,7 +52,13 @@
   export default {
     name: 'LanguageSwitcherModal',
     components: { FocusTrap },
-    mixins: [commonCoreStrings, languageSwitcherMixin, responsiveWindowMixin],
+    mixins: [commonCoreStrings, languageSwitcherMixin],
+    setup(){
+      const{ windowIsSmall } = useKResponsiveWindow();
+      return{
+        windowIsSmall
+      };
+    },
     data() {
       return {
         selectedLanguage: currentLanguage,
