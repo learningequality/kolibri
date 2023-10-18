@@ -14,7 +14,6 @@
         />
       </KGridItem>
       <KGridItem
-        v-if="devices.length"
         key="view-all"
         :layout="{ span: layoutSpan }"
       >

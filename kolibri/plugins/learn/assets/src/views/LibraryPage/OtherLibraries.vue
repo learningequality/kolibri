@@ -77,20 +77,19 @@
       data-test="pinned-resources"
       :devices="pinnedDevices"
       :deviceChannelsMap="deviceChannelsMap"
-      :channelsToDisplay="cardsPerRow * 2 - 1"
+      :channelsToDisplay="cardsToDisplay"
     />
 
     <!-- More  -->
     <h2
-      v-if="pinnedDevicesExist && unpinnedDevicesExist"
+      v-if="pinnedDevicesExist || unpinnedDevicesExist"
       data-test="more-label"
     >
       {{ injectedtr('moreLibraries') }}
     </h2>
     <MoreNetworkDevices
-      v-if="unpinnedDevicesExist"
       data-test="more-devices"
-      :devices="unpinnedDevices"
+      :devices="unpinnedDevices.slice(0, cardsToDisplay)"
       :deviceChannelsMap="deviceChannelsMap"
     />
   </div>
@@ -114,7 +113,7 @@
       PinnedNetworkResources,
       MoreNetworkDevices,
     },
-    setup() {
+    setup(props) {
       const {
         isLoadingChannels,
         networkDevicesWithChannels,
@@ -136,6 +135,10 @@
 
       const devicesWithChannelsExist = computed(() => get(networkDevicesWithChannels).length > 0);
 
+      // We want to display 2n - 1 cards per row, where n is the number of cards per row
+      // in the grid. This is because the final card in the row will be a "more" or "view all" card.
+      const cardsToDisplay = computed(() => (props.cardsPerRow || 0) * 2 - 1);
+
       return {
         networkDevicesWithChannels,
         devicesWithChannelsExist,
@@ -146,10 +149,13 @@
         unpinnedDevices,
         pinnedDevicesExist,
         unpinnedDevicesExist,
+        cardsToDisplay,
       };
     },
     props: {
       injectedtr: { type: Function, required: true },
+      // This is used in the setup function.
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
       cardsPerRow: { type: Number, required: true },
     },
   };
