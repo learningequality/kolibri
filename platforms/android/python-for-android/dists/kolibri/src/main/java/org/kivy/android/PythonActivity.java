@@ -21,6 +21,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
+import android.webkit.WebSettings;
 import android.widget.Toast;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -165,13 +166,19 @@ public class PythonActivity extends Activity {
             String app_root_dir = getAppRoot();
 
             mWebView = new WebView(PythonActivity.mActivity);
-            mWebView.getSettings().setJavaScriptEnabled(true);
-            mWebView.getSettings().setDomStorageEnabled(true);
-            mWebView.loadData(PythonActivity.mActivity.getString(R.string.loading_page_html), "text/html", "UTF-8");
-            mWebView.getSettings().setAllowFileAccessFromFileURLs(true);
-            mWebView.getSettings().setAllowUniversalAccessFromFileURLs(true);
-            mWebView.getSettings().setMediaPlaybackRequiresUserGesture(false);
+            WebSettings webViewSettings = mWebView.getSettings();
+            webViewSettings.setJavaScriptEnabled(true);
+            webViewSettings.setDomStorageEnabled(true);
+            // Follow recommended security settings from here:
+            // https://developer.android.com/reference/kotlin/androidx/webkit/WebViewAssetLoader
+            webViewSettings.setAllowFileAccessFromFileURLs(false);
+            webViewSettings.setAllowUniversalAccessFromFileURLs(false);
+            webViewSettings.setAllowFileAccess(false);
+            webViewSettings.setAllowContentAccess(false);
+            webViewSettings.setMediaPlaybackRequiresUserGesture(false);
+            webViewSettings.setMediaPlaybackRequiresUserGesture(false);
 
+            mWebView.loadData(PythonActivity.mActivity.getString(R.string.loading_page_html), "text/html", "UTF-8");
             mWebView.setLayoutParams(new LayoutParams(LayoutParams.FILL_PARENT, LayoutParams.FILL_PARENT));
             mWebView.setWebViewClient(new WebViewClient() {
                     @Override
