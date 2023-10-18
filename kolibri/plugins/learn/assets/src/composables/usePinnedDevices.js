@@ -2,23 +2,70 @@
  * A composable function containing logic related to pinned devices
  */
 
+import { get, set } from '@vueuse/core';
+import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { PinnedDeviceResource } from 'kolibri.resources';
+import { KolibriStudioId } from '../constants';
 
-export default function usePinnedDevices() {
+export default function usePinnedDevices(networkDevicesWithChannels) {
+  const userPinsMap = ref({});
+
+  const devicesWithChannels = computed(() => {
+    return networkDevicesWithChannels ? get(networkDevicesWithChannels) || [] : [];
+  });
+
   function fetchPinsForUser() {
-    return PinnedDeviceResource.fetchCollection({ force: true });
+    return PinnedDeviceResource.fetchCollection({ force: true }).then(pins => {
+      const updatedPins = {};
+      for (const pin of pins) {
+        updatedPins[pin.instance_id] = pin;
+      }
+      set(userPinsMap, updatedPins);
+    });
   }
 
   function createPinForUser(instance_id) {
-    return PinnedDeviceResource.create({ instance_id });
+    return PinnedDeviceResource.create({ instance_id }).then(pin => {
+      set(userPinsMap, {
+        ...get(userPinsMap),
+        [pin.instance_id]: pin,
+      });
+    });
   }
 
-  function deletePinForUser(id) {
-    return PinnedDeviceResource.deleteModel(id);
+  function deletePinForUser(instance_id) {
+    const map = get(userPinsMap);
+    const id = map[instance_id].id;
+    delete map[instance_id];
+    set(userPinsMap, map);
+    return PinnedDeviceResource.deleteModel({ id });
   }
+
+  function _isPinnedDevice(device) {
+    return get(userPinsMap)[device.instance_id] || device.instance_id === KolibriStudioId;
+  }
+
+  const pinnedDevices = computed(() => {
+    return get(devicesWithChannels).filter(_isPinnedDevice);
+  });
+  const pinnedDevicesExist = computed(() => {
+    return get(pinnedDevices).length > 0;
+  });
+  const unpinnedDevices = computed(() => {
+    return get(devicesWithChannels).filter(d => !_isPinnedDevice(d));
+  });
+  const unpinnedDevicesExist = computed(() => {
+    return get(unpinnedDevices).length > 0;
+  });
+
   return {
     createPinForUser,
     deletePinForUser,
     fetchPinsForUser,
+    userPinsMap,
+    pinnedDevices,
+    pinnedDevicesExist,
+    unpinnedDevices,
+    unpinnedDevicesExist,
   };
 }

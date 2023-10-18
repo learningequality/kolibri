@@ -100,12 +100,11 @@
 
 <script>
 
-  import { set } from '@vueuse/core';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
+  import { computed } from 'kolibri.lib.vueCompositionApi';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { KolibriStudioId } from '../../constants';
   import PinnedNetworkResources from './PinnedNetworkResources';
   import MoreNetworkDevices from './MoreNetworkDevices';
 
@@ -122,64 +121,36 @@
         keepDeviceChannelsUpdated,
         deviceChannelsMap,
       } = useDevices();
-      const { fetchPinsForUser } = usePinnedDevices();
+      const {
+        fetchPinsForUser,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+        unpinnedDevicesExist,
+      } = usePinnedDevices(networkDevicesWithChannels);
       const { windowIsSmall } = useKResponsiveWindow();
 
-      const usersPins = ref([]);
       keepDeviceChannelsUpdated();
 
-      fetchPinsForUser().then(resp => {
-        set(
-          usersPins,
-          resp.map(pin => {
-            const instance_id = pin.instance_id.replace(/-/g, '');
-            return { ...pin, instance_id };
-          })
-        );
-      });
+      fetchPinsForUser();
+
+      const devicesWithChannelsExist = computed(() => get(networkDevicesWithChannels).length > 0);
 
       return {
         networkDevicesWithChannels,
+        devicesWithChannelsExist,
         deviceChannelsMap,
-        fetchPinsForUser,
         searchingOtherLibraries: isLoadingChannels,
-        usersPins,
         windowIsSmall,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+        unpinnedDevicesExist,
       };
     },
     props: {
       injectedtr: { type: Function, required: true },
       cardsPerRow: { type: Number, required: true },
-    },
-    computed: {
-      devicesWithChannelsExist() {
-        return this.networkDevicesWithChannels.length > 0;
-      },
-      pinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === KolibriStudioId
-          );
-        });
-      },
-      pinnedDevicesExist() {
-        return this.pinnedDevices.length > 0;
-      },
-      unpinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            !this.usersPinsDeviceIds.includes(device.instance_id) &&
-            device.instance_id !== KolibriStudioId
-          );
-        });
-      },
-      unpinnedDevicesExist() {
-        return this.unpinnedDevices.length > 0;
-      },
-      usersPinsDeviceIds() {
-        return this.usersPins.map(pin => pin.instance_id);
-      },
     },
   };
 

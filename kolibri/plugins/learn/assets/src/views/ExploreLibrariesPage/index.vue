@@ -104,15 +104,28 @@
         deviceChannelsMap,
         isLoadingChannels,
       } = useDevices();
-      const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
+      const {
+        createPinForUser,
+        deletePinForUser,
+        fetchPinsForUser,
+        userPinsMap,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+      } = usePinnedDevices(networkDevicesWithChannels);
       const { back } = useContentLink();
 
       keepDeviceChannelsUpdated();
 
+      fetchPinsForUser();
+
       return {
         deletePinForUser,
         createPinForUser,
-        fetchPinsForUser,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+        userPinsMap,
         deviceChannelsMap,
         networkDevicesWithChannels,
         back,
@@ -122,7 +135,6 @@
     data() {
       return {
         moreDevices: 0,
-        usersPins: [],
       };
     },
     computed: {
@@ -133,7 +145,7 @@
         return this.moreDevices === 0 && this.areMoreDevicesAvailable;
       },
       displayShowMoreButton() {
-        return this.moreDevices < this.unpinnedDevices?.length;
+        return !this.displayShowButton && this.moreDevices < this.unpinnedDevices?.length;
       },
       pageHeaderStyle() {
         return {
@@ -144,57 +156,18 @@
       studioId() {
         return KolibriStudioId;
       },
-      usersPinsDeviceIds() {
-        // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
-        // items) -- which the user has pinned
-        return this.usersPins.map(pin => pin.instance_id);
-      },
-      pinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === this.studioId
-          );
-        });
-      },
-      pinnedDevicesExist() {
-        return this.pinnedDevices.length > 0;
-      },
-      unpinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            !this.usersPinsDeviceIds.includes(device.instance_id) &&
-            device.instance_id !== this.studioId
-          );
-        });
-      },
-    },
-    watch: {
-      pinnedDevicesExist: {
-        handler(newValue) {
-          if (!newValue) {
-            this.loadMoreDevices();
-          }
-        },
-        deep: true,
-        immediate: false,
-      },
     },
     methods: {
       createPin(instance_id) {
-        return this.createPinForUser(instance_id).then(response => {
-          const id = response.id;
-          this.usersPins = [...this.usersPins, { instance_id, id }];
+        return this.createPinForUser(instance_id).then(() => {
           this.moreDevices = 0;
           // eslint-disable-next-line
           this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
         });
       },
-      deletePin(instance_id, pinId) {
-        return this.deletePinForUser(pinId).then(() => {
-          // Remove this pin from the usersPins
-          this.usersPins = this.usersPins.filter(pin => pin.instance_id != instance_id);
-          if (this.usersPins.length === 0) {
+      deletePin(instance_id) {
+        return this.deletePinForUser(instance_id).then(() => {
+          if (Object.keys(this.userPinsMap).length === 0 && this.moreDevices === 0) {
             this.loadMoreDevices();
           }
           // eslint-disable-next-line
@@ -202,9 +175,8 @@
         });
       },
       handlePinToggle(instance_id) {
-        if (this.usersPinsDeviceIds.includes(instance_id)) {
-          const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
-          this.deletePin(instance_id, pinId);
+        if (this.userPinsMap[instance_id]) {
+          this.deletePin(instance_id);
         } else {
           this.createPin(instance_id);
         }
