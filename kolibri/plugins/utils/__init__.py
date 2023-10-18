@@ -484,7 +484,7 @@ def iterate_plugins():
     all_entry_points = entry_points()
     eps = (
         all_entry_points.get("kolibri.plugins", [])
-        if type(all_entry_points) == dict
+        if isinstance(all_entry_points, dict)
         else all_entry_points.select(group="kolibri.plugins")
     )
     for entry_point in eps:
