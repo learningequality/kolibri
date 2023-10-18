@@ -76,6 +76,8 @@
 
 <script>
 
+  import { get, set } from '@vueuse/core';
+  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
@@ -88,6 +90,7 @@
   import LibraryItem from './LibraryItem';
 
   const PinStrings = crossComponentTranslator(LibraryItem);
+  const moreDevicesIncrement = 4;
 
   export default {
     name: 'ExploreLibrariesPage',
@@ -114,10 +117,21 @@
         pinnedDevicesExist,
       } = usePinnedDevices(networkDevicesWithChannels);
       const { back } = useContentLink();
+      const moreDevices = ref(0);
 
       keepDeviceChannelsUpdated();
 
-      fetchPinsForUser();
+      fetchPinsForUser().then(() => {
+        set(moreDevices, get(pinnedDevicesExist) ? 0 : moreDevicesIncrement);
+      });
+
+      watch(pinnedDevicesExist, (newVal, oldVal) => {
+        if (!oldVal && newVal) {
+          set(moreDevices, 0);
+        } else if (oldVal && !newVal && !get(moreDevices)) {
+          set(moreDevices, moreDevicesIncrement);
+        }
+      });
 
       return {
         deletePinForUser,
@@ -130,11 +144,7 @@
         networkDevicesWithChannels,
         back,
         loading: isLoadingChannels,
-      };
-    },
-    data() {
-      return {
-        moreDevices: 0,
+        moreDevices,
       };
     },
     computed: {
@@ -160,16 +170,12 @@
     methods: {
       createPin(instance_id) {
         return this.createPinForUser(instance_id).then(() => {
-          this.moreDevices = 0;
           // eslint-disable-next-line
           this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
         });
       },
       deletePin(instance_id) {
         return this.deletePinForUser(instance_id).then(() => {
-          if (Object.keys(this.userPinsMap).length === 0 && this.moreDevices === 0) {
-            this.loadMoreDevices();
-          }
           // eslint-disable-next-line
           this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
         });
@@ -194,7 +200,7 @@
         return pinned ? 'pinned' : 'notPinned';
       },
       loadMoreDevices() {
-        this.moreDevices += 4;
+        this.moreDevices += moreDevicesIncrement;
       },
     },
     $trs: {
