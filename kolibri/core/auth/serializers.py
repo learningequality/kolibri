@@ -3,9 +3,7 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 from django.core.exceptions import ValidationError as DjangoValidationError
-from django.core.validators import MaxLengthValidator
 from django.core.validators import MinLengthValidator
-from django.core.validators import RegexValidator
 from rest_framework import serializers
 from rest_framework.validators import UniqueTogetherValidator
 
@@ -19,6 +17,8 @@ from .models import FacilityUser
 from .models import LearnerGroup
 from .models import Membership
 from .models import Role
+from .models import validate_username_allowed_chars
+from .models import validate_username_max_length
 from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 
@@ -65,22 +65,14 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, attrs):
-        username = attrs.get("username")
-        username_validator = RegexValidator(
-            r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
-            "Enter a valid username. This value can contain only letters, numbers, and underscores.",
-            code=error_constants.INVALID,
-            inverse_match=True,
-        )
+        username = attrs.get("username") or getattr(self.instance, "username")
         try:
-            username_validator(username)
+            validate_username_allowed_chars(username)
         except DjangoValidationError as e:
             raise serializers.ValidationError({"username": e.message})
 
         try:
-            MaxLengthValidator(
-                30, "Required. 30 characters or fewer. Letters and digits only"
-            )(username)
+            validate_username_max_length(username)
         except DjangoValidationError as e:
             raise serializers.ValidationError(
                 {"username": e.message}, code=error_constants.MAX_LENGTH

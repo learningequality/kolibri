@@ -66,6 +66,7 @@ from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
@@ -344,19 +345,25 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
 
 
+validate_username_allowed_chars = validators.RegexValidator(
+    r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
+    "Enter a valid username. This value can contain only letters, numbers, and underscores.",
+    code=error_constants.INVALID,
+    inverse_match=True,
+)
+
+validate_username_max_length = validators.MaxLengthValidator(
+    30, "Required. 30 characters or fewer. Letters and digits only"
+)
+
+
 def validate_username(value):
     try:
-        validators.EmailValidator()(value)
+        validators.validate_email(value)
     except ValidationError:
         # for kolibri backwards compatibility, if the username is not an email:
-        validators.RegexValidator(
-            r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
-            "Enter a valid username. This value can either be an email or contain only letters, numbers, and underscores.",
-            inverse_match=True,
-        )(value)
-        validators.MaxLengthValidator(
-            30, "Required. 30 characters or fewer. Letters and digits only"
-        )(value)
+        validate_username_allowed_chars(value)
+        validate_username_max_length(value)
 
 
 class KolibriAbstractBaseUser(AbstractBaseUser):
