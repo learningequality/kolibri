@@ -1005,6 +1005,7 @@
 
   .end-button-block {
     width: 100%;
+    padding-bottom: 16px;
     margin-top: 16px;
     text-align: center;
   }
