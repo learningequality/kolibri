@@ -64,10 +64,10 @@
   export default {
     name: 'MultiPaneLayout',
     mixins: [responsiveElementMixin],
-    setup(){
-      const{ windowHeight } = useKResponsiveWindow();
-      return{
-        windowHeight
+    setup() {
+      const { windowHeight } = useKResponsiveWindow();
+      return {
+        windowHeight,
       };
     },
     computed: {

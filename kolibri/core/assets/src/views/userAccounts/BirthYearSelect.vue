@@ -44,10 +44,10 @@
       CoreInfoIcon,
     },
     mixins: [commonCoreStrings],
-    setup(){
-      const{ windowIsSmall }=useKResponsiveWindow();
-      return{
-        windowIsSmall
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
       };
     },
     props: {

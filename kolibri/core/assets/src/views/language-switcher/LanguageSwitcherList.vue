@@ -56,10 +56,10 @@
       LanguageSwitcherModal,
     },
     mixins: [languageSwitcherMixin],
-    setup(){
-      const{ windowBreakpoint } = useKResponsiveWindow();
-      return{
-        windowBreakpoint
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
       };
     },
     data() {

@@ -185,10 +185,10 @@
       MissingResourceAlert,
     },
     mixins: [commonCoreStrings],
-    setup(){
-      const{ windowIsSmall } = useKResponsiveWindow();
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
       return{
-        windowIsSmall
+        windowIsSmall,
       };
     },
     props: {

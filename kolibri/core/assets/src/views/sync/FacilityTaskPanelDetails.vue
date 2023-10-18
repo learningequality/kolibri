@@ -113,10 +113,10 @@
   export default {
     name: 'FacilityTaskPanelDetails',
     mixins: [commonCoreStrings, commonTaskStrings],
-    setup(){
-      const{ windowIsSmall } = useKResponsiveWindow();
-      return{
-        windowIsSmall
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
       };
     },
     props: {

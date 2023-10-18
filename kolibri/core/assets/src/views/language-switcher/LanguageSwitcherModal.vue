@@ -53,10 +53,10 @@
     name: 'LanguageSwitcherModal',
     components: { FocusTrap },
     mixins: [commonCoreStrings, languageSwitcherMixin],
-    setup(){
-      const{ windowIsSmall } = useKResponsiveWindow();
-      return{
-        windowIsSmall
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
       };
     },
     data() {

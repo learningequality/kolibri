@@ -19,12 +19,12 @@
 
   export default {
     name: 'BottomAppBar',
-    setup(){
-      const{ windowIsSmall } = useKResponsiveWindow();
-      return{
-        windowIsSmall
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
       };
-    }
+    },
   };
 
 </script>
