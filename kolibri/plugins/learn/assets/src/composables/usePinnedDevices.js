@@ -25,6 +25,10 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
   }
 
   function createPinForUser(instance_id) {
+    set(userPinsMap, {
+      ...get(userPinsMap),
+      [instance_id]: { instance_id },
+    });
     return PinnedDeviceResource.create({ instance_id }).then(pin => {
       set(userPinsMap, {
         ...get(userPinsMap),
@@ -36,8 +40,9 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
   function deletePinForUser(instance_id) {
     const map = get(userPinsMap);
     const id = map[instance_id].id;
-    delete map[instance_id];
-    set(userPinsMap, map);
+    const newMap = { ...map };
+    delete newMap[instance_id];
+    set(userPinsMap, newMap);
     return PinnedDeviceResource.deleteModel({ id });
   }
 
