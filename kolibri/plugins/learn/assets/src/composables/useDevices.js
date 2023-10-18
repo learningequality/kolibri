@@ -131,6 +131,9 @@ export default function useDevices(store) {
 
   function loadDeviceChannels() {
     const promises = [];
+    // Clear out the device channels map when data refreshes
+    // to remove stale channel fetches.
+    const newDeviceChannelsMap = {};
     for (const currentDevice of Object.values(networkDevices.value)) {
       if (!get(deviceChannelsMap)[currentDevice.instance_id]) {
         const baseurl = currentDevice.base_url;
@@ -139,10 +142,20 @@ export default function useDevices(store) {
             _updateDeviceChannels(currentDevice, channels);
             isLoadingChannels.value = false;
           })
-          .catch(() => {});
+          .catch(() => {
+            // If we fail to fetch channels, set the channels to an empty array
+            // to avoid repeatedly polling devices that are returning an error
+            // code.
+            _updateDeviceChannels(currentDevice, []);
+          });
         promises.push(promise);
+      } else {
+        newDeviceChannelsMap[currentDevice.instance_id] = get(deviceChannelsMap)[
+          currentDevice.instance_id
+        ];
       }
     }
+    set(deviceChannelsMap, newDeviceChannelsMap);
     Promise.all(promises).then(() => {
       // In case we don't successfully fetch any channels, don't do a perpetual loading state.
       isLoadingChannels.value = false;
