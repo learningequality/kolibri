@@ -187,7 +187,7 @@
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
-      return{
+      return {
         windowIsSmall,
       };
     },
