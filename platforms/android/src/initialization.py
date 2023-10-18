@@ -17,6 +17,8 @@ sys.path.append(script_dir)
 os.environ["KOLIBRI_HOME"] = get_home_folder()
 os.environ["KOLIBRI_APK_VERSION_NAME"] = get_version_name()
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app_settings"
+# Disable restart hooks, as the default restart hook will crash the app.
+os.environ["KOLIBRI_RESTART_HOOKS"] = ""
 signing_org = get_signature_key_issuing_organization()
 if signing_org == "Learning Equality":
     runmode = "android-testing"
