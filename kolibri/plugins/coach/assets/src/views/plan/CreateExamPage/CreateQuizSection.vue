@@ -34,8 +34,6 @@
       {{ addQuizSections$() }}
     </p>
 
-    <hr class="bottom-border">
-
     <KGrid>
       <KGridItem
         :layout12="{ span: 10 }"
@@ -144,8 +142,6 @@
       </KGridItem>
 
     </KGrid>
-
-    <hr class="bottom-border">
 
     <KTabsPanel
       v-if="quizForge.activeSection.value"
@@ -396,6 +392,8 @@
           margin: '0px',
           textOverflow: 'ellipsis',
           maxWidth: '160px',
+          padding: '0px!important',
+          height: '3.25em',
         };
       },
       sectionOptions() {
@@ -528,11 +526,6 @@
     font-weight: bold;
   }
 
-  .bottom-border {
-    margin-block-start: -2px;
-    border: 1px solid #dedede;
-  }
-
   .kgrid-alignment-style {
     padding-right: 1em;
     padding-left: 0;
@@ -633,8 +626,8 @@
   }
 
   .options-button {
-    width: 36px !important;
-    height: 36px !important;
+    width: 3.25em !important;
+    height: 3.25em !important;
     margin: 0;
     border-radius: 0 !important;
   }
