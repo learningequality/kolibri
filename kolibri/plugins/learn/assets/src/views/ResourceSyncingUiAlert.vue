@@ -1,6 +1,9 @@
 <template>
 
-  <MissingResourceAlert>
+  <MissingResourceAlert
+    v-if="isSyncing || syncCouldNotComplete"
+    :syncCouldNotComplete="syncCouldNotComplete"
+  >
     <template v-if="isSyncing" #syncAlert>
       {{ syncMessage }}
     </template>
@@ -41,6 +44,14 @@
     computed: {
       isSyncing() {
         return this.status == SyncStatus.QUEUED || this.status == SyncStatus.SYNCING;
+      },
+      syncCouldNotComplete() {
+        console.log(this.status);
+        return (
+          this.status == SyncStatus.UNABLE_TO_SYNC ||
+          this.status == SyncStatus.INSUFFICIENT_STORAGE ||
+          this.status == SyncStatus.NOT_CONNECTED
+        );
       },
       syncMessage() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */

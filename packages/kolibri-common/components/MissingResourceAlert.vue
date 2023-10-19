@@ -10,16 +10,18 @@
       <span v-if="$slots.syncAlert">
         <slot name="syncAlert"></slot>
       </span>
-      <span v-else>
-        {{ coreString(
-          multiple ? 'someResourcesMissingOrNotSupported' :
-          'resourceNotFoundOnDevice'
-        ) }}
+      <span v-else-if="syncCouldNotComplete">
+        <span>
+          {{ coreString(
+            multiple ? 'someResourcesMissingOrNotSupported' :
+            'resourceNotFoundOnDevice'
+          ) }}
+        &nbsp;
+          <KButton appearance="basic-link" @click="open = true">
+            {{ $tr('learnMore') }}
+          </KButton>
+        </span>
       </span>
-              &nbsp;
-      <KButton appearance="basic-link" @click="open = true">
-        {{ $tr('learnMore') }}
-      </KButton>
     </UiAlert>
     <KModal
       v-if="open"
@@ -51,6 +53,10 @@
       multiple: {
         type: Boolean,
         default: true,
+      },
+      syncCouldNotComplete: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
