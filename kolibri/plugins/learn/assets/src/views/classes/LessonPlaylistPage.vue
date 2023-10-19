@@ -26,10 +26,7 @@
             {{ currentLesson.description }}
           </p>
         </div>
-        <ResourceSyncingUiAlert
-          v-if="lessonResources.length > contentNodes.length &&
-            isLearnerOnlyImport"
-        />
+        <ResourceSyncingUiAlert v-if="lessonResources.length > contentNodes.length" />
       </section>
 
       <section v-if="lessonHasResources" class="content-cards">
@@ -60,7 +57,6 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useUser from 'kolibri.coreVue.composables.useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
@@ -88,8 +84,7 @@
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { contentNodeProgressMap } = useContentNodeProgress();
-      const { isLearnerOnlyImport } = useUser();
-      return { contentNodeProgressMap, genContentLinkBackLinkCurrentPage, isLearnerOnlyImport };
+      return { contentNodeProgressMap, genContentLinkBackLinkCurrentPage };
     },
     computed: {
       ...mapState('lessonPlaylist', ['contentNodesMap', 'currentLesson']),

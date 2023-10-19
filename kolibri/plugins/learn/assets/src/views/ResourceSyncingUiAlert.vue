@@ -4,7 +4,7 @@
     v-if="isSyncing || syncCouldNotComplete"
     :syncCouldNotComplete="syncCouldNotComplete"
   >
-    <template v-if="isSyncing" #syncAlert>
+    <template v-if="isSyncing && isLearnerOnlyImport" #syncAlert>
       {{ syncMessage }}
     </template>
   </MissingResourceAlert>
@@ -18,6 +18,7 @@
   import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
   import { createTranslator } from 'kolibri.utils.i18n';
+  import useUser from 'kolibri.coreVue.composables.useUser';
 
   const syncStatusDescriptionStrings = createTranslator('SyncStatusDescription', {
     syncingDescription: {
@@ -37,8 +38,10 @@
     },
     setup() {
       const { status } = useUserSyncStatus();
+      const { isLearnerOnlyImport } = useUser();
       return {
         status,
+        isLearnerOnlyImport,
       };
     },
     computed: {

@@ -2,7 +2,7 @@
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div v-if="!loading" id="main" role="main">
-      <ResourceSyncingUiAlert v-if="missingResources && isLearnerOnlyImport" />
+      <ResourceSyncingUiAlert v-if="missingResources" />
       <YourClasses
         v-if="displayClasses"
         class="section"
@@ -99,7 +99,7 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
 
-      const { isUserLoggedIn, isLearnerOnlyImport } = useUser();
+      const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { localChannelsCache, fetchChannels } = useChannels();
       const {
@@ -195,7 +195,6 @@
 
       return {
         isUserLoggedIn,
-        isLearnerOnlyImport,
         channels: localChannelsCache,
         classes,
         activeClassesLessons,

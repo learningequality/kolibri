@@ -64,7 +64,7 @@
               :answerState="currentAttempt.answer"
               @interaction="saveAnswer"
             />
-            <ResourceSyncingUiAlert v-else-if="isLearnerOnlyImport" :multiple="false" />
+            <ResourceSyncingUiAlert v-else :multiple="false" />
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
@@ -186,7 +186,6 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import useUser from 'kolibri.coreVue.composables.useUser';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -221,7 +220,6 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const { isLearnerOnlyImport } = useUser();
       return {
         pastattempts,
         time_spent,
@@ -229,7 +227,6 @@
         updateContentSession,
         startTrackingProgress,
         stopTrackingProgress,
-        isLearnerOnlyImport,
       };
     },
     data() {
