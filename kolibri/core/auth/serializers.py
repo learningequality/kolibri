@@ -65,18 +65,20 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         return instance
 
     def validate(self, attrs):
-        username = attrs.get("username") or getattr(self.instance, "username")
-        try:
-            validate_username_allowed_chars(username)
-        except DjangoValidationError as e:
-            raise serializers.ValidationError({"username": e.message})
+        username = attrs.get("username", None)
+        if username is not None:
+            # in case a patch request does not provide username attribute
+            try:
+                validate_username_allowed_chars(username)
+            except DjangoValidationError as e:
+                raise serializers.ValidationError({"username": e.message})
 
-        try:
-            validate_username_max_length(username)
-        except DjangoValidationError as e:
-            raise serializers.ValidationError(
-                {"username": e.message}, code=error_constants.MAX_LENGTH
-            )
+            try:
+                validate_username_max_length(username)
+            except DjangoValidationError as e:
+                raise serializers.ValidationError(
+                    {"username": e.message}, code=error_constants.MAX_LENGTH
+                )
 
         # first condition is for creating object, second is for updating
         facility = attrs.get("facility") or getattr(self.instance, "facility")
