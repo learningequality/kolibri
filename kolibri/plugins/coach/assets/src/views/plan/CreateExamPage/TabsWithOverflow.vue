@@ -69,6 +69,9 @@
     mounted() {
       this.mounted = true;
       this.setWrappingButtonTabIndex();
+      this.$nextTick(() => {
+        this.setOverflowTabs();
+      });
     },
     methods: {
       setOverflowTabs() {
@@ -106,13 +109,15 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    height: 2.25em;
+    height: 3rem !important;
+    min-height: 3rem !important;
     overflow: hidden;
   }
 
   /deep/ .tab > button,
   .tab {
     max-width: calc(200px - 40px);
+    height: 3rem !important;
     text-overflow: ellipsis;
 
     /* We *need* the overflow to be hidden for our calculations of which to show work properly.
@@ -123,13 +128,15 @@
 
   /deep/ .tab {
     display: inline-block;
-    height: 2.5em;
+    height: 3rem !important;
+    margin: 0;
     overflow: visible; // Keep outline fully visible
   }
 
   .container {
     position: relative;
-    max-height: 2.25em;
+    height: 3rem !important;
+    padding: 0 1em;
   }
 
 </style>
