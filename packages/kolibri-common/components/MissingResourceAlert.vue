@@ -7,7 +7,10 @@
       type="warning"
       :style="{ marginBottom: 0, marginTop: '8px' }"
     >
-      <span>
+      <span v-if="$slots.syncAlert">
+        <slot name="syncAlert"></slot>
+      </span>
+      <span v-else>
         {{ coreString(
           multiple ? 'someResourcesMissingOrNotSupported' :
           'resourceNotFoundOnDevice'

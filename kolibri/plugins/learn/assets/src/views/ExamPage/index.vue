@@ -64,7 +64,7 @@
               :answerState="currentAttempt.answer"
               @interaction="saveAnswer"
             />
-            <MissingResourceAlert v-else :multiple="false" />
+            <ResourceSyncingUiAlert v-else :multiple="false" />
           </KPageContainer>
 
           <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
@@ -186,7 +186,7 @@
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
-  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useProgressTracking from '../../composables/useProgressTracking';
   import { PageNames, ClassesPageNames } from '../../constants';
   import { LearnerClassroomResource } from '../../apiResources';
@@ -208,7 +208,7 @@
       TimeDuration,
       SuggestedTime,
       ImmersivePage,
-      MissingResourceAlert,
+      ResourceSyncingUiAlert,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     setup() {

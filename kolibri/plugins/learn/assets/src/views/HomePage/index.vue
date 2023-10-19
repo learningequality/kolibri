@@ -2,7 +2,7 @@
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div v-if="!loading" id="main" role="main">
-      <MissingResourceAlert v-if="missingResources" />
+      <ResourceSyncingUiAlert v-if="missingResources" />
       <YourClasses
         v-if="displayClasses"
         class="section"
@@ -58,8 +58,8 @@
   import { get } from '@vueuse/core';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
-  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources, {
@@ -91,7 +91,7 @@
       ContinueLearning,
       ExploreChannels,
       LearnAppBarPage,
-      MissingResourceAlert,
+      ResourceSyncingUiAlert,
     },
     mixins: [commonLearnStrings],
     setup() {
