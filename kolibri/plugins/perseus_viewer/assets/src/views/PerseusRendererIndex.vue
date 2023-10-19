@@ -125,6 +125,12 @@
 
   export default {
     name: 'PerseusRendererIndex',
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     data: () => ({
       // Is the perseus item renderer loading?
       loading: true,
@@ -137,14 +143,6 @@
       // Store a copy of the blank state of a question to clear set answers later
       blankState: null,
     }),
-    setup(){
-      const {
-        windowBreakpoint
-      } = useKResponsiveWindow();
-      return {
-        windowBreakpoint
-      };
-    },
     computed: {
       isMobile() {
         return this.windowBreakpoint < 3;
