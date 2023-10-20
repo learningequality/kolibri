@@ -614,7 +614,7 @@ def cleanupsync(**kwargs):
     sync_filter = kwargs.get("sync_filter")
     is_server = kwargs.get("is_server")
     instance_id = kwargs.get("instance_id")
-    instance_name = "server" if is_server else "client"
+    instance_name = "client" if is_server else "server"
     instance_attribute_name = "{}-instance-id".format(instance_name)
     instance_attribute = {
         instance_attribute_name: instance_id,
