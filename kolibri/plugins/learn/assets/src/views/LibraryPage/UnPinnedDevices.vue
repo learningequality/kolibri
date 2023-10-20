@@ -71,6 +71,10 @@
         type: Object,
         required: true,
       },
+      channelCount: {
+        type: Number,
+        default: 0,
+      },
       routeTo: {
         type: Object,
         required: true,
@@ -89,9 +93,6 @@
           color: this.$themeTokens.text,
           textAlign: 'center',
         };
-      },
-      channelCount() {
-        return this.device['total_count'] || 0;
       },
       deviceName() {
         return this.device.nickname || this.device.device_name;
