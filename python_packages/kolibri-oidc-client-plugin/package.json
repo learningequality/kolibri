@@ -11,16 +11,19 @@
     "intl": "^1.2.5",
     "kolibri": "^0.15.4",
     "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#v1.3.1-beta0",
-    "vue": "^2.6.14",
-    "vue-intl": "3.0.0"
+    "vue": "2.7.14",
+    "vue-intl": "3.1.0"
   },
   "devDependencies": {
-    "kolibri-tools": "^0.15.0-dev.4",
+    "kolibri-tools": "0.16.0-dev.3",
     "webpack": "4.43.0"
   },
   "engineStrict": true,
   "engines": {
-    "node": "10.x",
+    "node": "16.x",
     "yarn": ">= 1.12.3"
-  }
+  },
+  "browserslist": [
+    "extends browserslist-config-kolibri"
+  ]
 }
