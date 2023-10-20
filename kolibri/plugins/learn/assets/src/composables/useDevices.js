@@ -196,10 +196,10 @@ export default function useDevices(store) {
       .filter(device => get(deviceChannelsMap)[device.instance_id]?.length > 0)
       .sort((a, b) => {
         if (a.instance_id === KolibriStudioId) {
-          return 1;
+          return -1;
         }
         if (b.instance_id === KolibriStudioId) {
-          return -1;
+          return 1;
         }
         return localeCompare(a.device_name, b.device_name);
       });
