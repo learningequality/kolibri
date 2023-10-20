@@ -17,7 +17,7 @@
     <!-- This should be within the KTabsList to simplify rendering, but there is no slot.
       The absolute styling isn't as nice as if it were part of the flex container instead, but
       it ought to work -->
-    <div style="position: absolute; right: 0; top: -7px;">
+    <div style="position: absolute; right: 0; top: 5px;">
       <slot name="overflow" :overflowTabs="overflowTabs"></slot>
     </div>
 
@@ -136,7 +136,6 @@
   .container {
     position: relative;
     height: 3rem !important;
-    padding: 0 1em;
   }
 
 </style>
