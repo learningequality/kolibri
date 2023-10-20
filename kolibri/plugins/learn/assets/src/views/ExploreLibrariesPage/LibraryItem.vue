@@ -55,7 +55,7 @@
     <ChannelCardGroupGrid
       data-test="channel-cards"
       :deviceId="device.id"
-      :contents="channels"
+      :contents="(channels || []).slice(0, channelsToDisplay)"
       :isRemote="true"
     />
   </KGrid>
@@ -100,6 +100,10 @@
         default() {
           return [];
         },
+      },
+      channelsToDisplay: {
+        type: Number,
+        required: true,
       },
       pinned: {
         type: Boolean,

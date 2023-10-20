@@ -26,7 +26,8 @@
         v-for="device in pinnedDevices"
         :key="device['instance_id']"
         :device="device"
-        :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+        :channels="deviceChannelsMap[device['instance_id']]"
+        :channelsToDisplay="cardsToDisplay"
         :pinned="true"
         @togglePin="handlePinToggle"
       />
@@ -49,7 +50,8 @@
             v-for="device in unpinnedDevices.slice(0, moreDevices)"
             :key="device['instance_id']"
             :device="device"
-            :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+            :channels="deviceChannelsMap[device['instance_id']]"
+            :channelsToDisplay="cardsToDisplay"
             :pinned="false"
             @togglePin="handlePinToggle"
           />

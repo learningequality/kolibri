@@ -78,7 +78,8 @@
         :key="device['instance_id']"
         data-test="pinned-resources"
         :device="device"
-        :channels="(deviceChannelsMap[device['instance_id']] || []).slice(0, cardsToDisplay)"
+        :channels="deviceChannelsMap[device['instance_id']]"
+        :channelsToDisplay="cardsToDisplay"
         :pinned="Boolean(userPinsMap[device['instance_id']])"
         @togglePin="handlePinToggle"
       />
