@@ -258,7 +258,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
                 .first()
             )
             # get the position of the current queue object
-            position = scored_queue.filter(score__gte=score).count()
+            position = scored_queue.filter(score__gt=score).count()
             # set next attempt in increments of HANDSHAKING_TIME, up to HANDSHAKING_TIME less than
             # the sync interval
             queue_object.set_next_attempt(
