@@ -68,7 +68,6 @@
           v-if="!deviceId && isUserLoggedIn"
           data-test="other-libraries"
           :injectedtr="injecttr"
-          :cardsPerRow="cardsPerRow"
         />
 
       </div>
@@ -413,43 +412,6 @@
           ? { marginRight: `${this.sidePanelWidth + 24}px`, marginTop }
           : { marginLeft: `${this.sidePanelWidth + 24}px`, marginTop };
       },
-      cardsPerRow() {
-        if (this.windowIsSmall) {
-          return 1;
-        }
-        if (this.windowBreakpoint < 5) {
-          return 2;
-        }
-        if (this.windowBreakpoint < 6) {
-          return 3;
-        }
-        return 4;
-      },
-      layoutSpan() {
-        /**
-         * The breakpoints below represent the window widths
-         * 0: < 480px  | Small screen  | 4 columns
-         * 1: < 600px  | Small screen  | 4 columns
-         * 2: < 840px  | Medium screen | 8 columns
-         * 3: < 960px  | Large screen  | 12 columns
-         * 4: < 1280px | Large screen  | 12 columns
-         * 5: < 1440px | Large screen  | 12 columns
-         * 6: < 1600px | Large screen  | 12 columns
-         * 7: > 1600px | Large screen  | 12 columns
-         *
-         * On resize, display X cards per row where:
-         * X = total columns in grid / column span for each card.
-         * For example, if the total number of columns is 12, and
-         * column span for each cards is 4, then X is 3.
-         */
-        if (this.windowBreakpoint < 2) {
-          return 4 / this.cardsPerRow;
-        }
-        if (this.windowBreakpoint === 2) {
-          return 8 / this.cardsPerRow;
-        }
-        return 12 / this.cardsPerRow;
-      },
       sidePanelWidth() {
         if (
           this.windowIsSmall ||
@@ -466,11 +428,6 @@
       studioId() {
         return KolibriStudioId;
       },
-    },
-    provide() {
-      return {
-        $layoutSpan: () => this.layoutSpan,
-      };
     },
     watch: {
       rootNodes(newNodes) {

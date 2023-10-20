@@ -35,6 +35,7 @@ const CHANNEL = {
 };
 
 jest.mock('../../src/composables/useChannels');
+jest.mock('../../src/composables/useCardLayoutSpan');
 jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useSearch');
 jest.mock('../../src/composables/useLearnerResources');
@@ -223,7 +224,6 @@ describe('LibraryPage', () => {
         ...options,
         propsData: {
           injectedtr: msgId => translations[msgId], // mock the translation function
-          cardsPerRow: 2,
         },
       });
       await flushPromises();
