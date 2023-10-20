@@ -67,31 +67,60 @@
     </KGrid>
 
     <h2
-      v-if="pinnedDevicesExist && unpinnedDevicesExist"
+      v-if="!threeLibrariesOrFewer && pinnedDevicesExist && unpinnedDevicesExist"
       data-test="pinned-label"
     >
       {{ injectedtr('pinned') }}
     </h2>
-    <PinnedNetworkResources
-      v-if="pinnedDevicesExist"
-      data-test="pinned-resources"
-      :devices="pinnedDevices"
-      :deviceChannelsMap="deviceChannelsMap"
-      :channelsToDisplay="cardsToDisplay"
-    />
+    <FadeInTransitionGroup>
+      <LibraryItem
+        v-for="device in fullLibrariesToDisplay"
+        :key="device['instance_id']"
+        :device="device"
+        :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+        :pinned="Boolean(userPinsMap[device['instance_id']])"
+        @togglePin="handlePinToggle"
+      />
+    </FadeInTransitionGroup>
 
     <!-- More  -->
-    <h2
-      v-if="pinnedDevicesExist || unpinnedDevicesExist"
-      data-test="more-label"
-    >
-      {{ injectedtr('moreLibraries') }}
-    </h2>
-    <MoreNetworkDevices
-      data-test="more-devices"
-      :devices="unpinnedDevices.slice(0, cardsToDisplay)"
-      :deviceChannelsMap="deviceChannelsMap"
-    />
+
+    <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist">
+      <KGridItem
+        :layout12="{ span: 10 }"
+        :layout8="{ span: 6 }"
+        :layout4="{ span: 4 }"
+      >
+        <h2
+          v-if="pinnedDevicesExist"
+          data-test="more-label"
+        >
+          {{ injectedtr('moreLibraries') }}
+        </h2>
+      </KGridItem>
+      <KGridItem
+        :layout12="{ span: 2, alignment: 'right' }"
+        :layout8="{ span: 2, alignment: 'right' }"
+        :layout4="{ span: 4, alignment: 'right' }"
+      >
+        <KRouterLink
+          appearance="raised-button"
+          :text="explore$"
+          :to="genExploreLibrariesPageBackLink()"
+        />
+      </KGridItem>
+      <KGridItem
+        v-for="device in unpinnedDevices.slice(0, cardsToDisplay)"
+        :key="device.id"
+        :layout="{ span: layoutSpan }"
+      >
+        <UnPinnedDevices
+          :device="device"
+          :channelCount="deviceChannelsMap[device.id].length"
+          :routeTo="genLibraryPageBackLink(device.id)"
+        />
+      </KGridItem>
+    </KGrid>
   </div>
 
 </template>
@@ -102,18 +131,23 @@
   import { get } from '@vueuse/core';
   import { computed } from 'kolibri.lib.vueCompositionApi';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import coreStrings from 'kolibri.utils.coreStrings';
+  import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
+  import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import PinnedNetworkResources from './PinnedNetworkResources';
-  import MoreNetworkDevices from './MoreNetworkDevices';
+  import LibraryItem from '../ExploreLibrariesPage/LibraryItem';
+  import FadeInTransitionGroup from '../FadeInTransitionGroup';
+  import UnPinnedDevices from './UnPinnedDevices';
 
   export default {
     name: 'OtherLibraries',
     components: {
-      PinnedNetworkResources,
-      MoreNetworkDevices,
+      FadeInTransitionGroup,
+      LibraryItem,
+      UnPinnedDevices,
     },
-    setup(props) {
+    setup() {
       const {
         isLoadingChannels,
         networkDevicesWithChannels,
@@ -121,13 +155,17 @@
         deviceChannelsMap,
       } = useDevices();
       const {
+        handlePinToggle,
         fetchPinsForUser,
         pinnedDevices,
         unpinnedDevices,
         pinnedDevicesExist,
         unpinnedDevicesExist,
+        userPinsMap,
       } = usePinnedDevices(networkDevicesWithChannels);
       const { windowIsSmall } = useKResponsiveWindow();
+      const { genExploreLibrariesPageBackLink, genLibraryPageBackLink } = useContentLink();
+      const { layoutSpan, makeComputedCardCount } = useCardLayoutSpan();
 
       keepDeviceChannelsUpdated();
 
@@ -135,9 +173,21 @@
 
       const devicesWithChannelsExist = computed(() => get(networkDevicesWithChannels).length > 0);
 
-      // We want to display 2n - 1 cards per row, where n is the number of cards per row
-      // in the grid. This is because the final card in the row will be a "more" or "view all" card.
-      const cardsToDisplay = computed(() => (props.cardsPerRow || 0) * 2 - 1);
+      // We want to display 2 rows of cards
+      // but always display at least 3 cards, if available.
+      const cardsToDisplay = makeComputedCardCount(2, 3);
+
+      const threeLibrariesOrFewer = computed(() => get(networkDevicesWithChannels).length <= 3);
+
+      // When there are three libraries or fewer, display all libraries fully.
+      const fullLibrariesToDisplay = computed(() =>
+        get(threeLibrariesOrFewer)
+          ? [...get(pinnedDevices), ...get(unpinnedDevices)]
+          : get(pinnedDevices)
+      );
+
+      // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
+      const explore$ = coreStrings.$tr('explore');
 
       return {
         networkDevicesWithChannels,
@@ -145,18 +195,23 @@
         deviceChannelsMap,
         searchingOtherLibraries: isLoadingChannels,
         windowIsSmall,
+        fullLibrariesToDisplay,
         pinnedDevices,
         unpinnedDevices,
+        userPinsMap,
+        threeLibrariesOrFewer,
         pinnedDevicesExist,
         unpinnedDevicesExist,
+        handlePinToggle,
         cardsToDisplay,
+        explore$,
+        genExploreLibrariesPageBackLink,
+        genLibraryPageBackLink,
+        layoutSpan,
       };
     },
     props: {
       injectedtr: { type: Function, required: true },
-      // This is used in the setup function.
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
-      cardsPerRow: { type: Number, required: true },
     },
   };
 
