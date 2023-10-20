@@ -80,16 +80,13 @@
   import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
-  const PinStrings = crossComponentTranslator(LibraryItem);
   const moreDevicesIncrement = 4;
 
   export default {
@@ -108,8 +105,7 @@
         isLoadingChannels,
       } = useDevices();
       const {
-        createPinForUser,
-        deletePinForUser,
+        handlePinToggle,
         fetchPinsForUser,
         userPinsMap,
         pinnedDevices,
@@ -134,8 +130,7 @@
       });
 
       return {
-        deletePinForUser,
-        createPinForUser,
+        handlePinToggle,
         pinnedDevices,
         unpinnedDevices,
         pinnedDevicesExist,
@@ -163,30 +158,8 @@
           color: this.$themeTokens.text,
         };
       },
-      studioId() {
-        return KolibriStudioId;
-      },
     },
     methods: {
-      createPin(instance_id) {
-        return this.createPinForUser(instance_id).then(() => {
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
-        });
-      },
-      deletePin(instance_id) {
-        return this.deletePinForUser(instance_id).then(() => {
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
-        });
-      },
-      handlePinToggle(instance_id) {
-        if (this.userPinsMap[instance_id]) {
-          this.deletePin(instance_id);
-        } else {
-          this.createPin(instance_id);
-        }
-      },
       getDeviceIcon(device) {
         if (device['operating_system'] === 'Android') {
           return 'device';

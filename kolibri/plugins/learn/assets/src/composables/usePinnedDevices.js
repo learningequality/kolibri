@@ -3,11 +3,16 @@
  */
 
 import { get, set } from '@vueuse/core';
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
 import { PinnedDeviceResource } from 'kolibri.resources';
+import { crossComponentTranslator } from 'kolibri.utils.i18n';
 import { KolibriStudioId } from '../constants';
+import LibraryItem from '../views/ExploreLibrariesPage/LibraryItem';
 
-export default function usePinnedDevices(networkDevicesWithChannels) {
+const PinStrings = crossComponentTranslator(LibraryItem);
+
+export default function usePinnedDevices(networkDevicesWithChannels, store) {
+  store = store || getCurrentInstance().proxy.$store;
   const userPinsMap = ref({});
 
   const devicesWithChannels = computed(() => {
@@ -29,6 +34,7 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
       ...get(userPinsMap),
       [instance_id]: { instance_id },
     });
+    store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
     return PinnedDeviceResource.create({ instance_id }).then(pin => {
       set(userPinsMap, {
         ...get(userPinsMap),
@@ -43,6 +49,7 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
     const newMap = { ...map };
     delete newMap[instance_id];
     set(userPinsMap, newMap);
+    store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
     return PinnedDeviceResource.deleteModel({ id });
   }
 
@@ -63,9 +70,15 @@ export default function usePinnedDevices(networkDevicesWithChannels) {
     return get(unpinnedDevices).length > 0;
   });
 
+  function handlePinToggle(instance_id) {
+    if (get(userPinsMap)[instance_id]) {
+      return deletePinForUser(instance_id);
+    }
+    return createPinForUser(instance_id);
+  }
+
   return {
-    createPinForUser,
-    deletePinForUser,
+    handlePinToggle,
     fetchPinsForUser,
     userPinsMap,
     pinnedDevices,
