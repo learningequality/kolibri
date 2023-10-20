@@ -50,6 +50,7 @@ from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
+from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.discovery.models import NetworkLocation
@@ -263,7 +264,7 @@ def map_status(record):
     transfer_status = record.pop("transfer_status", None)
     device_status = record.get("device_status")
     device_status_sentiment = record.get("device_status_sentiment")
-    queued = record.pop("queued", None)
+    sync_status = record.pop("status", None)
     recent = record["last_synced"] and (
         timezone.now() - record["last_synced"] < sync_diff
     )
@@ -282,7 +283,7 @@ def map_status(record):
         ):
             return UNABLE_TO_SYNC
         return RECENTLY_SYNCED
-    elif queued:
+    elif sync_status == SyncQueueStatus.Queued:
         return QUEUED
     return NOT_RECENTLY_SYNCED
 
@@ -294,7 +295,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     filter_class = SyncStatusFilter
 
     values = (
-        "queued",
+        "status",
         "last_synced",
         "transfer_status",
         "device_status",
@@ -323,7 +324,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     def annotate_queryset(self, queryset):
 
         queryset = queryset.annotate(
-            last_synced=F("sync_session__last_activity_timestamp")
+            last_synced=F("sync_session__last_activity_timestamp"),
         )
 
         most_recent_sync_status = (
