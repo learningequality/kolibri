@@ -1,9 +1,7 @@
 <template>
 
-  <div>
-    <KGrid
-      class="add-padding"
-    >
+  <div style="padding-top: 2rem;">
+    <KGrid :style="wrapperStyles">
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 1 }"
@@ -30,17 +28,17 @@
       </KGridItem>
     </KGrid>
 
-    <p style="margin-top: 0px;">
+    <p :style="addQuizSectionsStyles">
       {{ addQuizSections$() }}
     </p>
 
-    <KGrid>
+    <KGrid :style="tabsWrapperStyles">
       <KGridItem
         :layout12="{ span: 10 }"
-        :style="noKgridItemPadding"
       >
         <TabsWithOverflow
           tabsId="quizSectionTabs"
+          class="section-tabs"
           :tabs="tabs"
           :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
           :activeTabId="quizForge.activeSection.value ?
@@ -81,6 +79,7 @@
             <KIconButton
               v-if="overflowTabs.length"
               tabindex="-1"
+              class="overflow-tabs"
               icon="optionsHorizontal"
               :style="overflowButtonStyles(overflowTabs)"
             >
@@ -130,11 +129,11 @@
 
       <KGridItem
         :layout12="{ span: 2 }"
-        :style="noKgridItemPadding"
       >
         <KButton
           appearance="flat-button"
           icon="plus"
+          style="height: 3rem"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
@@ -384,10 +383,17 @@
           userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
-      noKgridItemPadding() {
+      addQuizSectionsStyles() {
         return {
-          paddingLeft: '0em',
-          paddingRight: '0em',
+          margin: '0 0 1rem 0',
+          padding: '0 0 1rem 0',
+          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
+        };
+      },
+      tabsWrapperStyles() {
+        return {
+          paddingTop: '1rem',
+          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
         };
       },
       tabs() {
@@ -445,8 +451,8 @@
       },
       overflowButtonStyles(overflow) {
         return {
-          height: '40px',
-          width: '40px',
+          height: '2.25rem!important',
+          width: '2.25rem!important',
           border: this.activeSectionIsHidden(overflow)
             ? '2px solid ' + this.$themeTokens.primary
             : 'none',
@@ -530,10 +536,6 @@
     font-size: 1.5em;
     font-weight: 700;
     color: #996189;
-  }
-
-  .add-padding {
-    padding-top: 16px;
   }
 
   .no-question-style {
@@ -686,6 +688,10 @@
 
   /deep/ .grip {
     top: 2px !important;
+  }
+
+  /deep/ .overflow-tabs svg {
+    top: 7px !important;
   }
 
 </style>
