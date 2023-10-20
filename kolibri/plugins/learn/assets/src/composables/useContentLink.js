@@ -11,13 +11,28 @@ export default function useContentLink(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store.state.route);
 
-  function _makeLink(id, isResource, query, deviceId) {
+  function _makeNodeLink(id, isResource, query, deviceId) {
     const params = get(route).params;
     return {
       name: isResource ? PageNames.TOPICS_CONTENT : PageNames.TOPICS_TOPIC,
       params: pick({ id, deviceId: deviceId || params.deviceId }, ['id', 'deviceId']),
       query,
     };
+  }
+
+  function _getBackLinkQuery() {
+    const oldQuery = get(route).query || {};
+    const query = {
+      prevName: get(route).name,
+    };
+    if (!isEmpty(oldQuery)) {
+      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
+    }
+    const params = get(route).params;
+    if (!isEmpty(params)) {
+      query.prevParams = encodeURI(JSON.stringify(params));
+    }
+    return query;
   }
 
   /**
@@ -33,18 +48,10 @@ export default function useContentLink(store) {
     if (!route) {
       return null;
     }
-    const oldQuery = get(route).query || {};
-    const query = {
-      prevName: get(route).name,
-    };
-    if (!isEmpty(oldQuery)) {
-      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
-    }
-    const params = get(route).params;
-    if (!isEmpty(params)) {
-      query.prevParams = encodeURI(JSON.stringify(params));
-    }
-    return _makeLink(id, isResource, query, deviceId);
+
+    const query = _getBackLinkQuery();
+
+    return _makeNodeLink(id, isResource, query, deviceId);
   }
 
   function genExternalContentURLBackLinkCurrentPage(id) {
@@ -54,17 +61,9 @@ export default function useContentLink(store) {
     if (!route) {
       return base;
     }
-    const oldQuery = get(route).query || {};
-    const query = {
-      prevName: get(route).name,
-    };
-    if (!isEmpty(oldQuery)) {
-      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
-    }
-    const params = get(route).params;
-    if (!isEmpty(params)) {
-      query.prevParams = encodeURI(JSON.stringify(params));
-    }
+
+    const query = _getBackLinkQuery();
+
     const path = `/topics/c/${id}`;
 
     return `${base}${path}?${new URLSearchParams(query)}`;
@@ -89,7 +88,7 @@ export default function useContentLink(store) {
     const oldQuery = get(route).query || {};
     const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
 
-    return _makeLink(id, isResource, query, deviceId);
+    return _makeNodeLink(id, isResource, query, deviceId);
   }
 
   const back = computed(() => {
@@ -126,25 +125,28 @@ export default function useContentLink(store) {
     return `${base}${path}${query}`;
   }
 
-  function genLibraryPageBackLink(deviceId, isExploreLibraries = false) {
+  function genLibraryPageBackLink(deviceId) {
     if (!route) {
       return null;
     }
 
-    const oldQuery = get(route).query || {};
-    const query = {
-      prevName: get(route).name,
-    };
-    if (!isEmpty(oldQuery)) {
-      query.prevQuery = encodeURI(JSON.stringify(oldQuery));
-    }
-    const params = get(route).params;
-    if (!isEmpty(params)) {
-      query.prevParams = encodeURI(JSON.stringify(params));
-    }
+    const query = _getBackLinkQuery();
     return {
-      name: isExploreLibraries ? PageNames.EXPLORE_LIBRARIES : PageNames.LIBRARY,
-      params: pick({ deviceId: deviceId || params.deviceId }, ['deviceId']),
+      name: PageNames.LIBRARY,
+      params: { deviceId },
+      query,
+    };
+  }
+
+  function genExploreLibrariesPageBackLink() {
+    if (!route) {
+      return null;
+    }
+
+    const query = _getBackLinkQuery();
+
+    return {
+      name: PageNames.EXPLORE_LIBRARIES,
       query,
     };
   }
@@ -155,6 +157,7 @@ export default function useContentLink(store) {
     genExternalContentURLBackLinkCurrentPage,
     genExternalBackURL,
     genLibraryPageBackLink,
+    genExploreLibrariesPageBackLink,
     back,
   };
 }
