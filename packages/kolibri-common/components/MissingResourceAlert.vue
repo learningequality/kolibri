@@ -10,7 +10,7 @@
       <span v-if="$slots.syncAlert">
         <slot name="syncAlert"></slot>
       </span>
-      <span v-else-if="syncCouldNotComplete">
+      <span v-else>
         <span>
           {{ coreString(
             multiple ? 'someResourcesMissingOrNotSupported' :
@@ -53,10 +53,6 @@
       multiple: {
         type: Boolean,
         default: true,
-      },
-      syncCouldNotComplete: {
-        type: Boolean,
-        default: false,
       },
     },
     data() {

@@ -1,8 +1,7 @@
 <template>
 
   <MissingResourceAlert
-    v-if="isSyncing || syncCouldNotComplete"
-    :syncCouldNotComplete="syncCouldNotComplete"
+    :multiple="multiple"
   >
     <template v-if="isSyncing && isLearnerOnlyImport" #syncAlert>
       {{ syncMessage }}
@@ -44,17 +43,15 @@
         isLearnerOnlyImport,
       };
     },
+    props: {
+      multiple: {
+        type: Boolean,
+        default: true,
+      },
+    },
     computed: {
       isSyncing() {
         return this.status == SyncStatus.QUEUED || this.status == SyncStatus.SYNCING;
-      },
-      syncCouldNotComplete() {
-        console.log(this.status);
-        return (
-          this.status == SyncStatus.UNABLE_TO_SYNC ||
-          this.status == SyncStatus.INSUFFICIENT_STORAGE ||
-          this.status == SyncStatus.NOT_CONNECTED
-        );
       },
       syncMessage() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
