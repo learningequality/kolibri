@@ -21,7 +21,7 @@
             <KIconButton
               ref="pinIcon"
               :icon="pinIcon"
-              :disabled="disablePinDevice"
+              :disabled="isStudio"
               appearance="flat-button"
               @click="$emit('togglePin', deviceId)"
             />
@@ -33,7 +33,7 @@
             </KTooltip>
           </h2>
           <p
-            v-if="showDescription"
+            v-if="isStudio"
             class="device-description"
           >
             {{ $tr('channels', { channels: totalChannels }) }}
@@ -48,25 +48,16 @@
         <KRouterLink
           appearance="raised-button"
           :text="coreString('explore')"
-          :to="genLibraryPageBackLink(deviceId, false)"
+          :to="genLibraryPageBackLink(deviceId)"
         />
       </KGridItem>
     </div>
-    <div class="library-channels">
-      <KGridItem
-        v-for="channel in channels.slice(0, cardsPerRow)"
-        :key="channel.id"
-        :layout="{ span: layoutSpan }"
-      >
-        <ChannelCard
-          :title="channel.name"
-          :tagline="channel.tagline || channel.description"
-          :thumbnail="channel.thumbnail"
-          :link="genContentLinkBackLinkCurrentPage(channel.root, false, deviceId)"
-          :version="channel.version"
-        />
-      </KGridItem>
-    </div>
+    <ChannelCardGroupGrid
+      data-test="channel-cards"
+      :deviceId="device.id"
+      :contents="channels"
+      :isRemote="true"
+    />
   </KGrid>
 
 </template>
@@ -77,12 +68,13 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import useContentLink from '../../composables/useContentLink';
-  import ChannelCard from '../ChannelCard';
+  import { KolibriStudioId } from '../../constants';
+  import ChannelCardGroupGrid from '../ChannelCardGroupGrid';
 
   export default {
     name: 'LibraryItem',
     components: {
-      ChannelCard,
+      ChannelCardGroupGrid,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -97,19 +89,10 @@
       };
     },
     props: {
-      deviceId: {
-        type: String,
-        default: null,
-      },
-      deviceName: {
-        type: String,
-        required: false,
-        default: null,
-      },
-      deviceIcon: {
-        type: String,
-        required: false,
-        default: null,
+      device: {
+        type: Object,
+        required: true,
+        default: () => ({}),
       },
       channels: {
         type: Array,
@@ -118,61 +101,36 @@
           return [];
         },
       },
-      pinIcon: {
-        type: String,
+      pinned: {
+        type: Boolean,
         required: true,
-        default: null,
-      },
-      showDescription: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
-      disablePinDevice: {
-        type: Boolean,
-        required: false,
         default: false,
       },
     },
     computed: {
-      cardsPerRow() {
-        if (this.windowIsSmall) {
-          return 1;
-        }
-        if (this.windowBreakpoint < 4) {
-          return 2;
-        }
-        if (this.windowBreakpoint < 6) {
-          return 3;
-        }
-        return 4;
-      },
-      layoutSpan() {
-        /**
-         * The breakpoints below represent the window widths
-         * 0: < 480px  | Small screen  | 4 columns
-         * 1: < 600px  | Small screen  | 4 columns
-         * 2: < 840px  | Medium screen | 8 columns
-         * 3: < 960px  | Large screen  | 12 columns
-         * 4: < 1280px | Large screen  | 12 columns
-         * 5: < 1440px | Large screen  | 12 columns
-         * 6: < 1600px | Large screen  | 12 columns
-         *
-         * On resize, display X cards per row where:
-         * X = total columns in grid / column span for each card.
-         * For example, if the total number of columns is 12, and
-         * column span for each cards is 4, then X is 3.
-         */
-        if (this.windowBreakpoint < 2) {
-          return 4 / this.cardsPerRow;
-        }
-        if (this.windowBreakpoint === 2) {
-          return 8 / this.cardsPerRow;
-        }
-        return 12 / this.cardsPerRow;
-      },
       totalChannels() {
         return this.channels.length;
+      },
+      isStudio() {
+        return this.deviceId === KolibriStudioId;
+      },
+      deviceIcon() {
+        if (this.device['operating_system'] === 'Android') {
+          return 'device';
+        } else if (!this.device['subset_of_users_device']) {
+          return 'cloud';
+        } else {
+          return 'laptop';
+        }
+      },
+      deviceName() {
+        return this.device ? this.device.device_name : '';
+      },
+      deviceId() {
+        return this.device ? this.device.instance_id : '';
+      },
+      pinIcon() {
+        return this.pinned ? 'pinned' : 'notPinned';
       },
     },
     $trs: {

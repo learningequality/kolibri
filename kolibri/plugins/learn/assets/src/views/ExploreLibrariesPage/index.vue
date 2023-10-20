@@ -25,13 +25,9 @@
       <LibraryItem
         v-for="device in pinnedDevices"
         :key="device['instance_id']"
-        :deviceId="device['instance_id']"
-        :deviceName="device['device_name']"
-        :deviceIcon="getDeviceIcon(device)"
-        :channels="deviceChannelsMap[device['instance_id']]"
-        :pinIcon="getPinIcon(true)"
-        :showDescription="device['instance_id'] === studioId"
-        :disablePinDevice="device['instance_id'] === studioId"
+        :device="device"
+        :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+        :pinned="true"
         @togglePin="handlePinToggle"
       />
       <div v-if="areMoreDevicesAvailable" key="moreDevices">
@@ -52,11 +48,9 @@
           <LibraryItem
             v-for="device in unpinnedDevices.slice(0, moreDevices)"
             :key="device['instance_id']"
-            :deviceId="device['instance_id']"
-            :deviceName="device['device_name']"
-            :deviceIcon="getDeviceIcon(device)"
-            :channels="deviceChannelsMap[device['instance_id']]"
-            :pinIcon="getPinIcon(false)"
+            :device="device"
+            :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+            :pinned="false"
             @togglePin="handlePinToggle"
           />
         </FadeInTransitionGroup>
@@ -82,6 +76,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
   import FadeInTransitionGroup from '../FadeInTransitionGroup';
+  import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
@@ -113,6 +108,7 @@
         pinnedDevicesExist,
       } = usePinnedDevices(networkDevicesWithChannels);
       const { back } = useContentLink();
+      const { makeComputedCardCount } = useCardLayoutSpan();
       const moreDevices = ref(0);
 
       keepDeviceChannelsUpdated();
@@ -123,11 +119,14 @@
 
       watch(pinnedDevicesExist, (newVal, oldVal) => {
         if (!oldVal && newVal) {
-          set(moreDevices, 0);
+          // Always show at least 4 devices
+          set(moreDevices, Math.max(moreDevicesIncrement - get(pinnedDevices).length, 0));
         } else if (oldVal && !newVal && !get(moreDevices)) {
           set(moreDevices, moreDevicesIncrement);
         }
       });
+
+      const cardsToDisplay = makeComputedCardCount(1, 3);
 
       return {
         handlePinToggle,
@@ -140,6 +139,7 @@
         back,
         loading: isLoadingChannels,
         moreDevices,
+        cardsToDisplay,
       };
     },
     computed: {
@@ -160,18 +160,6 @@
       },
     },
     methods: {
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Android') {
-          return 'device';
-        } else if (!device['subset_of_users_device']) {
-          return 'cloud';
-        } else {
-          return 'laptop';
-        }
-      },
-      getPinIcon(pinned) {
-        return pinned ? 'pinned' : 'notPinned';
-      },
       loadMoreDevices() {
         this.moreDevices += moreDevicesIncrement;
       },
