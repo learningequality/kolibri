@@ -76,8 +76,9 @@
       <LibraryItem
         v-for="device in fullLibrariesToDisplay"
         :key="device['instance_id']"
+        data-test="pinned-resources"
         :device="device"
-        :channels="deviceChannelsMap[device['instance_id']].slice(0, cardsToDisplay)"
+        :channels="(deviceChannelsMap[device['instance_id']] || []).slice(0, cardsToDisplay)"
         :pinned="Boolean(userPinsMap[device['instance_id']])"
         @togglePin="handlePinToggle"
       />
@@ -115,8 +116,9 @@
         :layout="{ span: layoutSpan }"
       >
         <UnPinnedDevices
+          data-test="more-devices"
           :device="device"
-          :channelCount="deviceChannelsMap[device.id].length"
+          :channelCount="deviceChannelsMap[device.instance_id].length"
           :routeTo="genLibraryPageBackLink(device.id)"
         />
       </KGridItem>
@@ -186,8 +188,10 @@
           : get(pinnedDevices)
       );
 
+      // Make this conditional, as this import does not resolve properly
+      // under Jest, and causes problems.
       // eslint-disable-next-line kolibri/vue-no-undefined-string-uses
-      const explore$ = coreStrings.$tr('explore');
+      const explore$ = coreStrings.$tr ? coreStrings.$tr('explore') : '';
 
       return {
         networkDevicesWithChannels,

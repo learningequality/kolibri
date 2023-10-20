@@ -12,6 +12,8 @@ import OtherLibraries from '../../src/views/LibraryPage/OtherLibraries';
 /* eslint-disable import/named */
 import useSearch, { useSearchMock } from '../../src/composables/useSearch';
 import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
+import usePinnedDevices, { usePinnedDevicesMock } from '../../src/composables/usePinnedDevices';
+import useDevices, { useDevicesMock } from '../../src/composables/useDevices';
 /* eslint-enable import/named */
 
 const localVue = createLocalVue();
@@ -263,13 +265,7 @@ describe('LibraryPage', () => {
         );
       });
       it('display "no other" label', async () => {
-        wrapper = await makeOtherLibrariesWrapper({
-          options: {
-            computed: {
-              devicesWithChannelsExist: jest.fn(() => false),
-            },
-          },
-        });
+        wrapper = await makeOtherLibrariesWrapper();
         await wrapper.setData({ searchingOtherLibraries: false });
         expect(wrapper.find('[data-test="no-other"').isVisible()).toBe(true);
         expect(wrapper.find('[data-test="no-other-label"').text()).toEqual(
@@ -277,28 +273,62 @@ describe('LibraryPage', () => {
         );
       });
       it('display "pinned" label', async () => {
-        wrapper = await makeOtherLibrariesWrapper({
-          options: {
-            computed: {
-              pinnedDevicesExist: jest.fn(() => true),
-              unpinnedDevicesExist: jest.fn(() => true),
+        usePinnedDevices.mockImplementation(() =>
+          usePinnedDevicesMock({
+            pinnedDevicesExist: jest.fn(() => true),
+            unpinnedDevicesExist: jest.fn(() => true),
+            pinnedDevices: [{ instance_id: '1' }],
+            unpinnedDevices: [{ instance_id: '2' }, { instance_id: '3' }, { instance_id: '4' }],
+          })
+        );
+        useDevices.mockImplementation(() =>
+          useDevicesMock({
+            deviceChannelsMap: {
+              '1': [CHANNEL],
+              '2': [CHANNEL],
+              '3': [CHANNEL],
+              '4': [CHANNEL],
             },
-          },
-        });
+            networkDevicesWithChannels: [
+              { instance_id: '1' },
+              { instance_id: '2' },
+              { instance_id: '3' },
+              { instance_id: '4' },
+            ],
+          })
+        );
+        wrapper = await makeOtherLibrariesWrapper();
         const pinnedLabel = wrapper.find('[data-test="pinned-label"');
         expect(pinnedLabel.element).toBeTruthy();
         expect(pinnedLabel.text()).toEqual(translations.pinned);
         expect(wrapper.find('[data-test="pinned-resources"').element).toBeTruthy();
       });
       it('display "more" label', async () => {
-        wrapper = await makeOtherLibrariesWrapper({
-          options: {
-            computed: {
-              pinnedDevicesExist: jest.fn(() => true),
-              unpinnedDevicesExist: jest.fn(() => true),
+        usePinnedDevices.mockImplementation(() =>
+          usePinnedDevicesMock({
+            pinnedDevicesExist: jest.fn(() => true),
+            unpinnedDevicesExist: jest.fn(() => true),
+            pinnedDevices: [{ instance_id: '1' }],
+            unpinnedDevices: [{ instance_id: '2' }, { instance_id: '3' }, { instance_id: '4' }],
+          })
+        );
+        useDevices.mockImplementation(() =>
+          useDevicesMock({
+            deviceChannelsMap: {
+              '1': [CHANNEL],
+              '2': [CHANNEL],
+              '3': [CHANNEL],
+              '4': [CHANNEL],
             },
-          },
-        });
+            networkDevicesWithChannels: [
+              { instance_id: '1' },
+              { instance_id: '2' },
+              { instance_id: '3' },
+              { instance_id: '4' },
+            ],
+          })
+        );
+        wrapper = await makeOtherLibrariesWrapper();
         const moreLabel = wrapper.find('[data-test="more-label"');
         expect(moreLabel.element).toBeTruthy();
         expect(moreLabel.text()).toEqual(translations.moreLibraries);

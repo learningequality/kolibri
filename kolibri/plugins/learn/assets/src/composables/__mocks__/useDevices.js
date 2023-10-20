@@ -36,6 +36,7 @@ import { ref } from 'kolibri.lib.vueCompositionApi';
 const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),
   baseurl: null,
+  deviceChannelsMap: ref({}),
   networkDevices: ref({}),
   networkDevicesWithChannels: ref([]),
   keepDeviceChannelsUpdated: jest.fn(),

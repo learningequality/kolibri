@@ -38,6 +38,7 @@ const MOCK_DEFAULTS = {
   unpinnedDevices: [],
   unpinnedDevicesExist: false,
   handlePinToggle: jest.fn(() => Promise.resolve({})),
+  userPinsMap: {},
 };
 
 export function usePinnedDevicesMock(overrides = {}) {
