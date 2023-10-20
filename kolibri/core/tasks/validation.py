@@ -1,4 +1,5 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
+from job import Priority
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -15,6 +16,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
     retry_interval = serializers.IntegerField(
         required=False, allow_null=True, min_value=0
     )
+    priority = serializers.IntegerField(required=False, allow_null=False)
 
     def validate(self, data):
         if data.get("enqueue_at") and data.get("enqueue_in"):
@@ -38,6 +40,11 @@ class EnqueueArgsSerializer(serializers.Serializer):
             elif "repeat_interval" in data and "repeat" not in data:
                 raise serializers.ValidationError(
                     "`repeat` must be specified when `repeat_interval` is specified."
+                )
+        if "priority" in data:
+            if data.get("priority") not in Priority.Priorities:
+                raise serializers.ValidationError(
+                    f"`priority`, if specified, must be one of {Priority.Priorities}"
                 )
         return data
 
