@@ -91,11 +91,12 @@
       <KGridItem
         :layout12="{ span: 10 }"
         :layout8="{ span: 6 }"
-        :layout4="{ span: 4 }"
+        :layout4="{ span: 2 }"
       >
         <h2
           v-if="pinnedDevicesExist"
           data-test="more-label"
+          :style="{ marginTop: '0px' }"
         >
           {{ injectedtr('moreLibraries') }}
         </h2>
@@ -103,7 +104,7 @@
       <KGridItem
         :layout12="{ span: 2, alignment: 'right' }"
         :layout8="{ span: 2, alignment: 'right' }"
-        :layout4="{ span: 4, alignment: 'right' }"
+        :layout4="{ span: 2, alignment: 'right' }"
       >
         <KRouterLink
           appearance="raised-button"
