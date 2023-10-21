@@ -45,7 +45,9 @@ class EnqueueArgsSerializer(serializers.Serializer):
         if "priority" in data:
             if data.get("priority") not in Priority.Priorities:
                 raise serializers.ValidationError(
-                    f"`priority`, if specified, must be one of {Priority.Priorities}"
+                    "`priority` not specified properly, must be one of: {}".format(
+                        Priority.Priorities
+                    )
                 )
         return data
 
