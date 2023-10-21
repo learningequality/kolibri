@@ -168,9 +168,7 @@ class TasksViewSet(viewsets.GenericViewSet):
         return job_storage.enqueue_job(
             job,
             queue=registered_task.queue,
-            priority=enqueue_args.priority
-            if enqueue_args.priority
-            else registered_task.priority,
+            priority=enqueue_args.get("priority", registered_task.priority),
             retry_interval=enqueue_args.get("retry_interval", None),
         )
 

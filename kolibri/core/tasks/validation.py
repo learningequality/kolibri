@@ -1,7 +1,8 @@
 from django.core.exceptions import ValidationError as DjangoValidationError
-from job import Priority
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+
+from .job import Priority
 
 
 class EnqueueArgsSerializer(serializers.Serializer):
