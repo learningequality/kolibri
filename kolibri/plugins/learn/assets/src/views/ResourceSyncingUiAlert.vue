@@ -3,7 +3,7 @@
   <MissingResourceAlert
     :multiple="multiple"
   >
-    <template v-if="isSyncing && isLearnerOnlyImport" #syncAlert>
+    <template v-if="isLearnerOnlyImport && (isSyncing || syncDownloadsInProgress)" #syncAlert>
       {{ syncMessage }}
     </template>
   </MissingResourceAlert>
@@ -36,10 +36,11 @@
       MissingResourceAlert,
     },
     setup() {
-      const { status } = useUserSyncStatus();
+      const { status, syncDownloadsInProgress } = useUserSyncStatus();
       const { isLearnerOnlyImport } = useUser();
       return {
         status,
+        syncDownloadsInProgress,
         isLearnerOnlyImport,
       };
     },
