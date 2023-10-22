@@ -81,6 +81,8 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     cache: options.cache,
     transpile: options.transpile,
     devServer,
+    kds: options.kds,
+    kdsPath: options.kdsPath,
   };
 
   const webpackConfig = require('./webpack.config.plugin');
@@ -225,6 +227,8 @@ program
     list,
     []
   )
+  .option('--kds', 'Flag to use local kds', false)
+  .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
   .action(function(mode, options) {
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
