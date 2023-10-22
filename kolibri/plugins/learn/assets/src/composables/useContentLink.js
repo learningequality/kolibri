@@ -4,6 +4,10 @@ import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
 import { ExternalPagePaths, PageNames } from '../constants';
 
+function _decodeBackLinkQuery(query) {
+  return query && query.prevQuery ? JSON.parse(decodeURI(query.prevQuery)) : {};
+}
+
 export default function useContentLink(store) {
   // Get store reference from the curent instance
   // but allow it to be passed in to allow for dependency
@@ -91,15 +95,33 @@ export default function useContentLink(store) {
     return _makeNodeLink(id, isResource, query, deviceId);
   }
 
+  /**
+   * A function to generate a VueRouter link object that links to
+   * a topic, and decodes previous query parameters
+   * created by generateContentBackLinkCurrentPage if they exist,
+   * allowing e.g. a resource page to link to a topic page
+   * while maintaining the conceptual model of a single immersive overlay
+   * that can be closed out, returning to the originating page that linked
+   * to the original parent topic of the resource.
+   * @param {string} id - the id of the node
+   * @return {Object} VueRouter link object
+   */
+  function genContentLinkKeepPreviousBackLink(id, deviceId) {
+    if (!route) {
+      return null;
+    }
+    const oldQuery = _decodeBackLinkQuery(get(route).query);
+    const query = pick(oldQuery, ['prevName', 'prevQuery', 'prevParams']);
+
+    return _makeNodeLink(id, false, query, deviceId);
+  }
+
   const back = computed(() => {
     const routeValue = get(route);
     if (!routeValue) {
       return null;
     }
-    const query =
-      routeValue.query && routeValue.query.prevQuery
-        ? JSON.parse(decodeURI(routeValue.query.prevQuery))
-        : {};
+    const query = _decodeBackLinkQuery(routeValue.query);
     const name = (routeValue.query || {}).prevName || PageNames.HOME;
     const params =
       routeValue.query && routeValue.query.prevParams
@@ -154,6 +176,7 @@ export default function useContentLink(store) {
   return {
     genContentLinkBackLinkCurrentPage,
     genContentLinkKeepCurrentBackLink,
+    genContentLinkKeepPreviousBackLink,
     genExternalContentURLBackLinkCurrentPage,
     genExternalBackURL,
     genLibraryPageBackLink,
