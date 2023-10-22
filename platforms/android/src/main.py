@@ -3,7 +3,6 @@ from uuid import uuid4
 
 import initialization  # noqa: F401 keep this first, to ensure we're set up for other imports
 from android_utils import get_dummy_user_name
-from android_utils import is_active_network_metered
 from android_utils import share_by_intent
 from jnius import autoclass
 from kolibri.main import enable_plugin
@@ -15,6 +14,8 @@ from kolibri.utils.server import ZeroConfPlugin
 from kolibri.utils.server import ZipContentServerPlugin
 from magicbus.plugins import SimplePlugin
 from runnable import Runnable
+
+# from android_utils import is_active_network_metered
 
 
 PythonActivity = autoclass("org.kivy.android.PythonActivity")
@@ -56,7 +57,7 @@ enable_plugin("android_app_plugin")
 initialize()
 
 interface.register(share_file=share_by_intent)
-interface.register(check_is_metered=is_active_network_metered)
+# interface.register(check_is_metered=is_active_network_metered)
 interface.register(get_os_user=os_user)
 
 kolibri_bus = BaseKolibriProcessBus()
