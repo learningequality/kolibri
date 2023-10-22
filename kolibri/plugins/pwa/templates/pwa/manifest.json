@@ -5,8 +5,8 @@
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 {% get_current_language as LANGUAGE_CODE %}
 {
-  "name": "{% trans 'Kolibri'|escapejs %}",
-  "short_name": "{% trans 'Kolibri'|escapejs %}",
+  "name": "{% site_title|escapejs %}",
+  "short_name": "{% site_title|escapejs %}",
   "dir": "{{ LANGUAGE_BIDI|yesno:'rtl,ltr'|escapejs }}",
   "lang": "{{ LANGUAGE_CODE|escapejs }}",
   "icons": [
