@@ -78,6 +78,7 @@ def theme_favicon():
 def site_title():
     """
     Return the text of the site title, if provided by the theme. If not, the
-    default will be returned.
+    default will be returned. The site title may be translated, to allow for
+    transliteration into other alphabets where needed.
     """
     return ThemeHook.get_theme().get("siteTitle", _("Kolibri"))
