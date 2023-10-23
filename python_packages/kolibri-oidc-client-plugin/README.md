@@ -12,11 +12,12 @@ This package provides Kolibri users with the ability to authenticate against an 
 
 ## How can I install this plugin?
 
-1. Inside your Kolibri virtual environment: `pip install kolibri-oidc-client-plugin`
+After installing kolibri normally,
 
-2. Activate the plugin: `kolibri plugin enable kolibri_oidc_client_plugin`
-
-3. Restart Kolibri
+1. Install the plugin: `pip install kolibri-oidc-client-plugin`
+2. Activate the plugin for kolibri: `kolibri plugin enable kolibri_oidc_client_plugin`
+3. Configure the information from the OIDC provider as explained below
+4. Restart Kolibri
 
 
 ## Used claims
@@ -24,7 +25,7 @@ This package provides Kolibri users with the ability to authenticate against an 
 This plugin will create a new user in the Kolibri database after it authenticates using the OIDC provider.
 From the [standard OIDC claims](https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims) the plugin will fetch the following fields and add the information to the Kolibri user database:
 
-- `nickname` (or `username`)
+- `nickname` (or `username`)  **IMPORTANT**: If kolibri >= 0.16 is used, emails can be used as `username`
 - `given_name`
 - `family_name`
 - `email`
@@ -122,4 +123,4 @@ They can be set using these two environment variables:
 * `CLIENT_ID`
 * `CLIENT_SECRET`
 
-If they are not set, this plugin use the value `kolibri.app` for both settings.
+**If they are not set**, this plugin use the value `kolibri.app` for **both** settings.
