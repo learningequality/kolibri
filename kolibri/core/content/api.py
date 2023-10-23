@@ -1368,6 +1368,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
                     source_id=OuterRef("source_id"),
                     contentnode_id=OuterRef("contentnode_id"),
                     requested_at__gte=OuterRef("requested_at"),
+                    reason=OuterRef("reason"),
                 ).exclude(status=ContentRequestStatus.Failed)
             )
         ).filter(has_removal=False)

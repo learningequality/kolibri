@@ -26,7 +26,7 @@
             {{ currentLesson.description }}
           </p>
         </div>
-        <MissingResourceAlert v-if="lessonResources.length > contentNodes.length" />
+        <ResourceSyncingUiAlert v-if="lessonResources.length > contentNodes.length" />
       </section>
 
       <section v-if="lessonHasResources" class="content-cards">
@@ -57,7 +57,7 @@
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useContentLink from '../../composables/useContentLink';
   import useContentNodeProgress from '../../composables/useContentNodeProgress';
   import { PageNames, ClassesPageNames } from '../../constants';
@@ -78,7 +78,7 @@
       ContentIcon,
       ProgressIcon,
       LearnAppBarPage,
-      MissingResourceAlert,
+      ResourceSyncingUiAlert,
     },
     mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
     setup() {
