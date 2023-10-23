@@ -11,7 +11,7 @@
     "intl": "^1.2.5",
     "kolibri": "^0.15.4",
     "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#v1.3.1-beta0",
-    "vue": "2.7.14",
+    "vue": "2.6.14",
     "vue-intl": "3.1.0"
   },
   "devDependencies": {
