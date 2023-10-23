@@ -124,6 +124,7 @@ class Application(Adw.Application):
             license_type=Gtk.License.MIT_X11,
             website="https://learningequality.org",
             issue_url="https://community.learningequality.org/",
+            support_url="https://kolibri.readthedocs.io/en/latest/",
         )
         about_window.present()
 
