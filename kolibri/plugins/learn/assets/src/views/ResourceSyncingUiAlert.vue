@@ -3,7 +3,7 @@
   <MissingResourceAlert
     :multiple="multiple"
   >
-    <template v-if="isLearnerOnlyImport && (isSyncing || syncDownloadsInProgress)" #syncAlert>
+    <template v-if="isLearnerOnlyImport && isSyncing" #syncAlert>
       {{ syncMessage }}
     </template>
   </MissingResourceAlert>
@@ -13,6 +13,8 @@
 
 <script>
 
+  import { get } from '@vueuse/core';
+  import { computed, watch } from 'kolibri.lib.vueCompositionApi';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert.vue';
   import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
@@ -35,13 +37,28 @@
     components: {
       MissingResourceAlert,
     },
-    setup() {
+    setup(props, { emit }) {
       const { status, syncDownloadsInProgress } = useUserSyncStatus();
       const { isLearnerOnlyImport } = useUser();
+      const isSyncing = computed(() => {
+        return (
+          get(status) === SyncStatus.QUEUED ||
+          get(status) === SyncStatus.SYNCING ||
+          get(syncDownloadsInProgress)
+        );
+      });
+
+      watch(isSyncing, (newVal, oldVal) => {
+        if (newVal === false && oldVal === true) {
+          emit('syncComplete');
+        }
+      });
+
       return {
         status,
         syncDownloadsInProgress,
         isLearnerOnlyImport,
+        isSyncing,
       };
     },
     props: {
@@ -51,9 +68,6 @@
       },
     },
     computed: {
-      isSyncing() {
-        return this.status == SyncStatus.QUEUED || this.status == SyncStatus.SYNCING;
-      },
       syncMessage() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.status == SyncStatus.QUEUED

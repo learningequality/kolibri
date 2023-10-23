@@ -2,7 +2,10 @@
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div v-if="!loading" id="main" role="main">
-      <ResourceSyncingUiAlert v-if="missingResources" />
+      <ResourceSyncingUiAlert
+        v-if="missingResources"
+        @syncComplete="hydrateHomePage"
+      />
       <YourClasses
         v-if="displayClasses"
         class="section"
@@ -206,6 +209,7 @@
         displayExploreChannels,
         displayClasses,
         missingResources,
+        hydrateHomePage,
       };
     },
     props: {
