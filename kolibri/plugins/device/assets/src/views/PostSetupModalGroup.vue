@@ -33,6 +33,7 @@
 
 
 <script>
+
   import { mapGetters } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectDeviceForm } from 'kolibri.coreVue.componentSets.sync';
