@@ -14,7 +14,10 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import WebKit
 from kolibri_app.config import DATA_DIR
+from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.config import FRONTEND_APPLICATION_ID
+from kolibri_app.config import PROJECT_VERSION
+from kolibri_app.utils import get_app_modules_debug_info
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import await_properties
@@ -148,6 +151,20 @@ class KolibriContext(GObject.GObject):
 
     def is_url_in_scope(self, url: str) -> bool:
         return self.default_is_url_in_scope(url)
+
+    def get_debug_info(self) -> dict:
+        # FIXME: It would be better to call `get_app_modules_debug_info()` from`
+        #        the kolibri_daemon service and include the output here. In some
+        #        rare cases, its Python environment may differ.
+        return {
+            "app": {
+                "project_version": PROJECT_VERSION,
+                "build_profile": BUILD_PROFILE,
+                "do_automatic_login": self.__kolibri_daemon.do_automatic_login,
+            },
+            "kolibri_daemon": self.__kolibri_daemon.get_debug_info(),
+            "python_modules": get_app_modules_debug_info(),
+        }
 
     def get_loader_url(self, state: str) -> str:
         return self.__loader_url + "#" + state

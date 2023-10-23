@@ -15,6 +15,7 @@ from gi.repository import Soup
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.globals import APP_AUTOMATIC_LOGIN
+from kolibri_app.globals import APP_AUTOMATIC_PROVISION
 
 from .utils import GioInputStreamIO
 
@@ -30,6 +31,7 @@ class KolibriDaemonManager(GObject.GObject):
     stops Kolibri, and provides some helpers to access Kolibri's HTTP API.
     """
 
+    __bus_type: Gio.BusType
     __dbus_proxy: KolibriDaemonDBus.MainProxy
 
     __did_init: bool = False
@@ -47,10 +49,10 @@ class KolibriDaemonManager(GObject.GObject):
     def __init__(self):
         GObject.GObject.__init__(self)
 
-        g_bus_type = KolibriDaemonDBus.get_default_bus_type()
+        self.__bus_type = KolibriDaemonDBus.get_default_bus_type()
 
         self.__dbus_proxy = KolibriDaemonDBus.MainProxy(
-            g_bus_type=g_bus_type,
+            g_bus_type=self.__bus_type,
             g_name=DAEMON_APPLICATION_ID,
             g_object_path=DAEMON_MAIN_OBJECT_PATH,
             g_interface_name=KolibriDaemonDBus.main_interface_info().name,
@@ -106,6 +108,16 @@ class KolibriDaemonManager(GObject.GObject):
             return urljoin(self.__dbus_proxy.props.base_url, url)
         else:
             return None
+
+    def get_debug_info(self) -> dict:
+        return {
+            "g_bus_type": self.__bus_type.value_name,
+            "status": self.__dbus_proxy.props.status,
+            "base_url": self.__dbus_proxy.props.base_url,
+            "kolibri_home": self.__dbus_proxy.props.kolibri_home,
+            "kolbri_version": self.__dbus_proxy.props.kolibri_version,
+            "do_automatic_provision": APP_AUTOMATIC_PROVISION,
+        }
 
     def kolibri_api_get(self, path: str) -> typing.Any:
         url = self.get_absolute_url(path)

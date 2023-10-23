@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import logging
 import typing
 from functools import partial
@@ -118,11 +119,19 @@ class Application(Adw.Application):
             website="https://learningequality.org",
             issue_url="https://community.learningequality.org/",
             support_url="https://kolibri.readthedocs.io/en/latest/",
+            debug_info=self.__format_debug_info(),
+            debug_info_filename="kolibri-gnome-debug-info.json",
         )
         about_window.add_link(
             _("Community Forums"), "https://community.learningequality.org/"
         )
         about_window.present()
+
+    def __format_debug_info(self):
+        return json.dumps(
+            self.__context.get_debug_info(),
+            indent=4,
+        )
 
     def __on_quit(self, action, *args):
         self.quit()
