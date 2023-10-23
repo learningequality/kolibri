@@ -141,6 +141,7 @@
         <Draggable
           v-for="(section,index) in sectionOrderList"
           :key="index"
+          :style="draggableStyle"
         >
           <DragHandle>
             <div
@@ -302,6 +303,11 @@
        */
       sectionOrderList() {
         return this.quizForge.allSections.value;
+      },
+      draggableStyle() {
+        return {
+          backgroundColor: this.$themeTokens.surface,
+        };
       },
     },
     methods: {
