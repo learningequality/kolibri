@@ -2,7 +2,7 @@
 
   <div>
     <WelcomeModal
-      v-if="step === Steps.WELCOME"
+      v-if="step === Steps.WELCOME && isUserLoggedIn"
       :importedFacility="importedFacility"
       :isOnMyOwnUser="isOnMyOwnUser"
       @submit="handleSubmit"
@@ -33,7 +33,7 @@
 
 
 <script>
-
+  import { mapGetters } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { SelectDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
@@ -68,6 +68,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isUserLoggedIn']),
       // Assume that if first facility has non-null 'last_successful_sync'
       // field, then it was imported in Setup Wizard.
       // This used to determine Select Source workflow to enter into
