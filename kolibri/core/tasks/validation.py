@@ -17,7 +17,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
     retry_interval = serializers.IntegerField(
         required=False, allow_null=True, min_value=0
     )
-    priority = serializers.IntegerField(required=False, allow_null=False)
+    priority = serializers.ChoiceField(choices=Priority.Priorities, required=False)
 
     def validate(self, data):
         if data.get("enqueue_at") and data.get("enqueue_in"):
@@ -41,13 +41,6 @@ class EnqueueArgsSerializer(serializers.Serializer):
             elif "repeat_interval" in data and "repeat" not in data:
                 raise serializers.ValidationError(
                     "`repeat` must be specified when `repeat_interval` is specified."
-                )
-        if "priority" in data:
-            if data.get("priority") not in Priority.Priorities:
-                raise serializers.ValidationError(
-                    "`priority` not specified properly, must be one of: {}".format(
-                        Priority.Priorities
-                    )
                 )
         return data
 
