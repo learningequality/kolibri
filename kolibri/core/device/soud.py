@@ -2,7 +2,6 @@ import datetime
 import json
 import logging
 import time
-import uuid
 
 from django.core.management import call_command
 from django.db.models import F
@@ -142,21 +141,8 @@ class SoudNetworkClient(NetworkClient):
         """
         logger.debug("{} Requesting SoUD sync with server".format(context))
         return self.post(
-            reverse_path("kolibri:core:syncqueue-list"),
-            json=dict(id=context.sync_queue.id, **context.request_data),
-        )
-
-    def request_sync_queue_status(self, context):
-        """
-        :param context:
-        :return:
-        """
-        logger.debug("{} Requesting SoUD sync queue status from server".format(context))
-        return self.put(
-            reverse_path(
-                "kolibri:core:syncqueue-detail", kwargs={"pk": context.sync_queue.id}
-            ),
-            json=dict(id=context.sync_queue.id, **context.request_data),
+            reverse_path("kolibri:core:syncqueue"),
+            json=context.request_data,
         )
 
 
@@ -262,13 +248,7 @@ def request_sync(context, network_location=None):
 
     try:
         with SoudNetworkClient.build_from_network_location(network_location) as client:
-            if sync_queue.status == SyncQueueStatus.Pending:
-                # when Pending, we are not sure if we have a sync queue record on the remote server,
-                # so we request to create one
-                response = client.request_sync_queue(context)
-            else:
-                # when not Pending, we request to update its status, which the server should return
-                response = client.request_sync_queue_status(context)
+            response = client.request_sync_queue(context)
     except (NetworkClientError, NetworkLocationNotFound):
         logger.warning(
             "{} Unable to request SoUD sync from unavailable network location".format(
@@ -284,11 +264,6 @@ def request_sync(context, network_location=None):
                 "{} User was not found requesting SoUD sync from server".format(context)
             )
             sync_queue.status = SyncQueueStatus.Ineligible
-        elif response.status_code == status.HTTP_409_CONFLICT:
-            logger.warning("{} Queue ID conflict detected".format(context))
-            sync_queue.id = uuid.uuid4()
-            sync_queue.status = SyncQueueStatus.Pending
-            sync_queue.set_next_attempt(0)
         else:
             logger.warning(
                 "{} {} response for SoUD sync request | {}".format(

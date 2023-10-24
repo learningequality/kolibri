@@ -16,10 +16,12 @@ from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import exceptions
 from rest_framework import filters
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from .. import error_constants
 from kolibri.core.api import BaseValuesViewset
@@ -45,6 +47,7 @@ from kolibri.core.device.utils import get_device_info
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
+from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.utils.conf import OPTIONS
 
 
@@ -215,7 +218,12 @@ def get_public_file_checksums(request, version):
     )
 
 
-class SyncQueueViewSet(viewsets.ViewSet):
+class QueueDeserializer(serializers.Serializer):
+    user = HexOnlyUUIDField()
+    instance = HexOnlyUUIDField()
+
+
+class SyncQueueAPIView(APIView):
     def get_response_data(self, queue_object):
         return dict(
             id=queue_object.id,
@@ -277,25 +285,15 @@ class SyncQueueViewSet(viewsets.ViewSet):
         exc.status_code = code
         return exc
 
-    def create_or_update(self, request, pk=None):
+    def create_or_update(self, request):
         if get_device_setting("subset_of_users_device"):
             content = "I'm a Subset of users device. Nothing to do here"
             raise self.validation_error(content, status.HTTP_400_BAD_REQUEST)
 
-        pk = pk or request.data.get("id")
-        if pk is None:
-            content = "Missing parameter: id is required"
-            raise self.validation_error(content, status.HTTP_412_PRECONDITION_FAILED)
-
-        user_id = request.data.get("user")
-        if user_id is None:
-            content = "Missing parameter: user is required"
-            raise self.validation_error(content, status.HTTP_412_PRECONDITION_FAILED)
-
-        instance_id = request.data.get("instance")
-        if instance_id is None:
-            content = "Missing parameter: instance is required"
-            raise self.validation_error(content, status.HTTP_412_PRECONDITION_FAILED)
+        serializer = QueueDeserializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user_id = serializer.validated_data["user"]
+        instance_id = serializer.validated_data["instance"]
 
         if not FacilityUser.objects.filter(id=user_id).exists():
             content = "This user is not registered in any of this server facilities"
@@ -303,22 +301,14 @@ class SyncQueueViewSet(viewsets.ViewSet):
 
         with transaction.atomic():
             queue_object, created = SyncQueue.objects.get_or_create(
-                id=pk,
+                user_id=user_id,
+                instance_id=instance_id,
                 defaults=dict(
-                    user_id=user_id,
-                    instance_id=instance_id,
                     status=SyncQueueStatus.Queued,
                 ),
             )
 
         if not created:
-            if (
-                queue_object.user_id != user_id
-                or queue_object.instance_id != instance_id
-            ):
-                content = "A queue object exists with different user and instance ids"
-                raise self.validation_error(content, status.HTTP_409_CONFLICT)
-
             queue_object.status = SyncQueueStatus.Queued
             queue_object.datetime = timezone.now()
             queue_object.set_next_attempt(HANDSHAKING_TIME)
@@ -339,12 +329,8 @@ class SyncQueueViewSet(viewsets.ViewSet):
         self.check_queue(queue_object)
         return queue_object
 
-    def create(self, request):
+    def post(self, request):
         queue_object = self.create_or_update(request)
-        return Response(self.get_response_data(queue_object))
-
-    def update(self, request, pk=None):
-        queue_object = self.create_or_update(request, pk=pk)
         return Response(self.get_response_data(queue_object))
 
 
