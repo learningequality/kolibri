@@ -181,12 +181,12 @@
       },
       stopMainScroll(sidePanelVisible) {
         const bookmarkElement = this.$refs.bookmarkWrapper;
+        const width = bookmarkElement.getBoundingClientRect().width;
+        bookmarkElement.style.width = `${width}px`;
         if (sidePanelVisible) {
           bookmarkElement.style.position = 'fixed';
-          bookmarkElement.style.width = '84.65%';
         } else {
           bookmarkElement.style.position = null;
-          bookmarkElement.style.width = '100%';
         }
       },
     },
