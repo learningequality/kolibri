@@ -1,7 +1,7 @@
 <template>
 
   <div style="padding-top: 2rem;">
-    <KGrid :style="wrapperStyles">
+    <KGrid>
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 1 }"
@@ -40,39 +40,22 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
           :activeTabId="quizForge.activeSection.value ?
             quizForge.activeSection.value.section_id :
             '' "
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
+          @click="id => quizForge.setActiveSection(id)"
         >
           <template #tab="{ tab }">
-            <KButton
+            <span
               :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
               style="display: inline-block;"
               :appearanceOverrides="tabStyles"
-              @click="() => quizForge.setActiveSection(tab.id)"
             >
               {{ tab.label }}
-            </KButton>
-            <KIconButton
-              icon="optionsVertical"
-              class="options-button"
-              size="small"
-              @click="() => null"
-            >
-              <template #menu>
-                <KDropdownMenu
-                  :primary="false"
-                  :disabled="false"
-                  :hasIcons="true"
-                  :options="sectionOptions"
-                  @select="opt => handleSectionOptionSelect(opt, tab.id)"
-                />
-              </template>
-            </KIconButton>
+            </span>
           </template>
 
           <template #overflow="{ overflowTabs }">
@@ -90,37 +73,7 @@
                   :hasIcons="true"
                   :options="overflowTabs"
                   @select="opt => quizForge.setActiveSection(opt.id)"
-                >
-                  <template #option="{ option }">
-                    <!-- TODO Clean this up by moving it to another component -->
-                    <!-- Maybe not so easy since they're styled differently -->
-                    <KButton
-                      appearance="flat-button"
-                      :primary="quizForge.activeSection.value.section_id === option.id"
-                      :appearanceOverrides="tabStyles"
-                      class="menu-button"
-                      @click="() => quizForge.setActiveSection(option.id)"
-                    >
-                      {{ option.label }}
-                    </KButton>
-                    <KIconButton
-                      icon="optionsVertical"
-                      style="position: absolute; right: 0; border-radius: 0!important;"
-                      @click="() => null"
-                    >
-                      <template #menu>
-                        <KDropdownMenu
-                          :primary="false"
-                          :disabled="false"
-                          :hasIcons="true"
-                          :containFocus="false"
-                          :options="sectionOptions"
-                          @select="opt => handleSectionOptionSelect(opt, option.id)"
-                        />
-                      </template>
-                    </KIconButton>
-                  </template>
-                </KDropdownMenu>
+                />
               </template>
             </KIconButton>
           </template>
@@ -144,12 +97,11 @@
 
     <KTabsPanel
       v-if="quizForge.activeSection.value"
-      class="no-question-layout"
       tabsId="quizSectionTabs"
       :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
     >
       <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div v-if="!quizForge.activeQuestions.value.length">
+      <div v-if="!quizForge.activeQuestions.value.length" class="no-question-style">
         <div class="question-mark-layout">
           <span class="help-icon-style">?</span>
         </div>
@@ -172,61 +124,63 @@
 
 
       <div v-else>
-        <KGrid>
+        <KGrid class="questions-list-label-row">
           <KGridItem
+            class="left-side-heading"
             :layout12="{ span: 6 }"
           >
-            <div class="left-column-alignment-style">
-              <div class="align-kcheckbox-style">
-                <p>
-                  <KCheckbox />
-                </p>
-              </div>
-
-              <div>
-                <p> "SELECT ALL FIX ME"</p>
-              </div>
-            </div>
+            <h2 :style="{ color: $themeTokens.annotation }">
+              {{ questionList$() }}
+            </h2>
+          </KGridItem>
+          <KGridItem
+            class="right-side-heading"
+            :layout12="{ span: 6 }"
+          >
+            <KButton
+              primary
+              :text="coreString('optionsLabel')"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="activeSectionActions"
+                  @select="handleActiveSectionAction"
+                />
+              </template>
+            </KButton>
+          </KGridItem>
+        </KGrid>
+        <KGrid :style="accordionTopBarStyles">
+          <KGridItem
+            class="left-side-heading"
+            :layout12="{ span: 6 }"
+          >
+            <KCheckbox
+              class="select-all-box"
+              :label="quizForge.selectAllLabel.value"
+              :checked="quizForge.allQuestionsSelected.value"
+              :indeterminate="quizForge.selectAllIsIndeterminate.value"
+              @change="() => quizForge.selectAllQuestions()"
+            />
           </KGridItem>
 
           <KGridItem
+            class="right-side-heading"
             :layout12="{ span: 6 }"
           >
-            <div class="right-alignment-style">
-              <KGrid>
-                <KGridItem :layout12="{ span: 4 }">
-                  <button class="icon-container remove-button-style">
-                    <KIcon
-                      class="reduce-chervon-spacing"
-                      icon="chevronDown"
-                    />
-                    <KIcon
-                      class="reduce-chervon-spacing"
-                      icon="chevronUp"
-                    />
-                  </button>
-                </KGridItem>
-
-                <KGridItem
-                  :layout12="{ span: 4 }"
-                >
-
-                  <KIconButton
-                    class="icon-size"
-                    icon="refresh"
-                  />
-                </KGridItem>
-
-                <KGridItem
-                  :layout12="{ span: 4 }"
-                >
-                  <KIconButton
-                    class="icon-size"
-                    icon="trash"
-                  />
-                </KGridItem>
-              </KGrid>
-            </div>
+            <KIconButton
+              icon="refresh"
+              :tooltip="replaceAction$()"
+              @click="handleReplaceSelection"
+            />
+            <KIconButton
+              icon="trash"
+              :tooltip="coreString('deleteAction')"
+              @click="handleDeleteSelection"
+            />
           </KGridItem>
 
         </KGrid>
@@ -236,7 +190,7 @@
             key="drag-container"
             :items="quizForge.activeQuestions.value"
             @sort="handleQuestionOrderChange"
-            @dragStart="handledDragStart"
+            @dragStart="handleDragStart"
           >
             <transition-group
               tag="div"
@@ -258,6 +212,7 @@
                             class="sort-widget"
                             moveUpText="up"
                             moveDownText="down"
+                            :noDrag="true"
                             :isFirst="index === 0"
                             :isLast="index === quizForge.activeQuestions.value.length - 1"
                             @moveUp="shiftOne(index, -1)"
@@ -265,7 +220,13 @@
                           />
                         </div>
                       </DragHandle>
-                      <KCheckbox style="padding-left: 0.5em" />
+                      <KCheckbox
+                        style="padding-left: 0.5em"
+                        :checked="quizForge.selectedActiveQuestions.value.includes(
+                          question.question_id
+                        )"
+                        @change="() => quizForge.toggleQuestionInSelection(question.question_id)"
+                      />
                       <KButton
                         tabindex="0"
                         appearance="basic-link"
@@ -350,6 +311,8 @@
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
+        replaceAction$,
+        questionList$,
       } = enhancedQuizManagementStrings;
 
       // The number we use for the default section title
@@ -366,6 +329,8 @@
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
+        replaceAction$,
+        questionList$,
       };
     },
     data() {
@@ -381,6 +346,11 @@
           textDecoration: 'none',
           // Ensure text doesn't get highlighted as we drag
           userSelect: this.dragActive ? 'none!important' : 'text',
+        };
+      },
+      accordionTopBarStyles() {
+        return {
+          backgroundColor: this.$themePalette.grey.v_100,
         };
       },
       addQuizSectionsStyles() {
@@ -407,25 +377,39 @@
         return {
           margin: '0px',
           textOverflow: 'ellipsis',
-          maxWidth: '160px',
-          padding: '0px!important',
-          height: '3.25em',
+          maxWidth: '10rem',
+          padding: '1rem 0!important',
+          height: '3.25rem',
         };
       },
-      sectionOptions() {
+      activeSectionActions() {
         return [
           {
             label: this.editSectionLabel$(),
             icon: 'edit',
+            id: 'edit',
           },
           {
             label: this.deleteSectionLabel$(),
             icon: 'delete',
+            id: 'delete',
           },
         ];
       },
     },
     methods: {
+      handleActiveSectionAction(opt) {
+        switch (opt.id) {
+          case 'edit':
+            console.log('Editing, ', this.quizForge.activeSection.value.section_id);
+            break;
+          case 'delete':
+            console.log('Deleting, ', this.quizForge.activeSection.value.section_id);
+            break;
+          default:
+            console.error('BAD OPTION GIVEN OHHHHHH NOOOOO');
+        }
+      },
       tabRefLabel(section_id) {
         return `section-tab-${section_id}`;
       },
@@ -470,9 +454,10 @@
         this.quizForge.setActiveSection(get(newSection).section_id);
         this.sectionCreationCount++;
       },
-      handledDragStart() {
+      handleDragStart() {
         this.dragActive = true;
       },
+      /*
       handleSectionOptionSelect({ label }, section_id) {
         this.dragActive = false;
         // Always set the active section to the one that is having its side panel opened
@@ -487,6 +472,7 @@
             break;
         }
       },
+      */
       openSelectResources(section_id) {
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
@@ -553,11 +539,6 @@
     margin-left: 1em;
   }
 
-  .right-alignment-style {
-    float: right;
-    margin-top: 1em;
-  }
-
   .drag-icon {
     margin-top: -0.5em;
     font-size: 1em;
@@ -605,10 +586,6 @@
   .toggle-icon {
     margin: 0.5em;
     font-size: 1em;
-  }
-
-  .align-kcheckbox-style {
-    margin-left: 3em;
   }
 
   .remove-button-style {
@@ -692,6 +669,33 @@
 
   /deep/ .overflow-tabs svg {
     top: 7px !important;
+  }
+
+  .select-all-box {
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 2.5em;
+
+    // Vertical centering here into the KCheckbox
+    /deep/ & label {
+      line-height: 28px;
+    }
+  }
+
+  .right-side-heading {
+    display: flex;
+    flex-direction: row-reverse;
+  }
+
+  .left-side-heading {
+    display: flex;
+    align-items: center;
+  }
+
+  .questions-list-label-row {
+    /deep/ & > div {
+      align-items: center;
+    }
   }
 
 </style>
