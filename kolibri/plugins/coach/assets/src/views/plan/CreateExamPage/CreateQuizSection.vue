@@ -1,7 +1,9 @@
 <template>
 
-  <div class="add-padding">
-    <KGrid>
+  <div>
+    <KGrid
+      class="add-padding"
+    >
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 1 }"

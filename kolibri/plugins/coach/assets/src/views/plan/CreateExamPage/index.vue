@@ -8,6 +8,13 @@
     :pageTitle="$tr('createNewExamLabel')"
     :route="backRoute"
   >
+    <UiAlert
+      v-if="showError && !inSearchMode"
+      type="error"
+      :dismissible="false"
+    >
+      {{ selectionIsInvalidText }}
+    </UiAlert>
 
     <KPageContainer
       :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
