@@ -2,27 +2,88 @@
  * A composable function containing logic related to pinned devices
  */
 
-import { getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { get, set } from '@vueuse/core';
+import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
 import { PinnedDeviceResource } from 'kolibri.resources';
+import { crossComponentTranslator } from 'kolibri.utils.i18n';
+import { KolibriStudioId } from '../constants';
+import LibraryItem from '../views/ExploreLibrariesPage/LibraryItem';
 
-export default function usePinnedDevices() {
-  const $store = getCurrentInstance().proxy.$store;
-  const user = $store.state.core.session.user_id;
+const PinStrings = crossComponentTranslator(LibraryItem);
+
+export default function usePinnedDevices(networkDevicesWithChannels, store) {
+  store = store || getCurrentInstance().proxy.$store;
+  const userPinsMap = ref({});
+
+  const devicesWithChannels = computed(() => {
+    return networkDevicesWithChannels ? get(networkDevicesWithChannels) || [] : [];
+  });
 
   function fetchPinsForUser() {
-    return PinnedDeviceResource.fetchCollection({ force: true });
+    return PinnedDeviceResource.fetchCollection({ force: true }).then(pins => {
+      const updatedPins = {};
+      for (const pin of pins) {
+        updatedPins[pin.instance_id] = pin;
+      }
+      set(userPinsMap, updatedPins);
+    });
   }
 
   function createPinForUser(instance_id) {
-    return PinnedDeviceResource.create({ instance_id, user });
+    set(userPinsMap, {
+      ...get(userPinsMap),
+      [instance_id]: { instance_id },
+    });
+    store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
+    return PinnedDeviceResource.create({ instance_id }).then(pin => {
+      set(userPinsMap, {
+        ...get(userPinsMap),
+        [pin.instance_id]: pin,
+      });
+    });
   }
 
-  function deletePinForUser(id) {
-    return PinnedDeviceResource.deleteModel(id, { user });
+  function deletePinForUser(instance_id) {
+    const map = get(userPinsMap);
+    const id = map[instance_id].id;
+    const newMap = { ...map };
+    delete newMap[instance_id];
+    set(userPinsMap, newMap);
+    store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
+    return PinnedDeviceResource.deleteModel({ id });
   }
+
+  function _isPinnedDevice(device) {
+    return get(userPinsMap)[device.instance_id] || device.instance_id === KolibriStudioId;
+  }
+
+  const pinnedDevices = computed(() => {
+    return get(devicesWithChannels).filter(_isPinnedDevice);
+  });
+  const pinnedDevicesExist = computed(() => {
+    return get(pinnedDevices).length > 0;
+  });
+  const unpinnedDevices = computed(() => {
+    return get(devicesWithChannels).filter(d => !_isPinnedDevice(d));
+  });
+  const unpinnedDevicesExist = computed(() => {
+    return get(unpinnedDevices).length > 0;
+  });
+
+  function handlePinToggle(instance_id) {
+    if (get(userPinsMap)[instance_id]) {
+      return deletePinForUser(instance_id);
+    }
+    return createPinForUser(instance_id);
+  }
+
   return {
-    createPinForUser,
-    deletePinForUser,
+    handlePinToggle,
     fetchPinsForUser,
+    userPinsMap,
+    pinnedDevices,
+    pinnedDevicesExist,
+    unpinnedDevices,
+    unpinnedDevicesExist,
   };
 }

@@ -680,6 +680,26 @@ class FacilityUserTestCase(TestCase):
         self.assertEqual("bob", user.username)
         self.assertEqual(NOT_SPECIFIED, user.password)
 
+    def test_username_validation(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        user1 = FacilityUser.objects.create(
+            username="bob@learningequality.org",
+            password="password",
+            facility=self.facility,
+        )
+        user1.full_clean()
+        user2 = FacilityUser.objects.create(
+            username="@bob", password="password", facility=self.facility
+        )
+        with self.assertRaises(ValidationError):
+            user2.full_clean()
+        user3 = FacilityUser.objects.create(
+            username=32 * "gh", password="password", facility=self.facility
+        )
+        with self.assertRaises(ValidationError):
+            user3.full_clean()
+
 
 class CollectionHierarchyTestCase(TestCase):
     def test_facility_with_parent(self):

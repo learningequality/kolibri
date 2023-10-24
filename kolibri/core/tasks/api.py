@@ -150,7 +150,7 @@ class TasksViewSet(viewsets.GenericViewSet):
                 enqueue_args["enqueue_at"],
                 job,
                 queue=registered_task.queue,
-                priority=registered_task.priority,
+                priority=enqueue_args.get("priority", registered_task.priority),
                 interval=enqueue_args.get("repeat_interval", 0),
                 repeat=enqueue_args.get("repeat", 0),
                 retry_interval=enqueue_args.get("retry_interval", None),
@@ -160,7 +160,7 @@ class TasksViewSet(viewsets.GenericViewSet):
                 enqueue_args["enqueue_in"],
                 job,
                 queue=registered_task.queue,
-                priority=registered_task.priority,
+                priority=enqueue_args.get("priority", registered_task.priority),
                 interval=enqueue_args.get("repeat_interval", 0),
                 repeat=enqueue_args.get("repeat", 0),
                 retry_interval=enqueue_args.get("retry_interval", None),
@@ -168,7 +168,7 @@ class TasksViewSet(viewsets.GenericViewSet):
         return job_storage.enqueue_job(
             job,
             queue=registered_task.queue,
-            priority=registered_task.priority,
+            priority=enqueue_args.get("priority", registered_task.priority),
             retry_interval=enqueue_args.get("retry_interval", None),
         )
 

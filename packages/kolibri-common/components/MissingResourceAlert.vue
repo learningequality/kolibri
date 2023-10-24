@@ -7,16 +7,21 @@
       type="warning"
       :style="{ marginBottom: 0, marginTop: '8px' }"
     >
-      <span>
-        {{ coreString(
-          multiple ? 'someResourcesMissingOrNotSupported' :
-          'resourceNotFoundOnDevice'
-        ) }}
+      <span v-if="$slots.syncAlert">
+        <slot name="syncAlert"></slot>
       </span>
-              &nbsp;
-      <KButton appearance="basic-link" @click="open = true">
-        {{ $tr('learnMore') }}
-      </KButton>
+      <span v-else>
+        <span>
+          {{ coreString(
+            multiple ? 'someResourcesMissingOrNotSupported' :
+            'resourceNotFoundOnDevice'
+          ) }}
+        &nbsp;
+          <KButton appearance="basic-link" @click="open = true">
+            {{ $tr('learnMore') }}
+          </KButton>
+        </span>
+      </span>
     </UiAlert>
     <KModal
       v-if="open"

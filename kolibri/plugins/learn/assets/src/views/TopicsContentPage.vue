@@ -129,7 +129,7 @@
       <AlsoInThis
         style="margin-top: 8px"
         :contentNodes="viewResourcesContents"
-        :nextContent="nextContent"
+        :nextFolder="nextFolder"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
         :currentResourceId="currentResourceId"
@@ -369,7 +369,7 @@
         bookmark: null,
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
-        nextContent: null,
+        nextFolder: null,
         viewResourcesContents: [],
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
@@ -513,7 +513,7 @@
       initializeState() {
         this.bookmark = null;
         this.showViewResourcesSidePanel = false;
-        this.nextContent = null;
+        this.nextFolder = null;
         this.viewResourcesContents = [];
         this.resourcesSidePanelFetched = false;
         this.resourcesSidePanelLoading = false;
@@ -579,7 +579,7 @@
        * is a topic.
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextContent - Sets the value with this.content's parents next sibling folder
+       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
        * if found
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
        * is logged in
@@ -603,19 +603,19 @@
         }
         return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
           let parent;
-          let nextContents;
+          let nextFolders;
           if (fetchGrandparent) {
             const parentIndex = ancestor.children.results.findIndex(
               c => c.id === this.content.parent
             );
             parent = ancestor.children.results[parentIndex];
-            nextContents = ancestor.children.results.slice(parentIndex + 1);
+            nextFolders = ancestor.children.results.slice(parentIndex + 1);
           } else {
             parent = ancestor;
             const contentIndex = ancestor.children.results.findIndex(c => c.id === this.content.id);
-            nextContents = ancestor.children.results.slice(contentIndex + 1);
+            nextFolders = ancestor.children.results.slice(contentIndex + 1);
           }
-          this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
+          this.nextFolder = nextFolders.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
           this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },
