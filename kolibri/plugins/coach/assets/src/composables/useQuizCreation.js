@@ -246,6 +246,25 @@ export default (DEBUG = true) => {
     );
   }
 
+  function toggleQuestionInSelection(question_id) {
+    if (get(_selectedQuestions).includes(question_id)) {
+      removeQuestionFromSelection(question_id);
+    } else {
+      addQuestionToSelection(question_id);
+    }
+  }
+
+  function selectAllQuestions() {
+    if (get(allQuestionsSelected)) {
+      set(_selectedQuestions, []);
+    } else {
+      set(
+        _selectedQuestions,
+        get(activeQuestions).map(q => q.question_id)
+      );
+    }
+  }
+
   /**
    * @affects _channels - Fetches all channels with exercises and sets them to _channels */
   function _fetchChannels() {
@@ -316,6 +335,31 @@ export default (DEBUG = true) => {
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
 
+  /** Handling the Select All Checkbox
+   * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
+
+  /** @type {ComputedRef<Boolean>} Whether all active questions are selected */
+  const allQuestionsSelected = computed(
+    () => get(selectedActiveQuestions).length === get(activeQuestions).length
+  );
+  const noQuestionsSelected = computed(() => get(selectedActiveQuestions).length === 0);
+  /** @type {ComputedRef<String>} The label that should be shown alongside the "Select all" checkbox
+   */
+  const selectAllLabel = computed(() => {
+    if (get(noQuestionsSelected)) {
+      const { selectAllLabel$ } = enhancedQuizManagementStrings;
+      return selectAllLabel$();
+    } else {
+      const { numberOfSelectedQuestions$ } = enhancedQuizManagementStrings;
+      return numberOfSelectedQuestions$({ count: get(selectedActiveQuestions).length });
+    }
+  });
+
+  /** @type {ComputedRef<Boolean>} Whether the select all checkbox should be indeterminate */
+  const selectAllIsIndeterminate = computed(() => {
+    return !get(allQuestionsSelected) && !get(noQuestionsSelected);
+  });
+
   return {
     // Methods
     saveQuiz,
@@ -328,6 +372,8 @@ export default (DEBUG = true) => {
     updateQuiz,
     addQuestionToSelection,
     removeQuestionFromSelection,
+    toggleQuestionInSelection,
+    selectAllQuestions,
 
     // Computed
     channels,
@@ -340,5 +386,9 @@ export default (DEBUG = true) => {
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
+    selectAllIsIndeterminate,
+    selectAllLabel,
+    allQuestionsSelected,
+    noQuestionsSelected,
   };
 };
