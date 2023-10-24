@@ -113,50 +113,6 @@ class TestServerServices(object):
 
         mock_kolibri_broadcast.assert_not_called()
 
-    @mock.patch("kolibri.core.tasks.main.initialize_workers")
-    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
-    def test_scheduled_jobs_persist_on_restart(
-        self,
-        mock_kolibri_broadcast,
-        initialize_workers,
-        job_storage,
-    ):
-        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
-
-            # Schedule two userdefined jobs
-            from kolibri.utils.time_utils import local_now
-            from datetime import timedelta
-
-            schedule_time = local_now() + timedelta(hours=1)
-            test1 = job_storage.schedule(schedule_time, Job(id))
-            test2 = job_storage.schedule(schedule_time, Job(id))
-
-            # Now, start services plugin
-            service_plugin = server.ServicesPlugin(mock.MagicMock(name="bus"))
-            service_plugin.START()
-
-            # Currently, we must have exactly four scheduled jobs
-            # two userdefined and two server defined (pingback and vacuum)
-            from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
-            from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
-
-            assert len(job_storage) == 4
-            assert job_storage.get_job(test1) is not None
-            assert job_storage.get_job(test2) is not None
-            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
-
-            # Restart services
-            service_plugin.STOP()
-            service_plugin.START()
-
-            # Make sure all scheduled jobs persist after restart
-            assert len(job_storage) == 4
-            assert job_storage.get_job(test1) is not None
-            assert job_storage.get_job(test2) is not None
-            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
-            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
-
     def test_services_shutdown_on_stop(self):
 
         # Initialize and ready services plugin for testing
@@ -174,6 +130,54 @@ class TestServerServices(object):
         assert services_plugin.worker.mock_calls == [
             mock.call.shutdown(wait=True),
         ]
+
+
+class TestServerDefaultScheduledTasks(object):
+    @mock.patch("kolibri.core.discovery.utils.network.broadcast.KolibriBroadcast")
+    def test_scheduled_jobs_persist_on_restart(
+        self,
+        mock_kolibri_broadcast,
+        job_storage,
+    ):
+        with mock.patch("kolibri.core.tasks.registry.job_storage", wraps=job_storage):
+
+            # Schedule two userdefined jobs
+            from kolibri.utils.time_utils import local_now
+            from datetime import timedelta
+
+            schedule_time = local_now() + timedelta(hours=1)
+            test1 = job_storage.schedule(schedule_time, Job(id))
+            test2 = job_storage.schedule(schedule_time, Job(id))
+
+            # Now, start services plugin
+            default_scheduled_tasks_plugin = server.DefaultScheduledTasksPlugin(
+                mock.MagicMock(name="bus")
+            )
+            default_scheduled_tasks_plugin.START()
+
+            # Currently, we must have exactly four scheduled jobs
+            # two userdefined and two server defined (pingback and vacuum)
+            from kolibri.core.analytics.tasks import DEFAULT_PING_JOB_ID
+            from kolibri.core.deviceadmin.tasks import SCH_VACUUM_JOB_ID
+            from kolibri.core.deviceadmin.tasks import STREAMED_CACHE_CLEANUP_JOB_ID
+
+            assert len(job_storage) == 5
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
+
+            # Restart services
+            default_scheduled_tasks_plugin.START()
+
+            # Make sure all scheduled jobs persist after restart
+            assert len(job_storage) == 5
+            assert job_storage.get_job(test1) is not None
+            assert job_storage.get_job(test2) is not None
+            assert job_storage.get_job(DEFAULT_PING_JOB_ID) is not None
+            assert job_storage.get_job(SCH_VACUUM_JOB_ID) is not None
+            assert job_storage.get_job(STREAMED_CACHE_CLEANUP_JOB_ID) is not None
 
 
 class TestZeroConfPlugin(object):

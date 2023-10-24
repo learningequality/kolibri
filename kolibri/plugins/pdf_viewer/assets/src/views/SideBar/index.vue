@@ -6,7 +6,7 @@
       background: $themeTokens.surface,
     }"
   >
-    <nav :style="{ height: '100%' }">
+    <nav>
       <div v-if="tabs.filter(t => !t.disabled).length > 1" :style="{ display: 'flex' }">
         <div
           v-for="tab in tabs"
@@ -144,10 +144,8 @@
 
 <style scoped lang="scss">
 
-  $sidebar-nav-height: 48px;
-
   .pdf-sidebar {
-    height: 100%;
+    overflow-y: auto;
     box-shadow: inset -1px 2px 8px rgba(0, 0, 0, 0.16);
   }
 
@@ -159,7 +157,6 @@
   }
 
   .sidebar-content {
-    height: calc(100% - #{$sidebar-nav-height});
     overflow-y: auto;
   }
 

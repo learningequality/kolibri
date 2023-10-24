@@ -173,7 +173,7 @@
             </div>
           </div>
           <div
-            v-if="!isAppContext || windowIsLarge"
+            v-if="!isAppContext || !isTouchDevice || windowIsLarge"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
@@ -251,6 +251,7 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import navComponentsMixin from '../mixins/nav-components';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
@@ -325,6 +326,9 @@
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
       }),
+      isTouchDevice() {
+        return isTouchDevice;
+      },
       width() {
         return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
@@ -337,11 +341,11 @@
         //  Window size and app context. Changes may need to be made
         // in parallel in both files for non-breaking updates
         // The expected behavior is:
-        // In an app context, on small and medium screens,
-        // show the app Nav
+        // In an app context, on screens with touch capabilities,
+        // show the app Nav.
         // In browser based contexts, and large screen app view
         // use the "non-app" upper navigation bar
-        return this.isAppContext && !this.windowIsLarge;
+        return this.isAppContext && this.isTouchDevice;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });

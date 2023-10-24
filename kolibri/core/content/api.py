@@ -55,7 +55,7 @@ from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.tasks import automatic_resource_import
+from kolibri.core.content.tasks import automatic_user_imported_resource_cleanup
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -1329,9 +1329,19 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
+class ContentRequestFilter(FilterSet):
+    contentnode_id = UUIDFilter()
+    contentnode_id__in = UUIDInFilter(field_name="contentnode_id")
+
+    class Meta:
+        model = ContentDownloadRequest
+        fields = ("contentnode_id", "contentnode_id__in")
+
+
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSerializer
-
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
 
     values = (
@@ -1358,6 +1368,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
                     source_id=OuterRef("source_id"),
                     contentnode_id=OuterRef("contentnode_id"),
                     requested_at__gte=OuterRef("requested_at"),
+                    reason=OuterRef("reason"),
                 ).exclude(status=ContentRequestStatus.Failed)
             )
         ).filter(has_removal=False)
@@ -1400,7 +1411,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             content_request.contentnode_id = existing_download_request.contentnode_id
             content_request.save()
 
-        automatic_resource_import.enqueue_if_not()
+        automatic_user_imported_resource_cleanup.enqueue_if_not()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

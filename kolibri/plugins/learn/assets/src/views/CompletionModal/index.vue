@@ -151,7 +151,7 @@
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDevices from '../../composables/useDevices';
+  import { currentDeviceData } from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useContentLink from '../../composables/useContentLink';
@@ -183,7 +183,7 @@
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
-      const { baseurl } = useDevices();
+      const { baseurl } = currentDeviceData();
       return {
         baseurl,
         canAccessUnassignedContent,

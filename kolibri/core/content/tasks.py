@@ -9,11 +9,14 @@ from six.moves.urllib.parse import urljoin
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentRequest
+from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import ContentRequestType
 from kolibri.core.content.utils.channel_import import import_channel_from_data
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import read_channel_metadata_from_db_file
+from kolibri.core.content.utils.content_request import incomplete_removals_queryset
+from kolibri.core.content.utils.content_request import process_content_removal_requests
 from kolibri.core.content.utils.content_request import process_content_requests
 from kolibri.core.content.utils.content_request import synchronize_content_requests
 from kolibri.core.content.utils.paths import get_channel_lookup_url
@@ -392,6 +395,21 @@ def automatic_resource_import():
     """
     if automatic_download_enabled():
         process_content_requests()
+
+
+@register_task(
+    queue=QUEUE,
+    long_running=True,
+    status_fn=get_status,
+)
+def automatic_user_imported_resource_cleanup():
+    """
+    Processes content removal requests
+    """
+    incomplete_user_removals = incomplete_removals_queryset().filter(
+        reason=ContentRequestReason.UserInitiated
+    )
+    process_content_removal_requests(incomplete_user_removals)
 
 
 @register_task(

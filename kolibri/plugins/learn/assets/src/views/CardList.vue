@@ -37,7 +37,7 @@
               </h3>
               <p
                 v-if="contentNode.description"
-                style="font-size: 14px; marginTop: 4px; marginBottom: 4px;"
+                style="font-size: 14px; margin-top: 4px; margin-bottom: 4px;"
               >
                 <TextTruncatorCss :text="contentNode.description" :maxLines="2" />
               </p>

@@ -2,7 +2,7 @@
  * A composable function containing logic related to download requests
  */
 
-import { getCurrentInstance, reactive, ref } from 'kolibri.lib.vueCompositionApi';
+import { getCurrentInstance, onBeforeUnmount, reactive, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentRequestResource } from 'kolibri.resources';
 import { createTranslator } from 'kolibri.utils.i18n';
 import { get, set } from '@vueuse/core';
@@ -10,7 +10,7 @@ import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import urls from 'kolibri.urls';
 import client from 'kolibri.client';
 import Vue from 'kolibri.lib.vue';
-import useDevices from './useDevices';
+import { currentDeviceData } from '../composables/useDevices';
 
 const downloadRequestsTranslator = createTranslator('DownloadRequests', {
   downloadStartedLabel: {
@@ -35,18 +35,65 @@ const availableSpace = ref(0);
 export default function useDownloadRequests(store) {
   store = store || getCurrentInstance().proxy.$store;
 
-  const { instanceId } = useDevices(store);
+  const { instanceId } = currentDeviceData(store);
 
   function fetchUserDownloadRequests(params) {
-    return ContentRequestResource.list(params)
-      .then(downloadRequests => {
-        for (const obj of downloadRequests) {
-          set(downloadRequestMap, obj.id, obj);
-        }
-        set(loading, false);
-      })
-      .then(store.dispatch('notLoading'));
+    return ContentRequestResource.list(params).then(downloadRequests => {
+      if (downloadRequests.results) {
+        downloadRequests = downloadRequests.results;
+      }
+      for (const obj of downloadRequests) {
+        set(downloadRequestMap, obj.contentnode_id, obj);
+      }
+      store.dispatch('notLoading');
+      set(loading, false);
+      return downloadRequests;
+    });
   }
+
+  const defaultPollingInterval = 30000; // Default interval of 30 seconds
+
+  const calculatePollingInterval = () => {
+    return Object.values(downloadRequestMap).reduce((interval, download) => {
+      let pollingInterval = defaultPollingInterval;
+      if (download.status === 'PENDING' || download.status === 'FAILED') {
+        pollingInterval = 5000; // Poll every 5 seconds
+      } else if (download.status === 'IN_PROGRESS') {
+        pollingInterval = 1000; // Poll every 1 second
+      }
+      return Math.min(interval, pollingInterval);
+    }, defaultPollingInterval);
+  };
+
+  let poller;
+
+  const pollingParams = ref({});
+
+  const pollRequests = () => {
+    poller = setTimeout(() => {
+      fetchUserDownloadRequests(get(pollingParams)).then(() => {
+        pollRequests();
+      });
+    }, calculatePollingInterval());
+  };
+
+  const clearPolling = () => {
+    clearTimeout(poller);
+  };
+
+  const restartPolling = () => {
+    if (poller) {
+      clearPolling();
+      pollRequests();
+    }
+  };
+
+  const pollUserDownloadRequests = params => {
+    set(pollingParams, params);
+    fetchUserDownloadRequests(get(pollingParams)).then(() => {
+      pollRequests();
+    });
+  };
 
   function fetchAvailableFreespace() {
     const loading = ref(true);
@@ -67,24 +114,26 @@ export default function useDownloadRequests(store) {
     redirectBrowser(urls['kolibri:kolibri.plugins.learn:my_downloads']());
   }
 
-  function addDownloadRequest(content) {
+  function addDownloadRequest(contentNode) {
     const metadata = {
-      title: content.title,
-      file_size: content.files.reduce((size, f) => size + f.file_size, 0),
-      learning_activities: content.learning_activities,
+      title: contentNode.title,
+      file_size: contentNode.files.reduce((size, f) => size + f.file_size, 0),
+      learning_activities: contentNode.learning_activities,
     };
     const data = {
-      contentnode_id: content.id,
+      contentnode_id: contentNode.id,
       metadata,
       source_id: store.getters.currentUserId,
       source_instance_id: get(instanceId),
-      reason: 'UserInitiated',
+      reason: 'USER_INITIATED',
       facility: store.getters.currentFacilityId,
-      status: 'Pending',
+      status: 'PENDING',
       date_added: new Date(),
     };
+    set(downloadRequestMap, contentNode.id, data);
     ContentRequestResource.create(data).then(downloadRequest => {
-      set(downloadRequestMap, downloadRequest.node_id, downloadRequest);
+      set(downloadRequestMap, downloadRequest.contentnode_id, downloadRequest);
+      restartPolling();
     });
 
     store.commit('CORE_CREATE_SNACKBAR', {
@@ -98,33 +147,31 @@ export default function useDownloadRequests(store) {
     return Promise.resolve();
   }
 
-  function removeDownloadRequest(content) {
+  function removeDownloadRequest(contentNodeId) {
+    const contentRequest = downloadRequestMap[contentNodeId];
+    if (!contentRequest) {
+      return Promise.resolve();
+    }
     ContentRequestResource.deleteModel({
-      id: content.id,
-      contentnode_id: content.contentnode_id,
+      id: contentRequest.id,
     });
-    Vue.delete(downloadRequestMap, content.id);
+    Vue.delete(downloadRequestMap, contentRequest.contentnode_id);
+    store.commit('CORE_CREATE_SNACKBAR', {
+      text: downloadRequestsTranslator.$tr('resourceRemoved'),
+      backdrop: false,
+      forceReuse: true,
+      autoDismiss: true,
+    });
     return Promise.resolve();
   }
 
-  function isDownloadingByLearner(content) {
-    if (!content || !content.id) {
-      return false;
-    }
-    const downloadRequest = downloadRequestMap[this.content.id];
-    return Boolean(downloadRequest && !downloadRequest.status === 'COMPLETED');
-  }
-
-  function isDownloadedByLearner(content) {
-    if (!content || !content.id) {
-      return false;
-    }
-    const downloadRequest = downloadRequestMap[this.content.id];
-    return Boolean(downloadRequest && downloadRequest.status === 'COMPLETED');
-  }
+  onBeforeUnmount(() => {
+    clearPolling();
+  });
 
   return {
     fetchUserDownloadRequests,
+    pollUserDownloadRequests,
     fetchAvailableFreespace,
     availableSpace,
     downloadRequestMap,
@@ -132,7 +179,5 @@ export default function useDownloadRequests(store) {
     loading,
     removeDownloadRequest,
     downloadRequestsTranslator,
-    isDownloadingByLearner,
-    isDownloadedByLearner,
   };
 }

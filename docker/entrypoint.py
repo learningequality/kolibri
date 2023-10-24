@@ -38,7 +38,7 @@ DEFAULT_KOLIBRI_PEX_URL = "https://learningequality.org/r/kolibri-pex-latest"
 # - KOLIBRI_PROVISIONDEVICE_FACILITY  if set, provision facility with this name
 # - CHANNELS_TO_IMPORT if set, comma separated list of channel IDs to import
 DEFAULT_ENVS = {
-    "WHICH_PYTHON": "python2",  # or python3 if you prefer; Kolibri don't care
+    "WHICH_PYTHON": "python3",  # or python3 if you prefer; Kolibri don't care
     "KOLIBRI_HOME": "/kolibrihome",
     "KOLIBRI_HTTP_PORT": "8080",
     "KOLIBRI_LANG": "en",

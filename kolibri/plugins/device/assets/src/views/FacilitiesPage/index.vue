@@ -40,7 +40,7 @@
             <template v-for="(facility, idx) in facilities">
               <tr
                 :key="idx"
-                style="border: none!important"
+                style="border: 0 !important"
               >
                 <td>
                   <FacilityNameAndSyncStatus
@@ -52,8 +52,7 @@
                   />
                 </td>
               </tr>
-              <!-- May cause error on device with > 10000 facilities... -->
-              <tr :key="idx + 10000">
+              <tr :key="idx + facilities.length">
                 <td style="padding: 0 0 16px 0;">
                   <!-- Gives most space possible to buttons and aligns them with text -->
                   <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
