@@ -7,6 +7,7 @@
       v-bind="$attrs"
       :activeTabId="activeTabId"
       :tabs="tabs"
+      @click="id => $emit('click', id)"
     >
       <template #tab="{ tab }">
         <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
@@ -62,13 +63,11 @@
       tabs() {
         this.$nextTick(() => {
           this.setOverflowTabs();
-          this.setWrappingButtonTabIndex();
         });
       },
     },
     mounted() {
       this.mounted = true;
-      this.setWrappingButtonTabIndex();
       this.$nextTick(() => {
         this.setOverflowTabs();
       });
@@ -87,12 +86,6 @@
                 return tabRefTop >= containerBottom;
               })
             : [];
-      },
-      // The buttons are wrapped with a button that we aren't going to use due to KTabsList
-      setWrappingButtonTabIndex() {
-        for (const child of this.$refs.tabsWrapper.$el.children) {
-          child.setAttribute('tabindex', -1);
-        }
       },
       tabIsVisible(tab) {
         return !this.overflowTabs.map(t => t.id).includes(tab.id);
