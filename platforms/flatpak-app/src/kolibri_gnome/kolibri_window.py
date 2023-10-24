@@ -335,11 +335,6 @@ class _KolibriWindowMenu(Gio.Menu):
             self.append_section(None, dev_section)
 
         help_section = Gio.Menu()
-        help_section.append_item(
-            Gio.MenuItem.new(_("Documentation"), "app.open-documentation")
-        )
-        help_section.append_item(
-            Gio.MenuItem.new(_("Community Forums"), "app.open-forums")
-        )
+        help_section.append_item(Gio.MenuItem.new(_("Help"), "app.open-documentation"))
         help_section.append_item(Gio.MenuItem.new(_("About"), "app.about"))
         self.append_section(None, help_section)

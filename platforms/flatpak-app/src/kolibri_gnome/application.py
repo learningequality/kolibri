@@ -43,10 +43,6 @@ class Application(Adw.Application):
         action.connect("activate", self.__on_open_documentation)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("open-forums", None)
-        action.connect("activate", self.__on_open_forums)
-        self.add_action(action)
-
         action = Gio.SimpleAction.new("new-window", None)
         action.connect("activate", self.__on_new_window)
         self.add_action(action)
@@ -98,9 +94,6 @@ class Application(Adw.Application):
             "https://kolibri.readthedocs.io/en/latest/"
         )
 
-    def __on_open_forums(self, action, *args):
-        self.open_url_in_external_application("https://community.learningequality.org/")
-
     def __on_new_window(self, action, *args):
         self.open_kolibri_window()
 
@@ -125,6 +118,9 @@ class Application(Adw.Application):
             website="https://learningequality.org",
             issue_url="https://community.learningequality.org/",
             support_url="https://kolibri.readthedocs.io/en/latest/",
+        )
+        about_window.add_link(
+            _("Community Forums"), "https://community.learningequality.org/"
         )
         about_window.present()
 
