@@ -399,15 +399,15 @@
     },
     methods: {
       handleActiveSectionAction(opt) {
-        switch (opt.id) {
-          case 'edit':
-            console.log('Editing, ', this.quizForge.activeSection.value.section_id);
+        const section_id = this.quizForge.activeSection.value.section_id;
+        switch (opt.label) {
+          case this.editSectionLabel$():
+            this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
-          case 'delete':
+          case this.deleteSectionLabel$():
             console.log('Deleting, ', this.quizForge.activeSection.value.section_id);
+            this.quizForge.removeSection(this.quizForge.activeSection.value.section_id);
             break;
-          default:
-            console.error('BAD OPTION GIVEN OHHHHHH NOOOOO');
         }
       },
       tabRefLabel(section_id) {
