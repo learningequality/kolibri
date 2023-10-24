@@ -279,10 +279,10 @@
     },
     data() {
       return {
-        selectedQuestionOrder: true,
-        numberOfQuestions: 1,
-        descriptionText: '',
-        sectionTitle: '',
+        selectedQuestionOrder: this.quizForge.activeSection.value.learners_see_fixed_order,
+        numberOfQuestions: this.quizForge.activeSection.value.question_count,
+        descriptionText: this.quizForge.activeSection.value.description,
+        sectionTitle: this.quizForge.activeSection.value.section_title,
       };
     },
     computed: {
