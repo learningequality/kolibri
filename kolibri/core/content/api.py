@@ -20,6 +20,7 @@ from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
+from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
 from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
@@ -121,6 +122,13 @@ def metadata_cache(view_func):
         return response
 
     return session_exempt(wrapper_func)
+
+
+def no_cache_on_method(view_func):
+    """
+    Decorator to disable caching for a particular method
+    """
+    return method_decorator(never_cache, name="dispatch")(view_func)
 
 
 class RemoteMixin(object):
@@ -1824,6 +1832,7 @@ class RemoteChannelViewSet(viewsets.ViewSet):
         return Response(channels[0])
 
     @action(detail=False)
+    @no_cache_on_method
     def kolibri_studio_status(self, request, **kwargs):
         try:
             resp = requests.get(get_info_url())
