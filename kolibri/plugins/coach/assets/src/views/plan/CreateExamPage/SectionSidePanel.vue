@@ -6,7 +6,7 @@
     alignment="right"
     sidePanelWidth="700px"
     :closeButtonIconType="closeIcon"
-    @closePanel="$router.replace(closePanelRoute)"
+    @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
     <component :is="panel" :ref="$route.name" />
@@ -69,6 +69,10 @@
       },
     },
     methods: {
+      handleClosePanel() {
+        this.$emit('closePanel');
+        this.$router.replace(this.closePanelRoute);
+      },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
        */
