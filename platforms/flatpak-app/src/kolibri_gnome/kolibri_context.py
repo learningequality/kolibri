@@ -17,6 +17,7 @@ from kolibri_app.config import DATA_DIR
 from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.config import FRONTEND_APPLICATION_ID
 from kolibri_app.config import PROJECT_VERSION
+from kolibri_app.config import VCS_TAG
 from kolibri_app.utils import get_app_modules_debug_info
 
 from .kolibri_daemon_manager import KolibriDaemonManager
@@ -159,6 +160,7 @@ class KolibriContext(GObject.GObject):
         return {
             "app": {
                 "project_version": PROJECT_VERSION,
+                "vcs_tag": VCS_TAG,
                 "build_profile": BUILD_PROFILE,
                 "do_automatic_login": self.__kolibri_daemon.do_automatic_login,
             },

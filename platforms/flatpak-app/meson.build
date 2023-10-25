@@ -11,6 +11,15 @@ i18n = import('i18n')
 
 python_installation = python.find_installation('python3')
 
+git_program = find_program('git', required : false, disabler : true)
+git_describe_command = run_command(git_program, 'describe', '--dirty')
+
+if git_program.found() and git_describe_command.returncode() == 0
+  git_commit = git_describe_command.stdout().strip()
+else
+  git_commit = meson.project_version()
+endif
+
 bindir = join_paths(get_option('prefix'), get_option('bindir'))
 libexecdir = join_paths(get_option('prefix'), get_option('libexecdir'))
 locale_dir = join_paths(get_option('prefix'), get_option('localedir'))
@@ -53,6 +62,7 @@ kolibri_app_config.set('BINDIR', bindir)
 kolibri_app_config.set('PYTHON', 'python3')
 kolibri_app_config.set('PACKAGE_STRING', package_string)
 kolibri_app_config.set('PROJECT_VERSION', meson.project_version())
+kolibri_app_config.set('VCS_TAG', git_commit)
 kolibri_app_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_app_config.set('LOCALE_DIR', locale_dir)
 kolibri_app_config.set('BUILD_PROFILE', build_profile)
