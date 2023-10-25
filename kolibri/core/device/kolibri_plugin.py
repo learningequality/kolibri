@@ -15,7 +15,7 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
         context,
     ):
         # if we're about to do a single user sync, update SyncQueue status accordingly
-        if context.sync_session and remote_is_single_user:
+        if context.sync_session and single_user_id is not None:
             from kolibri.core.device.models import SyncQueueStatus
             from kolibri.core.device.models import SyncQueue
 
@@ -43,7 +43,7 @@ class SyncQueueStatusHook(FacilityDataSyncHook):
         context,
     ):
         # if we're concluding a single user sync, update SyncQueue status accordingly
-        if context.sync_session and remote_is_single_user:
+        if context.sync_session and single_user_id is not None:
             from kolibri.core.device.models import SyncQueueStatus
             from kolibri.core.device.models import SyncQueue
 
