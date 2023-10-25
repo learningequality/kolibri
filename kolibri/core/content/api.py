@@ -108,6 +108,9 @@ def metadata_cache(view_func):
         except IndexError:
             request = kwargs.get("request", None)
         key_prefix = get_cache_key()
+        # Prevent the Django caching middleware from caching
+        # this response, as we want to cache it ourselves
+        request._cache_update_cache = False
         url_key = hashlib.md5(
             force_bytes(iri_to_uri(request.build_absolute_uri()))
         ).hexdigest()

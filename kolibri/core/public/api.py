@@ -11,6 +11,7 @@ from django.http import HttpResponseNotFound
 from django.utils import timezone
 from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
+from django.utils.http import http_date
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
 from django_filters.rest_framework import DjangoFilterBackend
@@ -27,6 +28,7 @@ from .constants.user_sync_statuses import QUEUED
 from .constants.user_sync_statuses import SYNC
 from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ReadOnlyValuesViewset
+from kolibri.core.auth.middleware import session_exempt
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.api import BaseChannelMetadataMixin
@@ -115,10 +117,13 @@ def public_metadata_cache(view_func):
 
     def wrapped_view(*args, **kwargs):
         response = view_func(*args, **kwargs)
-        patch_cache_control(response, max_age=60)
+        patch_cache_control(
+            response, max_age=300, stale_while_revalidate=100, public=True
+        )
+        response["Expires"] = http_date(time.time() + 300)
         return response
 
-    return wrapped_view
+    return session_exempt(wrapped_view)
 
 
 @method_decorator(public_metadata_cache, name="dispatch")
