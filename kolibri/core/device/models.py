@@ -503,11 +503,13 @@ class UserSyncStatus(models.Model):
         """
         Updates the status of the user's sync status.
         """
-        sync_queue_statuses = (
-            SyncQueue.objects.filter(user_id=user_id)
-            .values_list("status", flat=True)
-            .distinct()
-        )
+        sync_queue_statuses = {
+            sq["status"]: sq["sync_session_id"]
+            for sq in SyncQueue.objects.filter(user_id=user_id)
+            .values("status", "sync_session_id")
+            .order_by("updated")
+        }
+
         # order of priority for reporting statuses
         priority_order = [
             SyncQueueStatus.Syncing,
@@ -523,7 +525,16 @@ class UserSyncStatus(models.Model):
             # if none match, either all are ineligible or simply there are none
             new_status = SyncQueueStatus.Unavailable
 
-        cls.objects.update_or_create(user_id=user_id, defaults={"status": new_status})
+        sync_session_id = sync_queue_statuses.get(new_status)
+
+        defaults = {"status": new_status}
+
+        if sync_session_id is not None:
+            # Only update the sync_session_id if it is not None, as otherwise we will be clearing
+            # historical data that is used by the sync status API
+            defaults["sync_session_id"] = sync_session_id
+
+        cls.objects.update_or_create(user_id=user_id, defaults=defaults)
 
     @property
     def queued(self):
