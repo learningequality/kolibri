@@ -115,9 +115,14 @@ def metadata_cache(view_func):
         response = cache.get(cache_key)
         if response is None:
             response = view_func(*args, **kwargs)
-            response.add_post_render_callback(
-                lambda r: cache.set(cache_key, r, timeout=3600)
-            )
+            if (
+                response.status_code == 200
+                and hasattr(response, "render")
+                and callable(response.render)
+            ):
+                response.add_post_render_callback(
+                    lambda r: cache.set(cache_key, r, timeout=3600)
+                )
         return response
 
     return session_exempt(wrapper_func)
