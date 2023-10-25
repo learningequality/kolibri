@@ -30,7 +30,8 @@ class Search(View):
             return HttpResponse("The parameter 'q' is missing and is required", status=412)
 
         search_set = ContentNodeSearchViewset()
-        results, channel_ids, content_kinds, total_results = search_set.search(value, 100, filter=False)
+        search_set.request = request
+        results, _, _, _ = search_set.search(value, 100, filter=False)
 
         feed = feedgenerator.Atom1Feed(
             title=u"Kolibri search results",
