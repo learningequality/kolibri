@@ -5,6 +5,7 @@ import logging
 import typing
 from functools import partial
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from gi.repository import Adw
@@ -14,6 +15,8 @@ from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
 from kolibri_app.config import BASE_APPLICATION_ID
+from kolibri_app.config import BASE_OBJECT_PATH
+from kolibri_app.config import KOLIBRI_APP_DATA_DIR
 from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
@@ -35,6 +38,11 @@ class Application(Adw.Application):
         self, *args, context: typing.Optional[KolibriContext] = None, **kwargs
     ):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
+
+        resource = Gio.Resource.load(
+            Path(KOLIBRI_APP_DATA_DIR, "kolibri-app.gresource").as_posix()
+        )
+        resource._register()
 
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
@@ -105,26 +113,20 @@ class Application(Adw.Application):
         self.open_url_in_external_application(KOLIBRI_HOME_PATH.as_uri())
 
     def __on_about(self, action, *args):
-        about_window = Adw.AboutWindow(
-            transient_for=self.get_active_window(),
-            modal=True,
-            application_name=_("Kolibri"),
-            application_icon=BASE_APPLICATION_ID,
-            copyright=_("© 2022 Learning Equality"),
-            version=_("{kolibri_version} ({app_version})").format(
-                app_version=PROJECT_VERSION,
-                kolibri_version=self.__context.kolibri_version,
-            ),
-            license_type=Gtk.License.MIT_X11,
-            website="https://learningequality.org",
-            issue_url="https://community.learningequality.org/",
-            support_url="https://kolibri.readthedocs.io/en/latest/",
-            debug_info=self.__format_debug_info(),
-            debug_info_filename="kolibri-gnome-debug-info.json",
+        about_window = Adw.AboutWindow.new_from_appdata(
+            f"{BASE_OBJECT_PATH}/{BASE_APPLICATION_ID}.metainfo.xml", PROJECT_VERSION
         )
+        about_window.set_version(_("{kolibri_version} ({app_version})").format(
+            app_version=PROJECT_VERSION,
+            kolibri_version=self.__context.kolibri_version,
+        ))
         about_window.add_link(
             _("Community Forums"), "https://community.learningequality.org/"
         )
+        about_window.set_debug_info(self.__format_debug_info())
+        about_window.set_debug_info_filename("kolibri-gnome-debug-info.json")
+        about_window.set_transient_for(self.get_active_window())
+        about_window.set_modal(True)
         about_window.present()
 
     def __format_debug_info(self):
