@@ -80,7 +80,7 @@ urlpatterns = [
         name="get_public_file_checksums",
     ),
     url(
-        r"/syncqueue/",
+        r"syncqueue/",
         SyncQueueAPIView.as_view(),
         name="syncqueue",
     ),
