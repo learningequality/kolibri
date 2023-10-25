@@ -172,6 +172,11 @@
             :layout12="{ span: 6 }"
           >
             <KIconButton
+              :icon="expandOrCollapseAllIcon"
+              :tooltip="replaceAction$()"
+              @click="handleExpandCollapseAll"
+            />
+            <KIconButton
               icon="refresh"
               :tooltip="replaceAction$()"
               @click="handleReplaceSelection"
@@ -249,11 +254,17 @@
                       </KButton>
                     </div>
                   </template>
-                  <template #content="">
-                    <div :style="{ userSelect: dragActive ? 'none!important' : 'text' }">
-                      <h1 v-if="isItemExpanded(question.question_id)">
-                        {{ question.title }}
-                      </h1>
+                  <template #content>
+                    <div
+                      :style="{ userSelect: dragActive.value ? 'none!important' : 'text' }"
+                      :aria-expanded="isItemExpanded(question.question_id)"
+                    >
+                      <p
+                        v-if="isItemExpanded(question.question_id) && !dragActive.value"
+                        class="question-content-panel"
+                      >
+                        CONTENT OF {{ question.title }}
+                      </p>
                     </div>
                   </template>
                 </AccordionItem>
@@ -273,7 +284,7 @@
 
 <script>
 
-  import { get } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -317,8 +328,10 @@
 
       // The number we use for the default section title
       const sectionCreationCount = ref(1);
+      const dragActive = ref(false);
 
       return {
+        dragActive,
         sectionCreationCount,
         sectionLabel$,
         addQuizSections$,
@@ -333,11 +346,6 @@
         questionList$,
       };
     },
-    data() {
-      return {
-        dragActive: false,
-      };
-    },
     inject: ['quizForge'],
     computed: {
       accordionStyleOverrides() {
@@ -345,7 +353,7 @@
           color: this.$themeTokens.text + '!important',
           textDecoration: 'none',
           // Ensure text doesn't get highlighted as we drag
-          userSelect: this.dragActive ? 'none!important' : 'text',
+          userSelect: get(this.dragActive) ? 'none!important' : 'text',
         };
       },
       accordionTopBarStyles() {
@@ -443,6 +451,7 @@
         };
       },
       handleQuestionOrderChange({ newArray }) {
+        set(this.dragActive, false);
         const payload = {
           section_id: get(this.quizForge.activeSection).section_id,
           questions: newArray,
@@ -455,11 +464,11 @@
         this.sectionCreationCount++;
       },
       handleDragStart() {
-        this.dragActive = true;
+        set(this.dragActive, true);
       },
       /*
       handleSectionOptionSelect({ label }, section_id) {
-        this.dragActive = false;
+        set(this.dragActive, false);
         // Always set the active section to the one that is having its side panel opened
         this.quizForge.setActiveSection(section_id);
 
@@ -696,6 +705,14 @@
     /deep/ & > div {
       align-items: center;
     }
+  }
+
+  .question-content-panel {
+    padding-left: 5.5em;
+  }
+
+  /deep/ .sortable-handled {
+    align-self: flex-end;
   }
 
 </style>
