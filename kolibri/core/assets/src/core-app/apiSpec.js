@@ -105,6 +105,7 @@ import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
 import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
+import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
 
 // webpack optimization
@@ -232,6 +233,7 @@ export default {
       useKShow,
       useMinimumKolibriVersion,
       useUser,
+      useUserSyncStatus,
     },
   },
   resources,

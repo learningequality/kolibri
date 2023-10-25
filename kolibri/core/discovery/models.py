@@ -3,6 +3,7 @@ import uuid
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
+from morango.models import UUIDField
 
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.permissions.general import IsOwn
@@ -259,8 +260,7 @@ class NetworkLocationRouter(object):
 
 class PinnedDevice(models.Model):
 
-    id = models.UUIDField(primary_key=True, max_length=36, default=_uuid_string)
-    instance_id = models.UUIDField(blank=False)
+    instance_id = UUIDField(blank=False)
     user = models.ForeignKey(FacilityUser, blank=False)
     created = models.DateTimeField(default=timezone.now, db_index=True)
 

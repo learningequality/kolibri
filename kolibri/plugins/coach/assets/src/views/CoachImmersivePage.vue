@@ -12,7 +12,7 @@
       :loading="loading"
       :appearanceOverrides="appearanceOverrides"
     >
-      <div class="coach-main">
+      <div v-if="!coreLoading" class="coach-main">
         <slot></slot>
       </div>
     </ImmersivePage>
@@ -103,6 +103,7 @@
     },
     computed: {
       ...mapState({
+        coreLoading: state => state.core.loading,
         error: state => state.core.error,
       }),
     },
@@ -120,12 +121,3 @@
   };
 
 </script>
-
-
-<style lang="scss" scoped>
-
-  .coach-main {
-    margin: 0 auto;
-  }
-
-</style>

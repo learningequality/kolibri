@@ -24,6 +24,7 @@ from rest_framework import mixins
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 import kolibri
@@ -47,6 +48,7 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
 from kolibri.core.content.utils.channels import get_mounted_drive_by_id
 from kolibri.core.content.utils.channels import get_mounted_drives_with_channel_info
@@ -115,7 +117,7 @@ class DeviceProvisionView(viewsets.GenericViewSet):
 
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
-    permission_classes = (CanManageContent,)
+    permission_classes = (IsAuthenticated,)
 
     def list(self, request):
         path = request.query_params.get("path")
@@ -302,6 +304,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
         "user",
         "has_downloads",
         "last_download_removed",
+        "sync_downloads_in_progress",
     )
 
     field_map = {
@@ -338,11 +341,37 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             instance_id=OuterRef("sync_session__client_instance_id"),
         )
 
+        # Use the same condition used in the ContentRequest API endpoint
+        # otherwise, this will signal that users have downloads
+        # but when they navigate to the Downloads page, they may not see
+        # any downloads.
+        downloads_without_removals_queryset = ContentDownloadRequest.objects.annotate(
+            has_removal=Exists(
+                ContentRemovalRequest.objects.filter(
+                    source_model=OuterRef("source_model"),
+                    source_id=OuterRef("source_id"),
+                    contentnode_id=OuterRef("contentnode_id"),
+                    requested_at__gte=OuterRef("requested_at"),
+                    reason=OuterRef("reason"),
+                ).exclude(status=ContentRequestStatus.Failed)
+            )
+        ).filter(has_removal=False)
+
         has_download = Exists(
-            ContentDownloadRequest.objects.filter(
+            downloads_without_removals_queryset.filter(
                 source_id=OuterRef("user_id"),
                 source_model=FacilityUser.morango_model_name,
                 reason=ContentRequestReason.UserInitiated,
+            )
+        )
+
+        has_in_progress_sync_initiated_download = Exists(
+            downloads_without_removals_queryset.filter(
+                source_id=OuterRef("user_id"),
+                source_model=FacilityUser.morango_model_name,
+                reason=ContentRequestReason.SyncInitiated,
+            ).exclude(
+                status__in=[ContentRequestStatus.Failed, ContentRequestStatus.Completed]
             )
         )
 
@@ -366,6 +395,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
             ),
             has_downloads=has_download,
             last_download_removed=last_download_removal,
+            sync_downloads_in_progress=has_in_progress_sync_initiated_download,
         )
         return queryset
 

@@ -7,6 +7,7 @@ const localVue = createLocalVue();
 localVue.use(Vuex);
 localVue.use(VueRouter);
 
+jest.mock('../../src/composables/useCardLayoutSpan');
 jest.mock('../../src/composables/useChannels');
 jest.mock('../../src/composables/useDevices');
 jest.mock('../../src/composables/useContentLink');

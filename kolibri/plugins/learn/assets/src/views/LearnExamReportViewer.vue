@@ -5,7 +5,8 @@
     :appBarTitle="exam.title || ''"
   >
     <KPageContainer :topMargin="50" class="container">
-      <div v-if="exerciseContentNodes && exerciseContentNodes.length">
+      <KCircularLoader v-if="loading" />
+      <div v-else-if="exerciseContentNodes && exerciseContentNodes.length">
         <ExamReport
           :contentId="exam.id"
           :title="exam.title"
@@ -67,6 +68,7 @@
       ...mapState({
         userName: state => state.core.session.full_name,
         userId: state => state.core.session.user_id,
+        loading: state => state.core.loading,
       }),
       homePageLink() {
         return {

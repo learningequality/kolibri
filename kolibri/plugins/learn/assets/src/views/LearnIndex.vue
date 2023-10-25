@@ -44,7 +44,7 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.sessionStorage.getItem(welcomeDismissalKey) !== 'true'
+          window.localStorage.getItem(welcomeDismissalKey) !== 'true'
         );
       },
       userIsAuthorized() {
@@ -58,7 +58,7 @@
     },
     methods: {
       hideWelcomeModal() {
-        window.sessionStorage.setItem(welcomeDismissalKey, true);
+        window.localStorage.setItem(welcomeDismissalKey, true);
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
       },
     },
