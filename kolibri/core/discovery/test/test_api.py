@@ -10,6 +10,8 @@ from django.urls import reverse
 from rest_framework import status
 from rest_framework.status import HTTP_200_OK
 from rest_framework.status import HTTP_201_CREATED
+from rest_framework.status import HTTP_204_NO_CONTENT
+from rest_framework.status import HTTP_404_NOT_FOUND
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -145,6 +147,9 @@ class PinnedDeviceAPITestCase(APITestCase):
         cls.network_location2 = models.NetworkLocation.objects.create(
             base_url="https://anotherone.moc"
         )
+        cls.network_location3 = models.NetworkLocation.objects.create(
+            base_url="https://anotherotherone.moc"
+        )
 
     def setUp(self):
         self.client.login(
@@ -172,6 +177,11 @@ class PinnedDeviceAPITestCase(APITestCase):
             user=self.user, instance_id=self.network_location2.id
         )
 
+        other_user = FacilityUserFactory(facility=self.facility)
+        other_pin = models.PinnedDevice.objects.create(
+            user=other_user, instance_id=self.network_location3.id
+        )
+
         pin_ids = sorted([my_pin.instance_id, my_second_pin.instance_id])
 
         response = self.client.get(
@@ -179,8 +189,33 @@ class PinnedDeviceAPITestCase(APITestCase):
         )
         self.assertEqual(response.status_code, HTTP_200_OK)
         self.assertEqual(len(response.data), 2)
-        # TODO - Get this working
-        #      - Discuss & write any more tasks
-        #      - Start onto the frontend
-        response_ids = sorted([item["instance_id"].hex for item in response.data])
+        response_ids = sorted([item["instance_id"] for item in response.data])
         self.assertEqual(response_ids, pin_ids)
+        self.assertNotIn(other_pin.instance_id, response_ids)
+
+    def test_delete_own_pinned_devices(self):
+        """
+        Tests the API for deleting Pinned Devices
+        """
+        my_pin = models.PinnedDevice.objects.create(
+            user=self.user, instance_id=self.network_location.id
+        )
+
+        response = self.client.delete(
+            reverse("kolibri:core:pinned_devices-detail", kwargs={"pk": my_pin.id}),
+        )
+        self.assertEqual(response.status_code, HTTP_204_NO_CONTENT)
+
+    def test_delete_other_pinned_devices(self):
+        """
+        Tests the API for deleting Pinned Devices
+        """
+        other_user = FacilityUserFactory(facility=self.facility)
+        other_pin = models.PinnedDevice.objects.create(
+            user=other_user, instance_id=self.network_location.id
+        )
+
+        response = self.client.delete(
+            reverse("kolibri:core:pinned_devices-detail", kwargs={"pk": other_pin.id}),
+        )
+        self.assertEqual(response.status_code, HTTP_404_NOT_FOUND)

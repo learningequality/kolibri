@@ -234,7 +234,6 @@
 
   @import '~kolibri-design-system/lib/styles/definitions';
   $frame-topbar-height: 37px;
-  $ui-toolbar-height: 56px;
 
   .fullscreen-header {
     text-align: right;
@@ -261,7 +260,7 @@
     @extend %momentum-scroll;
 
     width: 100%;
-    height: calc(100vh - #{$frame-topbar-height} - #{$ui-toolbar-height});
+    height: calc(100% - #{$frame-topbar-height});
     margin-bottom: -8px;
     overflow: hidden;
   }

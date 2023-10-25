@@ -850,6 +850,32 @@ class UserCreationTestCase(APITestCase):
             response.data[0]["id"], error_constants.USERNAME_ALREADY_EXISTS
         )
 
+    def test_do_not_allow_emails_in_usernames(self):
+        data = {
+            "username": "bob@learningequality.org",
+            "password": DUMMY_PASSWORD,
+            "facility": self.facility.id,
+        }
+        response = self.client.post(
+            reverse("kolibri:core:facilityuser-list"), data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]["id"], error_constants.INVALID)
+        self.assertEqual(response.data[0]["metadata"]["field"], "username")
+
+    def test_max_length_username_in_api(self):
+        data = {
+            "username": 32 * "gh",
+            "password": DUMMY_PASSWORD,
+            "facility": self.facility.id,
+        }
+        response = self.client.post(
+            reverse("kolibri:core:facilityuser-list"), data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]["id"], error_constants.MAX_LENGTH)
+        self.assertEqual(response.data[0]["metadata"]["field"], "username")
+
 
 class UserUpdateTestCase(APITestCase):
     @classmethod

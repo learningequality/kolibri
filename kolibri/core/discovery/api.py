@@ -2,6 +2,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import decorators
 from rest_framework import viewsets
 from rest_framework.exceptions import NotFound
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from .models import DynamicNetworkLocation
@@ -17,8 +18,6 @@ from .utils.network.client import NetworkClient
 from .utils.network.connections import capture_connection_state
 from .utils.network.connections import update_network_location
 from kolibri.core.api import ValuesViewset
-from kolibri.core.auth.api import KolibriAuthPermissions
-from kolibri.core.auth.api import KolibriAuthPermissionsFilter
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.utils.urls import reverse_path
 
@@ -112,18 +111,9 @@ class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
 
 
 class PinnedDeviceViewSet(ValuesViewset):
-    values = ("user", "instance_id", "id")
+    values = ("instance_id", "id")
     serializer_class = PinnedDeviceSerializer
-    queryset = PinnedDevice.objects.all()
-    permission_classes = (KolibriAuthPermissions,)
-    filter_backends = (
-        KolibriAuthPermissionsFilter,
-        DjangoFilterBackend,
-    )
-    filter_fields = ("instance_id",)
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
-        serializer = self.serializer(data=request.data)
-        # following will automatically raise an exception if the serialize data is not valid
-        serializer.is_valid(raise_exception=True)
-        return Response(serializer.validated_data)
+    def get_queryset(self):
+        return PinnedDevice.objects.filter(user=self.request.user)

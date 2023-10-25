@@ -91,6 +91,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
@@ -147,11 +148,8 @@
       isMobile() {
         return this.windowBreakpoint < 3;
       },
-      // this is a nasty hack. Will find a better way
       usesTouch() {
-        // using mdn suggestion for most compatibility
-        const isMobileBrowser = new RegExp(/Mobi*|Android/);
-        return isMobileBrowser.test(window.navigator.userAgent);
+        return isTouchDevice;
       },
       itemRenderData() {
         return {

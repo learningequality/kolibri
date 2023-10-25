@@ -10,6 +10,7 @@ from functools import partial
 from subprocess import CalledProcessError
 from subprocess import check_output
 
+import ifaddr
 import requests
 from cheroot.wsgi import Server as BaseServer
 from django.conf import settings
@@ -248,6 +249,22 @@ class ZipContentServerPlugin(ServerPlugin):
     START.priority = 75
 
 
+class DefaultScheduledTasksPlugin(SimplePlugin):
+    def START(self):
+        from kolibri.core.analytics.tasks import schedule_ping
+        from kolibri.core.deviceadmin.tasks import schedule_vacuum
+        from kolibri.core.deviceadmin.tasks import schedule_streamed_cache_cleanup
+
+        # schedule the pingback job if not already scheduled
+        schedule_ping()
+
+        # schedule the vacuum job if not already scheduled
+        schedule_vacuum()
+
+        # schedule the streamed cache cleanup job if not already scheduled
+        schedule_streamed_cache_cleanup()
+
+
 class ServicesPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
@@ -255,14 +272,6 @@ class ServicesPlugin(SimplePlugin):
 
     def START(self):
         from kolibri.core.tasks.main import initialize_workers
-        from kolibri.core.analytics.tasks import schedule_ping
-        from kolibri.core.deviceadmin.tasks import schedule_vacuum
-
-        # schedule the pingback job if not already scheduled
-        schedule_ping()
-
-        # schedule the vacuum job if not already scheduled
-        schedule_vacuum()
 
         # Initialize the iceqube engine to handle queued tasks
         self.worker = initialize_workers()
@@ -734,6 +743,9 @@ class BaseKolibriProcessBus(ProcessBus):
         reload_plugin = ProcessControlPlugin(self)
         reload_plugin.subscribe()
 
+        default_scheduled_tasks_plugin = DefaultScheduledTasksPlugin(self)
+        default_scheduled_tasks_plugin.subscribe()
+
     def run(self):
         self.graceful()
         self.block()
@@ -995,6 +1007,25 @@ def get_status():  # noqa: max-complexity=16
     # raise NotRunning(STATUS_UNKNOW)
 
 
+def _get_local_ips():
+    """
+    Don't rely on the zeroconf get_all_addresses here as it's possible that it could have been modified to only detect
+    interfaces that support multicasting. This is a fallback to get all the local IP addresses of the machine, whether they
+    are multicast or not.
+
+    However, we still exclude known dummy Windows 169.254.*.* addresses as these are not useful for the user to see.
+    :return: a list of IP addresses
+    """
+    return list(
+        set(
+            addr.ip
+            for iface in ifaddr.get_adapters()
+            for addr in iface.ips
+            if addr.is_IPv4 and not addr.ip.startswith("169.254")
+        )
+    )
+
+
 def get_urls(listen_port=None):
     """
     :param listen_port: if set, will not try to determine the listen port from
@@ -1009,7 +1040,7 @@ def get_urls(listen_port=None):
         if port:
             try:
                 all_addresses = (
-                    get_all_addresses()
+                    _get_local_ips()
                     if conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"] == "0.0.0.0"
                     else [conf.OPTIONS["Deployment"]["LISTEN_ADDRESS"]]
                 )

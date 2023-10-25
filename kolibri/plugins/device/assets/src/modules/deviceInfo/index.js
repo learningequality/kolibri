@@ -29,9 +29,6 @@ export default {
     getDataLoading(state) {
       return state.dataLoading;
     },
-    canRestart() {
-      return plugin_data.canRestart;
-    },
     isRemoteContent() {
       return plugin_data.isRemoteContent;
     },

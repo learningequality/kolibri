@@ -690,6 +690,7 @@ def propagate_forced_localfile_removal(localfiles_dict_list):
     # if we have too many UUIDs it is possible we might still generate too much SQL
     # and cause issues - so we batch the ids here.
     batch_size = 10000
+    removed_nodes = []
     while i < total:
         file_slice = localfiles_dict_list[i : i + batch_size]
         files = File.objects.filter(
@@ -698,8 +699,12 @@ def propagate_forced_localfile_removal(localfiles_dict_list):
                 [f["id"] for f in file_slice]
             ),
         )
+        removed_nodes += ContentNode.objects.filter(files__in=files).values_list(
+            "id", flat=True
+        )
         ContentNode.objects.filter(files__in=files).update(available=False)
         i += batch_size
+    return removed_nodes
 
 
 def reannotate_all_channels():

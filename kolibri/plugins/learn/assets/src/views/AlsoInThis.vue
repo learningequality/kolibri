@@ -5,20 +5,22 @@
     <div
       v-if="contentNodes.length"
       class="content-list"
-      :class="nextContent ? 'bottom-link' : ''"
+      :class="nextFolder ? 'bottom-link' : ''"
     >
       <KRouterLink
         v-for="content in contentNodes"
         :key="content.id"
-        :to="genContentLinkKeepCurrentBackLink(content.id, content.is_leaf)"
+        :to="content.is_leaf ?
+          genContentLinkKeepCurrentBackLink(content.id, content.is_leaf) :
+          genContentLinkKeepPreviousBackLink(content.id)"
         class="item"
         :class="[windowIsSmall && 'small',
-                 currentResource(content.content_id) &&
+                 content.id === currentResourceId &&
                    $computedClass(currentlyViewedItemStyle)]"
         :style="linkStyles"
       >
         <p
-          v-if="currentResource(content.content_id)"
+          v-if="content.id === currentResourceId"
           :style="currentlyViewingTextStyle"
         >
           {{ $tr('currentlyViewing') }}
@@ -67,8 +69,8 @@
     </div>
 
     <KRouterLink
-      v-if="nextContent"
-      :to="genContentLinkKeepCurrentBackLink(nextContent.id, nextContent.is_leaf)"
+      v-if="nextFolder"
+      :to="genContentLinkKeepPreviousBackLink(nextFolder.id)"
       class="next-content-link"
       :style="{
         borderTop: '1px solid ' + $themeTokens.fineLine,
@@ -81,7 +83,7 @@
         {{ nextFolderMessage }}
       </div>
       <div class="next-title">
-        {{ nextContent.title }}
+        {{ nextFolder.title }}
       </div>
       <KIcon class="forward-icon" icon="forward" />
     </KRouterLink>
@@ -114,8 +116,15 @@
     mixins: [KResponsiveWindowMixin],
     setup() {
       const { contentNodeProgressMap } = useContentNodeProgress();
-      const { genContentLinkKeepCurrentBackLink } = useContentLink();
-      return { contentNodeProgressMap, genContentLinkKeepCurrentBackLink };
+      const {
+        genContentLinkKeepCurrentBackLink,
+        genContentLinkKeepPreviousBackLink,
+      } = useContentLink();
+      return {
+        contentNodeProgressMap,
+        genContentLinkKeepCurrentBackLink,
+        genContentLinkKeepPreviousBackLink,
+      };
     },
     props: {
       /**
@@ -128,7 +137,7 @@
         default: () => [],
       },
       /** Content node with the following properties: id, is_leaf, title */
-      nextContent: {
+      nextFolder: {
         type: Object, // or falsy
         required: false,
         default: () => {},
@@ -148,7 +157,7 @@
         type: Boolean,
         default: false,
       },
-      currentResourceID: {
+      currentResourceId: {
         type: String,
         required: true,
       },
@@ -188,24 +197,17 @@
         };
       },
       emptyMessage() {
-        /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.isLesson
           ? this.$tr('noOtherLessonResources')
           : this.$tr('noOtherTopicResources');
-        /* eslint-enable */
       },
       nextFolderMessage() {
-        /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.$tr('nextFolder');
-        /* eslint-enable */
       },
     },
     methods: {
       progressFor(node) {
         return this.contentNodeProgressMap[node.content_id] || 0;
-      },
-      currentResource(contentId) {
-        return contentId === this.currentResourceID || '';
       },
     },
     $trs: {

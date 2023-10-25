@@ -644,6 +644,14 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
                 "enqueue_at": self.enqueue_at_datetime,
                 "repeat": None,
             },
+            {  # Invalid priority specified.
+                "enqueue_at": self.enqueue_at_datetime,
+                "priority": 1,
+            },
+            {  # Priority set to None
+                "enqueue_at": self.enqueue_at_datetime,
+                "priority": None,
+            },
         ]
 
         for err_enq_arg in erroneous_enqueue_args:
@@ -693,6 +701,10 @@ class EnqueueArgsCreateAPITestCase(BaseAPITestCase):
             },
             {
                 "retry_interval": 900,
+            },
+            {
+                "enqueue_at": self.enqueue_at_datetime,
+                "priority": 10,
             },
         ]
 

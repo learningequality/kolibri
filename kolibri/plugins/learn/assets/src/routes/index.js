@@ -68,7 +68,6 @@ export default [
         next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
-      store.commit('CORE_SET_PAGE_LOADING', true);
     },
     component: LibraryPage,
     props: route => {
@@ -162,13 +161,16 @@ export default [
     path: '/explore_libraries',
     component: ExploreLibrariesPage,
     handler: (to, from, next) => {
-      if (!unassignedContentGuard(next)) {
+      if (unassignedContentGuard(next)) {
         return;
       }
       if (!get(isUserLoggedIn)) {
         next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
+      store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      next();
     },
   },
   {

@@ -33,7 +33,7 @@ jobs:
         apt-get -y -qq update
         apt-get install -y gettext sudo
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '16.x'
     - name: Install Yarn

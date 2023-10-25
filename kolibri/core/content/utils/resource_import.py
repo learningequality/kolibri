@@ -47,6 +47,15 @@ def lookup_channel_listing_status(channel_id, baseurl=None):
     """
     resp = requests.get(get_channel_lookup_url(identifier=channel_id, baseurl=baseurl))
 
+    # Raise here to prevent trying to fetch a channel from a remote that it is not
+    # available from.
+    try:
+        resp.raise_for_status()
+    except requests.exceptions.RequestException:
+        raise LocationError(
+            "Channel {} not found on remote {}".format(channel_id, baseurl)
+        )
+
     if resp.status_code != 200:
         return None
 
