@@ -236,7 +236,7 @@ def request_sync(context, network_location=None):
 
     # the SoUD syncing is currently dependent on network discovery, but as long as we have a
     # network location, we can request a sync
-    if network_location is None:
+    if network_location is None or not network_location.available:
         logger.info("{} Network location unavailable".format(context))
         if sync_queue.sync_session_id:
             # remove sync session
