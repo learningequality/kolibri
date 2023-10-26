@@ -61,11 +61,11 @@
 
 <script>
 
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -76,7 +76,12 @@
       TextTruncatorCss,
       CoachContentLabel,
     },
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       title: {
         type: String,

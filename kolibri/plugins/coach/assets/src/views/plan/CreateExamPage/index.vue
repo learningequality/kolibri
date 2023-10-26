@@ -41,7 +41,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -60,7 +59,7 @@
       BottomAppBar,
       CreateQuizSection,
     },
-    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
         quizForge,
