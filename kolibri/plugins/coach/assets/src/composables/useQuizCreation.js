@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -43,9 +44,9 @@ export default (DEBUG = true) => {
    * The section that is currently selected for editing */
   const _activeSectionId = ref(null);
 
-  /** @type {ref<QuizQuestion[]>}
-   * The questions that are currently selected for action in the active section */
-  const _selectedQuestions = ref([]);
+  /** @type {ref<String[]>}
+   * The question_ids that are currently selected for action in the active section */
+  const _selectedQuestionIds = ref([]);
 
   /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
@@ -53,7 +54,9 @@ export default (DEBUG = true) => {
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
 
+  //--
   // Debug Data Generators
+  //--
   function _quizQuestions(num = 5) {
     const questions = [];
     for (let i = 0; i <= num; i++) {
@@ -71,7 +74,7 @@ export default (DEBUG = true) => {
     for (let i = 0; i <= num; i++) {
       const overrides = {
         section_id: uuidv4(),
-        section_title: `A section ${i}`,
+        section_title: `Test section ${i}`,
         questions: _quizQuestions(numQuestions),
       };
       sections.push(objectWithDefaults(overrides, QuizSection));
@@ -96,6 +99,7 @@ export default (DEBUG = true) => {
    * @throws {TypeError} if section is not a valid QuizSection
    **/
   function updateSection({ section_id, ...updates }) {
+    console.log('updating with...', section_id, updates);
     const targetSection = get(allSections).find(section => section.section_id === section_id);
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
@@ -135,10 +139,10 @@ export default (DEBUG = true) => {
   /**
    * @param {QuizQuestion[]} newQuestions
    * @affects _quiz - Updates the active section's `questions` property
-   * @affects _selectedQuestions - Clears this back to an empty array
+   * @affects _selectedQuestionIds - Clears this back to an empty array
    * @throws {TypeError} if newQuestions is not a valid array of QuizQuestions
    * Updates the active section's `questions` property with the given newQuestions, and clears
-   * _selectedQuestions from it. Then it resets _selectedQuestions to an empty array */
+   * _selectedQuestionIds from it. Then it resets _selectedQuestionIds to an empty array */
   // TODO WRITE THIS FUNCTION
   function replaceSelectedQuestions(newQuestions) {
     return newQuestions;
@@ -231,23 +235,24 @@ export default (DEBUG = true) => {
   // --------------------------------
 
   /** @param {QuizQuestion} question
-   * @affects _selectedQuestions - Adds question to _selectedQuestions if it isn't there already */
+   * @affects _selectedQuestionIds - Adds question to _selectedQuestionIds if it isn't
+   * there already */
   function addQuestionToSelection(question_id) {
-    set(_selectedQuestions, uniq([...get(_selectedQuestions), question_id]));
+    set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), question_id]));
   }
 
   /**
    * @param {QuizQuestion} question
-   * @affects _selectedQuestions - Removes question from _selectedQuestions if it is there */
+   * @affects _selectedQuestionIds - Removes question from _selectedQuestionIds if it is there */
   function removeQuestionFromSelection(question_id) {
     set(
-      _selectedQuestions,
-      get(_selectedQuestions).filter(id => id !== question_id)
+      _selectedQuestionIds,
+      get(_selectedQuestionIds).filter(id => id !== question_id)
     );
   }
 
   function toggleQuestionInSelection(question_id) {
-    if (get(_selectedQuestions).includes(question_id)) {
+    if (get(_selectedQuestionIds).includes(question_id)) {
       removeQuestionFromSelection(question_id);
     } else {
       addQuestionToSelection(question_id);
@@ -256,10 +261,10 @@ export default (DEBUG = true) => {
 
   function selectAllQuestions() {
     if (get(allQuestionsSelected)) {
-      set(_selectedQuestions, []);
+      set(_selectedQuestionIds, []);
     } else {
       set(
-        _selectedQuestions,
+        _selectedQuestionIds,
         get(activeQuestions).map(q => q.question_id)
       );
     }
@@ -326,9 +331,8 @@ export default (DEBUG = true) => {
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
    *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
-  /** @type {ComputedRef<QuizQuestion[]>} All questions the user has selected for the active
-   *                                         section */
-  const selectedActiveQuestions = computed(() => get(_selectedQuestions));
+  /** @type {ComputedRef<String[]>} All question_ids the user has selected for the active section */
+  const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
   /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's `resource_pool` that
    *                                         are not in `questions` */
   const replacementQuestionPool = computed(() => {});
@@ -339,9 +343,26 @@ export default (DEBUG = true) => {
    * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
 
   /** @type {ComputedRef<Boolean>} Whether all active questions are selected */
-  const allQuestionsSelected = computed(
-    () => get(selectedActiveQuestions).length === get(activeQuestions).length
-  );
+  const allQuestionsSelected = computed(() => {
+    return isEqual(
+      get(selectedActiveQuestions).sort(),
+      get(activeQuestions)
+        .map(q => q.question_id)
+        .sort()
+    );
+  });
+
+  /**
+   * Deletes and clears the selected questions from the active section
+   */
+  function deleteActiveSelectedQuestions() {
+    const { section_id, questions } = get(activeSection);
+    const selectedIds = get(selectedActiveQuestions);
+    const newQuestions = questions.filter(q => !selectedIds.includes(q.question_id));
+    updateSection({ section_id, questions: newQuestions });
+    set(_selectedQuestionIds, []);
+  }
+
   const noQuestionsSelected = computed(() => get(selectedActiveQuestions).length === 0);
   /** @type {ComputedRef<String>} The label that should be shown alongside the "Select all" checkbox
    */
@@ -370,6 +391,7 @@ export default (DEBUG = true) => {
     setActiveSection,
     initializeQuiz,
     updateQuiz,
+    deleteActiveSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
     toggleQuestionInSelection,
