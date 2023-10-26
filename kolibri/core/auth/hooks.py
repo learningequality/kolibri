@@ -23,7 +23,8 @@ class FacilityDataSyncHook(KolibriHook):
         context,
     ):
         """
-        Invoked before the initialization stage
+        Invoked before the initialization stage, and as such it won't have access to the
+        transfer session object since it is created during the initialization stage.
         :type dataset_id: str
         :type local_is_single_user: bool
         :type remote_is_single_user: bool

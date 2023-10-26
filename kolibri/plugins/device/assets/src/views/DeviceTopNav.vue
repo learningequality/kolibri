@@ -22,45 +22,51 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     computed: {
-      ...mapGetters(['canManageContent', 'isSuperuser']),
+      ...mapGetters(['canManageContent', 'isSuperuser', 'isLearnerOnlyImport']),
       links() {
         const list = [];
-        if (this.canManageContent) {
-          list.push({
+        const linkDefs = [
+          {
             title: this.coreString('channelsLabel'),
             link: this.$router.getRoute('MANAGE_CONTENT_PAGE'),
             icon: 'channel',
             color: this.$themeTokens.textInverted,
-          });
-        }
-        if (this.isSuperuser) {
-          list.push([
-            {
-              title: this.deviceString('permissionsLabel'),
-              link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
-              icon: 'permissions',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.coreString('facilitiesLabel'),
-              link: this.$router.getRoute('FACILITIES_PAGE'),
-              icon: 'facility',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.coreString('infoLabel'),
-              link: this.$router.getRoute('DEVICE_INFO_PAGE'),
-              icon: 'deviceInfo',
-              color: this.$themeTokens.textInverted,
-            },
-            {
-              title: this.coreString('settingsLabel'),
-              link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
-              icon: 'settings',
-              color: this.$themeTokens.textInverted,
-            },
-          ]);
-        }
+            condition: this.canManageContent,
+          },
+          {
+            title: this.deviceString('permissionsLabel'),
+            link: this.$router.getRoute('MANAGE_PERMISSIONS_PAGE'),
+            icon: 'permissions',
+            color: this.$themeTokens.textInverted,
+            condition: this.isSuperuser,
+          },
+          {
+            title: this.coreString('facilitiesLabel'),
+            link: this.$router.getRoute('FACILITIES_PAGE'),
+            icon: 'facility',
+            color: this.$themeTokens.textInverted,
+            condition: this.isSuperuser && !this.isLearnerOnlyImport,
+          },
+          {
+            title: this.coreString('infoLabel'),
+            link: this.$router.getRoute('DEVICE_INFO_PAGE'),
+            icon: 'deviceInfo',
+            color: this.$themeTokens.textInverted,
+            condition: this.isSuperuser,
+          },
+          {
+            title: this.coreString('settingsLabel'),
+            link: this.$router.getRoute('DEVICE_SETTINGS_PAGE'),
+            icon: 'settings',
+            color: this.$themeTokens.textInverted,
+            condition: this.isSuperuser,
+          },
+        ];
+        linkDefs.forEach(linkDefs => {
+          if (linkDefs.condition) {
+            list.push(linkDefs);
+          }
+        });
         return list.flat();
       },
     },

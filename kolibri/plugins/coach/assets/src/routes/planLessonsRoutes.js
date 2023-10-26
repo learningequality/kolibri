@@ -10,6 +10,7 @@ import {
 } from '../modules/lessonResources/handlers';
 import { showLessonSummaryPage } from '../modules/lessonSummary/handlers';
 import { LessonsPageNames } from '../constants/lessonsConstants';
+import { PageNames } from '../constants';
 
 import { useLessons } from '../composables/useLessons';
 
@@ -19,7 +20,9 @@ import LessonResourceSelectionPage from '../views/plan/LessonResourceSelectionPa
 import PlanLessonSelectionContentPreview from '../views/plan/PlanLessonSelectionContentPreview';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
 import LessonCreationPage from '../views/plan/LessonCreationPage';
+import { classIdParamRequiredGuard } from './utils';
 
+const OPTIONAL_CLASS = '/:classId?/plan';
 const CLASS = '/:classId/plan';
 const LESSON = '/lessons/:lessonId';
 const ALL_LESSONS = '/lessons';
@@ -37,9 +40,12 @@ const { showLessonsRootPage } = useLessons();
 export default [
   {
     name: LessonsPageNames.PLAN_LESSONS_ROOT,
-    path: path(CLASS, ALL_LESSONS),
+    path: path(OPTIONAL_CLASS, ALL_LESSONS),
     component: LessonsRootPage,
-    handler(toRoute) {
+    handler(toRoute, fromRoute, next) {
+      if (classIdParamRequiredGuard(toRoute, PageNames.PLAN_PAGE, next)) {
+        return;
+      }
       showLessonsRootPage(store, toRoute.params.classId);
     },
     meta: {

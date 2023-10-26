@@ -32,6 +32,7 @@
               v-if="!isImported(userRow.user) && !isImporting(userRow.user)"
               :text="coreString('importAction')"
               appearance="flat-button"
+              :disabled="isImportingUserDisabled"
               @click="startImport(userRow.user)"
             />
             <KCircularLoader
@@ -91,6 +92,8 @@
         isPolling: false,
         // array of user/learner ids
         learnersBeingImported: [],
+        // To be removed
+        isImportingUserDisabled: false,
       };
     },
     inject: ['wizardService'],
@@ -140,12 +143,20 @@
     beforeMount() {
       this.isPolling = true;
       this.pollImportTask();
+      this.checkImportedUser();
     },
     methods: {
       importedLearners() {
         return this.wizardService.state.context.importedUsers;
       },
       pollImportTask() {
+        // TODO :: This has to be removed once the multiple user syncing has been fixed.
+        if (
+          this.learnersBeingImported.length > 0 ||
+          this.wizardService.state.context.importedUsers.length > 0
+        ) {
+          this.wizardService.send('LOADING');
+        }
         TaskResource.list({ queue: SoudQueue }).then(tasks => {
           if (tasks.length) {
             tasks.forEach(task => {
@@ -186,6 +197,7 @@
         }
       },
       startImport(learner) {
+        this.isImportingUserDisabled = true;
         // Push the learner into being imported, we'll remove it if we get an error later on
         this.learnersBeingImported.push(learner.id);
 
@@ -207,13 +219,20 @@
         }
         TaskResource.startTask(params).catch(() => {
           this.learnersBeingImported = this.learnersBeingImported.filter(id => id != learner.id);
+          this.isImportingUserDisabled = false;
         });
       },
       isImported(learner) {
         return this.importedLearners().find(u => u === learner.username);
       },
       isImporting(learner) {
+        this.checkImportedUser(learner);
         return this.learnersBeingImported.includes(learner.id);
+      },
+      checkImportedUser(learner) {
+        if (this.learnersBeingImported.length > 0 || this.isImported(learner)) {
+          this.isImportingUserDisabled = true;
+        }
       },
     },
     $trs: {

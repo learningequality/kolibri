@@ -10,6 +10,7 @@ from django.db.utils import OperationalError
 
 from kolibri.core.device.task_notifications import status_fn
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.discovery.hooks import NetworkLocationBroadcastHook
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import DynamicNetworkLocation
@@ -89,7 +90,7 @@ def _store_dynamic_instance(broadcast_id, instance):
     return network_location
 
 
-def _dispatch_hooks(network_location, is_connected):
+def _dispatch_discovery_hooks(network_location, is_connected):
     """
     :type network_location: NetworkLocation
     :type is_connected: bool
@@ -144,7 +145,7 @@ def _update_connection_status(network_location):
         prior_status,
         new_status,
     ):
-        _dispatch_hooks(network_location, new_status == ConnectionStatus.Okay)
+        _dispatch_discovery_hooks(network_location, new_status == ConnectionStatus.Okay)
 
     return new_status
 
@@ -251,7 +252,7 @@ def add_dynamic_network_location(broadcast_id, instance):
         return
 
     priority = Priority.REGULAR
-    is_self_soud = get_device_setting("subset_of_users_device", default=False)
+    is_self_soud = get_device_setting("subset_of_users_device")
     if is_self_soud and network_location.subset_of_users_device:
         # if we're both SoUDs, prioritize connection checks lower than normal
         priority = Priority.LOW
@@ -286,8 +287,47 @@ def remove_dynamic_network_location(broadcast_id, instance):
         return
 
     logger.debug("Removing network location {}".format(network_location.id))
-    _dispatch_hooks(network_location, False)
+    _dispatch_discovery_hooks(network_location, False)
     network_location.delete()
+
+
+@register_task(priority=Priority.HIGH, status_fn=status_fn)
+@hydrate_instance
+def dispatch_broadcast_hooks(hook_type, instance):
+    """
+    Handles dispatching hooks for the current instance's broadcast
+    :param hook_type: The name of the hook to dispatch
+    :type hook_type: str
+    :param instance: The current Kolibri instance that this device is broadcasting
+    :type instance: kolibri.core.discovery.utils.network.broadcast.KolibriInstance
+    """
+    # find current accessible network locations
+    network_locations = NetworkLocation.objects.filter(
+        connection_status=ConnectionStatus.Okay
+    )
+    if not network_locations:
+        return
+
+    logger.debug(
+        "Dispatching {} broadcast hooks with {} network locations".format(
+            hook_type, network_locations.count()
+        )
+    )
+    for hook in NetworkLocationBroadcastHook.registered_hooks:
+        # we catch all errors because as a rule of thumb,
+        # we don't want hooks to fail everything else
+        try:
+            hook_method = getattr(hook, hook_type, None)
+            if hook_method is not None:
+                hook_method(instance, network_locations)
+        except Exception as e:
+            logger.error(
+                "{}.{} hook failed".format(
+                    hook_type,
+                    hook.__class__.__name__,
+                ),
+                exc_info=e,
+            )
 
 
 def _refresh_reserved_locations():
@@ -322,7 +362,7 @@ def reset_connection_states(broadcast_id):
         # cancel pending connect jobs
         job_storage.cancel_if_exists(generate_job_id(TYPE_CONNECT, network_location.id))
         # dispatch disconnect hooks
-        _dispatch_hooks(network_location, False)
+        _dispatch_discovery_hooks(network_location, False)
 
     # remove any dynamic locations that don't match the current broadcast
     DynamicNetworkLocation.objects.exclude(broadcast_id=broadcast_id).delete()

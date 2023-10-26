@@ -18,7 +18,7 @@ export function fetchPageData(channelId) {
     });
   return Promise.all([
     getDeviceInfo(),
-    getChannelWithContentSizes(this.channelId),
+    getChannelWithContentSizes(channelId, false),
     studioChannelPromise,
   ]).then(([deviceInfo, channel, studioChannel]) => {
     return {

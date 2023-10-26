@@ -577,6 +577,10 @@ class Storage(object):
                 self._update_job_fields(job, **kwargs)
                 orm_job.saved_job = job.to_json()
                 session.add(orm_job)
+                try:
+                    session.commit()
+                except Exception as e:
+                    logger.error("Got an error running session.commit(): {}".format(e))
                 for hook in self._hooks:
                     hook.update(
                         job,

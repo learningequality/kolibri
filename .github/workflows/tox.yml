@@ -33,7 +33,7 @@ jobs:
         python-version: [3.6, 3.7, 3.8, 3.9, '3.10', '3.11']
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v4
@@ -60,7 +60,7 @@ jobs:
     container:
       image: python:2.7.18-buster
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Install tox
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       run: |
@@ -99,7 +99,7 @@ jobs:
           # Maps tcp port 5432 on service container to the host
           - 5432:5432
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python 3.9 for Postgres
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v4
@@ -129,7 +129,7 @@ jobs:
         python-version: [3.6]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v4
@@ -159,7 +159,7 @@ jobs:
         python-version: [3.6]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
     - name: Set up Python ${{ matrix.python-version }}
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
       uses: actions/setup-python@v4

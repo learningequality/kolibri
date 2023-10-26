@@ -18,9 +18,9 @@
         />
       </div>
       <h3 class="title">
-        <TextTruncator
+        <TextTruncatorCss
           :text="content.title"
-          :maxHeight="maxTitleHeight"
+          :maxLines="1"
           :style="{ color: $themeTokens.text }"
         />
       </h3>
@@ -41,7 +41,7 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -52,7 +52,7 @@
     name: 'HybridLearningLessonCard',
     components: {
       CardThumbnail,
-      TextTruncator,
+      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
     },
@@ -70,11 +70,6 @@
       isMobile: {
         type: Boolean,
         default: false,
-      },
-    },
-    computed: {
-      maxTitleHeight() {
-        return 40;
       },
     },
   };

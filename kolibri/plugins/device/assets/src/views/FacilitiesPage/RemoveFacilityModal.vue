@@ -90,7 +90,7 @@
               this.$emit('success', data.id);
             })
             .catch(error => {
-              this.$store.dispatch('handleApiError', error);
+              this.$store.dispatch('handleApiError', { error });
             });
         } else {
           this.$emit('cancel');

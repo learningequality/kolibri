@@ -32,7 +32,7 @@ export function createGroup(store, { groupName, classId }) {
       // to get that back up to date!
       return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
     },
-    error => store.dispatch('handleError', error, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true })
   );
 }
 
@@ -51,7 +51,7 @@ export function renameGroup(store, { groupId, newGroupName }) {
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
       store.commit('SET_GROUP_MODAL', '');
     },
-    error => store.dispatch('handleError', error, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true })
   );
 }
 
@@ -62,7 +62,7 @@ export function deleteGroup(store, groupId) {
       const updatedGroups = groups.filter(group => group.id !== groupId);
       store.commit('SET_GROUPS', updatedGroups);
     },
-    error => store.dispatch('handleError', error, { root: true })
+    error => store.dispatch('handleApiError', { error }, { root: true })
   );
 }
 
@@ -128,7 +128,7 @@ export function addUsersToGroup(store, { groupId, userIds }) {
     store.commit('SET_GROUP_MODAL', '');
   };
   return _addMultipleUsersToGroup(store, groupId, userIds)
-    .catch(error => store.dispatch('handleError', error, { root: true }))
+    .catch(error => store.dispatch('handleApiError', { error }, { root: true }))
     .then(final, final);
 }
 
@@ -139,6 +139,6 @@ export function removeUsersFromGroup(store, { groupId, userIds }) {
     store.commit('SET_GROUP_MODAL', '');
   };
   return _removeMultipleUsersFromGroup(store, groupId, userIds)
-    .catch(error => store.dispatch('handleError', error, { root: true }))
+    .catch(error => store.dispatch('handleApiError', { error }, { root: true }))
     .then(final, final);
 }

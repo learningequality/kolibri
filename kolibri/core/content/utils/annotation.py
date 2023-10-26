@@ -18,6 +18,7 @@ from sqlalchemy import or_
 from sqlalchemy import select
 from sqlalchemy import String
 from sqlalchemy.sql.expression import literal
+from sqlalchemy.sql.functions import coalesce
 
 from .paths import get_content_file_name
 from .paths import get_content_storage_file_path
@@ -252,7 +253,9 @@ def _calculate_batch_params(bridge, channel_id, node_ids, exclude_node_ids):
     return max_rght, dynamic_chunksize
 
 
-def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
+def set_leaf_nodes_invisible(
+    channel_id, node_ids=None, exclude_node_ids=None, clear_admin_imported=False
+):
     """
     Set nodes in a channel as unavailable.
     With no additional arguments, this will hide an entire channel.
@@ -279,6 +282,13 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
         )
     )
 
+    values_dict = {
+        "available": False,
+    }
+
+    if clear_admin_imported:
+        values_dict["admin_imported"] = False
+
     while min_boundary < max_rght:
         batch_statement = _create_batch_update_statement(
             bridge,
@@ -291,7 +301,7 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
         # Execute the update for this batch
         connection.execute(
-            batch_statement.values(available=False).execution_options(autocommit=True)
+            batch_statement.values(**values_dict).execution_options(autocommit=True)
         )
 
         min_boundary += dynamic_chunksize
@@ -300,7 +310,7 @@ def set_leaf_nodes_invisible(channel_id, node_ids=None, exclude_node_ids=None):
 
 
 def set_leaf_node_availability_from_local_file_availability(
-    channel_id, node_ids=None, exclude_node_ids=None
+    channel_id, node_ids=None, exclude_node_ids=None, admin_imported=None
 ):
     """
     Set nodes in a channel as available, based on their required files.
@@ -369,6 +379,15 @@ def set_leaf_node_availability_from_local_file_availability(
         )
     )
 
+    values_dict = {
+        "available": exists(contentnode_statement),
+    }
+
+    if admin_imported is not None:
+        values_dict["admin_imported"] = or_(
+            admin_imported, coalesce(ContentNodeTable.c.admin_imported, False)
+        )
+
     while min_boundary < max_rght:
         batch_statement = _create_batch_update_statement(
             bridge,
@@ -381,9 +400,7 @@ def set_leaf_node_availability_from_local_file_availability(
 
         # Execute the update for this batch
         connection.execute(
-            batch_statement.values(
-                available=exists(contentnode_statement)
-            ).execution_options(autocommit=True)
+            batch_statement.values(**values_dict).execution_options(autocommit=True)
         )
         min_boundary += dynamic_chunksize
 
@@ -673,6 +690,7 @@ def propagate_forced_localfile_removal(localfiles_dict_list):
     # if we have too many UUIDs it is possible we might still generate too much SQL
     # and cause issues - so we batch the ids here.
     batch_size = 10000
+    removed_nodes = []
     while i < total:
         file_slice = localfiles_dict_list[i : i + batch_size]
         files = File.objects.filter(
@@ -681,8 +699,12 @@ def propagate_forced_localfile_removal(localfiles_dict_list):
                 [f["id"] for f in file_slice]
             ),
         )
+        removed_nodes += ContentNode.objects.filter(files__in=files).values_list(
+            "id", flat=True
+        )
         ContentNode.objects.filter(files__in=files).update(available=False)
         i += batch_size
+    return removed_nodes
 
 
 def reannotate_all_channels():
@@ -691,10 +713,13 @@ def reannotate_all_channels():
 
 
 def update_content_metadata(
-    channel_id, node_ids=None, exclude_node_ids=None, public=None
+    channel_id, node_ids=None, exclude_node_ids=None, public=None, admin_imported=None
 ):
     set_leaf_node_availability_from_local_file_availability(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids
+        channel_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        admin_imported=admin_imported,
     )
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id, public=public)
@@ -705,11 +730,20 @@ def update_content_metadata(
 
 
 def set_content_visibility(
-    channel_id, checksums, node_ids=None, exclude_node_ids=None, public=None
+    channel_id,
+    checksums,
+    node_ids=None,
+    exclude_node_ids=None,
+    public=None,
+    admin_imported=None,
 ):
     mark_local_files_as_available(checksums)
     update_content_metadata(
-        channel_id, node_ids=node_ids, exclude_node_ids=exclude_node_ids, public=public
+        channel_id,
+        node_ids=node_ids,
+        exclude_node_ids=exclude_node_ids,
+        public=public,
+        admin_imported=admin_imported,
     )
 
 
@@ -718,8 +752,13 @@ def set_content_visibility_from_disk(channel_id):
     update_content_metadata(channel_id)
 
 
-def set_content_invisible(channel_id, node_ids, exclude_node_ids):
-    set_leaf_nodes_invisible(channel_id, node_ids, exclude_node_ids)
+def set_content_invisible(channel_id, node_ids, exclude_node_ids, clear_admin_imported):
+    set_leaf_nodes_invisible(
+        channel_id,
+        node_ids,
+        exclude_node_ids,
+        clear_admin_imported=clear_admin_imported,
+    )
     recurse_annotation_up_tree(channel_id)
     set_channel_metadata_fields(channel_id)
     ContentCacheKey.update_cache_key()

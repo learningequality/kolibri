@@ -1,4 +1,5 @@
 import { v4 as uuidv4 } from 'uuid';
+import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
@@ -29,7 +30,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export function useQuizCreation() {
+export default () => {
   // -----------
   // Local state
   // -----------
@@ -46,8 +47,11 @@ export function useQuizCreation() {
    * The questions that are currently selected for action in the active section */
   const _selectedQuestions = ref([]);
 
-  /** @type {ref<>} A list of all channels available which have exercises */
+  /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
+
+  /** @type {ref<Number>} A counter for use in naming new sections */
+  const _sectionLabelCounter = ref(1);
 
   // ------------------
   // Section Management
@@ -112,7 +116,11 @@ export function useQuizCreation() {
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
+    const { sectionLabel$ } = enhancedQuizManagementStrings;
+    newSection.section_title = `${sectionLabel$()} ${_sectionLabelCounter.value}`;
+    _sectionLabelCounter.value++;
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
+    setActiveSection(newSection.section_id);
     return newSection;
   }
 
@@ -123,6 +131,13 @@ export function useQuizCreation() {
     const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
     if (updatedSections.length === get(allSections).length) {
       throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+    }
+    if (updatedSections.length === 0) {
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+      updatedSections.push(newSection);
+    } else {
+      setActiveSection(get(updatedSections)[0].section_id);
     }
     updateQuiz({ question_sources: updatedSections });
   }
@@ -240,6 +255,10 @@ export function useQuizCreation() {
   const activeSection = computed(() =>
     get(allSections).find(s => s.section_id === get(_activeSectionId))
   );
+  /** @type {ComputedRef<QuizSection[]>} The inactive sections */
+  const inactiveSections = computed(() =>
+    get(allSections).filter(s => s.section_id !== get(_activeSectionId))
+  );
   /** @type {ComputedRef<QuizResource[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
   /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
@@ -279,10 +298,11 @@ export function useQuizCreation() {
     quiz,
     allSections,
     activeSection,
+    inactiveSections,
     activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
   };
-}
+};

@@ -5,7 +5,7 @@
     class="tab-block"
     :style="{
       backgroundColor: $themeTokens.surface,
-      borderBottom: `1px solid ${$themeTokens.fineLine}`
+      borderBottom: `1px solid ${$themeTokens.fineLine}`,
     }"
   >
     <router-link
@@ -13,7 +13,11 @@
       :to="foldersLink"
       class="header-tab"
       :activeClass="activeTabClasses"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{
+        color: $themeTokens.annotation,
+        marginLeft: (width > 234) ? '12px' : '0',
+        marginRight: (width > 234) ? '12px' : '0',
+      }"
       :replace="true"
       :class="defaultTabStyles"
     >
@@ -27,7 +31,11 @@
       :to="topics.length ? searchTabLink : {}"
       class="header-tab"
       :activeClass="activeTabClasses"
-      :style="{ color: $themeTokens.annotation }"
+      :style="{
+        color: $themeTokens.annotation,
+        marginLeft: width > 234 ? '12px' : '0',
+        marginRight: width > 234 ? '12px' : '0',
+      }"
       :replace="true"
       :class="defaultTabStyles"
     >
@@ -52,6 +60,9 @@
     props: {
       topic: {
         type: Object,
+        default() {
+          return {};
+        },
         required: true,
       },
       topics: {
@@ -59,6 +70,10 @@
         default() {
           return [];
         },
+      },
+      width: {
+        type: Number,
+        required: true,
       },
     },
     computed: {
@@ -124,7 +139,6 @@
     max-width: 100%;
     min-height: 36px;
     padding: 0 12px;
-    margin: 0 12px;
     overflow: hidden;
     font-size: 14px;
     font-weight: bold;

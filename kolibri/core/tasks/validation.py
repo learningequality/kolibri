@@ -2,6 +2,8 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
+from .job import Priority
+
 
 class EnqueueArgsSerializer(serializers.Serializer):
     """
@@ -15,6 +17,7 @@ class EnqueueArgsSerializer(serializers.Serializer):
     retry_interval = serializers.IntegerField(
         required=False, allow_null=True, min_value=0
     )
+    priority = serializers.ChoiceField(choices=Priority.Priorities, required=False)
 
     def validate(self, data):
         if data.get("enqueue_at") and data.get("enqueue_in"):

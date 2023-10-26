@@ -10,7 +10,7 @@
 
       <UiToolbar
         :title="title"
-        :removeNavIcon="isAppContext && !windowIsLarge"
+        :removeNavIcon="isAppContext && isTouchDevice"
         type="clear"
         textColor="white"
         class="app-bar"
@@ -19,7 +19,7 @@
         :removeBrandDivider="true"
       >
         <template
-          v-if="windowIsLarge || !isAppContext"
+          v-if="windowIsLarge || !isAppContext || !isTouchDevice"
           #icon
         >
           <KIconButton
@@ -104,7 +104,7 @@
     <!-- Window size and app context. Changes may need to be made -->
     <!-- in parallel in both files for non-breaking updates -->
     <div
-      v-if="!windowIsLarge && !isAppContext"
+      v-if="!windowIsLarge && (!isAppContext || (isAppContext && !isTouchDevice))"
       class="subpage-nav"
     >
       <slot name="sub-nav"></slot>
@@ -121,6 +121,7 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri.themeConfig';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
@@ -159,6 +160,9 @@
       // temp hack for the VF plugin
       usernameForDisplay() {
         return !hashedValuePattern.test(this.username) ? this.username : this.fullName;
+      },
+      isTouchDevice() {
+        return isTouchDevice;
       },
     },
     created() {

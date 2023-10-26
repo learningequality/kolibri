@@ -61,14 +61,6 @@ const store = new Vuex.Store({
   actions: {
     createSnackbar() {},
   },
-  modules: {
-    deviceInfo: {
-      namespaced: true,
-      getters: {
-        getDeviceOS: () => 'linux',
-      },
-    },
-  },
 });
 
 async function makeWrapper() {

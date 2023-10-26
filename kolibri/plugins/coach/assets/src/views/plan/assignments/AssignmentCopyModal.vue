@@ -144,7 +144,7 @@
             this.blockControls = false;
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
             logError(error);
             this.blockControls = false;
           });

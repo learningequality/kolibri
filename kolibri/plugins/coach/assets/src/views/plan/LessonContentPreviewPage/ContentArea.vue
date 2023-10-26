@@ -1,12 +1,12 @@
 <template>
 
-  <section :style="{ backgroundColor: isExercise ? $themeTokens.surface : '' }">
+  <section>
     <h2 v-if="isExercise" class="header">
       {{ header }}
     </h2>
-    <KContentRenderer
+    <ContentRenderer
       v-if="content.available"
-      :class="{ hof: isExercise }"
+      class="content-renderer"
       :showCorrectAnswer="true"
       :itemId="selectedQuestion"
       :allowHints="false"
@@ -59,12 +59,8 @@
 
 <style lang="scss" scoped>
 
-  .content-area-exercise {
-    padding: 16px;
-  }
-
-  .hof {
-    overflow-x: hidden; // .solutionarea's negative margin oversteps
+  .content-renderer {
+    height: 100vh;
   }
 
   .header {

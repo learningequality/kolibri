@@ -9,6 +9,7 @@ from django.http import HttpResponse
 from django.http import HttpResponseBadRequest
 from django.http import HttpResponseNotFound
 from django.utils import timezone
+from django.utils.cache import patch_cache_control
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.gzip import gzip_page
@@ -37,6 +38,7 @@ from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import LocalFile
 from kolibri.core.content.serializers import PublicChannelSerializer
+from kolibri.core.content.utils.file_availability import checksum_regex
 from kolibri.core.content.utils.file_availability import generate_checksum_integer_mask
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import UserSyncStatus
@@ -108,7 +110,18 @@ def _get_channel_list_v1(params, identifier=None):
     return channels.filter(root__available=True).distinct()
 
 
-@method_decorator(metadata_cache, name="dispatch")
+def public_metadata_cache(view_func):
+    view_func = metadata_cache(view_func)
+
+    def wrapped_view(*args, **kwargs):
+        response = view_func(*args, **kwargs)
+        patch_cache_control(response, max_age=60)
+        return response
+
+    return wrapped_view
+
+
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViewset):
     def get_queryset(self):
         return (
@@ -118,12 +131,12 @@ class PublicChannelMetadataViewSet(BaseChannelMetadataMixin, ReadOnlyValuesViews
         )
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeViewSet(BaseContentNodeMixin, ReadOnlyValuesViewset):
     pagination_class = OptionalContentNodePagination
 
 
-@method_decorator(metadata_cache, name="dispatch")
+@method_decorator(public_metadata_cache, name="dispatch")
 class PublicContentNodeTreeViewSet(BaseContentNodeTreeViewset):
     pass
 
@@ -182,7 +195,14 @@ def get_public_file_checksums(request, version):
                 data = f.read()
         else:
             return HttpResponseBadRequest("POST body must be either json or gzip")
-        checksums = json.loads(data.decode("utf-8"))
+        try:
+            checksums = json.loads(data.decode("utf-8"))
+        except ValueError:
+            return HttpResponseBadRequest("POST body must be valid json")
+
+        checksums = [
+            checksum for checksum in checksums if checksum_regex.match(checksum)
+        ]
         available_checksums = set(
             LocalFile.objects.filter(available=True)
             .filter_by_uuids(checksums)
@@ -253,7 +273,7 @@ class SyncQueueViewSet(viewsets.ViewSet):
         return data
 
     def check_queue(self, request, pk=None):
-        is_SoUD = get_device_setting("subset_of_users_device", False)
+        is_SoUD = get_device_setting("subset_of_users_device")
         if is_SoUD:
             content = "I'm a Subset of users device. Nothing to do here"
             # would love to use HTTP 418, but it's not fully usable in browsers

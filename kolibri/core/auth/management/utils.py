@@ -1,10 +1,10 @@
 """
 Utility methods for syncing.
 """
+import copy
 import getpass
 import json
 import logging
-import math
 import sys
 from contextlib import contextmanager
 from functools import wraps
@@ -16,6 +16,7 @@ from morango.models import Certificate
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition
 from morango.sync.controller import MorangoProfileController
+from morango.sync.controller import SessionControllerSignals
 
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants.morango_sync import DATA_PORTAL_SYNCING_BASE_URL
@@ -25,8 +26,8 @@ from kolibri.core.auth.constants.morango_sync import State
 from kolibri.core.auth.models import dataset_cache
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.sync_event_hook_utils import post_transfer_handler
-from kolibri.core.auth.sync_event_hook_utils import pre_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import post_sync_transfer_handler
+from kolibri.core.auth.sync_event_hook_utils import pre_sync_transfer_handler
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import provision_device
@@ -401,6 +402,10 @@ class MorangoSyncCommand(AsyncCommand):
         )
 
         client_cert = sync_session_client.sync_session.client_certificate
+        # we create a custom signals, so we can fire them outside of transaction blocks
+        custom_signals = SessionControllerSignals()
+        custom_signals.initializing.started.connect(pre_sync_transfer_handler)
+        custom_signals.cleanup.completed.connect(post_sync_transfer_handler)
 
         filter_scope, scope_params = get_sync_filter_scope(client_cert, user_id=user_id)
         dataset_id = scope_params.get("dataset_id")
@@ -433,6 +438,7 @@ class MorangoSyncCommand(AsyncCommand):
                     sync_session_client,
                     noninteractive,
                     pull_filter,
+                    custom_signals,
                 )
                 # and push our own data to server
             if not no_push:
@@ -440,6 +446,7 @@ class MorangoSyncCommand(AsyncCommand):
                     sync_session_client,
                     noninteractive,
                     push_filter,
+                    custom_signals,
                 )
 
             if not no_provision:
@@ -495,22 +502,34 @@ class MorangoSyncCommand(AsyncCommand):
         if self.is_cancelled() and (not self.job or self.job.cancellable):
             raise UserCancelledError()
 
+    def _fire_signal_with_context_clone(self, signal, context, sync_filter=None):
+        """
+        Adding the sync_filter more than once raises an error
+
+        :type signal: morango.sync.utils.SyncSignal
+        :type context: morango.sync.context.CompositeSessionContext
+        :type sync_filter: Filter|str
+        """
+        context_clone = copy.deepcopy(context)
+        if sync_filter:
+            # context_clone.filter = sync_filter
+            context_clone._update_attrs(sync_filter=sync_filter)
+        signal.fire(context=context_clone)
+
     def _pull(
         self,
         sync_session_client,
         noninteractive,
         sync_filter,
+        custom_signals,
     ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type sync_filter: Filter
+        :type custom_signals: SessionControllerSignals
         """
         sync_client = sync_session_client.get_pull_client()
-
-        # note this is the CompositeSessionContext
-        pre_transfer_handler(sync_client.context)
-
         sync_client.signals.queuing.connect(self._raise_cancel)
         sync_client.signals.transferring.connect(self._raise_cancel)
 
@@ -538,31 +557,33 @@ class MorangoSyncCommand(AsyncCommand):
             noninteractive,
         )
 
+        # update sync filter manually because sync hooks connected to signals need it,
+        # see how `sync_client.initialize` does this
+        self._fire_signal_with_context_clone(
+            custom_signals.initializing.started, sync_client.context, sync_filter
+        )
         sync_client.initialize(sync_filter)
 
         sync_client.run()
         with self._lock():
             sync_client.finalize()
-
-        # note this is the CompositeSessionContext
-        post_transfer_handler(sync_client.context)
+        # fire completed signal outside of transaction block
+        custom_signals.cleanup.completed.fire(context=sync_client.context)
 
     def _push(
         self,
         sync_session_client,
         noninteractive,
         sync_filter,
+        custom_signals,
     ):
         """
         :type sync_session_client: morango.sync.syncsession.SyncSessionClient
         :type noninteractive: bool
         :type sync_filter: Filter
+        :type custom_signals: SessionControllerSignals
         """
         sync_client = sync_session_client.get_push_client()
-
-        # note this is the CompositeSessionContext
-        pre_transfer_handler(sync_client.context)
-
         sync_client.signals.transferring.connect(self._raise_cancel)
 
         self._queueing_tracker_adapter(
@@ -589,6 +610,13 @@ class MorangoSyncCommand(AsyncCommand):
             noninteractive,
         )
 
+        # update sync filter manually because sync hooks connected to signals need it,
+        # see how `sync_client.initialize` does this
+        # fire signal outside of transaction block
+        self._fire_signal_with_context_clone(
+            custom_signals.initializing.started, sync_client.context, sync_filter
+        )
+
         with self._lock():
             sync_client.initialize(sync_filter)
 
@@ -601,18 +629,8 @@ class MorangoSyncCommand(AsyncCommand):
         # allow server timeout since remotely integrating data can take a while and the request
         # could timeout. In that case, we'll assume everything is good.
         sync_client.finalize()
-
-        # note this is the CompositeSessionContext
-        post_transfer_handler(sync_client.context)
-
-    def _update_all_progress(self, progress_fraction, progress):
-        """
-        Override parent progress update callback to report from the progress tracker we're sent
-        """
-        if self.job:
-            self.job.update_progress(progress_fraction, 1.0)
-            self.job.extra_metadata.update(progress.extra_data)
-            self.job.save_meta()
+        # fire completed signal
+        custom_signals.cleanup.completed.fire(context=sync_client.context)
 
     def _session_tracker_adapter(self, signal_group, noninteractive):
         """
@@ -649,7 +667,6 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=100).progresstracker
 
         def stats_msg(transfer_session):
             transfer_total = (
@@ -662,24 +679,26 @@ class MorangoSyncCommand(AsyncCommand):
             )
 
         def stats(transfer_session):
-            if transfer_session.records_total > 0:
+            if (
+                noninteractive or self.progresstracker.progressbar is None
+            ) and transfer_session.records_total > 0:
                 logger.info(stats_msg(transfer_session))
+
+        def started(transfer_session):
+            stats(transfer_session)
+            self.start_progress(total=transfer_session.records_total or 100)
 
         def handler(transfer_session):
             """
             :type transfer_session: morango.models.core.TransferSession
             """
             if transfer_session.records_total > 0:
-                progress = (
-                    100
-                    * transfer_session.records_transferred
-                    / float(transfer_session.records_total)
-                )
+                progress = transfer_session.records_transferred
             else:
                 progress = 100
 
             self.update_progress(
-                increment=math.ceil(progress - tracker.progress),
+                current_progress=progress,
                 message=stats_msg(transfer_session),
                 extra_data=dict(
                     bytes_sent=transfer_session.bytes_sent,
@@ -688,11 +707,11 @@ class MorangoSyncCommand(AsyncCommand):
                 ),
             )
 
-        if noninteractive or tracker.progressbar is None:
-            signal_group.started.connect(stats)
-            signal_group.in_progress.connect(stats)
-
-        signal_group.connect(handler)
+        signal_group.started.connect(started)
+        signal_group.started.connect(handler)
+        signal_group.in_progress.connect(stats)
+        signal_group.in_progress.connect(handler)
+        signal_group.completed.connect(handler)
 
     def _queueing_tracker_adapter(
         self, signal_group, message, sync_state, noninteractive
@@ -705,11 +724,11 @@ class MorangoSyncCommand(AsyncCommand):
         :type sync_state: str
         :type noninteractive: bool
         """
-        tracker = self.start_progress(total=2).progresstracker
 
         def started(transfer_session):
+            self.start_progress(total=1)
             dataset_cache.clear()
-            if noninteractive or tracker.progressbar is None:
+            if noninteractive or self.progresstracker.progressbar is None:
                 if (
                     not sync_state.endswith("DEQUEUING")
                     or transfer_session.records_total > 0
@@ -725,3 +744,4 @@ class MorangoSyncCommand(AsyncCommand):
 
         signal_group.started.connect(started)
         signal_group.started.connect(handler)
+        signal_group.completed.connect(handler)

@@ -11,6 +11,7 @@ from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.urls import reverse
 from semver import VersionInfo
+from six import string_types
 
 if sys.version_info < (3, 10):
     from importlib_metadata import entry_points
@@ -323,7 +324,7 @@ class PluginUpdateManager(object):
             )
             return
         for app in plugin_instance.INSTALLED_APPS:
-            if not isinstance(app, AppConfig) and isinstance(app, str):
+            if not isinstance(app, AppConfig) and isinstance(app, string_types):
                 app = apps.get_containing_app_config(app)
             app_configs.append(app)
         old_version = config["PLUGIN_VERSIONS"].get(plugin_name, "")
@@ -480,7 +481,13 @@ def check_plugin_config_file_location(version):
 def iterate_plugins():
     # Use to dedupe plugins
     plugin_ids = set()
-    for entry_point in entry_points().get("kolibri.plugins", []):
+    all_entry_points = entry_points()
+    eps = (
+        all_entry_points.get("kolibri.plugins", [])
+        if isinstance(all_entry_points, dict)
+        else all_entry_points.select(group="kolibri.plugins")
+    )
+    for entry_point in eps:
         name = entry_point.name
         if name not in plugin_ids:
             plugin_ids.add(name)

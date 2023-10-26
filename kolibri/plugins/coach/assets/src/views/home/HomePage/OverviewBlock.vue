@@ -43,7 +43,7 @@
               :text="$tr('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
-              style="margin-left: 24 px;"
+              style="margin-left: 24px;"
             />
           </template>
         </template>
@@ -79,7 +79,7 @@
         if (this.$store.getters.userIsMultiFacilityAdmin) {
           facility_id = this.$store.state.classSummary.facility_id;
         }
-        return this.$router.getRoute('CoachClassListPage', {}, { facility_id });
+        return this.$router.getRoute('CoachClassListPage', { facility_id });
       },
       classLearnersListRoute() {
         const { query } = this.$route;

@@ -27,8 +27,9 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { Presets, UsePresets } from '../../constants';
+  import { UsePresets } from '../../constants';
 
   export default {
     name: 'HowAreYouUsingKolibri',

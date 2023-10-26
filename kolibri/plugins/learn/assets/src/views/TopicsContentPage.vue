@@ -23,7 +23,7 @@
       :allowMarkComplete="allowMarkComplete"
       :contentKind="contentKind"
       :showBookmark="allowBookmark"
-      :showDownloadButton="allowRemoteDownload"
+      :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
@@ -129,10 +129,10 @@
       <AlsoInThis
         style="margin-top: 8px"
         :contentNodes="viewResourcesContents"
-        :nextContent="nextContent"
+        :nextFolder="nextFolder"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
-        :currentResourceID="currentResourceID"
+        :currentResourceId="currentResourceId"
         :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
@@ -153,27 +153,36 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
-  import get from 'lodash/get';
+  import { mapState } from 'vuex';
+  import { get, set } from '@vueuse/core';
+  import lodashGet from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
   import Modalities from 'kolibri-constants/Modalities';
 
   import AuthMessage from 'kolibri.coreVue.components.AuthMessage';
   import { ContentNodeResource } from 'kolibri.resources';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { ContentNodeKinds, ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import AppError from 'kolibri-common/components/AppError';
   import GlobalSnackbar from 'kolibri-common/components/GlobalSnackbar';
   import { PageNames, ClassesPageNames } from '../constants';
   import SkipNavigationLink from '../../../../../../kolibri/core/assets/src/views/SkipNavigationLink';
+  import useChannels from '../composables/useChannels';
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
-  import useDevices from '../composables/useDevices';
+  import {
+    currentDeviceData,
+    setCurrentDevice,
+    StudioNotAllowedError,
+  } from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
   import useDownloadRequests from '../composables/useDownloadRequests';
   import commonLearnStrings from './commonLearnStrings';
@@ -216,23 +225,97 @@
       SkipNavigationLink,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
-    setup() {
-      const { canDownloadExternally } = useCoreLearn();
+    setup(props) {
+      const currentInstance = getCurrentInstance().proxy;
+      const store = currentInstance.$store;
+      const router = currentInstance.$router;
+      const { canDownloadExternally, canAddDownloads } = useCoreLearn();
       const {
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         contentNodeProgressMap,
       } = useContentNodeProgress();
+      const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
-      const { baseurl, deviceName } = useDevices();
+      const { baseurl, deviceName } = currentDeviceData();
       const {
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
+        pollUserDownloadRequests,
+        loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
+      const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+
+      const channel = ref(null);
+      const content = ref(null);
+      const loading = ref(false);
+
+      function _loadTopicsContent(shouldResolve, baseurl) {
+        const id = props.id;
+        return Promise.all([
+          ContentNodeResource.fetchModel({ id, getParams: { baseurl } }),
+          fetchChannels({ baseurl }),
+        ]).then(
+          ([fetchedContent]) => {
+            if (shouldResolve()) {
+              const currentChannel = channelsMap[fetchedContent.channel_id];
+              if (!currentChannel) {
+                router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+                return;
+              }
+              set(channel, currentChannel);
+              set(content, fetchedContent);
+              set(loading, false);
+              store.commit('CORE_SET_ERROR', null);
+            }
+          },
+          error => {
+            shouldResolve()
+              ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
+              : null;
+          }
+        );
+      }
+
+      function showTopicsContent() {
+        const deviceId = props.deviceId;
+        set(loading, true);
+        store.commit('SET_PAGE_NAME', PageNames.TOPICS_CONTENT);
+        set(channel, null);
+        set(content, null);
+        const shouldResolve = samePageCheckGenerator(store);
+        let promise;
+        if (deviceId) {
+          promise = setCurrentDevice(deviceId).then(device => {
+            const baseurl = device.base_url;
+            if (get(canAddDownloads)) {
+              pollUserDownloadRequests({ contentnode_id: props.id });
+            }
+            return _loadTopicsContent(shouldResolve, baseurl);
+          });
+        } else {
+          promise = _loadTopicsContent(shouldResolve);
+        }
+        return promise.catch(error => {
+          if (shouldResolve()) {
+            if (
+              error === StudioNotAllowedError ||
+              (error.response && error.response.status === 410)
+            ) {
+              router.replace({ name: PageNames.LIBRARY });
+              return;
+            }
+            store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          }
+        });
+      }
+
+      watch(() => props.id, showTopicsContent);
+      showTopicsContent();
+
       return {
         baseurl,
         deviceName,
@@ -241,13 +324,22 @@
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
+        canAddDownloads,
         back,
         genExternalBackURL,
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
         deviceFormTranslator,
+        content,
+        channel,
+        loading,
+        downloadRequestLoading,
+        isUserLoggedIn,
+        isCoach,
+        isAdmin,
+        isSuperuser,
+        currentUserId,
       };
     },
     props: {
@@ -265,13 +357,19 @@
         type: String,
         default: null,
       },
+      // Our linting doesn't detect usage in the setup function yet.
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      id: {
+        type: String,
+        required: true,
+      },
     },
     data() {
       return {
         bookmark: null,
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
-        nextContent: null,
+        nextFolder: null,
         viewResourcesContents: [],
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
@@ -281,15 +379,13 @@
       };
     },
     computed: {
-      ...mapGetters(['currentUserId', 'isUserLoggedIn']),
       ...mapState({
         error: state => state.core.error,
         blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
-      ...mapState('topicsTree', ['content']),
-      ...mapState('topicsTree', {
-        isCoachContent: state => (state.content && state.content.coach_content ? 1 : 0),
-      }),
+      isCoachContent() {
+        return this.content && this.content.coach_content ? 1 : 0;
+      },
       contentProgress() {
         return this.content ? this.contentNodeProgressMap[this.content.content_id] : null;
       },
@@ -302,11 +398,8 @@
       contentLearningActivities() {
         return this.content ? this.content.learning_activities : [];
       },
-      loading() {
-        return this.$store.state.core.loading;
-      },
       practiceQuiz() {
-        return get(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
+        return lodashGet(this, ['content', 'options', 'modality']) === Modalities.QUIZ;
       },
       notAuthorized() {
         // catch "not authorized" error, display AuthMessage
@@ -324,13 +417,17 @@
         return this.content ? this.content.title : '';
       },
       allowMarkComplete() {
-        return get(this, ['content', 'options', 'completion_criteria', 'learner_managed'], false);
+        return lodashGet(
+          this,
+          ['content', 'options', 'completion_criteria', 'learner_managed'],
+          false
+        );
       },
       lessonContext() {
         return Boolean(this.lessonId);
       },
       lessonId() {
-        return get(this.back, 'params.lessonId', null);
+        return lodashGet(this.back, 'params.lessonId', null);
       },
       viewResourcesTitle() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
@@ -342,8 +439,8 @@
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
-      currentResourceID() {
-        return this.content ? this.content.content_id : '';
+      currentResourceId() {
+        return this.content ? this.content.id : '';
       },
       missingLessonResources() {
         return this.lesson && this.lesson.resources.some(c => !c.contentnode);
@@ -351,15 +448,35 @@
       isRemoteContent() {
         return Boolean(this.deviceId);
       },
+      allowDownloads() {
+        return this.isUserLoggedIn && this.canAddDownloads && this.isRemoteContent;
+      },
+      downloadRequestedByLearner() {
+        return this.allowDownloads && Boolean(this.downloadRequestMap[this.content?.id]);
+      },
+      downloadableByLearner() {
+        return this.allowDownloads && !this.content?.admin_imported;
+      },
       isDownloading() {
-        return this.isDownloadingByLearner(this.content);
+        return (
+          this.downloadRequestedByLearner &&
+          this.downloadRequestMap[this.content.id].status === 'PENDING'
+        );
       },
       isDownloaded() {
-        if (!this.content) return false;
-        return this.content.admin_imported || this.isDownloadedByLearner(this.content);
+        return (
+          this.content?.admin_imported ||
+          (this.downloadRequestedByLearner &&
+            this.downloadRequestMap[this.content?.id]?.status === 'COMPLETED')
+        );
       },
-      allowRemoteDownload() {
-        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
+      showDownloadButton() {
+        return (
+          this.downloadableByLearner &&
+          !this.downloadRequestLoading &&
+          !this.loading &&
+          !this.isDownloaded
+        );
       },
       allowBookmark() {
         return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
@@ -367,13 +484,25 @@
     },
     watch: {
       content(newContent, oldContent) {
-        if ((newContent && !oldContent) || newContent.id !== oldContent.id) {
+        if (newContent && (!oldContent || newContent.id !== oldContent.id)) {
           this.initializeState();
         }
       },
       showViewResourcesSidePanel(newVal, oldVal) {
+        if (newVal === true) {
+          this.stopMainScroll(true);
+        } else {
+          this.stopMainScroll(false);
+        }
         if (newVal && !oldVal) {
           this.getSidebarInfo();
+        }
+      },
+      sidePanelContent(newVal) {
+        if (newVal !== null) {
+          this.stopMainScroll(true);
+        } else {
+          this.stopMainScroll(false);
         }
       },
     },
@@ -384,7 +513,7 @@
       initializeState() {
         this.bookmark = null;
         this.showViewResourcesSidePanel = false;
-        this.nextContent = null;
+        this.nextFolder = null;
         this.viewResourcesContents = [];
         this.resourcesSidePanelFetched = false;
         this.resourcesSidePanelLoading = false;
@@ -450,7 +579,7 @@
        * is a topic.
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextContent - Sets the value with this.content's parents next sibling folder
+       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
        * if found
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
        * is logged in
@@ -463,33 +592,30 @@
         const treeParams = {
           id: fetchGrandparent ? this.content.ancestors.slice(-2)[0].id : this.content.parent,
           params: {
-            include_coach_content:
-              this.$store.getters.isAdmin ||
-              this.$store.getters.isCoach ||
-              this.$store.getters.isSuperuser,
+            include_coach_content: this.isAdmin || this.isCoach || this.isSuperuser,
             depth: fetchGrandparent ? 2 : 1,
             baseurl: this.baseurl,
           },
         };
         // Fetch and map the progress for the nodes if logged in
-        if (this.$store.getters.isUserLoggedIn && !this.baseurl) {
+        if (this.isUserLoggedIn && !this.baseurl) {
           this.fetchContentNodeTreeProgress(treeParams);
         }
         return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
           let parent;
-          let nextContents;
+          let nextFolders;
           if (fetchGrandparent) {
             const parentIndex = ancestor.children.results.findIndex(
               c => c.id === this.content.parent
             );
             parent = ancestor.children.results[parentIndex];
-            nextContents = ancestor.children.results.slice(parentIndex + 1);
+            nextFolders = ancestor.children.results.slice(parentIndex + 1);
           } else {
             parent = ancestor;
             const contentIndex = ancestor.children.results.findIndex(c => c.id === this.content.id);
-            nextContents = ancestor.children.results.slice(contentIndex + 1);
+            nextFolders = ancestor.children.results.slice(contentIndex + 1);
           }
-          this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
+          this.nextFolder = nextFolders.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
           this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },
@@ -557,6 +683,14 @@
       },
       goToAllLibraries() {
         this.$router.push({ name: PageNames.EXPLORE_LIBRARIES });
+      },
+      stopMainScroll(sidePanelVisible) {
+        const mainWrapperElement = this.$refs.mainWrapper;
+        if (sidePanelVisible) {
+          mainWrapperElement.style.position = 'fixed';
+        } else {
+          mainWrapperElement.style.position = null;
+        }
       },
     },
     $trs: {

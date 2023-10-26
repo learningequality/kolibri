@@ -35,12 +35,13 @@
       </template>
       <span v-else></span>
     </template>
-    <KButton
+    <!-- TODO: to be roled back when multiple user syncing is working in the upcoming release -->
+    <!-- <KButton
       v-if="loadingTask.status === 'COMPLETED' && isImportingSoud"
       appearance="basic-link"
       :text="$tr('importAnother')"
       @click="importAnother"
-    />
+    /> -->
   </OnboardingStepBase>
 
 </template>
@@ -53,7 +54,12 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { TaskResource } from 'kolibri.resources';
   import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
-  import { DeviceTypePresets, LodTypePresets, SoudQueue, FooterMessageTypes } from '../constants';
+  import {
+    DeviceTypePresets,
+    // LodTypePresets,
+    SoudQueue,
+    FooterMessageTypes,
+  } from '../constants';
   import OnboardingStepBase from './OnboardingStepBase';
 
   export default {
@@ -124,9 +130,10 @@
       isSoud() {
         return this.queue === SoudQueue;
       },
-      isImportingSoud() {
-        return this.wizardService.state.context.lodImportOrJoin === LodTypePresets.IMPORT;
-      },
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
+      // isImportingSoud() {
+      //   return this.wizardService.state.context.lodImportOrJoin === LodTypePresets.IMPORT;
+      // },
       queue() {
         return this.wizardService.state.context.fullOrLOD === DeviceTypePresets.LOD
           ? SoudQueue
@@ -143,10 +150,11 @@
       this.pollTask();
     },
     methods: {
-      importAnother() {
-        this.isPolling = false;
-        this.wizardService.send('IMPORT_ANOTHER');
-      },
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
+      // importAnother() {
+      //   this.isPolling = false;
+      //   this.wizardService.send('IMPORT_ANOTHER');
+      // },
       pushCompletedToWizardMachine() {
         this.completedTasks.forEach(task => {
           if (!this.wizardService.state.context.importedUsers.includes(task.username)) {
@@ -204,7 +212,7 @@
       },
       retryImport() {
         TaskResource.restart(this.loadingTask.id).catch(error => {
-          this.$store.dispatch('handleApiError', error);
+          this.$store.dispatch('handleApiError', { error });
         });
       },
       cancelTask() {
@@ -226,10 +234,11 @@
       },
     },
     $trs: {
-      importAnother: {
-        message: 'Import another user account',
-        context: 'Link to restart the import step for another user. ',
-      },
+      // TODO: role this back when multiple user syncing is working in the upcoming release!
+      // importAnother: {
+      //   message: 'Import another user account',
+      //   context: 'Link to restart the import step for another user. ',
+      // },
       loadUserTitle: {
         message: 'Load user account',
         context: 'Title of a page where user is waiting for a user to be imported',

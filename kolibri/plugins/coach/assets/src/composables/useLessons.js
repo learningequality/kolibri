@@ -33,7 +33,7 @@ export function useLessons() {
         setLessonsLoading(false);
       },
       error => {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         setLessonsLoading(false);
       }
     );

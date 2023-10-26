@@ -25,7 +25,7 @@
           :text="t.title"
           class="side-panel-folder-link"
           :appearanceOverrides="{ color: $themeTokens.text }"
-          :to="genContentLinkBackLinkCurrentPage(t.id, false)"
+          :to="genContentLinkKeepCurrentBackLink(t.id, false)"
         />
       </div>
       <KButton
@@ -56,16 +56,16 @@
     mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { windowIsLarge } = useKResponsiveWindow();
-      const { genContentLinkBackLinkCurrentPage } = useContentLink();
+      const { genContentLinkKeepCurrentBackLink } = useContentLink();
       return {
-        genContentLinkBackLinkCurrentPage,
+        genContentLinkKeepCurrentBackLink,
         windowIsLarge,
       };
     },
     props: {
       topicMore: {
-        type: Function,
-        default: () => null,
+        type: Boolean,
+        default: false,
       },
       topics: {
         type: Array,

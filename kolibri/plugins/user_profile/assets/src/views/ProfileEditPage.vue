@@ -200,7 +200,7 @@
               if (this.caughtErrors.length > 0) {
                 this.focusOnInvalidField();
               } else {
-                this.$store.dispatch('handleApiError', error);
+                this.$store.dispatch('handleApiError', { error });
               }
             });
         } else {

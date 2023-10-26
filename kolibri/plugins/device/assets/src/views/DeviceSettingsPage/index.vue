@@ -109,7 +109,7 @@
           </div>
         </div>
 
-        <div v-if="deviceIsAndroid" class="fieldset">
+        <div v-if="canCheckMeteredConnection" class="fieldset">
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
@@ -144,22 +144,22 @@
               :text="$tr('changeLocation')"
               :primary="true"
               appearance="basic-link"
-              :disabled="!multipleWritablePaths || isRemoteContent"
+              :disabled="!multipleWritablePaths || isRemoteContent || !canRestart"
               :class="{ 'disabled': !multipleWritablePaths }"
               @click="showChangePrimaryLocationModal = true"
             />
           </p>
           <KButton
-            v-if="browserLocationMatchesServerURL && (secondaryStorageLocations.length === 0)"
+            v-if="secondaryStorageLocations.length === 0"
             :text="$tr('addLocation')"
-            :disabled="isRemoteContent"
+            :disabled="isRemoteContent || !canRestart"
             appearance="raised-button"
             secondary
             @click="showAddStorageLocationModal = true"
           />
         </div>
 
-        <div v-show="browserLocationMatchesServerURL && (secondaryStorageLocations.length > 0)">
+        <div v-show="secondaryStorageLocations.length > 0">
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
@@ -173,7 +173,7 @@
             hasDropdown
             secondary
             appearance="raised-button"
-            :disabled="isRemoteContent"
+            :disabled="isRemoteContent || !canRestart"
             :text="coreString('optionsLabel')"
           >
             <template #menu>
@@ -215,15 +215,17 @@
             >
               <KTextbox
                 ref="autoDownloadLimit"
-                v-model="limitForAutodownload"
+                v-model="limitForAutodownloadInput"
                 class="download-limit-textbox"
                 :disabled="notEnoughFreeSpace || isRemoteContent"
                 type="number"
                 :label="$tr('sizeInGigabytesLabel')"
                 :min="0"
-                :max="freeSpace"
+                :max="toGigabytes(freeSpace)"
                 :invalid="notEnoughFreeSpace"
                 :invalidText="$tr('notEnoughFreeSpace')"
+                :floatingLabel="false"
+                @input="updateLimitForAutodownload"
               />
               <div class="slider-section">
                 <input
@@ -235,13 +237,14 @@
                   min="0"
                   :max="freeSpace"
                   step="1"
+                  @input="updateLimitForAutodownloadInput"
                 >
                 <div class="slider-constraints">
                   <p class="slider-min-max">
                     0
                   </p>
                   <p class="slider-min-max">
-                    {{ freeSpace }}
+                    {{ toGigabytes(freeSpace) }}
                   </p>
                 </div>
               </div>
@@ -285,7 +288,7 @@
         </ul>
       </section>
 
-      <section v-if="deviceIsAndroid || isAppContext" class="android-bar">
+      <section v-if="isAppContext" class="android-bar">
         <KButton
           :text="coreString('saveChangesAction')"
           appearance="raised-button"
@@ -336,6 +339,11 @@
         @submit="handleServerRestart"
       />
 
+      <ServerRestartModal
+        v-if="restarting"
+        :restarting="true"
+      />
+
     </KPageContainer>
   </DeviceAppBarPage>
 
@@ -352,8 +360,8 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
-  import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { checkCapability } from 'kolibri.utils.appCapabilities';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
   import { LandingPageChoices, MeteredConnectionDownloadOptions } from '../../constants';
@@ -390,7 +398,7 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
-      const { restart } = useDeviceRestart();
+      const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
       const dataPlugins = ref(null);
 
@@ -418,7 +426,14 @@
         return !unchanged;
       }
 
-      return { restart, dataPlugins, checkPluginChanges, checkAndTogglePlugins };
+      return {
+        canRestart,
+        restart,
+        restarting,
+        dataPlugins,
+        checkPluginChanges,
+        checkAndTogglePlugins,
+      };
     },
     data() {
       return {
@@ -439,7 +454,7 @@
         allowLearnerDownloadResources: null,
         setLimitForAutodownload: null,
         limitForAutodownload: '0',
-        freeSpace: 0,
+        freeSpace: null,
         deviceUrls: [],
         showChangePrimaryLocationModal: false,
         showAddStorageLocationModal: false,
@@ -457,8 +472,8 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading']),
-      ...mapGetters('deviceInfo', ['getDeviceOS', 'canRestart', 'isRemoteContent']),
+      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible']),
+      ...mapGetters('deviceInfo', ['isRemoteContent']),
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
       },
@@ -486,12 +501,6 @@
       },
       storageLocationOptions() {
         return [this.$tr('addStorageLocation'), this.$tr('removeStorageLocation')];
-      },
-      browserLocationMatchesServerURL() {
-        return (
-          window.location.hostname.includes('127.0.0.1') ||
-          window.location.hostname.includes('localhost')
-        );
       },
       notEnoughFreeSpace() {
         return this.freeSpace === 0;
@@ -535,13 +544,9 @@
           };
         }
       },
-      deviceIsAndroid() {
-        if (this.getDeviceOS === undefined) {
-          return true;
-        }
-        return this.getDeviceOS.includes('Android');
+      canCheckMeteredConnection() {
+        return checkCapability('check_is_metered');
       },
-
       showDisabledAlert() {
         return this.isRemoteContent || !this.canRestart;
       },
@@ -557,10 +562,18 @@
         }
         return this.$tr('alertDisabledOptions');
       },
+      limitForAutodownloadInput: {
+        get() {
+          return this.toGigabytes(this.limitForAutodownload);
+        },
+        set(value) {
+          this.limitForAutodownload = this.toBytes(value);
+        },
+      },
     },
     created() {
       this.setDeviceURLs();
-      this.setFreeSpace();
+      if (this.freeSpace === null) this.setFreeSpace();
     },
     beforeMount() {
       this.getDeviceSettings()
@@ -635,7 +648,17 @@
         }
         this.allowLearnerDownloadResources = allow_learner_download_resources;
         this.enableAutomaticDownload = enable_automatic_download;
-        this.limitForAutodownload = limit_for_autodownload.toString();
+        if (set_limit_for_autodownload === false) {
+          if (this.freeSpace === null) {
+            this.setFreeSpace().then(() => {
+              this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+            });
+          } else {
+            this.limitForAutodownload = parseInt(this.freeSpace * 0.8).toString();
+          }
+        } else {
+          this.limitForAutodownload = limit_for_autodownload.toString();
+        }
         this.setLimitForAutodownload = set_limit_for_autodownload;
       },
       getContentSettings() {
@@ -689,7 +712,7 @@
       },
       setFreeSpace() {
         return getFreeSpaceOnServer().then(({ freeSpace }) => {
-          this.freeSpace = parseInt(bytesForHumans(freeSpace).substring(0, 3));
+          this.freeSpace = freeSpace;
         });
       },
       handleLandingPageChange(option) {
@@ -754,6 +777,8 @@
         } = this.getContentSettings();
         this.getExtraSettings();
 
+        const pluginsChanged = this.checkPluginChanges();
+
         this.checkAndTogglePlugins();
 
         this.saveDeviceSettings({
@@ -767,15 +792,36 @@
           secondaryStorageLocations: this.secondaryStorageLocations,
           primaryStorageLocation: this.primaryStorageLocation,
         })
-          .then(() => {
-            this.$store.dispatch('createSnackbar', this.$tr('saveSuccessNotification'));
-            this.showRestartModal = false;
-            if (this.restartSetting !== null) {
-              this.restart();
-              this.restartSetting = null;
+          .then(didSave => {
+            didSave = didSave || pluginsChanged;
+            if (didSave) {
+              this.$store.commit('CORE_CREATE_SNACKBAR', {
+                text: this.$tr('saveSuccessNotification'),
+                autoDismiss: true,
+                duration: 2000,
+              });
+              this.showRestartModal = false;
+              if (this.canRestart && this.restartSetting !== null) {
+                this.restartSetting = null;
+                return this.restart().then(() => didSave);
+              }
+            }
+            return didSave;
+          })
+          .then(shouldReload => {
+            if (shouldReload) {
+              if (this.snackbarIsVisible) {
+                const unwatch = this.$watch('snackbarIsVisible', () => {
+                  unwatch && unwatch();
+                  window.location.reload();
+                });
+              } else {
+                window.location.reload();
+              }
             }
           })
-          .catch(() => {
+          .catch(err => {
+            console.error(err);
             this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
           });
       },
@@ -864,6 +910,18 @@
           return this.$tr('readOnly');
         }
         return '';
+      },
+      updateLimitForAutodownload() {
+        this.limitForAutodownload = this.toBytes(this.limitForAutodownloadInput);
+      },
+      updateLimitForAutodownloadInput() {
+        this.limitForAutodownloadInput = this.toGigabytes(this.limitForAutodownload);
+      },
+      toBytes(gigabytes) {
+        return parseInt(Math.round(gigabytes * 10 ** 9));
+      },
+      toGigabytes(bytes) {
+        return parseInt(Math.round(bytes / 10 ** 9));
       },
     },
     $trs: {

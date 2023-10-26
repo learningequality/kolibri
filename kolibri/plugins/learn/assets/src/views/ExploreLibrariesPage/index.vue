@@ -18,51 +18,53 @@
         {{ $tr('showingLibraries') }}
       </p>
     </div>
-    <LibraryItem
-      v-for="device in pinnedDevices"
-      :key="device['instance_id']"
-      :deviceId="device['instance_id']"
-      :deviceName="device['device_name']"
-      :deviceIcon="getDeviceIcon(device)"
-      :channels="device.channels"
-      :totalChannels="device['total_channels']"
-      :pinIcon="getPinIcon(true)"
-      :disablePinDevice="device['instance_id'] === studioId"
-      @togglePin="handlePinToggle"
-    />
-    <div v-if="areMoreDevicesAvailable">
-      <div
-        v-if="pinnedDevicesExist"
-        data-test="more-libraries"
-      >
-        <h2>{{ learnString('moreLibraries') }}</h2>
+    <div v-if="loading">
+      <KCircularLoader />
+    </div>
+    <FadeInTransitionGroup v-else>
+      <LibraryItem
+        v-for="device in pinnedDevices"
+        :key="device['instance_id']"
+        :device="device"
+        :channels="deviceChannelsMap[device['instance_id']]"
+        :channelsToDisplay="cardsToDisplay"
+        :pinned="true"
+        @togglePin="handlePinToggle"
+      />
+      <div v-if="areMoreDevicesAvailable" key="moreDevices">
+        <div
+          v-if="pinnedDevicesExist"
+          data-test="more-libraries"
+        >
+          <h2>{{ learnString('moreLibraries') }}</h2>
+          <KButton
+            v-if="displayShowButton"
+            data-test="show-button"
+            :text="coreString('showAction')"
+            :primary="false"
+            @click="loadMoreDevices"
+          />
+        </div>
+        <FadeInTransitionGroup>
+          <LibraryItem
+            v-for="device in unpinnedDevices.slice(0, moreDevices)"
+            :key="device['instance_id']"
+            :device="device"
+            :channels="deviceChannelsMap[device['instance_id']]"
+            :channelsToDisplay="cardsToDisplay"
+            :pinned="false"
+            @togglePin="handlePinToggle"
+          />
+        </FadeInTransitionGroup>
         <KButton
-          v-if="displayShowButton"
-          data-test="show-button"
-          :text="coreString('showAction')"
+          v-if="displayShowMoreButton"
+          data-test="show-more-button"
+          :text="coreString('showMoreAction')"
           :primary="false"
           @click="loadMoreDevices"
         />
       </div>
-      <LibraryItem
-        v-for="(device, index) in moreDevices"
-        :key="index"
-        :deviceId="device['instance_id']"
-        :deviceName="device['device_name']"
-        :deviceIcon="getDeviceIcon(device)"
-        :channels="device.channels"
-        :totalChannels="device['total_channels']"
-        :pinIcon="getPinIcon(false)"
-        @togglePin="handlePinToggle"
-      />
-      <KButton
-        v-if="displayShowMoreButton"
-        data-test="show-more-button"
-        :text="coreString('showMoreAction')"
-        :primary="false"
-        @click="loadMoreDevices"
-      />
-    </div>
+    </FadeInTransitionGroup>
   </ImmersivePage>
 
 </template>
@@ -70,47 +72,76 @@
 
 <script>
 
+  import { get, set } from '@vueuse/core';
+  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator } from 'kolibri.utils.i18n';
   import commonLearnStrings from '../commonLearnStrings';
-  import useChannels from '../../composables/useChannels';
+  import FadeInTransitionGroup from '../FadeInTransitionGroup';
+  import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
-  const PinStrings = crossComponentTranslator(LibraryItem);
+  const moreDevicesIncrement = 4;
 
   export default {
     name: 'ExploreLibrariesPage',
     components: {
+      FadeInTransitionGroup,
       ImmersivePage,
       LibraryItem,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
-      const { fetchChannels } = useChannels();
+      const {
+        networkDevicesWithChannels,
+        keepDeviceChannelsUpdated,
+        deviceChannelsMap,
+        isLoadingChannels,
+      } = useDevices();
+      const {
+        handlePinToggle,
+        fetchPinsForUser,
+        userPinsMap,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+      } = usePinnedDevices(networkDevicesWithChannels);
       const { back } = useContentLink();
-      const { fetchDevices } = useDevices();
-      const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
+      const { makeComputedCardCount } = useCardLayoutSpan();
+      const moreDevices = ref(0);
+
+      keepDeviceChannelsUpdated();
+
+      fetchPinsForUser().then(() => {
+        set(moreDevices, get(pinnedDevicesExist) ? 0 : moreDevicesIncrement);
+      });
+
+      watch(pinnedDevicesExist, (newVal, oldVal) => {
+        if (!oldVal && newVal) {
+          // Always show at least 4 devices
+          set(moreDevices, Math.max(moreDevicesIncrement - get(pinnedDevices).length, 0));
+        } else if (oldVal && !newVal && !get(moreDevices)) {
+          set(moreDevices, moreDevicesIncrement);
+        }
+      });
+
+      const cardsToDisplay = makeComputedCardCount(1, 3);
 
       return {
-        deletePinForUser,
-        createPinForUser,
-        fetchPinsForUser,
-        fetchChannels,
-        fetchDevices,
+        handlePinToggle,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+        userPinsMap,
+        deviceChannelsMap,
+        networkDevicesWithChannels,
         back,
-      };
-    },
-    data() {
-      return {
-        loading: false,
-        networkDevices: [],
-        moreDevices: [],
-        usersPins: [],
+        loading: isLoadingChannels,
+        moreDevices,
+        cardsToDisplay,
       };
     },
     computed: {
@@ -118,15 +149,10 @@
         return this.unpinnedDevices?.length > 0;
       },
       displayShowButton() {
-        return this.moreDevices.length === 0;
+        return this.moreDevices === 0 && this.areMoreDevicesAvailable;
       },
       displayShowMoreButton() {
-        return (
-          this.moreDevices.length > 0 && this.moreDevices.length < this.unpinnedDevices?.length
-        );
-      },
-      networkDevicesWithChannels() {
-        return this.networkDevices.filter(device => device.channels?.length > 0);
+        return !this.displayShowButton && this.moreDevices < this.unpinnedDevices?.length;
       },
       pageHeaderStyle() {
         return {
@@ -134,123 +160,10 @@
           color: this.$themeTokens.text,
         };
       },
-      studioId() {
-        return KolibriStudioId;
-      },
-      usersPinsDeviceIds() {
-        // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
-        // items) -- which the user has pinned
-        return this.usersPins.map(pin => pin.instance_id);
-      },
-      pinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === this.studioId
-          );
-        });
-      },
-      pinnedDevicesExist() {
-        return this.pinnedDevices.length > 0;
-      },
-      unpinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            !this.usersPinsDeviceIds.includes(device.instance_id) &&
-            device.instance_id !== this.studioId
-          );
-        });
-      },
-    },
-    watch: {
-      pinnedDevicesExist: {
-        handler(newValue) {
-          if (!newValue) {
-            this.loadMoreDevices();
-          }
-        },
-        deep: true,
-        immediate: false,
-      },
-    },
-    created() {
-      this.loading = true;
-      // Fetch user's pins
-      this.fetchPinsForUser().then(resp => {
-        this.usersPins = resp.map(pin => {
-          const instance_id = pin.instance_id.replace(/-/g, '');
-          return { ...pin, instance_id };
-        });
-      });
-
-      this.fetchDevices().then(devices => {
-        this.loading = false;
-        for (const device of devices) {
-          const baseurl = device.base_url;
-          this.fetchChannels({ baseurl })
-            .then(channels => {
-              this.addNetworkDevice(device, channels);
-            })
-            .catch(() => {
-              this.addNetworkDevice(device, []);
-            });
-        }
-      });
     },
     methods: {
-      addNetworkDevice(device, channels) {
-        this.networkDevices.push(
-          Object.assign(device, {
-            channels: channels.slice(0, 4),
-            total_count: channels.length,
-          })
-        );
-      },
-      createPin(instance_id) {
-        return this.createPinForUser(instance_id).then(response => {
-          const id = response.id;
-          this.usersPins = [...this.usersPins, { instance_id, id }];
-          this.moreDevices = this.unpinnedDevices;
-
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
-        });
-      },
-      deletePin(instance_id, pinId) {
-        return this.deletePinForUser(pinId).then(() => {
-          // Remove this pin from the usersPins
-          this.usersPins = this.usersPins.filter(pin => pin.instance_id != instance_id);
-          this.moreDevices = this.unpinnedDevices;
-
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
-        });
-      },
-      handlePinToggle(instance_id) {
-        if (this.usersPinsDeviceIds.includes(instance_id)) {
-          const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
-          this.deletePin(instance_id, pinId);
-        } else {
-          this.createPin(instance_id);
-        }
-      },
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Android') {
-          return 'device';
-        } else if (!device['subset_of_users_device']) {
-          return 'cloud';
-        } else {
-          return 'laptop';
-        }
-      },
-      getPinIcon(pinned) {
-        return pinned ? 'pinned' : 'notPinned';
-      },
       loadMoreDevices() {
-        const start = this.moreDevices.length;
-        const end = start + 4;
-        const nextDevices = this.unpinnedDevices.slice(start, end);
-        this.moreDevices.push(...nextDevices);
+        this.moreDevices += moreDevicesIncrement;
       },
     },
     $trs: {

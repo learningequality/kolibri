@@ -17,3 +17,7 @@ class KolibriUpgradeError(KolibriError):
     """
 
     pass
+
+
+class RedisConnectionError(Exception):
+    pass

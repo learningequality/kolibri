@@ -24,7 +24,7 @@ describe('Vuex store/actions for core module', () => {
       const store = makeStore();
       const apiError = { message: 'Too Bad' };
       try {
-        store.dispatch('handleApiError', apiError);
+        store.dispatch('handleApiError', { error: apiError });
       } catch (e) {
         expect(e.message).toBe(apiError.message);
       }

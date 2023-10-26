@@ -137,9 +137,6 @@ const routes = [
     path: '/settings',
     handler: ({ name }) => {
       store.dispatch('preparePage', { name });
-      if (store.getters['deviceInfo/getDeviceOS'] === undefined) {
-        showDeviceInfoPage(store).then(hideLoadingScreen);
-      }
     },
   },
   {

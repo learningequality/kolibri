@@ -7,9 +7,14 @@ from rest_framework import serializers
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ChannelMetadata
+from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
+from kolibri.core.content.models import ContentRequestReason
+from kolibri.core.content.models import ContentRequestStatus
+from kolibri.core.content.tasks import AutomaticDownloadValidator
 from kolibri.core.content.tasks import ChannelResourcesValidator
 from kolibri.core.content.tasks import ChannelValidator
+from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.tasks import LocalChannelImportValidator
 from kolibri.core.content.tasks import RemoteChannelImportValidator
 from kolibri.core.discovery.models import NetworkLocation
@@ -258,3 +263,97 @@ class ValidateLocalImportTaskTestCase(TestCase):
                 "kwargs": {},
             },
         )
+
+
+class AutomaticDownloadTestCase(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.facility = Facility.objects.create(name="a")
+
+    @mock.patch(
+        "kolibri.core.content.tasks.automatic_download_enabled", return_value=True
+    )
+    def test_validator__enabled(self, _):
+        validator = AutomaticDownloadValidator(
+            data={"type": "kolibri.core.content.tasks.automatic_resource_import"}
+        )
+        try:
+            validator.is_valid(raise_exception=True)
+        except serializers.ValidationError:
+            self.fail("AutomaticDownloadValidator raised ValidationError unexpectedly!")
+
+    @mock.patch(
+        "kolibri.core.content.tasks.automatic_download_enabled", return_value=False
+    )
+    def test_validator__disabled(self, _):
+        validator = AutomaticDownloadValidator(
+            data={"type": "kolibri.core.content.tasks.automatic_resource_import"}
+        )
+        with self.assertRaises(serializers.ValidationError):
+            validator.is_valid(raise_exception=True)
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__no_reqs(self, mock_task):
+        enqueue_automatic_resource_import_if_needed()
+        mock_task.enqueue_if_not.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__instance_id__no_reqs(self, mock_task):
+        enqueue_automatic_resource_import_if_needed(instance_id=uuid.uuid4().hex)
+        mock_task.enqueue_if_not.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__completed_req(self, mock_task):
+        ContentDownloadRequest(
+            reason=ContentRequestReason.UserInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Completed,
+        ).save()
+        enqueue_automatic_resource_import_if_needed()
+        mock_task.enqueue_if_not.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__instance_id__completed_req(self, mock_task):
+        req = ContentDownloadRequest(
+            reason=ContentRequestReason.UserInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            source_instance_id=uuid.uuid4().hex,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Completed,
+        )
+        req.save()
+        enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
+        mock_task.enqueue_if_not.assert_not_called()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__incomplete_req(self, mock_task):
+        ContentDownloadRequest(
+            reason=ContentRequestReason.UserInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Pending,
+        ).save()
+        enqueue_automatic_resource_import_if_needed()
+        mock_task.enqueue_if_not.assert_called_once()
+
+    @mock.patch("kolibri.core.content.tasks.automatic_resource_import")
+    def test_enqueue_helper__instance_id__incomplete_req(self, mock_task):
+        req = ContentDownloadRequest(
+            reason=ContentRequestReason.UserInitiated,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility_id=self.facility.id,
+            source_instance_id=uuid.uuid4().hex,
+            contentnode_id=uuid.uuid4().hex,
+            status=ContentRequestStatus.Pending,
+        )
+        req.save()
+        enqueue_automatic_resource_import_if_needed(instance_id=req.source_instance_id)
+        mock_task.enqueue_if_not.assert_called_once()
