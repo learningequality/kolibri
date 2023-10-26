@@ -10,6 +10,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   createNewQuiz: {
     message: 'Create new quiz',
   },
+  quizSectionsLabel: {
+    message: 'Quiz sections',
+    context: 'Used as an aria-label for screen readers to describe the purpose of the list of tabs',
+  },
   quizTitle: {
     message: 'Quiz title',
   },
