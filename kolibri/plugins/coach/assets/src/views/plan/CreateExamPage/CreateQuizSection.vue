@@ -24,6 +24,7 @@
           :autofocus="true"
           :maxlength="100"
           @blur="e => quizForge.updateQuiz({ title: e.target.value })"
+          @change="title => quizForge.updateQuiz({ title })"
         />
       </KGridItem>
     </KGrid>
