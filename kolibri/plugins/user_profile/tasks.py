@@ -82,14 +82,17 @@ def status_fn(job):
     return JobStatus(account_transfer_in_progress, notification_text)
 
 
-def start_soud_sync(baseurl, user_id):
+def start_soud_sync(user_id):
     from kolibri.core.device import soud
+    from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 
-    network_location = NetworkLocation.objects.filter(
-        base_url=baseurl, subset_of_users_device=False
-    ).first()
-    if network_location:
+    # This user would not previously have been included in any syncs
+    # triggered by a device appearing on the network, so request syncs for them now
+    network_locations = NetworkLocation.objects.filter(subset_of_users_device=False)
+    for network_location in network_locations:
         soud.request_sync(soud.Context(user_id, network_location.instance_id))
+    if network_locations:
+        enqueue_soud_sync_processing()
 
 
 @register_task(
@@ -144,8 +147,9 @@ def mergeuser(command, **kwargs):
         call_command(command, **kwargs)
     except MorangoError:
         # error syncing with the server, probably a networking issue
-        # syncing will happen later in scheduled syncs
-        start_soud_sync(kwargs["baseurl"], remote_user.id)
+        # the rest of the merge cannot be completed here, so we raise
+        # so that the job has to be retried by the user.
+        raise
 
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id and local_user.is_superuser:
@@ -186,3 +190,6 @@ def mergeuser(command, **kwargs):
         set_device_settings(default_facility=remote_user.facility)
     else:
         local_user.delete()
+
+    # queue up this new user for syncing with any other devices
+    start_soud_sync(remote_user.id)
