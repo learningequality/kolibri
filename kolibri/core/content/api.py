@@ -15,6 +15,7 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
+from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
@@ -125,18 +126,21 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
             response = cache.get(cache_key)
         if response is None:
             response = view_func(*args, **kwargs)
-            if (
-                response.status_code == 200
-                and hasattr(response, "render")
-                and callable(response.render)
-            ):
+            if response.status_code == 200:
                 if key_prefix is None:
                     key_prefix = get_cache_key(request)
+                if (
+                    key_prefix is not None
+                    and hasattr(response, "render")
+                    and callable(response.render)
+                ):
                     cache_key = "{}:{}".format(key_prefix, url_key)
-                if key_prefix is not None:
                     response.add_post_render_callback(
                         lambda r: cache.set(cache_key, r, timeout=3600)
                     )
+            else:
+                # Don't cache responses that returned an error code
+                add_never_cache_headers(response)
         return response
 
     return wrapper_func
