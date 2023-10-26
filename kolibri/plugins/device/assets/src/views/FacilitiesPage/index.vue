@@ -193,7 +193,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
@@ -243,7 +243,13 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         showSyncAllModal: false,

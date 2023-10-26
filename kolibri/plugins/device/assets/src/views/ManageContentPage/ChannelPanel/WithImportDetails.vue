@@ -85,7 +85,7 @@
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
   import NewBadge from '../NewBadge';
@@ -99,7 +99,13 @@
       ChannelDetails,
       NewBadge,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin, commonDeviceStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       channel: {
         type: Object,
