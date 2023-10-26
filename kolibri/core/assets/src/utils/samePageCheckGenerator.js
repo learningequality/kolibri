@@ -7,7 +7,7 @@
  */
 export default function samePageCheckGenerator(store) {
   let pageId = store.getters.pageSessionId;
-  if (!pageId) {
+  if (typeof pageId === 'undefined') {
     pageId = store.rootGetters.pageSessionId;
     return () => store.rootGetters.pageSessionId === pageId;
   } else {

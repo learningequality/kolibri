@@ -95,6 +95,7 @@
                   :link="component.url"
                   :icon="component.icon"
                   data-test="side-nav-component"
+                  @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
                 <CoreMenuOption
@@ -106,13 +107,15 @@
                   :icon="component.icon"
                   style="cursor: pointer;"
                   data-test="side-nav-component"
+                  @toggleMenu="toggleNav"
                 />
                 <LogoutSideNavEntry v-if="isUserLoggedIn" />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
                   class="pointer"
-                  @select="handleShowLanguageModal()"
+                  @select="handleShowLanguageModal"
+                  @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
               </template>
@@ -170,7 +173,7 @@
             </div>
           </div>
           <div
-            v-if="!isAppContext || windowIsLarge"
+            v-if="!isAppContext || !isTouchDevice || windowIsLarge"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
@@ -201,7 +204,7 @@
       v-if="showAppNavView"
       :bottomMenuOptions="bottomMenuOptions"
       :navShown="navShown"
-      @toggleNav="toggleNav()"
+      @toggleNav="toggleNav"
     />
 
 
@@ -248,6 +251,7 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
+  import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import navComponentsMixin from '../mixins/nav-components';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
@@ -322,6 +326,9 @@
         username: state => state.core.session.username,
         fullName: state => state.core.session.full_name,
       }),
+      isTouchDevice() {
+        return isTouchDevice;
+      },
       width() {
         return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
@@ -334,11 +341,11 @@
         //  Window size and app context. Changes may need to be made
         // in parallel in both files for non-breaking updates
         // The expected behavior is:
-        // In an app context, on small and medium screens,
-        // show the app Nav
+        // In an app context, on screens with touch capabilities,
+        // show the app Nav.
         // In browser based contexts, and large screen app view
         // use the "non-app" upper navigation bar
-        return this.isAppContext && !this.windowIsLarge;
+        return this.isAppContext && this.isTouchDevice;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
@@ -369,10 +376,14 @@
         return this.coreString('kolibriLabel');
       },
       userIsLearner() {
-        return this.getUserKind == UserKinds.LEARNER;
+        // learners and SOUD learners should display
+        return (
+          this.getUserKind == UserKinds.LEARNER ||
+          (this.getUserKind !== UserKinds.ANONYMOUS && this.isLearnerOnlyImport)
+        );
       },
       loggedInUserKind() {
-        if (this.getUserKind === UserKinds.LEARNER) {
+        if (this.userIsLearner) {
           return this.coreString('learnerLabel');
         }
         if (this.getUserKind === UserKinds.ADMIN) {
@@ -414,6 +425,7 @@
       },
       handleClickPrivacyLink() {
         this.privacyModalVisible = true;
+        this.toggleNav();
       },
       compareMenuComponents(navComponentA, navComponentB) {
         // Compare menu items to allow sorting by the following priority:

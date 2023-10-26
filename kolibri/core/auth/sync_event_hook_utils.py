@@ -2,6 +2,7 @@ import json
 import logging
 
 from django.utils.functional import wraps
+from morango.sync.context import CompositeSessionContext
 from morango.sync.context import LocalSessionContext
 
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
@@ -72,24 +73,37 @@ def _local_event_handler(func):
     @wraps(func)
     def wrapper(context):
         """
-        :type context: morango.sync.context.CompositeSessionContext
+        :type context: CompositeSessionContext|LocalSessionContext
         """
-        for sub_context in context.children:
-            if isinstance(sub_context, LocalSessionContext):
-                kwargs = _extract_kwargs_from_context(sub_context)
-                return func(**kwargs)
+        local_context = context if isinstance(context, LocalSessionContext) else None
+        if local_context is None:
+            try:
+                if isinstance(context, CompositeSessionContext):
+                    local_context = next(
+                        c
+                        for c in context.children
+                        if isinstance(c, LocalSessionContext)
+                    )
+                else:
+                    raise StopIteration("No local context found")
+            except StopIteration:
+                # no local context, so we can't do anything
+                return
+
+        kwargs = _extract_kwargs_from_context(local_context)
+        return func(**kwargs)
 
     return wrapper
 
 
 @_local_event_handler
-def pre_transfer_handler(**kwargs):
+def pre_sync_transfer_handler(**kwargs):
+    """
+    Used to attach to signals like those on morango.sync.controller.SessionControllerSignals
+    """
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
-            logger.debug(
-                "Invoking sync hook {}.pre_transfer".format(hook.__class__.__name__)
-            )
             hook.pre_transfer(**kwargs)
         except Exception as e:
             logger.error(
@@ -99,13 +113,13 @@ def pre_transfer_handler(**kwargs):
 
 
 @_local_event_handler
-def post_transfer_handler(**kwargs):
+def post_sync_transfer_handler(**kwargs):
+    """
+    Used to attach to signals like those on morango.sync.controller.SessionControllerSignals
+    """
     for hook in FacilityDataSyncHook.registered_hooks:
         # we catch all errors because as a rule of thumb, we don't want hooks to fail
         try:
-            logger.debug(
-                "Invoking sync hook {}.post_transfer".format(hook.__class__.__name__)
-            )
             hook.post_transfer(**kwargs)
         except Exception as e:
             logger.error(

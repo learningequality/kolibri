@@ -2,14 +2,22 @@
  * A composable function containing logic related to channels
  */
 
-import { computed, getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
+import {
+  computed,
+  getCurrentInstance,
+  ref,
+  onBeforeUnmount,
+  watch,
+} from 'kolibri.lib.vueCompositionApi';
 import { NetworkLocationResource, RemoteChannelResource } from 'kolibri.resources';
-import { get, set } from '@vueuse/core';
+import { get, set, useTimeoutPoll } from '@vueuse/core';
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
 import useUser from 'kolibri.coreVue.composables.useUser';
+import { localeCompare } from 'kolibri.utils.i18n';
 import plugin_data from 'plugin_data';
 import { KolibriStudioId } from '../constants';
 import { learnStrings } from '../views/commonLearnStrings';
+import useChannels from './useChannels';
 
 /**
  * The ref is defined in the outer scope so it can be used as a shared store
@@ -29,7 +37,7 @@ const KolibriStudioDeviceData = {
 
 const { isMinimumKolibriVersion } = useMinimumKolibriVersion(0, 16, 0);
 
-const { isLearnerOnlyImport, canManageContent } = useUser();
+const { isLearnerOnlyImport, canManageContent, isUserLoggedIn } = useUser();
 
 function canAccessStudio() {
   return !get(isLearnerOnlyImport) && get(canManageContent);
@@ -57,10 +65,12 @@ function fetchDevices() {
   });
 }
 
+export const StudioNotAllowedError = 'Cannot access Kolibri Studio';
+
 export function setCurrentDevice(id) {
   if (id === KolibriStudioId) {
     if (!canAccessStudio()) {
-      return Promise.reject('Cannot access Kolibri Studio');
+      return Promise.reject(StudioNotAllowedError);
     }
     set(currentDevice, KolibriStudioDeviceData);
     return Promise.resolve(KolibriStudioDeviceData);
@@ -86,7 +96,7 @@ function computedDevice(routingDeviceId, callback) {
   });
 }
 
-export default function useDevices(store) {
+export function currentDeviceData(store) {
   store = store || getCurrentInstance().proxy.$store;
   const route = computed(() => store && store.state.route);
   const routingDeviceId = computed(() => {
@@ -99,10 +109,115 @@ export default function useDevices(store) {
   const deviceName = computedDevice(routingDeviceId, device => device.device_name);
 
   return {
+    instanceId,
+    baseurl,
+    deviceName,
+  };
+}
+
+export default function useDevices(store) {
+  const { fetchChannels } = useChannels();
+  const networkDevices = ref({});
+  const isLoading = ref(false);
+  const { instanceId, baseurl, deviceName } = currentDeviceData(store);
+
+  const deviceChannelsMap = ref({});
+  const isLoadingChannels = ref(true);
+
+  function _updateDeviceChannels(device, channels) {
+    set(deviceChannelsMap, {
+      ...get(deviceChannelsMap),
+      [device.instance_id]: channels,
+    });
+  }
+
+  function loadDeviceChannels() {
+    const promises = [];
+    // Clear out the device channels map when data refreshes
+    // to remove stale channel fetches.
+    const newDeviceChannelsMap = {};
+    for (const currentDevice of Object.values(networkDevices.value)) {
+      if (!get(deviceChannelsMap)[currentDevice.instance_id]) {
+        const baseurl = currentDevice.base_url;
+        const promise = fetchChannels({ baseurl })
+          .then(channels => {
+            _updateDeviceChannels(currentDevice, channels);
+            isLoadingChannels.value = false;
+          })
+          .catch(() => {
+            // If we fail to fetch channels, set the channels to an empty array
+            // to avoid repeatedly polling devices that are returning an error
+            // code.
+            _updateDeviceChannels(currentDevice, []);
+          });
+        promises.push(promise);
+      } else {
+        newDeviceChannelsMap[currentDevice.instance_id] = get(deviceChannelsMap)[
+          currentDevice.instance_id
+        ];
+      }
+    }
+    set(deviceChannelsMap, newDeviceChannelsMap);
+    Promise.all(promises).then(() => {
+      // In case we don't successfully fetch any channels, don't do a perpetual loading state.
+      isLoadingChannels.value = false;
+    });
+  }
+
+  async function setNetworkDevices() {
+    isLoading.value = true;
+    const newNetworkDevices = {};
+    const devices = await fetchDevices();
+    for (const device of devices) {
+      if (device['available']) {
+        newNetworkDevices[device.instance_id] = device;
+      }
+    }
+    networkDevices.value = newNetworkDevices;
+    isLoading.value = false;
+  }
+
+  // Start polling
+  if (get(isUserLoggedIn)) {
+    const fetch = useTimeoutPoll(setNetworkDevices, 5000, { immediate: true });
+    // Stop polling
+    onBeforeUnmount(() => {
+      fetch.pause();
+    });
+  }
+
+  function keepDeviceChannelsUpdated() {
+    if (get(isUserLoggedIn)) {
+      loadDeviceChannels();
+      watch(networkDevices, loadDeviceChannels);
+    }
+  }
+
+  const networkDevicesWithChannels = computed(() => {
+    return Object.values(get(networkDevices))
+      .filter(device => get(deviceChannelsMap)[device.instance_id]?.length > 0)
+      .sort((a, b) => {
+        if (a.instance_id === KolibriStudioId) {
+          return -1;
+        }
+        if (b.instance_id === KolibriStudioId) {
+          return 1;
+        }
+        return localeCompare(a.device_name, b.device_name);
+      });
+  });
+
+  return {
     fetchDevices,
+    deviceChannelsMap,
+    keepDeviceChannelsUpdated,
+    isLoadingChannels,
+    isLoading,
     setCurrentDevice,
     instanceId,
     baseurl,
     deviceName,
+    networkDevices,
+    networkDevicesWithChannels,
   };
 }

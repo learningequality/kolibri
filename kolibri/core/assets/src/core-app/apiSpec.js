@@ -18,6 +18,7 @@ import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
 import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKShow from 'kolibri-design-system/lib/composables/useKShow';
 import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import * as vueCompositionApi from '@vue/composition-api';
 import logging from '../logging';
@@ -104,6 +105,7 @@ import * as sync from '../views/sync/syncComponentSet';
 import PageRoot from '../views/PageRoot';
 import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
+import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
 
 // webpack optimization
@@ -112,7 +114,6 @@ import * as contentNode from '../utils/contentNodeUtils';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import SlotTruncator from '../views/SlotTruncator';
-import TextTruncator from '../views/TextTruncator';
 import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
 import SuggestedTime from '../views/SuggestedTime';
@@ -182,7 +183,6 @@ export default {
       InteractionList,
       ExamReport,
       SlotTruncator,
-      TextTruncator,
       TextTruncatorCss,
       TimeDuration,
       MultiPaneLayout,
@@ -230,8 +230,10 @@ export default {
     },
     composables: {
       useKResponsiveWindow,
+      useKShow,
       useMinimumKolibriVersion,
       useUser,
+      useUserSyncStatus,
     },
   },
   resources,

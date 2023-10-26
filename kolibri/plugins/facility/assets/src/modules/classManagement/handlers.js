@@ -18,7 +18,7 @@ export function showClassesPage(store, toRoute) {
     })
     .catch(error => {
       store.dispatch('notLoading');
-      store.dispatch('handleError', error);
+      store.dispatch('handleApiError', { error, reloadOnReconnect: true });
       store.commit('classManagement/SET_STATE', { dataLoading: false });
     });
 }

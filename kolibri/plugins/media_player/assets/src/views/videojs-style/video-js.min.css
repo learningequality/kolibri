@@ -617,7 +617,7 @@ body.vjs-full-window {
   position: absolute;
   bottom: 1.5em;
   width: 100%;
-  max-height: 15em;
+  max-height: 18em;
   background-color: #2b333f;
   background-color: rgba(43, 51, 63, 0.7);
 }

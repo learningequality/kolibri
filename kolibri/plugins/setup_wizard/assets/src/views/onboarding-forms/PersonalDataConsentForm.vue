@@ -84,7 +84,7 @@
           const err =
             'Please provide the event you expect where you are using this Component in' +
             " the state machine in the meta field's `nextEvent` property.";
-          return this.$store.dispatch('handleApiError', err);
+          return this.$store.dispatch('handleApiError', { error: err });
         }
         // TODO Add an Error State with a "Start over" button? Something better than
         // "this silently fails" if something goes wrong for the user

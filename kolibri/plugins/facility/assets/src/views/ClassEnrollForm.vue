@@ -39,7 +39,6 @@
   import { mapState } from 'vuex';
   import pickBy from 'lodash/pickBy';
   import debounce from 'lodash/debounce';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import UserTable from 'kolibri.coreVue.components.UserTable';
@@ -54,7 +53,7 @@
       UserTable,
       FilterTextbox,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     props: {
       pageType: {
         type: String,

@@ -27,10 +27,7 @@ class HasPermissionDuringLODSetup(BasePermission):
     def has_permission(self, request, view):
         from kolibri.core.device.utils import get_device_setting
 
-        subset_of_users_device = get_device_setting(
-            "subset_of_users_device", default=False
-        )
-        return subset_of_users_device
+        return get_device_setting("subset_of_users_device")
 
 
 class SetupWizardResource(ViewSet):
@@ -45,6 +42,7 @@ class SetupWizardResource(ViewSet):
         facility_id = request.data.get("facility_id", None)
         username = request.data.get("username", None)
         password = request.data.get("password", None)
+        full_name = request.data.get("full_name", "")
         baseurl = request.data.get("baseurl", None)
 
         api_url = reverse("kolibri:core:publicsignup-list")
@@ -55,6 +53,7 @@ class SetupWizardResource(ViewSet):
             "facility_id": facility_id,
             "username": username,
             "password": password,
+            "full_name": full_name,
         }
 
         r = requests.post(url, data=payload)

@@ -84,7 +84,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { TaskResource } from 'kolibri.resources';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
@@ -94,7 +94,8 @@
   import { updateTreeViewTopic } from '../../modules/wizard/handlers';
   import { getChannelWithContentSizes } from '../../modules/wizard/apiChannelMetadata';
   import NewChannelVersionBanner from '../ManageContentPage/NewChannelVersionBanner';
-  import { ContentWizardPages, ContentWizardErrors, PageNames } from '../../constants';
+  import { ContentWizardErrors, PageNames } from '../../constants';
+  import { availableChannelsPageLink } from '../ManageContentPage/manageContentLinks';
   import ChannelContentsSummary from './ChannelContentsSummary';
   import ContentTreeViewer from './ContentTreeViewer';
   import ContentWizardUiAlert from './ContentWizardUiAlert';
@@ -118,9 +119,13 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [commonDeviceStrings, responsiveWindowMixin, taskNotificationMixin],
+    mixins: [commonDeviceStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
     },
     data() {
       return {
@@ -173,7 +178,14 @@
         return title;
       },
       backRoute() {
-        return { name: ContentWizardPages.AVAILABLE_CHANNELS };
+        if (this.inRemoteImportMode) {
+          return availableChannelsPageLink();
+        } else if (this.inPeerImportMode) {
+          return availableChannelsPageLink({ addressId: this.selectedPeer.id });
+        } else if (this.inLocalImportMode) {
+          return availableChannelsPageLink({ driveId: this.selectedDrive.id });
+        }
+        return availableChannelsPageLink();
       },
       channelId() {
         return this.$route.params.channel_id;

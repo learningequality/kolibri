@@ -60,6 +60,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
+from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
@@ -74,6 +75,7 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import valid_app_key_on_request
@@ -620,6 +622,13 @@ class FacilityViewSet(ValuesViewset):
                 )
             )
         )
+
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
+    def create_facility(self, request):
+        serializer = CreateFacilitySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response()
 
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):

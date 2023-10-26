@@ -2,6 +2,7 @@ import uuid
 
 from django.db.models import Case
 from django.db.models import When
+from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets
 from rest_framework.exceptions import ParseError
@@ -87,10 +88,18 @@ class DeviceChannelMetadataSerializer(ChannelMetadataSerializer):
         return value
 
 
+class DeviceChannelMetadataFilter(ChannelMetadataFilter):
+    partial = BooleanFilter(field_name="partial", label="Partial")
+
+    class Meta:
+        model = ChannelMetadata
+        fields = ("partial", "available", "has_exercise")
+
+
 class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DeviceChannelMetadataSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ChannelMetadataFilter
+    filter_class = DeviceChannelMetadataFilter
     permission_classes = (CanManageContent,)
 
     def get_queryset(self):

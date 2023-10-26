@@ -24,7 +24,7 @@ jobs:
       run: |
         curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | bash
         apt-get install git-lfs
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         lfs: true
@@ -33,7 +33,7 @@ jobs:
         apt-get -y -qq update
         apt-get install -y gettext sudo
     - name: Use Node.js
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       with:
         node-version: '16.x'
     - name: Install Yarn

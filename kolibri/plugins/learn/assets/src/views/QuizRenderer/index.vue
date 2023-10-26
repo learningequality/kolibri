@@ -35,7 +35,7 @@
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
             </h1>
-            <KContentRenderer
+            <ContentRenderer
               v-if="itemId"
               ref="contentRenderer"
               :kind="content.kind"

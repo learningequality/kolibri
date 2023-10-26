@@ -95,7 +95,7 @@ export default {
           name: PageNames.DATA_EXPORT_PAGE,
           params,
         },
-        FacilitiesConfigPage: {
+        FacilityConfigPage: {
           name: PageNames.FACILITY_CONFIG_PAGE,
           params,
         },

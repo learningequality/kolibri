@@ -239,23 +239,10 @@ export const wizardMachine = createMachine(
           BACK: 'requirePassword',
         },
       },
-      // A passthrough step depending on the value of context.canGetOsUser - the finalizeSetup state
-      // will provision the device with the OS user and create the default facility
-      createSuperuserAndFacility: {
-        on: { BACK: 'personalDataConsent' },
-        always: [
-          {
-            cond: 'canGetOsUser',
-            target: 'finalizeSetup',
-          },
-          {
-            target: 'createSuperuserAndFacilityForm',
-          },
-        ],
-      },
 
-      // If we're not able to get an OS user, the user creates their account
-      createSuperuserAndFacilityForm: {
+      // In the group learning flow we always create the account on the device
+      // and the backend associates it with the created superuser.
+      createSuperuserAndFacility: {
         meta: { route: { name: 'CREATE_SUPERUSER_AND_FACILITY', path: 'create-account' } },
         on: {
           CONTINUE: { target: 'finalizeSetup', actions: 'setSuperuser' },

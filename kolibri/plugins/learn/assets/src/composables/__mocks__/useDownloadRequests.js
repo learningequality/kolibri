@@ -35,12 +35,11 @@ const MOCK_DEFAULTS = {
   downloadRequestsTranslator: {
     $tr: jest.fn(),
   },
-  downloadRequestMap: {
-    downloads: {},
-  },
-  isDownloadedByLearner: jest.fn(),
-  isDownloadingByLearner: jest.fn(),
+  downloadRequestMap: {},
   addDownloadRequest: jest.fn(),
+  fetchUserDownloadRequests: jest.fn(() => Promise.resolve([])),
+  pollUserDownloadRequests: jest.fn(),
+  loading: false,
 };
 
 export function useDownloadRequestsMock(overrides = {}) {

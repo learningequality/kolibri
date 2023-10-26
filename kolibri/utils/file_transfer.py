@@ -97,19 +97,100 @@ def replace(file_path, new_file_path):
     os.rename(file_path, new_file_path)
 
 
+class ChunkedFileDoesNotExist(Exception):
+    pass
+
+
+CHUNK_SUFFIX = ".chunks"
+
+
+class ChunkedFileDirectoryManager(object):
+    """
+    A class to manage all chunked files in a directory and all its descendant directories.
+    Its main purpose is to allow for the deletion of chunked files based on a least recently used
+    metric, as indicated by last access time on any of the files in the chunked file directory.
+    """
+
+    def __init__(self, chunked_file_dir):
+        self.chunked_file_dir = chunked_file_dir
+
+    def _get_chunked_file_dirs(self):
+        """
+        Returns a generator of all chunked file directories in the chunked file directory.
+        """
+        for root, dirs, _ in os.walk(self.chunked_file_dir):
+            for dir in dirs:
+                if dir.endswith(CHUNK_SUFFIX):
+                    yield os.path.join(root, dir)
+                    # Don't continue to walk down the directory tree
+                    dirs.remove(dir)
+
+    def _get_chunked_file_stats(self):
+        stats = {}
+        for chunked_file_dir in self._get_chunked_file_dirs():
+            file_stats = {"last_access_time": 0, "size": 0}
+            for dirpath, _, filenames in os.walk(chunked_file_dir):
+                for file in filenames:
+                    file_path = os.path.join(dirpath, file)
+                    file_stats["last_access_time"] = max(
+                        file_stats["last_access_time"], os.path.getatime(file_path)
+                    )
+                    file_stats["size"] += os.path.getsize(file_path)
+            stats[chunked_file_dir] = file_stats
+        return stats
+
+    def _do_file_eviction(self, chunked_file_stats, file_size):
+        chunked_file_dirs = sorted(
+            chunked_file_stats.keys(),
+            key=lambda x: chunked_file_stats[x]["last_access_time"],
+        )
+        evicted_file_size = 0
+        for chunked_file_dir in chunked_file_dirs:
+            # Do the check here to catch the edge case where file_size is <= 0
+            if file_size <= evicted_file_size:
+                break
+            file_stats = chunked_file_stats[chunked_file_dir]
+            evicted_file_size += file_stats["size"]
+            shutil.rmtree(chunked_file_dir)
+        return evicted_file_size
+
+    def evict_files(self, file_size):
+        """
+        Attempt to clean up file_size bytes of space in the chunked file directory.
+        Iterate through all chunked file directories, and delete the oldest chunked files
+        until the target file size is reached.
+        """
+        chunked_file_stats = self._get_chunked_file_stats()
+        return self._do_file_eviction(chunked_file_stats, file_size)
+
+    def limit_files(self, max_size):
+        """
+        Limits the total size used to a certain number of bytes.
+        If the total size of all chunked files exceeds max_size, the oldest files are evicted.
+        """
+        chunked_file_stats = self._get_chunked_file_stats()
+
+        total_size = sum(
+            file_stats["size"] for file_stats in chunked_file_stats.values()
+        )
+
+        return self._do_file_eviction(chunked_file_stats, total_size - max_size)
+
+
 class ChunkedFile(BufferedIOBase):
     # Set chunk size to 128KB
     chunk_size = 128 * 1024
 
     def __init__(self, filepath):
         self.filepath = filepath
-        self.chunk_dir = filepath + ".chunks"
+        self.chunk_dir = filepath + CHUNK_SUFFIX
         mkdirp(self.chunk_dir, exist_ok=True)
         self.cache_dir = os.path.join(self.chunk_dir, ".cache")
         self.position = 0
         self._file_size = None
 
     def _open_cache(self):
+        self._check_for_chunk_dir()
         return Cache(self.cache_dir)
 
     @property
@@ -137,6 +218,10 @@ class ChunkedFile(BufferedIOBase):
             cache.set(".file_size", value)
             self._file_size = value
 
+    def _check_for_chunk_dir(self):
+        if not os.path.isdir(self.chunk_dir):
+            raise ChunkedFileDoesNotExist("Chunked file does not exist")
+
     def _get_chunk_file_name(self, index):
         return os.path.join(self.chunk_dir, ".chunk_{index}".format(index=index))
 
@@ -159,6 +244,7 @@ class ChunkedFile(BufferedIOBase):
         """
         Takes a position argument which will be modified and returned by the read operation.
         """
+        self._check_for_chunk_dir()
         if size < 0:
             size = self.file_size - position
 
@@ -199,6 +285,7 @@ class ChunkedFile(BufferedIOBase):
                     index, self.chunks_count
                 )
             )
+        self._check_for_chunk_dir()
         chunk_file = self._get_chunk_file_name(index)
         chunk_file_size = self._get_expected_chunk_size(index)
         if len(data) != chunk_file_size:
@@ -537,6 +624,9 @@ class FileDownload(Transfer):
             source, dest, checksum=checksum, cancel_check=cancel_check
         )
 
+        self._initialize_chunked_file()
+
+    def _initialize_chunked_file(self):
         self.dest_file_obj = ChunkedFile(self.dest)
 
         self.completed = self.dest_file_obj.is_complete(
@@ -602,11 +692,19 @@ class FileDownload(Transfer):
                     func(self, *args, **kwargs)
                     succeeded = True
                 except Exception as e:
-                    retry = retry_import(e)
-                    if not retry:
-                        raise
-                    # Catch exceptions to check if we should resume file downloading
-                    logger.error("Error reading download stream: {}".format(e))
+                    if not isinstance(e, ChunkedFileDoesNotExist):
+                        retry = retry_import(e)
+                        if not retry:
+                            raise
+                        # Catch exceptions to check if we should resume file downloading
+                        logger.error("Error reading download stream: {}".format(e))
+                    else:
+                        logger.error(
+                            "Error writing to chunked file, retrying: {}".format(e)
+                        )
+                        self._initialize_chunked_file()
+                        self._headers_set = False
+                        self._set_headers()
                     logger.info(
                         "Waiting {}s before retrying import: {}".format(
                             self.retry_wait, self.source
@@ -621,7 +719,15 @@ class FileDownload(Transfer):
     @_catch_exception_and_retry
     def run(self, progress_update=None):
         if not self.completed:
-            self._run_download(progress_update=progress_update)
+            try:
+                self._run_download(progress_update=progress_update)
+            except ChunkedFileDoesNotExist:
+                # If the chunked file does not exist, we need to start from the beginning
+                # unless a simultaneous download has already completed the file.
+                if not os.path.exists(self.dest):
+                    raise
+                # Set as finalized as the file already exists
+                self.finalized = True
         self.complete_close_and_finalize()
 
     @property

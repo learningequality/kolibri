@@ -98,6 +98,7 @@
             query: pickBy({
               ...this.$route.query,
               activity: value,
+              page: 1,
             }),
           });
         },

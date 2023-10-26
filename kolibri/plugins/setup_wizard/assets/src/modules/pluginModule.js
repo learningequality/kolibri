@@ -64,7 +64,7 @@ export default {
     **/
     showError(store, errorMsg) {
       store.commit('SET_ERROR', true);
-      store.dispatch('handleApiError', errorMsg);
+      store.dispatch('handleApiError', { error: errorMsg });
     },
   },
   mutations: {

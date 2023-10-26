@@ -9,11 +9,12 @@ from ..models import ConnectionStatus
 from ..models import DynamicNetworkLocation
 from ..models import NetworkLocation
 from ..models import StaticNetworkLocation
-from ..tasks import _dispatch_hooks
+from ..tasks import _dispatch_discovery_hooks
 from ..tasks import _enqueue_network_location_update_with_backoff
 from ..tasks import _update_connection_status
 from ..tasks import add_dynamic_network_location
 from ..tasks import CONNECTION_FAULT_LIMIT
+from ..tasks import dispatch_broadcast_hooks
 from ..tasks import generate_job_id
 from ..tasks import hydrate_instance
 from ..tasks import perform_network_location_update
@@ -186,19 +187,19 @@ class RemoveDynamicNetworkLocationTestCase(TestCase):
         )
         self.task = unwrap(unwrap(remove_dynamic_network_location))
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_not_found(self, mock_dispatch):
         self.task("b" * 32, self.instance)
         mock_dispatch.assert_not_called()
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_static_location(self, mock_dispatch):
         self.network_location.dynamic = False
         self.network_location.save()
         self.task(self.broadcast_id, self.instance)
         mock_dispatch.assert_not_called()
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_dispatch(self, mock_dispatch):
         self.task(self.broadcast_id, self.instance)
         mock_dispatch.assert_called_once()
@@ -208,6 +209,65 @@ class RemoveDynamicNetworkLocationTestCase(TestCase):
         self.assertFalse(
             DynamicNetworkLocation.objects.filter(pk=self.network_location.pk).exists()
         )
+
+
+class DispatchBroadcastHooksTestCase(TestCase):
+    multi_db = True
+
+    def setUp(self):
+        self.broadcast_id = uuid.uuid4().hex
+        self.instance = KolibriInstance(
+            mock_device_info.get("instance_id"),
+            ip=MOCK_INTERFACE_IP,
+            port=MOCK_PORT,
+            device_info=mock_device_info,
+        )
+        self.network_location = DynamicNetworkLocation.objects.create(
+            id=mock_device_info.get("instance_id"),
+            base_url="http://url.qqq",
+            nickname="Test device",
+            broadcast_id=self.broadcast_id,
+            connection_status=ConnectionStatus.Unknown,
+            connection_faults=0,
+            application="kolibri",
+            kolibri_version="0.15.11",
+            instance_id=mock_device_info.get("instance_id"),
+            subset_of_users_device=False,
+        )
+        broadcast_hooks = mock.patch(
+            "kolibri.core.discovery.tasks.NetworkLocationBroadcastHook"
+        )
+        self.mock_broadcast_hooks = broadcast_hooks.start()
+        self.mock_broadcast_hooks.registered_hooks = []
+        self.addCleanup(broadcast_hooks.stop)
+
+    def test_no_okay_netlocs(self):
+        hook = mock.MagicMock()
+        self.mock_broadcast_hooks.registered_hooks.append(hook)
+        dispatch_broadcast_hooks("on_renew", self.instance.to_dict())
+        hook.on_renew.assert_not_called()
+
+    def test_okay_dispatch(self):
+        self.network_location.connection_status = ConnectionStatus.Okay
+        self.network_location.save()
+        hook = mock.MagicMock()
+        self.mock_broadcast_hooks.registered_hooks.append(hook)
+        dispatch_broadcast_hooks("on_renew", self.instance.to_dict())
+        hook.on_renew.assert_called()
+        call = hook.on_renew.call_args[0]
+        self.assertIsInstance(call[0], KolibriInstance)
+        call_arg_1 = next(iter(call[1]))
+        self.assertIsInstance(call_arg_1, NetworkLocation)
+        self.assertEqual(call[0].id, self.instance.id)
+        self.assertEqual(call_arg_1.id, self.network_location.id)
+
+    def test_okay__no_method(self):
+        self.network_location.connection_status = ConnectionStatus.Okay
+        self.network_location.save()
+        hook = mock.MagicMock()
+        hook.on_renew = None
+        self.mock_broadcast_hooks.registered_hooks.append(hook)
+        dispatch_broadcast_hooks("on_renew", self.instance.to_dict())
 
 
 class ResetConnectionStatesTestCase(TestCase):
@@ -245,7 +305,7 @@ class ResetConnectionStatesTestCase(TestCase):
         self.task = unwrap(reset_connection_states)
 
     @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_new_broadcast(self, mock_dispatch, mock_enqueue_update):
         self.task(self.new_broadcast_id)
         self.assertEqual(2, mock_dispatch.call_count)
@@ -266,7 +326,7 @@ class ResetConnectionStatesTestCase(TestCase):
         )
 
     @mock.patch("kolibri.core.discovery.tasks.perform_network_location_update.enqueue")
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     def test_dynamic_already_added_for_new_broadcast(
         self, mock_dispatch, mock_enqueue_update
     ):
@@ -326,7 +386,7 @@ class TaskUtilitiesTestCase(TestCase):
     def test_dispatch_hooks__is_connected(self, mock_hooks):
         hook = mock.Mock()
         mock_hooks.registered_hooks = [hook]
-        _dispatch_hooks(self.network_location, True)
+        _dispatch_discovery_hooks(self.network_location, True)
         hook.on_connect.assert_called_once_with(self.network_location)
         hook.on_disconnect.assert_not_called()
 
@@ -334,7 +394,7 @@ class TaskUtilitiesTestCase(TestCase):
     def test_dispatch_hooks__is_disconnected(self, mock_hooks):
         hook = mock.Mock()
         mock_hooks.registered_hooks = [hook]
-        _dispatch_hooks(self.network_location, False)
+        _dispatch_discovery_hooks(self.network_location, False)
         hook.on_connect.assert_not_called()
         hook.on_disconnect.assert_called_once_with(self.network_location)
 
@@ -344,11 +404,11 @@ class TaskUtilitiesTestCase(TestCase):
         hook2 = mock.Mock()
         mock_hooks.registered_hooks = [hook1, hook2]
         hook1.on_connect.side_effect = RuntimeError("Ooops")
-        _dispatch_hooks(self.network_location, True)
+        _dispatch_discovery_hooks(self.network_location, True)
         hook1.on_connect.assert_called_once_with(self.network_location)
         hook2.on_connect.assert_called_once_with(self.network_location)
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     @mock.patch("kolibri.core.discovery.tasks.update_network_location")
     def test_update_connection_status__connected(self, mock_update, mock_dispatch):
         mock_update.side_effect = functools.partial(
@@ -357,7 +417,7 @@ class TaskUtilitiesTestCase(TestCase):
         _update_connection_status(self.network_location)
         mock_dispatch.assert_called_once_with(self.network_location, True)
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     @mock.patch("kolibri.core.discovery.tasks.update_network_location")
     def test_update_connection_status__disconnected(self, mock_update, mock_dispatch):
         self.network_location.connection_status = ConnectionStatus.Okay
@@ -367,7 +427,7 @@ class TaskUtilitiesTestCase(TestCase):
         _update_connection_status(self.network_location)
         mock_dispatch.assert_called_once_with(self.network_location, False)
 
-    @mock.patch("kolibri.core.discovery.tasks._dispatch_hooks")
+    @mock.patch("kolibri.core.discovery.tasks._dispatch_discovery_hooks")
     @mock.patch("kolibri.core.discovery.tasks.update_network_location")
     def test_update_connection_status__no_dispatch(self, mock_update, mock_dispatch):
         self.network_location.connection_status = ConnectionStatus.ConnectionFailure

@@ -9,7 +9,7 @@ import CoachClassAssignmentPage from './views/CoachClassAssignmentPage';
 import LearnerClassEnrollmentPage from './views/LearnerClassEnrollmentPage';
 import DataPage from './views/DataPage';
 import ImportCsvPage from './views/ImportCsvPage';
-import FacilitiesConfigPage from './views/FacilityConfigPage';
+import FacilityConfigPage from './views/FacilityConfigPage';
 import ManageClassPage from './views/ManageClassPage';
 import UserPage from './views/UserPage';
 import UserCreatePage from './views/UserCreatePage';
@@ -31,7 +31,6 @@ function facilityParamRequiredGuard(toRoute, subtopicName) {
     router
       .replace({
         name: 'ALL_FACILITIES_PAGE',
-        query: { subtopicName },
         params: { subtopicName },
       })
       .catch(e => {
@@ -141,10 +140,10 @@ export default [
   },
   {
     name: PageNames.FACILITY_CONFIG_PAGE,
-    component: FacilitiesConfigPage,
+    component: FacilityConfigPage,
     path: '/:facility_id?/settings',
     handler: toRoute => {
-      if (facilityParamRequiredGuard(toRoute, FacilitiesConfigPage.name)) {
+      if (facilityParamRequiredGuard(toRoute, FacilityConfigPage.name)) {
         return;
       }
       showFacilityConfigPage(store, toRoute);

@@ -2,8 +2,8 @@
 
   <KModal
     :title="$tr('serverRestart')"
-    :submitText="coreString('continueAction')"
-    :cancelText="coreString('cancelAction')"
+    :submitText="restarting ? null : coreString('continueAction')"
+    :cancelText="restarting ? null : coreString('cancelAction')"
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
@@ -13,6 +13,11 @@
     <p class="description">
       {{ getMessage() }}
     </p>
+    <template v-if="restarting">
+      &nbsp;
+      <KCircularLoader />
+      &nbsp;
+    </template>
     <div v-if="changedSetting === 'add' && path.writable === true">
       <KCheckbox
         :checked="confirmationChecked"
@@ -37,12 +42,16 @@
     props: {
       changedSetting: {
         type: String, // primary, remove, add, plugins
-        required: true,
+        default: null,
       },
       path: {
         type: Object,
         required: false,
         default: null,
+      },
+      restarting: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -52,6 +61,9 @@
     },
     methods: {
       getMessage() {
+        if (!this.changedSetting) {
+          return this.$tr('serverRestartDescription');
+        }
         let message = '';
         switch (this.changedSetting) {
           case 'primary':

@@ -15,7 +15,7 @@ export function removeClassLearner(store, { classId, userId }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', error, { root: true });
+      store.dispatch('handleApiError', { error }, { root: true });
     }
   );
 }
@@ -37,7 +37,7 @@ export function removeClassCoach(store, { classId, userId }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', error, { root: true });
+      store.dispatch('handleApiError', { error }, { root: true });
     }
   );
 }
@@ -61,7 +61,7 @@ export function updateClass(store, { id, updateData }) {
       store.dispatch('displayModal', false);
     },
     error => {
-      store.dispatch('handleApiError', error, { root: true });
+      store.dispatch('handleApiError', { error }, { root: true });
     }
   );
 }

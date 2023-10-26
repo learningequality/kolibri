@@ -3,7 +3,7 @@
   <div>
 
     <template v-if="sessionReady">
-      <KContentRenderer
+      <ContentRenderer
         v-if="!content.assessmentmetadata"
         class="content-renderer"
         :kind="content.kind"
@@ -268,7 +268,7 @@
             this.$store.dispatch('createSnackbar', this.learnString('resourceCompletedLabel'));
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       navigateTo(message) {
@@ -280,7 +280,7 @@
             );
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
       onFinished() {
@@ -352,9 +352,11 @@
 
 <style lang="scss" scoped>
 
-  .content {
-    z-index: 0;
-    max-height: 100vh;
+  .content-renderer {
+    // 61 pixels is the height of the Learning Activity Bar + 5px.
+    // This seems to be the largest height that the content renderer can be
+    // without causing the page to scroll.
+    height: calc(100vh - 61px);
   }
 
 </style>

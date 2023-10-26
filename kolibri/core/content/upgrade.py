@@ -19,7 +19,7 @@ from kolibri.core.content.constants.kind_to_learningactivity import kind_activit
 from kolibri.core.content.kolibri_plugin import synchronize_content_requests
 from kolibri.core.content.models import ChannelMetadata
 from kolibri.core.content.models import ContentNode
-from kolibri.core.content.tasks import automatic_resource_import
+from kolibri.core.content.tasks import enqueue_automatic_resource_import_if_needed
 from kolibri.core.content.utils.annotation import set_channel_ancestors
 from kolibri.core.content.utils.annotation import set_content_visibility_from_disk
 from kolibri.core.content.utils.channel_import import FutureSchemaError
@@ -332,13 +332,14 @@ def admin_imported_flag():
 @version_upgrade(old_version="<0.16.0")
 def synchronize_content_requests_upgrade():
     """
-    Synchronizes content requests for each dataset on the device, excluding datasets with a transfer_session_id.
+    Synchronizes content requests for each dataset on the device,
+    excluding datasets with a transfer_session_id.
     """
 
     dataset_ids = FacilityDataset.objects.values_list("id", flat=True)
 
     # Synchronize content requests for each dataset
     for dataset_id in dataset_ids:
-        synchronize_content_requests(dataset_id, None)
+        synchronize_content_requests(dataset_id, transfer_session=None)
 
-    automatic_resource_import.enqueue_if_not()
+    enqueue_automatic_resource_import_if_needed()

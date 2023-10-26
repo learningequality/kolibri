@@ -7,6 +7,7 @@ from morango.models.core import InstanceIDModel
 
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.test.helpers import clear_process_cache
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import StatusSentiment
@@ -17,6 +18,7 @@ class SyncQueueTestCase(TestCase):
     multi_db = True
 
     def setUp(self):
+        clear_process_cache()
         self.facility = Facility.objects.create(name="Test")
 
     def test_create_queue_element(self):

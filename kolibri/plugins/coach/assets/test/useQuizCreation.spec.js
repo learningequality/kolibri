@@ -2,7 +2,7 @@ import { get } from '@vueuse/core';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { ExerciseResource, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
-import { useQuizCreation } from '../src/composables/useQuizCreation.js';
+import useQuizCreation from '../src/composables/useQuizCreation.js';
 
 const {
   // Methods
@@ -122,8 +122,9 @@ describe('useQuizCreation', () => {
 
       it('Can change the activeSection', () => {
         const addedSection = addSection();
+        addSection(); // This automatically sets the added section as active, but we won't use it
         expect(get(activeSection).section_id).not.toEqual(addedSection.section_id);
-        setActiveSection(addedSection.section_id);
+        setActiveSection(addedSection.section_id); // Now we set the first added section as active
         expect(get(activeSection).section_id).toEqual(addedSection.section_id);
       });
 

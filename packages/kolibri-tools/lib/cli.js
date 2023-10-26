@@ -4,6 +4,7 @@ const path = require('path');
 const program = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
+const toml = require('toml');
 const get = require('lodash/get');
 const version = require('../package.json');
 const logger = require('./logging');
@@ -13,6 +14,9 @@ const readWebpackJson = require('./read_webpack_json');
 const cliLogging = logger.getLogger('Kolibri CLI');
 
 function list(val) {
+  // Handle the differences between the TOML and cfg parsers: TOML returns an array already,
+  // but cfg needs some post-processing
+  if (Array.isArray(val)) return val;
   return val.split(',');
 }
 
@@ -23,13 +27,25 @@ function filePath(val) {
 }
 
 let configFile;
+let configSectionPath;
+let config;
 try {
-  configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+  configFile = fs.readFileSync(path.join(process.cwd(), './pyproject.toml'), 'utf-8');
+  // The group `[tool.kolibri.i18n]` in TOML is turned into nested objects by
+  // the parser, so needs nested lookups to get its keys; hence a path.
+  configSectionPath = ['tool', 'kolibri', 'i18n'];
+  config = toml.parse(configFile);
 } catch (e) {
-  // do nothing
+  try {
+    // try the old-style setup.cfg
+    configFile = fs.readFileSync(path.join(process.cwd(), './setup.cfg'), 'utf-8');
+    configSectionPath = ['kolibri:i18n'];
+    config = ini.parse(configFile);
+  } catch (e) {
+    // do nothing, use a default empty config
+    config = ini.parse('');
+  }
 }
-
-const config = ini.parse(configFile || '');
 
 program.version(version).description('Tools for Kolibri frontend plugins');
 
@@ -425,10 +441,14 @@ program
     }
   });
 
-const localeDataFolderDefault = filePath(get(config, ['kolibri:i18n', 'locale_data_folder']));
-const globalWebpackConfigDefault = filePath(get(config, ['kolibri:i18n', 'webpack_config']));
-const langInfoConfigDefault = filePath(get(config, ['kolibri:i18n', 'lang_info']));
-const langIgnoreDefaults = list(get(config, ['kolibri:i18n', 'ignore'], ''));
+const localeDataFolderDefault = filePath(
+  get(config, configSectionPath.concat(['locale_data_folder']))
+);
+const globalWebpackConfigDefault = filePath(
+  get(config, configSectionPath.concat(['webpack_config']))
+);
+const langInfoConfigDefault = filePath(get(config, configSectionPath.concat(['lang_info'])));
+const langIgnoreDefaults = list(get(config, configSectionPath.concat(['ignore']), ''));
 
 // Path to the kolibri locale language_info file, which we use if we are running
 // from inside the Kolibri repository.
@@ -493,7 +513,7 @@ function _generatePathInfo({
       })
     );
   }
-  if (namespace && searchPath) {
+  if (namespace.length && namespace.length == searchPath.length) {
     let aliases;
     if (webpackConfig) {
       const webpack = require('webpack');
@@ -508,19 +528,25 @@ function _generatePathInfo({
       }
       aliases = buildConfig.resolve.alias;
     }
-    pathInfoArray.push({
-      moduleFilePath: searchPath,
-      namespace: namespace,
-      name: namespace,
-      aliases,
-    });
+    for (let i = 0; i < namespace.length; i++) {
+      pathInfoArray.push({
+        moduleFilePath: searchPath[i],
+        namespace: namespace[i],
+        name: namespace[i],
+        aliases,
+      });
+    }
   }
   if (pathInfoArray.length) {
     return pathInfoArray;
   }
   cliLogging.error('This command requires one or more of the following combinations of arguments:');
   cliLogging.error('1) The --pluginFile, --plugins, or --pluginPath argument.');
-  cliLogging.error('2) The --searchPath argument along with the --namespace argument.');
+  cliLogging.error('2) One or more pairs of the --searchPath and --namespace arguments.');
+}
+
+function _collect(value, previous) {
+  return previous.concat([value]);
 }
 
 function _addPathOptions(cmd) {
@@ -544,7 +570,12 @@ function _addPathOptions(cmd) {
       list,
       langIgnoreDefaults.length ? langIgnoreDefaults : ignoreDefaults
     )
-    .option('-n , --namespace <namespace>', 'Set namespace for string extraction')
+    .option(
+      '-n , --namespace <namespace>',
+      'Set namespace for string extraction; this may be specified multiple times, but there must be an equal number of --searchPath arguments',
+      _collect,
+      []
+    )
     .option(
       '--localeDataFolder <localeDataFolder>',
       'Set path to write locale files to',
@@ -553,7 +584,9 @@ function _addPathOptions(cmd) {
     )
     .option(
       '--searchPath <searchPath>',
-      'Set path to search for files containing strings to be extracted'
+      'Set path to search for files containing strings to be extracted; this may be specified multiple times, but there must be an equal number of --namespace arguments',
+      _collect,
+      []
     )
     .option(
       '--webpackConfig <webpackConfig>',

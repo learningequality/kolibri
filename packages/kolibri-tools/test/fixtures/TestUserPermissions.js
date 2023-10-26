@@ -94,7 +94,7 @@ export function showUserPermissionsPage(store, userId) {
           setAppBarTitle(translator.$tr('invalidUserTitle'));
           setUserPermissionsState({ user: null, permissions: {} });
         }
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error });
         stopLoading();
       }
     });

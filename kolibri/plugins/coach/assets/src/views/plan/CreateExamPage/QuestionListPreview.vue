@@ -70,7 +70,7 @@
       <h3 v-if="content && content.available" class="question-title">
         {{ currentQuestion.title }}
       </h3>
-      <KContentRenderer
+      <ContentRenderer
         v-if="content && content.available && questionId"
         ref="contentRenderer"
         :kind="content.kind"

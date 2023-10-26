@@ -31,10 +31,17 @@
  * ```
  */
 
+import { ref } from 'kolibri.lib.vueCompositionApi';
+
 const MOCK_DEFAULTS = {
   fetchDevices: jest.fn(() => Promise.resolve([])),
-  setCurrentDevice: jest.fn(() => Promise.resolve(null)),
   baseurl: null,
+  deviceChannelsMap: ref({}),
+  networkDevices: ref({}),
+  networkDevicesWithChannels: ref([]),
+  keepDeviceChannelsUpdated: jest.fn(),
+  isLoadingChannels: false,
+  isLoading: false,
 };
 
 export function useDevicesMock(overrides = {}) {
@@ -44,4 +51,16 @@ export function useDevicesMock(overrides = {}) {
   };
 }
 
+const DEVICE_DATA_DEFAULTS = {
+  baseurl: 'http://test-device',
+  deviceName: 'test-device',
+  instanceId: '1234',
+};
+
+export const currentDeviceData = jest.fn(() => DEVICE_DATA_DEFAULTS);
+
 export default jest.fn(() => useDevicesMock());
+
+export const setCurrentDevice = jest.fn(id =>
+  Promise.resolve({ id, device_name: 'test-device', baseurl: 'http://test-device' })
+);

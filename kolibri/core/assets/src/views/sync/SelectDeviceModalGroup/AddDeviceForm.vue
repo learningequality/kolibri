@@ -129,7 +129,7 @@
               this.status = Statuses.INVALID_ADDRESS;
               this.$refs.address.focus();
             } else {
-              this.$store.dispatch('handleApiError', err);
+              this.$store.dispatch('handleApiError', { error: err });
             }
           })
           .then(() => {
