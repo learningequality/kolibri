@@ -8,6 +8,7 @@ import useDownloadRequests, {
   useDownloadRequestsMock,
 } from '../../src/composables/useDownloadRequests';
 import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
+import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
 /* eslint-enable import/named */
 
 jest.mock('kolibri.urls');
@@ -15,6 +16,7 @@ jest.mock('kolibri.client');
 jest.mock('kolibri.resources');
 jest.mock('../../src/composables/useDownloadRequests');
 jest.mock('../../src/composables/useChannels');
+jest.mock('../../src/composables/useCoreLearn');
 jest.mock('../../src/composables/useDevices');
 
 const CONTENT_ID = 'content-id';
@@ -190,7 +192,12 @@ describe('TopicsContentPage', () => {
         beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadedByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'COMPLETED',
+                },
+              },
             })
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
@@ -210,7 +217,17 @@ describe('TopicsContentPage', () => {
         beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadingByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'PENDING',
+                },
+              },
+            })
+          );
+          useCoreLearn.mockImplementation(() =>
+            useCoreLearnMock({
+              canAddDownloads: () => true,
             })
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
@@ -246,7 +263,7 @@ describe('TopicsContentPage', () => {
           const addDownloadRequest = jest.fn();
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              downloadRequestMap: { downloads: {} },
+              downloadRequestMap: {},
               addDownloadRequest,
             })
           );

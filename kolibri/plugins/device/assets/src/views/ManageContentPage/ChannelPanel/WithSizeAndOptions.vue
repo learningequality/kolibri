@@ -51,7 +51,7 @@
 
   // ChannelPanel with Details, On-Device Size, and Options Dropdown
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import NewBadge from '../NewBadge';
@@ -64,7 +64,13 @@
       ChannelDetails,
       NewBadge,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       channel: {
         type: Object,

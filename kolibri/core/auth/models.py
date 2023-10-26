@@ -66,6 +66,7 @@ from .permissions.base import RoleBasedPermissions
 from .permissions.general import IsAdminForOwnFacility
 from .permissions.general import IsOwn
 from .permissions.general import IsSelf
+from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
@@ -344,6 +345,27 @@ class AbstractFacilityDataModel(FacilityDataSyncableModel):
         )
 
 
+validate_username_allowed_chars = validators.RegexValidator(
+    r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
+    "Enter a valid username. This value can contain only letters, numbers, and underscores.",
+    code=error_constants.INVALID,
+    inverse_match=True,
+)
+
+validate_username_max_length = validators.MaxLengthValidator(
+    30, "Required. 30 characters or fewer. Letters and digits only"
+)
+
+
+def validate_username(value):
+    try:
+        validators.validate_email(value)
+    except ValidationError:
+        # for kolibri backwards compatibility, if the username is not an email:
+        validate_username_allowed_chars(value)
+        validate_username_max_length(value)
+
+
 class KolibriAbstractBaseUser(AbstractBaseUser):
     """
     Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs.
@@ -360,15 +382,9 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     username = models.CharField(
         "username",
-        max_length=30,
-        help_text="Required. 30 characters or fewer. Letters and digits only",
-        validators=[
-            validators.RegexValidator(
-                r'[\s`~!@#$%^&*()\-+={}\[\]\|\\\/:;"\'<>,\.\?]',
-                "Enter a valid username. This value can contain only letters, numbers, and underscores.",
-                inverse_match=True,
-            )
-        ],
+        max_length=254,
+        help_text="Required. 254 characters or fewer.",
+        validators=[validate_username],
     )
     full_name = models.CharField("full name", max_length=120, blank=True)
     date_joined = DateTimeTzField("date joined", default=local_now, editable=False)

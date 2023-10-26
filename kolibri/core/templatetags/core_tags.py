@@ -14,6 +14,7 @@ from kolibri.core.hooks import FrontEndBaseASyncHook
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.theme_hook import ThemeHook
+from kolibri.utils.translation import ugettext as _
 
 register = template.Library()
 
@@ -71,3 +72,13 @@ def theme_favicon():
     favicon_url = favicon_urls[0] if favicon_urls else static("assets/logo.ico")
 
     return format_html('<link rel="shortcut icon" href="{}">', favicon_url)
+
+
+@register.simple_tag()
+def site_title():
+    """
+    Return the text of the site title, if provided by the theme. If not, the
+    default will be returned. The site title may be translated, to allow for
+    transliteration into other alphabets where needed.
+    """
+    return ThemeHook.get_theme().get("siteTitle", _("Kolibri"))

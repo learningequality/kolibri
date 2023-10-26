@@ -8,6 +8,13 @@
     :pageTitle="$tr('createNewExamLabel')"
     :route="backRoute"
   >
+    <UiAlert
+      v-if="showError && !inSearchMode"
+      type="error"
+      :dismissible="false"
+    >
+      {{ selectionIsInvalidText }}
+    </UiAlert>
 
     <KPageContainer
       :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
@@ -27,8 +34,6 @@
 
     </KPageContainer>
 
-    <SectionSidePanel />
-
   </CoachImmersivePage>
 
 </template>
@@ -44,14 +49,12 @@
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import CreateQuizSection from './CreateQuizSection.vue';
-  import SectionSidePanel from './SectionSidePanel.vue';
 
   const quizForge = useQuizCreation();
 
   export default {
     name: 'CreateExamPage',
     components: {
-      SectionSidePanel,
       CoachImmersivePage,
       BottomAppBar,
       CreateQuizSection,
@@ -72,6 +75,19 @@
     provide() {
       return {
         quizForge: this.quizForge,
+        showError: false,
+        moreResultsState: null,
+        // null corresponds to 'All' filter value
+        filters: {
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
+        },
+        // numQuestionsBlurred: false,
+        bookmarksCount: 0,
+        bookmarks: [],
+        more: null,
+        // showSectionSettingsMenu:false
       };
     },
     computed: {

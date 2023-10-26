@@ -1,7 +1,9 @@
 <template>
 
-  <div class="add-padding">
-    <KGrid>
+  <div>
+    <KGrid
+      class="add-padding"
+    >
       <KGridItem
         :layout4="{ span: 1 }"
         :layout8="{ span: 1 }"
@@ -20,7 +22,7 @@
       >
         <KTextbox
           ref="title"
-          :label="coachString('titleLabel')"
+          :label="quizTitle$()"
           :autofocus="true"
           :maxlength="100"
           @blur="e => quizForge.updateQuiz({ title: e.target.value })"
@@ -29,7 +31,7 @@
     </KGrid>
 
     <p style="margin-top: 0px;">
-      {{ $tr('addSectionsDescription') }}
+      {{ addQuizSections$() }}
     </p>
 
     <hr class="bottom-border">
@@ -39,17 +41,21 @@
         :layout12="{ span: 10 }"
         :style="noKgridItemPadding"
       >
-        <KTabsList
+        <TabsWithOverflow
           tabsId="quizSectionTabs"
-          :appearanceOverrides="{ padding: '0px' }"
-          :activeTabId="quizForge.activeSection && quizForge.activeSection.value.section_id"
+          :tabs="tabs"
+          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
+          :activeTabId="quizForge.activeSection.value ?
+            quizForge.activeSection.value.section_id :
+            '' "
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
-          :tabs="tabs"
         >
           <template #tab="{ tab }">
             <KButton
+              :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
+              style="display: inline-block;"
               :appearanceOverrides="tabStyles"
               @click="() => quizForge.setActiveSection(tab.id)"
             >
@@ -58,6 +64,7 @@
             <KIconButton
               icon="optionsVertical"
               class="options-button"
+              size="small"
               @click="() => null"
             >
               <template #menu>
@@ -71,7 +78,56 @@
               </template>
             </KIconButton>
           </template>
-        </KTabsList>
+
+          <template #overflow="{ overflowTabs }">
+            <KIconButton
+              v-if="overflowTabs.length"
+              tabindex="-1"
+              icon="optionsHorizontal"
+              :style="overflowButtonStyles(overflowTabs)"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="overflowTabs"
+                  @select="opt => quizForge.setActiveSection(opt.id)"
+                >
+                  <template #option="{ option }">
+                    <!-- TODO Clean this up by moving it to another component -->
+                    <!-- Maybe not so easy since they're styled differently -->
+                    <KButton
+                      appearance="flat-button"
+                      :primary="quizForge.activeSection.value.section_id === option.id"
+                      :appearanceOverrides="tabStyles"
+                      class="menu-button"
+                      @click="() => quizForge.setActiveSection(option.id)"
+                    >
+                      {{ option.label }}
+                    </KButton>
+                    <KIconButton
+                      icon="optionsVertical"
+                      style="position: absolute; right: 0; border-radius: 0!important;"
+                      @click="() => null"
+                    >
+                      <template #menu>
+                        <KDropdownMenu
+                          :primary="false"
+                          :disabled="false"
+                          :hasIcons="true"
+                          :containFocus="false"
+                          :options="sectionOptions"
+                          @select="opt => handleSectionOptionSelect(opt, option.id)"
+                        />
+                      </template>
+                    </KIconButton>
+                  </template>
+                </KDropdownMenu>
+              </template>
+            </KIconButton>
+          </template>
+        </TabsWithOverflow>
       </KGridItem>
 
       <KGridItem
@@ -83,7 +139,7 @@
           icon="plus"
           @click="handleAddSection"
         >
-          {{ ($tr('addSection')).toUpperCase() }}
+          {{ addSectionLabel$() }}
         </KButton>
       </KGridItem>
 
@@ -92,9 +148,10 @@
     <hr class="bottom-border">
 
     <KTabsPanel
+      v-if="quizForge.activeSection.value"
       class="no-question-layout"
       tabsId="quizSectionTabs"
-      :activeTabId="quizForge.activeSection.value.section_id"
+      :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
     >
 
       <p>{{ quizForge.activeSection.value.section_id }}</p>
@@ -104,23 +161,24 @@
       </div>
 
       <p class="no-question-style">
-        {{ $tr('noQuestionsLabel') }}
+        {{ noQuestionsInSection$() }}
       </p>
 
-      <p>{{ $tr('selectResourceGuide') }}</p>
+      <p>{{ addQuizSectionQuestionsInstructions$() }}</p>
 
       <KButton
         primary
         icon="plus"
         @click="openSelectResources(quizForge.activeSection.value.section_id)"
       >
-        {{ $tr('addQuestion') }}
+        {{ addQuestionsLabel$() }}
       </KButton>
       <!-- END TODO -->
 
 
     </KTabsPanel>
 
+    <SectionSidePanel @closePanel="focusActiveSectionTab()" />
   </div>
 
 </template>
@@ -129,30 +187,49 @@
 <script>
 
   import { get } from '@vueuse/core';
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoach from '../../common';
-  /*
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
-  import AccordionContainer from './AccordionContainer.vue';
-  import AccordionItem from './AccordionItem.vue';
-  */
+  import SectionSidePanel from './SectionSidePanel.vue';
+  import TabsWithOverflow from './TabsWithOverflow.vue';
 
   export default {
     name: 'CreateQuizSection',
-    /*
     components: {
-      AccordionContainer,
-      AccordionItem,
-      DragHandle,
-      Draggable,
-      DragContainer,
-      DragSortWidget,
+      TabsWithOverflow,
+      SectionSidePanel,
     },
-    */
     mixins: [commonCoreStrings, commonCoach],
+    setup() {
+      const {
+        sectionLabel$,
+        addQuizSections$,
+        addSectionLabel$,
+        quizTitle$,
+        addQuestionsLabel$,
+        noQuestionsInSection$,
+        addQuizSectionQuestionsInstructions$,
+        editSectionLabel$,
+        deleteSectionLabel$,
+      } = enhancedQuizManagementStrings;
+
+      // The number we use for the default section title
+      const sectionCreationCount = ref(1);
+
+      return {
+        sectionCreationCount,
+        sectionLabel$,
+        addQuizSections$,
+        addSectionLabel$,
+        quizTitle$,
+        addQuestionsLabel$,
+        noQuestionsInSection$,
+        addQuizSectionQuestionsInstructions$,
+        editSectionLabel$,
+        deleteSectionLabel$,
+      };
+    },
     inject: ['quizForge'],
     computed: {
       noKgridItemPadding() {
@@ -162,46 +239,79 @@
         };
       },
       tabs() {
-        return get(this.quizForge.allSections).map((section, index) => {
+        return get(this.quizForge.allSections).map(section => {
           const id = section.section_id;
-          // TODO The "Section N" label should probably be set directly on the Section object
-          // at creation rather than this
-          const label = section.section_title ? section.section_title : `Section ${index + 1}`;
-
+          const label = section.section_title;
           return { id, label };
         });
       },
       tabStyles() {
         return {
           margin: '0px',
+          textOverflow: 'ellipsis',
+          maxWidth: '160px',
         };
       },
       sectionOptions() {
         return [
           {
-            // TODO This should be a $tr
-            label: 'Edit',
+            label: this.editSectionLabel$(),
             icon: 'edit',
           },
           {
-            // TODO This should be a $tr
-            label: 'Delete',
+            label: this.deleteSectionLabel$(),
             icon: 'delete',
           },
         ];
       },
     },
     methods: {
+      tabRefLabel(section_id) {
+        return `section-tab-${section_id}`;
+      },
+      focusActiveSectionTab() {
+        const label = this.tabRefLabel(this.quizForge.activeSection.value.section_id);
+        const tabRef = this.$refs[label];
+        // TODO Consider the "Delete section" button on the side panel; maybe we need to await
+        // nextTick if we're getting the error
+        if (tabRef) {
+          tabRef.$el.focus();
+        } else {
+          console.error(
+            'Tried to focus active tab id: ',
+            label,
+            ' - but the tab is not in the refs: ',
+            this.$refs
+          );
+        }
+      },
+      activeSectionIsHidden(overflow) {
+        const ids = overflow.map(i => i.id);
+        return ids.includes(get(this.quizForge.activeSection).section_id);
+      },
+      overflowButtonStyles(overflow) {
+        return {
+          height: '40px',
+          width: '40px',
+          border: this.activeSectionIsHidden(overflow)
+            ? '2px solid ' + this.$themeTokens.primary
+            : 'none',
+        };
+      },
       handleAddSection() {
         const newSection = this.quizForge.addSection();
         this.quizForge.setActiveSection(get(newSection).section_id);
+        this.sectionCreationCount++;
       },
       handleSectionOptionSelect({ label }, section_id) {
+        // Always set the active section to the one that is having its side panel opened
+        this.quizForge.setActiveSection(section_id);
+
         switch (label) {
-          case 'Edit':
+          case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
-          case 'Delete':
+          case this.deleteSectionLabel$():
             this.quizForge.removeSection(section_id);
             break;
         }
@@ -209,88 +319,6 @@
       openSelectResources(section_id) {
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
-      /*
-      handleOrderChange(event) {
-        const reorderedList = event.newArray.map(x => {
-          if (x.isPlaceholder) {
-            return this.placeholderList.find(item => item.id === x.id);
-          }
-          return x;
-        });
-        this.placeholderList = reorderedList;
-        localStorage.setItem('reorderedList', JSON.stringify(reorderedList));
-        this.$store.dispatch('createSnackbar', this.$tr('successNotification'));
-      },
-      shiftOne(index, delta) {
-        const newArray = [...this.placeholderList];
-        const adjacentItem = newArray[index + delta];
-        newArray[index + delta] = newArray[index];
-        newArray[index] = adjacentItem;
-
-        this.handleOrderChange({ newArray });
-      },
-          */
-    },
-    $trs: {
-      addSection: {
-        message: 'add section',
-        context: 'Label for adding the number of quiz sections',
-      },
-      noQuestionsLabel: {
-        message: 'There are no questions in this section',
-        context: 'Indicates that there is no question in the particular section',
-      },
-      selectResourceGuide: {
-        message: 'To add questions, select resources from the available channels.',
-        context: 'Explains a way of adding a question',
-      },
-      addQuestion: {
-        message: 'Add Questions',
-        context: 'Button label for adding a new question',
-      },
-      addSectionsDescription: {
-        message: 'Add one or more sections to your quiz, according to your needs',
-        context:
-          'This message indicates that more than one section can be added when creating a quiz.',
-      },
-      /*
-      questionPhrase: {
-        message: 'Select the word that has the following vowel sound.',
-        context: 'Placholder for the question',
-      },
-      questionSubtitle: {
-        message: ' Short <e>, [e]</e>',
-        context: 'Placholder content for the question description',
-      },
-      chooseQuestionLabel: {
-        message: 'Choose 1 answer:',
-        context: 'Label to indicate the question to be chosen',
-      },
-      addAnswer: {
-        message: 'Add answer',
-        context: 'Button text to indicate that more answers can be added to the question.',
-      },
-      selectAllLabel: {
-        message: 'Select all',
-        context: 'Label indicates that all available options can be chosen at once.',
-      },
-      upLabel: {
-        message: 'Move {name} up one',
-        context: 'Label to rearrange question order. Not seen on UI.',
-      },
-      downLabel: {
-        message: 'Move {name} down one',
-        context: 'Label to rearrange question order. Not seen on UI.',
-      },
-      checkBoxLabel: {
-        message: 'Select {name} question"',
-        context: 'Checkbox to select the question',
-      },
-      successNotification: {
-        message: 'Question order saved',
-        context: 'Success message shown when the admin re-orders question',
-      },
-        */
     },
   };
 
@@ -460,6 +488,17 @@
     height: 36px !important;
     margin: 0;
     border-radius: 0 !important;
+  }
+
+  /deep/ .ui-menu {
+    min-width: 17rem;
+    max-width: 25rem;
+  }
+
+  .menu-button {
+    width: calc(100% - 40px);
+    max-width: calc(100% - 40px) !important;
+    min-height: 40px;
   }
 
 </style>

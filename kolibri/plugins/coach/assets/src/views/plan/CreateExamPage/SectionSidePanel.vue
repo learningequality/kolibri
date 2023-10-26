@@ -4,11 +4,11 @@
     v-if="$route.params.section_id"
     ref="resourcePanel"
     alignment="right"
+    sidePanelWidth="700px"
     :closeButtonIconType="closeIcon"
-    @closePanel="$router.replace(closePanelRoute)"
+    @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
-    <p>{{ quizForge.activeSection.value.section_id }}</p>
     <component :is="panel" :ref="$route.name" />
   </SidePanelModal>
 
@@ -69,6 +69,10 @@
       },
     },
     methods: {
+      handleClosePanel() {
+        this.$emit('closePanel');
+        this.$router.replace(this.closePanelRoute);
+      },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
        */

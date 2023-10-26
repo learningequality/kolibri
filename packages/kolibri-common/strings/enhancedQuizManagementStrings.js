@@ -1,6 +1,9 @@
 import { createTranslator } from 'kolibri.utils.i18n';
 
 export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManagementStrings', {
+  sectionLabel: {
+    message: 'Section',
+  },
   createNewQuiz: {
     message: 'Create new quiz',
   },
@@ -51,9 +54,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   currentSection: {
     message: 'Current section',
-  },
-  deleteSection: {
-    message: 'Delect section',
   },
   applySettings: {
     message: 'Apply settings',
@@ -106,6 +106,21 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   resourceMismatchDirection: {
     message:
       'Please choose a different resource or decrease the number of questions to be replaced.',
+  },
+  questionOrder: {
+    message: 'Question order',
+  },
+  randomizedLabel: {
+    message: 'Randomized',
+  },
+  randomizedOptionDescription: {
+    message: 'Each learner sees a different question order',
+  },
+  fixedLabel: {
+    message: 'Fixed',
+  },
+  fixedOptionDescription: {
+    message: 'Each learner sees the same question order',
   },
   questionEditedSuccessfully: {
     message: 'Question edited successfully',

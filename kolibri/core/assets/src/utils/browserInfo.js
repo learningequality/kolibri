@@ -87,3 +87,9 @@ export const isMacWebView =
  * All web views
  */
 export const isEmbeddedWebView = isAndroidWebView || isMacWebView;
+
+// Check for presence of the touch event in DOM or multi-touch capabilities
+export const isTouchDevice =
+  'ontouchstart' in window ||
+  window.navigator?.maxTouchPoints > 0 ||
+  window.navigator?.msMaxTouchPoints > 0;

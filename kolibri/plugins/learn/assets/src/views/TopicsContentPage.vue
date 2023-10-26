@@ -23,7 +23,7 @@
       :allowMarkComplete="allowMarkComplete"
       :contentKind="contentKind"
       :showBookmark="allowBookmark"
-      :showDownloadButton="allowRemoteDownload"
+      :showDownloadButton="showDownloadButton"
       :isDownloading="isDownloading"
       :downloadingLoaderTooltip="downloadRequestsTranslator.$tr('downloadStartedLabel')"
       data-test="learningActivityBar"
@@ -129,10 +129,10 @@
       <AlsoInThis
         style="margin-top: 8px"
         :contentNodes="viewResourcesContents"
-        :nextContent="nextContent"
+        :nextFolder="nextFolder"
         :isLesson="lessonContext"
         :loading="resourcesSidePanelLoading"
-        :currentResourceID="currentResourceID"
+        :currentResourceId="currentResourceId"
         :missingLessonResources="missingLessonResources"
       />
     </SidePanelModal>
@@ -154,7 +154,7 @@
 <script>
 
   import { mapState } from 'vuex';
-  import { set } from '@vueuse/core';
+  import { get, set } from '@vueuse/core';
   import lodashGet from 'lodash/get';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
@@ -178,7 +178,11 @@
   import useContentLink from '../composables/useContentLink';
   import useCoreLearn from '../composables/useCoreLearn';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
-  import useDevices, { setCurrentDevice, StudioNotAllowedError } from '../composables/useDevices';
+  import {
+    currentDeviceData,
+    setCurrentDevice,
+    StudioNotAllowedError,
+  } from '../composables/useDevices';
   import useLearnerResources from '../composables/useLearnerResources';
   import useDownloadRequests from '../composables/useDownloadRequests';
   import commonLearnStrings from './commonLearnStrings';
@@ -225,7 +229,7 @@
       const currentInstance = getCurrentInstance().proxy;
       const store = currentInstance.$store;
       const router = currentInstance.$router;
-      const { canDownloadExternally } = useCoreLearn();
+      const { canDownloadExternally, canAddDownloads } = useCoreLearn();
       const {
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
@@ -234,12 +238,13 @@
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
-      const { baseurl, deviceName } = useDevices();
+      const { baseurl, deviceName } = currentDeviceData();
       const {
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
+        pollUserDownloadRequests,
+        loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
       const { currentUserId, isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -286,8 +291,9 @@
         if (deviceId) {
           promise = setCurrentDevice(deviceId).then(device => {
             const baseurl = device.base_url;
-            const { fetchUserDownloadRequests } = useDownloadRequests(store);
-            fetchUserDownloadRequests({ page: 1, pageSize: 20 });
+            if (get(canAddDownloads)) {
+              pollUserDownloadRequests({ contentnode_id: props.id });
+            }
             return _loadTopicsContent(shouldResolve, baseurl);
           });
         } else {
@@ -318,16 +324,17 @@
         fetchContentNodeProgress,
         fetchContentNodeTreeProgress,
         fetchLesson,
+        canAddDownloads,
         back,
         genExternalBackURL,
         addDownloadRequest,
-        isDownloadedByLearner,
-        isDownloadingByLearner,
+        downloadRequestMap,
         downloadRequestsTranslator,
         deviceFormTranslator,
         content,
         channel,
         loading,
+        downloadRequestLoading,
         isUserLoggedIn,
         isCoach,
         isAdmin,
@@ -362,7 +369,7 @@
         bookmark: null,
         sidePanelContent: null,
         showViewResourcesSidePanel: false,
-        nextContent: null,
+        nextFolder: null,
         viewResourcesContents: [],
         resourcesSidePanelFetched: false,
         resourcesSidePanelLoading: false,
@@ -432,8 +439,8 @@
       timeSpent() {
         return this.contentPageMounted ? this.$refs.contentPage.time_spent : 0;
       },
-      currentResourceID() {
-        return this.content ? this.content.content_id : '';
+      currentResourceId() {
+        return this.content ? this.content.id : '';
       },
       missingLessonResources() {
         return this.lesson && this.lesson.resources.some(c => !c.contentnode);
@@ -441,15 +448,35 @@
       isRemoteContent() {
         return Boolean(this.deviceId);
       },
+      allowDownloads() {
+        return this.isUserLoggedIn && this.canAddDownloads && this.isRemoteContent;
+      },
+      downloadRequestedByLearner() {
+        return this.allowDownloads && Boolean(this.downloadRequestMap[this.content?.id]);
+      },
+      downloadableByLearner() {
+        return this.allowDownloads && !this.content?.admin_imported;
+      },
       isDownloading() {
-        return this.isDownloadingByLearner(this.content);
+        return (
+          this.downloadRequestedByLearner &&
+          this.downloadRequestMap[this.content.id].status === 'PENDING'
+        );
       },
       isDownloaded() {
-        if (!this.content) return false;
-        return this.content.admin_imported || this.isDownloadedByLearner(this.content);
+        return (
+          this.content?.admin_imported ||
+          (this.downloadRequestedByLearner &&
+            this.downloadRequestMap[this.content?.id]?.status === 'COMPLETED')
+        );
       },
-      allowRemoteDownload() {
-        return this.isUserLoggedIn && this.isRemoteContent && !this.isDownloaded;
+      showDownloadButton() {
+        return (
+          this.downloadableByLearner &&
+          !this.downloadRequestLoading &&
+          !this.loading &&
+          !this.isDownloaded
+        );
       },
       allowBookmark() {
         return this.isUserLoggedIn && (!this.isRemoteContent || this.isDownloaded);
@@ -486,7 +513,7 @@
       initializeState() {
         this.bookmark = null;
         this.showViewResourcesSidePanel = false;
-        this.nextContent = null;
+        this.nextFolder = null;
         this.viewResourcesContents = [];
         this.resourcesSidePanelFetched = false;
         this.resourcesSidePanelLoading = false;
@@ -552,7 +579,7 @@
        * is a topic.
        *
        * @modifies this.viewResourcesContents - Sets it to the progress-mapped nodes
-       * @modifies this.nextContent - Sets the value with this.content's parents next sibling folder
+       * @modifies this.nextFolder - Sets the value with this.content's parents next sibling folder
        * if found
        * @modifies useContentNodeProgress.contentNodeProgressMap (indirectly) if the user
        * is logged in
@@ -576,19 +603,19 @@
         }
         return ContentNodeResource.fetchTree(treeParams).then(ancestor => {
           let parent;
-          let nextContents;
+          let nextFolders;
           if (fetchGrandparent) {
             const parentIndex = ancestor.children.results.findIndex(
               c => c.id === this.content.parent
             );
             parent = ancestor.children.results[parentIndex];
-            nextContents = ancestor.children.results.slice(parentIndex + 1);
+            nextFolders = ancestor.children.results.slice(parentIndex + 1);
           } else {
             parent = ancestor;
             const contentIndex = ancestor.children.results.findIndex(c => c.id === this.content.id);
-            nextContents = ancestor.children.results.slice(contentIndex + 1);
+            nextFolders = ancestor.children.results.slice(contentIndex + 1);
           }
-          this.nextContent = nextContents.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
+          this.nextFolder = nextFolders.find(c => c.kind === ContentNodeKinds.TOPIC) || null;
           this.viewResourcesContents = parent.children.results.filter(n => n.id);
         });
       },

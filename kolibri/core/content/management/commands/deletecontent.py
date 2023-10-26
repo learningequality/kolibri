@@ -11,6 +11,7 @@ from kolibri.core.content.models import LocalFile
 from kolibri.core.content.utils.annotation import propagate_forced_localfile_removal
 from kolibri.core.content.utils.annotation import reannotate_all_channels
 from kolibri.core.content.utils.annotation import set_content_invisible
+from kolibri.core.content.utils.content_request import propagate_contentnode_removal
 from kolibri.core.content.utils.importability_annotation import clear_channel_stats
 from kolibri.core.content.utils.paths import get_content_database_file_path
 from kolibri.core.tasks.management.commands.base import AsyncCommand
@@ -21,15 +22,20 @@ logger = logging.getLogger(__name__)
 
 
 def delete_metadata(
-    channel, node_ids, exclude_node_ids, force_delete, ignore_admin_flags
+    channel,
+    node_ids,
+    exclude_node_ids,
+    force_delete,
+    ignore_admin_flags,
+    update_content_requests,
 ):
     # Only delete all metadata if we are not doing selective deletion
     delete_all_metadata = not (node_ids or exclude_node_ids)
 
-    resources_before = (
+    resources_before = set(
         ContentNode.objects.filter(channel_id=channel.id, available=True)
         .exclude(kind=content_kinds.TOPIC)
-        .count()
+        .values_list("id", flat=True)
     )
 
     # If we have been passed node ids do not do a full deletion pass
@@ -39,12 +45,15 @@ def delete_metadata(
     # If everything has been made invisible, delete all the metadata
     delete_all_metadata = delete_all_metadata or not channel.root.available
 
-    total_resource_number = (
-        resources_before
-        - ContentNode.objects.filter(channel_id=channel.id, available=True)
+    resources_after = set(
+        ContentNode.objects.filter(channel_id=channel.id, available=True)
         .exclude(kind=content_kinds.TOPIC)
-        .count()
+        .values_list("id", flat=True)
     )
+
+    removed_resources = resources_before.difference(resources_after)
+
+    total_resource_number = len(removed_resources)
 
     if force_delete:
         # Do this before we delete all the metadata, as otherwise we lose
@@ -62,7 +71,7 @@ def delete_metadata(
         )
 
         with db_lock():
-            propagate_forced_localfile_removal(unused_files)
+            removed_resources.update(propagate_forced_localfile_removal(unused_files))
         # Separate these operations as running the SQLAlchemy code in the latter
         # seems to cause the Django ORM interactions in the former to roll back
         # Not quite sure what is causing it, but presumably due to transaction
@@ -73,6 +82,9 @@ def delete_metadata(
         logger.info("Deleting all channel metadata")
         with db_lock():
             channel.delete_content_tree_and_files()
+
+    if update_content_requests and removed_resources:
+        propagate_contentnode_removal(list(removed_resources))
 
     # Clear any previously set channel availability stats for this channel
     clear_channel_stats(channel.id)
@@ -135,12 +147,21 @@ class Command(AsyncCommand):
             help="Don't modify admin_imported values when deleting content",
         )
 
+        parser.add_argument(
+            "--update_content_requests",
+            action="store_false",
+            dest="update_content_requests",
+            default=True,
+            help="Don't modify the status of ContentRequests pointing at the deleted content",
+        )
+
     def handle_async(self, *args, **options):
         channel_id = options["channel_id"]
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
         force_delete = options["force_delete"]
         ignore_admin_flags = options["ignore_admin_flags"]
+        update_content_requests = options["update_content_requests"]
 
         try:
             channel = ChannelMetadata.objects.get(pk=channel_id)
@@ -150,7 +171,12 @@ class Command(AsyncCommand):
             )
 
         (total_resource_number, delete_all_metadata,) = delete_metadata(
-            channel, node_ids, exclude_node_ids, force_delete, ignore_admin_flags
+            channel,
+            node_ids,
+            exclude_node_ids,
+            force_delete,
+            ignore_admin_flags,
+            update_content_requests,
         )
         unused_files = LocalFile.objects.get_unused_files()
         # Get the number of files that are being deleted
