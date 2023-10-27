@@ -12,6 +12,9 @@ from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import StatusSentiment
 from kolibri.core.device.models import SyncQueue
+from kolibri.core.device.models import SyncQueueStatus
+from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
+from kolibri.utils.conf import OPTIONS
 
 
 class SyncQueueTestCase(TestCase):
@@ -61,21 +64,34 @@ class SyncQueueTestCase(TestCase):
         assert SyncQueue.objects.count() == 3
 
     def test_dynamic_queue_cleaning(self):
+        time_now = time.time()
         for i in range(5):
-            item = SyncQueue.objects.create(
+            if i == 0 or i == 1:
+                # These two should be deleted as they are too stale.
+                updated_time = time_now - 5 - STALE_QUEUE_TIME * (i + 1) - 1
+            elif i == 2:
+                # This one should be marked as stale, but not deleted yet.
+                updated_time = (
+                    time_now - 5 - OPTIONS["Deployment"]["SYNC_INTERVAL"] / 2 - 1
+                )
+            else:
+                # These two are still queued.
+                updated_time = time_now - 5
+            SyncQueue.objects.create(
                 user_id=FacilityUser.objects.create(
-                    username="test{}".format(i), facility=self.facility
+                    username="atest{}".format(i), facility=self.facility
                 ).id,
                 instance_id=uuid4(),
+                status=SyncQueueStatus.Queued,
+                keep_alive=5,
+                updated=updated_time,
             )
-            item.updated = item.updated - 20
-            if i % 2 == 0:
-                item.keep_alive = 30
-            item.save()
 
         assert SyncQueue.objects.count() == 5
-        SyncQueue.clean_stale()  # expiry time is 2 * keep_alive value
+        SyncQueue.clean_stale()
         assert SyncQueue.objects.count() == 3
+        assert SyncQueue.objects.filter(status=SyncQueueStatus.Queued).count() == 2
+        assert SyncQueue.objects.filter(status=SyncQueueStatus.Stale).count() == 1
 
 
 class LearnerDeviceStatusTestCase(TestCase):

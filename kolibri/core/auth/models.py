@@ -73,6 +73,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
@@ -872,13 +873,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         """
         Returns True if this user is a member of a facility that has been fully imported.
         """
-        return (
-            Certificate.objects.get(id=self.dataset_id)
-            .get_descendants(include_self=True)
-            .exclude(_private_key__isnull=True)
-            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
-            .exists()
-        )
+        return is_full_facility_import(self.dataset_id)
 
     @cached_property
     def full_facility_on_my_own_setup(self):

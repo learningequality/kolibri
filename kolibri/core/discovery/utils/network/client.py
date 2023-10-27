@@ -63,7 +63,7 @@ class NetworkClient(requests.Session):
         :param address: The address of which to try variations of
         :param timeout: A timeout value in seconds or tuple for (connect, read)
         :return: A NetworkClient with a verified connection
-        :rtype: NetworkClient
+        :rtype: NetworkClient|cls
         """
         logger.info(
             "Attempting connections to variations of the URL: {}".format(address)
@@ -79,7 +79,7 @@ class NetworkClient(requests.Session):
         for url in get_normalized_url_variations(address):
             if url in self_urls:
                 continue  # exclude our own URLs
-            with NetworkClient(url, timeout=timeout) as client:
+            with cls(url, timeout=timeout) as client:
                 if client.connect(raise_if_unavailable=False):
                     return client
         # we weren't able to connect to any of the URL variations, so all we can do is throw
@@ -94,7 +94,7 @@ class NetworkClient(requests.Session):
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         :param timeout: A timeout value in seconds or tuple for (connect, read)
         :return: A NetworkClient with a verified connection
-        :rtype: NetworkClient
+        :rtype: NetworkClient|cls
         """
         # expect that static network locations have an exact base_url, and only try different
         # variations if we haven't already
@@ -102,10 +102,8 @@ class NetworkClient(requests.Session):
             network_location.dynamic
             and network_location.connection_status == ConnectionStatus.Unknown
         ):
-            return NetworkClient.build_for_address(
-                network_location.base_url, timeout=timeout
-            )
-        return NetworkClient(network_location.base_url, timeout=timeout)
+            return cls.build_for_address(network_location.base_url, timeout=timeout)
+        return cls(network_location.base_url, timeout=timeout)
 
     def head(self, path, **kwargs):
         return self.request("HEAD", path, **kwargs)
