@@ -21,6 +21,8 @@ This plugin has been developed with the following constraints of the Open Search
 - There are not custom parameter in the search urls
 - Pagination is not supported
 - Results are returned in Atom format
+- Current dependencies are only Python >=3.6 compatible 
+
 
 
 ## How can I install and use this plugin?
@@ -32,3 +34,5 @@ This plugin has been developed with the following constraints of the Open Search
 3. Restart Kolibri.
 
 4. The endpoint to download the Open Search XML descriptor in the usual application descriptor is `http://your_kolibri_server:port/opensearch`
+
+5. The downloaded descriptor includes the url to be used to perform a search. A typical url would be `http://your_kolibri_server:port/opensearch/opensearch/search/?q=<search term>`

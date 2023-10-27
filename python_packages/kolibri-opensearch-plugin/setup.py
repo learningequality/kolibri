@@ -60,6 +60,7 @@ setup(
     include_package_data=True,
     license='MIT',
     install_requires=['feedgenerator',],
+    python_requires='>=3',
     extras_require={
         'dev': [
             'setuptools',
@@ -75,12 +76,13 @@ setup(
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
         'Natural Language :: English',
-        'Programming Language :: Python :: 2',
-        'Programming Language :: Python :: 2.7',
         'Programming Language :: Python :: 3',
-        'Programming Language :: Python :: 3.3',
-        'Programming Language :: Python :: 3.4',
-        'Programming Language :: Python :: 3.5',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
         'Programming Language :: Python :: Implementation :: PyPy',
         'Topic :: Education :: Computer Aided Instruction (CAI)',
         'Topic :: Internet :: WWW/HTTP :: Indexing/Search'

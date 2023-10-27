@@ -24,8 +24,7 @@ clean-pyc:
 	find . -name '*~' -exec rm -f {} +
 
 dist: clean
-	python setup.py sdist
-	python setup.py bdist_wheel --universal
+	python setup.py sdist bdist_wheel
 
 release: dist
 	echo "Uploading dist/* to PyPi, using twine"
