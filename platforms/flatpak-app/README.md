@@ -134,11 +134,11 @@ process is needed instead of handling these URIs in kolibri-gnome.
 Before creating a release, be sure you update [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in)
 with information about the new release, and mark it as stable.
 
-Next, use [bump2version](<https://pypi.org/project/bump2version/>). This will
+Next, use [bump-my-version](<https://pypi.org/project/bump-my-version/>). This will
 create a new git tag and update the `VERSION` file in the project root:
 
 ```
-bump2version minor
+bump-my-version bump minor
 git push
 git push --tags
 ```
