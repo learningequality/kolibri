@@ -22,6 +22,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.0.0+next" date="2023-04-23" type="development">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            Kolibri is updated to 0.16.0.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="2.3.4" date="2023-09-21" type="stable">
       <description>
         <p>Changes included in this release:</p>

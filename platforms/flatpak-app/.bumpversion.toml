@@ -10,3 +10,10 @@ serialize = [
 
 [[tool.bumpversion.files]]
 filename = "VERSION"
+
+[[tool.bumpversion.files]]
+filename = "data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in"
+# This crude regex will break if the release tag contains any "/" or ">" characters.
+regex = true
+search = "<release\\s[^>]*\\s?version=\"{current_version}\\+next\"[^/>]*"
+replace = "<release version=\"{new_version}\" date=\"{now:%Y-%m-%d}\" type=\"stable\""
