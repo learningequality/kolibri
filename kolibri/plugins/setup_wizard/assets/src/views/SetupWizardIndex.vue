@@ -28,7 +28,7 @@
   import { interpret } from 'xstate';
   import { mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import Lockr from 'lockr';
   import { wizardMachine } from '../machines/wizardMachine';
@@ -46,7 +46,11 @@
       LoadingPage,
       ErrorPage,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
+      return { windowIsSmall, windowIsPortrait };
+    },
     data() {
       return {
         service: interpret(wizardMachine),
