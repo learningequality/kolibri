@@ -313,6 +313,7 @@ class Job(object):
             )
             self.storage.mark_job_as_failed(self.job_id, e, traceback_str)
 
+        self.storage.reschedule_job_if_needed(self.job_id)
         setattr(current_state_tracker, "job", None)
 
     @property

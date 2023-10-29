@@ -503,23 +503,29 @@ class Storage(object):
         # Update the job to repeat once after delta_t seconds.
         self._update_job(job_id, interval=delta_t.total_seconds(), repeat=1, **kwargs)
 
-    def _handle_state_update(self, orm_job, job, state):
-        if state is not None:
-            orm_job.state = job.state = state
-            if state == State.FAILED and orm_job.retry_interval is not None:
-                orm_job.state = job.state = State.QUEUED
-                orm_job.scheduled_time = naive_utc_datetime(
-                    self._now() + timedelta(seconds=orm_job.retry_interval)
-                )
-            elif state in {State.COMPLETED, State.FAILED, State.CANCELED}:
-                if orm_job.repeat is None or orm_job.repeat > 0:
-                    orm_job.repeat = (
-                        orm_job.repeat - 1 if orm_job.repeat is not None else None
-                    )
-                    orm_job.state = job.state = State.QUEUED
-                    orm_job.scheduled_time = naive_utc_datetime(
-                        self._now() + timedelta(seconds=orm_job.interval)
-                    )
+    def reschedule_job_if_needed(self, job_id):
+        orm_job = self.get_orm_job(job_id)
+        kwargs = dict(
+            queue=orm_job.queue,
+            priority=orm_job.priority,
+            interval=orm_job.interval,
+            repeat=orm_job.repeat,
+            retry_interval=orm_job.retry_interval,
+        )
+        new_scheduled_time = None
+        if orm_job.state == State.FAILED and orm_job.retry_interval is not None:
+            new_scheduled_time = self._now() + timedelta(seconds=orm_job.retry_interval)
+
+        elif (
+            orm_job.state in {State.COMPLETED, State.FAILED, State.CANCELED}
+            and orm_job.repeat != 0
+        ):
+            if orm_job.repeat is not None:
+                kwargs["repeat"] = orm_job.repeat - 1
+            new_scheduled_time = self._now() + timedelta(seconds=orm_job.interval)
+        if new_scheduled_time is not None:
+            job = self._orm_to_job(orm_job)
+            self.schedule(new_scheduled_time, job, **kwargs)
 
     def _update_orm_job_fields(
         self,
@@ -566,7 +572,8 @@ class Storage(object):
         with self.session_scope() as session:
             try:
                 job, orm_job = self._get_job_and_orm_job(job_id, session)
-                self._handle_state_update(orm_job, job, state)
+                if state is not None:
+                    orm_job.state = job.state = state
                 self._update_orm_job_fields(
                     orm_job,
                     priority=priority,
