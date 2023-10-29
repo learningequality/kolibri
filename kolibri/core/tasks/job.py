@@ -289,6 +289,8 @@ class Job(object):
     def execute(self):
         self._check_storage_attached()
 
+        self.storage.mark_job_as_running(self.job_id)
+
         setattr(current_state_tracker, "job", self)
 
         func = self.task

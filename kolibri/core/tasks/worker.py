@@ -24,8 +24,6 @@ def execute_job(job_id):
 
     job = storage.get_job(job_id)
 
-    storage.mark_job_as_running(job_id)
-
     job.execute()
 
     connection.dispose()
