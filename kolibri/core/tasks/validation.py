@@ -4,7 +4,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .job import Priority
+from kolibri.core.tasks.constants import Priority
 
 
 def validate_repeat(value):

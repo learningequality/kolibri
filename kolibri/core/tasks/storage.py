@@ -18,6 +18,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.exceptions import JobAlreadyRetrying
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
@@ -26,7 +27,6 @@ from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.utils.sql_alchemy import db_matches_schema
 from kolibri.utils.time_utils import local_now

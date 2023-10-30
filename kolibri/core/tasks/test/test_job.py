@@ -4,8 +4,8 @@ from datetime import timedelta
 import mock
 from django.test.testcases import TestCase
 
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.validation import JobValidator

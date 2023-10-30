@@ -8,6 +8,9 @@ from collections import namedtuple
 from six import raise_from
 from six import string_types
 
+from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
+    Priority,
+)
 from kolibri.core.tasks.exceptions import UserCancelledError
 from kolibri.core.tasks.utils import callable_to_import_path
 from kolibri.core.tasks.utils import current_state_tracker
@@ -70,26 +73,6 @@ class State(object):
         CANCELED,
         COMPLETED,
     }
-
-
-class Priority(object):
-    """
-    This class defines the priority levels and their corresponding integer values.
-
-    REGULAR priority is for tasks that can wait for some time before it actually
-    starts executing. Tasks that are tracked on task manager should use this priority.
-
-    HIGH priority is for tasks that want execution as soon as possible. Tasks that
-    might affect user experience (e.g. on screen loading animation) like importing
-    channel metadata.
-    """
-
-    LOW = 15
-    REGULAR = 10
-    HIGH = 5
-
-    # A set of all valid priorities
-    Priorities = {HIGH, REGULAR, LOW}
 
 
 JobStatus = namedtuple("Status", ("title", "text"))

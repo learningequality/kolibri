@@ -1,7 +1,7 @@
 from functools import partial
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
-from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.validation import JobValidator
 

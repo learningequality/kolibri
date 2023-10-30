@@ -7,12 +7,12 @@ import pytz
 from mock import patch
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobAlreadyRetrying
 from kolibri.core.tasks.exceptions import JobNotRestartable
 from kolibri.core.tasks.exceptions import JobNotRunning
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
