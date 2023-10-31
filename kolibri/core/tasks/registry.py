@@ -8,8 +8,8 @@ from rest_framework.exceptions import PermissionDenied
 from six import string_types
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.main import job_storage
 from kolibri.core.tasks.permissions import BasePermission
 from kolibri.core.tasks.utils import callable_to_import_path

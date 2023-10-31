@@ -1,8 +1,36 @@
+from datetime import timedelta
+
 from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .job import Priority
+from kolibri.core.tasks.constants import Priority
+
+
+def validate_repeat(value):
+    if value is not None and (not isinstance(value, int) or value < 0):
+        raise ValueError(
+            "Must specify repeat greater than equal to 0 or None (repeat forever)"
+        )
+
+
+def validate_interval(value):
+    if not isinstance(value, int) or value <= 0:
+        raise ValueError("intervals must be a positive integer number of seconds")
+
+
+def validate_priority(value):
+    if value not in Priority.Priorities:
+        raise ValueError(
+            "priority must be one of {}".format(
+                ", ".join(str(pri) for pri in Priority.Priorities)
+            )
+        )
+
+
+def validate_timedelay(value):
+    if not isinstance(value, timedelta):
+        raise TypeError("time delay must be a datetime.timedelta object")
 
 
 class EnqueueArgsSerializer(serializers.Serializer):

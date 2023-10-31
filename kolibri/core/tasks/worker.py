@@ -4,7 +4,7 @@ from concurrent.futures import CancelledError
 from django.db import connection as django_connection
 
 from kolibri.core.tasks.compat import PoolExecutor
-from kolibri.core.tasks.job import Priority
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.storage import Storage
 from kolibri.core.tasks.utils import db_connection
 from kolibri.core.tasks.utils import InfiniteLoopThread
@@ -23,8 +23,6 @@ def execute_job(job_id):
     storage = Storage(connection)
 
     job = storage.get_job(job_id)
-
-    storage.mark_job_as_running(job_id)
 
     job.execute()
 
