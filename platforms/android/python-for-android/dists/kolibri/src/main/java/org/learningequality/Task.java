@@ -30,35 +30,7 @@ public class Task {
         return "kolibri_job_type:" + jobFunc;
     }
 
-    public static void enqueueIndefinitely(String id, int interval, int delay, int retryInterval, boolean expedite, String jobFunc, boolean longRunning) {
-        WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
-        Data data = TaskworkerWorker.buildInputData(id, longRunning);
-
-        PeriodicWorkRequest.Builder workRequestBuilder = new PeriodicWorkRequest.Builder(
-            TaskworkerWorker.class, interval, TimeUnit.SECONDS
-        );
-
-        // Unlike the enqueueOnce method, we do no checking for the expedited
-        // boolean here, which is kept in the function signature, purely to keep
-        // them parallel. While undocumented, it is not possible for PeriodicWorkRequests
-        // to be expedited, as can be seen from the source code:
-        // https://android.googlesource.com/platform/frameworks/support/+/HEAD/work/work-runtime/src/main/java/androidx/work/PeriodicWorkRequest.kt#239
-
-        if (retryInterval > 0) {
-            workRequestBuilder.setBackoffCriteria(
-                BackoffPolicy.LINEAR, retryInterval, TimeUnit.SECONDS
-            );
-        }
-        if (delay > 0) {
-            workRequestBuilder.setInitialDelay(delay, TimeUnit.SECONDS);
-        }
-        workRequestBuilder.addTag(generateTagFromId(id));
-        workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
-        workRequestBuilder.setInputData(data);
-        PeriodicWorkRequest workRequest = workRequestBuilder.build();
-        workManager.enqueueUniquePeriodicWork(id, ExistingPeriodicWorkPolicy.KEEP, workRequest);
-    }
-    public static void enqueueOnce(String id, int delay, int retryInterval, boolean keep, boolean expedite, String jobFunc, boolean longRunning) {
+    public static void enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
         WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
         Data data = TaskworkerWorker.buildInputData(id, longRunning);
 
@@ -71,11 +43,6 @@ public class Task {
             workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
         }
 
-        if (retryInterval > 0) {
-            workRequestBuilder.setBackoffCriteria(
-                BackoffPolicy.LINEAR, retryInterval, TimeUnit.SECONDS
-            );
-        }
         if (delay > 0) {
             workRequestBuilder.setInitialDelay(delay, TimeUnit.SECONDS);
         }
@@ -83,11 +50,7 @@ public class Task {
         workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
         workRequestBuilder.setInputData(data);
         OneTimeWorkRequest workRequest = workRequestBuilder.build();
-        if (keep) {
-            workManager.enqueueUniqueWork(id, ExistingWorkPolicy.KEEP, workRequest);
-        } else {
-            workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
-        }
+        workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
     }
 
     public static void clear(String id) {
