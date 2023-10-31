@@ -102,7 +102,7 @@ class TestScheduler(object):
         now = local_now()
         old_id = job_storage.schedule(now, job, interval=1000, repeat=None)
         job_storage.complete_job(old_id)
-        job_storage.reschedule_job_if_needed(old_id)
+        job_storage.reschedule_finished_job_if_needed(old_id)
         new_id = job_storage.get_all_jobs()[0].job_id
         assert old_id == new_id
 
@@ -112,7 +112,7 @@ class TestScheduler(object):
         now = local_now()
         job_id = job_storage.schedule(now, job, interval=1000, repeat=None)
         job_storage.complete_job(job_id)
-        job_storage.reschedule_job_if_needed(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
         with job_storage.session_scope() as session:
             _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
             repeat = scheduled_job.repeat
@@ -122,7 +122,7 @@ class TestScheduler(object):
         now = local_now()
         job_id = job_storage.schedule(now, job, interval=1000, repeat=None)
         job_storage.complete_job(job_id)
-        job_storage.reschedule_job_if_needed(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
         assert job_storage.get_job(job_id).job_id == job_id
 
     def test_scheduled_repeating_function_sets_new_job_with_one_fewer_repeats(
@@ -131,7 +131,7 @@ class TestScheduler(object):
         now = local_now()
         job_id = job_storage.schedule(now, job, interval=1000, repeat=1)
         job_storage.complete_job(job_id)
-        job_storage.reschedule_job_if_needed(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
         with job_storage.session_scope() as session:
             _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
             repeat = scheduled_job.repeat
@@ -144,7 +144,7 @@ class TestScheduler(object):
         job_id = job_storage.schedule(now, job, interval=1000, repeat=1)
         job_storage._now = lambda: now
         job_storage.complete_job(job_id)
-        job_storage.reschedule_job_if_needed(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
         with job_storage.session_scope() as session:
             _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
             scheduled_time = scheduled_job.scheduled_time
@@ -161,7 +161,7 @@ class TestScheduler(object):
         )
         job_storage._now = lambda: now
         job_storage.mark_job_as_failed(job_id, "Exception", "Traceback")
-        job_storage.reschedule_job_if_needed(job_id)
+        job_storage.reschedule_finished_job_if_needed(job_id)
         with job_storage.session_scope() as session:
             _, scheduled_job = job_storage._get_job_and_orm_job(job_id, session)
             scheduled_time = scheduled_job.scheduled_time
