@@ -13,6 +13,7 @@ from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
+from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
@@ -88,10 +89,14 @@ def start_soud_sync(user_id):
 
     # This user would not previously have been included in any syncs
     # triggered by a device appearing on the network, so request syncs for them now
-    network_locations = NetworkLocation.objects.filter(subset_of_users_device=False)
-    for network_location in network_locations:
-        soud.request_sync(soud.Context(user_id, network_location.instance_id))
-    if network_locations:
+    instance_ids = NetworkLocation.objects.filter(
+        subset_of_users_device=False,
+        connection_status=ConnectionStatus.Okay,
+        application="kolibri",
+    ).values_list("instance_id", flat=True)
+    for instance_id in instance_ids:
+        soud.request_sync(soud.Context(user_id, instance_id))
+    if instance_ids:
         enqueue_soud_sync_processing()
 
 
