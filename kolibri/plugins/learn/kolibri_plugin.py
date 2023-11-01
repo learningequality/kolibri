@@ -116,7 +116,7 @@ def request_soud_sync(network_location):
     from kolibri.core.auth.tasks import enqueue_soud_sync_processing
     from kolibri.core.device.soud import request_sync_hook
 
-    if not network_location.subset_of_users_device:
+    if not network_location.subset_of_users_device and network_location.is_kolibri:
         request_sync_hook(network_location)
         enqueue_soud_sync_processing()
 

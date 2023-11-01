@@ -64,7 +64,9 @@ class Context(object):
     @cached_property
     def network_location(self):
         return NetworkLocation.objects.filter(
-            instance_id=self.instance_id, connection_status=ConnectionStatus.Okay
+            instance_id=self.instance_id,
+            connection_status=ConnectionStatus.Okay,
+            application="kolibri",
         ).first()
 
     @property
