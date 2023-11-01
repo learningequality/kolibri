@@ -30,14 +30,14 @@ describe('when there are nodes with progress that can be resumed', () => {
 
   it('displays grid / list toggle buttons when on medium or larger screens', () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      computed: { windowIsMedium: () => true },
+      data: () => ({ windowIsSmall: false }),
     });
     expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeTruthy();
   });
 
   it('does not show the grid / list toggle buttons when on extra small screens', async () => {
     const wrapper = shallowMount(ResumableContentGrid, {
-      computed: { windowIsSmall: () => true },
+      data: () => ({ windowIsSmall: true }),
     });
     expect(wrapper.find('[data-test="toggle-view-buttons"]').element).toBeFalsy();
   });
