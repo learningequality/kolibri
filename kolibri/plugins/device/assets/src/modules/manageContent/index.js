@@ -49,7 +49,6 @@ export default {
 
       return channels.map(channel => {
         const taskIndex = findLastIndex(getters.managedTasks, task => {
-          console.log(task.extra_metadata.channel_id);
           return (
             ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
               task.type
