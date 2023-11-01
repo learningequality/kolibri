@@ -176,14 +176,10 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { 
-        windowBreakpoint, 
-        windowIsLarge, 
-        windowIsSmall,
-      } = useKResponsiveWindow();
+      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
-        windowBreakpoint, 
-        windowIsLarge, 
+        windowBreakpoint,
+        windowIsLarge,
         windowIsSmall,
       };
     },

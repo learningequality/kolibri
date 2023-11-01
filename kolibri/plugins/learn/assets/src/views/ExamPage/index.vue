@@ -220,11 +220,7 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const { 
-        windowBreakpoint,
-        windowIsLarge,
-        windowIsSmall,
-      } = useKResponsiveWindow();
+      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
         pastattempts,
         time_spent,

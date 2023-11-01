@@ -360,11 +360,7 @@
         currentRoute,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
-      const {
-        windowBreakpoint,
-        windowIsLarge,
-        windowIsSmall,
-      } =useKResponsiveWindow();
+      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();

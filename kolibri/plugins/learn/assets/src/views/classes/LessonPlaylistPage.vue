@@ -85,8 +85,8 @@
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { contentNodeProgressMap } = useContentNodeProgress();
       const { windowIsSmall } = useKResponsiveWindow();
-      return { 
-        contentNodeProgressMap, 
+      return {
+        contentNodeProgressMap,
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,
       };

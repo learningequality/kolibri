@@ -123,9 +123,9 @@
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
-      return { 
-        canDownloadExternally, 
-        fetchContentNodeProgress, 
+      return {
+        canDownloadExternally,
+        fetchContentNodeProgress,
         genContentLinkBackLinkCurrentPage,
         windowIsSmall,
       };

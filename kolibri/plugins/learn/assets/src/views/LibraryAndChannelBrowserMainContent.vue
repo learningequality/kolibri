@@ -50,7 +50,6 @@
       ResourceCard,
     },
 
-
     setup() {
       const {
         genContentLinkBackLinkCurrentPage,
@@ -58,7 +57,7 @@
       } = useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       return {
-        genContentLinkBackLinkCurrentPage, 
+        genContentLinkBackLinkCurrentPage,
         genContentLinkKeepCurrentBackLink,
         windowIsSmall,
       };
