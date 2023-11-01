@@ -57,7 +57,6 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import plugin_data from 'plugin_data';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import useDevices from '../../composables/useDevices';
@@ -73,7 +72,7 @@
       ActivityFilter,
       SortFilter,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const {
         downloadRequestMap,
