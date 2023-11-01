@@ -9,14 +9,19 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   const GRID_TYPE_1 = 1;
   const GRID_TYPE_2 = 2;
 
   export default {
     name: 'CardGrid',
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       /**
        * `1` or `2`

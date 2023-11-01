@@ -82,7 +82,7 @@
 
   import { mapGetters } from 'vuex';
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
@@ -94,7 +94,12 @@
       CoachContentLabel,
       TextTruncatorCss,
     },
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowGutter } = useKResponsiveWindow();
+      return {
+        windowGutter,
+      };
+    },
     props: {
       title: {
         type: String,

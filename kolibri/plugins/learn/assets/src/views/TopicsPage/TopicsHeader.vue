@@ -76,7 +76,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';
   import commonLearnStrings from './../commonLearnStrings';
 
@@ -87,7 +87,13 @@
       KBreadcrumbs,
       TextTruncatorCss,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       title: {
         type: String,

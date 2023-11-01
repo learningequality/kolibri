@@ -247,7 +247,7 @@
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -339,7 +339,7 @@
       ImmersivePage,
       DeviceConnectionStatus,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup(props) {
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const currentInstance = getCurrentInstance().proxy;
@@ -360,6 +360,7 @@
         currentRoute,
       } = useSearch(topic);
       const { back, genContentLinkKeepCurrentBackLink } = useContentLink();
+      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchContentNodeProgress, fetchContentNodeTreeProgress } = useContentNodeProgress();
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
@@ -524,6 +525,9 @@
         clearSearch,
         back,
         genContentLinkKeepCurrentBackLink,
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsSmall,
         isRoot,
         channel,
         topic,
