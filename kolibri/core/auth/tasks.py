@@ -430,7 +430,7 @@ def soud_sync_processing():
     soud.execute_syncs()
     # schedule next run
     next_run = soud.get_time_to_next_attempt()
-    if next_run:
+    if next_run is not None:
         job = get_current_job()
         job.retry_in(next_run)
 
@@ -440,7 +440,7 @@ def enqueue_soud_sync_processing(force=False):
     Enqueue a task to process SoUD syncs, if necessary
     """
     next_run = soud.get_time_to_next_attempt()
-    if not next_run:
+    if next_run is None:
         # No need to enqueue, as there is no next run
         return
 
