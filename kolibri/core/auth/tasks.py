@@ -452,7 +452,8 @@ def enqueue_soud_sync_processing(force=False):
             converted_next_run = naive_utc_datetime(timezone.now() + next_run)
             orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
             if (
-                orm_job.state == State.QUEUED
+                orm_job.state == State.RUNNING
+                or orm_job.state == State.QUEUED
                 and orm_job.scheduled_time <= converted_next_run
             ):
                 # Already queued sooner or at the same time as the next run
