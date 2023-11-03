@@ -9,6 +9,8 @@ from django.test import TestCase
 
 from ..soud import Context
 from ..soud import request_sync_hook
+from kolibri.core.auth.models import Facility
+from kolibri.core.auth.models import FacilityUser
 from kolibri.core.device.models import SyncQueue
 from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.discovery.models import ConnectionStatus
@@ -59,6 +61,9 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
             uuid.uuid4().hex,
         ]
 
+        self.facility = Facility.objects.create(name="Test")
+        self._create_users()
+
         self.mock_network_location = mock.Mock(
             spec=DynamicNetworkLocation,
             instance_id=self.instance_id,
@@ -72,6 +77,16 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
         request_sync = mock.patch("kolibri.core.device.soud.request_sync")
         self.mock_request_sync = request_sync.start()
         self.addCleanup(request_sync.stop)
+
+    def _create_users(self):
+        for user_id in self.user_ids:
+            FacilityUser.objects.get_or_create(
+                id=user_id,
+                defaults=dict(
+                    username=user_id,
+                    facility=self.facility,
+                ),
+            )
 
     def assertRequestSyncCalled(self, user_id, call_index=0):
         calls = self.mock_request_sync.mock_calls
@@ -118,6 +133,7 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
 
     def test_multiple_users(self):
         self.user_ids.extend([uuid.uuid4().hex, uuid.uuid4().hex])
+        self._create_users()
         user_a, user_b, user_c = self.user_ids
 
         # user_a stale
