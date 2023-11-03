@@ -47,3 +47,8 @@ Note that in times of increased contributions activity, it may take us a few day
 - Visit [Kolibri GitHub Discussions](https://github.com/learningequality/kolibri/discussions) to ask about anything related to contributing to Kolibri, troubleshoot development server issues, or connect with other contributors.
 
 *Thank you for your interest in contributing to Kolibri! The project was founded by volunteers dedicated to helping make educational materials more accessible to those in need, and every contribution makes a difference.*
+
+
+### License
+
+The kolibri project is available as open source under the terms of the [MIT license](https://github.com/learningequality/kolibri/blob/release-v0.16.x/LICENSE)
