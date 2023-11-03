@@ -3,6 +3,7 @@ import datetime
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
+from django.utils import timezone
 from mock import Mock
 from mock import patch
 from rest_framework import serializers
@@ -15,8 +16,10 @@ from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
+from kolibri.core.auth.tasks import soud_sync_processing
 from kolibri.core.auth.tasks import SyncJobValidator
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
@@ -24,6 +27,8 @@ from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
 from kolibri.core.tasks.job import Job
+from kolibri.core.tasks.job import State
+from kolibri.utils.time_utils import naive_utc_datetime
 
 
 DUMMY_PASSWORD = "password"
@@ -679,11 +684,104 @@ class FacilityTaskHelperTestCase(TestCase):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 
 
-class TestRequestSoUDSync(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create(name="Test")
-        self.test_user = FacilityUser.objects.create(
-            username="test", facility=self.facility
-        )
+class SoudTasksTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__none__forced(self, mock_soud, mock_task):
+        mock_soud.get_time_to_next_attempt.return_value = None
+        enqueue_soud_sync_processing(force=True)
+        mock_task.enqueue_in.assert_not_called()
 
-    # TODO: Blaine add tests for refactored code
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__now__forced(self, mock_soud, mock_task):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=0)
+        enqueue_soud_sync_processing(force=True)
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=0))
+
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__forced(
+        self, mock_soud, mock_task, mock_job_storage
+    ):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=15)
+        enqueue_soud_sync_processing(force=True)
+        mock_job_storage.cancel_if_exists.assert_called_once_with("50")
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=15))
+
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__scheduled(
+        self, mock_soud, mock_task, mock_job_storage
+    ):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=30)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.QUEUED
+        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        enqueue_soud_sync_processing()
+        mock_job_storage.cancel_if_exists.assert_not_called()
+        mock_task.enqueue_in.assert_not_called()
+
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__running(
+        self, mock_soud, mock_task, mock_job_storage
+    ):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(
+            seconds=-10
+        )
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.RUNNING
+        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        enqueue_soud_sync_processing()
+        mock_job_storage.cancel_if_exists.assert_not_called()
+        mock_task.enqueue_in.assert_not_called()
+
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__reschedule(
+        self, mock_soud, mock_task, mock_job_storage
+    ):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=10)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.QUEUED
+        mock_job.scheduled_time = naive_utc_datetime(
+            timezone.now() + datetime.timedelta(seconds=15)
+        )
+        enqueue_soud_sync_processing()
+        mock_job_storage.cancel_if_exists.assert_called_once_with("50")
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__requeue__now(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=0)
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(seconds=0))
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__requeue__future(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(
+            seconds=100
+        )
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(seconds=100))
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__no_requeue(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = None
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_get_job.assert_not_called()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_not_called()

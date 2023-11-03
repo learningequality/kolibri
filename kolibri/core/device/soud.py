@@ -4,6 +4,7 @@ import logging
 import time
 
 from django.core.management import call_command
+from django.db import transaction
 from django.db.models import F
 from django.db.models import Q
 from django.utils.functional import cached_property
@@ -50,7 +51,13 @@ class Context(object):
     def user(self):
         return FacilityUser.objects.get(id=self.user_id)
 
-    @cached_property
+    @property
+    def has_sync_queue(self):
+        return SyncQueue.objects.filter(
+            user_id=self.user_id, instance_id=self.instance_id
+        ).exists()
+
+    @property
     def sync_queue(self):
         queue, _ = SyncQueue.objects.get_or_create(
             user_id=self.user_id,
@@ -171,11 +178,20 @@ def request_sync_hook(network_location):
     """
     for user_id in get_all_user_ids():
         context = Context(user_id, network_location.instance_id)
-        # reset sync queue when network location changes
-        sync_queue = context.sync_queue
-        sync_queue.attempts = 0
-        sync_queue.status = SyncQueueStatus.Pending
-        sync_queue.save()
+
+        with transaction.atomic():
+            # context getter does get_or_create, so check if queue already exists before accessing
+            had_queue = context.has_sync_queue
+            sync_queue = context.sync_queue
+
+            if had_queue and sync_queue.is_active:
+                # if it's active, we don't want to reset it
+                continue
+
+            # reset sync queue when network location changes and it's inactive
+            sync_queue.reset_next_attempt(0)  # now
+            sync_queue.status = SyncQueueStatus.Pending
+            sync_queue.save()
 
         logger.info("{} Checking SoUD sync".format(context))
         request_sync(context, network_location=network_location)

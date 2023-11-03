@@ -399,6 +399,20 @@ class SyncQueue(models.Model):
         ).delete()
 
     @property
+    def is_active(self):
+        # if the status is stale, or if the device has made unsuccessful attempts
+        if (
+            self.status in (SyncQueueStatus.Stale, SyncQueueStatus.Unavailable)
+            or self.attempts > 0
+        ):
+            return False
+        # if the device has missed its rendezvous time by more than half the sync interval
+        half_life = OPTIONS["Deployment"]["SYNC_INTERVAL"] / 2
+        if self.attempt_at < (time.time() - half_life):
+            return False
+        return True
+
+    @property
     def attempt_at(self):
         """ Returns the time in seconds since epoch for the next rendezvous """
         return self.updated + self.keep_alive
