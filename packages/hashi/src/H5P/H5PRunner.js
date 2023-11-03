@@ -5,37 +5,13 @@ import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
-import { unzip, strFromU8 } from 'fflate';
+import ZipFile from 'kolibri-zip';
 import filenameObj from '../../h5p_build.json';
 import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 import loadBinary from './loadBinary';
 
 const H5PFilename = filenameObj.filename;
-
-class Zip {
-  constructor(file) {
-    this.zipfile = file;
-  }
-
-  _getFiles(filter) {
-    return new Promise((resolve, reject) => {
-      unzip(this.zipfile, { filter }, (err, unzipped) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(Object.entries(unzipped).map(([name, obj]) => ({ name, obj })));
-      });
-    });
-  }
-
-  file(filename) {
-    return this._getFiles(file => file.name === filename).then(files => files[0]);
-  }
-  files(path) {
-    return this._getFiles(file => file.name.startsWith(path));
-  }
-}
 
 const CONTENT_ID = '1234567890';
 
@@ -209,7 +185,7 @@ export default class H5PRunner {
     loadBinary(this.filepath)
       .then(file => {
         // Store the zip locally for later reference
-        this.zip = new Zip(file);
+        this.zip = new ZipFile(file);
         // Recurse all the package dependencies
         return this.recurseDependencies('h5p.json', true);
       })
@@ -547,7 +523,7 @@ export default class H5PRunner {
       if (!file) {
         return;
       }
-      const json = JSON.parse(strFromU8(file.obj));
+      const json = JSON.parse(file.toString());
       const preloadedDependencies = json['preloadedDependencies'] || [];
       // Make a copy so that we are not modifying the same object
       visitedPaths = {
@@ -643,7 +619,7 @@ export default class H5PRunner {
     if (fileName === 'content.json') {
       // Store this special file contents here as raw text
       // as that is how H5P expects it.
-      this.contentJson = strFromU8(file.obj);
+      this.contentJson = file.toString();
     } else {
       // Create blob urls for every item in the content folder
       this.contentPaths[fileName] = createBlobUrl(file.obj, fileName);
@@ -676,7 +652,7 @@ export default class H5PRunner {
       // If it's a CSS file load as a string from the zipfile for later
       // replacement of URLs.
       // For JS or CSS, we load as string to concatenate and later turn into a single file.
-      this.packageFiles[packagePath][fileName] = strFromU8(file.obj);
+      this.packageFiles[packagePath][fileName] = file.toString();
     } else {
       // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
       this.packageFiles[packagePath][fileName] = createBlobUrl(file.obj, fileName);

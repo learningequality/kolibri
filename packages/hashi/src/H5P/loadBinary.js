@@ -20,7 +20,7 @@ export default function(path) {
         if (xhr.readyState === 4) {
           if (xhr.status === 200 || xhr.status === 0) {
             try {
-              resolve(new Uint8Array(xhr.response));
+              resolve(xhr.response);
             } catch (err) {
               reject(new Error(err));
             }
