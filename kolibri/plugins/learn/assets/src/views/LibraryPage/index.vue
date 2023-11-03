@@ -1,144 +1,153 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="appBarTitle"
-    :loading="rootNodesLoading"
-    :appearanceOverrides="{}"
-    :deviceId="deviceId"
-    :route="back"
-  >
-    <main
-      class="main-grid"
-      :style="gridOffset"
-    >
-      <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
-        <KButton
-          icon="filter"
-          data-test="filter-button"
-          class="filter-button"
-          :text="coreString('filter')"
-          :primary="false"
-          @click="toggleSidePanelVisibility"
-        />
-      </div>
-      <!--
-        - If search is loading, show loader.
-        - If there are no search results, show channels and resumable
-        content.
-        - Otherwise, show search results.
-      -->
-      <KCircularLoader
-        v-if="rootNodesLoading || searchLoading"
-        class="loader"
-        type="indeterminate"
-        :delay="false"
+  <div>
+    <transition name="delay-entry">
+      <PostSetupModalGroup
+        v-if="welcomeModalVisible"
+        isOnMyOwnUser
+        @cancel="hideWelcomeModal"
       />
-      <div
-        v-else-if="!displayingSearchResults && !rootNodesLoading"
-        data-test="channels"
+    </transition>
+    <LearnAppBarPage
+      :appBarTitle="appBarTitle"
+      :loading="rootNodesLoading"
+      :appearanceOverrides="{}"
+      :deviceId="deviceId"
+      :route="back"
+    >
+      <main
+        class="main-grid"
+        :style="gridOffset"
       >
-        <h1 class="channels-label">
-          {{ channelsLabel }}
-        </h1>
-        <p
-          v-if="isLocalLibraryEmpty"
-          data-test="nothing-in-lib-label"
-          class="nothing-in-lib-label"
-        >
-          {{ coreString('nothingInLibraryLearner') }}
-        </p>
-        <ChannelCardGroupGrid
-          v-if="!isLocalLibraryEmpty"
-          data-test="channel-cards"
-          class="grid"
-          :contents="rootNodes"
-          :deviceId="deviceId"
+        <div v-if="!windowIsLarge && (!isLocalLibraryEmpty || deviceId)">
+          <KButton
+            icon="filter"
+            data-test="filter-button"
+            class="filter-button"
+            :text="coreString('filter')"
+            :primary="false"
+            @click="toggleSidePanelVisibility"
+          />
+        </div>
+        <!--
+          - If search is loading, show loader.
+          - If there are no search results, show channels and resumable
+          content.
+          - Otherwise, show search results.
+        -->
+        <KCircularLoader
+          v-if="rootNodesLoading || searchLoading"
+          class="loader"
+          type="indeterminate"
+          :delay="false"
         />
-        <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
-        <!-- but we conditionalize it based on whether we are on another device's library page !-->
-        <ResumableContentGrid
-          v-if="!deviceId"
-          data-test="resumable-content"
+        <div
+          v-else-if="!displayingSearchResults && !rootNodesLoading"
+          data-test="channels"
+        >
+          <h1 class="channels-label">
+            {{ channelsLabel }}
+          </h1>
+          <p
+            v-if="isLocalLibraryEmpty"
+            data-test="nothing-in-lib-label"
+            class="nothing-in-lib-label"
+          >
+            {{ coreString('nothingInLibraryLearner') }}
+          </p>
+          <ChannelCardGroupGrid
+            v-if="!isLocalLibraryEmpty"
+            data-test="channel-cards"
+            class="grid"
+            :contents="rootNodes"
+            :deviceId="deviceId"
+          />
+          <!-- ResumableContentGrid mostly handles whether it renders or not internally !-->
+          <!-- but we conditionalize it based on whether we are on another device's library page!-->
+          <ResumableContentGrid
+            v-if="!deviceId"
+            data-test="resumable-content"
+            :currentCardViewStyle="currentCardViewStyle"
+            @setCardStyle="style => currentCardViewStyle = style"
+            @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+          />
+          <!-- Other Libraries -->
+          <OtherLibraries
+            v-if="!deviceId && isUserLoggedIn"
+            data-test="other-libraries"
+            :injectedtr="injecttr"
+          />
+
+        </div>
+
+        <SearchResultsGrid
+          v-else-if="displayingSearchResults"
+          data-test="search-results"
+          :allowDownloads="allowDownloads"
+          :results="results"
+          :removeFilterTag="removeFilterTag"
+          :clearSearch="clearSearch"
+          :moreLoading="moreLoading"
+          :searchMore="searchMore"
           :currentCardViewStyle="currentCardViewStyle"
+          :searchTerms="searchTerms"
+          :searchLoading="searchLoading"
+          :more="more"
           @setCardStyle="style => currentCardViewStyle = style"
           @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
         />
-        <!-- Other Libraries -->
-        <OtherLibraries
-          v-if="!deviceId && isUserLoggedIn"
-          data-test="other-libraries"
-          :injectedtr="injecttr"
-        />
+      </main>
 
-      </div>
-
-      <SearchResultsGrid
-        v-else-if="displayingSearchResults"
-        data-test="search-results"
-        :allowDownloads="allowDownloads"
-        :results="results"
-        :removeFilterTag="removeFilterTag"
-        :clearSearch="clearSearch"
-        :moreLoading="moreLoading"
-        :searchMore="searchMore"
-        :currentCardViewStyle="currentCardViewStyle"
-        :searchTerms="searchTerms"
-        :searchLoading="searchLoading"
-        :more="more"
-        @setCardStyle="style => currentCardViewStyle = style"
-        @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+      <!-- Side Panels for filtering and searching  -->
+      <SearchFiltersPanel
+        v-if="(!isLocalLibraryEmpty || deviceId) && (windowIsLarge || mobileSidePanelIsOpen)"
+        ref="sidePanel"
+        v-model="searchTerms"
+        data-test="side-panel"
+        :width="`${sidePanelWidth}px`"
+        @close="toggleSidePanelVisibility"
       />
-    </main>
 
-    <!-- Side Panels for filtering and searching  -->
-    <SearchFiltersPanel
-      v-if="(!isLocalLibraryEmpty || deviceId) && (windowIsLarge || mobileSidePanelIsOpen)"
-      ref="sidePanel"
-      v-model="searchTerms"
-      data-test="side-panel"
-      :width="`${sidePanelWidth}px`"
-      @close="toggleSidePanelVisibility"
-    />
-
-    <!-- Side Panel for metadata -->
-    <SidePanelModal
-      v-if="metadataSidePanelContent"
-      data-test="side-panel-modal"
-      alignment="right"
-      @closePanel="metadataSidePanelContent = null"
-      @shouldFocusFirstEl="findFirstEl()"
-    >
-      <template
-        v-if="metadataSidePanelContent.learning_activities.length"
-        #header
+      <!-- Side Panel for metadata -->
+      <SidePanelModal
+        v-if="metadataSidePanelContent"
+        data-test="side-panel-modal"
+        alignment="right"
+        @closePanel="metadataSidePanelContent = null"
+        @shouldFocusFirstEl="findFirstEl()"
       >
-        <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
-            multiple chips - not a common thing but just in case -->
-        <div
-          v-for="activity in metadataSidePanelContent.learning_activities"
-          :key="activity"
-          class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
+        <template
+          v-if="metadataSidePanelContent.learning_activities.length"
+          #header
         >
-          <LearningActivityChip
-            class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
-            :kind="activity"
-          />
-        </div>
-      </template>
+          <!-- Flex styles tested in ie11 and look good. Ensures good spacing between
+              multiple chips - not a common thing but just in case -->
+          <div
+            v-for="activity in metadataSidePanelContent.learning_activities"
+            :key="activity"
+            class="side-panel-chips"
+            :class="$computedClass({ '::after': {
+              content: '',
+              flex: 'auto'
+            } })"
+          >
+            <LearningActivityChip
+              class="chip"
+              style="margin-left: 8px; margin-bottom: 8px;"
+              :kind="activity"
+            />
+          </div>
+        </template>
 
-      <BrowseResourceMetadata
-        ref="resourcePanel"
-        :content="metadataSidePanelContent"
-        :showLocationsInChannel="true"
-        :canDownloadExternally="canDownloadExternally && !deviceId"
-      />
-    </SidePanelModal>
-  </LearnAppBarPage>
+        <BrowseResourceMetadata
+          ref="resourcePanel"
+          :content="metadataSidePanelContent"
+          :showLocationsInChannel="true"
+          :canDownloadExternally="canDownloadExternally && !deviceId"
+        />
+      </SidePanelModal>
+    </LearnAppBarPage>
+  </div>
 
 </template>
 
@@ -153,6 +162,7 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
+  import { mapState } from 'vuex';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -172,9 +182,12 @@
   import LearningActivityChip from '../LearningActivityChip';
   import SearchResultsGrid from '../SearchResultsGrid';
   import LearnAppBarPage from '../LearnAppBarPage';
+  import PostSetupModalGroup from '../../../../../device/assets/src/views/PostSetupModalGroup.vue';
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
+
+  const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
   export default {
     name: 'LibraryPage',
@@ -193,6 +206,7 @@
       SearchFiltersPanel,
       LearnAppBarPage,
       OtherLibraries,
+      PostSetupModalGroup,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
     setup(props) {
@@ -388,11 +402,20 @@
       };
     },
     computed: {
+      ...mapState({
+        welcomeModalVisibleState: 'welcomeModalVisible',
+      }),
       allowDownloads() {
         return this.canAddDownloads && Boolean(this.deviceId);
       },
       appBarTitle() {
         return this.learnString(this.deviceId ? 'exploreLibraries' : 'learnLabel');
+      },
+      welcomeModalVisible() {
+        return (
+          this.welcomeModalVisibleState &&
+          window.localStorage.getItem(welcomeDismissalKey) !== 'true'
+        );
       },
       channelsLabel() {
         if (this.deviceId) {
@@ -453,6 +476,10 @@
       }
     },
     methods: {
+      hideWelcomeModal() {
+        window.localStorage.setItem(welcomeDismissalKey, true);
+        this.$store.commit('SET_WELCOME_MODAL_VISIBLE', false);
+      },
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
