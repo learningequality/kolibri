@@ -22,6 +22,7 @@ Table of contents
   :maxdepth: 2
 
   contributing/index
+  coding_style_guides
   getting_started
   stack
   howtos/index
