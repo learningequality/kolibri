@@ -7,7 +7,6 @@ import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
 import ZipFile from 'kolibri-zip';
 import filenameObj from '../../h5p_build.json';
-import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
 
 const H5PFilename = filenameObj.filename;
@@ -42,21 +41,6 @@ for (const completionVerb of completionVerbs) {
 
 function contentIdentifier(contentId) {
   return `cid-${contentId}`;
-}
-
-/*
- * Create a blob and URL for a uint8array
- * set the mimetype and return the URL
- */
-function createBlobUrl(uint8array, fileName) {
-  let type = '';
-  const fileNameExt = fileName.split('.').slice(-1)[0];
-  if (fileNameExt) {
-    const ext = fileNameExt.toLowerCase();
-    type = mimetypes[ext];
-  }
-  const blob = new Blob([uint8array.buffer], { type });
-  return URL.createObjectURL(blob);
 }
 
 // Looks for any URLs referenced inside url()
@@ -617,7 +601,7 @@ export default class H5PRunner {
       this.contentJson = file.toString();
     } else {
       // Create blob urls for every item in the content folder
-      this.contentPaths[fileName] = createBlobUrl(file.obj, fileName);
+      this.contentPaths[fileName] = file.toUrl(fileName);
     }
   }
 
@@ -650,7 +634,7 @@ export default class H5PRunner {
       this.packageFiles[packagePath][fileName] = file.toString();
     } else {
       // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
-      this.packageFiles[packagePath][fileName] = createBlobUrl(file.obj, fileName);
+      this.packageFiles[packagePath][fileName] = file.toUrl(fileName);
     }
   }
 

@@ -8,7 +8,6 @@
     "build": "yarn run build-base --mode=production",
     "dev": "yarn run build-base --mode=development --watch",
     "compat": "eslint -c ./compat.js ./src/*.js",
-    "mimetypes": "node ./generateH5PMimeTypeDB.js",
     "build-h5p": "node ./downloadH5PVendor.js && webpack --config ./webpack.config.h5p.js --mode=production"
   },
   "author": "Learning Equality",
@@ -17,7 +16,6 @@
     "eslint-plugin-compat": "^4.2.0",
     "html-webpack-plugin": "5.5.3",
     "jquery": "3.5.1",
-    "mime-db": "^1.52.0",
     "mutationobserver-shim": "^0.3.7",
     "purgecss": "^5.0.0"
   },

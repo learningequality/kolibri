@@ -3,9 +3,15 @@
   "version": "0.1.0",
   "description": "A library for reading and writing zip files",
   "main": "src/index.js",
+  "scripts": {
+    "mimetypes": "node ./generateH5PMimeTypeDB.js"
+  },
   "author": "Learning Equality",
   "license": "MIT",
   "dependencies": {
     "fflate": "^0.8.1"
+  },
+  "devDependencies": {
+    "mime-db": "^1.52.0"
   }
 }

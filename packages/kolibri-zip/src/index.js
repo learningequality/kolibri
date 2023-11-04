@@ -1,5 +1,6 @@
 import { unzip, strFromU8 } from 'fflate';
 import loadBinary from './loadBinary';
+import mimetypes from './mimetypes.json';
 
 class File {
   constructor(name, obj) {
@@ -9,6 +10,18 @@ class File {
 
   toString() {
     return strFromU8(this.obj);
+  }
+
+  toUrl(fileName = null) {
+    fileName = fileName || this.name;
+    let type = '';
+    const fileNameExt = fileName.split('.').slice(-1)[0];
+    if (fileNameExt) {
+      const ext = fileNameExt.toLowerCase();
+      type = mimetypes[ext];
+    }
+    const blob = new Blob([this.obj.buffer], { type });
+    return URL.createObjectURL(blob);
   }
 }
 
