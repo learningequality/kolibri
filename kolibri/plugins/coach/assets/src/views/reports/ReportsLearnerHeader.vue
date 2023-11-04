@@ -53,13 +53,11 @@
       </HeaderTableRow>
     </HeaderTable>
     <HeaderTabs :enablePrint="enablePrint">
-      <HeaderTab
-        :text="coachString('reportsLabel')"
-        :to="classRoute('ReportsLearnerReportPage', {})"
-      />
-      <HeaderTab
-        :text="coachString('activityLabel')"
-        :to="classRoute('ReportsLearnerActivityPage', {})"
+      <KTabsList
+        :tabsId="LEARNERS_TABS_ID"
+        :activeTabId="activeTabId"
+        ariaLabel="Coach learners"
+        :tabs="tabs"
       />
     </HeaderTabs>
   </div>
@@ -71,6 +69,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import { LEARNERS_TABS_ID, LearnersTabs } from '../../constants/tabsConstants';
 
   export default {
     name: 'ReportsLearnerHeader',
@@ -81,6 +80,15 @@
         required: false,
         default: false,
       },
+      activeTabId: {
+        type: String,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        LEARNERS_TABS_ID,
+      };
     },
     computed: {
       learner() {
@@ -114,6 +122,20 @@
             status.status !== this.STATUSES.notStarted
         );
         return statuses.length;
+      },
+      tabs() {
+        return [
+          {
+            id: LearnersTabs.REPORTS,
+            label: this.coachString('reportsLabel'),
+            to: this.classRoute('ReportsLearnerReportPage', {}),
+          },
+          {
+            id: LearnersTabs.ACTIVITY,
+            label: this.coachString('activityLabel'),
+            to: this.classRoute('ReportsLearnerActivityPage', {}),
+          },
+        ];
       },
     },
     $trs: {
