@@ -1,4 +1,5 @@
 import { unzip, strFromU8 } from 'fflate';
+import loadBinary from './loadBinary';
 
 class File {
   constructor(name, obj) {
@@ -12,22 +13,34 @@ class File {
 }
 
 export default class ZipFile {
-  constructor(file) {
-    this.zipData = file instanceof Uint8Array ? file : new Uint8Array(file);
+  constructor(url) {
+    this._loadingError = null;
+    this._fileLoadingPromise = loadBinary(url)
+      .then(data => {
+        this.zipData = new Uint8Array(data);
+      })
+      .catch(err => {
+        this._loadingError = err;
+      });
   }
 
   _getFiles(filter) {
-    return new Promise((resolve, reject) => {
-      unzip(this.zipData, { filter }, (err, unzipped) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        if (!unzipped) {
-          reject('No files found');
-          return;
-        }
-        resolve(Object.entries(unzipped).map(([name, obj]) => new File(name, obj)));
+    if (this._loadingError) {
+      return Promise.reject(this._loadingError);
+    }
+    return this._fileLoadingPromise.then(() => {
+      return new Promise((resolve, reject) => {
+        unzip(this.zipData, { filter }, (err, unzipped) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          if (!unzipped) {
+            reject('No files found');
+            return;
+          }
+          resolve(Object.entries(unzipped).map(([name, obj]) => new File(name, obj)));
+        });
       });
     });
   }

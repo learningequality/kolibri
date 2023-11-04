@@ -9,7 +9,6 @@ import ZipFile from 'kolibri-zip';
 import filenameObj from '../../h5p_build.json';
 import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
-import loadBinary from './loadBinary';
 
 const H5PFilename = filenameObj.filename;
 
@@ -181,45 +180,41 @@ export default class H5PRunner {
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
     const start = performance.now();
-    // First load the full H5P file as binary so we can read it using JSZip
-    loadBinary(this.filepath)
-      .then(file => {
-        // Store the zip locally for later reference
-        this.zip = new ZipFile(file);
-        // Recurse all the package dependencies
-        return this.recurseDependencies('h5p.json', true);
-      })
-      .then(() => {
-        // Once we have found all the dependencies, we call this
-        // to sort the dependencies by their dependencies to make an
-        // ordered list, with every package being loaded only once its
-        // dependencies have been loaded.
-        this.setDependencies();
-        return this.processFiles().then(() => {
-          console.debug(`H5P file processed in ${performance.now() - start} ms`);
-          this.metadata = pick(this.rootConfig, metadataKeys);
-          // Do any URL substitition on CSS dependencies
-          // and turn them into Blob URLs.
-          // Also order the dendencies according to our sorted
-          // dependency tree.
-          this.processCssDependencies();
-          this.processJsDependencies();
-          // If the iframe has already loaded, start H5P
-          // Sometimes this check can catch the iframe before it has started
-          // to load H5P, when it is still blank, but loaded.
-          // So we also check that H5P is defined on the contentWindow to be sure
-          // that the ready state applies to the loading of the H5P html file.
-          if (
-            this.iframe.contentDocument &&
-            this.iframe.contentDocument.readyState === 'complete' &&
-            this.iframe.contentWindow.H5P
-          ) {
-            return this.initH5P();
-          }
-          // Otherwise wait for the load event.
-          this.iframe.addEventListener('load', () => this.initH5P());
-        });
+    // First load the full H5P file
+    // Store the zip locally for later reference
+    this.zip = new ZipFile(this.filepath);
+    // Recurse all the package dependencies
+    return this.recurseDependencies('h5p.json', true).then(() => {
+      // Once we have found all the dependencies, we call this
+      // to sort the dependencies by their dependencies to make an
+      // ordered list, with every package being loaded only once its
+      // dependencies have been loaded.
+      this.setDependencies();
+      return this.processFiles().then(() => {
+        console.debug(`H5P file processed in ${performance.now() - start} ms`);
+        this.metadata = pick(this.rootConfig, metadataKeys);
+        // Do any URL substitition on CSS dependencies
+        // and turn them into Blob URLs.
+        // Also order the dendencies according to our sorted
+        // dependency tree.
+        this.processCssDependencies();
+        this.processJsDependencies();
+        // If the iframe has already loaded, start H5P
+        // Sometimes this check can catch the iframe before it has started
+        // to load H5P, when it is still blank, but loaded.
+        // So we also check that H5P is defined on the contentWindow to be sure
+        // that the ready state applies to the loading of the H5P html file.
+        if (
+          this.iframe.contentDocument &&
+          this.iframe.contentDocument.readyState === 'complete' &&
+          this.iframe.contentWindow.H5P
+        ) {
+          return this.initH5P();
+        }
+        // Otherwise wait for the load event.
+        this.iframe.addEventListener('load', () => this.initH5P());
       });
+    });
   }
 
   stateUpdated() {
