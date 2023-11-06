@@ -120,6 +120,9 @@
     mounted() {
       this.$store.dispatch('notLoading');
     },
+    mounted() {
+      this.$store.dispatch('notLoading');
+    },
     $trs: {
       createNewExamLabel: {
         message: 'Create new quiz',
