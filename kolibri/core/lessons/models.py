@@ -241,12 +241,15 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
     @classmethod
     def serialize_lesson(cls, lesson):
         serialized = lesson.serialize()
-        for key in ["is_active", "created_by_id", "date_created", "collection_id"]:
+        for key in ["is_active", "created_by_id", "date_created"]:
             serialized.pop(key, None)
         return serialized
 
-    @classmethod
-    def deserialize_lesson(cls, serialized_lesson):
-        lesson = Lesson.deserialize(serialized_lesson)
+    def deserialize_lesson(self):
+        lesson = Lesson.deserialize(self.serialized_lesson)
         lesson.is_active = True
+        # a lesson's collection should be the classroom, but previously the serialized lesson
+        # did not include the collection_id, so we need to set it here to ensure it isn't null
+        if not lesson.collection_id:
+            lesson.collection_id = self.collection_id
         return lesson
