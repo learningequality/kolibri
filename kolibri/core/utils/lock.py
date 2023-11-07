@@ -3,6 +3,7 @@ from sqlite3 import OperationalError
 
 from django.db import connection
 from django.db import transaction
+from django.utils.functional import wraps
 
 
 class DummyOperation(object):
@@ -73,3 +74,24 @@ def db_lock():
                 vendor=connection.vendor
             )
         )
+
+
+def retry_on_db_lock(func, retries=5):
+    """
+    Decorator that retries a function if it fails due to a database lock.
+    """
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        attempts = 0
+        while True:
+            try:
+                attempts += 1
+                result = func(*args, **kwargs)
+                break
+            except OperationalError as e:
+                if "database is locked" not in str(e) or attempts >= retries:
+                    raise e
+        return result
+
+    return wrapper
