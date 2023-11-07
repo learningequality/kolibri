@@ -4,41 +4,42 @@
     <h5
       class="title-style"
     >
-      {{ sectionSettings$() }}
+      <KIcon
+        icon="back"
+      />
+      Select folders or exercises from these channels
     </h5>
-    <KGrid
-      class="space-bottom-items"
+    <p>Select from bookmarks</p>
+
+    <LessonsSearchBox
+      ref="textbox"
+      placeholder="search by keyword"
+      searchTerm="searchTerm"
+      :inputPlaceHolderStyle="inputPlaceHolderStyle"
+      @searchterm="search"
+    />
+
+    <p
+      class="section-topic-style"
     >
-      <KGridItem
-        :layout12="{ span: 4 }"
-        :layout8="{ span: 3 }"
-        :layout4="{ span: 1 }"
-      >
-        <KGrid>
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-          >
-            <p>Math</p>
-          </KGridItem>
+      Addition and subtraction within 20A
+    </p>
+    <p
+      class="section-subtopic-style"
+    >
+      Learn to add and subtract numbers that are 20 or less.
+    </p>
 
-          <KGridItem
-            :layout12="{ span: 6 }"
-            :layout8="{ span: 4 }"
-          >
-            <p>Early math</p>
-          </KGridItem>
-        </KGrid>
-      </KGridItem>
-
-      <KGridItem
-        :layout12="{ span: 7 }"
-        :layout8="{ span: 5 }"
-        :layout4="{ span: 3 }"
+    <div class="select-all-style">
+      <KIcon
+        icon="indeterminateCheck"
+      />
+      <span
+        class="space-content-left"
       >
-        <p>Addition and subtraction within 20A</p>
-      </KGridItem>
-    </KGrid>
+        select all
+      </span>
+    </div>
   </div>
 
 </template>
@@ -47,9 +48,13 @@
 <script>
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
 
   export default {
     name: 'ResourceSelection',
+    components: {
+      LessonsSearchBox,
+    },
     setup() {
       const { sectionSettings$ } = enhancedQuizManagementStrings;
 
@@ -70,10 +75,26 @@
 
 <style scoped>
 .select-resource{
-  margin-top: -3em;
+  margin-top: -4em;
 }
 .title-style{
   font-weight:600;
-  font-size: 1em;
+  font-size: 1.4em;
+}
+.section-topic-style{
+  font-weight:600;
+  font-size: 1.4em;
+}
+.section-subtopic-style{
+  font-size: 1.2em;
+}
+.select-all-style{
+  font-size:1.2em;
+  font-weight:600;
+  display: inline-flex;
+  justify-content: space-between;
+}
+.space-content-left{
+  margin-left: .5em;
 }
 </style>
