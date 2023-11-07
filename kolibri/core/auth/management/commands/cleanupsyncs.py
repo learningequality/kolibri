@@ -9,4 +9,4 @@ class Command(CleanupsyncCommand):
         if not device_provisioned():
             raise CommandError("Kolibri is unprovisioned")
 
-        return super().handle(*args, **options)
+        return super(Command, self).handle(*args, **options)
