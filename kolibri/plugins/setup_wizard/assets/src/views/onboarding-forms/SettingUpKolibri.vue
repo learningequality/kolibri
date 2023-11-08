@@ -44,7 +44,7 @@
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
-  import { DeviceTypePresets, UsePresets } from '../../constants';
+  import { DeviceTypePresets, Presets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
@@ -160,7 +160,7 @@
 
       /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
-        return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
+        return this.wizardContext('onMyOwnOrGroup') == Presets.PERSONAL;
       },
     },
     created() {

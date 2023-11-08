@@ -9,7 +9,7 @@
     <KRadioButton
       v-model="selected"
       style="margin-bottom: 1em"
-      :value="UsePresets.ON_MY_OWN"
+      :value="Presets.PERSONAL"
       :label="$tr('onMyOwnLabel')"
       :description="getCommonSyncString('onMyOwn')"
     />
@@ -36,17 +36,20 @@
     mixins: [commonSyncElements],
     inject: ['wizardService'],
     data() {
-      const selected = this.wizardService.state.context['onMyOwnOrGroup'] || UsePresets.ON_MY_OWN;
+      const selected = this.wizardService.state.context['onMyOwnOrGroup'] || Presets.PERSONAL;
       return {
         selected,
       };
     },
     computed: {
       isOnMyOwnSetup() {
-        return this.selected === UsePresets.ON_MY_OWN;
+        return this.selected === Presets.PERSONAL;
       },
       UsePresets() {
         return UsePresets;
+      },
+      Presets() {
+        return Presets;
       },
     },
     methods: {
