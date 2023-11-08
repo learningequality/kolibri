@@ -141,10 +141,11 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import { UnreachableConnectionStatuses } from './constants';
   import useDeviceDeletion from './useDeviceDeletion.js';
-  import useDevices, {
-    useDevicesWithChannel,
-    useDevicesWithFacility,
-    useDevicesForLearnOnlyDevice,
+  import {
+    useDevicesWithFilter,
+    useDeviceChannelFilter,
+    useDeviceFacilityFilter,
+    useDeviceMinimumVersionFilter,
   } from './useDevices.js';
   import useConnectionChecker from './useConnectionChecker.js';
 
@@ -155,25 +156,26 @@
     },
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props, context) {
-      // We don't have a use case for combining these at the moment
-      if (
-        (props.filterByChannelId !== null && props.filterByFacilityId !== null) ||
-        ((props.filterByChannelId !== null || props.filterByFacilityId !== null) &&
-          props.filterLODAvailable)
-      ) {
-        throw new Error('Filtering for LOD and having channel or facility is not implemented');
+      const apiParams = {};
+      const deviceFilters = [];
+
+      if (props.filterByChannelId !== null) {
+        deviceFilters.push(useDeviceChannelFilter({ id: props.filterByChannelId }));
       }
 
-      let useDevicesResult = null;
-      if (props.filterByChannelId !== null) {
-        useDevicesResult = useDevicesWithChannel(props.filterByChannelId);
-      } else if (props.filterByFacilityId !== null) {
-        // This is inherently filtered to full-facility devices
-        useDevicesResult = useDevicesWithFacility({ facilityId: props.filterByFacilityId });
-      } else if (props.filterLODAvailable) {
-        useDevicesResult = useDevicesForLearnOnlyDevice();
-      } else {
-        useDevicesResult = useDevices({ subset_of_users_device: false });
+      if (props.filterByFacilityId !== null || props.filterByFacilityCanSignUp !== null) {
+        apiParams.subset_of_users_device = false;
+        deviceFilters.push(
+          useDeviceFacilityFilter({
+            id: props.filterByFacilityId,
+            learner_can_sign_up: props.filterByFacilityCanSignUp,
+          })
+        );
+      }
+
+      if (props.filterLODAvailable) {
+        apiParams.subset_of_users_device = false;
+        deviceFilters.push(useDeviceMinimumVersionFilter(0, 15, 0));
       }
 
       const {
@@ -182,7 +184,7 @@
         hasFetched,
         fetchFailed,
         forceFetch,
-      } = useDevicesResult;
+      } = useDevicesWithFilter(apiParams, deviceFilters);
 
       const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
         _devices,
@@ -235,6 +237,12 @@
         type: Boolean,
         default: false,
       },
+      // When looking for devices for which a learner can sign up
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      filterByFacilityCanSignUp: {
+        type: Boolean,
+        default: null,
+      },
       // If an ID is provided, that device's radio button will be automatically selected
       selectedId: {
         type: String,
@@ -275,7 +283,6 @@
             this.isDeleting ||
             this.fetchFailed ||
             this.isSubmitChecking ||
-            !this.canLearnerSignUp(this.selectedDeviceId) ||
             !this.isDeviceAvailable(this.selectedDeviceId) ||
             this.availableDeviceIds.length === 0
         );

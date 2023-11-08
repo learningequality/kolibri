@@ -1,3 +1,4 @@
+import matches from 'lodash/matches';
 import {
   NetworkLocationResource,
   RemoteChannelResource,
@@ -24,13 +25,20 @@ export function fetchDevices(params = {}) {
 }
 
 /**
- * @param {string} facilityId
+ * @typedef {Object} FacilityFilter
+ * @property {string} [id]
+ * @property {boolean} [learner_can_sign_up]
+ */
+
+/**
  * @param {NetworkLocation} device
+ * @param {FacilityFilter} facility
  * @return {Promise<boolean>}
  */
-export function facilityIsAvailableAtDevice(facilityId, device) {
+export function deviceHasMatchingFacility(device, facility) {
+  // TODO: ideally we could pass along the filters directly to the API
   return NetworkLocationResource.fetchFacilities(device.id).then(({ facilities }) => {
-    return Boolean(facilities.find(({ id }) => id === facilityId));
+    return Boolean(facilities.find(matches(facility)));
   });
 }
 
