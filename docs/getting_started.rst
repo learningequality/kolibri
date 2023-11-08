@@ -491,9 +491,9 @@ Here's a very simple scenario. Below, your remote is called ``origin``, Learning
 
 
 
-Create a new local working branch:
-   - Make sure you have local versions of the Learning Equality `develop` branch and the Learning Equality `release-v*` branch.
-   - Ensure that both branches are up to date. For this guide, we'll assume they are named `develop` and `release-v*`, respectively.
+Make sure you have local versions of the Learning Equality ``develop`` branch and the Learning Equality ``release-v*`` branch and ensure that both branches are up to date. 
+
+For this guide, we'll assume they are named ``develop`` and ``release-v*`` branches, respectively.
 
 .. code-block:: bash
 
@@ -508,15 +508,15 @@ After making changes to the code and committing them locally, push your working 
 
 
 Run Rebase Command
-   - Run the following rebase command:
-     .. code-block:: bash
-      
-      git rebase --onto release-v* develop
-     
-     This command will rebase your current branch ``(develop)`` onto `release-v*`, removing any commits that are already present in `develop`.
 
-Force Push
-   - After completing the rebase, you will need to force push to update your remote branch. Use the following command:
+.. code-block:: bash
+
+  git rebase --onto release-v* develop
+     
+This command will rebase your current branch ``(develop)`` onto ``release-v*``, removing any commits that are already present in ``develop``.
+
+After completing the rebase, you will need to force push to update your remote branch. Use the following command:
+
    .. code-block:: bash
     
     git push --force
