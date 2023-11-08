@@ -487,23 +487,41 @@ For more information, see the next section on :doc:`/manual_testing/index`.
 Submitting a pull request
 -------------------------
 
-Here's a very simple scenario. Below, your remote is called ``origin``, and Learning Equality is ``le``.
+Here's a very simple scenario. Below, your remote is called ``origin``, Learning Equality is ``le``, and ``release-v*`` is current release.
 
-First, create a new local working branch:
+
+
+Create a new local working branch:
+   - Make sure you have local versions of the Learning Equality `develop` branch and the Learning Equality `release-v*` branch.
+   - Ensure that both branches are up to date. For this guide, we'll assume they are named `develop` and `release-v*`, respectively.
 
 .. code-block:: bash
 
   # checkout the upstream develop branch
-  git checkout le/develop
-  # make a new feature branch
-  git checkout -b my-awesome-changes
+  git checkout develop
 
 After making changes to the code and committing them locally, push your working branch to your fork on GitHub:
 
 .. code-block:: bash
 
-  git push origin my-awesome-changes
+  git push origin develop
 
+
+Run Rebase Command
+   - Run the following rebase command:
+     .. code-block:: bash
+      
+      git rebase --onto release-v* develop
+     
+     This command will rebase your current branch ``(develop)`` onto `release-v*`, removing any commits that are already present in `develop`.
+
+Force Push
+   - After completing the rebase, you will need to force push to update your remote branch. Use the following command:
+   .. code-block:: bash
+    
+    git push --force
+    
+  
 Go to Kolibri's `GitHub page <https://github.com/learningequality/kolibri>`__, and create a the new pull request.
 
 .. note::
