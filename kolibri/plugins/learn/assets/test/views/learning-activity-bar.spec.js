@@ -1,5 +1,5 @@
 import { shallowMount, mount } from '@vue/test-utils';
-import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
@@ -12,7 +12,7 @@ function makeWrapper({ propsData } = {}) {
 
 describe('LearningActivityBar', () => {
   beforeEach(() => {
-    useDevicesWithFacility.mockReturnValue({
+    useDevicesWithFilter.mockReturnValue({
       devices: [
         {
           id: '1',
