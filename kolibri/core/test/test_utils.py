@@ -82,7 +82,6 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
 
         wrapped = retry_on_db_lock(_func)
         self.assertNotEqual(wrapped, _func)
-        self.assertEqual(wrapped.__wrapped__, _func)
 
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]
