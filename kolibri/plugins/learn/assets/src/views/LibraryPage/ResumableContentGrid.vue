@@ -40,6 +40,7 @@
     <!-- if all items in initial backend response are not already being shown -->
     <KButton
       v-if="moreContentCards && !showMoreContentCards"
+      data-test="show-more-resumable-nodes-button"
       appearance="basic-link"
       @click="handleShowMoreContentCards"
     >
@@ -49,7 +50,7 @@
     <!-- if there are 13+ recent items & the first 12 are currently visible -->
     <KButton
       v-if="moreResumableContentNodes && showMoreContentCards"
-      data-test="more-resumable-nodes-button"
+      data-test="view-more-resumable-nodes-button"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
     >
