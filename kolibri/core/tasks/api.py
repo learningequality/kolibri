@@ -148,8 +148,16 @@ def validate_remote_import_task(request, task_description):
 
 def validate_remote_content_import_task(request, task_description):
     import_task = validate_remote_import_task(request, task_description)
+    renderable_only = task_description.get("renderable_only", True)
+    import_updates = task_description.get("import_updates", False)
     fail_on_error = task_description.get("fail_on_error", False)
-    import_task.update({"fail_on_error": fail_on_error})
+    import_task.update(
+        {
+            "renderable_only": renderable_only,
+            "import_updates": import_updates,
+            "fail_on_error": fail_on_error,
+        }
+    )
     return import_task
 
 
@@ -179,8 +187,16 @@ def validate_local_import_task(request, task_description):
 
 def validate_local_content_import_task(request, task_description):
     task = validate_local_import_task(request, task_description)
+    renderable_only = task_description.get("renderable_only", True)
+    import_updates = task_description.get("import_updates", False)
     fail_on_error = task_description.get("fail_on_error", False)
-    task.update({"fail_on_error": fail_on_error})
+    task.update(
+        {
+            "renderable_only": renderable_only,
+            "import_updates": import_updates,
+            "fail_on_error": fail_on_error,
+        }
+    )
     return task
 
 
@@ -531,6 +547,8 @@ class TasksViewSet(BaseViewSet):
             peer_id=task["peer_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
+            renderable_only=task["renderable_only"],
+            import_updates=task["import_updates"],
             fail_on_error=task["fail_on_error"],
             extra_metadata=task,
             track_progress=True,
@@ -604,6 +622,8 @@ class TasksViewSet(BaseViewSet):
             drive_id=task["drive_id"],
             node_ids=task["node_ids"],
             exclude_node_ids=task["exclude_node_ids"],
+            renderable_only=task["renderable_only"],
+            import_updates=task["import_updates"],
             fail_on_error=task["fail_on_error"],
             extra_metadata=task,
             track_progress=True,
