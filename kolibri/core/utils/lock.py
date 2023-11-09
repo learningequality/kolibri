@@ -76,7 +76,10 @@ def db_lock():
         )
 
 
-def retry_on_db_lock(func, retries=5):
+MAX_RETRIES = 5
+
+
+def retry_on_db_lock(func):
     """
     Decorator that retries a function if it fails due to a database lock.
     """
@@ -93,7 +96,7 @@ def retry_on_db_lock(func, retries=5):
                 result = func(*args, **kwargs)
                 break
             except OperationalError as e:
-                if "database is locked" not in str(e) or attempts >= retries:
+                if "database is locked" not in str(e) or attempts >= MAX_RETRIES:
                     raise e
         return result
 
