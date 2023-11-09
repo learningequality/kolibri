@@ -88,7 +88,7 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
           // result is memoized once successful
           let isAvailable = true;
           for (const filterFunction of filterFunctions) {
-            if (!(await filterFunction(device))) {
+            if (filterFunction && !(await filterFunction(device))) {
               isAvailable = false;
               break;
             }
@@ -96,11 +96,11 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
 
           // Put into refs to trigger reactive behavior in computed devices
           if (isAvailable) {
-            if (get(availableIds).indexOf(device.id) < 0) {
+            if (!get(availableIds).includes(device.id)) {
               get(availableIds).push(device.id);
             }
           } else {
-            if (get(unavailableIds).indexOf(device.id) < 0) {
+            if (!get(unavailableIds).includes(device.id)) {
               get(unavailableIds).push(device.id);
             }
           }
@@ -119,10 +119,12 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
     // use computed array that depends on availableIds/unavailableIds
     devices: computed(() => {
       return get(devices)
-        .filter(d => get(unavailableIds).indexOf(d.id) < 0)
+        .filter(d => !get(unavailableIds).includes(d.id))
         .map(d => {
           // set unavailable if we haven't determined if it should be filtered out yet
-          d.available = get(availableIds).indexOf(d.id) >= 0;
+          if (!get(availableIds).includes(d.id)) {
+            d.available = false;
+          }
           return d;
         });
     }),

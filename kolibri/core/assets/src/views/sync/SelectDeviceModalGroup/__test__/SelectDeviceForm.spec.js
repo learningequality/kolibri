@@ -61,6 +61,7 @@ describe('SelectDeviceForm', () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(wrapper.vm.hasFetched).toBe(true);
     expect(els.radioButtons()).toHaveLength(6);
     const server1 = els.radioButtons().at(0);
@@ -72,6 +73,7 @@ describe('SelectDeviceForm', () => {
   it('if there are no devices, it shows an empty message', async () => {
     fetchDevices.mockResolvedValue([]);
     const { els, wrapper } = makeWrapper();
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
@@ -87,6 +89,7 @@ describe('SelectDeviceForm', () => {
         .at(n)
         .props().disabled;
     }
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(radioButtonNIsDisabled(0)).toEqual(false);
@@ -106,6 +109,7 @@ describe('SelectDeviceForm', () => {
     await wrapper.vm.$nextTick();
     updateConnectionStatus.mockResolvedValue(staticDevices[0]);
     els.KModal().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(wrapper.emitted().submit[0][0].id).toEqual('1');
