@@ -84,10 +84,7 @@ def update_assignments_from_individual_syncable_lessons(user_id):
     # create new assignments and lessons for all new syncable lesson objects
     for syncablelesson in to_create:
 
-        lesson = IndividualSyncableLesson.deserialize_lesson(
-            syncablelesson.serialized_lesson
-        )
-        lesson.collection_id = syncablelesson.collection_id
+        lesson = syncablelesson.deserialize_lesson()
         # shouldn't need to set this field (as it's nullable, according to the model definition, but got errors)
         lesson.created_by_id = user_id
         lesson.save(update_dirty_bit_to=False)
@@ -115,10 +112,7 @@ def update_assignments_from_individual_syncable_lessons(user_id):
             syncablelesson.serialized_lesson != updated_serialization
             or syncablelesson.collection_id != assignment.collection_id
         ):
-            lesson = IndividualSyncableLesson.deserialize_lesson(
-                syncablelesson.serialized_lesson
-            )
-            lesson.collection_id = syncablelesson.collection_id
+            lesson = syncablelesson.deserialize_lesson()
             lesson.created_by_id = user_id
             lesson.save(update_dirty_bit_to=False)
             assignment.lesson = lesson
