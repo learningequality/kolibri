@@ -37,7 +37,7 @@
       />
     </div>
     <KButton
-      v-if="(moreResumableContentNodes || []).length"
+      v-if="moreResumableContentNodes"
       data-test="more-resumable-nodes-button"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
