@@ -80,11 +80,12 @@ def retry_on_db_lock(func, retries=5):
     """
     Decorator that retries a function if it fails due to a database lock.
     """
-    if connection.vendor != "sqlite":
-        return func
 
     @wraps(func)
     def wrapper(*args, **kwargs):
+        if connection.vendor != "sqlite":
+            return func(*args, **kwargs)
+
         attempts = 0
         while True:
             try:

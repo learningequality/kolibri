@@ -64,19 +64,16 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         != "django.db.backends.postgresql",
         "Postgresql only test",
     )
-    def test_retry_on_db_lock__no_wrapper_unless_sqlite(self):
-        def _func():
-            return True
+    def test_retry_on_db_lock__no_handling_unless_sqlite(self):
+        from sqlite3 import OperationalError
 
-        wrapped = retry_on_db_lock(_func)
-        self.assertEqual(wrapped, _func)
+        func = mock.MagicMock()
+        func.side_effect = [OperationalError("database is locked"), True]
+        wrapped = retry_on_db_lock(func)
+        with self.assertRaises(OperationalError):
+            wrapped()
 
-    @unittest.skipIf(
-        getattr(settings, "DATABASES")["default"]["ENGINE"]
-        != "django.db.backends.sqlite3",
-        "SQLite only test",
-    )
-    def test_retry_on_db_lock__wrapper_on_sqlite(self):
+    def test_retry_on_db_lock__wrapper(self):
         def _func():
             return True
 
