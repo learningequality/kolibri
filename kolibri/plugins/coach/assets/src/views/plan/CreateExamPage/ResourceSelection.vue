@@ -22,7 +22,7 @@
       @searchterm="search"
     />
     <LessonContentCard
-      class="'with-checkbox': needCheckboxes"
+
       title="content.title"
       thumbnail="content.thumbnail"
       description="content.description"
@@ -33,7 +33,6 @@
       isLeaf="content.is_leaf"
     />
     <LessonContentCard
-      class="'with-checkbox': needCheckboxes"
       title="content.title"
       thumbnail="content.thumbnail"
       description="content.description"
@@ -111,11 +110,9 @@
     computed: {
       ...mapState('examCreation', ['contentList']),
       filteredContentList() {
+        console.log(this.contentList);
         return this.contentList;
       },
-    },
-    beforeMount() {
-      console.log(this.contentList.length);
     },
     methods: {
       /** @public */
