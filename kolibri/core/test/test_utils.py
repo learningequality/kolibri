@@ -68,6 +68,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         from sqlite3 import OperationalError
 
         func = mock.MagicMock()
+        func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked"), True]
         wrapped = retry_on_db_lock(func)
         with self.assertRaises(OperationalError):
@@ -89,6 +90,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         from sqlite3 import OperationalError
 
         func = mock.MagicMock()
+        func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked"), True]
         wrapped = retry_on_db_lock(func)
         result = wrapped()
@@ -103,6 +105,7 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         from sqlite3 import OperationalError
 
         func = mock.MagicMock()
+        func.__name__ = "test_func"
         func.side_effect = [OperationalError("database is locked")] * 6
         wrapped = retry_on_db_lock(func)
         with self.assertRaises(OperationalError):
