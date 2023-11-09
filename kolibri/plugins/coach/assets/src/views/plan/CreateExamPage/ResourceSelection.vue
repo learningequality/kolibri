@@ -16,12 +16,25 @@
     <LessonsSearchBox
       ref="textbox"
       placeholder="search by keyword"
-      searchTerm="searchTerm"
+      :searchTerm="searchTerm"
       :inputPlaceHolderStyle="inputPlaceHolderStyle"
       style="margin-top:1em;margin-bottom:1em;"
       @searchterm="search"
     />
-    <LessonContentCard
+    <!-- <ResourceSelection
+      :channelId="channelId"
+      :channelName="channelName"
+      :channelThumbnail="channelThumbnail"
+      :channelDescription="channelDescription"
+    />
+    <ResourceSelectionBreadcrumbs
+      :channelId="channelId"
+      :channelName="channelName"
+      :channelThumbnail="channelThumbnail"
+      :channelDescription="channelDescription"
+    />   -->
+
+    <!-- <LessonContentCard
 
       title="content.title"
       thumbnail="content.thumbnail"
@@ -31,8 +44,8 @@
       link="contentCardLink(content)"
       numCoachContents="content.num_coach_contents"
       isLeaf="content.is_leaf"
-    />
-    <LessonContentCard
+    /> -->
+    <!-- <LessonContentCard
       title="content.title"
       thumbnail="content.thumbnail"
       description="content.description"
@@ -40,35 +53,44 @@
       message="contentCardMessage(content)"
       link="contentCardLink(content)"
       numCoachContents="content.num_coach_contents"
-      isLeaf="content.is_leaf"
-    />
+      isLeaf="content.is_leaf" -->
+    <!-- /> -->
 
-    <ContentCardList
+    <!-- <ContentCardList
       :contentList="filteredContentList"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
       :viewMoreButtonState="viewMoreButtonState"
       :contentIsChecked="contentIsSelected"
       :contentHasCheckbox="contentHasCheckbox"
+    /> -->
+
+    <!-- <LessonContentCard
+      v-for="(content ,index) in filteredContentList"
+      :key="index"
+      :class="{ 'with-checkbox': needCheckboxes }"
+      :title="content.title"
+      :thumbnail="content.thumbnail"
+      :description="content.description"
+      :kind="content.kind"
+      :message="contentCardMessage(content)"
+      :link="contentCardLink(content)"
+      :numCoachContents="content.num_coach_contents"
+      :isLeaf="content.is_leaf"
+    /> -->
+    <ContentCardList
+      :contentList="filteredContentList"
+      :showSelectAll="selectAllIsVisible"
+      :viewMoreButtonState="viewMoreButtonState"
+      :selectAllChecked="addableContent.length === 0"
+      :contentIsChecked="contentIsInLesson"
+      :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+      :contentCardMessage="selectionMetadata"
+      :contentCardLink="contentLink"
+      @changeselectall="toggleTopicInWorkingResources"
+      @change_content_card="toggleSelected"
+      @moreresults="handleMoreResults"
     />
-
-    <!-- <div
-      v-for="content in filteredContentList"
-    >
-      <LessonContentCard
-        :class="{ 'with-checkbox': needCheckboxes }"
-        :title="content.title"
-        :thumbnail="content.thumbnail"
-        :description="content.description"
-        :kind="content.kind"
-        :message="contentCardMessage(content)"
-        :link="contentCardLink(content)"
-        :numCoachContents="content.num_coach_contents"
-        :isLeaf="content.is_leaf"
-      />
-
-    </div> -->
-
   </div>
 
 </template>
@@ -76,14 +98,19 @@
 
 <script>
 
-  import { mapState } from 'vuex';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  // import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import every from 'lodash/every';
+  import pickBy from 'lodash/pickBy';
   import { PageNames } from '../../../constants';
+  import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import BookMarkedResource from './BookMarkedResource.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
+  // import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
+  // import ResourceSelection from './ResourceSelection.vue';
+  // import  ResourceSelectionBreadcrumbs from './../../../views/plan/LessonResourceS
+  // electionPage/SearchTools/ResourceSelectionBreadcrumbs.vue'
 
   export default {
     name: 'ResourceSelection',
@@ -91,8 +118,11 @@
       LessonsSearchBox,
       BookMarkedResource,
       ContentCardList,
-      LessonContentCard,
+      // ResourceSelection,
+      // ResourceSelectionBreadcrumbs,
+      // LessonContentCard,
     },
+    inject: ['contentList', 'quizForge'],
     setup() {
       const { sectionSettings$ } = enhancedQuizManagementStrings;
 
@@ -103,35 +133,121 @@
     data() {
       return {
         viewMoreButtonState: 'no_more_results',
-        contentHasCheckbox: () => false,
-        contentIsSelected: () => '',
+        // contentHasCheckbox: () => false,
+        // contentIsSelected: () => '',
+        searchTerm: '',
+        search: '',
+        filters: {
+          channel: this.$route.query.channel || null,
+          kind: this.$route.query.kind || null,
+          role: this.$route.query.role || null,
+        },
       };
     },
     computed: {
-      ...mapState('examCreation', ['contentList']),
       filteredContentList() {
-        console.log(this.contentList);
-        return this.contentList;
+        const { role } = this.filters;
+        if (!this.inSearchMode) {
+          return this.contentList;
+        }
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(contentNode => {
+          let passesFilters = true;
+          if (role === 'nonCoach') {
+            passesFilters = passesFilters && contentNode.num_coach_contents === 0;
+          }
+          if (role === 'coach') {
+            passesFilters = passesFilters && contentNode.num_coach_contents > 0;
+          }
+          return passesFilters;
+        });
       },
+      inSearchMode() {
+        return this.pageName === LessonsPageNames.SELECTION_SEARCH;
+      },
+      inputPlaceHolderStyle() {
+        return {
+          color: this.$themeTokens.annotation,
+        };
+      },
+      selectAllIsVisible() {
+        // Do not show 'Select All' if on Search Results, on Channels Page,
+        // or if all contents are topics
+        return (
+          !this.inSearchMode &&
+          this.pageName !== LessonsPageNames.SELECTION_ROOT &&
+          !every(this.contentList, this.contentIsDirectoryKind)
+        );
+      },
+      contentIsDirectoryKind({ is_leaf }) {
+        return !is_leaf;
+      },
+      contentIsInLesson() {
+        return ({ id }) =>
+          Boolean(this.workingResources.find(resource => resource.contentnode_id === id));
+      },
+      selectionMetadata(content) {
+        let count = 0;
+        let total = 0;
+        if (this.ancestorCounts[content.id]) {
+          count = this.ancestorCounts[content.id].count;
+          total = this.ancestorCounts[content.id].total;
+        }
+        if (count) {
+          return this.$tr('selectionInformation', {
+            count,
+            total,
+          });
+        }
+        // return '';
+        return function() {
+          console.log('Dynamic function called');
+        };
+      },
+      addableContent() {
+        // Content in the topic that can be added if 'Select All' is clicked
+        const list = this.contentList ? this.contentList : this.bookmarksList;
+        return list.filter(
+          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
+        );
+      },
+    },
+    watch: {
+      workingResources(newVal, oldVal) {
+        this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
+        this.debouncedSaveResources();
+      },
+      filters(newVal) {
+        const newQuery = {
+          ...this.$route.query,
+          ...newVal,
+        };
+        this.$router.push({
+          query: pickBy(newQuery),
+        });
+      },
+    },
+    created() {
+      console.log(this.contentList);
     },
     methods: {
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
       },
-      selectionMetadata(content) {
-        if (content.kind === ContentNodeKinds.TOPIC) {
-          const count = content.exercises.filter(exercise =>
-            Boolean(this.selectedExercises[exercise.id])
-          ).length;
-          if (count === 0) {
-            return '';
-          }
-          const total = content.exercises.length;
-          return this.$tr('total_number', { count, total });
-        }
-        return '';
-      },
+      // selectionMetadata(content) {
+      //   if (content.kind === ContentNodeKinds.TOPIC) {
+      //     const count = content.exercises.filter(exercise =>
+      //       Boolean(this.selectedExercises[exercise.id])
+      //     ).length;
+      //     if (count === 0) {
+      //       return '';
+      //     }
+      //     const total = content.exercises.length;
+      //     return this.$tr('total_number', { count, total });
+      //   }
+      //   return '';
+      // },
       contentLink(content) {
         if (!content.is_leaf) {
           return {
@@ -154,9 +270,61 @@
           },
         };
       },
+      handleMoreResults() {
+        this.moreResultsState = 'waiting';
+        this.fetchAdditionalSearchResults({
+          searchTerm: this.searchTerm,
+          kind: this.filters.kind,
+          channelId: this.filters.channel,
+          currentResults: this.searchResults.results,
+        })
+          .then(() => {
+            this.moreResultsState = null;
+            this.moreResultsState;
+          })
+          .catch(() => {
+            this.moreResultsState = 'error';
+          });
+      },
+      toggleSelected({ content, checked }) {
+        if (checked) {
+          this.addToSelectedResources(content);
+        } else {
+          this.removeFromSelectedResources([content]);
+        }
+      },
+      toggleTopicInWorkingResources(isChecked) {
+        if (isChecked) {
+          this.addableContent.forEach(resource => {
+            this.addToResourceCache({
+              node: { ...resource },
+            });
+          });
+          this.addToWorkingResources(this.addableContent);
+        } else {
+          this.removeFromSelectedResources(this.contentList);
+        }
+      },
+      // filteredContentList() {
+      //   const { role } = this.filters;
+      //   if (!this.inSearchMode) {
+      //     return this.contentList;
+      //   }
+      //   const list = this.contentList ? this.contentList : this.bookmarksList;
+      //   return list.filter(contentNode => {
+      //     let passesFilters = true;
+      //     if (role === 'nonCoach') {
+      //       passesFilters = passesFilters && contentNode.num_coach_contents === 0;
+      //     }
+      //     if (role === 'coach') {
+      //       passesFilters = passesFilters && contentNode.num_coach_contents > 0;
+      //     }
+      //     return passesFilters;
+      //   });
+      // },
     },
     $trs: {
-      total_number: {
+      selectionInformation: {
         message: 'Channels',
       },
     },

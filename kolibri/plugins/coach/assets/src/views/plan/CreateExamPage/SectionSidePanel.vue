@@ -19,6 +19,7 @@
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
+  import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
@@ -31,7 +32,13 @@
 
   export default {
     name: 'SectionSidePanel',
-    components: { SidePanelModal, SectionEditor, ReplaceQuestions, ResourceSelection },
+    components: {
+      SidePanelModal,
+      SectionEditor,
+      ReplaceQuestions,
+      ResourceSelection,
+      ResourceSelectionBreadcrumbs,
+    },
     inject: ['quizForge'],
     data() {
       return {

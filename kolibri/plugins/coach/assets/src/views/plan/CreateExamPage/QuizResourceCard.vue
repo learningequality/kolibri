@@ -27,14 +27,12 @@
             <KIcon icon="channel" />
             Channel name
           </p>
-          <!-- <ChannelCard
-            :isMobile="windowIsSmall"
-            :title="content.title || content.name"
-            :thumbnail="content.thumbnail"
-            :tagline="content.tagline || content.description"
-            :numCoachContents="content.num_coach_contents"
-            :link="genContentLinkBackLinkCurrentPage(content.id, false, deviceId)"
-          /> -->
+          <ResourceSelection
+            :channelId="channelId"
+            :channelName="channelName"
+            :channelThumbnail="channelThumbnail"
+            :channelDescription="channelDescription"
+          />
         </KGridItem>
       </KGrid>
     </div>
@@ -45,12 +43,12 @@
 
 <script>
 
-  //  import ChannelCard from '/kolibri/plugins/learn/assets/src/views/ChannelCard.vue';
+  import ResourceSelection from './ResourceSelection.vue';
 
   export default {
     name: 'QuizResourceCard',
     components: {
-      // ChannelCard
+      ResourceSelection,
     },
   };
 

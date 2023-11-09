@@ -4,13 +4,13 @@
     <div class="card-shadow" style="box-shadow:0px 0px 2px 0px;border-radius:5px;">
       <KGrid>
         <KGridItem
-          :layout12="{ span: 6 }"
+          :layout12="{ span: 4 }"
         >
           <div
             style="
                 background-color:#fafafafa;
                 width:100%;
-                height:150px;
+                height:123px;
                 margin:10px;
                 justify-content: center;"
           >
@@ -19,7 +19,7 @@
         </KGridItem>
 
         <KGridItem
-          :layout12="{ span: 6 }"
+          :layout12="{ span: 8 }"
         >
           <p>Bookmarks</p>
           <p>XX bookmarks</p>
@@ -38,3 +38,10 @@
   };
 
 </script>
+
+
+<style  lang="scss" scoped>
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+</style>

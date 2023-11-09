@@ -44,7 +44,10 @@
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
+  import { ChannelResource, BookmarksResource, ContentNodeResource } from 'kolibri.resources';
+  import chunk from 'lodash/chunk';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
@@ -67,6 +70,8 @@
       return {
         quizInitialized,
         quizForge,
+        contentList: [],
+        bookmarksList: [],
       };
     },
     /**
@@ -80,18 +85,8 @@
       return {
         quizForge: this.quizForge,
         showError: false,
-        moreResultsState: null,
-        // null corresponds to 'All' filter value
-        filters: {
-          channel: this.$route.query.channel || null,
-          kind: this.$route.query.kind || null,
-          role: this.$route.query.role || null,
-        },
-        // numQuestionsBlurred: false,
-        bookmarksCount: 0,
-        bookmarks: [],
-        more: null,
-        // showSectionSettingsMenu:false
+        contentList: this.contentList,
+        bookmarksList: this.bookmarksList,
       };
     },
     computed: {
@@ -121,7 +116,34 @@
       this.$store.dispatch('notLoading');
     },
     mounted() {
-      this.$store.dispatch('notLoading');
+      ChannelResource.fetchCollection({
+        getParams: { available: true, has_exercise: true },
+      }).then(channels => {
+        const channelContentList = channels.map(channel => ({
+          ...channel,
+          id: channel.root,
+          title: channel.name,
+          kind: ContentNodeKinds.CHANNEL,
+          is_leaf: false,
+        }));
+        this.contentList = channelContentList;
+        console.log(this.contentList);
+        this.$store.dispatch('notLoading');
+      });
+      BookmarksResource.fetchCollection()
+        .then(bookmarks => bookmarks.map(bookmark => bookmark.contentnode_id))
+        .then(contentNodeIds => {
+          const chunkedContentNodeIds = chunk(contentNodeIds, 50); // Breaking contentNodeIds into lists no more than 50 in length
+          // Now we will create an array of promises, each of which queries for the 50-id chunk
+          const fetchPromises = chunkedContentNodeIds.map(idsChunk => {
+            return ContentNodeResource.fetchCollection({
+              getParams: {
+                ids: idsChunk, // This filters only the ids we want
+              },
+            });
+          });
+          Promise.all(fetchPromises);
+        });
     },
     $trs: {
       createNewExamLabel: {
