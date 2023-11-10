@@ -22,25 +22,29 @@ class SingleFacilityUserChangeClearingOperation(KolibriSingleUserSyncOperation):
 
 class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
     def handle_initial(self, context):
+        """
+        :type context: morango.sync.context.LocalSessionContext
+        """
         if context.is_receiver:
             is_pull = context.is_pull
             is_push = context.is_push
             sync_filter = str(context.filter)
-            is_server = context.is_server
-            instance_id = str(
-                context.sync_session.client_instance_id
-                if context.is_server
-                else context.sync_session.server_instance_id
-            )
-            instance_name = "client" if is_server else "server"
+
+            instance_kwargs = {}
+            if context.is_server:
+                instance_kwargs[
+                    "client_instance_id"
+                ] = context.sync_session.client_instance_id
+            else:
+                instance_kwargs[
+                    "server_instance_id"
+                ] = context.sync_session.server_instance_id
             cleanupsync.enqueue(
                 kwargs=dict(
                     is_pull=is_pull,
                     is_push=is_push,
                     sync_filter=sync_filter,
-                    is_server=is_server,
-                    instance_id=instance_id,
-                    instance_name=instance_name,
+                    **instance_kwargs
                 )
             )
 

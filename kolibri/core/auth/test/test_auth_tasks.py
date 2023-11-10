@@ -1,4 +1,5 @@
 import datetime
+from uuid import uuid4
 
 from django.core.management.base import CommandError
 from django.test import TestCase
@@ -6,16 +7,22 @@ from django.urls import reverse
 from django.utils import timezone
 from mock import Mock
 from mock import patch
+from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.test import APITestCase
 
+from .helpers import clear_process_cache
+from .helpers import provision_device
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.tasks import cleanupsync
+from kolibri.core.auth.tasks import CleanUpSyncsValidator
 from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
@@ -785,3 +792,141 @@ class SoudTasksTestCase(TestCase):
         mock_get_job.assert_not_called()
         mock_job = mock_get_job.return_value
         mock_job.retry_in.assert_not_called()
+
+
+class CleanUpSyncsTaskValidatorTestCase(TestCase):
+    def setUp(self):
+        self.kwargs = dict(
+            type=cleanupsync.__name__,
+            is_push=True,
+            is_pull=False,
+            sync_filter=uuid4().hex,
+            client_instance_id=uuid4().hex,
+        )
+
+    def test_validator__no_push_no_pull(self):
+        self.kwargs.pop("is_push")
+        self.kwargs.pop("is_pull")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError, "Either is_pull or is_push"
+        ):
+            validator.is_valid(raise_exception=True)
+
+    def test_validator__both_push_and_pull(self):
+        self.kwargs.update(is_pull=True)
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError, "Only one of is_pull or is_push"
+        ):
+            validator.is_valid(raise_exception=True)
+
+    def test_validator__no_client_instance_id_no_server_instance_id(self):
+        self.kwargs.pop("client_instance_id")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError,
+            "Either client_instance_id or server_instance_id",
+        ):
+            validator.is_valid(raise_exception=True)
+
+    def test_validator__both_client_instance_id_and_server_instance_id(self):
+        self.kwargs.update(server_instance_id=uuid4().hex)
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError,
+            "Only one of client_instance_id or server_instance_id",
+        ):
+            validator.is_valid(raise_exception=True)
+
+    def test_validator__no_sync_filter(self):
+        self.kwargs.pop("sync_filter")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaises(serializers.ValidationError):
+            validator.is_valid(raise_exception=True)
+
+
+class CleanUpSyncsTaskTestCase(TestCase):
+    def setUp(self):
+        self.kwargs = dict(
+            is_push=True,
+            is_pull=False,
+            sync_filter=uuid4().hex,
+            client_instance_id=uuid4().hex,
+        )
+
+    @patch("kolibri.core.auth.tasks.CleanUpSyncsValidator")
+    def test_runs_validator(self, mock_validator):
+        mock_validator.return_value = mock_validator
+        mock_validator.is_valid.side_effect = serializers.ValidationError
+        with self.assertRaises(serializers.ValidationError):
+            cleanupsync(**self.kwargs)
+        mock_validator.assert_called_with(
+            data=dict(type=cleanupsync.__name__, **self.kwargs)
+        )
+        mock_validator.is_valid.assert_called_with(raise_exception=True)
+
+    @patch("kolibri.core.auth.tasks.call_command")
+    def test_calls_command(self, mock_call_command):
+        cleanupsync(**self.kwargs)
+        mock_call_command.assert_called_with(
+            "cleanupsyncs",
+            expiration=1,
+            is_push=self.kwargs["is_push"],
+            is_pull=self.kwargs["is_pull"],
+            sync_filter=self.kwargs["sync_filter"],
+            client_instance_id=self.kwargs["client_instance_id"],
+        )
+
+    def test_actual_run__not_provisioned(self):
+        clear_process_cache()
+        with self.assertRaisesRegex(CommandError, "Kolibri is unprovisioned"):
+            cleanupsync(**self.kwargs)
+
+    def _create_sync(self, last_activity_timestamp=None, client_instance_id=None):
+        if last_activity_timestamp is None:
+            last_activity_timestamp = timezone.now() - datetime.timedelta(hours=2)
+
+        sync_session = SyncSession.objects.create(
+            id=uuid4().hex,
+            active=True,
+            client_instance_id=client_instance_id or self.kwargs["client_instance_id"],
+            server_instance_id=uuid4().hex,
+            last_activity_timestamp=last_activity_timestamp,
+            profile=PROFILE_FACILITY_DATA,
+        )
+        transfer_session = TransferSession.objects.create(
+            id=uuid4().hex,
+            active=True,
+            sync_session=sync_session,
+            push=self.kwargs["is_push"],
+            filter=self.kwargs["sync_filter"],
+            last_activity_timestamp=last_activity_timestamp,
+        )
+        return (sync_session, transfer_session)
+
+    def test_actual_run__cleanup(self):
+        provision_device()
+
+        sync_session, transfer_session = self._create_sync()
+        (
+            alt_instance_id_sync_session,
+            alt_instance_id_transfer_session,
+        ) = self._create_sync(client_instance_id=uuid4().hex)
+        recent_sync_session, recent_transfer_session = self._create_sync(
+            last_activity_timestamp=timezone.now() - datetime.timedelta(minutes=1)
+        )
+
+        cleanupsync(**self.kwargs)
+
+        sync_session.refresh_from_db()
+        transfer_session.refresh_from_db()
+        alt_instance_id_sync_session.refresh_from_db()
+        alt_instance_id_transfer_session.refresh_from_db()
+
+        self.assertFalse(sync_session.active)
+        self.assertFalse(transfer_session.active)
+        self.assertTrue(alt_instance_id_sync_session.active)
+        self.assertTrue(alt_instance_id_transfer_session.active)
+        self.assertTrue(recent_sync_session.active)
+        self.assertTrue(recent_transfer_session.active)
