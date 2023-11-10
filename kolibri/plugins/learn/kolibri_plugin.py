@@ -15,6 +15,7 @@ from kolibri.core.discovery.hooks import NetworkLocationBroadcastHook
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
@@ -109,6 +110,7 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
             )
 
 
+@retry_on_db_lock
 def request_soud_sync(network_location):
     """
     :type network_location: kolibri.core.discovery.models.NetworkLocation

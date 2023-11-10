@@ -18,8 +18,8 @@ class CleanUpTaskOperationTestCase(TestCase):
             is_pull=False,
             sync_session=mock.MagicMock(
                 spec="morango.sync.session.SyncSession",
-                client_instance_id=uuid.uuid4().hex,
-                server_instance_id=uuid.uuid4().hex,
+                client_instance_id=uuid.uuid4(),
+                server_instance_id=uuid.uuid4(),
             ),
         )
         self.operation = CleanUpTaskOperation()
@@ -40,7 +40,7 @@ class CleanUpTaskOperationTestCase(TestCase):
                 is_pull=self.context.is_pull,
                 is_push=self.context.is_push,
                 sync_filter=str(self.context.filter),
-                client_instance_id=self.context.sync_session.client_instance_id,
+                client_instance_id=self.context.sync_session.client_instance_id.hex,
             )
         )
 
@@ -54,7 +54,7 @@ class CleanUpTaskOperationTestCase(TestCase):
                 is_pull=self.context.is_pull,
                 is_push=self.context.is_push,
                 sync_filter=str(self.context.filter),
-                server_instance_id=self.context.sync_session.server_instance_id,
+                server_instance_id=self.context.sync_session.server_instance_id.hex,
             )
         )
 
