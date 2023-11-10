@@ -40,9 +40,10 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
                     sync_filter=sync_filter,
                     is_server=is_server,
                     instance_id=instance_id,
-                    instance_name=instance_name
+                    instance_name=instance_name,
                 )
             )
+
         return False
 
 
