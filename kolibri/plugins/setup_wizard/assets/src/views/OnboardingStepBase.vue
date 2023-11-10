@@ -154,8 +154,8 @@
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
-      return { windowIsSmall, windowIsPortrait };
+      const { windowIsSmall } = useKResponsiveWindow();
+      return { windowIsSmall };
     },
     props: {
       /**

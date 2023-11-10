@@ -48,8 +48,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
-      return { windowIsSmall, windowIsPortrait };
+      const { windowIsLarge } = useKResponsiveWindow();
+      return { windowIsLarge };
     },
     data() {
       return {
