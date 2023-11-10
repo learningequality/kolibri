@@ -98,7 +98,7 @@
 
 <script>
 
-  // import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds , ContentNodeResource} from 'kolibri.coreVue.vuex.constants';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
@@ -142,6 +142,7 @@
           kind: this.$route.query.kind || null,
           role: this.$route.query.role || null,
         },
+        visibleResources:[],
       };
     },
     computed: {
@@ -213,7 +214,8 @@
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
-    },
+    }, 
+
     watch: {
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
@@ -229,8 +231,26 @@
         });
       },
     },
+    beforeRouteEnter (to, from, next) {
+      console.log(to);
+      console.log(from);
+      console.log(to.params.topic_id);
+      if(to.params.topic_id){
+        this.showChannelQuizCreationTopicPage(this.$store,to.params).then(() => {
+          next();
+        });
+      }
+    },
     created() {
       console.log(this.quizForge.channels.value);
+    },
+    mounted() {
+      if(this.quizForge.channels.value.length > 0){
+
+        this.visibleResources = this.quizForge.channels.value;
+      }else{
+        this.visibleResources =[];
+      }
     },
     methods: {
       /** @public */
@@ -253,24 +273,12 @@
       contentLink(content) {
         if (!content.is_leaf) {
           return {
-            name: PageNames.EXAM_CREATION_SELECT_PRACTICE_QUIZ_TOPIC,
+            name: PageNames.SELECT_FROM_RESOURCE,
             params: {
-              classId: this.classId,
-              topicId: content.id,
+              topic_id: content.id,
             },
           };
         }
-
-        const value = content.assessmentmetadata.assessment_item_ids.length;
-        this.$store.commit('examCreation/SET_NUMBER_OF_QUESTIONS', value);
-
-        return {
-          name: PageNames.EXAM_CREATION_PRACTICE_QUIZ_PREVIEW,
-          params: {
-            classId: this.classId,
-            contentId: content.id,
-          },
-        };
       },
       handleMoreResults() {
         this.moreResultsState = 'waiting';
@@ -310,6 +318,37 @@
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
       },
+    showChannelQuizCreationTopicPage(store, params) {
+      return store.dispatch('loading').then(() => {
+        const { topic_id } = params;
+        const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
+        const childNodesPromise = ContentNodeResource.fetchCollection({
+          getParams: {
+            parent: topic_id,
+            kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+            contains_quiz: true,
+          },
+        });
+        const loadRequirements = [topicNodePromise, childNodesPromise];
+
+        return Promise.all(loadRequirements).then(([/*topicNoitde*/, childNodes]) => {
+          console.log(childNodes);
+          this.visibleResources = childNodes;
+          // return filterAndAnnotateContentList(childNodes).then(contentList => {
+          //   store.commit('SET_TOOLBAR_ROUTE', {
+          //     name: PageNames.EXAMS,
+          //   });
+
+          //   return showExamCreationPage(store, {
+          //     classId: params.classId,
+          //     contentList,
+          //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+          //     ancestors: [...topicNode.ancestors, topicNode],
+          //   });
+          // });
+        });
+  });
+}
       // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {
