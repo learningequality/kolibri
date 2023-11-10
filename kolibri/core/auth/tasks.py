@@ -612,12 +612,10 @@ def cleanupsync(**kwargs):
     is_pull = kwargs.get("is_pull")
     is_push = kwargs.get("is_push")
     sync_filter = kwargs.get("sync_filter")
-    is_server = kwargs.get("is_server")
     instance_id = kwargs.get("instance_id")
-    instance_name = "client" if is_server else "server"
-    instance_attribute_name = "{}-instance-id".format(instance_name)
+    instance_name = kwargs.get("instance_name")
     instance_attribute = {
-        instance_attribute_name: instance_id,
+        "{}-instance-id".format(instance_name): instance_id,
     }
     if (
         is_pull is not None
