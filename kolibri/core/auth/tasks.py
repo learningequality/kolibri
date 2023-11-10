@@ -599,3 +599,57 @@ def deletefacility(facility):
         facility=facility,
         noninteractive=True,
     )
+
+
+class CleanUpSyncsValidator(JobValidator):
+    is_pull = serializers.BooleanField(required=False)
+    is_push = serializers.BooleanField(required=False)
+    sync_filter = serializers.CharField(required=True)
+    client_instance_id = HexOnlyUUIDField(required=False)
+    server_instance_id = HexOnlyUUIDField(required=False)
+
+    def validate(self, data):
+        if data.get("is_pull") is None and data.get("is_push") is None:
+            raise serializers.ValidationError(
+                "Either is_pull or is_push must be specified"
+            )
+        elif data.get("is_pull") is data.get("is_push"):
+            raise serializers.ValidationError(
+                "Only one of is_pull or is_push needs to be specified"
+            )
+
+        if (
+            data.get("client_instance_id") is None
+            and data.get("server_instance_id") is None
+        ):
+            raise serializers.ValidationError(
+                "Either client_instance_id or server_instance_id must be specified"
+            )
+        elif (
+            data.get("client_instance_id") is not None
+            and data.get("server_instance_id") is not None
+        ):
+            raise serializers.ValidationError(
+                "Only one of client_instance_id or server_instance_id can be specified"
+            )
+
+        return {
+            "kwargs": data,
+        }
+
+
+@register_task(
+    validator=CleanUpSyncsValidator,
+    track_progress=False,
+    cancellable=False,
+    long_running=True,
+    queue=facility_task_queue,
+    status_fn=status_fn,
+)
+def cleanupsync(**kwargs):
+    # ensure arguments are valid, even outside of task API
+    validator = CleanUpSyncsValidator(data=dict(type=cleanupsync.__name__, **kwargs))
+    validator.is_valid(raise_exception=True)
+
+    sync_filter = kwargs.pop("sync_filter")
+    call_command("cleanupsyncs", sync_filter=str(sync_filter), expiration=1, **kwargs)
