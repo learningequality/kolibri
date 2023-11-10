@@ -1,3 +1,5 @@
+import uuid
+
 from morango.sync.operations import LocalOperation
 
 from kolibri.core.auth.hooks import FacilityDataSyncHook
@@ -39,6 +41,12 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
                 instance_kwargs[
                     "server_instance_id"
                 ] = context.sync_session.server_instance_id
+
+            # ensure the instance ids are strings
+            for key, instance_id in instance_kwargs.items():
+                if isinstance(instance_id, uuid.UUID):
+                    instance_kwargs[key] = instance_id.hex
+
             cleanupsync.enqueue(
                 kwargs=dict(
                     is_pull=is_pull,
