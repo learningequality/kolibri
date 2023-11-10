@@ -3,7 +3,7 @@
   <div>
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="welcomeModalVisible"
+        v-if="welcomeModalVisible && !areChannelsImported"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -450,6 +450,11 @@
       },
       studioId() {
         return KolibriStudioId;
+      },
+      areChannelsImported() {
+        console.log('debugggggggggg');
+        console.log(this.rootNodes.length);
+        return this.rootNodes.length > 0;
       },
     },
     watch: {
