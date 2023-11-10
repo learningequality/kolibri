@@ -15,7 +15,7 @@ class Bookmark(AbstractFacilityDataModel):
     content_id = UUIDField(blank=True, null=True)
     channel_id = UUIDField(blank=True, null=True)
     contentnode_id = UUIDField()
-    user = models.ForeignKey(FacilityUser, blank=False)
+    user = models.ForeignKey(FacilityUser, blank=False, on_delete=models.CASCADE)
     created = models.DateTimeField(default=timezone.now, db_index=True)
 
     morango_model_name = "bookmark"

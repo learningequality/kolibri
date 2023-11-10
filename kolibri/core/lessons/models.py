@@ -57,11 +57,19 @@ class Lesson(AbstractFacilityDataModel):
 
     # The Classroom-type Collection for which the Lesson is created
     collection = models.ForeignKey(
-        Collection, related_name="lessons", blank=False, null=False
+        Collection,
+        related_name="lessons",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
 
     created_by = models.ForeignKey(
-        FacilityUser, related_name="lessons_created", blank=False, null=True
+        FacilityUser,
+        related_name="lessons_created",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
@@ -130,13 +138,25 @@ class LessonAssignment(AbstractFacilityDataModel):
     )
 
     lesson = models.ForeignKey(
-        Lesson, related_name="lesson_assignments", blank=False, null=False
+        Lesson,
+        related_name="lesson_assignments",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     collection = models.ForeignKey(
-        Collection, related_name="assigned_lessons", blank=False, null=False
+        Collection,
+        related_name="assigned_lessons",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     assigned_by = models.ForeignKey(
-        FacilityUser, related_name="assigned_lessons", blank=False, null=True
+        FacilityUser,
+        related_name="assigned_lessons",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -214,8 +234,8 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
 
     morango_model_name = "individualsyncablelesson"
 
-    user = models.ForeignKey(FacilityUser)
-    collection = models.ForeignKey(Collection)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     lesson_id = models.UUIDField()
 
     serialized_lesson = JSONField()
