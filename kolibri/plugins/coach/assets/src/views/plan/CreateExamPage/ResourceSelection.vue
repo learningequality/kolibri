@@ -57,7 +57,7 @@
     <!-- /> -->
 
     <!-- <ContentCardList
-      :contentList="filteredContentList"
+      :quizForge.channels.value="filteredquizForge.channels.value"
       :contentCardMessage="selectionMetadata"
       :contentCardLink="contentLink"
       :viewMoreButtonState="viewMoreButtonState"
@@ -66,7 +66,7 @@
     /> -->
 
     <!-- <LessonContentCard
-      v-for="(content ,index) in filteredContentList"
+      v-for="(content ,index) in filteredquizForge.channels.value"
       :key="index"
       :class="{ 'with-checkbox': needCheckboxes }"
       :title="content.title"
@@ -79,13 +79,13 @@
       :isLeaf="content.is_leaf"
     /> -->
     <ContentCardList
-      :contentList="filteredContentList"
+      :contentList="quizForge.channels.value"
       :showSelectAll="selectAllIsVisible"
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
       :contentIsChecked="contentIsInLesson"
       :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-      :contentCardMessage="selectionMetadata"
+      :contentCardMessage="() =>selectionMetadata"
       :contentCardLink="contentLink"
       @changeselectall="toggleTopicInWorkingResources"
       @change_content_card="toggleSelected"
@@ -122,7 +122,7 @@
       // ResourceSelectionBreadcrumbs,
       // LessonContentCard,
     },
-    inject: ['contentList', 'quizForge'],
+    inject: ['quizForge'],
     setup() {
       const { sectionSettings$ } = enhancedQuizManagementStrings;
 
@@ -148,9 +148,11 @@
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
-          return this.contentList;
+          return this.quizForge.channels.value;
         }
-        const list = this.contentList ? this.contentList : this.bookmarksList;
+        const list = this.quizForge.channels.value
+          ? this.quizForge.channels.value
+          : this.bookmarksList;
         return list.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
@@ -176,37 +178,37 @@
         return (
           !this.inSearchMode &&
           this.pageName !== LessonsPageNames.SELECTION_ROOT &&
-          !every(this.contentList, this.contentIsDirectoryKind)
+          !every(this.quizForge.channels.value, this.contentIsDirectoryKind)
         );
-      },
-      contentIsDirectoryKind({ is_leaf }) {
-        return !is_leaf;
       },
       contentIsInLesson() {
         return ({ id }) =>
           Boolean(this.workingResources.find(resource => resource.contentnode_id === id));
       },
-      selectionMetadata(content) {
-        let count = 0;
-        let total = 0;
-        if (this.ancestorCounts[content.id]) {
-          count = this.ancestorCounts[content.id].count;
-          total = this.ancestorCounts[content.id].total;
-        }
-        if (count) {
-          return this.$tr('selectionInformation', {
-            count,
-            total,
-          });
-        }
+      selectionMetadata(/*content*/) {
+        return '';
+        // let count = 0;
+        // let total = 0;
+        // if (this.ancestorCounts[content.id]) {
+        //   count = this.ancestorCounts[content.id].count;
+        //   total = this.ancestorCounts[content.id].total;
+        // }
+        // if (count) {
+        //   return this.$tr('selectionInformation', {
+        //     count,
+        //     total,
+        //   });
+        // }
         // return '';
-        return function() {
-          console.log('Dynamic function called');
-        };
+        // return function() {
+        //   console.log('Dynamic function called');
+        // };
       },
       addableContent() {
         // Content in the topic that can be added if 'Select All' is clicked
-        const list = this.contentList ? this.contentList : this.bookmarksList;
+        const list = this.quizForge.channels.value
+          ? this.quizForge.channels.value
+          : this.bookmarksList;
         return list.filter(
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
@@ -228,7 +230,7 @@
       },
     },
     created() {
-      console.log(this.contentList);
+      console.log(this.quizForge.channels.value);
     },
     methods: {
       /** @public */
@@ -302,15 +304,18 @@
           });
           this.addToWorkingResources(this.addableContent);
         } else {
-          this.removeFromSelectedResources(this.contentList);
+          this.removeFromSelectedResources(this.quizForge.channels.value);
         }
       },
-      // filteredContentList() {
+      contentIsDirectoryKind({ is_leaf }) {
+        return !is_leaf;
+      },
+      // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {
-      //     return this.contentList;
+      //     return this.quizForge.channels.value;
       //   }
-      //   const list = this.contentList ? this.contentList : this.bookmarksList;
+      //   const list = this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
       //   return list.filter(contentNode => {
       //     let passesFilters = true;
       //     if (role === 'nonCoach') {

@@ -3,7 +3,13 @@ import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ChannelResource, ExamResource } from 'kolibri.resources';
+import {
+  ChannelResource,
+  ExamResource,
+  BookmarksResource,
+  ContentNodeResource,
+} from 'kolibri.resources';
+import chunk from 'lodash/chunk';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref } from 'kolibri.lib.vueCompositionApi';
@@ -50,6 +56,7 @@ export default (DEBUG = false) => {
 
   /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
+  const _bookmarks = ref([]);
 
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
@@ -177,8 +184,34 @@ export default (DEBUG = false) => {
     }
     updateQuiz({ question_sources: updatedSections });
   }
+  /**
+   * @affects _bookmarks
+   */
+
+  function _fetchBookMarkedResources() {
+    BookmarksResource.fetchCollection()
+      .then(bookmarks => bookmarks.map(bookmark => bookmark.contentnode_id))
+      .then(contentNodeIds => {
+        const chunkedContentNodeIds = chunk(contentNodeIds, 50); // Breaking contentNodeIds into lists no more than 50 in length
+        // Now we will create an array of promises, each of which queries for the 50-id chunk
+        chunkedContentNodeIds.forEach(idsChunk => {
+          ContentNodeResource.fetchCollection({
+            getParams: {
+              ids: idsChunk, // This filters only the ids we want
+            },
+          }).then(contentNodes => {
+            _updateBookmarks(contentNodes);
+          });
+        });
+      });
+  }
+
+  function _updateBookmarks(bookmarks = []) {
+    set(_bookmarks, [...get(_bookmarks), ...bookmarks]);
+  }
 
   /**
+   *
    * @param {string} [section_id]
    * @affects _activeSectionId
    * Sets the given section_id as the active section ID, however, if the ID is not found or is null
@@ -205,6 +238,7 @@ export default (DEBUG = false) => {
       setActiveSection(newSection.section_id);
     }
     _fetchChannels();
+    _fetchBookMarkedResources();
   }
 
   /**
@@ -338,6 +372,8 @@ export default (DEBUG = false) => {
   const replacementQuestionPool = computed(() => {});
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
+  /** @type {ComputedRef<Array>} A list of all bookmarks available which have exercises */
+  const bookmarks = computed(() => get(_bookmarks));
 
   /** Handling the Select All Checkbox
    * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
@@ -412,5 +448,6 @@ export default (DEBUG = false) => {
     selectAllLabel,
     allQuestionsSelected,
     noQuestionsSelected,
+    bookmarks,
   };
 };
