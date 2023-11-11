@@ -122,14 +122,12 @@
         this.$refs.password.focus();
       },
       checkErrorsAndSubmit(e) {
-        if (e.key === 'Enter') {
-          if (this.valid) {
-            this.$emit('submitNewPassword');
-          } else {
-            // Blurring will cause validation errors to show if needed
-            this.confirmationBlurred = true;
-            e.preventDefault(); // Prevent the default form submission
-          }
+        if (this.valid) {
+          this.$emit('submitNewPassword');
+        } else {
+          // Blurring will cause validation errors to show if needed
+          this.confirmationBlurred = true;
+          e.preventDefault(); // Prevent the default form submission
         }
       },
     },
