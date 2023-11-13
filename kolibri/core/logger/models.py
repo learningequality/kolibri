@@ -110,7 +110,9 @@ class ContentSessionLog(BaseLogModel):
     # Morango syncing settings
     morango_model_name = "contentsessionlog"
 
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    user = models.ForeignKey(
+        FacilityUser, blank=True, null=True, on_delete=models.CASCADE
+    )
     content_id = UUIDField(db_index=True)
     visitor_id = models.UUIDField(blank=True, null=True)
     channel_id = UUIDField(blank=True, null=True)
@@ -139,7 +141,7 @@ class ContentSummaryLog(BaseLogModel):
     # Morango syncing settings
     morango_model_name = "contentsummarylog"
 
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
     content_id = UUIDField(db_index=True)
     channel_id = UUIDField(blank=True, null=True)
     start_timestamp = DateTimeTzField()
@@ -172,7 +174,7 @@ class UserSessionLog(BaseLogModel):
     # Morango syncing settings
     morango_model_name = "usersessionlog"
 
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
     channels = models.TextField(blank=True)
     start_timestamp = DateTimeTzField(default=local_now)
     last_interaction_timestamp = DateTimeTzField(null=True, blank=True)
@@ -226,9 +228,11 @@ class MasteryLog(BaseLogModel):
     # Morango syncing settings
     morango_model_name = "masterylog"
 
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
     # Every MasteryLog is related to the single summary log for the user/content pair
-    summarylog = models.ForeignKey(ContentSummaryLog, related_name="masterylogs")
+    summarylog = models.ForeignKey(
+        ContentSummaryLog, related_name="masterylogs", on_delete=models.CASCADE
+    )
     # The MasteryLog records the mastery criterion that has been specified for the user.
     # It is recorded here to prevent this changing in the middle of a user's engagement
     # with an assessment.
@@ -288,7 +292,9 @@ class BaseAttemptLog(BaseLogModel):
     # A JSON Array with a sequence of JSON objects that describe the history of interaction of the user
     # with this assessment item in this attempt.
     interaction_history = JSONField(default=[], blank=True)
-    user = models.ForeignKey(FacilityUser, blank=True, null=True)
+    user = models.ForeignKey(
+        FacilityUser, blank=True, null=True, on_delete=models.CASCADE
+    )
     error = models.BooleanField(default=False)
 
     class Meta:
@@ -305,9 +311,15 @@ class AttemptLog(BaseAttemptLog):
 
     # Which mastery log was this attemptlog associated with?
     masterylog = models.ForeignKey(
-        MasteryLog, related_name="attemptlogs", blank=True, null=True
+        MasteryLog,
+        related_name="attemptlogs",
+        blank=True,
+        null=True,
+        on_delete=models.CASCADE,
     )
-    sessionlog = models.ForeignKey(ContentSessionLog, related_name="attemptlogs")
+    sessionlog = models.ForeignKey(
+        ContentSessionLog, related_name="attemptlogs", on_delete=models.CASCADE
+    )
 
     def infer_dataset(self, *args, **kwargs):
         return self.cached_related_dataset_lookup("sessionlog")
@@ -322,9 +334,11 @@ class ExamLog(BaseLogModel):
     morango_model_name = "examlog"
 
     # Identifies the exam that this is for.
-    exam = models.ForeignKey(Exam, related_name="examlogs", blank=False, null=False)
+    exam = models.ForeignKey(
+        Exam, related_name="examlogs", blank=False, null=False, on_delete=models.CASCADE
+    )
     # Identifies which user this log summarizes interactions for.
-    user = models.ForeignKey(FacilityUser)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
     # Is this exam open for engagement, or is it closed?
     # Used to end user engagement with an exam when it has been deactivated.
     closed = models.BooleanField(default=False)
@@ -346,7 +360,11 @@ class ExamAttemptLog(BaseAttemptLog):
     morango_model_name = "examattemptlog"
 
     examlog = models.ForeignKey(
-        ExamLog, related_name="attemptlogs", blank=False, null=False
+        ExamLog,
+        related_name="attemptlogs",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     # We have no session logs associated with ExamLogs, so we need to record the channel and content
     # ids here

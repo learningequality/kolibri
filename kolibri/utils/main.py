@@ -97,7 +97,8 @@ def conditional_backup(kolibri_version, version_file_contents):
 
 def get_version():
     try:
-        version = open(version_file(), "r").read()
+        with open(version_file(), "r") as f:
+            version = f.read()
         return version.strip() if version else ""
     except IOError:
         return ""
