@@ -390,6 +390,7 @@ def execute_sync(context):
         cleanup = True
         logger.debug("{} Network location unavailable".format(context))
         sync_queue.status = SyncQueueStatus.Pending
+        sync_queue.increment_and_backoff_next_attempt()
     except Exception as e:
         cleanup = True
         if isinstance(e, MorangoResumeSyncError):

@@ -433,6 +433,8 @@ def soud_sync_processing():
     if next_run is not None:
         job = get_current_job()
         job.retry_in(next_run)
+    else:
+        logger.info("Skipping enqueue of SoUD sync processing: no attempts remaining")
 
 
 def enqueue_soud_sync_processing(force=False):
@@ -442,6 +444,7 @@ def enqueue_soud_sync_processing(force=False):
     next_run = soud.get_time_to_next_attempt()
     if next_run is None:
         # No need to enqueue, as there is no next run
+        logger.info("Skipping enqueue of SoUD sync processing: no eligible syncs")
         return
 
     if force:
@@ -451,11 +454,14 @@ def enqueue_soud_sync_processing(force=False):
         try:
             converted_next_run = naive_utc_datetime(timezone.now() + next_run)
             orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
+            if orm_job.state == State.RUNNING:
+                logger.info("Skipping enqueue of SoUD sync processing: already running")
+                return
             if (
-                orm_job.state == State.RUNNING
-                or orm_job.state == State.QUEUED
+                orm_job.state == State.QUEUED
                 and orm_job.scheduled_time <= converted_next_run
             ):
+                logger.info("Skipping enqueue of SoUD sync processing: queued sooner")
                 # Already queued sooner or at the same time as the next run
                 return
             # Otherwise, cancel the existing job, and re-enqueue
@@ -463,6 +469,7 @@ def enqueue_soud_sync_processing(force=False):
         except JobNotFound:
             pass
 
+    logger.info("Enqueuing SoUD sync processing in {}".format(next_run))
     soud_sync_processing.enqueue_in(next_run)
 
 
