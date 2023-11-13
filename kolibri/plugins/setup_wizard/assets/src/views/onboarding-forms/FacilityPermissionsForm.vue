@@ -66,16 +66,25 @@
         Presets,
       };
     },
+    computed: {
+      facilityNameInvalid() {
+        return !this.facilityName || this.facilityName.trim() === '';
+      },
+    },
     mounted() {
       this.focusOnTextbox();
     },
     inject: ['wizardService'],
     methods: {
       handleContinue() {
-        this.wizardService.send({
-          type: 'CONTINUE',
-          value: { selected: this.selected, facilityName: this.facilityName },
-        });
+        if (this.facilityNameInvalid) {
+          return this.focusOnTextbox();
+        } else {
+          this.wizardService.send({
+            type: 'CONTINUE',
+            value: { selected: this.selected, facilityName: this.facilityName },
+          });
+        }
       },
       focusOnTextbox() {
         if (this.$refs && this.$refs['facility-name']) {
