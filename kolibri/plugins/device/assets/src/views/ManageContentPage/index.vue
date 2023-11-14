@@ -52,7 +52,7 @@
         </p>
 
         <div class="channels-list">
-          <KCircularLoader v-if="!welcomeModalVisible && channelListLoading" />
+          <KCircularLoader v-if="channelListLoading" />
           <div v-else>
             <ChannelPanel
               v-for="channel in sortedChannels"

@@ -36,7 +36,7 @@
           - Otherwise, show search results.
         -->
         <KCircularLoader
-          v-if="!welcomeModalVisible && (rootNodesLoading || searchLoading)"
+          v-if="rootNodesLoading || searchLoading"
           class="loader"
           type="indeterminate"
           :delay="false"
