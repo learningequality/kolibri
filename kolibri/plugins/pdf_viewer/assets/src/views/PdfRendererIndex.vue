@@ -127,7 +127,7 @@
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
@@ -146,7 +146,17 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    setup() {
+    const {
+      windowIsLarge,
+      windowIsSmall
+    } = useKResponsiveWindow();
+    return {
+      windowIsLarge,
+      windowIsSmall
+    }
+    },
+    mixins: [commonCoreStrings],
     data: () => ({
       progress: null,
       scale: null,
