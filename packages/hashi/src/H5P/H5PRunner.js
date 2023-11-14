@@ -43,33 +43,6 @@ function contentIdentifier(contentId) {
   return `cid-${contentId}`;
 }
 
-// Looks for any URLs referenced inside url()
-const cssPathRegex = /(url\(['"]?)([^"')]+)?(['"]?\))/g;
-
-export function replacePaths(dep, packageFiles) {
-  return packageFiles[dep].replace(cssPathRegex, function(match, p1, p2, p3) {
-    try {
-      // Construct a URL with a dummy base so that we can concatenate the
-      // dependency URL with the URL relative to the dependency
-      // and then read the pathname to get the new path.
-      // Take substring to remove the leading slash to match the reference file paths
-      // in packageFiles.
-      const path = new URL(p2, new URL(dep, 'http://b.b/')).pathname.substring(1);
-      // Look to see if there is a URL in our packageFiles mapping that
-      // that has this as the source path.
-      const newUrl = packageFiles[path];
-      if (newUrl) {
-        // If so, replace the instance with the new URL.
-        return `${p1}${newUrl}${p3}`;
-      }
-    } catch (e) {
-      console.debug('Error during URL handling', e); // eslint-disable-line no-console
-    }
-    // Otherwise just return the match so that it is unchanged.
-    return match;
-  });
-}
-
 const metadataKeys = [
   'title',
   'a11yTitle',
@@ -580,9 +553,7 @@ export default class H5PRunner {
   processCssDependencies() {
     const concatenatedCSS = this.sortedDependencies.reduce((wholeCSS, dependency) => {
       return (this.cssDependencies[dependency] || []).reduce((allCss, cssDep) => {
-        const css = replacePaths(cssDep, this.packageFiles[dependency]);
-        // We have completed the path substition, so concatenate the CSS.
-        return `${allCss}${css}\n\n`;
+        return `${allCss}${this.packageFiles[dependency][cssDep]}\n\n`;
       }, wholeCSS);
     }, '');
     this.cssURL = URL.createObjectURL(new Blob([concatenatedCSS], { type: 'text/css' }));
@@ -601,7 +572,7 @@ export default class H5PRunner {
       this.contentJson = file.toString();
     } else {
       // Create blob urls for every item in the content folder
-      this.contentPaths[fileName] = file.toUrl(fileName);
+      this.contentPaths[fileName] = file.toUrl();
     }
   }
 
@@ -634,7 +605,7 @@ export default class H5PRunner {
       this.packageFiles[packagePath][fileName] = file.toString();
     } else {
       // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
-      this.packageFiles[packagePath][fileName] = file.toUrl(fileName);
+      this.packageFiles[packagePath][fileName] = file.toUrl();
     }
   }
 
@@ -647,8 +618,6 @@ export default class H5PRunner {
         contentFiles.map(file => this.processContent(file));
       }),
       ...Object.keys(this.packageFiles).map(packagePath => {
-        // JSZip uses regex for path matching, so we first do regex escaping on the packagePath
-        // in order to get an exact match, and not accidentally do a regex match based on the path
         return this.zip.files(packagePath).then(packageFiles => {
           packageFiles.map(file => this.processPackageFile(file, packagePath));
         });
