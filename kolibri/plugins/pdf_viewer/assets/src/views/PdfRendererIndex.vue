@@ -157,6 +157,10 @@
       windowIsSmall
     }
     },
+<<<<<<< HEAD
+=======
+
+>>>>>>> 17f2db6cb7b3f77384e990206b63aa1844faaf53
     mixins: [responsiveElementMixin, commonCoreStrings],
     data: () => ({
       progress: null,
