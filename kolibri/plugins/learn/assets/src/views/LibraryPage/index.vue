@@ -3,7 +3,7 @@
   <div>
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="welcomeModalVisible && !areChannelsImported"
+        v-if="!(rootNodesLoading || searchLoading) && welcomeModalVisible && !areChannelsImported"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -36,7 +36,7 @@
           - Otherwise, show search results.
         -->
         <KCircularLoader
-          v-if="rootNodesLoading || searchLoading"
+          v-if="!welcomeModalVisible && (rootNodesLoading || searchLoading)"
           class="loader"
           type="indeterminate"
           :delay="false"
@@ -452,8 +452,6 @@
         return KolibriStudioId;
       },
       areChannelsImported() {
-        console.log('debugggggggggg');
-        console.log(this.rootNodes.length);
         return this.rootNodes.length > 0;
       },
     },

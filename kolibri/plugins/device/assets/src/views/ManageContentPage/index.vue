@@ -1,88 +1,85 @@
 <template>
 
-  <div>
+  <DeviceAppBarPage :title="pageTitle">
     <transition name="delay<-entry">
       <PostSetupModalGroup
-        v-if="welcomeModalVisible && !areChannelsImported"
+        v-if="!channelListLoading && welcomeModalVisible && !areChannelsImported"
         @cancel="hideWelcomeModal"
       />
     </transition>
 
-    <DeviceAppBarPage :title="pageTitle">
+    <KPageContainer class="device-container">
 
-      <KPageContainer class="device-container">
-
-        <div>
-          <HeaderWithOptions :headerText="coreString('channelsLabel')">
-            <template #options>
-              <KButtonGroup>
-                <!-- Margins to and bottom adds space when buttons are vertically stacked -->
-                <KButton
-                  v-if="channelsAreInstalled"
-                  hasDropdown
-                  appearance="raised-button"
-                  :text="coreString('optionsLabel')"
-                  :style="{ margin: '16px 8px -16px 0' }"
-                >
-                  <template #menu>
-                    <KDropdownMenu
-                      position="bottom left"
-                      :options="dropdownOptions"
-                      @select="handleSelect"
-                    />
-                  </template>
-                </KButton>
-                <KButton
-                  :text="$tr('import')"
-                  style="margin-top: 16px; margin-bottom: -16px;"
-                  :primary="true"
-                  @click="startImportWorkflow()"
-                />
-              </KButtonGroup>
-            </template>
-          </HeaderWithOptions>
-
-          <TasksBar
-            v-if="managedTasks.length > 0"
-            :tasks="managedTasks"
-            :taskManagerLink="{ name: 'MANAGE_TASKS' }"
-            @clearall="handleClickClearAll"
-          />
-
-          <p v-if="!channelsAreInstalled && !channelListLoading">
-            {{ $tr('emptyChannelListMessage') }}
-          </p>
-
-          <div class="channels-list">
-            <KCircularLoader v-if="channelListLoading" />
-            <div v-else>
-              <ChannelPanel
-                v-for="channel in sortedChannels"
-                :key="channel.id"
-                :channel="channel"
-                :disabled="channelIsBeingDeleted(channel.id)"
-                :showNewLabel="showNewLabel(channel.id)"
-                @select_delete="deleteChannelId = channel.id"
-                @select_manage="handleSelectManage(channel.id)"
+      <div>
+        <HeaderWithOptions :headerText="coreString('channelsLabel')">
+          <template #options>
+            <KButtonGroup>
+              <!-- Margins to and bottom adds space when buttons are vertically stacked -->
+              <KButton
+                v-if="channelsAreInstalled"
+                hasDropdown
+                appearance="raised-button"
+                :text="coreString('optionsLabel')"
+                :style="{ margin: '16px 8px -16px 0' }"
+              >
+                <template #menu>
+                  <KDropdownMenu
+                    position="bottom left"
+                    :options="dropdownOptions"
+                    @select="handleSelect"
+                  />
+                </template>
+              </KButton>
+              <KButton
+                :text="$tr('import')"
+                style="margin-top: 16px; margin-bottom: -16px;"
+                :primary="true"
+                @click="startImportWorkflow()"
               />
-            </div>
+            </KButtonGroup>
+          </template>
+        </HeaderWithOptions>
+
+        <TasksBar
+          v-if="managedTasks.length > 0"
+          :tasks="managedTasks"
+          :taskManagerLink="{ name: 'MANAGE_TASKS' }"
+          @clearall="handleClickClearAll"
+        />
+
+        <p v-if="!channelsAreInstalled && !channelListLoading">
+          {{ $tr('emptyChannelListMessage') }}
+        </p>
+
+        <div class="channels-list">
+          <KCircularLoader v-if="!welcomeModalVisible && channelListLoading" />
+          <div v-else>
+            <ChannelPanel
+              v-for="channel in sortedChannels"
+              :key="channel.id"
+              :channel="channel"
+              :disabled="channelIsBeingDeleted(channel.id)"
+              :showNewLabel="showNewLabel(channel.id)"
+              @select_delete="deleteChannelId = channel.id"
+              @select_manage="handleSelectManage(channel.id)"
+            />
           </div>
-
-          <SelectTransferSourceModal :pageName="pageName" />
-
-          <DeleteChannelModal
-            v-if="deleteChannelId"
-            :channelTitle="selectedChannelTitle"
-            @submit="handleDeleteChannel"
-            @cancel="deleteChannelId = null"
-          />
-
         </div>
 
-      </KPageContainer>
+        <SelectTransferSourceModal :pageName="pageName" />
 
-    </DeviceAppBarPage>
-  </div>
+        <DeleteChannelModal
+          v-if="deleteChannelId"
+          :channelTitle="selectedChannelTitle"
+          @submit="handleDeleteChannel"
+          @cancel="deleteChannelId = null"
+        />
+
+      </div>
+
+    </KPageContainer>
+
+  </DeviceAppBarPage>
 
 </template>
 
@@ -189,8 +186,6 @@
         );
       },
       areChannelsImported() {
-        console.log('debugggggggggg');
-        console.log(this.installedChannelsWithResources);
         return this.installedChannelsWithResources.length > 0;
       },
     },
