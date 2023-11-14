@@ -318,7 +318,7 @@ def get_time_to_next_attempt():
     )
     if attempt_at is None:
         return None
-    return datetime.timedelta(seconds=attempt_at - time.time())
+    return datetime.timedelta(seconds=max(attempt_at - time.time(), 0))
 
 
 def attempt_execute_window():
@@ -376,6 +376,9 @@ def execute_sync(context):
     sync_queue.save()
 
     try:
+        if not context.network_location:
+            raise NetworkLocation.DoesNotExist
+
         call_command(
             command,
             user=context.user_id,
