@@ -4,6 +4,7 @@
     <component
       :is="!windowIsSmall && currentCardViewStyle === 'list' ? 'div' : 'CardGrid'"
       :data-test="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
+      :style="{ maxWidth: '1700px' }"
     >
       <component
         :is="componentType"
