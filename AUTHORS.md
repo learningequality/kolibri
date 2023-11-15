@@ -99,3 +99,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Vikramaditya Singh | Ghat0tkach |
 | Kris Katkus | katkuskris |
 | Garvit Singhal | GarvitSinghal47 |
+| Mazen Oweiss | moweiss |
