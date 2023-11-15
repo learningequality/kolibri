@@ -48,19 +48,19 @@ export default class ZipFile {
    * @return {Promise[ExtractedFile]} - A promise that resolves to the file with references replaced
    */
   _replaceFiles(file, visitedPaths) {
-    const mapper = this.filePathMappers[file.fileNameExt];
-    if (!mapper) {
+    const mapperClass = this.filePathMappers[file.fileNameExt];
+    if (!mapperClass) {
       return Promise.resolve(file);
     }
     visitedPaths = { ...visitedPaths };
     visitedPaths[file.name] = true;
-    const fileContents = file.toString();
+    const mapper = new mapperClass(file);
     // Filter out any paths that are in our already visited paths, as that means we are in a
     // referential loop where one file has pointed us to another, which is now point us back
     // to the source.
     // Because we need to modify the file before we generate the URL, we can't resolve this loop.
     const paths = mapper
-      .getPaths(fileContents)
+      .getPaths()
       .filter(path => !visitedPaths[getAbsoluteFilePath(file.name, path)]);
     const absolutePathsMap = paths.reduce((acc, path) => {
       acc[getAbsoluteFilePath(file.name, path)] = path;
@@ -72,7 +72,7 @@ export default class ZipFile {
           acc[absolutePathsMap[replacementFile.name]] = replacementFile.toUrl();
           return acc;
         }, {});
-        const newFileContents = mapper.replacePaths(fileContents, replacementFileMap);
+        const newFileContents = mapper.replacePaths(replacementFileMap);
         file.obj = strToU8(newFileContents);
         return file;
       }

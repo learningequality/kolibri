@@ -1,4 +1,10 @@
-import { getAbsoluteFilePath, getCSSPaths, replaceCSSPaths } from '../src/fileUtils';
+import {
+  getAbsoluteFilePath,
+  getCSSPaths,
+  replaceCSSPaths,
+  getDOMPaths,
+  replaceDOMPaths,
+} from '../src/fileUtils';
 
 describe('File Path replacement', () => {
   describe('Absolute path resolution', () => {
@@ -94,6 +100,94 @@ describe('File Path replacement', () => {
       expect(replaceCSSPaths('url(flob a dob dib dob)', packageFiles)).toEqual(
         'url(flob a dob dib dob)'
       );
+    });
+  });
+  const htmlTemplate = src =>
+    `<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body><img src="${src}" /></body></html>`;
+  describe('HTML path finding', () => {
+    const mimeType = 'text/html';
+    it('should find a simple relative path', () => {
+      const packageFiles = ['./test.png'];
+      expect(getDOMPaths(htmlTemplate('./test.png'), mimeType)).toEqual(packageFiles);
+    });
+    it('should find a more complex relative path', () => {
+      const packageFiles = ['../fonts/test.png'];
+      expect(getDOMPaths(htmlTemplate('../fonts/test.png'), mimeType)).toEqual(packageFiles);
+    });
+    it('should find a more complex relative path with query parameters', () => {
+      const packageFiles = ['../fonts/test.png'];
+      expect(getDOMPaths(htmlTemplate('../fonts/test.png?iefix'), mimeType)).toEqual(packageFiles);
+    });
+  });
+  describe('HTML path replacement', () => {
+    const mimeType = 'text/html';
+    it('should replace a simple relative path', () => {
+      const packageFiles = {
+        './test.png': 'different',
+      };
+      expect(replaceDOMPaths(htmlTemplate('./test.png'), packageFiles, mimeType)).toEqual(
+        htmlTemplate('different')
+      );
+    });
+    it('should replace a more complex relative path', () => {
+      const packageFiles = {
+        '../fonts/test.png': 'different',
+      };
+      expect(replaceDOMPaths(htmlTemplate('../fonts/test.png'), packageFiles, mimeType)).toEqual(
+        htmlTemplate('different')
+      );
+    });
+    it('should replace paths with query parameters', () => {
+      const packageFiles = {
+        '../fonts/test.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(htmlTemplate('../fonts/test.png?iefix'), packageFiles, mimeType)
+      ).toEqual(htmlTemplate('different'));
+    });
+  });
+  const xmlTemplate = src =>
+    `<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="en"><body><div><img src="${src}"/></div></body></tt>`;
+  describe('XML path finding', () => {
+    const mimeType = 'text/xml';
+    it('should find a simple relative path', () => {
+      const packageFiles = ['./test.png'];
+      expect(getDOMPaths(xmlTemplate('./test.png'), mimeType)).toEqual(packageFiles);
+    });
+    it('should find a more complex relative path', () => {
+      const packageFiles = ['../fonts/test.png'];
+      expect(getDOMPaths(xmlTemplate('../fonts/test.png'), mimeType)).toEqual(packageFiles);
+    });
+    it('should find a more complex relative path with query parameters', () => {
+      const packageFiles = ['../fonts/test.png'];
+      expect(getDOMPaths(xmlTemplate('../fonts/test.png?iefix'), mimeType)).toEqual(packageFiles);
+    });
+  });
+  describe('XML path replacement', () => {
+    const mimeType = 'text/xml';
+    it('should replace a simple relative path', () => {
+      const packageFiles = {
+        './test.png': 'different',
+      };
+      expect(replaceDOMPaths(xmlTemplate('./test.png'), packageFiles, mimeType)).toEqual(
+        xmlTemplate('different')
+      );
+    });
+    it('should replace a more complex relative path', () => {
+      const packageFiles = {
+        '../fonts/test.png': 'different',
+      };
+      expect(replaceDOMPaths(xmlTemplate('../fonts/test.png'), packageFiles, mimeType)).toEqual(
+        xmlTemplate('different')
+      );
+    });
+    it('should replace paths with query parameters', () => {
+      const packageFiles = {
+        '../fonts/test.png': 'different',
+      };
+      expect(
+        replaceDOMPaths(xmlTemplate('../fonts/test.png?iefix'), packageFiles, mimeType)
+      ).toEqual(xmlTemplate('different'));
     });
   });
 });
