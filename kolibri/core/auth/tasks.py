@@ -466,7 +466,8 @@ def enqueue_soud_sync_processing(force=False):
                 )
                 return
             # Otherwise, cancel the existing job, and re-enqueue
-            job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
+            logger.info("Would be canceling SoUD sync processing job")
+            # job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
         except JobNotFound:
             pass
 
