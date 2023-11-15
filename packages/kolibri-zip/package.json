@@ -4,7 +4,7 @@
   "description": "A library for reading and writing zip files",
   "main": "src/index.js",
   "scripts": {
-    "mimetypes": "node ./generateH5PMimeTypeDB.js"
+    "mimetypes": "node ./generateMimeTypeDB.js"
   },
   "author": "Learning Equality",
   "license": "MIT",

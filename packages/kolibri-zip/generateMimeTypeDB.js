@@ -45,6 +45,10 @@ const allowedFileExtensions = new Set([
   'md',
   'textile',
   'vtt',
+  // Additional file types for Kolibri
+  'html',
+  'htm',
+  'xhtml',
 ]);
 
 const output = {};
