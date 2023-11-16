@@ -109,6 +109,28 @@
     >
       <!-- TODO This should be a separate component like "empty section container" or something -->
       <div v-if="!quizForge.activeQuestions.value.length" class="no-question-style">
+        <KGrid class="questions-list-label-row">
+          <KGridItem
+            class="right-side-heading"
+            style="padding: 0.7em 0.75em;"
+          >
+            <KButton
+              primary
+              :text="coreString('optionsLabel')"
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :primary="false"
+                  :disabled="false"
+                  :hasIcons="true"
+                  :options="activeSectionActions"
+                  @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
+                  @select="handleActiveSectionAction"
+                />
+              </template>
+            </KButton>
+          </KGridItem>
+        </KGrid>
         <div class="question-mark-layout">
           <span class="help-icon-style">?</span>
         </div>
@@ -439,9 +461,6 @@
         ];
       },
     },
-    mounted() {
-      this.$store.dispatch('notLoading');
-    },
     methods: {
       handleReplaceSelection() {
         const section_id = get(this.quizForge.activeSection).section_id;
@@ -454,7 +473,6 @@
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
           case this.deleteSectionLabel$():
-            console.log('Deleting, ', this.quizForge.activeSection.value.section_id);
             this.quizForge.removeSection(this.quizForge.activeSection.value.section_id);
             this.focusActiveSectionTab();
             break;
@@ -698,7 +716,7 @@
   }
 
   /deep/ .overflow-tabs svg {
-    top: 7px !important;
+    top: 5px !important;
   }
 
   .select-all-box {

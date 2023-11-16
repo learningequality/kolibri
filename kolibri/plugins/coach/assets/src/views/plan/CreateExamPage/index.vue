@@ -103,6 +103,10 @@
       },
     },
     watch: {
+      $route: function() {
+        // FIXME Coach shouldn't be setting loading in a beforeEach here maybe?
+        this.$store.dispatch('notLoading');
+      },
       filters(newVal) {
         this.$router.push({
           query: { ...this.$route.query, ...pickBy(newVal) },
