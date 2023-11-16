@@ -102,92 +102,96 @@ describe('File Path replacement', () => {
       );
     });
   });
-  const htmlTemplate = src =>
-    `<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body><img src="${src}" /></body></html>`;
-  describe('HTML path finding', () => {
+  const htmlTemplate = (attr, value) =>
+    `<html xmlns="http://www.w3.org/1999/xhtml"><head></head><body><img ${attr}="${value}" /></body></html>`;
+  describe.each(['href', 'src'])('HTML path finding for %s', attr => {
     const mimeType = 'text/html';
     it('should find a simple relative path', () => {
       const packageFiles = ['./test.png'];
-      expect(getDOMPaths(htmlTemplate('./test.png'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(htmlTemplate(attr, './test.png'), mimeType)).toEqual(packageFiles);
     });
     it('should find a more complex relative path', () => {
       const packageFiles = ['../fonts/test.png'];
-      expect(getDOMPaths(htmlTemplate('../fonts/test.png'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(htmlTemplate(attr, '../fonts/test.png'), mimeType)).toEqual(packageFiles);
     });
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
-      expect(getDOMPaths(htmlTemplate('../fonts/test.png?iefix'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), mimeType)).toEqual(
+        packageFiles
+      );
     });
   });
-  describe('HTML path replacement', () => {
+  describe.each(['href', 'src'])('HTML path replacement for %s', attr => {
     const mimeType = 'text/html';
     it('should replace a simple relative path', () => {
       const packageFiles = {
         './test.png': 'different',
       };
-      expect(replaceDOMPaths(htmlTemplate('./test.png'), packageFiles, mimeType)).toEqual(
-        htmlTemplate('different')
+      expect(replaceDOMPaths(htmlTemplate(attr, './test.png'), packageFiles, mimeType)).toEqual(
+        htmlTemplate(attr, 'different')
       );
     });
     it('should replace a more complex relative path', () => {
       const packageFiles = {
         '../fonts/test.png': 'different',
       };
-      expect(replaceDOMPaths(htmlTemplate('../fonts/test.png'), packageFiles, mimeType)).toEqual(
-        htmlTemplate('different')
-      );
+      expect(
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType)
+      ).toEqual(htmlTemplate(attr, 'different'));
     });
     it('should replace paths with query parameters', () => {
       const packageFiles = {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(htmlTemplate('../fonts/test.png?iefix'), packageFiles, mimeType)
-      ).toEqual(htmlTemplate('different'));
+        replaceDOMPaths(htmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType)
+      ).toEqual(htmlTemplate(attr, 'different'));
     });
   });
-  const xmlTemplate = src =>
-    `<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="en"><body><div><img src="${src}"/></div></body></tt>`;
-  describe('XML path finding', () => {
+  const xmlTemplate = (attr, value) =>
+    `<tt xmlns="http://www.w3.org/ns/ttml" xml:lang="en"><body><div><img ${attr}="${value}"/></div></body></tt>`;
+  describe.each(['href', 'src'])('XML path finding for %s', attr => {
     const mimeType = 'text/xml';
     it('should find a simple relative path', () => {
       const packageFiles = ['./test.png'];
-      expect(getDOMPaths(xmlTemplate('./test.png'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(xmlTemplate(attr, './test.png'), mimeType)).toEqual(packageFiles);
     });
     it('should find a more complex relative path', () => {
       const packageFiles = ['../fonts/test.png'];
-      expect(getDOMPaths(xmlTemplate('../fonts/test.png'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(xmlTemplate(attr, '../fonts/test.png'), mimeType)).toEqual(packageFiles);
     });
     it('should find a more complex relative path with query parameters', () => {
       const packageFiles = ['../fonts/test.png'];
-      expect(getDOMPaths(xmlTemplate('../fonts/test.png?iefix'), mimeType)).toEqual(packageFiles);
+      expect(getDOMPaths(xmlTemplate(attr, '../fonts/test.png?iefix'), mimeType)).toEqual(
+        packageFiles
+      );
     });
   });
-  describe('XML path replacement', () => {
+  describe.each(['href', 'src'])('XML path replacement for %s', attr => {
     const mimeType = 'text/xml';
     it('should replace a simple relative path', () => {
       const packageFiles = {
         './test.png': 'different',
       };
-      expect(replaceDOMPaths(xmlTemplate('./test.png'), packageFiles, mimeType)).toEqual(
-        xmlTemplate('different')
+      expect(replaceDOMPaths(xmlTemplate(attr, './test.png'), packageFiles, mimeType)).toEqual(
+        xmlTemplate(attr, 'different')
       );
     });
     it('should replace a more complex relative path', () => {
       const packageFiles = {
         '../fonts/test.png': 'different',
       };
-      expect(replaceDOMPaths(xmlTemplate('../fonts/test.png'), packageFiles, mimeType)).toEqual(
-        xmlTemplate('different')
-      );
+      expect(
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png'), packageFiles, mimeType)
+      ).toEqual(xmlTemplate(attr, 'different'));
     });
     it('should replace paths with query parameters', () => {
       const packageFiles = {
         '../fonts/test.png': 'different',
       };
       expect(
-        replaceDOMPaths(xmlTemplate('../fonts/test.png?iefix'), packageFiles, mimeType)
-      ).toEqual(xmlTemplate('different'));
+        replaceDOMPaths(xmlTemplate(attr, '../fonts/test.png?iefix'), packageFiles, mimeType)
+      ).toEqual(xmlTemplate(attr, 'different'));
     });
   });
 });

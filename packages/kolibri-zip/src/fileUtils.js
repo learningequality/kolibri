@@ -68,7 +68,7 @@ const domParser = new DOMParser();
 
 const domSerializer = new XMLSerializer();
 
-const attributes = ['src'];
+const attributes = ['src', 'href'];
 
 const attributesSelector = attributes.map(attr => `[${attr}]`).join(', ');
 
