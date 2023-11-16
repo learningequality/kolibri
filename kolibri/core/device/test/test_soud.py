@@ -6,8 +6,10 @@ import uuid
 from functools import partial
 
 import mock
+from django.db.models.signals import post_save
 from django.test import TestCase
 from morango.errors import MorangoResumeSyncError
+from morango.sync.utils import mute_signals
 
 from ..soud import Context
 from ..soud import execute_sync
@@ -167,6 +169,7 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
         self.assertEqual(queue.updated, updated)
 
 
+@mute_signals(post_save)
 class SoudExecuteSyncsTestCase(TestCase):
     multi_db = True
 
@@ -368,6 +371,7 @@ class SoudExecuteSyncsTestCase(TestCase):
             )
 
 
+@mute_signals(post_save)
 class SoudExecuteSyncTestCase(TestCase):
     multi_db = True
 
