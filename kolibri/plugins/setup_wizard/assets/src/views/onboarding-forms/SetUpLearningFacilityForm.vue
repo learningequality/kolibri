@@ -10,12 +10,14 @@
       :label="$tr('createFacilityLabel')"
       :value="Options.NEW"
       class="radio-button"
+      :autofocus="isNewFacilitySetup"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFacilityLabel')"
       :value="Options.IMPORT"
       class="radio-button"
+      :autofocus="isImportFacilitySetup"
     />
     <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
@@ -47,6 +49,14 @@
         selected,
         showSelectAddressModal: false,
       };
+    },
+    computed: {
+      isNewFacilitySetup() {
+        return this.selected === Options.NEW;
+      },
+      isImportFacilitySetup() {
+        return this.selected === Options.IMPORT; 
+      },
     },
     methods: {
       handleContinueImport(address) {

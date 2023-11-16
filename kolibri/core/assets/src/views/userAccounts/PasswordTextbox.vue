@@ -49,6 +49,10 @@
       shouldValidate: {
         type: Boolean,
       },
+      shouldValidateOnEnter: {
+        type: Boolean,
+        default: true,
+      },
       // Set to false if you just want one password field
       showConfirmationInput: {
         type: Boolean,
@@ -122,6 +126,9 @@
         this.$refs.password.focus();
       },
       checkErrorsAndSubmit(e) {
+        if (!this.shouldValidateOnEnter) {
+          return;
+        }
         if (this.valid) {
           this.$emit('submitNewPassword');
         } else {

@@ -12,12 +12,14 @@
       :value="UsePresets.ON_MY_OWN"
       :label="$tr('onMyOwnLabel')"
       :description="getCommonSyncString('onMyOwn')"
+      :autofocus="isOnMyOwnSetup"
     />
     <KRadioButton
       v-model="selected"
       :value="UsePresets.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
+      :autofocus="isGroupSetup"
     />
   </OnboardingStepBase>
 
@@ -45,6 +47,9 @@
     computed: {
       isOnMyOwnSetup() {
         return this.selected === UsePresets.ON_MY_OWN;
+      },
+      isGroupSetup() {
+        return this.selected === UsePresets.GROUP; 
       },
       UsePresets() {
         return UsePresets;

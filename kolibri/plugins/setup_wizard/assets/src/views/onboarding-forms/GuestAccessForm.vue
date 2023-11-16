@@ -15,12 +15,14 @@
       v-model="setting"
       :label="$tr('yesOptionLabel')"
       :value="true"
+      :autofocus="setting"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
       :label="$tr('noOptionLabel')"
       :value="false"
+      :autofocus="!setting"
     />
     <p class="form">
       {{ $tr('changeLater') }}

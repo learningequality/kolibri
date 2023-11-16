@@ -9,12 +9,14 @@
       :label="$tr('fullDeviceLabel')"
       :value="Options.FULL"
       :description="$tr('fullDeviceDescription')"
+      :autofocus="isFullSetup"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('learnOnlyDeviceLabel')"
       :value="Options.LOD"
       :description="$tr('learnOnlyDeviceDescription')"
+      :autofocus="isLODSetup"
     />
   </OnboardingStepBase>
 
@@ -42,6 +44,14 @@
         Options,
         selected,
       };
+    },
+    computed: {
+      isFullSetup() {
+        return this.selected === Options.FULL;
+      },
+      isLODSetup() {
+        return this.selected === Options.LOD; 
+      },
     },
     methods: {
       handleContinue() {
