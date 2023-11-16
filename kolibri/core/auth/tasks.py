@@ -439,7 +439,7 @@ def soud_sync_processing():
         logger.info("Skipping enqueue of SoUD sync processing: no attempts remaining")
 
 
-def enqueue_soud_sync_processing(force=False):
+def enqueue_soud_sync_processing():
     """
     Enqueue a task to process SoUD syncs, if necessary
     """
@@ -449,27 +449,19 @@ def enqueue_soud_sync_processing(force=False):
         logger.info("Skipping enqueue of SoUD sync processing: no eligible syncs")
         return
 
-    if force:
-        job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
-    else:
-        # Check if there is already an enqueued job
-        try:
-            converted_next_run = naive_utc_datetime(timezone.now() + next_run)
-            orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
-            if (
-                orm_job.state not in (State.COMPLETED, State.FAILED, State.CANCELED)
-                and orm_job.scheduled_time <= converted_next_run
-            ):
-                # Already queued sooner or at the same time as the next run
-                logger.info(
-                    "Skipping enqueue of SoUD sync processing: scheduled sooner"
-                )
-                return
-            # Otherwise, cancel the existing job, and re-enqueue
-            logger.info("Would be canceling SoUD sync processing job")
-            # job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
-        except JobNotFound:
-            pass
+    # Check if there is already an enqueued job
+    try:
+        converted_next_run = naive_utc_datetime(timezone.now() + next_run)
+        orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
+        if (
+            orm_job.state not in (State.COMPLETED, State.FAILED, State.CANCELED)
+            and orm_job.scheduled_time <= converted_next_run
+        ):
+            # Already queued sooner or at the same time as the next run
+            logger.info("Skipping enqueue of SoUD sync processing: scheduled sooner")
+            return
+    except JobNotFound:
+        pass
 
     logger.info("Enqueuing SoUD sync processing in {}".format(next_run))
     try:

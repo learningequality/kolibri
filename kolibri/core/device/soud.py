@@ -332,6 +332,15 @@ def execute_syncs():
     """
     Core SoUD sync processing logic that processes any syncs that
     """
+    # since there should only ever be one processing job running at a time, if we encounter any in
+    # the queue that are marked as syncing, we should reset their status to pending because it must
+    # mean that the previous job was terminated unexpectedly
+    SyncQueue.objects.filter(status=SyncQueueStatus.Syncing,).update(
+        status=SyncQueueStatus.Pending,
+        updated=time.time(),
+        keep_alive=0,
+    )
+
     base_qs = (
         get_eligible_syncs()
         .order_by("attempt_at")
@@ -376,6 +385,7 @@ def execute_sync(context):
     sync_queue.save()
 
     try:
+        # context filters the network location to only those marked available
         if not context.network_location:
             raise NetworkLocation.DoesNotExist
 
@@ -389,7 +399,6 @@ def execute_sync(context):
             **resume_kwargs
         )
     except NetworkLocation.DoesNotExist:
-        # network location may have become unavailable
         cleanup = True
         logger.debug("{} Network location unavailable".format(context))
         sync_queue.status = SyncQueueStatus.Pending
