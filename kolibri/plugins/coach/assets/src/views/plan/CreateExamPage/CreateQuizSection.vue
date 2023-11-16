@@ -154,13 +154,13 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="activeSectionActions"
+                  @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
                   @select="handleActiveSectionAction"
                 />
               </template>
             </KButton>
           </KGridItem>
         </KGrid>
-
 
         <AccordionContainer
           :items="quizForge.activeQuestions.value"
@@ -173,6 +173,7 @@
                 :layout12="{ span: 6 }"
               >
                 <KCheckbox
+                  ref="selectAllCheckbox"
                   class="select-all-box"
                   :label="quizForge.selectAllLabel.value"
                   :checked="quizForge.allQuestionsSelected.value"
