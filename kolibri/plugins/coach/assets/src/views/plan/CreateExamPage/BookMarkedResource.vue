@@ -2,83 +2,28 @@
 
   <div
     class="card container drop-shadow"
-    :style="{ backgroundColor: $themeTokens.surface }"
   >
-    <router-link
-      :to="to"
-      class="card card-link"
-      :style="{ backgroundColor: $themeTokens.surface }"
-    >
-      <div
-        class="card"
-        :style="{ backgroundColor: $themeTokens.surface }"
+    <KGrid>
+      <KGridItem
+        :layout12="{ span: 4 }"
+        :layout8="{ span: 2 }"
+        class="thumb-area"
+        :style="bookMarkBackgroundColor"
       >
-        <KFixedGrid numCols="4">
-          <KFixedGridItem :span="isMobile ? 4 : 1" class="thumb-area">
-            <!-- <CardThumbnail :contentNode="contentNode" :hideDuration="!windowIsLarge" /> -->
-            <KIcon icon="bookmark" size="large" />
-          </KFixedGridItem>
+        <BookmarkIcon style="margin-top:-15px;margin-left:-30px" />
+      </KGridItem>
 
-          <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
-            <span :style="{ color: $themeTokens.text }">
-              <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
-                <!-- <LearningActivityLabel
-                  :contentNode="contentNode"
-                  :hideDuration="true"
-                  labelAfter
-                  condensed
-                /> -->
-              </div>
-              <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
-                <TextTruncatorCss text="ehhhhhh" :maxLines="1" />
-              </h3>
-              <p
-                style="font-size: 14px; margin-top: 4px; margin-bottom: 4px;"
-              >
-                <TextTruncatorCss text="contentNodedescription" :maxLines="2" />
-              </p>
-              <!-- <div class="bottom-items"> -->
-              <!-- <LearningActivityDuration
-                  v-if="!windowIsLarge"
-                  :contentNode="contentNode"
-                  :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
-                  condensed
-                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-                /> -->
-              <p
-                class="metadata-info"
-                :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-              >
-                <!-- {{ categoryAndLevelString }} -->
-              </p>
-              <!-- <div> -->
-              <!-- <img
-                    v-if="channelThumbnail"
-                    :src="channelThumbnail"
-                    :alt="learnString('logo', { channelTitle: channelTitle })"
-                    class="channel-logo"
-                    :style="{ color: $themePalette.grey.v_70 0 }"
-                  > -->
-              <!-- <p
-                    v-else
-                    class="metadata-info"
-                    :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
-                  >{{ learnString('logo', { channelTitle: channelTitle }) }}</p> -->
-              <!-- <KButton
-                    v-if="contentNode.copies"
-                    appearance="basic-link"
-                    class="copies"
-                    :style="{ color: $themeTokens.text }"
-                    :text="coreString('copies', { num: contentNode.copies.length })"
-                    @click.prevent="$emit('openCopiesModal', contentNode.copies)"
-                  /> -->
-              <!-- </div>
-              </div> -->
-            </span>
-          </KFixedGridItem>
-        </KFixedGrid>
-      </div>
-    </router-link>
+      <KGridItem
+        :layout12="{ span: 8 }"
+        :layout8="{ span: 6 }"
+        class="text-area"
+      >
+        <a :style="{ color: $themeTokens.primary }">
+          <p style="font-weight:600;">{{ bookmarksLabel$() }}</p>
+          <span> {{ numberOfSelectedBookmarks$({ count: numberOfBookMarkedResources }) }}</span>
+        </a>
+      </KGridItem>
+    </KGrid>
   </div>
 
 </template>
@@ -86,125 +31,41 @@
 
 <script>
 
-  // import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  // import { now } from 'kolibri.utils.serverClock';
-  // import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
-  // import camelCase from 'lodash/camelCase';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  // import useChannels from '../composables/useChannels';
-  // import LearningActivityLabel from './LearningActivityLabel';
-  // import LearningActivityDuration from './LearningActivityDuration';
-  // import commonLearnStrings from './commonLearnStrings';
-  // import CardThumbnail from './HybridLearningContentCard/CardThumbnail';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { ContentNodeResource } from 'kolibri.resources';
+  import BookmarkIcon from './../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
 
   export default {
     name: 'BookMarkedResource',
     components: {
-      // CardThumbnail,
-      TextTruncatorCss,
-      // LearningActivityLabel,
-      // LearningActivityDuration,
+      BookmarkIcon,
     },
-    mixins: [commonCoreStrings],
     setup() {
-      // const { getChannelThumbnail, getChannelTitle } = useChannels();
-      const { windowIsLarge } = useKResponsiveWindow();
+      const { numberOfSelectedBookmarks$, bookmarksLabel$ } = enhancedQuizManagementStrings;
+
       return {
-        // getChannelThumbnail,
-        // getChannelTitle,
-        windowIsLarge,
+        numberOfSelectedBookmarks$,
+        bookmarksLabel$,
       };
     },
-    props: {
-      // contentNode: {
-      //   type: Object,
-      //   required: true,
-      // },
-      // to: {
-      //   type: Object,
-      //   required: true,
-      //   validator: validateLinkObject,
-      // },
-      isMobile: {
-        type: Boolean,
-        default: false,
-      },
+    data() {
+      return {
+        bookmarks: [],
+        numberOfBookMarkedResources: null,
+      };
     },
-    data: () => ({
-      // now: now(),
-    }),
     computed: {
-      // ceilingDate() {
-      //   if (this.createdDate > this.now) {
-      //     return this.now;
-      //   }
-      //   return this.createdDate;
-      // },
-      // bookmarkCreated() {
-      //   const time = this.$formatRelative(this.ceilingDate, { now: this.now });
-      //   return this.coreString('bookmarkedTimeAgoLabel', { time });
-      // },
-      // categoryAndLevelString() {
-      //   if (
-      //     this.levels(this.contentNode.grade_levels) &&
-      //     this.category(this.contentNode.categories)
-      //   ) {
-      //     return (
-      //       this.category(this.contentNode.categories) +
-      //       ' | ' +
-      //       this.levels(this.contentNode.grade_levels)
-      //     );
-      //   } else if (this.category(this.contentNode.categories)) {
-      //     return this.category(this.contentNode.categories);
-      //   } else if (this.levels(this.contentNode.grade_levels)) {
-      //     return this.levels(this.contentNode.grade_levels);
-      //   }
-      //   return null;
-      // },
-      // channelThumbnail() {
-      //   return this.getChannelThumbnail(this.contentNode && this.contentNode.channel_id);
-      // },
-      // channelTitle() {
-      //   return this.getChannelTitle(this.contentNode && this.contentNode.channel_id);
-      // },
-      to() {
-        return { name: 'BOOKMARK_PAGE' };
+      bookMarkBackgroundColor() {
+        return {
+          backgroundColor: this.$themePalette.grey.v_100,
+        };
       },
     },
-    methods: {
-      // levels(levels) {
-      //   const matches = Object.keys(ContentLevels)
-      //     .sort()
-      //     .filter(k => levels.includes(ContentLevels[k]));
-      //   if (matches && matches.length > 0) {
-      //     let adjustedMatches = [];
-      //     matches.map(key => {
-      //       let translationKey;
-      //       if (key === 'PROFESSIONAL') {
-      //         translationKey = 'specializedProfessionalTraining';
-      //       } else if (key === 'WORK_SKILLS') {
-      //         translationKey = 'allLevelsWorkSkills';
-      //       } else if (key === 'BASIC_SKILLS') {
-      //         translationKey = 'allLevelsBasicSkills';
-      //       } else {
-      //         translationKey = camelCase(key);
-      //       }
-      //       adjustedMatches.push(translationKey);
-      //     });
-      //     adjustedMatches = adjustedMatches.map(m => this.coreString(m)).join(', ');
-      //     return adjustedMatches;
-      //   }
-      // },
-      // category(options) {
-      //   const matches = Object.keys(Categories)
-      //     .sort()
-      //     .filter(k => options.includes(Categories[k]));
-      //   if (matches && matches.length > 0) {
-      //     return matches.map(m => this.coreString(camelCase(m))).join(', ');
-      //   }
-      // },
+    created() {
+      ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
+        this.bookmarks = data.results ? data.results : [];
+        this.numberOfBookMarkedResources = this.bookmarks.length;
+      });
     },
   };
 
@@ -250,54 +111,8 @@
     text-decoration: none;
   }
 
-  .metadata-info {
-    display: inline-block;
-    padding-left: 2px;
-    font-size: 13px;
-  }
-
-  .channel-logo {
-    display: inline-block;
-    height: 24px;
-    margin-right: 8px;
-    font-size: 13px;
-  }
-
-  .copies {
-    display: inline-block;
-    padding: 8px;
-    font-size: 13px;
-    text-decoration: none;
-    vertical-align: top;
-  }
-
-  .duration {
-    display: inline-block;
-    margin-top: 4px;
-    font-size: 13px;
-  }
-
-  .prepends {
-    &::after {
-      content: ' | ';
-    }
-  }
-
-  .created-info {
-    font-size: 13px;
-  }
-
-  .bottom-items {
-    margin-top: 8px;
-  }
-
   .thumb-area {
     margin-bottom: 16px;
-  }
-
-  .details {
-    max-width: 100%;
-    margin-top: 240px;
   }
 
   .text-area {

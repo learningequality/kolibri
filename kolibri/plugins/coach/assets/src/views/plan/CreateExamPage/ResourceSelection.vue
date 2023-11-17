@@ -11,7 +11,10 @@
     </h5>
     <p>Select from bookmarks</p>
 
-    <BookMarkedResource />
+    <BookMarkedResource
+      kind="bookmark"
+      :isMobile="true"
+    />
 
     <LessonsSearchBox
       ref="textbox"
@@ -21,63 +24,7 @@
       style="margin-top:1em;margin-bottom:1em;"
       @searchterm="search"
     />
-    <!-- <ResourceSelection
-      :channelId="channelId"
-      :channelName="channelName"
-      :channelThumbnail="channelThumbnail"
-      :channelDescription="channelDescription"
-    />
-    <ResourceSelectionBreadcrumbs
-      :channelId="channelId"
-      :channelName="channelName"
-      :channelThumbnail="channelThumbnail"
-      :channelDescription="channelDescription"
-    />   -->
 
-    <!-- <LessonContentCard
-
-      title="content.title"
-      thumbnail="content.thumbnail"
-      description="content.description"
-      kind="content.kind"
-      message="contentCardMessage(content)"
-      link="contentCardLink(content)"
-      numCoachContents="content.num_coach_contents"
-      isLeaf="content.is_leaf"
-    /> -->
-    <!-- <LessonContentCard
-      title="content.title"
-      thumbnail="content.thumbnail"
-      description="content.description"
-      kind="content.kind"
-      message="contentCardMessage(content)"
-      link="contentCardLink(content)"
-      numCoachContents="content.num_coach_contents"
-      isLeaf="content.is_leaf" -->
-    <!-- /> -->
-
-    <!-- <ContentCardList
-      :quizForge.channels.value="filteredquizForge.channels.value"
-      :contentCardMessage="selectionMetadata"
-      :contentCardLink="contentLink"
-      :viewMoreButtonState="viewMoreButtonState"
-      :contentIsChecked="contentIsSelected"
-      :contentHasCheckbox="contentHasCheckbox"
-    /> -->
-
-    <!-- <LessonContentCard
-      v-for="(content ,index) in filteredquizForge.channels.value"
-      :key="index"
-      :class="{ 'with-checkbox': needCheckboxes }"
-      :title="content.title"
-      :thumbnail="content.thumbnail"
-      :description="content.description"
-      :kind="content.kind"
-      :message="contentCardMessage(content)"
-      :link="contentCardLink(content)"
-      :numCoachContents="content.num_coach_contents"
-      :isLeaf="content.is_leaf"
-    /> -->
     <ContentCardList
       :contentList="quizForge.channels.value"
       :showSelectAll="selectAllIsVisible"
@@ -98,7 +45,8 @@
 
 <script>
 
-  import { ContentNodeKinds , ContentNodeResource} from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ContentNodeResource } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeResource as bookMarkedResource } from 'kolibri.resources';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
@@ -142,29 +90,30 @@
           kind: this.$route.query.kind || null,
           role: this.$route.query.role || null,
         },
-        visibleResources:[],
+        visibleResources: [],
+        bookmarks: [],
       };
     },
     computed: {
-      filteredContentList() {
-        const { role } = this.filters;
-        if (!this.inSearchMode) {
-          return this.quizForge.channels.value;
-        }
-        const list = this.quizForge.channels.value
-          ? this.quizForge.channels.value
-          : this.bookmarksList;
-        return list.filter(contentNode => {
-          let passesFilters = true;
-          if (role === 'nonCoach') {
-            passesFilters = passesFilters && contentNode.num_coach_contents === 0;
-          }
-          if (role === 'coach') {
-            passesFilters = passesFilters && contentNode.num_coach_contents > 0;
-          }
-          return passesFilters;
-        });
-      },
+      // filteredContentList() {
+      //   const { role } = this.filters;
+      //   if (!this.inSearchMode) {
+      //     return this.quizForge.channels.value;
+      //   }
+      //   const list = this.quizForge.channels.value
+      //     ? this.quizForge.channels.value
+      //     : this.bookmarksList;
+      //   return list.filter(contentNode => {
+      //     let passesFilters = true;
+      //     if (role === 'nonCoach') {
+      //       passesFilters = passesFilters && contentNode.num_coach_contents === 0;
+      //     }
+      //     if (role === 'coach') {
+      //       passesFilters = passesFilters && contentNode.num_coach_contents > 0;
+      //     }
+      //     return passesFilters;
+      //   });
+      // },
       inSearchMode() {
         return this.pageName === LessonsPageNames.SELECTION_SEARCH;
       },
@@ -214,7 +163,7 @@
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
-    }, 
+    },
 
     watch: {
       workingResources(newVal, oldVal) {
@@ -231,25 +180,31 @@
         });
       },
     },
-    beforeRouteEnter (to, from, next) {
+    beforeRouteEnter(to, from, next) {
       console.log(to);
       console.log(from);
       console.log(to.params.topic_id);
-      if(to.params.topic_id){
-        this.showChannelQuizCreationTopicPage(this.$store,to.params).then(() => {
+      if (to.params.topic_id) {
+        this.showChannelQuizCreationTopicPage(this.$store, to.params).then(() => {
           next();
         });
       }
     },
     created() {
       console.log(this.quizForge.channels.value);
+      bookMarkedResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
+        this.more = data.more;
+        this.bookmarks = data.results ? data.results : [];
+        console.log(this.bookmarks);
+        this.loading = false;
+        this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
+      });
     },
     mounted() {
-      if(this.quizForge.channels.value.length > 0){
-
+      if (this.quizForge.channels.value.length > 0) {
         this.visibleResources = this.quizForge.channels.value;
-      }else{
-        this.visibleResources =[];
+      } else {
+        this.visibleResources = [];
       }
     },
     methods: {
@@ -318,43 +273,44 @@
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
       },
-    showChannelQuizCreationTopicPage(store, params) {
-      return store.dispatch('loading').then(() => {
-        const { topic_id } = params;
-        const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
-        const childNodesPromise = ContentNodeResource.fetchCollection({
-          getParams: {
-            parent: topic_id,
-            kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
-            contains_quiz: true,
-          },
-        });
-        const loadRequirements = [topicNodePromise, childNodesPromise];
+      showChannelQuizCreationTopicPage(store, params) {
+        return store.dispatch('loading').then(() => {
+          const { topic_id } = params;
+          const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
+          const childNodesPromise = ContentNodeResource.fetchCollection({
+            getParams: {
+              parent: topic_id,
+              kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+              contains_quiz: true,
+            },
+          });
+          const loadRequirements = [topicNodePromise, childNodesPromise];
 
-        return Promise.all(loadRequirements).then(([/*topicNoitde*/, childNodes]) => {
-          console.log(childNodes);
-          this.visibleResources = childNodes;
-          // return filterAndAnnotateContentList(childNodes).then(contentList => {
-          //   store.commit('SET_TOOLBAR_ROUTE', {
-          //     name: PageNames.EXAMS,
-          //   });
+          return Promise.all(loadRequirements).then(([, /*topicNoitde*/ childNodes]) => {
+            console.log(childNodes);
+            this.visibleResources = childNodes;
+            // return filterAndAnnotateContentList(childNodes).then(contentList => {
+            //   store.commit('SET_TOOLBAR_ROUTE', {
+            //     name: PageNames.EXAMS,
+            //   });
 
-          //   return showExamCreationPage(store, {
-          //     classId: params.classId,
-          //     contentList,
-          //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
-          //     ancestors: [...topicNode.ancestors, topicNode],
-          //   });
-          // });
+            //   return showExamCreationPage(store, {
+            //     classId: params.classId,
+            //     contentList,
+            //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+            //     ancestors: [...topicNode.ancestors, topicNode],
+            //   });
+            // });
+          });
         });
-  });
-}
+      },
       // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {
       //     return this.quizForge.channels.value;
       //   }
-      //   const list = this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
+      //   const list = this.quizForge.channels.value ?
+      // this.quizForge.channels.value : this.bookmarksList;
       //   return list.filter(contentNode => {
       //     let passesFilters = true;
       //     if (role === 'nonCoach') {
@@ -366,11 +322,6 @@
       //     return passesFilters;
       //   });
       // },
-    },
-    $trs: {
-      selectionInformation: {
-        message: 'Channels',
-      },
     },
   };
 
