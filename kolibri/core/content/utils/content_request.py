@@ -246,11 +246,23 @@ class PreferredDevices(object):
         :return: The NetworkLocation object, or None if it is not available or does not match the
                  validation conditions
         """
-        try:
-            peer = NetworkLocation.objects.get(
-                instance_id=_uuid_to_hex(instance_id), **self._filters
+        peer = (
+            NetworkLocation.objects.annotate(
+                okay=Case(
+                    When(
+                        connection_status=ConnectionStatus.Okay,
+                        then=Value(True),
+                    ),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                ),
             )
-        except NetworkLocation.DoesNotExist:
+            .order_by("-okay")
+            .filter(instance_id=_uuid_to_hex(instance_id), **self._filters)
+            .first()
+        )
+
+        if not peer:
             return None
 
         # if we're on a metered connection, we only want to download from local peers
