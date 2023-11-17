@@ -1,9 +1,12 @@
+import logger from 'kolibri.lib.logging';
 import isArray from 'lodash/isArray';
 import { ref, reactive, computed, onBeforeUnmount, watch } from 'kolibri.lib.vueCompositionApi';
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
 
 import useMinimumKolibriVersion from 'kolibri.coreVue.composables.useMinimumKolibriVersion';
 import { fetchDevices, channelIsAvailableAtDevice, deviceHasMatchingFacility } from './api';
+
+const logging = logger.getLogger(__filename);
 
 /**
  * @param {{}} apiParams
@@ -105,6 +108,7 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
             }
           }
         } catch (e) {
+          logging.error(e);
           failed = true;
         }
       })
@@ -123,7 +127,10 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
         .map(d => {
           // set unavailable if we haven't determined if it should be filtered out yet
           if (!get(availableIds).includes(d.id)) {
-            d.available = false;
+            return {
+              ...d,
+              available: false,
+            };
           }
           return d;
         });
