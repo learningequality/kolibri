@@ -48,13 +48,14 @@ def get_remote_users_info(baseurl, facility_id, username, password):
         )
         response.raise_for_status()
     except (CommandError, HTTPError, ConnectionError) as e:
-        detail = []
         if password == NOT_SPECIFIED or not password:
-            detail = [{"id": error_constants.MISSING_PASSWORD}]
-            raise AuthenticationFailed(detail)
+            raise AuthenticationFailed(
+                detail="Password is required", code=error_constants.MISSING_PASSWORD
+            )
         else:
-            detail = [{"id": error_constants.AUTHENTICATION_FAILED, "message": e}]
-            raise AuthenticationFailed(detail)
+            raise AuthenticationFailed(
+                detail=str(e), code=error_constants.AUTHENTICATION_FAILED
+            )
     auth_info = response.json()
     if len(auth_info) > 1:
         user_info = [u for u in response.json() if u["username"] == username][0]
