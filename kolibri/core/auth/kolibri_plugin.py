@@ -27,7 +27,9 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
         """
         :type context: morango.sync.context.LocalSessionContext
         """
-        if context.is_receiver:
+        from kolibri.core.device.utils import device_provisioned
+
+        if context.is_receiver and device_provisioned():
             is_pull = context.is_pull
             is_push = context.is_push
             sync_filter = str(context.filter)

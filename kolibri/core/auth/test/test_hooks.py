@@ -4,6 +4,7 @@ import mock
 from django.test import TestCase
 from morango.sync.context import LocalSessionContext
 
+from .helpers import provision_device
 from kolibri.core.auth.kolibri_plugin import AuthSyncHook
 from kolibri.core.auth.kolibri_plugin import CleanUpTaskOperation
 
@@ -11,6 +12,7 @@ from kolibri.core.auth.kolibri_plugin import CleanUpTaskOperation
 @mock.patch("kolibri.core.auth.kolibri_plugin.cleanupsync")
 class CleanUpTaskOperationTestCase(TestCase):
     def setUp(self):
+        provision_device()
         self.context = mock.MagicMock(
             spec=LocalSessionContext(),
             filter=uuid.uuid4().hex,

@@ -30,6 +30,7 @@ from kolibri.core.error_constants import DEVICE_LIMITATIONS
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobNotFound
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
@@ -424,6 +425,7 @@ soud_sync_queue = "soud_sync"
     queue=soud_sync_queue,
     priority=Priority.HIGH,
     status_fn=status_fn,
+    long_running=True,
 )
 def soud_sync_processing():
     # run processing
@@ -433,37 +435,39 @@ def soud_sync_processing():
     if next_run is not None:
         job = get_current_job()
         job.retry_in(next_run)
+    else:
+        logger.info("Skipping enqueue of SoUD sync processing: no attempts remaining")
 
 
-def enqueue_soud_sync_processing(force=False):
+def enqueue_soud_sync_processing():
     """
     Enqueue a task to process SoUD syncs, if necessary
     """
     next_run = soud.get_time_to_next_attempt()
     if next_run is None:
         # No need to enqueue, as there is no next run
+        logger.info("Skipping enqueue of SoUD sync processing: no eligible syncs")
         return
 
-    if force:
-        job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
-    else:
-        # Check if there is already an enqueued job
-        try:
-            converted_next_run = naive_utc_datetime(timezone.now() + next_run)
-            orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
-            if (
-                orm_job.state == State.RUNNING
-                or orm_job.state == State.QUEUED
-                and orm_job.scheduled_time <= converted_next_run
-            ):
-                # Already queued sooner or at the same time as the next run
-                return
-            # Otherwise, cancel the existing job, and re-enqueue
-            job_storage.cancel_if_exists(SOUD_SYNC_PROCESSING_JOB_ID)
-        except JobNotFound:
-            pass
+    # Check if there is already an enqueued job
+    try:
+        converted_next_run = naive_utc_datetime(timezone.now() + next_run)
+        orm_job = job_storage.get_orm_job(SOUD_SYNC_PROCESSING_JOB_ID)
+        if (
+            orm_job.state not in (State.COMPLETED, State.FAILED, State.CANCELED)
+            and orm_job.scheduled_time <= converted_next_run
+        ):
+            # Already queued sooner or at the same time as the next run
+            logger.info("Skipping enqueue of SoUD sync processing: scheduled sooner")
+            return
+    except JobNotFound:
+        pass
 
-    soud_sync_processing.enqueue_in(next_run)
+    logger.info("Enqueuing SoUD sync processing in {}".format(next_run))
+    try:
+        soud_sync_processing.enqueue_in(next_run)
+    except JobRunning:
+        logger.info("Skipping enqueue of SoUD sync processing: already running")
 
 
 @register_task(
@@ -578,6 +582,7 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
     queue=soud_sync_queue,
     permission_classes=[IsSuperAdmin() | NotProvisioned()],
     status_fn=status_fn,
+    long_running=True,
 )
 def peeruserimport(command, **kwargs):
     call_command(command, **kwargs)
