@@ -44,6 +44,8 @@ def _facility(dataset_id=None):
 
 
 class BaseTestCase(TestCase):
+    multi_db = True
+
     def _create_sync_and_network_location(
         self, sync_overrides=None, location_overrides=None
     ):
@@ -641,6 +643,25 @@ class PreferredDevicesTestCase(BaseTestCase):
         self.assertEqual(len(peers), 2)
         self.assertEqual(peers[0].id, network_location1.id)
         self.assertEqual(peers[1].id, network_location2.id)
+
+    def test_multiple_locations__same_instance_id(self):
+        dynamic_location = self._create_network_location(
+            connection_status=ConnectionStatus.Unknown,
+        )
+        static_location = self._create_network_location(
+            location_type="static",
+            instance_id=dynamic_location.instance_id,
+        )
+        self.assertEqual(dynamic_location.instance_id, static_location.instance_id)
+
+        instance = PreferredDevices(
+            instance_ids=[
+                dynamic_location.instance_id,
+            ],
+        )
+        peers = list(instance)
+        self.assertEqual(len(peers), 1)
+        self.assertEqual(peers[0].id, static_location.id)
 
 
 class PreferredDevicesWithClientTestCase(BaseTestCase):
