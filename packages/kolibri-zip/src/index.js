@@ -8,6 +8,7 @@ class ExtractedFile {
   constructor(name, obj) {
     this.name = name;
     this.obj = obj;
+    this._url = null;
   }
 
   get fileNameExt() {
@@ -23,8 +24,17 @@ class ExtractedFile {
   }
 
   toUrl() {
-    const blob = new Blob([this.obj.buffer], { type: this.mimeType });
-    return URL.createObjectURL(blob);
+    if (!this._url) {
+      const blob = new Blob([this.obj.buffer], { type: this.mimeType });
+      this._url = URL.createObjectURL(blob);
+    }
+    return this._url;
+  }
+
+  close() {
+    if (this._url) {
+      URL.revokeObjectURL(this._url);
+    }
   }
 }
 
@@ -123,5 +133,11 @@ export default class ZipFile {
       return Promise.reject(this._loadingError);
     }
     return this._getFiles(file => file.name.startsWith(path));
+  }
+  close() {
+    for (const file of Object.values(this._extractedFileCache)) {
+      file.close();
+    }
+    this.zipData = null;
   }
 }
