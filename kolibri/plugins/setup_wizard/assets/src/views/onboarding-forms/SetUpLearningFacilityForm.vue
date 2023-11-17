@@ -55,7 +55,7 @@
         return this.selected === Options.NEW;
       },
       isImportFacilitySetup() {
-        return this.selected === Options.IMPORT; 
+        return this.selected === Options.IMPORT;
       },
     },
     methods: {

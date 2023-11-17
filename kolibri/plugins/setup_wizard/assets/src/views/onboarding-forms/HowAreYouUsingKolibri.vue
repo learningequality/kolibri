@@ -49,7 +49,7 @@
         return this.selected === UsePresets.ON_MY_OWN;
       },
       isGroupSetup() {
-        return this.selected === UsePresets.GROUP; 
+        return this.selected === UsePresets.GROUP;
       },
       UsePresets() {
         return UsePresets;

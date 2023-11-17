@@ -50,7 +50,7 @@
         return this.selected === Options.FULL;
       },
       isLODSetup() {
-        return this.selected === Options.LOD; 
+        return this.selected === Options.LOD;
       },
     },
     methods: {
