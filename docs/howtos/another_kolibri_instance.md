@@ -1,10 +1,8 @@
-## Running another kolibri instance alongside the development server
-
 This guide will walk you through the process of setting up and running another instance of Kolibri alongside your development server using the `pex` executable.
 
 ## Introduction
 
-As Kolibri's features continue to expand into remote content browsing, it's often necessary to test and experiment with another Kolibri instance running alongside your development server. One effective approach is to use the `pex` executable. This workflow is straightforward and can be employed independently of ZeroTier or even internet network access. Documenting these steps will provide a handy reference for both new team members and contributors.
+As Kolibri's features continue to expand into remote content browsing, it's often necessary to test and experiment with another Kolibri instance running alongside your development server. One effective approach is to use the `pex` executable. This workflow is straightforward and can be employed independently of ZeroTier or even internet network access. By following these steps, you can effectively simulate real-world scenarios and enhance your development workflow.
 
 ## Steps
 
@@ -50,7 +48,3 @@ As Kolibri's features continue to expand into remote content browsing, it's ofte
   python <filename>.pex stop
   ```
   This will gracefully shut down the instance.
-
-## Conclusion
-
-Running another Kolibri instance alongside your development server using the `pex` executable is a convenient way to test and experiment with remote content browsing features. By following these steps, you can effectively simulate real-world scenarios and enhance your development workflow.
