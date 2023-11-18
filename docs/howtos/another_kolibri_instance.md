@@ -20,7 +20,9 @@ As Kolibri's features continue to expand into remote content browsing, it's ofte
 
 - **Run another Kolibri instance:**
 
-  Open your terminal and navigate to the folder where you unzipped the `pex` file. Use the following command to start another Kolibri instance:
+  First, make sure you are using Python version <= 3.9.
+
+  Then, open your terminal and navigate to the folder where you unzipped the `pex` file. Use the following command to start another Kolibri instance:
 
   ```sh
   KOLIBRI_HOME="<foldername>" python <filename>.pex start
