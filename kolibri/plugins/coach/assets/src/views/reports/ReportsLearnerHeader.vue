@@ -54,10 +54,12 @@
     </HeaderTable>
     <HeaderTabs :enablePrint="enablePrint">
       <KTabsList
+        ref="tabList"
         :tabsId="LEARNERS_TABS_ID"
         :activeTabId="activeTabId"
         ariaLabel="Coach learners"
         :tabs="tabs"
+        @click="() => saveTabsClick(LEARNERS_TABS_ID)"
       />
     </HeaderTabs>
   </div>
@@ -70,10 +72,18 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import { LEARNERS_TABS_ID, LearnersTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
 
   export default {
     name: 'ReportsLearnerHeader',
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const {saveTabsClick, wereTabsClickedRecently} = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
     props: {
       enablePrint: {
         type: Boolean,
@@ -137,6 +147,18 @@
           },
         ];
       },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the Plan page for the first time)
+      if (this.wereTabsClickedRecently(this.LEARNERS_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        })
+      }
     },
     $trs: {
       back: {
