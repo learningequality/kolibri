@@ -2,6 +2,8 @@ package org.learningequality;
 
 import android.app.Notification;
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -34,8 +36,10 @@ public class Notifications {
     }
 
     public static void hideNotification(int notificationId) {
-        Context context = ContextUtil.getApplicationContext();
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.cancel(notificationId);
+        new Handler(Looper.getMainLooper()).postDelayed(() -> {
+            Context context = ContextUtil.getApplicationContext();
+            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
+            notificationManager.cancel(notificationId);
+        }, 5000); // Delay in milliseconds (5 seconds)
     }
 }
