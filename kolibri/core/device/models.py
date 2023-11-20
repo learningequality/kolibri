@@ -192,7 +192,10 @@ class DeviceSettings(models.Model):
         :param name: A str name of the `extra_settings` field
         :return: mixed
         """
-        return self.extra_settings.get(name, extra_settings_default_values[name])
+        try:
+            return self.extra_settings.get(name, extra_settings_default_values[name])
+        except KeyError:
+            return extra_settings_default_values[name]
 
     @property
     def allow_download_on_metered_connection(self):
