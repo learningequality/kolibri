@@ -932,6 +932,23 @@ class ProcessContentRemovalRequestsTestCase(BaseQuerysetTestCase):
         self.assertEqual(self.qs.count(), 0)
         self.assertEqual(ContentDownloadRequest.objects.count(), 1)
 
+    def test_basic__has_other_download(self):
+        other_download = ContentDownloadRequest(
+            contentnode_id=self.download.contentnode_id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Completed,
+            source_model="test",
+            source_id=uuid.uuid4().hex,
+            facility=self.facility,
+        )
+        other_download.save()
+
+        process_content_removal_requests(self.qs)
+        self.mock_call_command.assert_not_called()
+        # should be marked completed
+        self.assertEqual(self.qs.count(), 0)
+        self.assertEqual(ContentDownloadRequest.objects.count(), 2)
+
 
 class ProcessDownloadRequestTestCase(BaseQuerysetTestCase):
     def setUp(self):

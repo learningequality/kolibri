@@ -42,7 +42,7 @@ class Migration(migrations.Migration):
                 (
                     "type",
                     models.CharField(
-                        choices=[("Download", "DOWNLOAD"), ("Removal", "REMOVAL")],
+                        choices=[("DOWNLOAD", "Download"), ("REMOVAL", "Removal")],
                         max_length=8,
                     ),
                 ),
@@ -50,8 +50,8 @@ class Migration(migrations.Migration):
                     "reason",
                     models.CharField(
                         choices=[
-                            ("SyncInitiated", "SYNC_INITIATED"),
-                            ("UserInitiated", "USER_INITIATED"),
+                            ("SYNC_INITIATED", "SyncInitiated"),
+                            ("USER_INITIATED", "UserInitiated"),
                         ],
                         max_length=14,
                     ),
@@ -60,10 +60,10 @@ class Migration(migrations.Migration):
                     "status",
                     models.CharField(
                         choices=[
-                            ("Completed", "COMPLETED"),
-                            ("Failed", "FAILED"),
-                            ("InProgress", "IN_PROGRESS"),
-                            ("Pending", "PENDING"),
+                            ("COMPLETED", "Completed"),
+                            ("FAILED", "Failed"),
+                            ("IN_PROGRESS", "InProgress"),
+                            ("PENDING", "Pending"),
                         ],
                         max_length=11,
                     ),
