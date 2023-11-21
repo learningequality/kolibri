@@ -35,8 +35,6 @@ public class PythonWorker extends RemoteListenableWorker {
 
     public static PythonWorker mWorker = null;
 
-    public int notificationId;
-
     public static ThreadLocal<Integer> threadNotificationId = new ThreadLocal<>();
 
     private String notificationTitle;
@@ -50,7 +48,7 @@ public class PythonWorker extends RemoteListenableWorker {
 
         notificationTitle = context.getString(R.string.app_name);
 
-        notificationId = ThreadLocalRandom.current().nextInt(1, 65537);
+        threadNotificationId.set(ThreadLocalRandom.current().nextInt(1, 65537));
 
         PythonWorker.mWorker = this;
 
@@ -85,6 +83,8 @@ public class PythonWorker extends RemoteListenableWorker {
             if (longRunning) {
                 runAsForeground();
             }
+
+            int notificationId = getNotificationId();
 
             // The python thread handling the work needs to be run in a
             // separate thread so that future can be returned. Without
@@ -138,7 +138,7 @@ public class PythonWorker extends RemoteListenableWorker {
     );
 
     public ForegroundInfo getForegroundInfo() {
-        return new ForegroundInfo(notificationId, Notifications.createNotification(notificationTitle, null, -1, -1));
+        return new ForegroundInfo(getNotificationId(), Notifications.createNotification(notificationTitle, null, -1, -1));
     }
 
     public void runAsForeground() {
