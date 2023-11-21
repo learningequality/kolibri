@@ -12,8 +12,10 @@
     <p>Select from bookmarks</p>
 
     <BookMarkedResource
+      v-if="bookmarks.length > 0"
       kind="bookmark"
       :isMobile="true"
+      :bookMarkedResoures="bookmarks.length"
     />
 
     <LessonsSearchBox
@@ -26,7 +28,7 @@
     />
 
     <ContentCardList
-      :contentList="quizForge.channels.value"
+      :contentList="channels"
       :showSelectAll="selectAllIsVisible"
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="addableContent.length === 0"
@@ -46,19 +48,15 @@
 <script>
 
   import { ContentNodeKinds, ContentNodeResource } from 'kolibri.coreVue.vuex.constants';
-  import { ContentNodeResource as bookMarkedResource } from 'kolibri.resources';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
   import pickBy from 'lodash/pickBy';
   import { PageNames } from '../../../constants';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
+  import { useResources } from '../../../composables/useResources';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import BookMarkedResource from './BookMarkedResource.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  // import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
-  // import ResourceSelection from './ResourceSelection.vue';
-  // import  ResourceSelectionBreadcrumbs from './../../../views/plan/LessonResourceS
-  // electionPage/SearchTools/ResourceSelectionBreadcrumbs.vue'
 
   export default {
     name: 'ResourceSelection',
@@ -66,23 +64,21 @@
       LessonsSearchBox,
       BookMarkedResource,
       ContentCardList,
-      // ResourceSelection,
-      // ResourceSelectionBreadcrumbs,
-      // LessonContentCard,
     },
     inject: ['quizForge'],
     setup() {
       const { sectionSettings$ } = enhancedQuizManagementStrings;
+      const { channels, bookmarks } = useResources();
 
       return {
         sectionSettings$,
+        channels,
+        bookmarks,
       };
     },
     data() {
       return {
         viewMoreButtonState: 'no_more_results',
-        // contentHasCheckbox: () => false,
-        // contentIsSelected: () => '',
         searchTerm: '',
         search: '',
         filters: {
@@ -91,29 +87,9 @@
           role: this.$route.query.role || null,
         },
         visibleResources: [],
-        bookmarks: [],
       };
     },
     computed: {
-      // filteredContentList() {
-      //   const { role } = this.filters;
-      //   if (!this.inSearchMode) {
-      //     return this.quizForge.channels.value;
-      //   }
-      //   const list = this.quizForge.channels.value
-      //     ? this.quizForge.channels.value
-      //     : this.bookmarksList;
-      //   return list.filter(contentNode => {
-      //     let passesFilters = true;
-      //     if (role === 'nonCoach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents === 0;
-      //     }
-      //     if (role === 'coach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents > 0;
-      //     }
-      //     return passesFilters;
-      //   });
-      // },
       inSearchMode() {
         return this.pageName === LessonsPageNames.SELECTION_SEARCH;
       },
@@ -190,16 +166,6 @@
         });
       }
     },
-    created() {
-      console.log(this.quizForge.channels.value);
-      bookMarkedResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(data => {
-        this.more = data.more;
-        this.bookmarks = data.results ? data.results : [];
-        console.log(this.bookmarks);
-        this.loading = false;
-        this.fetchContentNodeProgress({ ids: this.bookmarks.map(b => b.id) });
-      });
-    },
     mounted() {
       if (this.quizForge.channels.value.length > 0) {
         this.visibleResources = this.quizForge.channels.value;
@@ -212,19 +178,7 @@
       focusFirstEl() {
         this.$refs.textbox.focus();
       },
-      // selectionMetadata(content) {
-      //   if (content.kind === ContentNodeKinds.TOPIC) {
-      //     const count = content.exercises.filter(exercise =>
-      //       Boolean(this.selectedExercises[exercise.id])
-      //     ).length;
-      //     if (count === 0) {
-      //       return '';
-      //     }
-      //     const total = content.exercises.length;
-      //     return this.$tr('total_number', { count, total });
-      //   }
-      //   return '';
-      // },
+
       contentLink(content) {
         if (!content.is_leaf) {
           return {
@@ -304,24 +258,6 @@
           });
         });
       },
-      // filteredquizForge.channels.value() {
-      //   const { role } = this.filters;
-      //   if (!this.inSearchMode) {
-      //     return this.quizForge.channels.value;
-      //   }
-      //   const list = this.quizForge.channels.value ?
-      // this.quizForge.channels.value : this.bookmarksList;
-      //   return list.filter(contentNode => {
-      //     let passesFilters = true;
-      //     if (role === 'nonCoach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents === 0;
-      //     }
-      //     if (role === 'coach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents > 0;
-      //     }
-      //     return passesFilters;
-      //   });
-      // },
     },
   };
 
