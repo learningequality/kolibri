@@ -648,7 +648,6 @@ class CleanUpSyncsValidator(JobValidator):
     track_progress=False,
     cancellable=False,
     long_running=True,
-    queue=facility_task_queue,
     status_fn=status_fn,
 )
 def cleanupsync(**kwargs):
