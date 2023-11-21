@@ -1,6 +1,7 @@
 <template>
 
   <FacilityTaskPanelDetails
+    v-if="taskShouldDisplay"
     :statusMsg="taskInfo.statusMsg"
     :headingMsg="taskInfo.headingMsg"
     :underHeadingMsg="taskInfo.deviceNameMsg"
@@ -73,6 +74,9 @@
       isImportTask() {
         return this.task.type === TaskTypes.SYNCPEERPULL;
       },
+      isSyncCleanupTask() {
+        return this.task.type === TaskTypes.CLEANUPSYNC;
+      },
       taskInfo() {
         if (this.isSetupImportTask) {
           return importFacilityTaskDisplayInfo(this.task);
@@ -87,6 +91,9 @@
           return importLodTaskDisplayInfo(this.task);
         }
         return {};
+      },
+      taskShouldDisplay() {
+        return !this.isLODImportTask && !this.isSyncCleanupTask;
       },
       loaderType() {
         const { sync_state = '' } = this.task;
