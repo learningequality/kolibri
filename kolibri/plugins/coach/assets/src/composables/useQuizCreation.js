@@ -448,7 +448,7 @@ export function injectQuizCreation() {
   const updateSection = inject('updateSection');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
-  const removeSection = inject('removeSection,');
+  const removeSection = inject('removeSection');
   const setActiveSection = inject('setActiveSection');
   const initializeQuiz = inject('initializeQuiz');
   const updateQuiz = inject('updateQuiz');

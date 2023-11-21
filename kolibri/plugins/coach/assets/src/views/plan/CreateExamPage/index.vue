@@ -27,7 +27,7 @@
           <KButton
             :text="coreString('saveAction')"
             primary
-            @click="() => quizForge.saveQuiz()"
+            @click="() => saveQuiz()"
           />
         </KButtonGroup>
       </BottomAppBar>
@@ -61,24 +61,12 @@
     },
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     setup() {
-      const quizForge = useQuizCreation();
+      const { saveQuiz, initializeQuiz } = useQuizCreation();
       const quizInitialized = ref(false);
-
-      return {
-        quizInitialized,
-        quizForge,
-      };
+      return { saveQuiz, initializeQuiz, quizInitialized };
     },
-    /**
-     * @returns {object}
-     * @property {object} quizForge - see useQuizCreation for details; this is a reflection of
-     *                                the object returned by that function which is initialized
-     *                                within this component
-     * add `inject: ['quizForge']` to any descendant component to access this
-     */
     provide() {
       return {
-        quizForge: this.quizForge,
         showError: false,
         moreResultsState: null,
         // null corresponds to 'All' filter value
@@ -113,12 +101,12 @@
         });
       },
     },
-    created() {
-      this.quizForge.initializeQuiz();
-      this.quizInitialized = true;
-    },
     mounted() {
       this.$store.dispatch('notLoading');
+    },
+    created() {
+      this.initializeQuiz();
+      this.quizInitialized = true;
     },
     $trs: {
       createNewExamLabel: {

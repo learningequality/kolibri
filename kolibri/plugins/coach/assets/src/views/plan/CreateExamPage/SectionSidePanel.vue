@@ -32,7 +32,6 @@
   export default {
     name: 'SectionSidePanel',
     components: { SidePanelModal, SectionEditor, ReplaceQuestions, ResourceSelection },
-    inject: ['quizForge'],
     data() {
       return {
         prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
