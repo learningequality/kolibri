@@ -1,4 +1,5 @@
 import logger from 'kolibri.lib.logging';
+import _get from 'lodash/get';
 import isArray from 'lodash/isArray';
 import { ref, reactive, computed, onBeforeUnmount, watch } from 'kolibri.lib.vueCompositionApi';
 import { get, set, useMemoize, useTimeoutPoll } from '@vueuse/core';
@@ -157,7 +158,7 @@ function useAsyncDeviceFilter(filterFunction) {
       return await memoized(device);
     } catch (e) {
       // If not 404 clear cache to try again on next poll
-      if (e?.response?.status !== 404) {
+      if (_get(e, 'response.status') !== 404) {
         memoized.cache.delete(device.id);
         throw e;
       }
