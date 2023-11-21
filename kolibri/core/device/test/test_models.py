@@ -120,7 +120,7 @@ class LearnerDeviceStatusTestCase(TestCase):
         test_status = ("TestStatus", StatusSentiment.Positive)
 
         with mock.patch.object(DeviceStatus, "choices") as mock_choices:
-            mock_choices.return_value = [(test_status[0], test_status)]
+            mock_choices.return_value = [(test_status, test_status[0])]
             LearnerDeviceStatus.save_learner_status(self.user.id, test_status)
 
         self.assertFalse(
@@ -176,7 +176,12 @@ class LearnerDeviceStatusTestCase(TestCase):
         LearnerDeviceStatus.save_learner_status(
             self.user.id, DeviceStatus.InsufficientStorage
         )
+
         device_status = LearnerDeviceStatus.objects.get(user=self.user)
+        # this is called after deserializing during a sync, so make sure that a model can be
+        # successfully saved after deserializing
+        device_status.full_clean()
+
         self.assertEqual(self.facility.dataset_id, device_status.dataset_id)
         self.assertEqual(
             "{}:{}".format(self.instance.id, self.user.id),

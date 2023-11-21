@@ -658,7 +658,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
         # in order to save a status, it must be defined
-        if not any(status == choice for _, choice in DeviceStatus.choices()):
+        if not any(status == choice for choice, _ in DeviceStatus.choices()):
             raise ValueError("Value '{}' is not a valid status".format(status[0]))
 
         cls.objects.update_or_create(
