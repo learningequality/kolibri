@@ -3,32 +3,29 @@
   <div
     class="card container drop-shadow"
   >
-    <KRouterLink
-      :to="{}"
-      style="width:100%"
-    >
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 4 }"
-          :layout8="{ span: 2 }"
-          class="thumb-area"
-          :style="bookMarkBackgroundColor"
-        >
-          <BookmarkIcon style="margin-top:-15px;margin-left:-30px" />
-        </KGridItem>
+    <KGrid>
+      <KGridItem
+        :layout12="{ span: 4 }"
+        :layout8="{ span: 2 }"
+        class="thumb-area"
+        style="{ margin:auto }"
+        :style="bookMarkBackgroundColor"
+      >
+        <BookmarkIcon />
+      </KGridItem>
 
-        <KGridItem
-          :layout12="{ span: 8 }"
-          :layout8="{ span: 6 }"
-          class="text-area"
-        >
-          <a :style="{ color: $themeTokens.primary }">
-            <p style="font-weight:600;">{{ bookmarksLabel$() }}</p>
-            <span> {{ numberOfSelectedBookmarks$({ count: bookMarkedResoures }) }}</span>
-          </a>
-        </KGridItem>
-      </KGrid>
-    </KRouterLink>
+      <KGridItem
+        :layout12="{ span: 8 }"
+        :layout8="{ span: 6 }"
+        class="text-area"
+      >
+        <a :style="{ color: $themeTokens.primary }">
+          <p style="font-weight:600;">{{ bookmarksLabel$() }}</p>
+          <span> {{ numberOfSelectedBookmarks$({ count: bookMarkedResoures }) }}</span>
+        </a>
+      </KGridItem>
+    </KGrid>
+
   </div>
 
 </template>
@@ -107,10 +104,6 @@
     display: block;
     width: 100%;
     text-decoration: none;
-  }
-
-  .thumb-area {
-    margin-bottom: 16px;
   }
 
   .text-area {
