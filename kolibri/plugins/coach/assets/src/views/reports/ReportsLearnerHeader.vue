@@ -56,8 +56,8 @@
       <KTabsList
         ref="tabList"
         :tabsId="LEARNERS_TABS_ID"
+        :ariaLabel="$tr('reportLearners')"
         :activeTabId="activeTabId"
-        ariaLabel="Coach learners"
         :tabs="tabs"
         @click="() => saveTabsClick(LEARNERS_TABS_ID)"
       />
@@ -165,6 +165,10 @@
         message: 'All learners',
         context:
           "Link that takes user back to the list of learners on the 'Reports' tab, from the individual learner's information page.",
+      },
+      reportLearners: {
+        message: 'Report learners',
+        context: "Labels the Reports > Learners tab for screen reander users",
       },
     },
   };
