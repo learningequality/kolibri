@@ -23,11 +23,13 @@
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
+  import ShowBookMarkedResources from './ShowBookMarkedResources.vue';
 
   const pageNameComponentMap = {
     [PageNames.QUIZ_SECTION_EDITOR]: SectionEditor,
     [PageNames.QUIZ_REPLACE_QUESTIONS]: ReplaceQuestions,
     [PageNames.QUIZ_SELECT_RESOURCES]: ResourceSelection,
+    [PageNames.BOOK_MARKED_RESOURCES]:ShowBookMarkedResources,
   };
 
   export default {
@@ -38,6 +40,7 @@
       ReplaceQuestions,
       ResourceSelection,
       ResourceSelectionBreadcrumbs,
+      ShowBookMarkedResources,
     },
     inject: ['quizForge'],
     data() {

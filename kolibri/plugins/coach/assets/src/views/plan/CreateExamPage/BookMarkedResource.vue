@@ -3,29 +3,34 @@
   <div
     class="card container drop-shadow"
   >
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 4 }"
-        :layout8="{ span: 2 }"
-        class="thumb-area"
-        style="{ margin:auto }"
-        :style="bookMarkBackgroundColor"
-      >
-        <BookmarkIcon />
-      </KGridItem>
+    <KRouterLink
+      :to="to"
+      style="width:100%"
+    >
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 4 }"
+          :layout8="{ span: 2 }"
+          class="thumb-area"
+          style="{ margin:auto }"
+          :style="bookMarkBackgroundColor"
+        >
+          <BookmarkIcon />
+        </KGridItem>
 
-      <KGridItem
-        :layout12="{ span: 8 }"
-        :layout8="{ span: 6 }"
-        class="text-area"
-      >
-        <a :style="{ color: $themeTokens.primary }">
-          <p style="font-weight:600;">{{ bookmarksLabel$() }}</p>
-          <span> {{ numberOfSelectedBookmarks$({ count: bookMarkedResoures }) }}</span>
-        </a>
-      </KGridItem>
-    </KGrid>
+        <KGridItem
+          :layout12="{ span: 8 }"
+          :layout8="{ span: 6 }"
+          class="text-area"
+        >
+          <a :style="{ color: $themeTokens.primary }">
+            <p style="font-weight:600;">{{ bookmarksLabel$() }}</p>
+            <span> {{ numberOfSelectedBookmarks$({ count: bookMarkedResoures }) }}</span>
+          </a>
+        </KGridItem>
+      </KGrid>
 
+    </KRouterLink>
   </div>
 
 </template>
@@ -54,6 +59,10 @@
         type: Number,
         required: true,
       },
+      to:{
+        type:Object,
+        required:true,
+      }
     },
     computed: {
       bookMarkBackgroundColor() {
@@ -62,6 +71,9 @@
         };
       },
     },
+    mounted(){
+      console.log(this.$route.params);
+    }
   };
 
 </script>
@@ -91,7 +103,7 @@
   .card {
     position: relative;
     vertical-align: top;
-    border-radius: 8px;
+    border-radius: 2px;
     transition: box-shadow $core-time ease;
 
     &:focus {

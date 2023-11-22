@@ -15,6 +15,7 @@
       v-if="bookmarks.length > 0"
       kind="bookmark"
       :isMobile="true"
+      :to="to"
       :bookMarkedResoures="bookmarks.length"
     />
 
@@ -139,6 +140,15 @@
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
+      to(){
+        return {
+          name: PageNames.BOOK_MARKED_RESOURCES,
+          params:{
+            classId: this.$route.params.classId,
+            section_id: this.$route.params.section_id,
+          }
+        }
+      }
     },
 
     watch: {
@@ -157,9 +167,9 @@
       },
     },
     beforeRouteEnter(to, from, next) {
-      console.log(to);
-      console.log(from);
-      console.log(to.params.topic_id);
+      // console.log(to);
+      // console.log(from);
+      // console.log(to.params.topic_id);
       if (to.params.topic_id) {
         this.showChannelQuizCreationTopicPage(this.$store, to.params).then(() => {
           next();

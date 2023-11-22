@@ -57,6 +57,10 @@ export default [
           }
         ]
       },
+      {
+        name: PageNames.BOOK_MARKED_RESOURCES,
+        path: ':section_id/book-marked-resources',
+      },
     ],
   },
   {
