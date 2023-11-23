@@ -26,15 +26,14 @@ locale_dir = join_paths(get_option('prefix'), get_option('localedir'))
 datadir = join_paths(get_option('prefix'), get_option('datadir'))
 
 build_profile = get_option('profile')
+base_application_id = get_option('base_application_id')
+base_object_path = get_option('base_object_path')
+profile_env_prefix = get_option('env_prefix')
 
-if build_profile == 'default'
-    base_application_id = 'org.learningequality.Kolibri'
-    base_object_path = '/org/learningequality/Kolibri'
-    profile_env_prefix = 'KOLIBRI_'
-elif build_profile == 'development'
-    base_application_id = 'org.learningequality.Kolibri.Devel'
-    base_object_path = '/org/learningequality/Kolibri/Devel'
-    profile_env_prefix = 'KOLIBRI_DEVEL_'
+if build_profile == 'development'
+    base_application_id += '.Devel'
+    base_object_path += '/Devel'
+    profile_env_prefix += 'DEVEL_'
 endif
 
 frontend_application_id = base_application_id
