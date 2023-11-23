@@ -14,9 +14,11 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
+from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BASE_APPLICATION_ID
 from kolibri_app.config import BASE_OBJECT_PATH
 from kolibri_app.config import KOLIBRI_APP_DATA_DIR
+from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.globals import get_release_notes_version
 from kolibri_app.globals import get_version
 from kolibri_app.globals import KOLIBRI_HOME_PATH
@@ -261,7 +263,7 @@ class Application(Adw.Application):
         return new_window.get_main_webview() if new_window else None
 
     def __handle_open_file_url(self, url: str):
-        valid_url_schemes = ("kolibri", "x-kolibri-app")
+        valid_url_schemes = (KOLIBRI_URI_SCHEME, APP_URI_SCHEME)
 
         url_tuple = urlsplit(url)
 

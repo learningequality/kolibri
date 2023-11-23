@@ -29,11 +29,13 @@ build_profile = get_option('profile')
 base_application_id = get_option('base_application_id')
 base_object_path = get_option('base_object_path')
 profile_env_prefix = get_option('env_prefix')
+profile_uri_prefix = get_option('uri_prefix')
 
 if build_profile == 'development'
     base_application_id += '.Devel'
     base_object_path += '/Devel'
     profile_env_prefix += 'DEVEL_'
+    profile_uri_prefix += '-devel'
 endif
 
 frontend_application_id = base_application_id
@@ -51,6 +53,10 @@ daemon_private_object_path = daemon_object_path + '/Private'
 search_provider_application_id = base_application_id + '.SearchProvider'
 search_provider_object_path = base_object_path + '/SearchProvider'
 
+kolibri_uri_scheme = 'kolibri'
+app_uri_scheme = profile_uri_prefix + '-app'
+dispatch_uri_scheme = profile_uri_prefix + '-dispatch'
+
 po_dir = join_paths(meson.project_source_root(), 'po')
 
 kolibri_app_libexecdir = join_paths(libexecdir, 'kolibri-app')
@@ -66,6 +72,9 @@ kolibri_app_config.set('GETTEXT_PACKAGE', meson.project_name())
 kolibri_app_config.set('LOCALE_DIR', locale_dir)
 kolibri_app_config.set('BUILD_PROFILE', build_profile)
 kolibri_app_config.set('PROFILE_ENV_PREFIX', profile_env_prefix)
+kolibri_app_config.set('KOLIBRI_URI_SCHEME', kolibri_uri_scheme)
+kolibri_app_config.set('APP_URI_SCHEME', app_uri_scheme)
+kolibri_app_config.set('DISPATCH_URI_SCHEME', dispatch_uri_scheme)
 kolibri_app_config.set('KOLIBRI_APP_LIBEXECDIR', kolibri_app_libexecdir)
 kolibri_app_config.set('KOLIBRI_APP_DATA_DIR', kolibri_app_data_dir)
 kolibri_app_config.set('BASE_APPLICATION_ID', base_application_id)

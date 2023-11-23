@@ -13,9 +13,11 @@ from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import WebKit
+from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.config import FRONTEND_APPLICATION_ID
 from kolibri_app.config import KOLIBRI_APP_DATA_DIR
+from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.config import PROJECT_VERSION
 from kolibri_app.config import VCS_TAG
 from kolibri_app.utils import get_app_modules_debug_info
@@ -104,7 +106,7 @@ class KolibriContext(GObject.GObject):
 
     @property
     def default_url(self) -> str:
-        return "x-kolibri-app:/"
+        return f"{APP_URI_SCHEME}:/"
 
     @property
     def webkit_web_context(self) -> WebKit.WebContext:
@@ -118,10 +120,10 @@ class KolibriContext(GObject.GObject):
 
     def get_absolute_url(self, url: str) -> typing.Optional[str]:
         url_tuple = urlsplit(url)
-        if url_tuple.scheme == "kolibri":
+        if url_tuple.scheme == KOLIBRI_URI_SCHEME:
             target_url = self.parse_kolibri_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
-        elif url_tuple.scheme == "x-kolibri-app":
+        elif url_tuple.scheme == APP_URI_SCHEME:
             target_url = self.parse_x_kolibri_app_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
         return url
@@ -135,7 +137,8 @@ class KolibriContext(GObject.GObject):
     def should_open_url(self, url: str) -> bool:
         return (
             url == self.default_url
-            or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about", "blob")
+            or urlsplit(url).scheme
+            in (KOLIBRI_URI_SCHEME, APP_URI_SCHEME, "about", "blob")
             or self.is_url_in_scope(url)
         )
 
@@ -227,7 +230,7 @@ class KolibriContext(GObject.GObject):
             return f"{LEARN_PATH_PREFIX}home"
 
     def url_to_x_kolibri_app(self, url: str) -> str:
-        return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
+        return urlsplit(url)._replace(scheme=APP_URI_SCHEME, netloc="").geturl()
 
     def parse_x_kolibri_app_url_tuple(self, url_tuple: SplitResult) -> str:
         """
@@ -396,7 +399,7 @@ class KolibriChannelContext(KolibriContext):
 
     @property
     def default_url(self) -> str:
-        return f"x-kolibri-app:{self.__default_path}"
+        return f"{APP_URI_SCHEME}:{self.__default_path}"
 
     @property
     def __default_path(self) -> str:

@@ -28,3 +28,10 @@ option(
     value: 'KOLIBRI_',
     description: 'Prefix for environment variables. When profile is "development", "DEVEL_" is appended'
 )
+
+option(
+    'uri_prefix',
+    type: 'string',
+    value: 'x-kolibri',
+    description: 'Prefix for custom URI schemes. When profile is "development", "-devel" is appended'
+)

@@ -4,6 +4,8 @@ from urllib.parse import urlsplit
 from urllib.parse import urlunparse
 
 from gi.repository import Gio
+from kolibri_app.config import DISPATCH_URI_SCHEME
+from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.config import LAUNCHER_APPLICATION_ID
 
 logger = logging.getLogger(__name__)
@@ -41,7 +43,7 @@ class Launcher(Gio.Application):
     def handle_uri(self, uri: str):
         url_tuple = urlsplit(uri)
 
-        if url_tuple.scheme == "x-kolibri-dispatch":
+        if url_tuple.scheme == DISPATCH_URI_SCHEME:
             channel_id = url_tuple.netloc
             node_path = url_tuple.path
             node_query = url_tuple.query
@@ -59,7 +61,7 @@ class Launcher(Gio.Application):
 
         if node_path or node_query:
             kolibri_node_url = urlunparse(
-                ("kolibri", node_path, "", None, node_query, None)
+                (KOLIBRI_URI_SCHEME, node_path, "", None, node_query, None)
             )
             kolibri_gnome_args.append(kolibri_node_url)
 
