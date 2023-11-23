@@ -248,7 +248,7 @@
           <template #default="{ toggleItemState, isItemExpanded }">
             <DragContainer
               key="drag-container"
-              :items="quizForge.activeQuestions.value"
+              :items="activeQuestions.value"
               @sort="handleQuestionOrderChange"
               @dragStart="handleDragStart"
             >
@@ -258,7 +258,7 @@
                 class="wrapper"
               >
                 <Draggable
-                  v-for="(question, index) in quizForge.activeQuestions.value"
+                  v-for="(question, index) in activeQuestions.value"
                   :key="`drag-${question.question_id}`"
                   tabindex="-1"
                   style="background: white"
@@ -276,7 +276,7 @@
                               moveDownText="down"
                               :noDrag="true"
                               :isFirst="index === 0"
-                              :isLast="index === quizForge.activeQuestions.value.length - 1"
+                              :isLast="index === activeQuestions.value.length - 1"
                               @moveUp="shiftOne(index, -1)"
                               @moveDown="shiftOne(index, +1)"
                             />
@@ -284,10 +284,10 @@
                         </DragHandle>
                         <KCheckbox
                           style="padding-left: 0.5em"
-                          :checked="quizForge.selectedActiveQuestions.value.includes(
+                          :checked="selectedActiveQuestions.value.includes(
                             question.question_id
                           )"
-                          @change="() => quizForge.toggleQuestionInSelection(question.question_id)"
+                          @change="() => toggleQuestionInSelection(question.question_id)"
                         />
                         <KButton
                           tabindex="0"
@@ -509,17 +509,17 @@
     },
     methods: {
       handleReplaceSelection() {
-        const section_id = get(this.quizForge.activeSection).section_id;
+        const section_id = get(this.activeSection).section_id;
         this.$router.replace({ path: 'new/' + section_id + '/replace-questions' });
       },
       handleActiveSectionAction(opt) {
-        const section_id = this.quizForge.activeSection.value.section_id;
+        const section_id = this.activeSection.value.section_id;
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
           case this.deleteSectionLabel$():
-            this.quizForge.removeSection(this.quizForge.activeSection.value.section_id);
+            this.removeSection(this.activeSection.value.section_id);
             this.focusActiveSectionTab();
             break;
         }
@@ -559,10 +559,10 @@
       handleQuestionOrderChange({ newArray }) {
         set(this.dragActive, false);
         const payload = {
-          section_id: get(this.quizForge.activeSection).section_id,
+          section_id: get(this.activeSection).section_id,
           questions: newArray,
         };
-        this.quizForge.updateSection(payload);
+        this.updateSection(payload);
       },
       handleAddSection() {
         const newSection = this.addSection();
