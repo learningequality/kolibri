@@ -4,12 +4,12 @@
     <h5
       class="title-style"
     >
-      <KIcon
+      <KIconButton
         icon="back"
       />
-      Select folders or exercises from these channels
+      {{ selectFoldersOrExercises$() }}
     </h5>
-    <p>Select from bookmarks</p>
+    <p> {{ selectFromBookmarks$() }}</p>
 
     <BookMarkedResource
       v-if="bookmarks.length > 0"
@@ -68,11 +68,18 @@
     },
     inject: ['quizForge'],
     setup() {
-      const { sectionSettings$ } = enhancedQuizManagementStrings;
+      const { 
+        sectionSettings$,
+        selectFoldersOrExercises$,
+        selectFromBookmarks$,
+      } = enhancedQuizManagementStrings;
+
       const { channels, bookmarks } = useResources();
 
       return {
         sectionSettings$,
+        selectFoldersOrExercises$,
+        selectFromBookmarks$,
         channels,
         bookmarks,
       };
@@ -182,6 +189,7 @@
       } else {
         this.visibleResources = [];
       }
+      console.log(this.channels);
     },
     methods: {
       /** @public */
@@ -195,6 +203,8 @@
             name: PageNames.SELECT_FROM_RESOURCE,
             params: {
               topic_id: content.id,
+              classId: this.$route.params.classId,
+              section_id: this.$route.params.section_id
             },
           };
         }
