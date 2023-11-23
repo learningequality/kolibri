@@ -71,8 +71,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   selectFoldersOrExercises: {
     message: 'Select folders or exercises from these channels',
   },
-  selectFromBookmarks:{
-    message:"Select from bookmarks"
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
   },
   bookmarksLabel: {
     message: 'Bookmark',

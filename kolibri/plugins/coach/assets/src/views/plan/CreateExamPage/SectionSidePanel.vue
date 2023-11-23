@@ -30,8 +30,8 @@
     [PageNames.QUIZ_SECTION_EDITOR]: SectionEditor,
     [PageNames.QUIZ_REPLACE_QUESTIONS]: ReplaceQuestions,
     [PageNames.QUIZ_SELECT_RESOURCES]: ResourceSelection,
-    [PageNames.BOOK_MARKED_RESOURCES]:ShowBookMarkedResources,
-    [PageNames.SELECT_FROM_RESOURCE]:SelectedChannel,
+    [PageNames.BOOK_MARKED_RESOURCES]: ShowBookMarkedResources,
+    [PageNames.SELECT_FROM_RESOURCE]: SelectedChannel,
   };
 
   export default {

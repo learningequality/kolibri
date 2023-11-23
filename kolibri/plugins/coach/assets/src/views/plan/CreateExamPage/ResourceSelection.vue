@@ -68,7 +68,7 @@
     },
     inject: ['quizForge'],
     setup() {
-      const { 
+      const {
         sectionSettings$,
         selectFoldersOrExercises$,
         selectFromBookmarks$,
@@ -147,15 +147,15 @@
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
-      to(){
+      to() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
-          params:{
+          params: {
             classId: this.$route.params.classId,
             section_id: this.$route.params.section_id,
-          }
-        }
-      }
+          },
+        };
+      },
     },
 
     watch: {
@@ -204,7 +204,7 @@
             params: {
               topic_id: content.id,
               classId: this.$route.params.classId,
-              section_id: this.$route.params.section_id
+              section_id: this.$route.params.section_id,
             },
           };
         }
