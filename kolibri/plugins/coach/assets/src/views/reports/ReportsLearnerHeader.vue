@@ -78,7 +78,7 @@
     name: 'ReportsLearnerHeader',
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const {saveTabsClick, wereTabsClickedRecently} = useCoachTabs();
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
       return {
         saveTabsClick,
         wereTabsClickedRecently,
@@ -157,7 +157,7 @@
       if (this.wereTabsClickedRecently(this.LEARNERS_TABS_ID)) {
         this.$nextTick(() => {
           this.$refs.tabList.focusActiveTab();
-        })
+        });
       }
     },
     $trs: {
@@ -168,7 +168,7 @@
       },
       reportLearners: {
         message: 'Report learners',
-        context: "Labels the Reports > Learners tab for screen reander users",
+        context: 'Labels the Reports > Learners tab for screen reander users',
       },
     },
   };
