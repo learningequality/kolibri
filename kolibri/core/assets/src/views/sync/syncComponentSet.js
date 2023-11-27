@@ -11,9 +11,10 @@ export { default as SelectSourceModal } from './SelectSourceModal';
 export { default as SyncFacilityModalGroup } from './SyncFacilityModalGroup';
 export {
   default as useDevices,
-  useDevicesForLearnOnlyDevice,
-  useDevicesWithFacility,
-  useDevicesWithChannel,
+  useDevicesWithFilter,
+  useDeviceChannelFilter,
+  useDeviceFacilityFilter,
+  useDeviceMinimumVersionFilter,
 } from './SelectDeviceModalGroup/useDevices';
 export { default as useDeviceDeletion } from './SelectDeviceModalGroup/useDeviceDeletion';
 export { default as useConnectionChecker } from './SelectDeviceModalGroup/useConnectionChecker';
