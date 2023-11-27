@@ -18,7 +18,7 @@ If you encounter issues:
 .. note::
   Theoretically, Windows can be used to develop Kolibri, but we haven't done much testing with it. If you're running Windows, you are likely to encounter some issues with this guide, and we'd appreciate any help improving these docs for Windows developers!
 
-Dont use gitbash for setting up the environment in windows instead use powershell, to avoid errors with nodeenv. 
+  Dont use gitbash for setting up the environment in windows instead use powershell, to avoid errors with nodeenv.
 
 Git and GitHub
 ~~~~~~~~~~~~~~
