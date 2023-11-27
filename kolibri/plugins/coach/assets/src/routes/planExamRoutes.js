@@ -47,27 +47,25 @@ export default [
         path: ':section_id/replace-questions',
       },
       {
-      // this is basically show how the routing works once you in the select resources page and bookmarked resources page
-      // once you are in the bookmark resources page the only thing that we are interested in is the topic Id that  always  get updated 
         name: PageNames.QUIZ_SELECT_RESOURCES,
         path: ':section_id/select-resources',
 
-        children:[
+        children: [
           {
-            name:PageNames.SELECT_FROM_RESOURCE,
-            path:':topic_id',
-          }
-        ]
+            name: PageNames.SELECT_FROM_RESOURCE,
+            path: ':topic_id',
+          },
+        ],
       },
       {
         name: PageNames.BOOK_MARKED_RESOURCES,
         path: ':section_id/book-marked-resources',
-        children:[
+        children: [
           {
-            name:PageNames.SELECT_FROM_RESOURCE,
-            path:':topic_id',
-          }
-        ]
+            name: PageNames.SELECT_FROM_RESOURCE,
+            path: ':topic_id',
+          },
+        ],
       },
     ],
   },

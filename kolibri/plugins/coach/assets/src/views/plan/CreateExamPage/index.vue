@@ -114,8 +114,7 @@
     },
     mounted() {
       this.$store.dispatch('notLoading');
-    },
-    mounted() {
+
       ChannelResource.fetchCollection({
         getParams: { available: true, has_exercise: true },
       }).then(channels => {

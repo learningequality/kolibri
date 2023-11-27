@@ -59,10 +59,10 @@
         type: Number,
         required: true,
       },
-      to:{
-        type:Object,
-        required:true,
-      }
+      to: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       bookMarkBackgroundColor() {
@@ -71,9 +71,6 @@
         };
       },
     },
-    mounted(){
-      console.log(this.$route.params);
-    }
   };
 
 </script>
