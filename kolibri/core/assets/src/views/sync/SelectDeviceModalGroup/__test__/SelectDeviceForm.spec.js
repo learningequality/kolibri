@@ -1,12 +1,12 @@
 import { shallowMount } from '@vue/test-utils';
 import SelectDeviceForm from '../SelectDeviceForm';
 import { fetchDevices, updateConnectionStatus } from '../api';
+import { ConnectionStatus } from '../constants';
 
 jest.mock('../api.js', () => ({
   fetchDevices: jest.fn(),
   deleteDevice: jest.fn().mockResolvedValue(),
   updateConnectionStatus: jest.fn(),
-  deviceFacilityCanSignUp: jest.fn().mockResolvedValue(true),
 }));
 
 const devices = [
@@ -14,25 +14,40 @@ const devices = [
     id: '1',
     instance_id: '1',
     nickname: 'Available Server',
+    device_name: 'Available Server',
     base_url: 'http://localhost:8000',
     application: 'kolibri',
     available: true,
+    is_local: true,
+    since_last_accessed: 0,
+    subset_of_users_device: false,
+    kolibri_version: '0.16.0',
   },
   {
     id: '2',
     instance_id: '2',
     nickname: 'Unavailable Server',
+    device_name: 'Unavailable Server',
     base_url: 'http://localhost:8001',
     application: 'kolibri',
     available: false,
+    is_local: true,
+    since_last_accessed: 0,
+    subset_of_users_device: false,
+    kolibri_version: '0.16.0',
   },
   {
     id: '3',
     instance_id: '3',
     nickname: 'Content-less Server',
+    device_name: 'Content-less Server',
     base_url: 'http://localhost:8001',
     application: 'kolibri',
     available: true,
+    is_local: true,
+    since_last_accessed: 0,
+    subset_of_users_device: false,
+    kolibri_version: '0.16.0',
   },
 ];
 
@@ -40,13 +55,7 @@ const staticDevices = devices.map(a => ({ ...a, dynamic: false }));
 const dynamicDevices = devices.map(a => ({ ...a, dynamic: true }));
 
 function makeWrapper() {
-  const deviceIdMap = devices.reduce((acc, device) => {
-    acc[device.id] = device;
-    return acc;
-  }, {});
-  const wrapper = shallowMount(SelectDeviceForm, {
-    mocks: { lodsWithSignupFacility: deviceIdMap },
-  });
+  const wrapper = shallowMount(SelectDeviceForm);
   // prettier-ignore
   const els = {
     KModal: () => wrapper.findComponent({ name: 'KModal' }),
@@ -59,13 +68,27 @@ function makeWrapper() {
 }
 
 describe('SelectDeviceForm', () => {
+  let devices = [];
   beforeEach(() => {
+    devices = staticDevices.concat(dynamicDevices);
     fetchDevices.mockReset();
-    fetchDevices.mockResolvedValue(staticDevices.concat(dynamicDevices));
+    fetchDevices.mockResolvedValue(devices);
+    updateConnectionStatus.mockImplementation(device => {
+      const updatedDevice = devices.find(d => d.id === device.id);
+      if (!updatedDevice) {
+        return Promise.resolve({
+          ...device,
+          available: false,
+          connection_status: ConnectionStatus.Unknown,
+        });
+      }
+      return Promise.resolve(device);
+    });
   });
 
   it('shows one device for each one fetched', async () => {
     const { els, wrapper } = makeWrapper();
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(wrapper.vm.hasFetched).toBe(true);
@@ -81,6 +104,7 @@ describe('SelectDeviceForm', () => {
     const { els, wrapper } = makeWrapper();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
     expect(els.radioButtons()).toHaveLength(0);
     expect(wrapper.text()).toContain('There are no devices yet');
     expect(els.KModal().props().submitDisabled).toEqual(true);
@@ -94,6 +118,8 @@ describe('SelectDeviceForm', () => {
         .at(n)
         .props().disabled;
     }
+
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(radioButtonNIsDisabled(0)).toEqual(false);
@@ -113,6 +139,7 @@ describe('SelectDeviceForm', () => {
     await wrapper.vm.$nextTick();
     updateConnectionStatus.mockResolvedValue(staticDevices[0]);
     els.KModal().vm.$emit('submit');
+    await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     await wrapper.vm.$nextTick();
     expect(wrapper.emitted().submit[0][0].id).toEqual('1');
