@@ -62,12 +62,13 @@
     mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
     setup() {
       const { saveQuiz, initializeQuiz } = useQuizCreation();
+      const showError = ref(false);
       const quizInitialized = ref(false);
-      return { saveQuiz, initializeQuiz, quizInitialized };
+      return { showError, saveQuiz, initializeQuiz, quizInitialized };
     },
     provide() {
       return {
-        showError: false,
+        showError: this.showError,
         moreResultsState: null,
         // null corresponds to 'All' filter value
         filters: {
