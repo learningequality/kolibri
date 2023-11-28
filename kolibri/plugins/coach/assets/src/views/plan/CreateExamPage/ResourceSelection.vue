@@ -1,5 +1,4 @@
 <template>
-
   <div v-if="!showChannels">
     <ContentCardList
       :contentList="bookmarksContentList"
@@ -34,7 +33,18 @@
         </div>
       </KRouterLink>
     </div>
-    <LessonsSearchBox @searchterm="handleSearchTerm" />
+    <!-- <KGrid> -->
+      <!-- <KGridItem :layout12="{ span: 6 }"> -->
+        <LessonsSearchBox @searchterm="handleSearchTerm" />
+      <!-- </KGridItem> -->
+
+      <!-- <KGridItem :layout12="{ span: 6, alignment: 'right' }">
+        <p>
+          {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
+        </p>
+      </KGridItem> -->
+    <!-- </KGrid> -->
+
     <LessonsSearchFilters
       v-if="inSearchMode"
       v-model="filters"
@@ -42,8 +52,6 @@
       :searchTerm="searchTerm"
       :searchResults="searchResults"
     />
-
-    {{ contentList }}
 
     <ResourceSelectionBreadcrumbs
       v-if="!inSearchMode"
@@ -115,7 +123,7 @@
       return {
         windowIsSmall,
         channels,
-        filterLessonResource,
+        filterLessonResource
       };
     },
     data() {
@@ -178,7 +186,7 @@
       },
       inSearchMode() {
         // return this.pageName === LessonsPageNames.SELECTION_SEARCH;
-        return this.pageName === PageNames.SELECT_FROM_RESOURCE;
+        return this.pageNames === PageNames.SELECT_FROM_RESOURCE;
       },
       page() {
         return this.getUserPermissions.can_manage_content
@@ -246,11 +254,7 @@
         if (this.inSearchMode && lastId) {
           const queryCopy = { ...this.$route.query };
           delete queryCopy.last_id;
-          return this.$router.getRoute(
-            PageNames.SELECT_FROM_RESOURCE,
-            { topicId: lastId },
-            queryCopy
-          );
+          return this.$router.getRoute(PageNames.SELECT_FROM_RESOURCE, { topicId: lastId }, queryCopy);
         } else if (this.inSearchMode) {
           return this.selectionRootLink({ ...this.routerParams });
         } else if (this.$route.query.last === 'ReportsLessonReportPage') {
@@ -323,6 +327,7 @@
       this.getBookmarks().then(count => {
         this.bookmarksCount = count;
       });
+      console.log(this.filterLessonResource(this.$route.params.lessonId))
     },
     methods: {
       ...mapActions(['createSnackbar', 'clearSnackbar']),
@@ -340,10 +345,10 @@
       getBookmarksLink() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
-          params: {
-            classId: this.$route.params.classId,
-            section_id: this.$route.params.section_id,
-          },
+          params:{
+              classId: this.$route.params.classId,
+              section_id: this.$route.params.section_id,
+          }
         };
       },
       lessonCardClicked() {
@@ -390,11 +395,7 @@
         return this.$router.getRoute(PageNames.SELECTION_CONTENT_PREVIEW, {}, this.$route.query);
       },
       topicListingLink({ topicId }) {
-        return this.$router.getRoute(
-          PageNames.SELECT_FROM_RESOURCE,
-          { topicId },
-          this.$route.query
-        );
+        return this.$router.getRoute(PageNames.SELECT_FROM_RESOURCE, { topicId }, this.$route.query);
       },
       bookmarkListingLink({ topicId }) {
         return this.$router.getRoute(
