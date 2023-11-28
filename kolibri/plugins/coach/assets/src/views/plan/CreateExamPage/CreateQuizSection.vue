@@ -23,7 +23,7 @@
           :label="quizTitle$()"
           :autofocus="true"
           :maxlength="100"
-          @blur="e => updateQuiz({ title: e.target.value })"
+          @blur="e => updateQuiz({ title: e.target })"
           @change="title => updateQuiz({ title })"
         />
       </KGridItem>
@@ -44,8 +44,8 @@
           class="section-tabs"
           :tabs="tabs"
           :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
-          :activeTabId="activeSection.value ?
-            activeSection.value.section_id :
+          :activeTabId="activeSection ?
+            activeSection.section_id :
             '' "
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
@@ -84,7 +84,7 @@
                     <!-- Maybe not so easy since they're styled differently -->
                     <KButton
                       appearance="flat-button"
-                      :primary="activeSection.value.section_id === option.id"
+                      :primary="activeSection.section_id === option.id"
                       :appearanceOverrides="tabStyles"
                       class="menu-button"
                       @click="() => setActiveSection(option.id)"
@@ -134,14 +134,14 @@
     </KGrid>
 
     <KTabsPanel
-      v-if="activeSection.value"
+      v-if="activeSection"
       class="no-question-layout"
       tabsId="quizSectionTabs"
-      :activeTabId="activeSection.value ? activeSection.value.section_id : ''"
+      :activeTabId="activeSection ? activeSection.section_id : ''"
     >
-      <p>{{ activeSection.value.section_id }}</p>
+      <p>{{ activeSection.section_id }}</p>
       <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div v-if="!activeQuestions.value.length" class="no-question-style">
+      <div v-if="!activeQuestions.length" class="no-question-style">
         <KGrid class="questions-list-label-row">
           <KGridItem
             class="right-side-heading"
@@ -177,7 +177,7 @@
         <KButton
           primary
           icon="plus"
-          @click="openSelectResources(activeSection.value.section_id)"
+          @click="openSelectResources(activeSection.section_id)"
         >
           {{ addQuestionsLabel$() }}
         </KButton>
@@ -248,7 +248,7 @@
           <template #default="{ toggleItemState, isItemExpanded }">
             <DragContainer
               key="drag-container"
-              :items="activeQuestions.value"
+              :items="activeQuestions"
               @sort="handleQuestionOrderChange"
               @dragStart="handleDragStart"
             >
@@ -258,7 +258,7 @@
                 class="wrapper"
               >
                 <Draggable
-                  v-for="(question, index) in activeQuestions.value"
+                  v-for="(question, index) in activeQuestions"
                   :key="`drag-${question.question_id}`"
                   tabindex="-1"
                   style="background: white"
@@ -276,7 +276,7 @@
                               moveDownText="down"
                               :noDrag="true"
                               :isFirst="index === 0"
-                              :isLast="index === activeQuestions.value.length - 1"
+                              :isLast="index === activeQuestions.length - 1"
                               @moveUp="shiftOne(index, -1)"
                               @moveDown="shiftOne(index, +1)"
                             />
@@ -284,7 +284,7 @@
                         </DragHandle>
                         <KCheckbox
                           style="padding-left: 0.5em"
-                          :checked="selectedActiveQuestions.value.includes(
+                          :checked="selectedActiveQuestions.includes(
                             question.question_id
                           )"
                           @change="() => toggleQuestionInSelection(question.question_id)"
@@ -311,10 +311,10 @@
                       <div
                         :id="`question-panel-${question.question_id}`"
                         :ref="`question-panel-${question.question_id}`"
-                        :style="{ userSelect: dragActive.value ? 'none!important' : 'text' }"
+                        :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                       >
                         <p
-                          v-if="isItemExpanded(question.question_id) && !dragActive.value"
+                          v-if="isItemExpanded(question.question_id) && !dragActive"
                           class="question-content-panel"
                         >
                           CONTENT OF {{ question.title }}
@@ -513,13 +513,13 @@
         this.$router.replace({ path: 'new/' + section_id + '/replace-questions' });
       },
       handleActiveSectionAction(opt) {
-        const section_id = this.activeSection.value.section_id;
+        const section_id = this.activeSection.section_id;
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
           case this.deleteSectionLabel$():
-            this.removeSection(this.activeSection.value.section_id);
+            this.removeSection(this.activeSection.section_id);
             this.focusActiveSectionTab();
             break;
         }
@@ -528,7 +528,7 @@
         return `section-tab-${section_id}`;
       },
       focusActiveSectionTab() {
-        const label = this.tabRefLabel(this.activeSection.value.section_id);
+        const label = this.tabRefLabel(this.activeSection.section_id);
         const tabRef = this.$refs[label];
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
