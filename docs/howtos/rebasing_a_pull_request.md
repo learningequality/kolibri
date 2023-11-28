@@ -5,7 +5,7 @@ The demonstration centers on the process of rebasing a feature branch that is di
 
    - Make sure you have local versions of the `develop` branch and the `release-v*` branch.
    - Ensure that both branches are up to date. For this guide, we'll assume they are named `develop` and `release-v*`, respectively.
-   
+
 Locally, checkout your feature branch and run the following rebase command:
 
 ```
@@ -20,4 +20,3 @@ git push --force
 ```
 
 **Caution:** Handle force-pushes with care.
-
