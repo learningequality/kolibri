@@ -11,9 +11,13 @@ export function useResources() {
   const resources = ref(null);
   const channels = ref([]);
   const bookmarks = ref([]);
-  const contentList = ref([]);
+  const channelTopics = ref([]);
+  const contentList = ref([]);  
+
+
 
   function fetchChannelResource() {
+
     ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
       response => {
         // channels.value = response;
@@ -45,7 +49,8 @@ export function useResources() {
         resolve([]);
         return;
       }
-      const topicsNumAssessmentDescendantsPromise = ContentNodeResource.fetchDescendantsAssessments(
+      const topicsNumAssessmentDescendantsPromise
+      = ContentNodeResource.fetchDescendantsAssessments(
         topicIds
       );
 
@@ -68,7 +73,9 @@ export function useResources() {
           }
         ).then(response => {
           response.data.forEach(exercise => {
-            const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
+            channelTopics.value.push(exercise);
+            const topic = topicsWithExerciseDescendants.find(t =>
+            t.id === exercise.ancestor_id);
             topic.exercises.push(exercise);
           });
           resolve(topicsWithExerciseDescendants);
@@ -79,54 +86,48 @@ export function useResources() {
 
   function filterAndAnnotateContentList(childNodes) {
     return new Promise(resolve => {
-      if (childNodes) {
+      if(childNodes){
         const childTopics = childNodes.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
         const topicIds = childTopics.map(({ id }) => id);
         const topicsThatHaveExerciseDescendants = _getTopicsWithExerciseDescendants(topicIds);
-        topicsThatHaveExerciseDescendants.then(topics => {
-          const childNodesWithExerciseDescendants = childNodes
-            .map(childNode => {
-              const index = topics.findIndex(topic => topic.id === childNode.id);
-              if (index !== -1) {
-                return { ...childNode, ...topics[index] };
-              }
-              return childNode;
-            })
-            .filter(childNode => {
-              if (
-                childNode.kind === ContentNodeKinds.TOPIC &&
-                (childNode.numAssessments || 0) < 1
-              ) {
+          topicsThatHaveExerciseDescendants.then(topics => {
+            const childNodesWithExerciseDescendants = childNodes
+              .map(childNode => {
+                const index = topics.findIndex(topic => topic.id === childNode.id);
+                if (index !== -1) {
+                  return { ...childNode, ...topics[index] };
+                }
+                return childNode;
+              }).filter(childNode => {
+              if (childNode.kind === ContentNodeKinds.TOPIC &&
+              (childNode.numAssessments || 0) < 1) {
                 return false;
               }
-              return true;
-            });
-          const contentList = childNodesWithExerciseDescendants.map(node => ({
-            ...node,
-            thumbnail: getContentNodeThumbnail(node),
-          }));
-          resolve(contentList);
-        });
+                return true;
+              });
+              const contentList = childNodesWithExerciseDescendants.map(node => ({
+                ...node,
+                thumbnail: getContentNodeThumbnail(node),
+              }));
+            resolve(contentList);
+          });
       }
     });
   }
 
-  function filterLessonResource(lessonId) {
-    store
-      .dispatch('lessonSummary/saveLessonResources', {
-        lessonId: lessonId,
-        resources: store.state.lessonSummary.workingResources,
-      })
-      .then(content => {
-        console.log(content);
-      });
+  function filterLessonResource(lessonId){
+    store.dispatch('lessonSummary/saveLessonResources', {
+      lessonId: lessonId,
+      resources: store.state.lessonSummary.workingResources,
+    }).then((content) => {
+      console.log(content);
+    });
   }
 
   onMounted(() => {
     fetchChannelResource();
     fetchBookMarkedResource();
     filterAndAnnotateContentList();
-    filterLessonResource();
   });
 
   return {
@@ -134,6 +135,7 @@ export function useResources() {
     channels,
     bookmarks,
     contentList,
-    filterLessonResource,
+    channelTopics,
+    _getTopicsWithExerciseDescendants
   };
 }

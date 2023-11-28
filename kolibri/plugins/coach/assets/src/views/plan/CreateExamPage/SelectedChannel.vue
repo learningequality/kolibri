@@ -2,8 +2,9 @@
 
   <div class="">
     <div class="">
-      <KIconButton
+      <KButton
         icon="back"
+        @click="goBack()"
       />
       {{ selectFoldersOrExercises$() }}
     </div>
@@ -17,7 +18,7 @@
     />
 
     <ContentCardList
-      :contentList="filteredContentList"
+      :contentList="channelTopics"
       :showSelectAll="selectAllIsVisible"
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="filteredContentList.length === 0"
@@ -57,13 +58,15 @@
         selectFromBookmarks$,
       } = enhancedQuizManagementStrings;
 
-      const { channels } = useResources();
+      const { channels,channelTopics, _getTopicsWithExerciseDescendants } = useResources();
 
       return {
         sectionSettings$,
         selectFoldersOrExercises$,
         selectFromBookmarks$,
         channels,
+        channelTopics,
+        _getTopicsWithExerciseDescendants
       };
     },
     data() {
@@ -114,6 +117,12 @@
       selectionMetadata() {
         return '';
       },
+    },
+    mounted() {
+      console.log(this.topic_id);
+      console.log(this.$route.params.topic_id);
+      this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
+      console.log(this.channelTopics);
     },
     methods: {
       // ...mapActions('lessonSummary/resources', ['fetchAdditionalSearchResults']),
@@ -173,6 +182,12 @@
             this.moreResultsState = 'error';
           });
       },
+      goBack(){
+        console.log("clicked");
+        return {
+          name:PageNames.QUIZ_SELECT_RESOURCES,
+        }
+      }
     },
   };
 

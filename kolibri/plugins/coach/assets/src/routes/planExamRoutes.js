@@ -61,10 +61,7 @@ export default [
         name: PageNames.BOOK_MARKED_RESOURCES,
         path: ':section_id/book-marked-resources',
         children: [
-          {
-            name: PageNames.SELECT_FROM_RESOURCE,
-            path: ':topic_id',
-          },
+          
         ],
       },
     ],
