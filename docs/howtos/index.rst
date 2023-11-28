@@ -13,3 +13,4 @@ These guides are step by step guides for common tasks in getting started and wor
   pyenv_virtualenv
   nodeenv
   another_kolibri_instance
+  rebasing_a_pull_request
