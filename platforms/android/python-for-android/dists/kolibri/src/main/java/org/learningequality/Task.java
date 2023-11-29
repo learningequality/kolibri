@@ -1,6 +1,7 @@
 package org.learningequality;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.work.BackoffPolicy;
 import androidx.work.Data;
@@ -11,17 +12,22 @@ import androidx.work.OutOfQuotaPolicy;
 import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
 import androidx.work.WorkManager;
+import androidx.work.WorkQuery;
+import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.learningequality.Kolibri.TaskworkerWorker;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
 
 public class Task {
+    public static final String TAG = "Task";
+
     private static String generateTagFromId(String id) {
         return "kolibri_task_id:" + id;
     }
@@ -31,8 +37,8 @@ public class Task {
     }
 
     public static void enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
-        WorkManager workManager = WorkManager.getInstance(ContextUtil.getApplicationContext());
-        Data data = TaskworkerWorker.buildInputData(id, longRunning);
+        RemoteWorkManager workManager = RemoteWorkManager.getInstance(ContextUtil.getApplicationContext());
+        Data data = TaskworkerWorker.buildInputData(id);
 
         OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
 
@@ -48,6 +54,10 @@ public class Task {
         }
         workRequestBuilder.addTag(generateTagFromId(id));
         workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
+        if (longRunning) {
+            workRequestBuilder.addTag(TaskworkerWorker.TAG_LONG_RUNNING);
+            Log.v(TAG, "Tagging work request as long running, ID: " + id);
+        }
         workRequestBuilder.setInputData(data);
         OneTimeWorkRequest workRequest = workRequestBuilder.build();
         workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
@@ -55,9 +65,14 @@ public class Task {
 
     public static void clear(String id) {
         Context context = ContextUtil.getApplicationContext();
+        List<String> tags = new ArrayList<String>();
         String tag = generateTagFromId(id);
-        WorkManager workManager = WorkManager.getInstance(context);
-        ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfosByTag(tag);
+        tags.add(tag);
+        RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
+        WorkQuery workQuery = WorkQuery.Builder
+                .fromTags(tags)
+                .build();
+        ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfos(workQuery);
 
         workInfosFuture.addListener(() -> {
             try {

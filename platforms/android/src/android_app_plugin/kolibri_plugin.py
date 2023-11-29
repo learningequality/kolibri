@@ -63,9 +63,7 @@ class StorageHook(StorageHook):
 
         status = job.status(currentLocale)
 
-        notification_id = PythonWorker.getNotificationId()
-
-        if status and notification_id:
+        if status:
             if job.total_progress:
                 progress = job.progress
                 total_progress = job.total_progress
@@ -73,26 +71,24 @@ class StorageHook(StorageHook):
                 progress = -1
                 total_progress = -1
             Notifications.showNotification(
-                notification_id,
                 status.title,
                 status.text,
                 progress,
                 total_progress,
             )
 
-        if (
-            notification_id
-            and not job.long_running
-            and state
-            in {
-                State.COMPLETED,
-                State.CANCELED,
-                State.FAILED,
-            }
-        ):
-            # This is a short running job and it has just finished
-            # Remove the notification
-            Notifications.hideNotification(notification_id)
+        # if (
+        #     not job.long_running
+        #     and state
+        #     in {
+        #         State.COMPLETED,
+        #         State.CANCELED,
+        #         State.FAILED,
+        #     }
+        # ):
+        #     # This is a short running job and it has just finished
+        #     # Remove the notification
+        #     Notifications.hideNotification()
 
     def clear(self, job, orm_job):
         logger.info("Clearing task {} for job {}".format(job.func, orm_job.id))

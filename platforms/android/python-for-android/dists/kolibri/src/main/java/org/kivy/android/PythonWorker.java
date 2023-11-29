@@ -11,19 +11,15 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.learningequality.Kolibri.R;
-import org.learningequality.Notifications;
-
 import java.util.concurrent.Executors;
-import java.util.concurrent.ThreadLocalRandom;
 
-public class PythonWorker extends RemoteListenableWorker {
+abstract public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
 
     // WorkRequest data key for python worker argument
     public static final String ARGUMENT_WORKER_ARGUMENT = "PYTHON_WORKER_ARGUMENT";
 
-    public static final String ARGUMENT_LONG_RUNNING = "LONG_RUNNING_ARGUMENT";
+    public static final String TAG_LONG_RUNNING = "worker_long_running";
 
     // Python environment variables
     private String androidPrivate;
@@ -35,22 +31,12 @@ public class PythonWorker extends RemoteListenableWorker {
 
     public static PythonWorker mWorker = null;
 
-    public int notificationId;
-
-    public static ThreadLocal<Integer> threadNotificationId = new ThreadLocal<>();
-
-    private String notificationTitle;
-
     public PythonWorker(
         @NonNull Context context,
         @NonNull WorkerParameters params) {
         super(context, params);
 
         String appRoot = PythonUtil.getAppRoot(context);
-
-        notificationTitle = context.getString(R.string.app_name);
-
-        notificationId = ThreadLocalRandom.current().nextInt(1, 65537);
 
         PythonWorker.mWorker = this;
 
@@ -68,22 +54,28 @@ public class PythonWorker extends RemoteListenableWorker {
         workerEntrypoint = value;
     }
 
+    public boolean isLongRunning() {
+        return getTags().contains(TAG_LONG_RUNNING);
+    }
+
+    @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
         return CallbackToFutureAdapter.getFuture(completer -> {
+            String id = getId().toString();
             String dataArg = getInputData().getString(ARGUMENT_WORKER_ARGUMENT);
+
             final String serviceArg;
             if (dataArg != null) {
-                Log.d(TAG, "Setting python worker argument to " + dataArg);
+                Log.d(TAG, id + " Setting python worker argument to " + dataArg);
                 serviceArg = dataArg;
             } else {
                 serviceArg = "";
             }
 
-            boolean longRunning = getInputData().getBoolean(ARGUMENT_LONG_RUNNING, false);
-
-            if (longRunning) {
-                runAsForeground();
+            if (isLongRunning()) {
+                Log.d(TAG, id + " Enabling foreground service for long running task");
+                setForegroundAsync(getForegroundInfo());
             }
 
             // The python thread handling the work needs to be run in a
@@ -92,37 +84,39 @@ public class PythonWorker extends RemoteListenableWorker {
             final Thread pythonThread = new Thread(new Runnable() {
                 @Override
                 public void run() {
-                    Log.d(TAG, "Running with python worker argument: " + serviceArg);
+                    Log.d(TAG, id + " Running with python worker argument: " + serviceArg);
 
-                    threadNotificationId.set(notificationId);
+                    try {
+                        int res = nativeStart(
+                                androidPrivate, androidArgument,
+                                workerEntrypoint, pythonName,
+                                pythonHome, pythonPath,
+                                serviceArg
+                        );
+                        Log.d(TAG, id + " Finished remote python work: " + res);
 
-                    int res = nativeStart(
-                        androidPrivate, androidArgument,
-                        workerEntrypoint, pythonName,
-                        pythonHome, pythonPath,
-                        serviceArg
-                    );
-
-                    Log.d(TAG, "Finished remote python work: " + res);
-
-                    if (res == 0) {
-                        completer.set(Result.success());
-                    } else {
-                        completer.set(Result.failure());
+                        if (res == 0) {
+                            completer.set(Result.success());
+                        } else {
+                            completer.set(Result.failure());
+                        }
+                    }  catch (Exception e) {
+                        completer.setException(e);
+                    } finally {
+                        cleanup();
                     }
                 }
-            });
-            pythonThread.setName("python_worker_thread");
+            }, "python_worker_thread");
 
             completer.addCancellationListener(new Runnable() {
                 @Override
                 public void run() {
-                    Log.i(TAG, "Interrupting remote work");
+                    Log.i(TAG, id + " Interrupting remote work");
                     pythonThread.interrupt();
                 }
             }, Executors.newSingleThreadExecutor());
 
-            Log.i(TAG, "Starting remote python work");
+            Log.i(TAG, id + " Starting remote python work");
             pythonThread.start();
 
             return TAG + " work thread";
@@ -137,13 +131,14 @@ public class PythonWorker extends RemoteListenableWorker {
         String pythonServiceArgument
     );
 
-    public ForegroundInfo getForegroundInfo() {
-        return new ForegroundInfo(notificationId, Notifications.createNotification(notificationTitle, null, -1, -1));
+    public void onStopped() {
+        cleanup();
+        super.onStopped();
+        mWorker = null;
     }
+    protected void cleanup() {}
 
-    public void runAsForeground() {
-        setForegroundAsync(getForegroundInfo());
-    }
+    abstract public ForegroundInfo getForegroundInfo();
 
     @Override
     public ListenableFuture<ForegroundInfo> getForegroundInfoAsync() {
@@ -151,8 +146,4 @@ public class PythonWorker extends RemoteListenableWorker {
     }
 
     public static native int tearDownPython();
-
-    public static int getNotificationId() {
-        return threadNotificationId.get();
-    }
 }

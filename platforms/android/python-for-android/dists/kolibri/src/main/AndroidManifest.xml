@@ -24,7 +24,7 @@
     <application android:label="@string/app_name"
                  android:icon="@mipmap/icon"
                  android:allowBackup="true"
-
+                 android:name=".App"
                  android:theme="@android:style/Theme.NoTitleBar"
                  android:hardwareAccelerated="true"
                  android:usesCleartextTraffic="true"
@@ -63,7 +63,7 @@
 
 
         <service android:name="org.learningequality.Kolibri.TaskworkerWorkerService"
-                 android:process=":worker_TaskWorker"
+                 android:process="@string/task_worker_process"
                  android:exported="false" />
 
 
