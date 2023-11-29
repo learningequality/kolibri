@@ -70,69 +70,32 @@
 
     <hr class="bottom-border">
     <div v-if="isQuestionAvailable">
-      <KGrid>
-        <KGridItem
-          :layout12="{ span: 6 }"
-        >
-          <div class="left-column-alignment-style">
-            <div class="align-kcheckbox-style">
-              <p>
-                <KCheckbox />
-              </p>
-            </div>
-
-            <div>
-              <p>{{ $tr('selectAllLabel') }}</p>
-            </div>
-          </div>
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 6 }"
-        >
-          <div class="right-alignment-style">
-            <KGrid>
-              <KGridItem :layout12="{ span: 4 }">
-                <button class="icon-container remove-button-style">
-                  <KIcon
-                    class="reduce-chervon-spacing"
-                    icon="chevronDown"
-                  />
-                  <KIcon
-                    class="reduce-chervon-spacing"
-                    icon="chevronUp"
-                  />
-                </button>
-              </KGridItem>
-
-              <KGridItem
-                :layout12="{ span: 4 }"
-              >
-
-                <KIconButton
-                  class="icon-size"
-                  icon="refresh"
-                />
-              </KGridItem>
-
-              <KGridItem
-                :layout12="{ span: 4 }"
-              >
-                <KIconButton
-                  class="icon-size"
-                  icon="trash"
-                />
-              </KGridItem>
-            </KGrid>
-          </div>
-        </KGridItem>
-
-      </KGrid>
       <DragContainer
         :items="placeholderList"
         @sort="handleOrderChange"
       >
         <AccordionContainer>
+          <template #left-actions>
+            <div class="left-column-alignment-style">
+              <div class="align-kcheckbox-style">
+                <p>
+                  <KCheckbox />
+                </p>
+              </div>
+
+              <div>
+                <p>{{ $tr('selectAllLabel') }}</p>
+              </div>
+            </div>
+          </template>
+          <template #right-actions>
+            <KIconButton
+              icon="refresh"
+            />
+            <KIconButton
+              icon="trash"
+            />
+          </template>
           <template
             #default="{ isItemExpanded, toggleItemState, closeAccordionPanel }"
           >
@@ -612,7 +575,7 @@
   }
 
   .align-kcheckbox-style {
-    margin-left: 3em;
+    margin-left: 15px;
   }
 
   .remove-button-style {

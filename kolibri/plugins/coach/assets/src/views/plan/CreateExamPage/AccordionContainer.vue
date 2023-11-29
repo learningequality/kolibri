@@ -1,6 +1,47 @@
 <template>
 
-  <div>
+  <div class="accordion">
+    <KGrid
+      :style="{
+        backgroundColor: $themePalette.grey.v_100,
+      }"
+    >
+      <KGridItem
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+        class="header-actions"
+      >
+        <div class="header-left-actions">
+          <slot name="left-actions"></slot>
+        </div>
+      </KGridItem>
+      <KGridItem
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 4 }"
+        :layout12="{ span: 6 }"
+        class="header-actions"
+      >
+        <div class="header-right-actions">
+          <KButton
+            @click="collapseAll"
+            class="collapse-button"
+            appearance="flat-button"
+          >
+          <!-- Should be replaced by a KIconButton when the icon is available on KDS -->
+            <KIcon
+              class="reduce-chervon-spacing"
+              icon="chevronDown"
+            />
+            <KIcon
+              class="reduce-chervon-spacing"
+              icon="chevronUp"
+            />
+          </KButton>
+          <slot name="right-actions"></slot>
+        </div>
+      </KGridItem>
+    </KGrid>
     <transition-group
       tag="div"
       name="list"
@@ -44,7 +85,51 @@
           this.expandedItemIds.splice(index, 1);
         }
       },
+      collapseAll() {
+        this.expandedItemIds = [];
+      },
     },
   };
 
 </script>
+
+
+<style lang="scss"  scoped>
+
+@import '~kolibri-design-system/lib/styles/definitions';
+
+.accordion {
+  @extend %dropshadow-1dp;
+}
+
+.header-actions {
+  margin-top: auto;
+  margin-bottom: auto;
+}
+
+.header-left-actions {
+  display: flex;
+  margin-left: 1em;
+}
+
+.header-right-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-right: 1em;
+  /deep/ & > * {
+    margin-left: 1em;
+  }
+}
+
+.collapse-button {
+  border-radius: 50%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-left: 0;
+  padding-right: 0;
+  min-width: 40px;
+}
+
+</style>
