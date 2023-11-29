@@ -61,6 +61,7 @@
 <script>
 
   import { mapGetters } from 'vuex';
+  import { throttle } from 'frame-throttle';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
@@ -117,10 +118,14 @@
         navShown: false,
         lastScrollTop: 0,
         hideAppBars: true,
+        throttledHandleScroll: null,
       };
     },
     computed: {
       ...mapGetters(['isAppContext', 'isPageLoading']),
+      isAppContextAndTouchDevice() {
+        return this.isAppContext && isTouchDevice;
+      },
       isLoading() {
         return this.isPageLoading || this.loading;
       },
@@ -150,7 +155,7 @@
       },
       showAppBarsOnScroll() {
         let show = true;
-        if (this.isAppContext && isTouchDevice) {
+        if (this.isAppContextAndTouchDevice) {
           show = this.hideAppBars;
         }
         return show;
@@ -166,12 +171,25 @@
       this.$nextTick(() => {
         this.appBarHeight = this.$refs.appBar.$el.scrollHeight || 0;
       });
-      window.addEventListener('scroll', this.handleScroll);
+      this.addScrollListener();
     },
     beforeUnmount() {
-      window.removeEventListener('scroll', this.handleScroll);
+      this.removeScrollListener();
     },
     methods: {
+      addScrollListener() {
+        if (this.isAppContextAndTouchDevice) {
+          this.throttledHandleScroll = throttle(this.handleScroll);
+          window.addEventListener('scroll', this.throttledHandleScroll);
+        }
+      },
+      removeScrollListener() {
+        if (this.isAppContextAndTouchDevice) {
+          window.removeEventListener('scroll', this.throttledHandleScroll);
+          this.throttledHandleScroll.cancel();
+          this.throttledHandleScroll = null;
+        }
+      },
       findFirstEl() {
         this.$nextTick(() => {
           this.$refs.sideNav.focusFirstEl();
@@ -185,10 +203,7 @@
         } else {
           this.hideAppBars = true;
         }
-
-        setTimeout(() => {
-          this.lastScrollTop = scrollTop;
-        }, 100);
+        this.lastScrollTop = scrollTop;
       },
     },
   };
