@@ -11,7 +11,13 @@
     </h5>
     <p>Select from bookmarks</p>
 
-    <div v-if="!showChannels">
+    <div v-if="bookmarksRoute">
+      <strong>
+        <KRouterLink>
+          :text="coreString"('channelsLabel')"
+          :to="channelsLink"
+        </KRouterLink>
+      </strong>
       <ContentCardList
         :contentList="bookmarksContentList"
         :showSelectAll="selectAllIsVisible"
@@ -105,21 +111,22 @@
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue'
   import { useResources } from './../../../composables/useResources';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
-  import BookMarkedResource from './BookMarkedResource.vue';
+  // import BookMarkedResource from './BookMarkedResource.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   // import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
   import LessonsSearchFilters from './../LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
-  import  ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  // import  ResourceSelectionBreadcrumbs 
+  // from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'ResourceSelection',
     components: {
       LessonsSearchBox,
-      BookMarkedResource,
+      // BookMarkedResource,
       ContentCardList,
       BookmarkIcon,
       // ResourceSelection,
-      ResourceSelectionBreadcrumbs,
+      // ResourceSelectionBreadcrumbs,
       // LessonContentCard,
       LessonsSearchFilters
       
@@ -147,7 +154,7 @@
         // contentHasCheckbox: () => false,
         // contentIsSelected: () => '',
         searchTerm: '',
-        search: '',
+        // search: '',
         isExiting: false,
         filters: {
           channel: this.$route.query.channel || null,
@@ -182,11 +189,11 @@
       inSearchMode() {
         return this.pageName === LessonsPageNames.SELECTION_SEARCH;
       },
-      inputPlaceHolderStyle() {
-        return {
-          color: this.$themeTokens.annotation,
-        };
-      },
+      // inputPlaceHolderStyle() {
+      //   return {
+      //     color: this.$themeTokens.annotation,
+      //   };
+      // },
       selectAllIsVisible() {
         // Do not show 'Select All' if on Search Results, on Channels Page,
         // or if all contents are topics
@@ -429,7 +436,8 @@
       //   if (!this.inSearchMode) {
       //     return this.quizForge.channels.value;
       //   }
-      //   const list = this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
+      //   const list = 
+      // this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
       //   return list.filter(contentNode => {
       //     let passesFilters = true;
       //     if (role === 'nonCoach') {
@@ -443,9 +451,7 @@
       // },
     },
     $trs: {
-      selectionInformation: {
-        message: 'Channels',
-      },
+     
     },
   };
 
