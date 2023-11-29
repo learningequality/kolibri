@@ -24,11 +24,11 @@
       >
         <div class="header-right-actions">
           <KButton
-            @click="collapseAll"
             class="collapse-button"
             appearance="flat-button"
+            @click="collapseAll"
           >
-          <!-- Should be replaced by a KIconButton when the icon is available on KDS -->
+            <!-- Should be replaced by a KIconButton when the icon is available on KDS -->
             <KIcon
               class="reduce-chervon-spacing"
               icon="chevronDown"
@@ -96,40 +96,41 @@
 
 <style lang="scss"  scoped>
 
-@import '~kolibri-design-system/lib/styles/definitions';
+  @import '~kolibri-design-system/lib/styles/definitions';
 
-.accordion {
-  @extend %dropshadow-1dp;
-}
+  .accordion {
+    @extend %dropshadow-1dp;
+  }
 
-.header-actions {
-  margin-top: auto;
-  margin-bottom: auto;
-}
+  .header-actions {
+    margin-top: auto;
+    margin-bottom: auto;
+  }
 
-.header-left-actions {
-  display: flex;
-  margin-left: 1em;
-}
-
-.header-right-actions {
-  display: flex;
-  justify-content: flex-end;
-  margin-right: 1em;
-  /deep/ & > * {
+  .header-left-actions {
+    display: flex;
     margin-left: 1em;
   }
-}
 
-.collapse-button {
-  border-radius: 50%;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding-left: 0;
-  padding-right: 0;
-  min-width: 40px;
-}
+  .header-right-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-right: 1em;
+
+    /deep/ & > * {
+      margin-left: 1em;
+    }
+  }
+
+  .collapse-button {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 40px;
+    padding-right: 0;
+    padding-left: 0;
+    border-radius: 50%;
+  }
 
 </style>
