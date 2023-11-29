@@ -183,13 +183,6 @@
           window.addEventListener('scroll', this.throttledHandleScroll);
         }
       },
-      removeScrollListener() {
-        if (this.isAppContextAndTouchDevice) {
-          window.removeEventListener('scroll', this.throttledHandleScroll);
-          this.throttledHandleScroll.cancel();
-          this.throttledHandleScroll = null;
-        }
-      },
       findFirstEl() {
         this.$nextTick(() => {
           this.$refs.sideNav.focusFirstEl();
@@ -204,6 +197,13 @@
           this.hideAppBars = true;
         }
         this.lastScrollTop = scrollTop;
+      },
+      removeScrollListener() {
+        if (this.isAppContextAndTouchDevice) {
+          window.removeEventListener('scroll', this.throttledHandleScroll);
+          this.throttledHandleScroll.cancel();
+          this.throttledHandleScroll = null;
+        }
       },
     },
   };
