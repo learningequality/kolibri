@@ -450,7 +450,7 @@
   }
 
   .align-kcheckbox-style {
-    margin-left: 15px;
+    margin-left: 3em;
   }
 
   .remove-button-style {
