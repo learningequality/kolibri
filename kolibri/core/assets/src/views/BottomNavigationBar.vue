@@ -36,10 +36,17 @@
       <KIconButton
         icon="menu"
         :ariaLabel="coreString('menuLabel')"
+        size="small"
         :color="navShown ? $themeTokens.primary : $themeTokens.annotation"
         @click="$emit('toggleNav')"
       />
-      <p :style="{ color: $themeTokens.primary }">{{ coreString('menuLabel') }}</p>
+      <p
+        v-if="navShown"
+        class="nav-menu-label"
+        :style="{ color: $themeTokens.primary }"
+      >
+        {{ coreString('menuLabel') }}
+      </p>
     </span>
   </div>
 

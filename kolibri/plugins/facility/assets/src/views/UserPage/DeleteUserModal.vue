@@ -49,7 +49,7 @@
             this.showSnackbarNotification('userDeleted');
           })
           .catch(error => {
-            this.$store.dispatch('handleApiError', error);
+            this.$store.dispatch('handleApiError', { error });
           });
       },
     },

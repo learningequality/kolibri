@@ -24,7 +24,7 @@
               <td
                 v-if="!loading"
               >
-                {{ formattedSize(availableSpace) }}
+                {{ formattedSize(availableStorage) }}
               </td>
             </tr>
           </table>
@@ -55,10 +55,11 @@
   import { get } from '@vueuse/core';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
-  import { computed, getCurrentInstance, watch, ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import plugin_data from 'plugin_data';
   import useDownloadRequests from '../../composables/useDownloadRequests';
+  import useDevices from '../../composables/useDevices';
   import DownloadsList from './DownloadsList';
   import ActivityFilter from './Filters/ActivityFilter.vue';
   import SortFilter from './Filters/SortFilter.vue';
@@ -71,47 +72,44 @@
       ActivityFilter,
       SortFilter,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const {
         downloadRequestMap,
         loading,
-        fetchUserDownloadRequests,
+        pollUserDownloadRequests,
         fetchAvailableFreespace,
         availableSpace,
         removeDownloadRequest,
       } = useDownloadRequests();
+      const { fetchDevices } = useDevices();
 
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const query = computed(() => get(route).query);
 
-      const pageNumber = computed(() => Number(query.value.page || 1));
-      const pageSizeNumber = computed(() => Number(query.value.page_size || 25));
-      const activityType = computed(() => query.value.activity || 'all');
       const sort = computed(() => query.value.sort);
-      const totalPageNumber = ref(0);
 
-      const fetchDownloads = () => {
-        fetchUserDownloadRequests({
-          sort: sort.value,
-          page: pageNumber.value,
-          pageSize: pageSizeNumber.value,
-          activityType: activityType.value,
-        });
-      };
-      fetchDownloads();
+      const availableStorage = computed(() => {
+        let space = get(availableSpace);
+        if (plugin_data.setLimitForAutodownload) {
+          space = Math.min(space, plugin_data.limitForAutodownload);
+        }
+        return space;
+      });
+
       fetchAvailableFreespace();
-      watch(route, fetchDownloads);
+      pollUserDownloadRequests();
 
       return {
         downloadRequestMap,
         loading,
         availableSpace,
-        totalPageNumber,
         fetchAvailableFreespace,
+        fetchDevices,
         sort,
         removeDownloadRequest,
+        availableStorage,
       };
     },
     computed: {
@@ -130,13 +128,9 @@
           return bytesForHumans(0);
         }
       },
-      removeResources(resources) {
-        if (resources.length === 1) {
-          this.removeDownloadRequest(resources[0]);
-        } else {
-          resources.forEach(resource => {
-            this.removeDownloadRequest({ id: resource.id });
-          });
+      removeResources(contentNodeIds) {
+        for (const contentNodeId of contentNodeIds) {
+          this.removeDownloadRequest(contentNodeId);
         }
       },
     },

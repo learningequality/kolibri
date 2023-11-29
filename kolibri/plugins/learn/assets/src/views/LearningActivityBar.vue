@@ -15,7 +15,13 @@
           />
         </template>
         <TextTruncatorCss
-          :text="resourceTitle"
+          v-if="windowBreakpoint <= 3"
+          :text="resourceTitle | truncateText(50)"
+          :maxLines="1"
+        />
+        <TextTruncatorCss
+          v-else
+          :text="resourceTitle | truncateText(70)"
           :maxLines="1"
         />
       </KLabeledIcon>
@@ -40,7 +46,7 @@
           -->
           <span ref="downloadingLoader">
             <KCircularLoader
-              :show="isDownloading"
+              :shouldShow="isDownloading"
               :minVisibleTime="3000"
               data-test="downloadingLoader"
               :size="24"
@@ -163,7 +169,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -194,7 +200,21 @@
       SuggestedTime,
       DeviceConnectionStatus,
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    filters: {
+      truncateText(value, maxLength) {
+        if (value && value.length > maxLength) {
+          return value.substring(0, maxLength) + '...';
+        }
+        return value;
+      },
+    },
+    mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     /**
      * Emits the following events:
      * - `navigateBack` on back button click
@@ -343,6 +363,7 @@
         nextStepsAnimate: false,
       };
     },
+
     computed: {
       deviceId() {
         return get(this.$route, 'params.deviceId');
@@ -419,9 +440,9 @@
       },
       numBarActions() {
         let maxSize = 1;
-        if (this.windowBreakpoint === 1) {
+        if (this.windowBreakpoint === 1 || this.windowBreakpoint === 2) {
           maxSize = 2;
-        } else if (this.windowBreakpoint > 1) {
+        } else if (this.windowBreakpoint > 2) {
           // Ensure to hide the mark complete button in the dropdown
           // to prevent instinctive points grabbing!
           maxSize = this.showMarkComplete ? 3 : 4;

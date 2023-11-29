@@ -54,6 +54,7 @@
         const user = {
           username: this.$store.state.onboardingData.user.username,
           password: this.$store.state.onboardingData.user.password,
+          full_name: this.$store.state.onboardingData.user.full_name,
         };
 
         this.loading = true;
@@ -78,7 +79,7 @@
             TaskResource.startTask(params)
               .then(() => this.wizardService.send('CONTINUE'))
               .catch(err => {
-                this.$store.dispatch('handleApiError', err);
+                this.$store.dispatch('handleApiError', { error: err });
               });
           } else {
             const errorData = JSON.parse(data);

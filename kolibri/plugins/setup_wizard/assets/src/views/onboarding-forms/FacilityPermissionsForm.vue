@@ -42,7 +42,8 @@
 
 <script>
 
-  import { Presets, FooterMessageTypes } from '../../constants';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
+  import { FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
   import FacilityNameTextbox from './FacilityNameTextbox';
 

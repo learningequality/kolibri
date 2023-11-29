@@ -11,5 +11,5 @@ export function showSignUpPage(store, fromRoute) {
       store.commit('CORE_SET_FACILITIES', facilities);
       store.dispatch('reset');
     })
-    .catch(error => store.dispatch('handleApiError', error));
+    .catch(error => store.dispatch('handleApiError', { error, reloadOnReconnect: true }));
 }

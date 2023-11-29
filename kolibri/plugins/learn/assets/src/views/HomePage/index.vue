@@ -2,7 +2,10 @@
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <div v-if="!loading" id="main" role="main">
-      <MissingResourceAlert v-if="missingResources" />
+      <ResourceSyncingUiAlert
+        v-if="missingResources"
+        @syncComplete="hydrateHomePage"
+      />
       <YourClasses
         v-if="displayClasses"
         class="section"
@@ -39,10 +42,10 @@
         :channels="channels"
         class="section"
         data-test="exploreChannels"
-        :short="displayClasses ||
+        :short="Boolean(displayClasses ||
           continueLearning ||
           hasActiveClassesLessons ||
-          hasActiveClassesQuizzes
+          hasActiveClassesQuizzes)
         "
       />
 
@@ -54,13 +57,20 @@
 
 <script>
 
-  import { computed } from 'kolibri.lib.vueCompositionApi';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
-  import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
+  import client from 'kolibri.client';
+  import urls from 'kolibri.urls';
   import useUser from 'kolibri.coreVue.composables.useUser';
+  import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
   import useChannels from '../../composables/useChannels';
   import useDeviceSettings from '../../composables/useDeviceSettings';
-  import useLearnerResources from '../../composables/useLearnerResources';
+  import useLearnerResources, {
+    setClasses,
+    setResumableContentNodes,
+  } from '../../composables/useLearnerResources';
+  import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
+  import { PageNames } from '../../constants';
   import AssignedLessonsCards from '../classes/AssignedLessonsCards';
   import AssignedQuizzesCards from '../classes/AssignedQuizzesCards';
   import YourClasses from '../YourClasses';
@@ -84,13 +94,17 @@
       ContinueLearning,
       ExploreChannels,
       LearnAppBarPage,
-      MissingResourceAlert,
+      ResourceSyncingUiAlert,
     },
     mixins: [commonLearnStrings],
     setup() {
+      const currentInstance = getCurrentInstance().proxy;
+      const store = currentInstance.$store;
+      const router = currentInstance.$router;
+
       const { isUserLoggedIn } = useUser();
       const { canAccessUnassignedContent } = useDeviceSettings();
-      const { channels } = useChannels();
+      const { localChannelsCache, fetchChannels } = useChannels();
       const {
         classes,
         activeClassesLessons,
@@ -127,7 +141,7 @@
           get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
       );
       const hasChannels = computed(() => {
-        return get(channels) && get(channels).length > 0;
+        return get(localChannelsCache).length > 0;
       });
       const displayExploreChannels = computed(() => {
         return (
@@ -148,9 +162,43 @@
         );
       });
 
+      function hydrateHomePage() {
+        return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(
+          response => {
+            setClasses(response.data.classrooms);
+            setResumableContentNodes(
+              response.data.resumable_resources.results || [],
+              response.data.resumable_resources.more || null
+            );
+            for (const progress of response.data.resumable_resources_progress) {
+              setContentNodeProgress(progress);
+            }
+          }
+        );
+      }
+
+      fetchChannels().then(channels => {
+        if (!channels.length) {
+          router.replace({ name: PageNames.LIBRARY });
+          return;
+        }
+
+        // force fetch classes and resumable content nodes to make sure that the home
+        // page is up-to-date when navigating to other 'Learn' pages and then back
+        // to the home page
+        return hydrateHomePage()
+          .then(() => {
+            store.commit('SET_PAGE_NAME', PageNames.HOME);
+            store.dispatch('notLoading');
+          })
+          .catch(error => {
+            return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
+          });
+      });
+
       return {
         isUserLoggedIn,
-        channels,
+        channels: localChannelsCache,
         classes,
         activeClassesLessons,
         activeClassesQuizzes,
@@ -161,6 +209,7 @@
         displayExploreChannels,
         displayClasses,
         missingResources,
+        hydrateHomePage,
       };
     },
     props: {

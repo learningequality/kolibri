@@ -609,6 +609,14 @@ class NaiveImportTestBase(ContentNodeTestBase):
         channel.refresh_from_db()
         self.assertEqual(channel.version, channel_version)
 
+    def test_update_current_partial(self):
+        channel = ChannelMetadata.objects.first()
+        channel.partial = True
+        channel.save()
+        self.set_content_fixture()
+        channel.refresh_from_db()
+        self.assertFalse(channel.partial)
+
     def test_localfile_available_remain_after_import(self):
         local_file = LocalFile.objects.get(pk="9f9438fe6b0d42dd8e913d7d04cfb2b2")
         local_file.available = True

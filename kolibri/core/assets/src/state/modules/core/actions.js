@@ -71,24 +71,25 @@ export function clearError(store) {
   store.commit('CORE_SET_ERROR', null);
 }
 
-export function handleApiError(store, errorObject) {
-  let error = errorObject;
-  if (typeof errorObject === 'object' && !(errorObject instanceof Error)) {
-    error = JSON.stringify(errorObject, null, 2);
-  } else if (errorObject.response) {
-    if (errorCodes.includes(errorObject.response.status)) {
+export function handleApiError(store, { error, reloadOnReconnect = false } = {}) {
+  let errorString = error;
+  if (typeof error === 'object' && !(error instanceof Error)) {
+    errorString = JSON.stringify(error, null, 2);
+  } else if (error.response) {
+    if (errorCodes.includes(error.response.status)) {
       // Do not log errors for disconnections, as it disrupts the user experience
       // and should already be being handled by our disconnection overlay.
+      store.commit('CORE_SET_RELOAD_ON_RECONNECT', reloadOnReconnect);
       return;
     }
     // Reassign object properties here as Axios error objects have built in
     // pretty printing support which messes with this.
-    error = JSON.stringify(errorObject.response, null, 2);
-  } else if (errorObject instanceof Error) {
-    error = errorObject.toString();
+    errorString = JSON.stringify(error.response, null, 2);
+  } else if (error instanceof Error) {
+    errorString = error.toString();
   }
-  handleError(store, error);
-  throw errorObject;
+  handleError(store, errorString);
+  throw error;
 }
 
 /**
@@ -185,7 +186,7 @@ export function kolibriLogin(store, sessionPayload) {
           return LoginErrors.USER_NOT_FOUND;
         }
       } else {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error });
       }
     });
 }
@@ -211,7 +212,7 @@ export function getNotifications(store) {
         store.commit('CORE_SET_NOTIFICATIONS', _notificationListState(notifications));
       })
       .catch(error => {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error });
       });
   }
   return Promise.resolve();
@@ -227,7 +228,7 @@ export function saveDismissedNotification(store, notification_id) {
       store.commit('CORE_REMOVE_NOTIFICATION', notification_id);
     })
     .catch(error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', { error });
     });
 }
 
@@ -274,7 +275,7 @@ export function setChannelInfo(store) {
       return channelsData;
     },
     error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', { error });
       return error;
     }
   );
@@ -327,7 +328,7 @@ export function fetchUserSyncStatus(store, params) {
         return syncData;
       },
       error => {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error });
         return error;
       }
     );
@@ -342,7 +343,7 @@ export function fetchUserSyncStatus(store, params) {
         return syncData;
       },
       error => {
-        store.dispatch('handleApiError', error);
+        store.dispatch('handleApiError', { error });
         return error;
       }
     );

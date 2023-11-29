@@ -60,7 +60,7 @@
   import { mapGetters } from 'vuex';
   import { TaskResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonDeviceStrings from '../commonDeviceStrings';
@@ -82,9 +82,13 @@
       BottomAppBar,
       ImmersivePage,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonDeviceStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       useContentTasks();
+      const { windowIsLarge } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+      };
     },
     data() {
       return {

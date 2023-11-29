@@ -22,12 +22,14 @@ from kolibri.core.auth.models import FacilityUser
 from kolibri.core.content.models import ContentDownloadRequest
 from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import ContentRemovalRequest
+from kolibri.core.content.models import ContentRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.models import File
 from kolibri.core.content.utils.assignment import ContentAssignmentManager
 from kolibri.core.content.utils.assignment import DeletedAssignment
 from kolibri.core.content.utils.channel_import import import_channel_from_data
+from kolibri.core.content.utils.file_availability import LocationError
 from kolibri.core.content.utils.resource_import import (
     ContentDownloadRequestResourceImportManager,
 )
@@ -42,7 +44,9 @@ from kolibri.core.discovery.utils.network.client import NetworkClient
 from kolibri.core.discovery.utils.network.connections import capture_connection_state
 from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
 from kolibri.core.utils.urls import reverse_path
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.data import bytes_for_humans
+from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
 
 
 logger = logging.getLogger(__name__)
@@ -150,7 +154,7 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
     :param dataset_id: The UUID of the dataset
     :type dataset_id: str
     :param transfer_session: The sync's transfer session model, if available
-    :type transfer_session: morango.models.core.TransferSession
+    :type transfer_session: morango.models.core.TransferSession|None
     """
     facility = Facility.objects.get(dataset_id=dataset_id)
 
@@ -328,13 +332,17 @@ def _node_total_size(contentnode_id, thumbnail=False, available=False):
     :param thumbnail: Whether to filter on thumbnails
     :param available: Whether to filter on available files
     """
+    filters = {}
+    if thumbnail:
+        filters["thumbnail"] = True
+        filters["supplementary"] = True
+
     return Coalesce(
         Subquery(
             File.objects.filter(
                 contentnode_id=contentnode_id,
                 local_file__available=available,
-                thumbnail=thumbnail,
-                supplementary=False,
+                **filters
             )
             .values(
                 _no_group_by=Value(0)
@@ -412,7 +420,7 @@ def incomplete_downloads_queryset():
         )
     )
     # if we're not allowing learner downloads, filter them out
-    if not get_device_setting("allow_learner_download_resources", default=False):
+    if not get_device_setting("allow_learner_download_resources"):
         qs = qs.exclude(is_learner_download=True)
     return qs
 
@@ -481,6 +489,7 @@ def process_content_requests():
         LearnerDeviceStatus.clear_statuses()
     except InsufficientStorage as e:
         logger.warning(str(e))
+
         LearnerDeviceStatus.save_statuses(DeviceStatus.InsufficientStorage)
     except NoPeerAvailable as e:
         logger.warning(str(e))
@@ -644,24 +653,20 @@ def _process_content_requests(incomplete_downloads):
     """
     Processes content requests, both for downloading and removing content
     """
-    incomplete_downloads_with_metadata = incomplete_downloads.filter(has_metadata=True)
+
+    calc = StorageCalculator(incomplete_downloads)
+
+    incomplete_downloads_with_metadata = calc.incomplete_downloads.filter(
+        has_metadata=True
+    )
 
     # obtain the incomplete removals, that do not have an associated download
-    incomplete_removals = incomplete_removals_queryset()
-    incomplete_sync_removals = incomplete_removals.filter(
-        reason=ContentRequestReason.SyncInitiated
-    )
-    incomplete_user_removals = incomplete_removals.filter(
-        reason=ContentRequestReason.UserInitiated
-    )
-    complete_user_downloads = ContentDownloadRequest.objects.filter(
-        status=ContentRequestStatus.Completed, reason=ContentRequestReason.UserInitiated
-    )
     # track failed so we can exclude them from the loop
     failed_ids = []
     has_processed_sync_removals = False
     has_processed_user_removals = False
     has_processed_user_downloads = False
+    has_freed_space_in_stream_cache = False
     qs = incomplete_downloads_with_metadata.all()
 
     # loop while we have pending downloads
@@ -683,22 +688,41 @@ def _process_content_requests(incomplete_downloads):
                     free_space
                 )
             )
-            if not has_processed_sync_removals and incomplete_sync_removals.exists():
+            if (
+                not has_processed_sync_removals
+                and calc.incomplete_sync_removals.exists()
+            ):
                 # process, then repeat
                 has_processed_sync_removals = True
                 logger.info("Processing sync-initiated content removal requests")
-                process_content_removal_requests(incomplete_sync_removals)
+                process_content_removal_requests(calc.incomplete_sync_removals)
                 continue
-            if not has_processed_user_removals and incomplete_user_removals.exists():
+            if (
+                not has_processed_user_removals
+                and calc.incomplete_user_removals.exists()
+            ):
                 # process, then repeat
                 has_processed_user_removals = True
                 logger.info("Processing user-initiated content removal requests")
-                process_content_removal_requests(incomplete_user_removals)
+                process_content_removal_requests(calc.incomplete_user_removals)
                 continue
-            if not has_processed_user_downloads and complete_user_downloads.exists():
+            if (
+                not has_processed_user_downloads
+                and calc.complete_user_downloads.exists()
+            ):
                 # process, then repeat
                 has_processed_user_downloads = True
                 process_user_downloads_for_removal()
+                continue
+            if not has_freed_space_in_stream_cache:
+                # try to clear space, then repeat
+                has_freed_space_in_stream_cache = True
+                chunked_file_manager = ChunkedFileDirectoryManager(
+                    OPTIONS["Paths"]["CONTENT_DIR"]
+                )
+                chunked_file_manager.evict_files(
+                    calc.get_additional_free_space_needed()
+                )
                 continue
             raise InsufficientStorage(
                 "Content download requests need {} of free space".format(
@@ -743,27 +767,8 @@ def process_download_request(download_request):
 
         # we try to import from the source instance first
         for peer in chain(*peer_sets):
-            import_manager = ContentDownloadRequestResourceImportManager(
-                node.channel_id,
-                peer_id=peer.id,
-                baseurl=peer.base_url,
-                node_ids=[download_request.contentnode_id],
-                download_request=download_request,
-                fail_on_error=True,
-            )
-            _, count = import_manager.run()
-
-            # can't trust the count, fail if there's an exception
-            if getattr(import_manager, "exception", None):
-                raise getattr(import_manager, "exception")
-            else:
-                if count == 0:
-                    logger.warning(
-                        "ContentNode files may not have imported successfully: {}".format(
-                            download_request.contentnode_id
-                        )
-                    )
-                # without an exception, we can assume the import was successful
+            if _process_download(download_request, node.channel_id, peer):
+                # if we successfully imported, break out of the loop
                 break
         else:
             raise NoPeerAvailable(
@@ -785,6 +790,49 @@ def process_download_request(download_request):
     download_request.status = ContentRequestStatus.Completed
     download_request.save()
     return True
+
+
+def _process_download(download_request, channel_id, peer):
+    """
+    Processes an import for a download request
+    :param download_request: The download request model instance
+    :type download_request: ContentDownloadRequest
+    :param channel_id: The channel id for the contentnode referenced by the download request
+    :type channel_id: str
+    :param peer: The peer to import from
+    :type peer: NetworkLocation
+    :return: True if the import was successful, False otherwise
+    :rtype: bool
+    """
+    try:
+        import_manager = ContentDownloadRequestResourceImportManager(
+            channel_id,
+            peer,
+            download_request,
+            fail_on_error=True,
+        )
+        _, count = import_manager.run()
+
+        # re-raise if there's an exception
+        if getattr(import_manager, "exception", None):
+            raise getattr(import_manager, "exception")
+        elif not count or count == 0:
+            logger.warning(
+                "ContentNode files may not have imported successfully: {}".format(
+                    download_request.contentnode_id
+                )
+            )
+            # if we have no count, we should try the next peer
+            return False
+        # without an exception, and non-zero count, we can assume the import was successful
+        return True
+    except LocationError:
+        # content not found on peer, try the next one
+        return False
+    except Exception as e:
+        # some other error occurred, log it and try the next peer
+        logger.exception(e)
+        return False
 
 
 def process_user_downloads_for_removal():
@@ -895,7 +943,8 @@ def process_content_removal_requests(queryset):
                 "deletecontent",
                 channel_id,
                 node_ids=contentnode_ids,
-                force_delete=True,
+                ignore_admin_flags=True,
+                update_content_requests=False,
             )
             # mark all as completed
             channel_requests.update(status=ContentRequestStatus.Completed)
@@ -910,3 +959,70 @@ def process_content_removal_requests(queryset):
     remaining_pending = queryset.filter(status=ContentRequestStatus.Pending)
     _remove_corresponding_download_requests(remaining_pending)
     remaining_pending.update(status=ContentRequestStatus.Completed)
+
+
+def propagate_contentnode_removal(contentnode_ids):
+    """
+    Deletes all learner initiated ContentRequests for the passed in contentnode_ids
+    Matching learner initiated ContentRequests will be deleted - this means that if
+    resources are deleted by an admin, we remove any associated learner initiated requests.
+    Also updates the status of any COMPLETED non-learner initiated ContentDownloadRequests to PENDING
+    """
+    BATCH_SIZE = 250
+    for i in range(0, len(contentnode_ids), BATCH_SIZE):
+        batch = contentnode_ids[i : i + BATCH_SIZE]
+        ContentRequest.objects.filter(
+            contentnode_id__in=batch, reason=ContentRequestReason.UserInitiated
+        ).delete()
+        ContentDownloadRequest.objects.filter(
+            contentnode_id__in=batch,
+            status=ContentRequestStatus.Completed,
+        ).exclude(reason=ContentRequestReason.UserInitiated).update(
+            status=ContentRequestStatus.Pending
+        )
+
+
+class StorageCalculator:
+    def __init__(self, incomplete_downloads_queryset):
+        incomplete_removals = incomplete_removals_queryset()
+
+        self.incomplete_downloads = incomplete_downloads_queryset
+        self.incomplete_sync_removals = incomplete_removals.filter(
+            reason=ContentRequestReason.SyncInitiated
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+
+        self.incomplete_user_removals = incomplete_removals.filter(
+            reason=ContentRequestReason.UserInitiated
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+
+        self.complete_user_downloads = ContentDownloadRequest.objects.filter(
+            status=ContentRequestStatus.Completed,
+            reason=ContentRequestReason.UserInitiated,
+        ).annotate(
+            total_size=_total_size_annotation(available=True),
+        )
+        self.free_space = 0
+        self.incomplete_downloads_size = 0
+
+    def _calculate_space_available(self):
+        self.incomplete_downloads_size = _total_size(self.incomplete_downloads)
+        free_space = get_free_space_for_downloads(
+            completed_size=_total_size(completed_downloads_queryset())
+        )
+        free_space += _total_size(self.incomplete_sync_removals)
+        free_space += _total_size(self.incomplete_user_removals)
+        free_space += _total_size(self.complete_user_downloads)
+
+        self.free_space = free_space
+
+    def is_space_sufficient(self):
+        self._calculate_space_available()
+        return self.free_space > self.incomplete_downloads_size
+
+    def get_additional_free_space_needed(self):
+        self._calculate_space_available()
+        return self.incomplete_downloads_size - self.free_space

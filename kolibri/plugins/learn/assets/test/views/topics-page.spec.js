@@ -1,8 +1,11 @@
 import VueRouter from 'vue-router';
 
 import { createLocalVue, shallowMount, mount } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
+import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import { ContentNodeResource } from 'kolibri.resources';
 import plugin_data from 'plugin_data';
 import makeStore from '../makeStore';
 import CustomContentRenderer from '../../src/views/ChannelRenderer/CustomContentRenderer';
@@ -10,35 +13,85 @@ import { PageNames } from '../../src/constants';
 import TopicsPage from '../../src/views/TopicsPage';
 // eslint-disable-next-line import/named
 import useSearch, { useSearchMock } from '../../src/composables/useSearch';
+// eslint-disable-next-line import/named
+import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
 jest.mock('plugin_data', () => {
   return {
     __esModule: true,
     default: {
-      accessibilityLabels: [],
-      gradeLevels: [],
       enableCustomChannelNav: jest.fn(() => false),
-      learnerNeeds: [],
-      languages: [],
     },
   };
 });
 
+const CHANNEL_ID = 'channel-id';
+const CHANNEL = {
+  id: CHANNEL_ID,
+  root: 'topic-id',
+  name: 'channel',
+  description: '',
+};
+
+const DEFAULT_TOPIC = {
+  id: 'topic-id',
+  title: 'topic',
+  description: '',
+  kind: ContentNodeKinds.TOPIC,
+  is_leaf: false,
+  channel_id: CHANNEL_ID,
+  options: { modality: null },
+  ancestors: [],
+  parent: null,
+  children: {
+    results: [
+      {
+        title: 'child topic 1',
+        kind: ContentNodeKinds.TOPIC,
+        is_leaf: false,
+        parent: 'topic-id',
+        channel_id: CHANNEL_ID,
+        options: { modality: null },
+        ancestors: [{ id: 'topic-id', title: 'topic' }],
+        children: {
+          results: [
+            { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+            { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+          ],
+          more: null,
+        },
+      },
+      {
+        title: 'child topic 2',
+        kind: ContentNodeKinds.TOPIC,
+        is_leaf: false,
+        parent: 'topic-id',
+        channel_id: CHANNEL_ID,
+        options: { modality: null },
+        ancestors: [{ id: 'topic-id', title: 'topic' }],
+        children: {
+          results: [
+            { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+            { kind: ContentNodeKinds.VIDEO, is_leaf: true },
+          ],
+          more: null,
+        },
+      },
+    ],
+    more: null,
+  },
+};
+
+jest.mock('kolibri.client');
+jest.mock('kolibri.resources');
+jest.mock('kolibri.urls');
+jest.mock('kolibri.coreVue.composables.useUser');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/useSearch');
+jest.mock('../../src/composables/useChannels');
 // Needed to test anything using mount() where children use this composable
 jest.mock('../../src/composables/useLearningActivities');
-
-useSearch.mockImplementation(() => ({
-  displayingSearchResults: false,
-  results: [],
-  search: jest.fn(),
-  searchResults: [],
-  searchQuery: '',
-  searchLoading: false,
-  searchError: null,
-}));
 
 const localVue = createLocalVue();
 localVue.use(VueRouter);
@@ -55,13 +108,33 @@ describe('TopicsPage', () => {
   let store;
 
   beforeEach(() => {
+    useSearch.mockImplementation(() =>
+      useSearchMock({
+        displayingSearchResults: false,
+        results: [],
+        search: jest.fn(),
+        searchResults: [],
+        searchQuery: '',
+        searchLoading: false,
+        searchError: null,
+        currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC })),
+      })
+    );
+
+    useChannels.mockImplementation(() =>
+      useChannelsMock({
+        channelsMap: {
+          [CHANNEL_ID]: CHANNEL,
+        },
+        fetchChannels: jest.fn(() => Promise.resolve([CHANNEL])),
+      })
+    );
+
+    ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC);
+
     store = makeStore({
       getters: { isUserLoggedIn: jest.fn() },
     });
-    store.state.topicsTree.topic = {
-      ...store.state.topicsTree.topic,
-      options: { modality: null },
-    };
     store.state.core = {
       ...store.state.core,
       loading: false,
@@ -82,94 +155,74 @@ describe('TopicsPage', () => {
 
       useSearch.mockImplementation(() => useSearchMock());
 
-      store.state.topicsTree.topic = {
-        ...store.state.topicsTree.topic,
+      ContentNodeResource.fetchTree.mockResolvedValue({
+        ...DEFAULT_TOPIC,
         options: { modality: 'CUSTOM_NAVIGATION' },
-      };
+      });
 
       const wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
         router,
       });
+      await flushPromises();
       expect(wrapper.findComponent(CustomContentRenderer).exists()).toBe(true);
     });
   });
 
   describe('Displaying the header', () => {
-    it('displays breadcrumbs when not on a small screen', () => {
+    it('displays breadcrumbs when not on a small screen', async () => {
       const wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
         router,
         computed: { windowIsSmall: () => false },
       });
-
+      await flushPromises();
       expect(wrapper.find("[data-test='header-breadcrumbs']").exists()).toBe(true);
     });
   });
 
-  it('displays the header with tabs when on a large screen', () => {
+  it('displays the header with tabs when not on a small screen', async () => {
     const wrapper = shallowMount(TopicsPage, {
       store: store,
       localVue,
       router,
-      computed: { windowIsLarge: () => true },
+      computed: { windowIsSmall: () => false },
     });
-
+    await flushPromises();
     expect(wrapper.findComponent({ name: 'TopicsHeader' }).exists()).toBe(true);
   });
 
-  it('displays the topic title when page is medium - large', () => {
-    store.state.topicsTree.topic.title = 'Test Title';
+  it('displays the topic title when page is not small', async () => {
     const wrapper = mount(TopicsPage, {
       store: store,
       localVue,
-
       router,
+      computed: { windowIsSmall: () => false },
     });
-    expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent('Test Title');
+    await flushPromises();
+    expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent(
+      DEFAULT_TOPIC.title
+    );
   });
 
-  it('displays the topic title when page is small', () => {
-    store.state.topicsTree.topic.title = 'Test Title';
+  it('displays the topic title when page is small', async () => {
     const smallScreenWrapper = mount(TopicsPage, {
       store: store,
       localVue,
       router,
       computed: { windowIsSmall: () => true },
     });
-
+    await flushPromises();
     expect(smallScreenWrapper.find("[data-test='mobile-title']").element).toHaveTextContent(
-      'Test Title'
+      DEFAULT_TOPIC.title
     );
   });
 
   describe('showing cards', () => {
     let wrapper;
-    beforeEach(() => {
-      store.state.topicsTree.contents = [
-        {
-          kind: ContentNodeKinds.TOPIC,
-          is_leaf: false,
-          children: {
-            results: [
-              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
-              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
-            ],
-          },
-        },
-        {
-          kind: ContentNodeKinds.TOPIC,
-          is_leaf: false,
-          children: {
-            results: [
-              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
-              { kind: ContentNodeKinds.VIDEO, is_leaf: true },
-            ],
-          },
-        },
-      ];
+    beforeEach(async () => {
       wrapper = shallowMount(TopicsPage, {
         store: store,
         localVue,
@@ -180,6 +233,7 @@ describe('TopicsPage', () => {
           breadcrumbs: () => [{}],
         },
       });
+      await flushPromises();
     });
 
     it('shows breadcrumbs when screen is small', () => {
@@ -197,7 +251,7 @@ describe('TopicsPage', () => {
       let wrapper;
       let searchResults;
 
-      beforeAll(() => {
+      beforeEach(async () => {
         results = [
           {
             id: '1',
@@ -221,14 +275,16 @@ describe('TopicsPage', () => {
 
         jest.clearAllMocks();
 
-        useSearch.mockImplementation(() => ({
-          displayingSearchResults: true, // true here
-          results, // those we just made above
-          search: jest.fn(),
-          searchQuery: '',
-          searchLoading: false,
-          searchError: null,
-        }));
+        useSearch.mockImplementation(() =>
+          useSearchMock({
+            displayingSearchResults: true, // true here
+            results, // those we just made above
+            search: jest.fn(),
+            searchQuery: '',
+            searchLoading: false,
+            searchError: null,
+          })
+        );
 
         wrapper = mount(TopicsPage, {
           store: store,
@@ -240,6 +296,7 @@ describe('TopicsPage', () => {
             windowIsSmall: () => true,
           },
         });
+        await flushPromises();
       });
 
       it('shows the search results', () => {
@@ -249,17 +306,19 @@ describe('TopicsPage', () => {
     });
 
     describe('when not displaying search results', () => {
-      it('displays a grid of cards with the topics and their chidlren', () => {
+      it('displays a grid of cards with the topics and their chidlren', async () => {
         jest.clearAllMocks();
 
-        useSearch.mockImplementation(() => ({
-          displayingSearchResults: false,
-          results: [],
-          search: jest.fn(),
-          searchQuery: '',
-          searchLoading: false,
-          searchError: null,
-        }));
+        useSearch.mockImplementation(() =>
+          useSearchMock({
+            displayingSearchResults: false,
+            results: [],
+            search: jest.fn(),
+            searchQuery: '',
+            searchLoading: false,
+            searchError: null,
+          })
+        );
         wrapper = mount(TopicsPage, {
           store: store,
           localVue,
@@ -297,10 +356,66 @@ describe('TopicsPage', () => {
             },
           },
         });
+        await flushPromises();
         expect(wrapper.find('[data-test="topics"]').element).toHaveTextContent('test-title-1');
         expect(wrapper.find('[data-test="topics"]').element).toHaveTextContent('test-title-2');
         expect(wrapper.find('[data-test="children-cards-grid"]').exists()).toBe(true);
       });
     });
+  });
+  describe('learn page breadcrumbs', () => {
+    function getElements(wrapper) {
+      return {
+        breadcrumbs: () => wrapper.findComponent(KBreadcrumbs),
+        breadcrumbItems: () => wrapper.findComponent(KBreadcrumbs).props().items,
+      };
+    }
+    describe('when in Topic Browsing mode', () => {
+      it('shows correct breadcrumbs at a Channel', async () => {
+        const wrapper = mount(TopicsPage, {
+          store: store,
+          localVue,
+          router,
+        });
+        await flushPromises();
+        const { breadcrumbItems } = getElements(wrapper);
+        const bcs = breadcrumbItems();
+        expect(bcs.length).toEqual(1);
+        expect(bcs[0].link).toEqual(undefined);
+        expect(bcs[0].text).toEqual(CHANNEL.name);
+      });
+
+      it('shows correct breadcrumbs at a non-Channel Topic', async () => {
+        ContentNodeResource.fetchTree.mockResolvedValue(DEFAULT_TOPIC.children.results[0]);
+        useSearch.mockImplementation(() =>
+          useSearchMock({
+            displayingSearchResults: false,
+            results: [],
+            search: jest.fn(),
+            searchResults: [],
+            searchQuery: '',
+            searchLoading: false,
+            searchError: null,
+            currentRoute: jest.fn(() => ({ name: PageNames.TOPICS_TOPIC_SEARCH })),
+          })
+        );
+        const wrapper = mount(TopicsPage, {
+          store: store,
+          localVue,
+          router,
+        });
+        await flushPromises();
+        const { breadcrumbItems } = getElements(wrapper);
+        const bcs = breadcrumbItems();
+        expect(bcs.length).toEqual(2);
+        // Parent Channel Link
+        expect(bcs[0].text).toEqual(CHANNEL.name);
+        // Topic
+        expect(bcs[1].text).toEqual(DEFAULT_TOPIC.children.results[0].title);
+      });
+    });
+
+    // Not tested
+    // breadcrumbs in Lessons Mode
   });
 });

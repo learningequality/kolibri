@@ -43,7 +43,7 @@
             :selectedInteractionIndex="interactionIndex"
             @select="navigateToNewInteraction($event)"
           />
-          <KContentRenderer
+          <ContentRenderer
             v-if="currentInteraction"
             :itemId="currentLearner.item"
             :assessment="true"

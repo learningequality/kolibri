@@ -40,9 +40,9 @@ Vue.use(VueMeta);
 Vue.use(KThemePlugin);
 Vue.use(VueCompositionApi);
 
-Vue.component('KContentRenderer', {
+Vue.component('ContentRenderer', {
   render(h) {
-    return h('p', 'KContentRenderer');
+    return h('p', 'ContentRenderer');
   },
 });
 

@@ -196,21 +196,43 @@ class Command(AsyncCommand):
     ):
         progress_extra_data = {"channel_id": channel_id}
 
-        with filetransfer, self.start_progress(
-            total=filetransfer.transfer_size
-        ) as progress_update:
+        with filetransfer:
+            self.start_progress(total=filetransfer.transfer_size)
 
             def progress_callback(bytes):
-                progress_update(bytes, progress_extra_data)
+                self.update_progress(bytes, extra_data=progress_extra_data)
 
             filetransfer.run(progress_callback)
             # if upgrading, import the channel
             if not no_upgrade:
                 try:
+                    # In each case we need to evaluate the queryset now,
+                    # in order to get node ids as they currently are before
+                    # the import. If we did not coerce each of these querysets
+                    # to a list now, they would be lazily evaluated after the
+                    # import, and would reflect the state of the database
+                    # after the import.
+
                     # evaluate list so we have the current node ids
                     node_ids = list(
                         ContentNode.objects.filter(
                             channel_id=channel_id, available=True
+                        )
+                        .exclude(kind=content_kinds.TOPIC)
+                        .values_list("id", flat=True)
+                    )
+                    # evaluate list so we have the current node ids
+                    admin_imported_ids = list(
+                        ContentNode.objects.filter(
+                            channel_id=channel_id, available=True, admin_imported=True
+                        )
+                        .exclude(kind=content_kinds.TOPIC)
+                        .values_list("id", flat=True)
+                    )
+                    # evaluate list so we have the current node ids
+                    not_admin_imported_ids = list(
+                        ContentNode.objects.filter(
+                            channel_id=channel_id, available=True, admin_imported=False
                         )
                         .exclude(kind=content_kinds.TOPIC)
                         .values_list("id", flat=True)
@@ -222,6 +244,16 @@ class Command(AsyncCommand):
                         if node_ids:
                             # annotate default channel db based on previously annotated leaf nodes
                             update_content_metadata(channel_id, node_ids=node_ids)
+                            if admin_imported_ids:
+                                # Reset admin_imported flag for nodes that were imported by admin
+                                ContentNode.objects.filter_by_uuids(
+                                    admin_imported_ids
+                                ).update(admin_imported=True)
+                            if not_admin_imported_ids:
+                                # Reset admin_imported flag for nodes that were not imported by admin
+                                ContentNode.objects.filter_by_uuids(
+                                    not_admin_imported_ids
+                                ).update(admin_imported=False)
                         else:
                             # ensure the channel is available to the frontend
                             ContentCacheKey.update_cache_key()

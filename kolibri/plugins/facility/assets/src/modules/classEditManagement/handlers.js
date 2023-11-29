@@ -31,6 +31,6 @@ export function showClassEditPage(store, classId) {
     })
     .catch(error => {
       store.dispatch('notLoading');
-      store.dispatch('handleError', error);
+      store.dispatch('handleApiError', { error, reloadOnReconnect: true });
     });
 }

@@ -89,7 +89,7 @@
   // Displays a single Task and its metadata, and provides buttons
   // to cancel or clear it.
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
@@ -130,7 +130,13 @@
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       task: {
         type: Object,

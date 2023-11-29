@@ -105,14 +105,20 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonTaskStrings from 'kolibri.coreVue.mixins.commonTaskStrings';
   import { TaskStatuses, TaskTypes } from '../../utils/syncTaskUtils';
 
   export default {
     name: 'FacilityTaskPanelDetails',
-    mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
+    mixins: [commonCoreStrings, commonTaskStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       task: {
         type: Object,

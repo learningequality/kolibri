@@ -446,6 +446,20 @@ def _hex_uuid_str():
     return str(uuid.uuid4().hex)
 
 
+class ContentRequestManager(models.Manager):
+    request_type = None
+
+    def get_queryset(self):
+        """
+        Automatically filters on the request type for use with proxy models
+        :rtype: django.db.models.QuerySet
+        """
+        queryset = super(ContentRequestManager, self).get_queryset()
+        if self.request_type is not None:
+            queryset = queryset.filter(type=self.request_type)
+        return queryset
+
+
 class ContentRequest(models.Model):
     """
     Model representing requests for specific content, either through user interaction or as a
@@ -474,6 +488,8 @@ class ContentRequest(models.Model):
 
     contentnode_id = UUIDField()
     metadata = JSONField(null=True)
+
+    objects = ContentRequestManager()
 
     class Meta:
         unique_together = ("type", "source_model", "source_id", "contentnode_id")
@@ -515,18 +531,6 @@ class ContentRequest(models.Model):
     @property
     def total_progress(self):
         return self.metadata.get("total_progress", 0) if self.metadata else 0
-
-
-class ContentRequestManager(models.Manager):
-    request_type = None
-
-    def get_queryset(self):
-        """
-        Automatically filters on the request type for use with proxy models
-        :rtype: django.db.models.QuerySet
-        """
-        queryset = super(ContentRequestManager, self).get_queryset()
-        return queryset.filter(type=self.request_type)
 
 
 class ContentDownloadRequestManager(ContentRequestManager):

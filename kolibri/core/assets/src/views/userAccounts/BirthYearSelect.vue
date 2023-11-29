@@ -29,7 +29,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 
   const { NOT_SPECIFIED } = DemographicConstants;
@@ -43,7 +43,13 @@
     components: {
       CoreInfoIcon,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       value: {
         type: String,
@@ -85,8 +91,12 @@
     methods: {
       makeYearOptions(max, min) {
         return range(max, min, -1).map(n => {
+          // Because of timezone, year could be mismatched when localized in any
+          // timezone that less than UTC. for ex- 2022 will be shown instead of 2023
+          const date = new Date();
+          date.setFullYear(n);
           return {
-            label: this.$formatDate(String(n), { year: 'numeric' }),
+            label: this.$formatDate(String(date), { year: 'numeric' }),
             value: String(n),
           };
         });

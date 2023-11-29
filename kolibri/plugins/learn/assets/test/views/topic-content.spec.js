@@ -1,28 +1,37 @@
 import { shallowMount, createLocalVue } from '@vue/test-utils';
+import flushPromises from 'flush-promises';
+import { ContentNodeResource } from 'kolibri.resources';
 import makeStore from '../makeStore';
 import TopicsContentPage from '../../src/views/TopicsContentPage';
 /* eslint-disable import/named */
 import useDownloadRequests, {
   useDownloadRequestsMock,
 } from '../../src/composables/useDownloadRequests';
+import useChannels, { useChannelsMock } from '../../src/composables/useChannels';
+import useCoreLearn, { useCoreLearnMock } from '../../src/composables/useCoreLearn';
 /* eslint-enable import/named */
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri.client');
+jest.mock('kolibri.resources');
 jest.mock('../../src/composables/useDownloadRequests');
+jest.mock('../../src/composables/useChannels');
+jest.mock('../../src/composables/useCoreLearn');
+jest.mock('../../src/composables/useDevices');
 
 const CONTENT_ID = 'content-id';
+const CHANNEL_ID = 'channel-id';
 
 const localVue = createLocalVue();
 
 // see `makeWrapper` for `params`
-function makeAuthWrapper(params) {
-  return makeWrapper({ ...params, isUserLoggedIn: true });
+async function makeAuthWrapper(params) {
+  return await makeWrapper({ ...params, isUserLoggedIn: true });
 }
 
 // see `makeWrapper` for `params`
-function makeAuthWrapperWithRemoteContent(params) {
-  return makeAuthWrapper({
+async function makeAuthWrapperWithRemoteContent(params) {
+  return await makeAuthWrapper({
     ...params,
     propsData: {
       deviceId: 'remote-device-id', // non-null device ID means that the content is remote
@@ -31,28 +40,25 @@ function makeAuthWrapperWithRemoteContent(params) {
   });
 }
 
-function makeWrapper({
+async function makeWrapper({
   propsData = {},
   isContentAdminImported = false,
   isUserLoggedIn = false,
 } = {}) {
   const store = makeStore();
-  store.state.topicsTree = {
-    content: {
-      id: CONTENT_ID,
-      admin_imported: isContentAdminImported,
-    },
-  };
-  store.state.core = { loading: false };
-  store.getters = {
-    isUserLoggedIn,
-  };
+  ContentNodeResource.fetchCollection.mockResolvedValue([]);
+  ContentNodeResource.fetchModel.mockResolvedValue({
+    id: CONTENT_ID,
+    admin_imported: isContentAdminImported,
+    channel_id: CHANNEL_ID,
+  });
 
-  return shallowMount(TopicsContentPage, {
+  const wrapper = shallowMount(TopicsContentPage, {
     propsData: {
-      loading: false,
+      id: CONTENT_ID,
       ...propsData,
     },
+    data: () => ({ isUserLoggedIn }),
     store,
     localVue,
     stubs: {
@@ -70,6 +76,8 @@ function makeWrapper({
       },
     },
   });
+  await flushPromises();
+  return wrapper;
 }
 
 function assertBookmarkButtonIsDisplayed(wrapper) {
@@ -97,35 +105,51 @@ function assertDownloadButtonIsNotDisplayed(wrapper) {
 }
 
 describe('TopicsContentPage', () => {
+  beforeEach(() => {
+    // reset back to defaults
+    useChannels.mockImplementation(() =>
+      useChannelsMock({
+        channelsMap: {
+          [CHANNEL_ID]: {
+            id: CHANNEL_ID,
+            name: 'test channel',
+            root: 'test root',
+            thumbnail: 'test thumbnail',
+          },
+        },
+      })
+    );
+  });
   afterEach(() => {
     // reset back to defaults
     useDownloadRequests.mockImplementation(() => useDownloadRequestsMock());
+    useChannels.mockImplementation(() => useChannelsMock());
   });
 
-  it('smoke test', () => {
-    const wrapper = makeWrapper();
+  it('smoke test', async () => {
+    const wrapper = await makeWrapper();
     expect(wrapper.exists()).toBe(true);
   });
 
-  it('shows the Learning Activity Bar', () => {
-    const wrapper = makeWrapper();
+  it('shows the Learning Activity Bar', async () => {
+    const wrapper = await makeWrapper();
     expect(wrapper.find('[data-test="learningActivityBar"]').exists()).toBeTruthy();
   });
 
-  it('shows the Content Page', () => {
-    const wrapper = makeWrapper();
+  it('shows the Content Page', async () => {
+    const wrapper = await makeWrapper();
     expect(wrapper.find('[data-test="contentPage"]').exists()).toBeTruthy();
   });
 
   describe(`remote download and bookmark`, () => {
     describe(`when a user is not logged in`, () => {
-      it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
-        const wrapper = makeWrapper();
+      it(`instructs 'LearningActivityBar' to not show the bookmark button`, async () => {
+        const wrapper = await makeWrapper();
         assertBookmarkButtonIsNotDisplayed(wrapper);
       });
 
-      it(`instructs 'LearningActivityBar' to not show the download button`, () => {
-        const wrapper = makeWrapper();
+      it(`instructs 'LearningActivityBar' to not show the download button`, async () => {
+        const wrapper = await makeWrapper();
         assertDownloadButtonIsNotDisplayed(wrapper);
       });
     });
@@ -133,8 +157,8 @@ describe('TopicsContentPage', () => {
     describe(`when a user is logged in`, () => {
       describe(`when content is not remote`, () => {
         let wrapper;
-        beforeEach(() => {
-          wrapper = makeAuthWrapper();
+        beforeEach(async () => {
+          wrapper = await makeAuthWrapper();
         });
 
         it(`instructs 'LearningActivityBar' to show the bookmark button`, () => {
@@ -148,8 +172,8 @@ describe('TopicsContentPage', () => {
 
       describe(`for remote content that was imported by an admin`, () => {
         let wrapper;
-        beforeEach(() => {
-          wrapper = makeAuthWrapperWithRemoteContent({
+        beforeEach(async () => {
+          wrapper = await makeAuthWrapperWithRemoteContent({
             isContentAdminImported: true,
           });
         });
@@ -165,13 +189,18 @@ describe('TopicsContentPage', () => {
 
       describe(`for remote content that was downloaded by a learner (and not imported by an admin)`, () => {
         let wrapper;
-        beforeEach(() => {
+        beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadedByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'COMPLETED',
+                },
+              },
             })
           );
-          wrapper = makeAuthWrapperWithRemoteContent();
+          wrapper = await makeAuthWrapperWithRemoteContent();
         });
 
         it(`instructs 'LearningActivityBar' to show the bookmark button`, () => {
@@ -185,13 +214,23 @@ describe('TopicsContentPage', () => {
 
       describe(`for remote content that is being downloaded by a learner (and not imported by an admin)`, () => {
         let wrapper;
-        beforeEach(() => {
+        beforeEach(async () => {
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              isDownloadingByLearner: () => true,
+              downloadRequestMap: {
+                [CONTENT_ID]: {
+                  id: CONTENT_ID,
+                  status: 'PENDING',
+                },
+              },
             })
           );
-          wrapper = makeAuthWrapperWithRemoteContent();
+          useCoreLearn.mockImplementation(() =>
+            useCoreLearnMock({
+              canAddDownloads: () => true,
+            })
+          );
+          wrapper = await makeAuthWrapperWithRemoteContent();
         });
 
         it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
@@ -208,8 +247,8 @@ describe('TopicsContentPage', () => {
 
       describe(`for remote content that hasn't been downloaded by a learner or imported by an admin yet`, () => {
         let wrapper;
-        beforeEach(() => {
-          wrapper = makeAuthWrapperWithRemoteContent();
+        beforeEach(async () => {
+          wrapper = await makeAuthWrapperWithRemoteContent();
         });
 
         it(`instructs 'LearningActivityBar' to not show the bookmark button`, () => {
@@ -220,21 +259,22 @@ describe('TopicsContentPage', () => {
           assertDownloadButtonIsDisplayed(wrapper);
         });
 
-        it(`clicking the download button calls 'addDownloadRequest' with content in the payload`, () => {
+        it(`clicking the download button calls 'addDownloadRequest' with content in the payload`, async () => {
           const addDownloadRequest = jest.fn();
           useDownloadRequests.mockImplementation(() =>
             useDownloadRequestsMock({
-              downloadRequestMap: { downloads: {} },
+              downloadRequestMap: {},
               addDownloadRequest,
             })
           );
-          wrapper = makeAuthWrapperWithRemoteContent();
+          wrapper = await makeAuthWrapperWithRemoteContent();
           wrapper.findComponent({ name: 'LearningActivityBar' }).vm.$emit('download');
 
           expect(addDownloadRequest).toHaveBeenCalledTimes(1);
           expect(addDownloadRequest).toHaveBeenCalledWith({
             admin_imported: false,
             id: CONTENT_ID,
+            channel_id: CHANNEL_ID,
           });
         });
       });

@@ -650,7 +650,7 @@ class StringMethodTestCase(TestCase):
 class FacilityTestCase(TestCase):
     def test_existing_facility_becomes_default_facility(self):
         self.facility = Facility.objects.create()
-        self.device_settings = DeviceSettings.objects.create()
+        self.device_settings = DeviceSettings.objects.create(is_provisioned=True)
         self.assertEqual(self.device_settings.default_facility, None)
         default_facility = Facility.get_default_facility()
         self.assertEqual(default_facility, self.facility)
@@ -679,6 +679,26 @@ class FacilityUserTestCase(TestCase):
         user = FacilityUser.deserialize(dict(username="bob", password=""))
         self.assertEqual("bob", user.username)
         self.assertEqual(NOT_SPECIFIED, user.password)
+
+    def test_username_validation(self):
+        self.facility = Facility.objects.create()
+        self.device_settings = DeviceSettings.objects.create()
+        user1 = FacilityUser.objects.create(
+            username="bob@learningequality.org",
+            password="password",
+            facility=self.facility,
+        )
+        user1.full_clean()
+        user2 = FacilityUser.objects.create(
+            username="@bob", password="password", facility=self.facility
+        )
+        with self.assertRaises(ValidationError):
+            user2.full_clean()
+        user3 = FacilityUser.objects.create(
+            username=32 * "gh", password="password", facility=self.facility
+        )
+        with self.assertRaises(ValidationError):
+            user3.full_clean()
 
 
 class CollectionHierarchyTestCase(TestCase):

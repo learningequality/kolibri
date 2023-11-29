@@ -2,9 +2,33 @@ import hashlib
 import math
 import os
 import shutil
+import tempfile
 import unittest
 
+from kolibri.utils.file_transfer import CHUNK_SUFFIX
 from kolibri.utils.file_transfer import ChunkedFile
+from kolibri.utils.file_transfer import ChunkedFileDirectoryManager
+from kolibri.utils.file_transfer import ChunkedFileDoesNotExist
+
+
+def _write_test_data_to_chunked_file(chunked_file):
+    data = b""
+    for i in range(chunked_file.chunks_count):
+        with open(
+            os.path.join(chunked_file.chunk_dir, ".chunk_{}".format(i)), "wb"
+        ) as f:
+            size = (
+                chunked_file.chunk_size
+                if i < chunked_file.chunks_count - 1
+                else (chunked_file.file_size % chunked_file.chunk_size)
+            )
+            to_write = os.urandom(size)
+            f.write(to_write)
+            data += to_write
+    return data
+
+
+TEST_FILE_SIZE = (1024 * 1024) + 731
 
 
 class TestChunkedFile(unittest.TestCase):
@@ -12,29 +36,16 @@ class TestChunkedFile(unittest.TestCase):
         self.file_path = "test_file"
 
         self.chunk_size = ChunkedFile.chunk_size
-        self.file_size = (1024 * 1024) + 731
+        self.file_size = TEST_FILE_SIZE
 
         self.chunked_file = ChunkedFile(self.file_path)
+        self.chunked_file.file_size = self.file_size
 
         # Create dummy chunks
         self.chunks_count = int(
             math.ceil(float(self.file_size) / float(self.chunk_size))
         )
-        self.data = b""
-        for i in range(self.chunks_count):
-            with open(
-                os.path.join(self.chunked_file.chunk_dir, ".chunk_{}".format(i)), "wb"
-            ) as f:
-                size = (
-                    self.chunk_size
-                    if i < self.chunks_count - 1
-                    else (self.file_size % self.chunk_size)
-                )
-                to_write = os.urandom(size)
-                f.write(to_write)
-                self.data += to_write
-
-        self.chunked_file.file_size = self.file_size
+        self.data = _write_test_data_to_chunked_file(self.chunked_file)
 
     def tearDown(self):
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
@@ -264,12 +275,252 @@ class TestChunkedFile(unittest.TestCase):
     def test_file_removed_by_parallel_process_after_opening(self):
         shutil.rmtree(self.chunked_file.chunk_dir, ignore_errors=True)
         self.chunked_file._file_size = None
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChunkedFileDoesNotExist):
             self.chunked_file.file_size
 
     def test_file_finalized_by_parallel_process_after_opening(self):
         self.chunked_file.finalize_file()
         self.chunked_file.delete()
         self.chunked_file._file_size = None
-        with self.assertRaises(ValueError):
+        with self.assertRaises(ChunkedFileDoesNotExist):
             self.chunked_file.file_size
+
+    def test_file_finalized_by_parallel_process_after_opening_writing(self):
+        self.chunked_file.finalize_file()
+        self.chunked_file.delete()
+        with self.assertRaises(ChunkedFileDoesNotExist):
+            self.chunked_file.write_chunk(0, self.data[0 : self.chunk_size])
+
+    def test_file_finalized_by_parallel_process_after_opening_locking(self):
+        self.chunked_file.finalize_file()
+        self.chunked_file.delete()
+        with self.assertRaises(ChunkedFileDoesNotExist):
+            with self.chunked_file.lock_chunks(0):
+                pass
+
+
+# The expected number of bytes taken up by files used in the diskcache
+# for chunked files.
+EXPECTED_DISKCACHE_SIZE = 32768
+
+
+TOTAL_CHUNKED_FILE_SIZE = TEST_FILE_SIZE + EXPECTED_DISKCACHE_SIZE
+
+
+class TestChunkedFileDirectoryManager(unittest.TestCase):
+    def setUp(self):
+        self.base_dir = tempfile.mkdtemp()
+        for files in [
+            ["file1.txt"],
+            ["nested_once", "file2.txt"],
+            ["nested", "nested_twice", "file3.txt"],
+        ]:
+            file_path = os.path.join(self.base_dir, *files)
+            chunked_file = ChunkedFile(file_path)
+            chunked_file.file_size = TEST_FILE_SIZE
+            _write_test_data_to_chunked_file(chunked_file)
+
+    def tearDown(self):
+        shutil.rmtree(self.base_dir, ignore_errors=True)
+
+    def test_listing_chunked_files(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_get_chunked_file_stats(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        stats = manager._get_chunked_file_stats()
+
+        for file_path, file_stats in stats.items():
+            self.assertEqual(file_stats["size"], TOTAL_CHUNKED_FILE_SIZE)
+            expected_last_access_time = 0
+            for dirpath, _, filenames in os.walk(file_path):
+                for filename in filenames:
+                    expected_last_access_time = max(
+                        expected_last_access_time,
+                        os.path.getatime(os.path.join(dirpath, filename)),
+                    )
+            self.assertEqual(file_stats["last_access_time"], expected_last_access_time)
+
+    def test_evict_files_exact_file_size_sum(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3),
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
+        )
+
+    def test_evict_files_more_than_file_size_sum(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 3 + 12),
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
+        )
+
+    def test_evict_files_exact_file_size(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE)
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_evict_files_less_than_file_size(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE, manager.evict_files(TOTAL_CHUNKED_FILE_SIZE - 12)
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_evict_files_more_than_file_size(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 2,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE + 12),
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_evict_files_more_than_twice_file_size(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(
+            TOTAL_CHUNKED_FILE_SIZE * 3,
+            manager.evict_files(TOTAL_CHUNKED_FILE_SIZE * 2 + 12),
+        )
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
+        )
+
+    def test_evict_files_zero_bytes(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        self.assertEqual(0, manager.evict_files(0))
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_limit_files_no_eviction_needed(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 3)
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(self.base_dir, "file1.txt" + CHUNK_SUFFIX),
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_limit_files_some_eviction_needed(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE * 2)
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted(
+                [
+                    os.path.join(
+                        self.base_dir, "nested_once", "file2.txt" + CHUNK_SUFFIX
+                    ),
+                    os.path.join(
+                        self.base_dir,
+                        "nested",
+                        "nested_twice",
+                        "file3.txt" + CHUNK_SUFFIX,
+                    ),
+                ]
+            ),
+        )
+
+    def test_limit_files_all_evicted(self):
+        manager = ChunkedFileDirectoryManager(self.base_dir)
+        manager.limit_files(TOTAL_CHUNKED_FILE_SIZE - 12)
+        self.assertEqual(
+            sorted(list(manager._get_chunked_file_dirs())),
+            sorted([]),
+        )

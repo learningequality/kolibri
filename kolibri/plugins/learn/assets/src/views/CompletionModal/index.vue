@@ -144,14 +144,14 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useDevices from '../../composables/useDevices';
+  import { currentDeviceData } from '../../composables/useDevices';
   import useDeviceSettings from '../../composables/useDeviceSettings';
   import useLearnerResources from '../../composables/useLearnerResources';
   import useContentLink from '../../composables/useContentLink';
@@ -178,17 +178,21 @@
       ResourceItem,
       UiAlert,
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { canAccessUnassignedContent } = useDeviceSettings();
       const { fetchLesson } = useLearnerResources();
       const { genContentLinkKeepCurrentBackLink } = useContentLink();
-      const { baseurl } = useDevices();
+      const { baseurl } = currentDeviceData();
+      const { windowBreakpoint, windowHeight, windowWidth } = useKResponsiveWindow();
       return {
         baseurl,
         canAccessUnassignedContent,
         fetchLesson,
         genContentLinkKeepCurrentBackLink,
+        windowBreakpoint,
+        windowHeight,
+        windowWidth,
       };
     },
     props: {

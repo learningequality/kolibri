@@ -41,7 +41,7 @@ import isArray from 'lodash/isArray';
 import isBoolean from 'lodash/isBoolean';
 import isDate from 'lodash/isDate';
 import isFunction from 'lodash/isFunction';
-import isObject from 'lodash/isObject';
+import isPlainObject from 'lodash/isPlainObject';
 import isNumber from 'lodash/isNumber';
 import isString from 'lodash/isString';
 import isSymbol from 'lodash/isSymbol';
@@ -75,9 +75,10 @@ function _validateObjectData(data, options, dataKey) {
 
   // object sub-spec
   if (hasData && options.spec) {
-    if (!isObject(data) && !isArray(data)) {
+    if (!isPlainObject(data) && !isArray(data)) {
       return _fail('Only objects or arrays can have sub-specs', dataKey, data);
     }
+
     // If it is an array, we will validate each item in the array
     if (isArray(data)) {
       for (const item of data) {
@@ -86,7 +87,10 @@ function _validateObjectData(data, options, dataKey) {
         }
       }
     }
-    if (isObject(data) && !isArray(data) && !validateObject(data, options.spec)) {
+
+    // Here we know it is an Object, but we need to be sure it isn't an Array to avoid
+    // checking it again after we already validated the Array in the block above.
+    if (isPlainObject(data) && !validateObject(data, options.spec)) {
       return _fail('Validator sub-spec failed', dataKey, data);
     }
   }
@@ -106,7 +110,7 @@ function _validateObjectData(data, options, dataKey) {
       return _fail('Expected Date', dataKey, data);
     } else if (options.type === Function && !isFunction(data)) {
       return _fail('Expected Function', dataKey, data);
-    } else if (options.type === Object && !isObject(data)) {
+    } else if (options.type === Object && !isPlainObject(data)) {
       return _fail('Expected Object', dataKey, data);
     } else if (options.type === Number && !isNumber(data)) {
       return _fail('Expected Number', dataKey, data);
@@ -150,7 +154,7 @@ export function validateObject(object, spec) {
   let isValid = true;
   for (const dataKey in spec) {
     const options = spec[dataKey];
-    if (!isObject(options)) {
+    if (!isPlainObject(options)) {
       logging.error(`Expected an Object for '${dataKey}' in spec. Got:`, options);
       isValid = false;
       continue;

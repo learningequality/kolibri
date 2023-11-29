@@ -10,7 +10,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'FacilitiesConfigPage' }
+            params: { subtopicName: 'FacilityConfigPage' }
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -213,7 +213,7 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { createTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';
@@ -273,7 +273,11 @@
       ChangePinModal,
       RemovePinModal,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return { windowIsSmall };
+    },
     data() {
       return {
         showModal: false,

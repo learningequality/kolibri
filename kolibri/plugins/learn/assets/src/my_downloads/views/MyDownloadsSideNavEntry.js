@@ -2,6 +2,7 @@ import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants'
 import navComponents from 'kolibri.utils.navComponents';
 import coreStrings from 'kolibri.utils.coreStrings';
 import urls from 'kolibri.urls';
+import plugin_data from 'plugin_data';
 
 const component = {
   name: 'MyDownloadsSideNavEntry',
@@ -17,6 +18,8 @@ const component = {
   section: NavComponentSections.ACCOUNT,
 };
 
-navComponents.register(component);
+if (plugin_data.allowLearnerDownloads) {
+  navComponents.register(component);
+}
 
 export default component;

@@ -36,7 +36,6 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import some from 'lodash/some';
   import sumBy from 'lodash/sumBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -44,7 +43,7 @@
 
   export default {
     name: 'TasksBar',
-    mixins: [commonCoreStrings, responsiveWindowMixin, commonTaskStrings],
+    mixins: [commonCoreStrings, commonTaskStrings],
     props: {
       tasks: {
         type: Array,

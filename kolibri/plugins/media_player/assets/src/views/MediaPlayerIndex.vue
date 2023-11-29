@@ -89,7 +89,7 @@
   import { languageIdToCode } from 'kolibri.utils.i18n';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import Settings from '../utils/settings';
   import { ReplayButton, ForwardButton } from './customButtons';
   import MediaPlayerFullscreen from './MediaPlayerFullscreen';
@@ -113,7 +113,11 @@
   export default {
     name: 'MediaPlayerIndex',
     components: { MediaPlayerFullscreen, MediaPlayerTranscript },
-    mixins: [commonCoreStrings, responsiveWindowMixin, responsiveElementMixin],
+    mixins: [commonCoreStrings, responsiveElementMixin],
+    setup() {
+      const { windowIsSmall, windowIsPortrait } = useKResponsiveWindow();
+      return { windowIsSmall, windowIsPortrait };
+    },
     data: () => ({
       dummyTime: 0,
       progressStartingPoint: 0,
@@ -202,7 +206,6 @@
       defaultDuration() {
         return this.player.duration();
       },
-      /* eslint-enable kolibri/vue-no-unused-properties */
       transcriptWrap() {
         return this.windowIsPortrait || (!this.isFullscreen && this.windowIsSmall);
       },
@@ -261,7 +264,7 @@
           textTrackDisplay: true,
           bigPlayButton: true,
           preload: 'metadata',
-          playbackRates: [0.5, 1.0, 1.25, 1.5, 2.0],
+          playbackRates: [0.5, 0.75, 1.0, 1.25, 1.5, 2.0],
           controlBar: {
             children: [
               { name: 'PlayToggle' },
@@ -652,6 +655,7 @@
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
+    position: absolute;
     top: 0;
     width: 33.333%;
 
@@ -661,6 +665,7 @@
   }
 
   .wrapper.transcript-wrap .media-player-transcript {
+    position: relative;
     left: 0;
     height: #{$transcript-wrap-height};
 

@@ -1,15 +1,8 @@
 import { get } from '@vueuse/core';
-import client from 'kolibri.client';
-import urls from 'kolibri.urls';
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
 import useUser from 'kolibri.coreVue.composables.useUser';
-import logger from 'kolibri.lib.logging';
 import useChannels from '../composables/useChannels';
-import { setClasses, setResumableContentNodes } from '../composables/useLearnerResources';
-import { setContentNodeProgress } from '../composables/useContentNodeProgress';
-import { showTopicsTopic, showTopicsContent } from '../modules/topicsTree/handlers';
-import { showLibrary } from '../modules/recommended/handlers';
 import { PageNames, ClassesPageNames, KolibriStudioId } from '../constants';
 import LibraryPage from '../views/LibraryPage';
 import HomePage from '../views/HomePage';
@@ -20,29 +13,16 @@ import BookmarkPage from '../views/BookmarkPage.vue';
 import ExploreLibrariesPage from '../views/ExploreLibrariesPage';
 import classesRoutes from './classesRoutes';
 
-const { channels, channelsMap } = useChannels();
+const { channelsMap, fetchChannels } = useChannels();
 const { isUserLoggedIn } = useUser();
 
-function unassignedContentGuard() {
+function unassignedContentGuard(next) {
   const { canAccessUnassignedContent } = store.getters;
   if (!canAccessUnassignedContent) {
     // If there are no memberships and it is allowed, redirect to topics page
-    return router.replace({ name: ClassesPageNames.ALL_CLASSES });
+    return next({ name: ClassesPageNames.ALL_CLASSES, replace: true });
   }
   return false;
-}
-
-function hydrateHomePage() {
-  return client({ url: urls['kolibri:kolibri.plugins.learn:homehydrate']() }).then(response => {
-    setClasses(response.data.classrooms);
-    setResumableContentNodes(
-      response.data.resumable_resources.results || [],
-      response.data.resumable_resources.more || null
-    );
-    for (const progress of response.data.resumable_resources_progress) {
-      setContentNodeProgress(progress);
-    }
-  });
 }
 
 const optionalDeviceIdPathSegment = `/:deviceId([a-f0-9]{32}|${KolibriStudioId})?`;
@@ -51,40 +31,23 @@ export default [
   {
     name: PageNames.ROOT,
     path: '/',
-    handler: () => {
-      if (get(isUserLoggedIn) && get(channels).length) {
-        return router.replace({ name: PageNames.HOME });
+    redirect: () => {
+      if (get(isUserLoggedIn)) {
+        return { name: PageNames.HOME, replace: true };
       }
-      return router.replace({ name: PageNames.LIBRARY });
+      return { name: PageNames.LIBRARY, replace: true };
     },
   },
   {
     name: PageNames.HOME,
     path: '/home',
     component: HomePage,
-    handler() {
-      if (!get(channels) || !get(channels).length) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
-        return;
-      }
-
+    handler(to, from, next) {
       if (!get(isUserLoggedIn)) {
-        router.replace({ name: PageNames.LIBRARY });
+        next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
-      return store.dispatch('loading').then(() => {
-        // force fetch classes and resumable content nodes to make sure that the home
-        // page is up-to-date when navigating to other 'Learn' pages and then back
-        // to the home page
-        return hydrateHomePage()
-          .then(() => {
-            store.commit('SET_PAGE_NAME', PageNames.HOME);
-            store.dispatch('notLoading');
-          })
-          .catch(error => {
-            return store.dispatch('handleApiError', error);
-          });
-      });
+      store.commit('CORE_SET_PAGE_LOADING', true);
     },
   },
   // Next class routes under home page
@@ -97,19 +60,14 @@ export default [
   {
     name: PageNames.LIBRARY,
     path: '/library' + optionalDeviceIdPathSegment,
-    handler: to => {
-      if ((!get(channels) || !get(channels).length) && !get(isUserLoggedIn)) {
-        router.replace({ name: PageNames.CONTENT_UNAVAILABLE });
+    handler: (to, from, next) => {
+      if (unassignedContentGuard(next)) {
         return;
       }
-
-      if (unassignedContentGuard()) {
+      if (!get(isUserLoggedIn) && to.params.deviceId) {
+        next({ name: PageNames.LIBRARY, replace: true });
         return;
       }
-      showLibrary(store, to.query, to.params.deviceId).catch(e => {
-        logger.error(e);
-        router.replace({ name: PageNames.ROOT });
-      });
     },
     component: LibraryPage,
     props: route => {
@@ -131,15 +89,22 @@ export default [
   {
     // Handle historic channel page with redirect
     path: '/topics/:channel_id',
-    redirect: to => {
-      const { channel_id } = to.params;
-      const id = get(channelsMap)[channel_id].root;
-      return {
-        name: PageNames.TOPICS_TOPIC,
-        params: {
-          id,
-        },
-      };
+    handler: to => {
+      return fetchChannels().then(() => {
+        const { channel_id } = to.params;
+        const channel = get(channelsMap)[channel_id];
+        if (channel) {
+          const id = get(channelsMap)[channel_id].root;
+          router.replace({
+            name: PageNames.TOPICS_TOPIC,
+            params: {
+              id,
+            },
+          });
+          return;
+        }
+        router.replace({ name: PageNames.ROOT });
+      });
     },
     component: TopicsPage,
   },
@@ -153,19 +118,10 @@ export default [
   {
     name: PageNames.TOPICS_TOPIC_SEARCH,
     path: `/topics${optionalDeviceIdPathSegment}/t/:id/search`,
-    handler: (toRoute, fromRoute) => {
-      if (unassignedContentGuard()) {
+    handler: (toRoute, fromRoute, next) => {
+      if (unassignedContentGuard(next)) {
         return;
       }
-      // If navigation is triggered by a custom navigation updating the
-      // context query param, do not run the handler
-      if (toRoute.params.id === fromRoute.params.id) {
-        return;
-      }
-      showTopicsTopic(store, toRoute).catch(e => {
-        logger.error(e);
-        router.replace({ name: PageNames.ROOT });
-      });
     },
     component: TopicsPage,
     props: true,
@@ -173,19 +129,10 @@ export default [
   {
     name: PageNames.TOPICS_TOPIC,
     path: `/topics${optionalDeviceIdPathSegment}/t/:id/:subtopic?/folders`,
-    handler: (toRoute, fromRoute) => {
-      if (unassignedContentGuard()) {
+    handler: (toRoute, fromRoute, next) => {
+      if (unassignedContentGuard(next)) {
         return;
       }
-      // If navigation is triggered by a custom navigation updating the
-      // context query param, do not run the handler
-      if (toRoute.params.id === fromRoute.params.id) {
-        return;
-      }
-      showTopicsTopic(store, toRoute).catch(e => {
-        logger.error(e);
-        router.replace({ name: PageNames.ROOT });
-      });
     },
     component: TopicsPage,
     props: true,
@@ -193,24 +140,19 @@ export default [
   {
     name: PageNames.TOPICS_CONTENT,
     path: `/topics${optionalDeviceIdPathSegment}/c/:id`,
-    handler: toRoute => {
-      showTopicsContent(store, toRoute.params.id, toRoute.params.deviceId).catch(e => {
-        logger.error(e);
-        router.replace({ name: PageNames.ROOT });
-      });
-    },
     component: TopicsContentPage,
     props: true,
   },
   {
     name: PageNames.BOOKMARKS,
     path: '/bookmarks',
-    handler: () => {
-      if (unassignedContentGuard()) {
+    handler: (to, from, next) => {
+      if (unassignedContentGuard(next)) {
         return;
       }
       store.commit('SET_PAGE_NAME', PageNames.BOOKMARKS);
       store.commit('CORE_SET_PAGE_LOADING', false);
+      next();
     },
     component: BookmarkPage,
   },
@@ -218,12 +160,17 @@ export default [
     name: PageNames.EXPLORE_LIBRARIES,
     path: '/explore_libraries',
     component: ExploreLibrariesPage,
-    handler: () => {
-      if (!get(isUserLoggedIn)) {
-        router.replace({ name: PageNames.LIBRARY });
+    handler: (to, from, next) => {
+      if (unassignedContentGuard(next)) {
         return;
       }
-      unassignedContentGuard();
+      if (!get(isUserLoggedIn)) {
+        next({ name: PageNames.LIBRARY, replace: true });
+        return;
+      }
+      store.commit('SET_PAGE_NAME', PageNames.EXPLORE_LIBRARIES);
+      store.commit('CORE_SET_PAGE_LOADING', false);
+      next();
     },
   },
   {

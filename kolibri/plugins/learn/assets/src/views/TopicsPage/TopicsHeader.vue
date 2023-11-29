@@ -27,9 +27,9 @@
         :layout12="{ span: 12, alignment: 'auto' }"
       >
         <h1 class="title" data-test="header-title">
-          <TextTruncator
+          <TextTruncatorCss
             :text="title"
-            :maxHeight="60"
+            :maxLines="1"
           />
         </h1>
       </KGridItem>
@@ -56,9 +56,10 @@
         :layout8="{ span: thumbnail ? 6 : 8, alignment: 'auto' }"
         :layout12="{ span: thumbnail ? 10 : 12, alignment: 'auto' }"
       >
-        <TextTruncator
+        <TextTruncatorCss
+          class="text-description"
           :text="description"
-          :maxHeight="110"
+          :maxLines="4"
         />
       </KGridItem>
     </KGrid>
@@ -74,8 +75,8 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import TextTruncator from 'kolibri.coreVue.components.TextTruncator';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';
   import commonLearnStrings from './../commonLearnStrings';
 
@@ -84,9 +85,15 @@
     components: {
       ChannelThumbnail,
       KBreadcrumbs,
-      TextTruncator,
+      TextTruncatorCss,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       title: {
         type: String,
@@ -130,6 +137,10 @@
 
   .title {
     margin: 8px 0 16px;
+  }
+
+  .text-description {
+    padding-left: 15px;
   }
 
 </style>

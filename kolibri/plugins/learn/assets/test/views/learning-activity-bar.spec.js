@@ -1,11 +1,25 @@
 import { shallowMount, mount } from '@vue/test-utils';
+import Vuex from 'vuex';
 import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
 function makeWrapper({ propsData } = {}) {
-  return mount(LearningActivityBar, { propsData });
+  const store = new Vuex.Store({
+    state: { core: { loading: false } },
+    mutations: {
+      SET_SHOW_COMPLETE_CONTENT_MODAL: jest.fn(),
+    },
+  });
+  // stubbing out KCircularLoader, as using the actual component led to errors related to
+  // Vue Composition API - stub may not be needed once we upgrade to Vue 2.7
+  return mount(LearningActivityBar, {
+    propsData,
+    stubs: ['KCircularLoader'],
+    data: () => ({ windowBreakpoint: 6 }),
+    store,
+  });
 }
 
 describe('LearningActivityBar', () => {
@@ -293,7 +307,7 @@ describe('LearningActivityBar', () => {
 
       it(`doesn't show the downloading loader by default`, () => {
         const wrapper = makeWrapper();
-        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeFalsy();
+        expect(wrapper.find("[data-test='downloadingLoader']").vm.shouldShow).toBeFalsy();
       });
 
       it(`shows the downloading loader for truthy 'isDownloading'`, () => {
@@ -302,7 +316,7 @@ describe('LearningActivityBar', () => {
             isDownloading: true,
           },
         });
-        expect(wrapper.find("[data-test='downloadingLoader'] svg").exists()).toBeTruthy();
+        expect(wrapper.find("[data-test='downloadingLoader']").vm.shouldShow).toBeTruthy();
       });
     });
   });

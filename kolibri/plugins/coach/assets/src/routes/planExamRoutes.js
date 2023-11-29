@@ -1,7 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import { PageNames } from '../constants';
 import {
-  showExamCreationRootPage,
   showExamCreationTopicPage,
   showExamCreationBookmarksPage,
   showExamCreationAllBookmarks,
@@ -36,11 +35,22 @@ export default [
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,
-    path: '/:classId/plan/quizzes/new/',
+    path: '/:classId/plan/quizzes/new',
     component: CreateExamPage,
-    handler: toRoute => {
-      showExamCreationRootPage(store, toRoute.params);
-    },
+    children: [
+      {
+        name: PageNames.QUIZ_SECTION_EDITOR,
+        path: ':section_id/edit',
+      },
+      {
+        name: PageNames.QUIZ_REPLACE_QUESTIONS,
+        path: ':section_id/replace-questions',
+      },
+      {
+        name: PageNames.QUIZ_SELECT_RESOURCES,
+        path: ':section_id/select-resources',
+      },
+    ],
   },
   {
     name: PageNames.EXAM_CREATION_PRACTICE_QUIZ,

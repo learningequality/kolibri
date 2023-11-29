@@ -3,7 +3,8 @@
   <LearnAppBarPage
     :appBarTitle="learnString('learnLabel')"
   >
-    <div id="main" role="main">
+    <KCircularLoader v-if="loading" />
+    <div v-else id="main" role="main">
       <KBreadcrumbs :items="breadcrumbs" :ariaLabel="learnString('classesAndAssignmentsLabel')" />
       <h1 class="classroom-name">
         <KLabeledIcon icon="classes" :label="className" />
@@ -60,9 +61,10 @@
       const activeLessons = computed(() => getClassActiveLessons(get(classId)));
       const activeQuizzes = computed(() => getClassActiveQuizzes(get(classId)));
 
+      let pollTimeoutId;
+
       function schedulePoll() {
-        const timeoutId = setTimeout(pollForUpdates, 30000);
-        return timeoutId;
+        pollTimeoutId = setTimeout(pollForUpdates, 30000);
       }
 
       function pollForUpdates() {
@@ -71,10 +73,8 @@
         });
       }
 
-      let pollTimeoutId;
-
       onBeforeMount(() => {
-        pollTimeoutId = schedulePoll();
+        schedulePoll();
       });
 
       onBeforeUnmount(() => {
@@ -86,6 +86,12 @@
         activeLessons,
         activeQuizzes,
       };
+    },
+    props: {
+      loading: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       breadcrumbs() {

@@ -1,3 +1,4 @@
+import hashlib
 import logging
 import re
 from collections import OrderedDict
@@ -14,8 +15,9 @@ from django.db.models import Subquery
 from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
-from django.utils.cache import patch_response_headers
 from django.utils.decorators import method_decorator
+from django.utils.encoding import force_bytes
+from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.http import etag
@@ -53,7 +55,7 @@ from kolibri.core.content.models import ContentRemovalRequest
 from kolibri.core.content.models import ContentRequestReason
 from kolibri.core.content.models import ContentRequestStatus
 from kolibri.core.content.permissions import CanManageContent
-from kolibri.core.content.tasks import automatic_resource_import
+from kolibri.core.content.tasks import automatic_user_imported_resource_cleanup
 from kolibri.core.content.utils.content_types_tools import (
     renderable_contentnodes_q_filter,
 )
@@ -93,34 +95,29 @@ def get_cache_key(*args, **kwargs):
     return str(ContentCacheKey.get_cache_key())
 
 
-def metadata_cache(some_func):
+def metadata_cache(view_func):
     """
     Decorator for patch_response_headers function
     """
-    # Approximately 1 year
-    # Source: https://stackoverflow.com/a/3001556/405682
-    cache_timeout = 31556926
 
     @etag(get_cache_key)
     def wrapper_func(*args, **kwargs):
-        response = some_func(*args, **kwargs)
         try:
             request = args[0]
             request = kwargs.get("request", request)
         except IndexError:
             request = kwargs.get("request", None)
-        if response.status_code < 400 or response.status_code == 404:
-            # By default cache for 60 seconds to prevent repeated requests
-            # and we are returning a non-error response.
-            # or if there was a 404.
-
-            timeout = 60
-            if "contentCacheKey" in request.GET:
-                # Do long running caching if the contentCacheKey is explicitly
-                # set in the URL.
-                timeout = cache_timeout
-            patch_response_headers(response, cache_timeout=timeout)
-
+        key_prefix = get_cache_key()
+        url_key = hashlib.md5(
+            force_bytes(iri_to_uri(request.build_absolute_uri()))
+        ).hexdigest()
+        cache_key = "{}:{}".format(key_prefix, url_key)
+        response = cache.get(cache_key)
+        if response is None:
+            response = view_func(*args, **kwargs)
+            response.add_post_render_callback(
+                lambda r: cache.set(cache_key, r, timeout=3600)
+            )
         return response
 
     return session_exempt(wrapper_func)
@@ -162,7 +159,6 @@ class RemoteMixin(object):
         baseurl = request.GET[self.remote_url_param]
         qs = request.GET.copy()
         del qs[self.remote_url_param]
-        qs.pop("contentCacheKey", None)
         try:
             validator(baseurl)
         except ValidationError:
@@ -1333,9 +1329,19 @@ class ContentNodeBookmarksViewset(
         return sorted_items
 
 
+class ContentRequestFilter(FilterSet):
+    contentnode_id = UUIDFilter()
+    contentnode_id__in = UUIDInFilter(field_name="contentnode_id")
+
+    class Meta:
+        model = ContentDownloadRequest
+        fields = ("contentnode_id", "contentnode_id__in")
+
+
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSerializer
-
+    filter_backends = (DjangoFilterBackend,)
+    filter_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
 
     values = (
@@ -1362,6 +1368,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
                     source_id=OuterRef("source_id"),
                     contentnode_id=OuterRef("contentnode_id"),
                     requested_at__gte=OuterRef("requested_at"),
+                    reason=OuterRef("reason"),
                 ).exclude(status=ContentRequestStatus.Failed)
             )
         ).filter(has_removal=False)
@@ -1404,7 +1411,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
             content_request.contentnode_id = existing_download_request.contentnode_id
             content_request.save()
 
-        automatic_resource_import.enqueue_if_not()
+        automatic_user_imported_resource_cleanup.enqueue_if_not()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 

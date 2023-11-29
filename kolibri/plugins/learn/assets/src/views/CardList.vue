@@ -37,7 +37,7 @@
               </h3>
               <p
                 v-if="contentNode.description"
-                style="font-size: 14px; marginTop: 4px; marginBottom: 4px;"
+                style="font-size: 14px; margin-top: 4px; margin-bottom: 4px;"
               >
                 <TextTruncatorCss :text="contentNode.description" :maxLines="2" />
               </p>
@@ -103,7 +103,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
   import camelCase from 'lodash/camelCase';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useChannels from '../composables/useChannels';
   import LearningActivityLabel from './LearningActivityLabel';
   import LearningActivityDuration from './LearningActivityDuration';
@@ -118,12 +118,14 @@
       LearningActivityLabel,
       LearningActivityDuration,
     },
-    mixins: [responsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
     setup() {
       const { getChannelThumbnail, getChannelTitle } = useChannels();
+      const { windowIsLarge } = useKResponsiveWindow();
       return {
         getChannelThumbnail,
         getChannelTitle,
+        windowIsLarge,
       };
     },
     props: {

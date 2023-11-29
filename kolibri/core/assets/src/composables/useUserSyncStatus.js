@@ -14,6 +14,7 @@ const deviceStatus = ref(null);
 const deviceStatusSentiment = ref(null);
 const hasDownloads = ref(false);
 const lastDownloadRemoved = ref(null);
+const syncDownloadsInProgress = ref(false);
 const timeoutInterval = computed(() => {
   return get(status) === SyncStatus.QUEUED ? 1000 : 10000;
 });
@@ -30,7 +31,7 @@ export function fetchUserSyncStatus(params) {
       return syncData;
     },
     error => {
-      store.dispatch('handleApiError', error);
+      store.dispatch('handleApiError', { error });
       return error;
     }
   );
@@ -51,6 +52,7 @@ export function pollUserSyncStatusTask() {
       lastDownloadRemoved.value = syncData[0].last_download_removed
         ? new Date(syncData[0].last_download_removed)
         : null;
+      syncDownloadsInProgress.value = syncData[0].sync_downloads_in_progress;
     } else {
       status.value = SyncStatus.NOT_CONNECTED;
     }
@@ -83,5 +85,6 @@ export default function useUserSyncStatus() {
     deviceStatusSentiment,
     hasDownloads,
     lastDownloadRemoved,
+    syncDownloadsInProgress,
   };
 }

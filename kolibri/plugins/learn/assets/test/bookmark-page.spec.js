@@ -1,3 +1,4 @@
+import flushPromises from 'flush-promises';
 import client from 'kolibri.client';
 import { ContentNodeResource } from 'kolibri.resources';
 import { shallowMount } from '@vue/test-utils';
@@ -5,31 +6,23 @@ import BookmarkPage from '../src/views/BookmarkPage';
 import makeStore from './makeStore';
 
 jest.mock('../src/composables/useContentNodeProgress');
+jest.mock('../src/composables/useContentLink');
 jest.mock('kolibri.client');
 jest.mock('kolibri.urls');
 jest.mock('kolibri.resources');
-
-jest.mock('plugin_data', () => {
-  return {
-    __esModule: true,
-    default: {
-      channels: [],
-    },
-  };
-});
 
 describe('Bookmark Page', () => {
   let wrapper;
 
   const fakeBookmarks = [{ bookmark: { id: 1 } }, { bookmark: { id: 2 } }, { bookmark: { id: 3 } }];
 
-  beforeEach(() => {
-    ContentNodeResource.fetchBookmarks.mockResolvedValue({ results: fakeBookmarks });
-    wrapper = shallowMount(BookmarkPage, { store: makeStore() });
-    wrapper.setData({
-      loading: false,
+  beforeEach(async () => {
+    ContentNodeResource.fetchBookmarks.mockResolvedValue({
+      results: fakeBookmarks,
       more: { available: true, limit: 25 },
     });
+    wrapper = shallowMount(BookmarkPage, { store: makeStore() });
+    await flushPromises();
   });
 
   it('smoke test', () => {
