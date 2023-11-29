@@ -240,6 +240,7 @@ class ChannelImport(object):
     ):
         self.channel_id = channel_id
         self.channel_version = channel_version
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
 
         self.cancel_check = cancel_check
 
@@ -952,7 +953,6 @@ class ChannelImport(object):
 
     def run_and_annotate(self):
         try:
-            self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
             old_order = self.current_channel.order
         except ChannelMetadata.DoesNotExist:
             self.current_channel = None
