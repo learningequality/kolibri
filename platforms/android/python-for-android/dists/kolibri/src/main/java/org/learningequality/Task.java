@@ -59,6 +59,7 @@ public class Task {
             Log.v(TAG, "Tagging work request as long running, ID: " + id);
         }
         workRequestBuilder.setInputData(data);
+        workRequestBuilder.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS);
         OneTimeWorkRequest workRequest = workRequestBuilder.build();
         workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
     }

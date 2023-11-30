@@ -105,7 +105,6 @@ public class PythonActivity extends Activity {
 
         this.mActivity = this;
         this.showLoadingScreen();
-        this.createNotificationChannels();
         new UnpackFilesTask().execute(getAppRoot());
     }
 
@@ -565,30 +564,6 @@ public class PythonActivity extends Activity {
 
     public void requestPermissions(String[] permissions) {
         requestPermissionsWithRequestCode(permissions, 1);
-    }
-
-    private void createNotificationChannels() {
-        // Create the NotificationChannel, but only on API 26+ because
-        // the NotificationChannel class is not in the Support Library.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Context context = getApplicationContext();
-            NotificationChannel serviceChannel = new NotificationChannel(
-                    context.getString(R.string.notification_service_channel_id),
-                    context.getString(R.string.notification_service_channel_title),
-                    NotificationManager.IMPORTANCE_LOW
-            );
-            NotificationChannel taskChannel = new NotificationChannel(
-                    context.getString(R.string.notification_default_channel_id),
-                    context.getString(R.string.notification_default_channel_title),
-                    NotificationManager.IMPORTANCE_DEFAULT
-            );
-
-            // Register the channel with the system. You can't change the importance
-            // or other notification behaviors after this.
-            NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-            notificationManager.createNotificationChannel(serviceChannel);
-            notificationManager.createNotificationChannel(taskChannel);
-        }
     }
 }
 

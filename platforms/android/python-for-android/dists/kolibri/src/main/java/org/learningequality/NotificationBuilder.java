@@ -21,13 +21,22 @@ public class NotificationBuilder extends NotificationCompat.Builder {
 
     public NotificationBuilder(Context context, int channelRef) {
         this(context, NotificationRef.getChannelId(context, channelRef));
+
+        // defaults for service notification channel
+        if (channelRef == NotificationRef.REF_CHANNEL_SERVICE) {
+            setOngoing(true);
+            setCategory(NotificationCompat.CATEGORY_SERVICE);
+            setContentTitle(context.getString(R.string.notification_service_channel_content));
+        } else if (channelRef == NotificationRef.REF_CHANNEL_DEFAULT) {
+            setCategory(NotificationCompat.CATEGORY_PROGRESS);
+        }
+    }
+
+    public NotificationBuilder(Context context, NotificationRef ref) {
+        this(context, ref.getChannelRef());
     }
 
     public NotificationBuilder(Context context) {
         this(context, NotificationRef.REF_CHANNEL_DEFAULT);
-    }
-
-    public NotificationBuilder(Context context, NotificationRef ref) {
-        this(context, ref.getChannelId(context));
     }
 }

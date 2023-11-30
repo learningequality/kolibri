@@ -38,10 +38,6 @@ public final class NotificationRef {
         return tag;
     }
 
-    public String getChannelId(Context context) {
-        return getChannelId(context, channelRef);
-    }
-
     public static String getChannelId(Context context, int channelRef) {
         switch (channelRef) {
             case REF_CHANNEL_SERVICE:

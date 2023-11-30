@@ -1,6 +1,5 @@
 package org.learningequality.Kolibri;
 
-import android.app.Notification;
 import android.content.Context;
 import android.util.Log;
 

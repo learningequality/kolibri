@@ -21,6 +21,8 @@ abstract public class PythonWorker extends RemoteListenableWorker {
 
     public static final String TAG_LONG_RUNNING = "worker_long_running";
 
+    public static final int MAX_WORKER_RETRIES = 3;
+
     // Python environment variables
     private String androidPrivate;
     private String androidArgument;
@@ -101,7 +103,13 @@ abstract public class PythonWorker extends RemoteListenableWorker {
                             completer.set(Result.failure());
                         }
                     }  catch (Exception e) {
-                        completer.setException(e);
+                        if (getRunAttemptCount() > MAX_WORKER_RETRIES) {
+                            Log.e(TAG, id + " Exception in remote python work", e);
+                            completer.setException(e);
+                        } else {
+                            Log.w(TAG, id + " Exception in remote python work, scheduling retry", e);
+                            completer.set(Result.retry());
+                        }
                     } finally {
                         cleanup();
                     }

@@ -15,13 +15,17 @@ public interface Notifier {
         sendNotification(null, null, -1, -1);
     }
 
+    default NotificationBuilder getNotificationBuilder(NotificationRef ref) {
+        return new NotificationBuilder(getApplicationContext(), ref);
+    }
+
     default void sendNotification(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
         NotificationRef ref = getNotificationRef();
         if (ref == null) {
             return;
         }
         Context context = getApplicationContext();
-        NotificationBuilder builder = new NotificationBuilder(context, ref);
+        NotificationBuilder builder = getNotificationBuilder(ref);
         if (notificationTitle != null) {
             builder.setContentTitle(notificationTitle);
         }
