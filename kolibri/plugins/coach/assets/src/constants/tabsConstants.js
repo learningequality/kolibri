@@ -19,3 +19,9 @@ export const ReportsGroupTabs = {
   MEMBERS: 'tabMembers',
   ACTIVITY: 'tabActivity',
 };
+
+export const LEARNERS_TABS_ID = 'reportLearners';
+export const LearnersTabs = {
+  REPORTS: 'tabReports',
+  ACTIVITY: 'tabActivity',
+};
