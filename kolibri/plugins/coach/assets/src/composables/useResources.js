@@ -1,8 +1,10 @@
 import { ref, onMounted } from 'kolibri.lib.vueCompositionApi';
-import { ChannelResource, ContentNodeResource } from 'kolibri.resources';
+import { ChannelResource, ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { set } from '@vueuse/core';
+// import pickBy from 'lodash/pickBy';
+import uniq from 'lodash/uniq';
 // import store from 'kolibri.coreVue.vuex.store';
 
 // import { store } from 'vuex';
@@ -12,12 +14,9 @@ export function useResources() {
   const channels = ref([]);
   const bookmarks = ref([]);
   const channelTopics = ref([]);
-  const contentList = ref([]);  
-
-
+  const contentList = ref([]);
 
   function fetchChannelResource() {
-
     ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
       response => {
         set(
@@ -48,8 +47,7 @@ export function useResources() {
         resolve([]);
         return;
       }
-      const topicsNumAssessmentDescendantsPromise
-      = ContentNodeResource.fetchDescendantsAssessments(
+      const topicsNumAssessmentDescendantsPromise = ContentNodeResource.fetchDescendantsAssessments(
         topicIds
       );
 
@@ -73,8 +71,7 @@ export function useResources() {
         ).then(response => {
           response.data.forEach(exercise => {
             channelTopics.value.push(exercise);
-            const topic = topicsWithExerciseDescendants.find(t =>
-            t.id === exercise.ancestor_id);
+            const topic = topicsWithExerciseDescendants.find(t => t.id === exercise.ancestor_id);
             topic.exercises.push(exercise);
           });
           channels.value = channelTopics.value;
@@ -86,43 +83,80 @@ export function useResources() {
 
   function filterAndAnnotateContentList(childNodes) {
     return new Promise(resolve => {
-      if(childNodes){
+      if (childNodes) {
         const childTopics = childNodes.filter(({ kind }) => kind === ContentNodeKinds.TOPIC);
         const topicIds = childTopics.map(({ id }) => id);
         const topicsThatHaveExerciseDescendants = _getTopicsWithExerciseDescendants(topicIds);
-          topicsThatHaveExerciseDescendants.then(topics => {
-            const childNodesWithExerciseDescendants = childNodes
-              .map(childNode => {
-                const index = topics.findIndex(topic => topic.id === childNode.id);
-                if (index !== -1) {
-                  return { ...childNode, ...topics[index] };
-                }
-                return childNode;
-              }).filter(childNode => {
-              if (childNode.kind === ContentNodeKinds.TOPIC &&
-              (childNode.numAssessments || 0) < 1) {
+        topicsThatHaveExerciseDescendants.then(topics => {
+          const childNodesWithExerciseDescendants = childNodes
+            .map(childNode => {
+              const index = topics.findIndex(topic => topic.id === childNode.id);
+              if (index !== -1) {
+                return { ...childNode, ...topics[index] };
+              }
+              return childNode;
+            })
+            .filter(childNode => {
+              if (
+                childNode.kind === ContentNodeKinds.TOPIC &&
+                (childNode.numAssessments || 0) < 1
+              ) {
                 return false;
               }
-                return true;
-              });
-              contentList.value = childNodesWithExerciseDescendants.map(node => ({
-                ...node,
-                thumbnail: getContentNodeThumbnail(node),
-              }));
-              channels.value = contentList.value;
-            resolve(contentList);
-          });
+              return true;
+            });
+          contentList.value = childNodesWithExerciseDescendants.map(node => ({
+            ...node,
+            thumbnail: getContentNodeThumbnail(node),
+          }));
+          channels.value = contentList.value;
+          resolve(contentList);
+        });
       }
     });
   }
 
+  function showChannelLevel(store, params, query = {}) {
+    let kinds;
+    if (query.kind) {
+      kinds = [query.kind];
+    } else {
+      kinds = [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC];
+    }
+
+    ContentNodeSearchResource.fetchCollection({
+      getParams: {
+        search: '',
+        kind_in: kinds,
+        // ...pickBy({ channel_id: query.channel }),
+      },
+    }).then(results => {
+      return filterAndAnnotateContentList(results.results).then(contentList => {
+        const searchResults = {
+          ...results,
+          results: contentList,
+          content_kinds: results.content_kinds.filter(kind =>
+            [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE].includes(kind)
+          ),
+          contentIdsFetched: uniq(results.results.map(({ content_id }) => content_id)),
+        };
+        // return showExamCreationPage(store, {
+        //   classId: params.classId,
+        //   contentList: contentList,
+        //   pageName: PageNames.EXAM_CREATION_SEARCH,
+        //   searchResults,
+        // });
+        this.channelTopics.value = searchResults.results;
+        console.log(searchResults.results);
+      });
+    });
+  }
 
   onMounted(() => {
     fetchChannelResource();
     fetchBookMarkedResource();
     filterAndAnnotateContentList();
     _getTopicsWithExerciseDescendants([]);
-
   });
 
   return {
@@ -132,6 +166,7 @@ export function useResources() {
     contentList,
     channelTopics,
     filterAndAnnotateContentList,
-    _getTopicsWithExerciseDescendants
+    _getTopicsWithExerciseDescendants,
+    showChannelLevel,
   };
 }

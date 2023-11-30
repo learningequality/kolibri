@@ -4,15 +4,16 @@
     <h5
       class="title-style"
     >
-      <KIcon
-        icon="back"
-      />
+      <KRouterLink
+        :to="goBack"
+      >
+        <KIcon
+          icon="back"
+        />
+      </KRouterLink>
       Select folders or exercises from these channels
     </h5>
     <p>Select from bookmarks</p>
-
-    <p>{{ $route.params.topic_id }}</p>
-    <p>{{ channels }}</p>
 
     <!-- <div v-if="bookmarksRoute">
       <strong>
@@ -35,8 +36,7 @@
         @moreresults="handleMoreResults"
       />
     </div> -->
-    <div
-    >
+    <div>
       <div @click="lessonCardClicked">
         <KRouterLink
           v-if="bookmarksCount"
@@ -104,7 +104,7 @@
 
 <script>
 
-  import { ContentNodeKinds , ContentNodeResource} from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, ContentNodeResource } from 'kolibri.coreVue.vuex.constants';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -112,14 +112,14 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PageNames } from '../../../constants';
-  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue'
+  import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import { useResources } from './../../../composables/useResources';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   // import BookMarkedResource from './BookMarkedResource.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   // import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
   import LessonsSearchFilters from './../LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
-  // import  ResourceSelectionBreadcrumbs 
+  // import  ResourceSelectionBreadcrumbs
   // from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -132,21 +132,17 @@
       // ResourceSelection,
       // ResourceSelectionBreadcrumbs,
       // LessonContentCard,
-      LessonsSearchFilters
-      
+      LessonsSearchFilters,
     },
     inject: ['quizForge'],
-    mixins:[commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
-      const { 
-        sectionSettings$,
-        numberOfSelectedBookmarks$ 
-      } = enhancedQuizManagementStrings;
-      const { 
-        bookmarks, 
+      const { sectionSettings$, numberOfSelectedBookmarks$ } = enhancedQuizManagementStrings;
+      const {
+        bookmarks,
         channelTopics,
         channels,
-        _getTopicsWithExerciseDescendants 
+        _getTopicsWithExerciseDescendants,
       } = useResources();
       const { windowIsSmall } = useKResponsiveWindow();
 
@@ -173,9 +169,8 @@
           kind: this.$route.query.kind || null,
           role: this.$route.query.role || null,
         },
-        visibleResources:[],
-        showChannels:true,
-
+        visibleResources: [],
+        showChannels: true,
       };
     },
     computed: {
@@ -185,9 +180,7 @@
           return this.channels;
         }
 
-        const list = this.channels
-          ? this.channels
-          : this.bookmarksList;
+        const list = this.channels ? this.channels : this.bookmarksList;
         return list.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
@@ -221,7 +214,7 @@
           Boolean(this.workingResources.find(resource => resource.contentnode_id === id));
       },
       selectionMetadata(/*content*/) {
-        return function(){};
+        return function() {};
         // let count = 0;
         // let total = 0;
         // if (this.ancestorCounts[content.id]) {
@@ -241,20 +234,25 @@
       },
       addableContent() {
         // Content in the topic that can be added if 'Select All' is clicked
-        const list = this.quizForge.channels.value
-          ? this.quizForge.channels.value
-          : this.bookmarksList;
+        const list = this.channels ? this.channels : this.bookmarksList;
         return list.filter(
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
-    }, 
+      goBack() {
+        return {
+          name: PageNames.QUIZ_SECTION_EDITOR,
+          params: {
+            section_id: this.$route.params.section_id,
+          },
+        };
+      },
+    },
 
     watch: {
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
-        
       },
       filters(newVal) {
         const newQuery = {
@@ -262,26 +260,25 @@
           ...newVal,
         };
 
-        
         this.$router.push({
           query: pickBy(newQuery),
         });
       },
     },
-    beforeEnter (to, from, next) {
+    beforeEnter(to, from, next) {
       console.log(to);
       console.log(from);
       console.log(to.params.topic_id);
-      if(to.params.topic_id){
-        this.showChannelQuizCreationTopicPage(this.$store,to.params).then(() => {
+      if (to.params.topic_id) {
+        this.showChannelQuizCreationTopicPage(this.$store, to.params).then(() => {
           next();
         });
       }
     },
+
     beforeRouteLeave(to, from, next) {
       // Block the UI and show a notification in case last save takes too long
       this.isExiting = true;
-      
 
       // If the working resources array hasn't changed at least once,
       // just exit without autosaving
@@ -320,16 +317,15 @@
       this.bookmarksCount = this.getBookmarks();
     },
     mounted() {
-      if(this.quizForge.channels.value.length > 0){
+      if (this.quizForge.channels.value.length > 0) {
         this.visibleResources = this.quizForge.channels.value;
-      }else{
-        this.visibleResources =[];
+      } else {
+        this.visibleResources = [];
       }
 
       setTimeout(() => {
         this.checkRoute();
       }, 1000);
-      
     },
     methods: {
       /** @public */
@@ -350,7 +346,7 @@
       //   return '';
       // },
       getBookmarks() {
-          return this.bookmarks.length;
+        return this.bookmarks.length;
       },
       lessonCardClicked() {
         this.showChannels = false;
@@ -361,9 +357,13 @@
             name: PageNames.SELECT_FROM_RESOURCE,
             params: {
               topic_id: content.id,
+              classId: this.$route.params.classId,
+              section_id: this.$route.params.section_id,
             },
           };
         }
+
+        return null; // or return {} if you prefer an empty object
       },
       handleSearchTerm(searchTerm) {
         const query = {
@@ -419,8 +419,8 @@
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
       },
-      checkRoute(){
-        if(this.$route.params.topic_id){
+      checkRoute() {
+        if (this.$route.params.topic_id) {
           this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
         }
       },
@@ -435,31 +435,31 @@
               contains_quiz: true,
             },
           });
-        const loadRequirements = [topicNodePromise, childNodesPromise];
+          const loadRequirements = [topicNodePromise, childNodesPromise];
 
-        return Promise.all(loadRequirements).then(([/*topicNoitde*/, childNodes]) => {
-          this.filterAndAnnotateContentList(childNodes);
-          // return filterAndAnnotateContentList(childNodes).then(contentList => {
-          //   store.commit('SET_TOOLBAR_ROUTE', {
-          //     name: PageNames.EXAMS,
-          //   });
+          return Promise.all(loadRequirements).then(([, /*topicNoitde*/ childNodes]) => {
+            this.filterAndAnnotateContentList(childNodes);
+            // return filterAndAnnotateContentList(childNodes).then(contentList => {
+            //   store.commit('SET_TOOLBAR_ROUTE', {
+            //     name: PageNames.EXAMS,
+            //   });
 
-          //   return showExamCreationPage(store, {
-          //     classId: params.classId,
-          //     contentList,
-          //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
-          //     ancestors: [...topicNode.ancestors, topicNode],
-          //   });
-          // });
+            //   return showExamCreationPage(store, {
+            //     classId: params.classId,
+            //     contentList,
+            //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+            //     ancestors: [...topicNode.ancestors, topicNode],
+            //   });
+            // });
+          });
         });
-    });
-  }
+      },
       // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {
       //     return this.quizForge.channels.value;
       //   }
-      //   const list = 
+      //   const list =
       // this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
       //   return list.filter(contentNode => {
       //     let passesFilters = true;
@@ -473,9 +473,7 @@
       //   });
       // },
     },
-    $trs: {
-     
-    },
+    $trs: {},
   };
 
 </script>

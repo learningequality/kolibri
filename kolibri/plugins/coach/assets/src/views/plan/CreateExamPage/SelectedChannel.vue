@@ -2,10 +2,11 @@
 
   <div class="">
     <div class="">
-      <KButton
-        icon="back"
-        @click="goBack()"
-      />
+      <KRouterLink
+        :to="goBack"
+      >
+        <KIcon icon="back" />
+      </KRouterLink>
       {{ selectFoldersOrExercises$() }}
     </div>
 
@@ -39,7 +40,7 @@
 <script>
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { mapState } from 'vuex';
+  import { mapState, store } from 'vuex';
   import { PageNames } from '../../../constants';
   import { useResources } from '../../../composables/useResources';
   import ResourceSelectionBreadcrumbs from '../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
@@ -58,7 +59,12 @@
         selectFromBookmarks$,
       } = enhancedQuizManagementStrings;
 
-      const { channels,channelTopics, _getTopicsWithExerciseDescendants } = useResources();
+      const {
+        channels,
+        channelTopics,
+        _getTopicsWithExerciseDescendants,
+        showChannelLevel,
+      } = useResources();
 
       return {
         sectionSettings$,
@@ -66,7 +72,8 @@
         selectFromBookmarks$,
         channels,
         channelTopics,
-        _getTopicsWithExerciseDescendants
+        _getTopicsWithExerciseDescendants,
+        showChannelLevel,
       };
     },
     data() {
@@ -117,12 +124,19 @@
       selectionMetadata() {
         return '';
       },
+      goBack() {
+        return {
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          params: {
+            section_id: this.$route.params.section_id,
+            classId: this.$route.params.classId,
+          },
+        };
+      },
     },
     mounted() {
-      console.log(this.topic_id);
-      console.log(this.$route.params.topic_id);
+      this.showChannelLevel(store, this.$route.params, {});
       this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
-      console.log(this.channelTopics);
     },
     methods: {
       // ...mapActions('lessonSummary/resources', ['fetchAdditionalSearchResults']),
@@ -182,12 +196,6 @@
             this.moreResultsState = 'error';
           });
       },
-      goBack(){
-        console.log("clicked");
-        return {
-          name:PageNames.QUIZ_SELECT_RESOURCES,
-        }
-      }
     },
   };
 

@@ -53,16 +53,14 @@ export default [
         children: [
           {
             name: PageNames.SELECT_FROM_RESOURCE,
-            path: ':topic_id',
+            path: ':topic_id/resource',
           },
         ],
       },
       {
         name: PageNames.BOOK_MARKED_RESOURCES,
         path: ':section_id/book-marked-resources',
-        children: [
-          
-        ],
+        children: [],
       },
     ],
   },
