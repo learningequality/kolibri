@@ -99,7 +99,6 @@ export default (DEBUG = false) => {
    * @throws {TypeError} if section is not a valid QuizSection
    **/
   function updateSection({ section_id, ...updates }) {
-    console.log('updating with...', section_id, updates);
     const targetSection = get(allSections).find(section => section.section_id === section_id);
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
