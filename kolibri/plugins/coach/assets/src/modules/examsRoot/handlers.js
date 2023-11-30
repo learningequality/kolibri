@@ -15,6 +15,11 @@ export function showExamsPage(store, classId) {
     // state.classList needs to be set for Copy Exam modal to work
     store.dispatch('setClassList', store.state.classSummary.facility_id),
   ];
+  promises.push(store.dispatch('initClassInfo', classId));
+
+  if (store.getters.isSuperuser && store.state.core.facilities.length === 0) {
+    promises.push(store.dispatch('getFacilities').catch(() => {}));
+  }
 
   const shouldResolve = samePageCheckGenerator(store);
 
