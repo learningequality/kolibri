@@ -51,6 +51,8 @@ jobs:
       with:
         name: ${{ inputs.tar-file-name }}
         path: build_src
+    - name: Update repository indexes
+      run: sudo apt update       
     - name: Install Debian build package dependencies
       run: sudo apt install -y devscripts debhelper dh-python python3-all python3-pytest po-debconf python3-setuptools python3-pip
     - name: Run the build
