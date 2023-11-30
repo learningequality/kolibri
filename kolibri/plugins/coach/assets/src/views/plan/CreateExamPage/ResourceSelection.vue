@@ -11,7 +11,10 @@
     </h5>
     <p>Select from bookmarks</p>
 
-    <div v-if="bookmarksRoute">
+    <p>{{ $route.params.topic_id }}</p>
+    <p>{{ channels }}</p>
+
+    <!-- <div v-if="bookmarksRoute">
       <strong>
         <KRouterLink>
           :text="coreString"('channelsLabel')"
@@ -31,8 +34,9 @@
         @change_content_card="toggleSelected"
         @moreresults="handleMoreResults"
       />
-    </div>
-    <div v-else>
+    </div> -->
+    <div
+    >
       <div @click="lessonCardClicked">
         <KRouterLink
           v-if="bookmarksCount"
@@ -138,14 +142,22 @@
         sectionSettings$,
         numberOfSelectedBookmarks$ 
       } = enhancedQuizManagementStrings;
-      const { bookmarks } = useResources();
+      const { 
+        bookmarks, 
+        channelTopics,
+        channels,
+        _getTopicsWithExerciseDescendants 
+      } = useResources();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
         sectionSettings$,
         numberOfSelectedBookmarks$,
         windowIsSmall,
-        bookmarks
+        bookmarks,
+        channels,
+        channelTopics,
+        _getTopicsWithExerciseDescendants,
       };
     },
     data() {
@@ -170,10 +182,11 @@
       filteredContentList() {
         const { role } = this.filters;
         if (!this.inSearchMode) {
-          return this.quizForge.channels.value;
+          return this.channels;
         }
-        const list = this.quizForge.channels.value
-          ? this.quizForge.channels.value
+
+        const list = this.channels
+          ? this.channels
           : this.bookmarksList;
         return list.filter(contentNode => {
           let passesFilters = true;
@@ -187,7 +200,7 @@
         });
       },
       inSearchMode() {
-        return this.pageName === LessonsPageNames.SELECTION_SEARCH;
+        return this.pageName === PageNames.SELECT_FROM_RESOURCE;
       },
       // inputPlaceHolderStyle() {
       //   return {
@@ -241,18 +254,21 @@
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
         this.debouncedSaveResources();
+        
       },
       filters(newVal) {
         const newQuery = {
           ...this.$route.query,
           ...newVal,
         };
+
+        
         this.$router.push({
           query: pickBy(newQuery),
         });
       },
     },
-    beforeRouteEnter (to, from, next) {
+    beforeEnter (to, from, next) {
       console.log(to);
       console.log(from);
       console.log(to.params.topic_id);
@@ -265,6 +281,7 @@
     beforeRouteLeave(to, from, next) {
       // Block the UI and show a notification in case last save takes too long
       this.isExiting = true;
+      
 
       // If the working resources array hasn't changed at least once,
       // just exit without autosaving
@@ -301,8 +318,6 @@
     created() {
       console.log(this.quizForge.channels.value);
       this.bookmarksCount = this.getBookmarks();
-      
-
     },
     mounted() {
       if(this.quizForge.channels.value.length > 0){
@@ -310,6 +325,10 @@
       }else{
         this.visibleResources =[];
       }
+
+      setTimeout(() => {
+        this.checkRoute();
+      }, 1000);
       
     },
     methods: {
@@ -400,22 +419,26 @@
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
       },
-    showChannelQuizCreationTopicPage(store, params) {
-      return store.dispatch('loading').then(() => {
-        const { topic_id } = params;
-        const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
-        const childNodesPromise = ContentNodeResource.fetchCollection({
-          getParams: {
-            parent: topic_id,
-            kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
-            contains_quiz: true,
-          },
-        });
+      checkRoute(){
+        if(this.$route.params.topic_id){
+          this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
+        }
+      },
+      showChannelQuizCreationTopicPage(store, params) {
+        return store.dispatch('loading').then(() => {
+          const { topic_id } = params;
+          const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
+          const childNodesPromise = ContentNodeResource.fetchCollection({
+            getParams: {
+              parent: topic_id,
+              kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+              contains_quiz: true,
+            },
+          });
         const loadRequirements = [topicNodePromise, childNodesPromise];
 
         return Promise.all(loadRequirements).then(([/*topicNoitde*/, childNodes]) => {
-          console.log(childNodes);
-          this.visibleResources = childNodes;
+          this.filterAndAnnotateContentList(childNodes);
           // return filterAndAnnotateContentList(childNodes).then(contentList => {
           //   store.commit('SET_TOOLBAR_ROUTE', {
           //     name: PageNames.EXAMS,
@@ -429,8 +452,8 @@
           //   });
           // });
         });
-  });
-}
+    });
+  }
       // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {

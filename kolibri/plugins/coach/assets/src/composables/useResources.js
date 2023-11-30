@@ -3,7 +3,7 @@ import { ChannelResource, ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import { set } from '@vueuse/core';
-import store from 'kolibri.coreVue.vuex.store';
+// import store from 'kolibri.coreVue.vuex.store';
 
 // import { store } from 'vuex';
 
@@ -20,7 +20,6 @@ export function useResources() {
 
     ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
       response => {
-        // channels.value = response;
         set(
           channels,
           response.map(chnl => {
@@ -78,6 +77,7 @@ export function useResources() {
             t.id === exercise.ancestor_id);
             topic.exercises.push(exercise);
           });
+          channels.value = channelTopics.value;
           resolve(topicsWithExerciseDescendants);
         });
       });
@@ -105,29 +105,24 @@ export function useResources() {
               }
                 return true;
               });
-              const contentList = childNodesWithExerciseDescendants.map(node => ({
+              contentList.value = childNodesWithExerciseDescendants.map(node => ({
                 ...node,
                 thumbnail: getContentNodeThumbnail(node),
               }));
+              channels.value = contentList.value;
             resolve(contentList);
           });
       }
     });
   }
 
-  function filterLessonResource(lessonId){
-    store.dispatch('lessonSummary/saveLessonResources', {
-      lessonId: lessonId,
-      resources: store.state.lessonSummary.workingResources,
-    }).then((content) => {
-      console.log(content);
-    });
-  }
 
   onMounted(() => {
     fetchChannelResource();
     fetchBookMarkedResource();
     filterAndAnnotateContentList();
+    _getTopicsWithExerciseDescendants([]);
+
   });
 
   return {
@@ -136,6 +131,7 @@ export function useResources() {
     bookmarks,
     contentList,
     channelTopics,
+    filterAndAnnotateContentList,
     _getTopicsWithExerciseDescendants
   };
 }
