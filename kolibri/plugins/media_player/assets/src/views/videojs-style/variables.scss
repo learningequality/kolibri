@@ -21,4 +21,4 @@ $video-player-height-by-width: 100% * $video-player-aspect;
 $video-player-height-vw: $video-player-aspect * 100vw;
 
 // (100% of allowable height) - (video height)
-$transcript-wrap-height: $video-player-max-vh - #{$video-player-height-vw};
+$transcript-wrap-height: calc(#{$video-player-max-vh} - #{$video-player-height-vw});
