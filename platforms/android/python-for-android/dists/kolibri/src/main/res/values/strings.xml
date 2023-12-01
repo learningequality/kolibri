@@ -7,6 +7,9 @@
     <string name="notification_service_channel_id">background_notifications</string>
     <string name="notification_service_channel_title">Background Notifications</string>
     <string name="notification_service_channel_content">Background tasks</string>
+    <string name="notification_service_channel_ticker">A persistent notification of Kolibri\'s background processing</string>
+    <string name="notification_service_channel_action">Manage</string>
     <string name="notification_default_channel_id">task_notifications</string>
     <string name="notification_default_channel_title">Task Notifications</string>
+    <string name="notification_default_channel_ticker">A progress notification of Kolibri\'s background processing</string>
 </resources>

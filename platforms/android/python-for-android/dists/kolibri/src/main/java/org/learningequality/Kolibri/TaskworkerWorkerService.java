@@ -19,14 +19,17 @@ public class TaskworkerWorkerService extends RemoteWorkerService implements Noti
 
     @Override
     public void onCreate() {
+        mService = this;
         Context context = getApplicationContext();
-        Log.v(TAG, "Initializing WorkManager");
-        WorkManager.getInstance(getApplicationContext());
-        super.onCreate();
+        Log.v(TAG, "Initializing task worker service");
         PythonUtil.loadLibraries(
                 new File(context.getApplicationInfo().nativeLibraryDir)
         );
-        mService = this;
+        // Initialize the work manager
+        WorkManager.getInstance(getApplicationContext());
+        super.onCreate();
+        // We could potentially remove this and leave the notification up to long-running workers
+        // bound to the service
         sendNotification();
     }
 

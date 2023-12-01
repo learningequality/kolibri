@@ -52,6 +52,7 @@ public class TaskworkerWorker extends PythonWorker implements Notifier {
             ref = TaskworkerWorkerService.mService.getNotificationRef();
         } else {
             ref = getNotificationRef();
+            Log.w(TAG, "No service found, using worker notification for foreground");
         }
 
         NotificationBuilder builder = new NotificationBuilder(getApplicationContext(), ref);

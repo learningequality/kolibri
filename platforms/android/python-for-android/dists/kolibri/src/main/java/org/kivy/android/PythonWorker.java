@@ -1,5 +1,6 @@
 package org.kivy.android;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -7,11 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
+import androidx.work.impl.utils.futures.SettableFuture;
+import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
+import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.ThreadPoolExecutor;
 
 abstract public class PythonWorker extends RemoteListenableWorker {
     private static final String TAG = "PythonWorker";
@@ -60,75 +65,89 @@ abstract public class PythonWorker extends RemoteListenableWorker {
         return getTags().contains(TAG_LONG_RUNNING);
     }
 
+    protected String getArgument() {
+        String dataArg = getInputData().getString(ARGUMENT_WORKER_ARGUMENT);
+        final String serviceArg;
+        if (dataArg != null) {
+            serviceArg = dataArg;
+        } else {
+            serviceArg = "";
+        }
+        return serviceArg;
+    }
+
+    protected Result doWork() {
+        String id = getId().toString();
+        String arg = getArgument();
+
+        Log.d(TAG, id + " Running with python worker argument: " + arg);
+
+        int res = nativeStart(
+                androidPrivate, androidArgument,
+                workerEntrypoint, pythonName,
+                pythonHome, pythonPath,
+                arg
+        );
+        Log.d(TAG, id + " Finished remote python work: " + res);
+
+        if (res == 0) {
+            return Result.success();
+        }
+
+        return Result.failure();
+    }
+
+    @SuppressLint("RestrictedApi")
     @NonNull
     @Override
     public ListenableFuture<Result> startRemoteWork() {
-        return CallbackToFutureAdapter.getFuture(completer -> {
-            String id = getId().toString();
-            String dataArg = getInputData().getString(ARGUMENT_WORKER_ARGUMENT);
+        SettableFuture<Result> future = SettableFuture.create();
+        String id = getId().toString();
 
-            final String serviceArg;
-            if (dataArg != null) {
-                Log.d(TAG, id + " Setting python worker argument to " + dataArg);
-                serviceArg = dataArg;
-            } else {
-                serviceArg = "";
-            }
+        if (isLongRunning()) {
+            Log.d(TAG, id + " Enabling foreground service for long running task");
+            setForegroundAsync(getForegroundInfo());
+        }
 
-            if (isLongRunning()) {
-                Log.d(TAG, id + " Enabling foreground service for long running task");
-                setForegroundAsync(getForegroundInfo());
-            }
-
-            // The python thread handling the work needs to be run in a
-            // separate thread so that future can be returned. Without
-            // it, any cancellation can't be processed.
-            final Thread pythonThread = new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    Log.d(TAG, id + " Running with python worker argument: " + serviceArg);
-
-                    try {
-                        int res = nativeStart(
-                                androidPrivate, androidArgument,
-                                workerEntrypoint, pythonName,
-                                pythonHome, pythonPath,
-                                serviceArg
-                        );
-                        Log.d(TAG, id + " Finished remote python work: " + res);
-
-                        if (res == 0) {
-                            completer.set(Result.success());
-                        } else {
-                            completer.set(Result.failure());
-                        }
-                    }  catch (Exception e) {
-                        if (getRunAttemptCount() > MAX_WORKER_RETRIES) {
-                            Log.e(TAG, id + " Exception in remote python work", e);
-                            completer.setException(e);
-                        } else {
-                            Log.w(TAG, id + " Exception in remote python work, scheduling retry", e);
-                            completer.set(Result.retry());
-                        }
-                    } finally {
-                        cleanup();
+        // See executor defined in configuration
+        ThreadPoolExecutor executor = (ThreadPoolExecutor) getBackgroundExecutor();
+        // This is somewhat similar to what the plain `Worker` class does, except that we
+        // use `submit` instead of `execute` so we can propagate cancellation
+        // See https://android.googlesource.com/platform/frameworks/support/+/60ae0eec2a32396c22ad92502cde952c80d514a0/work/workmanager/src/main/java/androidx/work/Worker.java
+        RunnableFuture<?> threadFuture = (RunnableFuture<?>)executor.submit(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Result r = doWork();
+                    future.set(r);
+                }  catch (Exception e) {
+                    if (getRunAttemptCount() > MAX_WORKER_RETRIES) {
+                        Log.e(TAG, id + " Exception in remote python work", e);
+                        future.setException(e);
+                    } else {
+                        Log.w(TAG, id + " Exception in remote python work, scheduling retry", e);
+                        future.set(Result.retry());
                     }
+                } finally {
+                    cleanup();
                 }
-            }, "python_worker_thread");
-
-            completer.addCancellationListener(new Runnable() {
-                @Override
-                public void run() {
-                    Log.i(TAG, id + " Interrupting remote work");
-                    pythonThread.interrupt();
-                }
-            }, Executors.newSingleThreadExecutor());
-
-            Log.i(TAG, id + " Starting remote python work");
-            pythonThread.start();
-
-            return TAG + " work thread";
+            }
         });
+
+        // If `RunnableFuture` was a `ListenableFuture` we could simply use `future.setFuture` to
+        // propagate the result and cancellation, but instead add listener to propagate
+        // cancellation to python thread, using the task executor which should invoke this in the
+        // main thread (where this was originally called from)
+        future.addListener(new Runnable() {
+            @Override
+            public void run() {
+                if (future.isCancelled()) {
+                    Log.i(TAG, "Interrupting python thread");
+                    threadFuture.cancel(true);
+                }
+            }
+        }, getTaskExecutor().getMainThreadExecutor());
+        return future;
     }
 
     // Native part

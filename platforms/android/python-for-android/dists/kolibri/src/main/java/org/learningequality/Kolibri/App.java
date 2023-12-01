@@ -9,10 +9,15 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.work.Configuration;
 
+import org.learningequality.NotificationRef;
+
+import java.util.concurrent.Executors;
+
 public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
+        NotificationRef.initialize(this);
         createNotificationChannels();
     }
 
@@ -25,6 +30,7 @@ public class App extends Application implements Configuration.Provider {
         return new Configuration.Builder()
                 .setDefaultProcessName(processName)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
+            .setExecutor(Executors.newFixedThreadPool(20))
             .build();
     }
 
