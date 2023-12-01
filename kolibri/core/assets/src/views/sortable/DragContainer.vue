@@ -56,6 +56,7 @@
       handleStart() {
         // handle cancelation of drags
         // document.addEventListener('keyup', this.triggerMouseUpOnESC);
+        this.$emit('dragStart');
       },
       handleStop(event) {
         const { oldIndex, newIndex } = event.data;

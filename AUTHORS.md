@@ -101,3 +101,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Garvit Singhal | GarvitSinghal47 |
 | Adars T S | a6ar55 |
 | Shivang Rawat | ShivangRawat30 |
+| Alex Vélez | AlexVelezLl |

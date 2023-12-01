@@ -48,6 +48,11 @@
       class="wrapper"
     >
       <slot
+        name="top"
+        :expandAll="expandAll"
+        :collapseAll="collapseAll"
+      ></slot>
+      <slot
         :toggleItemState="toggleItemState"
         :isItemExpanded="isItemExpanded"
         :closeAccordionPanel="closeAccordionPanel"
@@ -67,7 +72,18 @@
         expandedItemIds: [],
       };
     },
+    watch: {
+      expandedItemIds() {
+        this.$emit('toggled', this.expandedItemIds);
+      },
+    },
     methods: {
+      expandAll(ids = []) {
+        this.expandedItemIds = ids;
+      },
+      collapseAll() {
+        this.expandedItemIds = [];
+      },
       toggleItemState(id) {
         const index = this.expandedItemIds.indexOf(id);
         if (index === -1) {
@@ -84,6 +100,7 @@
           const index = this.expandedItemIds.indexOf(id);
           this.expandedItemIds.splice(index, 1);
         }
+        this.$emit('toggled', this.expandedItemIds);
       },
       collapseAll() {
         this.expandedItemIds = [];
