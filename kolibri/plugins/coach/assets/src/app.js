@@ -46,24 +46,25 @@ class CoachToolsModule extends KolibriApp {
       ) {
         this.store.dispatch('coachNotifications/stopPolling');
       }
-      if (to.name !== PageNames.EXAMS) {
-        if (
-          to.name &&
-          to.params.classId &&
-          !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
-            to.name
-          )
-        ) {
-          if (to.params.classId) {
-            promises.push(this.store.dispatch('initClassInfo', to.params.classId));
-          }
-        } else {
-          this.store.dispatch('coachNotifications/stopPolling');
-        }
+      // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
+      if (to.name && to.name === PageNames.EXAMS) {
+        next();
+      }
 
-        if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
-          promises.push(this.store.dispatch('getFacilities').catch(() => {}));
+      if (
+        to.name &&
+        to.params.classId &&
+        !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
+          to.name
+        )
+      ) {
+        if (to.params.classId) {
+          promises.push(this.store.dispatch('initClassInfo', to.params.classId));
         }
+      }
+
+      if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
+        promises.push(this.store.dispatch('getFacilities').catch(() => {}));
       }
 
       if (promises.length > 0) {
