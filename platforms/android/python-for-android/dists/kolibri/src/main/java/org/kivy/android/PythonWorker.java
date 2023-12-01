@@ -9,12 +9,10 @@ import androidx.concurrent.futures.CallbackToFutureAdapter;
 import androidx.work.ForegroundInfo;
 import androidx.work.WorkerParameters;
 import androidx.work.impl.utils.futures.SettableFuture;
-import androidx.work.impl.utils.taskexecutor.WorkManagerTaskExecutor;
 import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.RunnableFuture;
 import java.util.concurrent.ThreadPoolExecutor;
 
