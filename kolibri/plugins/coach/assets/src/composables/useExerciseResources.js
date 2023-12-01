@@ -13,6 +13,7 @@ export function useExerciseResources() {
   const bookmarks = ref([]);
   const channelTopics = ref([]);
   const contentList = ref([]);
+  const ancestors = ref([]);
   const currentTopicId = ref(null);
   const currentTopic = ref(null);
   const currentTopicResource = ref(null);
@@ -82,30 +83,6 @@ export function useExerciseResources() {
     });
   }
 
-  // function fetchCurrentTopicId(id) {
-  //   currentTopicId.value = id;
-  //   if (id) {
-  //     currentTopicResource.value = fetchTopicResource(id);
-  //   } else {
-  //     currentTopicId.value = null;
-  //   }
-  // }
-
-  //   // watch(currentTopicId, async (newTopicId, oldTopicId) => {
-  //   //   if (newTopicId !== oldTopicId) {
-  //   //     currentTopicResource.value = await fetchTopicResource(newTopicId);
-  //   //   }
-  //   // });
-
-  // function fetchCurrentTopic(id) {
-  //   currentTopic.value = id;
-  //   if (id) {
-  //     currentTopicResource.value = fetchTopicResource(id);
-  //   } else {
-  //     currentTopic.value = null;
-
-  //   }
-
   function fetchTopicResource(topicId) {
     const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
     const childNodesPromise = ContentNodeResource.fetchCollection({
@@ -118,7 +95,8 @@ export function useExerciseResources() {
 
     return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
       return filterAndAnnotateContentList(childNodes).then(contentList => {
-        set(topicId, topicNode.id);
+        // set(topicId, topicNode.id);
+        ancestors.value = [...topicNode.ancestors, topicNode];
         return {
           ...topicNode,
           ...contentList,
@@ -210,6 +188,7 @@ export function useExerciseResources() {
     currentTopicId,
     currentTopic,
     currentTopicResource,
+    ancestors,
     fetchChannelResource,
     filterAndAnnotateContentList,
     _getTopicsWithExerciseDescendants,

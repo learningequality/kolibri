@@ -53,12 +53,12 @@
       :searchResults="searchResults"
     /> -->
 
-    <!-- <ResourceSelectionBreadcrumbs
-      v-if="!inSearchMode"
+    <ResourceSelectionBreadcrumbs
+      v-if="isTopicIdSet"
       :ancestors="ancestors"
       :channelsLink="channelsLink"
       :topicsLink="topicsLink"
-    /> -->
+    />
 
     <ContentCardList
       v-if="!isExiting"
@@ -118,7 +118,13 @@
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
       } = enhancedQuizManagementStrings;
-      const { bookmarks, channelTopics, channels, fetchTopicResource } = useExerciseResources();
+      const {
+        bookmarks,
+        channelTopics,
+        channels,
+        ancestors,
+        fetchTopicResource,
+      } = useExerciseResources();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
@@ -129,6 +135,7 @@
         windowIsSmall,
         bookmarks,
         channels,
+        ancestors,
         channelTopics,
         fetchTopicResource,
       };
@@ -242,13 +249,7 @@
         };
       },
       channelsLink() {
-        return {
-          // name : PageNames.SELECT_FROM_RESOURCE,
-          // params:{
-          //   section_id: this.$route.params.section_id,
-          //   topic_id: this.$route.params.topic_id
-          // }
-        };
+        return this.selectionRootLink();
       },
     },
 
@@ -287,12 +288,6 @@
         this.isExiting = false;
       } else {
         this.resourcesChanged = true;
-        // const isSamePage = samePageCheckGenerator(this.$store);
-        // setTimeout(() => {
-        //   if (isSamePage()) {
-        //     this.createSnackbar(this.$tr('saveBeforeExitSnackbarText'));
-        //   }
-        // }, 500);
 
         // Cancel any debounced calls
         this.debouncedSaveResources.cancel();
@@ -351,6 +346,7 @@
         if (!content.is_leaf) {
           this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
             this.channels = resource.contentList;
+            // this.ancestors = resource.ancestors;
           });
           return {
             name: PageNames.SELECT_FROM_RESOURCE,
@@ -396,6 +392,9 @@
             this.moreResultsState = 'error';
           });
       },
+      selectionRootLink() {
+        return this.$router.getRoute(PageNames.SELECT_FROM_RESOURCE, {}, this.$route.query);
+      },
       toggleSelected({ content, checked }) {
         if (checked) {
           this.addToSelectedResources(content);
@@ -423,60 +422,22 @@
           this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
         }
       },
-      // showChannelQuizCreationTopicPage(store, params) {
-      //   return store.dispatch('loading').then(() => {
-      //     const { topic_id } = params;
-      //     const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
-      //     const childNodesPromise = ContentNodeResource.fetchCollection({
-      //       getParams: {
-      //         parent: topic_id,
-      //         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
-      //         contains_quiz: true,
-      //       },
-      //     });
-      //     const loadRequirements = [topicNodePromise, childNodesPromise];
-
-      //     return Promise.all(loadRequirements).then(([, /*topicNoitde*/ childNodes]) => {
-      //       this.filterAndAnnotateContentList(childNodes);
-      // return filterAndAnnotateContentList(childNodes).then(contentList => {
-      //   store.commit('SET_TOOLBAR_ROUTE', {
-      //     name: PageNames.EXAMS,
-      //   });
-
-      //   return showExamCreationPage(store, {
-      //     classId: params.classId,
-      //     contentList,
-      //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
-      //     ancestors: [...topicNode.ancestors, topicNode],
-      //   });
-      // });
-      //     });
-      //   });
-      // },
       updateResource() {
         this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
           this.channels = resource.contentList;
+          this.ancestors = resource.ancestors;
         });
       },
-
-      // filteredquizForge.channels.value() {
-      //   const { role } = this.filters;
-      //   if (!this.inSearchMode) {
-      //     return this.quizForge.channels.value;
-      //   }
-      //   const list =
-      // this.quizForge.channels.value ? this.quizForge.channels.value : this.bookmarksList;
-      //   return list.filter(contentNode => {
-      //     let passesFilters = true;
-      //     if (role === 'nonCoach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents === 0;
-      //     }
-      //     if (role === 'coach') {
-      //       passesFilters = passesFilters && contentNode.num_coach_contents > 0;
-      //     }
-      //     return passesFilters;
-      //   });
-      // },
+      topicListingLink({ topicId }) {
+        return this.$router.getRoute(
+          PageNames.SELECT_FROM_RESOURCE,
+          { topicId },
+          this.$route.query
+        );
+      },
+      topicsLink(topicId) {
+        return this.topicListingLink({ ...this.$route.params, topicId });
+      },
     },
     $trs: {},
   };
