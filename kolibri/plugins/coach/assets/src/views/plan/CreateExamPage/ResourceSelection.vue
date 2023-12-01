@@ -74,7 +74,30 @@
       @change_content_card="toggleSelected"
       @moreresults="handleMoreResults"
     />
+    <div class="bottom-navigation">
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          {{ numberOfResources$({ count: channels.length }) }}
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          <KButton
+            :text="coreString('continueAction')"
+            :primary="true"
+            :disabled="disabled || formIsSubmitted"
+          />
+        </KGridItem>
+      </KGrid>
+    </div>
   </div>
+
 
 </template>
 
@@ -117,6 +140,8 @@
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
+        numberOfSelectedResources$,
+        numberOfResources$,
       } = enhancedQuizManagementStrings;
       const {
         bookmarks,
@@ -132,6 +157,8 @@
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
+        numberOfSelectedResources$,
+        numberOfResources$,
         windowIsSmall,
         bookmarks,
         channels,
@@ -166,8 +193,7 @@
           return this.channels;
         }
 
-        const list = this.channels ? this.channels : this.bookmarksList;
-        return list.filter(contentNode => {
+        return this.channels.filter(contentNode => {
           let passesFilters = true;
           if (role === 'nonCoach') {
             passesFilters = passesFilters && contentNode.num_coach_contents === 0;
@@ -201,9 +227,7 @@
       contentIsInLesson() {
         return ({ id }) =>
           Boolean(
-            this.channels.find(resource => {
-              id === resource.id;
-            })
+            this.channels
           );
       },
       selectionMetadata(/*content*/) {
@@ -417,11 +441,6 @@
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
       },
-      checkRoute() {
-        if (this.$route.params.topic_id) {
-          this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
-        }
-      },
       updateResource() {
         this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
           this.channels = resource.contentList;
@@ -439,7 +458,7 @@
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
     },
-    $trs: {},
+
   };
 
 </script>
@@ -504,6 +523,16 @@
 
   .text {
     margin-left: 15rem;
+  }
+
+  .bottom-navigation {
+    background-color: white;
+    color: black;
+    padding: 10px;
+    position: fixed;
+    bottom: 0;
+    width: 50%;
+    text-align: center;
   }
 
 </style>
