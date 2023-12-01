@@ -7,6 +7,7 @@
       v-bind="$attrs"
       :activeTabId="activeTabId"
       :tabs="tabs"
+      @click="id => $emit('click', id)"
     >
       <template #tab="{ tab }">
         <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
@@ -17,7 +18,7 @@
     <!-- This should be within the KTabsList to simplify rendering, but there is no slot.
       The absolute styling isn't as nice as if it were part of the flex container instead, but
       it ought to work -->
-    <div style="position: absolute; right: 0; top: -7px;">
+    <div style="position: absolute; right: 0; top: 5px;">
       <slot name="overflow" :overflowTabs="overflowTabs"></slot>
     </div>
 
@@ -62,13 +63,14 @@
       tabs() {
         this.$nextTick(() => {
           this.setOverflowTabs();
-          this.setWrappingButtonTabIndex();
         });
       },
     },
     mounted() {
       this.mounted = true;
-      this.setWrappingButtonTabIndex();
+      this.$nextTick(() => {
+        this.setOverflowTabs();
+      });
     },
     methods: {
       setOverflowTabs() {
@@ -81,16 +83,9 @@
                 const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
                 const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
 
-                console.log(tabRef, tabRefTop, containerTop, containerBottom);
                 return tabRefTop >= containerBottom;
               })
             : [];
-      },
-      // The buttons are wrapped with a button that we aren't going to use due to KTabsList
-      setWrappingButtonTabIndex() {
-        for (const child of this.$refs.tabsWrapper.$el.children) {
-          child.setAttribute('tabindex', -1);
-        }
       },
       tabIsVisible(tab) {
         return !this.overflowTabs.map(t => t.id).includes(tab.id);
@@ -107,13 +102,15 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    height: 2.25em;
+    height: 3rem !important;
+    min-height: 3rem !important;
     overflow: hidden;
   }
 
   /deep/ .tab > button,
   .tab {
     max-width: calc(200px - 40px);
+    height: 3rem !important;
     text-overflow: ellipsis;
 
     /* We *need* the overflow to be hidden for our calculations of which to show work properly.
@@ -124,13 +121,14 @@
 
   /deep/ .tab {
     display: inline-block;
-    height: 2.5em;
+    height: 3rem !important;
+    margin: 0;
     overflow: visible; // Keep outline fully visible
   }
 
   .container {
     position: relative;
-    max-height: 2.25em;
+    height: 3rem !important;
   }
 
 </style>

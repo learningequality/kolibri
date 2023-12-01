@@ -13,7 +13,6 @@
       <slot
         :id="id"
         name="content"
-        :answers="title"
       >
       </slot>
     </div>
@@ -32,7 +31,7 @@
         required: true,
       },
       id: {
-        type: Number,
+        type: String,
         required: true,
       },
     },
