@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <KGrid gutter="12">
+    <KGrid gutter="16" class="grid">
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
@@ -240,6 +240,10 @@
   .wifi-svg {
     top: 0;
     transform: scale(1.5);
+  }
+
+  .grid {
+    margin: 8px;
   }
 
 </style>

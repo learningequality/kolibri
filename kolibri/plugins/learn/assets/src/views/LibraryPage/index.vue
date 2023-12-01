@@ -442,7 +442,7 @@
           (this.isLocalLibraryEmpty && !this.deviceId)
         ) {
           return 0;
-        } else if (this.windowBreakpoint < 4) {
+        } else if (this.windowBreakpoint < 5) {
           return 234;
         } else {
           return 346;

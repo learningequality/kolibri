@@ -5,6 +5,7 @@
       :is="!windowIsSmall && currentCardViewStyle === 'list' ? 'div' : 'CardGrid'"
       :data-test="`${windowIsSmall ? '' : 'non-'}mobile-card-grid`"
       :style="{ maxWidth: '1700px' }"
+      :gridType="gridType"
     >
       <component
         :is="componentType"
@@ -82,6 +83,10 @@
       allowDownloads: {
         type: Boolean,
         default: false,
+      },
+      gridType: {
+        type: Number,
+        default: 1,
       },
     },
     computed: {
