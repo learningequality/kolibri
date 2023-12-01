@@ -4,7 +4,6 @@ from datetime import datetime
 from jnius import autoclass
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.job import State
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
@@ -76,19 +75,6 @@ class StorageHook(StorageHook):
                 progress,
                 total_progress,
             )
-
-        # if (
-        #     not job.long_running
-        #     and state
-        #     in {
-        #         State.COMPLETED,
-        #         State.CANCELED,
-        #         State.FAILED,
-        #     }
-        # ):
-        #     # This is a short running job and it has just finished
-        #     # Remove the notification
-        #     Notifications.hideNotification()
 
     def clear(self, job, orm_job):
         logger.info("Clearing task {} for job {}".format(job.func, orm_job.id))
