@@ -176,7 +176,7 @@ jobs:
       with:
         name: ${{ matrix.filename }}
         path: dist
-    - uses: 'google-github-actions/auth@v1'
+    - uses: 'google-github-actions/auth@v2'
       with:
         credentials_json: '${{ secrets.GH_UPLOADER_GCP_SA_CREDENTIALS }}'
     - name: 'Set up Cloud SDK'
