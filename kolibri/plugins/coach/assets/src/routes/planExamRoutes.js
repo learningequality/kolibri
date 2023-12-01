@@ -60,7 +60,12 @@ export default [
       {
         name: PageNames.BOOK_MARKED_RESOURCES,
         path: ':section_id/book-marked-resources',
-        children: [],
+        children: [
+          {
+            name: PageNames.SELECTED_BOOKMARKS,
+            path: ':topic_id',
+          },
+        ],
       },
     ],
   },

@@ -11,92 +11,69 @@
           icon="back"
         />
       </KRouterLink>
-      Select folders or exercises from these channels
+      {{ selectFoldersOrExercises$() }}
     </h5>
-    <p>Select from bookmarks</p>
 
-    <!-- <div v-if="bookmarksRoute">
-      <strong>
-        <KRouterLink>
-          :text="coreString"('channelsLabel')"
-          :to="channelsLink"
-        </KRouterLink>
-      </strong>
-      <ContentCardList
-        :contentList="bookmarksContentList"
-        :showSelectAll="selectAllIsVisible"
-        :selectAllChecked="addableContent.length === 0"
-        :contentCardLink="bookmarkLink"
-        :contentIsChecked="contentIsInLesson"
-        :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-        :viewMoreButtonState="viewMoreButtonState"
-        :contentCardMessage="selectionMetadata"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
-    </div> -->
-    <div>
+    <div v-if="!isTopicIdSet">
+
+      <p>{{ selectFromBookmarks$() }}</p>
+
       <div @click="lessonCardClicked">
         <KRouterLink
-          v-if="bookmarksCount"
+          v-if="bookmarks"
           :appearanceOverrides="{
             width: '100%',
             textDecoration: 'none',
-            color: $themeTokens.text }"
-          :to="getBookmarksLink()"
+            color: $themeTokens.text
+          }"
+          :to="getBookmarksLink"
         >
           <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
             <BookmarkIcon :class="windowIsSmall ? 'mobile-bookmark-icon' : ''" />
             <div :class="windowIsSmall ? 'mobile-text' : 'text'">
               <h3>{{ coreString('bookmarksLabel') }}</h3>
-              <p>{{ numberOfSelectedBookmarks$({ count: bookmarksCount }) }}</p>
+              <p>{{ numberOfSelectedBookmarks$({ count: bookmarks.length }) }}</p>
             </div>
           </div>
         </KRouterLink>
       </div>
+
       <KGrid>
-        <KGridItem :layout12="{ span: 6 }">
+        <KGridItem :layout12="{ span: 12 }">
           <LessonsSearchBox @searchterm="handleSearchTerm" />
         </KGridItem>
-
-        <!-- <KGridItem :layout12="{ span: 6, alignment: 'right' }">
-          <p>
-            {{ $tr('totalResourcesSelected', { total: workingResources.length }) }}
-          </p>
-        </KGridItem> -->
       </KGrid>
-
-      <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        class="search-filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      />
-
-      <!-- <ResourceSelectionBreadcrumbs
-        v-if="!inSearchMode"
-        :ancestors="ancestors"
-        :channelsLink="channelsLink"
-        :topicsLink="topicsLink"
-      /> -->
-
-      <ContentCardList
-        v-if="!isExiting"
-        :contentList="filteredContentList"
-        :showSelectAll="selectAllIsVisible"
-        :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="addableContent.length === 0"
-        :contentIsChecked="contentIsInLesson"
-        :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
-        :contentCardMessage="selectionMetadata"
-        :contentCardLink="contentLink"
-        @changeselectall="toggleTopicInWorkingResources"
-        @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
-      />
     </div>
+
+    <!-- <LessonsSearchFilters
+      v-if="inSearchMode"
+      v-model="filters"
+      class="search-filters"
+      :searchTerm="searchTerm"
+      :searchResults="searchResults"
+    /> -->
+
+    <!-- <ResourceSelectionBreadcrumbs
+      v-if="!inSearchMode"
+      :ancestors="ancestors"
+      :channelsLink="channelsLink"
+      :topicsLink="topicsLink"
+    /> -->
+
+    <ContentCardList
+      v-if="!isExiting"
+      :contentList="filteredContentList"
+      :showSelectAll="selectAllIsVisible"
+      :viewMoreButtonState="viewMoreButtonState"
+      :selectAllChecked="addableContent.length === 0"
+      :contentIsChecked="contentIsInLesson"
+      :contentHasCheckbox="c => !contentIsDirectoryKind(c)"
+      :contentCardMessage="selectionMetadata"
+      :contentCardLink="contentLink"
+      @changeselectall="toggleTopicInWorkingResources"
+      @change_content_card="toggleSelected"
+      @moreresults="handleMoreResults"
+    />
   </div>
 
 </template>
@@ -104,7 +81,6 @@
 
 <script>
 
-  import { ContentNodeKinds, ContentNodeResource } from 'kolibri.coreVue.vuex.constants';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -113,14 +89,13 @@
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PageNames } from '../../../constants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
-  import { useResources } from './../../../composables/useResources';
+  import { useExerciseResources } from './../../../composables/useExerciseResources';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
-  // import BookMarkedResource from './BookMarkedResource.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  // import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
-  import LessonsSearchFilters from './../LessonResourceSelectionPage/SearchTools/LessonsSearchFilters';
-  // import  ResourceSelectionBreadcrumbs
-  // from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  //import LessonContentCard from './../LessonResourceSelectionPage/LessonContentCard/index.vue';
+  //import LessonsSearchFilters from './../LessonResourceSelectionPage/
+  // SearchTools/LessonsSearchFilters';
+  import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
     name: 'ResourceSelection',
@@ -130,30 +105,32 @@
       ContentCardList,
       BookmarkIcon,
       // ResourceSelection,
-      // ResourceSelectionBreadcrumbs,
+      ResourceSelectionBreadcrumbs,
       // LessonContentCard,
-      LessonsSearchFilters,
+      // LessonsSearchFilters,
     },
     inject: ['quizForge'],
     mixins: [commonCoreStrings],
     setup() {
-      const { sectionSettings$, numberOfSelectedBookmarks$ } = enhancedQuizManagementStrings;
       const {
-        bookmarks,
-        channelTopics,
-        channels,
-        _getTopicsWithExerciseDescendants,
-      } = useResources();
+        sectionSettings$,
+        selectFromBookmarks$,
+        numberOfSelectedBookmarks$,
+        selectFoldersOrExercises$,
+      } = enhancedQuizManagementStrings;
+      const { bookmarks, channelTopics, channels, fetchTopicResource } = useExerciseResources();
       const { windowIsSmall } = useKResponsiveWindow();
 
       return {
         sectionSettings$,
+        selectFromBookmarks$,
         numberOfSelectedBookmarks$,
+        selectFoldersOrExercises$,
         windowIsSmall,
         bookmarks,
         channels,
         channelTopics,
-        _getTopicsWithExerciseDescendants,
+        fetchTopicResource,
       };
     },
     data() {
@@ -171,6 +148,8 @@
         },
         visibleResources: [],
         showChannels: true,
+        bookmarksCount: 0,
+        pageName: this.$route.name,
       };
     },
     computed: {
@@ -195,6 +174,9 @@
       inSearchMode() {
         return this.pageName === PageNames.SELECT_FROM_RESOURCE;
       },
+      isTopicIdSet() {
+        return this.$route.params.topic_id;
+      },
       // inputPlaceHolderStyle() {
       //   return {
       //     color: this.$themeTokens.annotation,
@@ -211,7 +193,11 @@
       },
       contentIsInLesson() {
         return ({ id }) =>
-          Boolean(this.workingResources.find(resource => resource.contentnode_id === id));
+          Boolean(
+            this.channels.find(resource => {
+              id === resource.id;
+            })
+          );
       },
       selectionMetadata(/*content*/) {
         return function() {};
@@ -247,6 +233,23 @@
           },
         };
       },
+      getBookmarksLink() {
+        return {
+          name: PageNames.BOOK_MARKED_RESOURCES,
+          params: {
+            section_id: this.$route.params.section_id,
+          },
+        };
+      },
+      channelsLink() {
+        return {
+          // name : PageNames.SELECT_FROM_RESOURCE,
+          // params:{
+          //   section_id: this.$route.params.section_id,
+          //   topic_id: this.$route.params.topic_id
+          // }
+        };
+      },
     },
 
     watch: {
@@ -265,13 +268,10 @@
         });
       },
     },
-    beforeEnter(to, from, next) {
-      console.log(to);
-      console.log(from);
-      console.log(to.params.topic_id);
+    beforeRouteEnter(to, from, next) {
       if (to.params.topic_id) {
-        this.showChannelQuizCreationTopicPage(this.$store, to.params).then(() => {
-          next();
+        next(vm => {
+          vm.updateResource();
         });
       }
     },
@@ -313,7 +313,6 @@
       }
     },
     created() {
-      console.log(this.quizForge.channels.value);
       this.bookmarksCount = this.getBookmarks();
     },
     mounted() {
@@ -322,10 +321,7 @@
       } else {
         this.visibleResources = [];
       }
-
-      setTimeout(() => {
-        this.checkRoute();
-      }, 1000);
+      this.bookmarksCount = this.bookmarks.length;
     },
     methods: {
       /** @public */
@@ -353,6 +349,9 @@
       },
       contentLink(content) {
         if (!content.is_leaf) {
+          this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
+            this.channels = resource.contentList;
+          });
           return {
             name: PageNames.SELECT_FROM_RESOURCE,
             params: {
@@ -363,7 +362,7 @@
           };
         }
 
-        return null; // or return {} if you prefer an empty object
+        return {}; // or return {} if you prefer an empty object
       },
       handleSearchTerm(searchTerm) {
         const query = {
@@ -424,36 +423,42 @@
           this._getTopicsWithExerciseDescendants(this.$route.params.topic_id);
         }
       },
-      showChannelQuizCreationTopicPage(store, params) {
-        return store.dispatch('loading').then(() => {
-          const { topic_id } = params;
-          const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
-          const childNodesPromise = ContentNodeResource.fetchCollection({
-            getParams: {
-              parent: topic_id,
-              kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
-              contains_quiz: true,
-            },
-          });
-          const loadRequirements = [topicNodePromise, childNodesPromise];
+      // showChannelQuizCreationTopicPage(store, params) {
+      //   return store.dispatch('loading').then(() => {
+      //     const { topic_id } = params;
+      //     const topicNodePromise = ContentNodeResource.fetchModel({ id: topic_id });
+      //     const childNodesPromise = ContentNodeResource.fetchCollection({
+      //       getParams: {
+      //         parent: topic_id,
+      //         kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+      //         contains_quiz: true,
+      //       },
+      //     });
+      //     const loadRequirements = [topicNodePromise, childNodesPromise];
 
-          return Promise.all(loadRequirements).then(([, /*topicNoitde*/ childNodes]) => {
-            this.filterAndAnnotateContentList(childNodes);
-            // return filterAndAnnotateContentList(childNodes).then(contentList => {
-            //   store.commit('SET_TOOLBAR_ROUTE', {
-            //     name: PageNames.EXAMS,
-            //   });
+      //     return Promise.all(loadRequirements).then(([, /*topicNoitde*/ childNodes]) => {
+      //       this.filterAndAnnotateContentList(childNodes);
+      // return filterAndAnnotateContentList(childNodes).then(contentList => {
+      //   store.commit('SET_TOOLBAR_ROUTE', {
+      //     name: PageNames.EXAMS,
+      //   });
 
-            //   return showExamCreationPage(store, {
-            //     classId: params.classId,
-            //     contentList,
-            //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
-            //     ancestors: [...topicNode.ancestors, topicNode],
-            //   });
-            // });
-          });
+      //   return showExamCreationPage(store, {
+      //     classId: params.classId,
+      //     contentList,
+      //     pageName: PageNames.EXAM_CREATION_SELECT_CHANNEL_QUIZ_TOPIC,
+      //     ancestors: [...topicNode.ancestors, topicNode],
+      //   });
+      // });
+      //     });
+      //   });
+      // },
+      updateResource() {
+        this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
+          this.channels = resource.contentList;
         });
       },
+
       // filteredquizForge.channels.value() {
       //   const { role } = this.filters;
       //   if (!this.inSearchMode) {
@@ -479,12 +484,65 @@
 </script>
 
 
-<style scoped>
-.select-resource{
-  margin-top: -4em;
-}
-.title-style{
-  font-weight:600;
-  font-size: 1.4em;
-}
+<style scoped lang="scss">
+
+  @import '~kolibri-design-system/lib/styles/definitions';
+
+  .select-resource {
+    margin-top: -4em;
+  }
+
+  .title-style {
+    font-size: 1.4em;
+    font-weight: 600;
+  }
+
+  .search-filters {
+    margin-top: 24px;
+  }
+
+  .bookmark-container {
+    display: flex;
+    min-height: 141px;
+    margin-bottom: 24px;
+    border-radius: 2px;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    transition: box-shadow 0.25s ease;
+  }
+
+  .mobile-bookmark-container {
+    @extend %dropshadow-2dp;
+
+    display: flex;
+    max-width: 100%;
+    min-height: 141px;
+    margin: auto;
+    margin-bottom: 24px;
+    border-radius: 2px;
+
+    .ease:hover {
+      @extend %dropshadow-8dp;
+      @extend %md-decelerate-func;
+
+      transition: all $core-time;
+    }
+  }
+
+  .mobile-bookmark-icon {
+    left: 24px !important;
+  }
+
+  .mobile-text {
+    margin-top: 20px;
+    margin-left: 60px;
+  }
+
+  .bookmark-container:hover {
+    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+  }
+
+  .text {
+    margin-left: 15rem;
+  }
+
 </style>

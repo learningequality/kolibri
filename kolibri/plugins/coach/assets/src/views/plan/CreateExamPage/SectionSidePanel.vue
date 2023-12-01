@@ -24,14 +24,14 @@
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
   import ShowBookMarkedResources from './ShowBookMarkedResources.vue';
-  import SelectedChannel from './SelectedChannel.vue';
+  // import SelectedChannel from './SelectedChannel.vue';
 
   const pageNameComponentMap = {
     [PageNames.QUIZ_SECTION_EDITOR]: SectionEditor,
     [PageNames.QUIZ_REPLACE_QUESTIONS]: ReplaceQuestions,
     [PageNames.QUIZ_SELECT_RESOURCES]: ResourceSelection,
     [PageNames.BOOK_MARKED_RESOURCES]: ShowBookMarkedResources,
-    [PageNames.SELECT_FROM_RESOURCE]: SelectedChannel,
+    [PageNames.SELECT_FROM_RESOURCE]: ResourceSelection,
   };
 
   export default {

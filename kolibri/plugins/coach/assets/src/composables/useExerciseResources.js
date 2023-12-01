@@ -7,14 +7,15 @@ import { set } from '@vueuse/core';
 import uniq from 'lodash/uniq';
 // import store from 'kolibri.coreVue.vuex.store';
 
-// import { store } from 'vuex';
-
-export function useResources() {
+export function useExerciseResources() {
   const resources = ref(null);
   const channels = ref([]);
   const bookmarks = ref([]);
   const channelTopics = ref([]);
   const contentList = ref([]);
+  const currentTopicId = ref(null);
+  const currentTopic = ref(null);
+  const currentTopicResource = ref(null);
 
   function fetchChannelResource() {
     ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
@@ -81,6 +82,52 @@ export function useResources() {
     });
   }
 
+  // function fetchCurrentTopicId(id) {
+  //   currentTopicId.value = id;
+  //   if (id) {
+  //     currentTopicResource.value = fetchTopicResource(id);
+  //   } else {
+  //     currentTopicId.value = null;
+  //   }
+  // }
+
+  //   // watch(currentTopicId, async (newTopicId, oldTopicId) => {
+  //   //   if (newTopicId !== oldTopicId) {
+  //   //     currentTopicResource.value = await fetchTopicResource(newTopicId);
+  //   //   }
+  //   // });
+
+  // function fetchCurrentTopic(id) {
+  //   currentTopic.value = id;
+  //   if (id) {
+  //     currentTopicResource.value = fetchTopicResource(id);
+  //   } else {
+  //     currentTopic.value = null;
+
+  //   }
+
+  function fetchTopicResource(topicId) {
+    const topicNodePromise = ContentNodeResource.fetchModel({ id: topicId });
+    const childNodesPromise = ContentNodeResource.fetchCollection({
+      getParams: {
+        parent: topicId,
+        kind_in: [ContentNodeKinds.TOPIC, ContentNodeKinds.EXERCISE],
+      },
+    });
+    const loadRequirements = [topicNodePromise, childNodesPromise];
+
+    return Promise.all(loadRequirements).then(([topicNode, childNodes]) => {
+      return filterAndAnnotateContentList(childNodes).then(contentList => {
+        set(topicId, topicNode.id);
+        return {
+          ...topicNode,
+          ...contentList,
+          thumbnail: getContentNodeThumbnail(topicNode),
+        };
+      });
+    });
+  }
+
   function filterAndAnnotateContentList(childNodes) {
     return new Promise(resolve => {
       if (childNodes) {
@@ -140,13 +187,8 @@ export function useResources() {
           ),
           contentIdsFetched: uniq(results.results.map(({ content_id }) => content_id)),
         };
-        // return showExamCreationPage(store, {
-        //   classId: params.classId,
-        //   contentList: contentList,
-        //   pageName: PageNames.EXAM_CREATION_SEARCH,
-        //   searchResults,
-        // });
-        this.channelTopics.value = searchResults.results;
+
+        this.channels.value = searchResults.results;
         console.log(searchResults.results);
       });
     });
@@ -165,8 +207,13 @@ export function useResources() {
     bookmarks,
     contentList,
     channelTopics,
+    currentTopicId,
+    currentTopic,
+    currentTopicResource,
+    fetchChannelResource,
     filterAndAnnotateContentList,
     _getTopicsWithExerciseDescendants,
     showChannelLevel,
+    fetchTopicResource,
   };
 }

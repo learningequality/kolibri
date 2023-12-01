@@ -19,7 +19,7 @@
     />
 
     <ContentCardList
-      :contentList="channelTopics"
+      :contentList="channels"
       :showSelectAll="selectAllIsVisible"
       :viewMoreButtonState="viewMoreButtonState"
       :selectAllChecked="filteredContentList.length === 0"
@@ -42,7 +42,7 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { mapState, store } from 'vuex';
   import { PageNames } from '../../../constants';
-  import { useResources } from '../../../composables/useResources';
+  import { useExerciseResources } from '../../../composables/useExerciseResources';
   import ResourceSelectionBreadcrumbs from '../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
 
@@ -64,7 +64,7 @@
         channelTopics,
         _getTopicsWithExerciseDescendants,
         showChannelLevel,
-      } = useResources();
+      } = useExerciseResources();
 
       return {
         sectionSettings$,
@@ -155,10 +155,10 @@
       contentLink(content) {
         if (!content.is_leaf) {
           return {
-            name: PageNames.SELECT_FROM_RESOURCE,
-            params: {
-              topic_id: content.id,
-            },
+            name: PageNames.QUIZ_REPLACE_QUESTIONS,
+            // params: {
+            //   topic_id: content.id,
+            // },
           };
         } else {
           return {};

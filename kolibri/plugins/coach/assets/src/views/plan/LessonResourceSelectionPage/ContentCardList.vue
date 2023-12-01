@@ -10,8 +10,8 @@
         @change="$emit('changeselectall', $event)"
       />
       <li
-        v-for="content in contentList"
-        :key="content.id"
+        v-for="(content, index) in contentList"
+        :key="index"
         class="content-list-item"
       >
         <KCheckbox
@@ -27,7 +27,7 @@
           :class="{ 'with-checkbox': needCheckboxes }"
           :title="content.title"
           :thumbnail="content.thumbnail"
-          :description="content.description"
+          :description="content.description ? content.description : '' "
           :kind="content.kind"
           :message="contentCardMessage(content)"
           :link="contentCardLink(content)"

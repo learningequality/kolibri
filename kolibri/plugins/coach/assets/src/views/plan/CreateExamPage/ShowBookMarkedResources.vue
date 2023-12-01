@@ -22,7 +22,7 @@
 <script>
 
   import pickBy from 'lodash/pickBy';
-  import { useResources } from '../../../composables/useResources';
+  import { useExerciseResources } from '../../../composables/useExerciseResources';
   import { PageNames } from '../../../constants';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
 
@@ -32,10 +32,11 @@
       ContentCardList,
     },
     setup() {
-      const { bookmarks } = useResources();
+      const { bookmarks, fetchTopicResource } = useExerciseResources();
 
       return {
         bookmarks,
+        fetchTopicResource,
       };
     },
     data() {
@@ -61,6 +62,13 @@
         return '';
       },
     },
+    beforeEnter(to, from, next) {
+      if (to.params.topic_id) {
+        next(vm => {
+          vm.updateResource();
+        });
+      }
+    },
     watch: {
       workingResources(newVal, oldVal) {
         this.showResourcesDifferenceMessage(newVal.length - oldVal.length);
@@ -76,18 +84,28 @@
         });
       },
     },
+    mounted() {
+      setTimeout(() => {
+        this.updateResource();
+      }, 1000);
+    },
     methods: {
       contentLink(content) {
-        if (!content.is_leaf) {
-          return {
-            name: PageNames.SELECT_FROM_RESOURCE,
-            params: {
-              topic_id: content.id,
-            },
-          };
-        } else {
-          return {};
-        }
+        // if (!content.is_leaf) {
+        this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
+          this.bookmarks = resource.contentList;
+        });
+        return {
+          name: PageNames.SELECTED_BOOKMARKS,
+          params: {
+            topic_id: content.id,
+            classId: this.$route.params.classId,
+            section_id: this.$route.params.section_id,
+          },
+        };
+        // }else{
+        //   return {};
+        // }
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
@@ -120,6 +138,11 @@
 
       contentIsDirectoryKind({ is_leaf }) {
         return !is_leaf;
+      },
+      updateResource() {
+        this.fetchTopicResource(this.$route.params.topic_id).then(resource => {
+          this.bookmarks = resource.contentList;
+        });
       },
     },
   };
