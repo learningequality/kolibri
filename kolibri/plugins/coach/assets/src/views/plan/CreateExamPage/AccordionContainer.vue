@@ -57,10 +57,17 @@
 
 <script>
 
-import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 
   export default {
     name: 'AccordionContainer',
+    setup() {
+      const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
+      return {
+        expandAll$,
+        collapseAll$,
+      };
+    },
     props: {
       items: {
         type: Array,
@@ -70,13 +77,6 @@ import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQu
     data() {
       return {
         expandedItemIds: [],
-      };
-    },
-    setup() {
-      const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
-      return {
-        expandAll$,
-        collapseAll$,
       };
     },
     methods: {

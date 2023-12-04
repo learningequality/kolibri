@@ -382,11 +382,6 @@
           userSelect: get(this.dragActive) ? 'none!important' : 'text',
         };
       },
-      accordionTopBarStyles() {
-        return {
-          backgroundColor: this.$themePalette.grey.v_100,
-        };
-      },
       addQuizSectionsStyles() {
         return {
           margin: '0 0 1rem 0',
