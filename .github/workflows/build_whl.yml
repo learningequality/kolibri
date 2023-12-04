@@ -62,7 +62,7 @@ jobs:
     - name: Cache C extensions
       uses: actions/cache@v3
       with:
-        path: cext_cache
+        path: ./cext_cache
         key: ${{ runner.os }}-cext-${{ hashFiles('requirements/cext*.txt') }}
         restore-keys: |
           ${{ runner.os }}-cext-

@@ -19,14 +19,14 @@ jobs:
       should_skip: ${{ steps.skip_check.outputs.should_skip }}
     steps:
       - id: skip_check
-        uses: fkirc/skip-duplicate-actions@master
+        uses: fkirc/skip-duplicate-actions@v5.3.0
         with:
           github_token: ${{ github.token }}
           paths: '["**.py", "requirements/base.txt", "requirements/build.txt"]'
   c_ext:
     name: C Extensions
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-20.04
     container:
       image: python:2.7.18-buster
@@ -66,7 +66,7 @@ jobs:
   no_c_ext:
     name: No C Extensions
     needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
+    if: ${{ needs.pre_job.outputs.should_skip != 'true' && github.event_name == 'pull_request' }}
     runs-on: ubuntu-20.04
     container:
       image: python:2.7.18-buster

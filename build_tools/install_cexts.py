@@ -255,6 +255,11 @@ def check_cache_path_writable(cache_path):
     cext_cache under the current directory where the script runs.
     """
     try:
+        try:
+            os.makedirs(cache_path)
+        except OSError as e:
+            if e.errno != 17:
+                raise e
         check_file = os.path.join(cache_path, "check.txt")
         with open(check_file, "w") as f:
             f.write("check")
@@ -315,7 +320,7 @@ if __name__ == "__main__":
     )
     parser.add_argument(
         "--cache-path",
-        default="/cext_cache",
+        default=os.path.join(os.path.dirname(__file__), "../cext_cache"),
         help="The path in which pip cache data is stored",
     )
     args = parser.parse_args()
