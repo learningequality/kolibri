@@ -72,6 +72,9 @@
       items: {
         type: Array,
         required: true,
+        function(value) {
+          return value.every(item => typeof item === 'object' && 'id' in item);
+        },
       },
     },
     data() {
