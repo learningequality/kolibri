@@ -185,57 +185,34 @@
         </KGrid>
 
         <AccordionContainer
-          :items="quizForge.activeQuestions.value"
-          @toggled="items => expandedQuestionIds = items"
+          :items="quizForge.activeQuestions.value.map(i => ({
+            id: i.question_id,
+          }))"
         >
-          <template #top="{ expandAll, collapseAll }">
-            <KGrid key="top-bar" :style="accordionTopBarStyles">
-              <KGridItem
-                class="left-side-heading"
-                :layout12="{ span: 6 }"
-              >
-                <KCheckbox
-                  ref="selectAllCheckbox"
-                  class="select-all-box"
-                  :label="quizForge.selectAllLabel.value"
-                  :checked="quizForge.allQuestionsSelected.value"
-                  :indeterminate="quizForge.selectAllIsIndeterminate.value"
-                  @change="() => quizForge.selectAllQuestions()"
-                />
-              </KGridItem>
-
-              <KGridItem
-                class="right-side-heading"
-                :layout12="{ span: 6 }"
-              >
-                <KIconButton
-                  icon="expandAll"
-                  :tooltip="expandAll$()"
-                  :disabled="expandedQuestionIds.length === quizForge.activeQuestions.value.length"
-                  @click="expandAll(quizForge.activeQuestions.value.map(i => i.question_id))"
-                />
-                <KIconButton
-                  icon="collapseAll"
-                  :tooltip="collapseAll$()"
-                  :disabled="expandedQuestionIds.length === 0"
-                  @click="collapseAll()"
-                />
-                <KIconButton
-                  icon="refresh"
-                  :tooltip="replaceAction$()"
-                  :disabled="quizForge.selectedActiveQuestions.value.length === 0"
-                  @click="handleReplaceSelection"
-                />
-                <KIconButton
-                  icon="trash"
-                  :tooltip="coreString('deleteAction')"
-                  :aria-label="coreString('deleteAction')"
-                  :disabled="quizForge.selectedActiveQuestions.value.length === 0"
-                  @click="quizForge.deleteActiveSelectedQuestions"
-                />
-              </KGridItem>
-
-            </KGrid>
+          <template #left-actions>
+            <KCheckbox
+              ref="selectAllCheckbox"
+              class="select-all-box"
+              :label="quizForge.selectAllLabel.value"
+              :checked="quizForge.allQuestionsSelected.value"
+              :indeterminate="quizForge.selectAllIsIndeterminate.value"
+              @change="() => quizForge.selectAllQuestions()"
+            />
+          </template>
+          <template #right-actions>
+            <KIconButton
+              icon="refresh"
+              :tooltip="replaceAction$()"
+              :disabled="quizForge.selectedActiveQuestions.value.length === 0"
+              @click="handleReplaceSelection"
+            />
+            <KIconButton
+              icon="trash"
+              :tooltip="coreString('deleteAction')"
+              :aria-label="coreString('deleteAction')"
+              :disabled="quizForge.selectedActiveQuestions.value.length === 0"
+              @click="quizForge.deleteActiveSelectedQuestions"
+            />
           </template>
           <template #default="{ toggleItemState, isItemExpanded }">
             <DragContainer
@@ -372,21 +349,15 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
-        expandAll$,
-        collapseAll$,
       } = enhancedQuizManagementStrings;
 
       // The number we use for the default section title
       const sectionCreationCount = ref(1);
       const dragActive = ref(false);
-      const expandedQuestionIds = ref([]);
 
       return {
-        expandedQuestionIds,
         dragActive,
         sectionCreationCount,
-        expandAll$,
-        collapseAll$,
         sectionLabel$,
         addQuizSections$,
         quizSectionsLabel$,

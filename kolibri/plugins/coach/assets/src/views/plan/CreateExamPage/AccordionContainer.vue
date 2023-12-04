@@ -23,21 +23,18 @@
         class="header-actions"
       >
         <div class="header-right-actions">
-          <KButton
-            class="collapse-button"
-            appearance="flat-button"
+          <KIconButton
+            icon="expandAll"
+            :tooltip="expandAll$()"
+            :disabled="expandedItemIds.length === items.length"
+            @click="expandAll"
+          />
+          <KIconButton
+            icon="collapseAll"
+            :tooltip="collapseAll$()"
+            :disabled="expandedItemIds.length === 0"
             @click="collapseAll"
-          >
-            <!-- Should be replaced by a KIconButton when the icon is available on KDS -->
-            <KIcon
-              class="reduce-chervon-spacing"
-              icon="chevronDown"
-            />
-            <KIcon
-              class="reduce-chervon-spacing"
-              icon="chevronUp"
-            />
-          </KButton>
+          />
           <slot name="right-actions"></slot>
         </div>
       </KGridItem>
@@ -47,11 +44,6 @@
       name="list"
       class="wrapper"
     >
-      <slot
-        name="top"
-        :expandAll="expandAll"
-        :collapseAll="collapseAll"
-      ></slot>
       <slot
         :toggleItemState="toggleItemState"
         :isItemExpanded="isItemExpanded"
@@ -65,21 +57,31 @@
 
 <script>
 
+import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+
   export default {
     name: 'AccordionContainer',
+    props: {
+      items: {
+        type: Array,
+        required: true,
+      },
+    },
     data() {
       return {
         expandedItemIds: [],
       };
     },
-    watch: {
-      expandedItemIds() {
-        this.$emit('toggled', this.expandedItemIds);
-      },
+    setup() {
+      const { expandAll$, collapseAll$ } = enhancedQuizManagementStrings;
+      return {
+        expandAll$,
+        collapseAll$,
+      };
     },
     methods: {
-      expandAll(ids = []) {
-        this.expandedItemIds = ids;
+      expandAll() {
+        this.expandedItemIds = this.items.map(item => item.id);
       },
       collapseAll() {
         this.expandedItemIds = [];
@@ -100,10 +102,6 @@
           const index = this.expandedItemIds.indexOf(id);
           this.expandedItemIds.splice(index, 1);
         }
-        this.$emit('toggled', this.expandedItemIds);
-      },
-      collapseAll() {
-        this.expandedItemIds = [];
       },
     },
   };
@@ -126,17 +124,11 @@
 
   .header-left-actions {
     display: flex;
-    margin-left: 1em;
   }
 
   .header-right-actions {
     display: flex;
     justify-content: flex-end;
-    margin-right: 1em;
-
-    /deep/ & > * {
-      margin-left: 1em;
-    }
   }
 
   .collapse-button {
