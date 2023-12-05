@@ -319,10 +319,23 @@ docker-devserver: docker-envlist
 	echo "Check http://localhost:8000  you should have devserver running there."
 	git checkout -- ./docker/env.list  # restore env.list file
 
-# Optionally add --env KOLIBRI_PROVISIONDEVICE_FACILITY="Dev Server" to skip setup wizard
+docker-devserver-hot: docker-envlist
+	# Build the kolibridev image: contains source code + pip install -e of kolibri
+	docker image build \
+			-f docker/devhot.dockerfile \
+			-t "learningequality/kolibridev" .
+	docker run --init \
+			-v $$PWD/docker/mnt:/docker/mnt \
+			-v $$PWD/kolibri:/kolibri/kolibri \
+			-p 8000:8000 \
+			-p 3000:3000 \
+			--env-file ./docker/env.list \
+			"learningequality/kolibridev" \
+			yarn run devserver-hot
+	echo "Check http://localhost:8000  you should have devserver running there."
+	git checkout -- ./docker/env.list  # restore env.list file
 
-# TODO: figure out how to add source code as "volume" so can live-edit,
-# 		  e.g. -v $$PWD/kolibri:/kolibri/kolibri ??
+# Optionally add --env KOLIBRI_PROVISIONDEVICE_FACILITY="Dev Server" to skip setup wizard
 
 docker-envlist:
 	python build_tools/customize_docker_envlist.py
