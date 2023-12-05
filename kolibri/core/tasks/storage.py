@@ -66,7 +66,7 @@ class ORMJob(Base):
     saved_job = Column(String)
 
     time_created = Column(DateTime(timezone=True), server_default=sql_func.now())
-    time_updated = Column(DateTime(timezone=True), server_onupdate=sql_func.now())
+    time_updated = Column(DateTime(timezone=True), onupdate=sql_func.now())
 
     # Repeat interval in seconds.
     interval = Column(Integer, default=0)
