@@ -27,10 +27,14 @@ public class App extends Application implements Configuration.Provider {
         String processName = getApplicationContext().getPackageName();
         processName += getApplicationContext().getString(R.string.task_worker_process);
 
+
+
+        // Using the same quantity of worker threads as Kolibri's python side:
+        // https://github.com/learningequality/kolibri/blob/release-v0.16.x/kolibri/utils/options.py#L683
         return new Configuration.Builder()
                 .setDefaultProcessName(processName)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setExecutor(Executors.newFixedThreadPool(20))
+            .setExecutor(Executors.newFixedThreadPool(6))
             .build();
     }
 
