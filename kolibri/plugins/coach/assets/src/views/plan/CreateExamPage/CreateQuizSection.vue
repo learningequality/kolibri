@@ -78,37 +78,7 @@
                   :hasIcons="true"
                   :options="overflowTabs"
                   @select="opt => setActiveSection(opt.id)"
-                >
-                  <template #option="{ option }">
-                    <!-- TODO Clean this up by moving it to another component -->
-                    <!-- Maybe not so easy since they're styled differently -->
-                    <KButton
-                      appearance="flat-button"
-                      :primary="activeSection.section_id === option.id"
-                      :appearanceOverrides="tabStyles"
-                      class="menu-button"
-                      @click="() => setActiveSection(option.id)"
-                    >
-                      {{ option.label }}
-                    </KButton>
-                    <KIconButton
-                      icon="optionsVertical"
-                      style="position: absolute; right: 0; border-radius: 0!important;"
-                      @click="() => null"
-                    >
-                      <template #menu>
-                        <KDropdownMenu
-                          :primary="false"
-                          :disabled="false"
-                          :hasIcons="true"
-                          :containFocus="false"
-                          :options="sectionOptions"
-                          @select="opt => handleSectionOptionSelect(opt, option.id)"
-                        />
-                      </template>
-                    </KIconButton>
-                  </template>
-                </KDropdownMenu>
+                />
               </template>
             </KIconButton>
           </template>
@@ -135,7 +105,6 @@
 
     <KTabsPanel
       v-if="activeSection"
-      class="no-question-layout"
       tabsId="quizSectionTabs"
       :activeTabId="activeSection ? activeSection.section_id : ''"
     >
@@ -571,19 +540,6 @@
       },
       handleDragStart() {
         set(this.dragActive, true);
-      },
-      handleSectionOptionSelect({ label }, section_id) {
-        // Always set the active section to the one that is having its side panel opened
-        this.setActiveSection(section_id);
-
-        switch (label) {
-          case this.editSectionLabel$():
-            this.$router.replace({ path: 'new/' + section_id + '/edit' });
-            break;
-          case this.deleteSectionLabel$():
-            this.removeSection(section_id);
-            break;
-        }
       },
       openSelectResources(section_id) {
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });

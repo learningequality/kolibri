@@ -31,7 +31,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export default function useQuizCreation(DEBUG = true) {
+export default function useQuizCreation(DEBUG = false) {
   // -----------
   // Local state
   // -----------
