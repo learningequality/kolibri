@@ -43,6 +43,7 @@ try {
     config = ini.parse(configFile);
   } catch (e) {
     // do nothing, use a default empty config
+    configSectionPath = ['null'];
     config = ini.parse('');
   }
 }
