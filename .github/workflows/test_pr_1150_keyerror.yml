@@ -1,0 +1,52 @@
+name: KeyError Issue
+
+on:
+  push:
+    branches:
+      - develop
+      - 'release-v**'
+  pull_request:
+    branches:
+      - develop
+      - 'release-v**'
+
+jobs:
+  replicate_issue:
+    runs-on: macos-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+
+      - name: Install Node.js and Yarn
+        run: |
+          curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.1/install.sh | bash
+          export NVM_DIR="$HOME/.nvm"
+          [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+          nvm install 16.20.0
+          npm install -g yarn
+
+      - name: Create and activate virtual environment
+        run: |
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install Python dependencies
+        run: |
+          pip install -r requirements.txt --upgrade
+          pip install -r requirements/dev.txt --upgrade
+          pip install -e .
+          pip install -r requirements/docs.txt
+          pip install -r requirements/build.txt
+          pip install pytest
+          pip install mock
+
+      - name: Run tests in multiprocessing mode
+        run: |
+          export KOLIBRI_USE_WORKER_MULTIPROCESSING=True
+          pytest kolibri/core/tasks/test/taskrunner/test_worker.py
