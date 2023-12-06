@@ -262,6 +262,15 @@ class Job(object):
             self.extra_metadata[key] = value
         self.save_meta()
 
+    def update_worker_info(self, host=None, process=None, thread=None, extra=None):
+        self.storage.save_worker_info(
+            self.job_id,
+            host=host,
+            process=process,
+            thread=thread,
+            extra=extra,
+        )
+
     def check_for_cancel(self):
         if self.cancellable:
             if self.storage.check_job_canceled(self.job_id):

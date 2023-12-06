@@ -12,7 +12,9 @@ from kolibri.core.tasks.utils import InfiniteLoopThread
 logger = logging.getLogger(__name__)
 
 
-def execute_job(job_id):
+def execute_job(
+    job_id, worker_host=None, worker_process=None, worker_thread=None, worker_extra=None
+):
     """
     Call the function stored in the job.func.
     :return: None
@@ -24,12 +26,30 @@ def execute_job(job_id):
 
     job = storage.get_job(job_id)
 
+    job.update_worker_info(worker_host, worker_process, worker_thread, worker_extra)
+
     job.execute()
 
     connection.dispose()
 
     # Close any django connections opened here
     django_connection.close()
+
+
+def execute_job_with_python_worker(job_id):
+    """
+    Call execute_job but additionally with the current host, process and thread information taken
+    directly from python internals.
+    """
+    import os
+    import threading
+
+    execute_job(
+        job_id,
+        worker_host=os.uname()[1],
+        worker_process=str(os.getpid()),
+        worker_thread=str(threading.get_ident()),
+    )
 
 
 class Worker(object):
@@ -166,7 +186,7 @@ class Worker(object):
         :return future:
         """
         future = self.workers.submit(
-            execute_job,
+            execute_job_with_python_worker,
             job_id=job.job_id,
         )
 
