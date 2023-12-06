@@ -187,8 +187,8 @@ class Worker(object):
             with self.future_job_mapping_lock:
                 # Check if the job ID already exists in the future_job_mapping dictionary
                 if job.job_id in self.future_job_mapping:
-                    logger.error(f"Job ID {job.job_id} is already in future_job_mapping.")
-                    raise ValueError(f"Duplicate job ID: {job.job_id}")
+                    logger.error("Job ID {} is already in future_job_mapping.".format(job.job_id))
+                    raise ValueError("Duplicate job ID: {}".format(job.job_id))
 
                 # assign the futures to a dict, mapping them to a job
                 self.job_future_mapping[future] = job
