@@ -16,7 +16,6 @@ export default {
       welcomeModalVisible: false,
       canAccessUnassignedContentSetting: plugin_data.allowLearnerUnassignedResourceAccess,
       allowGuestAccess: plugin_data.allowGuestAccess,
-      allowDownloadOnMeteredConnection: plugin_data.allowDownloadOnMeteredConnection,
       /**
        * Used as a Learn-global state to allow communication about whether this modal is shown
        * or not at any time. It should be set as `false` whenever the content page is loaded.
