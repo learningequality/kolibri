@@ -68,7 +68,7 @@
 <style lang="scss" scoped>
 
   .grid {
-    padding: 8px;
+    padding-top: 8px;
   }
 
 </style>

@@ -30,6 +30,7 @@
       <LibraryAndChannelBrowserMainContent
         :contents="contentCardsToDisplay"
         data-test="resumable-content-card-grid"
+        class="resumable-content-card-grid"
         :currentCardViewStyle="currentCardViewStyle"
         :gridType="gridType"
         @openCopiesModal="copies => displayedCopies = copies"
@@ -175,6 +176,11 @@
 
   .toggle-view-buttons {
     float: right;
+  }
+
+  .resumable-content-card-grid {
+    margin-right: -8px;
+    margin-left: -8px;
   }
 
 </style>

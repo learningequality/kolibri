@@ -110,6 +110,7 @@
                   :key="t.id"
                   :topic="t"
                   :subTopicLoading="t.id === subTopicLoading"
+                  :gridType="gridType"
                   :allowDownloads="allowDownloads"
                   @showMore="handleShowMore"
                   @loadMoreInSubtopic="handleLoadMoreInSubtopic"
@@ -124,7 +125,7 @@
                 :allowDownloads="allowDownloads"
                 data-test="search-results"
                 :contents="resourcesDisplayed"
-                :numCols="numCols"
+                :gridType="gridType"
                 currentCardViewStyle="card"
                 @toggleInfoPanel="toggleInfoPanel"
               />
@@ -570,9 +571,6 @@
           ? this.learnString('exploreLibraries')
           : (this.topic && this.topic.title) || '';
       },
-      childrenToDisplay() {
-        return Math.max(this.numCols, 3);
-      },
       breadcrumbs() {
         if (!this.topic || !this.topic.ancestors) {
           return [];
@@ -601,6 +599,12 @@
       },
       resources() {
         return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
+      },
+      childrenToDisplay() {
+        return this.windowBreakpoint === 2 || this.windowBreakpoint > 6 ? 4 : 3;
+      },
+      gridType() {
+        return this.windowBreakpoint > 6 ? 2 : 1;
       },
       resourcesDisplayed() {
         // if no folders are shown at this level, show more resources to fill the space
@@ -696,7 +700,7 @@
       sidePanelWidth() {
         if (!this.windowIsLarge) {
           return 0;
-        } else if (this.windowBreakpoint < 4) {
+        } else if (this.windowBreakpoint < 5) {
           return 234;
         } else {
           return 346;
@@ -728,15 +732,6 @@
           style.marginLeft = `${this.sidePanelWidth + 24}px`;
         }
         return style;
-      },
-      numCols() {
-        if (this.windowBreakpoint > 1 && this.windowBreakpoint < 2) {
-          return 2;
-        } else if (this.windowBreakpoint >= 2 && this.windowBreakpoint <= 4) {
-          return 3;
-        } else if (this.windowBreakpoint > 4) {
-          return 4;
-        } else return null;
       },
       throttledStickyCalculation() {
         return throttle(this.stickyCalculation);
