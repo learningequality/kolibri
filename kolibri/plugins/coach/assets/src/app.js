@@ -49,6 +49,7 @@ class CoachToolsModule extends KolibriApp {
       // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
       if (to.name && to.name === PageNames.EXAMS) {
         next();
+        return;
       }
 
       if (
@@ -58,9 +59,7 @@ class CoachToolsModule extends KolibriApp {
           to.name
         )
       ) {
-        if (to.params.classId) {
-          promises.push(this.store.dispatch('initClassInfo', to.params.classId));
-        }
+        promises.push(this.store.dispatch('initClassInfo', to.params.classId));
       }
 
       if (this.store.getters.isSuperuser && this.store.state.core.facilities.length === 0) {
