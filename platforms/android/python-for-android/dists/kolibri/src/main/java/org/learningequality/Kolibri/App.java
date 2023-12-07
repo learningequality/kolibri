@@ -3,21 +3,28 @@ package org.learningequality.Kolibri;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.work.Configuration;
+import androidx.work.PeriodicWorkRequest;
+import androidx.work.WorkManager;
 
 import org.learningequality.NotificationRef;
+import org.learningequality.Task;
 
 import java.util.concurrent.Executors;
+
+import java9.util.concurrent.CompletableFuture;
 
 public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannels();
+        reconcileTasks();
     }
 
     @NonNull
@@ -25,8 +32,6 @@ public class App extends Application implements Configuration.Provider {
     public Configuration getWorkManagerConfiguration() {
         String processName = getApplicationContext().getPackageName();
         processName += getApplicationContext().getString(R.string.task_worker_process);
-
-
 
         // Using the same quantity of worker threads as Kolibri's python side:
         // https://github.com/learningequality/kolibri/blob/release-v0.16.x/kolibri/utils/options.py#L683
@@ -62,5 +67,17 @@ public class App extends Application implements Configuration.Provider {
             notificationManager.createNotificationChannel(serviceChannel);
             notificationManager.createNotificationChannel(taskChannel);
         }
+    }
+
+    private void reconcileTasks() {
+        // Reconcile tasks on startup, in this main thread (blocking!)
+        CompletableFuture<Boolean> f = Task.reconcile(this, null);
+        f.whenCompleteAsync((result, throwable) -> {
+            if (throwable != null) {
+                Log.e("Kolibri", "Main thread task reconciliation failed", throwable);
+            } else {
+                Log.i("Kolibri", "Main thread task reconciliation completed");
+            }
+        });
     }
 }

@@ -48,13 +48,14 @@ class StorageHook(StorageHook):
                     job.func, orm_job.id, delay, high_priority
                 )
             )
-            Task.enqueueOnce(
+            request_id = Task.enqueueOnce(
                 orm_job.id,
                 delay,
                 high_priority,
                 job.func,
                 job.long_running,
             )
+            job.update_worker_info(extra=request_id)
 
     def update(self, job, orm_job, state=None, **kwargs):
         currentLocale = Locale.getDefault().toLanguageTag()

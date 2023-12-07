@@ -3,6 +3,7 @@ package org.kivy.android;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
+import android.os.Process;
 
 import androidx.annotation.NonNull;
 import androidx.concurrent.futures.CallbackToFutureAdapter;
@@ -80,11 +81,13 @@ abstract public class PythonWorker extends RemoteListenableWorker {
 
         Log.d(TAG, id + " Running with python worker argument: " + arg);
 
+        String serializedArg = String.join(",", id, arg, Integer.toString(Process.myPid()), Long.toString(Thread.currentThread().getId()));
+
         int res = nativeStart(
                 androidPrivate, androidArgument,
                 workerEntrypoint, pythonName,
                 pythonHome, pythonPath,
-                arg
+                serializedArg
         );
         Log.d(TAG, id + " Finished remote python work: " + res);
 
