@@ -67,7 +67,7 @@ def get_status(job):
 
 class ChannelValidator(JobValidator):
     channel_id = HexOnlyUUIDField()
-    channel_name = serializers.CharField()
+    channel_name = serializers.CharField(default="", allow_blank=True)
 
     def validate(self, data):
         job_data = super(ChannelValidator, self).validate(data)

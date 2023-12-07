@@ -52,14 +52,16 @@ class ValidateContentTaskTestCase(TestCase):
                 }
             ).is_valid(raise_exception=True)
 
-    def test_missing_channel_name(self):
-        with self.assertRaises(serializers.ValidationError):
-            ChannelValidator(
-                data={
-                    "type": "kolibri.core.content.tasks.remotechannelimport",
-                    "channel_id": self.channel_id,
-                }
-            ).is_valid(raise_exception=True)
+    def test_default_channel_name(self):
+        validator = ChannelValidator(
+            data={
+                "type": "kolibri.core.content.tasks.remotechannelimport",
+                "channel_id": self.channel_id,
+            }
+        )
+        validator.is_valid(raise_exception=True)
+
+        self.assertEqual(validator.validated_data["extra_metadata"]["channel_name"], "")
 
     def test_wrong_node_ids_type(self):
         with self.assertRaises(serializers.ValidationError):
