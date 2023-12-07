@@ -42,13 +42,20 @@ def execute_job_with_python_worker(job_id):
     directly from python internals.
     """
     import os
+    import sys
     import threading
+
+    # get_ident was added in Python 3.3 and never backported to 2.7
+    if sys.version_info[0] < 3:
+        thread_ident = threading.current_thread().ident
+    else:
+        thread_ident = threading.get_ident()
 
     execute_job(
         job_id,
         worker_host=os.uname()[1],
         worker_process=str(os.getpid()),
-        worker_thread=str(threading.get_ident()),
+        worker_thread=str(thread_ident),
     )
 
 
