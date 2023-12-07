@@ -41,7 +41,7 @@ jobs:
         key: ${{ runner.OS }}-node-${{ hashFiles('**/yarn.lock') }}
         restore-keys: |
           ${{ runner.OS }}-node-
-    - uses: actions/setup-python@v4
+    - uses: actions/setup-python@v5
     - name: Install dependencies
       run: |
         # Use a Python virtual environment to ensure
