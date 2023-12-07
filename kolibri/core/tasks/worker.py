@@ -42,6 +42,7 @@ def execute_job_with_python_worker(job_id):
     directly from python internals.
     """
     import os
+    import socket
     import sys
     import threading
 
@@ -53,7 +54,7 @@ def execute_job_with_python_worker(job_id):
 
     execute_job(
         job_id,
-        worker_host=os.uname()[1],
+        worker_host=socket.gethostname(),
         worker_process=str(os.getpid()),
         worker_thread=str(thread_ident),
     )
