@@ -60,14 +60,13 @@
   },
   "engineStrict": true,
   "engines": {
-    "node": "16.x",
+    "node": "18.x",
     "yarn": ">= 1.12.3"
   },
   "browserslist": [
     "extends browserslist-config-kolibri"
   ],
   "volta": {
-    "node": "16.18.0"
+    "node": "18.19.0"
   }
 }
-
