@@ -6,7 +6,6 @@ from __future__ import print_function
 from __future__ import unicode_literals
 
 import hashlib
-import sys
 from threading import local
 
 from django.core.cache import cache
@@ -39,10 +38,7 @@ class MissingRequiredParamsException(APIException):
 
 # Types that we'll all for as 'tuple' params
 TUPLE_TYPES = tuple, set, frozenset, list
-if sys.version_info > (3, 0):
-    VALID_TYPES = int, float, str, bool
-else:
-    VALID_TYPES = int, float, str, unicode, bool  # noqa F821
+VALID_TYPES = int, float, str, bool
 
 
 class ParamValidator(object):

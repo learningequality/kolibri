@@ -10,32 +10,21 @@ from collections import namedtuple
 from kolibri.utils.android import on_android
 
 
-PY3 = sys.version_info[0] == 3
 POSIX = os.name == "posix"
 WINDOWS = os.name == "nt"
 LINUX = sys.platform.startswith("linux") and not on_android()
 MACOS = sys.platform.startswith("darwin")
 
-if PY3:
 
-    def b(s):
-        return s.encode("latin-1")
-
-
-else:
-
-    def b(s):
-        return s
+def b(s):
+    return s.encode("latin-1")
 
 
 ENCODING = sys.getfilesystemencoding()
-if not PY3:
-    ENCODING_ERRS = "replace"
-else:
-    try:
-        ENCODING_ERRS = sys.getfilesystemencodeerrors()  # py 3.6
-    except AttributeError:
-        ENCODING_ERRS = "surrogateescape" if POSIX else "replace"
+try:
+    ENCODING_ERRS = sys.getfilesystemencodeerrors()  # py 3.6
+except AttributeError:
+    ENCODING_ERRS = "surrogateescape" if POSIX else "replace"
 
 pcputimes = namedtuple(
     "pcputimes", ["user", "system", "children_user", "children_system"]
@@ -149,9 +138,7 @@ def open_binary(fname, **kwargs):
 def open_text(fname, **kwargs):
     """On Python 3 opens a file in text mode by using fs encoding and
     a proper en/decoding errors handler.
-    On Python 2 this is just an alias for open(name, 'rt').
     """
-    if PY3:
-        kwargs.setdefault("encoding", ENCODING)
-        kwargs.setdefault("errors", ENCODING_ERRS)
+    kwargs.setdefault("encoding", ENCODING)
+    kwargs.setdefault("errors", ENCODING_ERRS)
     return io.open(fname, "rt", **kwargs)

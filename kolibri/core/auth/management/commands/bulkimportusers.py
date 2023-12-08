@@ -2,7 +2,6 @@ import csv
 import logging
 import ntpath
 import re
-import sys
 from uuid import UUID
 
 from django.conf import settings
@@ -782,11 +781,7 @@ class Command(AsyncCommand):
         for user in users:
             # enrolled:
             to_remove = user.memberships.filter(collection__kind=CLASSROOM)
-            username = (
-                user.username
-                if sys.version_info[0] >= 3
-                else user.username.encode("utf-8")
-            )
+            username = user.username
             if username in users_enrolled.keys():
                 to_remove.exclude(
                     collection__name__in=users_enrolled[username]

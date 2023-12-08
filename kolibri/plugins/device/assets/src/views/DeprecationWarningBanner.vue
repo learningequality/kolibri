@@ -15,9 +15,6 @@
       </div>
 
       <div class="error-message">
-        <p v-if="py27Deprecated">
-          {{ coreString('pythonSupportWillBeDropped') }}
-        </p>
         <p v-if="currentUserOnIE11">
           {{ coreString('currentDeviceUsingIE11') }}
         </p>
@@ -45,13 +42,10 @@
     mixins: [commonCoreStrings],
     computed: {
       showBanner() {
-        return this.currentUserOnIE11 || this.userDevicesUsingIE11 || this.py27Deprecated;
+        return this.currentUserOnIE11 || this.userDevicesUsingIE11;
       },
       userDevicesUsingIE11() {
         return plugin_data.deprecationWarnings.ie11;
-      },
-      py27Deprecated() {
-        return plugin_data.deprecationWarnings.py27;
       },
       currentUserOnIE11() {
         return browser.name === 'IE';
