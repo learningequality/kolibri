@@ -21,7 +21,11 @@ jobs:
         env:
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
         run: |
+          ISSUE_TITLE="${{ github.event.issue.title }} by ${GITHUB_ACTOR}"
+          ISSUE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}"
+          ISSUE_COMMENT_URL="${ISSUE_URL}#issuecomment-${{ github.event.comment.id }}"
+          JSON_TEXT="{\"text\": \"*New comment on issue: <${ISSUE_COMMENT_URL}|${ISSUE_TITLE}>*\"}"
+
           curl -X POST -H 'Content-type: application/json' \
-          --data \
-          '{"text": "New comment on issue: '${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}' by '${GITHUB_ACTOR}'"}' \
+          --data "$JSON_TEXT" \
           $SLACK_WEBHOOK_URL
