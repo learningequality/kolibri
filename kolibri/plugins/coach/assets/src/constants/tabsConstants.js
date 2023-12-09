@@ -31,3 +31,8 @@ export const QuizzesTabs = {
   REPORT: 'tabReport',
   DIFFICULT_QUESTIONS: 'tabDifficultQuestions',
 };
+export const REPORTS_LESSON_TABS_ID = 'coachReportsLesson';
+export const ReportsLessonTabs = {
+  REPORTS: 'tabReports',
+  LEARNERS: 'tabLearners',
+};

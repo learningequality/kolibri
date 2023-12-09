@@ -40,17 +40,13 @@
         <KPageContainer :topMargin="$isPrint ? 0 : 24">
           <ReportsControls @export="exportCSV" />
           <HeaderTabs :enablePrint="true">
-            <HeaderTab
-              :text="coachString('reportLabel')"
-              :to="group ?
-                classRoute('ReportsGroupReportLessonPage') :
-                classRoute('ReportsLessonReportPage')"
-            />
-            <HeaderTab
-              :text="coreString('learnersLabel')"
-              :to="group ?
-                classRoute('ReportsGroupReportLessonLearnerListPage') :
-                classRoute('ReportsLessonLearnerListPage')"
+            <KTabsList
+              ref="tabList"
+              :tabsId="REPORTS_LESSON_TABS_ID"
+              :ariaLabel="$tr('coachReportsLesson')"
+              :activeTabId="activeTabId"
+              :tabs="tabs"
+              @click="() => saveTabsClick(REPORTS_LESSON_TABS_ID)"
             />
           </HeaderTabs>
           <ReportsLessonResourcesList
@@ -79,6 +75,8 @@
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import LessonOptionsDropdownMenu from '../plan/LessonSummaryPage/LessonOptionsDropdownMenu';
+  import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
   import ReportsControls from './ReportsControls';
   import ReportsLessonLearnersList from './ReportsLessonLearnersList';
   import ReportsLessonResourcesList from './ReportsLessonResourcesList';
@@ -93,6 +91,13 @@
       ReportsLessonResourcesList,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
     props: {
       showResources: {
         type: Boolean,
@@ -102,6 +107,15 @@
         type: Boolean,
         default: false,
       },
+      activeTabId: {
+        type: String,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        REPORTS_LESSON_TABS_ID,
+      };
     },
     computed: {
       lesson() {
@@ -151,6 +165,36 @@
           return tableRow;
         });
       },
+      tabs() {
+        return [
+          {
+            id: ReportsLessonTabs.REPORTS,
+            label: this.coachString('reportsLabel'),
+            to: this.group
+              ? this.classRoute('ReportsGroupReportLessonPage')
+              : this.classRoute('ReportsLessonReportPage'),
+          },
+          {
+            id: ReportsLessonTabs.LEARNERS,
+            label: this.coachString('learnersLabel'),
+            to: this.group
+              ? this.classRoute('ReportsGroupReportLessonLearnerListPage')
+              : this.classRoute('ReportsLessonLearnerListPage'),
+          },
+        ];
+      },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.REPORTS_LESSON_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        });
+      }
     },
     methods: {
       handleSelectOption(action) {
@@ -225,6 +269,12 @@
             );
           }
         }
+      },
+    },
+    $trs: {
+      coachReportsLesson: {
+        message: 'Report lesson',
+        context: 'Labels the Reports > Lesson tab for screen reader users',
       },
     },
   };
