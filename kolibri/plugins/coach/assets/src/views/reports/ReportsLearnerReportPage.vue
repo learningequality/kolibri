@@ -8,10 +8,10 @@
 
     <KPageContainer>
 
-      <ReportsLearnerHeader :activeTabId="LearnersTabs.REPORTS" />
+      <ReportsLearnerHeader :activeTabId="ReportsLearnersTabs.REPORTS" />
       <KTabsPanel
-        :tabsId="LEARNERS_TABS_ID"
-        :activeTabId="LearnersTabs.REPORTS"
+        :tabsId="REPORTS_LEARNERS_TABS_ID"
+        :activeTabId="ReportsLearnersTabs.REPORTS"
       >
         <ReportsControls :disableExport="true" />
 
@@ -102,7 +102,7 @@
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import { PageNames } from '../../constants';
-  import { LEARNERS_TABS_ID, LearnersTabs } from '../../constants/tabsConstants';
+  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
   import ReportsControls from './ReportsControls';
 
@@ -116,8 +116,8 @@
     mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
-        LEARNERS_TABS_ID,
-        LearnersTabs,
+        REPORTS_LEARNERS_TABS_ID,
+        ReportsLearnersTabs,
       };
     },
     computed: {

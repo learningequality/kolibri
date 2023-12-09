@@ -20,8 +20,8 @@ export const ReportsGroupTabs = {
   ACTIVITY: 'tabActivity',
 };
 
-export const LEARNERS_TABS_ID = 'reportLearners';
-export const LearnersTabs = {
+export const REPORTS_LEARNERS_TABS_ID = 'coachReportsLearners';
+export const ReportsLearnersTabs = {
   REPORTS: 'tabReports',
   ACTIVITY: 'tabActivity',
 };
