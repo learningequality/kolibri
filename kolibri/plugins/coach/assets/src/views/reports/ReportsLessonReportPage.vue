@@ -8,6 +8,7 @@
 
 
 <script>
+
   import { REPORTS_LESSON_TABS_ID, ReportsLessonTabs } from '../../constants/tabsConstants';
   import ReportsLessonBase from './ReportsLessonBase';
 
