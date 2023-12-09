@@ -8,84 +8,88 @@
 
     <KPageContainer>
 
-      <ReportsLearnerHeader />
+      <ReportsLearnerHeader :activeTabId="LearnersTabs.REPORTS" />
+      <KTabsPanel
+        :tabsId="LEARNERS_TABS_ID"
+        :activeTabId="LearnersTabs.REPORTS"
+      >
+        <ReportsControls :disableExport="true" />
 
-      <ReportsControls :disableExport="true" />
-
-      <KGrid>
-        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
-          <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
-          <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
-            <template #headers>
-              <th>{{ coachString('titleLabel') }}</th>
-              <th>{{ coreString('progressLabel') }}</th>
-            </template>
-            <template #tbody>
-              <transition-group
-                tag="tbody"
-                name="list"
-              >
-                <tr
-                  v-for="tableRow in lessonsTable"
-                  :key="tableRow.id"
+        <KGrid>
+          <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
+            <h2>{{ coachString('lessonsAssignedLabel') }}</h2>
+            <CoreTable :emptyMessage="coachString('lessonListEmptyState')">
+              <template #headers>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
+              </template>
+              <template #tbody>
+                <transition-group
+                  tag="tbody"
+                  name="list"
                 >
-                  <td>
-                    <KRouterLink
-                      :to="classRoute('ReportsLearnerReportLessonPage', {
-                        lessonId: tableRow.id
-                      })"
-                      :text="tableRow.title"
-                      icon="lesson"
-                    />
-                  </td>
-                  <td>
-                    <StatusSimple :status="tableRow.status" />
-                  </td>
-                </tr>
-              </transition-group>
-            </template>
-          </CoreTable>
-        </KGridItem>
-        <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
-          <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
-          <CoreTable
-            :class="{ print: $isPrint }"
-            :emptyMessage="coachString('quizListEmptyState')"
-          >
-            <template #headers>
-              <th>{{ coachString('titleLabel') }}</th>
-              <th>{{ coreString('progressLabel') }}</th>
-              <th>{{ coreString('scoreLabel') }}</th>
-            </template>
-            <template #tbody>
-              <transition-group
-                tag="tbody"
-                name="list"
-              >
-                <tr
-                  v-for="tableRow in examsTable"
-                  :key="tableRow.id"
+                  <tr
+                    v-for="tableRow in lessonsTable"
+                    :key="tableRow.id"
+                  >
+                    <td>
+                      <KRouterLink
+                        :to="classRoute('ReportsLearnerReportLessonPage', {
+                          lessonId: tableRow.id
+                        })"
+                        :text="tableRow.title"
+                        icon="lesson"
+                      />
+                    </td>
+                    <td>
+                      <StatusSimple :status="tableRow.status" />
+                    </td>
+                  </tr>
+                </transition-group>
+              </template>
+            </CoreTable>
+          </KGridItem>
+          <KGridItem :layout12="{ span: $isPrint ? 12 : 6 }">
+            <h2>{{ coachString('quizzesAssignedLabel') }}</h2>
+            <CoreTable
+              :class="{ print: $isPrint }"
+              :emptyMessage="coachString('quizListEmptyState')"
+            >
+              <template #headers>
+                <th>{{ coachString('titleLabel') }}</th>
+                <th>{{ coreString('progressLabel') }}</th>
+                <th>{{ coreString('scoreLabel') }}</th>
+              </template>
+              <template #tbody>
+                <transition-group
+                  tag="tbody"
+                  name="list"
                 >
-                  <td>
-                    <KRouterLink
-                      :to="quizLink(tableRow.id)"
-                      :text="tableRow.title"
-                      icon="quiz"
-                    />
-                  </td>
-                  <td>
-                    <StatusSimple :status="tableRow.statusObj.status" />
-                  </td>
-                  <td>
-                    <Score :value="tableRow.statusObj.score" />
-                  </td>
-                </tr>
-              </transition-group>
-            </template>
-          </CoreTable>
-        </KGridItem>
-      </KGrid>
+                  <tr
+                    v-for="tableRow in examsTable"
+                    :key="tableRow.id"
+                  >
+                    <td>
+                      <KRouterLink
+                        :to="quizLink(tableRow.id)"
+                        :text="tableRow.title"
+                        icon="quiz"
+                      />
+                    </td>
+                    <td>
+                      <StatusSimple :status="tableRow.statusObj.status" />
+                    </td>
+                    <td>
+                      <Score :value="tableRow.statusObj.score" />
+                    </td>
+                  </tr>
+                </transition-group>
+              </template>
+            </CoreTable>
+          </KGridItem>
+        </KGrid>
 
+      </KTabsPanel>
     </KPageContainer>
   </CoachAppBarPage>
 
@@ -98,6 +102,7 @@
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
   import { PageNames } from '../../constants';
+  import { LEARNERS_TABS_ID, LearnersTabs } from '../../constants/tabsConstants';
   import ReportsLearnerHeader from './ReportsLearnerHeader';
   import ReportsControls from './ReportsControls';
 
@@ -109,6 +114,12 @@
       ReportsControls,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        LEARNERS_TABS_ID,
+        LearnersTabs,
+      };
+    },
     computed: {
       learner() {
         return this.learnerMap[this.$route.params.learnerId];

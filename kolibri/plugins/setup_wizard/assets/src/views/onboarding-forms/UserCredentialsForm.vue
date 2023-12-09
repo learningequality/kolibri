@@ -50,6 +50,7 @@
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
         :showConfirmationInput="!selectedUser"
+        :shouldValidateOnEnter="false"
         autocomplete="new-password"
       />
 
