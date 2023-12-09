@@ -5,8 +5,6 @@ from __future__ import unicode_literals
 import logging
 
 from kolibri.core.auth.constants.user_kinds import COACH
-from kolibri.core.device.utils import get_device_setting
-from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
 from kolibri.core.webpack import hooks as webpack_hooks
@@ -59,19 +57,3 @@ class CoachAsset(webpack_hooks.WebpackBundleHook):
         return {
             "practice_quizzes_exist": practice_quizzes_exist,
         }
-
-
-@register_hook
-class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
-    def on_disconnect(self, network_location):
-        """
-        :type network_location: kolibri.core.discovery.models.NetworkLocation
-        """
-        from kolibri.core.auth.tasks import queue_soud_server_sync_cleanup
-
-        if (
-            not get_device_setting("subset_of_users_device")
-            and network_location.subset_of_users_device
-        ):
-            logger.debug("SoUD listener: triggering cleanup of SoUD sync")
-            queue_soud_server_sync_cleanup(network_location.instance_id)

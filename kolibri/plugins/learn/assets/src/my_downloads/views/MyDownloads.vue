@@ -24,7 +24,7 @@
               <td
                 v-if="!loading"
               >
-                {{ formattedSize(availableSpace) }}
+                {{ formattedSize(availableStorage) }}
               </td>
             </tr>
           </table>
@@ -58,6 +58,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import plugin_data from 'plugin_data';
   import useDownloadRequests from '../../composables/useDownloadRequests';
   import useDevices from '../../composables/useDevices';
   import DownloadsList from './DownloadsList';
@@ -90,6 +91,14 @@
 
       const sort = computed(() => query.value.sort);
 
+      const availableStorage = computed(() => {
+        let space = get(availableSpace);
+        if (plugin_data.setLimitForAutodownload) {
+          space = Math.min(space, plugin_data.limitForAutodownload);
+        }
+        return space;
+      });
+
       fetchAvailableFreespace();
       pollUserDownloadRequests();
 
@@ -101,6 +110,7 @@
         fetchDevices,
         sort,
         removeDownloadRequest,
+        availableStorage,
       };
     },
     computed: {

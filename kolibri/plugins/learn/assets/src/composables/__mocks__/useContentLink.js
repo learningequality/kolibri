@@ -34,6 +34,10 @@
 const MOCK_DEFAULTS = {
   genContentLinkBackLinkCurrentPage: jest.fn(() => ({})),
   genContentLinkKeepCurrentBackLink: jest.fn(() => ({})),
+  genExternalContentURLBackLinkCurrentPage: jest.fn(() => ({})),
+  genExternalBackURL: jest.fn(() => ({})),
+  genLibraryPageBackLink: jest.fn(() => ({})),
+  genExploreLibrariesPageBackLink: jest.fn(() => ({})),
   back: {},
 };
 

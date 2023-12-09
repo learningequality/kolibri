@@ -8,6 +8,7 @@ from django.db.models import BooleanField
 from django.db.models import Case
 from django.db.models import Exists
 from django.db.models import OuterRef
+from django.db.models import Q
 from django.db.models import QuerySet
 from django.db.models import Subquery
 from django.db.models import Sum
@@ -94,6 +95,7 @@ def create_content_download_requests(facility, assignments, source_instance_id=N
         # delete any related removal requests
         related_removals.delete()
 
+        logger.debug("Creating content download request for {}".format(assignment))
         ContentDownloadRequest.objects.get_or_create(
             defaults=dict(
                 facility_id=facility.id,
@@ -131,6 +133,9 @@ def create_content_removal_requests(facility, removable_assignments):
             removed_contentnode_ids = [assignment.contentnode_id]
 
         for contentnode_id in removed_contentnode_ids:
+            logger.debug(
+                "Creating content removal request for {}".format(contentnode_id)
+            )
             ContentRemovalRequest.objects.get_or_create(
                 defaults=dict(
                     facility_id=facility.id,
@@ -190,10 +195,11 @@ def synchronize_content_requests(dataset_id, transfer_session=None):
             else sync_session.server_instance_id
         )
 
+    # process removals first
+    create_content_removal_requests(facility, removable_assignments)
     create_content_download_requests(
         facility, assignments, source_instance_id=source_instance_id
     )
-    create_content_removal_requests(facility, removable_assignments)
 
 
 class PreferredDevices(object):
@@ -246,11 +252,23 @@ class PreferredDevices(object):
         :return: The NetworkLocation object, or None if it is not available or does not match the
                  validation conditions
         """
-        try:
-            peer = NetworkLocation.objects.get(
-                instance_id=_uuid_to_hex(instance_id), **self._filters
+        peer = (
+            NetworkLocation.objects.annotate(
+                okay=Case(
+                    When(
+                        connection_status=ConnectionStatus.Okay,
+                        then=Value(True),
+                    ),
+                    default=Value(False),
+                    output_field=BooleanField(),
+                ),
             )
-        except NetworkLocation.DoesNotExist:
+            .order_by("-okay")
+            .filter(instance_id=_uuid_to_hex(instance_id), **self._filters)
+            .first()
+        )
+
+        if not peer:
             return None
 
         # if we're on a metered connection, we only want to download from local peers
@@ -642,8 +660,8 @@ def incomplete_removals_queryset():
         )
         .exclude(
             # hoping using exclude creates SQL like `NOT EXISTS`
-            has_other_download=True,
-            is_admin_imported=True,
+            Q(has_other_download=True)
+            | Q(is_admin_imported=True)
         )
         .order_by("requested_at")
     )
@@ -929,6 +947,10 @@ def process_content_removal_requests(queryset):
         contentnode_ids = list(
             removable_nodes.filter(channel_id=channel_id).values_list("id", flat=True)
         )
+        # if we somehow have no contentnode_ids, skip, because the deletecontent command will
+        # delete all content for the channel if no node ids are passed
+        if not contentnode_ids:
+            continue
         # queryset unfiltered by status
         channel_requests = ContentRemovalRequest.objects.filter(
             id__in=list(

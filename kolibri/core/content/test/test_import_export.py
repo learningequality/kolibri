@@ -444,6 +444,15 @@ class GetContentNodesDataTestCase(TestCase):
         self.assertCountEqual(files, expected_files_list)
         self.assertEqual(total_bytes_to_transfer, 5)
 
+    def test_empty_query(self):
+        (total_resource_count, files, total_bytes_to_transfer) = get_content_nodes_data(
+            self.the_channel_id, [ContentNode.objects.none()], available=True
+        )
+
+        self.assertEqual(total_resource_count, 0)
+        self.assertCountEqual(files, [])
+        self.assertEqual(total_bytes_to_transfer, 0)
+
 
 @patch(
     "kolibri.core.content.management.commands.importchannel.channel_import.import_channel_from_local_db"

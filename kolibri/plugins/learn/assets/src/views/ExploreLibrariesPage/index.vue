@@ -21,21 +21,17 @@
     <div v-if="loading">
       <KCircularLoader />
     </div>
-    <div v-else>
+    <FadeInTransitionGroup v-else>
       <LibraryItem
         v-for="device in pinnedDevices"
         :key="device['instance_id']"
-        :deviceId="device['instance_id']"
-        :deviceName="device['device_name']"
-        :deviceIcon="getDeviceIcon(device)"
+        :device="device"
         :channels="deviceChannelsMap[device['instance_id']]"
-        :totalChannels="device['total_count']"
-        :pinIcon="getPinIcon(true)"
-        :showDescription="device['instance_id'] === studioId"
-        :disablePinDevice="device['instance_id'] === studioId"
+        :channelsToDisplay="cardsToDisplay"
+        :pinned="true"
         @togglePin="handlePinToggle"
       />
-      <div v-if="areMoreDevicesAvailable">
+      <div v-if="areMoreDevicesAvailable" key="moreDevices">
         <div
           v-if="pinnedDevicesExist"
           data-test="more-libraries"
@@ -49,17 +45,17 @@
             @click="loadMoreDevices"
           />
         </div>
-        <LibraryItem
-          v-for="(device, index) in unpinnedDevices.slice(0, moreDevices)"
-          :key="index"
-          :deviceId="device['instance_id']"
-          :deviceName="device['device_name']"
-          :deviceIcon="getDeviceIcon(device)"
-          :channels="deviceChannelsMap[device['instance_id']]"
-          :totalChannels="device['total_count']"
-          :pinIcon="getPinIcon(false)"
-          @togglePin="handlePinToggle"
-        />
+        <FadeInTransitionGroup>
+          <LibraryItem
+            v-for="device in unpinnedDevices.slice(0, moreDevices)"
+            :key="device['instance_id']"
+            :device="device"
+            :channels="deviceChannelsMap[device['instance_id']]"
+            :channelsToDisplay="cardsToDisplay"
+            :pinned="false"
+            @togglePin="handlePinToggle"
+          />
+        </FadeInTransitionGroup>
         <KButton
           v-if="displayShowMoreButton"
           data-test="show-more-button"
@@ -68,7 +64,7 @@
           @click="loadMoreDevices"
         />
       </div>
-    </div>
+    </FadeInTransitionGroup>
   </ImmersivePage>
 
 </template>
@@ -76,76 +72,76 @@
 
 <script>
 
+  import { get, set } from '@vueuse/core';
+  import { ref, watch } from 'kolibri.lib.vueCompositionApi';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { crossComponentTranslator, localeCompare } from 'kolibri.utils.i18n';
-  import { ref, reactive, watch, set } from 'kolibri.lib.vueCompositionApi';
   import commonLearnStrings from '../commonLearnStrings';
-  import useChannels from '../../composables/useChannels';
+  import FadeInTransitionGroup from '../FadeInTransitionGroup';
+  import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';
   import useDevices from '../../composables/useDevices';
   import usePinnedDevices from '../../composables/usePinnedDevices';
-  import { KolibriStudioId } from '../../constants';
   import LibraryItem from './LibraryItem';
 
-  const PinStrings = crossComponentTranslator(LibraryItem);
+  const moreDevicesIncrement = 4;
 
   export default {
     name: 'ExploreLibrariesPage',
     components: {
+      FadeInTransitionGroup,
       ImmersivePage,
       LibraryItem,
     },
     mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
-      const { networkDevices } = useDevices();
-      const { fetchChannels } = useChannels();
-      const { createPinForUser, deletePinForUser, fetchPinsForUser } = usePinnedDevices();
-      const { back } = useContentLink();
-      const deviceChannelsMap = reactive({});
-      const loading = ref(true);
-
-      function _updateDeviceChannels(device, channels) {
-        set(deviceChannelsMap, device.instance_id, channels);
-      }
-
-      function loadDeviceChannels() {
-        let currentDevice;
-        Object.keys(networkDevices.value).forEach(key => {
-          const promises = [];
-          currentDevice = networkDevices.value[key];
-          if (!deviceChannelsMap[currentDevice.instance_id]) {
-            const baseurl = currentDevice.base_url;
-            const promise = fetchChannels({ baseurl }).then(channels => {
-              _updateDeviceChannels(currentDevice, channels);
-              loading.value = false;
-            });
-            promises.push(promise);
-          }
-          Promise.all(promises).then(() => {
-            // In case we don't successfully fetch any channels, don't do a perpetual loading state.
-            loading.value = false;
-          });
-        });
-      }
-      loadDeviceChannels();
-      watch(networkDevices, loadDeviceChannels);
-
-      return {
-        deletePinForUser,
-        createPinForUser,
-        fetchPinsForUser,
+      const {
+        networkDevicesWithChannels,
+        keepDeviceChannelsUpdated,
         deviceChannelsMap,
-        fetchChannels,
-        networkDevices,
-        back,
-      };
-    },
-    data() {
+        isLoadingChannels,
+      } = useDevices();
+      const {
+        handlePinToggle,
+        fetchPinsForUser,
+        userPinsMap,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+      } = usePinnedDevices(networkDevicesWithChannels);
+      const { back } = useContentLink();
+      const { makeComputedCardCount } = useCardLayoutSpan();
+      const moreDevices = ref(0);
+
+      keepDeviceChannelsUpdated();
+
+      fetchPinsForUser().then(() => {
+        set(moreDevices, get(pinnedDevicesExist) ? 0 : moreDevicesIncrement);
+      });
+
+      watch(pinnedDevicesExist, (newVal, oldVal) => {
+        if (!oldVal && newVal) {
+          // Always show at least 4 devices
+          set(moreDevices, Math.max(moreDevicesIncrement - get(pinnedDevices).length, 0));
+        } else if (oldVal && !newVal && !get(moreDevices)) {
+          set(moreDevices, moreDevicesIncrement);
+        }
+      });
+
+      const cardsToDisplay = makeComputedCardCount(1, 3);
+
       return {
-        loading: false,
-        moreDevices: 0,
-        usersPins: [],
+        handlePinToggle,
+        pinnedDevices,
+        unpinnedDevices,
+        pinnedDevicesExist,
+        userPinsMap,
+        deviceChannelsMap,
+        networkDevicesWithChannels,
+        back,
+        loading: isLoadingChannels,
+        moreDevices,
+        cardsToDisplay,
       };
     },
     computed: {
@@ -156,20 +152,7 @@
         return this.moreDevices === 0 && this.areMoreDevicesAvailable;
       },
       displayShowMoreButton() {
-        return this.moreDevices < this.unpinnedDevices?.length;
-      },
-      networkDevicesWithChannels() {
-        return Object.values(this.networkDevices)
-          .filter(device => this.deviceChannelsMap[device.instance_id]?.length > 0)
-          .sort((a, b) => {
-            if (a.instance_id === this.studioId) {
-              return 1;
-            }
-            if (b.instance_id === this.studioId) {
-              return -1;
-            }
-            return localeCompare(a.device_name, b.device_name);
-          });
+        return !this.displayShowButton && this.moreDevices < this.unpinnedDevices?.length;
       },
       pageHeaderStyle() {
         return {
@@ -177,88 +160,10 @@
           color: this.$themeTokens.text,
         };
       },
-      studioId() {
-        return KolibriStudioId;
-      },
-      usersPinsDeviceIds() {
-        // The IDs of devices (mapped to instance_id on the networkDevicesWithChannels
-        // items) -- which the user has pinned
-        return this.usersPins.map(pin => pin.instance_id);
-      },
-      pinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            this.usersPinsDeviceIds.includes(device.instance_id) ||
-            device.instance_id === this.studioId
-          );
-        });
-      },
-      pinnedDevicesExist() {
-        return this.pinnedDevices.length > 0;
-      },
-      unpinnedDevices() {
-        return this.networkDevicesWithChannels.filter(device => {
-          return (
-            !this.usersPinsDeviceIds.includes(device.instance_id) &&
-            device.instance_id !== this.studioId
-          );
-        });
-      },
-    },
-    watch: {
-      pinnedDevicesExist: {
-        handler(newValue) {
-          if (!newValue) {
-            this.loadMoreDevices();
-          }
-        },
-        deep: true,
-        immediate: false,
-      },
     },
     methods: {
-      createPin(instance_id) {
-        return this.createPinForUser(instance_id).then(response => {
-          const id = response.id;
-          this.usersPins = [...this.usersPins, { instance_id, id }];
-          this.moreDevices = 0;
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinnedTo'));
-        });
-      },
-      deletePin(instance_id, pinId) {
-        return this.deletePinForUser(pinId).then(() => {
-          // Remove this pin from the usersPins
-          this.usersPins = this.usersPins.filter(pin => pin.instance_id != instance_id);
-          if (this.usersPins.length === 0) {
-            this.loadMoreDevices();
-          }
-          // eslint-disable-next-line
-          this.$store.dispatch('createSnackbar', PinStrings.$tr('pinRemoved'));
-        });
-      },
-      handlePinToggle(instance_id) {
-        if (this.usersPinsDeviceIds.includes(instance_id)) {
-          const pinId = this.usersPins.find(pin => pin.instance_id === instance_id);
-          this.deletePin(instance_id, pinId);
-        } else {
-          this.createPin(instance_id);
-        }
-      },
-      getDeviceIcon(device) {
-        if (device['operating_system'] === 'Android') {
-          return 'device';
-        } else if (!device['subset_of_users_device']) {
-          return 'cloud';
-        } else {
-          return 'laptop';
-        }
-      },
-      getPinIcon(pinned) {
-        return pinned ? 'pinned' : 'notPinned';
-      },
       loadMoreDevices() {
-        this.moreDevices += 4;
+        this.moreDevices += moreDevicesIncrement;
       },
     },
     $trs: {

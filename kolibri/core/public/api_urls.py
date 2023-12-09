@@ -30,7 +30,7 @@ from .api import InfoViewSet
 from .api import PublicChannelMetadataViewSet
 from .api import PublicContentNodeTreeViewSet
 from .api import PublicContentNodeViewSet
-from .api import SyncQueueViewSet
+from .api import SyncQueueAPIView
 from kolibri.core.content.public_api import ImportMetadataViewset
 
 
@@ -43,7 +43,6 @@ router.register(
 )
 router.register(r"signup", PublicSignUpViewSet, basename="publicsignup")
 router.register(r"info", InfoViewSet, basename="info")
-router.register(r"syncqueue", SyncQueueViewSet, basename="syncqueue")
 
 public_content_v2_router = routers.SimpleRouter()
 public_content_v2_router.register(
@@ -79,5 +78,10 @@ urlpatterns = [
         r"(?P<version>[^/]+)/file_checksums/",
         get_public_file_checksums,
         name="get_public_file_checksums",
+    ),
+    url(
+        r"syncqueue/",
+        SyncQueueAPIView.as_view(),
+        name="syncqueue",
     ),
 ]

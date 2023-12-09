@@ -206,7 +206,6 @@
       defaultDuration() {
         return this.player.duration();
       },
-      /* eslint-enable kolibri/vue-no-unused-properties */
       transcriptWrap() {
         return this.windowIsPortrait || (!this.isFullscreen && this.windowIsSmall);
       },
@@ -656,6 +655,7 @@
   }
 
   .wrapper:not(.transcript-wrap) .media-player-transcript {
+    position: absolute;
     top: 0;
     width: 33.333%;
 
@@ -665,6 +665,7 @@
   }
 
   .wrapper.transcript-wrap .media-player-transcript {
+    position: relative;
     left: 0;
     height: #{$transcript-wrap-height};
 
@@ -691,13 +692,11 @@
 
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
-      height: auto;
-      margin-top: #{$video-player-height-by-width};
+      height: calc(100vh - #{$video-player-height-vw});
     }
 
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
-      height: auto;
-      padding-top: #{$video-player-height-by-width};
+      height: #{$video-player-height-vw};
     }
   }
 

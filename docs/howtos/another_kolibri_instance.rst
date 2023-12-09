@@ -1,6 +1,6 @@
 .. _another_kolibri_instance:
 
-Another Kolibri Instance
-========================
+Running another Kolibri instance alongside the development server
+=================================================================
 
 .. mdinclude:: ./another_kolibri_instance.md

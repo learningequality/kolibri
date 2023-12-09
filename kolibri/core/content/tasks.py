@@ -100,6 +100,7 @@ class ChannelResourcesValidator(ChannelValidator):
 
 class ChannelResourcesImportValidator(ChannelResourcesValidator):
     update = serializers.BooleanField(default=False)
+    renderable_only = serializers.BooleanField(default=True)
     fail_on_error = serializers.BooleanField(default=False)
     new_version = serializers.IntegerField(required=False)
     all_thumbnails = serializers.BooleanField(default=False)
@@ -109,6 +110,7 @@ class ChannelResourcesImportValidator(ChannelResourcesValidator):
         job_data["kwargs"].update(
             {
                 "update": data.get("update"),
+                "renderable_only": data.get("renderable_only"),
                 "fail_on_error": data.get("fail_on_error"),
                 "all_thumbnails": data.get("all_thumbnails"),
             }
@@ -158,6 +160,7 @@ def diskcontentimport(
     update=False,
     node_ids=None,
     exclude_node_ids=None,
+    renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
 ):
@@ -171,6 +174,7 @@ def diskcontentimport(
         drive_id=drive_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
     )
@@ -247,6 +251,7 @@ def remotecontentimport(
     node_ids=None,
     exclude_node_ids=None,
     update=False,
+    renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
 ):
@@ -259,6 +264,7 @@ def remotecontentimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
     )
@@ -525,6 +531,7 @@ def remoteimport(
     node_ids=None,
     exclude_node_ids=None,
     update=False,
+    renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
 ):
@@ -549,6 +556,7 @@ def remoteimport(
         peer_id=peer_id,
         node_ids=node_ids,
         exclude_node_ids=exclude_node_ids,
+        renderable_only=renderable_only,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,
     )
@@ -570,6 +578,7 @@ def diskimport(
     update=False,
     node_ids=None,
     exclude_node_ids=None,
+    renderable_only=True,
     fail_on_error=False,
     all_thumbnails=False,
 ):
@@ -596,6 +605,7 @@ def diskimport(
         path=drive.datafolder,
         drive_id=drive_id,
         node_ids=node_ids,
+        renderable_only=renderable_only,
         exclude_node_ids=exclude_node_ids,
         fail_on_error=fail_on_error,
         all_thumbnails=all_thumbnails,

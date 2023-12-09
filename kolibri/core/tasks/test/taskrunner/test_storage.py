@@ -7,12 +7,10 @@ import pytz
 from mock import patch
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.exceptions import JobAlreadyRetrying
 from kolibri.core.tasks.exceptions import JobNotRestartable
-from kolibri.core.tasks.exceptions import JobNotRunning
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.registry import TaskRegistry
 from kolibri.core.tasks.storage import Storage
@@ -266,65 +264,384 @@ class TestBackend:
         with pytest.raises(ValueError):
             defaultbackend.enqueue_at(tz_aware_now, simplejob, repeat=-1, interval=1)
 
-    def test_can_retry_running_job(self, defaultbackend, simplejob):
+    def test_reschedule_finished_job_no_delay(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
-        defaultbackend.mark_job_as_running(job_id)
+        defaultbackend.complete_job(job_id)
 
-        job = defaultbackend.get_job(job_id)
+        orm_job = defaultbackend.get_orm_job(job_id)
 
-        # is the job marked as running?
-        assert job.state == State.RUNNING
+        previous_scheduled_time = orm_job.scheduled_time
 
-        defaultbackend.retry_job_in(simplejob.job_id, datetime.timedelta(seconds=5))
-        requeued_job = defaultbackend.get_orm_job(job_id)
+        defaultbackend.reschedule_finished_job_if_needed(simplejob.job_id)
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
 
-        assert requeued_job.repeat == 1
-        assert requeued_job.interval == 5
+        assert requeued_job.state == State.COMPLETED
+        assert requeued_orm_job.scheduled_time == previous_scheduled_time
 
-    def test_cant_retry_queued_job(self, defaultbackend, simplejob):
+    def test_can_reschedule_finished_job(self, defaultbackend, simplejob):
         job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
 
-        job = defaultbackend.get_job(job_id)
+        orm_job = defaultbackend.get_orm_job(job_id)
 
-        assert job.state == State.QUEUED
-        with pytest.raises(JobNotRunning):
-            defaultbackend.retry_job_in(simplejob.job_id, datetime.timedelta(seconds=5))
+        previous_scheduled_time = orm_job.scheduled_time
 
-    def test_cant_retry_already_retrying_job(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, retry_interval=5)
-        defaultbackend.mark_job_as_running(job_id)
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, delay=datetime.timedelta(seconds=5)
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
 
-        job = defaultbackend.get_job(job_id)
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
 
-        # is the job marked as running?
-        assert job.state == State.RUNNING
-        with pytest.raises(JobAlreadyRetrying):
-            defaultbackend.retry_job_in(simplejob.job_id, datetime.timedelta(seconds=5))
+    def test_reschedule_finished_job_canceled(self, defaultbackend, simplejob):
+        # Test case where the job is canceled.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_canceled(job_id)
 
-    def test_cant_retry_already_indefinitely_repeating_job(
+        orm_job = defaultbackend.get_orm_job(job_id)
+
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, delay=datetime.timedelta(seconds=5)
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
+
+    def test_reschedule_finished_job_failed(self, defaultbackend, simplejob):
+        # Test case where the job is failed.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_failed(job_id, RuntimeError(), "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id, delay=datetime.timedelta(seconds=5)
+        )
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert requeued_orm_job.scheduled_time > previous_scheduled_time
+
+    def test_reschedule_finished_job_invalid_state_queued(
         self, defaultbackend, simplejob
     ):
-        job_id = defaultbackend.enqueue_in(
-            datetime.timedelta(seconds=5), simplejob, QUEUE, repeat=None, interval=30
-        )
+        # Test case where the job state is not finished.
+        # Ensure an error is raised since only finished jobs can be rescheduled.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
+        with pytest.raises(JobNotRestartable):
+            defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+    def test_reschedule_finished_job_invalid_state_running(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job state is not finished.
+        # Ensure an error is raised since only finished jobs can be rescheduled.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+
         defaultbackend.mark_job_as_running(job_id)
 
-        job = defaultbackend.get_job(job_id)
+        with pytest.raises(JobNotRestartable):
+            defaultbackend.reschedule_finished_job_if_needed(job_id)
 
-        # is the job marked as running?
-        assert job.state == State.RUNNING
-        with pytest.raises(JobAlreadyRetrying):
-            defaultbackend.retry_job_in(simplejob.job_id, datetime.timedelta(seconds=5))
-
-    def test_cant_retry_already_finitely_repeating_job(self, defaultbackend, simplejob):
-        job_id = defaultbackend.enqueue_in(
-            datetime.timedelta(seconds=5), simplejob, QUEUE, repeat=3, interval=30
+    def test_reschedule_finished_job_failed_retry_interval_scheduled(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job has failed and a retry_interval is specified.
+        # Ensure the job is scheduled with a retry_interval.
+        retry_interval = 60 * 30
+        job_id = defaultbackend.enqueue_job(
+            simplejob, QUEUE, retry_interval=retry_interval
         )
-        defaultbackend.mark_job_as_running(job_id)
+        defaultbackend.mark_job_as_failed(job_id, RuntimeError(), "Traceback")
 
-        job = defaultbackend.get_job(job_id)
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
 
-        # is the job marked as running?
-        assert job.state == State.RUNNING
-        with pytest.raises(JobAlreadyRetrying):
-            defaultbackend.retry_job_in(simplejob.job_id, datetime.timedelta(seconds=5))
+        defaultbackend.reschedule_finished_job_if_needed(job_id)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=retry_interval)
+        )
+
+    def test_reschedule_finished_job_failed_retry_interval(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job has failed and a retry_interval is specified.
+        # Ensure the job is scheduled with a retry_interval.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_failed(job_id, RuntimeError(), "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        retry_interval = 60 * 30
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            job_id, retry_interval=retry_interval
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=retry_interval)
+        )
+
+    def test_reschedule_finished_job_failed_retry_interval_scheduled_override(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job has failed and a retry_interval is specified.
+        # Ensure the job is scheduled with a retry_interval.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE, retry_interval=3)
+        defaultbackend.mark_job_as_failed(job_id, RuntimeError(), "Traceback")
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        retry_interval = 60 * 30
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            job_id, retry_interval=retry_interval
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=retry_interval)
+        )
+
+    def test_reschedule_finished_job_completed_with_repeat(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job is completed, repeat is not 0, and other parameters are None.
+        # Ensure the job is scheduled with the correct interval.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        interval = 60 * 10
+        repeat = 3
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            job_id, interval=interval, repeat=repeat
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=interval)
+        )
+        assert requeued_orm_job.repeat == repeat - 1
+
+    def test_reschedule_finished_job_invalid_priority(self, defaultbackend, simplejob):
+        # Test case where an invalid priority is specified.
+        # Ensure an error is raised for invalid priority.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        with pytest.raises(ValueError):
+            defaultbackend.reschedule_finished_job_if_needed(
+                job_id, priority="invalid_priority"
+            )
+
+    def test_reschedule_finished_job_invalid_interval(self, defaultbackend, simplejob):
+        # Test case where an invalid interval is specified.
+        # Ensure an error is raised for invalid interval.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        with pytest.raises(ValueError):
+            defaultbackend.reschedule_finished_job_if_needed(job_id, interval=-1)
+
+    def test_reschedule_finished_job_invalid_retry_interval(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where an invalid retry_interval is specified.
+        # Ensure an error is raised for invalid retry_interval.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.mark_job_as_failed(job_id, RuntimeError(), "Traceback")
+
+        with pytest.raises(ValueError):
+            defaultbackend.reschedule_finished_job_if_needed(job_id, retry_interval=0)
+
+    def test_reschedule_finished_job_invalid_repeat(self, defaultbackend, simplejob):
+        # Test case where an invalid repeat is specified.
+        # Ensure an error is raised for invalid repeat.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        with pytest.raises(ValueError):
+            defaultbackend.reschedule_finished_job_if_needed(job_id, repeat=-1)
+
+    def test_reschedule_finished_scheduled_job_override_repeat(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job is completed, repeat is set to something other than the scheduled repeat.
+        # Ensure the job is scheduled with the correct repeat.
+        job_id = defaultbackend.schedule(
+            defaultbackend._now(), simplejob, queue=QUEUE, repeat=1, interval=3
+        )
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        repeat = 3
+
+        defaultbackend.reschedule_finished_job_if_needed(job_id, repeat=repeat)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=3)
+        )
+        assert requeued_orm_job.repeat == repeat - 1
+
+    def test_reschedule_finished_scheduled_job_override_interval(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job is completed, interval is not None.
+        # Ensure the job is scheduled with the correct interval.
+        job_id = defaultbackend.schedule(
+            defaultbackend._now(), simplejob, queue=QUEUE, repeat=1, interval=3
+        )
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        interval = 60 * 10
+
+        defaultbackend.reschedule_finished_job_if_needed(job_id, interval=interval)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=interval)
+        )
+        assert requeued_orm_job.repeat == 0
+
+    def test_reschedule_finished_scheduled_job_override_priority(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where the job is completed, priority is not None.
+        # Ensure the job is scheduled with the correct priority.
+        job_id = defaultbackend.schedule(
+            defaultbackend._now(), simplejob, queue=QUEUE, repeat=1, interval=3
+        )
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        assert orm_job.priority == Priority.REGULAR
+
+        defaultbackend.reschedule_finished_job_if_needed(job_id, priority=Priority.HIGH)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=3)
+        )
+        assert requeued_orm_job.priority == Priority.HIGH
+        assert requeued_orm_job.repeat == 0
+
+    def test_reschedule_finished_job_with_zero_repeat(self, defaultbackend, simplejob):
+        # Test case where repeat is set to 0.
+        # Ensure the job is not rescheduled.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        defaultbackend.reschedule_finished_job_if_needed(simplejob.job_id, repeat=0)
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        assert requeued_job.state == State.COMPLETED
+        assert requeued_orm_job.scheduled_time == previous_scheduled_time
+
+    def test_reschedule_finished_job_with_negative_repeat(
+        self, defaultbackend, simplejob
+    ):
+        # Test case where repeat is set to a negative value.
+        # Ensure an error is raised.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        with pytest.raises(ValueError):
+            defaultbackend.reschedule_finished_job_if_needed(
+                simplejob.job_id, repeat=-1
+            )
+
+    def test_reschedule_finished_job_combined(self, defaultbackend, simplejob):
+        # Test a combination of parameters to cover different branches in the method.
+        job_id = defaultbackend.enqueue_job(simplejob, QUEUE)
+        defaultbackend.complete_job(job_id)
+
+        orm_job = defaultbackend.get_orm_job(job_id)
+        previous_scheduled_time = orm_job.scheduled_time
+
+        # Specify custom values for priority, interval, repeat, and retry_interval
+        priority = Priority.HIGH
+        interval = 60 * 15
+        repeat = 2
+        retry_interval = 30
+
+        defaultbackend.reschedule_finished_job_if_needed(
+            simplejob.job_id,
+            priority=priority,
+            interval=interval,
+            repeat=repeat,
+            retry_interval=retry_interval,
+        )
+
+        requeued_orm_job = defaultbackend.get_orm_job(job_id)
+        requeued_job = defaultbackend.get_job(job_id)
+
+        # Ensure that the job is scheduled with the specified parameters
+        assert requeued_job.state == State.QUEUED
+        assert (
+            requeued_orm_job.scheduled_time
+            >= previous_scheduled_time + datetime.timedelta(seconds=interval)
+        )
+        assert requeued_orm_job.priority == priority
+        assert requeued_orm_job.repeat == repeat - 1
+        assert requeued_orm_job.retry_interval == retry_interval

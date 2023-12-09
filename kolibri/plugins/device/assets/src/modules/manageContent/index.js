@@ -53,7 +53,7 @@ export default {
             ![TaskTypes.DISKCONTENTEXPORT, TaskTypes.DISKEXPORT, TaskTypes.DELETECHANNEL].includes(
               task.type
             ) &&
-            task.channel_id === channel.id &&
+            task.extra_metadata.channel_id === channel.id &&
             task.status === TaskStatuses.COMPLETED
           );
         });

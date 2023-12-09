@@ -43,7 +43,6 @@ def get_free_space_for_downloads(completed_size=0):
     from kolibri.core.device.utils import get_device_setting
     from kolibri.utils.conf import OPTIONS
 
-    from kolibri.utils.data import bytes_from_humans
     from kolibri.utils.system import get_free_space
 
     free_space = get_free_space(OPTIONS["Paths"]["CONTENT_DIR"])
@@ -51,10 +50,7 @@ def get_free_space_for_downloads(completed_size=0):
     # if a limit is set, subtract the total content storage size from the limit
     if get_device_setting("set_limit_for_autodownload"):
         # compute total space used by automatic and learner initiated downloads
-        # convert limit_for_autodownload from GB to bytes
-        auto_download_limit = bytes_from_humans(
-            str(get_device_setting("limit_for_autodownload") or "0") + "GB"
-        )
+        auto_download_limit = get_device_setting("limit_for_autodownload") or 0
         # returning smallest argument as to not exceed the space available on disk
         free_space = min(free_space, auto_download_limit - completed_size)
 

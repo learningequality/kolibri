@@ -1,13 +1,13 @@
 import platform
 import time
 import uuid
-from datetime import timedelta
 
 import factory
 import mock
 from django.urls import reverse
 from django.utils import timezone
 from le_utils.constants import content_kinds
+from morango.constants import transfer_stages
 from morango.constants import transfer_statuses
 from morango.models import InstanceIDModel
 from morango.models import SyncSession
@@ -31,15 +31,11 @@ from kolibri.core.content.utils.annotation import set_channel_metadata_fields
 from kolibri.core.content.utils.paths import get_channel_lookup_url
 from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import SyncQueue
-from kolibri.core.device.models import UserSyncStatus
+from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.utils import set_device_settings
-from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
 from kolibri.core.public.constants.user_sync_options import HANDSHAKING_TIME
 from kolibri.core.public.constants.user_sync_options import MAX_CONCURRENT_SYNCS
 from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
-from kolibri.core.public.constants.user_sync_statuses import QUEUED
-from kolibri.core.public.constants.user_sync_statuses import SYNC
-from kolibri.utils.conf import OPTIONS
 
 
 class ContentNodeFactory(factory.DjangoModelFactory):
@@ -306,28 +302,15 @@ class SyncQueueViewSetTestCase(APITestCase):
     )
     def test_soud(self, mock_device_setting):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
+            reverse("kolibri:core:syncqueue"),
             {"user": uuid.uuid4().hex, "instance": uuid.uuid4().hex},
             format="json",
         )
         assert response.status_code == status.HTTP_400_BAD_REQUEST
-        assert "I'm a Subset of users device" in response.data
-
-    def learner_needed(self):
-        response = self.client.post(reverse("kolibri:core:syncqueue-list"))
-        assert response.status_code == status.HTTP_412_PRECONDITION_FAILED
-
-    def test_existing_user(self):
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            {"user": uuid.uuid4().hex, "instance": uuid.uuid4().hex},
-            format="json",
-        )
-        assert response.status_code == status.HTTP_404_NOT_FOUND
 
     def test_allow_sync(self):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
+            reverse("kolibri:core:syncqueue"),
             {
                 "user": self.learner.id,
                 "instance": self.instance_id,
@@ -335,76 +318,47 @@ class SyncQueueViewSetTestCase(APITestCase):
             format="json",
         )
         assert response.status_code == status.HTTP_200_OK
-        assert response.data["action"] == SYNC
+        assert response.data["status"] == SyncQueueStatus.Ready
 
-    @mock.patch("kolibri.core.public.api.TransferSession.objects.filter")
-    def test_enqueued(self, _filter):
-        _filter().exclude().count.return_value = MAX_CONCURRENT_SYNCS
+    def test_create_user_required(self):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            {"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["action"] == QUEUED
-        assert "id" in response.data
-        assert response.data["keep_alive"] == HANDSHAKING_TIME
-
-    def test_update(self):
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": uuid.uuid4().hex}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-        )
-        assert response.status_code == status.HTTP_200_OK
-        assert response.data["action"] == SYNC
-
-    def test_create_soud(self):
-        settings = DeviceSettings.objects.get()
-        settings.subset_of_users_device = True
-        settings.save()
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={"instance": self.instance_id},
             format="json",
         )
         self.assertEqual(response.status_code, 400)
 
-    def test_create_user_required(self):
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"instance": self.instance_id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 412)
-
     def test_create_instance_id_required(self):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
+            reverse("kolibri:core:syncqueue"),
             data={"user": self.learner.id},
             format="json",
         )
-        self.assertEqual(response.status_code, 412)
+        self.assertEqual(response.status_code, 400)
 
     def test_create_user_not_exist(self):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": uuid.uuid4().hex, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": uuid.uuid4().hex,
+                "instance": self.instance_id,
+            },
             format="json",
         )
         self.assertEqual(response.status_code, 404)
 
     def test_create_empty_queue_should_sync(self):
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": self.learner.id,
+                "instance": self.instance_id,
+            },
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
-        )
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_stale_queue_should_sync(self):
         for i in range(0, 10):
@@ -416,20 +370,47 @@ class SyncQueueViewSetTestCase(APITestCase):
             SyncQueue.objects.create(
                 user_id=learner.id,
                 instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Queued,
                 keep_alive=10,
                 updated=time.time() - STALE_QUEUE_TIME * 2,
             )
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": self.learner.id,
+                "instance": self.instance_id,
+            },
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
+
+    def test_create_skip_the_queue_should_sync(self):
+        for i in range(0, 10):
+            learner = FacilityUser.objects.create(
+                username="test{}".format(i),
+                password="***",
+                facility=self.facility,
+            )
+            SyncQueue.objects.create(
+                user_id=learner.id,
+                instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Queued,
+                keep_alive=10,
+                last_sync=time.time() + 10,
+            )
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": self.learner.id,
+                "instance": self.instance_id,
+            },
+            format="json",
         )
+        data = response.json()
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(data["status"], SyncQueueStatus.Ready)
 
     def test_create_full_queue_should_queue(self):
         for i in range(0, MAX_CONCURRENT_SYNCS):
@@ -441,354 +422,86 @@ class SyncQueueViewSetTestCase(APITestCase):
             SyncQueue.objects.create(
                 user_id=learner.id,
                 instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Syncing,
                 keep_alive=10,
             )
-        time.sleep(1)
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": self.learner.id,
+                "instance": self.instance_id,
+            },
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
+        self.assertEqual(data["status"], SyncQueueStatus.Queued)
         queue_id = data["id"]
         self.assertTrue(
             SyncQueue.objects.filter(id=queue_id, user_id=self.learner.id).exists()
         )
-
-    def test_create_full_queue_user_already_queued_should_resume(self):
-        for i in range(0, MAX_CONCURRENT_SYNCS):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
-        queue_id = data["id"]
-        self.assertEqual(queue_id, queue.id)
-
-    def test_create_full_queue_user_already_queued_on_other_device_should_queue(self):
-        for i in range(0, MAX_CONCURRENT_SYNCS):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": uuid.uuid4().hex},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
-        queue_id = data["id"]
-        self.assertNotEqual(queue_id, queue.id)
 
     def test_create_active_transfer_should_queue(self):
+        for i in range(0, 2):
+            learner = FacilityUser.objects.create(
+                username="test{}".format(i),
+                password="***",
+                facility=self.facility,
+            )
+            SyncQueue.objects.create(
+                user_id=learner.id,
+                instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Queued,
+                keep_alive=10,
+                last_sync=0,
+            )
         syncdata = {
             "id": uuid.uuid4().hex,
             "start_timestamp": timezone.now(),
             "last_activity_timestamp": timezone.now(),
             "active": False,
-            "is_server": False,
+            "is_server": True,
             "extra_fields": {},
+            "client_instance_id": self.instance_id,
         }
         syncsession1 = SyncSession.objects.create(**syncdata)
         TransferSession.objects.create(
             id=uuid.uuid4().hex,
             filter="no-filter",
             push=True,
-            active=True,
+            active=False,
             sync_session=syncsession1,
             last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.STARTED,
+            transfer_stage=transfer_stages.CLEANUP,
+            transfer_stage_status=transfer_statuses.COMPLETED,
         )
         response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
+            reverse("kolibri:core:syncqueue"),
+            data={
+                "user": self.learner.id,
+                "instance": self.instance_id,
+            },
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
+        self.assertEqual(data["status"], SyncQueueStatus.Queued)
         queue_id = data["id"]
         self.assertTrue(
             SyncQueue.objects.filter(
                 id=queue_id, user_id=self.learner.id, instance_id=self.instance_id
             ).exists()
         )
-
-    def test_create_recent_transfer_should_queue(self):
-        syncdata = {
-            "id": uuid.uuid4().hex,
-            "start_timestamp": timezone.now(),
-            "last_activity_timestamp": timezone.now(),
-            "active": False,
-            "is_server": False,
-            "extra_fields": {},
-        }
-        syncsession1 = SyncSession.objects.create(**syncdata)
-        TransferSession.objects.create(
-            id=uuid.uuid4().hex,
-            filter="no-filter",
-            push=True,
-            active=False,
-            sync_session=syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.COMPLETED,
-        )
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
-        queue_id = data["id"]
-        self.assertTrue(
-            SyncQueue.objects.filter(id=queue_id, user_id=self.learner.id).exists()
-        )
-
-    def test_create_not_recent_transfer_should_queue(self):
-        syncdata = {
-            "id": uuid.uuid4().hex,
-            "start_timestamp": timezone.now(),
-            "last_activity_timestamp": timezone.now(),
-            "active": False,
-            "is_server": False,
-            "extra_fields": {},
-        }
-        syncsession1 = SyncSession.objects.create(**syncdata)
-        TransferSession.objects.create(
-            id=uuid.uuid4().hex,
-            filter="no-filter",
-            push=True,
-            active=False,
-            sync_session=syncsession1,
-            last_activity_timestamp=timezone.now() - timedelta(minutes=10),
-            transfer_stage_status=transfer_statuses.COMPLETED,
-        )
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
-        )
-
-    def test_create_active_errored_transfer_should_sync(self):
-        syncdata = {
-            "id": uuid.uuid4().hex,
-            "start_timestamp": timezone.now(),
-            "last_activity_timestamp": timezone.now(),
-            "active": False,
-            "is_server": False,
-            "extra_fields": {},
-        }
-        syncsession1 = SyncSession.objects.create(**syncdata)
-        TransferSession.objects.create(
-            id=uuid.uuid4().hex,
-            filter="no-filter",
-            push=True,
-            active=True,
-            sync_session=syncsession1,
-            last_activity_timestamp=timezone.now(),
-            transfer_stage_status=transfer_statuses.ERRORED,
-        )
-        response = self.client.post(
-            reverse("kolibri:core:syncqueue-list"),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
-        )
-
-    def test_update_soud(self):
-        settings = DeviceSettings.objects.get()
-        settings.subset_of_users_device = True
-        settings.save()
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 400)
-
-    def test_update_user_required(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            format="json",
-        )
-        self.assertEqual(response.status_code, 412)
-
-    def test_update_instance_required(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 412)
-
-    def test_update_user_not_exist(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": uuid.uuid4().hex, "instance": self.instance_id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 404)
-
-    def test_update_empty_queue_should_sync(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
-        )
-
-    def test_update_stale_queue_should_sync(self):
-        for i in range(0, 10):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-                updated=time.time() - STALE_QUEUE_TIME * 2,
-            )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], SYNC)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=False).exists()
-        )
-
-    def test_update_full_queue_should_queue(self):
-        for i in range(0, MAX_CONCURRENT_SYNCS):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        old_updated = queue.updated
-        time.sleep(0.01)
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
-        queue_id = data["id"]
-        queue = SyncQueue.objects.filter(
-            id=queue_id, user_id=self.learner.id, instance_id=self.instance_id
-        ).first()
-        self.assertIsNotNone(queue)
-        self.assertGreater(queue.updated, old_updated)
 
     def test_update_stale_queue_item_should_queue(self):
-        queue = SyncQueue.objects.create(
+        SyncQueue.objects.create(
             user_id=self.learner.id,
             instance_id=self.instance_id,
+            status=SyncQueueStatus.Queued,
             updated=time.time() - STALE_QUEUE_TIME * 2,
             keep_alive=10,
+            last_sync=100,
         )
-        time.sleep(1)
         for i in range(0, MAX_CONCURRENT_SYNCS):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
@@ -798,19 +511,18 @@ class SyncQueueViewSetTestCase(APITestCase):
             SyncQueue.objects.create(
                 user_id=learner.id,
                 instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Queued,
                 keep_alive=10,
+                last_sync=0,
             )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
             data={"user": self.learner.id, "instance": self.instance_id},
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["action"], QUEUED)
-        self.assertTrue(
-            UserSyncStatus.objects.filter(user=self.learner, queued=True).exists()
-        )
+        self.assertEqual(data["status"], SyncQueueStatus.Queued)
         queue_id = data["id"]
         self.assertTrue(
             SyncQueue.objects.filter(
@@ -818,35 +530,8 @@ class SyncQueueViewSetTestCase(APITestCase):
             ).exists()
         )
 
-    def test_update_wrong_user_reject(self):
-        wrong_learner = FacilityUser.objects.create(
-            username="test_wrong",
-            password="***",
-            facility=self.facility,
-        )
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": wrong_learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 400)
-
-    def test_update_wrong_instance_reject(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": uuid.uuid4().hex},
-            format="json",
-        )
-        self.assertEqual(response.status_code, 400)
-
     def test_update_full_queue_should_scale_keep_alive(self):
-        for i in range(0, 5):
+        for i in range(0, 3):
             learner = FacilityUser.objects.create(
                 username="test{}".format(i),
                 password="***",
@@ -855,94 +540,21 @@ class SyncQueueViewSetTestCase(APITestCase):
             SyncQueue.objects.create(
                 user_id=learner.id,
                 instance_id=uuid.uuid4().hex,
+                status=SyncQueueStatus.Queued,
                 keep_alive=10,
+                last_sync=0,
             )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
+        SyncQueue.objects.create(
+            user_id=self.learner.id,
+            instance_id=self.instance_id,
+            keep_alive=10,
+            last_sync=100,
         )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
+        response = self.client.post(
+            reverse("kolibri:core:syncqueue"),
             data={"user": self.learner.id, "instance": self.instance_id},
             format="json",
         )
         data = response.json()
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["keep_alive"], 6 * HANDSHAKING_TIME)
-
-    def test_update_full_queue_should_max_keep_alive(self):
-        for i in range(0, 20):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        time.sleep(1)
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["keep_alive"], STALE_QUEUE_TIME / 2)
-
-    def test_update_first_full_queue_should_scale_interval(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        time.sleep(1)
-        for i in range(0, 5):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            data["sync_interval"], OPTIONS["Deployment"]["SYNC_INTERVAL"] * 7
-        )
-
-    def test_update_first_full_queue_should_max_interval(self):
-        queue = SyncQueue.objects.create(
-            user_id=self.learner.id, instance_id=self.instance_id, keep_alive=10
-        )
-        time.sleep(1)
-        for i in range(0, 100):
-            learner = FacilityUser.objects.create(
-                username="test{}".format(i),
-                password="***",
-                facility=self.facility,
-            )
-            SyncQueue.objects.create(
-                user_id=learner.id,
-                instance_id=uuid.uuid4().hex,
-                keep_alive=10,
-            )
-        response = self.client.put(
-            reverse("kolibri:core:syncqueue-detail", kwargs={"pk": queue.id}),
-            data={"user": self.learner.id, "instance": self.instance_id},
-            format="json",
-        )
-        data = response.json()
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(data["sync_interval"], DELAYED_SYNC / 2)
+        self.assertEqual(data["keep_alive"], 3 * HANDSHAKING_TIME)
