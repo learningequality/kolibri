@@ -1,0 +1,31 @@
+name: Send a slack notification when a contributor comments on issue
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  contributor_issue_comment:
+    name: Contributor issue comment
+
+    if: >-
+      ${{
+        !github.event.issue.pull_request &&
+        github.event.comment.author_association != 'MEMBER' &&
+        github.event.comment.author_association != 'OWNER'
+      }}
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send message to Slack channel
+        env:
+            SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: |
+          ISSUE_TITLE="${{ github.event.issue.title }} by ${GITHUB_ACTOR}"
+          ISSUE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}"
+          ISSUE_COMMENT_URL="${ISSUE_URL}#issuecomment-${{ github.event.comment.id }}"
+          JSON_TEXT="{\"text\": \"*New comment on issue: <${ISSUE_COMMENT_URL}|${ISSUE_TITLE}>*\"}"
+
+          curl -X POST -H 'Content-type: application/json' \
+          --data "$JSON_TEXT" \
+          $SLACK_WEBHOOK_URL
