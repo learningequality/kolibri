@@ -44,7 +44,6 @@ module.exports = (
     cache = false,
     transpile = false,
     devServer = false,
-    kds = false,
     kdsPath = '',
   } = {}
 ) => {
@@ -102,18 +101,10 @@ module.exports = (
   } else {
     externals = { kolibri: kolibriName };
   }
-  if (kds) {
-    if (kdsPath) {
-      coreAliases['kolibri-design-system'] = path.resolve(kdsPath);
-    } else {
-      // consider default kds directory at same level as kolibri
-      coreAliases['kolibri-design-system'] = path.resolve(
-        __dirname,
-        '../../../../kolibri-design-system/'
-      );
-    }
+  if (kdsPath) {
+    coreAliases['kolibri-design-system'] = path.resolve(kdsPath);
+    cache = false;
   }
-
   let bundle = {
     externals,
     name: data.name,
