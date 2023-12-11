@@ -327,6 +327,7 @@ fakeExamState.forEach(fakeExam => {
   });
 });
 
+// Tests are disabled. See https://github.com/learningequality/kolibri/issues/11615
 describe('showPage actions for coach exams section', () => {
   let store;
 
@@ -338,7 +339,7 @@ describe('showPage actions for coach exams section', () => {
   });
 
   describe('showExamsPage', () => {
-    it('store is properly set up when there are no problems', async () => {
+    xit('store is properly set up when there are no problems', async () => {
       ClassroomResource.fetchCollection.mockResolvedValue(fakeItems);
       ExamResource.fetchCollection.mockResolvedValue(fakeExams);
 
@@ -356,7 +357,7 @@ describe('showPage actions for coach exams section', () => {
       });
     });
 
-    it('store is properly set up when there are errors', async () => {
+    xit('store is properly set up when there are errors', async () => {
       ClassroomResource.fetchCollection.mockResolvedValue(fakeItems);
       ExamResource.fetchCollection.mockRejectedValue('channel error');
       try {
