@@ -1030,6 +1030,9 @@ export class Resource {
 
   logError(err) {
     const store = require('kolibri.coreVue.vuex.store').default;
+    if (!err.config) {
+      return;
+    }
     /* eslint-disable no-console */
     console.groupCollapsed(
       `%cRequest error: ${err.response.statusText}, ${
