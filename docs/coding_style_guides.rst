@@ -5,16 +5,16 @@ Coding Style Guides
 
 The Kolibri software is primarily written in:
 
-#. **Python**: The backend of Kolibri is written in Python, using the Django web framework. This includes the server logic, data models, and APIs.
-#. **JavaScript**: The frontend interface of Kolibri is built using JavaScript, utilizing the Vue.js framework. This part of the codebase is responsible for the interactive elements of the user interface.
-#. **HTML/CSS**: For structuring and styling web content, HTML and CSS are used.
+#. **Python**. The backend of Kolibri is written in Python, using the Django web framework. This includes the server logic, data models, and APIs.
+#. **JavaScript**. The frontend interface of Kolibri is built using JavaScript, utilizing the Vue.js framework. This part of the codebase is responsible for the interactive elements of the user interface.
+#. **HTML/CSS**. Web content is structured and styled with HTML and CSS.
 
 Changes to Kolibri code should conform to the respective coding language Google Style Guides.
 
 Python
 ------
 
-We adhere to the `Google Python Style Guide`_ with these specific points:
+Changes to Python code should conform to the `Google Python Style Guide`_ and the following guidelines:
 
 - **Indentation**: 4 spaces per indentation level, no tabs.
 - **Line Length**: Keep lines to 79 characters.
@@ -30,7 +30,7 @@ We adhere to the `Google Python Style Guide`_ with these specific points:
 JavaScript
 ----------
 
-For JavaScript, follow the `Google JavaScript Style Guide`_:
+Changes to JavaScript code should conform to the `Google JavaScript Style Guide`_ and the following guidelines:
 
 - **Indentation**: 2 spaces for indentation.
 - **Naming**: Use camelCase for variables and PascalCase for classes.
@@ -44,7 +44,7 @@ For JavaScript, follow the `Google JavaScript Style Guide`_:
 HTML/CSS
 --------
 
-We adhere to the `Google HTML/CSS Style Guide`_ with these specific points:
+Changes to HTML and CSS code should conform to the `Google HTML/CSS Style Guide`_ and the following guidelines:
 
 - **HTML**: Use HTML5 with semantic markup and 2 spaces for indentation.
 - **Class Names**: Use hyphenated lowercase for class names.
