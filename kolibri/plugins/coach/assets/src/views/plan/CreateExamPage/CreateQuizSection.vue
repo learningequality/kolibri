@@ -23,8 +23,8 @@
           :label="quizTitle$()"
           :autofocus="true"
           :maxlength="100"
-          @blur="e => quizForge.updateQuiz({ title: e.target.value })"
-          @change="title => quizForge.updateQuiz({ title })"
+          @blur="e => updateQuiz({ title: e.target })"
+          @change="title => updateQuiz({ title })"
         />
       </KGridItem>
     </KGrid>
@@ -43,13 +43,14 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :activeTabId="quizForge.activeSection.value ?
-            quizForge.activeSection.value.section_id :
+          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
+          :activeTabId="activeSection ?
+            activeSection.section_id :
             '' "
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
           :aria-label="quizSectionsLabel$()"
-          @click="id => quizForge.setActiveSection(id)"
+          @click="id => setActiveSection(id)"
         >
           <template #tab="{ tab }">
             <span
@@ -76,7 +77,7 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="overflowTabs"
-                  @select="opt => quizForge.setActiveSection(opt.id)"
+                  @select="opt => setActiveSection(opt.id)"
                 />
               </template>
             </KIconButton>
@@ -103,12 +104,13 @@
     </KGrid>
 
     <KTabsPanel
-      v-if="quizForge.activeSection.value"
+      v-if="activeSection"
       tabsId="quizSectionTabs"
-      :activeTabId="quizForge.activeSection.value ? quizForge.activeSection.value.section_id : ''"
+      :activeTabId="activeSection ? activeSection.section_id : ''"
     >
+      <p>{{ activeSection.section_id }}</p>
       <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div v-if="!quizForge.activeQuestions.value.length" class="no-question-style">
+      <div v-if="!activeQuestions.length" class="no-question-style">
         <KGrid class="questions-list-label-row">
           <KGridItem
             class="right-side-heading"
@@ -144,13 +146,11 @@
         <KButton
           primary
           icon="plus"
-          @click="openSelectResources(quizForge.activeSection.value.section_id)"
+          @click="openSelectResources(activeSection.section_id)"
         >
           {{ addQuestionsLabel$() }}
         </KButton>
       </div>
-      <!-- END TODO -->
-
 
       <div v-else>
         <KGrid class="questions-list-label-row">
@@ -217,7 +217,7 @@
           <template #default="{ toggleItemState, isItemExpanded }">
             <DragContainer
               key="drag-container"
-              :items="quizForge.activeQuestions.value"
+              :items="activeQuestions"
               @sort="handleQuestionOrderChange"
               @dragStart="handleDragStart"
             >
@@ -227,7 +227,7 @@
                 class="wrapper"
               >
                 <Draggable
-                  v-for="(question, index) in quizForge.activeQuestions.value"
+                  v-for="(question, index) in activeQuestions"
                   :key="`drag-${question.question_id}`"
                   tabindex="-1"
                   style="background: white"
@@ -245,7 +245,7 @@
                               moveDownText="down"
                               :noDrag="true"
                               :isFirst="index === 0"
-                              :isLast="index === quizForge.activeQuestions.value.length - 1"
+                              :isLast="index === activeQuestions.length - 1"
                               @moveUp="shiftOne(index, -1)"
                               @moveDown="shiftOne(index, +1)"
                             />
@@ -253,10 +253,10 @@
                         </DragHandle>
                         <KCheckbox
                           style="padding-left: 0.5em"
-                          :checked="quizForge.selectedActiveQuestions.value.includes(
+                          :checked="selectedActiveQuestions.includes(
                             question.question_id
                           )"
-                          @change="() => quizForge.toggleQuestionInSelection(question.question_id)"
+                          @change="() => toggleQuestionInSelection(question.question_id)"
                         />
                         <KButton
                           tabindex="0"
@@ -280,10 +280,10 @@
                       <div
                         :id="`question-panel-${question.question_id}`"
                         :ref="`question-panel-${question.question_id}`"
-                        :style="{ userSelect: dragActive.value ? 'none!important' : 'text' }"
+                        :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                       >
                         <p
-                          v-if="isItemExpanded(question.question_id) && !dragActive.value"
+                          v-if="isItemExpanded(question.question_id) && !dragActive"
                           class="question-content-panel"
                         >
                           CONTENT OF {{ question.title }}
@@ -316,6 +316,7 @@
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import SectionSidePanel from './SectionSidePanel';
   import TabsWithOverflow from './TabsWithOverflow';
@@ -351,6 +352,32 @@
         questionList$,
       } = enhancedQuizManagementStrings;
 
+      const {
+        // Methods
+        saveQuiz,
+        updateSection,
+        replaceSelectedQuestions,
+        addSection,
+        removeSection,
+        setActiveSection,
+        initializeQuiz,
+        updateQuiz,
+        addQuestionToSelection,
+        removeQuestionFromSelection,
+
+        // Computed
+        channels,
+        quiz,
+        allSections,
+        activeSection,
+        inactiveSections,
+        activeExercisePool,
+        activeQuestionsPool,
+        activeQuestions,
+        selectedActiveQuestions,
+        replacementQuestionPool,
+      } = injectQuizCreation();
+
       // The number we use for the default section title
       const sectionCreationCount = ref(1);
       const dragActive = ref(false);
@@ -370,9 +397,31 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
+
+        saveQuiz,
+        updateSection,
+        replaceSelectedQuestions,
+        addSection,
+        removeSection,
+        setActiveSection,
+        initializeQuiz,
+        updateQuiz,
+        addQuestionToSelection,
+        removeQuestionFromSelection,
+
+        // Computed
+        channels,
+        quiz,
+        allSections,
+        activeSection,
+        inactiveSections,
+        activeExercisePool,
+        activeQuestionsPool,
+        activeQuestions,
+        selectedActiveQuestions,
+        replacementQuestionPool,
       };
     },
-    inject: ['quizForge'],
     computed: {
       accordionStyleOverrides() {
         return {
@@ -397,7 +446,7 @@
         };
       },
       tabs() {
-        return get(this.quizForge.allSections).map(section => {
+        return get(this.allSections).map(section => {
           const id = section.section_id;
           const label = section.section_title;
           return { id, label };
@@ -429,17 +478,17 @@
     },
     methods: {
       handleReplaceSelection() {
-        const section_id = get(this.quizForge.activeSection).section_id;
+        const section_id = get(this.activeSection).section_id;
         this.$router.replace({ path: 'new/' + section_id + '/replace-questions' });
       },
       handleActiveSectionAction(opt) {
-        const section_id = this.quizForge.activeSection.value.section_id;
+        const section_id = this.activeSection.section_id;
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.replace({ path: 'new/' + section_id + '/edit' });
             break;
           case this.deleteSectionLabel$():
-            this.quizForge.removeSection(this.quizForge.activeSection.value.section_id);
+            this.removeSection(this.activeSection.section_id);
             this.focusActiveSectionTab();
             break;
         }
@@ -448,7 +497,7 @@
         return `section-tab-${section_id}`;
       },
       focusActiveSectionTab() {
-        const label = this.tabRefLabel(this.quizForge.activeSection.value.section_id);
+        const label = this.tabRefLabel(this.activeSection.section_id);
         const tabRef = this.$refs[label];
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
@@ -465,7 +514,7 @@
       },
       activeSectionIsHidden(overflow) {
         const ids = overflow.map(i => i.id);
-        return ids.includes(get(this.quizForge.activeSection).section_id);
+        return ids.includes(get(this.activeSection).section_id);
       },
       overflowButtonStyles(overflow) {
         return {
@@ -479,14 +528,14 @@
       handleQuestionOrderChange({ newArray }) {
         set(this.dragActive, false);
         const payload = {
-          section_id: get(this.quizForge.activeSection).section_id,
+          section_id: get(this.activeSection).section_id,
           questions: newArray,
         };
-        this.quizForge.updateSection(payload);
+        this.updateSection(payload);
       },
       handleAddSection() {
-        const newSection = this.quizForge.addSection();
-        this.quizForge.setActiveSection(get(newSection).section_id);
+        const newSection = this.addSection();
+        this.setActiveSection(get(newSection).section_id);
         this.sectionCreationCount++;
       },
       handleDragStart() {

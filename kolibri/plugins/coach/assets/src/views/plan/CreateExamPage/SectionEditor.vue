@@ -145,7 +145,7 @@
         >
           <DragHandle>
             <div
-              :style="section.isActive ? activeSection : borderStyle "
+              :style="section.isActive ? activeSectionStyles : borderStyle "
               class="section-order-list"
             >
               <KGrid>
@@ -175,7 +175,7 @@
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
                   <p
-                    v-if="quizForge.activeSection.value.section_id === section.section_id"
+                    v-if="activeSection.value.section_id === section.section_id"
                     class="current-section-text space-content"
                   >
                     {{ currentSection$() }}
@@ -197,7 +197,7 @@
         >
           <KButton
             :text="deleteSectionLabel$()"
-            @click="quizForge.deleteSection(quizForge.activeSection.value.section_id)"
+            @click="deleteSection(activeSection.value.section_id)"
           />
         </KGridItem>
         <KGridItem
@@ -227,6 +227,7 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
 
   export default {
     name: 'SectionEditor',
@@ -235,7 +236,6 @@
       DragContainer,
       DragHandle,
     },
-    inject: ['quizForge'],
     setup() {
       const {
         sectionSettings$,
@@ -255,8 +255,22 @@
         fixedLabel$,
         fixedOptionDescription$,
       } = enhancedQuizManagementStrings;
+
+      const {
+        activeSection,
+        allSections,
+        updateSection,
+        updateQuiz,
+        deleteSection,
+      } = injectQuizCreation();
+
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
+        activeSection,
+        allSections,
+        updateSection,
+        updateQuiz,
+        deleteSection,
         windowIsLarge,
         windowIsSmall,
         sectionSettings$,
@@ -279,17 +293,17 @@
     },
     data() {
       return {
-        selectedQuestionOrder: this.quizForge.activeSection.value.learners_see_fixed_order,
-        numberOfQuestions: this.quizForge.activeSection.value.question_count,
-        descriptionText: this.quizForge.activeSection.value.description,
-        sectionTitle: this.quizForge.activeSection.value.section_title,
+        selectedQuestionOrder: this.activeSection.value.learners_see_fixed_order,
+        numberOfQuestions: this.activeSection.value.question_count,
+        descriptionText: this.activeSection.value.description,
+        sectionTitle: this.activeSection.value.section_title,
       };
     },
     computed: {
       borderStyle() {
         return `border: 1px solid ${this.$themeTokens.fineLine}`;
       },
-      activeSection() {
+      activeSectionStyles() {
         return {
           backgroundColor: this.$themePalette.grey.v_50,
           border: `1px solid ${this.$themeTokens.fineLine}`,
@@ -302,7 +316,7 @@
        * @returns { QuizSection[] }
        */
       sectionOrderList() {
-        return this.quizForge.allSections.value;
+        return this.allSections.value;
       },
       draggableStyle() {
         return {
@@ -312,11 +326,11 @@
     },
     methods: {
       handleSectionSort(e) {
-        this.quizForge.updateQuiz({ question_sources: e.newArray });
+        this.updateQuiz({ question_sources: e.newArray });
       },
       applySettings() {
-        this.quizForge.updateSection({
-          section_id: this.quizForge.activeSection.value.section_id,
+        this.updateSection({
+          section_id: this.activeSection.value.section_id,
           section_title: this.sectionTitle,
           description: this.descriptionText,
           question_count: this.numberOfQuestions,

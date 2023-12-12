@@ -6,7 +6,7 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
@@ -31,7 +31,7 @@ function isExercise(o) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export default (DEBUG = false) => {
+export default function useQuizCreation(DEBUG = false) {
   // -----------
   // Local state
   // -----------
@@ -380,6 +380,26 @@ export default (DEBUG = false) => {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
+  provide('saveQuiz', saveQuiz);
+  provide('updateSection', updateSection);
+  provide('replaceSelectedQuestions', replaceSelectedQuestions);
+  provide('addSection', addSection);
+  provide('removeSection', removeSection);
+  provide('setActiveSection', setActiveSection);
+  provide('initializeQuiz', initializeQuiz);
+  provide('updateQuiz', updateQuiz);
+  provide('addQuestionToSelection', addQuestionToSelection);
+  provide('removeQuestionFromSelection', removeQuestionFromSelection);
+  provide('channels', channels);
+  provide('quiz', quiz);
+  provide('allSections', allSections);
+  provide('activeSection', activeSection);
+  provide('inactiveSections', inactiveSections);
+  provide('activeExercisePool', activeExercisePool);
+  provide('activeQuestionsPool', activeQuestionsPool);
+  provide('activeQuestions', activeQuestions);
+  provide('selectedActiveQuestions', selectedActiveQuestions);
+  provide('replacementQuestionPool', replacementQuestionPool);
   return {
     // Methods
     saveQuiz,
@@ -412,4 +432,62 @@ export default (DEBUG = false) => {
     allQuestionsSelected,
     noQuestionsSelected,
   };
-};
+
+  /*
+  return {
+    // Only what is needed where we want the rest of the module to be
+    // provided
+    saveQuiz,
+    initializeQuiz,
+  };
+  */
+}
+
+export function injectQuizCreation() {
+  const saveQuiz = inject('saveQuiz');
+  const updateSection = inject('updateSection');
+  const replaceSelectedQuestions = inject('replaceSelectedQuestions');
+  const addSection = inject('addSection');
+  const removeSection = inject('removeSection');
+  const setActiveSection = inject('setActiveSection');
+  const initializeQuiz = inject('initializeQuiz');
+  const updateQuiz = inject('updateQuiz');
+  const addQuestionToSelection = inject('addQuestionToSelection');
+  const removeQuestionFromSelection = inject('removeQuestionFromSelection');
+  const channels = inject('channels');
+  const quiz = inject('quiz');
+  const allSections = inject('allSections');
+  const activeSection = inject('activeSection');
+  const inactiveSections = inject('inactiveSections');
+  const activeExercisePool = inject('activeExercisePool');
+  const activeQuestionsPool = inject('activeQuestionsPool');
+  const activeQuestions = inject('activeQuestions');
+  const selectedActiveQuestions = inject('selectedActiveQuestions');
+  const replacementQuestionPool = inject('replacementQuestionPool');
+
+  return {
+    // Methods
+    saveQuiz,
+    updateSection,
+    replaceSelectedQuestions,
+    addSection,
+    removeSection,
+    setActiveSection,
+    initializeQuiz,
+    updateQuiz,
+    addQuestionToSelection,
+    removeQuestionFromSelection,
+
+    // Computed
+    channels,
+    quiz,
+    allSections,
+    activeSection,
+    inactiveSections,
+    activeExercisePool,
+    activeQuestionsPool,
+    activeQuestions,
+    selectedActiveQuestions,
+    replacementQuestionPool,
+  };
+}
