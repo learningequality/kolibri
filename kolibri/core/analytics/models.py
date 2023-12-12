@@ -24,8 +24,8 @@ class PingbackNotificationDismissed(models.Model):
 
     permissions = IsOwn()
 
-    user = models.ForeignKey(FacilityUser)
-    notification = models.ForeignKey(PingbackNotification)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
+    notification = models.ForeignKey(PingbackNotification, on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (("user", "notification"),)

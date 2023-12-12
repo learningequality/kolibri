@@ -4,37 +4,39 @@ from uuid import uuid4
 from django.core.management.base import CommandError
 from django.test import TestCase
 from django.urls import reverse
-from mock import MagicMock
+from django.utils import timezone
 from mock import Mock
 from mock import patch
-from requests.exceptions import ConnectionError
+from morango.models import SyncSession
+from morango.models import TransferSession
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.test import APITestCase
 
+from .helpers import clear_process_cache
+from .helpers import provision_device
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import State as FacilitySyncState
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.auth.tasks import begin_request_soud_sync
-from kolibri.core.auth.tasks import fetch_soud_jobs
+from kolibri.core.auth.tasks import cleanupsync
+from kolibri.core.auth.tasks import CleanUpSyncsValidator
+from kolibri.core.auth.tasks import enqueue_soud_sync_processing
 from kolibri.core.auth.tasks import PeerFacilityImportJobValidator
 from kolibri.core.auth.tasks import PeerFacilitySyncJobValidator
-from kolibri.core.auth.tasks import peerusersync
-from kolibri.core.auth.tasks import request_soud_sync
+from kolibri.core.auth.tasks import soud_sync_processing
 from kolibri.core.auth.tasks import SyncJobValidator
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
-from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.discovery.utils.network.errors import NetworkLocationNotFound
 from kolibri.core.discovery.utils.network.errors import ResourceGoneError
-from kolibri.core.public.constants.user_sync_statuses import QUEUED
-from kolibri.core.public.constants.user_sync_statuses import SYNC
+from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import State as JobState
+from kolibri.core.tasks.job import State
+from kolibri.utils.time_utils import naive_utc_datetime
 
 
 DUMMY_PASSWORD = "password"
@@ -690,270 +692,245 @@ class FacilityTaskHelperTestCase(TestCase):
             PeerFacilitySyncJobValidator(data=data).is_valid(raise_exception=True)
 
 
-class TestRequestSoUDSync(TestCase):
-    def setUp(self):
-        self.facility = Facility.objects.create(name="Test")
-        self.test_user = FacilityUser.objects.create(
-            username="test", facility=self.facility
-        )
-
-    @patch("kolibri.core.auth.tasks.NetworkClient.build_for_address")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=True,
-    )
-    def test_fetch_soud_jobs__queued(self, mock_device_info, mock_build_for_address):
-        mock_build_for_address.return_value = MagicMock(
-            base_url="http://127.0.0.1:8888"
-        )
-        job, enqueue_args = peerusersync.validate_job_data(
-            self.test_user,
-            {
-                "baseurl": "http://127.0.0.1:8888",
-                "user_id": self.test_user.id,
-                "resync_interval": 5,
-                "facility": self.facility.id,
-                "sync_session_id": None,
-                "command": "sync",
-            },
-        )
-        peerusersync.enqueue_in(datetime.timedelta(days=365), job=job)
-        fetched_jobs = fetch_soud_jobs(self.test_user.id, JobState.QUEUED)
-        self.assertEqual(len(fetched_jobs), 1)
-        self.assertEqual(fetched_jobs[0].job_id, job.job_id)
-
-    @patch("kolibri.core.auth.tasks.request_soud_sync")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=False,
-    )
-    def test_begin_request_soud_sync__not_soud(
-        self, mock_device_info, request_soud_sync
+class SoudTasksTestCase(TestCase):
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__scheduled(
+        self, mock_soud, mock_task, mock_job_storage
     ):
-        begin_request_soud_sync("whatever_server", self.test_user.id)
-        request_soud_sync.enqueue.assert_not_called()
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=30)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.QUEUED
+        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        enqueue_soud_sync_processing()
+        mock_task.enqueue_in.assert_not_called()
 
-    @patch("kolibri.core.auth.tasks.request_soud_sync")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=True,
-    )
-    def test_begin_request_soud_sync(self, mock_device_info, request_soud_sync):
-        begin_request_soud_sync("whatever_server", self.test_user.id)
-        request_soud_sync.enqueue.assert_called_with(
-            args=("whatever_server", self.test_user.id)
-        )
-
-    @patch("kolibri.core.auth.tasks.request_soud_sync")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=True,
-    )
-    def test_begin_request_soud_sync__no_sync_session(
-        self, mock_device_info, request_soud_sync
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__running(
+        self, mock_soud, mock_task, mock_job_storage
     ):
-        UserSyncStatus.objects.create(
-            user=self.test_user,
-            queued=False,
-        )
-        begin_request_soud_sync("whatever_server", self.test_user.id)
-        request_soud_sync.enqueue.assert_called_with(
-            args=("whatever_server", self.test_user.id)
-        )
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=1)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.RUNNING
+        mock_job.scheduled_time = naive_utc_datetime(timezone.now())
+        enqueue_soud_sync_processing()
+        mock_task.enqueue_in.assert_not_called()
 
-    @patch("kolibri.core.auth.tasks.fetch_soud_jobs")
-    @patch("kolibri.core.auth.tasks.NetworkClient.build_for_address")
-    @patch("kolibri.core.auth.tasks.request_soud_sync")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=True,
-    )
-    def test_begin_request_soud_sync__queued(
-        self,
-        mock_device_info,
-        request_soud_sync,
-        mock_build_for_address,
-        mock_fetch_jobs,
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__future__reschedule(
+        self, mock_soud, mock_task, mock_job_storage
     ):
-        mock_build_for_address.return_value = MagicMock(
-            base_url="http://127.0.0.1:8888"
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=10)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.QUEUED
+        mock_job.scheduled_time = naive_utc_datetime(
+            timezone.now() + datetime.timedelta(seconds=15)
         )
+        enqueue_soud_sync_processing()
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
 
-        job, enqueue_args = peerusersync.validate_job_data(
-            self.test_user,
-            {
-                "baseurl": "http://127.0.0.1:8888",
-                "user_id": self.test_user.id,
-                "resync_interval": 5,
-                "facility": self.facility.id,
-                "sync_session_id": None,
-                "command": "sync",
-            },
-        )
-        mock_fetch_jobs.side_effect = [
-            [],
-            [job],
-        ]
-
-        UserSyncStatus.objects.create(
-            user=self.test_user,
-            queued=True,
-        )
-        begin_request_soud_sync("whatever_server", self.test_user.id)
-        request_soud_sync.enqueue.assert_not_called()
-
-    @patch("kolibri.core.auth.tasks.fetch_soud_jobs")
-    @patch("kolibri.core.auth.tasks.NetworkClient.build_for_address")
-    @patch("kolibri.core.auth.tasks.request_soud_sync")
-    @patch(
-        "kolibri.core.auth.tasks.get_device_setting",
-        return_value=True,
-    )
-    def test_begin_request_soud_sync__failed_jobs(
-        self,
-        mock_device_info,
-        request_soud_sync,
-        mock_build_for_address,
-        mock_fetch_jobs,
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__completed__enqueue(
+        self, mock_soud, mock_task, mock_job_storage
     ):
-        mock_build_for_address.return_value = MagicMock(
-            base_url="http://127.0.0.1:8888"
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=10)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.COMPLETED
+        # far in the past
+        mock_job.scheduled_time = naive_utc_datetime(
+            timezone.now() - datetime.timedelta(seconds=100)
         )
+        enqueue_soud_sync_processing()
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
 
-        job, enqueue_args = peerusersync.validate_job_data(
-            self.test_user,
-            {
-                "baseurl": "http://127.0.0.1:8888",
-                "user_id": self.test_user.id,
-                "resync_interval": 5,
-                "facility": self.facility.id,
-                "sync_session_id": None,
-                "command": "sync",
-            },
+    @patch("kolibri.core.auth.tasks.job_storage")
+    @patch("kolibri.core.auth.tasks.soud_sync_processing")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_enqueue_soud_sync_processing__race__already_running(
+        self, mock_soud, mock_task, mock_job_storage
+    ):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=10)
+        mock_job = mock_job_storage.get_orm_job.return_value
+        mock_job.state = State.COMPLETED
+        # far in the past
+        mock_job.scheduled_time = naive_utc_datetime(
+            timezone.now() - datetime.timedelta(seconds=100)
         )
-        mock_fetch_jobs.side_effect = [
-            [job],
-            [],
-        ]
+        mock_task.enqueue_in.side_effect = JobRunning()
+        enqueue_soud_sync_processing()
+        mock_task.enqueue_in.assert_called_once_with(datetime.timedelta(seconds=10))
 
-        UserSyncStatus.objects.create(
-            user=self.test_user,
-            queued=True,
-        )
-        begin_request_soud_sync("whatever_server", self.test_user.id)
-        request_soud_sync.enqueue.assert_called_with(
-            args=("whatever_server", self.test_user.id)
-        )
-        sync_status = UserSyncStatus.objects.get(user=self.test_user)
-        self.assertFalse(sync_status.queued)
-
-    @patch("kolibri.core.tasks.registry.job_storage")
     @patch("kolibri.core.auth.tasks.get_current_job")
-    @patch("kolibri.core.auth.tasks.NetworkClient")
-    @patch("kolibri.core.auth.tasks.requests")
-    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
-    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
-    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
-    def test_request_soud_sync(
-        self,
-        get_facility_dataset_id,
-        get_client_and_server_certs,
-        MorangoProfileController,
-        requests_mock,
-        NetworkClient,
-        get_current_job,
-        job_storage,
-    ):
-        baseurl = "http://whatever.com:8000"
-        self.device = NetworkLocation.objects.create(base_url=baseurl)
-        get_client_and_server_certs.return_value = None
-        get_facility_dataset_id.return_value = (
-            self.facility.id,
-            self.facility.dataset_id,
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__requeue__now(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(seconds=0)
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(seconds=0))
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__requeue__future(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = datetime.timedelta(
+            seconds=100
+        )
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_called_once_with(datetime.timedelta(seconds=100))
+
+    @patch("kolibri.core.auth.tasks.get_current_job")
+    @patch("kolibri.core.auth.tasks.soud")
+    def test_soud_sync_processing__no_requeue(self, mock_soud, mock_get_job):
+        mock_soud.get_time_to_next_attempt.return_value = None
+        soud_sync_processing()
+        mock_soud.execute_syncs.assert_called_once()
+        mock_get_job.assert_not_called()
+        mock_job = mock_get_job.return_value
+        mock_job.retry_in.assert_not_called()
+
+
+class CleanUpSyncsTaskValidatorTestCase(TestCase):
+    def setUp(self):
+        self.kwargs = dict(
+            type=cleanupsync.__name__,
+            is_push=True,
+            is_pull=False,
+            sync_filter=uuid4().hex,
+            client_instance_id=uuid4().hex,
         )
 
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.json.return_value = {"action": SYNC}
+    def test_validator__no_push_no_pull(self):
+        self.kwargs.pop("is_push")
+        self.kwargs.pop("is_pull")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError, "Either is_pull or is_push"
+        ):
+            validator.is_valid(raise_exception=True)
 
-        network_connection = Mock()
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = network_connection
+    def test_validator__both_push_and_pull(self):
+        self.kwargs.update(is_pull=True)
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError, "Only one of is_pull or is_push"
+        ):
+            validator.is_valid(raise_exception=True)
 
-        network_client = NetworkClient.return_value
-        network_client.base_url = baseurl
+    def test_validator__no_client_instance_id_no_server_instance_id(self):
+        self.kwargs.pop("client_instance_id")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError,
+            "Either client_instance_id or server_instance_id",
+        ):
+            validator.is_valid(raise_exception=True)
 
-        current_job_mock = MagicMock()
+    def test_validator__both_client_instance_id_and_server_instance_id(self):
+        self.kwargs.update(server_instance_id=uuid4().hex)
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaisesRegex(
+            serializers.ValidationError,
+            "Only one of client_instance_id or server_instance_id",
+        ):
+            validator.is_valid(raise_exception=True)
 
-        get_current_job.return_value = current_job_mock
+    def test_validator__no_sync_filter(self):
+        self.kwargs.pop("sync_filter")
+        validator = CleanUpSyncsValidator(data=self.kwargs)
+        with self.assertRaises(serializers.ValidationError):
+            validator.is_valid(raise_exception=True)
 
-        request_soud_sync(baseurl, self.test_user.id)
-        self.assertEqual(current_job_mock.retry_in.call_count, 0)
 
-        requests_mock.post.return_value.status_code = 200
-        requests_mock.post.return_value.json.return_value = {
-            "action": QUEUED,
-            "keep_alive": "5",
-            "id": str(uuid4()),
-        }
-        request_soud_sync("whatever_server", self.test_user.id)
-        self.assertEqual(current_job_mock.retry_in.call_count, 1)
-
-    @patch("kolibri.core.tasks.registry.job_storage")
-    @patch("kolibri.core.auth.tasks.requests")
-    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
-    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
-    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
-    def test_request_soud_sync_server_error(
-        self,
-        get_facility_dataset_id,
-        get_client_and_server_certs,
-        MorangoProfileController,
-        requests_mock,
-        job_storage,
-    ):
-
-        get_client_and_server_certs.return_value = None
-        get_facility_dataset_id.return_value = (
-            self.facility.id,
-            self.facility.dataset_id,
+class CleanUpSyncsTaskTestCase(TestCase):
+    def setUp(self):
+        self.kwargs = dict(
+            is_push=True,
+            is_pull=False,
+            sync_filter=uuid4().hex,
+            client_instance_id=uuid4().hex,
         )
 
-        requests_mock.post.return_value.status_code = 500
+    @patch("kolibri.core.auth.tasks.CleanUpSyncsValidator")
+    def test_runs_validator(self, mock_validator):
+        mock_validator.return_value = mock_validator
+        mock_validator.is_valid.side_effect = serializers.ValidationError
+        with self.assertRaises(serializers.ValidationError):
+            cleanupsync(**self.kwargs)
+        mock_validator.assert_called_with(
+            data=dict(type=cleanupsync.__name__, **self.kwargs)
+        )
+        mock_validator.is_valid.assert_called_with(raise_exception=True)
 
-        network_connection = Mock()
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = network_connection
-
-        request_soud_sync("http://whatever:8000", self.test_user.id)
-
-        self.assertEqual(job_storage.enqueue_in.call_count, 1)
-
-    @patch("kolibri.core.tasks.registry.job_storage")
-    @patch("kolibri.core.auth.tasks.requests")
-    @patch("kolibri.core.auth.utils.sync.MorangoProfileController")
-    @patch("kolibri.core.auth.utils.sync.get_client_and_server_certs")
-    @patch("kolibri.core.auth.utils.sync.get_facility_dataset_id")
-    def test_request_soud_sync_connection_error(
-        self,
-        get_facility_dataset_id,
-        get_client_and_server_certs,
-        MorangoProfileController,
-        requests_mock,
-        job_storage,
-    ):
-
-        get_client_and_server_certs.return_value = None
-        get_facility_dataset_id.return_value = (
-            self.facility.id,
-            self.facility.dataset_id,
+    @patch("kolibri.core.auth.tasks.call_command")
+    def test_calls_command(self, mock_call_command):
+        cleanupsync(**self.kwargs)
+        mock_call_command.assert_called_with(
+            "cleanupsyncs",
+            expiration=1,
+            is_push=self.kwargs["is_push"],
+            is_pull=self.kwargs["is_pull"],
+            sync_filter=self.kwargs["sync_filter"],
+            client_instance_id=self.kwargs["client_instance_id"],
         )
 
-        requests_mock.post.side_effect = ConnectionError
+    def test_actual_run__not_provisioned(self):
+        clear_process_cache()
+        with self.assertRaisesRegex(CommandError, "Kolibri is unprovisioned"):
+            cleanupsync(**self.kwargs)
 
-        network_connection = Mock()
-        controller = MorangoProfileController.return_value
-        controller.create_network_connection.return_value = network_connection
+    def _create_sync(self, last_activity_timestamp=None, client_instance_id=None):
+        if last_activity_timestamp is None:
+            last_activity_timestamp = timezone.now() - datetime.timedelta(hours=2)
 
-        request_soud_sync("http://whatever:8000", self.test_user.id)
+        sync_session = SyncSession.objects.create(
+            id=uuid4().hex,
+            active=True,
+            client_instance_id=client_instance_id or self.kwargs["client_instance_id"],
+            server_instance_id=uuid4().hex,
+            last_activity_timestamp=last_activity_timestamp,
+            profile=PROFILE_FACILITY_DATA,
+        )
+        transfer_session = TransferSession.objects.create(
+            id=uuid4().hex,
+            active=True,
+            sync_session=sync_session,
+            push=self.kwargs["is_push"],
+            filter=self.kwargs["sync_filter"],
+            last_activity_timestamp=last_activity_timestamp,
+        )
+        return (sync_session, transfer_session)
 
-        self.assertEqual(job_storage.enqueue_in.call_count, 1)
+    def test_actual_run__cleanup(self):
+        provision_device()
+
+        sync_session, transfer_session = self._create_sync()
+        (
+            alt_instance_id_sync_session,
+            alt_instance_id_transfer_session,
+        ) = self._create_sync(client_instance_id=uuid4().hex)
+        recent_sync_session, recent_transfer_session = self._create_sync(
+            last_activity_timestamp=timezone.now() - datetime.timedelta(minutes=1)
+        )
+
+        cleanupsync(**self.kwargs)
+
+        sync_session.refresh_from_db()
+        transfer_session.refresh_from_db()
+        alt_instance_id_sync_session.refresh_from_db()
+        alt_instance_id_transfer_session.refresh_from_db()
+
+        self.assertFalse(sync_session.active)
+        self.assertFalse(transfer_session.active)
+        self.assertTrue(alt_instance_id_sync_session.active)
+        self.assertTrue(alt_instance_id_transfer_session.active)
+        self.assertTrue(recent_sync_session.active)
+        self.assertTrue(recent_transfer_session.active)

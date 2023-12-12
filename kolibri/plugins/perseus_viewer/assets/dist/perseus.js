@@ -102254,7 +102254,7 @@ var Card = React.createClass({
             left: this.props.startOffset.left,
             top: this.props.startOffset.top
         });
-        this.props.width && (style.width = this.props.width);
+        this.props.width && (style.minWidth = this.props.width);
         var className = [ "card" ];
         this.props.stack && className.push("stack");
         if (this.props.floating && !this.props.animating) {

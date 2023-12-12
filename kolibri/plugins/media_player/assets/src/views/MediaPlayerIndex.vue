@@ -692,13 +692,11 @@
 
     .wrapper.transcript-visible.transcript-wrap .media-player-transcript {
       top: 0;
-      height: auto;
-      margin-top: #{$video-player-height-by-width};
+      height: calc(100vh - #{$video-player-height-vw});
     }
 
     .wrapper.transcript-visible.transcript-wrap .video-js.vjs-fill {
-      height: auto;
-      padding-top: #{$video-player-height-by-width};
+      height: #{$video-player-height-vw};
     }
   }
 

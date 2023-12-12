@@ -28,7 +28,7 @@
         {{ $tr('recent') }}
       </h2>
       <LibraryAndChannelBrowserMainContent
-        :contents="resumableContentNodes"
+        :contents="contentCardsToDisplay"
         data-test="resumable-content-card-grid"
         :currentCardViewStyle="currentCardViewStyle"
         :gridType="1"
@@ -36,9 +36,21 @@
         @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
       />
     </div>
+
+    <!-- if all items in initial backend response are not already being shown -->
     <KButton
-      v-if="(moreResumableContentNodes || []).length"
-      data-test="more-resumable-nodes-button"
+      v-if="moreContentCards && !showMoreContentCards"
+      data-test="show-more-resumable-nodes-button"
+      appearance="basic-link"
+      @click="handleShowMoreContentCards"
+    >
+      {{ coreString('showMoreAction') }}
+    </KButton>
+
+    <!-- if there are 13+ recent items & the first 12 are currently visible -->
+    <KButton
+      v-if="moreResumableContentNodes && showMoreContentCards"
+      data-test="view-more-resumable-nodes-button"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
     >
@@ -110,12 +122,31 @@
     },
     data() {
       return {
+        showMoreContentCards: false,
         displayedCopies: [],
       };
+    },
+    computed: {
+      numContentCardsToDisplay() {
+        return this.windowBreakpoint === 2 ? 4 : 3;
+      },
+      contentCardsToDisplay() {
+        if (this.showMoreContentCards) {
+          return this.resumableContentNodes;
+        } else {
+          return this.resumableContentNodes.slice(0, this.numContentCardsToDisplay);
+        }
+      },
+      moreContentCards() {
+        return this.resumableContentNodes.length > this.numContentCardsToDisplay;
+      },
     },
     methods: {
       toggleCardView(value) {
         this.$emit('setCardStyle', value);
+      },
+      handleShowMoreContentCards() {
+        this.showMoreContentCards = true;
       },
     },
     $trs: {

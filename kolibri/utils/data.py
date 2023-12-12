@@ -52,10 +52,10 @@ class ChoicesEnum(object):
     @classmethod
     def choices(cls):
         choices_list = [
-            ("{}".format(m), getattr(cls, m)) for m in cls.__dict__ if m[0] != "_"
+            (getattr(cls, m), "{}".format(m)) for m in cls.__dict__ if m[0] != "_"
         ]
         return tuple(sorted(choices_list))
 
     @classmethod
     def max_length(cls):
-        return max(len(getattr(cls, m)) for m in cls.__dict__ if m[0] != "_")
+        return max(len(str(getattr(cls, m))) for m in cls.__dict__ if m[0] != "_")

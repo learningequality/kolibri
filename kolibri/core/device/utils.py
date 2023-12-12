@@ -484,3 +484,19 @@ def get_device_info(version=DEVICE_INFO_VERSION):
         info[key] = all_info[key]
 
     return info
+
+
+def is_full_facility_import(dataset_id):
+    """
+    Returns True if this the dataset_id holds a facility that has been fully imported.
+    """
+    from morango.models.certificates import Certificate
+    from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
+
+    return (
+        Certificate.objects.get(id=dataset_id)
+        .get_descendants(include_self=True)
+        .exclude(_private_key__isnull=True)
+        .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
+        .exists()
+    )

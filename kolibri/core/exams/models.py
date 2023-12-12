@@ -141,10 +141,18 @@ class Exam(AbstractFacilityDataModel):
     # who creates them in the context of their class, this stores that relationship but does
     # not assign exam itself to the class - for that see the ExamAssignment model.
     collection = models.ForeignKey(
-        Collection, related_name="exams", blank=False, null=False
+        Collection,
+        related_name="exams",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     creator = models.ForeignKey(
-        FacilityUser, related_name="exams", blank=False, null=True
+        FacilityUser,
+        related_name="exams",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     # To be set True when the quiz is first set to active=True
@@ -235,12 +243,26 @@ class ExamAssignment(AbstractFacilityDataModel):
         )
         | UserCanReadExamAssignmentData()
     )
-    exam = models.ForeignKey(Exam, related_name="assignments", blank=False, null=False)
+    exam = models.ForeignKey(
+        Exam,
+        related_name="assignments",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
+    )
     collection = models.ForeignKey(
-        Collection, related_name="assigned_exams", blank=False, null=False
+        Collection,
+        related_name="assigned_exams",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     assigned_by = models.ForeignKey(
-        FacilityUser, related_name="assigned_exams", blank=False, null=True
+        FacilityUser,
+        related_name="assigned_exams",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     def pre_save(self):
@@ -311,8 +333,8 @@ class IndividualSyncableExam(AbstractFacilityDataModel):
 
     morango_model_name = "individualsyncableexam"
 
-    user = models.ForeignKey(FacilityUser)
-    collection = models.ForeignKey(Collection)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     exam_id = models.UUIDField()
 
     serialized_exam = JSONField()

@@ -23,7 +23,3 @@ class JobRunning(Exception):
 
 class JobNotRunning(Exception):
     pass
-
-
-class JobAlreadyRetrying(Exception):
-    pass

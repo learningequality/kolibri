@@ -10,6 +10,7 @@ from redis import Redis
 from kolibri.core.device.models import SQLiteLock
 from kolibri.core.utils.cache import RedisSettingsHelper
 from kolibri.core.utils.lock import db_lock
+from kolibri.core.utils.lock import retry_on_db_lock
 
 
 class DBBasedProcessLockTestCase(SimpleTestCase):
@@ -57,6 +58,58 @@ class DBBasedProcessLockTestCase(SimpleTestCase):
         except Exception:
             pass
         self.assertFalse(SQLiteLock.objects.all().exists())
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.postgresql",
+        "Postgresql only test",
+    )
+    def test_retry_on_db_lock__no_handling_unless_sqlite(self):
+        from sqlite3 import OperationalError
+
+        func = mock.MagicMock()
+        func.__name__ = "test_func"
+        func.side_effect = [OperationalError("database is locked"), True]
+        wrapped = retry_on_db_lock(func)
+        with self.assertRaises(OperationalError):
+            wrapped()
+
+    def test_retry_on_db_lock__wrapper(self):
+        def _func():
+            return True
+
+        wrapped = retry_on_db_lock(_func)
+        self.assertNotEqual(wrapped, _func)
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.sqlite3",
+        "SQLite only test",
+    )
+    def test_retry_on_db_lock__retry(self):
+        from sqlite3 import OperationalError
+
+        func = mock.MagicMock()
+        func.__name__ = "test_func"
+        func.side_effect = [OperationalError("database is locked"), True]
+        wrapped = retry_on_db_lock(func)
+        result = wrapped()
+        self.assertTrue(result)
+
+    @unittest.skipIf(
+        getattr(settings, "DATABASES")["default"]["ENGINE"]
+        != "django.db.backends.sqlite3",
+        "SQLite only test",
+    )
+    def test_retry_on_db_lock__retry__maximum_attempts(self):
+        from sqlite3 import OperationalError
+
+        func = mock.MagicMock()
+        func.__name__ = "test_func"
+        func.side_effect = [OperationalError("database is locked")] * 6
+        wrapped = retry_on_db_lock(func)
+        with self.assertRaises(OperationalError):
+            wrapped()
 
 
 class RedisSettingsHelperTestCase(TestCase):

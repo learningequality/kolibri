@@ -2,7 +2,7 @@ import { mount, createLocalVue } from '@vue/test-utils';
 import VueRouter from 'vue-router';
 import Vuex from 'vuex';
 
-import { useDevicesWithFacility } from 'kolibri.coreVue.componentSets.sync';
+import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import { ClassesPageNames, PageNames } from '../../../constants';
@@ -112,7 +112,7 @@ describe(`HomePage`, () => {
     useUser.mockImplementation(() => useUserMock());
     useDeviceSettings.mockImplementation(() => useDeviceSettingsMock());
     useLearnerResources.mockImplementation(() => useLearnerResourcesMock());
-    useDevicesWithFacility.mockReturnValue({
+    useDevicesWithFilter.mockReturnValue({
       devices: [
         {
           id: '1',

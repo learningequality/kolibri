@@ -11,6 +11,7 @@
       :filterByChannelId="filterByChannelId"
       :filterByFacilityId="filterByFacilityId"
       :filterLODAvailable="filterLODAvailable"
+      :filterByFacilityCanSignUp="filterByFacilityCanSignUp"
       :selectedId="addedAddressId"
       :formDisabled="$attrs.selectAddressDisabled"
       @click_add_address="goToAddAddress"
@@ -48,6 +49,11 @@
       filterLODAvailable: {
         type: Boolean,
         default: false,
+      },
+      // When looking for devices for which a learner can sign up
+      filterByFacilityCanSignUp: {
+        type: Boolean,
+        default: null,
       },
     },
     data() {

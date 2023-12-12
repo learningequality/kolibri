@@ -21,6 +21,7 @@ from kolibri.core.auth.permissions.general import IsOwn
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
+from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
 from kolibri.core.utils.cache import process_cache as cache
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
@@ -191,7 +192,10 @@ class DeviceSettings(models.Model):
         :param name: A str name of the `extra_settings` field
         :return: mixed
         """
-        return self.extra_settings.get(name, extra_settings_default_values[name])
+        try:
+            return self.extra_settings.get(name, extra_settings_default_values[name])
+        except KeyError:
+            return extra_settings_default_values[name]
 
     @property
     def allow_download_on_metered_connection(self):
@@ -295,6 +299,46 @@ class SQLiteLock(models.Model):
         super(SQLiteLock, self).save(*args, **kwargs)
 
 
+class SyncQueueStatus(ChoicesEnum):
+    Pending = "PENDING"
+    Queued = "QUEUED"
+    Ready = "READY"
+    Syncing = "SYNCING"
+    Stale = "STALE"
+    Ineligible = "INELIGIBLE"
+    Unavailable = "UNAVAILABLE"
+
+
+class SyncQueueQuerySet(QuerySet):
+    def annotate_score(self):
+        """
+        This method will annotate the queryset with a score that can be used to sort them in
+        priority order. The score is based on the time since the last successful sync, and the
+        time until the next rendezvous time.
+        """
+        return (
+            self.annotate(
+                # time_to_attempt is the number of seconds until the next rendezvous time,
+                # if the next attempt is in the future, then this will be positive,
+                # otherwise negative, which affects the score mathematically below
+                time_to_attempt=F("updated") + F("keep_alive") - time.time(),
+                # time_since_last_sync is the number of seconds since the last successful sync
+                time_since_last_sync=time.time() - F("last_sync"),
+            )
+            .annotate(
+                # so a record's score is promoted by up to half the sync interval if it has
+                # missed its rendezvous time
+                score=F("time_since_last_sync")
+                - F("time_to_attempt"),
+            )
+            .order_by("-score", "datetime")
+        )
+
+
+class SyncQueueManager(models.Manager.from_queryset(SyncQueueQuerySet)):
+    pass
+
+
 class SyncQueue(models.Model):
     """
     This class maintains the queue of the devices that try to sync
@@ -308,14 +352,89 @@ class SyncQueue(models.Model):
     updated = models.FloatField(default=time.time)
     # polling interval is 5 seconds by default
     keep_alive = models.FloatField(default=5.0)
+    # the epoch time of the last successful sync
+    last_sync = models.FloatField(null=True, blank=True)
+
+    status = models.CharField(
+        blank=False,
+        null=False,
+        max_length=20,
+        choices=SyncQueueStatus.choices(),
+        default=SyncQueueStatus.Pending,
+    )
+    sync_session_id = UUIDField(blank=True, null=True)
+    # number of failed attempts
+    attempts = models.IntegerField(default=0)
+
+    objects = SyncQueueManager()
+
+    @classmethod
+    def find_next_id_in_queue(cls):
+        """
+        This method will find the next device in the queue that is ready to sync
+        """
+        # find the next device that is ready to sync
+        return (
+            cls.objects.filter(status=SyncQueueStatus.Queued)
+            .annotate_score()
+            .values_list("id", flat=True)
+            .first()
+        )
 
     @classmethod
     def clean_stale(cls):
         """
-        This method will delete all the devices from the queue
-        with the expire time (in seconds) exhausted
+        This method will delete all the devices from the queue that have missed their
+        rendezvous time by more than STALE_QUEUE_TIME seconds, and will mark as stale
+        the devices that have missed their rendezvous time by more than half the sync
+        interval
         """
-        cls.objects.filter(updated__lte=time.time() - F("keep_alive") * 2).delete()
+        half_life = OPTIONS["Deployment"]["SYNC_INTERVAL"] / 2
+
+        # update records that have missed their rendezvous time by more than half the sync interval
+        cls.objects.filter(
+            updated__lt=time.time() - F("keep_alive") - half_life
+        ).update(status=SyncQueueStatus.Stale)
+
+        # delete records that have missed their rendezvous time by more than the stale queue time
+        cls.objects.filter(
+            updated__lt=time.time() - F("keep_alive") - STALE_QUEUE_TIME
+        ).delete()
+
+    @property
+    def is_active(self):
+        # if the status is stale, or if the device has made unsuccessful attempts
+        if (
+            self.status in (SyncQueueStatus.Stale, SyncQueueStatus.Unavailable)
+            or self.attempts > 0
+        ):
+            return False
+        # if the device has missed its rendezvous time by more than half the sync interval
+        half_life = OPTIONS["Deployment"]["SYNC_INTERVAL"] / 2
+        if self.attempt_at < (time.time() - half_life):
+            return False
+        return True
+
+    @property
+    def attempt_at(self):
+        """ Returns the time in seconds since epoch for the next rendezvous """
+        return self.updated + self.keep_alive
+
+    def set_next_attempt(self, seconds):
+        self.keep_alive = seconds
+        self.updated = time.time()
+
+    def reset_next_attempt(self, seconds):
+        self.attempts = 0
+        self.set_next_attempt(seconds)
+
+    def increment_and_backoff_next_attempt(self):
+        self.attempts += 1
+        # exponential backoff with min of 30 seconds
+        self.set_next_attempt(28 + 2 ** self.attempts)
+
+    class Meta:
+        unique_together = ("user_id", "instance_id")
 
 
 class SyncQueueRouter(object):
@@ -366,11 +485,21 @@ class SyncQueueRouter(object):
 
 
 class UserSyncStatus(models.Model):
-    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE, null=False)
+    user = models.ForeignKey(
+        FacilityUser, on_delete=models.CASCADE, null=False, unique=True
+    )
+    # the last sync session
     sync_session = models.ForeignKey(
         SyncSession, on_delete=models.SET_NULL, null=True, blank=True
     )
-    queued = models.BooleanField(default=False)
+    status = models.CharField(
+        blank=False,
+        null=False,
+        max_length=20,
+        choices=SyncQueueStatus.choices(),
+        default=SyncQueueStatus.Pending,
+    )
+    updated = models.DateTimeField(auto_now=True)
 
     # users can read their own SyncStatus
     own = IsOwn(read_only=True)
@@ -385,6 +514,48 @@ class UserSyncStatus(models.Model):
         is_syncable=False,
     )
     permissions = own | role
+
+    @classmethod
+    def update_status(cls, user_id):
+        """
+        Updates the status of the user's sync status.
+        """
+        sync_queue_statuses = {
+            sq["status"]: sq["sync_session_id"]
+            for sq in SyncQueue.objects.filter(user_id=user_id)
+            .values("status", "sync_session_id")
+            .order_by("updated")
+        }
+
+        # order of priority for reporting statuses
+        priority_order = [
+            SyncQueueStatus.Syncing,
+            SyncQueueStatus.Ready,
+            SyncQueueStatus.Queued,
+            SyncQueueStatus.Pending,
+        ]
+        try:
+            new_status = next(
+                status for status in priority_order if status in sync_queue_statuses
+            )
+        except StopIteration:
+            # if none match, either all are ineligible or simply there are none
+            new_status = SyncQueueStatus.Unavailable
+
+        sync_session_id = sync_queue_statuses.get(new_status)
+
+        defaults = {"status": new_status}
+
+        if sync_session_id is not None:
+            # Only update the sync_session_id if it is not None, as otherwise we will be clearing
+            # historical data that is used by the sync status API
+            defaults["sync_session_id"] = sync_session_id
+
+        cls.objects.update_or_create(user_id=user_id, defaults=defaults)
+
+    @property
+    def queued(self):
+        return self.status == SyncQueueStatus.Queued
 
 
 class OSUser(models.Model):
@@ -490,7 +661,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
         instance_model = InstanceIDModel.get_or_create_current_instance()[0]
 
         # in order to save a status, it must be defined
-        if not any(status == choice for _, choice in DeviceStatus.choices()):
+        if not any(status == choice for choice, _ in DeviceStatus.choices()):
             raise ValueError("Value '{}' is not a valid status".format(status[0]))
 
         cls.objects.update_or_create(

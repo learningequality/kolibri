@@ -5,6 +5,7 @@ from mock import MagicMock
 
 from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
 from kolibri.utils.kolibri_whitenoise import FileFinder
+from kolibri.utils.kolibri_whitenoise import NOT_FOUND
 
 
 def test_file_finder():
@@ -84,5 +85,26 @@ def test_dynamic_whitenoise():
     os.remove(tempdir21tempfilepath)
     os.close(tempdir22tempfile)
     os.remove(tempdir22tempfilepath)
+    os.removedirs(tempdir11)
+    os.removedirs(tempdir12)
+
+
+def test_dynamic_whitenoise_suspicious_file():
+    tempdir11 = tempfile.mkdtemp()
+    tempdir12 = tempfile.mkdtemp()
+    prefix1 = "/test"
+    dynamic_whitenoise = DynamicWhiteNoise(
+        MagicMock(),
+        dynamic_locations=[
+            (prefix1, tempdir11),
+            (prefix1, tempdir12),
+        ],
+    )
+    assert (
+        dynamic_whitenoise.find_and_cache_dynamic_file(
+            prefix1 + "/" + tempdir11 + "../../../leet_haxx0r.js", None
+        )
+        is not NOT_FOUND
+    )
     os.removedirs(tempdir11)
     os.removedirs(tempdir12)

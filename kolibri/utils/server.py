@@ -890,7 +890,8 @@ def _read_pid_file(filename):
         return None, None, None, STATUS_STOPPED
 
     try:
-        pid_file_lines = open(filename, "r").readlines()
+        with open(filename, "r") as f:
+            pid_file_lines = f.readlines()
         pid, port, zip_port, status = pid_file_lines
         pid = int(pid.strip())
         port = int(port.strip()) if port.strip() else None

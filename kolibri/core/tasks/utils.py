@@ -33,6 +33,9 @@ current_state_tracker = SimpleLazyObject(compat.local)
 
 
 def get_current_job():
+    """
+    :rtype: kolibri.core.tasks.job.Job
+    """
     return getattr(current_state_tracker, "job", None)
 
 

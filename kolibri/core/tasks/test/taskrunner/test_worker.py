@@ -3,8 +3,8 @@ import time
 
 import pytest
 
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.job import Job
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.job import State
 from kolibri.core.tasks.test.base import connection
 from kolibri.core.tasks.test.taskrunner.test_job_running import EventProxy

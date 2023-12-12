@@ -468,7 +468,9 @@ class ContentRequest(models.Model):
     """
 
     id = UUIDField(primary_key=True, default=_hex_uuid_str)
-    facility = models.ForeignKey(Facility, related_name="content_requests")
+    facility = models.ForeignKey(
+        Facility, related_name="content_requests", on_delete=models.CASCADE
+    )
 
     # the source model's `morango_model_name` that initiated the request:
     # - for user-initiated requests it should be `facilityuser`

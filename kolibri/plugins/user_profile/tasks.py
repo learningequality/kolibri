@@ -13,6 +13,8 @@ from kolibri.core.auth.utils.delete import delete_facility
 from kolibri.core.auth.utils.migrate import merge_users
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.utils import set_device_settings
+from kolibri.core.discovery.models import ConnectionStatus
+from kolibri.core.discovery.models import NetworkLocation
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.job import JobStatus
 from kolibri.core.tasks.job import Priority
@@ -81,6 +83,23 @@ def status_fn(job):
     return JobStatus(account_transfer_in_progress, notification_text)
 
 
+def start_soud_sync(user_id):
+    from kolibri.core.device import soud
+    from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+
+    # This user would not previously have been included in any syncs
+    # triggered by a device appearing on the network, so request syncs for them now
+    instance_ids = NetworkLocation.objects.filter(
+        subset_of_users_device=False,
+        connection_status=ConnectionStatus.Okay,
+        application="kolibri",
+    ).values_list("instance_id", flat=True)
+    for instance_id in instance_ids:
+        soud.request_sync(soud.Context(user_id, instance_id))
+    if instance_ids:
+        enqueue_soud_sync_processing()
+
+
 @register_task(
     queue="soud",
     validator=MergeUserValidator,
@@ -133,10 +152,9 @@ def mergeuser(command, **kwargs):
         call_command(command, **kwargs)
     except MorangoError:
         # error syncing with the server, probably a networking issue
-        # syncing will happen later in scheduled syncs
-        from kolibri.core.auth.tasks import begin_request_soud_sync
-
-        begin_request_soud_sync(kwargs["baseurl"], remote_user.id)
+        # the rest of the merge cannot be completed here, so we raise
+        # so that the job has to be retried by the user.
+        raise
 
     new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id and local_user.is_superuser:
@@ -177,3 +195,6 @@ def mergeuser(command, **kwargs):
         set_device_settings(default_facility=remote_user.facility)
     else:
         local_user.delete()
+
+    # queue up this new user for syncing with any other devices
+    start_soud_sync(remote_user.id)
