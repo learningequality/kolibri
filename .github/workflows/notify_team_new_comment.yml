@@ -20,12 +20,10 @@ jobs:
       - name: Send message to Slack channel
         env:
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
-        run: |
-          ISSUE_TITLE="${{ github.event.issue.title }} by ${GITHUB_ACTOR}"
-          ISSUE_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/issues/${{ github.event.issue.number }}"
-          ISSUE_COMMENT_URL="${ISSUE_URL}#issuecomment-${{ github.event.comment.id }}"
-          JSON_TEXT="{\"text\": \"*New comment on issue: <${ISSUE_COMMENT_URL}|${ISSUE_TITLE}>*\"}"
-
-          curl -X POST -H 'Content-type: application/json' \
-          --data "$JSON_TEXT" \
-          $SLACK_WEBHOOK_URL
+            SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+        uses: slackapi/slack-github-action@v1.24.0
+        with:
+          payload: |
+            {
+              "text": "*New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ github.event.issue.title }} by ${GITHUB_ACTOR}>*"
+            }
