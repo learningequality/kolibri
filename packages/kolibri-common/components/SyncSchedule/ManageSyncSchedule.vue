@@ -126,7 +126,8 @@
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import {
     SyncFacilityModalGroup,
-    useDevicesWithFacility,
+    useDeviceFacilityFilter,
+    useDevicesWithFilter,
   } from 'kolibri.coreVue.componentSets.sync';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import { KDP_ID, oneHour, oneDay, oneWeek, twoWeeks, oneMonth } from './constants';
@@ -142,7 +143,13 @@
     extends: ImmersivePage,
     mixins: [commonCoreStrings, commonSyncElements],
     setup(props) {
-      const { devices } = useDevicesWithFacility({ facilityId: props.facilityId });
+      const deviceFilter = useDeviceFacilityFilter({ id: props.facilityId });
+      const { devices } = useDevicesWithFilter(
+        {
+          subset_of_users_device: false,
+        },
+        deviceFilter
+      );
       const devicesById = computed(() => {
         return devices.value.reduce(
           (acc, device) => {

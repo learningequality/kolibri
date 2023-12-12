@@ -15,6 +15,7 @@ from kolibri.core.discovery.hooks import NetworkLocationBroadcastHook
 from kolibri.core.discovery.hooks import NetworkLocationDiscoveryHook
 from kolibri.core.hooks import NavigationHook
 from kolibri.core.hooks import RoleBasedRedirectHook
+from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.webpack import hooks as webpack_hooks
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
@@ -109,54 +110,31 @@ class LearnContentNodeHook(ContentNodeDisplayHook):
             )
 
 
-class DiscoveryHookMixin(object):
-    def _learner_ids(self):
-        """
-        :return: A list of all learner ids
-        :rtype: str[]
-        """
-        from kolibri.core.auth.models import FacilityUser
+@retry_on_db_lock
+def request_soud_sync(network_location):
+    """
+    :type network_location: kolibri.core.discovery.models.NetworkLocation
+    """
+    from kolibri.core.auth.tasks import enqueue_soud_sync_processing
+    from kolibri.core.device.soud import request_sync_hook
 
-        return FacilityUser.objects.all().values_list("id", flat=True)
-
-    def _begin_request_soud_sync(self, network_location):
-        """
-        :type network_location: kolibri.core.discovery.models.NetworkLocation
-        """
-        from kolibri.core.auth.tasks import begin_request_soud_sync
-
-        for user_id in self._learner_ids():
-            begin_request_soud_sync(network_location.base_url, user_id)
+    if not network_location.subset_of_users_device and network_location.is_kolibri:
+        request_sync_hook(network_location)
+        enqueue_soud_sync_processing()
 
 
 @register_hook
-class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook, DiscoveryHookMixin):
+class NetworkDiscoveryForSoUDHook(NetworkLocationDiscoveryHook):
     def on_connect(self, network_location):
         """
         :type network_location: kolibri.core.discovery.models.NetworkLocation
         """
-        if (
-            get_device_setting("subset_of_users_device")
-            and not network_location.subset_of_users_device
-        ):
-            self._begin_request_soud_sync(network_location)
-
-    def on_disconnect(self, network_location):
-        """
-        :type network_location: kolibri.core.discovery.models.NetworkLocation
-        """
-        from kolibri.core.auth.tasks import stop_request_soud_sync
-
-        if (
-            get_device_setting("subset_of_users_device")
-            and not network_location.subset_of_users_device
-        ):
-            for user_id in self._learner_ids():
-                stop_request_soud_sync(network_location.base_url, user_id)
+        if get_device_setting("subset_of_users_device"):
+            request_soud_sync(network_location)
 
 
 @register_hook
-class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook, DiscoveryHookMixin):
+class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook):
     """
     This hook is used to hook into the broadcast of the SoUD status of this device to other
     devices on the network. So when this device is updated, possibly to SoUD, it will
@@ -172,8 +150,7 @@ class NetworkBroadcastForSoUDHook(NetworkLocationBroadcastHook, DiscoveryHookMix
             return
 
         for network_location in network_locations:
-            if not network_location.subset_of_users_device:
-                self._begin_request_soud_sync(network_location)
+            request_soud_sync(network_location)
 
 
 @register_hook

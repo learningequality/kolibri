@@ -1,8 +1,8 @@
 from django.test import TestCase
 from mock import patch
 
+from kolibri.core.tasks.constants import Priority
 from kolibri.core.tasks.decorators import register_task
-from kolibri.core.tasks.job import Priority
 from kolibri.core.tasks.registry import RegisteredTask
 from kolibri.core.tasks.validation import JobValidator
 

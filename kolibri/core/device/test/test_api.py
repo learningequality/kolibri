@@ -39,6 +39,7 @@ from kolibri.core.device.models import DeviceSettings
 from kolibri.core.device.models import DeviceStatus
 from kolibri.core.device.models import LearnerDeviceStatus
 from kolibri.core.device.models import StatusSentiment
+from kolibri.core.device.models import SyncQueueStatus
 from kolibri.core.device.models import UserSyncStatus
 from kolibri.core.public.constants import user_sync_statuses
 from kolibri.core.public.constants.user_sync_options import DELAYED_SYNC
@@ -583,7 +584,7 @@ class UserSyncStatusTestCase(APITestCase):
         data1 = {
             "user_id": cls.user1.id,
             "sync_session": cls.syncsession1,
-            "queued": True,
+            "status": SyncQueueStatus.Queued,
         }
         cls.syncstatus1 = UserSyncStatus.objects.create(**data1)
 
@@ -601,7 +602,7 @@ class UserSyncStatusTestCase(APITestCase):
         data2 = {
             "user_id": cls.user2.id,
             "sync_session": cls.syncsession2,
-            "queued": False,
+            "status": SyncQueueStatus.Pending,
         }
         cls.syncstatus2 = UserSyncStatus.objects.create(**data2)
 
@@ -755,7 +756,7 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        self.syncstatus1.queued = False
+        self.syncstatus1.status = SyncQueueStatus.Pending
         self.syncstatus1.save()
         self._create_transfer_session(
             active=False,
@@ -821,7 +822,7 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        self.syncstatus1.queued = False
+        self.syncstatus1.status = SyncQueueStatus.Pending
         self.syncstatus1.save()
         last_sync = timezone.now() - timedelta(seconds=DELAYED_SYNC * 2)
         self.syncsession1.last_activity_timestamp = last_sync
@@ -844,7 +845,7 @@ class UserSyncStatusTestCase(APITestCase):
             password=DUMMY_PASSWORD,
             facility=self.facility,
         )
-        self.syncstatus1.queued = False
+        self.syncstatus1.status = SyncQueueStatus.Pending
         previous_sync_session = self.syncstatus1.sync_session
         self.syncstatus1.sync_session = None
         self.syncstatus1.save()

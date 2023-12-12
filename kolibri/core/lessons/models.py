@@ -57,11 +57,19 @@ class Lesson(AbstractFacilityDataModel):
 
     # The Classroom-type Collection for which the Lesson is created
     collection = models.ForeignKey(
-        Collection, related_name="lessons", blank=False, null=False
+        Collection,
+        related_name="lessons",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
 
     created_by = models.ForeignKey(
-        FacilityUser, related_name="lessons_created", blank=False, null=True
+        FacilityUser,
+        related_name="lessons_created",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
     date_created = DateTimeTzField(default=local_now, editable=False)
 
@@ -130,13 +138,25 @@ class LessonAssignment(AbstractFacilityDataModel):
     )
 
     lesson = models.ForeignKey(
-        Lesson, related_name="lesson_assignments", blank=False, null=False
+        Lesson,
+        related_name="lesson_assignments",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     collection = models.ForeignKey(
-        Collection, related_name="assigned_lessons", blank=False, null=False
+        Collection,
+        related_name="assigned_lessons",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     assigned_by = models.ForeignKey(
-        FacilityUser, related_name="assigned_lessons", blank=False, null=True
+        FacilityUser,
+        related_name="assigned_lessons",
+        blank=False,
+        null=True,
+        on_delete=models.CASCADE,
     )
 
     def __str__(self):
@@ -214,8 +234,8 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
 
     morango_model_name = "individualsyncablelesson"
 
-    user = models.ForeignKey(FacilityUser)
-    collection = models.ForeignKey(Collection)
+    user = models.ForeignKey(FacilityUser, on_delete=models.CASCADE)
+    collection = models.ForeignKey(Collection, on_delete=models.CASCADE)
     lesson_id = models.UUIDField()
 
     serialized_lesson = JSONField()
@@ -241,12 +261,15 @@ class IndividualSyncableLesson(AbstractFacilityDataModel):
     @classmethod
     def serialize_lesson(cls, lesson):
         serialized = lesson.serialize()
-        for key in ["is_active", "created_by_id", "date_created", "collection_id"]:
+        for key in ["is_active", "created_by_id", "date_created"]:
             serialized.pop(key, None)
         return serialized
 
-    @classmethod
-    def deserialize_lesson(cls, serialized_lesson):
-        lesson = Lesson.deserialize(serialized_lesson)
+    def deserialize_lesson(self):
+        lesson = Lesson.deserialize(self.serialized_lesson)
         lesson.is_active = True
+        # a lesson's collection should be the classroom, but previously the serialized lesson
+        # did not include the collection_id, so we need to set it here to ensure it isn't null
+        if not lesson.collection_id:
+            lesson.collection_id = self.collection_id
         return lesson

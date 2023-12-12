@@ -73,6 +73,7 @@ from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
+from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import set_device_settings
 from kolibri.core.errors import KolibriValidationError
 from kolibri.core.fields import DateTimeTzField
@@ -872,13 +873,7 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         """
         Returns True if this user is a member of a facility that has been fully imported.
         """
-        return (
-            Certificate.objects.get(id=self.dataset_id)
-            .get_descendants(include_self=True)
-            .exclude(_private_key__isnull=True)
-            .filter(scope_definition_id=ScopeDefinitions.FULL_FACILITY)
-            .exists()
-        )
+        return is_full_facility_import(self.dataset_id)
 
     @cached_property
     def full_facility_on_my_own_setup(self):
@@ -1039,7 +1034,12 @@ class Collection(AbstractFacilityDataModel):
 
     name = models.CharField(max_length=100)
     parent = models.ForeignKey(
-        "self", null=True, blank=True, related_name="children", db_index=True
+        "self",
+        null=True,
+        blank=True,
+        related_name="children",
+        db_index=True,
+        on_delete=models.CASCADE,
     )
     kind = models.CharField(max_length=20, choices=collection_kinds.choices)
 
@@ -1230,11 +1230,15 @@ class Membership(AbstractFacilityDataModel):
     permissions = own | role | membership
 
     user = models.ForeignKey(
-        "FacilityUser", related_name="memberships", blank=False, null=False
+        "FacilityUser",
+        related_name="memberships",
+        blank=False,
+        null=False,
+        on_delete=models.CASCADE,
     )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
-    collection = TreeForeignKey("Collection")
+    collection = TreeForeignKey("Collection", on_delete=models.CASCADE)
 
     class Meta:
         unique_together = (("user", "collection"),)
@@ -1325,7 +1329,7 @@ class Role(AbstractFacilityDataModel):
     )
     # Note: "It's recommended you use mptt.fields.TreeForeignKey wherever you have a foreign key to an MPTT model.
     # https://django-mptt.github.io/django-mptt/models.html#treeforeignkey-treeonetoonefield-treemanytomanyfield
-    collection = TreeForeignKey("Collection")
+    collection = TreeForeignKey("Collection", on_delete=models.CASCADE)
     kind = models.CharField(max_length=26, choices=role_kinds.choices)
 
     class Meta:

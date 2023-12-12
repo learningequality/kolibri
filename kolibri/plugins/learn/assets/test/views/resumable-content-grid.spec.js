@@ -13,12 +13,25 @@ describe('when there are nodes with progress that can be resumed', () => {
     useLearnerResources.mockImplementation(() =>
       useLearnerResourcesMock({
         /*
-         * moreResumableContentNodes having length would realistically mean
-         * that there are a significant number of resumableContentNodes but we
+         * moreResumableContentNodes existing would realistically mean
+         * that there are 13+ resumableContentNodes but we
          * rely on useSearch to handle the details of that implementation
          */
-        resumableContentNodes: [{ node: 1 }],
-        moreResumableContentNodes: [{ node: 2 }],
+        resumableContentNodes: [
+          { node: 1 },
+          { node: 2 },
+          { node: 3 },
+          { node: 4 },
+          { node: 5 },
+          { node: 6 },
+          { node: 7 },
+          { node: 8 },
+          { node: 9 },
+          { node: 10 },
+          { node: 11 },
+          { node: 12 },
+        ],
+        moreResumableContentNodes: { cursor: 'rogkor2', resume: true },
       })
     )
   );
@@ -47,20 +60,53 @@ describe('when there are nodes with progress that can be resumed', () => {
     expect(wrapper.find('[data-test="resumable-content-card-grid"').element).toBeTruthy();
   });
 
-  it('displays button to show more resumableContentNodes when there are moreResumableContentNodes', () => {
-    const wrapper = shallowMount(ResumableContentGrid, {});
-    expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeTruthy();
+  it('displays button to "show more" when more items exist than currently shown', () => {
+    const wrapper = shallowMount(ResumableContentGrid, {
+      data: function() {
+        return { showMoreContentCards: false };
+      },
+      computed: { moreContentCards: () => true },
+    });
+    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeTruthy();
   });
 
-  it('does not show a button to show more resumableContentNodes when there are no moreResumableContentNodes', () => {
-    jest.clearAllMocks();
-    useLearnerResources.mockImplementation(() =>
-      useLearnerResourcesMock({
-        resumableContentNodes: [{ node: 1 }],
-        moreResumableContentNodes: [],
-      })
-    );
-    const wrapper = shallowMount(ResumableContentGrid, {});
-    expect(wrapper.find('[data-test="more-resumable-nodes-button"').element).toBeFalsy();
+  it('does not show a button to "show more" if button already pressed', () => {
+    const wrapper = shallowMount(ResumableContentGrid, {
+      data: function() {
+        return { showMoreContentCards: true };
+      },
+      computed: { moreContentCards: () => false },
+    });
+    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeFalsy();
+  });
+
+  it('does not show a button to "show more" if number of items does not exceed that displayed', () => {
+    const wrapper = shallowMount(ResumableContentGrid, {
+      data: function() {
+        return { showMoreContentCards: true };
+      },
+      computed: { moreContentCards: () => false },
+    });
+    expect(wrapper.find('[data-test="show-more-resumable-nodes-button"').element).toBeFalsy();
+  });
+
+  it('displays button to view more resumableContentNodes when there are 13+ recent items & 12 are currently displayed', () => {
+    const wrapper = shallowMount(ResumableContentGrid, {
+      data: function() {
+        return { showMoreContentCards: true };
+      },
+      computed: { moreContentCards: () => true },
+    });
+    expect(wrapper.find('[data-test="view-more-resumable-nodes-button"').element).toBeTruthy();
+  });
+
+  it('does not show a button to view more resumableContentNodes if "show more" has not been exhausted', () => {
+    const wrapper = shallowMount(ResumableContentGrid, {
+      data: function() {
+        return { showMoreContentCards: false };
+      },
+      computed: { moreContentCards: () => true },
+    });
+    expect(wrapper.find('[data-test="view-more-resumable-nodes-button"').element).toBeFalsy();
   });
 });

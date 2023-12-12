@@ -133,7 +133,8 @@
           this.$emit('submitNewPassword');
         } else {
           // Blurring will cause validation errors to show if needed
-          e.target.blur();
+          this.confirmationBlurred = true;
+          e.preventDefault(); // Prevent the default form submission
         }
       },
     },

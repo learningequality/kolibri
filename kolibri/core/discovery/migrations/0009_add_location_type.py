@@ -18,9 +18,9 @@ class Migration(migrations.Migration):
             name="location_type",
             field=models.CharField(
                 choices=[
-                    ("Dynamic", "dynamic"),
-                    ("Reserved", "reserved"),
-                    ("Static", "static"),
+                    ("dynamic", "Dynamic"),
+                    ("reserved", "Reserved"),
+                    ("static", "Static"),
                 ],
                 default="static",
                 max_length=8,
