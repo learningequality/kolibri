@@ -38,3 +38,5 @@ android_root/
 .env
 .version-code
 *.keystore
+.envrc
+.idea/

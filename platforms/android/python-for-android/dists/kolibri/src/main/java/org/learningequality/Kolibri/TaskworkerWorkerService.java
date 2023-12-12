@@ -3,33 +3,44 @@ package org.learningequality.Kolibri;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.work.Configuration;
 import androidx.work.multiprocess.RemoteWorkerService;
 import androidx.work.WorkManager;
 
 import java.io.File;
-import java.lang.System;
 
 import org.kivy.android.PythonUtil;
-import org.kivy.android.PythonWorker;
+import org.learningequality.NotificationRef;
+import org.learningequality.Notifier;
 
-public class TaskworkerWorkerService extends RemoteWorkerService {
+public class TaskworkerWorkerService extends RemoteWorkerService implements Notifier {
     private static final String TAG = "TaskworkerWorkerService";
+
+    public static TaskworkerWorkerService mService = null;
 
     @Override
     public void onCreate() {
+        mService = this;
         Context context = getApplicationContext();
-        try {
-            Log.v(TAG, "Initializing WorkManager");
-            Configuration configuration = new Configuration.Builder()
-                .setDefaultProcessName(context.getPackageName())
-                .build();
-            WorkManager.initialize(context, configuration);
-        } catch (IllegalStateException e) {
-        }
-        super.onCreate();
+        Log.v(TAG, "Initializing task worker service");
         PythonUtil.loadLibraries(
                 new File(context.getApplicationInfo().nativeLibraryDir)
         );
+        // Initialize the work manager
+        WorkManager.getInstance(getApplicationContext());
+        super.onCreate();
+        // We could potentially remove this and leave the notification up to long-running workers
+        // bound to the service
+        sendNotification();
+    }
+
+    @Override
+    public void onDestroy() {
+        hideNotification();
+        super.onDestroy();
+        mService = null;
+    }
+
+    public NotificationRef getNotificationRef() {
+        return new NotificationRef(NotificationRef.REF_CHANNEL_SERVICE);
     }
 }

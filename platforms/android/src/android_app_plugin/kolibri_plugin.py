@@ -4,14 +4,12 @@ from datetime import datetime
 from jnius import autoclass
 from kolibri.core.tasks.hooks import StorageHook
 from kolibri.core.tasks.job import Priority
-from kolibri.core.tasks.job import State
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
-PythonWorker = autoclass("org.kivy.android.PythonWorker")
-Notifications = autoclass("org.learningequality.Notifications")
+TaskWorker = autoclass("org.learningequality.Kolibri.TaskworkerWorker")
 
 
 logger = logging.getLogger(__name__)
@@ -63,36 +61,19 @@ class StorageHook(StorageHook):
 
         status = job.status(currentLocale)
 
-        notification_id = PythonWorker.getNotificationId()
-
-        if status and notification_id:
+        if status:
             if job.total_progress:
                 progress = job.progress
                 total_progress = job.total_progress
             else:
                 progress = -1
                 total_progress = -1
-            Notifications.showNotification(
-                notification_id,
+            TaskWorker.updateProgress(
                 status.title,
                 status.text,
                 progress,
                 total_progress,
             )
-
-        if (
-            notification_id
-            and not job.long_running
-            and state
-            in {
-                State.COMPLETED,
-                State.CANCELED,
-                State.FAILED,
-            }
-        ):
-            # This is a short running job and it has just finished
-            # Remove the notification
-            Notifications.hideNotification(notification_id)
 
     def clear(self, job, orm_job):
         logger.info("Clearing task {} for job {}".format(job.func, orm_job.id))
