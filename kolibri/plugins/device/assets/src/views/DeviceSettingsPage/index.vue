@@ -210,7 +210,8 @@
             />
             <div
               v-show="setLimitForAutodownload"
-              class="left-margin"
+              class="left-margin limit-for-autodownload"
+              :class="$computedClass(limitForAutodownloadStyle)"
               :disabled="isRemoteContent"
             >
               <KTextbox
@@ -227,7 +228,10 @@
                 :floatingLabel="false"
                 @input="updateLimitForAutodownload"
               />
-              <div class="slider-section">
+              <div class="slider-section" :class="$computedClass(sliderSectionStyle)">
+                <p class="slider-min-max">
+                  0
+                </p>
                 <input
                   id="slider"
                   v-model="limitForAutodownload"
@@ -239,14 +243,9 @@
                   step="1"
                   @input="updateLimitForAutodownloadInput"
                 >
-                <div class="slider-constraints">
-                  <p class="slider-min-max">
-                    0
-                  </p>
-                  <p class="slider-min-max">
-                    {{ toGigabytes(freeSpace) }}
-                  </p>
-                </div>
+                <p class="slider-min-max">
+                  {{ toGigabytes(freeSpace) }}
+                </p>
               </div>
             </div>
           </div>
@@ -361,6 +360,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';
@@ -400,6 +400,7 @@
     setup() {
       const { canRestart, restart, restarting } = useDeviceRestart();
       const { plugins, fetchPlugins, togglePlugin } = usePlugins();
+      const { windowIsSmall } = useKResponsiveWindow();
       const dataPlugins = ref(null);
 
       fetchPlugins.then(() => {
@@ -433,6 +434,7 @@
         dataPlugins,
         checkPluginChanges,
         checkAndTogglePlugins,
+        windowIsSmall,
       };
     },
     data() {
@@ -517,7 +519,22 @@
         });
         return this.readOnlyPaths >= 1;
       },
+      limitForAutodownloadStyle() {
+        const alignItems = this.windowIsSmall ? 'start' : 'center';
+        const flexDirection = this.windowIsSmall ? 'column' : 'row';
+        return {
+          alignItems,
+          flexDirection,
+        };
+      },
+      sliderSectionStyle() {
+        const paddingLeft = this.windowIsSmall ? '0px' : '20px';
+        return {
+          paddingLeft,
+        };
+      },
       sliderStyle() {
+        const width = this.windowIsSmall ? '35vw' : '12vw';
         if (this.notEnoughFreeSpace) {
           return {
             background: `linear-gradient(to right, ${this.$themeTokens.primary} 0%, ${
@@ -528,6 +545,7 @@
             '::-webkit-slider-thumb': {
               background: this.$themeTokens.fineLine,
             },
+            width,
           };
         } else {
           return {
@@ -541,6 +559,7 @@
             '::-webkit-slider-thumb': {
               background: this.$themeTokens.primary,
             },
+            width,
           };
         }
       },
@@ -1169,12 +1188,18 @@
     margin-left: 32px;
   }
 
+  .limit-for-autodownload {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
   .info-description {
     color: #616161;
   }
 
   input[type='range'] {
-    width: 264px;
+    width: 12vw;
     height: 2px;
     margin-left: 10px;
     appearance: none;
@@ -1190,24 +1215,17 @@
   }
 
   .download-limit-textbox {
-    display: inline-block;
     width: 70px;
   }
 
   .slider-section {
-    position: absolute;
-    display: inline-block;
-    padding-top: 10px;
-  }
-
-  .slider-constraints {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
-    margin-left: 10px;
+    padding-left: 20px;
   }
 
   .slider-min-max {
-    display: inline-block;
     margin-top: 5px;
     font-size: 14px;
     font-weight: 400;
