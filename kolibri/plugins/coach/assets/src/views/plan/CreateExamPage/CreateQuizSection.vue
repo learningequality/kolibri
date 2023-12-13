@@ -185,7 +185,7 @@
         </KGrid>
 
         <AccordionContainer
-          :items="quizForge.activeQuestions.value.map(i => ({
+          :items="activeQuestions.map(i => ({
             id: i.question_id,
           }))"
         >
@@ -193,25 +193,25 @@
             <KCheckbox
               ref="selectAllCheckbox"
               class="select-all-box"
-              :label="quizForge.selectAllLabel.value"
-              :checked="quizForge.allQuestionsSelected.value"
-              :indeterminate="quizForge.selectAllIsIndeterminate.value"
-              @change="() => quizForge.selectAllQuestions()"
+              :label="selectAllLabel$()"
+              :checked="allQuestionsSelected"
+              :indeterminate="selectAllIsIndeterminate"
+              @change="() => selectAllQuestions()"
             />
           </template>
           <template #right-actions>
             <KIconButton
               icon="refresh"
               :tooltip="replaceAction$()"
-              :disabled="quizForge.selectedActiveQuestions.value.length === 0"
-              @click="handleReplaceSelection"
+              :disabled="selectedActiveQuestions.length === 0"
+              @click="handleReplaceSelection()"
             />
             <KIconButton
               icon="trash"
               :tooltip="coreString('deleteAction')"
               :aria-label="coreString('deleteAction')"
-              :disabled="quizForge.selectedActiveQuestions.value.length === 0"
-              @click="quizForge.deleteActiveSelectedQuestions"
+              :disabled="selectedActiveQuestions.length === 0"
+              @click="deleteActiveSelectedQuestions()"
             />
           </template>
           <template #default="{ toggleItemState, isItemExpanded }">
@@ -339,6 +339,7 @@
     setup() {
       const {
         sectionLabel$,
+        selectAllLabel$,
         addQuizSections$,
         addSectionLabel$,
         quizTitle$,
@@ -356,6 +357,9 @@
         // Methods
         saveQuiz,
         updateSection,
+        allQuestionsSelected,
+        selectAllIsIndeterminate,
+        deleteActiveSelectedQuestions,
         replaceSelectedQuestions,
         addSection,
         removeSection,
@@ -386,6 +390,7 @@
         dragActive,
         sectionCreationCount,
         sectionLabel$,
+        selectAllLabel$,
         addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
@@ -400,6 +405,9 @@
 
         saveQuiz,
         updateSection,
+        allQuestionsSelected,
+        selectAllIsIndeterminate,
+        deleteActiveSelectedQuestions,
         replaceSelectedQuestions,
         addSection,
         removeSection,
