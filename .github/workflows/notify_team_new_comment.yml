@@ -25,5 +25,5 @@ jobs:
         with:
           payload: |
             {
-              "text": "*New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ github.event.issue.title }} by ${{ GITHUB_ACTOR }}>*"
+              "text": "*New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ github.event.issue.title }} by ${{ github.event.comment.user.login }}>*"
             }
