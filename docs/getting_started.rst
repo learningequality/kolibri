@@ -411,7 +411,7 @@ Linting and auto-formatting
 Formatting and linting 
 ~~~~~~~~~~~~~~~~~~~~~~
 
-Kolibri utilizes **Prettier** and **Black** to automatically format code to a particular style. Prettier was designed to format Javascript but now also supports TypeScript, CSS, HTML, and JSON. Black is designed for Python. In addition to Prettier and Black, Kolibri utilizes **ESLint** (Javascript and TypeScript) and **Flake8** (Python) to analyze code for quality, potential errors, and adherence to coding standards.
+Kolibri utilizes **Prettier** and **Black** to automatically format code to a particular style. Prettier was designed to format Javascript but now also supports TypeScript, CSS, HTML, and JSON. Black is designed for Python. In addition to Prettier and Black, Kolibri utilizes **ESLint** (JavaScript and TypeScript) and **Flake8** (Python) to analyze code for quality, potential errors, and adherence to coding standards.
 
 You can manually run the auto-formatters for the frontend using:
 
