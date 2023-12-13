@@ -339,16 +339,79 @@ Now you can create users, classes, lessons, etc manually. To auto-generate some 
   kolibri manage generateuserdata
 
 
+Coding Style and Best Practices
+-------------------------------
+.. _coding_style_guides:
+
+The Kolibri software is primarily written in:
+
+#. **Python**. The backend of Kolibri is written in Python, using the Django web framework. This includes the server logic, data models, and APIs.
+#. **JavaScript**. The frontend interface of Kolibri is built using JavaScript, utilizing the Vue.js framework. This part of the codebase is responsible for the interactive elements of the user interface.
+#. **HTML/CSS**. Web content is structured and styled with HTML and CSS.
+
+Changes to Kolibri code should conform to the respective coding language Google Style Guides.
+
+Python Style Guidance
+~~~~~~~~~~~~~~~~~~~~~
+
+Python code should conform to the `Google Python Style Guide`_, along with the following Kolibri specifications:
+
+- **Indentation**: 4 spaces per indentation level, no tabs.
+- **Line Length**: Keep lines to 79 characters.
+- **Imports**: Prefer absolute imports and avoid `from module import *`.
+- **Documentation Strings**: Follow reStructuredText as per `PEP 287`_.
+- **Linting**: Utilize `Flake8` for linting and `Black` for auto-formatting.
+
+.. _Google Python Style Guide:
+   https://google.github.io/styleguide/pyguide.html
+.. _PEP 287:
+   https://www.python.org/dev/peps/pep-0287/
+
+JavaScript Style Guidance
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+JavaScript code should conform to the `Google JavaScript Style Guide`_, along with the following Kolibri specifications:
+
+- **Indentation**: 2 spaces for indentation.
+- **Naming**: Use camelCase for variables and PascalCase for classes.
+- **Curly Braces**: Place opening braces on the same line.
+- **Semicolons**: End lines with semicolons.
+- **Linting**: Utilize `ESLint` for linting and `Prettier` for auto-formatting.
+
+.. _Google JavaScript Style Guide:
+   https://google.github.io/styleguide/jsguide.html
+
+HTML/CSS Style Guidance
+~~~~~~~~~~~~~~~~~~~~~~~
+
+HTML and CSS code should conform to the `Google HTML/CSS Style Guide`_, along with the following Kolibri specifications:
+
+- **HTML**: Use HTML5 with semantic markup and 2 spaces for indentation.
+- **Class Names**: Use hyphenated lowercase for class names.
+- **Linting**: Utilize `ESLint` for linting and `Prettier` for auto-formatting.
+
+.. _Google HTML/CSS Style Guide:
+   https://google.github.io/styleguide/htmlcssguide.html
+
+Documenting Guidance
+~~~~~~~~~~~~~~~~~~~~
+
+Refer to Google Style Guides for detailed documentation format, style, and depth guidance. Ensure that your documentation adheres to the following general community principles:
+
+- **Educational Context**: Keep in mind that the code may be used as an educational resource.
+- **Inclusivity**: Write documentation that is accessible to developers of varying skill levels.
+- **Internationalization**: Consider the global audience and prepare for easy translation.
+
 
 Linting and auto-formatting
 ---------------------------
 
 .. _linting:
 
-Manual linting and formatting
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Formatting and linting 
+~~~~~~~~~~~~~~~~~~~~~~
 
-Linting and code auto-formatting are done by Prettier and Black.
+Kolibri utilizes **Prettier** and **Black** to automatically format code to a particular style. Prettier was designed to format Javascript but now also supports TypeScript, CSS, HTML, and JSON. Black is designed for Python. In addition to Prettier and Black, Kolibri utilizes **ESLint** (Javascript and TypeScript) and **Flake8** (Python) to analyze code for quality, potential errors, and adherence to coding standards.
 
 You can manually run the auto-formatters for the frontend using:
 
@@ -362,8 +425,9 @@ Or to check the formatting without writing changes, run:
 
   yarn run lint-frontend
 
-The linting and formatting for the backend is handled using ``pre-commit`` below.
+.. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
+The linting and formatting for the backend is handled using ``pre-commit`` below.
 
 Pre-commit hooks
 ~~~~~~~~~~~~~~~~
@@ -383,8 +447,6 @@ To run all pre-commit checks in the same way that they will be run on our Github
 .. code-block:: bash
 
   pre-commit run --all-files
-
-.. tip:: As a convenience, many developers install linting and formatting plugins in their code editor (IDE). Installing ESLint, Prettier, Black, and Flake8 plugins in your editor will catch most (but not all) code-quality checks.
 
 .. tip:: Pre-commit can have issues running from alternative Git clients like GitUp. If you encounter problems while committing changes, run ``pre-commit uninstall`` to disable pre-commit.
 
