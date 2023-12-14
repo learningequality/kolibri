@@ -41,19 +41,13 @@
         <KPageContainer :topMargin="$isPrint ? 0 : 16">
           <ReportsControls @export="$emit('export')" />
           <HeaderTabs :enablePrint="true">
-            <HeaderTab
-              :text="coachString('reportLabel')"
-              :to="group ?
-                classRoute('ReportsGroupReportQuizLearnerListPage') :
-                classRoute('ReportsQuizLearnerListPage')
-              "
-            />
-            <HeaderTab
-              :text="coachString('difficultQuestionsLabel')"
-              :to="group ?
-                classRoute('ReportsGroupReportQuizQuestionListPage') :
-                classRoute('ReportsQuizQuestionListPage')
-              "
+            <KTabsList
+              ref="tabList"
+              :tabsId="QUIZZES_TABS_ID"
+              :ariaLabel="coachString('detailsLabel')"
+              :activeTabId="activeTabId"
+              :tabs="tabs"
+              @click="() => saveTabsClick(QUIZZES_TABS_ID)"
             />
           </HeaderTabs>
           <slot></slot>
@@ -70,6 +64,8 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
+  import { useCoachTabs } from '../../composables/useCoachTabs';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
   import ReportsControls from './ReportsControls';
 
@@ -81,6 +77,24 @@
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, commonCoreStrings],
+    setup() {
+      const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
+      return {
+        saveTabsClick,
+        wereTabsClickedRecently,
+      };
+    },
+    props: {
+      activeTabId: {
+        type: String,
+        required: true,
+      },
+    },
+    data() {
+      return {
+        QUIZZES_TABS_ID,
+      };
+    },
     computed: {
       avgScore() {
         return this.getExamAvgScore(this.$route.params.quizId, this.recipients);
@@ -94,6 +108,36 @@
       group() {
         return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
+      tabs() {
+        return [
+          {
+            id: QuizzesTabs.REPORT,
+            label: this.coachString('reportLabel'),
+            to: this.group
+              ? this.classRoute('ReportsGroupReportQuizLearnerListPage')
+              : this.classRoute('ReportsQuizLearnerListPage'),
+          },
+          {
+            id: QuizzesTabs.DIFFICULT_QUESTIONS,
+            label: this.coachString('difficultQuestionsLabel'),
+            to: this.group
+              ? this.classRoute('ReportsGroupReportQuizQuestionListPage')
+              : this.classRoute('ReportsQuizQuestionListPage'),
+          },
+        ];
+      },
+    },
+    mounted() {
+      // focus the active tab but only when it's likely
+      // that this header was re-mounted as a result
+      // of navigation after clicking a tab (focus shouldn't
+      // be manipulated programatically in other cases, e.g.
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.QUIZZES_TABS_ID)) {
+        this.$nextTick(() => {
+          this.$refs.tabList.focusActiveTab();
+        });
+      }
     },
     methods: {
       handleSelectOption(option) {
