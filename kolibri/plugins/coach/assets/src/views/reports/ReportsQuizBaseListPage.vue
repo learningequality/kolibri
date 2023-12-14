@@ -44,7 +44,7 @@
             <KTabsList
               ref="tabList"
               :tabsId="QUIZZES_TABS_ID"
-              :ariaLabel="$tr('coachReportsQuizzes')"
+              :ariaLabel="coachString('detailsLabel')"
               :activeTabId="activeTabId"
               :tabs="tabs"
               @click="() => saveTabsClick(QUIZZES_TABS_ID)"
@@ -155,12 +155,6 @@
         if (option === 'EXPORT') {
           this.$emit('export');
         }
-      },
-    },
-    $trs: {
-      coachReportsQuizzes: {
-        message: 'Report quizzes',
-        context: 'Labels the Reports > Quizzes tab for screen reader users',
       },
     },
   };
