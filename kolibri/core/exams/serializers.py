@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from rest_framework.serializers import BooleanField
 from rest_framework.serializers import CharField
 from rest_framework.serializers import IntegerField
 from rest_framework.serializers import ListField
@@ -27,6 +28,7 @@ class NestedCollectionSerializer(ModelSerializer):
 
 
 class QuestionSourceSerializer(Serializer):
+    section_id = HexUUIDField(format="hex")
     exercise_id = HexUUIDField(format="hex")
     # V0 need not have question_id that is why required=False
     question_id = HexUUIDField(format="hex", required=False)
@@ -34,8 +36,17 @@ class QuestionSourceSerializer(Serializer):
     counter_in_exercise = IntegerField()
 
 
-class ExamSerializer(ModelSerializer):
+class QuizSectionSerializer(Serializer):
+    section_id = HexUUIDField(format="hex")
+    section_title = CharField()
+    description = CharField()
+    resource_pool = ListField(child=HexUUIDField(format="hex"))
+    question_count = IntegerField()
+    learners_see_fixed_order = BooleanField()
+    questions = ListField(child=QuestionSourceSerializer(), required=False)
 
+
+class ExamSerializer(ModelSerializer):
     assignments = ListField(
         child=PrimaryKeyRelatedField(read_only=False, queryset=Collection.objects.all())
     )
@@ -45,7 +56,7 @@ class ExamSerializer(ModelSerializer):
         ),
         required=False,
     )
-    question_sources = ListField(child=QuestionSourceSerializer(), required=False)
+    question_sources = ListField(child=QuizSectionSerializer(), required=False)
     creator = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
