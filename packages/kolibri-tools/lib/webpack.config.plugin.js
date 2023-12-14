@@ -44,6 +44,7 @@ module.exports = (
     cache = false,
     transpile = false,
     devServer = false,
+    kdsPath = '',
   } = {}
 ) => {
   if (
@@ -100,7 +101,10 @@ module.exports = (
   } else {
     externals = { kolibri: kolibriName };
   }
-
+  if (kdsPath) {
+    coreAliases['kolibri-design-system'] = path.resolve(kdsPath);
+    cache = false;
+  }
   let bundle = {
     externals,
     name: data.name,
