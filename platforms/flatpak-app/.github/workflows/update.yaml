@@ -36,7 +36,8 @@ jobs:
           GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
           EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        working-directory: build-aux/flatpak
         run: |
           /app/flatpak-external-data-checker --update --verbose --never-fork \
             build-aux/flatpak/org.learningequality.Kolibri.Devel.json
