@@ -601,10 +601,10 @@
         return this.contents.filter(content => content.kind !== ContentNodeKinds.TOPIC);
       },
       childrenToDisplay() {
-        return this.windowBreakpoint === 2 || this.windowBreakpoint > 6 ? 4 : 3;
+        return this.windowBreakpoint === 2 || this.windowBreakpoint > 4 ? 4 : 3;
       },
       gridType() {
-        return this.windowBreakpoint > 6 ? 2 : 1;
+        return this.windowBreakpoint > 4 ? 2 : 1;
       },
       resourcesDisplayed() {
         // if no folders are shown at this level, show more resources to fill the space
