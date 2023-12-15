@@ -95,7 +95,7 @@ jobs:
       # or from another repository with workflow_call.
       run: echo "sha=$(git rev-parse HEAD)" >> $GITHUB_OUTPUT
     - name: Set up Python 3.9
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: 3.9
     - name: Install Apt Dependencies
