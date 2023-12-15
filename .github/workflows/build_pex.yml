@@ -29,7 +29,7 @@ jobs:
           ${{ runner.os }}-pip-
     - name: Install Python build dependencies
       run: pip install -r requirements/build.txt
-    - uses: actions/download-artifact@v3
+    - uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.whl-file-name }}
         path: dist
