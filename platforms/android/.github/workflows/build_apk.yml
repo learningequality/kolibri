@@ -137,7 +137,7 @@ jobs:
       run: make get-tar tar=${{ github.event.inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
-      uses: actions/download-artifact@v3
+      uses: actions/download-artifact@v4
       with:
         name: ${{ inputs.tar-file-name }}
         path: tar
@@ -176,7 +176,7 @@ jobs:
     - name: Get versionCode
       id: get-version-code
       run: echo "version-code=$(cat .version-code)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
         path: dist/${{ steps.get-apk-filename.outputs.apk-file-name }}
