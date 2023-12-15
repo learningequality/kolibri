@@ -656,6 +656,7 @@
             // showMore is whether we should show more inline
             const showMore =
               !this.subTopicId &&
+              this.topics.length != 1 &&
               topicChildren.length > this.childrenToDisplay &&
               !this.expandedTopics[t.id];
 

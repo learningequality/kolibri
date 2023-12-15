@@ -76,7 +76,6 @@
             v-if="!deviceId && isUserLoggedIn"
             data-test="other-libraries"
             :injectedtr="injecttr"
-            class="other-libraries"
           />
 
         </div>
