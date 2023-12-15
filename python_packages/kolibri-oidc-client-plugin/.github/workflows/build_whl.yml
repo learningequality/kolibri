@@ -62,14 +62,14 @@ jobs:
     - name: Get WHL filename
       id: get-whl-filename
       run: echo "::set-output name=whl-file-name::$(ls dist | grep .whl | cat)"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-whl-filename.outputs.whl-file-name }}
         path: dist/${{ steps.get-whl-filename.outputs.whl-file-name }}
     - name: Get TAR filename
       id: get-tar-filename
       run: echo "::set-output name=tar-file-name::$(ls dist | grep .tar | cat)"
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-tar-filename.outputs.tar-file-name }}
         path: dist/${{ steps.get-tar-filename.outputs.tar-file-name }}
