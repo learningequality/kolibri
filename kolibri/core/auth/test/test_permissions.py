@@ -1,10 +1,6 @@
 """
 Tests of the permissions on specific models in the auth app. For tests of the permissions system itself, see test_permission_classes.py
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from django.test import TestCase
 
 from ..constants import role_kinds

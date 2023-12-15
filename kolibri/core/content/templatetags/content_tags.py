@@ -12,10 +12,6 @@ To use
     {% content_renderer_assets %}
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from django import template
 
 from .. import hooks

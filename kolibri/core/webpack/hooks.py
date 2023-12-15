@@ -5,10 +5,6 @@ Kolibri Webpack hooks
 To manage assets, we use the webpack format. In order to have assets bundled in,
 you should put them in ``yourapp/assets/src``.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import codecs
 import io
 import json

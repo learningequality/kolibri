@@ -18,10 +18,6 @@ object, which grants the user a role with respect to the ``Collection`` and all 
 object also stores the "kind" of the role (currently, one of "admin" or "coach"), which affects what permissions the
 user gains through the ``Role``.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 from threading import local
 

@@ -153,10 +153,6 @@ objects are each instances of the hook classes that were registered.
 
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 from abc import abstractproperty
 from functools import partial
