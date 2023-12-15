@@ -21,7 +21,7 @@
     <transition-group name="list">
       <BlockItem
         v-for="notification in notifications"
-        :key="notification.groupCode + '_' + notification.lastId"
+        :key="notification.groupCode + '_' + notification.id"
       >
         <NotificationCard
           :notification="notification"
