@@ -199,7 +199,7 @@ read-whl-file-version:
 	python ./build_tools/read_whl_version.py ${whlfile} > kolibri/VERSION
 
 pex:
-	ls dist/*.whl | while read whlfile; do $(MAKE) read-whl-file-version whlfile=$$whlfile; pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
+	ls dist/*.whl | while read whlfile; do $(MAKE) read-whl-file-version whlfile=$$whlfile; pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
 
 i18n-extract-backend:
 	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'
