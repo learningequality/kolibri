@@ -81,7 +81,7 @@
   import client from 'kolibri.client';
 
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
@@ -102,7 +102,14 @@
       HooperPagination,
       HooperNavigation,
     },
-    mixins: [responsiveElementMixin, responsiveWindowMixin],
+    mixins: [responsiveElementMixin],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsSmall,
+      };
+    },
     data: () => ({
       isInFullscreen: false,
       slides: [],
