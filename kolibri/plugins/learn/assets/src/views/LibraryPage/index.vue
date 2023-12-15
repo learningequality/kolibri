@@ -3,7 +3,10 @@
   <div>
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="!(rootNodesLoading || searchLoading) && welcomeModalVisible && !areChannelsImported"
+        v-if="!(rootNodesLoading || searchLoading)
+          && welcomeModalVisible
+          && !areChannelsImported
+          && !isLearnerOnlyImport"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -162,7 +165,7 @@
   import useUser from 'kolibri.coreVue.composables.useUser';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
-  import { mapState } from 'vuex';
+  import { mapState, mapGetters } from 'vuex';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
@@ -402,6 +405,7 @@
       };
     },
     computed: {
+      ...mapGetters(['isLearnerOnlyImport']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
