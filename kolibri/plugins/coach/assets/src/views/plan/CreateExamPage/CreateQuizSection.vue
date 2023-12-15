@@ -23,7 +23,7 @@
           :label="quizTitle$()"
           :autofocus="true"
           :maxlength="100"
-          @blur="e => updateQuiz({ title: e.target })"
+          @blur="e => updateQuiz({ title: e.target.value })"
           @change="title => updateQuiz({ title })"
         />
       </KGridItem>
