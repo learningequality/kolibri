@@ -102,17 +102,14 @@
       HooperPagination,
       HooperNavigation,
     },
-    setup() {
-    const {
-      windowIsLarge,
-      windowIsSmall
-    } = useKResponsiveWindow();
-    return {
-      windowIsLarge,
-      windowIsSmall
-    }
-    },
     mixins: [responsiveElementMixin],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsSmall,
+      };
+    },
     data: () => ({
       isInFullscreen: false,
       slides: [],
