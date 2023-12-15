@@ -1,8 +1,8 @@
 # If libraries in here have dependencies
 # they must be explicitly listed in here if
 # they have architecture requirements, or
-# in other files toe ensure they are properly
+# in other files to ensure they are properly
 # installed - as these dependencies are installed
 # without their dependencies.
-cryptography==2.3
 cffi==1.14.4
+cryptography==3.3.2

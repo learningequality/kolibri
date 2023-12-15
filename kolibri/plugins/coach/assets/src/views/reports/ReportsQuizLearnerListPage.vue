@@ -1,7 +1,12 @@
 <template>
 
-  <ReportsQuizBaseListPage @export="exportCSV">
-    <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
+  <ReportsQuizBaseListPage :activeTabId="QuizzesTabs.REPORT" @export="exportCSV">
+    <KTabsPanel
+      :tabsId="QUIZZES_TABS_ID"
+      :activeTabId="QuizzesTabs.REPORT"
+    >
+      <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
+    </KTabsPanel>
   </ReportsQuizBaseListPage>
 
 </template>
@@ -13,6 +18,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
   import commonCoach from '../common';
+  import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
@@ -25,6 +31,12 @@
       ReportsLearnersTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        QUIZZES_TABS_ID,
+        QuizzesTabs,
+      };
+    },
     computed: {
       exam() {
         return this.examMap[this.$route.params.quizId];

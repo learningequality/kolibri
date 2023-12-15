@@ -79,6 +79,13 @@ class ORMJob(Base):
 
     scheduled_time = Column(DateTime())
 
+    # Optional references to the worker host, process and thread that are running this job,
+    # and any extra metadata that can be used by specific worker implementations.
+    worker_host = Column(String, nullable=True)
+    worker_process = Column(String, nullable=True)
+    worker_thread = Column(String, nullable=True)
+    worker_extra = Column(String, nullable=True)
+
     __table_args__ = (Index("queue__scheduled_time", "queue", "scheduled_time"),)
 
 
@@ -490,6 +497,38 @@ class Storage(object):
 
     def save_job_as_cancellable(self, job_id, cancellable=True):
         self._update_job(job_id, cancellable=cancellable)
+
+    def save_worker_info(
+        self, job_id, host=None, process=None, thread=None, extra=None
+    ):
+        """
+        Generally we only want to capture/update, not erase, any of this information so we only
+        update the fields that are non-None.
+        """
+        if not any([host, process, thread, extra]):
+            # nothing to do
+            return
+
+        with self.session_scope() as session:
+            try:
+                _, orm_job = self._get_job_and_orm_job(job_id, session)
+                if host is not None:
+                    orm_job.worker_host = host
+                if process is not None:
+                    orm_job.worker_process = process
+                if thread is not None:
+                    orm_job.worker_thread = thread
+                if extra is not None:
+                    orm_job.worker_extra = extra
+                session.add(orm_job)
+                try:
+                    session.commit()
+                except Exception as e:
+                    logger.error("Got an error running session.commit(): {}".format(e))
+            except JobNotFound:
+                logger.error(
+                    "Tried to update job with id {} but it was not found".format(job_id)
+                )
 
     # Turning off the complexity warning for this function as moving the conditional validation checks
     # inline would be the simplest way to 'reduce' the complexity, but would make it less readable.

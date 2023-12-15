@@ -153,6 +153,24 @@ def install_package(package_name, package_version, index_url, info, cache_path):
                     shutil.rmtree(os.path.join(package_path, folder))
 
 
+def _filter_result(result):
+    filtered_result = []
+
+    # Do filtering for Windows versions after we get all the information
+    # So if we have expanded the range for an ABI build, we can still get the
+    # correct version for Python 3.8
+    for info in result:
+        if "win_amd64" in info["platform"] or "win32" in info["platform"]:
+            if info["version"] == "38":
+                filtered_result.append(info)
+        else:
+            filtered_result.append(info)
+    return filtered_result
+
+
+supported_python3_versions = ["36", "37", "38", "39", "310", "311"]
+
+
 def parse_package_page(files, pk_version, index_url, cache_path):
     """
     Parse the PYPI and Piwheels links for the package information.
@@ -161,7 +179,8 @@ def parse_package_page(files, pk_version, index_url, cache_path):
         * not the version specified in requirements.txt
         * not python versions that kolibri does not support
         * not macosx
-        * not win_x64 with python 3.6
+        * not win_x64 with python 3.8
+        * not win32 with python 3.8
     """
 
     result = []
@@ -181,19 +200,18 @@ def parse_package_page(files, pk_version, index_url, cache_path):
 
         if package_version != pk_version:
             continue
-        if python_version == "26" or python_version == "34" or python_version == "35":
+        if python_version != "27" and python_version not in supported_python3_versions:
             continue
         if "macosx" in platform:
             continue
-        if "win_amd64" in platform and python_version != "39":
-            continue
 
-        # Cryptography builds for Linux target Python 3.4+ but the only existing
-        # build is labeled 3.4 (the lowest version supported).
-        # Expand the abi3 tag here. e.g. cp34 abi3 is expanded to cp34m, cp35m, cp36m, cp37m
+        # Cryptography builds for Linux target Python 3.6+ but the only existing
+        # build is labeled 3.6 (the lowest version supported).
+        # Expand the abi3 tag here. e.g. cp36 abi3 is expanded to cp36m, cp37m, cp38m, cp39m, cp310m, cp311m
         # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-my-python3-x-version
         if abi == "abi3":
-            for actual_version in range(int(python_version), 38):
+            version_index = supported_python3_versions.index(python_version)
+            for actual_version in supported_python3_versions[version_index:]:
                 actual_version = str(actual_version)
                 actual_abi = "".join([implementation, actual_version, "m"])
                 info = {
@@ -212,7 +230,9 @@ def parse_package_page(files, pk_version, index_url, cache_path):
             }
             result.append(info)
 
-    install_package(package_name, pk_version, index_url, result, cache_path)
+    install_package(
+        package_name, pk_version, index_url, _filter_result(result), cache_path
+    )
 
 
 def parse_pypi_and_piwheels(name, pk_version, cache_path, session):

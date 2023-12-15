@@ -25,3 +25,9 @@ export const LearnersTabs = {
   REPORTS: 'tabReports',
   ACTIVITY: 'tabActivity',
 };
+
+export const QUIZZES_TABS_ID = 'coachReportsQuizzes';
+export const QuizzesTabs = {
+  REPORT: 'tabReport',
+  DIFFICULT_QUESTIONS: 'tabDifficultQuestions',
+};
