@@ -65,6 +65,7 @@ def prepend_cext_path(dist_path):
     system_name = platform.system()
     machine_name = platform.machine()
     dirname = os.path.join(dist_path, "cext", python_version, system_name)
+    abi3_dirname = os.path.join(dist_path, "cext", "abi3", system_name, machine_name)
 
     # For Linux system with cpython<3.3, there could be abi tags 'm' and 'mu'
     if system_name == "Linux" and sys.version_info < (3, 3):
@@ -77,6 +78,9 @@ def prepend_cext_path(dist_path):
 
     dirname = os.path.join(dirname, machine_name)
     noarch_dir = os.path.join(dist_path, "cext")
+    if sys.version_info >= (3, 6) and os.path.exists(abi3_dirname):
+        sys.path = [str(abi3_dirname)] + sys.path
+
     if os.path.exists(dirname):
         # If the directory of platform-specific cextensions (cryptography) exists,
         # add it + the matching noarch (OpenSSL) modules to sys.path

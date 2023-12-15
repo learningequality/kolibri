@@ -138,7 +138,7 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
   );
 
   for (const groupCode in groupedNotifications) {
-    // Filter out all bust the most recent event for each user
+    // Filter out all but the most recent event for each user
     const allEvents = sortedUniqBy(groupedNotifications[groupCode], 'user_id');
 
     const eventsByCollection = groupBy(allEvents, e => e.collection.id);
@@ -153,26 +153,24 @@ export function summarizedNotifications(state, getters, rootState, rootGetters) 
       for (const eventType in eventTypeEvents) {
         const orderedEvents = eventTypeEvents[eventType];
 
-        const firstEvent = orderedEvents.slice(-1)[0];
-
         const lastEvent = orderedEvents[0];
 
         let collectionSize = 1;
 
-        if (firstEvent.collection.type === CollectionTypes.CLASSROOM) {
+        if (lastEvent.collection.type === CollectionTypes.CLASSROOM) {
           collectionSize = classSummary.learners.length;
-        } else if (firstEvent.collection.type === CollectionTypes.LEARNERGROUP) {
+        } else if (lastEvent.collection.type === CollectionTypes.LEARNERGROUP) {
           collectionSize = classSummary.learnerGroups[collIdx].member_ids.length;
-        } else if (firstEvent.collection.type === CollectionTypes.ADHOCLEARNERSGROUP) {
+        } else if (lastEvent.collection.type === CollectionTypes.ADHOCLEARNERSGROUP) {
           collectionSize = classSummary.adHocGroupsMap[collIdx].length;
         }
 
         summaryEvents.push({
-          ...firstEvent,
+          ...lastEvent,
           groupCode: groupCode + '_' + collIdx,
           timestamp: lastEvent.timestamp,
           learnerSummary: {
-            ...firstEvent.learnerSummary,
+            ...lastEvent.learnerSummary,
             total: orderedEvents.length,
             // not used for Needs Help
             completesCollection: orderedEvents.length === collectionSize,

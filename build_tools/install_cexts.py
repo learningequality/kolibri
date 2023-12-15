@@ -123,7 +123,13 @@ def install_package(package_name, package_version, index_url, info, cache_path):
         filename = "-".join([package_name, package_version, abi, platform])
 
         # Calculate the path that the package will be installed into
-        version_path = os.path.join(DIST_CEXT, implementation + python_version)
+        # Cryptography builds for Linux target Python 3.6+ but the only existing
+        # build is labeled 3.6 (the lowest version supported).
+        # So install abi3 packages into a separate folder to be used across all Python 3 versions.
+        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-my-python3-x-version
+        version_path = os.path.join(
+            DIST_CEXT, abi if abi == "abi3" else implementation + python_version
+        )
         package_path = get_path_with_arch(
             platform, version_path, abi, implementation, python_version
         )
@@ -151,21 +157,6 @@ def install_package(package_name, package_version, index_url, info, cache_path):
             for folder in dist_info_folders:
                 if folder.endswith(".dist-info"):
                     shutil.rmtree(os.path.join(package_path, folder))
-
-
-def _filter_result(result):
-    filtered_result = []
-
-    # Do filtering for Windows versions after we get all the information
-    # So if we have expanded the range for an ABI build, we can still get the
-    # correct version for Python 3.8
-    for info in result:
-        if "win_amd64" in info["platform"] or "win32" in info["platform"]:
-            if info["version"] == "38":
-                filtered_result.append(info)
-        else:
-            filtered_result.append(info)
-    return filtered_result
 
 
 supported_python3_versions = ["36", "37", "38", "39", "310", "311"]
@@ -204,35 +195,19 @@ def parse_package_page(files, pk_version, index_url, cache_path):
             continue
         if "macosx" in platform:
             continue
+        if "win_amd64" in platform or "win32" in platform and python_version == "27":
+            # Don't install win_amd64 or win32 with python 2.7
+            continue
 
-        # Cryptography builds for Linux target Python 3.6+ but the only existing
-        # build is labeled 3.6 (the lowest version supported).
-        # Expand the abi3 tag here. e.g. cp36 abi3 is expanded to cp36m, cp37m, cp38m, cp39m, cp310m, cp311m
-        # https://cryptography.io/en/latest/faq/#why-are-there-no-wheels-for-my-python3-x-version
-        if abi == "abi3":
-            version_index = supported_python3_versions.index(python_version)
-            for actual_version in supported_python3_versions[version_index:]:
-                actual_version = str(actual_version)
-                actual_abi = "".join([implementation, actual_version, "m"])
-                info = {
-                    "platform": platform,
-                    "implementation": implementation,
-                    "version": actual_version,
-                    "abi": actual_abi,
-                }
-                result.append(info)
-        else:
-            info = {
-                "platform": platform,
-                "implementation": implementation,
-                "version": python_version,
-                "abi": abi,
-            }
-            result.append(info)
+        info = {
+            "platform": platform,
+            "implementation": implementation,
+            "version": python_version,
+            "abi": abi,
+        }
+        result.append(info)
 
-    install_package(
-        package_name, pk_version, index_url, _filter_result(result), cache_path
-    )
+    install_package(package_name, pk_version, index_url, result, cache_path)
 
 
 def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
