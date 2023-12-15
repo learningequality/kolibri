@@ -15,12 +15,14 @@ jobs:
   build_pex:
     name: Build PEX
     runs-on: ubuntu-20.04
-    container:
-      image: python:2.7.18-buster
     outputs:
       pex-file-name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
     steps:
     - uses: actions/checkout@v4
+    - name: Set up Python 3.6
+      uses: actions/setup-python@v4
+      with:
+        python-version: 3.6
     - uses: actions/cache@v3
       with:
         path: ~/.cache/pip

@@ -96,8 +96,6 @@ setup(
         "License :: OSI Approved :: MIT License",
         "Natural Language :: English",
         "Development Status :: 4 - Beta",
-        "Programming Language :: Python :: 2",
-        "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3",
         "Programming Language :: Python :: 3.6",
         "Programming Language :: Python :: 3.7",
@@ -108,5 +106,5 @@ setup(
         "Programming Language :: Python :: Implementation :: PyPy",
     ],
     cmdclass={"install_scripts": gen_windows_batch_files},
-    python_requires=">=2.7, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*,  <3.12",
+    python_requires=">=3.6,  <3.12",
 )
