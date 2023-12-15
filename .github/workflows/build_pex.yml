@@ -38,7 +38,7 @@ jobs:
     - name: Get PEX filename
       id: get-pex-filename
       run: echo "pex-file-name=$(ls dist | grep .pex | cat)" >> $GITHUB_OUTPUT
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       with:
         name: ${{ steps.get-pex-filename.outputs.pex-file-name }}
         path: dist/${{ steps.get-pex-filename.outputs.pex-file-name }}
