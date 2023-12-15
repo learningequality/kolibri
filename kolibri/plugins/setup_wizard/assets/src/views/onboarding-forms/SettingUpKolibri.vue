@@ -1,21 +1,23 @@
 <template>
 
   <div class="full-page">
-    <UiAlert
-      v-if="coreError"
-      :dismissible="false"
-      class="alert"
-      type="error"
+    <AppError :hideParagraphs="true">
+      <template #buttons>
+        <KButton
+          :text="coreString('startOverAction')"
+          @click="startOver"
+        />
+        <KButton
+          :primary="true"
+          :text="coreString('retryAction')"
+          @click="provisionDevice"
+        />
+      </template>
+    </AppError>
+    <main
+      v-if="!coreError"
+      class="content"
     >
-      <span>{{ coreError }}</span><br>
-      <KButton
-        v-if="restart"
-        appearance="basic-link"
-        :text="coreString('startOverAction')"
-        @click="startOver"
-      />
-    </UiAlert>
-    <main class="content">
       <KolibriLoadingSnippet />
       <h1 class="page-title">
         {{ $tr('pageTitle') }}
@@ -33,12 +35,12 @@
 
   import omitBy from 'lodash/omitBy';
   import get from 'lodash/get';
+  import AppError from 'kolibri-common/components/AppError';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
@@ -46,14 +48,9 @@
 
   export default {
     name: 'SettingUpKolibri',
-    components: { UiAlert, KolibriLoadingSnippet },
+    components: { AppError, KolibriLoadingSnippet },
     inject: ['wizardService'],
     mixins: [commonCoreStrings],
-    data() {
-      return {
-        restart: false,
-      };
-    },
     computed: {
       coreError() {
         if (this.$store) {
@@ -166,7 +163,7 @@
         return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
       },
     },
-    mounted() {
+    created() {
       this.provisionDevice();
     },
     methods: {
@@ -179,6 +176,7 @@
         return this.wizardService.state.context[key];
       },
       provisionDevice() {
+        this.$store.dispatch('clearError');
         client({
           url: urls['kolibri:core:deviceprovision'](),
           method: 'POST',
@@ -192,7 +190,6 @@
             redirectBrowser();
           })
           .catch(e => {
-            this.restart = e.response.status === 400;
             this.$store.dispatch('handleApiError', { error: e });
           });
       },
