@@ -5,7 +5,6 @@ from importlib import import_module
 from django.apps import apps
 from rest_framework import serializers
 from rest_framework.exceptions import PermissionDenied
-from six import string_types
 
 from kolibri.core.tasks.constants import DEFAULT_QUEUE
 from kolibri.core.tasks.constants import Priority
@@ -116,7 +115,7 @@ class _registry(dict):
             self[key] = value
 
     def validate_task(self, task):
-        if not isinstance(task, string_types):
+        if not isinstance(task, str):
             raise serializers.ValidationError("The task type must be a string.")
         if task not in self:
             raise serializers.ValidationError(
@@ -199,7 +198,7 @@ class RegisteredTask(object):
             raise ValueError("priority must be one of '5' or '10' (integer).")
         if not isinstance(permission_classes, list):
             raise TypeError("permission_classes must be of list type.")
-        if not isinstance(queue, string_types):
+        if not isinstance(queue, str):
             raise TypeError("queue must be of string type.")
         if not isinstance(cancellable, bool):
             raise TypeError("cancellable must be of bool type.")

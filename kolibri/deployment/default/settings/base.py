@@ -10,11 +10,11 @@ https://docs.djangoproject.com/en/1.11/ref/settings/
 """
 import os
 import sys
+from urllib.parse import urljoin
 
 import pytz
 from django.conf import locale
 from morango.constants import settings as morango_settings
-from six.moves.urllib.parse import urljoin
 from tzlocal import get_localzone
 
 import kolibri

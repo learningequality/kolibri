@@ -9,7 +9,6 @@ from django.utils.cache import patch_response_headers
 from django.views.decorators.http import etag
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
-from six import string_types
 
 from kolibri import __version__ as kolibri_version
 
@@ -81,7 +80,7 @@ class ParamValidator(object):
         elif self.param_type == float:
             param = float(param)
         elif self.param_type == str:
-            if not isinstance(param, string_types):
+            if not isinstance(param, str):
                 raise AssertionError
         elif self.param_type == bool:
             param = str(param).lower()  # bool isn't case sensitive
@@ -197,7 +196,7 @@ class ParamValidator(object):
             self.default = value
 
         elif suffix == "field":
-            if not isinstance(suffix, string_types):
+            if not isinstance(suffix, str):
                 raise AssertionError
             self.field = value
         else:

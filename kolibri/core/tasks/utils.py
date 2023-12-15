@@ -9,7 +9,6 @@ from threading import Thread
 import click
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
-from six import string_types
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
@@ -43,7 +42,7 @@ def callable_to_import_path(func):
         funcstring = "{module}.{funcname}".format(
             module=func.__module__, funcname=func.__name__
         )
-    elif isinstance(func, string_types):
+    elif isinstance(func, str):
         funcstring = func
     else:
         raise TypeError("Can't handle a function of type {}".format(type(func)))

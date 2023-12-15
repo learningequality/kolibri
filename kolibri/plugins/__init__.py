@@ -6,7 +6,6 @@ from abc import ABCMeta
 from importlib import import_module
 
 from django.utils.module_loading import module_has_submodule
-from six import with_metaclass
 
 from kolibri.utils.build_config.default_plugins import DEFAULT_PLUGINS
 from kolibri.utils.conf import KOLIBRI_HOME
@@ -149,7 +148,7 @@ class SingletonMeta(ABCMeta):
         return cls._instances[cls]
 
 
-class KolibriPluginBase(with_metaclass(SingletonMeta)):
+class KolibriPluginBase(metaclass=SingletonMeta):
     """
     This is the base class that all Kolibri plugins need to implement.
     """

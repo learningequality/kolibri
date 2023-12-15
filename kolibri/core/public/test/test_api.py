@@ -15,7 +15,6 @@ from morango.models import TransferSession
 from rest_framework import status
 from rest_framework.test import APITestCase
 from rest_framework.test import APITransactionTestCase
-from six import iteritems
 
 import kolibri
 from kolibri.core.auth.models import Facility
@@ -208,7 +207,7 @@ class PublicAPITestCase(APITransactionTestCase):
             "matching_tokens": [],
             "public": True,
         }
-        for key, value in iteritems(expected):
+        for key, value in expected.items():
             self.assertEqual(data[key], value)
         # we don't care what order these elements are in
         self.assertSetEqual(set(["en", "es"]), set(data["included_languages"]))

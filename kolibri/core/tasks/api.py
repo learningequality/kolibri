@@ -9,7 +9,6 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.response import Response
-from six import string_types
 
 from kolibri.core.tasks.exceptions import JobNotFound
 from kolibri.core.tasks.exceptions import JobNotRestartable
@@ -216,7 +215,7 @@ class TasksViewSet(viewsets.GenericViewSet):
 
     def _get_job_for_pk(self, request, pk):
         try:
-            if not isinstance(pk, string_types):
+            if not isinstance(pk, str):
                 raise JobNotFound
             job = job_storage.get_job(job_id=pk)
             registered_task = TaskRegistry[job.func]

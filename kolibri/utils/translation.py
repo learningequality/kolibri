@@ -12,7 +12,6 @@ from threading import local
 
 from django.core.exceptions import AppRegistryNotReady
 from django.core.exceptions import ImproperlyConfigured
-from django.utils import six
 from django.utils import translation as django_translation_module
 from django.utils.decorators import ContextDecorator
 from django.utils.safestring import mark_safe
@@ -164,10 +163,4 @@ def gettext(message):
     return do_translate(message, "gettext")
 
 
-if six.PY3:
-    ugettext = gettext
-else:
-
-    @prefer_django
-    def ugettext(message):
-        return do_translate(message, "ugettext")
+ugettext = gettext

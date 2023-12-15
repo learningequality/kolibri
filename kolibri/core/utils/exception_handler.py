@@ -1,4 +1,3 @@
-from django.utils import six
 from rest_framework import status
 from rest_framework.exceptions import ErrorDetail
 from rest_framework.views import exception_handler
@@ -30,7 +29,7 @@ def _return_errors(data, path=None):
     path = path or []
     errors = []
     if isinstance(data, dict):
-        for key, value in six.iteritems(data):
+        for key, value in data.items():
             new_path = path + [key]
             # handle drf error responses
             if isinstance(value, list):

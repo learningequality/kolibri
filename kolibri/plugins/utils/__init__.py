@@ -11,7 +11,6 @@ from django.core.exceptions import AppRegistryNotReady
 from django.core.management import call_command
 from django.urls import reverse
 from semver import VersionInfo
-from six import string_types
 
 if sys.version_info < (3, 10):
     from importlib_metadata import entry_points
@@ -324,7 +323,7 @@ class PluginUpdateManager(object):
             )
             return
         for app in plugin_instance.INSTALLED_APPS:
-            if not isinstance(app, AppConfig) and isinstance(app, string_types):
+            if not isinstance(app, AppConfig) and isinstance(app, str):
                 app = apps.get_containing_app_config(app)
             app_configs.append(app)
         old_version = config["PLUGIN_VERSIONS"].get(plugin_name, "")

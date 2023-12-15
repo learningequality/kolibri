@@ -3,7 +3,6 @@ import os
 import shutil
 
 from django.core.management.base import BaseCommand
-from six.moves import input
 
 from kolibri.utils import server
 from kolibri.utils.conf import KOLIBRI_HOME

@@ -6,8 +6,6 @@ from abc import abstractmethod
 
 import requests
 from le_utils.constants import content_kinds
-from six import string_types
-from six import with_metaclass
 
 from kolibri.core.analytics.tasks import schedule_ping
 from kolibri.core.content.errors import InsufficientStorageSpaceError
@@ -63,7 +61,7 @@ def lookup_channel_listing_status(channel_id, baseurl=None):
     return channel_info.get("public", None)
 
 
-class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
+class ResourceImportManagerBase(JobProgressMixin, metaclass=ABCMeta):
     public = None
 
     def __init__(
@@ -100,7 +98,7 @@ class ResourceImportManagerBase(with_metaclass(ABCMeta, JobProgressMixin)):
             raise TypeError("Unexpected keyword argument node_ids")
         if "exclude_node_ids" in kwargs:
             raise TypeError("Unexpected keyword argument exclude_node_ids")
-        if isinstance(manifest_file, string_types):
+        if isinstance(manifest_file, str):
             manifest_file = open(manifest_file, "r")
         content_manifest = ContentManifest()
         content_manifest.read_file(manifest_file)

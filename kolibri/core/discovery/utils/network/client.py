@@ -1,8 +1,7 @@
 import logging
+from urllib.parse import urlparse
 
 import requests
-from six import raise_from
-from six.moves.urllib.parse import urlparse
 
 import kolibri
 from . import errors
@@ -145,34 +144,25 @@ class NetworkClient(requests.Session):
             requests.exceptions.InvalidHeader,
             requests.exceptions.InvalidJSONError,
         ) as e:
-            raise_from(
-                errors.NetworkLocationConnectionFailure(
-                    "Unable to connect: {}".format(url)
-                ),
-                e,
-            )
+            raise errors.NetworkLocationConnectionFailure(
+                "Unable to connect: {}".format(url)
+            ) from e
         except (
             requests.exceptions.ReadTimeout,
             requests.exceptions.TooManyRedirects,
         ) as e:
-            raise_from(
-                errors.NetworkLocationResponseTimeout(
-                    "Response timeout: {}".format(url)
-                ),
-                e,
-            )
+            raise errors.NetworkLocationResponseTimeout(
+                "Response timeout: {}".format(url)
+            ) from e
         except (
             requests.exceptions.HTTPError,
             requests.exceptions.ContentDecodingError,
             requests.exceptions.ChunkedEncodingError,
             requests.exceptions.RequestException,
         ) as e:
-            raise_from(
-                errors.NetworkLocationResponseFailure(
-                    "Response failure: {}".format(url), response=response
-                ),
-                e,
-            )
+            raise errors.NetworkLocationResponseFailure(
+                "Response failure: {}".format(url), response=response
+            ) from e
 
     def connect(self, raise_if_unavailable=True):  # noqa: C901
         """
@@ -239,9 +229,9 @@ class NetworkClient(requests.Session):
                 "Invalid JSON returned when attempting to connect to a remote server"
             )
             if raise_if_unavailable:
-                raise_from(
-                    errors.NetworkLocationInvalidResponse("Invalid JSON returned"), e
-                )
+                raise errors.NetworkLocationInvalidResponse(
+                    "Invalid JSON returned"
+                ) from e
             return False
 
         return True

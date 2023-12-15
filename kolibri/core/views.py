@@ -1,3 +1,6 @@
+from urllib.parse import urlsplit
+from urllib.parse import urlunsplit
+
 from django.contrib.auth import logout
 from django.http import Http404
 from django.http import HttpResponse
@@ -7,8 +10,6 @@ from django.urls import is_valid_path
 from django.urls import reverse
 from django.urls import translate_url
 from django.utils.decorators import method_decorator
-from django.utils.six.moves.urllib.parse import urlsplit
-from django.utils.six.moves.urllib.parse import urlunsplit
 from django.utils.translation import check_for_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation import ugettext_lazy as _

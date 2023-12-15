@@ -6,8 +6,6 @@ import uuid
 
 from magicbus.base import Bus
 from magicbus.plugins import SimplePlugin
-from six import integer_types
-from six import string_types
 from zeroconf import get_all_addresses
 from zeroconf import InterfaceChoice
 from zeroconf import NonUniqueNameException
@@ -89,7 +87,7 @@ class KolibriInstance(object):
     ):
         # Zeroconf wants socket.inet_aton() format, so make sure we have string with this class
         # which we convert when interfacing with Zeroconf
-        if ip is not None and not isinstance(ip, string_types):
+        if ip is not None and not isinstance(ip, str):
             raise TypeError("IP must be a string, not {}".format(type(ip)))
 
         self.id = instance_id
@@ -163,9 +161,9 @@ class KolibriInstance(object):
         properties = {}
 
         for key, val in self.device_info.items():
-            if not isinstance(key, string_types):
+            if not isinstance(key, str):
                 raise TypeError("Keys for the service info properties must be strings")
-            if not isinstance(val, string_types + integer_types + (bool,)):
+            if not isinstance(val, (str, int, bool)):
                 raise TypeError(
                     "Values for the service info properties must be a string, an integer or a boolean"
                 )

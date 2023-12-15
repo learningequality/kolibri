@@ -6,7 +6,6 @@ from itertools import islice
 
 from django.apps import apps
 from django.db.models.fields.related import ForeignKey
-from six import string_types
 from sqlalchemy import and_
 from sqlalchemy import or_
 from sqlalchemy.dialects.postgresql import insert
@@ -249,7 +248,7 @@ class ChannelImport(object):
 
         self.partial = partial
 
-        if isinstance(source, string_types):
+        if isinstance(source, str):
             if self.partial:
                 raise ValueError(
                     "partial init argument to channel import class can only be used with dict imports"

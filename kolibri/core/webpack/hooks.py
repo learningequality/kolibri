@@ -14,6 +14,7 @@ import re
 import time
 from abc import abstractproperty
 from functools import partial
+from urllib.request import url2pathname
 
 from django.conf import settings
 from django.contrib.staticfiles.finders import find as find_staticfiles
@@ -21,12 +22,10 @@ from django.contrib.staticfiles.storage import staticfiles_storage
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.functional import cached_property
 from django.utils.safestring import mark_safe
-from django.utils.six.moves.urllib.request import url2pathname
 from django.utils.translation import get_language
 from django.utils.translation import get_language_info
 from django.utils.translation import to_locale
 from importlib_resources import files
-from six import text_type
 
 from kolibri.plugins import hooks
 
@@ -246,7 +245,7 @@ class WebpackBundleHook(hooks.KolibriHook):
         # a string-alike object to e.g. add ``SCRIPT_NAME``
         # WSGI param as a *path prefix* to the output URL.
         # See https://code.djangoproject.com/ticket/25598.
-        base_url = text_type(base_url)
+        base_url = str(base_url)
 
         if not url.startswith(base_url):
             return None

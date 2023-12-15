@@ -3,7 +3,6 @@ import warnings
 from types import ModuleType
 
 from django.apps import AppConfig
-from six import string_types
 
 from kolibri.plugins.registry import registered_plugins
 from kolibri.plugins.utils import is_external_plugin
@@ -11,7 +10,7 @@ from kolibri.utils import i18n
 
 
 def _validate_settings_module(settings_module):
-    if isinstance(settings_module, string_types):
+    if isinstance(settings_module, str):
         try:
             return importlib.import_module(settings_module)
         except ImportError:
