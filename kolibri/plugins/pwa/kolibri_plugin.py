@@ -3,10 +3,6 @@
 #
 # Copyright 2023 Endless OS Foundation, LLC
 # SPDX-License-Identifier: MIT
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from django.template.loader import render_to_string
 
 from kolibri.core.hooks import FrontEndBaseHeadHook

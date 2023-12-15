@@ -3,14 +3,14 @@ import re
 import stat
 from collections import OrderedDict
 from io import BufferedIOBase
+from urllib.parse import parse_qs
+from urllib.parse import urljoin
 from wsgiref.headers import Headers
 
 from django.contrib.staticfiles import finders
 from django.core.exceptions import SuspiciousFileOperation
 from django.core.files.storage import FileSystemStorage
 from django.utils._os import safe_join
-from six.moves.urllib.parse import parse_qs
-from six.moves.urllib.parse import urljoin
 from whitenoise import WhiteNoise
 from whitenoise.httpstatus_backport import HTTPStatus
 from whitenoise.responders import MissingFileError

@@ -3,10 +3,6 @@ CAUTION! Keep everything here at at minimum. Do not import stuff.
 This module is imported in setup.py, so you cannot for instance
 import a dependency.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from kolibri.utils import env
 from kolibri.utils.version import get_version
 

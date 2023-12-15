@@ -10,10 +10,6 @@ module?
 
 Anyways, for now to get hooks started, we have some defined here...
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from abc import abstractproperty
 
 from django.utils.safestring import mark_safe

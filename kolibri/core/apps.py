@@ -10,7 +10,6 @@ from django.db.models.query import F
 from django.db.utils import DatabaseError
 from django_filters.filters import UUIDFilter
 from django_filters.rest_framework.filterset import FilterSet
-from six import raise_from
 
 from kolibri.core.errors import RedisConnectionError
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
@@ -170,9 +169,9 @@ class KolibriCoreConfig(AppConfig):
         except ConnectionError as e:
             logger.warning("Unable to connect to Redis: {}".format(str(e)))
 
-            raise_from(
-                RedisConnectionError("Unable to connect to Redis: {}".format(str(e))), e
-            )
+            raise RedisConnectionError(
+                "Unable to connect to Redis: {}".format(str(e))
+            ) from e
 
         except Exception as e:
             logger.warning("Unable to check Redis settings")

@@ -1,6 +1,6 @@
 import csv
-import sys
 import tempfile
+from io import StringIO
 from uuid import uuid4
 
 import pytest
@@ -17,11 +17,6 @@ from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.csv import open_csv_for_reading
 from kolibri.core.utils.csv import open_csv_for_writing
-
-if sys.version_info[0] < 3:
-    from cStringIO import StringIO
-else:
-    from io import StringIO
 
 
 CLASSROOMS = 2

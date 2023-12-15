@@ -1,7 +1,7 @@
 SHELL := /bin/bash
 
 # List most target names as 'PHONY' to prevent Make from thinking it will be creating a file of the same name
-.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release test-namespaced-packages staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
+.PHONY: help clean clean-assets clean-build clean-pyc clean-docs lint test test-all assets coverage docs release staticdeps staticdeps-cext writeversion setrequirements buildconfig pex i18n-extract-frontend i18n-extract-backend i18n-transfer-context i18n-extract i18n-django-compilemessages i18n-upload i18n-pretranslate i18n-pretranslate-approve-all i18n-download i18n-regenerate-fonts i18n-stats i18n-install-font i18n-download-translations i18n-download-glossary i18n-upload-glossary docker-whl docker-demoserver docker-devserver docker-envlist
 
 
 help:
@@ -33,7 +33,6 @@ help:
 	@echo "test: run tests quickly with the default Python"
 	@echo "test-all: run tests on every Python version with Tox"
 	@echo "test-with-postgres: run tests quickly with a temporary postgresql backend"
-	@echo "test-namespaced-packages: verify that we haven't fetched anything namespaced into kolibri/dist"
 	@echo "coverage: run tests, recording and printing out Python code coverage"
 	@echo "docs: generate developer documentation"
 	@echo "start-foreground-with-postgres: run Kolibri in foreground mode with a temporary postgresql backend"
@@ -152,30 +151,21 @@ release:
 	@read __
 	twine upload -s dist/*
 
-test-namespaced-packages:
-	# This expression checks that everything in kolibri/dist has an __init__.py
-	# To prevent namespaced packages from suddenly showing up
-	# https://github.com/learningequality/kolibri/pull/2972
-	! find kolibri/dist -mindepth 1 -maxdepth 1 -type d -not -name __pycache__ -not -name cext -not -name py2only -not -name *dist-info -exec ls {}/__init__.py \; 2>&1 | grep  "No such file"
-
 clean-staticdeps:
 	rm -rf kolibri/dist/* || true # remove everything
 	git checkout -- kolibri/dist # restore __init__.py
 
 staticdeps: clean-staticdeps
-	test "${SKIP_PY_CHECK}" = "1" || python2 --version 2>&1 | grep -q 2.7 || ( echo "Only intended to run on Python 2.7" && exit 1 )
-	pip2 install -t kolibri/dist -r "requirements.txt"
+	test "${SKIP_PY_CHECK}" = "1" || python --version 2>&1 | grep -q 3.6 || ( echo "Only intended to run on Python 3.6" && exit 1 )
+	pip install -t kolibri/dist -r "requirements.txt"
 	rm -rf kolibri/dist/*.egg-info
 	rm -r kolibri/dist/man kolibri/dist/bin || true # remove the two folders introduced by pip 10
-	python2 build_tools/py2only.py # move `future` and `futures` packages to `kolibri/dist/py2only`
-	make test-namespaced-packages
 
 staticdeps-cext:
 	rm -rf kolibri/dist/cext || true # remove everything
 	python build_tools/install_cexts.py --file "requirements/cext.txt" # pip install c extensions
 	pip install -t kolibri/dist/cext -r "requirements/cext_noarch.txt" --no-deps
 	rm -rf kolibri/dist/*.egg-info
-	make test-namespaced-packages
 
 staticdeps-compileall:
 	bash -c 'python --version'
@@ -209,7 +199,7 @@ read-whl-file-version:
 	python ./build_tools/read_whl_version.py ${whlfile} > kolibri/VERSION
 
 pex:
-	ls dist/*.whl | while read whlfile; do $(MAKE) read-whl-file-version whlfile=$$whlfile; pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python; done
+	ls dist/*.whl | while read whlfile; do $(MAKE) read-whl-file-version whlfile=$$whlfile; pex $$whlfile --disable-cache -o dist/kolibri-`cat kolibri/VERSION | sed 's/+/_/g'`.pex -m kolibri --python-shebang=/usr/bin/python3; done
 
 i18n-extract-backend:
 	cd kolibri && python -m kolibri manage makemessages -- -l en --ignore 'node_modules/*' --ignore 'kolibri/dist/*'

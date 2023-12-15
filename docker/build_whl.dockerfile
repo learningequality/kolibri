@@ -10,7 +10,7 @@ RUN apt-get update && \
     gettext \
     git \
     git-lfs \
-    python2.7 \
+    python3.6 \
     python-pip \
     python-sphinx
 

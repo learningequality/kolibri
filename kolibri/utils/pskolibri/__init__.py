@@ -52,7 +52,6 @@ import time
 from kolibri.utils.pskolibri.common import LINUX
 from kolibri.utils.pskolibri.common import memoize_when_activated
 from kolibri.utils.pskolibri.common import NoSuchProcess
-from kolibri.utils.pskolibri.common import PY3
 from kolibri.utils.pskolibri.common import WINDOWS
 
 
@@ -222,8 +221,6 @@ class Process(object):
         if pid is None:
             pid = os.getpid()
         else:
-            if not PY3 and not isinstance(pid, (int, long)):  # noqa F821
-                raise TypeError("pid must be an integer (got %r)" % pid)
             if pid < 0:
                 raise ValueError("pid must be a positive integer (got %s)" % pid)
         self._pid = pid

@@ -1,6 +1,5 @@
 import sys
 import tempfile
-import unittest
 
 from django.db.utils import OperationalError
 from django.test import TestCase
@@ -14,14 +13,6 @@ from kolibri.utils.tests.helpers import override_option
 
 
 class SanityCheckTestCase(TestCase):
-    @unittest.skipIf(
-        sys.version_info[0] < 3,
-        """
-        This test fails on CI for Python 2.7, but not locally.
-        Seems to be something to do with the wonky way we're
-        creating the test container for the test.
-        """,
-    )
     @patch("kolibri.utils.sanity_checks.logging.error")
     @override_option(
         "Paths", "CONTENT_DIR", "Z:\\NOTREAL" if sys.platform == "win32" else "/dir_dne"

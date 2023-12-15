@@ -11,7 +11,6 @@ from functools import wraps
 
 import requests
 from django.core.management.base import CommandError
-from django.utils.six.moves import input
 from morango.models import Certificate
 from morango.models import InstanceIDModel
 from morango.models import ScopeDefinition

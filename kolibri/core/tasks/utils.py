@@ -2,7 +2,6 @@ import concurrent.futures
 import logging
 import os
 import sqlite3
-import sys
 import time
 import uuid
 from threading import Thread
@@ -10,7 +9,6 @@ from threading import Thread
 import click
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
-from six import string_types
 from sqlalchemy import create_engine
 from sqlalchemy import event
 from sqlalchemy import exc
@@ -44,7 +42,7 @@ def callable_to_import_path(func):
         funcstring = "{module}.{funcname}".format(
             module=func.__module__, funcname=func.__name__
         )
-    elif isinstance(func, string_types):
+    elif isinstance(func, str):
         funcstring = func
     else:
         raise TypeError("Can't handle a function of type {}".format(type(func)))
@@ -228,22 +226,17 @@ class ProgressTracker:
         # store provided arguments
         self.total = total
 
-        # Also check that we are not running Python 2:
-        # https://github.com/learningequality/kolibri/issues/6597
-        if sys.version_info[0] == 2:
+        # Check that we are executing inside a click context
+        # as we only want to display progress bars from the command line.
+        try:
+            click.get_current_context()
+            # Coerce to an integer for safety, as click uses Python `range` on this
+            # value, which requires an integer argument
+            # N.B. because we are only doing this in Python3, safe to just use int,
+            # as long is Py2 only
+            self.progressbar = click.progressbar(length=int(total), width=0)
+        except RuntimeError:
             self.progressbar = None
-        else:
-            # Check that we are executing inside a click context
-            # as we only want to display progress bars from the command line.
-            try:
-                click.get_current_context()
-                # Coerce to an integer for safety, as click uses Python `range` on this
-                # value, which requires an integer argument
-                # N.B. because we are only doing this in Python3, safe to just use int,
-                # as long is Py2 only
-                self.progressbar = click.progressbar(length=int(total), width=0)
-            except RuntimeError:
-                self.progressbar = None
 
     def set_progress(self, current_progress, message):
         increment = current_progress - self.progress

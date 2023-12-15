@@ -10,7 +10,7 @@ Note that since Kolibri is still in development, the APIs are subject to change,
 Server
 ------
 
-The server is a `Django <https://www.djangoproject.com/>`__ application, and contains only pure-Python (2.7+) dependencies at run-time. It is responsible for:
+The server is a `Django <https://www.djangoproject.com/>`__ application, and contains only pure-Python (3.6+) dependencies at run-time. It is responsible for:
 
 - Interfacing with the database (either `SQLite <https://www.sqlite.org/index.html>`__ or `PostgreSQL <https://www.postgresql.org/>`__)
 - Authentication and permission middleware

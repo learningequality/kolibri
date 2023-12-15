@@ -1,10 +1,11 @@
 # Requirements for building wheels
-# These requirements have to support Python 2.7
+# These requirements have to support Python 3.6
 # This does not depend on runtime stuff so we do not
 # include base.txt
-pex<1.6
+pex==2.1.153
 pip>=20.3.4
 setuptools>=20.3,<41,!=34.*,!=35.*  # https://github.com/pantsbuild/pex/blob/master/pex/version.py#L6 # pyup: ignore
 beautifulsoup4==4.8.2
 requests==2.21.0
 pkginfo==1.8.2
+wheel>=0.31.1

@@ -150,27 +150,10 @@ def get_drive_list():
 
 def _get_drive_usage(path):
     """
-    Use Python libraries to get drive space/usage statistics. Prior to v3.3, use `os.statvfs`;
-    on v3.3+, use the more accurate `shutil.disk_usage`.
+    Use Python libraries to get drive space/usage statistics.
     """
-    if sys.version_info >= (3, 3):
-        usage = shutil.disk_usage(path)
-        return {"total": usage.total, "used": usage.used, "free": usage.free}
-    if on_android():
-        from jnius import autoclass
-
-        StatFs = autoclass("android.os.StatFs")
-        AndroidString = autoclass("java.lang.String")
-        stats = StatFs(AndroidString(path))
-        return {
-            "total": stats.getBlockCountLong() * stats.getBlockSizeLong(),
-            "free": stats.getAvailableBlocksLong() * stats.getBlockSizeLong(),
-        }
-    # with os.statvfs, we need to multiple block sizes by block counts to get bytes
-    stats = os.statvfs(path)
-    total = stats.f_frsize * stats.f_blocks
-    free = stats.f_frsize * stats.f_bavail
-    return {"total": total, "free": free, "used": total - free}
+    usage = shutil.disk_usage(path)
+    return {"total": usage.total, "used": usage.used, "free": usage.free}
 
 
 def _try_to_get_drive_info_from_dbus(device):

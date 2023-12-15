@@ -114,26 +114,14 @@ def json_dump_formatted(data, file_path, file_name):
 
     # Format and write the JSON file
     with io.open(file_path_with_file_name, mode="w+", encoding="utf-8") as file_object:
-        # Manage unicode for the JSON dumping
-        if sys.version_info[0] < 3:
-            output = json.dumps(
-                data,
-                sort_keys=True,
-                indent=2,
-                separators=(",", ": "),
-                ensure_ascii=False,
-            )
-            output = unicode(output, "utf-8")  # noqa
-            file_object.write(output)
-        else:
-            json.dump(
-                data,
-                file_object,
-                sort_keys=True,
-                indent=2,
-                separators=(",", ": "),
-                ensure_ascii=False,
-            )
+        json.dump(
+            data,
+            file_object,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
+            ensure_ascii=False,
+        )
 
 
 def read_config_file():
