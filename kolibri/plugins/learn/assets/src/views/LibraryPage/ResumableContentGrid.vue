@@ -30,8 +30,9 @@
       <LibraryAndChannelBrowserMainContent
         :contents="contentCardsToDisplay"
         data-test="resumable-content-card-grid"
+        class="resumable-content-card-grid"
         :currentCardViewStyle="currentCardViewStyle"
-        :gridType="1"
+        :gridType="gridType"
         @openCopiesModal="copies => displayedCopies = copies"
         @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
       />
@@ -127,7 +128,7 @@
     },
     computed: {
       numContentCardsToDisplay() {
-        return this.windowBreakpoint === 2 ? 4 : 3;
+        return this.windowBreakpoint === 2 || this.windowBreakpoint > 6 ? 4 : 3;
       },
       contentCardsToDisplay() {
         if (this.showMoreContentCards) {
@@ -138,6 +139,9 @@
       },
       moreContentCards() {
         return this.resumableContentNodes.length > this.numContentCardsToDisplay;
+      },
+      gridType() {
+        return this.windowBreakpoint > 6 ? 2 : 1;
       },
     },
     methods: {
@@ -172,6 +176,11 @@
 
   .toggle-view-buttons {
     float: right;
+  }
+
+  .resumable-content-card-grid {
+    margin-right: -8px;
+    margin-left: -8px;
   }
 
 </style>
