@@ -81,6 +81,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     cache: options.cache,
     transpile: options.transpile,
     devServer,
+    kds: options.kds,
     kdsPath: options.kdsPath,
   };
 
@@ -226,8 +227,15 @@ program
     list,
     []
   )
+  .option('--kds', 'Flag to use local kds', false)
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
   .action(function(mode, options) {
+    if (options.kds) {
+      if (!options.kdsPath) {
+        cliLogging.error('Path to the local KDS directory not specified.');
+        process.exit(1);
+      }
+    }
     if (typeof mode !== 'string') {
       cliLogging.error('Build mode must be specified');
       process.exit(1);
