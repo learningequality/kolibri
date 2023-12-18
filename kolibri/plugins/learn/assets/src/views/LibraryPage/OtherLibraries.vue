@@ -1,13 +1,13 @@
 <template>
 
   <div>
-    <KGrid gutter="12">
+    <KGrid gutter="0" class="grid">
       <KGridItem
         :layout12="{ span: 6 }"
         :layout8="{ span: 4 }"
         :layout4="{ span: 4 }"
       >
-        <h1>
+        <h1 :style="{ marginLeft: '-8px' }">
           {{ injectedtr('otherLibraries') }}
         </h1>
       </KGridItem>
@@ -69,10 +69,11 @@
     <h2
       v-if="!threeLibrariesOrFewer && pinnedDevicesExist && unpinnedDevicesExist"
       data-test="pinned-label"
+      :style="{ marginLeft: '-8px' }"
     >
       {{ injectedtr('pinned') }}
     </h2>
-    <FadeInTransitionGroup>
+    <FadeInTransitionGroup class="other-libraries-grid">
       <LibraryItem
         v-for="device in fullLibrariesToDisplay"
         :key="device['instance_id']"
@@ -87,7 +88,7 @@
 
     <!-- More  -->
 
-    <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist">
+    <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist" class="other-libraries-grid">
       <KGridItem
         :layout12="{ span: 10 }"
         :layout8="{ span: 6 }"
@@ -96,7 +97,7 @@
         <h2
           v-if="pinnedDevicesExist"
           data-test="more-label"
-          :style="{ marginTop: '0px' }"
+          :style="{ marginTop: '0px', marginLeft: '-8px' }"
         >
           {{ injectedtr('moreLibraries') }}
         </h2>
@@ -240,6 +241,14 @@
   .wifi-svg {
     top: 0;
     transform: scale(1.5);
+  }
+
+  .grid {
+    margin: 8px;
+  }
+
+  .other-libraries-grid {
+    margin-left: 0.75em;
   }
 
 </style>

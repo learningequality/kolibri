@@ -42,7 +42,7 @@
       :allowDownloads="allowDownloads"
       data-test="search-results-card-grid"
       :currentCardViewStyle="currentCardViewStyle"
-      :gridType="1"
+      :gridType="gridType"
       @openCopiesModal="copies => displayedCopies = copies"
       @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
     />
@@ -143,6 +143,11 @@
       return {
         displayedCopies: [],
       };
+    },
+    computed: {
+      gridType() {
+        return this.windowBreakpoint > 6 ? 2 : 1;
+      },
     },
     methods: {
       toggleCardView(value) {

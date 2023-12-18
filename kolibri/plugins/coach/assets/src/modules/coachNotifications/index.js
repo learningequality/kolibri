@@ -1,5 +1,6 @@
 import maxBy from 'lodash/maxBy';
 import sortBy from 'lodash/sortBy';
+import uniqBy from 'lodash/uniqBy';
 import notificationsResource from '../../apiResources/notifications';
 import { allNotifications, summarizedNotifications } from './getters';
 
@@ -11,13 +12,10 @@ export default {
   },
   mutations: {
     SET_NOTIFICATIONS(state, notifications) {
-      state.notifications = [...notifications];
-    },
-    APPEND_NOTIFICATIONS(state, notifications) {
-      state.notifications = [...notifications, ...state.notifications];
+      state.notifications = sortBy([...notifications], '-id');
     },
     INSERT_NOTIFICATIONS(state, notifications) {
-      state.notifications = sortBy([state.notifications, ...notifications], '-id');
+      state.notifications = uniqBy(sortBy([...state.notifications, ...notifications], '-id'), 'id');
     },
     SET_CURRENT_CLASSROOM_ID(state, classroomId) {
       state.currentClassroomId = classroomId;
@@ -78,7 +76,7 @@ export default {
         })
         .then(data => {
           if (data.results.length > 0) {
-            store.commit('APPEND_NOTIFICATIONS', data.results);
+            store.commit('INSERT_NOTIFICATIONS', data.results);
             store.dispatch('classSummary/updateWithNotifications', data.results, { root: true });
           }
           store.dispatch('startingPolling', { coachesPolling: data.coaches_polling });

@@ -1,32 +1,54 @@
 'APP: Coach':
-- kolibri/plugins/coach/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/coach/**/*
 
 'APP: Device':
-- kolibri/plugins/device/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/device/**/*
 
 'APP: Facility':
-- kolibri/plugins/facility/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/facility/**/*
 
 'APP: Learn':
-- kolibri/plugins/learn/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/learn/**/*
 
 'APP: Setup Wizard':
-- kolibri/plugins/setup_wizard/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/setup_wizard/**/*
 
 'APP: User':
-- kolibri/plugins/user_*/**/*
+- any:
+  - changed-files:
+    - any-glob-to-any-file: kolibri/plugins/user_*/**/*
 
 'DEV: backend':
-- '**/*.py'
+- any:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.py'
 
 'DEV: frontend':
-- any: ['kolibri/**/*.js', 'kolibri/**/*.vue']
+- any:
+  - changed-files:
+    - any-glob-to-any-file: ['kolibri/**/*.js', 'kolibri/**/*.vue']
 
 'DEV: dev-ops':
-- '.github/workflows**/*'
+- any:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows**/*'
 
 'DEV: tools':
-- any: ['packages/kolibri-tools/**/*', 'packages/eslint-plugin-kolibri/**/*', 'packages/browserslist-config-kolibri/**/*']
+- any:
+  - changed-files:
+    - any-glob-to-any-file: ['packages/kolibri-tools/**/*', 'packages/eslint-plugin-kolibri/**/*', 'packages/browserslist-config-kolibri/**/*']
 
 'DEV: renderers':
-- any: ['kolibri/plugins/*viewer/**/*', 'kolibri/plugins/*player/**/*']
+- any:
+  - changed-files:
+    - any-glob-to-any-file: ['kolibri/plugins/*viewer/**/*', 'kolibri/plugins/*player/**/*']
