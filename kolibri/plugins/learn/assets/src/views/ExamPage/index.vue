@@ -94,7 +94,7 @@
           </main>
         </KGridItem>
       </KGrid>
-      <BottomAppBar >
+      <BottomAppBar>
         <KGrid>
           <KGridItem
             :layout12="{ span: 4 }"
@@ -119,65 +119,64 @@
               </template>
               <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
             </KButton>
+           
           </KGridItem>
 
-        <KGridItem
-          :layout12="{ span: 4 }"
-          :layout8="{ span: 2 }"
-          :layout4="{ span: 1 }"
-        >
-          <div class="" style="text-align:center">
-            <span>{{ $tr("numberOfAnsweredQuestion") }}</span>
-          </div>
-        </KGridItem>
+          <KGridItem
+            :layout12="{ span: 4 }"
+            :layout8="{ span: 2 }"
+            :layout4="{ span: 1 }"
+          >
+            <div class="" style="text-align:center">
+              <div v-if="!missingResources" class="answered">
+                {{ answeredText }}
+                <div v-if="missingResources" class="nosubmit">
+                  {{ $tr('unableToSubmit') }}
+                </div>
+              </div>
+            </div>
+          </KGridItem>
+          
 
           <KGridItem
             :layout12="{ span: 4 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-          <div class="" style="float:right">
-            <KButton
-              :disabled="questionNumber === exam.question_count - 1"
-              :primary="true"
-              :dir="layoutDirReset"
-              :aria-label="$tr('nextQuestion')"
-              :appearanceOverrides="navigationButtonStyle"
-              @click="goToQuestion(questionNumber + 1)"
-              
-            >
-              <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-              <template #iconAfter>
-                <KIcon
-                  icon="forward"
-                  :color="$themeTokens.textInverted"
-                  :style="navigationIconStyleNext"
-                />
-              </template>
-            </KButton>
-          </div>
-           
-            <!-- below prev/next buttons in tab and DOM order, in footer -->
-            <!-- <div
-              v-if="windowIsLarge"
-              :dir="layoutDirReset"
-              class="left-align"
-            >
-              <div v-if="!missingResources" class="answered">
-                {{ answeredText }}
+            <div class="" style="float:right">
+              <div class="" style="float:right">
+                <template v-if="questionNumber !== exam.question_count - 1">
+                  <KButton
+                    :disabled="questionNumber === exam.question_count - 1"
+                    :primary="true"
+                    :dir="layoutDirReset"
+                    :aria-label="$tr('nextQuestion')"
+                    :appearanceOverrides="navigationButtonStyle"
+                    @click="goToQuestion(questionNumber + 1)"
+                  >
+                    <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+                    <template #iconAfter>
+                      <KIcon
+                        icon="forward"
+                        :color="$themeTokens.textInverted"
+                        :style="navigationIconStyleNext"
+                      />
+                    </template>
+                  </KButton>
+                </template>
+
+                <template v-else>
+                  <KButton
+                    v-if="!missingResources"
+                    :text="$tr('submitExam')"
+                    :primary="true"
+                    appearance="raised-button"
+                    @click="toggleModal"
+                  />
+                </template>
               </div>
-              <KButton
-                v-if="!missingResources"
-                :text="$tr('submitExam')"
-                :primary="false"
-                appearance="flat-button"
-                @click="toggleModal"
-              />
-              <div v-if="missingResources" class="nosubmit">
-                {{ $tr('unableToSubmit') }}
-              </div>
-            </div> -->
-          </KGridItem>
+            </div>
+          </kgriditem>
         </KGrid>
       </BottomAppBar>
     </div>
@@ -497,7 +496,7 @@
     },
     $trs: {
       submitExam: {
-        message: 'Submit quiz',
+        message: 'Submit',
         context:
           'Action that learner takes to submit their quiz answers so that the coach can review them.',
       },
@@ -536,10 +535,7 @@
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
-      numberOfAnsweredQuestion:{
-        message:'1 of 6 answered',
-        context:"Displays the number of the  answered quiz questions"
-      }
+      
     },
   };
 
@@ -550,7 +546,7 @@
 
   .answered {
     display: inline-block;
-    margin-right: 8px;
+    margin-right: 700px;
     margin-left: 8px;
     white-space: nowrap;
   }
