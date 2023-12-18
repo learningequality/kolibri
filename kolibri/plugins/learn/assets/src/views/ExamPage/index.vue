@@ -5,7 +5,7 @@
     :appBarTitle="exam.title || ''"
   >
     <KCircularLoader v-if="loading" />
-    <div v-else >
+    <div v-else>
       <KGrid :gridStyle="gridStyle">
         <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
         <KGridItem
@@ -68,7 +68,7 @@
               <ResourceSyncingUiAlert v-else :multiple="false" />
             </KPageContainer>
 
-          
+
 
             <!-- below prev/next buttons in tab and DOM order, in page -->
             <!-- <KPageContainer v-if="!windowIsLarge">
@@ -119,7 +119,7 @@
               </template>
               <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
             </KButton>
-           
+
           </KGridItem>
 
           <KGridItem
@@ -136,7 +136,7 @@
               </div>
             </div>
           </KGridItem>
-          
+
 
           <KGridItem
             :layout12="{ span: 4 }"
@@ -180,7 +180,7 @@
         </KGrid>
       </BottomAppBar>
     </div>
-   
+
 
 
     <KModal
@@ -535,7 +535,6 @@
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
-      
     },
   };
 
