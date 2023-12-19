@@ -49,7 +49,7 @@
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
             <KPageContainer>
 
-              <h1>
+              <h1 class="number-of-questions">
                 {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
               </h1>
               <ContentRenderer
@@ -67,30 +67,6 @@
               />
               <ResourceSyncingUiAlert v-else :multiple="false" />
             </KPageContainer>
-
-
-
-            <!-- below prev/next buttons in tab and DOM order, in page -->
-            <!-- <KPageContainer v-if="!windowIsLarge">
-              <div
-                class="bottom-block"
-                :class="{ windowIsSmall }"
-              >
-                <div v-if="!missingResources" class="answered">
-                  {{ answeredText }}
-                </div>
-                <KButton
-                  v-if="!missingResources"
-                  :text="$tr('submitExam')"
-                  :primary="false"
-                  appearance="flat-button"
-                  @click="toggleModal"
-                />
-                <div v-if="missingResources" class="nosubmit">
-                  {{ $tr('unableToSubmit') }}
-                </div>
-              </div>
-            </KPageContainer> -->
           </main>
         </KGridItem>
       </KGrid>
@@ -129,6 +105,7 @@
           >
             <div class="" style="text-align:center">
               <div v-if="!missingResources" class="answered">
+
                 {{ answeredText }}
                 <div v-if="missingResources" class="nosubmit">
                   {{ $tr('unableToSubmit') }}
@@ -426,6 +403,7 @@
         }
 
         return this.updateContentSession(data)
+
           .then(() => {
             if (close) {
               this.stopTrackingProgress();
@@ -593,6 +571,12 @@
     height: 1px;
     margin: 16px 0;
     overflow-y: hidden;
+  }
+
+  .number-of-questions {
+    font-size: 1em;
+    font-weight: 400;
+    text-align: center;
   }
 
 </style>
