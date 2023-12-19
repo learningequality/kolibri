@@ -341,6 +341,8 @@
                 token,
               },
             });
+            this.disableModal = false;
+            this.showTokenModal = false;
           } else {
             this.showTokenModal = false;
           }
