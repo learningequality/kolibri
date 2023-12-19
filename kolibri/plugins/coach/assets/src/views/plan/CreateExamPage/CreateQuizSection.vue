@@ -43,7 +43,6 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
           :activeTabId="activeSection ?
             activeSection.section_id :
             '' "
