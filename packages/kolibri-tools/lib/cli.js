@@ -81,7 +81,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     cache: options.cache,
     transpile: options.transpile,
     devServer,
-    kds: options.kds,
+    requireKdsPath: options.requireKdsPath,
     kdsPath: options.kdsPath,
   };
 
@@ -227,12 +227,18 @@ program
     list,
     []
   )
-  .option('--kds', 'Flag to use local kds', false)
+  .option(
+    '--require-kds-path',
+    'Flag to check if yarn command is run using devserver-with-kds',
+    false
+  )
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
   .action(function(mode, options) {
-    if (options.kds) {
+    if (options.requireKdsPath) {
       if (!options.kdsPath) {
-        cliLogging.error('Path to the local KDS directory not specified.');
+        cliLogging.error(
+          'The --require-kds-path flag was specified, but no --kds-path value was provided. Please include the path to the local KDS directory.'
+        );
         process.exit(1);
       }
     }
