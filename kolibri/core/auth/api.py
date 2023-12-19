@@ -20,7 +20,7 @@ from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import TextField, CharField
+from django.db.models import TextField
 from django.db.models import Value
 from django.db.models.functions import Cast
 from django.http import Http404
@@ -81,9 +81,9 @@ from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
-from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
 
@@ -431,9 +431,11 @@ class FacilityUserViewSet(ValuesViewset):
         if self.request.user == instance:
             update_session_auth_hash(self.request, instance)
 
+
 class SanitizeInputsSerializer(serializers.Serializer):
-    username= serializers.CharField()
-    facility= HexOnlyUUIDField()
+    username = serializers.CharField()
+    facility = HexOnlyUUIDField()
+
 
 class UsernameAvailableView(views.APIView):
     def post(self, request):
