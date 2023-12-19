@@ -441,8 +441,6 @@ class UsernameAvailableView(views.APIView):
     def post(self, request):
         serializer = SanitizeInputsSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        if not serializer.is_valid():
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         username = serializer.validated_data["username"]
         facility_id = serializer.validated_data["facility"]
         if not username or not facility_id:
