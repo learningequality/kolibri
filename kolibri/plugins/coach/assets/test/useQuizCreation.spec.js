@@ -1,7 +1,7 @@
 import { get } from '@vueuse/core';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
-import { ExerciseResource, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
+import { QuizResource, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
 
 const {
@@ -50,7 +50,7 @@ function generateQuestions(num = 0) {
  *  A helper function to mock an exercise with a given number of questions (for `resource_pool`)
  */
 function generateExercise(numQuestions) {
-  const exercise = objectWithDefaults({ resource_id: 'exercise_1' }, ExerciseResource);
+  const exercise = objectWithDefaults({ resource_id: 'exercise_1' }, QuizResource);
   exercise.questions = generateQuestions(numQuestions);
   return exercise;
 }
