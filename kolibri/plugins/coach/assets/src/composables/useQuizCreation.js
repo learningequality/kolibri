@@ -66,6 +66,9 @@ export default function useQuizCreation(DEBUG = false) {
    * DO NOT use this if you're testing resource selection or want to use real resources.
    */
   function _generateTestData() {
+    if (process.env.NODE_ENV === 'production') {
+      console.error("You're trying to generate test data in production. Please set DEBUG = false.");
+    }
     // First let's make some QuizQuestion objects so we have them to initialize resources with
     // Typically this data would be fetched and usable from the useQuizResources module
     const dummyQuestions = range(1, 100).map(i => {
@@ -445,6 +448,7 @@ export default function useQuizCreation(DEBUG = false) {
   provide('replacementQuestionPool', replacementQuestionPool);
   provide('selectAllQuestions', selectAllQuestions);
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
+  provide('toggleQuestionInSelection', toggleQuestionInSelection);
 
   return {
     // Methods
@@ -458,7 +462,6 @@ export default function useQuizCreation(DEBUG = false) {
     updateQuiz,
     addQuestionToSelection,
     removeQuestionFromSelection,
-    toggleQuestionInSelection,
 
     // Computed
     channels,
@@ -510,6 +513,7 @@ export function injectQuizCreation() {
   const replacementQuestionPool = inject('replacementQuestionPool');
   const selectAllQuestions = inject('selectAllQuestions');
   const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
+  const toggleQuestionInSelection = inject('toggleQuestionInSelection');
 
   return {
     // Methods
@@ -525,6 +529,7 @@ export function injectQuizCreation() {
     updateQuiz,
     addQuestionToSelection,
     removeQuestionFromSelection,
+    toggleQuestionInSelection,
 
     // Computed
     channels,
