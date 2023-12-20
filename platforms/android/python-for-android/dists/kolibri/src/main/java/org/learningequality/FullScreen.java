@@ -3,6 +3,7 @@ package org.learningequality;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
@@ -30,7 +31,18 @@ public class FullScreen {
     // Configure the WebView to allow fullscreen based on:
     // https://stackoverflow.com/questions/15768837/playing-html5-video-on-fullscreen-in-android-webview/56186877#56186877
     public void configure() {
-        mWebView.setWebViewClient(new WebViewClient());
+        mWebView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onPageFinished(WebView view, String url) {
+                CookieManager.getInstance().setAcceptCookie(true);
+                CookieManager.getInstance().acceptCookie();
+                CookieManager.getInstance().flush();
+
+            }
+
+
+        });
         mWebView.setWebChromeClient(mChrome);
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
