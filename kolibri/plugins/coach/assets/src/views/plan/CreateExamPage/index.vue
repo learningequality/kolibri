@@ -17,7 +17,7 @@
     </UiAlert>
 
     <KPageContainer
-      :style="{ ...maxContainerHeight, maxWidth: '1000px', margin: '0 auto' }"
+      :style="{ maxWidth: '1000px', margin: '0 auto 2em' }"
     >
 
       <CreateQuizSection v-if="quizInitialized" />
@@ -84,9 +84,6 @@
       };
     },
     computed: {
-      maxContainerHeight() {
-        return { maxHeight: '1000px' };
-      },
       backRoute() {
         return { name: PageNames.EXAMS };
       },
