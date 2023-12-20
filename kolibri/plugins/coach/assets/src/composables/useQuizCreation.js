@@ -443,6 +443,9 @@ export default function useQuizCreation(DEBUG = false) {
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
   provide('replacementQuestionPool', replacementQuestionPool);
+  provide('selectAllQuestions', selectAllQuestions);
+  provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
+
   return {
     // Methods
     saveQuiz,
@@ -453,11 +456,9 @@ export default function useQuizCreation(DEBUG = false) {
     setActiveSection,
     initializeQuiz,
     updateQuiz,
-    deleteActiveSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
     toggleQuestionInSelection,
-    selectAllQuestions,
 
     // Computed
     channels,
@@ -507,10 +508,14 @@ export function injectQuizCreation() {
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const replacementQuestionPool = inject('replacementQuestionPool');
+  const selectAllQuestions = inject('selectAllQuestions');
+  const deleteActiveSelectedQuestions = inject('deleteActiveSelectedQuestions');
 
   return {
     // Methods
     saveQuiz,
+    deleteActiveSelectedQuestions,
+    selectAllQuestions,
     updateSection,
     replaceSelectedQuestions,
     addSection,
