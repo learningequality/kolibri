@@ -56,6 +56,19 @@ Finally, add the Learning Equality repo as a remote called `upstream`. That way 
   git fetch --all  # Check if there are changes upstream
   git checkout -t upstream/develop # Checkout the development branch
 
+Development environment setup
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The following are the options available for setting up the development environment:
+
+* :ref:`Host setup`
+* :ref:`Development container setup` (Docker)
+
+.. note::
+  If you're looking to contribute long term, we recommend you to follow the Host setup.
+
+Host setup
+----------
 
 Python and Pip
 ~~~~~~~~~~~~~~
@@ -513,9 +526,46 @@ Another member of the team will review your code, and either ask for updates on 
 
 Learn more about our :ref:`dev_workflow` and :ref:`release_process`
 
+Development container setup
+---------------------------
 
-Development using Docker
+The following guide covers how to setup and use kolibri's development container. For the rest of the guide, these will be referred as "DevContainers".
+
+If you would like to learn more about development containers in general, refer `Developing inside a Container <https://code.visualstudio.com/docs/devcontainers/containers>`__.
+
+Docker
+~~~~~~
+* Install `Docker <https://docs.docker.com/get-docker/>`__.
+* Check if docker is running by running ``docker ps`` in your terminal.
+* If you get an error, start docker by running ``systemctl start docker`` in your terminal.
+
+Visual Studio Code
+~~~~~~~~~~~~~~~~~~
+* Open the project directory in Visual Studio Code.
+* Install the `Dev Containers extension <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`__.
+* If you clone using a SSH keys instead of Git credentials manager, you may need to opt in to sharing them. See `Sharing Git credentials with your container <https://code.visualstudio.com/remote/advancedcontainers/sharing-git-credentials>`__ for details.
+
+Starting DevContainer
+~~~~~~~~~~~~~~~~~~~~~
+* When you open the project in VSCode, you should get a pop-up on the bottom-right corner to "Reopen in Container". Click on it.
+* If you don't see such a pop-up, you can also start by opening the Command Palette (``Ctrl+Shift+P``) and searching for "Dev Containers: Rebuild and Reopen in Container".
+* This should start setting up the project inside the DevContainer.
+
+Starting Kolibri
+~~~~~~~~~~~~~~~~
+* Once the project setup is complete, you can open a new terminal by pressing ``Ctrl+Shift+```.
+* Any command you execute here will be executed inside the DevContainer.
+* You can now follow :ref:`running the server<Running the server>` to start kolibri.
+
+Stopping DevContainer
+~~~~~~~~~~~~~~~~~~~~~
+To stop the DevContainer, you can either close the VSCode window or press ``Ctrl+Shift+P`` and search for "Dev Containers: Reopen Folder Locally".
+
+Development using Docker (Legacy)
 ------------------------
+
+.. warning::
+  The following documentation is for the legacy Docker setup and may be out-dated. We recommed using :ref:`development container setup<development container setup>` instead.
 
 Engineers who are familiar with Docker can start a Kolibri instance without setting up the full JavaScript and Python development environments on the host machine.
 
