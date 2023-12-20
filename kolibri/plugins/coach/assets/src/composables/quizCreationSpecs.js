@@ -42,19 +42,6 @@ export const QuizResource = {
     type: String,
     default: '',
   },
-};
-
-/**
- * @typedef   {Object}  ExerciseResource        A particular exercise that can be selected within a
- *                                              quiz. An ExerciseResource here is a QuizResource
- *                                              with assessment metadata attached.
- * @extends   {QuizResource}
- * @property  {Array}   assessment_ids  A list of assessment item IDs that are associated with
- *                                      this exercise
- * @property  {string}  contentnode     The contentnode ID for the Assessment
- */
-export const ExerciseResource = {
-  ...QuizResource,
   assessment_ids: {
     type: Array,
     default: () => [],
@@ -67,7 +54,7 @@ export const ExerciseResource = {
 
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
- *                                         from an ExerciseResource.
+ *                                         from an QuizResource.
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -110,7 +97,9 @@ export const QuizQuestion = {
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
  *                                                           randomized, to the learners
- * @property {ExerciseResource[]} resource_pool              An array of contentnode ids indicat
+ * @property {QuizResource[]}     resource_pool              An array of QuizResource objects from
+ *                                                           which the questions in this section_id
+ *                                                           will be drawn
  */
 export const QuizSection = {
   section_id: {
@@ -141,7 +130,7 @@ export const QuizSection = {
   resource_pool: {
     type: Array,
     default: () => [],
-    spec: ExerciseResource,
+    spec: QuizResource,
   },
 };
 

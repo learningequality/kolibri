@@ -1,5 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
+import range from 'lodash/range';
+import shuffle from 'lodash/shuffle';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -9,7 +11,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
-import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
+import { Quiz, QuizSection, QuizQuestion, QuizResource } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -54,40 +56,79 @@ export default function useQuizCreation(DEBUG = false) {
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
 
-  //--
-  // Debug Data Generators
-  //--
-  function _quizQuestions(num = 5) {
-    const questions = [];
-    for (let i = 0; i <= num; i++) {
-      const overrides = {
-        title: `Quiz Question ${i}`,
+  /**
+   * DEBUG Data
+   *
+   * Generates a test quiz with multiple sections. It generates properly shaped QuizResource type
+   * and QuizQuestion type objects, but the content is not real.
+   *
+   * This should be suitable for all UI testing purposes EXCEPT for resource selection.
+   * DO NOT use this if you're testing resource selection or want to use real resources.
+   */
+  function _generateTestData() {
+    // First let's make some QuizQuestion objects so we have them to initialize resources with
+    // Typically this data would be fetched and usable from the useQuizResources module
+    const dummyQuestions = range(1, 100).map(i => {
+      const questionOverrides = {
+        exercise_id: uuidv4(),
         question_id: uuidv4(),
+        title: `Question ${i}`,
+        counter_in_exercise: i,
+        missing_resource: false,
       };
-      questions.push(objectWithDefaults(overrides, QuizQuestion));
-    }
-    return questions;
-  }
+      return objectWithDefaults(questionOverrides, QuizQuestion);
+    });
 
-  function _quizSections(num = 5, numQuestions = 5) {
-    const sections = [];
-    for (let i = 0; i <= num; i++) {
-      const overrides = {
+    // Create some resources that we can put into the section resource_pool arrays
+    const resources = range(1, 10).map(i => {
+      // Get a random set of questions to put in this resource
+      const sliceOfQuestions = shuffle(dummyQuestions).splice(0, 5);
+      const resourceOverrides = {
+        title: `Resource ${i}`,
+        content_id: uuidv4(),
+        kind: ContentNodeKinds.EXERCISE,
+        is_leaf: true,
+        id: uuidv4(),
+        assessment_ids: sliceOfQuestions.map(q => q.question_id),
+        contentnode: uuidv4(),
+      };
+      return objectWithDefaults(resourceOverrides, QuizResource);
+    });
+
+    const sections = range(1, 5).map(i => {
+      const resource_pool = shuffle(resources).slice(0, 3);
+      const questions = resource_pool.reduce((acc, resource) => {
+        // Typically this would be generated in the useQuizResources module but we're doing it here
+        // with our dummy data
+        acc = [
+          ...acc,
+          ...dummyQuestions.filter(q => resource.assessment_ids.includes(q.question_id)),
+        ];
+        return acc;
+      }, []);
+
+      const sectionOverrides = {
         section_id: uuidv4(),
-        section_title: `Test section ${i}`,
-        questions: _quizQuestions(numQuestions),
+        section_title: `Section ${i}`,
+        description: `Section ${i} description`,
+        question_count: questions.length,
+        questions,
+        resource_pool,
       };
-      sections.push(objectWithDefaults(overrides, QuizSection));
-    }
-    return sections;
-  }
 
-  function _generateTestData(numSections = 5, numQuestions = 5) {
-    const sections = _quizSections(numSections, numQuestions);
+      return objectWithDefaults(sectionOverrides, QuizSection);
+    });
+
+    /* eslint-disable no-console */
+    console.log('Generated DEBUG dummyQuestions', dummyQuestions);
+    console.log('Generated DEBUG resources', resources);
+    console.log('Generated DEBUG sections', sections);
+    /* eslint-enable */
+
+    // Now we're committing this all ot the _quiz ref from which reactive properties will derive
     updateQuiz({ question_sources: sections });
     setActiveSection(sections[0].section_id);
   }
-
   // ------------------
   // Section Management
   // ------------------
@@ -295,6 +336,7 @@ export default function useQuizCreation(DEBUG = false) {
    * @params  {string} section_id - The section_id whose resource_pool we'll use.
    * @returns {QuizQuestion[]}
    */
+  /*
   function _getQuestionsFromSection(section_id) {
     const section = get(allSections).find(s => s.section_id === section_id);
     if (!section) {
@@ -304,6 +346,7 @@ export default function useQuizCreation(DEBUG = false) {
       return [...acc, ...exercise.questions];
     }, []);
   }
+  */
 
   // Computed properties
   /** @type {ComputedRef<Quiz>} The value of _quiz */
@@ -326,7 +369,7 @@ export default function useQuizCreation(DEBUG = false) {
   const activeExercisePool = computed(() => get(activeResourcePool).filter(isExercise));
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
    *                                      exercises */
-  const activeQuestionsPool = computed(() => _getQuestionsFromSection(get(_activeSectionId)));
+  const activeQuestionsPool = computed(() => []);
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
    *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
