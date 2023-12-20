@@ -16,8 +16,45 @@
         >
           <div class="column-contents-wrapper">
             <KPageContainer>
-              <div>
-                <p>{{ coreString('timeSpentLabel') }}</p>
+              <div
+                class="spacing-items"
+                :style="{
+                  backgroundColor: $themeTokens.fineLine,
+                }"
+              >
+                <KGrid 
+                 
+                >
+                  <KGridItem
+                  :layout12="{ span: 8 }"
+                  :layout8 ="{ span: 6 }"
+                  :layout4="{ span : 3 }"
+                  >
+                    <span> Calculus </span>
+                  </KGridItem>
+
+                  <KGridItem
+                    :layout12="{ span: 4 }"
+                    :layout8 = "{ span: 2 }"
+                    :layout4="{ span : 1 }"
+                    style="{
+                      float:left
+                    }"
+                  >
+                    <div>
+                      <KIcon icon="chevronUp" />
+                    </div>
+                  </KGridItem>
+                </KGrid>
+               
+                <p>
+                  Lorem ipsum dolor sit, 
+                  amet consectetur adipisicing elit. 
+                  Nostrum dolore tempore aut, nemo ad numquam perspiciatis 
+                  iure amet ex dolores quod nobis vitae soluta aliquam, eius
+                   eum, vero accusamus laboriosam!
+                </p>
+                <!-- <p>{{ coreString('timeSpentLabel') }}</p>
                 <div :style="{ paddingBottom: '8px' }">
                   <TimeDuration class="timer" :seconds="time_spent" />
                 </div>
@@ -28,7 +65,7 @@
                   v-if="content && content.duration"
                   class="timer"
                   :seconds="content.duration"
-                />
+                /> -->
               </div>
               <span
                 class="divider"
@@ -262,6 +299,11 @@
           };
         }
         return {};
+      },
+      descriptionBackgroundColor(){
+        return {
+         background: this.$themeTokens
+        }
       },
       answeredText() {
         return this.$tr('questionsAnswered', {
@@ -577,6 +619,10 @@
     font-size: 1em;
     font-weight: 400;
     text-align: center;
+  }
+
+  .spacing-items{
+    padding:0.5em;
   }
 
 </style>
