@@ -19,35 +19,37 @@
               <div
                 class="spacing-items"
                 :style="{
-                  backgroundColor: $themeTokens.fineLine,
+                  backgroundColor: $themePalette.grey.v_100,
                 }"
               >
-                <KGrid 
-                 
-                >
+                <KGrid>
                   <KGridItem
                   :layout12="{ span: 8 }"
                   :layout8 ="{ span: 6 }"
                   :layout4="{ span : 3 }"
                   >
-                    <span> Calculus </span>
+                    <span 
+                      class="quiz-title"
+                    > 
+                    Calculus 
+                    </span>
                   </KGridItem>
 
                   <KGridItem
                     :layout12="{ span: 4 }"
                     :layout8 = "{ span: 2 }"
                     :layout4="{ span : 1 }"
-                    style="{
-                      float:left
-                    }"
                   >
-                    <div>
-                      <KIcon icon="chevronUp" />
+                    <div style="float:right">
+                      <KIcon 
+                        icon="chevronUp" 
+                        class="icon-size"
+                      />
                     </div>
                   </KGridItem>
                 </KGrid>
                
-                <p>
+                <p style="font-size:14px">
                   Lorem ipsum dolor sit, 
                   amet consectetur adipisicing elit. 
                   Nostrum dolore tempore aut, nemo ad numquam perspiciatis 
@@ -623,6 +625,14 @@
 
   .spacing-items{
     padding:0.5em;
+  }
+
+  .quiz-title{
+    font-size:14px;
+    font-weight:700;
+  }
+  .icon-size{
+    font-size:1.5em;
   }
 
 </style>
