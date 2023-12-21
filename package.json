@@ -67,7 +67,7 @@
     "extends browserslist-config-kolibri"
   ],
   "volta": {
-    "node": "16.18.0"
+    "node": "16.18.0",
+    "yarn": "1.12.3"
   }
 }
-

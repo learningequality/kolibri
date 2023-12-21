@@ -139,8 +139,8 @@
     >
       <transition-group>
         <Draggable
-          v-for="(section,index) in sectionOrderList"
-          :key="index"
+          v-for="(section) in sectionOrderList"
+          :key="section.section_id"
           :style="draggableStyle"
         >
           <DragHandle>
@@ -175,7 +175,7 @@
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
                   <p
-                    v-if="activeSection.value.section_id === section.section_id"
+                    v-if="activeSection.section_id === section.section_id"
                     class="current-section-text space-content"
                   >
                     {{ currentSection$() }}
@@ -197,7 +197,7 @@
         >
           <KButton
             :text="deleteSectionLabel$()"
-            @click="deleteSection(activeSection.value.section_id)"
+            @click="deleteSection(activeSection.section_id)"
           />
         </KGridItem>
         <KGridItem
@@ -222,6 +222,8 @@
 
 <script>
 
+  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { get } from '@vueuse/core';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
@@ -264,15 +266,28 @@
         deleteSection,
       } = injectQuizCreation();
 
+      const selectedQuestionOrder = ref(get(activeSection).learners_see_fixed_order);
+      const numberOfQuestions = ref(get(activeSection).question_count);
+      const descriptionText = ref(get(activeSection).description);
+      const sectionTitle = ref(get(activeSection).section_title);
+
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
+        // useQuizCreation
         activeSection,
         allSections,
         updateSection,
         updateQuiz,
         deleteSection,
+        // Form models
+        selectedQuestionOrder,
+        numberOfQuestions,
+        descriptionText,
+        sectionTitle,
+        // Responsiveness
         windowIsLarge,
         windowIsSmall,
+        // i18n
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
@@ -289,14 +304,6 @@
         randomizedOptionDescription$,
         fixedLabel$,
         fixedOptionDescription$,
-      };
-    },
-    data() {
-      return {
-        selectedQuestionOrder: this.activeSection.value.learners_see_fixed_order,
-        numberOfQuestions: this.activeSection.value.question_count,
-        descriptionText: this.activeSection.value.description,
-        sectionTitle: this.activeSection.value.section_title,
       };
     },
     computed: {
@@ -316,7 +323,7 @@
        * @returns { QuizSection[] }
        */
       sectionOrderList() {
-        return this.allSections.value;
+        return this.allSections;
       },
       draggableStyle() {
         return {
@@ -330,7 +337,7 @@
       },
       applySettings() {
         this.updateSection({
-          section_id: this.activeSection.value.section_id,
+          section_id: this.activeSection.section_id,
           section_title: this.sectionTitle,
           description: this.descriptionText,
           question_count: this.numberOfQuestions,

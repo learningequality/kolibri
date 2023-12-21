@@ -43,7 +43,6 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :appearanceOverrides="{ padding: '0px', overflow: 'hidden' }"
           :activeTabId="activeSection ?
             activeSection.section_id :
             '' "
@@ -108,36 +107,39 @@
       tabsId="quizSectionTabs"
       :activeTabId="activeSection ? activeSection.section_id : ''"
     >
-      <p>{{ activeSection.section_id }}</p>
-      <!-- TODO This should be a separate component like "empty section container" or something -->
-      <div v-if="!activeQuestions.length" class="no-question-style">
-        <KGrid class="questions-list-label-row">
-          <KGridItem
-            class="right-side-heading"
-            style="padding: 0.7em 0.75em;"
+      <KGrid v-if="!activeQuestions.length" class="questions-list-label-row">
+        <KGridItem
+          class="right-side-heading"
+          style="padding: 0.7em 0.75em;"
+        >
+          <KButton
+            primary
+            :text="coreString('optionsLabel')"
           >
-            <KButton
-              primary
-              :text="coreString('optionsLabel')"
-            >
-              <template #menu>
-                <KDropdownMenu
-                  :primary="false"
-                  :disabled="false"
-                  :hasIcons="true"
-                  :options="activeSectionActions"
-                  @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
-                  @select="handleActiveSectionAction"
-                />
-              </template>
-            </KButton>
-          </KGridItem>
-        </KGrid>
+            <template #menu>
+              <KDropdownMenu
+                :primary="false"
+                :disabled="false"
+                :hasIcons="true"
+                :options="activeSectionActions"
+                @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
+                @select="handleActiveSectionAction"
+              />
+            </template>
+          </KButton>
+        </KGridItem>
+      </KGrid>
+      <!-- TODO This should be a separate component like "empty section container" or something -->
+      <div
+        v-if="!activeQuestions.length"
+        style="text-align: center; padding: 0 0 1em 0; max-width: 350px; margin: 0 auto;"
+      >
+        <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div class="question-mark-layout">
           <span class="help-icon-style">?</span>
         </div>
 
-        <p class="no-question-style">
+        <p style="margin-top: 1em; font-weight: bold;">
           {{ noQuestionsInSection$() }}
         </p>
 
@@ -146,6 +148,7 @@
         <KButton
           primary
           icon="plus"
+          style="margin-top: 1em;"
           @click="openSelectResources(activeSection.section_id)"
         >
           {{ addQuestionsLabel$() }}
@@ -589,10 +592,11 @@
   }
 
   .question-mark-layout {
-    align-items: center;
     width: 2.5em;
     height: 2.5em;
     margin: auto;
+    line-height: 1.7;
+    text-align: center;
     background-color: #dbc3d4;
   }
 
@@ -600,10 +604,6 @@
     font-size: 1.5em;
     font-weight: 700;
     color: #996189;
-  }
-
-  .no-question-style {
-    font-weight: bold;
   }
 
   .kgrid-alignment-style {
