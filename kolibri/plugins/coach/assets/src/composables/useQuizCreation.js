@@ -251,8 +251,8 @@ export default function useQuizCreation(DEBUG = false) {
    * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
-  function initializeQuiz() {
-    set(_quiz, objectWithDefaults({}, Quiz));
+  function initializeQuiz(collection) {
+    set(_quiz, objectWithDefaults({ collection }, Quiz));
     if (DEBUG) {
       _generateTestData();
     } else {

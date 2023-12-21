@@ -65,7 +65,6 @@ class ExamViewset(ValuesViewset):
     values = (
         "id",
         "title",
-        "question_count",
         "question_sources",
         "seed",
         "active",

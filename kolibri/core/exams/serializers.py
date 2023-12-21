@@ -28,21 +28,21 @@ class NestedCollectionSerializer(ModelSerializer):
 
 
 class QuestionSourceSerializer(Serializer):
-    section_id = HexUUIDField(format="hex")
     exercise_id = HexUUIDField(format="hex")
     # V0 need not have question_id that is why required=False
     question_id = HexUUIDField(format="hex", required=False)
-    title = CharField()
+    title = CharField(default="", required=False)
     counter_in_exercise = IntegerField()
+    missing_resources = BooleanField(default=False)
 
 
 class QuizSectionSerializer(Serializer):
     section_id = HexUUIDField(format="hex")
-    section_title = CharField()
-    description = CharField()
+    description = CharField(required=False, allow_blank=True)
+    section_title = CharField(default="", allow_blank=True, required=False)
     resource_pool = ListField(child=HexUUIDField(format="hex"))
     question_count = IntegerField()
-    learners_see_fixed_order = BooleanField()
+    learners_see_fixed_order = BooleanField(default=False)
     questions = ListField(child=QuestionSourceSerializer(), required=False)
 
 
@@ -68,7 +68,6 @@ class ExamSerializer(ModelSerializer):
         fields = (
             "id",
             "title",
-            "question_count",
             "question_sources",
             "seed",
             "active",
