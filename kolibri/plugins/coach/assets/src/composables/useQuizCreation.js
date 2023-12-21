@@ -69,8 +69,10 @@ export default function useQuizCreation(DEBUG = false) {
     if (process.env.NODE_ENV === 'production') {
       console.error("You're trying to generate test data in production. Please set DEBUG = false.");
     }
-    // First let's make some QuizQuestion objects so we have them to initialize resources with
-    // Typically this data would be fetched and usable from the useExerciseResources module
+    /**
+     * @type {QuizQuestion[]} - dummyQuestions
+     * Typically this data would be fetched and usable from the useExerciseResources module.
+     */
     const dummyQuestions = range(1, 100).map(i => {
       const questionOverrides = {
         exercise_id: uuidv4(),
@@ -84,7 +86,9 @@ export default function useQuizCreation(DEBUG = false) {
 
     // Create some resources that we can put into the section resource_pool arrays
     const resources = range(1, 10).map(i => {
-      // Get a random set of questions to put in this resource
+      // Get a random set of questions to put in this resource -- note here that we're only
+      // getting the QuizQuestion.question_id, which is what we'll get from the API when fetching
+      // ContentNodes which are Exercises
       const sliceOfQuestions = shuffle(dummyQuestions).splice(0, 5);
       const resourceOverrides = {
         title: `Resource ${i}`,
@@ -100,15 +104,22 @@ export default function useQuizCreation(DEBUG = false) {
 
     const sections = range(1, 5).map(i => {
       const resource_pool = shuffle(resources).slice(0, 3);
-      const questions = resource_pool.reduce((acc, resource) => {
-        // Typically this would be generated in the useExerciseResources module but we're doing it here
-        // with our dummy data
+      // We'll reduce the resource_pool down to a list of QuizQuestion typed objects in order to
+      // imitate what we'll otherwise get from a separate module which will handle the API calls
+      // Typically the question_pool will be set whenever the resource_pool changes
+      const question_pool = resource_pool.reduce((acc, resource) => {
         acc = [
           ...acc,
+          // It may not be immediately clear, but this is where we're getting the QuizQuestion objs
           ...dummyQuestions.filter(q => resource.assessment_ids.includes(q.question_id)),
         ];
         return acc;
       }, []);
+
+      // These will be the questions that are currently "in the section" -- that is, the questions
+      // which could possibly be deleted from the section (which will affect the question_count)
+      // or replaced with other questions from the question_pool
+      const questions = question_pool.slice(0, 5);
 
       const sectionOverrides = {
         section_id: uuidv4(),
@@ -117,6 +128,7 @@ export default function useQuizCreation(DEBUG = false) {
         question_count: questions.length,
         questions,
         resource_pool,
+        question_pool,
       };
 
       return objectWithDefaults(sectionOverrides, QuizSection);

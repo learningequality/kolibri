@@ -100,6 +100,8 @@ export const QuizQuestion = {
  * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
  *                                                           which the questions in this section_id
  *                                                           will be drawn
+ * @property {QuizQuestion[]}    question_pool              An array of QuizQuestion objects
+ *                                                          derived from the resource_pool
  */
 export const QuizSection = {
   section_id: {
@@ -131,6 +133,11 @@ export const QuizSection = {
     type: Array,
     default: () => [],
     spec: QuizExercise,
+  },
+  question_pool: {
+    type: Array,
+    default: () => [],
+    spec: QuizQuestion,
   },
 };
 
