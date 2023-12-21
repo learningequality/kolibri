@@ -368,6 +368,7 @@
         updateQuiz,
         addQuestionToSelection,
         removeQuestionFromSelection,
+        selectAllQuestions,
 
         // Computed
         channels,
@@ -403,6 +404,7 @@
         replaceAction$,
         questionList$,
 
+        selectAllQuestions,
         saveQuiz,
         updateSection,
         allQuestionsSelected,
