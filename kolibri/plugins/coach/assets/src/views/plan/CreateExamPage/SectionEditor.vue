@@ -140,7 +140,7 @@
       <transition-group>
         <Draggable
           v-for="(section,index) in sectionOrderList"
-          :key="index"
+          :key="`drag-${index}`"
           :style="draggableStyle"
         >
           <DragHandle>
