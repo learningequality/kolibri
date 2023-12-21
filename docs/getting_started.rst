@@ -61,11 +61,13 @@ Development environment setup
 
 The following are the options available for setting up the development environment:
 
-* :ref:`Host setup`
-* :ref:`Development container setup` (Docker)
+* :ref:`host_setup`
+* :ref:`dev_container_setup` (Docker)
 
 .. note::
   If you're looking to contribute long term, we recommend you to follow the Host setup.
+
+.. _host_setup:
 
 Host setup
 ----------
@@ -199,6 +201,7 @@ To initialize the database run the following command:
 
   kolibri manage migrate
 
+.. _running_server:
 
 Running the server
 ------------------
@@ -526,6 +529,8 @@ Another member of the team will review your code, and either ask for updates on 
 
 Learn more about our :ref:`dev_workflow` and :ref:`release_process`
 
+.. _dev_container_setup:
+
 Development container setup
 ---------------------------
 
@@ -555,7 +560,7 @@ Starting Kolibri
 ~~~~~~~~~~~~~~~~
 * Once the project setup is complete, you can open a new terminal by pressing ``Ctrl+Shift+```.
 * Any command you execute here will be executed inside the DevContainer.
-* You can now follow :ref:`running the server<Running the server>` to start kolibri.
+* You can now follow :ref:`running_server` to start kolibri.
 
 Stopping DevContainer
 ~~~~~~~~~~~~~~~~~~~~~
@@ -565,7 +570,7 @@ Development using Docker (Legacy)
 ------------------------
 
 .. warning::
-  The following documentation is for the legacy Docker setup and may be out-dated. We recommed using :ref:`development container setup<development container setup>` instead.
+  The following documentation is for the legacy Docker setup and may be out-dated. We recommed using :ref:`dev_container_setup` instead.
 
 Engineers who are familiar with Docker can start a Kolibri instance without setting up the full JavaScript and Python development environments on the host machine.
 
