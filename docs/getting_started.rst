@@ -570,7 +570,7 @@ Development using Docker (Legacy)
 ------------------------
 
 .. warning::
-  The following documentation is for the legacy Docker setup and may be out-dated. We recommed using :ref:`dev_container_setup` instead.
+  The following documentation is for the legacy Docker setup and may be out-dated. We recommend using :ref:`dev_container_setup` instead.
 
 Engineers who are familiar with Docker can start a Kolibri instance without setting up the full JavaScript and Python development environments on the host machine.
 
