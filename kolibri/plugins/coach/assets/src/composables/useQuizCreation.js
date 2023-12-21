@@ -11,7 +11,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
-import { Quiz, QuizSection, QuizQuestion, QuizResource } from './quizCreationSpecs.js';
+import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -23,8 +23,8 @@ function validateQuiz(quiz) {
 }
 
 /**
- * @param {QuizResource} o - The resource to check
- * @returns {boolean} - True if the resource is a valid QuizResource
+ * @param {QuizExercise} o - The resource to check
+ * @returns {boolean} - True if the resource is a valid QuizExercise
  */
 function isExercise(o) {
   return o.kind === ContentNodeKinds.EXERCISE;
@@ -59,7 +59,7 @@ export default function useQuizCreation(DEBUG = false) {
   /**
    * DEBUG Data
    *
-   * Generates a test quiz with multiple sections. It generates properly shaped QuizResource type
+   * Generates a test quiz with multiple sections. It generates properly shaped QuizExercise type
    * and QuizQuestion type objects, but the content is not real.
    *
    * This should be suitable for all UI testing purposes EXCEPT for resource selection.
@@ -70,7 +70,7 @@ export default function useQuizCreation(DEBUG = false) {
       console.error("You're trying to generate test data in production. Please set DEBUG = false.");
     }
     // First let's make some QuizQuestion objects so we have them to initialize resources with
-    // Typically this data would be fetched and usable from the useQuizResources module
+    // Typically this data would be fetched and usable from the useExerciseResources module
     const dummyQuestions = range(1, 100).map(i => {
       const questionOverrides = {
         exercise_id: uuidv4(),
@@ -95,13 +95,13 @@ export default function useQuizCreation(DEBUG = false) {
         assessment_ids: sliceOfQuestions.map(q => q.question_id),
         contentnode: uuidv4(),
       };
-      return objectWithDefaults(resourceOverrides, QuizResource);
+      return objectWithDefaults(resourceOverrides, QuizExercise);
     });
 
     const sections = range(1, 5).map(i => {
       const resource_pool = shuffle(resources).slice(0, 3);
       const questions = resource_pool.reduce((acc, resource) => {
-        // Typically this would be generated in the useQuizResources module but we're doing it here
+        // Typically this would be generated in the useExerciseResources module but we're doing it here
         // with our dummy data
         acc = [
           ...acc,
@@ -364,7 +364,7 @@ export default function useQuizCreation(DEBUG = false) {
   const inactiveSections = computed(() =>
     get(allSections).filter(s => s.section_id !== get(_activeSectionId))
   );
-  /** @type {ComputedRef<QuizResource[]>}   The active section's `resource_pool` */
+  /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
   /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
    *                                          Exercises from which we will enumerate all

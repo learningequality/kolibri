@@ -7,7 +7,7 @@
  */
 
 /**
- * @typedef   {Object}  QuizResource    An object referencing an exercise or topic to be used
+ * @typedef   {Object}  QuizExercise    An object referencing an exercise or topic to be used
  *                                      within the `QuizSeciton.resource_pool` property.
  * @property  {string}  title           The resource title
  * @property  {string}  ancestor_id     The ID of the parent contentnode
@@ -17,7 +17,7 @@
  * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
  */
 
-export const QuizResource = {
+export const QuizExercise = {
   title: {
     type: String,
     default: '',
@@ -54,7 +54,7 @@ export const QuizResource = {
 
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
- *                                         from an QuizResource.
+ *                                         from an QuizExercise.
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -97,7 +97,7 @@ export const QuizQuestion = {
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
  *                                                           randomized, to the learners
- * @property {QuizResource[]}     resource_pool              An array of QuizResource objects from
+ * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
  *                                                           which the questions in this section_id
  *                                                           will be drawn
  */
@@ -130,7 +130,7 @@ export const QuizSection = {
   resource_pool: {
     type: Array,
     default: () => [],
-    spec: QuizResource,
+    spec: QuizExercise,
   },
 };
 
