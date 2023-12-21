@@ -189,7 +189,29 @@
                     appearance="raised-button"
                     @click="toggleModal"
                   />
+                  <KButton
+                    v-if="questionsUnanswered == 0"
+                    :text="$tr('submitExam')"
+                    :primary="true"
+                    appearance="raised-button"
+                    @click="finishExam"
+                  />
                 </template>
+
+                <KButton
+                  :text="$tr('submitExam')"
+                  :primary="true"
+                  appearance="raised-button"
+                  @click="toggleModal"
+                >
+                  <template #iconAfter>
+                    <KIcon
+                      icon="forward"
+                      :color="$themeTokens.textInverted"
+                      :style="navigationIconStyleNext"
+                    />
+                  </template>
+                </KButton>
               </div>
             </div>
           </kgriditem>
@@ -202,15 +224,42 @@
     <KModal
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
-      :submitText="$tr('submitExam')"
-      :cancelText="coreString('goBackAction')"
-      @submit="finishExam"
-      @cancel="toggleModal"
     >
-      <p>{{ $tr('areYouSure') }}</p>
       <p v-if="questionsUnanswered">
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
+      <p>{{ $tr('areYouSure') }}</p>
+
+      <!-- <p>{{ $tr('questionsAnswered',{ numAnswered: questionsUnanswered ,numTotal: exam.question_count, }) }}</p> -->
+    
+      <KGrid>
+        <KGridItem
+          :layout12="{ span:6 }"
+          :layout8="{ span :4 }"
+          :layout4="{ span:2 }"
+        >
+          <KButton
+            @click="toggleModal"
+            class="btn-size"
+          >
+            {{  coreString('cancelAction') }}
+          </KButton>
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span:6 }"
+          :layout8="{ span :4 }"
+          :layout4="{ span:2 }"
+        >
+          <KButton
+            primary="true"
+            @click="toggleModal"
+            class="btn-size"
+          >
+            {{  $tr('tryAgain') }}
+          </KButton>
+        </KGridItem>
+      </KGrid>
     </KModal>
   </ImmersivePage>
 
@@ -518,7 +567,7 @@
     },
     $trs: {
       submitExam: {
-        message: 'Submit',
+        message: 'Submit Quiz',
         context:
           'Action that learner takes to submit their quiz answers so that the coach can review them.',
       },
@@ -557,6 +606,11 @@
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
+     tryAgain:{
+      message:'Try Again',
+      context:'Indicates that quiz can only be submitted with all questions answered.'
+     }
+
     },
   };
 
@@ -633,6 +687,11 @@
   }
   .icon-size{
     font-size:1.5em;
+  }
+
+  .btn-size{
+    width:100%;
+    margin-top:1em;
   }
 
 </style>
