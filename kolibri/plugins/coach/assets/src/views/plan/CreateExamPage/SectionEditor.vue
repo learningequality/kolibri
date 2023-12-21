@@ -139,8 +139,8 @@
     >
       <transition-group>
         <Draggable
-          v-for="(section,index) in sectionOrderList"
-          :key="index"
+          v-for="(section) in sectionOrderList"
+          :key="section.section_id"
           :style="draggableStyle"
         >
           <DragHandle>
