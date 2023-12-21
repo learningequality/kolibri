@@ -43,7 +43,7 @@
             <KTabsList
               ref="tabList"
               :tabsId="REPORTS_LESSON_TABS_ID"
-              :ariaLabel="$tr('coachReportsLesson')"
+              :ariaLabel="coachReportsLesson$()"
               :activeTabId="activeTabId"
               :tabs="tabs"
               @click="() => saveTabsClick(REPORTS_LESSON_TABS_ID)"
@@ -71,6 +71,7 @@
   import sortBy from 'lodash/sortBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
+  import { coachStrings } from '../common/commonCoachStrings';
   import CoachAppBarPage from '../CoachAppBarPage';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
@@ -92,10 +93,12 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
+      const {coachReportsLesson$} = coachStrings();
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
       return {
         saveTabsClick,
         wereTabsClickedRecently,
+        coachReportsLesson$,
       };
     },
     props: {
@@ -269,12 +272,6 @@
             );
           }
         }
-      },
-    },
-    $trs: {
-      coachReportsLesson: {
-        message: 'Report lesson',
-        context: 'Labels the Reports > Lesson tab for screen reader users',
       },
     },
   };
