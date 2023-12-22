@@ -274,9 +274,11 @@ def serialize_lessons(queryset):
 
 def _map_exam(item):
     item["assignments"] = item.pop("exam_assignments")
-    item["node_ids"] = list(
-        {question["exercise_id"] for question in item.get("question_sources")}
-    )
+    item["node_ids"] = [
+        question["exercise_id"]
+        for question_source in item.get("question_sources", [])
+        for question in question_source.get("questions", [])
+    ]
     return item
 
 
