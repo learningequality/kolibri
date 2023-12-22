@@ -69,7 +69,7 @@ class ExamViewset(ValuesViewset):
         "seed",
         "active",
         "collection",
-        "archive",
+        "question_count" "archive",
         "date_archived",
         "date_activated",
         "assignment_collections",

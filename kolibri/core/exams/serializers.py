@@ -60,6 +60,7 @@ class ExamSerializer(ModelSerializer):
     creator = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
+    question_count = IntegerField()
     date_archived = DateTimeTzField(allow_null=True)
     date_activated = DateTimeTzField(allow_null=True)
 
@@ -77,6 +78,7 @@ class ExamSerializer(ModelSerializer):
             "date_activated",
             "assignments",
             "creator",
+            "question_count",
             "data_model_version",
             "learners_see_fixed_order",
             "learner_ids",
