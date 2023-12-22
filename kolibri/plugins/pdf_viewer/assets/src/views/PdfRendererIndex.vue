@@ -84,31 +84,39 @@
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-          <RecycleScroller
+          <DynamicScroller
             id="pdf-container"
             ref="recycleList"
-            v-slot="{ item }"
             :items="pdfPages"
-            :itemSize="itemHeight"
+            :minItemSize="itemHeight"
             :emitUpdate="true"
             class="pdf-container scroller-height"
             keyField="index"
             @update="handleUpdate"
           >
-            <template>
-              <PdfPage
-                :key="item.index"
-                :pageNum="item.index + 1"
-                :pdfPage="pdfPages[item.index].page"
-                :pageReady="pdfPages[item.index].resolved"
-                :firstPageHeight="firstPageHeight || 0"
-                :firstPageWidth="firstPageWidth || 0"
-                :scale="scale || 1"
-                :totalPages="pdfPages.length"
-                :eventBus="eventBus"
-              />
+            <template #default="{ item }">
+              <DynamicScrollerItem
+                :item="item"
+                :active="active"
+                :sizeDependencies="[
+                  item.height,
+                ]"
+                :data-index="index"
+              >
+                <PdfPage
+                  :key="item.index"
+                  :pageNum="item.index + 1"
+                  :pdfPage="pdfPages[item.index].page"
+                  :pageReady="pdfPages[item.index].resolved"
+                  :firstPageHeight="firstPageHeight || 0"
+                  :firstPageWidth="firstPageWidth || 0"
+                  :scale="scale || 1"
+                  :totalPages="pdfPages.length"
+                  :eventBus="eventBus"
+                />
+              </DynamicScrollerItem>
             </template>
-          </RecycleScroller>
+          </DynamicScroller>
         </KGridItem>
       </KGrid>
     </template>
@@ -124,7 +132,7 @@
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import logger from 'kolibri.lib.logging';
-  import { RecycleScroller } from 'vue-virtual-scroller';
+  import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
@@ -145,11 +153,12 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-      SideBar,
-      PdfPage,
-      RecycleScroller,
-      CoreFullscreen,
-    },
+    SideBar,
+    PdfPage,
+    DynamicScroller,
+    CoreFullscreen,
+    DynamicScrollerItem
+},
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
       progress: null,
