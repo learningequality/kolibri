@@ -30,11 +30,17 @@ export function showExam(store, params, alreadyOnQuiz) {
           store.commit('classAssignments/SET_CURRENT_CLASSROOM', classroom);
 
           let contentPromise;
-          if (exam.question_sources.length) {
-            const allExerciseIds = exam.question_sources.reduce((acc, section) => {
+          let allExerciseIds = [];
+          if (exam.data_version == 3) {
+            allExerciseIds = exam.question_sources.reduce((acc, section) => {
+              console.log(section);
               acc = [...acc, ...section.questions.map(q => q.exercise_id)];
               return acc;
             }, []);
+          } else {
+            allExerciseIds = exam.question_sources.map(q => q.exercise_id);
+          }
+          if (allExerciseIds.length) {
             contentPromise = ContentNodeResource.fetchCollection({
               getParams: {
                 ids: allExerciseIds,
@@ -70,7 +76,7 @@ export function showExam(store, params, alreadyOnQuiz) {
                   store.dispatch(
                     'handleError',
                     `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
-                      questions
+                      allQuestions
                     )}\nExam: ${JSON.stringify(exam)}`
                   );
                   return;
@@ -93,13 +99,13 @@ export function showExam(store, params, alreadyOnQuiz) {
                 for (const question of allQuestions) {
                   question.missing = !contentNodeMap[question.exercise_id];
                 }
-
-                store.commit('examViewer/SET_STATE', {
-                  contentNodeMap,
-                  exam,
-                  questionNumber,
-                  questions: allQuestions,
-                });
+                (exam.question_sources = question_sources),
+                  store.commit('examViewer/SET_STATE', {
+                    contentNodeMap,
+                    exam,
+                    questionNumber,
+                    questions: allQuestions,
+                  });
                 store.commit('CORE_SET_PAGE_LOADING', false);
                 store.commit('CORE_SET_ERROR', null);
               }

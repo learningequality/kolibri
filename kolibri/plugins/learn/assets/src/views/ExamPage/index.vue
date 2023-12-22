@@ -15,47 +15,48 @@
           class="column-pane"
         >
           <div class="column-contents-wrapper">
+
             <KPageContainer>
               <div
-                class="spacing-items"
-                :style="{
-                  backgroundColor: $themePalette.grey.v_100,
-                }"
+                v-for="(section,index) in exam.question_sources"
+                :key="index"
               >
-                <KGrid>
-                  <KGridItem
-                  :layout12="{ span: 8 }"
-                  :layout8 ="{ span: 6 }"
-                  :layout4="{ span : 3 }"
-                  >
-                    <span 
-                      class="quiz-title"
-                    > 
-                    Calculus 
-                    </span>
-                  </KGridItem>
+                <div
+                  class="spacing-items"
+                  :style="{
+                    backgroundColor: $themePalette.grey.v_100,
+                  }"
+                >
+                  <KGrid>
+                    <KGridItem
+                      :layout12="{ span: 8 }"
+                      :layout8="{ span: 6 }"
+                      :layout4="{ span: 3 }"
+                    >
+                      <span
+                        class="quiz-title"
+                      >
+                        {{ section.section_title }}
+                      </span>
+                    </KGridItem>
 
-                  <KGridItem
-                    :layout12="{ span: 4 }"
-                    :layout8 = "{ span: 2 }"
-                    :layout4="{ span : 1 }"
-                  >
-                    <div style="float:right">
-                      <KIcon 
-                        icon="chevronUp" 
-                        class="icon-size"
-                      />
-                    </div>
-                  </KGridItem>
-                </KGrid>
-               
-                <p style="font-size:14px">
-                  Lorem ipsum dolor sit, 
-                  amet consectetur adipisicing elit. 
-                  Nostrum dolore tempore aut, nemo ad numquam perspiciatis 
-                  iure amet ex dolores quod nobis vitae soluta aliquam, eius
-                   eum, vero accusamus laboriosam!
-                </p>
+                    <KGridItem
+                      :layout12="{ span: 4 }"
+                      :layout8="{ span: 2 }"
+                      :layout4="{ span: 1 }"
+                    >
+                      <div style="float:right">
+                        <KIcon
+                          icon="chevronUp"
+                          class="icon-size"
+                        />
+                      </div>
+                    </KGridItem>
+                  </KGrid>
+
+                  <p style="font-size:14px">
+                    {{ section.description }}
+                  </p>
                 <!-- <p>{{ coreString('timeSpentLabel') }}</p>
                 <div :style="{ paddingBottom: '8px' }">
                   <TimeDuration class="timer" :seconds="time_spent" />
@@ -68,19 +69,24 @@
                   class="timer"
                   :seconds="content.duration"
                 /> -->
+                </div>
+
+                <span
+                  class="divider"
+                  :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+                >
+                </span>
+
+                <AnswerHistory
+                  :pastattempts="pastattempts"
+                  :questions="section.questions"
+                  :questionNumber="questionNumber"
+                  :wrapperComponentRefs="$refs"
+                  @goToQuestion="goToQuestion"
+                />
+
               </div>
-              <span
-                class="divider"
-                :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-              >
-              </span>
-              <AnswerHistory
-                :pastattempts="pastattempts"
-                :questions="questions"
-                :questionNumber="questionNumber"
-                :wrapperComponentRefs="this.$refs"
-                @goToQuestion="goToQuestion"
-              />
+
             </KPageContainer>
           </div>
         </KGridItem>
@@ -183,35 +189,20 @@
 
                 <template v-else>
                   <KButton
-                    v-if="!missingResources"
+                    v-if="!missingResources && questionsUnanswered !== 0"
                     :text="$tr('submitExam')"
                     :primary="true"
                     appearance="raised-button"
                     @click="toggleModal"
                   />
                   <KButton
-                    v-if="questionsUnanswered == 0"
+                    v-if="questionsUnanswered === 0"
                     :text="$tr('submitExam')"
                     :primary="true"
                     appearance="raised-button"
                     @click="finishExam"
                   />
                 </template>
-
-                <KButton
-                  :text="$tr('submitExam')"
-                  :primary="true"
-                  appearance="raised-button"
-                  @click="toggleModal"
-                >
-                  <template #iconAfter>
-                    <KIcon
-                      icon="forward"
-                      :color="$themeTokens.textInverted"
-                      :style="navigationIconStyleNext"
-                    />
-                  </template>
-                </KButton>
               </div>
             </div>
           </kgriditem>
@@ -230,33 +221,32 @@
       </p>
       <p>{{ $tr('areYouSure') }}</p>
 
-      <!-- <p>{{ $tr('questionsAnswered',{ numAnswered: questionsUnanswered ,numTotal: exam.question_count, }) }}</p> -->
-    
+
       <KGrid>
         <KGridItem
-          :layout12="{ span:6 }"
-          :layout8="{ span :4 }"
-          :layout4="{ span:2 }"
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
         >
           <KButton
-            @click="toggleModal"
             class="btn-size"
+            @click="toggleModal"
           >
-            {{  coreString('cancelAction') }}
+            {{ coreString('cancelAction') }}
           </KButton>
         </KGridItem>
 
         <KGridItem
-          :layout12="{ span:6 }"
-          :layout8="{ span :4 }"
-          :layout4="{ span:2 }"
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
         >
           <KButton
-            primary="true"
-            @click="toggleModal"
             class="btn-size"
+            primary
+            @click="toggleModal"
           >
-            {{  $tr('tryAgain') }}
+            {{ $tr('tryAgain') }}
           </KButton>
         </KGridItem>
       </KGrid>
@@ -272,11 +262,7 @@
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
@@ -295,11 +281,7 @@
     },
     components: {
       AnswerHistory,
-      UiAlert,
-      UiIconButton,
       BottomAppBar,
-      TimeDuration,
-      SuggestedTime,
       ImmersivePage,
       ResourceSyncingUiAlert,
     },
@@ -350,11 +332,6 @@
           };
         }
         return {};
-      },
-      descriptionBackgroundColor(){
-        return {
-         background: this.$themeTokens
-        }
       },
       answeredText() {
         return this.$tr('questionsAnswered', {
@@ -424,11 +401,6 @@
         // best practice seems to be to do it as a computed property and not a method:
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
         return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
-      },
-      bottomBarLayoutDirection() {
-        // Allows contents to be displayed visually in reverse-order,
-        // but semantically in correct order.
-        return this.isRtl ? 'ltr' : 'rtl';
       },
       layoutDirReset() {
         // Overrides bottomBarLayoutDirection reversal
@@ -606,11 +578,10 @@
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
-     tryAgain:{
-      message:'Try Again',
-      context:'Indicates that quiz can only be submitted with all questions answered.'
-     }
-
+      tryAgain: {
+        message: 'Try Again',
+        context: 'Indicates that quiz can only be submitted with all questions answered.',
+      },
     },
   };
 
@@ -677,21 +648,22 @@
     text-align: center;
   }
 
-  .spacing-items{
-    padding:0.5em;
+  .spacing-items {
+    padding: 0.5em;
   }
 
-  .quiz-title{
-    font-size:14px;
-    font-weight:700;
-  }
-  .icon-size{
-    font-size:1.5em;
+  .quiz-title {
+    font-size: 14px;
+    font-weight: 700;
   }
 
-  .btn-size{
-    width:100%;
-    margin-top:1em;
+  .icon-size {
+    font-size: 1.5em;
+  }
+
+  .btn-size {
+    width: 100%;
+    margin-top: 1em;
   }
 
 </style>
