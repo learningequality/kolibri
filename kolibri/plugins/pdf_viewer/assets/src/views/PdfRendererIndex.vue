@@ -84,17 +84,18 @@
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-          <RecycleList
+          <RecycleScroller
             id="pdf-container"
             ref="recycleList"
+            v-slot="{ item }"
             :items="pdfPages"
-            :itemHeight="itemHeight"
+            :itemSize="itemHeight"
             :emitUpdate="true"
             class="pdf-container scroller-height"
             keyField="index"
             @update="handleUpdate"
           >
-            <template #default="{ item }">
+            <template>
               <PdfPage
                 :key="item.index"
                 :pageNum="item.index + 1"
@@ -107,7 +108,7 @@
                 :eventBus="eventBus"
               />
             </template>
-          </RecycleList>
+          </RecycleScroller>
         </KGridItem>
       </KGrid>
     </template>
@@ -123,7 +124,7 @@
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import logger from 'kolibri.lib.logging';
-  import { RecycleList } from 'vue-virtual-scroller';
+  import { RecycleScroller } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
@@ -146,7 +147,7 @@
     components: {
       SideBar,
       PdfPage,
-      RecycleList,
+      RecycleScroller,
       CoreFullscreen,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
