@@ -114,7 +114,7 @@ export function revertV3toV2(questionSources) {
 
 /**
  * @param {object} exam - an exam object of any question_sources version
- * @returns V2 formatted question_sources
+ * @returns V3 formatted question_sources
  */
 export function convertExamQuestionSourcesToV3(exam, extraArgs = {}) {
   if (exam.data_model_version !== 3) {
