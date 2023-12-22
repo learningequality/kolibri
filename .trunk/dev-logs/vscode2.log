@@ -1,0 +1,6 @@
+2023-12-11T16:04:41.437Z [[31merror[39m] Stopping the server timed out
+2023-12-18T19:57:36.583Z [[31merror[39m] Failed to get available upgrades: Error: Client is not running
+2023-12-18T19:57:44.940Z [[34mdebug[39m] Starting Trunk language client with run config: {"command":"/Users/allan/.cache/trunk/launcher/trunk","args":["lsp-proxy"],"options":{"cwd":"/Users/allan/dev/kolibri","detached":false,"shell":false}}
+2023-12-18T19:57:50.366Z [[31merror[39m] Received critical error from lsp proxy: Unable to detect an upstream commit on this branch: Unable to detect a trunk branch such as 'main'. Checked the following - refs/remotes/origin/HEAD, refs/remotes/origin/main, refs/remotes/origin/master, main, master. See https://docs.trunk.io/docs/reference-trunk-yaml#repo for more information
+2023-12-18T19:57:50.369Z [[31merror[39m] Unable to detect an upstream commit on this branch: Unable to detect a trunk branch such as 'main'. Checked the following - refs/remotes/origin/HEAD, refs/remotes/origin/main, refs/remotes/origin/master, main, master. See https://docs.trunk.io/docs/reference-trunk-yaml#repo for more information
+2023-12-18T19:57:52.455Z [[31merror[39m] Stopping the server timed out
