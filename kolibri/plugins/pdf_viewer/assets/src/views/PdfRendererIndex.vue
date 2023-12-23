@@ -90,7 +90,6 @@
             :items="pdfPages"
             :minItemSize="itemHeight"
             :emitUpdate="true"
-            :buffer="1.5 * itemHeight"
             class="pdf-container scroller-height"
             keyField="index"
             @update="handleUpdate"
