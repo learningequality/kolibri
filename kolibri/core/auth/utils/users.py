@@ -54,7 +54,15 @@ def get_remote_users_info(baseurl, facility_id, username, password):
             )
         else:
             raise AuthenticationFailed(
-                detail=str(e), code=error_constants.AUTHENTICATION_FAILED
+                [
+                    {
+                        "id": error_constants.AUTHENTICATION_FAILED,
+                        "metadata": {
+                            "field": "username_password",
+                            "message": "Incorrect username or password.",
+                        },
+                    }
+                ],
             )
     auth_info = response.json()
     if len(auth_info) > 1:
