@@ -23,8 +23,10 @@ def exam_assignment_lookup(question_sources):
     :return: a tuple of contentnode_id and metadata
     """
     for question_source in question_sources:
-        for question in question_source["questions"]:
-            yield (question["exercise_id"], None)
+        questions = question_source.get("questions")
+        if questions is not None:
+            for question in question_source["questions"]:
+                yield (question["exercise_id"], None)
 
 
 class Exam(AbstractFacilityDataModel):
