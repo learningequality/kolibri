@@ -143,7 +143,7 @@ class ExamViewset(ValuesViewset):
             quiz_size = {}
 
             quiz_nodes = ContentNode.objects.filter(
-                id__in={[question["exercise_id"] for question in exam.get_questions()]}
+                id__in=[question["exercise_id"] for question in exam.get_questions()]
             )
 
             quiz_size[exam.id] = total_file_size(quiz_nodes)
