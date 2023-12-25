@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="{ maxWidth: '1700px' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="!(rootNodesLoading || searchLoading)

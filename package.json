@@ -26,7 +26,7 @@
     "app-devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:app-python-devserver yarn:hashi-dev --",
     "devserver": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly {1}\" yarn:python-devserver yarn:hashi-dev --",
     "devserver-hot": "concurrently --passthrough-arguments --kill-others \"yarn:watch-hot --watchonly {1}\" yarn:python-devserver yarn:hashi-dev --",
-    "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly --kds-path={1}\" yarn:python-devserver yarn:hashi-dev --",
+    "devserver-with-kds": "concurrently --passthrough-arguments --kill-others \"yarn:watch --watchonly={2} --require-kds-path --kds-path={1}\" yarn:python-devserver yarn:hashi-dev --",
     "bundle-stats": "kolibri-tools build stats --file ./build_tools/build_plugins.txt --transpile",
     "clean": "kolibri-tools build clean --file ./build_tools/build_plugins.txt",
     "preinstall": "node ./packages/kolibri-tools/lib/npm_deprecation_warning.js",
