@@ -50,7 +50,13 @@ def get_remote_users_info(baseurl, facility_id, username, password):
     except (CommandError, HTTPError, ConnectionError) as e:
         if password == NOT_SPECIFIED or not password:
             raise AuthenticationFailed(
-                detail="Password is required", code=error_constants.MISSING_PASSWORD
+                    {
+                        "id": error_constants.AUTHENTICATION_FAILED,
+                        "metadata": {
+                            "field": "password",
+                            "message": "Password is required",
+                        },
+                    }
             )
         else:
             raise AuthenticationFailed(
