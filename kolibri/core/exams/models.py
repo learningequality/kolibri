@@ -225,6 +225,18 @@ class Exam(AbstractFacilityDataModel):
     def __str__(self):
         return self.title
 
+    def get_questions(self):
+        """
+        Returns a list of all questions from all sections in the exam.
+        """
+        questions = []
+
+        for section in self.question_sources:
+            for question in section.get("questions", []):
+                questions.append(question)
+
+        return questions
+
 
 class ExamAssignment(AbstractFacilityDataModel):
     """
