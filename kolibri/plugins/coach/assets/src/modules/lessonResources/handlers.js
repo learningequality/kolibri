@@ -10,10 +10,17 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
-function showResourceSelectionPage(store, params) {
-  const { lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
+async function showResourceSelectionPage(store, params) {
+  const { classId, lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   const lessonSummaryState = {
     currentLesson: {},
     // contains all selections, including those that haven't been committed to server

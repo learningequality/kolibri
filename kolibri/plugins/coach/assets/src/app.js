@@ -8,6 +8,7 @@ import KolibriApp from 'kolibri_app';
 import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
+import { LessonsPageNames } from './constants/lessonsConstants';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -47,7 +48,12 @@ class CoachToolsModule extends KolibriApp {
         this.store.dispatch('coachNotifications/stopPolling');
       }
       // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
-      if (to.name && to.name === PageNames.EXAMS) {
+      if (
+        to.name &&
+        (to.name === PageNames.EXAMS ||
+          to.name === LessonsPageNames.SUMMARY ||
+          to.name === LessonsPageNames.SELECTION_ROOT)
+      ) {
         next();
         return;
       }
