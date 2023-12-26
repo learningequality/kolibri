@@ -44,7 +44,7 @@
       ]
     }
   },
-  "onCreateCommand": "yarn install --non-interactive --frozen-lockfile && pip install -e .",
+  "onCreateCommand": "yarn install --non-interactive --frozen-lockfile && pip install -e . && pre-commit install",
   "containerUser": "devuser",
   "remoteUser": "devuser"
 }
