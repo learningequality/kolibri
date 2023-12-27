@@ -93,7 +93,11 @@ class KolibriWindow(Adw.ApplicationWindow):
         self.__header_bar.show()
         content_box.append(self.__header_bar)
 
-        menu_button = Gtk.MenuButton(direction=Gtk.ArrowType.NONE)
+        menu_button = Gtk.MenuButton(
+            direction=Gtk.ArrowType.NONE,
+            tooltip_text=_("Main Menu"),
+            primary=True,
+        )
         self.__header_bar.pack_end(menu_button)
 
         menu_popover = Gtk.PopoverMenu.new_from_model(_KolibriWindowMenu())
