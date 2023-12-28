@@ -249,8 +249,10 @@ export default function useQuizCreation(DEBUG = false) {
   /** @affects _quiz
    * @affects _activeSectionId
    * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
+   * @param {string} collection - The collection (aka current class ID) to associate the exam with
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
+
   function initializeQuiz(collection) {
     set(_quiz, objectWithDefaults({ collection }, Quiz));
     if (DEBUG) {
