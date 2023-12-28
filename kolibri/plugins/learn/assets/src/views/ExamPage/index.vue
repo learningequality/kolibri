@@ -27,36 +27,38 @@
                     backgroundColor: $themePalette.grey.v_100,
                   }"
                 >
-                  <KGrid>
-                    <KGridItem
-                      :layout12="{ span: 8 }"
-                      :layout8="{ span: 6 }"
-                      :layout4="{ span: 3 }"
-                    >
-                      <span
-                        class="quiz-title"
+                  <div>
+                    <KGrid>
+                      <KGridItem
+                        :layout12="{ span: 8 }"
+                        :layout8="{ span: 6 }"
+                        :layout4="{ span: 3 }"
                       >
-                        {{ section.section_title }}
-                      </span>
-                    </KGridItem>
+                        <span class="quiz-title">
+                          {{ section.section_title }}
+                        </span>
+                      </KGridItem>
 
-                    <KGridItem
-                      :layout12="{ span: 4 }"
-                      :layout8="{ span: 2 }"
-                      :layout4="{ span: 1 }"
-                    >
-                      <div style="float:right">
-                        <KIcon
-                          icon="chevronUp"
-                          class="icon-size"
-                        />
-                      </div>
-                    </KGridItem>
-                  </KGrid>
+                      <KGridItem
+                        :layout12="{ span: 4 }"
+                        :layout8="{ span: 2 }"
+                        :layout4="{ span: 1 }"
+                      >
+                        <div style="text-align: right; cursor: pointer" @click="toggleDescription">
+                          <KIcon
+                            :icon="isDescriptionVisible ? 'chevronUp' : 'chevronDown'"
+                            class="icon-size"
+                          />
+                        </div>
+                      </KGridItem>
+                    </KGrid>
 
-                  <p style="font-size:14px">
-                    {{ section.description }}
-                  </p>
+                    <p v-if="isDescriptionVisible" style="font-size: 14px">
+                      {{ section.description }}
+                    </p>
+                  </div>
+
+
                 <!-- <p>{{ coreString('timeSpentLabel') }}</p>
                 <div :style="{ paddingBottom: '8px' }">
                   <TimeDuration class="timer" :seconds="time_spent" />
@@ -165,45 +167,45 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            <div class="" style="float:right">
-              <div class="" style="float:right">
-                <template v-if="questionNumber !== exam.question_count - 1">
-                  <KButton
-                    :disabled="questionNumber === exam.question_count - 1"
-                    :primary="true"
-                    :dir="layoutDirReset"
-                    :aria-label="$tr('nextQuestion')"
-                    :appearanceOverrides="navigationButtonStyle"
-                    @click="goToQuestion(questionNumber + 1)"
-                  >
-                    <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-                    <template #iconAfter>
-                      <KIcon
-                        icon="forward"
-                        :color="$themeTokens.textInverted"
-                        :style="navigationIconStyleNext"
-                      />
-                    </template>
-                  </KButton>
-                </template>
+            <div style="position: relative;">
 
-                <template v-else>
-                  <KButton
-                    v-if="!missingResources && questionsUnanswered !== 0"
-                    :text="$tr('submitExam')"
-                    :primary="true"
-                    appearance="raised-button"
-                    @click="toggleModal"
-                  />
-                  <KButton
-                    v-if="questionsUnanswered === 0"
-                    :text="$tr('submitExam')"
-                    :primary="true"
-                    appearance="raised-button"
-                    @click="finishExam"
-                  />
-                </template>
-              </div>
+              <template v-if="questionNumber !== exam.question_count - 1">
+                <KButton
+                  style="position: absolute; right: 0"
+                  :disabled="questionNumber === exam.question_count - 1"
+                  :primary="true"
+                  :dir="layoutDirReset"
+                  :aria-label="$tr('nextQuestion')"
+                  :appearanceOverrides="navigationButtonStyle"
+                  @click="goToQuestion(questionNumber + 1)"
+                >
+                  <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+                  <template #iconAfter>
+                    <KIcon
+                      icon="forward"
+                      :color="$themeTokens.textInverted"
+                      :style="navigationIconStyleNext"
+                    />
+                  </template>
+                </KButton>
+              </template>
+
+              <template v-else>
+                <KButton
+                  v-if="!missingResources && questionsUnanswered !== 0"
+                  :text="$tr('submitExam')"
+                  :primary="true"
+                  appearance="raised-button"
+                  @click="toggleModal"
+                />
+                <KButton
+                  v-if="questionsUnanswered === 0"
+                  :text="$tr('submitExam')"
+                  :primary="true"
+                  appearance="raised-button"
+                  @click="finishExam"
+                />
+              </template>
             </div>
           </kgriditem>
         </KGrid>
@@ -311,6 +313,7 @@
     data() {
       return {
         submitModalOpen: false,
+        isDescriptionVisible: false,
         // Note this time is only used to calculate the time spent on a
         // question, it is not used to generate any timestamps.
         startTime: Date.now(),
@@ -530,6 +533,9 @@
           });
         }
         this.submitModalOpen = !this.submitModalOpen;
+      },
+      toggleDescription() {
+        this.isDescriptionVisible = !this.isDescriptionVisible;
       },
       finishExam() {
         this.saveAnswer(true).then(() => {

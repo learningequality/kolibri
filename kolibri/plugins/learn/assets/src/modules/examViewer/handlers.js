@@ -33,7 +33,6 @@ export function showExam(store, params, alreadyOnQuiz) {
           let allExerciseIds = [];
           if (exam.data_version == 3) {
             allExerciseIds = exam.question_sources.reduce((acc, section) => {
-              console.log(section);
               acc = [...acc, ...section.questions.map(q => q.exercise_id)];
               return acc;
             }, []);
@@ -99,13 +98,13 @@ export function showExam(store, params, alreadyOnQuiz) {
                 for (const question of allQuestions) {
                   question.missing = !contentNodeMap[question.exercise_id];
                 }
-                (exam.question_sources = question_sources),
-                  store.commit('examViewer/SET_STATE', {
-                    contentNodeMap,
-                    exam,
-                    questionNumber,
-                    questions: allQuestions,
-                  });
+                exam.question_sources = question_sources;
+                store.commit('examViewer/SET_STATE', {
+                  contentNodeMap,
+                  exam,
+                  questionNumber,
+                  questions: allQuestions,
+                });
                 store.commit('CORE_SET_PAGE_LOADING', false);
                 store.commit('CORE_SET_ERROR', null);
               }

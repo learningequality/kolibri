@@ -1,0 +1,14 @@
+action_id: trunk-share-with-everyone
+date: 2023-12-23 19:57:54
+run: trunk config share --notify --allow-daemon-start=false
+run_from: ""
+trigger: schedule 24h
+result:
+  exit_code: 1
+  out: "\x1b[1m\x1b[31m✖ Please run 'trunk init' to setup trunk in this repository.\x1b[0m\n"
+  err: ""
+timestamp: 1703361474
+full_timestamp:
+  nanos: 499979000
+  seconds: 1703361474
+trunk_version: 1.18.0

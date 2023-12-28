@@ -96,8 +96,8 @@ export function convertV2toV3(questionSources, exam) {
   const questions = annotateQuestionsWithItem(questionSources);
   return {
     section_id: uuidv4(),
-    section_title: 'Section one',
-    description: 'Sample description',
+    section_title: '',
+    description: '',
     resource_pool: [],
     questions,
     learners_see_fixed_order: exam.learners_see_fixed_order,
