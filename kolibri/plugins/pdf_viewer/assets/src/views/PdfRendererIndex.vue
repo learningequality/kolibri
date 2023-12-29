@@ -84,39 +84,29 @@
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-          <DynamicScroller
+          <RecyclableScroller
             id="pdf-container"
             ref="recycleList"
             :items="pdfPages"
-            :minItemSize="itemHeight"
             :emitUpdate="true"
             class="pdf-container scroller-height"
             keyField="index"
             @update="handleUpdate"
           >
             <template #default="{ item }">
-              <DynamicScrollerItem
-                :item="item"
-                :active="active"
-                :sizeDependencies="[
-                  item.height,
-                ]"
-                :data-index="index"
-              >
-                <PdfPage
-                  :key="item.index"
-                  :pageNum="item.index + 1"
-                  :pdfPage="pdfPages[item.index].page"
-                  :pageReady="pdfPages[item.index].resolved"
-                  :firstPageHeight="firstPageHeight || 0"
-                  :firstPageWidth="firstPageWidth || 0"
-                  :scale="scale || 1"
-                  :totalPages="pdfPages.length"
-                  :eventBus="eventBus"
-                />
-              </DynamicScrollerItem>
+              <PdfPage
+                :key="item.index"
+                :pageNum="item.index + 1"
+                :pdfPage="pdfPages[item.index].page"
+                :pageReady="pdfPages[item.index].resolved"
+                :firstPageHeight="firstPageHeight || 0"
+                :firstPageWidth="firstPageWidth || 0"
+                :scale="scale || 1"
+                :totalPages="pdfPages.length"
+                :eventBus="eventBus"
+              />
             </template>
-          </DynamicScroller>
+          </RecyclableScroller>
         </KGridItem>
       </KGrid>
     </template>
@@ -132,8 +122,6 @@
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import logger from 'kolibri.lib.logging';
-  import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
-  import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -141,6 +129,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
+  import RecyclableScroller from './RecyclableScroller';
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
 
@@ -155,9 +144,10 @@
     components: {
     SideBar,
     PdfPage,
-    DynamicScroller,
     CoreFullscreen,
-    DynamicScrollerItem
+    RecyclableScroller,
+    // DynamicScroller,
+    // DynamicScrollerItem
 },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
@@ -195,9 +185,9 @@
       documentLoading() {
         return this.progress < 1;
       },
-      itemHeight() {
-        return this.firstPageHeight * this.scale + MARGIN;
-      },
+      // itemHeight() {
+      //   return this.firstPageHeight * this.scale + MARGIN;
+      // },
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;
@@ -299,15 +289,21 @@
       };
       this.eventBus = new EventBus();
       this.prepComponentData = loadingPdf.promise
-        .then(pdfDocument => {
+        .then(async pdfDocument => {
           // Get initial info from the loaded pdf document
           this.pdfDocument = pdfDocument;
           this.totalPages = this.pdfDocument.numPages;
           // init pdfPages array
           for (let i = 0; i < this.totalPages; i++) {
+            const pageSize = await this.pdfDocument.getPage(i + 1).then(page => {
+              return page.getViewport({ scale: 1 }).height;
+            });
             this.pdfPages.push({
               page: null,
               resolved: false,
+              size: () => {
+                return pageSize * this.scale + MARGIN;
+              },
               index: i,
             });
           }
