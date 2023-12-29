@@ -27,7 +27,11 @@
                     backgroundColor: $themePalette.grey.v_100,
                   }"
                 >
-                  <div>
+                  <Button
+                    v-if="section.section_title"
+                    class="remove-btn-style"
+                    @click="toggleDescription"
+                  >
                     <KGrid>
                       <KGridItem
                         :layout12="{ span: 8 }"
@@ -44,7 +48,7 @@
                         :layout8="{ span: 2 }"
                         :layout4="{ span: 1 }"
                       >
-                        <div style="text-align: right; cursor: pointer" @click="toggleDescription">
+                        <div style="text-align: right; cursor: pointer">
                           <KIcon
                             :icon="isDescriptionVisible ? 'chevronUp' : 'chevronDown'"
                             class="icon-size"
@@ -52,11 +56,12 @@
                         </div>
                       </KGridItem>
                     </KGrid>
-
-                    <p v-if="isDescriptionVisible" style="font-size: 14px">
+                  </Button>
+                  <Button class="remove-btn-style">
+                    <p v-if="isDescriptionVisible" style="font-size: 14px; text-align:left">
                       {{ section.description }}
                     </p>
-                  </div>
+                  </Button>
 
 
                 <!-- <p>{{ coreString('timeSpentLabel') }}</p>
@@ -122,7 +127,7 @@
           <KGridItem
             :layout12="{ span: 4 }"
             :layout8="{ span: 2 }"
-            :layout4="{ span: 2 }"
+            :layout4="{ span: 1 }"
           >
             <KButton
               :disabled="questionNumber === 0"
@@ -147,10 +152,10 @@
 
           <KGridItem
             :layout12="{ span: 4 }"
-            :layout8="{ span: 2 }"
-            :layout4="{ span: 1 }"
+            :layout8="{ span: 3 }"
+            :layout4="{ span: 2 }"
           >
-            <div class="" style="text-align:center">
+            <div style="text-align:center">
               <div v-if="!missingResources" class="answered">
 
                 {{ answeredText }}
@@ -164,14 +169,14 @@
 
           <KGridItem
             :layout12="{ span: 4 }"
-            :layout8="{ span: 4 }"
-            :layout4="{ span: 2 }"
+            :layout8="{ span: 3 }"
+            :layout4="{ span: 1 }"
           >
-            <div style="position: relative;">
+            <div class="fixed-element">
 
               <template v-if="questionNumber !== exam.question_count - 1">
                 <KButton
-                  style="position: absolute; right: 0"
+                  style="position: relative; right: 0"
                   :disabled="questionNumber === exam.question_count - 1"
                   :primary="true"
                   :dir="layoutDirReset"
@@ -631,7 +636,7 @@
 
   .left-align {
     position: absolute;
-    left: 16px;
+    left: 10px;
     display: inline-block;
   }
 
@@ -670,6 +675,23 @@
   .btn-size {
     width: 100%;
     margin-top: 1em;
+  }
+
+  .fixed-element {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .centered-text {
+    text-align: center;
+  }
+
+  .remove-btn-style {
+    width: 100%;
+    padding: 0;
+    background-color: transparent;
+    border: 0;
   }
 
 </style>
