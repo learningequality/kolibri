@@ -47,7 +47,7 @@ def get_remote_users_info(baseurl, facility_id, username, password):
             ),
         )
         response.raise_for_status()
-        except (CommandError, HTTPError, ConnectionError) as e:
+    except (CommandError, HTTPError, ConnectionError) as e:
         if password == NOT_SPECIFIED or not password:
             raise AuthenticationFailed(
                 [
