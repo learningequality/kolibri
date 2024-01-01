@@ -49,6 +49,23 @@ export default [
       {
         name: PageNames.QUIZ_SELECT_RESOURCES,
         path: ':section_id/select-resources',
+
+        children: [
+          {
+            name: PageNames.SELECT_FROM_RESOURCE,
+            path: ':topic_id',
+          },
+        ],
+      },
+      {
+        name: PageNames.BOOK_MARKED_RESOURCES,
+        path: ':section_id/book-marked-resources',
+        children: [
+          {
+            name: PageNames.SELECTED_BOOKMARKS,
+            path: ':topic_id',
+          },
+        ],
       },
     ],
   },
