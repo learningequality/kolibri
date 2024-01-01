@@ -1,6 +1,6 @@
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
-import { ContentNodeResource } from 'kolibri.resources';
+import { onMounted, computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 
 /**
@@ -37,6 +37,10 @@ export default function useExerciseResources() {
    * fetch the next batch of nodes.
    */
   const _moreParams = ref(null);
+
+  const channels = ref([]);
+
+  const bookmarks = ref([]);
 
   function _numAssessmentsInFetchedChildren(topic) {
     if (!topic.children) {
@@ -149,13 +153,61 @@ export default function useExerciseResources() {
    * @param {string} topicId The topicId for which we want to fetch the descendants
    */
   function setCurrentTopicId(topicId) {
-    set(_currentTopicId, topicId);
-    fetchContentList();
+    if (!topicId) {
+      set(_currentTopicId, null);
+      set(_contentList, get(channels));
+    } else {
+      set(_currentTopicId, topicId);
+      fetchContentList();
+    }
+  }
+
+  /** @returns {Promise} */
+  function fetchChannelResources() {
+    return ChannelResource.fetchCollection({
+      params: { has_exercises: true, available: true },
+    }).then(response => {
+      console.log('setting channels', response);
+      set(
+        channels,
+        response.map(chnl => {
+          return {
+            ...chnl,
+            id: chnl.root,
+            title: chnl.name,
+            kind: ContentNodeKinds.CHANNEL,
+            is_leaf: false,
+          };
+        })
+      );
+      console.log('setted channels', get(channels));
+    });
+  }
+
+  /** @returns {Promise} */
+  function fetchBookmarks() {
+    return ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
+      data => {
+        bookmarks.value = data.results ? data.results : [];
+      }
+    );
+  }
+
+  function initializeExerciseResources() {
+    console.log('initializing resources');
+    set(_loading, true);
+    Promise.all([fetchChannelResources(), fetchBookmarks()])
+      .then(() => setCurrentTopicId(null))
+      .then(() => set(_loading, false));
   }
 
   return {
+    initializeExerciseResources,
     fetchContentList,
     setCurrentTopicId,
     loading: computed(() => get(_loading)),
+    contentList: computed(() => get(_contentList)),
+    channels,
+    bookmarks,
   };
 }
