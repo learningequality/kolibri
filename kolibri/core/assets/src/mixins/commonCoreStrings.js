@@ -1289,19 +1289,14 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   },
 
   // Device upgrades recommended
-  currentDeviceUsingIE11: {
-    message: 'You seem to be using Internet Explorer 11.',
-    context:
-      'Displayed on a device that is using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
-  },
   userDevicesUsingIE11: {
-    message: 'Some users seem to be accessing Kolibri via Internet Explorer 11',
+    message: 'Some users seem to have accessed Kolibri via Internet Explorer 11',
     context:
       'Displayed to an admin, where devices on their network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
   },
-  browserSupportWillBeDroppedIE11: {
+  browserSupportDroppedIE11: {
     message:
-      'Please note that support for this browser will be dropped in the upcoming version, 0.17.  We recommend installing other browsers, such as Mozilla Firefox or Google Chrome, in order to continue working with Kolibri.',
+      'Please note that support for this browser has been dropped.  We recommend installing other browsers, such as Mozilla Firefox or Google Chrome, in order to continue working with Kolibri.',
     context:
       'Displayed to users of kolibri where one or more devices on the network are using Internet Explorer 11, as part of a message encouraging the user to upgrade.',
   },
