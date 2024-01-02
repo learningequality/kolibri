@@ -173,7 +173,7 @@
       },
       showingLibraries: {
         message: 'Showing libraries on other devices around you',
-        continue: 'Description of the kind of devices displayed',
+        context: 'Description of the kind of devices displayed',
       },
       // The strings below are not used currently used in the code.
       // This is to aid the translation of the string
