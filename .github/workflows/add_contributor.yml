@@ -1,50 +1,56 @@
-name: Add Contributor to AUTHORS.md
+name: Add new contributor to AUTHORS.md
 on:
   pull_request:
-      types:
-        - opened
-        - synchronize
+    types: [opened]
 
 jobs:
-  add_contributor:
+  check_contributor_exists:
     runs-on: ubuntu-latest
+
+    outputs:
+      is_contributor_in_file: ${{ steps.check_contributor_step.outputs.exists }}
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          sparse-checkout: .
 
       - name: Check if contributor already exists
-        id: check_contributor
+        id: check_contributor_step
         run: |
-          exists=$(grep -c -F "$GITHUB_ACTOR" AUTHORS.md || true)
+          exists=$(grep -c -F "${{ github.event.pull_request.user.login }}" AUTHORS.md || true)
           if [[ $exists -gt 0 ]]; then
-            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "exists=true" >> "$GITHUB_OUTPUT"
           else
-            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "exists=false" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Get contributor's full name
-        id: get_full_name
-        if: steps.check_contributor.outputs.exists == 'false'
+  add_contributor:
+    runs-on: ubuntu-latest
+    needs: check_contributor_exists
+
+    if: needs.check_contributor_exists.outputs.exists == 'false'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Get contributor's full name and append to AUTHORS.md file
         run: |
-          username=$GITHUB_ACTOR
-          access_token=$GITHUB_TOKEN
-          full_name=$(curl -s -H "Authorization: token $access_token" "https://api.github.com/users/$username" | jq -r '.name')
+          username=${{ github.event.pull_request.user.login }}
+          full_name=$(curl -s -H "Authorization: token $GITHUB_TOKEN" "https://api.github.com/users/$username" | jq -r '.name')
           if [[ "$full_name" == "" || "$full_name" == "null" ]]; then
             full_name='-'
           fi
-          echo "full_name=$full_name" >> $GITHUB_OUTPUT
+          echo "| $full_name | $username |" >> AUTHORS.md
 
-      - name: Append contributor to AUTHORS.md
-        id: append_contributor
-        if: steps.check_contributor.outputs.exists == 'false'
+      - name: Commit and push changes to the contributor's PR branch
         run: |
-          full_name=${{ steps.get_full_name.outputs.full_name }}
-          echo "| $full_name | $GITHUB_ACTOR |" >> AUTHORS.md
-
-      - name: Commit and push changes to branch
-        id: commit_changes
-        if: steps.check_contributor.outputs.exists == 'false'
-        uses: pre-commit-ci/lite-action@v1.0.1
-        with:
-          msg: Add ${{ env.GITHUB_ACTOR }} to AUTHORS.md
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add AUTHORS.md
+          git commit -m "Add ${{ github.event.pull_request.user.login }} to AUTHORS.md"
+          git push
