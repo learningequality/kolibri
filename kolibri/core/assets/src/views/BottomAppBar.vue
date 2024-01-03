@@ -47,7 +47,6 @@
   }
 
   .bottom-sm {
-    height: auto;
     min-height: 72px;
   }
 
