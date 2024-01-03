@@ -198,7 +198,39 @@ class Storage(object):
                 )
             )
             return job.job_id
-
+    def enqueue_lifo(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        naive_utc_now = datetime.utcnow()
+        soonest_job = (
+            query.filter(ORMJob.state == State.QUEUED)
+            .filter(ORMJob.scheduled_time <= naive_utc_now)
+            .order_by(ORMJob.scheduled_time)
+            .first()
+        )
+        dt = (
+            timezone.make_aware(soonest_job.scheduled_time, pytz.utc)
+            - timedelta(microsecond=1)
+            if soonest_job
+            else self._now()
+        )
+        try:
+            return self.schedule(
+                dt,
+                job,
+                queue,
+                priority=priority,
+                interval=0,
+                repeat=0,
+                retry_interval=retry_interval,
+            )
+        except JobRunning:
+            logger.debug(
+                "Attempted to enqueue a running job {job_id}, ignoring.".format(
+                    job_id=job.job_id
+                )
+            )
+            return job.job_id
     def enqueue_job_if_not_enqueued(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
