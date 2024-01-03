@@ -67,7 +67,7 @@ def get_remote_users_info(baseurl, facility_id, username, password):
                         "id": error_constants.AUTHENTICATION_FAILED,
                         "metadata": {
                             "field": "username_password",
-                            "message": "Incorrect username or password.",
+                            "message": str(e),
                         },
                     }
                 ],
