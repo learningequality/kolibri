@@ -331,6 +331,7 @@
         return this.$router.push({ query: newQuery });
       },
       handleSubmitToken({ token, channels }) {
+        this.showTokenModal = false;
         if (channels.length > 1) {
           if (this.$route.query.token !== token) {
             this.disableModal = true;
@@ -341,8 +342,6 @@
                 token,
               },
             });
-          } else {
-            this.showTokenModal = false;
           }
         } else {
           this.goToSelectContentPageForChannel(channels[0]);
