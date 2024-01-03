@@ -195,7 +195,10 @@ public class PythonActivity extends Activity {
 
                     @Override
                     public void onPageFinished(WebView view, String url) {
+                        CookieManager.getInstance().setAcceptCookie(true);
+                        CookieManager.getInstance().acceptCookie();
                         CookieManager.getInstance().flush();
+
                     }
                 });
             mLayout = new AbsoluteLayout(PythonActivity.mActivity);
