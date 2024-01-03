@@ -5,168 +5,258 @@
     :appBarTitle="exam.title || ''"
   >
     <KCircularLoader v-if="loading" />
-    <KGrid v-else :gridStyle="gridStyle">
-      <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
-      <KGridItem
-        v-if="windowIsLarge"
-        ref="questionListWrapper"
-        :layout12="{ span: 4 }"
-        class="column-pane"
-      >
-        <div class="column-contents-wrapper">
-          <KPageContainer>
-            <div>
-              <p>{{ coreString('timeSpentLabel') }}</p>
-              <div :style="{ paddingBottom: '8px' }">
-                <TimeDuration class="timer" :seconds="time_spent" />
+    <div v-else>
+      <KGrid :gridStyle="gridStyle">
+        <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
+        <KGridItem
+          v-if="windowIsLarge"
+          ref="questionListWrapper"
+          :layout12="{ span: 4 }"
+          class="column-pane"
+        >
+          <div class="column-contents-wrapper">
+
+            <KPageContainer>
+              <div
+                v-for="(section,index) in exam.question_sources"
+                :key="index"
+              >
+                <div
+                  class="spacing-items"
+                  :style="{
+                    backgroundColor: $themePalette.grey.v_100,
+                  }"
+                >
+                  <Button
+                    v-if="section.section_title"
+                    class="remove-btn-style"
+                    @click="toggleDescription"
+                  >
+                    <KGrid>
+                      <KGridItem
+                        :layout12="{ span: 8 }"
+                        :layout8="{ span: 6 }"
+                        :layout4="{ span: 3 }"
+                      >
+                        <span class="quiz-title">
+                          {{ section.section_title }}
+                        </span>
+                      </KGridItem>
+
+                      <KGridItem
+                        :layout12="{ span: 4 }"
+                        :layout8="{ span: 2 }"
+                        :layout4="{ span: 1 }"
+                      >
+                        <div style="text-align: right; cursor: pointer">
+                          <KIcon
+                            :icon="isDescriptionVisible ? 'chevronUp' : 'chevronDown'"
+                            class="icon-size"
+                          />
+                        </div>
+                      </KGridItem>
+                    </KGrid>
+                  </Button>
+                  <Button class="remove-btn-style">
+                    <p v-if="isDescriptionVisible" style="font-size: 14px; text-align:left">
+                      {{ section.description }}
+                    </p>
+                  </Button>
+
+
+                <!-- <p>{{ coreString('timeSpentLabel') }}</p>
+                <div :style="{ paddingBottom: '8px' }">
+                  <TimeDuration class="timer" :seconds="time_spent" />
+                </div>
+                <p v-if="content && content.duration">
+                  {{ learnString('suggestedTime') }}
+                </p>
+                <SuggestedTime
+                  v-if="content && content.duration"
+                  class="timer"
+                  :seconds="content.duration"
+                /> -->
+                </div>
+
+                <span
+                  class="divider"
+                  :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+                >
+                </span>
+
+                <AnswerHistory
+                  :pastattempts="pastattempts"
+                  :questions="section.questions"
+                  :questionNumber="questionNumber"
+                  :wrapperComponentRefs="$refs"
+                  @goToQuestion="goToQuestion"
+                />
+
               </div>
-              <p v-if="content && content.duration">
-                {{ learnString('suggestedTime') }}
-              </p>
-              <SuggestedTime
-                v-if="content && content.duration"
-                class="timer"
-                :seconds="content.duration"
+
+            </KPageContainer>
+          </div>
+        </KGridItem>
+        <KGridItem :layout12="{ span: 8 }" class="column-pane">
+          <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
+            <KPageContainer>
+
+              <h1 class="number-of-questions">
+                {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
+              </h1>
+              <ContentRenderer
+                v-if="content && itemId"
+                ref="contentRenderer"
+                :kind="content.kind"
+                :files="content.files"
+                :available="content.available"
+                :extraFields="content.extra_fields"
+                :itemId="itemId"
+                :assessment="true"
+                :allowHints="false"
+                :answerState="currentAttempt.answer"
+                @interaction="saveAnswer"
               />
-            </div>
-            <span
-              class="divider"
-              :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-            >
-            </span>
-            <AnswerHistory
-              :pastattempts="pastattempts"
-              :questions="questions"
-              :questionNumber="questionNumber"
-              :wrapperComponentRefs="this.$refs"
-              @goToQuestion="goToQuestion"
-            />
-          </KPageContainer>
-        </div>
-      </KGridItem>
-      <KGridItem :layout12="{ span: 8 }" class="column-pane">
-        <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
-          <KPageContainer>
-
-            <h1>
-              {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
-            </h1>
-            <ContentRenderer
-              v-if="content && itemId"
-              ref="contentRenderer"
-              :kind="content.kind"
-              :files="content.files"
-              :available="content.available"
-              :extraFields="content.extra_fields"
-              :itemId="itemId"
-              :assessment="true"
-              :allowHints="false"
-              :answerState="currentAttempt.answer"
-              @interaction="saveAnswer"
-            />
-            <ResourceSyncingUiAlert v-else :multiple="false" />
-          </KPageContainer>
-
-          <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
-            <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
-              <KButton
-                :disabled="questionNumber === exam.question_count - 1"
-                :primary="true"
-                :dir="layoutDirReset"
-                :aria-label="$tr('nextQuestion')"
-                :appearanceOverrides="navigationButtonStyle"
-                @click="goToQuestion(questionNumber + 1)"
-              >
-                <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-                <template #iconAfter>
-                  <KIcon
-                    icon="forward"
-                    :color="$themeTokens.textInverted"
-                    :style="navigationIconStyleNext"
-                  />
-                </template>
-              </KButton>
-              <KButton
-                :disabled="questionNumber === 0"
-                :primary="true"
-                :dir="layoutDirReset"
-                :appearanceOverrides="navigationButtonStyle"
-                :class="{ 'left-align': windowIsSmall }"
-                :aria-label="$tr('previousQuestion')"
-                @click="goToQuestion(questionNumber - 1)"
-              >
-                <template #icon>
-                  <KIcon
-                    icon="back"
-                    :color="$themeTokens.textInverted"
-                    :style="navigationIconStylePrevious"
-                  />
-                </template>
-                <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
-              </KButton>
-            </component>
-
-            <!-- below prev/next buttons in tab and DOM order, in footer -->
-            <div
-              v-if="windowIsLarge"
+              <ResourceSyncingUiAlert v-else :multiple="false" />
+            </KPageContainer>
+          </main>
+        </KGridItem>
+      </KGrid>
+      <BottomAppBar>
+        <KGrid>
+          <KGridItem
+            :layout12="{ span: 4 }"
+            :layout8="{ span: 2 }"
+            :layout4="{ span: 1 }"
+          >
+            <KButton
+              :disabled="questionNumber === 0"
+              :primary="true"
               :dir="layoutDirReset"
-              class="left-align"
+              :appearanceOverrides="navigationButtonStyle"
+              :class="{ 'left-align': windowIsSmall }"
+              :aria-label="$tr('previousQuestion')"
+              @click="goToQuestion(questionNumber - 1)"
             >
+              <template #icon>
+                <KIcon
+                  icon="back"
+                  :color="$themeTokens.textInverted"
+                  :style="navigationIconStylePrevious"
+                />
+              </template>
+              <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
+            </KButton>
+
+          </KGridItem>
+
+          <KGridItem
+            :layout12="{ span: 4 }"
+            :layout8="{ span: 3 }"
+            :layout4="{ span: 2 }"
+          >
+            <div style="text-align:center">
               <div v-if="!missingResources" class="answered">
+
                 {{ answeredText }}
-              </div>
-              <KButton
-                v-if="!missingResources"
-                :text="$tr('submitExam')"
-                :primary="false"
-                appearance="flat-button"
-                @click="toggleModal"
-              />
-              <div v-if="missingResources" class="nosubmit">
-                {{ $tr('unableToSubmit') }}
+                <div v-if="missingResources" class="nosubmit">
+                  {{ $tr('unableToSubmit') }}
+                </div>
               </div>
             </div>
+          </KGridItem>
 
-          </BottomAppBar>
 
-          <!-- below prev/next buttons in tab and DOM order, in page -->
-          <KPageContainer v-if="!windowIsLarge">
-            <div
-              class="bottom-block"
-              :class="{ windowIsSmall }"
-            >
-              <div v-if="!missingResources" class="answered">
-                {{ answeredText }}
-              </div>
-              <KButton
-                v-if="!missingResources"
-                :text="$tr('submitExam')"
-                :primary="false"
-                appearance="flat-button"
-                @click="toggleModal"
-              />
-              <div v-if="missingResources" class="nosubmit">
-                {{ $tr('unableToSubmit') }}
-              </div>
+          <KGridItem
+            :layout12="{ span: 4 }"
+            :layout8="{ span: 3 }"
+            :layout4="{ span: 1 }"
+          >
+            <div class="fixed-element">
+
+              <template v-if="questionNumber !== exam.question_count - 1">
+                <KButton
+                  style="position: relative; right: 0"
+                  :disabled="questionNumber === exam.question_count - 1"
+                  :primary="true"
+                  :dir="layoutDirReset"
+                  :aria-label="$tr('nextQuestion')"
+                  :appearanceOverrides="navigationButtonStyle"
+                  @click="goToQuestion(questionNumber + 1)"
+                >
+                  <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+                  <template #iconAfter>
+                    <KIcon
+                      icon="forward"
+                      :color="$themeTokens.textInverted"
+                      :style="navigationIconStyleNext"
+                    />
+                  </template>
+                </KButton>
+              </template>
+
+              <template v-else>
+                <KButton
+                  v-if="!missingResources && questionsUnanswered !== 0"
+                  :text="$tr('submitExam')"
+                  :primary="true"
+                  appearance="raised-button"
+                  @click="toggleModal"
+                />
+                <KButton
+                  v-if="questionsUnanswered === 0"
+                  :text="$tr('submitExam')"
+                  :primary="true"
+                  appearance="raised-button"
+                  @click="finishExam"
+                />
+              </template>
             </div>
-          </KPageContainer>
-        </main>
-      </KGridItem>
-    </KGrid>
+          </kgriditem>
+        </KGrid>
+      </BottomAppBar>
+    </div>
+
 
 
     <KModal
       v-if="submitModalOpen"
       :title="$tr('submitExam')"
-      :submitText="$tr('submitExam')"
-      :cancelText="coreString('goBackAction')"
-      @submit="finishExam"
-      @cancel="toggleModal"
     >
-      <p>{{ $tr('areYouSure') }}</p>
       <p v-if="questionsUnanswered">
         {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
       </p>
+      <p>{{ $tr('areYouSure') }}</p>
+
+
+      <KGrid>
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          <KButton
+            class="btn-size"
+            @click="toggleModal"
+          >
+            {{ coreString('cancelAction') }}
+          </KButton>
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          <KButton
+            class="btn-size"
+            primary
+            @click="toggleModal"
+          >
+            {{ $tr('tryAgain') }}
+          </KButton>
+        </KGridItem>
+      </KGrid>
     </KModal>
   </ImmersivePage>
 
@@ -179,11 +269,7 @@
   import isEqual from 'lodash/isEqual';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import SuggestedTime from 'kolibri.coreVue.components.SuggestedTime';
-  import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import ResourceSyncingUiAlert from '../ResourceSyncingUiAlert';
@@ -202,11 +288,7 @@
     },
     components: {
       AnswerHistory,
-      UiAlert,
-      UiIconButton,
       BottomAppBar,
-      TimeDuration,
-      SuggestedTime,
       ImmersivePage,
       ResourceSyncingUiAlert,
     },
@@ -236,6 +318,7 @@
     data() {
       return {
         submitModalOpen: false,
+        isDescriptionVisible: false,
         // Note this time is only used to calculate the time spent on a
         // question, it is not used to generate any timestamps.
         startTime: Date.now(),
@@ -327,11 +410,6 @@
         // https://github.com/vuejs/vue/issues/2870#issuecomment-219096773
         return debounce(this.setAndSaveCurrentExamAttemptLog, 500);
       },
-      bottomBarLayoutDirection() {
-        // Allows contents to be displayed visually in reverse-order,
-        // but semantically in correct order.
-        return this.isRtl ? 'ltr' : 'rtl';
-      },
       layoutDirReset() {
         // Overrides bottomBarLayoutDirection reversal
         return this.isRtl ? 'rtl' : 'ltr';
@@ -398,6 +476,7 @@
         }
 
         return this.updateContentSession(data)
+
           .then(() => {
             if (close) {
               this.stopTrackingProgress();
@@ -460,6 +539,9 @@
         }
         this.submitModalOpen = !this.submitModalOpen;
       },
+      toggleDescription() {
+        this.isDescriptionVisible = !this.isDescriptionVisible;
+      },
       finishExam() {
         this.saveAnswer(true).then(() => {
           this.$router.push(this.backPageLink);
@@ -468,7 +550,7 @@
     },
     $trs: {
       submitExam: {
-        message: 'Submit quiz',
+        message: 'Submit Quiz',
         context:
           'Action that learner takes to submit their quiz answers so that the coach can review them.',
       },
@@ -507,6 +589,10 @@
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
       },
+      tryAgain: {
+        message: 'Try Again',
+        context: 'Indicates that quiz can only be submitted with all questions answered.',
+      },
     },
   };
 
@@ -517,7 +603,7 @@
 
   .answered {
     display: inline-block;
-    margin-right: 8px;
+    margin-right: 700px;
     margin-left: 8px;
     white-space: nowrap;
   }
@@ -550,7 +636,7 @@
 
   .left-align {
     position: absolute;
-    left: 16px;
+    left: 10px;
     display: inline-block;
   }
 
@@ -565,6 +651,47 @@
     height: 1px;
     margin: 16px 0;
     overflow-y: hidden;
+  }
+
+  .number-of-questions {
+    font-size: 1em;
+    font-weight: 400;
+    text-align: center;
+  }
+
+  .spacing-items {
+    padding: 0.5em;
+  }
+
+  .quiz-title {
+    font-size: 14px;
+    font-weight: 700;
+  }
+
+  .icon-size {
+    font-size: 1.5em;
+  }
+
+  .btn-size {
+    width: 100%;
+    margin-top: 1em;
+  }
+
+  .fixed-element {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+  }
+
+  .centered-text {
+    text-align: center;
+  }
+
+  .remove-btn-style {
+    width: 100%;
+    padding: 0;
+    background-color: transparent;
+    border: 0;
   }
 
 </style>
