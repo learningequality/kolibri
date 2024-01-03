@@ -115,6 +115,21 @@ class ExamSerializer(ModelSerializer):
                 code=error_constants.UNIQUE,
             )
 
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        if "question_sources" in data and data["question_sources"]:
+            first_question_source = data["question_sources"][0]
+            # Version 3 strictly requires section_id
+            if "section_id" in first_question_source:
+                data["question_sources"] = QuizSectionSerializer(
+                    instance.question_sources, many=True
+                ).data
+            if "exercise_id" in first_question_source:
+                data["question_sources"] = QuestionSourceSerializer(
+                    instance.question_sources, many=True
+                ).data
+        return data
+
     def to_internal_value(self, data):
         # Make a new OrderedDict from the input, which could be an immutable QueryDict
         data = OrderedDict(data)

@@ -17,7 +17,6 @@ from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
-
 DUMMY_PASSWORD = "password"
 
 
@@ -481,3 +480,48 @@ class ExamAPITestCase(APITestCase):
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)
         self.assertTrue(models.Exam.objects.filter(title=title).exists())
+
+    def test_get_on_older_versions_of_exam_model(self):
+        self.login_as_admin()
+        self.exam.question_sources.append(
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        )
+
+        self.exam.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_exam_v2_model_fails(self):
+        self.login_as_admin()
+        basic_exam = {
+            "title": "Exam",
+            "question_count": 1,
+            "active": True,
+            "collection": self.classroom.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
+            "assignments": [],
+            "date_activated": None,
+            "date_archived": None,
+            "creator": self.admin.id,
+        }
+        basic_exam["question_sources"] = [
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        ]
+
+        response = self.post_new_exam(basic_exam)
+        self.assertEqual(response.status_code, 400)
