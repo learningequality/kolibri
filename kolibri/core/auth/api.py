@@ -38,6 +38,7 @@ from morango.models import TransferSession
 from rest_framework import decorators
 from rest_framework import filters
 from rest_framework import permissions
+from rest_framework import serializers
 from rest_framework import status
 from rest_framework import views
 from rest_framework import viewsets
@@ -80,6 +81,7 @@ from kolibri.core.mixins import BulkCreateMixin
 from kolibri.core.mixins import BulkDeleteMixin
 from kolibri.core.query import annotate_array_aggregate
 from kolibri.core.query import SQCount
+from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
 
@@ -428,11 +430,17 @@ class FacilityUserViewSet(ValuesViewset):
             update_session_auth_hash(self.request, instance)
 
 
+class SanitizeInputsSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    facility = HexOnlyUUIDField()
+
+
 class UsernameAvailableView(views.APIView):
     def post(self, request):
-        username = request.data.get("username")
-        facility_id = request.data.get("facility")
-
+        serializer = SanitizeInputsSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        username = serializer.validated_data["username"]
+        facility_id = serializer.validated_data["facility"]
         if not username or not facility_id:
             return Response(
                 "Must specify username, and facility",

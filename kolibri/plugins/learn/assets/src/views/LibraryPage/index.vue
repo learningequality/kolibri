@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="{ maxWidth: '1700px' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="!(rootNodesLoading || searchLoading)
@@ -446,7 +446,7 @@
           (this.isLocalLibraryEmpty && !this.deviceId)
         ) {
           return 0;
-        } else if (this.windowBreakpoint < 4) {
+        } else if (this.windowBreakpoint < 5) {
           return 234;
         } else {
           return 346;

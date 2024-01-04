@@ -240,4 +240,19 @@ module.exports = {
       });
     });
   },
+
+  /**
+   * Report improper translation string definitions
+   */
+  reportImproperTranslationString(context, normalDefinitionNodes) {
+    const trsNodes = normalDefinitionNodes.map(prop => prop.name);
+
+    trsNodes.forEach(node => {
+      context.report({
+        node,
+        message: `Invalid translation string format detected in $trs: "${node.key.name}". Ensure proper formatting for translation strings.
+        `,
+      });
+    });
+  },
 };
