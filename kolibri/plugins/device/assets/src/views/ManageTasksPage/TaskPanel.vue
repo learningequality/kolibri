@@ -256,10 +256,48 @@
         });
       },
     },
+  watch: {
+  taskPercentage(newPercentage) {
+    if (newPercentage !== null) {
+      const formattedPercentage = (newPercentage * 100).toFixed(2) + '%';
+      const channelName = this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
+
+      let titlePrefix = '';
+      if (this.task.type === TaskTypes.REMOTECONTENTIMPORT ||
+        this.task.type === TaskTypes.DISKCONTENTIMPORT) {
+        titlePrefix = this.$tr('importChannelWhole', { channelName });
+      } else if (this.task.type === TaskTypes.DELETECHANNEL
+        || this.task.type === TaskTypes.DELETECONTENT) {
+        titlePrefix = this.$tr('deleteChannelWhole', { channelName });
+      }
+
+      document.title = `${formattedPercentage} - ${titlePrefix}`;
+    }
+    
+  },
+  'task.status': {
+    immediate: true, 
+    handler(newStatus) {
+      const channelName = this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
+      if (newStatus === TaskStatuses.CANCELED) {
+        document.title = 'Cancelled - ' + channelName;
+      } else if (newStatus === TaskStatuses.FAILED) {
+        document.title = 'Failed - ' + channelName;
+      } else if (newStatus === TaskStatuses.COMPLETED) {
+        document.title = 'Completed - ' + channelName;
+      } else {
+        document.title = "Task manager";
+      }
+    },
+  },
+},
+
     methods: {
       handleClick() {
         if (this.taskIsCompleted || this.taskIsFailed) {
           this.$emit('clickclear');
+          document.title = 'Task Manager'; 
+
         } else {
           this.$emit('clickcancel');
         }
