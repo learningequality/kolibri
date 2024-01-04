@@ -285,7 +285,11 @@
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
+        return (
+          this.channelsAreAvailable &&
+          (this.inRemoteImportMode || this.isStudioApplication) &&
+          this.$route.query.token === undefined
+        );
       },
       notEnoughFreeSpace() {
         // if the REMOTE_CONTENT option is true, we should not be submitting disk space issues
@@ -334,7 +338,6 @@
         this.showTokenModal = false;
         if (channels.length > 1) {
           if (this.$route.query.token !== token) {
-            this.disableModal = true;
             this.$router.push({
               ...this.$route,
               query: {
