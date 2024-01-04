@@ -2,8 +2,8 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
-import pytz
 
+import pytz
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func as sql_func
@@ -199,6 +199,7 @@ class Storage(object):
                 )
             )
             return job.job_id
+
     def enqueue_lifo(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
@@ -211,7 +212,12 @@ class Storage(object):
                 .order_by(ORMJob.scheduled_time)
                 .first()
             )
-            dt = pytz.timezone('UTC').localize(soonest_job.scheduled_time) - timedelta(microseconds=1) if soonest_job else self._now()
+            dt = (
+                pytz.timezone("UTC").localize(soonest_job.scheduled_time)
+                - timedelta(microseconds=1)
+                if soonest_job
+                else self._now()
+            )
         try:
             return self.schedule(
                 dt,
@@ -229,6 +235,7 @@ class Storage(object):
                 )
             )
             return job.job_id
+
     def enqueue_job_if_not_enqueued(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):

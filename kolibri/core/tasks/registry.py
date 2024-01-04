@@ -310,7 +310,7 @@ class RegisteredTask(object):
             priority=priority or self.priority,
             retry_interval=retry_interval,
         )
-        
+
     def enqueue_if_not(
         self, job=None, retry_interval=None, priority=None, **job_kwargs
     ):

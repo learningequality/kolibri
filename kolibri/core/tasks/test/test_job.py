@@ -364,6 +364,7 @@ class TestRegisteredTask(TestCase):
             priority=self.registered_task.priority,
             retry_interval=None,
         )
+
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue_lifo_job(self, job_storage_mock, _ready_job_mock):
@@ -381,7 +382,7 @@ class TestRegisteredTask(TestCase):
             priority=self.registered_task.priority,
             retry_interval=None,
         )
-        
+
     @mock.patch("kolibri.core.tasks.registry.RegisteredTask._ready_job")
     @mock.patch("kolibri.core.tasks.registry.job_storage")
     def test_enqueue__override_priority(self, job_storage_mock, _ready_job_mock):

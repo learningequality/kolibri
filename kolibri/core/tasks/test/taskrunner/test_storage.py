@@ -211,20 +211,22 @@ class TestBackend:
         assert len(defaultbackend.get_running_jobs(queues=[DEFAULT_QUEUE])) == 2
         assert len(defaultbackend.get_running_jobs(queues=[QUEUE])) == 1
         assert len(defaultbackend.get_running_jobs(queues=[DEFAULT_QUEUE, QUEUE])) == 3
+
     def test_lifo_behavior_with_scheduled_time(self, defaultbackend, simplejob):
         # Enqueue multiple jobs as LIFO
         job1 = Job(open)
         job2 = Job(open)
         job3 = Job(open)
-        job1_id = defaultbackend.enqueue_lifo(job1, QUEUE)
-        job2_id = defaultbackend.enqueue_lifo(job2, QUEUE)
+        defaultbackend.enqueue_lifo(job1, QUEUE)
+        defaultbackend.enqueue_lifo(job2, QUEUE)
         job3_id = defaultbackend.enqueue_lifo(job3, QUEUE)
-   
+
         # Ensure that the last queued job is returned by get_next_queued_job
         last_queued_job_id = defaultbackend.get_next_queued_job().job_id
-    
+
         # Assert that the last queued job matches the expected job
         assert last_queued_job_id == job3_id
+
     def test_get_canceling_jobs(self, defaultbackend):
         # Schedule jobs
         schedule_time = local_now() + datetime.timedelta(hours=1)
