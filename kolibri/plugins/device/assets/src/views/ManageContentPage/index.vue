@@ -59,7 +59,7 @@
               :key="channel.id"
               :channel="channel"
               :disabled="channelIsBeingDeleted(channel.id)"
-              :showNewLabel="showNewLabel(channel.id)"
+              :showNewLabel="showNewLabel(channel.id, channel.version)"
               @select_delete="deleteChannelId = channel.id"
               @select_manage="handleSelectManage(channel.id)"
             />
@@ -229,9 +229,14 @@
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
-      showNewLabel(channelId) {
+      showNewLabel(channelId, channelVersion) {
         const match = find(this.installedChannelsWithResources, { id: channelId });
-        return match && match.taskIndex > -1;
+        // Check if channel match exists and is a newer version or has resources
+        return (
+          match &&
+          (match.version > channelVersion ||
+            (match.version === channelVersion && match.taskIndex > -1))
+        );
       },
       handleDeleteChannel() {
         if (this.deleteChannelId) {
