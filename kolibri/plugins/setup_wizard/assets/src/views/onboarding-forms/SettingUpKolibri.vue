@@ -1,7 +1,7 @@
 <template>
 
   <div class="full-page">
-    <AppError :hideParagraphs="true">
+    <AppError v-if="coreError" :hideParagraphs="true">
       <template #buttons>
         <KButton
           :text="coreString('startOverAction')"
@@ -15,7 +15,7 @@
       </template>
     </AppError>
     <main
-      v-if="!coreError"
+      v-else
       class="content"
     >
       <KolibriLoadingSnippet />
