@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: check_contributor_exists
 
-    if: needs.check_contributor_exists.outputs.exists == 'false'
+    if: needs.check_contributor_exists.outputs.is_contributor_in_file == 'false'
 
     steps:
       - name: Checkout repository
