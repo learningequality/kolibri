@@ -2,8 +2,10 @@ import logging
 from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
+import pytz
 
 from sqlalchemy import Column
+from sqlalchemy.orm import Session
 from sqlalchemy import DateTime
 from sqlalchemy import func as sql_func
 from sqlalchemy import Index
@@ -202,18 +204,15 @@ class Storage(object):
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
         naive_utc_now = datetime.utcnow()
-        soonest_job = (
-            query.filter(ORMJob.state == State.QUEUED)
-            .filter(ORMJob.scheduled_time <= naive_utc_now)
-            .order_by(ORMJob.scheduled_time)
-            .first()
-        )
-        dt = (
-            timezone.make_aware(soonest_job.scheduled_time, pytz.utc)
-            - timedelta(microsecond=1)
-            if soonest_job
-            else self._now()
-        )
+        with self.session_scope() as session:
+            soonest_job = (
+                session.query(ORMJob)
+                .filter(ORMJob.state == State.QUEUED)
+                .filter(ORMJob.scheduled_time <= naive_utc_now)
+                .order_by(ORMJob.scheduled_time)
+                .first()
+            )
+            dt = pytz.timezone('UTC').localize(soonest_job.scheduled_time) - timedelta(microseconds=1) if soonest_job else self._now()
         try:
             return self.schedule(
                 dt,
@@ -271,7 +270,7 @@ class Storage(object):
             query.filter(ORMJob.state == State.QUEUED)
             .filter(ORMJob.scheduled_time <= naive_utc_now)
             .filter(ORMJob.priority <= priority)
-            .order_by(ORMJob.priority, ORMJob.time_created)
+            .order_by(ORMJob.priority, ORMJob.scheduled_time, ORMJob.time_created)
         )
 
     def _postgres_next_queued_job(self, session, priority):

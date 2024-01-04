@@ -298,7 +298,7 @@ class RegisteredTask(object):
             retry_interval=retry_interval,
         )
 
-    def enqueue_lifo_job(self, job=None, retry_interval=None, priority=None, **job_kwargs):
+    def enqueue_lifo(self, job=None, retry_interval=None, priority=None, **job_kwargs):
         """
         Enqueue the function with arguments passed to this method using LIFO order.
 

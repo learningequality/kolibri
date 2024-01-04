@@ -372,7 +372,7 @@ class TestRegisteredTask(TestCase):
 
         _ready_job_mock.return_value = "lifo_job"
 
-        self.registered_task.enqueue_lifo_job(args=args, kwargs=kwargs)
+        self.registered_task.enqueue_lifo(args=args, kwargs=kwargs)
 
         _ready_job_mock.assert_called_once_with(args=args, kwargs=kwargs)
         job_storage_mock.enqueue_lifo.assert_called_once_with(
