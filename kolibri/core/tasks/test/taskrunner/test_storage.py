@@ -74,7 +74,7 @@ class TestBackend:
         job2 = Job(open)
 
         job1_id = defaultbackend.enqueue_job(job1, QUEUE)
- 
+
         # Sleep to prevent same time_created timestamp.
         time.sleep(2)
         defaultbackend.enqueue_job(job2, QUEUE)

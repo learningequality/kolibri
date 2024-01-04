@@ -5,7 +5,6 @@ from datetime import timedelta
 import pytz
 
 from sqlalchemy import Column
-from sqlalchemy.orm import Session
 from sqlalchemy import DateTime
 from sqlalchemy import func as sql_func
 from sqlalchemy import Index
