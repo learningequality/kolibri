@@ -25,13 +25,12 @@ const translator = createTranslator('PerseusInternalMessages', {
 export default translator;`;
 
 module.exports = function() {
-  return getMessages(gettextToICU).then(messages => {
-    const transformedMessages = translationUtils.removeBackslashesFromKeys(messages);
-    // Use lodash template to fill in the above 'messages' into the template
-    const outputCode = lodash.template(template)({ transformedMessages });
+  const messages = getMessages(gettextToICU)
+  const transformedMessages = translationUtils.removeBackslashesFromKeys(messages).replace(translationUtils.piRegex, translationUtils.piTextPlaceholder);
+  // Use lodash template to fill in the above 'messages' into the template
+  const outputCode = lodash.template(template)({ transformedMessages });
 
-    // Write out the module to src files
+  // Write out the module to src files
 
-    writeSourceToFile('./assets/src/translator.js', outputCode);
-  });
+  writeSourceToFile('./assets/src/translator.js', outputCode);
 }
