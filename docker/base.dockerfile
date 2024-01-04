@@ -1,43 +1,30 @@
-FROM ubuntu:jammy
+# This Dockerfile serves as a base image for Kolibri installations. It installs python, required OS packages, node, npm, yarn and python dependencies.
 
-ENV NODE_VERSION=16.20.0
+# Declare python version argument.
+ARG PYTHON_VARIANT="3.9-slim"
+FROM python:${PYTHON_VARIANT}
 
-# install required packages
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y \
-    curl \
-    software-properties-common \
-    gettext \
-    git \
-    git-lfs \
-    psmisc \
-    python3 \
-    python3-pip \
-    python3-sphinx
+# Declare node major version argument.
+ARG NODE_MAJOR_VERSION="16"
 
-# add yarn ppa
-RUN curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -
-RUN echo "deb https://dl.yarnpkg.com/debian/ stable main" | tee /etc/apt/sources.list.d/yarn.list
+# Install only the absolutely-required packages to run Kolibri -- Git, Git-LFS, ip, ps and Node (plus npm).
+RUN DEBIAN_FRONTEND=noninteractive apt-get update && apt-get install -y ca-certificates curl gnupg git git-lfs procps iproute2 \
+  && mkdir -p /etc/apt/keyrings \
+  && curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg \
+  && echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_$NODE_MAJOR_VERSION.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list \
+  && apt-get update && apt-get install -t nodistro -y nodejs
 
-# install nodejs and yarn
-RUN apt-get update && \
-    ARCH=$(dpkg --print-architecture) && \
-    curl -sSO https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
-    dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
-    rm nodejs_$NODE_VERSION-1nodesource1_$ARCH.deb && \
-    apt-get install yarn
+# Install yarn.
+RUN npm install --global yarn
 
-RUN git lfs install
+# Change working directory for the commands that follow.
+WORKDIR /kolibri
 
-# Check if symbolic links exist before creating them
-RUN if [ ! -f /usr/bin/python ]; then ln -s /usr/bin/python3 /usr/bin/python; fi \
- && if [ ! -f /usr/bin/pip ]; then ln -s /usr/bin/pip3 /usr/bin/pip; fi
-
-# copy Kolibri source code into image
-COPY . /kolibri
-
-# do the time-consuming base install commands
-RUN cd /kolibri \
-    && pip3 install -r requirements/dev.txt \
-    && pip3 install -r requirements/test.txt \
-    && yarn install --network-timeout 100000
+# Copy python dependency files and install them.
+COPY requirements/ ./requirements
+COPY requirements.txt ./
+RUN pip install --upgrade --root-user-action=ignore --default-timeout=150 pip \
+  && pip install -r requirements.txt --upgrade --root-user-action=ignore --default-timeout=150 \
+  && pip install -r requirements/dev.txt --upgrade --root-user-action=ignore --default-timeout=150 \
+  && pip install -r requirements/test.txt --upgrade --root-user-action=ignore --default-timeout=150 \
+  && pip install -r requirements/docs.txt --upgrade --root-user-action=ignore --default-timeout=150

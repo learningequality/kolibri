@@ -1,0 +1,50 @@
+// For format details, see https://aka.ms/devcontainer.json.
+{
+  "name": "Kolibri Dev Container",
+  "build": {
+    "dockerfile": "../docker/base.dockerfile",
+    "context": ".."
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/common-utils:2": {
+      "username": "devuser",
+      "upgradePackages": true,
+      "installZsh": false,
+      "configureZshAsDefaultShell": false,
+      "installOhMyZsh": false,
+      "installOhMyZshConfig": false,
+      "nonFreePackages": false
+    }
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/kolibri,type=bind",
+  "workspaceFolder": "/kolibri",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Webpack port",
+      "onAutoForward": "silent"
+    }
+  },
+  "containerEnv": {
+    "KOLIBRI_RUN_MODE": "docker_dev",
+    "KOLIBRI_HOME": "/kolibri/.devcontainer/persist_dir/.kolibri"
+  },
+  "remoteEnv": {
+    "GIT_EDITOR": "nano"
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "octref.vetur",
+        "editorconfig.editorconfig"
+      ]
+    }
+  },
+  "onCreateCommand": "yarn install --non-interactive --frozen-lockfile && pip install -e . && pre-commit install",
+  "containerUser": "devuser",
+  "remoteUser": "devuser"
+}

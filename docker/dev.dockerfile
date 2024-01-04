@@ -13,6 +13,8 @@ COPY . /kolibri
 
 WORKDIR /kolibri
 
+RUN yarn install --non-interactive --frozen-lockfile
+
 ENTRYPOINT ["python", "/docker/entrypoint.py"]
 
 # Install kolibri from source

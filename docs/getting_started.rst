@@ -56,6 +56,19 @@ Finally, add the Learning Equality repo as a remote called `upstream`. That way 
   git fetch --all  # Check if there are changes upstream
   git checkout -t upstream/develop # Checkout the development branch
 
+Choose your development environment setup
+------------------------------------------
+
+The following are the options available for setting up the development environment.
+
+* :ref:`Host setup (Recommended) <host-setup>`: Use host setup if you are planning to contribute on a regular basis because host setup is a more efficient setup for long term code contributions.
+
+* :ref:`Docker Dev Container setup <dev-container-setup>`: Use Dev Container setup if you want to quickly get started working on your task because this setup does not require installing Python and JavaScript runtime and their dependencies.
+
+.. _host-setup:
+
+Host setup
+----------
 
 Python and Pip
 ~~~~~~~~~~~~~~
@@ -186,6 +199,7 @@ To initialize the database run the following command:
 
   kolibri manage migrate
 
+.. _running_server:
 
 Running the server
 ------------------
@@ -511,11 +525,71 @@ Go to Kolibri's `GitHub page <https://github.com/learningequality/kolibri>`__, a
 
 Another member of the team will review your code, and either ask for updates on your part or merge your PR to Kolibri codebase. Until the PR is merged you can push new commits to your branch and add updates to it.
 
-Learn more about our :ref:`dev_workflow` and :ref:`release_process`
+Learn more about our :ref:`dev_workflow` and :ref:`release_process`.
 
+.. _dev-container-setup:
 
-Development using Docker
-------------------------
+Dev Container setup
+-------------------
+
+Dev Containers lets you use a Docker container as a full-featured development environment. It allows you to open the Kolibri codebase inside a docker container and take advantage of your editor or IDE's full feature set including IntelliSense, Code Navigation, GUI Debugging and Extensions. A Dev Container eliminates the need to install runtimes and dependencies.
+
+Dev Container is well supported in VSCode, PyCharm and many other IDEs. We recommend using VSCode as your IDE for running the Kolibri Dev Container.
+
+The following guide covers how to setup the Kolibri Dev Container in VSCode.
+
+Installing Docker
+~~~~~~~~~~~~~~~~~
+
+Check whether Docker and Docker compose are installed in your system by running:
+
+.. code-block:: bash
+
+  # Docker v18.06+ and Docker Compose v1.21+ is required for Dev Containers.
+  $ docker --version
+  Docker version 18.09.2, build 6247962
+  $ docker-compose --version
+  docker-compose version 1.29.2, build 5becea4c
+
+If the above commands error out then that means you don't have Docker. You need to `install Docker <https://docs.docker.com/desktop/install/linux-install/>`__ to proceed further.
+
+Installing Dev Container Extension
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Install the `Dev Containers extension in VSCode <https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers>`__.
+
+Starting Dev Container
+~~~~~~~~~~~~~~~~~~~~~~~
+Open the Kolibri folder that you cloned in VSCode. After opening, click on the "Open a Remote Window" icon present in the bottom left corner.
+
+.. image:: ./remote-window-open-vscode.png
+
+Then click on the "Reopen in Container" option from the list.
+
+.. image:: ./reopen-in-container-vscode.png
+
+Then you will see that Dev Container is getting set up. You can click on "show log" to see the logs. It usually takes around five minutes for Dev Container to set up. Once the initial setup is complete, the next time you open, it will take just a few seconds.
+
+.. image:: ./dev-container-loading.png
+
+Running Kolibri inside Dev Container
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Once the Dev Container setup is complete, you will start seeing all the files on the left side of VSCode. Then you can open a new bash terminal on VSCode by using the shortcut ``Ctrl+Shift+```.
+
+Any command you run on this terminal will work inside the Dev Container. Remember, all other commands mentioned in this documentation, including git related commands like ``git add``, ``git commit`` and so on, should be executed in this Dev Container terminal.
+
+Finally, you can follow the :ref:`guide to start running the Kolibri server <running_server>`.
+
+.. note::
+
+    If you would like to learn more about Dev Containers in general, refer `Developing inside a Container <https://code.visualstudio.com/docs/devcontainers/containers>`__.
+
+Development using Docker (Legacy)
+---------------------------------
+
+.. warning::
+  The following documentation is for the legacy Docker setup and may be outdated. We recommend using :ref:`dev-container-setup` instead.
 
 Engineers who are familiar with Docker can start a Kolibri instance without setting up the full JavaScript and Python development environments on the host machine.
 
