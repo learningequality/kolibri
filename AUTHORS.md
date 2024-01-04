@@ -82,7 +82,6 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Shanavas M | shanavas786 |
 | - | shivangtripathi |
 | Udith Prabhu | udithprabhu |
-| Vivek Agrawal | vkWeb |
 | Whitney Zhu | whitzhu |
 | Carol Willing | willingc |
 | Yash Jipkate | YashJipkate |

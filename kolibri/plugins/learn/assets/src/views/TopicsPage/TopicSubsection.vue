@@ -33,6 +33,7 @@
       v-if="topic.children && topic.children.length"
       data-test="children-cards-grid"
       :contents="topic.children"
+      :gridType="gridType"
       :allowDownloads="allowDownloads"
       currentCardViewStyle="card"
       :keepCurrentBackLink="true"
@@ -92,6 +93,10 @@
         type: Boolean,
         default: false,
         required: false,
+      },
+      gridType: {
+        type: Number,
+        default: 1,
       },
     },
   };

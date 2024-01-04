@@ -1,6 +1,6 @@
 <template>
 
-  <KGrid>
+  <KGrid gutter="16">
     <KGridItem
       v-for="content in contents"
       :key="content.id"
@@ -65,4 +65,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .grid {
+    padding-top: 8px;
+  }
+
+</style>

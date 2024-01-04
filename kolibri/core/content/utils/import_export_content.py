@@ -162,8 +162,13 @@ def get_import_export_nodes(  # noqa: C901
         kind=content_kinds.TOPIC
     )
 
-    if available is not None:
-        nodes_to_include = nodes_to_include.filter(available=available)
+    # When exporting, only include available nodes. When importing, include any
+    # nodes that are missing files in case they have missing supplementary
+    # files and would be considered available.
+    if available is True:
+        nodes_to_include = nodes_to_include.filter(available=True)
+    elif available is False:
+        nodes_to_include = nodes_to_include.filter(files__local_file__available=False)
 
     if check_file_availability:
         nodes_to_include = filter_by_file_availability(
