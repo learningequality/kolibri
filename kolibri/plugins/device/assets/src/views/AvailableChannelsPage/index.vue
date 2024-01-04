@@ -285,11 +285,7 @@
         return !this.channelsAreLoading && this.availableChannels.length > 0;
       },
       showUnlistedChannels() {
-        return (
-          this.channelsAreAvailable &&
-          (this.inRemoteImportMode || this.isStudioApplication) &&
-          this.$route.query.token === undefined
-        );
+        return this.channelsAreAvailable && (this.inRemoteImportMode || this.isStudioApplication);
       },
       notEnoughFreeSpace() {
         // if the REMOTE_CONTENT option is true, we should not be submitting disk space issues
