@@ -95,7 +95,7 @@
     "webpack-merge": "^5.10.0"
   },
   "engines": {
-    "node": "16.x",
+    "node": "18.x",
     "npm": ">= 8"
   },
   "devDependencies": {
