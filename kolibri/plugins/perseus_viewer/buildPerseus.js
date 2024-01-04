@@ -8,7 +8,6 @@ const cssPathRegex = /(url\(['"]?)([^"')]+)?(['"]?\),? ?)/g;
 const cssNonWoffRegex = /, (url\(['"]?)([^"')]+)?(['"]?\),? ?) format\((?!"woff")"[a-z0-9]+"\)/g;
 // This is the css files that we are modifying to remap static assets.
 const indexCssFile = path.resolve(__dirname, './node_modules/@khanacademy/perseus/dist/index.css');
-const indexJsFile = path.resolve(__dirname, './node_modules/@khanacademy/perseus/dist/index.js');
 
 console.log('Copying file and editing references for: ', indexCssFile);
 const targetCssLocation = path.join(target, path.basename(indexCssFile));
@@ -25,12 +24,6 @@ const modifiedCssContents = cssFileContents.replace(cssPathRegex, function(match
   return '';
 }).replace(cssNonWoffRegex, '').replace(/\s+src: url\(fonts\/Symbola\.eot\);/, '');
 fs.writeFileSync(targetCssLocation, modifiedCssContents, { encoding: 'utf-8' });
-
-console.log('Copying file and editing references for: ', indexJsFile);
-const targetJsLocation = path.join(target, path.basename(indexJsFile));
-const jsFileContents = fs.readFileSync(indexJsFile, { encoding: 'utf-8' });
-const modifiedJsContents = jsFileContents.replace(/function getLocalizedDataUrl\(url\) {[\s\S]+} \/\/ Get the hash from the url, which is just the filename/, 'function getLocalizedDataUrl(url){ return Util.getDataUrl(url);}');
-fs.writeFileSync(targetJsLocation, modifiedJsContents, { encoding: 'utf-8' });
 
 // Now that the file has been built, we can extract all the perseus messages.
 extractPerseusMessages();

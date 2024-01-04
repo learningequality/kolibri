@@ -94,7 +94,7 @@
   import { defer } from 'underscore';
   import { createElement, createFactory, Component } from 'react';
   import { render, unmountComponentAtNode } from 'react-dom';
-  import * as perseus from '../../dist/';
+  import * as perseus from '@khanacademy/perseus';
   // Import this here so that our string translation machinery
   // is aware of the dependency, as otherwise the functions in here are only
   // referenced via WebpackProvidePlugin
@@ -282,7 +282,6 @@
             customKeypad: this.usesTouch,
             readOnly: !this.interactive,
             styling: {
-              radioStyleVersion: 'final',
               primaryProductColor: this.$themeBrand.primary.v_300,
             },
             hintProgressColor: this.$themeTokens.text,
@@ -353,11 +352,10 @@
         // This is the component that actually renders TeX either with KaTeX or Mathjax.
         TeX,
         isDevServer: process.env.NODE_ENV !== 'production',
-        // We pass this in, although it is barely used in Perseus,
-        // and we bypass most of its use with monkey patching.
-        // Further, it sets this globally, so does not allow for multiple Perseus renderers
-        // to render different languages in the same page.
-        kaLocale: this.lang.id,
+        // We set this to 'en' regardless of the language being used, so as to
+        // avoid Perseus trying to load localized data URLs. This allows our monkey patching
+        // to be done more simply, and avoid having to do specific edits of the source code.
+        kaLocale: 'en',
         // For some reason this is defined here as well as in the apiOptions
         isMobile: this.isMobile,
         // We already preprocess all URLs
@@ -424,6 +422,18 @@
 
         // Clear any currently displayed messages when we render an item.
         this.dismissMessage();
+
+        // Clear the perseus container to ensure no residual DOM elements remain.
+        // This is necessary due to an issue with the math-input component that
+        // perseus uses, that seems to fail to clear the MathQuill renderered
+        // content inside it. If this gets fixed, we can remove this and defer
+        // to simply updating.
+        try {
+          unmountComponentAtNode(this.$refs.perseusContainer);
+          this.$set(this, 'itemRenderer', null);
+        } catch (e) {
+          logging.debug('Error during unmounting of item renderer', e);
+        }
 
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
