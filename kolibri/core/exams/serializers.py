@@ -118,13 +118,11 @@ class ExamSerializer(ModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
         if "question_sources" in data and data["question_sources"]:
-            first_question_source = data["question_sources"][0]
-            # Version 3 strictly requires section_id
-            if "section_id" in first_question_source:
+            if data["data_model_version"] == 3:
                 data["question_sources"] = QuizSectionSerializer(
                     instance.question_sources, many=True
                 ).data
-            if "exercise_id" in first_question_source:
+            if data["data_model_version"] in {1, 2}:
                 data["question_sources"] = QuestionSourceSerializer(
                     instance.question_sources, many=True
                 ).data
