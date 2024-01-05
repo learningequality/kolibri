@@ -1,3 +1,10 @@
+<!--
+  This file has been modified to adapt the component to the needs of Kolibri
+  The original file is available at:
+  https://github.com/Akryum/vue-virtual-scroller/blob/master/packages/vue-virtual-scroller/src/components/RecycleScroller.vue
+ -->
+
+
 <template>
 
   <div
