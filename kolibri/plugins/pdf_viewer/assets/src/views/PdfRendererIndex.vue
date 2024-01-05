@@ -142,13 +142,13 @@
   export default {
     name: 'PdfRendererIndex',
     components: {
-    SideBar,
-    PdfPage,
-    CoreFullscreen,
-    RecyclableScroller,
-    // DynamicScroller,
-    // DynamicScrollerItem
-},
+      SideBar,
+      PdfPage,
+      CoreFullscreen,
+      RecyclableScroller,
+      // DynamicScroller,
+      // DynamicScrollerItem
+    },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
       progress: null,
