@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.management import call_command
 from django.utils import timezone
 from rest_framework import serializers
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import ValidationError
 
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
@@ -532,7 +533,12 @@ class PeerImportSingleSyncJobValidator(PeerSyncJobValidator):
         facility_id = data["facility"]
         username = data["username"]
         password = data["password"]
-        facility_info = get_remote_users_info(baseurl, facility_id, username, password)
+        try:
+            facility_info = get_remote_users_info(
+                baseurl, facility_id, username, password
+            )
+        except AuthenticationFailed as e:
+            raise ValidationError(detail=str(e.detail), code=e.detail.code)
         user_info = facility_info["user"]
 
         # syncing using an admin account (username & password belong to the admin):
