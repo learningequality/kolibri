@@ -88,6 +88,7 @@
             id="pdf-container"
             ref="recycleList"
             :items="pdfPages"
+            :buffer="itemHeight * 2"
             :emitUpdate="true"
             class="pdf-container scroller-height"
             keyField="index"
@@ -185,9 +186,9 @@
       documentLoading() {
         return this.progress < 1;
       },
-      // itemHeight() {
-      //   return this.firstPageHeight * this.scale + MARGIN;
-      // },
+      itemHeight() {
+        return this.firstPageHeight * this.scale + MARGIN;
+      },
       savedLocation() {
         if (this.extraFields && this.extraFields.contentState) {
           return this.extraFields.contentState.savedLocation;
