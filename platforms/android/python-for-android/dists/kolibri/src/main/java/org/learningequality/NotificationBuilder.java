@@ -26,7 +26,7 @@ public class NotificationBuilder extends NotificationCompat.Builder {
             setOngoing(true);
             setCategory(NotificationCompat.CATEGORY_SERVICE);
             setContentText(context.getString(R.string.notification_service_channel_content));
-            setTicker(context.getString(R.string.notification_service_channel_ticker));
+            setTicker(context.getString(R.string.notification_channel_ticker));
 
             // Add settings button to notification for quick access to the minimize setting for this
             // foreground notification channel
@@ -42,7 +42,7 @@ public class NotificationBuilder extends NotificationCompat.Builder {
             }
         } else if (channelId.equals(NotificationRef.ID_CHANNEL_DEFAULT)) {
             setCategory(NotificationCompat.CATEGORY_PROGRESS);
-            setTicker(context.getString(R.string.notification_default_channel_ticker));
+            setTicker(context.getString(R.string.notification_channel_ticker));
         }
     }
 
