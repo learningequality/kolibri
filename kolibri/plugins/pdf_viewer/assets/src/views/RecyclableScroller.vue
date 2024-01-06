@@ -6,7 +6,7 @@
   Modifications:
     - file reformmatted
     - class names with underscores (_) have been replaced by a hyphen (-)
-    - sizeField in variable height mode can now be a number 
+    - sizeField in variable height mode can now be a number
       or a function returning a number (Line 264, Original 198)
  -->
 
@@ -47,9 +47,9 @@
         :style="ready ? {
           transform: `translate${direction === 'vertical' ? 'Y' : 'X'}(${view.position}px) `
             + `translate${direction === 'vertical' ? 'X' : 'Y'}(${view.offset}px)`,
-          width: gridItems ? `${direction === 'vertical' ? itemSecondarySize || 
+          width: gridItems ? `${direction === 'vertical' ? itemSecondarySize ||
             itemSize : itemSize}px` : undefined,
-          height: gridItems ? `${direction === 'horizontal' ? itemSecondarySize || 
+          height: gridItems ? `${direction === 'horizontal' ? itemSecondarySize ||
             itemSize : itemSize}px` : undefined,
         } : null"
         class="vue-recycle-scroller-item-view"
@@ -835,49 +835,49 @@
   .vue-recycle-scroller {
     position: relative;
   }
-  
+
   .vue-recycle-scroller.direction-vertical:not(.page-mode) {
     overflow-y: auto;
   }
-  
+
   .vue-recycle-scroller.direction-horizontal:not(.page-mode) {
     overflow-x: auto;
   }
-  
+
   .vue-recycle-scroller.direction-horizontal {
     display: flex;
   }
-  
+
   .vue-recycle-scroller-slot {
     flex: auto 0 0;
   }
-  
+
   .vue-recycle-scroller-item-wrapper {
     flex: 1;
     box-sizing: border-box;
     overflow: hidden;
     position: relative;
   }
-  
+
   .vue-recycle-scroller.ready .vue-recycle-scroller-item-view {
     position: absolute;
     top: 0;
     left: 0;
     will-change: transform;
   }
-  
+
   .vue-recycle-scroller.direction-vertical .vue-recycle-scroller-item-wrapper {
     width: 100%;
   }
-  
+
   .vue-recycle-scroller.direction-horizontal .vue-recycle-scroller-item-wrapper {
     height: 100%;
   }
-  
+
   .vue-recycle-scroller.ready.direction-vertical .vue-recycle-scroller-item-view {
     width: 100%;
   }
-  
+
   .vue-recycle-scroller.ready.direction-horizontal .vue-recycle-scroller-item-view {
     height: 100%;
   }

@@ -147,8 +147,6 @@
       PdfPage,
       CoreFullscreen,
       RecyclableScroller,
-      // DynamicScroller,
-      // DynamicScrollerItem
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
