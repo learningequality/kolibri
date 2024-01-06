@@ -18,14 +18,14 @@ $ nodeenv -l
 but this lists out everything. Alternatively, here's a one line bash function that can be used to determine that version:
 ```bash
 $ function latest-node() { curl -s "https://nodejs.org/dist/latest-v$1.x/" | egrep -m 1 -o "$1\.[0-9]+\.[0-9]+" | head -1; }
-$ latest-node 16
-16.16.0
+$ latest-node 18
+18.19.0
 ```
 
 Once you've determined the version, you can install it:
 ```bash
-$ nodeenv --python-virtualenv --node 16.16.0
- * Install prebuilt node (16.16.0) ..... done.
+$ nodeenv --python-virtualenv --node 18.19.0
+ * Install prebuilt node (18.19.0) ..... done.
  * Appending data to /home/bjester/Projects/learningequality/kolibri/venv/bin/activate
  * Appending data to /home/bjester/Projects/learningequality/kolibri/venv/bin/activate.fish
 ```
