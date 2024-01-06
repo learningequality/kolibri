@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Добави устройство",
   "ManageSyncSchedule.connected": "Свързано",
   "ManageSyncSchedule.disconnected": "Няма връзка",
-  "ManageSyncSchedule.forgetText": "Заличи",
   "ManageSyncSchedule.introduction": "Задай график за автоматично Колибри синхронизиране с други Колибри устройства, които споделят тази институция. Устройствата с еднакъв график за синхронизиране ще се синхронизират едно по едно.",
   "ManageSyncSchedule.syncSchedules": "Синхронизиране на графици",
   "PaginatedListContainerWithBackend.nextResults": "Следващи резултати",

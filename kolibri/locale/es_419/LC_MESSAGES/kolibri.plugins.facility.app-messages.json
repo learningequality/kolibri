@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Añadir dispositivo",
   "ManageSyncSchedule.connected": "Conectado",
   "ManageSyncSchedule.disconnected": "No conectado",
-  "ManageSyncSchedule.forgetText": "Olvidar",
   "ManageSyncSchedule.introduction": "Establecer un calendario para que Kolibri sincronice automáticamente con otros dispositivos Kolibri que comparten este centro educativo. Los dispositivos con el mismo calendario de sincronización se sincronizarán uno a la vez.",
   "ManageSyncSchedule.syncSchedules": "Calendario de sincronizaciones",
   "PaginatedListContainerWithBackend.nextResults": "Resultados siguientes",

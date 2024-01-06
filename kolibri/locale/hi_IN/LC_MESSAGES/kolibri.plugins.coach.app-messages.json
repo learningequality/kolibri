@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "कृपया अपने Kolibri व्यवस्थापक से सम्पर्क कीजिए",
   "CoachExamsPage.newQuiz": "नई क्विज़ बनाएँ",
   "CoachExamsPage.noExams": "आपके लिए कोई क्विज़ नहीं है",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "प्रश्नोत्तरी चुनें",
   "CoachExamsPage.totalQuizSize": "शिक्षणार्थी को दिखाई देने वाली प्रश्नोत्तरी का पूरा साइज़: {size}",
   "CoachImmersivePage.errorPageTitle": "त्रुटि",

@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "الرجاء الرجوع إلى مشرف كوليبري في مَرفقك التّعليمي",
   "CoachExamsPage.newQuiz": "إنشاء اختبار قصير جديد",
   "CoachExamsPage.noExams": "لا توجد لديك أية اختبارات قصيرة",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "حدد الاختبار القصير",
   "CoachExamsPage.totalQuizSize": "الحجم الإجمالي للاختبارات القصيرة المرئية للمتعلمين: {size}",
   "CoachImmersivePage.errorPageTitle": "خطأ",

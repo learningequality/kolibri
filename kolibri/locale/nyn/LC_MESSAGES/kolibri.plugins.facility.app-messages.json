@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Onjezerani chipangizo",
   "ManageSyncSchedule.connected": "Yalumikizidwa",
   "ManageSyncSchedule.disconnected": "Sinalumikizidwe",
-  "ManageSyncSchedule.forgetText": "Iwalani",
   "ManageSyncSchedule.introduction": "Ikani mndandanda kuti Kolibri ayambe yekha kulumikizana ndi zipangizo zina za Kolibri zokhalanso ndi zinthu zomwezi. Zipangizo zokhala ndi mndandanda umodzi zipezeka mu mgwirizanowu imodziimodzi.",
   "ManageSyncSchedule.syncSchedules": "Mndandanda wa kalumikizidwe",
   "PaginatedListContainerWithBackend.nextResults": "Zotsatira zapatsogolo",
