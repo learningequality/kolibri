@@ -2,7 +2,6 @@
 <resources>
     <string name="app_name">Kolibri</string>
     <string name="task_worker_process" translatable="false">:task_worker</string>
-    <string name="private_version">65f6c4c9631cdfd89ef2e450b4769e2df67a0a8f</string>
     <string name="notification_channel_ticker">Task started…</string>
     <string name="notification_service_channel_title">Important Tasks Running</string>
     <string name="notification_service_channel_content">In progress</string>

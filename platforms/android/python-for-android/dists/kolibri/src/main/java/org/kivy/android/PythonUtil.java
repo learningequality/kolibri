@@ -14,6 +14,7 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import org.learningequality.Kolibri.BuildConfig;
 import org.renpy.android.AssetExtract;
 
 public class PythonUtil {
@@ -123,16 +124,30 @@ public class PythonUtil {
         f.delete();
     }
 
+    public static String getPrivateVersion() {
+        // We read this directly from the VERSION_CODE,
+        // so that any upgrade of the app causes the Python
+        // code to be extracted again.
+        return Integer.toString(BuildConfig.VERSION_CODE);
+    }
+
     public static void unpackAsset(
         Context ctx,
         final String resource,
         File target,
         boolean cleanup_on_version_update) {
 
+        // We only have version information for the private package
+        // and this should only ever be called for the "private" package
+        if (resource != "private") {
+            Log.v(TAG, "Cannot unpack " + resource + " " + target.getName());
+            return;
+        }
+
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getResourceString(ctx, resource + "_version");
+        String dataVersion = getPrivateVersion();
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);
@@ -198,7 +213,7 @@ public class PythonUtil {
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getResourceString(ctx, "private_version");
+        String dataVersion = getPrivateVersion();
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);
