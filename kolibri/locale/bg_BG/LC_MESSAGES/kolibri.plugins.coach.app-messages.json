@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Моля, консултирай се със своя Колибри администратор",
   "CoachExamsPage.newQuiz": "Създай нов тест",
   "CoachExamsPage.noExams": "Нямаш никакви тестове",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "Избери тест",
   "CoachExamsPage.totalQuizSize": "Общ размер на тестовете, видими за учениците: {size}",
   "CoachImmersivePage.errorPageTitle": "Грешка",
