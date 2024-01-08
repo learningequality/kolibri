@@ -122,7 +122,7 @@ class ExamSerializer(ModelSerializer):
                 data["question_sources"] = QuizSectionSerializer(
                     instance.question_sources, many=True
                 ).data
-            if data["data_model_version"] in {1, 2}:
+            else:
                 data["question_sources"] = QuestionSourceSerializer(
                     instance.question_sources, many=True
                 ).data

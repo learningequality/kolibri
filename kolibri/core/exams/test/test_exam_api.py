@@ -525,3 +525,27 @@ class ExamAPITestCase(APITestCase):
 
         response = self.post_new_exam(basic_exam)
         self.assertEqual(response.status_code, 400)
+
+    def test_exam_model_get_questions_v3(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        response = self.post_new_exam(exam)
+        exam_id = response.data["id"]
+        self.assertEqual(response.status_code, 201)
+        exam_model_instance = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam_model_instance.get_questions()), 3)
+
+    def test_exam_model_get_questions_v2_v1(self):
+        self.login_as_admin()
+        self.exam.data_model_version = 2
+        self.exam.question_sources.append(
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        )
+
+        self.exam.save()
+        self.assertEqual(len(self.exam.get_questions()), 1)

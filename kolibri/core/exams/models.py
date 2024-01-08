@@ -235,13 +235,13 @@ class Exam(AbstractFacilityDataModel):
         Returns a list of all questions from all sections in the exam.
         """
         questions = []
-        if self.data_model_version in {2, 1}:
-            for question in self.question_sources:
-                questions.append(question)
         if self.data_model_version == 3:
             for section in self.question_sources:
                 for question in section.get("questions", []):
                     questions.append(question)
+        else:
+            for question in self.question_sources:
+                questions.append(question)
         return questions
 
 

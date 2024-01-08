@@ -282,7 +282,7 @@ def _map_exam(item):
             for question in question_source.get("questions", [])
             if question.get("exercise_id") is not None
         ]
-    if data_model_version in {2, 1}:
+    else:
         item["node_ids"] = [
             question["exercise_id"]
             for question in item.get("question_sources", [])
