@@ -229,13 +229,13 @@
         }[value];
         this.$router.push(this.$router.getRoute(nextRoute));
       },
-      showNewLabel(channelId, channelVersion) {
+      showNewLabel(channelId, remoteChannelVersion) {
         const match = find(this.installedChannelsWithResources, { id: channelId });
         // Check if channel match exists and is a newer version or has resources
         return (
           match &&
-          (match.version > channelVersion ||
-            (match.version === channelVersion && match.taskIndex > -1))
+          (match.version < remoteChannelVersion ||
+            (match.version === remoteChannelVersion && match.taskIndex > -1))
         );
       },
       handleDeleteChannel() {
