@@ -106,7 +106,9 @@ public class Task {
 
                     try {
                         // Wait for the results to come back
+                        Log.d(TAG, "Waiting for results for sentinel checking " + stateRef);
                         results = stateFuture.get();
+                        Log.d(TAG, "Received results for sentinel checking " + stateRef);
                     } catch (ExecutionException | InterruptedException e) {
                         Log.e(TAG, "Failed to check state for reconciliation " + stateRef, e);
                         continue;
