@@ -156,6 +156,22 @@ export const Quiz = {
     type: String,
     default: '',
   },
+  assignments: {
+    type: Array,
+    default: () => [],
+  },
+  date_archived: {
+    type: String,
+    default: null,
+  },
+  date_activated: {
+    type: String,
+    default: null,
+  },
+  collection: {
+    type: String,
+    default: '',
+  },
   question_sources: {
     type: Array,
     default: () => [],
