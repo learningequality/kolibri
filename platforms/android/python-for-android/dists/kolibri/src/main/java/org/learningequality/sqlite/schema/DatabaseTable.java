@@ -13,16 +13,20 @@ public interface DatabaseTable {
     }
 
     interface ColumnEnum<T> extends Column<T> {
-        T name();
+        String name();
 
-        default T getValue() {
-            return this.name();
-        }
+        T getValue();
 
         ColumnImpl<T> getColumn();
 
         default String getColumnName() {
             return getColumn().getColumnName();
+        }
+    }
+
+    interface StringChoiceEnum extends ColumnEnum<String> {
+        default String getValue() {
+            return this.name();
         }
     }
 
@@ -45,6 +49,16 @@ public interface DatabaseTable {
 
         public String getValue(Bundle bundle) {
             return bundle.getString(getColumnName());
+        }
+    }
+
+    class IntegerColumn extends ColumnImpl<Integer> {
+        public IntegerColumn(String columnName) {
+            super(columnName);
+        }
+
+        public Integer getValue(Bundle bundle) {
+            return bundle.getInt(getColumnName());
         }
     }
 }

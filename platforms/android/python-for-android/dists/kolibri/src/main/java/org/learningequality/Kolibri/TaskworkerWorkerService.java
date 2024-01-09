@@ -28,7 +28,7 @@ public class TaskworkerWorkerService extends RemoteWorkerService implements Noti
         );
         // Initialize the work manager
         WorkManager.getInstance(getApplicationContext());
-        enqueueTaskReconciliation();
+//        enqueueTaskReconciliation();
         super.onCreate();
         // We could potentially remove this and leave the notification up to long-running workers
         // bound to the service

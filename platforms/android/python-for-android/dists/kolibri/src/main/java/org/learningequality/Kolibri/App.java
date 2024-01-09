@@ -71,13 +71,11 @@ public class App extends Application implements Configuration.Provider {
 
     private void reconcileTasks() {
         // Reconcile tasks on startup, in this main thread (blocking!)
-        CompletableFuture<Boolean> f = Task.reconcile(this, null);
-        f.whenCompleteAsync((result, throwable) -> {
-            if (throwable != null) {
-                Log.e("Kolibri", "Main thread task reconciliation failed", throwable);
-            } else {
-                Log.i("Kolibri", "Main thread task reconciliation completed");
-            }
-        });
+        boolean result = Task.reconcile(this, null);
+        if (result) {
+            Log.i("Kolibri", "Main thread task reconciliation completed");
+        } else {
+            Log.d("Kolibri", "Main thread task reconciliation no-op");
+        }
     }
 }

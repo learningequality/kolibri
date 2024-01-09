@@ -27,18 +27,6 @@ public class TaskworkerWorker extends PythonWorker implements Notifier {
         mWorker = this;
     }
 
-    public static Data buildInputData(String workerArgument) {
-        String dataArgument = workerArgument == null ? "" : workerArgument;
-        Data data = new Data.Builder()
-            .putString(ARGUMENT_WORKER_ARGUMENT, dataArgument)
-            .putString(ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri")
-            .putString(ARGUMENT_CLASS_NAME,
-                       TaskworkerWorkerService.class.getName())
-            .build();
-        Log.v(TAG, "Request data: " + data.toString());
-        return data;
-    }
-
     protected void cleanup() {
         hideNotification();
         mWorker = null;
@@ -79,5 +67,17 @@ public class TaskworkerWorker extends PythonWorker implements Notifier {
         if (mWorker != null) {
             mWorker.hideNotification();
         }
+    }
+
+    public static Data buildInputData(String workerArgument) {
+        String dataArgument = workerArgument == null ? "" : workerArgument;
+        Data data = new Data.Builder()
+                .putString(ARGUMENT_WORKER_ARGUMENT, dataArgument)
+                .putString(ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri")
+                .putString(ARGUMENT_CLASS_NAME,
+                        TaskworkerWorkerService.class.getName())
+                .build();
+        Log.v(TAG, "Request data: " + data.toString());
+        return data;
     }
 }

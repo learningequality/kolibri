@@ -30,18 +30,13 @@ public class ReconcileWorker extends ListenableWorker {
         SettableFuture<Result> future = SettableFuture.create();
         Executor executor = getBackgroundExecutor();
 
-        CompletableFuture<Boolean> f = Task.reconcile(getApplicationContext(), executor);
-
-        f.whenCompleteAsync((result, throwable) -> {
-            if (throwable != null) {
-                Log.e(TAG, "Reconcile task failed", throwable);
-                future.setException(throwable);
-            } else {
-                Log.i(TAG, "Reconcile task completed: " + (result ? "success" : "failure"));
-                future.set(result ? Result.success() : Result.failure());
-            }
-        }, executor);
-
+        boolean result = Task.reconcile(getApplicationContext(), executor);
+        if (!result) {
+            Log.e(TAG, "Failed to reconcile tasks");
+            future.set(Result.failure());
+            return future;
+        }
+        future.set(Result.success());
         return future;
     }
 }

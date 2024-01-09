@@ -8,18 +8,20 @@ import android.util.Log;
 import java.io.File;
 
 public class Database implements AutoCloseable {
-    public static final String TAG = "Kolibri.Database";
+    public static final String TAG = "KolibriDatabase";
 
     private final String name;
     private final String path;
     private final int flags;
+    private boolean inTransaction;
     private SQLiteDatabase db;
 
-    private Database(String name, String path, int flags) {
+    protected Database(String name, String path, int flags) {
         this.name = name;
         this.path = path;
         this.db = null;
         this.flags = flags;
+        this.inTransaction = false;
         initialize();
     }
 
@@ -43,31 +45,60 @@ public class Database implements AutoCloseable {
             return;
         }
         try {
+            Log.d(TAG, "Connecting to database");
             this.db = SQLiteDatabase.openDatabase(this.path, null, flags);
         } catch (SQLiteException e) {
             this.db = null;
         }
     }
 
+    public void begin() {
+        if (!isConnected()) {
+            return;
+        }
+        Log.d(TAG, "Starting transaction");
+        this.inTransaction = true;
+        this.db.beginTransaction();
+    }
+
+    public void rollback() {
+        if (!isConnected() || !this.inTransaction) {
+            return;
+        }
+        Log.d(TAG, "Rolling back transaction");
+        this.inTransaction = false;
+        this.db.endTransaction();
+    }
+
+    public void commit() {
+        if (!isConnected() || !this.inTransaction) {
+            return;
+        }
+        Log.d(TAG, "Committing transaction");
+        this.inTransaction = false;
+        this.db.setTransactionSuccessful();
+        this.db.endTransaction();
+    }
+
     public void close() {
         if (isConnected()) {
+            Log.d(TAG, "Closing database");
+            rollback();
             this.db.close();
             this.db = null;
         }
     }
 
-    public static Database readonly(Context context, String name) {
-        String path = null;
+    protected static File getDatabasePath(Context context, String name) {
         File dir = context.getExternalFilesDir(null);
         if (dir != null) {
             File f = new File(new File(dir, "KOLIBRI_DATA"), name);
             if (f.exists()) {
-                path = f.getPath();
+                return f;
             } else {
                 Log.v(TAG, "Database file does not exist: " + f.getPath());
             }
         }
-
-        return new Database(name, path, SQLiteDatabase.OPEN_READONLY);
+        return null;
     }
 }

@@ -10,36 +10,30 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class SelectQuery {
+/**
+ * A query that SELECTs rows from a table
+ */
+public class SelectQuery extends FilterableQuery<SelectQuery> implements Query<Bundle[]> {
     private String tableName;
     private final DatabaseTable.Column<?>[] selectColumns;
-    private final List<String> whereClauses;
-    private final List<String> whereParameters;
     private String orderBy;
 
     public SelectQuery(DatabaseTable.Column<?>... columns) {
         this.selectColumns = columns.length > 0 ? columns : null;
-        this.whereClauses = new ArrayList<String>();
-        this.whereParameters = new ArrayList<String>();
+    }
+
+    /**
+     * Method to return the current instance of the query
+     * @return the current instance of the query
+     */
+    @Override
+    protected SelectQuery self() {
+        return this;
     }
 
     public SelectQuery from(String tableName) {
         this.tableName = tableName;
         return this;
-    }
-
-    public SelectQuery where(String clause, String... parameters) {
-        this.whereClauses.add(clause);
-        this.whereParameters.addAll(Arrays.asList(parameters));
-        return this;
-    }
-
-    public SelectQuery where(DatabaseTable.Column<?> column, String value) {
-        return where(column.getColumnName() + " = ?", value);
-    }
-
-    public SelectQuery where(DatabaseTable.ColumnEnum<String> value) {
-        return where(value.getColumn(), value.getValue());
     }
 
     public SelectQuery orderBy(DatabaseTable.Column<?> column, boolean ascending) {
@@ -94,17 +88,13 @@ public class SelectQuery {
             return null;
         }
 
-        // Currently we only support ANDing all where clauses
-        String selection = String.join(" AND ", this.whereClauses);
-        String[] selectionArgs = this.whereParameters.toArray(new String[0]);
-
         try {
             List<Bundle> results;
             try (Cursor cursor = db.get().query(
                     this.tableName,
                     this.generateSelectColumns(),
-                    selection,
-                    selectionArgs,
+                    buildSelection(),
+                    buildSelectionArgs(),
                     null,
                     null,
                     this.orderBy
