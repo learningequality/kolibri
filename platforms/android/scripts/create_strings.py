@@ -1,8 +1,11 @@
 """
 Tooling for generating i18n strings using Kolibri's translation machinery.
 """
+import json
 import os
 import tempfile
+import xml.etree.ElementTree as ET
+from importlib import resources
 
 from version import apk_version
 
@@ -47,10 +50,70 @@ def generate_loading_pages(output_dir):
     )
 
 
+def _find_string(lang, string):
+    from kolibri.main import initialize
+    from django.utils.translation import override
+    from django.utils.translation import ugettext as _
+    from django.utils.translation import to_locale
+
+    initialize(skip_update=True)
+
+    with override(lang):
+        new_string = _(string)
+        if new_string != string and new_string:
+            return new_string
+
+    for message_file in os.listdir(
+        resources.files("kolibri") / "locale" / "en" / "LC_MESSAGES"
+    ):
+        if message_file.endswith(".json"):
+            with open(
+                resources.files("kolibri")
+                / "locale"
+                / "en"
+                / "LC_MESSAGES"
+                / message_file,
+                "r",
+            ) as f:
+                messages = json.load(f)
+                for key, value in messages.items():
+                    if value == string:
+                        try:
+                            # Do this in case we have a legacy translation file - this should be cleaned up
+                            # in a future version of Kolibri
+                            with open(
+                                resources.files("kolibri")
+                                / "locale"
+                                / to_locale(lang)
+                                / "LC_MESSAGES"
+                                / message_file,
+                                "r",
+                            ) as f:
+                                messages = json.load(f)
+                                new_string = messages[key]
+                                if new_string != string and new_string:
+                                    return new_string
+                                # If we have a translation but the string is no different in translation, it means we should
+                                # not include it in the strings.xml file
+                                return None
+                        except FileNotFoundError:
+                            break
+    return None
+
+
 def create_resource_files(output_dir):
     """
     Read each language directory and create resource files in the corresponding Android values folder.
     """
+    en_strings_file = os.path.join(
+        os.path.dirname(__file__),
+        "../python-for-android/dists/kolibri/src/main/res/values/strings.xml",
+    )
+
+    en_strings_tree = ET.parse(en_strings_file)
+
+    en_strings_root = en_strings_tree.getroot()
+
     for lang_dir in os.listdir(output_dir):
         if lang_dir == DEFAULT_LANGUAGE:
             dir_name = "values"
@@ -82,6 +145,26 @@ def create_resource_files(output_dir):
 
         with open(os.path.join(values_dir, "html_content.xml"), "w") as f:
             f.write(xml_content)
+
+        if lang_dir == DEFAULT_LANGUAGE:
+            continue
+
+        new_root = ET.Element("resources")
+        new_tree = ET.ElementTree(element=new_root)
+
+        for string in en_strings_root.findall("string"):
+            name = string.get("name")
+            value = _find_string(lang_dir, string.text)
+            if value is None:
+                continue
+            new_string = ET.SubElement(new_root, "string", attrib={"name": name})
+            new_string.text = value
+
+        new_tree.write(
+            os.path.join(values_dir, "strings.xml"),
+            encoding="utf-8",
+            xml_declaration=True,
+        )
 
 
 def main():
