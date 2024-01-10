@@ -37,37 +37,26 @@ export default [
     name: PageNames.EXAM_CREATION_ROOT,
     path: '/:classId/plan/quizzes/new',
     component: CreateExamPage,
-    children: [
-      {
-        name: PageNames.QUIZ_SECTION_EDITOR,
-        path: ':section_id/edit',
-      },
-      {
-        name: PageNames.QUIZ_REPLACE_QUESTIONS,
-        path: ':section_id/replace-questions',
-      },
-      {
-        name: PageNames.QUIZ_SELECT_RESOURCES,
-        path: ':section_id/select-resources',
-
-        children: [
-          {
-            name: PageNames.SELECT_FROM_RESOURCE,
-            path: ':topic_id',
-          },
-        ],
-      },
-      {
-        name: PageNames.BOOK_MARKED_RESOURCES,
-        path: ':section_id/book-marked-resources',
-        children: [
-          {
-            name: PageNames.SELECTED_BOOKMARKS,
-            path: ':topic_id',
-          },
-        ],
-      },
-    ],
+  },
+  {
+    name: PageNames.QUIZ_SECTION_EDITOR,
+    path: '/:classId/plan/quizzes/new/:section_id/edit',
+    component: CreateExamPage,
+  },
+  {
+    name: PageNames.QUIZ_REPLACE_QUESTIONS,
+    path: '/:classId/plan/quizzes/new/:section_id/replace-questions',
+    component: CreateExamPage,
+  },
+  {
+    name: PageNames.QUIZ_SELECT_RESOURCES,
+    path: '/:classId/plan/quizzes/new/:section_id/select-resources/:topic_id?',
+    component: CreateExamPage,
+  },
+  {
+    name: PageNames.BOOK_MARKED_RESOURCES,
+    path: '/:classId/plan/quizzes/new/:section_id/select-resources/bookmarks/:topic_id?',
+    component: CreateExamPage,
   },
   {
     name: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
