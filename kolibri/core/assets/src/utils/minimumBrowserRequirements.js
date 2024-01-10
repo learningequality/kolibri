@@ -9,19 +9,30 @@ const browserRegex = /^([a-zA-Z]+) ([><=]+) (\d+)(?:\.(\d+))?(?:\.(\d+))?$/;
 
 for (const browser of browsers) {
   const [name, sign, major, minor, patch] = browserRegex.exec(browser).slice(1);
+  if (sign !== '>' && sign !== '>=') {
+    throw new Error('Unsupported browser requirement');
+  }
+
   // This only supports > and >=, but that's all we need.
-  const addOne = sign === '>' ? 1 : 0;
+  // In the case that it is > then we will need to add one to the version number
+  // we will add one to the smallest defined version number out of major, minor, patch
+  const addOne = sign === '>';
   const entry = {
-    major: isUndefined(minor) && isUndefined(patch) ? Number(major) + addOne : Number(major),
+    major: Number(major),
   };
+  let valueToIncrement = 'major';
   if (!isUndefined(minor)) {
     entry.minor = Number(minor);
-    if (isUndefined(patch)) {
-      entry.minor += addOne;
+    valueToIncrement = 'minor';
+    // We only check for patch if we have a minor version number
+    // as it is not possible to be defined without a minor version number
+    if (!isUndefined(patch)) {
+      entry.patch = Number(patch);
+      valueToIncrement = 'patch';
     }
   }
-  if (!isUndefined(patch)) {
-    entry.patch = Number(patch) + addOne;
+  if (addOne) {
+    entry[valueToIncrement] += 1;
   }
   minimumBrowserRequirements[name] = entry;
 }
