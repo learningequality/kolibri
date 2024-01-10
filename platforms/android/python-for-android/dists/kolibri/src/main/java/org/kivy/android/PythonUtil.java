@@ -20,6 +20,11 @@ import org.renpy.android.AssetExtract;
 public class PythonUtil {
 	private static final String TAG = "pythonutil";
 
+    // We read this directly from the VERSION_CODE,
+    // so that any upgrade of the app causes the Python
+    // code to be extracted again.
+    private static final String PrivateVersion = Integer.toString(BuildConfig.VERSION_CODE);
+
     protected static void addLibraryIfExists(ArrayList<String> libsList, String pattern, File libsDir) {
         // pattern should be the name of the lib file, without the
         // preceding "lib" or suffix ".so", for instance "ssl.*" will
@@ -124,13 +129,6 @@ public class PythonUtil {
         f.delete();
     }
 
-    public static String getPrivateVersion() {
-        // We read this directly from the VERSION_CODE,
-        // so that any upgrade of the app causes the Python
-        // code to be extracted again.
-        return Integer.toString(BuildConfig.VERSION_CODE);
-    }
-
     public static void unpackAsset(
         Context ctx,
         final String resource,
@@ -147,7 +145,7 @@ public class PythonUtil {
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getPrivateVersion();
+        String dataVersion = PrivateVersion;
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);
@@ -213,7 +211,7 @@ public class PythonUtil {
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getPrivateVersion();
+        String dataVersion = PrivateVersion;
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);
