@@ -5,9 +5,9 @@ from functools import cache
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
+from i18n import get_string
 from jnius import autoclass
 from jnius import cast
-from le_utils.proquint import generate
 
 
 def is_service_context():
@@ -229,7 +229,9 @@ def get_dummy_user_name():
     cache_key = "DUMMY_USER_NAME"
     value = value_cache.get(cache_key)
     if value is None:
-        value = generate()
+        Locale = autoclass("java.util.Locale")
+        currentLocale = Locale.getDefault().toLanguageTag()
+        value = get_string("Learner", currentLocale)
         value_cache.set(cache_key, value)
     return value
 

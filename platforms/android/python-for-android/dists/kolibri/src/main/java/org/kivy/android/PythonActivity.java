@@ -358,12 +358,9 @@ public class PythonActivity extends Activity {
          * 'lightgray', 'darkgray', 'grey', 'lightgrey', 'darkgrey', 'aqua', 'fuchsia',
          * 'lime', 'maroon', 'navy', 'olive', 'purple', 'silver', 'teal'.
          */
-        String backgroundColor = resourceManager.getString("presplash_color");
-        if (backgroundColor != null) {
-          try {
-            mImageView.setBackgroundColor(Color.parseColor(backgroundColor));
-          } catch (IllegalArgumentException e) {}
-        }
+        try {
+        mImageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        } catch (IllegalArgumentException e) {}
         mImageView.setLayoutParams(new ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.FILL_PARENT,
         ViewGroup.LayoutParams.FILL_PARENT));

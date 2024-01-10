@@ -1,15 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Kolibri</string>
-    <string name="task_worker_process">:task_worker</string>
-    <string name="private_version">65f6c4c9631cdfd89ef2e450b4769e2df67a0a8f</string>
-    <string name="presplash_color">#FFFFFF</string>
-    <string name="notification_service_channel_id">background_notifications</string>
-    <string name="notification_service_channel_title">Background Notifications</string>
-    <string name="notification_service_channel_content">Background tasks</string>
-    <string name="notification_service_channel_ticker">A persistent notification of Kolibri\'s background processing</string>
-    <string name="notification_service_channel_action">Manage</string>
-    <string name="notification_default_channel_id">task_notifications</string>
-    <string name="notification_default_channel_title">Task Notifications</string>
-    <string name="notification_default_channel_ticker">A progress notification of Kolibri\'s background processing</string>
+    <string name="task_worker_process" translatable="false">:task_worker</string>
+    <string name="notification_channel_ticker">Task started…</string>
+    <string name="notification_service_channel_title">Important Tasks Running</string>
+    <string name="notification_service_channel_content">In progress</string>
+    <string name="notification_service_channel_action">View task manager</string>
+    <string name="notification_default_channel_title">Tasks</string>
 </resources>

@@ -14,10 +14,16 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.regex.Pattern;
 
+import org.learningequality.Kolibri.BuildConfig;
 import org.renpy.android.AssetExtract;
 
 public class PythonUtil {
 	private static final String TAG = "pythonutil";
+
+    // We read this directly from the VERSION_CODE,
+    // so that any upgrade of the app causes the Python
+    // code to be extracted again.
+    private static final String PrivateVersion = Integer.toString(BuildConfig.VERSION_CODE);
 
     protected static void addLibraryIfExists(ArrayList<String> libsList, String pattern, File libsDir) {
         // pattern should be the name of the lib file, without the
@@ -129,10 +135,17 @@ public class PythonUtil {
         File target,
         boolean cleanup_on_version_update) {
 
+        // We only have version information for the private package
+        // and this should only ever be called for the "private" package
+        if (resource != "private") {
+            Log.v(TAG, "Cannot unpack " + resource + " " + target.getName());
+            return;
+        }
+
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getResourceString(ctx, resource + "_version");
+        String dataVersion = PrivateVersion;
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);
@@ -198,7 +211,7 @@ public class PythonUtil {
         Log.v(TAG, "Unpacking " + resource + " " + target.getName());
 
         // The version of data in memory and on disk.
-        String dataVersion = getResourceString(ctx, "private_version");
+        String dataVersion = PrivateVersion;
         String diskVersion = null;
 
         Log.v(TAG, "Data version is " + dataVersion);

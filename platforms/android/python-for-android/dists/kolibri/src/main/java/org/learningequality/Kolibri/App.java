@@ -17,7 +17,6 @@ public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
-        NotificationRef.initialize(this);
         createNotificationChannels();
     }
 
@@ -44,14 +43,14 @@ public class App extends Application implements Configuration.Provider {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             Context context = getApplicationContext();
             NotificationChannelCompat serviceChannel = new NotificationChannelCompat.Builder(
-                    context.getString(R.string.notification_service_channel_id),
+                    NotificationRef.ID_CHANNEL_SERVICE,
                     NotificationManagerCompat.IMPORTANCE_MIN
             )
                     .setName(context.getString(R.string.notification_service_channel_title))
                     .setShowBadge(false)
                     .build();
             NotificationChannelCompat taskChannel = new NotificationChannelCompat.Builder(
-                    context.getString(R.string.notification_default_channel_id),
+                    NotificationRef.ID_CHANNEL_DEFAULT,
                     NotificationManagerCompat.IMPORTANCE_DEFAULT
             )
                     .setName(context.getString(R.string.notification_default_channel_title))

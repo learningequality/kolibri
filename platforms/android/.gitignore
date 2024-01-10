@@ -1,4 +1,5 @@
-src/kolibri
+# A generated source file
+src/strings.py
 tmpenv
 tar
 python-for-android/build/
@@ -17,6 +18,7 @@ python-for-android/dists/kolibri/webview_includes
 python-for-android/dists/kolibri/*.*
 python-for-android/dists/kolibri/gradlew
 python-for-android/dists/kolibri/src/main/res/*/html_content.xml
+python-for-android/dists/kolibri/src/main/res/values-*/strings.xml
 !python-for-android/dists/kolibri/build.gradle
 !python-for-android/dists/kolibri/gradle.properties
 
