@@ -2,6 +2,7 @@ import logging
 import os
 import platform
 import sys
+from warnings import warn
 
 from kolibri.utils.compat import monkey_patch_collections
 from kolibri.utils.compat import monkey_patch_translation
@@ -83,6 +84,16 @@ def prepend_cext_path(dist_path):
         logger.debug("No C extensions are available for this platform")
 
 
+def check_python_versions():
+    if sys.version_info.major == 2:
+        logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
+        logging.StreamHandler(sys.stdout)
+        logger = logging.getLogger("env")
+        warning_text = "Python 2.7 support will be dropped in Kolibri 0.17, please upgrade your Python version"
+        logger.warn(warning_text)
+        warn(warning_text, DeprecationWarning)
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -92,6 +103,8 @@ def set_env():
     from the distributed version in case it exists before importing anything
     else.
     """
+    check_python_versions()
+
     from kolibri import dist as kolibri_dist  # noqa
 
     monkey_patch_collections()

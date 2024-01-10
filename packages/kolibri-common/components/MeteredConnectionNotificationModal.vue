@@ -87,8 +87,6 @@
           // if we only include one of the keys for the extra_settings object
           client({ method: 'GET', url: this.settingsUrl })
             .then(({ data }) => {
-              console.log('mounted', isMetered);
-              console.log(data);
               this.extra_settings = data.extra_settings;
               this.selected = this.extra_settings.allow_download_on_metered_connection
                 ? Options.USE_METERED
@@ -116,6 +114,7 @@
           data: { extra_settings },
         })
           .then(() => {
+            this.$emit('update', allow_download_on_metered_connection);
             window.sessionStorage.setItem(meteredNetworkModalDismissedKey, true);
             this.dismissed = true;
 

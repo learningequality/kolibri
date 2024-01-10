@@ -2,10 +2,10 @@
   "CommonDeviceStrings.deviceManagementTitle": "Kompiita",
   "CommonDeviceStrings.emptyTasksMessage": "Kuuɗe kompiita kolleteeɗe ngalaa",
   "CommonDeviceStrings.newChannelLabel": "Kesum",
-  "CommonDeviceStrings.newEnabledPluginsState": "",
+  "CommonDeviceStrings.newEnabledPluginsState": "Taa itti maandorɗum ɗerewol, huutinirooɓe ngi'ataangol fahin, koo e ɓe marno duŋayeere huutinirgongol.",
   "CommonDeviceStrings.newResourceLabel": "Kesum",
   "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "Disk kompiita ma ɓadake heewugo. Ɗustu ko woni nder disk koo suɓtu jannginillum seɗɗa tan.",
   "CommonDeviceStrings.permissionsLabel": "Yerduye",
-  "CommonDeviceStrings.primaryStorageLabel": "",
+  "CommonDeviceStrings.primaryStorageLabel": "Jannginillum donndaaɗum kesum ɓeydeteema nder beembal hoɗorde ɓurnde huutinireego",
   "CommonDeviceStrings.unlistedChannelLabel": "Wuro janngugo ngo winndaaka"
 }

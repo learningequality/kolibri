@@ -1,5 +1,8 @@
-import { computed } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import store from 'kolibri.coreVue.vuex.store';
+import plugin_data from 'plugin_data';
+
+const allowDownloadOnMeteredConnection = ref(plugin_data.allowDownloadOnMeteredConnection);
 
 export default function useDeviceSettings() {
   const allowGuestAccess = computed(() => store.getters.allowGuestAccess);
@@ -8,5 +11,6 @@ export default function useDeviceSettings() {
   return {
     allowGuestAccess,
     canAccessUnassignedContent,
+    allowDownloadOnMeteredConnection,
   };
 }

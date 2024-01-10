@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Додати пристрій",
   "ManageSyncSchedule.connected": "Під'єднано",
   "ManageSyncSchedule.disconnected": "Не під'єднано",
-  "ManageSyncSchedule.forgetText": "Забути",
   "ManageSyncSchedule.introduction": "Встановити для Колібрі графік автоматичної синхронізації з іншими пристроями Колібрі у цьому закладі. Пристрої з однаковим розкладом синхронізації синхронізуються по черзі.",
   "ManageSyncSchedule.syncSchedules": "Розклад синхронізації",
   "PaginatedListContainerWithBackend.nextResults": "Наступний результат",

@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Παρακαλούμε συμβουλευτείτε τον διαχειριστή σας στο Kolibri",
   "CoachExamsPage.newQuiz": "Δημιουργία νέου κουίζ",
   "CoachExamsPage.noExams": "Δεν έχετε κανένα κουίζ",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "Επιλογή κουίζ",
   "CoachExamsPage.totalQuizSize": "Συνολικό μέγεθος κουίζ που είναι ορατά στους εκπαιδευόμενους: {size}",
   "CoachImmersivePage.errorPageTitle": "Σφάλμα",

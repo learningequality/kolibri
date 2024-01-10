@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Ƙara wata na'ura",
   "ManageSyncSchedule.connected": "Kana kan layi",
   "ManageSyncSchedule.disconnected": "Bai kan sabis",
-  "ManageSyncSchedule.forgetText": "Manta",
   "ManageSyncSchedule.introduction": "Dubi tsarin loakci ma Kolibri domin saduwa kai tsaye da sauran na'urorin Kolibri masu yada irin wadannan kayayyaki. Na'urori masu kama da juna za a haɗa su waje guda",
   "ManageSyncSchedule.syncSchedules": "Tsare-tsaren sync",
   "PaginatedListContainerWithBackend.nextResults": "Sakamako na gaba",

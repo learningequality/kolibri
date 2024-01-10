@@ -9,6 +9,7 @@
     :maxlength="30"
     :invalid="Boolean(shownInvalidText)"
     :invalidText="shownInvalidText"
+    autocomplete="username"
     @blur="blurred = true"
     @input="handleInput"
   />

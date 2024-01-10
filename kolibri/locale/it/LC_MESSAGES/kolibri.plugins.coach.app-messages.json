@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Consultare l'amministratore Kolibri",
   "CoachExamsPage.newQuiz": "Crea un nuovo quiz",
   "CoachExamsPage.noExams": "Non ci sono dei quiz",
-  "CoachExamsPage.noStartedExams": "Nessun quiz avviato",
   "CoachExamsPage.selectQuiz": "Seleziona quiz",
   "CoachExamsPage.totalQuizSize": "Dimensione totale dei quiz visibili agli studenti: {size}",
   "CoachImmersivePage.errorPageTitle": "Errore",

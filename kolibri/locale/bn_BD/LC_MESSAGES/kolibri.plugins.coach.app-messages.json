@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "অনুগ্রহ করে আপনার কলিব্রি অ্যাডমিনের সাথে পরামর্শ করুন",
   "CoachExamsPage.newQuiz": "নতুন কুইজ তৈরি করুন",
   "CoachExamsPage.noExams": "আপনার কোনও কুইজ নেই",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "কুইজ নির্বাচন করুন",
   "CoachExamsPage.totalQuizSize": "শিক্ষার্থীদের কাছে দৃশ্যমান কুইজের মোট আকার : {size}",
   "CoachImmersivePage.errorPageTitle": "সমস্যা",

@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Adicionar dispositivo",
   "ManageSyncSchedule.connected": "Conectado",
   "ManageSyncSchedule.disconnected": "Não conectado",
-  "ManageSyncSchedule.forgetText": "Esquecer",
   "ManageSyncSchedule.introduction": "Defina uma data e horário para que o seu Kolibri sincronize automaticamente com outros Kolibris neste centro educativo. Dispositivos agendados no mesmo dia e horário serão sincronizados um por vez.",
   "ManageSyncSchedule.syncSchedules": "Horários de sincronização",
   "PaginatedListContainerWithBackend.nextResults": "Próximos resultados",

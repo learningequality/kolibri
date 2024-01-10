@@ -8,27 +8,26 @@
       {{ headerText }}
     </h1>
 
-    <template v-if="!hideParagraphs">
-      <p v-for="(paragraph, idx) in paragraphTexts" :key="idx">
-        {{ paragraph }}
-      </p>
-    </template>
+    <p v-for="paragraph in paragraphTexts" :key="paragraph">
+      {{ paragraph }}
+    </p>
 
     <p>
-      <slot name="buttons"></slot>
-      <KButtonGroup v-if="!$slots.buttons">
-        <KButton
-          v-if="!isPageNotFound"
-          :text="coreString('refresh')"
-          :primary="true"
-          @click="reloadPage"
-        />
-        <KButton
-          :primary="isPageNotFound"
-          appearance="raised-button"
-          :text="exitButtonLabel"
-          @click="handleClickBackToHome"
-        />
+      <KButtonGroup>
+        <slot name="buttons">
+          <KButton
+            v-if="!isPageNotFound"
+            :text="coreString('refresh')"
+            :primary="true"
+            @click="reloadPage"
+          />
+          <KButton
+            :primary="isPageNotFound"
+            appearance="raised-button"
+            :text="exitButtonLabel"
+            @click="handleClickBackToHome"
+          />
+        </slot>
       </KButtonGroup>
     </p>
 
@@ -89,6 +88,9 @@
         return this.$tr('defaultErrorHeader');
       },
       paragraphTexts() {
+        if (this.hideParagraphs) {
+          return [];
+        }
         if (this.isPageNotFound) {
           return [this.$tr('resourceNotFoundMessage')];
         }

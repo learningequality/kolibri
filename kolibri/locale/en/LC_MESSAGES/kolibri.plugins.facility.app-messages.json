@@ -171,7 +171,6 @@
   "ManageSyncSchedule.everyMonth": "Every month",
   "ManageSyncSchedule.everyTwoWeeks": "Every two weeks",
   "ManageSyncSchedule.everyWeek": "Every week",
-  "ManageSyncSchedule.forgetText": "Forget",
   "ManageSyncSchedule.introduction": "Set a schedule for Kolibri to automatically sync with other Kolibri devices sharing this facility. Devices with the same sync schedule will be synced one at a time.",
   "ManageSyncSchedule.syncSchedules": "Sync schedules",
   "PaginatedListContainerWithBackend.nextResults": "Next results",

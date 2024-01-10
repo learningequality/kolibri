@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Будь ласка, зверніться до вашого адміністратора Колібрі",
   "CoachExamsPage.newQuiz": "Створити новий тест",
   "CoachExamsPage.noExams": "У вас немає тестів",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "Обрати тест",
   "CoachExamsPage.totalQuizSize": "Загальний розмір доступних для учнів (учениць) тестів: {size}",
   "CoachImmersivePage.errorPageTitle": "Помилка",

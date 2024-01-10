@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Ṣàfikún ẹrọ",
   "ManageSyncSchedule.connected": "Ti a ti sopọ",
   "ManageSyncSchedule.disconnected": "Ti a kò ì ti sopọ",
-  "ManageSyncSchedule.forgetText": "Gbàgbé",
   "ManageSyncSchedule.introduction": "Pèsè ìṣètò kan fún Kolibri lati ní ìmúṣiṣẹ́pọ̀ láìfọwọ́yí pẹ̀lú àwọn ẹrọ Kolibri mìíràn tó ń ṣe alábàápín ohun èlò yìí. àwọn ẹrọ pẹ̀lú ìṣètoò ìmúṣiṣẹ́pọ̀ kan náà yóò jẹ́ miímúuṣiṣẹ́pọ̀ sọ́kan ní àkókò kọ̀ọ̀kan.",
   "ManageSyncSchedule.syncSchedules": "Awọn iṣeto amuṣiṣẹpọ",
   "PaginatedListContainerWithBackend.nextResults": "Àwọn èsì tí ó kàn",

@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Kolibri 운영자에게 문의하십시오.",
   "CoachExamsPage.newQuiz": "새로운 퀴즈 만들기",
   "CoachExamsPage.noExams": "배정받은 퀴즈가 없습니다.",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "퀴즈 선택하기",
   "CoachExamsPage.totalQuizSize": "학생에게 보여지는 퀴즈의 총 크기: {size}",
   "CoachImmersivePage.errorPageTitle": "오류",

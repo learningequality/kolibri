@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Vui lòng tham khảo quản trị viên Kolibri",
   "CoachExamsPage.newQuiz": "Soạn bài kiểm tra mới",
   "CoachExamsPage.noExams": "Bạn không có bất kỳ bài kiểm tra nào",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "Chọn bài kiểm tra",
   "CoachExamsPage.totalQuizSize": "Tổng kích cỡ các bài kiểm tra học viên nhìn thấy: {size}",
   "CoachImmersivePage.errorPageTitle": "Lỗi",
