@@ -284,6 +284,7 @@
               ERROR_CONSTANTS.MISSING_PASSWORD,
               ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
               ERROR_CONSTANTS.AUTHENTICATION_FAILED,
+              ERROR_CONSTANTS.INVALID_USERNAME,
             ]);
 
             const errorData = error.response.data;
