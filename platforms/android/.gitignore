@@ -1,4 +1,5 @@
-src/kolibri
+# A generated source file
+src/strings.py
 tmpenv
 tar
 python-for-android/build/
