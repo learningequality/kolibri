@@ -88,8 +88,8 @@ def _find_string(lang, string):
                                 / "LC_MESSAGES"
                                 / message_file,
                                 "r",
-                            ) as f:
-                                messages = json.load(f)
+                            ) as lang_message_file:
+                                messages = json.load(lang_message_file)
                                 new_string = messages[key]
                                 if new_string != string and new_string:
                                     return new_string
