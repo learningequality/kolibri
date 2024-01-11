@@ -5,8 +5,6 @@
     class="main-wrapper"
   >
 
-    <div v-if="blockDoubleClicks" class="click-mask"></div>
-
     <SkipNavigationLink />
     <LearningActivityBar
       ref="activityBar"
@@ -381,7 +379,6 @@
     computed: {
       ...mapState({
         error: state => state.core.error,
-        blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
       isCoachContent() {
         return this.content && this.content.coach_content ? 1 : 0;
@@ -733,15 +730,6 @@
   // When focused by SkipNavigationLink, don't outline non-buttons/links
   /deep/ [tabindex='-1'] {
     outline-style: none !important;
-  }
-
-  .click-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 24;
-    width: 100%;
-    height: 100%;
   }
 
   .loader {
