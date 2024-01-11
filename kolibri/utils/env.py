@@ -2,7 +2,6 @@ import logging
 import os
 import platform
 import sys
-from warnings import warn
 
 from kolibri.utils.compat import monkey_patch_collections
 from kolibri.utils.compat import monkey_patch_translation
