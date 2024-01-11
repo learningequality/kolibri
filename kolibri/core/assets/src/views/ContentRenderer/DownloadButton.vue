@@ -48,7 +48,7 @@
         return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
       },
       canDownload() {
-        return this.isAppContext && this.downloadableFiles.length;
+        return !this.isAppContext && this.downloadableFiles.length;
       },
       fileOptions() {
         const options = this.files.map(file => {

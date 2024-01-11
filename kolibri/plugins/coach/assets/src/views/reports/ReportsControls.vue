@@ -68,7 +68,7 @@
     computed: {
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
-        return !this.isAppContext || this.disableExport;
+        return this.isAppContext || this.disableExport;
       },
       isMainReport() {
         return (
