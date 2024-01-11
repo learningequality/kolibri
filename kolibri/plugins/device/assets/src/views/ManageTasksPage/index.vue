@@ -35,6 +35,7 @@
           :key="task.id"
           :task="task"
           class="task-panel"
+          :appBarTitle="$tr('appBarTitle')"
           :style="{ borderBottomColor: $themePalette.grey.v_200 }"
           @clickclear="handleClickClear(task)"
           @clickcancel="handleClickCancel(task)"

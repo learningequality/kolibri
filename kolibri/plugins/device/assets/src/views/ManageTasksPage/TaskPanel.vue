@@ -142,6 +142,10 @@
         type: Object,
         required: true,
       },
+      appBarTitle: {
+        type: String,
+        required: true,
+      },
     },
     computed: {
       buttonLabel() {
@@ -259,7 +263,7 @@
     watch: {
       taskPercentage(newPercentage) {
         if (newPercentage !== null) {
-          const formattedPercentage = (newPercentage * 100).toFixed(2) + '%';
+          const formattedPercentage = this.$formatNumber(newPercentage, { style: 'percent' });
           const channelName =
             this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
 
@@ -284,14 +288,15 @@
         handler(newStatus) {
           const channelName =
             this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
+
           if (newStatus === TaskStatuses.CANCELED) {
-            document.title = 'Cancelled - ' + channelName;
+            document.title = this.$tr('statusCanceled') + ' - ' + channelName;
           } else if (newStatus === TaskStatuses.FAILED) {
-            document.title = 'Failed - ' + channelName;
+            document.title = this.$tr('statusFailed') + ' - ' + channelName;
           } else if (newStatus === TaskStatuses.COMPLETED) {
-            document.title = 'Completed - ' + channelName;
+            document.title = this.$tr('statusComplete') + ' - ' + channelName;
           } else {
-            document.title = 'Task manager';
+            document.title = this.appBarTitle;
           }
         },
       },
@@ -301,7 +306,6 @@
       handleClick() {
         if (this.taskIsCompleted || this.taskIsFailed) {
           this.$emit('clickclear');
-          document.title = 'Task manager';
         } else {
           this.$emit('clickcancel');
         }
