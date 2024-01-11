@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "దయచేసి మీ Kolibri నిర్వాహకుని సంప్రదించండి",
   "CoachExamsPage.newQuiz": "కొత్త క్విజ్‌ని రూపొందించండి",
   "CoachExamsPage.noExams": "మీకు ఎలాంటి క్విజ్‌లు లేవు",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "క్విజ్‌ని ఎంపిక చేసుకోండి",
   "CoachExamsPage.totalQuizSize": "అభ్యాసకులకు కనిపించే క్విజ్‌ల యొక్క మొత్తం పరిమాణం: {size}",
   "CoachImmersivePage.errorPageTitle": "లోపం",

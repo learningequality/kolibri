@@ -8,10 +8,10 @@ export default function useCardLayoutSpan() {
     if (get(windowIsSmall)) {
       return 1;
     }
-    if (get(windowBreakpoint) < 5) {
+    if (get(windowBreakpoint) < 3) {
       return 2;
     }
-    if (get(windowBreakpoint) < 6) {
+    if (get(windowBreakpoint) < 7) {
       return 3;
     }
     return 4;

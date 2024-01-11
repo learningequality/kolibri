@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div :style="{ maxWidth: '1700px' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="!(rootNodesLoading || searchLoading)
@@ -9,6 +9,10 @@
           && !isLearnerOnlyImport"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
+      />
+      <MeteredConnectionNotificationModal
+        v-else-if="usingMeteredConnection"
+        @update="(value) => allowDownloadOnMeteredConnection = value"
       />
     </transition>
     <LearnAppBarPage
@@ -76,7 +80,7 @@
           />
           <!-- Other Libraries -->
           <OtherLibraries
-            v-if="!deviceId && isUserLoggedIn"
+            v-if="showOtherLibraries"
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
@@ -166,12 +170,15 @@
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import { ContentNodeResource } from 'kolibri.resources';
   import { mapState, mapGetters } from 'vuex';
+  import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal.vue';
+  import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
   import SidePanelModal from '../SidePanelModal';
   import SearchFiltersPanel from '../SearchFiltersPanel';
   import { KolibriStudioId, PageNames } from '../../constants';
   import useCardViewStyle from '../../composables/useCardViewStyle';
   import useContentLink from '../../composables/useContentLink';
   import useCoreLearn from '../../composables/useCoreLearn';
+  import useDeviceSettings from '../../composables/useDeviceSettings';
   import {
     currentDeviceData,
     setCurrentDevice,
@@ -204,6 +211,7 @@
       ChannelCardGroupGrid,
       SidePanelModal,
       LearningActivityChip,
+      MeteredConnectionNotificationModal,
       ResumableContentGrid,
       SearchResultsGrid,
       SearchFiltersPanel,
@@ -218,6 +226,7 @@
       const router = currentInstance.$router;
 
       const { isUserLoggedIn, isCoach, isAdmin, isSuperuser } = useUser();
+      const { allowDownloadOnMeteredConnection } = useDeviceSettings();
       const {
         searchTerms,
         displayingSearchResults,
@@ -361,6 +370,7 @@
       showLibrary();
 
       return {
+        allowDownloadOnMeteredConnection,
         canAddDownloads,
         canDownloadExternally,
         displayingSearchResults,
@@ -402,6 +412,7 @@
         isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,
         mobileSidePanelIsOpen: false,
+        usingMeteredConnection: true,
       };
     },
     computed: {
@@ -420,6 +431,19 @@
           this.welcomeModalVisibleState &&
           window.localStorage.getItem(welcomeDismissalKey) !== 'true'
         );
+      },
+      showOtherLibraries() {
+        const validUser = !this.deviceId && this.isUserLoggedIn;
+        if (!validUser) {
+          return false;
+        }
+        if (!checkCapability('check_is_metered')) {
+          return true;
+        }
+        if (this.allowDownloadOnMeteredConnection) {
+          return true;
+        }
+        return !this.usingMeteredConnection;
       },
       channelsLabel() {
         if (this.deviceId) {
@@ -446,7 +470,7 @@
           (this.isLocalLibraryEmpty && !this.deviceId)
         ) {
           return 0;
-        } else if (this.windowBreakpoint < 4) {
+        } else if (this.windowBreakpoint < 5) {
           return 234;
         } else {
           return 346;
@@ -480,6 +504,18 @@
       this.search();
       if (window.sessionStorage.getItem(welcomeDismissalKey) !== 'true') {
         this.$store.commit('SET_WELCOME_MODAL_VISIBLE', true);
+      }
+
+      // parallels logic for showOtherLibraries
+      if (
+        !this.deviceId &&
+        this.isUserLoggedIn &&
+        !this.allowDownloadOnMeteredConnection &&
+        checkCapability('check_is_metered')
+      ) {
+        appCapabilities.checkIsMetered().then(isMetered => {
+          this.usingMeteredConnection = isMetered;
+        });
       }
     },
     methods: {

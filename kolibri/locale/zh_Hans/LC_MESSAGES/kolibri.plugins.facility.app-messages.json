@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "添加设备",
   "ManageSyncSchedule.connected": "已连接",
   "ManageSyncSchedule.disconnected": "未连接",
-  "ManageSyncSchedule.forgetText": "忘记设备",
   "ManageSyncSchedule.introduction": "为课励彼设定计划，以便自动与共享此设施的其他课励彼设备同步。具有相同同步计划的设备将每次同步一台。",
   "ManageSyncSchedule.syncSchedules": "同步计划",
   "PaginatedListContainerWithBackend.nextResults": "下一结果",

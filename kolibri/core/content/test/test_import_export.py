@@ -2539,3 +2539,47 @@ class TestFilesToTransfer(TestCase):
             ),
             0,
         )
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"
+    )
+    def test_import_supplementary_files_missing(self, channel_stats_mock):
+        ContentNode.objects.update(available=True)
+        LocalFile.objects.update(available=True)
+        supplementary = LocalFile.objects.filter(files__supplementary=True)
+        supplementary_ids = set(supplementary.values_list("id", flat=True))
+        self.assertNotEqual(supplementary_ids, set())
+        supplementary.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        _, files_to_transfer, _ = get_import_export_data(
+            self.the_channel_id, None, None, False, renderable_only=False, peer_id="1"
+        )
+        transfer_ids = set([f["id"] for f in files_to_transfer])
+        self.assertEqual(transfer_ids, supplementary_ids)
+
+    @patch(
+        "kolibri.core.content.utils.import_export_content.get_channel_stats_from_peer"
+    )
+    def test_export_supplementary_files_missing(self, channel_stats_mock):
+        ContentNode.objects.update(available=True)
+        LocalFile.objects.update(available=True)
+        supplementary = LocalFile.objects.filter(files__supplementary=True)
+        self.assertNotEqual(supplementary.count(), 0)
+        supplementary.update(available=False)
+        stats = {
+            key: {} for key in ContentNode.objects.all().values_list("id", flat=True)
+        }
+        channel_stats_mock.return_value = stats
+        _, files_to_transfer, _ = get_import_export_data(
+            self.the_channel_id, None, None, True, renderable_only=False, peer_id="1"
+        )
+        essential_ids = set(
+            LocalFile.objects.filter(files__supplementary=False).values_list(
+                "id", flat=True
+            )
+        )
+        transfer_ids = set([f["id"] for f in files_to_transfer])
+        self.assertEqual(transfer_ids, essential_ids)

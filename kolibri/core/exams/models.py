@@ -23,7 +23,13 @@ def exam_assignment_lookup(question_sources):
     :return: a tuple of contentnode_id and metadata
     """
     for question_source in question_sources:
-        yield (question_source["exercise_id"], None)
+        if "section_id" in question_source:
+            questions = question_source.get("questions")
+            if questions is not None:
+                for question in question_source["questions"]:
+                    yield (question["exercise_id"], None)
+        else:
+            yield (question_source["exercise_id"], None)
 
 
 class Exam(AbstractFacilityDataModel):
@@ -223,6 +229,20 @@ class Exam(AbstractFacilityDataModel):
 
     def __str__(self):
         return self.title
+
+    def get_questions(self):
+        """
+        Returns a list of all questions from all sections in the exam.
+        """
+        questions = []
+        if self.data_model_version == 3:
+            for section in self.question_sources:
+                for question in section.get("questions", []):
+                    questions.append(question)
+        else:
+            for question in self.question_sources:
+                questions.append(question)
+        return questions
 
 
 class ExamAssignment(AbstractFacilityDataModel):

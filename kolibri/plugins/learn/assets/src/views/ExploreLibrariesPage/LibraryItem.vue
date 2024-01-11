@@ -175,6 +175,8 @@
   .device-description {
     padding: 0;
     margin: 0 0 15px;
+    margin-right: -12px;
+    margin-left: -12px;
   }
 
   .library-header-sm {

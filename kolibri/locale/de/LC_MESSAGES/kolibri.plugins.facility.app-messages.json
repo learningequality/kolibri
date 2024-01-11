@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "Gerät hinzufügen",
   "ManageSyncSchedule.connected": "Verbunden",
   "ManageSyncSchedule.disconnected": "Nicht verbunden",
-  "ManageSyncSchedule.forgetText": "Löschen",
   "ManageSyncSchedule.introduction": "Legen Sie einen Zeitplan für die automatische Synchronisierung mit anderen Kolibri-Geräten fest, die diese Funktion unterstützen. Geräte mit identischem Synchronisierungszeitplan werden nacheinander synchronisiert.",
   "ManageSyncSchedule.syncSchedules": "Synchronisierungszeitpläne",
   "PaginatedListContainerWithBackend.nextResults": "Weitere Ergebnisse",
