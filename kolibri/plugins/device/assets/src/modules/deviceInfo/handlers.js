@@ -2,7 +2,7 @@ import client from 'kolibri.client';
 import urls from 'kolibri.urls';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import bytesForHumans from 'kolibri.utils.bytesForHumans';
-import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+import store from 'kolibri.coreVue.vuex.store';
 
 /* Function to fetch device info from the backend
  * and resolve validated data
@@ -22,7 +22,7 @@ export function getDeviceInfo() {
     const { server } = infoResponse.headers;
 
     if (server.includes('0.0.0.0')) {
-      if (isEmbeddedWebView) {
+      if (store.getters.isAppContext) {
         data.server_type = 'Kolibri app server';
       } else {
         data.server_type = 'Kolibri internal server';
