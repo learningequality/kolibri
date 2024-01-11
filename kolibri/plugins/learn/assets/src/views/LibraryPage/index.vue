@@ -414,7 +414,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearner']),
+      ...mapGetters(['isLearnerOnlyImport', 'canManageContent']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
@@ -429,7 +429,8 @@
           this.welcomeModalVisibleState &&
           window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
           !(this.rootNodes.length > 0) &&
-          !this.isLearner
+          this.canManageContent &&
+          !this.isLearnerOnlyImport
         );
       },
       showOtherLibraries() {
