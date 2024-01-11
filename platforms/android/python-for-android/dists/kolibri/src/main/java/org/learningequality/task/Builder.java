@@ -39,16 +39,20 @@ public class Builder {
     public static class TaskQuery {
         private final WorkQuery.Builder builder;
 
-        public TaskQuery(String... jobIds) {
-            this.builder = WorkQuery.Builder.fromUniqueWorkNames(Arrays.asList(jobIds));
-        }
-
-        public TaskQuery(UUID... requestIds) {
-            this.builder = WorkQuery.Builder.fromIds(Arrays.asList(requestIds));
+        public TaskQuery(WorkQuery.Builder builder) {
+            this.builder = builder;
         }
 
         public WorkQuery build() {
             return this.builder.build();
+        }
+
+        public static TaskQuery from(String... jobIds) {
+            return new TaskQuery(WorkQuery.Builder.fromUniqueWorkNames(Arrays.asList(jobIds)));
+        }
+
+        public static TaskQuery from(UUID... requestIds) {
+            return new TaskQuery(WorkQuery.Builder.fromIds(Arrays.asList(requestIds)));
         }
     }
 

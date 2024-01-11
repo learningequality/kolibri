@@ -14,7 +14,7 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import java.util.concurrent.RunnableFuture;
+import java.util.concurrent.Future;
 import java.util.concurrent.ThreadPoolExecutor;
 
 abstract public class PythonWorker extends RemoteListenableWorker {
@@ -26,6 +26,8 @@ abstract public class PythonWorker extends RemoteListenableWorker {
     public static final String TAG_LONG_RUNNING = "worker_long_running";
 
     public static final int MAX_WORKER_RETRIES = 3;
+
+    public static final boolean DO_RETRY = false;
 
     // Python environment variables
     private String androidPrivate;
@@ -115,23 +117,20 @@ abstract public class PythonWorker extends RemoteListenableWorker {
         // This is somewhat similar to what the plain `Worker` class does, except that we
         // use `submit` instead of `execute` so we can propagate cancellation
         // See https://android.googlesource.com/platform/frameworks/support/+/60ae0eec2a32396c22ad92502cde952c80d514a0/work/workmanager/src/main/java/androidx/work/Worker.java
-        RunnableFuture<?> threadFuture = (RunnableFuture<?>)executor.submit(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Result r = doWork();
-                    future.set(r);
-                }  catch (Exception e) {
-                    if (getRunAttemptCount() > MAX_WORKER_RETRIES) {
-                        Log.e(TAG, id + " Exception in remote python work", e);
-                        future.setException(e);
-                    } else {
-                        Log.w(TAG, id + " Exception in remote python work, scheduling retry", e);
-                        future.set(Result.retry());
-                    }
-                } finally {
-                    cleanup();
+        Future<?> threadFuture = executor.submit(() -> {
+            try {
+                Result r = doWork();
+                future.set(r);
+            }  catch (Exception e) {
+                if (!DO_RETRY || getRunAttemptCount() > MAX_WORKER_RETRIES) {
+                    Log.e(TAG, id + " Exception in remote python work", e);
+                    future.setException(e);
+                } else {
+                    Log.w(TAG, id + " Exception in remote python work, scheduling retry", e);
+                    future.set(Result.retry());
                 }
+            } finally {
+                cleanup();
             }
         });
 
@@ -139,13 +138,10 @@ abstract public class PythonWorker extends RemoteListenableWorker {
         // propagate the result and cancellation, but instead add listener to propagate
         // cancellation to python thread, using the task executor which should invoke this in the
         // main thread (where this was originally called from)
-        future.addListener(new Runnable() {
-            @Override
-            public void run() {
-                if (future.isCancelled()) {
-                    Log.i(TAG, "Interrupting python thread");
-                    threadFuture.cancel(true);
-                }
+        future.addListener(() -> {
+            if (future.isCancelled()) {
+                Log.i(TAG, "Interrupting python thread");
+                threadFuture.cancel(true);
             }
         }, getTaskExecutor().getMainThreadExecutor());
         return future;

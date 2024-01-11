@@ -18,16 +18,17 @@ import org.learningequality.task.StateMap;
 import org.learningequality.task.Sentinel;
 import org.learningequality.task.Reconciler;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import java9.util.concurrent.CompletableFuture;
 
 
 public class Task {
-    public static final String TAG = "Task";
+    public static final String TAG = "Kolibri.Task";
 
     public static String enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
         RemoteWorkManager workManager = RemoteWorkManager.getInstance(ContextUtil.getApplicationContext());
@@ -46,7 +47,7 @@ public class Task {
     public static void clear(String id) {
         Context context = ContextUtil.getApplicationContext();
         RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
-        WorkQuery workQuery = (new Builder.TaskQuery(id)).build();
+        WorkQuery workQuery = Builder.TaskQuery.from(id).build();
         ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfos(workQuery);
 
         workInfosFuture.addListener(() -> {
@@ -77,60 +78,81 @@ public class Task {
         }, new MainThreadExecutor());
     }
 
-     public static boolean reconcile(Context context, Executor executor) {
+     public static CompletableFuture<Boolean> reconcile(Context context, Executor executor) {
         if (executor == null) {
             executor = ContextCompat.getMainExecutor(context);
         }
 
-        boolean didReconcile = false;
+        final AtomicBoolean didReconcile = new AtomicBoolean(false);
+        final JobStorage db = JobStorage.readwrite(context);
+        final Reconciler reconciler = Reconciler.from(context, db, executor);
 
-        try (JobStorage db = JobStorage.readwrite(context)) {
-            if (db == null) {
-                Log.e(Sentinel.TAG, "Failed to open job storage database");
-                return false;
-            }
-
-            // Reconciliation needs a lock so we can only have one running at a time
-            try (Reconciler reconciler = Reconciler.from(context, db)) {
-                // If we can't acquire the lock, then reconciliation is already running
-                if (!reconciler.begin()) {
-                    return false;
-                }
-
-                Sentinel sentinel = Sentinel.from(context, db, executor);
-
-                // Run through all the states and check them, then process the results
-                for (StateMap stateRef : StateMap.forReconciliation()) {
-                    CompletableFuture<Sentinel.Result[]> stateFuture = sentinel.check(stateRef);
-                    Sentinel.Result[] results = null;
-
-                    try {
-                        // Wait for the results to come back
-                        Log.d(TAG, "Waiting for results for sentinel checking " + stateRef);
-                        results = stateFuture.get();
-                        Log.d(TAG, "Received results for sentinel checking " + stateRef);
-                    } catch (ExecutionException | InterruptedException e) {
-                        Log.e(TAG, "Failed to check state for reconciliation " + stateRef, e);
-                        continue;
-                    }
-
-                    if (results != null && results.length >= 0) {
-                        didReconcile = true;
-                        reconciler.process(stateRef, results);
-                    }
-                }
-
-                // If we get here, all the futures completed successfully
-                reconciler.end();
-
-                if (didReconcile) {
-                    Log.i(Sentinel.TAG, "Reconciliation completed successfully");
-                } else {
-                    Log.i(Sentinel.TAG, "No reconciliation performed");
-                }
-            }
+        if (db == null) {
+            Log.e(Sentinel.TAG, "Failed to open job storage database");
+            return CompletableFuture.completedFuture(false);
         }
 
-        return didReconcile;
+        // If we can't acquire the lock, then reconciliation is already running
+        if (!reconciler.begin()) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        final Sentinel sentinel = Sentinel.from(context, db, executor);
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+        CompletableFuture<AtomicBoolean> chain = CompletableFuture.completedFuture(didReconcile);
+
+        // Run through all the states and check them, then process the results
+        for (StateMap stateRef : StateMap.forReconciliation()) {
+            chain = chain.thenComposeAsync((_didReconcile) -> {
+                if (future.isCancelled()) {
+                    return CompletableFuture.completedFuture(_didReconcile);
+                }
+
+                Log.i(TAG, "Requesting sentinel check state " + stateRef);
+                return sentinel.check(stateRef)
+                        .exceptionally((e) -> {
+                            Log.e(TAG, "Failed to check state for reconciliation " + stateRef, e);
+                            return null;
+                        })
+                        .thenCompose((results) -> {
+                            if (results != null && results.length > 0) {
+                                Log.d(TAG, "Received results for sentinel checking " + stateRef);
+                                _didReconcile.set(true);
+                                return reconciler.process(stateRef, results)
+                                        .thenApply((r) -> _didReconcile);
+                            }
+                            return CompletableFuture.completedFuture(_didReconcile);
+                        });
+            }, executor);
+        }
+
+        chain.orTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
+                .whenCompleteAsync((result, error) -> {
+                    try {
+                        reconciler.end();
+                        db.close();
+                    } catch (Exception e) {
+                        Log.e(TAG, "Failed cleaning up reconciliation", e);
+                    } finally {
+                        if (error instanceof TimeoutException) {
+                            Log.e(TAG, "Timed out waiting for reconciliation chain", error);
+                            future.completeExceptionally(error);
+                        } else if (error != null) {
+                            Log.e(TAG, "Failed during reconciliation chain", error);
+                            future.completeExceptionally(error);
+                        } else if (result != null) {
+                            if (result.get()) {
+                                Log.i(TAG, "Reconciliation completed successfully");
+                            } else {
+                                Log.i(TAG, "No reconciliation performed");
+                            }
+                            future.complete(result.get());
+                        } else {
+                            future.complete(false);
+                        }
+                    }
+                }, executor);
+
+        return future;
     }
 }

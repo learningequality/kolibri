@@ -9,8 +9,7 @@ import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
 
-import com.google.common.util.concurrent.ListenableFuture;
-
+import org.learningequality.FuturesUtil;
 import org.learningequality.Kolibri.sqlite.JobStorage;
 import org.learningequality.sqlite.query.SelectQuery;
 
@@ -18,7 +17,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
 
 import java9.util.concurrent.CompletableFuture;
@@ -27,7 +25,7 @@ import java9.util.concurrent.CompletableFuture;
  * Sentinel (as in watcher) for checking and reconciling Kolibri job status with WorkManager
  */
 public class Sentinel {
-    public static String TAG = "KolibriTask.Sentinel";
+    public static String TAG = "Kolibri.TaskSentinel";
     private final RemoteWorkManager workManager;
     private final JobStorage db;
     private final Executor executor;
@@ -93,17 +91,14 @@ public class Sentinel {
 
     private WorkQuery buildWorkQuery(Bundle result) {
         String requestId = JobStorage.Jobs.worker_extra.getValue(result);
-        final Builder.TaskQuery builder;
 
         if (requestId == null) {
             String id = JobStorage.Jobs.id.getValue(result);
             Log.v(TAG, "No request ID found for job " + id);
-            builder = new Builder.TaskQuery(id);
-        } else {
-            builder = new Builder.TaskQuery(UUID.fromString(requestId));
+            return Builder.TaskQuery.from(id).build();
         }
 
-        return builder.build();
+        return Builder.TaskQuery.from(UUID.fromString(requestId)).build();
     }
 
     /**
@@ -127,6 +122,7 @@ public class Sentinel {
             boolean ignoreMissing,
             StateMap stateRef
     ) {
+        Log.d(TAG, "Checking for jobs in state " + stateRef.getJobState());
         SelectQuery query = buildQuery(stateRef.getJobState());
         Bundle[] jobs = query.execute(db);
 
@@ -135,6 +131,7 @@ public class Sentinel {
             return CompletableFuture.completedFuture(null);
         }
 
+        Log.d(TAG, "Cross-referencing " + jobs.length + " jobs with work manager");
         return check(jobs, ignoreMissing, stateRef.getWorkInfoStates());
     }
 
@@ -151,44 +148,50 @@ public class Sentinel {
             boolean ignoreMissing,
             WorkInfo.State... expectedWorkStates
     ) {
-        final List<CompletableFuture<Result>> jobFutures = new ArrayList<CompletableFuture<Result>>(jobs.length);
+        final CompletableFuture<Result[]> future = new CompletableFuture<>();
+        final List<Result> allResults = new ArrayList<Result>(jobs.length);
+        CompletableFuture<List<Result>> chain = CompletableFuture.completedFuture(allResults);
 
         for (Bundle job : jobs) {
-            CompletableFuture<Result> jobCheck = check(job, ignoreMissing, expectedWorkStates);
-            jobFutures.add(jobCheck);
+            chain = chain.thenComposeAsync((results) -> {
+                synchronized (future) {
+                    if (future.isCancelled()) {
+                        return CompletableFuture.completedFuture(results);
+                    }
+                }
+
+                return check(job, ignoreMissing, expectedWorkStates)
+                        .exceptionally((ex) -> {
+                            Log.e(TAG, "Failed to check job '" + JobStorage.Jobs.id.getValue(job) + "'", ex);
+                            return null;
+                        })
+                        .thenApply((result) -> {
+                            if (result != null) {
+                                results.add(result);
+                            }
+                            return results;
+                        });
+            }, executor);
         }
 
-        CompletableFuture<Result[]> future = CompletableFuture.allOf(
-                        jobFutures.toArray(new CompletableFuture[0])
-                )
-                .thenApply((result) -> {
-                    final List<Result> allResults = new ArrayList<Result>(jobs.length);
-                    for (CompletableFuture<Result> jobFuture : jobFutures) {
-                        // Add all the results from the job futures
-                        try {
-                            Result jobResult = jobFuture.get();
-                            if (jobResult != null) {
-                                allResults.add(jobResult);
-                            }
-                        } catch (ExecutionException | InterruptedException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                    return allResults.toArray(new Result[0]);
-                });
+        chain.whenCompleteAsync((results, ex) -> {
+            if (ex != null) {
+                Log.e(TAG, "Failed to check jobs", ex);
+                future.completeExceptionally(ex);
+                return;
+            }
 
-        future.whenComplete((result, ex) -> {
-            if (future.isCancelled()) {
-                for (CompletableFuture<Result> jobFuture : jobFutures) {
-                    jobFuture.cancel(true);
+            synchronized (future) {
+                if (!future.isCancelled()) {
+                    future.complete(results.toArray(new Result[0]));
                 }
             }
-        });
+        }, executor);
         return future;
     }
 
     /**
-     * Check for the given job (Bundle) and reconciles i with WorkManager
+     * Check for the given job (Bundle) and reconciles it with WorkManager
      *
      * @param job The job to check as a `Bundle`
      * @param ignoreMissing Whether to ignore the job as missing in WorkManager
@@ -200,48 +203,35 @@ public class Sentinel {
             boolean ignoreMissing,
             WorkInfo.State... expectedWorkStates
     ) {
-        CompletableFuture<Result> future = new CompletableFuture<>();
+        final String jobId = JobStorage.Jobs.id.getValue(job);
+        Log.d(TAG, "Cross-referencing job '" + jobId + "' with work manager");
 
         List<WorkInfo.State> workStates = Arrays.asList(expectedWorkStates);
         WorkQuery workQuery = buildWorkQuery(job);
-        ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfos(workQuery);
 
-        workInfosFuture.addListener(() -> {
-            Result res = null;
-            try {
-                List<WorkInfo> workInfos = workInfosFuture.get();
+        return FuturesUtil.toCompletable(workManager.getWorkInfos(workQuery), executor)
+                .thenApplyAsync((workInfos) -> {
+                    Log.d(TAG, "Completed cross-reference of job '" + jobId + "'");
 
-                if (workInfos == null || workInfos.size() == 0) {
-                    if (ignoreMissing) {
-                        return;
+                    if (workInfos == null || workInfos.size() == 0) {
+                        if (ignoreMissing) {
+                            return null;
+                        }
+
+                        Log.w(TAG, "No work requests found for job id '" + jobId + "'");
+                        return new Result(job, null);
                     }
 
-                    Log.w(TAG, "No work requests found for job id " + JobStorage.Jobs.id.getValue(job));
-                    res = new Result(job, null);
-                } else {
                     for (WorkInfo workInfo : workInfos) {
                         WorkInfo.State state = workInfo.getState();
 
                         if (!workStates.contains(state)) {
                             Log.w(TAG, "WorkInfo state " + state + " does not match expected state " + Arrays.toString(expectedWorkStates) + " for request " + workInfo.getId() + " | " + workInfo.getTags());
-                            res = new Result(job, workInfo);
+                            return new Result(job, workInfo);
                         }
                     }
-                }
-            }
-            catch (ExecutionException | InterruptedException e) {
-                e.printStackTrace();
-            } finally {
-                future.complete(res);
-            }
-        }, executor);
 
-        future.whenComplete((result, ex) -> {
-            if (future.isCancelled()) {
-                workInfosFuture.cancel(true);
-            }
-        });
-
-        return future;
+                    return null;
+                }, executor);
     }
 }

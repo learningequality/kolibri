@@ -3,28 +3,21 @@ package org.learningequality.Kolibri;
 import android.app.Application;
 import android.content.Context;
 import android.os.Build;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.NotificationChannelCompat;
 import androidx.work.Configuration;
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
 
 import org.learningequality.NotificationRef;
-import org.learningequality.Task;
-
 import java.util.concurrent.Executors;
 
-import java9.util.concurrent.CompletableFuture;
 
 public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
         createNotificationChannels();
-        reconcileTasks();
     }
 
     @NonNull
@@ -38,7 +31,7 @@ public class App extends Application implements Configuration.Provider {
         return new Configuration.Builder()
                 .setDefaultProcessName(processName)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setExecutor(Executors.newFixedThreadPool(6))
+            .setExecutor(Executors.newFixedThreadPool(12))
             .build();
     }
 
@@ -66,16 +59,6 @@ public class App extends Application implements Configuration.Provider {
             NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
             notificationManager.createNotificationChannel(serviceChannel);
             notificationManager.createNotificationChannel(taskChannel);
-        }
-    }
-
-    private void reconcileTasks() {
-        // Reconcile tasks on startup, in this main thread (blocking!)
-        boolean result = Task.reconcile(this, null);
-        if (result) {
-            Log.i("Kolibri", "Main thread task reconciliation completed");
-        } else {
-            Log.d("Kolibri", "Main thread task reconciliation no-op");
         }
     }
 }

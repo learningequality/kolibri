@@ -12,17 +12,20 @@ public enum StateMap {
     PENDING(
             JobStorage.Jobs.State.PENDING,
             WorkInfo.State.ENQUEUED,
-            WorkInfo.State.BLOCKED
+            WorkInfo.State.BLOCKED,
+            WorkInfo.State.RUNNING
     ),
     QUEUED(
             JobStorage.Jobs.State.QUEUED,
             WorkInfo.State.ENQUEUED,
-            WorkInfo.State.BLOCKED
+            WorkInfo.State.BLOCKED,
+            WorkInfo.State.RUNNING
     ),
     SCHEDULED(
             JobStorage.Jobs.State.SCHEDULED,
             WorkInfo.State.ENQUEUED,
-            WorkInfo.State.BLOCKED
+            WorkInfo.State.BLOCKED,
+            WorkInfo.State.RUNNING
     ),
     SELECTED(
             JobStorage.Jobs.State.SELECTED,
@@ -30,7 +33,7 @@ public enum StateMap {
             WorkInfo.State.BLOCKED,
             WorkInfo.State.RUNNING
     ),
-    RUNNING(JobStorage.Jobs.State.RUNNING, WorkInfo.State.RUNNING),
+    RUNNING(JobStorage.Jobs.State.RUNNING, WorkInfo.State.RUNNING, WorkInfo.State.SUCCEEDED),
     CANCELING(JobStorage.Jobs.State.CANCELING, WorkInfo.State.CANCELLED),
     CANCELED(JobStorage.Jobs.State.CANCELED, WorkInfo.State.CANCELLED),
     FAILED(JobStorage.Jobs.State.FAILED, WorkInfo.State.FAILED),
