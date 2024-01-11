@@ -20,7 +20,7 @@
           />
           <NewBadge
             v-if="showNewLabel"
-            :label="deviceString('newChannelLabel')"
+            :label="$tr('updatedResourcesLabel')"
             class="new-label"
           />
         </div>
@@ -100,6 +100,10 @@
         message: 'Manage',
         context: "Operation that can be performed on a channel. Refers to the 'Manage' button.",
       },
+      updatedResourcesLabel: {
+        message: 'Resources recently updated',
+        context: 'Label for channels that contain recently updated resources.',
+      },
     },
   };
 
@@ -162,12 +166,13 @@
   }
 
   .new-label {
-    position: absolute;
-    top: 2px;
-    margin-left: 8px;
+    position: relative;
+    top: 5px;
+    display: inline-block;
 
     .panel-sm & {
-      top: -2px;
+      top: 2px;
+      margin-left: 0;
     }
   }
 
