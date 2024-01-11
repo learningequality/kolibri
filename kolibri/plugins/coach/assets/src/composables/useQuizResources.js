@@ -15,7 +15,7 @@ import { QuizExercise } from './quizCreationSpecs.js';
  * @module useQuizResources
  * @param {QuizResourcesConfig} config
  */
-export default function useQuizResources({ topicId } = {}) {
+export default function useQuizResources({ topicId, initialResources = [] } = {}) {
   const params = {
     kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
     include_coach_content: true,
@@ -24,31 +24,26 @@ export default function useQuizResources({ topicId } = {}) {
 
   /** @type {ref<ExerciseResource[]>} All resources which have been fetched that are the children of
    * the given topicId annotated with assessment metadata */
-  const _resources = ref([]);
+  const _resources = ref(initialResources);
 
   /** @type {ref<Boolean>} Whether we are currently fetching/processing the child nodes */
   const _loading = ref(false);
 
   /**
    * Annotates the child TOPIC nodes with the number of assessments that are contained within them
-   * @param {ContentNode[]} topics - The list of topics nodes to annotate with their descendant count
+   * @param {string[]} topicsIds - The list of topics IDs to fetch descendant counts for
    * @affects _resources - The topicIds passed here will have their `num_assessments` property
    *    added to the corresponding Topic within _resources
    * @returns {Promise<null>} - A promise that resolves when the annotations have been made and
-   *   the _resources have been updated
+   *   the_resources have been updated, filtering out all topics which do not have assessments
    */
-  function annotateTopicsWithDescendantCounts(topics = []) {
-    const topicIds = topics
-      .filter(topic => topic.kind === ContentNodeKinds.TOPIC)
-      .map(topic => topic.id);
-
-    if (topicIds.length !== topics.length) {
-      console.warn('Not all of the nodes passed to annotateTopicsWithDescendantCounts were topics');
-    }
+  function annotateTopicsWithDescendantCounts(topicIds = []) {
 
     return ContentNodeResource.fetchDescendantsAssessments(topicIds)
       .then(({ data: topicsWithDescendantCounts }) => {
-        const childrenWithAnnotatedTopics = get(_resources).map(node => {
+        //console.log(topicsWithDescendantCounts);
+        const childrenWithAnnotatedTopics = get(_resources)
+        .map(node => {
           // We'll map so that the topics are updated in place with the num_assessments, others are
           // left as-is
           if (node.kind === ContentNodeKinds.TOPIC) {
@@ -60,8 +55,18 @@ export default function useQuizResources({ topicId } = {}) {
               console.warn('Topic node was not a valid QuizExercise after annotation:', node);
             }
           }
-
           return node;
+        })
+        .filter(node => {
+          // Only keep topics which have assessments in them to begin with
+          if(node.kind === ContentNodeKinds.TOPIC) {
+            if(node.num_assessments > 0) {
+              return true;
+            } else {
+              return false;
+            }
+          }
+          return true; // Not a topic, so must be an Exercise due to API params
         });
         set(_resources, childrenWithAnnotatedTopics);
       })
@@ -75,12 +80,13 @@ export default function useQuizResources({ topicId } = {}) {
   /**
    *  @affects _resources - Sets the _resources to the results of the fetchTree call
    *  @affects _loading
+   *  @returns {Promise<null>} - A promise that resolves when the annotations have been made and
    */
   function fetchQuizResources() {
     set(_loading, true);
-    fetchTree().then(results => {
-      set(_resources, results);
-      annotateTopicsWithDescendantCounts(
+    return fetchTree().then(results => {
+      setResources(results);
+      return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
       ).then(() => set(_loading, false));
     });
@@ -93,9 +99,9 @@ export default function useQuizResources({ topicId } = {}) {
    */
   function fetchMoreQuizResources() {
     set(_loading, true);
-    fetchMore().then(results => {
+    return fetchMore().then(results => {
       set(_resources, [...get(_resources), ...results]);
-      annotateTopicsWithDescendantCounts(
+      return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
       ).then(() => set(_loading, false));
     });
@@ -108,12 +114,19 @@ export default function useQuizResources({ topicId } = {}) {
     return node.kind === ContentNodeKinds.EXERCISE || node.num_assessments <= 20;
   }
 
+
+  function setResources(r) {
+    set(_resources, r);
+  }
+
   return {
+    setResources,
     resources: computed(() => get(_resources)),
     loading: computed(() => get(_loading) || get(treeLoading)),
     fetchQuizResources,
     fetchMoreQuizResources,
     hasCheckbox,
     hasMore,
+    annotateTopicsWithDescendantCounts,
   };
 }

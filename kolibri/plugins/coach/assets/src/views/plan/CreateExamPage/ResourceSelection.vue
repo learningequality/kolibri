@@ -166,6 +166,8 @@
         fetchQuizResources,
         fetchMoreQuizResources,
         hasMore,
+        annotateTopicsWithDescendantCounts,
+        setResources,
       } = useQuizResources({ topicId });
 
       const _loading = ref(true);
@@ -178,8 +180,7 @@
         ChannelResource.fetchCollection({
           params: { has_exercises: true, available: true },
         }).then(response => {
-          console.log('setting channels', response);
-          channels.value = response.map(chnl => {
+          setResources(response.map(chnl => {
             return {
               ...chnl,
               id: chnl.root,
@@ -187,31 +188,45 @@
               kind: ContentNodeKinds.CHANNEL,
               is_leaf: false,
             };
-          });
+          }));
         }),
         ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
           data => {
-            console.log(data); // Do we have a `more` here?
+            console.log("Bookmarks API results", data); // Do we have a `more` here?
             bookmarks.value = data.results ? data.results : [];
           }
         ),
       ];
-      Promise.all(channelBookmarkPromises).then(() => {
-        _loading.value = false;
-      });
+
+      if(!topicId.value) {
+        Promise.all(channelBookmarkPromises).then(() => {
+          // When we don't have a topicId we're setting the value of useQuizResources.resources
+          // to the value of the channels (treating those channels as the topics) -- we then
+          // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
+          // annotated with their num_assessments and those without assessments are filtered out
+          annotateTopicsWithDescendantCounts(channels.value.map(c => c.id))
+            .then(() => {
+              _loading.value = false;
+            });
+        });
+      }
 
       const loading = computed(() => {
         return _loading.value || quizResourcesLoading.value;
       });
 
       if (topicId.value) {
-        fetchQuizResources();
+        fetchQuizResources().then(() => {
+          _loading.value = false;
+        });
       }
 
       const contentList = computed(() => {
+        /*
         if (!topicId.value) {
           return channels.value;
         }
+        */
         return resources.value;
       });
 
