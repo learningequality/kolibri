@@ -104,8 +104,10 @@ public class Task {
         // Run through all the states and check them, then process the results
         for (StateMap stateRef : StateMap.forReconciliation()) {
             chain = chain.thenComposeAsync((_didReconcile) -> {
-                if (future.isCancelled()) {
-                    return CompletableFuture.completedFuture(_didReconcile);
+                synchronized (future) {
+                    if (future.isCancelled()) {
+                        return CompletableFuture.completedFuture(_didReconcile);
+                    }
                 }
 
                 Log.i(TAG, "Requesting sentinel check state " + stateRef);
