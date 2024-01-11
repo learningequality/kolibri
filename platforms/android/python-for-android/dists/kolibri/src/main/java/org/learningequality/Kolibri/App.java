@@ -31,7 +31,7 @@ public class App extends Application implements Configuration.Provider {
         return new Configuration.Builder()
                 .setDefaultProcessName(processName)
             .setMinimumLoggingLevel(android.util.Log.DEBUG)
-            .setExecutor(Executors.newFixedThreadPool(12))
+            .setExecutor(Executors.newFixedThreadPool(6))
             .build();
     }
 
