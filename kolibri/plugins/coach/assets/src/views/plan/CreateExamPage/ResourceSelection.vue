@@ -140,7 +140,8 @@
     mixins: [commonCoreStrings],
     setup() {
       const store = getCurrentInstance().proxy.$store;
-      const topicId = store.state.route.params.topic_id;
+      const route = computed(() => store.state.route);
+      const topicId = computed(() => route.value.params.topic_id);
 
       const {
         sectionSettings$,
@@ -203,14 +204,12 @@
         return _loading.value || quizResourcesLoading.value;
       });
 
-      onMounted(() => {
-        if (topicId) {
-          fetchQuizResources();
-        }
-      });
+      if (topicId.value) {
+        fetchQuizResources();
+      }
 
       const contentList = computed(() => {
-        if (!topicId) {
+        if (!topicId.value) {
           return channels.value;
         }
         return resources.value;

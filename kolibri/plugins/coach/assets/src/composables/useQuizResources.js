@@ -6,6 +6,15 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import useFetchTree from './useFetchTree';
 import { QuizExercise } from './quizCreationSpecs.js';
 
+/**
+ * @typedef {Object} QuizResourcesConfig
+ * @property {computedRef<string|null|undefined>} topicId - The id of the root node to fetch the children for
+ */
+
+/**
+ * @module useQuizResources
+ * @param {QuizResourcesConfig} config
+ */
 export default function useQuizResources({ topicId } = {}) {
   const params = {
     kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],

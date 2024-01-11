@@ -4,7 +4,8 @@ import { ContentNodeResource } from 'kolibri.resources';
 
 /**
  * @deftype FetchTreeConfig
- * @property {string} topicId - The id of the root node to fetch the children for
+ * @property {computedRef<string|null|undefined>} topicId - The id of the root node to fetch the
+ *     children for
  * @property {Object} [params] - Params to pass to the ContentNodeResource.fetchTree method this
  *     can include any keys that our API supports for filtering the results.
  *     Example: { kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC] }
@@ -49,7 +50,7 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
     set(_loading, true);
     Object.assign(params, paramOverrides);
 
-    return ContentNodeResource.fetchTree({ id: topicId, params }).then(topicTree => {
+    return ContentNodeResource.fetchTree({ id: get(topicId), params }).then(topicTree => {
       // results is the list of all children from this call to the API
       // more is an object that contains the parameters we need to fetch the next batch of nodes
       console.log(params, topicTree);
