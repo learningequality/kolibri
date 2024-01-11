@@ -70,7 +70,7 @@
         :contentCardLink="contentLink"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
-        @moreresults="handleMoreResults"
+        @moreresults="fetchMoreQuizResources"
       />
 
       <div class="bottom-navigation">
@@ -153,7 +153,13 @@
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
-      const viewMoreButtonState = ref('no_more_results');
+      const viewMoreButtonState = computed(() => {
+        if(hasMore.value) {
+          return 'yes';
+        } else {
+          return "no_more_results";
+        }
+      });
 
       const { windowIsSmall } = useKResponsiveWindow();
 
@@ -237,6 +243,7 @@
         hasCheckbox,
         loading,
         hasMore,
+        fetchMoreQuizResources,
         //contentList,
         sectionSettings$,
         selectFromBookmarks$,
@@ -478,6 +485,7 @@
 
   .select-resource {
     margin-top: -4em;
+    padding-bottom: 6em;
   }
 
   .title-style {
