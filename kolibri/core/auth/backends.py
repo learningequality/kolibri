@@ -25,15 +25,23 @@ class FacilityUserBackend(object):
         :keyword facility: a Facility object or facility ID
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        users = FacilityUser.objects.filter(username__iexact=username)
         facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
+        # First, attempt case-sensitive login
+        user = self.authenticate_case_sensitive(username, password, facility)
+        if user:
+            return user
+
+        # If case-sensitive login fails, attempt case-insensitive login
+        user = self.authenticate_case_insensitive(username, password, facility)
+        return user
+    def authenticate_case_sensitive(self, username, password, facility):
+        users = FacilityUser.objects.filter(username=username)
         if facility:
             users = users.filter(facility=facility)
+
         for user in users:
             if user.check_password(password):
                 return user
-            # Allow login without password for learners for facilities that allow this.
-            # Must specify the facility, to prevent accidental logins
             elif (
                 facility
                 and user.dataset.learner_can_login_with_no_password
@@ -43,6 +51,22 @@ class FacilityUserBackend(object):
                 return user
         return None
 
+    def authenticate_case_insensitive(self, username, password, facility):
+        users = FacilityUser.objects.filter(username__iexact=username)
+        if facility:
+            users = users.filter(facility=facility)
+
+        for user in users:
+            if user.check_password(password):
+                return user
+            elif (
+                facility
+                and user.dataset.learner_can_login_with_no_password
+                and not user.roles.count()
+                and not user.is_superuser
+            ):
+                return user
+        return None
     def get_user(self, user_id):
         """
         Gets a user. Auth backends are required to implement this.
