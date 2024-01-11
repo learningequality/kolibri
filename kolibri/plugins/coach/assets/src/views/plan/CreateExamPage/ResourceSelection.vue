@@ -15,7 +15,7 @@
             icon="back"
           />
         </KRouterLink>
-        {{ selectFoldersOrExercises$() }}
+        {{ /* selectFoldersOrExercises$() */ }}
       </h5>
 
       <div v-if="!isTopicIdSet && bookmarks.length">
@@ -50,12 +50,14 @@
         :searchResults="searchResults"
       /> -->
 
+      <!--
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
         :ancestors="ancestors"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
+      -->
 
       <ContentCardList
         :contentList="contentList"
@@ -63,13 +65,14 @@
         :viewMoreButtonState="viewMoreButtonState"
         :selectAllChecked="false"
         :contentIsChecked="() => false"
-        :contentHasCheckbox="() => true"
+        :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
         @moreresults="handleMoreResults"
       />
+
       <div class="bottom-navigation">
         <KGrid>
           <KGridItem
@@ -100,16 +103,20 @@
 
 <script>
 
+  import * as _get from 'lodash/get';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import every from 'lodash/every';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, onMounted, ref, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
+  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import pickBy from 'lodash/pickBy';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';
   import { PageNames } from '../../../constants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
-  import useExerciseResources from './../../../composables/useExerciseResources';
+  //import useExerciseResources from './../../../composables/useExerciseResources';
+  import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from './../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
@@ -132,31 +139,95 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
+      const topicId = store.state.route.params.topic_id;
+
       const {
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        selectFoldersOrExercises$,
+        //selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
       } = enhancedQuizManagementStrings;
 
+      // TODO let's not use text for this
       const viewMoreButtonState = ref('no_more_results');
 
       const { windowIsSmall } = useKResponsiveWindow();
 
-      const { initializeExerciseResources, channels, loading, bookmarks, setCurrentTopicId, contentList } = useExerciseResources();
+      //const { channels, loading, bookmarks, contentList } = useExerciseResources();
 
-      initializeExerciseResources();
+      const {
+        hasCheckbox,
+        resources,
+        loading: quizResourcesLoading,
+        fetchQuizResources,
+        fetchMoreQuizResources,
+        hasMore,
+      } = useQuizResources({ topicId });
+
+      const _loading = ref(true);
+
+      const channels = ref([]);
+      const bookmarks = ref([]);
+
+      // Load up the channels
+      const channelBookmarkPromises = [
+        ChannelResource.fetchCollection({
+          params: { has_exercises: true, available: true },
+        }).then(response => {
+          console.log('setting channels', response);
+          channels.value = response.map(chnl => {
+            return {
+              ...chnl,
+              id: chnl.root,
+              title: chnl.name,
+              kind: ContentNodeKinds.CHANNEL,
+              is_leaf: false,
+            };
+          });
+        }),
+        ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
+          data => {
+            console.log(data); // Do we have a `more` here?
+            bookmarks.value = data.results ? data.results : [];
+          }
+        ),
+      ];
+      Promise.all(channelBookmarkPromises).then(() => {
+        _loading.value = false;
+      });
+
+      const loading = computed(() => {
+        return _loading.value || quizResourcesLoading.value;
+      });
+
+      onMounted(() => {
+        if (topicId) {
+          fetchQuizResources();
+        }
+      });
+
+      const contentList = computed(() => {
+        if (!topicId) {
+          return channels.value;
+        }
+        return resources.value;
+      });
 
       return {
-        loading,
-        setCurrentTopicId,
+        topicId,
         contentList,
+        resources,
+        hasCheckbox,
+        loading,
+        hasMore,
+        //contentList,
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        selectFoldersOrExercises$,
+        //selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         windowIsSmall,
@@ -207,10 +278,7 @@
         */
       },
       contentIsInLesson() {
-        return ({ id }) =>
-          Boolean(
-            this.channels
-          );
+        return ({ id }) => Boolean(this.channels);
       },
       selectionMetadata(/*content*/) {
         return function() {};
@@ -268,13 +336,6 @@
         this.bookmarksCount = newVal.length;
       },
     },
-    beforeRouteEnter(to, from, next) {
-      if (to.params.topic_id) {
-        next(vm => {
-          vm.updateResource();
-        });
-      }
-    },
     methods: {
       /** @public */
       focusFirstEl() {
@@ -299,7 +360,7 @@
       contentLink(content) {
         if (!content.is_leaf) {
           return {
-            name: PageNames.SELECT_FROM_RESOURCE,
+            name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
               topic_id: content.id,
               classId: this.$route.params.classId,
@@ -392,22 +453,6 @@
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
     },
-    mounted() {
-      if(this.$route.params.topic_id) {
-        this.setCurrentTopicId(this.$route.params.topic_id);
-      }
-    },
-    watch: {
-      $route(to, from) {
-        const to_topic_id = to.params.topic_id;
-        if (to_topic_id && to.params.topic_id !== from.params.topic_id) {
-          this.setCurrentTopicId(to.params.topic_id);
-        } else {
-          this.setCurrentTopicId(null);
-        }
-      },
-    },
-
   };
 
 </script>
@@ -475,14 +520,13 @@
   }
 
   .bottom-navigation {
-    background-color: white;
-    color: black;
-    padding: 10px;
     position: fixed;
     bottom: 0;
     width: 50%;
+    padding: 10px;
+    color: black;
     text-align: center;
+    background-color: white;
   }
 
 </style>
-
