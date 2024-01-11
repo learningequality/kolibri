@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "डिव्हाइस जोडा",
   "ManageSyncSchedule.connected": "जोडले गेले",
   "ManageSyncSchedule.disconnected": "जोडले नसलेले",
-  "ManageSyncSchedule.forgetText": "विसरा",
   "ManageSyncSchedule.introduction": "ही सुविधा सामायिक करणार्‍या इतर कोलिब्री डिव्हाइसेसबरोबर आपोआप सिंक होण्याकरीता कोलिब्रीसाठी शेड्यूल सेट करा. तेच सिंक शेड्यूल असलेले डिव्हाइसेस एका वेळी एक सिंक केले जातील.",
   "ManageSyncSchedule.syncSchedules": "शेड्यूल सिंक करा",
   "PaginatedListContainerWithBackend.nextResults": "पुढील निकाल",

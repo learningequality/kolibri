@@ -5,6 +5,7 @@ sphinx==2.4.4
 sphinx-intl==2.0.1
 sphinx-rtd-theme==0.5.2
 sphinx-autobuild==0.7.1
+alabaster==0.7.13 # Pin as later versions require newer versions of Sphinx
 m2r==0.2.1
 mistune<2.0.0
 sphinx-notfound-page==0.6

@@ -49,9 +49,23 @@ def get_remote_users_info(baseurl, facility_id, username, password):
         response.raise_for_status()
     except (CommandError, HTTPError, ConnectionError) as e:
         if password == NOT_SPECIFIED or not password:
-            raise AuthenticationFailed(
-                detail="Password is required", code=error_constants.MISSING_PASSWORD
+            facility_info_url = reverse_remote(
+                baseurl,
+                "kolibri:core:publicfacility-detail",
+                args=[
+                    facility_id,
+                ],
             )
+            response = requests.get(facility_info_url)
+            if response.json()["learner_can_login_with_no_password"]:
+                raise AuthenticationFailed(
+                    detail="The username can not be found",
+                    code=error_constants.INVALID_USERNAME,
+                )
+            else:
+                raise AuthenticationFailed(
+                    detail="Password is required", code=error_constants.MISSING_PASSWORD
+                )
         else:
             raise AuthenticationFailed(
                 detail=str(e), code=error_constants.AUTHENTICATION_FAILED

@@ -34,6 +34,14 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
     const csvDefinitions = parseCSVDefinitions(localeDataFolder, intlCode);
     let messagesExist = false;
     const localeFolder = path.join(localeDataFolder, toLocale(intlCode), 'LC_MESSAGES');
+    if (fs.existsSync(localeFolder)) {
+      // Clean out any existing JSON files
+      for (const filename of fs.readdirSync(localeFolder)) {
+        if (filename.endsWith('.json')) {
+          fs.unlinkSync(path.join(localeFolder, filename));
+        }
+      }
+    }
     for (const name in requiredMessages) {
       // An object for storing our messages.
       const messages = {};

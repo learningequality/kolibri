@@ -298,6 +298,19 @@ class RegisteredTask(object):
             retry_interval=retry_interval,
         )
 
+    def enqueue_lifo(self, job=None, retry_interval=None, priority=None, **job_kwargs):
+        """
+        Enqueue the function with arguments passed to this method using LIFO order.
+
+        :return: enqueued job's id.
+        """
+        return job_storage.enqueue_lifo(
+            job or self._ready_job(**job_kwargs),
+            queue=self.queue,
+            priority=priority or self.priority,
+            retry_interval=retry_interval,
+        )
+
     def enqueue_if_not(
         self, job=None, retry_interval=None, priority=None, **job_kwargs
     ):
