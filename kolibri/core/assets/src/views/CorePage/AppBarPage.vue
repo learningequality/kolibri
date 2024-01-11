@@ -11,7 +11,6 @@
           class="app-bar"
           :title="title"
           @toggleSideNav="navShown = !navShown"
-          @showLanguageModal="languageModalShown = true"
         >
           <template #sub-nav>
             <slot name="subNav"></slot>
@@ -44,12 +43,6 @@
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
-    <LanguageSwitcherModal
-      v-if="languageModalShown"
-      ref="languageSwitcherModal"
-      :style="{ color: $themeTokens.text }"
-      @cancel="languageModalShown = false"
-    />
 
   </div>
 
@@ -60,7 +53,6 @@
 
   import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
-  import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
@@ -75,7 +67,6 @@
     name: 'AppBarPage',
     components: {
       AppBar,
-      LanguageSwitcherModal,
       ScrollingHeader,
       SideNav,
       StorageNotification,
@@ -110,7 +101,6 @@
     data() {
       return {
         appBarHeight: 0,
-        languageModalShown: false,
         navShown: false,
         lastScrollTop: 0,
         hideAppBars: true,
