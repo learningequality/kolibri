@@ -130,6 +130,11 @@
 
   export default {
     name: 'TaskPanel',
+    metaInfo() {
+      return {
+        title: `${this.formattedPercentage} - ${this.dynamicTitle}`,
+      };
+    },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -148,6 +153,36 @@
       },
     },
     computed: {
+      dynamicTitle() {
+        const channelName = this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
+
+        if (this.task.status === TaskStatuses.RUNNING || this.task.status === TaskStatuses.QUEUED) {
+          if (
+            this.task.type === TaskTypes.REMOTECONTENTIMPORT ||
+            this.task.type === TaskTypes.DISKCONTENTIMPORT
+          ) {
+            return this.$tr('importChannelWhole', { channelName: channelName });
+          } else if (
+            this.task.type === TaskTypes.DELETECHANNEL ||
+            this.task.type === TaskTypes.DELETECONTENT
+          ) {
+            return this.$tr('deleteChannelWhole', { channelName: channelName });
+          }
+        } else if (this.task.status === TaskStatuses.CANCELED) {
+          return this.$tr('statusCanceled', { channelName: channelName });
+        } else if (this.task.status === TaskStatuses.FAILED) {
+          return this.$tr('statusFailed', { channelName: channelName });
+        } else if (this.task.status === TaskStatuses.COMPLETED) {
+          return this.$tr('statusComplete', { channelName: channelName });
+        }
+        return this.appBarTitle; // Default title
+      },
+
+      formattedPercentage() {
+        return this.taskPercentage !== null
+          ? this.$formatNumber(this.taskPercentage, { style: 'percent' })
+          : '';
+      },
       buttonLabel() {
         if (this.taskIsClearable) {
           return this.coreString('clearAction');
@@ -261,42 +296,23 @@
       },
     },
     watch: {
-      taskPercentage(newPercentage) {
-        if (newPercentage !== null) {
-          const formattedPercentage = this.$formatNumber(newPercentage, { style: 'percent' });
-          const channelName =
-            this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
-
-          let titlePrefix = '';
-          if (
-            this.task.type === TaskTypes.REMOTECONTENTIMPORT ||
-            this.task.type === TaskTypes.DISKCONTENTIMPORT
-          ) {
-            titlePrefix = this.$tr('importChannelWhole', { channelName });
-          } else if (
-            this.task.type === TaskTypes.DELETECHANNEL ||
-            this.task.type === TaskTypes.DELETECONTENT
-          ) {
-            titlePrefix = this.$tr('deleteChannelWhole', { channelName });
+      taskPercentage: {
+        handler(newPercentage) {
+          if (newPercentage !== null) {
+            this.$meta().refresh();
           }
-
-          document.title = `${formattedPercentage} - ${titlePrefix}`;
-        }
+        },
       },
+
       'task.status': {
         immediate: true,
         handler(newStatus) {
-          const channelName =
-            this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
-
-          if (newStatus === TaskStatuses.CANCELED) {
-            document.title = this.$tr('statusCanceled') + ' - ' + channelName;
-          } else if (newStatus === TaskStatuses.FAILED) {
-            document.title = this.$tr('statusFailed') + ' - ' + channelName;
-          } else if (newStatus === TaskStatuses.COMPLETED) {
-            document.title = this.$tr('statusComplete') + ' - ' + channelName;
-          } else {
-            document.title = this.appBarTitle;
+          if (
+            newStatus === TaskStatuses.CANCELED ||
+            newStatus === TaskStatuses.FAILED ||
+            newStatus === TaskStatuses.COMPLETED
+          ) {
+            this.$meta().refresh();
           }
         },
       },
