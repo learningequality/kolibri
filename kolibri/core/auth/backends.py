@@ -34,14 +34,14 @@ class FacilityUserBackend(object):
         # If case-sensitive login fails, attempt case-insensitive login
         user = self.authenticate_case_insensitive(username, password, facility)
         return user
-    def authenticate_case_sensitive(self, username, password, facility):
-        users = FacilityUser.objects.filter(username=username)
+    def _authenticate_users(self, users, password, facility):
         if facility:
             users = users.filter(facility=facility)
-
         for user in users:
             if user.check_password(password):
                 return user
+            # Allow login without password for learners for facilities that allow this.
+            # Must specify the facility, to prevent accidental logins
             elif (
                 facility
                 and user.dataset.learner_can_login_with_no_password
@@ -50,23 +50,13 @@ class FacilityUserBackend(object):
             ):
                 return user
         return None
+    def authenticate_case_sensitive(self, username, password, facility):
+        users = FacilityUser.objects.filter(username=username)
+        return self._authenticate_users(users, password, facility)
 
     def authenticate_case_insensitive(self, username, password, facility):
         users = FacilityUser.objects.filter(username__iexact=username)
-        if facility:
-            users = users.filter(facility=facility)
-
-        for user in users:
-            if user.check_password(password):
-                return user
-            elif (
-                facility
-                and user.dataset.learner_can_login_with_no_password
-                and not user.roles.count()
-                and not user.is_superuser
-            ):
-                return user
-        return None
+        return self._authenticate_users(users, password, facility)
     def get_user(self, user_id):
         """
         Gets a user. Auth backends are required to implement this.
