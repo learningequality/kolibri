@@ -12,15 +12,25 @@ import androidx.work.multiprocess.RemoteListenableWorker;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
+import org.learningequality.Task;
+
 import java.util.concurrent.Executor;
 
-import org.learningequality.Task;
+import java9.util.concurrent.CompletableFuture;
 
 public class ReconcileWorker extends RemoteListenableWorker {
     public static final String TAG = "Kolibri.ReconcileWorker";
 
     public ReconcileWorker(@NonNull Context appContext, @NonNull WorkerParameters workerParams) {
         super(appContext, workerParams);
+    }
+
+    public static Data buildInputData() {
+        return new Data.Builder()
+                .putString(ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri")
+                .putString(ARGUMENT_CLASS_NAME,
+                        TaskworkerWorkerService.class.getName())
+                .build();
     }
 
     @SuppressLint("RestrictedApi")
@@ -30,24 +40,26 @@ public class ReconcileWorker extends RemoteListenableWorker {
         SettableFuture<Result> future = SettableFuture.create();
         Executor executor = getBackgroundExecutor();
 
-        Task.reconcile(getApplicationContext(), executor)
-                .whenCompleteAsync((result, error) -> {
-                    if (error != null) {
-                        Log.e(TAG, "Failed to reconcile tasks", error);
-                        future.set(Result.failure());
-                    } else {
-                        future.set(Result.success());
-                    }
-                }, executor);
+        final CompletableFuture<Boolean> reconcile = Task.reconcile(getApplicationContext(), executor);
+
+        reconcile.whenCompleteAsync((result, error) -> {
+            if (error != null) {
+                Log.e(TAG, "Failed to reconcile tasks", error);
+                future.set(Result.failure());
+            } else {
+                future.set(Result.success());
+            }
+        }, executor);
+
+        future.addListener(() -> {
+            if (future.isCancelled()) {
+                Log.d(TAG, "Propagating cancellation to future");
+                synchronized (reconcile) {
+                    reconcile.cancel(true);
+                }
+            }
+        }, executor);
 
         return future;
-    }
-
-    public static Data buildInputData() {
-        return new Data.Builder()
-                .putString(ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri")
-                .putString(ARGUMENT_CLASS_NAME,
-                        TaskworkerWorkerService.class.getName())
-                .build();
     }
 }

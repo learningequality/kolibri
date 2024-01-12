@@ -14,10 +14,10 @@ public class FuturesUtil {
 
     public static <T> CompletableFuture<T> toCompletable(ListenableFuture<T> future, Executor executor) {
         CompletableFuture<T> completableFuture = new CompletableFuture<>();
+
         future.addListener(() -> {
             try {
                 completableFuture.complete(future.get(3, java.util.concurrent.TimeUnit.SECONDS));
-                Log.d(TAG, "Future completed");
             } catch (InterruptedException | ExecutionException e) {
                 Log.d(TAG, "Future encountered exception");
                 completableFuture.completeExceptionally(e);
@@ -26,12 +26,14 @@ public class FuturesUtil {
                 completableFuture.completeExceptionally(e);
             }
         }, executor);
+
         completableFuture.whenCompleteAsync((result, error) -> {
             if (completableFuture.isCancelled()) {
                 Log.d(TAG, "Propagating cancellation to future");
                 future.cancel(true);
             }
         }, executor);
+
         return completableFuture;
     }
 }

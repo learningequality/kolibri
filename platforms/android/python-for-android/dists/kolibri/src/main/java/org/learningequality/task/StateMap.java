@@ -8,7 +8,6 @@ import org.learningequality.Kolibri.sqlite.JobStorage;
  * A mapping between Kolibri job states and WorkManager work states
  */
 public enum StateMap {
-    MISSING(null),
     PENDING(
             JobStorage.Jobs.State.PENDING,
             WorkInfo.State.ENQUEUED,
@@ -33,11 +32,14 @@ public enum StateMap {
             WorkInfo.State.BLOCKED,
             WorkInfo.State.RUNNING
     ),
-    RUNNING(JobStorage.Jobs.State.RUNNING, WorkInfo.State.RUNNING, WorkInfo.State.SUCCEEDED),
-    CANCELING(JobStorage.Jobs.State.CANCELING, WorkInfo.State.CANCELLED),
-    CANCELED(JobStorage.Jobs.State.CANCELED, WorkInfo.State.CANCELLED),
-    FAILED(JobStorage.Jobs.State.FAILED, WorkInfo.State.FAILED),
-    COMPLETED(JobStorage.Jobs.State.COMPLETED, WorkInfo.State.SUCCEEDED);
+    // We include 'ENQUEUED' here because it is possible for a job to be re-enqueued by the
+    // reconciler while Kolibri thinks it's running
+    RUNNING(
+            JobStorage.Jobs.State.RUNNING,
+            WorkInfo.State.ENQUEUED,
+            WorkInfo.State.RUNNING,
+            WorkInfo.State.SUCCEEDED
+    );
 
     private final JobStorage.Jobs.State jobState;
     private final WorkInfo.State[] workInfoStates;
@@ -47,21 +49,21 @@ public enum StateMap {
         this.workInfoStates = workInfoStates;
     }
 
-    public JobStorage.Jobs.State getJobState() {
-        return this.jobState;
-    }
-
-    public WorkInfo.State[] getWorkInfoStates() {
-        return this.workInfoStates;
-    }
-
     public static StateMap[] forReconciliation() {
-        return new StateMap[] {
+        return new StateMap[]{
                 PENDING,
                 QUEUED,
                 SCHEDULED,
                 SELECTED,
                 RUNNING
         };
+    }
+
+    public JobStorage.Jobs.State getJobState() {
+        return this.jobState;
+    }
+
+    public WorkInfo.State[] getWorkInfoStates() {
+        return this.workInfoStates;
     }
 }

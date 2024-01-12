@@ -3,8 +3,8 @@ package org.learningequality.sqlite.schema;
 import android.os.Bundle;
 
 public interface DatabaseTable {
-    public static final String DATABASE_NAME = "DATABASE_NAME";
-    public static final String TABLE_NAME = "TABLE_NAME";
+    String DATABASE_NAME = "DATABASE_NAME";
+    String TABLE_NAME = "TABLE_NAME";
 
     String getTableName();
 
@@ -52,13 +52,13 @@ public interface DatabaseTable {
         }
     }
 
-    class IntegerColumn extends ColumnImpl<Integer> {
-        public IntegerColumn(String columnName) {
+    class LongColumn extends ColumnImpl<Long> {
+        public LongColumn(String columnName) {
             super(columnName);
         }
 
-        public Integer getValue(Bundle bundle) {
-            return bundle.getInt(getColumnName());
+        public Long getValue(Bundle bundle) {
+            return bundle.getLong(getColumnName());
         }
     }
 }

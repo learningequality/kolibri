@@ -14,9 +14,9 @@ import com.google.common.util.concurrent.ListenableFuture;
 
 import org.learningequality.Kolibri.sqlite.JobStorage;
 import org.learningequality.task.Builder;
-import org.learningequality.task.StateMap;
-import org.learningequality.task.Sentinel;
 import org.learningequality.task.Reconciler;
+import org.learningequality.task.Sentinel;
+import org.learningequality.task.StateMap;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -78,7 +78,7 @@ public class Task {
         }, new MainThreadExecutor());
     }
 
-     public static CompletableFuture<Boolean> reconcile(Context context, Executor executor) {
+    public static CompletableFuture<Boolean> reconcile(Context context, Executor executor) {
         if (executor == null) {
             executor = ContextCompat.getMainExecutor(context);
         }
@@ -104,6 +104,7 @@ public class Task {
         // Run through all the states and check them, then process the results
         for (StateMap stateRef : StateMap.forReconciliation()) {
             chain = chain.thenComposeAsync((_didReconcile) -> {
+                // Avoid checking if future is cancelled
                 synchronized (future) {
                     if (future.isCancelled()) {
                         return CompletableFuture.completedFuture(_didReconcile);
@@ -128,14 +129,18 @@ public class Task {
             }, executor);
         }
 
-        chain.orTimeout(15, java.util.concurrent.TimeUnit.SECONDS)
-                .whenCompleteAsync((result, error) -> {
-                    try {
-                        reconciler.end();
-                        db.close();
-                    } catch (Exception e) {
-                        Log.e(TAG, "Failed cleaning up reconciliation", e);
-                    } finally {
+        final CompletableFuture<AtomicBoolean> finalChain
+                = chain.orTimeout(15, java.util.concurrent.TimeUnit.SECONDS);
+
+        finalChain.whenCompleteAsync((result, error) -> {
+            try {
+                reconciler.end();
+                db.close();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed cleaning up reconciliation", e);
+            } finally {
+                synchronized (future) {
+                    if (!future.isCancelled()) {
                         if (error instanceof TimeoutException) {
                             Log.e(TAG, "Timed out waiting for reconciliation chain", error);
                             future.completeExceptionally(error);
@@ -153,7 +158,18 @@ public class Task {
                             future.complete(false);
                         }
                     }
-                }, executor);
+                }
+            }
+        }, executor);
+
+        // Propagate cancellation to the chain
+        future.whenCompleteAsync((result, error) -> {
+            synchronized (future) {
+                if (future.isCancelled()) {
+                    finalChain.cancel(true);
+                }
+            }
+        }, executor);
 
         return future;
     }

@@ -30,28 +30,6 @@ public class Sentinel {
     private final JobStorage db;
     private final Executor executor;
 
-    /**
-     * A class that holds the pair of Bundle and WorkInfo as a result of the Sentinel's
-     * check operations
-     */
-    public static class Result extends Pair<Bundle, WorkInfo> {
-        public Result(Bundle first, WorkInfo second) {
-            super(first, second);
-        }
-
-        public boolean isMissing() {
-            return this.second == null;
-        }
-
-        public Bundle getJob() {
-            return this.first;
-        }
-
-        public WorkInfo getWorkInfo() {
-            return this.second;
-        }
-    }
-
     public Sentinel(RemoteWorkManager workManager, JobStorage db, Executor executor) {
         this.workManager = workManager;
         this.db = db;
@@ -114,8 +92,9 @@ public class Sentinel {
 
     /**
      * Check for jobs with the given status and reconcile them with WorkManager
+     *
      * @param ignoreMissing Whether to ignore missing work in WorkManager
-     * @param stateRef The job status in the Kolibri database for which to find jobs
+     * @param stateRef      The job status in the Kolibri database for which to find jobs
      * @return A future that will complete when all jobs have been checked, with a list of jobs
      */
     public CompletableFuture<Result[]> check(
@@ -138,8 +117,8 @@ public class Sentinel {
     /**
      * Check for the given jobs (Bundles) and reconciles them with WorkManager
      *
-     * @param jobs The jobs to check
-     * @param ignoreMissing Whether to ignore missing work in WorkManager
+     * @param jobs               The jobs to check
+     * @param ignoreMissing      Whether to ignore missing work in WorkManager
      * @param expectedWorkStates The expected WorkManager states for the found jobs
      * @return A future that will complete when all jobs have been checked, with a list of jobs
      */
@@ -174,7 +153,9 @@ public class Sentinel {
             }, executor);
         }
 
-        chain.whenCompleteAsync((results, ex) -> {
+        final CompletableFuture<List<Result>> finalChain = chain;
+
+        finalChain.whenCompleteAsync((results, ex) -> {
             if (ex != null) {
                 Log.e(TAG, "Failed to check jobs", ex);
                 future.completeExceptionally(ex);
@@ -187,14 +168,25 @@ public class Sentinel {
                 }
             }
         }, executor);
+
+        future.whenCompleteAsync((results, ex) -> {
+            synchronized (future) {
+                if (future.isCancelled()) {
+                    Log.d(TAG, "Propagating cancellation to future");
+                    synchronized (finalChain) {
+                        finalChain.cancel(true);
+                    }
+                }
+            }
+        }, executor);
         return future;
     }
 
     /**
      * Check for the given job (Bundle) and reconciles it with WorkManager
      *
-     * @param job The job to check as a `Bundle`
-     * @param ignoreMissing Whether to ignore the job as missing in WorkManager
+     * @param job                The job to check as a `Bundle`
+     * @param ignoreMissing      Whether to ignore the job as missing in WorkManager
      * @param expectedWorkStates The expected WorkManager states for the found jobs
      * @return A future that will complete when the job has been checked, with the job if it is not reconciled
      */
@@ -233,5 +225,27 @@ public class Sentinel {
 
                     return null;
                 }, executor);
+    }
+
+    /**
+     * A class that holds the pair of Bundle and WorkInfo as a result of the Sentinel's
+     * check operations
+     */
+    public static class Result extends Pair<Bundle, WorkInfo> {
+        public Result(Bundle first, WorkInfo second) {
+            super(first, second);
+        }
+
+        public boolean isMissing() {
+            return this.second == null;
+        }
+
+        public Bundle getJob() {
+            return this.first;
+        }
+
+        public WorkInfo getWorkInfo() {
+            return this.second;
+        }
     }
 }
