@@ -130,11 +130,6 @@
 
   export default {
     name: 'TaskPanel',
-    metaInfo() {
-      return {
-        title: `${this.formattedPercentage} - ${this.dynamicTitle}`,
-      };
-    },
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
@@ -166,16 +161,18 @@
             this.task.type === TaskTypes.DELETECHANNEL ||
             this.task.type === TaskTypes.DELETECONTENT
           ) {
-            return this.$tr('deleteChannelWhole', { channelName: channelName });
+            return this.$tr('deleteChannelWhole', { channelName: channelName }) + channelName;
           }
         } else if (this.task.status === TaskStatuses.CANCELED) {
-          return this.$tr('statusCanceled', { channelName: channelName });
+          return this.$tr('statusCanceled') + ' - ' + channelName;
         } else if (this.task.status === TaskStatuses.FAILED) {
-          return this.$tr('statusFailed', { channelName: channelName });
+          return this.$tr('statusFailed');
         } else if (this.task.status === TaskStatuses.COMPLETED) {
-          return this.$tr('statusComplete', { channelName: channelName });
+          return this.$tr('statusComplete') + ' - ' + channelName;
+        } else if (this.task.status === TaskStatuses.CANCELING) {
+          return this.$tr('statusCanceling') + ' - ' + channelName;
         }
-        return this.appBarTitle; // Default title
+        return this.appBarTitle;
       },
 
       formattedPercentage() {
@@ -297,9 +294,10 @@
     },
     watch: {
       taskPercentage: {
+        immediate: true,
         handler(newPercentage) {
           if (newPercentage !== null) {
-            this.$meta().refresh();
+            this.emitUpdatedTitle();
           }
         },
       },
@@ -309,16 +307,23 @@
         handler(newStatus) {
           if (
             newStatus === TaskStatuses.CANCELED ||
+            newStatus === TaskStatuses.CANCELING ||
             newStatus === TaskStatuses.FAILED ||
             newStatus === TaskStatuses.COMPLETED
           ) {
-            this.$meta().refresh();
+            this.emitUpdatedTitle();
           }
         },
       },
     },
 
     methods: {
+      emitUpdatedTitle() {
+        const title = this.taskIsRunning
+          ? `${this.formattedPercentage} - ${this.dynamicTitle}`
+          : this.dynamicTitle;
+        this.$emit('update-title', title);
+      },
       handleClick() {
         if (this.taskIsCompleted || this.taskIsFailed) {
           this.$emit('clickclear');

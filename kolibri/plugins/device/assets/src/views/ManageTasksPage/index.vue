@@ -39,6 +39,7 @@
           :style="{ borderBottomColor: $themePalette.grey.v_200 }"
           @clickclear="handleClickClear(task)"
           @clickcancel="handleClickCancel(task)"
+          @update-title="updateAppBarTitle"
         />
       </transition-group>
       <BottomAppBar v-if="immersivePage">
@@ -75,7 +76,7 @@
     name: 'ManageTasksPage',
     metaInfo() {
       return {
-        title: this.$tr('appBarTitle'),
+        title: this.pageTitle,
       };
     },
     components: {
@@ -94,6 +95,7 @@
     data() {
       return {
         loading: true,
+        pageTitle: this.$tr('appBarTitle'),
       };
     },
     computed: {
@@ -136,6 +138,9 @@
       }
     },
     methods: {
+      updateAppBarTitle(updatedTitle) {
+        this.pageTitle = updatedTitle;
+      },
       handleClickClear(task) {
         TaskResource.clear(task.id).catch(() => {
           // error silently
