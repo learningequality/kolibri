@@ -43,8 +43,8 @@
 
 <script>
 
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
   import pickBy from 'lodash/pickBy';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import commonCoach from '../common';
   import { ClassesPageNames } from '../../../../../learn/assets/src/constants';
   import { LastPages } from '../../constants/lastPagesConstants';
@@ -52,6 +52,13 @@
   export default {
     name: 'ReportsControls',
     mixins: [commonCoach],
+    setup() {
+      const { isAppContext } = useUser();
+
+      return {
+        isAppContext,
+      };
+    },
     props: {
       disableExport: {
         type: Boolean,
@@ -61,7 +68,7 @@
     computed: {
       exportDisabled() {
         // Always disable in app mode until we add the ability to download files.
-        return isEmbeddedWebView || this.disableExport;
+        return this.isAppContext || this.disableExport;
       },
       isMainReport() {
         return (
