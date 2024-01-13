@@ -1154,7 +1154,6 @@ class LoginLogoutTestCase(APITestCase):
         self.assertLess(expire_date, new_expire_date)
 
     def test_case_insensitive_matching_usernames(self):
-        # Attempt to log in with a different case username
         response_user1 = self.client.post(
             reverse("kolibri:core:session-list"),
             data={
@@ -1166,8 +1165,8 @@ class LoginLogoutTestCase(APITestCase):
         )
 
         # Assert the expected behavior based on the application's design
-        # This may involve checking the response status code or the content.
         self.assertEqual(response_user1.status_code, 200)
+
         response_user2 = self.client.post(
             reverse("kolibri:core:session-list"),
             data={
@@ -1180,7 +1179,6 @@ class LoginLogoutTestCase(APITestCase):
 
         # Assert the expected behavior for the second user
         self.assertEqual(response_user2.status_code, 200)
-        # Add more assertions as needed for the second user
 
         # Cleanup: Delete the created users
         self.user1.delete()
