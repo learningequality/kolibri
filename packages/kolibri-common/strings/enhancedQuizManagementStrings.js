@@ -147,7 +147,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
-  numberOfResources:{
-    message:'{count, number} {count, plural, one {resource selected} other {resources selected}}',
+  numberOfResources: {
+    message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
 });
