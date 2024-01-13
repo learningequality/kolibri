@@ -1,5 +1,5 @@
 import { get, set } from '@vueuse/core';
-import { computed, onMounted, ref, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { ContentNodeResource } from 'kolibri.resources';
 
 /**
@@ -19,6 +19,8 @@ import { ContentNodeResource } from 'kolibri.resources';
  * @param
  */
 export default function useFetchTree({ topicId, params = {} } = {}) {
+  const _topic = ref(null);
+
   /** @type {ref<string>} All resources which have been fetched */
   const _resources = ref([]);
 
@@ -44,14 +46,17 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
    *
    * @returns {Promise<ContentNode[]>} A promise that resolves to the list of resources fetched
    **/
-  function _fetchNodeTree(params) {
+  async function _fetchNodeTree(params) {
     set(_loading, true);
 
     return ContentNodeResource.fetchTree({ id: get(topicId), ...params }).then(topicTree => {
       // results is the list of all children from this call to the API
       // more is an object that contains the parameters we need to fetch the next batch of nodes
       const { results, more } = topicTree.children || { results: [], more: null };
+
       set(_resources, [...get(_resources), ...results]);
+      set(_topic, topicTree);
+      console.log('Setting moreParams to: ', more);
       set(_moreParams, more);
       set(_loading, false);
 
@@ -59,20 +64,22 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
     });
   }
 
-  function fetchTree() {
+  async function fetchTree() {
     return _fetchNodeTree(params);
   }
+
   /** Fetches the next batch of nodes, which fetchTree will do on its own, but this makes for a
    * easier-to-understand API */
-  function fetchMore() {
+  async function fetchMore() {
     const moreParams = get(_moreParams);
-    if(!moreParams) {
+    if (!moreParams) {
       return Promise.reject('Tried to call fetchMore when no more ContentNodes are available');
     }
     return _fetchNodeTree(moreParams);
   }
 
   return {
+    topic: computed(() => get(_topic)),
     resources: computed(() => get(_resources)),
     loading: computed(() => get(_loading)),
     hasMore: computed(() => get(_moreParams) !== null),
