@@ -86,7 +86,7 @@ module.exports = function(outputDir, languageInfoPath) {
     const pattern = /^(\w{2,3})(-\w{4})?(-\w{2})?(-\d+)?$/;
     const codes = language.intl_code.match(pattern);
     if (!codes) {
-      console.error(`Unable to parse code: '${language.intl_code}'`);
+      logging.error(`Unable to parse code: '${language.intl_code}'`);
     }
 
     let filename = '';
