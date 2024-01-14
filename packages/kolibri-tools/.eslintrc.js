@@ -1,7 +1,6 @@
 var path = require('path');
 var OFF = 0;
 var ERROR = 2;
-var WARN = 1;
 
 module.exports = {
   env: {
@@ -69,7 +68,7 @@ module.exports = {
   },
   rules: {
     'comma-style': ERROR,
-    "no-console": WARN,
+    "no-console": ERROR,
     'max-len': [
       ERROR,
       100,
