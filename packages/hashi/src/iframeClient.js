@@ -9,6 +9,8 @@ import { events, nameSpace } from './hashiBase';
 import H5P from './H5P/H5PInterface';
 import xAPI from './xAPI/xAPIInterface';
 
+const logging = console; //eslint-disable-line no-console
+
 /*
  * This class is initialized inside the context of a sandboxed iframe.
  * It provides shims for various APIs that would otherwise be blocked
@@ -82,8 +84,8 @@ export default class SandboxEnvironment {
         this.xAPI.iframeInitialize(this.iframe.contentWindow);
         patchIndexedDB(this.contentNamespace, this.iframe.contentWindow);
       } catch (e) {
-        console.debug(e);
-        console.log('Shimming storage APIs failed, data will not persist'); // eslint-disable-line no-console
+        logging.debug(e);
+        logging.log('Shimming storage APIs failed, data will not persist');
       }
     }
   }
