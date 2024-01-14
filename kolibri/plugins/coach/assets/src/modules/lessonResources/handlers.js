@@ -14,7 +14,7 @@ async function showResourceSelectionPage(store, params) {
   const { classId, lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
-  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
   const getFacilitiesPromise =
     store.getters.isSuperuser && store.state.core.facilities.length === 0
       ? store.dispatch('getFacilities').catch(() => {})
