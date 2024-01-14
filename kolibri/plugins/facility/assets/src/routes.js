@@ -1,5 +1,6 @@
 import store from 'kolibri.coreVue.vuex.store';
 import router from 'kolibri.coreVue.router';
+import logger from 'kolibri.lib.logging';
 import VueRouter from 'vue-router';
 import ManageSyncSchedule from 'kolibri-common/components/SyncSchedule/ManageSyncSchedule';
 import EditDeviceSyncSchedule from 'kolibri-common/components/SyncSchedule/EditDeviceSyncSchedule';
@@ -25,6 +26,8 @@ import {
 } from './modules/classAssignMembers/handlers';
 import { PageNames } from './constants';
 
+const logging = logger.getLogger(__filename);
+
 function facilityParamRequiredGuard(toRoute, subtopicName) {
   const { isNavigationFailure, NavigationFailureType } = VueRouter;
   if (store.getters.userIsMultiFacilityAdmin && !toRoute.params.facility_id) {
@@ -35,7 +38,7 @@ function facilityParamRequiredGuard(toRoute, subtopicName) {
       })
       .catch(e => {
         if (!isNavigationFailure(e, NavigationFailureType.duplicated)) {
-          console.debug(e);
+          logging.debug(e);
           throw Error(e);
         }
       });
