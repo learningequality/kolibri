@@ -49,8 +49,8 @@ def get_version_name():
 
 @cache
 def get_context():
-    ContextUtil = autoclass("org.learningequality.ContextUtil")
-    return ContextUtil.getApplicationContext()
+    PythonContext = autoclass("org.kivy.android.PythonContext")
+    return PythonContext.get();
 
 
 @cache

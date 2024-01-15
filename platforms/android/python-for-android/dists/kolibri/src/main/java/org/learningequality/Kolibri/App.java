@@ -11,6 +11,7 @@ import androidx.core.app.NotificationChannelCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.work.Configuration;
 
+import org.kivy.android.PythonContext;
 import org.learningequality.notification.NotificationRef;
 
 import java.util.concurrent.Executors;
@@ -23,6 +24,8 @@ public class App extends Application implements Configuration.Provider {
     @Override
     public void onCreate() {
         super.onCreate();
+        // Initialize Python context
+        PythonContext.getInstance(this);
         createNotificationChannels();
         // Register activity lifecycle callbacks
         registerActivityLifecycleCallbacks(new KolibriActivityLifecycleCallbacks());

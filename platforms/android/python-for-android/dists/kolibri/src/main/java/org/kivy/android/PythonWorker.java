@@ -6,6 +6,9 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+/**
+ * Ideally this would be called `PythonWorkerImpl` but the name is used in the native code.
+ */
 public class PythonWorker {
     private static final String TAG = "PythonWorkerImpl";
     // Python environment variables
