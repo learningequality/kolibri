@@ -28,7 +28,7 @@ import java9.util.concurrent.CompletableFuture;
  * initializing the work manager in the task worker process.
  */
 public class WorkControllerService extends Service {
-    public static final String TAG = "Kolibri.MonitorService";
+    public static final String TAG = "Kolibri.WorkControllerService";
     public static final int ACTION_WAKE = 1;
     public static final int ACTION_SLEEP = 2;
     public static final int ACTION_STOP = 3;
@@ -75,6 +75,7 @@ public class WorkControllerService extends Service {
     }
 
     protected void onWake() {
+        Log.d(TAG, "Waking up work controller service");
         synchronized (state) {
             if (state.get() != State.AWAKE_LOW_MEMORY) {
                 state.set(State.AWAKE);
@@ -89,6 +90,7 @@ public class WorkControllerService extends Service {
         }
 
         startTask(() -> {
+            Log.d(TAG, "Binding to work manager service");
             // Wakey wakey remote work manager service
             bindService(workManagerIntent, connection, Context.BIND_AUTO_CREATE);
             return null;
@@ -96,18 +98,23 @@ public class WorkControllerService extends Service {
     }
 
     protected void onReconcile() {
-        startTask(() -> Task.reconcile(getApplicationContext(), executor)
-                .thenApply((r) -> {
-                    if (r) {
-                        Log.d(TAG, "Reconciliation task completed");
-                    } else {
-                        Log.d(TAG, "Reconciliation task failed");
-                    }
-                    return null;
-                }));
+        Log.d(TAG, "Enqueuing task reconciliation");
+        startTask(() -> {
+            Log.d(TAG, "Running task reconciliation");
+            return Task.reconcile(getApplicationContext(), executor)
+                    .thenApply((r) -> {
+                        if (r) {
+                            Log.d(TAG, "Reconciliation task completed");
+                        } else {
+                            Log.d(TAG, "Reconciliation task failed");
+                        }
+                        return null;
+                    });
+        });
     }
 
     protected void onSleep() {
+        Log.d(TAG, "Sleeping work controller service");
         synchronized (state) {
             state.set(State.SLEEPING);
         }
@@ -115,11 +122,14 @@ public class WorkControllerService extends Service {
             if (taskCount.get() == 0) {
                 Log.d(TAG, "Stopping service due to no more tasks");
                 stopSelf();
+            } else {
+                Log.d(TAG, "Waiting for " + taskCount.get() + " tasks to complete");
             }
         }
     }
 
     protected void onStop() {
+        Log.d(TAG, "Stopping work controller service");
         // should eventually call `onDestroy` and that will set the stopped state
         stopSelf();
     }
@@ -127,6 +137,7 @@ public class WorkControllerService extends Service {
     protected void startTask(WorkTask task) {
         futureChain = futureChain.thenComposeAsync((nothing) -> {
             try {
+                Log.d(TAG, "Running task");
                 CompletableFuture<Void> f = task.run();
                 if (f != null) {
                     return f;
@@ -134,8 +145,10 @@ public class WorkControllerService extends Service {
             } catch (Exception e) {
                 Log.e(TAG, "Failed running task", e);
             } finally {
+                Log.d(TAG, "Task completed");
                 synchronized (taskCount) {
                     if (taskCount.decrementAndGet() == 0) {
+                        Log.d(TAG, "Checking state for stopping service");
                         synchronized (state) {
                             if (state.get() != State.AWAKE) {
                                 Log.d(TAG, "Stopping service due to no more tasks");

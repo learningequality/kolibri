@@ -10,6 +10,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 
+import java9.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -23,10 +24,12 @@ public class WorkController {
     private final Context context;
     private Connection connection;
     private Messenger messenger;
+    private CompletableFuture<Messenger> connected;
     private final AtomicBoolean isConnected = new AtomicBoolean(false);
 
     private WorkController(Context context) {
         this.context = context;
+        this.connected = new CompletableFuture<>();
     }
 
     public static WorkController getInstance(Context context) {
@@ -109,6 +112,9 @@ public class WorkController {
         synchronized (isConnected) {
             // If we're already connected, then it's awake
             if (!isConnected.get()) {
+                if (connected.isDone()) {
+                    connected = new CompletableFuture<>();
+                }
                 // Binding allows us to monitor the connection state
                 context.bindService(
                         new Intent(context, WorkControllerService.class),
@@ -118,21 +124,23 @@ public class WorkController {
             }
         }
 
-        // Start the service with this intent
-        try {
-            messenger.send(message);
-        } catch (RemoteException e) {
-            // If the remote process has died, then we need to rebind
-            synchronized (isConnected) {
-                isConnected.set(false);
-                messenger = null;
+        connected.thenApply((messenger) -> {
+            try {
+                messenger.send(message);
+            } catch (RemoteException e) {
+                // If the remote process has died, then we need to rebind
+                synchronized (isConnected) {
+                    isConnected.set(false);
+                    messenger = null;
+                }
+                if (attempts < 3) {
+                    dispatch(message, attempts + 1);
+                }
+            } catch (Exception e) {
+                Log.e(TAG, "Failed to send message " + message, e);
             }
-            if (attempts < 3) {
-                dispatch(message, attempts + 1);
-            }
-        } catch (Exception e) {
-            Log.e(TAG, "Failed to send message " + message, e);
-        }
+            return messenger;
+        });
     }
 
     public class Connection implements ServiceConnection {
@@ -141,6 +149,7 @@ public class WorkController {
             synchronized (isConnected) {
                 isConnected.set(true);
                 messenger = new Messenger(service);
+                connected.complete(messenger);
             }
         }
 
