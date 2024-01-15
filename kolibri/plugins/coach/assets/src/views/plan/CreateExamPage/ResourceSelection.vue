@@ -102,7 +102,7 @@
 <script>
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -221,6 +221,14 @@
         }
         */
         return resources.value;
+      });
+
+      // This ought to be sure that we're updating our resources whenever the topicId changes
+      // without remounting the whole component
+      watch(topicId, () => {
+        if (topicId.value) {
+          fetchQuizResources();
+        }
       });
 
       return {
