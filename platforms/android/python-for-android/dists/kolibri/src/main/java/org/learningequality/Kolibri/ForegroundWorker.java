@@ -73,6 +73,13 @@ final public class ForegroundWorker extends RemoteListenableWorker implements Wo
         return future;
     }
 
+    @Override
+    public void onStopped() {
+        Log.d(TAG, "Stopping foreground remote task " + getId());
+        super.onStopped();
+        hideNotification();
+    }
+
     public ForegroundInfo getForegroundInfo() {
         NotificationRef ref = getNotificationRef();
         // If we are running in the service, use the service notification ref

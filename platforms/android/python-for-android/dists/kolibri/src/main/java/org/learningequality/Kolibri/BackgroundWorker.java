@@ -36,4 +36,11 @@ final public class BackgroundWorker extends androidx.work.Worker implements Work
         final String arg = getArgument();
         return workerImpl.execute(id, arg) ? Result.success() : Result.failure();
     }
+
+    @Override
+    public void onStopped() {
+        Log.d(TAG, "Stopping foreground remote task " + getId());
+        super.onStopped();
+        hideNotification();
+    }
 }
