@@ -49,15 +49,8 @@ def get_version_name():
 
 @cache
 def get_context():
-    if is_service_context():
-        PythonService = autoclass("org.kivy.android.PythonService")
-        return PythonService.mService.getApplicationContext()
-    elif is_taskworker_context():
-        PythonWorker = autoclass("org.kivy.android.PythonWorker")
-        return PythonWorker.mWorker.getApplicationContext()
-    else:
-        PythonActivity = autoclass("org.kivy.android.PythonActivity")
-        return PythonActivity.mActivity.getApplicationContext()
+    ContextUtil = autoclass("org.learningequality.ContextUtil")
+    return ContextUtil.getApplicationContext()
 
 
 @cache

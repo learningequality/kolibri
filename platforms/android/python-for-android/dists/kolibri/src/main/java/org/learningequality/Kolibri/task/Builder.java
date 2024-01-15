@@ -1,14 +1,21 @@
-package org.learningequality.task;
+package org.learningequality.Kolibri.task;
 
 import android.os.Bundle;
+import android.util.Log;
 
+import androidx.work.Data;
+import androidx.work.ListenableWorker;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
+import androidx.work.multiprocess.RemoteListenableWorker;
 
-import org.learningequality.Kolibri.TaskworkerWorker;
+import org.learningequality.Kolibri.BackgroundWorker;
+import org.learningequality.Kolibri.ForegroundWorker;
+import org.learningequality.Kolibri.WorkerService;
 import org.learningequality.Kolibri.sqlite.JobStorage;
+import org.learningequality.task.Worker;
 
 import java.util.Arrays;
 import java.util.UUID;
@@ -19,11 +26,12 @@ import java.util.concurrent.TimeUnit;
  * A builder class consolidating logic for creating WorkRequests and WorkQueries
  */
 public class Builder {
-    public static final String TAG = "KolibriTask.Builder";
+    public static final String TAG = "Kolibri.TaskBuilder";
 
     public static final String TAG_PREFIX_TASK_ID = "kolibri_task_id:";
     public static final String TAG_PREFIX_JOB_FUNC = "kolibri_job_type:";
     public static final String TAG_EXPEDITED = "kolibri_job_expedited";
+    public static final String TAG_LONG_RUNNING = "kolibri_job_long_running";
 
     public static String generateTagFromId(String id) {
         return TAG_PREFIX_TASK_ID + id;
@@ -62,15 +70,13 @@ public class Builder {
      */
     public static class TaskRequest {
         private final String id;
-        private final OneTimeWorkRequest.Builder builder;
+        private String jobFunc;
+        private boolean longRunning;
         private int delay;
         private boolean expedite;
 
         public TaskRequest(String id) {
             this.id = id;
-            builder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
-            builder.addTag(generateTagFromId(id));
-            builder.setInputData(TaskworkerWorker.buildInputData(id));
             setDelay(0);
         }
 
@@ -108,7 +114,7 @@ public class Builder {
                     jobFunc = tag.substring(TAG_PREFIX_JOB_FUNC.length());
                 } else if (tag.equals(TAG_EXPEDITED)) {
                     expedite = true;
-                } else if (tag.equals(TaskworkerWorker.TAG_LONG_RUNNING)) {
+                } else if (tag.equals(TAG_LONG_RUNNING)) {
                     isLongRunning = true;
                 }
             }
@@ -129,9 +135,6 @@ public class Builder {
 
         public TaskRequest setDelay(int delay) {
             this.delay = delay;
-            if (delay > 0) {
-                builder.setInitialDelay(delay, TimeUnit.SECONDS);
-            }
             return this;
         }
 
@@ -141,13 +144,36 @@ public class Builder {
         }
 
         public TaskRequest setJobFunc(String jobFunc) {
-            this.builder.addTag(generateTagFromJobFunc(jobFunc));
+            this.jobFunc = jobFunc;
             return this;
         }
 
         public TaskRequest setLongRunning(boolean longRunning) {
-            if (longRunning) builder.addTag(TaskworkerWorker.TAG_LONG_RUNNING);
+            this.longRunning = longRunning;
             return this;
+        }
+
+        private Class<? extends ListenableWorker> getWorkerClass() {
+            return longRunning || expedite ? ForegroundWorker.class : BackgroundWorker.class;
+        }
+
+        private Data buildInputData() {
+            String dataArgument = id == null ? "" : id;
+            Data.Builder builder = new Data.Builder()
+                    .putString(Worker.ARGUMENT_WORKER_ARGUMENT, dataArgument);
+
+            if (longRunning || expedite) {
+                builder.putString(
+                            RemoteListenableWorker.ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri"
+                        )
+                        .putString(
+                                RemoteListenableWorker.ARGUMENT_CLASS_NAME,
+                                WorkerService.class.getName()
+                        );
+            }
+            Data data = builder.build();
+            Log.v(TAG, "Worker request data: " + data.toString());
+            return data;
         }
 
         /**
@@ -156,6 +182,16 @@ public class Builder {
          * @return A OneTimeWorkRequest object
          */
         public OneTimeWorkRequest build() {
+            OneTimeWorkRequest.Builder builder = new OneTimeWorkRequest.Builder(getWorkerClass());
+            builder.addTag(generateTagFromId(id));
+            builder.addTag(generateTagFromJobFunc(jobFunc));
+            if (longRunning) {
+                builder.addTag(TAG_LONG_RUNNING);
+            }
+            builder.setInputData(buildInputData());
+            if (delay > 0) {
+                builder.setInitialDelay(delay, TimeUnit.SECONDS);
+            }
             // Tasks can only be expedited if they are set with no delay.
             // This does not appear to be documented, but is evident in the Android Jetpack source code.
             // https://android.googlesource.com/platform/frameworks/support/+/HEAD/work/work-runtime/src/main/java/androidx/work/WorkRequest.kt#271

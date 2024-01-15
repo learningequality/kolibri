@@ -13,10 +13,13 @@ import androidx.work.multiprocess.RemoteWorkManager;
 import com.google.common.util.concurrent.ListenableFuture;
 
 import org.learningequality.Kolibri.sqlite.JobStorage;
-import org.learningequality.task.Builder;
-import org.learningequality.task.Reconciler;
-import org.learningequality.task.Sentinel;
-import org.learningequality.task.StateMap;
+import org.learningequality.Kolibri.task.Builder;
+import org.learningequality.Kolibri.task.Reconciler;
+import org.learningequality.Kolibri.task.Sentinel;
+import org.learningequality.Kolibri.task.StateMap;
+import org.learningequality.notification.Manager;
+import org.learningequality.notification.NotificationRef;
+import org.learningequality.task.Worker;
 
 import java.util.List;
 import java.util.concurrent.ExecutionException;
@@ -172,5 +175,20 @@ public class Task {
         }, executor);
 
         return future;
+    }
+
+    /**
+     * @param id                The task request ID
+     * @param notificationTitle The notification title
+     * @param notificationText  The notification text
+     * @param progress          The task progress
+     * @param total             The total of completed task progress
+     */
+    public static void updateProgress(
+            String id, String notificationTitle, String notificationText, int progress, int total
+    ) {
+        NotificationRef ref = Worker.buildNotificationRef(id);
+        Manager manager = new Manager(ContextUtil.getApplicationContext(), ref);
+        manager.send(notificationTitle, notificationText, progress, total);
     }
 }

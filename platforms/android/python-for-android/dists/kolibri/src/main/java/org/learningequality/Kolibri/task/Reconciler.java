@@ -1,4 +1,4 @@
-package org.learningequality.task;
+package org.learningequality.Kolibri.task;
 
 import android.content.Context;
 import android.util.Log;

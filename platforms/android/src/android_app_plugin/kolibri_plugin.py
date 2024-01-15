@@ -9,7 +9,6 @@ from kolibri.plugins.hooks import register_hook
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
-TaskWorker = autoclass("org.learningequality.Kolibri.TaskworkerWorker")
 
 
 logger = logging.getLogger(__name__)

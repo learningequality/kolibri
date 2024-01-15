@@ -1,4 +1,4 @@
-package org.learningequality;
+package org.learningequality.notification;
 
 import android.content.Context;
 
