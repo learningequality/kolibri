@@ -159,26 +159,27 @@ public class WorkControllerService extends Service {
                 }
             } catch (Exception e) {
                 Log.e(TAG, "Failed running task: " + task.getName(), e);
-                return CompletableFuture.failedFuture(e);
-            } finally {
-                Log.d(TAG, "Task completed: " + task.getName());
-                boolean hasNoMoreTasks = false;
-                synchronized (taskCount) {
-                    if (taskCount.decrementAndGet() == 0) {
-                        Log.d(TAG, "Checking state for stopping service");
-                        hasNoMoreTasks = true;
-                    }
+                return CompletableFuture.completedFuture(null);
+            }
+            return CompletableFuture.completedFuture(null);
+        }).thenApply((nothing) -> {
+            Log.d(TAG, "Task completed: " + task.getName());
+            boolean hasNoMoreTasks = false;
+            synchronized (taskCount) {
+                if (taskCount.decrementAndGet() == 0) {
+                    Log.d(TAG, "Checking state for stopping service");
+                    hasNoMoreTasks = true;
                 }
-                if (hasNoMoreTasks) {
-                    synchronized (state) {
-                        if (state.get() != State.AWAKE) {
-                            Log.d(TAG, "Stopping service due to no more tasks");
-                            stopSelf();
-                        }
+            }
+            if (hasNoMoreTasks) {
+                synchronized (state) {
+                    if (state.get() != State.AWAKE) {
+                        Log.d(TAG, "Stopping service due to no more tasks");
+                        stopSelf();
                     }
                 }
             }
-            return CompletableFuture.completedFuture(null);
+            return null;
         });
     }
 

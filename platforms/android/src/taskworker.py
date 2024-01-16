@@ -23,12 +23,16 @@ def main(job_request):
     from kolibri.core.tasks.worker import execute_job  # noqa: E402
 
     logger.info("Executing job request: {}".format(job_request))
-    execute_job(
-        job_id,
-        worker_process=str(process_id),
-        worker_thread=str(thread_id),
-        worker_extra=str(request_id),
-    )
+    try:
+        execute_job(
+            str(job_id),
+            worker_process=str(process_id),
+            worker_thread=str(thread_id),
+            worker_extra=str(request_id),
+        )
+    except Exception as e:
+        logger.exception("Error occurred executing job", exc_info=e)
+        raise e
 
     logger.info(
         "Ending Kolibri task worker, for job {} and request {}".format(
