@@ -11,7 +11,6 @@ logger = logging.getLogger(__name__)
 
 def main(job_request):
     request_id, job_id, process_id, thread_id = job_request.split(",")
-    logger.info("Job request: {}".format(job_request))
     logger.info(
         "Starting Kolibri task worker, for job {} and request {}".format(
             job_id, request_id
@@ -19,10 +18,8 @@ def main(job_request):
     )
     
     # Import this after we have initialized Kolibri
-    logger.info("Importing executor for job request: {}".format(job_request))
     from kolibri.core.tasks.worker import execute_job  # noqa: E402
 
-    logger.info("Executing job request: {}".format(job_request))
     try:
         execute_job(
             str(job_id),

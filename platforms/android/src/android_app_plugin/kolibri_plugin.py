@@ -68,7 +68,8 @@ class StorageHook(StorageHook):
             else:
                 progress = -1
                 total_progress = -1
-            TaskWorker.updateProgress(
+            Task.updateProgress(
+                orm_job.worker_extra,
                 status.title,
                 status.text,
                 progress,
