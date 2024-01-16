@@ -1,6 +1,0 @@
-{
-	"dependencies": {
-		"@fixtures/has-package-exports": "file:fixtures-has-package-exports",
-		"has-package-exports": "^1.3.0"
-	}
-}
