@@ -1,8 +1,11 @@
 import find from 'lodash/find';
+import logger from 'kolibri.lib.logging';
 import { get } from '@vueuse/core';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
 import { currentLanguage, isRtl } from 'kolibri.utils.i18n';
 import { coachStrings } from '../views/common/commonCoachStrings';
+
+const logging = logger.getLogger(__filename);
 
 export default function useCoreCoach(store) {
   store = store || getCurrentInstance().proxy.$store;
@@ -60,7 +63,7 @@ export default function useCoreCoach(store) {
             return coachStrings.$tr(part);
         }
       } catch (err) {
-        console.error(
+        logging.error(
           "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured."
         );
         return '';

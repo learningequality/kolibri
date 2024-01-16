@@ -17,6 +17,8 @@ import {
 } from '../src/xAPI/xAPISchema';
 import { SampleStatements, SampleObjects, SampleActivityDefinitions } from './xapidata';
 
+const logging = console; // eslint-disable-line no-console
+
 const mbox = 'mailto:test@test.com';
 const openid = 'http://uri.arg.com';
 
@@ -243,7 +245,7 @@ describe('xAPI data validation', () => {
       let warnMock;
       beforeEach(() => {
         warnMock = jest.fn();
-        console.warn = warnMock;
+        logging.warn = warnMock;
       });
       const interactionOptions = ['choices', 'scale', 'source', 'target', 'steps'];
       describe('true-false interaction', () => {
