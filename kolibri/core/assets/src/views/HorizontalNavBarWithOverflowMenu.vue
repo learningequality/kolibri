@@ -123,6 +123,7 @@
     flex-direction: row;
     flex-wrap: wrap;
     overflow: hidden;
+    text-overflow: ellipsis;
   }
 
 </style>

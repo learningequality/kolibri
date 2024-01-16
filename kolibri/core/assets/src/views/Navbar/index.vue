@@ -60,6 +60,7 @@
     margin-left: 16px;
     overflow-x: hidden;
     overflow-y: hidden;
+    text-overflow: ellipsis;
     white-space: nowrap;
   }
 
