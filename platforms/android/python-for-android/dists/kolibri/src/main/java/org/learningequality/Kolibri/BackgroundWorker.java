@@ -34,12 +34,14 @@ final public class BackgroundWorker extends androidx.work.Worker implements Work
         Log.d(TAG, "Running background task " + getId());
         final String id = getId().toString();
         final String arg = getArgument();
-        return workerImpl.execute(id, arg) ? Result.success() : Result.failure();
+        Result r =  workerImpl.execute(id, arg) ? Result.success() : Result.failure();
+        hideNotification();
+        return r;
     }
 
     @Override
     public void onStopped() {
-        Log.d(TAG, "Stopping foreground remote task " + getId());
+        Log.d(TAG, "Stopping background remote task " + getId());
         super.onStopped();
         hideNotification();
     }

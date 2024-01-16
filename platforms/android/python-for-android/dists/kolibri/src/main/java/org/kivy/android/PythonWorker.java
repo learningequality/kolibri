@@ -22,8 +22,7 @@ public class PythonWorker {
     private final String pythonPath;
 
     public PythonWorker(@NonNull Context context, String pythonName, String workerEntrypoint) {
-//        PythonLoader.doLoad(context);
-        PythonUtil.loadLibraries(new File(context.getApplicationInfo().nativeLibraryDir));
+        PythonLoader.doLoad(context);
         this.pythonName = pythonName;
         this.workerEntrypoint = workerEntrypoint;
 

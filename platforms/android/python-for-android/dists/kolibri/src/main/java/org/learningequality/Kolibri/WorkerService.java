@@ -22,9 +22,6 @@ public class WorkerService extends RemoteWorkerService implements Notifier {
     public void onCreate() {
         Log.d(TAG, "Initializing foreground worker service");
         super.onCreate();
-        // We could potentially remove this and leave the notification up to long-running workers
-        // bound to the service
-        sendNotification();
         mService = this;
     }
 

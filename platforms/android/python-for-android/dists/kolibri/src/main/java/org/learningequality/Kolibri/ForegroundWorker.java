@@ -68,6 +68,10 @@ final public class ForegroundWorker extends RemoteListenableWorker implements Wo
                         threadFuture.cancel(true);
                     }
                 }
+
+                if (future.isDone()) {
+                    hideNotification();
+                }
             }
         }, getTaskExecutor().getMainThreadExecutor());
         return future;
