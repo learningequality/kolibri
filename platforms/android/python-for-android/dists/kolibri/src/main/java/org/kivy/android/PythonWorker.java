@@ -6,6 +6,8 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
+import java.io.File;
+
 /**
  * Ideally this would be called `PythonWorkerImpl` but the name is used in the native code.
  */
@@ -20,7 +22,8 @@ public class PythonWorker {
     private final String pythonPath;
 
     public PythonWorker(@NonNull Context context, String pythonName, String workerEntrypoint) {
-        PythonLoader.doLoad(context);
+//        PythonLoader.doLoad(context);
+        PythonUtil.loadLibraries(new File(context.getApplicationInfo().nativeLibraryDir));
         this.pythonName = pythonName;
         this.workerEntrypoint = workerEntrypoint;
 
