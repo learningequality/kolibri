@@ -1,6 +1,7 @@
 package org.learningequality.Kolibri;
 
 import android.annotation.SuppressLint;
+import android.content.pm.ServiceInfo;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -40,9 +41,6 @@ final public class ForegroundWorker extends RemoteListenableWorker implements Wo
         final String id = getId().toString();
         final String arg = getArgument();
 
-        Log.d(TAG, "Enabling foreground service for long running task for " + id);
-        setForegroundAsync(getForegroundInfo());
-
         // See executor defined in configuration
         final ThreadPoolExecutor executor = (ThreadPoolExecutor) getBackgroundExecutor();
         // This is somewhat similar to what the plain `Worker` class does, except that we
@@ -66,7 +64,9 @@ final public class ForegroundWorker extends RemoteListenableWorker implements Wo
             synchronized (future) {
                 if (future.isCancelled()) {
                     Log.i(TAG, "Interrupting python thread");
-                    threadFuture.cancel(true);
+                    synchronized (threadFuture) {
+                        threadFuture.cancel(true);
+                    }
                 }
             }
         }, getTaskExecutor().getMainThreadExecutor());
@@ -81,17 +81,17 @@ final public class ForegroundWorker extends RemoteListenableWorker implements Wo
     }
 
     public ForegroundInfo getForegroundInfo() {
-        NotificationRef ref = getNotificationRef();
-        // If we are running in the service, use the service notification ref
-        synchronized (WorkerService.class) {
-            if (WorkerService.mService != null) {
-                ref = WorkerService.mService.getNotificationRef();
-            } else {
-                Log.w(TAG, "No service found, using worker notification for foreground");
-            }
+        NotificationRef ref = WorkerService.buildNotificationRef();
+        Builder builder = new Builder(getApplicationContext(), ref);
+        // If API level is at least 29
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            return new ForegroundInfo(
+                    ref.getId(),
+                    builder.build(),
+                    ServiceInfo.FOREGROUND_SERVICE_TYPE_MANIFEST
+            );
         }
 
-        Builder builder = new Builder(getApplicationContext(), ref);
         return new ForegroundInfo(ref.getId(), builder.build());
     }
 

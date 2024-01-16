@@ -1,7 +1,10 @@
 package org.learningequality.Kolibri;
 
+import android.content.Intent;
+import android.os.IBinder;
 import android.util.Log;
 
+import androidx.annotation.NonNull;
 import androidx.work.multiprocess.RemoteWorkerService;
 
 import org.learningequality.notification.NotificationRef;
@@ -34,6 +37,10 @@ public class WorkerService extends RemoteWorkerService implements Notifier {
     }
 
     public NotificationRef getNotificationRef() {
+        return buildNotificationRef();
+    }
+
+    public static NotificationRef buildNotificationRef() {
         return new NotificationRef(NotificationRef.REF_CHANNEL_SERVICE);
     }
 }

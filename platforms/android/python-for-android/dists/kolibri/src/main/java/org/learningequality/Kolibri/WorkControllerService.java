@@ -36,9 +36,11 @@ public class WorkControllerService extends Service {
     protected static final AtomicReference<State> state = new AtomicReference<>(State.SLEEPING);
     protected static final AtomicInteger taskCount = new AtomicInteger(0);
     protected final AtomicBoolean isConnected = new AtomicBoolean(false);
+    protected final AtomicBoolean shouldReconcile = new AtomicBoolean(true);
     protected Intent workManagerIntent;
     protected ExecutorService executor;
     protected CompletableFuture<Void> futureChain;
+    protected WorkControllerHandler messageHandler;
     protected Messenger messenger;
     private ServiceConnection connection;
 
@@ -52,9 +54,10 @@ public class WorkControllerService extends Service {
 
         workManagerIntent = new Intent(this, RemoteWorkManagerService.class);
         connection = new WorkManagerConnection();
-        executor = Executors.newFixedThreadPool(2);
+        executor = Executors.newFixedThreadPool(3);
         futureChain = CompletableFuture.completedFuture(null);
-        messenger = new Messenger(new WorkControllerHandler());
+        messageHandler = new WorkControllerHandler();
+        messenger = new Messenger(messageHandler);
     }
 
     @Override
@@ -70,6 +73,7 @@ public class WorkControllerService extends Service {
         executor = null;
         futureChain = null;
         workManagerIntent = null;
+        messageHandler = null;
         messenger = null;
         connection = null;
     }
@@ -89,27 +93,32 @@ public class WorkControllerService extends Service {
             }
         }
 
-        startTask(() -> {
-            Log.d(TAG, "Binding to work manager service");
-            // Wakey wakey remote work manager service
-            bindService(workManagerIntent, connection, Context.BIND_AUTO_CREATE);
-            return null;
+        startTask(new WorkTask("wake_work_manager") {
+            @Override
+            public CompletableFuture<Void> run() {
+                // Wakey wakey remote work manager service
+                Log.d(TAG, "Binding to work manager service");
+                bindService(workManagerIntent, connection, Context.BIND_AUTO_CREATE);
+                return null;
+            }
         });
     }
 
     protected void onReconcile() {
+        synchronized (shouldReconcile) {
+            if (!shouldReconcile.get()) {
+                Log.d(TAG, "Skipping enqueue of task reconciliation");
+                return;
+            }
+            shouldReconcile.set(false);
+        }
+
         Log.d(TAG, "Enqueuing task reconciliation");
-        startTask(() -> {
-            Log.d(TAG, "Running task reconciliation");
-            return Task.reconcile(getApplicationContext(), executor)
-                    .thenApply((r) -> {
-                        if (r) {
-                            Log.d(TAG, "Reconciliation task completed");
-                        } else {
-                            Log.d(TAG, "Reconciliation task failed");
-                        }
-                        return null;
-                    });
+        startTask(new WorkTask("reconciliation") {
+            @Override
+            public CompletableFuture<Void> run() {
+                return Task.reconcile(getApplicationContext(), executor).thenApply((r) -> null);
+            }
         });
     }
 
@@ -126,40 +135,51 @@ public class WorkControllerService extends Service {
                 Log.d(TAG, "Waiting for " + taskCount.get() + " tasks to complete");
             }
         }
+        synchronized (shouldReconcile) {
+            shouldReconcile.set(true);
+        }
     }
 
     protected void onStop() {
         Log.d(TAG, "Stopping work controller service");
         // should eventually call `onDestroy` and that will set the stopped state
+        synchronized (state) {
+            state.set(State.STOPPED);
+        }
         stopSelf();
     }
 
     protected void startTask(WorkTask task) {
-        futureChain = futureChain.thenComposeAsync((nothing) -> {
+        futureChain = futureChain.thenCompose((nothing) -> {
             try {
-                Log.d(TAG, "Running task");
+                Log.d(TAG, "Running task: " + task.getName());
                 CompletableFuture<Void> f = task.run();
                 if (f != null) {
                     return f;
                 }
             } catch (Exception e) {
-                Log.e(TAG, "Failed running task", e);
+                Log.e(TAG, "Failed running task: " + task.getName(), e);
+                return CompletableFuture.failedFuture(e);
             } finally {
-                Log.d(TAG, "Task completed");
+                Log.d(TAG, "Task completed: " + task.getName());
+                boolean hasNoMoreTasks = false;
                 synchronized (taskCount) {
                     if (taskCount.decrementAndGet() == 0) {
                         Log.d(TAG, "Checking state for stopping service");
-                        synchronized (state) {
-                            if (state.get() != State.AWAKE) {
-                                Log.d(TAG, "Stopping service due to no more tasks");
-                                stopSelf();
-                            }
+                        hasNoMoreTasks = true;
+                    }
+                }
+                if (hasNoMoreTasks) {
+                    synchronized (state) {
+                        if (state.get() != State.AWAKE) {
+                            Log.d(TAG, "Stopping service due to no more tasks");
+                            stopSelf();
                         }
                     }
                 }
             }
             return CompletableFuture.completedFuture(null);
-        }, executor);
+        });
     }
 
     @Override
@@ -181,13 +201,14 @@ public class WorkControllerService extends Service {
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "Producing binding to work controller service");
         return messenger.getBinder();
     }
 
     public enum State {
-        SLEEPING,
         AWAKE,
         AWAKE_LOW_MEMORY,
+        SLEEPING,
         STOPPED,
     }
 
@@ -209,8 +230,15 @@ public class WorkControllerService extends Service {
         }
     }
 
-    interface WorkTask {
-        CompletableFuture<Void> run();
+    abstract static class WorkTask {
+        protected final String name;
+        public WorkTask(String name) {
+            this.name = name;
+        }
+        public String getName() {
+            return name;
+        }
+        abstract public CompletableFuture<Void> run();
     }
 
     class WorkManagerConnection implements ServiceConnection {
@@ -241,7 +269,7 @@ public class WorkControllerService extends Service {
         @Override
         public void onNullBinding(android.content.ComponentName name) {
             // WorkManager service should produce a binding normally
-            Log.d(TAG, "WorkManager service null binding");
+            Log.d(TAG, "WorkManager service gave null binding");
             synchronized (isConnected) {
                 isConnected.set(false);
             }
@@ -249,6 +277,10 @@ public class WorkControllerService extends Service {
     }
 
     class WorkControllerHandler extends Handler {
+        public WorkControllerHandler() {
+            super();
+        }
+
         @Override
         public void handleMessage(Message msg) {
             Log.d(TAG, "Received message " + msg.what);
