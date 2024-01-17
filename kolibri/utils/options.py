@@ -1007,5 +1007,10 @@ def generate_empty_options_file(ini_filename="options.ini"):
                 comments.append("{} = {}".format(optname, attrs.get("default", "")))
                 comments.append("")
     conf.final_comment = comments
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            for envvar in attrs.get("envvars", []):
+                if envvar in os.environ:
+                    conf[section][optname]='False'
 
     conf.write()
