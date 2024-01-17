@@ -1,3 +1,5 @@
+# Running another Kolibri instance alongside the development server
+
 This guide will walk you through the process of setting up and running another instance of Kolibri alongside your development server using the `pex` executable.
 
 ## Introduction
