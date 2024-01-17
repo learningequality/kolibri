@@ -1,4 +1,3 @@
-import threading
 import logging
 from concurrent.futures import CancelledError
 
@@ -46,10 +45,6 @@ class Worker(object):
         # Key: job_id, Value: future object
         self.future_job_mapping = {}
 
-        # Locks to synchronize access to dictionaries
-        self.job_future_mapping_lock = threading.Lock()
-        self.future_job_mapping_lock = threading.Lock()
-
         self.storage = Storage(connection)
 
         self.requeue_stalled_jobs()
@@ -85,24 +80,19 @@ class Worker(object):
         return pool
 
     def handle_finished_future(self, future):
-        # get back the job assigned to the future
-        job = None 
+        try:
+            # get back the job assigned to the future
+            job = self.job_future_mapping[future]
+            # Clean up tracking of this job and its future
+            del self.job_future_mapping[future]
+            del self.future_job_mapping[job.job_id]
 
-        # Acquire locks before accessing dictionaries
-        with self.job_future_mapping_lock:
-            with self.future_job_mapping_lock:
-                if future in self.job_future_mapping:
-                    # get back the job assigned to the future
-                    job = self.job_future_mapping[future]
-                    # Clean up tracking of this job and its future
-                    del self.job_future_mapping[future]
-                    del self.future_job_mapping[job.job_id]
-
-        if job: 
             try:
                 future.result()
             except CancelledError:
                 self.storage.mark_job_as_canceled(job.job_id)
+        except KeyError:
+            pass
 
     def shutdown(self, wait=True):
         logger.info("Asking job schedulers to shut down.")
@@ -182,17 +172,15 @@ class Worker(object):
             job_id=job.job_id,
         )
 
-        # Acquire locks before modifying dictionaries
-        with self.job_future_mapping_lock:
-            with self.future_job_mapping_lock:
-                # Check if the job ID already exists in the future_job_mapping dictionary
-                if job.job_id in self.future_job_mapping:
-                    logger.error("Job ID {} is already in future_job_mapping.".format(job.job_id))
-                    raise ValueError("Duplicate job ID: {}".format(job.job_id))
+        # Check if the job ID already exists in the future_job_mapping dictionary
+        if job.job_id in self.future_job_mapping:
+            logger.warn(
+                "Job id {} is already in future_job_mapping.".format(job.job_id)
+            )
 
-                # assign the futures to a dict, mapping them to a job
-                self.job_future_mapping[future] = job
-                self.future_job_mapping[job.job_id] = future
+        # assign the futures to a dict, mapping them to a job
+        self.job_future_mapping[future] = job
+        self.future_job_mapping[job.job_id] = future
 
         # callback for when the future is now!
         future.add_done_callback(self.handle_finished_future)
