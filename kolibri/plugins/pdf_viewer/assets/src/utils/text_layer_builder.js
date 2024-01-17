@@ -23,6 +23,9 @@
 // Original line: 17
 
 import { renderTextLayer } from 'pdfjs-dist/legacy/build/pdf';
+import logger from 'kolibri.lib.logging';
+
+const logging = logger.getLogger(__filename);
 
 const EXPAND_DIVS_TIMEOUT = 300; // ms
 
@@ -150,7 +153,7 @@ class TextLayerBuilder {
       // Modified: Logging errors
       // Original line: 118
       err => {
-        console.error('Error rendering text layer: ', err);
+        logging.error('Error rendering text layer: ', err);
       }
     );
   }

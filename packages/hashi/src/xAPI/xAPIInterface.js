@@ -16,6 +16,8 @@ import BaseShim from '../baseShim';
 import { XAPIVerbMap } from './xAPIVocabulary';
 import { OBJECT_TYPES } from './xAPIConstants';
 
+const logging = console; //eslint-disable-line no-console
+
 function actorsEqual(actor1, actor2) {
   if (actor1.mbox && actor2.mbox) {
     return actor1.mbox === actor2.mbox;
@@ -286,7 +288,7 @@ export default class xAPI extends BaseShim {
             try {
               statement = Statement.clean(statement);
             } catch (e) {
-              console.debug('Statement: ', statement, 'gave the following error: ', e);
+              logging.debug('Statement: ', statement, 'gave the following error: ', e);
               statement.error = e.message;
             }
             if (compress) {

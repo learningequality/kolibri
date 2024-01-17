@@ -13,6 +13,8 @@ import loadBinary from './loadBinary';
 
 const H5PFilename = filenameObj.filename;
 
+const logging = console; //eslint-disable-line no-console
+
 class Zip {
   constructor(file) {
     this.zipfile = file;
@@ -104,7 +106,7 @@ export function replacePaths(dep, packageFiles) {
         return `${p1}${newUrl}${p3}`;
       }
     } catch (e) {
-      console.debug('Error during URL handling', e); // eslint-disable-line no-console
+      logging.debug('Error during URL handling', e);
     }
     // Otherwise just return the match so that it is unchanged.
     return match;
@@ -220,7 +222,7 @@ export default class H5PRunner {
         // dependencies have been loaded.
         this.setDependencies();
         return this.processFiles().then(() => {
-          console.debug(`H5P file processed in ${performance.now() - start} ms`);
+          logging.debug(`H5P file processed in ${performance.now() - start} ms`);
           this.metadata = pick(this.rootConfig, metadataKeys);
           // Do any URL substitition on CSS dependencies
           // and turn them into Blob URLs.
@@ -381,7 +383,7 @@ export default class H5PRunner {
       debouncedHandlers[verb] = debounce(
         function(statement) {
           contentWindow.xAPI.sendStatement(statement, true).catch(err => {
-            console.error('Statement: ', statement, 'gave the following error: ', err);
+            logging.error('Statement: ', statement, 'gave the following error: ', err);
           });
         },
         debounceDelay * 1000,
@@ -412,7 +414,7 @@ export default class H5PRunner {
           debouncedHandlers[statement.verb.id](statement);
         } else {
           contentWindow.xAPI.sendStatement(event.data.statement, true).catch(err => {
-            console.error('Statement: ', statement, 'gave the following error: ', err);
+            logging.error('Statement: ', statement, 'gave the following error: ', err);
           });
         }
       }

@@ -1,5 +1,6 @@
 import find from 'lodash/find';
 import router from 'kolibri.coreVue.router';
+import logger from 'kolibri.lib.logging';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { TransferTypes } from 'kolibri.utils.syncTaskUtils';
 import { ContentNodeGranularResource, RemoteChannelResource } from 'kolibri.resources';
@@ -11,6 +12,8 @@ import {
   getTransferredChannelOnPeerServer,
 } from './apiPeerImport';
 import { getChannelWithContentSizes } from './apiChannelMetadata';
+
+const logging = logger.getLogger(__filename);
 
 // Utilities for the show*Page actions
 function getSelectedDrive(store, driveId) {
@@ -168,7 +171,7 @@ export function showSelectContentPage(store, params) {
       // are no data for this channel on a device yet (download channel
       // metadata task will be triggered later for this situation)
       if (error.response && error.response.status === 404) {
-        console.log(
+        logging.error(
           `^^^ 404 (Not Found) error returned while requesting "${error.response.config.url}..." is an expected response.`
         );
       }
