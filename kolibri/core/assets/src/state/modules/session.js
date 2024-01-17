@@ -45,7 +45,6 @@ export default {
     isFacilityAdmin(state) {
       return state.kind.includes(UserKinds.ADMIN);
     },
-    // An "Multi-Facility Admin" is a superuser for a device with 2+ facilities
     userIsMultiFacilityAdmin(state, getters, rootState) {
       return getters.isSuperuser && rootState.core.facilities.length > 1;
     },
@@ -84,6 +83,14 @@ export default {
     isLearnerOnlyImport(state) {
       return !state.full_facility_import;
     },
+    // Added getters with the 'session/' namespace
+    'session/isLearnerOnlyImport': (state) => !state.full_facility_import,
+    'session/isUserLoggedIn': (state) => !state.kind.includes(UserKinds.ANONYMOUS),
+    'session/currentUserId': (state) => state.user_id,
+    'session/isCoach': (state) => state.kind.includes(UserKinds.COACH) || state.kind.includes(UserKinds.ASSIGNABLE_COACH),
+    'session/isAdmin': (state) => state.kind.includes(UserKinds.ADMIN) || state.kind.includes(UserKinds.SUPERUSER),
+    'session/isSuperuser': (state) => state.kind.includes(UserKinds.SUPERUSER),
+    'session/canManageContent': (state) => state.can_manage_content,
   },
   mutations: {
     CORE_SET_SESSION(state, value) {
