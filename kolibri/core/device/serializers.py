@@ -168,7 +168,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 # We've imported a facility if the username exists
                 try:
                     superuser = FacilityUser.objects.get(
-                        username=superuser_data["username"]
+                        username__iexact=superuser_data["username"]
                     )
                 except FacilityUser.DoesNotExist:
                     try:
