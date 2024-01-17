@@ -140,6 +140,7 @@
         'channelIsBeingDeleted',
         'managedTasks',
       ]),
+      ...mapGetters(['isLearnerOnlyImport']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', ['channelListLoading']),
       ...mapState({
@@ -183,7 +184,7 @@
         return (
           this.welcomeModalVisibleState &&
           window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
-          !this.installedChannelsWithResources.length > 0
+          (!this.installedChannelsWithResources.length > 0) & !this.isLearnerOnlyImport
         );
       },
     },
