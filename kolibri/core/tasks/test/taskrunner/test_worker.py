@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-import threading 
+import threading
 import time
 
 import pytest
@@ -50,6 +50,7 @@ def worker():
         b.storage.clear(force=True)
         b.shutdown()
 
+
 def test_keyerror_prevention(worker):
     # Create a job with the same ID as the one in worker.enqueue_job_runs_job
     job = Job(id, args=(9,))
@@ -70,6 +71,7 @@ def test_keyerror_prevention(worker):
         time.sleep(0.1)
 
     assert job.state == "COMPLETED"
+
 
 def test_keyerror_prevention_multiple_jobs(worker):
     # Create multiple jobs with the same ID to trigger the race condition
@@ -104,6 +106,7 @@ def test_keyerror_prevention_multiple_jobs(worker):
         time.sleep(0.1)
 
     assert job2.state == "COMPLETED"
+
 
 @pytest.mark.django_db
 class TestWorker:
