@@ -14,7 +14,12 @@ public class Builder extends NotificationCompat.Builder {
         super(context, channelId);
         setSmallIcon(R.drawable.ic_stat_kolibri_notification);
         setPriority(NotificationCompat.PRIORITY_LOW);
-        setColor(context.getColor(R.color.primary));
+        try {
+            setColor(context.getColor(R.color.primary));
+        } catch (NullPointerException e) {
+            // This seems to happen on Android 7
+            // when this method is invoked from Python.
+        }
         setSilent(true);
 
         // Default title
