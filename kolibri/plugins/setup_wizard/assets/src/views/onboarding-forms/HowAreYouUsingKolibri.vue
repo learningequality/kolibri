@@ -42,9 +42,6 @@
       };
     },
     computed: {
-      isOnMyOwnSetup() {
-        return this.selected === Presets.PERSONAL;
-      },
       UsePresets() {
         return UsePresets;
       },
@@ -54,14 +51,6 @@
     },
     methods: {
       handleContinue() {
-        if (this.isOnMyOwnSetup) {
-          // If the user is on their own, set the preset to personal here
-          // If not then the user will set it using a form later on
-          this.$store.commit('SET_FACILITY_PRESET', Presets.PERSONAL);
-        }
-        this.goToNextStep();
-      },
-      goToNextStep() {
         this.wizardService.send({ type: 'CONTINUE', value: this.selected });
       },
     },
