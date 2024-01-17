@@ -90,6 +90,9 @@
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
+      closingPanel(e){
+        console.log(e);
+      }
     },
   };
 

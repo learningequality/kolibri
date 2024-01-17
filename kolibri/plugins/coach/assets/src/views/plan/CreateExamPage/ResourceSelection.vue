@@ -8,13 +8,6 @@
       <h5
         class="title-style"
       >
-        <KRouterLink
-          :to="goBack"
-        >
-          <KIcon
-            icon="back"
-          />
-        </KRouterLink>
         {{ /* selectFoldersOrExercises$() */ }}
       </h5>
 
@@ -78,14 +71,19 @@
             :layout4="{ span: 2 }"
           >
             <KButton
-              :text="coreString('continueAction')"
+              :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="false"
+              :disabled="!hasTopicId()"
+              @click="isSavingChanges = true"
             />
           </KGridItem>
         </KGrid>
       </div>
     </div>
+
+    <ConfirmCancellationModal
+      v-if="isSavingChanges"
+    />
   </div>
 
 </template>
@@ -102,9 +100,10 @@
   import { PageNames } from '../../../constants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
-  //import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   export default {
     name: 'ResourceSelection',
@@ -112,12 +111,16 @@
       ContentCardList,
       BookmarkIcon,
       ResourceSelectionBreadcrumbs,
+      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
     setup() {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
+      const  {
+        saveQuiz
+      } = injectQuizCreation();
 
       const {
         sectionSettings$,
@@ -241,7 +244,13 @@
         bookmarks,
         channels,
         viewMoreButtonState,
+        saveQuiz
       };
+    },
+    data() {
+      return {
+        isSavingChanges:false
+      }
     },
     computed: {
       isTopicIdSet() {
@@ -270,12 +279,18 @@
         //   console.log('Dynamic function called');
         // };
       },
-      goBack() {
-        // TODO This should only be shown w/ the back arrow KRouterLink when we've gone past the
-        // initial screen w/ the channels
-        // See https://github.com/learningequality/kolibri/issues/11733
-        return {}; // This will need to be gleaned in a nav guard
+      /*
+      contentIsInLesson() {
+        return ({ id }) => Boolean(this.channels);
       },
+      addableContent() {
+        // Content in the topic that can be added if 'Select All' is clicked
+        const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
+        return list.filter(
+          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
+        );
+      },
+      */
       getBookmarksLink() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
@@ -319,6 +334,9 @@
 
         return {}; // or return {} if you prefer an empty object
       },
+      saveResources(){
+       this.saveQuiz();
+      },
       toggleSelected({ content, checked }) {
         if (checked) {
           this.addToSelectedResources(content);
@@ -348,6 +366,56 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
+      hasTopicId(){
+        return Boolean(this.$route.params.topic_id);
+      }
+      // selectionMetadata(content) {
+      //   if (content.kind === ContentNodeKinds.TOPIC) {
+      //     const count = content.exercises.filter(exercise =>
+      //       Boolean(this.selectedExercises[exercise.id])
+      //     ).length;
+      //     if (count === 0) {
+      //       return '';
+      //     }
+      //     const total = content.exercises.length;
+      //     return this.$tr('total_number', { count, total });
+      //   }
+      //   return '';
+      // },
+      /*
+      handleSearchTerm(searchTerm) {
+        const query = {
+          last_id: this.$route.query.last_id || this.$route.params.topicId,
+        };
+        const lastPage = this.$route.query.last;
+        if (lastPage) {
+          query.last = lastPage;
+        }
+        this.$router.push({
+          name: LessonsPageNames.SELECTION_SEARCH,
+          params: {
+            searchTerm,
+          },
+          query,
+        });
+      },
+      handleMoreResults() {
+        this.moreResultsState = 'waiting';
+        this.fetchAdditionalSearchResults({
+          searchTerm: this.searchTerm,
+          kind: this.filters.kind,
+          channelId: this.filters.channel,
+          currentResults: this.searchResults.results,
+        })
+          .then(() => {
+            this.moreResultsState = null;
+            this.moreResultsState;
+          })
+          .catch(() => {
+            this.moreResultsState = 'error';
+          });
+      },
+      */
     },
   };
 
