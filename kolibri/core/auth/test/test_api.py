@@ -1170,7 +1170,7 @@ class LoginLogoutTestCase(APITestCase):
         response_user2 = self.client.post(
             reverse("kolibri:core:session-list"),
             data={
-                "username": "shared_username",
+                "username": "Shared_Username",
                 "password": DUMMY_PASSWORD,
                 "facility": self.facility.id,
             },
