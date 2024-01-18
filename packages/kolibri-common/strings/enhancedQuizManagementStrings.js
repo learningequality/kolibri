@@ -117,6 +117,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   randomizedLabel: {
     message: 'Randomized',
   },
+  selectFromBookmarks: {
+    message: 'Select from bookmarks',
+  },
   randomizedOptionDescription: {
     message: 'Each learner sees a different question order',
   },
@@ -143,5 +146,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfQuestionsReplaced: {
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
+  },
+  numberOfResources: {
+    message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
 });
