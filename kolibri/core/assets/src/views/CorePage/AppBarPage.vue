@@ -62,7 +62,7 @@
   import { throttle } from 'frame-throttle';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

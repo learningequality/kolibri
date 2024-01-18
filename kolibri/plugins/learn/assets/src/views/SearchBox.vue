@@ -59,7 +59,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 
   export default {
     name: 'SearchBox',

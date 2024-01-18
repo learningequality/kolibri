@@ -25,7 +25,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useCardLayoutSpan from '../composables/useCardLayoutSpan';
   import useContentLink from '../composables/useContentLink';
   import ChannelCard from './ChannelCard';

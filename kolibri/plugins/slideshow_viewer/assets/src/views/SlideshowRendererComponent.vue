@@ -80,7 +80,7 @@
   import objectFitImages from 'object-fit-images';
   import client from 'kolibri.client';
 
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
