@@ -41,7 +41,7 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';

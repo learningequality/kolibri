@@ -14,8 +14,8 @@
 
 import vue from 'vue';
 import vuex from 'vuex';
-import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+// import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
+// import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 import useKShow from 'kolibri-design-system/lib/composables/useKShow';
@@ -188,7 +188,6 @@ export default {
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
-      UiAlert,
       UiIconButton,
       UiToolbar,
       PrivacyInfoModal,
@@ -221,7 +220,6 @@ export default {
     },
     router,
     mixins: {
-      responsiveWindowMixin,
       responsiveElementMixin,
       commonCoreStrings,
       commonTaskStrings,
