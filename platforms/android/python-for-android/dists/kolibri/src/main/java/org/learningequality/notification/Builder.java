@@ -1,4 +1,4 @@
-package org.learningequality;
+package org.learningequality.notification;
 
 import android.app.PendingIntent;
 import android.content.Context;
@@ -9,12 +9,17 @@ import androidx.core.app.NotificationCompat;
 
 import org.learningequality.Kolibri.R;
 
-public class NotificationBuilder extends NotificationCompat.Builder {
-    public NotificationBuilder(Context context, String channelId) {
+public class Builder extends NotificationCompat.Builder {
+    public Builder(Context context, String channelId) {
         super(context, channelId);
         setSmallIcon(R.drawable.ic_stat_kolibri_notification);
         setPriority(NotificationCompat.PRIORITY_LOW);
-        setColor(context.getColor(R.color.primary));
+        try {
+            setColor(context.getColor(R.color.primary));
+        } catch (NullPointerException e) {
+            // This seems to happen on Android 7
+            // when this method is invoked from Python.
+        }
         setSilent(true);
 
         // Default title
@@ -46,15 +51,15 @@ public class NotificationBuilder extends NotificationCompat.Builder {
         }
     }
 
-    public NotificationBuilder(Context context, int channelRef) {
+    public Builder(Context context, int channelRef) {
         this(context, NotificationRef.getChannelId(context, channelRef));
     }
 
-    public NotificationBuilder(Context context, NotificationRef ref) {
+    public Builder(Context context, NotificationRef ref) {
         this(context, ref.getChannelRef());
     }
 
-    public NotificationBuilder(Context context) {
+    public Builder(Context context) {
         this(context, NotificationRef.REF_CHANNEL_DEFAULT);
     }
 }

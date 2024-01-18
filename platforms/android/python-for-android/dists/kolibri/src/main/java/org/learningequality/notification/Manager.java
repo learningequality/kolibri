@@ -1,31 +1,27 @@
-package org.learningequality;
+package org.learningequality.notification;
 
 import android.content.Context;
 
 import androidx.core.app.NotificationManagerCompat;
 
-public interface Notifier {
-    Context getApplicationContext();
+public class Manager {
+    private final Context context;
+    private final NotificationRef ref;
 
-    default NotificationRef getNotificationRef() {
-        return null;
+    public Manager(Context context, NotificationRef ref) {
+        this.context = context;
+        this.ref = ref;
     }
 
-    default void sendNotification() {
-        sendNotification(null, null, -1, -1);
+    public void send() {
+        send(null, null, -1, -1);
     }
 
-    default NotificationBuilder getNotificationBuilder(NotificationRef ref) {
-        return new NotificationBuilder(getApplicationContext(), ref);
-    }
-
-    default void sendNotification(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
-        NotificationRef ref = getNotificationRef();
+    public void send(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
         if (ref == null) {
             return;
         }
-        Context context = getApplicationContext();
-        NotificationBuilder builder = getNotificationBuilder(ref);
+        Builder builder = new Builder(context, ref);
         if (notificationTitle != null) {
             builder.setContentTitle(notificationTitle);
         }
@@ -39,12 +35,10 @@ public interface Notifier {
         notificationManager.notify(ref.getTag(), ref.getId(), builder.build());
     }
 
-    default void hideNotification() {
-        NotificationRef ref = getNotificationRef();
+    public void hide() {
         if (ref == null) {
             return;
         }
-        Context context = getApplicationContext();
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
         notificationManager.cancel(ref.getTag(), ref.getId());
     }

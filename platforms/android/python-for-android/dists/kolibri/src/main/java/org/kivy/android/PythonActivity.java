@@ -1,8 +1,5 @@
 package org.kivy.android;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
-import android.os.Build;
 import android.os.SystemClock;
 
 import java.io.InputStream;
@@ -42,10 +39,9 @@ import android.webkit.WebView;
 import android.webkit.CookieManager;
 import android.net.Uri;
 
-import androidx.core.app.NotificationManagerCompat;
-
 import org.learningequality.Kolibri.R;
 import org.renpy.android.ResourceManager;
+
 
 public class PythonActivity extends Activity {
     // This activity is modified from a mixture of the SDLActivity and
@@ -248,8 +244,7 @@ public class PythonActivity extends Activity {
     }
 
     public void loadLibraries() {
-        PythonUtil.loadLibraries(
-                new File(getApplicationInfo().nativeLibraryDir));
+        PythonLoader.doLoad(this);
     }
 
     public static void loadUrl(String url) {

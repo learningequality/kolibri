@@ -3,76 +3,54 @@ package org.learningequality;
 import android.content.Context;
 import android.util.Log;
 
-import androidx.work.BackoffPolicy;
-import androidx.work.Data;
-import androidx.work.ExistingPeriodicWorkPolicy;
+import androidx.core.content.ContextCompat;
 import androidx.work.ExistingWorkPolicy;
 import androidx.work.OneTimeWorkRequest;
-import androidx.work.OutOfQuotaPolicy;
-import androidx.work.PeriodicWorkRequest;
 import androidx.work.WorkInfo;
-import androidx.work.WorkManager;
 import androidx.work.WorkQuery;
 import androidx.work.multiprocess.RemoteWorkManager;
 
 import com.google.common.util.concurrent.ListenableFuture;
 
-import org.learningequality.Kolibri.TaskworkerWorker;
+import org.learningequality.Kolibri.sqlite.JobStorage;
+import org.learningequality.Kolibri.task.Builder;
+import org.learningequality.Kolibri.task.Reconciler;
+import org.learningequality.Kolibri.task.Sentinel;
+import org.learningequality.Kolibri.task.StateMap;
+import org.learningequality.notification.Manager;
+import org.learningequality.notification.NotificationRef;
+import org.learningequality.task.Worker;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+import java9.util.concurrent.CompletableFuture;
 
 
 public class Task {
-    public static final String TAG = "Task";
+    public static final String TAG = "Kolibri.Task";
 
-    private static String generateTagFromId(String id) {
-        return "kolibri_task_id:" + id;
-    }
-
-    private static String generateTagFromJobFunc(String jobFunc) {
-        return "kolibri_job_type:" + jobFunc;
-    }
-
-    public static void enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
+    public static String enqueueOnce(String id, int delay, boolean expedite, String jobFunc, boolean longRunning) {
         RemoteWorkManager workManager = RemoteWorkManager.getInstance(ContextUtil.getApplicationContext());
-        Data data = TaskworkerWorker.buildInputData(id);
+        Builder.TaskRequest builder = new Builder.TaskRequest(id);
+        builder.setDelay(delay)
+                .setExpedite(expedite)
+                .setJobFunc(jobFunc)
+                .setLongRunning(longRunning);
 
-        OneTimeWorkRequest.Builder workRequestBuilder = new OneTimeWorkRequest.Builder(TaskworkerWorker.class);
-
-        // Tasks can only be expedited if they are set with no delay.
-        // This does not appear to be documented, but is evident in the Android Jetpack source code.
-        // https://android.googlesource.com/platform/frameworks/support/+/HEAD/work/work-runtime/src/main/java/androidx/work/WorkRequest.kt#271
-        if (expedite && delay == 0) {
-            workRequestBuilder.setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST);
-        }
-
-        if (delay > 0) {
-            workRequestBuilder.setInitialDelay(delay, TimeUnit.SECONDS);
-        }
-        workRequestBuilder.addTag(generateTagFromId(id));
-        workRequestBuilder.addTag(generateTagFromJobFunc(jobFunc));
-        if (longRunning) {
-            workRequestBuilder.addTag(TaskworkerWorker.TAG_LONG_RUNNING);
-            Log.v(TAG, "Tagging work request as long running, ID: " + id);
-        }
-        workRequestBuilder.setInputData(data);
-        workRequestBuilder.setBackoffCriteria(BackoffPolicy.EXPONENTIAL, 5, TimeUnit.SECONDS);
-        OneTimeWorkRequest workRequest = workRequestBuilder.build();
+        OneTimeWorkRequest workRequest = builder.build();
         workManager.enqueueUniqueWork(id, ExistingWorkPolicy.APPEND_OR_REPLACE, workRequest);
+        // return the work request ID, different from the task ID passed in
+        return workRequest.getId().toString();
     }
 
     public static void clear(String id) {
         Context context = ContextUtil.getApplicationContext();
-        List<String> tags = new ArrayList<String>();
-        String tag = generateTagFromId(id);
-        tags.add(tag);
         RemoteWorkManager workManager = RemoteWorkManager.getInstance(context);
-        WorkQuery workQuery = WorkQuery.Builder
-                .fromTags(tags)
-                .build();
+        WorkQuery workQuery = Builder.TaskQuery.from(id).build();
         ListenableFuture<List<WorkInfo>> workInfosFuture = workManager.getWorkInfos(workQuery);
 
         workInfosFuture.addListener(() -> {
@@ -94,12 +72,123 @@ public class Task {
                     }
                     if (anyInfo && clearable) {
                         // If the tasks are marked as completed we
-                        workManager.cancelAllWorkByTag(tag);
+                        workManager.cancelUniqueWork(id);
                     }
                 }
             } catch (ExecutionException | InterruptedException e) {
                 e.printStackTrace();
             }
         }, new MainThreadExecutor());
+    }
+
+    public static CompletableFuture<Boolean> reconcile(Context context, Executor executor) {
+        if (executor == null) {
+            executor = ContextCompat.getMainExecutor(context);
+        }
+
+        final AtomicBoolean didReconcile = new AtomicBoolean(false);
+        final JobStorage db = JobStorage.readwrite(context);
+        final Reconciler reconciler = Reconciler.from(context, db, executor);
+
+        if (db == null) {
+            Log.e(Sentinel.TAG, "Failed to open job storage database");
+            return CompletableFuture.completedFuture(false);
+        }
+
+        // If we can't acquire the lock, then reconciliation is already running
+        if (!reconciler.begin()) {
+            return CompletableFuture.completedFuture(false);
+        }
+
+        final Sentinel sentinel = Sentinel.from(context, db, executor);
+        final CompletableFuture<Boolean> future = new CompletableFuture<>();
+        CompletableFuture<AtomicBoolean> chain = CompletableFuture.completedFuture(didReconcile);
+
+        // Run through all the states and check them, then process the results
+        for (StateMap stateRef : StateMap.forReconciliation()) {
+            chain = chain.thenComposeAsync((_didReconcile) -> {
+                // Avoid checking if future is cancelled
+                synchronized (future) {
+                    if (future.isCancelled()) {
+                        return CompletableFuture.completedFuture(_didReconcile);
+                    }
+                }
+
+                Log.i(TAG, "Requesting sentinel check state " + stateRef);
+                return sentinel.check(stateRef)
+                        .exceptionally((e) -> {
+                            Log.e(TAG, "Failed to check state for reconciliation " + stateRef, e);
+                            return null;
+                        })
+                        .thenCompose((results) -> {
+                            if (results != null && results.length > 0) {
+                                Log.d(TAG, "Received results for sentinel checking " + stateRef);
+                                _didReconcile.set(true);
+                                return reconciler.process(stateRef, results)
+                                        .thenApply((r) -> _didReconcile);
+                            }
+                            return CompletableFuture.completedFuture(_didReconcile);
+                        });
+            }, executor);
+        }
+
+        final CompletableFuture<AtomicBoolean> finalChain
+                = chain.orTimeout(15, java.util.concurrent.TimeUnit.SECONDS);
+
+        finalChain.whenCompleteAsync((result, error) -> {
+            try {
+                reconciler.end();
+                db.close();
+            } catch (Exception e) {
+                Log.e(TAG, "Failed cleaning up reconciliation", e);
+            } finally {
+                synchronized (future) {
+                    if (!future.isCancelled()) {
+                        if (error instanceof TimeoutException) {
+                            Log.e(TAG, "Timed out waiting for reconciliation chain", error);
+                            future.completeExceptionally(error);
+                        } else if (error != null) {
+                            Log.e(TAG, "Failed during reconciliation chain", error);
+                            future.completeExceptionally(error);
+                        } else if (result != null) {
+                            if (result.get()) {
+                                Log.i(TAG, "Reconciliation completed successfully");
+                            } else {
+                                Log.i(TAG, "No reconciliation performed");
+                            }
+                            future.complete(result.get());
+                        } else {
+                            future.complete(false);
+                        }
+                    }
+                }
+            }
+        }, executor);
+
+        // Propagate cancellation to the chain
+        future.whenCompleteAsync((result, error) -> {
+            synchronized (future) {
+                if (future.isCancelled()) {
+                    finalChain.cancel(true);
+                }
+            }
+        }, executor);
+
+        return future;
+    }
+
+    /**
+     * @param id                The task request ID
+     * @param notificationTitle The notification title
+     * @param notificationText  The notification text
+     * @param progress          The task progress
+     * @param total             The total of completed task progress
+     */
+    public static void updateProgress(
+            String id, String notificationTitle, String notificationText, int progress, int total
+    ) {
+        NotificationRef ref = Worker.buildNotificationRef(id);
+        Manager manager = new Manager(ContextUtil.getApplicationContext(), ref);
+        manager.send(notificationTitle, notificationText, progress, total);
     }
 }

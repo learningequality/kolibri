@@ -1,0 +1,43 @@
+package org.learningequality.Kolibri;
+
+import android.content.Intent;
+import android.os.IBinder;
+import android.util.Log;
+
+import androidx.annotation.NonNull;
+import androidx.work.multiprocess.RemoteWorkerService;
+
+import org.learningequality.notification.NotificationRef;
+import org.learningequality.notification.Notifier;
+
+/**
+ * Dedicated service for running tasks in the foreground via RemoteListenableWorker.
+ */
+public class WorkerService extends RemoteWorkerService implements Notifier {
+    private static final String TAG = "Kolibri.ForegroundWorkerService";
+
+    public static WorkerService mService = null;
+
+    @Override
+    public void onCreate() {
+        Log.d(TAG, "Initializing foreground worker service");
+        super.onCreate();
+        mService = this;
+    }
+
+    @Override
+    public void onDestroy() {
+        Log.d(TAG, "Destroying foreground worker service");
+        hideNotification();
+        super.onDestroy();
+        mService = null;
+    }
+
+    public NotificationRef getNotificationRef() {
+        return buildNotificationRef();
+    }
+
+    public static NotificationRef buildNotificationRef() {
+        return new NotificationRef(NotificationRef.REF_CHANNEL_SERVICE);
+    }
+}

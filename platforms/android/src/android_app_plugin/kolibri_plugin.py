@@ -9,7 +9,6 @@ from kolibri.plugins.hooks import register_hook
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
-TaskWorker = autoclass("org.learningequality.Kolibri.TaskworkerWorker")
 
 
 logger = logging.getLogger(__name__)
@@ -48,13 +47,14 @@ class StorageHook(StorageHook):
                     job.func, orm_job.id, delay, high_priority
                 )
             )
-            Task.enqueueOnce(
+            request_id = Task.enqueueOnce(
                 orm_job.id,
                 delay,
                 high_priority,
                 job.func,
                 job.long_running,
             )
+            job.update_worker_info(extra=request_id)
 
     def update(self, job, orm_job, state=None, **kwargs):
         currentLocale = Locale.getDefault().toLanguageTag()
@@ -68,7 +68,8 @@ class StorageHook(StorageHook):
             else:
                 progress = -1
                 total_progress = -1
-            TaskWorker.updateProgress(
+            Task.updateProgress(
+                orm_job.worker_extra,
                 status.title,
                 status.text,
                 progress,

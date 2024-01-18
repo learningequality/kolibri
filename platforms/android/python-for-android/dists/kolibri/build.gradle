@@ -109,4 +109,5 @@ dependencies {
     implementation 'androidx.concurrent:concurrent-futures:1.1.0'
     implementation 'androidx.work:work-runtime:2.7.1'
     implementation 'androidx.work:work-multiprocess:2.7.1'
+    implementation 'net.sourceforge.streamsupport:java9-concurrent-backport:2.0.5'
 }
