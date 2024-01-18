@@ -20,11 +20,14 @@ on:
   workflow_call:
     inputs:
       tar-file-name:
-        required: true
+        required: false
+        type: string
+      tar-url:
+        required: false
         type: string
       ref:
         description: 'A ref for this workflow to check out its own repo'
-        required: true
+        required: false
         type: string
       signed:
         description: 'Should this be signed with the development key? (mutually exclusive with release)'
@@ -76,10 +79,15 @@ jobs:
       apk-file-name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
       version-code: ${{ steps.get-version-code.outputs.version-code}}
     steps:
-    - name: Validate inputs
+    - name: Validate release flag inputs
       if: ${{ (inputs.release == true || github.event.inputs.release == 'true') && (inputs.signed == true || github.event.inputs.signed == 'true') }}
       run: |
         echo "Cannot build a release and signed development APK at the same time."
+        exit 1
+    - name: Validate tar reference inputs
+      if: ${{ !github.event.inputs.tar-file-name && ( (inputs.tar-file-name && inputs.tar-url) || (!inputs.tar-file-name && !inputs.tar-url) ) }}
+      run: |
+        echo "Must specify only one reference for the tar file to build the APK with."
         exit 1
     - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
@@ -132,9 +140,12 @@ jobs:
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
         restore-keys: |
           ${{ runner.os }}-pip-
-    - name: Download the tarfile from URL
+    - name: Download the tarfile from URL for workflow_dispatch
       if: ${{ github.event.inputs.tar-url }}
       run: make get-tar tar=${{ github.event.inputs.tar-url }}
+    - name: Download the tarfile from URL for workflow_call
+      if: ${{ inputs.tar-url }}
+      run: make get-tar tar=${{ inputs.tar-url }}
     - name: Download the tarfile from artifacts
       if: ${{ inputs.tar-file-name }}
       uses: actions/download-artifact@v4
