@@ -16,7 +16,7 @@ def main(job_request):
             job_id, request_id
         )
     )
-    
+
     # Import this after we have initialized Kolibri
     from kolibri.core.tasks.worker import execute_job  # noqa: E402
 

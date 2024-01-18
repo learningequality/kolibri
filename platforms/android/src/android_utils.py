@@ -50,7 +50,7 @@ def get_version_name():
 @cache
 def get_context():
     PythonContext = autoclass("org.kivy.android.PythonContext")
-    return PythonContext.get();
+    return PythonContext.get()
 
 
 @cache
