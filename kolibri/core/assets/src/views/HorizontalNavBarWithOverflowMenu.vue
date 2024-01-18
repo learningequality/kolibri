@@ -1,6 +1,8 @@
 <template>
 
-  <Navbar>
+  <Navbar
+    class="navbar-positioning"
+  >
     <div
       ref="navContainer"
       class="navcontainer"
@@ -27,6 +29,7 @@
         appearance="flat-button"
         :color="color"
         :primary="false"
+        class="kiconbutton-style"
       >
         <template #menu>
           <KDropdownMenu
@@ -122,8 +125,17 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    overflow: hidden;
     text-overflow: ellipsis;
+  }
+
+  .kiconbutton-style {
+    position: absolute;
+    margin-left: 1em;
+  }
+
+  .navbar-positioning {
+    position: relative;
+    padding-right: 3.5em;
   }
 
 </style>
