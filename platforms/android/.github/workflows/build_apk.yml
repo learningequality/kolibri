@@ -122,7 +122,7 @@ jobs:
         libltdl-dev \
         patch \
         zlib1g-dev
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         # This is where python for android puts its intermediary build
         # files - we cache this to improve build performance, but be
@@ -134,7 +134,7 @@ jobs:
         # but repeated workflow calls for this commit will use the cache.
         path: ./python-for-android
         key: ${{ runner.os }}-python-for-android-${{ steps.get-commit.outputs.sha }}
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
