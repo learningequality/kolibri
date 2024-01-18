@@ -11,7 +11,6 @@ const Presets = Object.freeze({
  * enum identifying whether the user has gone to the on my own flow or not
  */
 const UsePresets = Object.freeze({
-  ON_MY_OWN: 'on my own',
   GROUP: 'group',
 });
 
