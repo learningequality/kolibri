@@ -22,7 +22,7 @@
 
         <p>{{ selectFromBookmarks$() }}</p>
 
-        <div @click="lessonCardClicked">
+        <div>
           <KRouterLink
             :appearanceOverrides="{
               width: '100%',
