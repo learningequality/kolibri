@@ -1122,6 +1122,12 @@ class LoginLogoutTestCase(APITestCase):
         cls.cr = ClassroomFactory.create(parent=cls.facility)
         cls.cr.add_coach(cls.admin)
         cls.session_store = import_module(settings.SESSION_ENGINE).SessionStore()
+        cls.user1 = FacilityUserFactory.create(
+            username="Shared_Username", facility=cls.facility
+        )
+        cls.user2 = FacilityUserFactory.create(
+            username="shared_username", facility=cls.facility
+        )
 
     def test_login_and_logout_superuser(self):
         self.client.post(
@@ -1205,6 +1211,37 @@ class LoginLogoutTestCase(APITestCase):
         )
         new_expire_date = self.client.session.get_expiry_date()
         self.assertLess(expire_date, new_expire_date)
+
+    def test_case_insensitive_matching_usernames(self):
+        response_user1 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "shared_username",
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        # Assert the expected behavior based on the application's design
+        self.assertEqual(response_user1.status_code, 200)
+
+        response_user2 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "Shared_Username",
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        # Assert the expected behavior for the second user
+        self.assertEqual(response_user2.status_code, 200)
+
+        # Cleanup: Delete the created users
+        self.user1.delete()
+        self.user2.delete()
 
 
 class SignUpBase(object):

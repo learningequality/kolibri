@@ -25,8 +25,17 @@ class FacilityUserBackend(object):
         :keyword facility: a Facility object or facility ID
         :return: A FacilityUser instance if successful, or None if authentication failed.
         """
-        users = FacilityUser.objects.filter(username__iexact=username)
         facility = kwargs.get(FACILITY_CREDENTIAL_KEY, None)
+        # First, attempt case-sensitive login
+        user = self.authenticate_case_sensitive(username, password, facility)
+        if user:
+            return user
+
+        # If case-sensitive login fails, attempt case-insensitive login
+        user = self.authenticate_case_insensitive(username, password, facility)
+        return user
+
+    def _authenticate_users(self, users, password, facility):
         if facility:
             users = users.filter(facility=facility)
         for user in users:
@@ -42,6 +51,14 @@ class FacilityUserBackend(object):
             ):
                 return user
         return None
+
+    def authenticate_case_sensitive(self, username, password, facility):
+        users = FacilityUser.objects.filter(username=username)
+        return self._authenticate_users(users, password, facility)
+
+    def authenticate_case_insensitive(self, username, password, facility):
+        users = FacilityUser.objects.filter(username__iexact=username)
+        return self._authenticate_users(users, password, facility)
 
     def get_user(self, user_id):
         """

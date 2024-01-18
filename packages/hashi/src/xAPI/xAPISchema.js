@@ -29,6 +29,8 @@ import {
   CMI_INTERACTION,
 } from './xAPIConstants';
 
+const logging = console; //elsint-disable-line no-console
+
 /*
  * Custom error to trigger when validation fails
  * Use ES5 compatible subclassing for compatibility.
@@ -542,7 +544,7 @@ class Schema {
           if (!v.test(obj[key], key, obj)) {
             const msg = v.msg(key, obj);
             if (v.warn) {
-              console.warn(msg);
+              logging.warn(msg);
             } else {
               throw new xAPIValidationError(msg);
             }
