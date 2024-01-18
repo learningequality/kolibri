@@ -16,3 +16,10 @@ updates:
       github:
         patterns:
           - "actions/*"
+  # Maintain dependencies for Gradle
+  - package-ecosystem: "gradle"
+    directory: "python-for-android/dists/kolibri"
+    schedule:
+      interval: "weekly"
+      day: "friday"
+      time: "00:00"
