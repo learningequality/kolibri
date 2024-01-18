@@ -827,6 +827,7 @@ def _set_from_envvars(conf):
                                 optname=optname, section=section
                             )
                         )
+                    conf[section][optname] = os.environ[envvar]
                     using_env_vars[optname] = envvar
                     break
     return using_env_vars
@@ -990,6 +991,12 @@ def generate_empty_options_file(ini_filename="options.ini"):
     # Generate an options.ini file inside the KOLIBRI_HOME as default placeholder config
 
     conf = read_options_file(ini_filename=ini_filename)
+
+    for section, opts in option_spec.items():
+        for optname, attrs in opts.items():
+            for envvar in attrs.get("envvars", []):
+                if envvar in os.environ:
+                    conf[section].pop(optname, None)
 
     comments = None
 
