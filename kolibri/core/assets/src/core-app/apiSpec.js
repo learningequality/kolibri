@@ -188,6 +188,7 @@ export default {
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
+      // UiAlert,
       // UiIconButton,
       UiToolbar,
       PrivacyInfoModal,
@@ -220,12 +221,15 @@ export default {
     },
     router,
     mixins: {
+      // responsiveWindowMixin,
+      // responsiveElementMixin,
       commonCoreStrings,
       commonTaskStrings,
       commonSyncElements,
       translatedUserKinds,
     },
     composables: {
+      // useKResponsiveWindow,
       // useKShow,
       useMinimumKolibriVersion,
       useUser,
