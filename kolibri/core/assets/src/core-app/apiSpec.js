@@ -18,8 +18,8 @@ import vuex from 'vuex';
 // import responsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
 // import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 // import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-import useKShow from 'kolibri-design-system/lib/composables/useKShow';
-import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
+// import useKShow from 'kolibri-design-system/lib/composables/useKShow';
+// import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton'; // temp hack
 import * as vueCompositionApi from '@vue/composition-api';
 import logging from '../logging';
 import * as apiResource from '../api-resource';
@@ -188,7 +188,7 @@ export default {
       MultiPaneLayout,
       CoreFullscreen,
       CoreLogo,
-      UiIconButton,
+      // UiIconButton,
       UiToolbar,
       PrivacyInfoModal,
       UserTypeDisplay,
@@ -226,7 +226,7 @@ export default {
       translatedUserKinds,
     },
     composables: {
-      useKShow,
+      // useKShow,
       useMinimumKolibriVersion,
       useUser,
       useUserSyncStatus,
