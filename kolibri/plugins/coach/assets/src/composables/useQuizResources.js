@@ -3,8 +3,11 @@ import { computed, ref } from 'kolibri.lib.vueCompositionApi';
 import { validateObject } from 'kolibri.utils.objectSpecs';
 import { ContentNodeResource } from 'kolibri.resources';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+import logging from 'kolibri.lib.logging';
 import useFetchTree from './useFetchTree';
 import { QuizExercise } from './quizCreationSpecs.js';
+
+const logger = logging.getLogger(__filename);
 
 /**
  * @typedef {Object} QuizResourcesConfig
@@ -46,7 +49,6 @@ export default function useQuizResources({ topicId } = {}) {
   async function annotateTopicsWithDescendantCounts(topicIds = []) {
     return ContentNodeResource.fetchDescendantsAssessments(topicIds)
       .then(({ data: topicsWithDescendantCounts }) => {
-        //console.log(topicsWithDescendantCounts);
         const childrenWithAnnotatedTopics = get(_resources)
           .map(node => {
             // We'll map so that the topics are updated in place with the num_assessments, others
@@ -57,28 +59,24 @@ export default function useQuizResources({ topicId } = {}) {
                 node.num_assessments = topic.num_assessments;
               }
               if (!validateObject(node, QuizExercise)) {
-                console.warn('Topic node was not a valid QuizExercise after annotation:', node);
+                logger.warn('Topic node was not a valid QuizExercise after annotation:', node);
               }
             }
             return node;
           })
           .filter(node => {
             // Only keep topics which have assessments in them to begin with
-            if (node.kind === ContentNodeKinds.TOPIC) {
-              if (node.num_assessments > 0) {
-                return true;
-              } else {
-                return false;
-              }
+            if (node.kind !== ContentNodeKinds.TOPIC) {
+              return true;
             }
-            return true; // Not a topic, so must be an Exercise due to API params
+            return node.num_assessments > 0;
           });
         set(_resources, childrenWithAnnotatedTopics);
       })
       .catch(e => {
         // TODO Work out best UX for this situation -- it may depend on if we're fetching more
         // or the initial list of contents
-        console.error(e);
+        logger.error(e);
       });
   }
 
@@ -105,7 +103,6 @@ export default function useQuizResources({ topicId } = {}) {
   async function fetchMoreQuizResources() {
     set(_loading, true);
     return fetchMore().then(async results => {
-      console.log(results);
       set(_resources, [...get(_resources), ...results]);
       return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
@@ -114,10 +111,11 @@ export default function useQuizResources({ topicId } = {}) {
   }
 
   /** @returns {Boolean} Whether the given node should be displayed with a checkbox
-   * currently passes when the node is an Exercise or if it is a topic with fewer than 20
-   * assessments in its descendants tree */
+   * @description Returns whether the given node is an exercise or not -- although, could be
+   * extended in the future to permit topic-level selection if desired
+   */
   function hasCheckbox(node) {
-    return node.kind === ContentNodeKinds.EXERCISE || node.num_assessments <= 20;
+    return node.kind === ContentNodeKinds.EXERCISE;
   }
 
   function setResources(r) {

@@ -55,7 +55,7 @@ export default [
   },
   {
     name: PageNames.BOOK_MARKED_RESOURCES,
-    path: '/:classId/plan/quizzes/new/:section_id/select-resources/bookmarks/:topic_id?',
+    path: '/:classId/plan/quizzes/new/:section_id/select-resources/bookmarks',
     component: CreateExamPage,
   },
   {

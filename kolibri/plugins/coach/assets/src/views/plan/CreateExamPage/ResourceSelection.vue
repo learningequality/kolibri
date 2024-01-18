@@ -42,14 +42,6 @@
         </div>
       </div>
 
-      <!-- <LessonsSearchFilters
-        v-if="inSearchMode"
-        v-model="filters"
-        class="search-filters"
-        :searchTerm="searchTerm"
-        :searchResults="searchResults"
-      /> -->
-
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
         :ancestors="topic.ancestors"
@@ -168,7 +160,6 @@
 
       // Load up the channels
       if (!topicId.value) {
-        console.log('NO TOPIC ID');
         const channelBookmarkPromises = [
           ChannelResource.fetchCollection({
             params: { has_exercises: true, available: true },
@@ -187,7 +178,6 @@
           }),
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
-              console.log('Bookmarks API results', data); // Do we have a `more` here?
               bookmarks.value = data.results ? data.results : [];
             }
           ),
@@ -258,7 +248,11 @@
         return this.$route.params.topic_id;
       },
       selectionMetadata(/*content*/) {
-        return function() {};
+        // TODO This should return a function that returns a string telling us how many of this
+        // topic's descendants are selected out of its total descendants -- basically answering
+        // "How many resources in the working resource_pool are from this topic?"
+        // Tracked in https://github.com/learningequality/kolibri/issues/11741
+        return () => '';
         // let count = 0;
         // let total = 0;
         // if (this.ancestorCounts[content.id]) {
@@ -276,21 +270,10 @@
         //   console.log('Dynamic function called');
         // };
       },
-      /*
-      contentIsInLesson() {
-        return ({ id }) => Boolean(this.channels);
-      },
-      addableContent() {
-        // Content in the topic that can be added if 'Select All' is clicked
-        const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
-        return list.filter(
-          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
-        );
-      },
-      */
       goBack() {
-        //TODO This should only be shown w/ the back arrow KRouterLink when we've gone past the
+        // TODO This should only be shown w/ the back arrow KRouterLink when we've gone past the
         // initial screen w/ the channels
+        // See https://github.com/learningequality/kolibri/issues/11733
         return {}; // This will need to be gleaned in a nav guard
       },
       getBookmarksLink() {
@@ -306,37 +289,9 @@
       },
       /*
       selectAllIsVisible() {
-        return false;
-        // Do not show 'Select All' if on Search Results, on Channels Page,
-        // or if all contents are topics
-        /*
-        return (
-          !this.inSearchMode &&
-          this.pageName !== LessonsPageNames.SELECTION_ROOT &&
-          !every(this.channels.value, this.contentIsDirectoryKind)
-        );
-      },
-      */
-      /**
-      filteredContentList() {
-        const { role } = this.filters;
-        if (!this.inSearchMode) {
-          return this.channels;
-        }
-
-        return this.channels.filter(contentNode => {
-          let passesFilters = true;
-          if (role === 'nonCoach') {
-            passesFilters = passesFilters && contentNode.num_coach_contents === 0;
-          }
-          if (role === 'coach') {
-            passesFilters = passesFilters && contentNode.num_coach_contents > 0;
-          }
-          return passesFilters;
-        });
-      },
-      inSearchMode() {
-        return this.pageName === PageNames.SELECT_FROM_RESOURCE;
+        TO BE IMPLEMENTED IN https://github.com/learningequality/kolibri/issues/11734
+        Should only be visible if there are any checkboxes at all -- we'll only be showing
+        checkboxes for Exercises, not topics
       },
       */
     },
@@ -385,7 +340,7 @@
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
-          PageNames.SELECT_FROM_RESOURCE,
+          PageNames.QUIZ_SELECT_RESOURCES,
           { topicId },
           this.$route.query
         );
@@ -393,53 +348,6 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
-      // selectionMetadata(content) {
-      //   if (content.kind === ContentNodeKinds.TOPIC) {
-      //     const count = content.exercises.filter(exercise =>
-      //       Boolean(this.selectedExercises[exercise.id])
-      //     ).length;
-      //     if (count === 0) {
-      //       return '';
-      //     }
-      //     const total = content.exercises.length;
-      //     return this.$tr('total_number', { count, total });
-      //   }
-      //   return '';
-      // },
-      /*
-      handleSearchTerm(searchTerm) {
-        const query = {
-          last_id: this.$route.query.last_id || this.$route.params.topicId,
-        };
-        const lastPage = this.$route.query.last;
-        if (lastPage) {
-          query.last = lastPage;
-        }
-        this.$router.push({
-          name: LessonsPageNames.SELECTION_SEARCH,
-          params: {
-            searchTerm,
-          },
-          query,
-        });
-      },
-      handleMoreResults() {
-        this.moreResultsState = 'waiting';
-        this.fetchAdditionalSearchResults({
-          searchTerm: this.searchTerm,
-          kind: this.filters.kind,
-          channelId: this.filters.channel,
-          currentResults: this.searchResults.results,
-        })
-          .then(() => {
-            this.moreResultsState = null;
-            this.moreResultsState;
-          })
-          .catch(() => {
-            this.moreResultsState = 'error';
-          });
-      },
-      */
     },
   };
 
@@ -458,10 +366,6 @@
   .title-style {
     font-size: 1.4em;
     font-weight: 600;
-  }
-
-  .search-filters {
-    margin-top: 24px;
   }
 
   .bookmark-container {
