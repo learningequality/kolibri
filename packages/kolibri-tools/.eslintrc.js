@@ -68,6 +68,7 @@ module.exports = {
   },
   rules: {
     'comma-style': ERROR,
+    "no-console": ERROR,
     'max-len': [
       ERROR,
       100,

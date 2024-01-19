@@ -313,6 +313,7 @@
 
   import { get, set } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
+  import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
@@ -325,6 +326,8 @@
   import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
+
+  const logger = logging.getLogger(__filename);
 
   export default {
     name: 'CreateQuizSection',
@@ -517,7 +520,7 @@
         if (tabRef) {
           tabRef.focus();
         } else {
-          console.error(
+          logger.error(
             'Tried to focus active tab id: ',
             label,
             ' - but the tab is not in the refs: ',

@@ -122,6 +122,7 @@
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
+  import logger from 'kolibri.lib.logging';
   import { RecycleList } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
@@ -133,6 +134,8 @@
   import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
+
+  const logging = logger.getLogger(__filename);
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -524,13 +527,13 @@
         Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
           explicitDest => {
             if (!Array.isArray(explicitDest)) {
-              console.error('Error getting destination');
+              logging.error('Error getting destination');
               return;
             }
 
             this.getDestinationPageNumber(explicitDest).then(pageNumber => {
               if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-                console.error('Invalid destination page');
+                logging.error('Invalid destination page');
                 return;
               }
 
@@ -561,13 +564,13 @@
         Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
           explicitDest => {
             if (!Array.isArray(explicitDest)) {
-              console.error('Error getting destination');
+              logging.error('Error getting destination');
               return;
             }
 
             this.getDestinationPageNumber(explicitDest).then(pageNumber => {
               if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-                console.error('Invalid destination page');
+                logging.error('Invalid destination page');
                 return;
               }
 
@@ -630,14 +633,14 @@
                 resolve(pageIndex + 1);
               })
               .catch(e => {
-                console.error('Error getting destination page number', e);
+                logging.error('Error getting destination page number', e);
                 resolve();
               });
           }
           if (Number.isInteger(destRef)) {
             return resolve(destRef + 1);
           }
-          console.error('Invalid destination reference');
+          logging.error('Invalid destination reference');
           resolve();
         });
       },

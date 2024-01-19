@@ -9,9 +9,12 @@ import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
+
+const logger = logging.getLogger(__filename);
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -67,7 +70,7 @@ export default function useQuizCreation(DEBUG = false) {
    */
   function _generateTestData() {
     if (process.env.NODE_ENV === 'production') {
-      console.error("You're trying to generate test data in production. Please set DEBUG = false.");
+      logger.error("You're trying to generate test data in production. Please set DEBUG = false.");
     }
     /**
      * @type {QuizQuestion[]} - dummyQuestions
@@ -134,11 +137,9 @@ export default function useQuizCreation(DEBUG = false) {
       return objectWithDefaults(sectionOverrides, QuizSection);
     });
 
-    /* eslint-disable no-console */
-    console.log('Generated DEBUG dummyQuestions', dummyQuestions);
-    console.log('Generated DEBUG resources', resources);
-    console.log('Generated DEBUG sections', sections);
-    /* eslint-enable */
+    logger.log('Generated DEBUG dummyQuestions', dummyQuestions);
+    logger.log('Generated DEBUG resources', resources);
+    logger.log('Generated DEBUG sections', sections);
 
     // Now we're committing this all ot the _quiz ref from which reactive properties will derive
     updateQuiz({ question_sources: sections });

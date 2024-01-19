@@ -527,7 +527,7 @@ def _get_import_metadata(client, contentnode_id):
         return response.json()
     except NetworkLocationResponseFailure as e:
         # 400 level errors, like 404, are ignored
-        if e.response and 400 <= e.response.status_code < 500:
+        if e.response is not None and 400 <= e.response.status_code < 500:
             logger.debug(
                 "Metadata request failure: GET {} {}".format(
                     url_path, e.response.status_code

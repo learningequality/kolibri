@@ -101,17 +101,19 @@ class Worker(object):
         return pool
 
     def handle_finished_future(self, future):
-        # get back the job assigned to the future
-        job = self.job_future_mapping[future]
-
-        # Clean up tracking of this job and its future
-        del self.job_future_mapping[future]
-        del self.future_job_mapping[job.job_id]
-
         try:
-            future.result()
-        except CancelledError:
-            self.storage.mark_job_as_canceled(job.job_id)
+            # get back the job assigned to the future
+            job = self.job_future_mapping[future]
+            # Clean up tracking of this job and its future
+            del self.job_future_mapping[future]
+            del self.future_job_mapping[job.job_id]
+
+            try:
+                future.result()
+            except CancelledError:
+                self.storage.mark_job_as_canceled(job.job_id)
+        except KeyError:
+            pass
 
     def shutdown(self, wait=True):
         logger.info("Asking job schedulers to shut down.")
@@ -190,6 +192,12 @@ class Worker(object):
             execute_job_with_python_worker,
             job_id=job.job_id,
         )
+
+        # Check if the job ID already exists in the future_job_mapping dictionary
+        if job.job_id in self.future_job_mapping:
+            logger.warn(
+                "Job id {} is already in future_job_mapping.".format(job.job_id)
+            )
 
         # assign the futures to a dict, mapping them to a job
         self.job_future_mapping[future] = job

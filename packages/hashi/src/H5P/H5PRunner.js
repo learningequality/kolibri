@@ -148,6 +148,7 @@ export default class H5PRunner {
       // dependencies have been loaded.
       this.setDependencies();
       return this.processFiles().then(() => {
+        // eslint-disable-next-line no-console
         console.debug(`H5P file processed in ${performance.now() - start} ms`);
         this.metadata = pick(this.rootConfig, metadataKeys);
         // Do any URL substitition on CSS dependencies
@@ -309,6 +310,7 @@ export default class H5PRunner {
       debouncedHandlers[verb] = debounce(
         function(statement) {
           contentWindow.xAPI.sendStatement(statement, true).catch(err => {
+            // eslint-disable-next-line no-console
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         },
@@ -340,6 +342,7 @@ export default class H5PRunner {
           debouncedHandlers[statement.verb.id](statement);
         } else {
           contentWindow.xAPI.sendStatement(event.data.statement, true).catch(err => {
+            // eslint-disable-next-line no-console
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         }
