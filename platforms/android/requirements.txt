@@ -2,7 +2,7 @@ cython~=0.29
 ifaddr
 virtualenv
 setuptools
-git+https://github.com/learningequality/python-for-android@5eff8c9f79c8f019073cc7e913219f5ac219ac32#egg=python-for-android
+git+https://github.com/learningequality/python-for-android@88ad22a420ed7aa90393a4eaed5762fd7de5e03b#egg=python-for-android
 google-api-python-client==2.96.0
 google-auth==2.22.0
 google-auth-httplib2==0.1.0
