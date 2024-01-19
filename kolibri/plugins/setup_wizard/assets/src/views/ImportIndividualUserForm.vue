@@ -268,7 +268,7 @@
             if (!this.wizardService.state.context.firstImportedLodUser) {
               this.wizardService.send({
                 type: 'SET_FIRST_LOD',
-                value: { username: this.username, password },
+                value: {username:task.extra_metadata.username, password },
               });
             }
 
