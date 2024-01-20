@@ -197,7 +197,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
 
     DEFAULT_HANDLERS = (
         ["console", "console-error"]
-        if (NO_FILE_BASED_LOGGING.lower() == "true")
+        if (NO_FILE_BASED_LOGGING and str(NO_FILE_BASED_LOGGING).lower() == "true")
         else ["file", "console", "console-error", "file_debug"]
     )
 
@@ -258,7 +258,10 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                         "encoding": "utf-8",
                     },
                 }
-                if not (NO_FILE_BASED_LOGGING.lower() == "true")
+                if not (
+                    NO_FILE_BASED_LOGGING
+                    and str(NO_FILE_BASED_LOGGING).lower() == "true"
+                )
                 else {}
             ),
         },

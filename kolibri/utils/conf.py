@@ -45,7 +45,7 @@ if not os.path.exists(KOLIBRI_HOME):
 # Create a folder named logs inside KOLIBRI_HOME to store all the log files.
 LOG_ROOT = os.path.join(KOLIBRI_HOME, "logs")
 if not os.path.exists(LOG_ROOT):
-    if not (NO_FILE_BASED_LOGGING.lower() == "true"):
+    if not (NO_FILE_BASED_LOGGING and str(NO_FILE_BASED_LOGGING).lower() == "true"):
         os.mkdir(LOG_ROOT)
 
 
