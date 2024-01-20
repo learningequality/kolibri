@@ -249,7 +249,7 @@
       },
       statusText() {
         const trName = statusToTrMap[this.task.status];
-        return this.$tr(trName);
+        return this.deviceString(trName);
       },
       startedByText() {
         return this.$tr('startedByUser', {
