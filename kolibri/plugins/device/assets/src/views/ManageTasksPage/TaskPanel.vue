@@ -94,6 +94,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   const typeToTrMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
@@ -130,7 +131,7 @@
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       return {
@@ -142,44 +143,8 @@
         type: Object,
         required: true,
       },
-      appBarTitle: {
-        type: String,
-        required: true,
-      },
     },
     computed: {
-      dynamicTitle() {
-        const channelName = this.task.extra_metadata.channel_name || this.$tr('unknownChannelName');
-
-        if (this.task.status === TaskStatuses.RUNNING || this.task.status === TaskStatuses.QUEUED) {
-          if (
-            this.task.type === TaskTypes.REMOTECONTENTIMPORT ||
-            this.task.type === TaskTypes.DISKCONTENTIMPORT
-          ) {
-            return this.$tr('importChannelWhole', { channelName: channelName });
-          } else if (
-            this.task.type === TaskTypes.DELETECHANNEL ||
-            this.task.type === TaskTypes.DELETECONTENT
-          ) {
-            return this.$tr('deleteChannelWhole', { channelName: channelName }) + channelName;
-          }
-        } else if (this.task.status === TaskStatuses.CANCELED) {
-          return this.$tr('statusCanceled') + ' - ' + channelName;
-        } else if (this.task.status === TaskStatuses.FAILED) {
-          return this.$tr('statusFailed');
-        } else if (this.task.status === TaskStatuses.COMPLETED) {
-          return this.$tr('statusComplete') + ' - ' + channelName;
-        } else if (this.task.status === TaskStatuses.CANCELING) {
-          return this.$tr('statusCanceling') + ' - ' + channelName;
-        }
-        return this.appBarTitle;
-      },
-
-      formattedPercentage() {
-        return this.taskPercentage !== null
-          ? this.$formatNumber(this.taskPercentage, { style: 'percent' })
-          : '';
-      },
       buttonLabel() {
         if (this.taskIsClearable) {
           return this.coreString('clearAction');
@@ -292,38 +257,8 @@
         });
       },
     },
-    watch: {
-      taskPercentage: {
-        immediate: true,
-        handler(newPercentage) {
-          if (newPercentage !== null) {
-            this.emitUpdatedTitle();
-          }
-        },
-      },
-
-      'task.status': {
-        immediate: true,
-        handler(newStatus) {
-          if (
-            newStatus === TaskStatuses.CANCELED ||
-            newStatus === TaskStatuses.CANCELING ||
-            newStatus === TaskStatuses.FAILED ||
-            newStatus === TaskStatuses.COMPLETED
-          ) {
-            this.emitUpdatedTitle();
-          }
-        },
-      },
-    },
 
     methods: {
-      emitUpdatedTitle() {
-        const title = this.taskIsRunning
-          ? `${this.formattedPercentage} - ${this.dynamicTitle}`
-          : this.dynamicTitle;
-        this.$emit('update-title', title);
-      },
       handleClick() {
         if (this.taskIsCompleted || this.taskIsFailed) {
           this.$emit('clickclear');
@@ -345,31 +280,6 @@
       cancelSize: {
         message: 'Exported size: ({bytesText})',
         context: 'Indicates the number of resources and their size.',
-      },
-
-      statusInProgress: {
-        message: 'In-progress',
-        context: 'Label indicating that a task is in progress.',
-      },
-      statusInQueue: {
-        message: 'Waiting',
-        context: 'Label indicating that a task is queued.\n',
-      },
-      statusComplete: {
-        message: 'Finished',
-        context: 'Label indicating that the *task* was completed successfully.',
-      },
-      statusFailed: {
-        message: 'Failed',
-        context: 'Label indicating that a task failed, i.e. it has not been completed.',
-      },
-      statusCanceled: {
-        message: 'Canceled',
-        context: 'Refers to a canceled task in the task manager section.',
-      },
-      statusCanceling: {
-        message: 'Canceling',
-        context: 'Refers to a task being canceled in the task manager section.',
       },
       importChannelWhole: {
         message: `Import '{channelName}'`,

@@ -123,10 +123,9 @@
       },
     },
     watch: {
-      managedTasks(val) {
-        if (val.length > 0) {
-          this.loading = false;
-        }
+      managedTasks: {
+        handler: 'updateManagedTasks',
+        deep: true,
       },
     },
     mounted() {
@@ -138,8 +137,58 @@
       }
     },
     methods: {
-      updateAppBarTitle(updatedTitle) {
-        this.pageTitle = updatedTitle;
+      formattedPercentage(val) {
+        return this.$formatNumber(val, { style: 'percent' });
+      },
+      formattedNumber(val) {
+        return this.$formatNumber(val);
+      },
+
+      updateManagedTasks(val) {
+        if (val.length > 0) {
+          this.loading = false;
+        }
+        // Additional logic or updates related to managedTasks
+        this.updateAppBarTitle();
+      },
+      updateAppBarTitle() {
+        const inProgressTasks = this.managedTasks.filter(task => task.status === 'RUNNING');
+        const failedTasks = this.managedTasks.filter(task => task.status === 'FAILED');
+        const canceledTasks = this.managedTasks.filter(task => task.status === 'CANCELED');
+        const totalTasks = this.managedTasks.length;
+        const completedTasks = this.managedTasks.filter(task => task.status === 'COMPLETED');
+
+        if (failedTasks.length === 1) {
+          this.pageTitle = `${this.deviceString('statusFailed')} - ${
+            failedTasks[0].extra_metadata.channel_name
+          } `;
+        } else if (failedTasks.length > 1) {
+          this.pageTitle = `${this.formattedNumber(failedTasks.length)} - ${this.deviceString(
+            'statusFailed'
+          )}`;
+        } else if (totalTasks === 1 && inProgressTasks.length === 1) {
+          const inProgressTask = inProgressTasks[0];
+          this.pageTitle = `${this.formattedPercentage(inProgressTask.percentage)} - ${
+            inProgressTask.extra_metadata.channel_name
+          } `;
+        } else if (totalTasks > 1 && inProgressTasks.length >= 1) {
+          const averageProgress =
+            inProgressTasks.reduce((sum, task) => sum + task.percentage, 0) /
+            inProgressTasks.length;
+          if (averageProgress === 1) {
+            this.pageTitle = this.deviceString('statusComplete');
+          } else {
+            this.pageTitle = `${this.formattedPercentage(averageProgress)} - ${this.deviceString(
+              'statusInProgress'
+            )}`;
+          }
+        } else if (totalTasks > 0 && completedTasks.length === totalTasks) {
+          this.pageTitle = this.deviceString('statusComplete');
+        } else if (canceledTasks.length > 0) {
+          this.pageTitle = this.deviceString('statusCanceled');
+        } else {
+          this.pageTitle = this.$tr('appBarTitle');
+        }
       },
       handleClickClear(task) {
         TaskResource.clear(task.id).catch(() => {
