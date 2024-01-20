@@ -197,7 +197,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
 
     DEFAULT_HANDLERS = (
         ["console", "console-error"]
-        if NO_FILE_BASED_LOGGING
+        if (NO_FILE_BASED_LOGGING.lower() == "true")
         else ["file", "console", "console-error", "file_debug"]
     )
 
@@ -237,24 +237,30 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "formatter": "color",
                 "stream": "ext://sys.stdout",
             },
-            "file": {
-                "level": "INFO",
-                "filters": [],
-                "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
-                "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
-                "formatter": "simple_date",
-                "when": "midnight",
-                "backupCount": 30,
-                "encoding": "utf-8",
-            },
-            "file_debug": {
-                "level": "DEBUG",
-                "filters": ["require_debug_true"],
-                "class": "logging.FileHandler",
-                "filename": os.path.join(LOG_ROOT, "debug.txt"),
-                "formatter": "simple_date",
-                "encoding": "utf-8",
-            },
+            **(
+                {
+                    "file": {
+                        "level": "INFO",
+                        "filters": [],
+                        "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
+                        "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
+                        "formatter": "simple_date",
+                        "when": "midnight",
+                        "backupCount": 30,
+                        "encoding": "utf-8",
+                    },
+                    "file_debug": {
+                        "level": "DEBUG",
+                        "filters": ["require_debug_true"],
+                        "class": "logging.FileHandler",
+                        "filename": os.path.join(LOG_ROOT, "debug.txt"),
+                        "formatter": "simple_date",
+                        "encoding": "utf-8",
+                    },
+                }
+                if not (NO_FILE_BASED_LOGGING.lower() == "true")
+                else {}
+            ),
         },
         "loggers": {
             "": {
