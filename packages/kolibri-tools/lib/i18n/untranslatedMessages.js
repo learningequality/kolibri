@@ -1,6 +1,9 @@
 const Table = require('cli-table');
+const logger = require('../logging');
 const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
 const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./astUtils');
+
+const logging = logger.getLogger('Kolibri Intl Data');
 
 module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose) {
   const languageInfo = require(langInfo);
@@ -45,5 +48,5 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
     );
     table.push([crowdinCode, intlCode, Object.keys(missingMessages).length, untranslatedWordCount]);
   }
-  console.log(table.toString());
+  logging.log(table.toString());
 };

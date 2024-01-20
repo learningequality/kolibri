@@ -15,6 +15,8 @@ const targetFolder = path.resolve(__dirname, './vendor/h5p');
 
 const h5pStaticFolder = path.resolve(__dirname, '../../kolibri/core/content/static/h5p');
 
+const logging = console; // eslint-disable-line no-console
+
 const fileManifest = [
   /styles\/h5p\.css/,
   /styles\/h5p-core-button\.css/,
@@ -33,7 +35,7 @@ const fileManifest = [
 function downloadFiles() {
   https.get(url.parse(zipUrl), function(res) {
     if (res.statusCode !== 200) {
-      console.log(res);
+      logging.log(res);
       // handle error
       return;
     }
@@ -98,7 +100,7 @@ function downloadFiles() {
           );
         })
         .then(() => {
-          console.log(`${i} files downloaded and unpacked`);
+          logging.log(`${i} files downloaded and unpacked`);
         });
     });
   });

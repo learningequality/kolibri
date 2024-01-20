@@ -1,5 +1,6 @@
 import uniq from 'lodash/uniq';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
+import { Presets } from 'kolibri.coreVue.vuex.constants';
 import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**
@@ -536,7 +537,7 @@ export const wizardMachine = createMachine(
       // Functions used to return a true/false value. When the functions are called, they are passed
       // the current value of the machine's context as the only parameter
       isOnMyOwnOrGroup: context => {
-        return context.onMyOwnOrGroup === UsePresets.ON_MY_OWN;
+        return context.onMyOwnOrGroup === Presets.PERSONAL;
       },
       isGroupSetup: context => {
         return context.onMyOwnOrGroup === UsePresets.GROUP;
