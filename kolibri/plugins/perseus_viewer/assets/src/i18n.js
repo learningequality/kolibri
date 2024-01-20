@@ -2,8 +2,9 @@
  * Utils that wrap vue-intl functions in a way that makes them accessible to Perseus
  */
 
-import { React } from '../dist/perseus';
-import { removeBackslashesInString } from './translationUtils';
+import { createElement, Fragment } from 'react';
+import vue from 'kolibri.lib.vue';
+import { removeBackslashesInString, piTextPlaceholder, piRegex } from './translationUtils';
 import translator from './translator';
 
 // We sometimes need to translate messages without filling in their values
@@ -89,7 +90,7 @@ const interpolateStringToFragment = (str, options = {}) => {
     result['text_' + (i + 1)] = split[i + 1];
   }
 
-  return React.__internalAddons.createFragment(result);
+  return createElement(Fragment, {}, ...Object.values(result));
 };
 
 export const $_ = (...args) => {
@@ -122,5 +123,37 @@ export const _ = (str, options = {}) => {
   Object.assign(options, getTexCurlyBraceOptions(str));
 
   str = removeBackslashesInString(str);
-  return translator.$tr(str, options);
+
+  const hasPiText = piRegex.test(str);
+
+  const output = translator.$tr(str, options);
+  if (!hasPiText) {
+    return output;
+  }
+  return output.replace(piTextPlaceholder, 'text{pi}');
 };
+
+export const ngettext = (str1, str2, num) => {
+  return _(num === 1 ? str1 : str2, { num });
+};
+
+export function doNotTranslate(s) {
+  return s;
+}
+
+let decimalSeparator;
+
+function setDecimalSeparator() {
+  // Infer the decimal separator for this locale
+  decimalSeparator = vue.prototype.$formatNumber(1.1).replace(
+    // eslint-disable-line camelcase
+    new RegExp(vue.prototype.$formatNumber(1), 'g')
+  );
+}
+
+export function getDecimalSeparator() {
+  if (!decimalSeparator) {
+    setDecimalSeparator();
+  }
+  return decimalSeparator;
+}

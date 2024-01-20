@@ -89,32 +89,25 @@
   import invert from 'lodash/invert';
   import ZipFile from 'kolibri-zip';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
-  import urls from 'kolibri.urls';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
-  import scriptLoader from 'kolibri-common/utils/scriptLoader';
-  import perseus from '../../dist/perseus';
-  import icu from '../KAGlobals/icu';
-  import Khan from '../KAGlobals/Khan';
+  import { defer } from 'underscore';
+  import { createFactory } from 'react';
+  import { render, unmountComponentAtNode } from 'react-dom';
+  import * as perseus from '@khanacademy/perseus';
   // Import this here so that our string translation machinery
   // is aware of the dependency, as otherwise the functions in here are only
   // referenced via WebpackProvidePlugin
   import '../i18n';
   import widgetSolver from '../widgetSolver';
   import imageMissing from './image_missing.svg';
+  import TeX from './Tex';
 
   // A handy convenience mapping to what is essentially a constructor for Item Renderer
   // components.
-  const itemRendererFactory = perseus.React.createFactory(perseus.ItemRenderer);
+  const itemRendererFactory = createFactory(perseus.ItemRenderer);
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
-
-  // because MathJax isn't compatible with webpack, we are loading it this way.
-  const mathJaxConfigFileName = require('../constants').ConfigFileName;
-  // the config is fragile, Khan may change it and we need to update the following hardcoded path.
-  const mathJaxUrl = urls.static(`mathjax/2.1/MathJax.js?config=${mathJaxConfigFileName}`);
-
-  const mathJaxPromise = scriptLoader(mathJaxUrl);
 
   const sorterWidgetRegex = /sorter [0-9]+/;
 
@@ -122,9 +115,16 @@
   // group to determine if it's a graphie image or a regular image.
   const allImageRegex = /((web\+graphie:)?)\$\{☣ LOCALPATH\}\/([^)^"]+)/g;
 
+  const svgLabelsRegex = /^web\+graphie:/;
+
   const blobImageRegex = /blob:[^)^"]+/g;
 
-  Khan.imageUrls = {};
+  // Keep a global register of all image URLs at the module level,
+  // so that even if we have multiple instances of the PerseusRenderer
+  // instantiated at once, we can still render images from all of them.
+  // This also allows us to only monkey patch the Util functions once as
+  // well, and prevent duelling components from overriding each other.
+  const globalImageUrls = {};
 
   function getImagePaths(itemResponse) {
     const graphieMatches = {};
@@ -150,7 +150,7 @@
   }
 
   function replaceImageUrls(itemResponse, packageFiles) {
-    Object.assign(Khan.imageUrls, packageFiles);
+    Object.assign(globalImageUrls, packageFiles);
     // If the file is not present in the zip file, then fill in a missing image
     // file for images, and an empty dummy json file for json
     return itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
@@ -159,8 +159,8 @@
         // `web+graphie:` prefix separately from any others,
         // as they are parsed slightly differently to standard image
         // urls (Perseus adds the protocol in place of `web+graphie:`).
-        if (!Khan.imageUrls[image]) {
-          Khan.imageUrls[image] = 'data:application/json,';
+        if (!globalImageUrls[image]) {
+          globalImageUrls[image] = 'data:application/json,';
         }
         return `web+graphie:${image}`;
       } else {
@@ -183,6 +183,47 @@
   const filePathMappers = {
     ...defaultFilePathMappers,
     json: JSONMapper,
+  };
+
+  perseus.Util.getDataUrl = url => {
+    return globalImageUrls[url.replace(svgLabelsRegex, '') + '-data.json'];
+  };
+  perseus.Util.getSvgUrl = url => {
+    return globalImageUrls[url.replace(svgLabelsRegex, '') + '.svg'];
+  };
+  perseus.Util.getRealImageUrl = url => {
+    if (perseus.Util.isLabeledSVG(url)) {
+      return perseus.Util.getSvgUrl(url);
+    }
+
+    return url;
+  };
+  perseus.Util.getImageSize = (url, callback) => {
+    const img = new Image();
+
+    img.onload = function() {
+      // Vendored from perseus to override image handling
+      if (img.width === 0 && img.height === 0) {
+        var _document$body;
+
+        (_document$body = document.body) === null || _document$body === void 0
+          ? void 0
+          : _document$body.appendChild(img);
+
+        defer(function() {
+          var _document$body2;
+
+          callback(img.clientWidth, img.clientHeight);
+          (_document$body2 = document.body) === null || _document$body2 === void 0
+            ? void 0
+            : _document$body2.removeChild(img);
+        });
+      } else {
+        callback(img.width, img.height);
+      }
+    };
+
+    img.src = perseus.Util.getRealImageUrl(url);
   };
 
   export default {
@@ -226,13 +267,17 @@
             toolTipFormats: true,
           },
           apiOptions: {
+            isArticle: false,
             // Pass in callbacks for widget interaction and focus change.
             // Here we dismiss answer error message on interaction and focus change.
             interactionCallback: this.interactionCallback,
+            trackInteraction: this.interactionCallback,
             onFocusChange: this.dismissMessage,
+            onInputError: console.error,
             isMobile: this.isMobile,
             customKeypad: this.usesTouch,
             readOnly: !this.interactive,
+            hintProgressColor: this.$themeTokens.text,
           },
         };
       },
@@ -265,10 +310,6 @@
         this.resetState(newVal);
       },
     },
-    beforeCreate() {
-      icu.setIcuSymbols();
-    },
-
     beforeDestroy() {
       this.$emit('stopTracking');
       this.clearItemRenderer();
@@ -278,9 +319,34 @@
     },
     created() {
       this.perseusFile = null;
-      const initPromise = mathJaxPromise.then(() =>
-        perseus.init({ skipMathJax: true, loadExtraWidgets: true })
-      );
+      // This is a local object for tracking image URLs
+      // we use this to clean up image URLs just for this component
+      this.imageUrls = {};
+      // This is how Perseus handles dependency injection now
+      // all of the following appear to be required, otherwise
+      // Perseus will throw runtime errors.
+      perseus.Dependencies.setDependencies({
+        // JIPT stands for Just In Place Translation
+        // i.e. the system used by Crowdin for in-context translation.
+        JIPT: {
+          useJIPT: false,
+        },
+        // This is the component that actually renders TeX either with KaTeX or Mathjax.
+        TeX,
+        isDevServer: process.env.NODE_ENV !== 'production',
+        // We set this to 'en' regardless of the language being used, so as to
+        // avoid Perseus trying to load localized data URLs. This allows our monkey patching
+        // to be done more simply, and avoid having to do specific edits of the source code.
+        kaLocale: 'en',
+        // For some reason this is defined here as well as in the apiOptions
+        isMobile: this.isMobile,
+        // We already preprocess all URLs
+        // we may need to enhance this if we find one of the uses of it is breaking.
+        staticUrl: url => url,
+        // Pass our logging object to capture Log messages from Perseus
+        Log: logging,
+      });
+      const initPromise = perseus.init({ skipMathJax: true });
       // Try to load the appropriate directional CSS for the particular content
       const cssPromise = this.$options.contentModule.loadDirectionalCSS(this.contentDirection);
       Promise.all([initPromise, cssPromise]).then(() => {
@@ -341,12 +407,24 @@
         // Clear any currently displayed messages when we render an item.
         this.dismissMessage();
 
+        // Clear the perseus container to ensure no residual DOM elements remain.
+        // This is necessary due to an issue with the math-input component that
+        // perseus uses, that seems to fail to clear the MathQuill renderered
+        // content inside it. If this gets fixed, we can remove this and defer
+        // to simply updating.
+        try {
+          unmountComponentAtNode(this.$refs.perseusContainer);
+          this.$set(this, 'itemRenderer', null);
+        } catch (e) {
+          logging.debug('Error during unmounting of item renderer', e);
+        }
+
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
         this.$set(
           this,
           'itemRenderer',
-          perseus.ReactDOM.render(
+          render(
             itemRendererFactory(this.itemRenderData, null),
             this.$refs.perseusContainer,
             () => {
@@ -368,12 +446,11 @@
         // to ensure clean up without worrying about whether React has already cleaned up this
         // component.
         try {
-          perseus.ReactDOM.unmountComponentAtNode(this.$refs.perseusContainer);
+          unmountComponentAtNode(this.$refs.perseusContainer);
           this.$set(this, 'itemRenderer', null);
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
-        Khan.imageUrls = {};
       },
       /*
        * Special method to extract the current state of a Perseus Sorter widget
@@ -511,7 +588,7 @@
         }
       },
       restoreImageUrls(itemResponse) {
-        const lookup = invert(Khan.imageUrls);
+        const lookup = invert(globalImageUrls);
         return JSON.parse(
           JSON.stringify(itemResponse).replace(blobImageRegex, match => {
             // Make sure to add our prefix back in
@@ -579,10 +656,8 @@
 
 <style lang="scss" scoped>
 
-  @import '~../../dist/khan-exercise.css';
-  @import '~../../dist/katex.css';
-  @import '~../../dist/perseus.css';
-  @import '~../../dist/mathquill.css';
+  @import '~katex/dist/katex.css';
+  @import '~../../dist/index.css';
 
   /deep/ .perseus-hint-renderer {
     padding-left: 16px;
