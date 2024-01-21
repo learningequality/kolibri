@@ -11,7 +11,7 @@ import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 async function showResourceSelectionPage(store, params) {
-  const {lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
+  const { lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
