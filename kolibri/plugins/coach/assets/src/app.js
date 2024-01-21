@@ -50,12 +50,18 @@ class CoachToolsModule extends KolibriApp {
       // temporary condition as we're gradually moving all promises below this line to local page handlers and therefore need to skip those that we already refactored here https://github.com/learningequality/kolibri/issues/11219
       if (
         to.name && [
-          PageNames.EXAMS ||
-            LessonsPageNames.SUMMARY ||
-            LessonsPageNames.SELECTION_ROOT ||
-            LessonsPageNames.SELECTION ||
+          PageNames.EXAMS,
+          LessonsPageNames.PLAN_LESSONS_ROOT,
+          LessonsPageNames.LESSON_CREATION_ROOT,
+            LessonsPageNames.SUMMARY,
+            LessonsPageNames.SELECTION_ROOT,
+            LessonsPageNames.SELECTION,
             LessonsPageNames.SELECTION_SEARCH,
-        ]
+            LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
+            LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
+            LessonsPageNames.SELECTION_CONTENT_PREVIEW,
+            LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+        ].includes(to.name)
       ) {
         next();
         return;

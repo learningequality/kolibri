@@ -11,7 +11,7 @@ import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
 async function showResourceSelectionPage(store, params) {
-  const { classId, lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
+  const {lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
   const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
@@ -195,8 +195,15 @@ function getBookmarks() {
       return Promise.all(fetchPromises);
     });
 }
-export function showLessonResourceContentPreview(store, params) {
+export async function showLessonResourceContentPreview(store, params) {
   const { classId, lessonId, contentId } = params;
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   return store.dispatch('loading').then(() => {
     return _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
       store.dispatch('notLoading');
@@ -204,8 +211,15 @@ export function showLessonResourceContentPreview(store, params) {
   });
 }
 
-export function showLessonSelectionContentPreview(store, params, query = {}) {
+export async function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];
     return Promise.all([
