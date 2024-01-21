@@ -339,7 +339,8 @@ def cache_no_user_data(view_func):
     _response = local()
 
     def render_and_cache(response, cache_key):
-        response.render()
+        if hasattr(response, "render"):
+            response.render()
         etag = hashlib.md5(
             kolibri_version.encode("utf-8") + str(response.content).encode("utf-8")
         ).hexdigest()
