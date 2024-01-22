@@ -4315,7 +4315,7 @@ data-urls@^3.0.2:
     whatwg-mimetype "^3.0.0"
     whatwg-url "^11.0.0"
 
-date-fns@^1.28.2:
+date-fns@^1.28.2, date-fns@^1.30.1:
   version "1.30.1"
   resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-1.30.1.tgz#2e71bf0b119153dbb4cc4e88d9ea5acfb50dc05c"
   integrity sha512-hBSVCvSmWC+QypYObzwGOd9wqdDpOt+0wl0KbU+R+uuZBS1jN8VsD1ss3irQDknRj5NvxiTF6oj/nDRnN/UQNw==
@@ -7647,13 +7647,15 @@ kolibri-constants@0.2.0:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.0.tgz#47c9d773894e23251ba5ac4db420822e45603142"
   integrity sha512-WYDMGDzB9gNxRbpX1O2cGe1HrJvLvSZGwMuAv6dqrxJgPf7iO+Hi40/1CXjHM7nk5CRt+hn5bqnMzCBmj1omPA==
 
-"kolibri-design-system@https://github.com/learningequality/kolibri-design-system#0ed2f274b1bc3808218a4d3f526c181b96b32c6d":
+"kolibri-design-system@https://github.com/learningequality/kolibri-design-system#2e0bd6f3aa3b2696a6e1b9dc42e69e94c183c931":
   version "1.3.0"
-  resolved "https://github.com/learningequality/kolibri-design-system#0ed2f274b1bc3808218a4d3f526c181b96b32c6d"
+  resolved "https://github.com/learningequality/kolibri-design-system#2e0bd6f3aa3b2696a6e1b9dc42e69e94c183c931"
   dependencies:
+    "@vue/composition-api" "^1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
     autosize "^3.0.21"
     css-element-queries "^1.2.0"
+    date-fns "^1.30.1"
     frame-throttle "^3.0.0"
     fuzzysearch "^1.0.3"
     keen-ui "^1.3.0"
@@ -7662,22 +7664,7 @@ kolibri-constants@0.2.0:
     purecss "^0.6.2"
     tippy.js "^4.2.1"
     vue-intl "^3.1.0"
-
-"kolibri-design-system@https://github.com/learningequality/kolibri-design-system#v2.0.0-beta1":
-  version "1.3.0"
-  resolved "https://github.com/learningequality/kolibri-design-system#13e539592fd87508cd32f60e4ad22c1ec320559b"
-  dependencies:
-    aphrodite "https://github.com/learningequality/aphrodite/"
-    autosize "^3.0.21"
-    css-element-queries "^1.2.0"
-    frame-throttle "^3.0.0"
-    fuzzysearch "^1.0.3"
-    keen-ui "^1.3.0"
-    lodash "^4.17.15"
-    popper.js "^1.14.6"
-    purecss "^0.6.2"
-    tippy.js "^4.2.1"
-    vue-intl "^3.1.0"
+    xstate "^4.38.3"
 
 launch-editor-middleware@^2.6.1:
   version "2.6.1"
