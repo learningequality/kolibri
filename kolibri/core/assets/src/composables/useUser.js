@@ -9,6 +9,15 @@ export default function useUser() {
   const isAdmin = computed(() => store.getters['session/isAdmin']);
   const isSuperuser = computed(() => store.getters['session/isSuperuser']);
   const canManageContent = computed(() => store.getters['session/canManageContent']);
+  // Additional computed properties based on 'session.js'
+  const isAppContext = computed(() => store.getters['session/isAppContext']);
+  const sessionIsLearnerOnlyImport = computed(() => store.getters['session/isLearnerOnlyImport']);
+  const sessionIsUserLoggedIn = computed(() => store.getters['session/isUserLoggedIn']);
+  const sessionCurrentUserId = computed(() => store.getters['session/currentUserId']);
+  const sessionIsCoach = computed(() => store.getters['session/isCoach']);
+  const sessionIsAdmin = computed(() => store.getters['session/isAdmin']);
+  const sessionIsSuperuser = computed(() => store.getters['session/isSuperuser']);
+  const sessionCanManageContent = computed(() => store.getters['session/canManageContent']);
 
   return {
     isLearnerOnlyImport,
@@ -18,5 +27,14 @@ export default function useUser() {
     isAdmin,
     isSuperuser,
     canManageContent,
+    // Additional computed properties 
+    isAppContext,
+    sessionIsLearnerOnlyImport,
+    sessionIsUserLoggedIn,
+    sessionCurrentUserId,
+    sessionIsCoach,
+    sessionIsAdmin,
+    sessionIsSuperuser,
+    sessionCanManageContent,
   };
 }
