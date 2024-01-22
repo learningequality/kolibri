@@ -14,9 +14,6 @@
 <script>
 
   import ScreenFull from 'screenfull';
-  import { isAndroidWebView } from 'kolibri.utils.browserInfo';
-
-  const fullscreenApiIsSupported = ScreenFull.isEnabled && !isAndroidWebView;
 
   const NORMALIZE_FULLSCREEN_CLASS = 'normalize-fullscreen';
   const MIMIC_FULLSCREEN_CLASS = 'mimic-fullscreen';
@@ -32,7 +29,7 @@
     computed: {
       fullscreenClass() {
         if (this.isInFullscreen) {
-          return fullscreenApiIsSupported ? NORMALIZE_FULLSCREEN_CLASS : MIMIC_FULLSCREEN_CLASS;
+          return ScreenFull.isEnabled ? NORMALIZE_FULLSCREEN_CLASS : MIMIC_FULLSCREEN_CLASS;
         }
         return null;
       },
@@ -46,7 +43,7 @@
     },
     mounted() {
       // Catch the use of the esc key to exit fullscreen
-      if (fullscreenApiIsSupported) {
+      if (ScreenFull.isEnabled) {
         ScreenFull.onchange(() => {
           this.isInFullscreen = ScreenFull.isFullscreen;
         });
@@ -60,13 +57,13 @@
         if (!this.toggling) {
           let fullScreenPromise;
           this.toggling = true;
-          if (fullscreenApiIsSupported) {
+          if (ScreenFull.isEnabled) {
             fullScreenPromise = ScreenFull.toggle(this.$refs.fullscreen);
           } else {
             fullScreenPromise = Promise.resolve();
           }
           fullScreenPromise.then(() => {
-            this.isInFullscreen = fullscreenApiIsSupported
+            this.isInFullscreen = ScreenFull.isEnabled
               ? ScreenFull.isFullscreen
               : !this.isInFullscreen;
             this.toggling = false;

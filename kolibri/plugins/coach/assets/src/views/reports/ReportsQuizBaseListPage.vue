@@ -3,7 +3,6 @@
   <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
 
     <KGrid gutter="16">

@@ -3,7 +3,7 @@
   <DeviceAppBarPage :title="pageTitle">
     <transition name="delay<-entry">
       <PostSetupModalGroup
-        v-if="!channelListLoading && welcomeModalVisible && !areChannelsImported"
+        v-if="!channelListLoading && welcomeModalVisible"
         @cancel="hideWelcomeModal"
       />
     </transition>
@@ -140,6 +140,7 @@
         'channelIsBeingDeleted',
         'managedTasks',
       ]),
+      ...mapGetters(['isLearnerOnlyImport']),
       ...mapState('manageContent/wizard', ['pageName']),
       ...mapState('manageContent', ['channelListLoading']),
       ...mapState({
@@ -182,11 +183,9 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.localStorage.getItem(welcomeDismissalKey) !== 'true'
+          window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
+          (!this.installedChannelsWithResources.length > 0) & !this.isLearnerOnlyImport
         );
-      },
-      areChannelsImported() {
-        return this.installedChannelsWithResources.length > 0;
       },
     },
     watch: {

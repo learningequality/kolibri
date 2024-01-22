@@ -20,12 +20,19 @@
 
 <script>
 
-  import { isEmbeddedWebView } from 'kolibri.utils.browserInfo';
+  import useUser from 'kolibri.coreVue.composables.useUser';
   import { getFilePresetString } from './filePresetStrings';
   import { getRenderableFiles } from './utils';
 
   export default {
     name: 'DownloadButton',
+    setup() {
+      const { isAppContext } = useUser();
+
+      return {
+        isAppContext,
+      };
+    },
     props: {
       files: {
         type: Array,
@@ -41,7 +48,7 @@
         return getRenderableFiles(this.files).filter(file => file.preset !== 'exercise');
       },
       canDownload() {
-        return !isEmbeddedWebView && this.downloadableFiles.length;
+        return !this.isAppContext && this.downloadableFiles.length;
       },
       fileOptions() {
         const options = this.files.map(file => {

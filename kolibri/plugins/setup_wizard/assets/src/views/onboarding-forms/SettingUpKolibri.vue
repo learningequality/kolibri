@@ -44,7 +44,7 @@
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
-  import { DeviceTypePresets, UsePresets } from '../../constants';
+  import { DeviceTypePresets, Presets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',
@@ -143,7 +143,7 @@
           ...this.facilityData,
           superuser,
           settings: omitBy(settings, v => v === null),
-          preset: this.wizardContext('formalOrNonformal') || 'nonformal',
+          preset: this.presetValue,
           language_id: currentLanguage,
           device_name:
             this.wizardContext('deviceName') ||
@@ -160,7 +160,17 @@
 
       /** Introspecting the machine via it's `state.context` properties */
       isOnMyOwnSetup() {
-        return this.wizardContext('onMyOwnOrGroup') == UsePresets.ON_MY_OWN;
+        return this.wizardContext('onMyOwnOrGroup') == Presets.PERSONAL;
+      },
+      presetValue() {
+        // this computed prop was to guard against a strange edge case where a mismatched
+        // preset was inadvertently being sent to the backend, where the values
+        // were not valid, including an incorrect fallback, and 'on my own' being sent as a value
+        if (this.isOnMyOwnSetup) {
+          return Presets.PERSONAL;
+        } else {
+          return this.wizardContext('formalOrNonformal');
+        }
       },
     },
     created() {
