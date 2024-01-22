@@ -18,8 +18,10 @@
 <script>
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
+  import { set } from '@vueuse/core';
   import { PageNames } from '../../../constants';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
@@ -43,6 +45,16 @@
       // SelectedChannel,
       ResourceSelectionBreadcrumbs,
       //ShowBookMarkedResources,
+    },
+    setup() {
+      const {
+        //Computed
+        workingResourcePool,
+      } = injectQuizCreation();
+
+      return {
+        workingResourcePool,
+      };
     },
     data() {
       return {
@@ -80,7 +92,20 @@
       },
     },
     methods: {
+      resetWorkingResourcePool() {
+        // Set the WorkingResource to empty array again!
+        // console.log('Reseting the working ResourcePool');
+        const test_array = [];
+        test_array.push(1);
+        // console.log(test_array);
+        set(this.workingResourcePool, test_array);
+        // console.log(this.workingResourcePool);
+        set(this.workingResourcePool, []);
+        // console.log(this.workingResourcePool);
+      },
       handleClosePanel() {
+        this.resetWorkingResourcePool();
+
         this.$emit('closePanel');
         this.$router.replace(this.closePanelRoute);
       },

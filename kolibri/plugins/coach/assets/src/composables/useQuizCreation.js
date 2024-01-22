@@ -41,6 +41,10 @@ export default function useQuizCreation(DEBUG = false) {
   // Local state
   // -----------
 
+  /** @type {ComputedRef<QuizExercise[]>}  Currently selected resource_pool
+   *  from the side_panel*/
+  const _working_resource_pool = ref([]);
+
   /** @type {ref<Quiz>}
    * The "source of truth" quiz object from which all reactive properties should derive */
   const _quiz = ref(objectWithDefaults({}, Quiz));
@@ -265,6 +269,16 @@ export default function useQuizCreation(DEBUG = false) {
     _fetchChannels();
   }
 
+  // // Method to initialize the working resource pool
+  function initializeWorkingResourcePool() {
+    // Get the active section
+    const currentActiveResourcePool = get(activeResourcePool);
+    // console.log('DEBUGG FROMM initializeWorkingREsourcePool');
+    // console.log(currentActiveResourcePool);
+    // Set the value of _working_resource_pool to the resource_pool of the active section
+    set(_working_resource_pool, currentActiveResourcePool);
+  }
+
   /**
    * @returns {Promise<Quiz>}
    * @throws {Error} if quiz is not valid
@@ -408,6 +422,9 @@ export default function useQuizCreation(DEBUG = false) {
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
 
+  // /** @type {ComputedRef<QuizExercise[]>} The current value of _working_resource_pool */
+  const workingResourcePool = computed(() => get(_working_resource_pool));
+
   /** Handling the Select All Checkbox
    * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
 
@@ -451,6 +468,7 @@ export default function useQuizCreation(DEBUG = false) {
   });
 
   provide('saveQuiz', saveQuiz);
+  provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
   provide('updateSection', updateSection);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
@@ -465,6 +483,8 @@ export default function useQuizCreation(DEBUG = false) {
   provide('allSections', allSections);
   provide('activeSection', activeSection);
   provide('inactiveSections', inactiveSections);
+  provide('activeResourcePool', activeResourcePool);
+  provide('workingResourcePool', workingResourcePool);
   provide('activeExercisePool', activeExercisePool);
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
@@ -477,6 +497,7 @@ export default function useQuizCreation(DEBUG = false) {
   return {
     // Methods
     saveQuiz,
+    initializeWorkingResourcePool,
     updateSection,
     replaceSelectedQuestions,
     addSection,
@@ -493,6 +514,8 @@ export default function useQuizCreation(DEBUG = false) {
     allSections,
     activeSection,
     inactiveSections,
+    workingResourcePool,
+    activeResourcePool,
     activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
@@ -516,6 +539,7 @@ export default function useQuizCreation(DEBUG = false) {
 
 export function injectQuizCreation() {
   const saveQuiz = inject('saveQuiz');
+  const initializeWorkingResourcePool = inject('initializeWorkingResourcePool');
   const updateSection = inject('updateSection');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
@@ -530,6 +554,8 @@ export function injectQuizCreation() {
   const allSections = inject('allSections');
   const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
+  const activeResourcePool = inject('activeResourcePool');
+  const workingResourcePool = inject('workingResourcePool');
   const activeExercisePool = inject('activeExercisePool');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
@@ -542,6 +568,7 @@ export function injectQuizCreation() {
   return {
     // Methods
     saveQuiz,
+    initializeWorkingResourcePool,
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
@@ -561,6 +588,8 @@ export function injectQuizCreation() {
     allSections,
     activeSection,
     inactiveSections,
+    workingResourcePool,
+    activeResourcePool,
     activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
