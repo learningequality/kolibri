@@ -115,6 +115,10 @@
     },
     methods: {
       handleSelect(option) {
+        // Prevent redundant navigation
+        if (this.$route.name === option.value.name) {
+          return;
+        }
         this.$router.push(this.$router.getRoute(option.value.name));
       },
     },
