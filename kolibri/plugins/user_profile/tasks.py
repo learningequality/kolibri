@@ -42,10 +42,15 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
         try:
             job_data = super(MergeUserValidator, self).validate(data)
         except ValidationError as e:
-            if e.detail.code == error_constants.AUTHENTICATION_FAILED:
-                self.create_remote_user(data)
-                job_data = super(MergeUserValidator, self).validate(data)
+            details = e.detail if isinstance(e.detail, list) else [e.detail]
+            for detail in details:
+                # If any of the errors are authentication related, then we need to create the user
+                if detail.code == error_constants.AUTHENTICATION_FAILED:
+                    self.create_remote_user(data)
+                    job_data = super(MergeUserValidator, self).validate(data)
+                    break
             else:
+                # If we didn't break out of the loop, then we need to raise the original error
                 raise
 
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
