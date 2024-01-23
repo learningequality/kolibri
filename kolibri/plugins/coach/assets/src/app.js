@@ -52,8 +52,6 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         [
           PageNames.EXAMS,
-          LessonsPageNames.PLAN_LESSONS_ROOT,
-          LessonsPageNames.LESSON_CREATION_ROOT,
           LessonsPageNames.SUMMARY,
           LessonsPageNames.SELECTION_ROOT,
           LessonsPageNames.SELECTION,
