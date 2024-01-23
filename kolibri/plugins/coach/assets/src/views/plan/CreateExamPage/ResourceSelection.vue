@@ -56,6 +56,7 @@
         @moreresults="fetchMoreQuizResources"
       />
 
+      <p style="font-size:12px">{{ workingResourcePool }}</p>
       <div class="bottom-navigation">
         <KGrid>
           <KGridItem
@@ -74,7 +75,7 @@
               :text="coreString('saveChangesAction')"
               :primary="true"
               :disabled="!hasTopicId()"
-              @click="isSavingChanges = false"
+              @click="saveSelectedResource()"
             />
           </KGridItem>
         </KGrid>
@@ -118,7 +119,11 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
-      const { saveQuiz } = injectQuizCreation();
+      const {
+        saveQuiz,
+        updateSection,
+        activeSection
+      } = injectQuizCreation();
 
       const {
         sectionSettings$,
@@ -211,7 +216,8 @@
           return channels.value;
         }
         */
-        return resources.value;
+       console.log(resources);
+       return resources.value;
       });
 
       // This ought to be sure that we're updating our resources whenever the topicId changes
@@ -242,6 +248,8 @@
         bookmarks,
         channels,
         viewMoreButtonState,
+        updateSection,
+        activeSection,
         saveQuiz,
       };
     },
@@ -277,7 +285,7 @@
         //   console.log('Dynamic function called');
         // };
       },
-      /*
+
       contentIsInLesson() {
         return ({ id }) => Boolean(this.channels);
       },
@@ -288,7 +296,7 @@
           content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
         );
       },
-      */
+
       getBookmarksLink() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
@@ -367,6 +375,12 @@
       hasTopicId() {
         return Boolean(this.$route.params.topic_id);
       },
+      saveSelectedResource(){
+        this.updateSection({
+          section_id:this.$route.params.section_id,
+          questions:this.contentList
+        });
+      }
       // selectionMetadata(content) {
       //   if (content.kind === ContentNodeKinds.TOPIC) {
       //     const count = content.exercises.filter(exercise =>
