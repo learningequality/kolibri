@@ -23,6 +23,7 @@
     <span v-if="overflowMenuLinks && overflowMenuLinks.length > 0">
       <KIconButton
         :tooltip="coreString('moreOptions')"
+        :style="{ left: computedWidth }"
         tooltipPosition="top"
         :ariaLabel="coreString('moreOptions')"
         icon="optionsHorizontal"
@@ -90,6 +91,13 @@
       color() {
         return this.$themeTokens.textInverted;
       },
+      computedWidth() {
+        const childrenWidth = this.$refs.navContainer.children
+          .slice(this.overflowMenuLinks.length)
+          .reduce((totalWidth, child) => totalWidth + child.offsetWidth, 0);
+        
+        return `${childrenWidth + 16}px`;
+      },
       overflowMenuLinks() {
         return (this.mounted && this.windowWidth
           ? this.allLinks.filter((link, index) => {
@@ -98,7 +106,11 @@
 
               const containerTop = this.$refs.navContainer.offsetTop;
               const containerBottom = containerTop + this.$refs.navContainer.clientHeight;
-              return navLinkTop >= containerBottom;
+              // Accounts for changes in container height that is not matched by height of buttons
+              // as mobile styles are applied to the nav bar
+              const heightDifference = Math.abs
+                (this.$refs.navContainer.clientHeight - navLink.clientHeight);
+              return (navLinkTop + heightDifference) >= containerBottom;
             })
           : []
         ).map(l => ({ label: l.title, value: l.link, icon: l.icon }));
@@ -125,12 +137,11 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    text-overflow: ellipsis;
   }
 
   .kiconbutton-style {
     position: absolute;
-    margin-left: 1em;
+    right: 1em;
   }
 
   .navbar-positioning {
