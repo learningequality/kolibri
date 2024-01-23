@@ -539,7 +539,7 @@
   }
 
   .mobile-button {
-    margin-top:0px;
+    margin-top: 0;
   }
 
   .facility-loader {
