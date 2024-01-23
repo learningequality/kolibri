@@ -49,6 +49,7 @@
 
 <script>
 
+  import isUndefined from 'lodash/isUndefined';
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -91,22 +92,22 @@
         return this.$themeTokens.textInverted;
       },
       overflowMenuLinks() {
-        return (this.mounted && this.windowWidth
-          ? this.allLinks.filter((link, index) => {
-              const navLink = this.$refs.navLinks[index].$el;
-              const navLinkTop = navLink.offsetTop;
-
-              const containerTop = this.$refs.navContainer.offsetTop;
-              const containerBottom = containerTop + this.$refs.navContainer.clientHeight;
-              // Accounts for changes in container height that is not matched by height of buttons
-              // as mobile styles are applied to the nav bar
-              const heightDifference = Math.abs(
-                this.$refs.navContainer.clientHeight - navLink.clientHeight
-              );
-              return navLinkTop + heightDifference >= containerBottom;
-            })
-          : []
-        ).map(l => ({ label: l.title, value: l.link, icon: l.icon }));
+        if (!this.mounted || isUndefined(this.windowWidth)) {
+          return [];
+        }
+        const containerTop = this.$refs.navContainer.offsetTop;
+        const containerHeight = this.$refs.navContainer.clientHeight;
+        return this.allLinks
+          .filter((link, index) => {
+            const navLink = this.$refs.navLinks[index].$el;
+            // Calculate navLinkTop relative to the navContainer by subtracting the container's top
+            const navLinkTop = navLink.offsetTop - containerTop;
+            const navLinkHeight = navLink.clientHeight;
+            const navLinkBottom = navLinkTop + navLinkHeight;
+            // Check if the navLink is _not_ completely bounded the container, top and bottom.
+            return !(navLinkTop >= 0 && navLinkBottom <= containerHeight);
+          })
+          .map(l => ({ label: l.title, value: l.link, icon: l.icon }));
       },
     },
     mounted() {
@@ -114,6 +115,10 @@
     },
     methods: {
       handleSelect(option) {
+        // Prevent redundant navigation
+        if (this.$route.name === option.value.name) {
+          return;
+        }
         this.$router.push(this.$router.getRoute(option.value.name));
       },
     },
