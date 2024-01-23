@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <KModal
       title="Are you sure you want to exit ?"
@@ -29,24 +30,38 @@
               appearance="raised-button"
               style="width:100%;"
               primary
+              @click="resetWorkingResourcePool"
             />
           </KGridItem>
         </KGrid>
       </template>
     </KModal>
   </div>
+
 </template>
 <script>
 
-import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
 
-export default {
-    name:"ConfirmCancellationModal",
+  export default {
+    name: 'ConfirmCancellationModal',
     mixins: [commonCoreStrings],
-    methods: {
-        closeModal() {
-            this.$emit('cancel');
-        },
+    setup() {
+      const {
+        //Computed
+        resetWorkingResourcePool,
+      } = injectQuizCreation();
+
+      return {
+        resetWorkingResourcePool,
+      };
     },
-}
+    methods: {
+      closeModal() {
+        this.$emit('cancel');
+      },
+    },
+  };
+
 </script>

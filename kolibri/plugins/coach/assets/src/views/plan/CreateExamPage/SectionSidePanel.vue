@@ -20,6 +20,7 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
@@ -43,6 +44,16 @@
       // SelectedChannel,
       ResourceSelectionBreadcrumbs,
       //ShowBookMarkedResources,
+    },
+    setup() {
+      const {
+        //Computed
+        resetWorkingResourcePool,
+      } = injectQuizCreation();
+
+      return {
+        resetWorkingResourcePool,
+      };
     },
     data() {
       return {
@@ -81,6 +92,8 @@
     },
     methods: {
       handleClosePanel() {
+        this.resetWorkingResourcePool();
+
         this.$emit('closePanel');
         this.$router.replace(this.closePanelRoute);
       },
@@ -90,9 +103,9 @@
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
-      closingPanel(e){
+      closingPanel(e) {
         console.log(e);
-      }
+      },
     },
   };
 
