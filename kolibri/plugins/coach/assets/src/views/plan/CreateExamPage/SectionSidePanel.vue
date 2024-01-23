@@ -18,7 +18,6 @@
 <script>
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import { set } from '@vueuse/core';
   import { PageNames } from '../../../constants';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
@@ -49,11 +48,11 @@
     setup() {
       const {
         //Computed
-        workingResourcePool,
+        resetWorkingResourcePool,
       } = injectQuizCreation();
 
       return {
-        workingResourcePool,
+        resetWorkingResourcePool,
       };
     },
     data() {
@@ -92,17 +91,6 @@
       },
     },
     methods: {
-      resetWorkingResourcePool() {
-        // Set the WorkingResource to empty array again!
-        // console.log('Reseting the working ResourcePool');
-        const test_array = [];
-        test_array.push(1);
-        // console.log(test_array);
-        set(this.workingResourcePool, test_array);
-        // console.log(this.workingResourcePool);
-        set(this.workingResourcePool, []);
-        // console.log(this.workingResourcePool);
-      },
       handleClosePanel() {
         this.resetWorkingResourcePool();
 
@@ -115,9 +103,9 @@
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
       },
-      closingPanel(e){
+      closingPanel(e) {
         console.log(e);
-      }
+      },
     },
   };
 

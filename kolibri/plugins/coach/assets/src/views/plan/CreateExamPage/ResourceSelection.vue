@@ -74,7 +74,7 @@
               :text="coreString('saveChangesAction')"
               :primary="true"
               :disabled="!hasTopicId()"
-              @click="isSavingChanges = true"
+              @click="isSavingChanges = false"
             />
           </KGridItem>
         </KGrid>
@@ -118,9 +118,7 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
-      const  {
-        saveQuiz
-      } = injectQuizCreation();
+      const { saveQuiz } = injectQuizCreation();
 
       const {
         sectionSettings$,
@@ -244,13 +242,13 @@
         bookmarks,
         channels,
         viewMoreButtonState,
-        saveQuiz
+        saveQuiz,
       };
     },
     data() {
       return {
-        isSavingChanges:false
-      }
+        isSavingChanges: false,
+      };
     },
     computed: {
       isTopicIdSet() {
@@ -334,8 +332,8 @@
 
         return {}; // or return {} if you prefer an empty object
       },
-      saveResources(){
-       this.saveQuiz();
+      saveResources() {
+        this.saveQuiz();
       },
       toggleSelected({ content, checked }) {
         if (checked) {
@@ -366,9 +364,9 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
-      hasTopicId(){
+      hasTopicId() {
         return Boolean(this.$route.params.topic_id);
-      }
+      },
       // selectionMetadata(content) {
       //   if (content.kind === ContentNodeKinds.TOPIC) {
       //     const count = content.exercises.filter(exercise =>

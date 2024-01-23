@@ -65,6 +65,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -73,6 +74,18 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const {
+        //Computed
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
+      } = injectQuizCreation();
+
+      return {
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
+      };
+    },
     props: {
       showSelectAll: {
         type: Boolean,
@@ -133,6 +146,15 @@
     },
     methods: {
       handleCheckboxChange(content, checked) {
+        if (checked == true) {
+          if (content.kind === 'exercise') {
+            const resource = [];
+            resource.push(content);
+            this.addToWorkingResourcePool(resource);
+          }
+        } else {
+          this.removeFromWorkingResourcePool(content.id);
+        }
         this.$emit('change_content_card', { content, checked });
       },
     },
