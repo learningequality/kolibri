@@ -1,6 +1,8 @@
 <template>
 
-  <Navbar>
+  <Navbar
+    class="navbar-positioning"
+  >
     <div
       ref="navContainer"
       class="navcontainer"
@@ -27,6 +29,7 @@
         appearance="flat-button"
         :color="color"
         :primary="false"
+        class="kiconbutton-style"
       >
         <template #menu>
           <KDropdownMenu
@@ -95,7 +98,12 @@
 
               const containerTop = this.$refs.navContainer.offsetTop;
               const containerBottom = containerTop + this.$refs.navContainer.clientHeight;
-              return navLinkTop >= containerBottom;
+              // Accounts for changes in container height that is not matched by height of buttons
+              // as mobile styles are applied to the nav bar
+              const heightDifference = Math.abs(
+                this.$refs.navContainer.clientHeight - navLink.clientHeight
+              );
+              return navLinkTop + heightDifference >= containerBottom;
             })
           : []
         ).map(l => ({ label: l.title, value: l.link, icon: l.icon }));
@@ -123,6 +131,16 @@
     flex-direction: row;
     flex-wrap: wrap;
     overflow: hidden;
+  }
+
+  .kiconbutton-style {
+    position: absolute;
+    right: 1em;
+  }
+
+  .navbar-positioning {
+    position: relative;
+    padding-right: 3.5em;
   }
 
 </style>
