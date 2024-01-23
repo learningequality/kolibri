@@ -94,6 +94,7 @@
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
 
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
+  import commonDeviceStrings from '../commonDeviceStrings';
 
   const typeToTrMap = {
     [TaskTypes.REMOTECONTENTIMPORT]: 'importChannelPartial',
@@ -130,7 +131,7 @@
 
   export default {
     name: 'TaskPanel',
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();
       return {
@@ -248,7 +249,7 @@
       },
       statusText() {
         const trName = statusToTrMap[this.task.status];
-        return this.$tr(trName);
+        return this.deviceString(trName);
       },
       startedByText() {
         return this.$tr('startedByUser', {
@@ -256,6 +257,7 @@
         });
       },
     },
+
     methods: {
       handleClick() {
         if (this.taskIsCompleted || this.taskIsFailed) {
@@ -278,31 +280,6 @@
       cancelSize: {
         message: 'Exported size: ({bytesText})',
         context: 'Indicates the number of resources and their size.',
-      },
-
-      statusInProgress: {
-        message: 'In-progress',
-        context: 'Label indicating that a task is in progress.',
-      },
-      statusInQueue: {
-        message: 'Waiting',
-        context: 'Label indicating that a task is queued.\n',
-      },
-      statusComplete: {
-        message: 'Finished',
-        context: 'Label indicating that the *task* was completed successfully.',
-      },
-      statusFailed: {
-        message: 'Failed',
-        context: 'Label indicating that a task failed, i.e. it has not been completed.',
-      },
-      statusCanceled: {
-        message: 'Canceled',
-        context: 'Refers to a canceled task in the task manager section.',
-      },
-      statusCanceling: {
-        message: 'Canceling',
-        context: 'Refers to a task being canceled in the task manager section.',
       },
       importChannelWhole: {
         message: `Import '{channelName}'`,
