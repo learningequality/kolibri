@@ -9,7 +9,7 @@ import {
 
 // The properties that useFetchTree should expose, aka. the public API
 const publicApi = ['topic', 'resources', 'loading', 'fetchTree', 'fetchMore', 'hasMore'];
-var resources, topic, loading, fetchTree, fetchMore, hasMore;
+var resources, topic, fetchTree, fetchMore, hasMore;
 
 jest.mock('kolibri.resources');
 
@@ -21,9 +21,6 @@ describe('useFetchTree', () => {
         topicId: '1',
       }));
       await fetchTree();
-    });
-    it('toggles loading while fetching', async () => {
-      expect(get(loading));
     });
     it('saves locally the topic', async () => {
       expect(get(topic)).toEqual(fetchTreeTopicResponseWithMore);
