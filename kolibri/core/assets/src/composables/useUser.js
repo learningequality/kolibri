@@ -9,6 +9,7 @@ export default function useUser() {
   const isAdmin = computed(() => store.getters.isAdmin);
   const isSuperuser = computed(() => store.getters.isSuperuser);
   const canManageContent = computed(() => store.getters.canManageContent);
+  const isAppContext = computed(() => store.getters.isAppContext);
 
   return {
     isLearnerOnlyImport,
@@ -18,5 +19,6 @@ export default function useUser() {
     isAdmin,
     isSuperuser,
     canManageContent,
+    isAppContext,
   };
 }

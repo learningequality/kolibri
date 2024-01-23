@@ -42,7 +42,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install tox
     - name: tox env cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.tox/py3.9
         key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}

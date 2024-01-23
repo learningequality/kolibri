@@ -4,9 +4,7 @@
     <transition name="delay-entry">
       <PostSetupModalGroup
         v-if="!(rootNodesLoading || searchLoading)
-          && welcomeModalVisible
-          && !areChannelsImported
-          && !isLearnerOnlyImport"
+          && welcomeModalVisible"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
@@ -416,7 +414,7 @@
       };
     },
     computed: {
-      ...mapGetters(['isLearnerOnlyImport']),
+      ...mapGetters(['isLearnerOnlyImport', 'canManageContent']),
       ...mapState({
         welcomeModalVisibleState: 'welcomeModalVisible',
       }),
@@ -429,7 +427,10 @@
       welcomeModalVisible() {
         return (
           this.welcomeModalVisibleState &&
-          window.localStorage.getItem(welcomeDismissalKey) !== 'true'
+          window.localStorage.getItem(welcomeDismissalKey) !== 'true' &&
+          !(this.rootNodes.length > 0) &&
+          this.canManageContent &&
+          !this.isLearnerOnlyImport
         );
       },
       showOtherLibraries() {
@@ -478,9 +479,6 @@
       },
       studioId() {
         return KolibriStudioId;
-      },
-      areChannelsImported() {
-        return this.rootNodes.length > 0;
       },
     },
     watch: {

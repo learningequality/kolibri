@@ -10,9 +10,9 @@
     @cancel="$emit('cancel')"
   >
     <template>
-      <p v-if="filterLODAvailable">
+      <!-- <p v-if="filterLODAvailable">
         {{ $tr('lodSubHeader') }}
-      </p>
+      </p> -->
       <p v-if="hasFetched && !devices.length">
         {{ $tr('noDeviceText') }}
       </p>
@@ -387,6 +387,9 @@
         context:
           'Error message that displays when an admin attempts to find a device, but the device is not found.',
       },
+      // TODO Update this string to be more specific that it is 0.15 or greater
+      // once this is done, reinstate the $tr('lodSubHeader') in the template
+      // eslint-disable-next-line kolibri/vue-no-unused-translations
       lodSubHeader: {
         message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
         context:

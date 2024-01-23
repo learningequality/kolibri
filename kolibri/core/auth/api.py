@@ -880,7 +880,11 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
+        except FacilityUser.MultipleObjectsReturned:
+            # Handle case of multiple matching usernames
+            unauthenticated_user = FacilityUser.objects.get(
+                username__exact=username, facility=facility_id
+            )
         user = authenticate(username=username, password=password, facility=facility_id)
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"

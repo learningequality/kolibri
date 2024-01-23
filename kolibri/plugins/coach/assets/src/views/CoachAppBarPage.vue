@@ -5,10 +5,7 @@
     :authorizedRole="authorizedRole"
   >
     <AppBarPage :title="appBarTitle || defaultAppBarTitle">
-      <template
-        v-if="showSubNav && !isAppContext"
-        #subNav
-      >
+      <template #subNav>
         <TopNavbar />
       </template>
       <div class="coach-main">
@@ -24,7 +21,7 @@
 
 <script>
 
-  import { mapState, mapGetters } from 'vuex';
+  import { mapState } from 'vuex';
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -78,17 +75,11 @@
         type: String,
         default: null,
       },
-      showSubNav: {
-        type: Boolean,
-        required: false,
-        default: false,
-      },
     },
     computed: {
       ...mapState({
         error: state => state.core.error,
       }),
-      ...mapGetters(['isAppContext']),
     },
     $trs: {
       kolibriTitleMessage: {

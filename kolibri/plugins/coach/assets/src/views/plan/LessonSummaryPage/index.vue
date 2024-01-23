@@ -3,7 +3,6 @@
   <CoachAppBarPage
     :authorized="userIsAuthorized"
     authorizedRole="adminOrCoach"
-    :showSubNav="true"
   >
 
     <KGrid v-if="!loading">

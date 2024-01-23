@@ -36,7 +36,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: pip cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-ext-${{ hashFiles('requirements/*.txt') }}
@@ -76,7 +76,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: pip cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-no-ext-${{ hashFiles('requirements/*.txt') }}
