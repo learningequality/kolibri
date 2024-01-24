@@ -56,7 +56,6 @@
         @moreresults="fetchMoreQuizResources"
       />
 
-      <p style="font-size:12px">{{ workingResourcePool }}</p>
       <div class="bottom-navigation">
         <KGrid>
           <KGridItem
@@ -122,7 +121,12 @@
       const {
         saveQuiz,
         updateSection,
-        activeSection
+        activeSection,
+        selectAllQuestions,
+        workingResourcePool,
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
+        resetWorkingResourcePool
       } = injectQuizCreation();
 
       const {
@@ -251,6 +255,11 @@
         updateSection,
         activeSection,
         saveQuiz,
+        selectAllQuestions,
+        workingResourcePool,
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
+        resetWorkingResourcePool
       };
     },
     data() {
@@ -289,13 +298,13 @@
       contentIsInLesson() {
         return ({ id }) => Boolean(this.channels);
       },
-      addableContent() {
-        // Content in the topic that can be added if 'Select All' is clicked
-        const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
-        return list.filter(
-          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
-        );
-      },
+      // addableContent() {
+      //   // Content in the topic that can be added if 'Select All' is clicked
+      //   const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
+      //   return list.filter(
+      //     content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
+      //   );
+      // },
 
       getBookmarksLink() {
         return {
@@ -349,18 +358,19 @@
         } else {
           this.removeFromSelectedResources([content]);
         }
+        console.log(content);
+      },
+      addToSelectedResources(content) {
+        this.addToWorkingResourcePool([content]);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
-          this.addableContent.forEach(resource => {
-            this.addToResourceCache({
-              node: { ...resource },
-            });
-          });
-          this.addToWorkingResources(this.addableContent);
+          this.addToWorkingResourcePool(this.contentList);
         } else {
-          this.removeFromSelectedResources(this.channels.value);
+          this.resetWorkingResourcePool();
         }
+        console.log(this.workingResourcePool);
+
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
