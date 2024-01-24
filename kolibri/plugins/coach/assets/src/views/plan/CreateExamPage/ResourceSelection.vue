@@ -47,7 +47,7 @@
         :showSelectAll="true"
         :viewMoreButtonState="viewMoreButtonState"
         :selectAllChecked="false"
-        :contentIsChecked="() => false"
+        :contentIsChecked="() => isSelectAllChecked"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
@@ -265,6 +265,7 @@
     data() {
       return {
         isSavingChanges: false,
+        isSelectAllChecked:false,
       };
     },
     computed: {
@@ -358,19 +359,18 @@
         } else {
           this.removeFromSelectedResources([content]);
         }
-        console.log(content);
       },
       addToSelectedResources(content) {
         this.addToWorkingResourcePool([content]);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
+          this.isSelectAllChecked=true;
           this.addToWorkingResourcePool(this.contentList);
         } else {
+          this.isSelectAllChecked=false;
           this.resetWorkingResourcePool();
         }
-        console.log(this.workingResourcePool);
-
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
