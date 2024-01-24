@@ -691,8 +691,8 @@
     margin: 0 auto;
   }
   // enable horizontal scrolling
-  /deep/ .recycle-list {
-    .item-wrapper {
+  /deep/ .vue-recycle-scroller {
+    .vue-recycle-scroller-item-wrapper {
       overflow-x: auto;
     }
   }
