@@ -390,6 +390,9 @@
           section_id:this.$route.params.section_id,
           questions:this.contentList
         });
+        
+        //resets the working pool 
+        this.resetWorkingResourcePool();
       }
       // selectionMetadata(content) {
       //   if (content.kind === ContentNodeKinds.TOPIC) {
