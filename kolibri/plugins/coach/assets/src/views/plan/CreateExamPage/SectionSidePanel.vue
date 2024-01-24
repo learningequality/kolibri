@@ -1,17 +1,21 @@
 <template>
-
-  <SidePanelModal
-    v-if="$route.params.section_id"
-    ref="resourcePanel"
-    alignment="right"
-    sidePanelWidth="700px"
-    :closeButtonIconType="closeIcon"
-    @closePanel="handleClosePanel"
-    @shouldFocusFirstEl="findFirstEl()"
-  >
-    <component :is="panel" :ref="$route.name" />
-  </SidePanelModal>
-
+  <div>
+    <SidePanelModal
+      v-if="$route.params.section_id"
+      ref="resourcePanel"
+      alignment="right"
+      sidePanelWidth="700px"
+      :closeButtonIconType="closeIcon"
+      @closePanel="handleClosePanel"
+      @shouldFocusFirstEl="findFirstEl()"
+    >
+      <component :is="panel" :ref="$route.name" />
+    </SidePanelModal>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      :closePanelRoute="closePanelRoute"
+    />
+  </div>
 </template>
 
 
@@ -24,6 +28,7 @@
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   //import ShowBookMarkedResources from './ShowBookMarkedResources.vue';
   // import SelectedChannel from './SelectedChannel.vue';
 
@@ -37,15 +42,16 @@
   export default {
     name: 'SectionSidePanel',
     components: {
-      SidePanelModal,
-      SectionEditor,
-      ReplaceQuestions,
-      ResourceSelection,
-      // SelectedChannel,
-      ResourceSelectionBreadcrumbs,
-      //ShowBookMarkedResources,
-    },
+    SidePanelModal,
+    SectionEditor,
+    ReplaceQuestions,
+    ResourceSelection,
+    // SelectedChannel,
+    ResourceSelectionBreadcrumbs,
+    ConfirmCancellationModal
+},
     setup() {
+
       const {
         //Computed
         resetWorkingResourcePool,
@@ -57,6 +63,7 @@
     },
     data() {
       return {
+        showConfirmationModal: false,
         prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
       };
     },
@@ -92,19 +99,17 @@
     },
     methods: {
       handleClosePanel() {
+
+        this.showConfirmationModal = true;
         this.resetWorkingResourcePool();
 
         this.$emit('closePanel');
-        this.$router.replace(this.closePanelRoute);
       },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
        */
       findFirstEl() {
         this.$refs.resourcePanel.focusFirstEl();
-      },
-      closingPanel(e) {
-        console.log(e);
       },
     },
   };

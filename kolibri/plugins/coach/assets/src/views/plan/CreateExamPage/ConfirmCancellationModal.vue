@@ -30,7 +30,7 @@
               appearance="raised-button"
               style="width:100%;"
               primary
-              @click="resetWorkingResourcePool"
+              @click="handleContinueAction"
             />
           </KGridItem>
         </KGrid>
@@ -57,7 +57,17 @@
         resetWorkingResourcePool,
       };
     },
+    props: {
+      closePanelRoute: {
+        type: Object,
+        required: true,
+      },
+    },
     methods: {
+      handleContinueAction(){
+           this.resetWorkingResourcePool();
+           this.$router.replace(this.closePanelRoute);
+      },
       closeModal() {
         this.$emit('cancel');
       },
