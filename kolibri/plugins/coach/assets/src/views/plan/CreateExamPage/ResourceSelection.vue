@@ -81,9 +81,7 @@
       </div>
     </div>
 
-    <ConfirmCancellationModal
-      v-if="isSavingChanges"
-    />
+
   </div>
 
 </template>
@@ -103,7 +101,6 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
-  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   export default {
     name: 'ResourceSelection',
@@ -111,7 +108,6 @@
       ContentCardList,
       BookmarkIcon,
       ResourceSelectionBreadcrumbs,
-      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -357,11 +353,14 @@
         if (checked) {
           this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources([content]);
+          this.removeFromSelectedResources(content.id);
         }
       },
       addToSelectedResources(content) {
         this.addToWorkingResourcePool([content]);
+      },
+      removeFromSelectedResources(id){
+        this.removeFromWorkingResourcePool(id);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
@@ -388,10 +387,10 @@
       saveSelectedResource(){
         this.updateSection({
           section_id:this.$route.params.section_id,
-          questions:this.contentList
+          questions:this.workingResourcePool
         });
-        
-        //resets the working pool 
+
+        //resets the working pool
         this.resetWorkingResourcePool();
       }
       // selectionMetadata(content) {

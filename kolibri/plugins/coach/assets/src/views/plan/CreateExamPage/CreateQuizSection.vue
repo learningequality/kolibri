@@ -304,6 +304,10 @@
     </KTabsPanel>
 
     <SectionSidePanel @closePanel="focusActiveSectionTab()" />
+
+    <!-- <ConfirmCancellationModal
+      v-if="workingResourcePool & workingResourcePool.length"
+     /> -->
   </div>
 
 </template>
@@ -326,6 +330,7 @@
   import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   const logger = logging.getLogger(__filename);
 
@@ -340,6 +345,7 @@
       DragHandle,
       TabsWithOverflow,
       SectionSidePanel,
+      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -497,6 +503,9 @@
           },
         ];
       },
+      workingResourceCount(){
+       return this.workingResourcePool;
+      }
     },
     methods: {
       handleReplaceSelection() {
@@ -521,6 +530,8 @@
       focusActiveSectionTab() {
         const label = this.tabRefLabel(this.activeSection.section_id);
         const tabRef = this.$refs[label];
+        console.log("closing......");
+        console.log(this.workingResourcePool.value);
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
         if (tabRef) {
