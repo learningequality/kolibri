@@ -21,6 +21,7 @@
     />
     <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
+      :filterLODAvailable="true"
       :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"

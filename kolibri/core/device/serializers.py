@@ -52,7 +52,7 @@ class DeviceSerializerMixin(object):
 class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     facility = FacilitySerializer(required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, required=False, allow_null=True)
-    preset = serializers.ChoiceField(choices=choices)
+    preset = serializers.ChoiceField(choices=choices, required=False, allow_null=True)
     superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
     device_name = serializers.CharField(max_length=50, allow_null=True)
@@ -143,6 +143,8 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
             custom_settings = validated_data.pop("settings")
 
+            allow_learner_download_resources = False
+
             if facility_created:
                 # We only want to update things about the facility or the facility dataset in the case
                 # that we are creating the facility during this provisioning process.
@@ -154,6 +156,10 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
 
                 if "on_my_own_setup" in custom_settings:
                     facility.on_my_own_setup = custom_settings.pop("on_my_own_setup")
+                    # If we are in on my own setup, then we want to allow learners to download resources
+                    # to give them a seamless onboarding experience, without the need to use the device
+                    # plugin to download resources en masse.
+                    allow_learner_download_resources = True
 
                 # overwrite the settings in dataset_data with validated_data.settings
                 for key, value in custom_settings.items():
@@ -227,6 +233,7 @@ class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
                 "language_id": language_id,
                 "default_facility": facility,
                 "allow_guest_access": allow_guest_access,
+                "allow_learner_download_resources": allow_learner_download_resources,
             }
 
             if is_soud:

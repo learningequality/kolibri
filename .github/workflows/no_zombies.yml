@@ -34,7 +34,7 @@ jobs:
       with:
         python-version: '3.11'
     - name: pip cache
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~/.cache/pip
         key: ${{ runner.os }}-pip-base-${{ hashFiles('requirements/base.txt') }}

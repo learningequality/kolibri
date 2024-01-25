@@ -10,7 +10,7 @@ function useMemoizeWithExpiry(asyncFunction, options = {}) {
   return async (...args) => {
     let result = null;
     try {
-      result = await asyncFunction(...args);
+      result = await memoizedFunc(...args);
       setTimeout(() => memoizedFunc.cache.delete(getKey(args)), options.expiry || 10000);
     } catch (e) {
       // clear immediately
