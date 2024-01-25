@@ -65,7 +65,6 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -74,18 +73,6 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
-    setup() {
-      const {
-        //Computed
-        addToWorkingResourcePool,
-        removeFromWorkingResourcePool,
-      } = injectQuizCreation();
-
-      return {
-        addToWorkingResourcePool,
-        removeFromWorkingResourcePool,
-      };
-    },
     props: {
       showSelectAll: {
         type: Boolean,
@@ -112,7 +99,6 @@
         type: Function, // ContentNode => Boolean
         required: true,
       },
-
       // Function that returns true if content item checkbox is indeterminate
       contentIsIndeterminate: {
         type: Function, // ContentNode => Boolean
