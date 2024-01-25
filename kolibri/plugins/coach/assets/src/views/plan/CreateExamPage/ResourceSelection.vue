@@ -114,7 +114,6 @@
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
       const {
-        saveQuiz,
         updateSection,
         activeSection,
         selectAllQuestions,
@@ -251,7 +250,6 @@
         viewMoreButtonState,
         updateSection,
         activeSection,
-        saveQuiz,
         selectAllQuestions,
         workingResourcePool,
         addToWorkingResourcePool,
@@ -349,9 +347,6 @@
 
         return {}; // or return {} if you prefer an empty object
       },
-      // saveResources() {
-      //   this.saveQuiz();
-      // },
       toggleSelected({ content, checked }) {
         if (checked) {
           this.addToSelectedResources(content);
