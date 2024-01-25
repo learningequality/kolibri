@@ -269,12 +269,13 @@
         return this.$route.params.topic_id;
       },
       isSelectAllChecked() {
-        //if all the reosurces in contentList are present in working_resource_pool
-        // Then return true else false
+        // Returns true if all the resources in the topic are in the working resource pool
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
         return this.contentList.every(content => workingResourceIds.includes(content.id));
       },
       selectAllIndeterminate() {
+        // Returns true if some, but not all, of the resources in the topic are in the working
+        // resource
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
         return (
           !this.isSelectAllChecked &&
@@ -418,40 +419,6 @@
       //   }
       //   return '';
       // },
-      /*
-      handleSearchTerm(searchTerm) {
-        const query = {
-          last_id: this.$route.query.last_id || this.$route.params.topicId,
-        };
-        const lastPage = this.$route.query.last;
-        if (lastPage) {
-          query.last = lastPage;
-        }
-        this.$router.push({
-          name: LessonsPageNames.SELECTION_SEARCH,
-          params: {
-            searchTerm,
-          },
-          query,
-        });
-      },
-      handleMoreResults() {
-        this.moreResultsState = 'waiting';
-        this.fetchAdditionalSearchResults({
-          searchTerm: this.searchTerm,
-          kind: this.filters.kind,
-          channelId: this.filters.channel,
-          currentResults: this.searchResults.results,
-        })
-          .then(() => {
-            this.moreResultsState = null;
-            this.moreResultsState;
-          })
-          .catch(() => {
-            this.moreResultsState = 'error';
-          });
-      },
-      */
     },
   };
 
