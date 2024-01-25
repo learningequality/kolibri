@@ -46,7 +46,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}
@@ -90,7 +90,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.tox/py3.9
         key: ${{ runner.os }}-tox-py3.9-${{ hashFiles('requirements/*.txt') }}
@@ -120,7 +120,7 @@ jobs:
         pip install "tox<4"
     - name: tox env cache
       if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ${{ github.workspace }}/.tox/py${{ matrix.python-version }}
         key: ${{ runner.os }}-tox-py${{ matrix.python-version }}-${{ hashFiles('requirements/*.txt') }}

@@ -363,7 +363,7 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
         else:
             username = request.query_params.get("search", None)
             queryset = self.get_queryset().filter(
-                facility=facility_id, username=username
+                facility=facility_id, username__iexact=username
             )
             response = (
                 [
