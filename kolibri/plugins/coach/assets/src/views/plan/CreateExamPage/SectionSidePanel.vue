@@ -15,6 +15,7 @@
     <ConfirmCancellationModal
       v-if="showConfirmationModal"
       :closePanelRoute="closePanelRoute"
+      @cancel="showConfirmationModal = false"
     />
   </div>
 
