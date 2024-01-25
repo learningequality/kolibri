@@ -46,11 +46,12 @@
         :contentList="contentList"
         :showSelectAll="true"
         :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="() => isSelectAllChecked"
+        :selectAllChecked="isSelectAllChecked"
         :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
+        :selectAllIndeterminate="selectAllIndeterminate"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreQuizResources"
@@ -74,7 +75,7 @@
               :text="coreString('saveChangesAction')"
               :primary="true"
               :disabled="!hasTopicId()"
-              @click="saveSelectedResource()"
+              @click="saveSelectedResource"
             />
           </KGridItem>
         </KGrid>
@@ -215,8 +216,7 @@
           return channels.value;
         }
         */
-       console.log(resources);
-       return resources.value;
+        return resources.value;
       });
 
       // This ought to be sure that we're updating our resources whenever the topicId changes
@@ -256,18 +256,30 @@
         workingResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
-        resetWorkingResourcePool
       };
     },
-    data() {
-      return {
-        isSavingChanges: false,
-        isSelectAllChecked:false,
-      };
+    props: {
+      closePanelRoute: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
+      },
+      isSelectAllChecked() {
+        //if all the reosurces in contentList are present in working_resource_pool
+        // Then return true else false
+        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
+        return this.contentList.every(content => workingResourceIds.includes(content.id));
+      },
+      selectAllIndeterminate() {
+        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
+        return (
+          !this.isSelectAllChecked &&
+          this.contentList.some(content => workingResourceIds.includes(content.id))
+        );
       },
       selectionMetadata(/*content*/) {
         // TODO This should return a function that returns a string telling us how many of this
@@ -293,9 +305,9 @@
         // };
       },
 
-      contentIsInLesson() {
-        return ({ id }) => Boolean(this.channels);
-      },
+      // contentIsInLesson() {
+      //   return ({ id }) => Boolean(this.channels);
+      // },
       // addableContent() {
       //   // Content in the topic that can be added if 'Select All' is clicked
       //   const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
@@ -347,9 +359,9 @@
 
         return {}; // or return {} if you prefer an empty object
       },
-      saveResources() {
-        this.saveQuiz();
-      },
+      // saveResources() {
+      //   this.saveQuiz();
+      // },
       toggleSelected({ content, checked }) {
         if (checked) {
           this.addToSelectedResources(content);
@@ -360,15 +372,15 @@
       addToSelectedResources(content) {
         this.addToWorkingResourcePool([content]);
       },
-      removeFromSelectedResources(id){
+      removeFromSelectedResources(id) {
         this.removeFromWorkingResourcePool(id);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
-          this.isSelectAllChecked=true;
+          this.isSelectAllChecked = true;
           this.addToWorkingResourcePool(this.contentList);
         } else {
-          this.isSelectAllChecked=false;
+          this.isSelectAllChecked = false;
           this.resetWorkingResourcePool();
         }
       },
@@ -385,18 +397,17 @@
       hasTopicId() {
         return Boolean(this.$route.params.topic_id);
       },
-      saveSelectedResource(){
-        //Also reset workingResourcePool
-        this.resetWorkingResourcePool()
-
+      saveSelectedResource() {
         this.updateSection({
-          section_id:this.$route.params.section_id,
-          questions:this.workingResourcePool
+          section_id: this.$route.params.section_id,
+          resource_pool: this.workingResourcePool,
         });
 
-        //resets the working pool
+        //Also reset workingResourcePool
         this.resetWorkingResourcePool();
-      }
+
+        this.$router.replace(this.closePanelRoute);
+      },
       // selectionMetadata(content) {
       //   if (content.kind === ContentNodeKinds.TOPIC) {
       //     const count = content.exercises.filter(exercise =>

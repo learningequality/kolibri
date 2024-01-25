@@ -99,7 +99,7 @@
         type: Boolean,
         default: false,
       },
-      selectallindeterminate: {
+      selectAllIndeterminate: {
         type: Boolean,
         default: false,
       },

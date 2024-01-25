@@ -472,12 +472,12 @@ export default function useQuizCreation(DEBUG = false) {
     set(_working_resource_pool, [...get(_working_resource_pool), ...resources]);
   }
 
-    /**
+  /**
    * Check if the content is present in working_resource_pool
    */
   function contentPresentInWorkingResourcePool(content) {
-    const current_working_resource_pool = get(workingResourcePool);
-    return current_working_resource_pool.includes(content);
+    const workingResourceIds = get(workingResourcePool).map(wr => wr.id);
+    return workingResourceIds.includes(content.id);
   }
   /**
    * Remove resource with the given id from _working_resource_pool

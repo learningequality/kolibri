@@ -1,4 +1,5 @@
 <template>
+
   <div>
     <SidePanelModal
       v-if="$route.params.section_id"
@@ -9,13 +10,14 @@
       @closePanel="handleClosePanel"
       @shouldFocusFirstEl="findFirstEl()"
     >
-      <component :is="panel" :ref="$route.name" />
+      <component :is="panel" :ref="$route.name" :closePanelRoute="closePanelRoute" />
     </SidePanelModal>
     <ConfirmCancellationModal
       v-if="showConfirmationModal"
       :closePanelRoute="closePanelRoute"
     />
   </div>
+
 </template>
 
 
@@ -42,16 +44,15 @@
   export default {
     name: 'SectionSidePanel',
     components: {
-    SidePanelModal,
-    SectionEditor,
-    ReplaceQuestions,
-    ResourceSelection,
-    // SelectedChannel,
-    ResourceSelectionBreadcrumbs,
-    ConfirmCancellationModal
-},
+      SidePanelModal,
+      SectionEditor,
+      ReplaceQuestions,
+      ResourceSelection,
+      // SelectedChannel,
+      ResourceSelectionBreadcrumbs,
+      ConfirmCancellationModal,
+    },
     setup() {
-
       const {
         //Computed
         activeResourcePool,
@@ -103,11 +104,10 @@
     },
     methods: {
       handleClosePanel() {
-
-        if(this.workingResourcePool.length > this.activeResourcePool.length){
+        if (this.workingResourcePool.length > this.activeResourcePool.length) {
           this.showConfirmationModal = true;
-        }else{
-           this.$router.replace(this.closePanelRoute);
+        } else {
+          this.$router.replace(this.closePanelRoute);
         }
         this.$emit('closePanel');
       },

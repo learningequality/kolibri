@@ -305,7 +305,7 @@
 
     <SectionSidePanel @closePanel="focusActiveSectionTab()" />
 
-  
+
   </div>
 
 </template>
@@ -523,9 +523,7 @@
       focusActiveSectionTab() {
         const label = this.tabRefLabel(this.activeSection.section_id);
         const tabRef = this.$refs[label];
-        console.log("closing......");
-        console.log(this.workingResourcePool.value);
-        
+
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
         if (tabRef) {
@@ -571,7 +569,6 @@
       openSelectResources(section_id) {
         //initialize workingResourcePool
         this.initializeWorkingResourcePool();
-
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
     },
