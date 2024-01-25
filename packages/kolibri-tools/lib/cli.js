@@ -284,6 +284,10 @@ program
     }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
+      // Watch core for changes if KDS option is provided; all KDS components are linked to core.
+      if (options.requireKdsPath && !options.watchonly.includes('core')) {
+        options.watchonly.push('core');
+      }
       const findModuleName = bundleDatum => {
         return !options.watchonly.some(m => bundleDatum.module_path.includes(m));
       };
