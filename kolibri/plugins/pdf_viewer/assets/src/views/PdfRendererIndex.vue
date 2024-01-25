@@ -741,13 +741,13 @@
     top: 0;
     left: 0;
     z-index: -1;
+    display: block;
     width: 100%;
     height: 100%;
-    border: none;
-    background-color: transparent;
-    pointer-events: none;
-    display: block;
     overflow: hidden;
+    pointer-events: none;
+    background-color: transparent;
+    border: none;
     opacity: 0;
   }
 
