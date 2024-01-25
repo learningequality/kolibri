@@ -1,4 +1,4 @@
-import { v4 as uuidv4 } from 'uuid';
+import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
 import uniqWith from 'lodash/uniqWith';
 import range from 'lodash/range';
@@ -16,6 +16,10 @@ import selectQuestions from '../modules/examCreation/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
+
+function uuidv4() {
+  return v4().replace(/-/g, '');
+}
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
