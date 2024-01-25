@@ -472,6 +472,13 @@ export default function useQuizCreation(DEBUG = false) {
     set(_working_resource_pool, [...get(_working_resource_pool), ...resources]);
   }
 
+    /**
+   * Check if the content is present in working_resource_pool
+   */
+  function contentPresentInWorkingResourcePool(content) {
+    const current_working_resource_pool = get(workingResourcePool);
+    return current_working_resource_pool.includes(content);
+  }
   /**
    * Remove resource with the given id from _working_resource_pool
    */
@@ -491,6 +498,7 @@ export default function useQuizCreation(DEBUG = false) {
   provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
   provide('addToWorkingResourcePool', addToWorkingResourcePool);
   provide('removeFromWorkingResourcePool', removeFromWorkingResourcePool);
+  provide('contentPresentInWorkingResourcePool', contentPresentInWorkingResourcePool);
   provide('updateSection', updateSection);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
@@ -523,6 +531,7 @@ export default function useQuizCreation(DEBUG = false) {
     initializeWorkingResourcePool,
     removeFromWorkingResourcePool,
     addToWorkingResourcePool,
+    contentPresentInWorkingResourcePool,
     updateSection,
     replaceSelectedQuestions,
     resetWorkingResourcePool,
@@ -567,6 +576,7 @@ export function injectQuizCreation() {
   const saveQuiz = inject('saveQuiz');
   const initializeWorkingResourcePool = inject('initializeWorkingResourcePool');
   const removeFromWorkingResourcePool = inject('removeFromWorkingResourcePool');
+  const contentPresentInWorkingResourcePool = inject('contentPresentInWorkingResourcePool');
   const addToWorkingResourcePool = inject('addToWorkingResourcePool');
   const updateSection = inject('updateSection');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
@@ -599,6 +609,7 @@ export function injectQuizCreation() {
     saveQuiz,
     initializeWorkingResourcePool,
     addToWorkingResourcePool,
+    contentPresentInWorkingResourcePool,
     removeFromWorkingResourcePool,
     deleteActiveSelectedQuestions,
     selectAllQuestions,

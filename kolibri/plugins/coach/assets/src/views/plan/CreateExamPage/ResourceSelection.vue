@@ -46,8 +46,8 @@
         :contentList="contentList"
         :showSelectAll="true"
         :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="false"
-        :contentIsChecked="() => isSelectAllChecked"
+        :selectAllChecked="() => isSelectAllChecked"
+        :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
@@ -80,8 +80,6 @@
         </KGrid>
       </div>
     </div>
-
-
   </div>
 
 </template>
@@ -122,7 +120,8 @@
         workingResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
-        resetWorkingResourcePool
+        resetWorkingResourcePool,
+        contentPresentInWorkingResourcePool,
       } = injectQuizCreation();
 
       const {
@@ -237,6 +236,8 @@
         loading,
         hasMore,
         fetchMoreQuizResources,
+        resetWorkingResourcePool,
+        contentPresentInWorkingResourcePool,
         //contentList,
         sectionSettings$,
         selectFromBookmarks$,
@@ -385,6 +386,9 @@
         return Boolean(this.$route.params.topic_id);
       },
       saveSelectedResource(){
+        //Also reset workingResourcePool
+        this.resetWorkingResourcePool()
+
         this.updateSection({
           section_id:this.$route.params.section_id,
           questions:this.workingResourcePool

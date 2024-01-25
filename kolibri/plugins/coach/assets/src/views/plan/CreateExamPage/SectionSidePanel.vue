@@ -54,10 +54,14 @@
 
       const {
         //Computed
+        activeResourcePool,
+        workingResourcePool,
         resetWorkingResourcePool,
       } = injectQuizCreation();
 
       return {
+        activeResourcePool,
+        workingResourcePool,
         resetWorkingResourcePool,
       };
     },
@@ -100,9 +104,11 @@
     methods: {
       handleClosePanel() {
 
-        this.showConfirmationModal = true;
-        this.resetWorkingResourcePool();
-
+        if(this.workingResourcePool.length > this.activeResourcePool.length){
+          this.showConfirmationModal = true;
+        }else{
+           this.$router.replace(this.closePanelRoute);
+        }
         this.$emit('closePanel');
       },
       /**

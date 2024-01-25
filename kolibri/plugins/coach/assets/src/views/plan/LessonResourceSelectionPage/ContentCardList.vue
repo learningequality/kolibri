@@ -99,7 +99,7 @@
         type: Boolean,
         default: false,
       },
-      selectAllIndeterminate: {
+      selectallindeterminate: {
         type: Boolean,
         default: false,
       },
@@ -112,6 +112,7 @@
         type: Function, // ContentNode => Boolean
         required: true,
       },
+
       // Function that returns true if content item checkbox is indeterminate
       contentIsIndeterminate: {
         type: Function, // ContentNode => Boolean
