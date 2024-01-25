@@ -39,6 +39,8 @@
   </div>
 
 </template>
+
+
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -64,9 +66,9 @@
       },
     },
     methods: {
-      handleContinueAction(){
-           this.resetWorkingResourcePool();
-           this.$router.replace(this.closePanelRoute);
+      handleContinueAction() {
+        this.resetWorkingResourcePool();
+        this.$router.replace(this.closePanelRoute);
       },
       closeModal() {
         this.$emit('cancel');
