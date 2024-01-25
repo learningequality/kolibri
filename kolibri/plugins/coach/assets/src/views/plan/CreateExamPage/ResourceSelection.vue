@@ -306,17 +306,6 @@
         // };
       },
 
-      // contentIsInLesson() {
-      //   return ({ id }) => Boolean(this.channels);
-      // },
-      // addableContent() {
-      //   // Content in the topic that can be added if 'Select All' is clicked
-      //   const list = this.contentList.value ? this.contentList.value : this.bookmarksList;
-      //   return list.filter(
-      //     content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
-      //   );
-      // },
-
       getBookmarksLink() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
