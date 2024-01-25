@@ -272,10 +272,8 @@ export default function useQuizCreation(DEBUG = false) {
 
   // // Method to initialize the working resource pool
   function initializeWorkingResourcePool() {
-    // Get the active section
-    const currentActiveResourcePool = get(activeResourcePool);
     // Set the value of _working_resource_pool to the resource_pool of the active section
-    set(_working_resource_pool, currentActiveResourcePool);
+    set(_working_resource_pool, get(activeResourcePool));
   }
 
   /**
