@@ -1,5 +1,6 @@
 import { v4 as uuidv4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
+import uniqWith from 'lodash/uniqWith';
 import range from 'lodash/range';
 import shuffle from 'lodash/shuffle';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -466,27 +467,32 @@ export default function useQuizCreation(DEBUG = false) {
   });
 
   /**
-   * Adds resources to _working_resource_pool
+   * @param {QuizExercise[]} resources
+   * @affects _working_resource_pool -- Updates it with the given resources and is ensured to have
+   * a list of unique resources to avoid unnecessary duplication
    */
   function addToWorkingResourcePool(resources = []) {
-    set(_working_resource_pool, [...get(_working_resource_pool), ...resources]);
+    set(_working_resource_pool, uniqWith([...get(_working_resource_pool), ...resources], isEqual));
   }
 
   /**
+   * @param {QuizExercise} content
+   * @affects _working_resource_pool - Remove given quiz exercise from _working_resource_pool
+   */
+  function removeFromWorkingResourcePool(content) {
+    set(
+      _working_resource_pool,
+      _working_resource_pool.value.filter(obj => obj.id !== content.id)
+    );
+  }
+
+  /**
+   * @param {QuizExercise} content
    * Check if the content is present in working_resource_pool
    */
   function contentPresentInWorkingResourcePool(content) {
     const workingResourceIds = get(workingResourcePool).map(wr => wr.id);
     return workingResourceIds.includes(content.id);
-  }
-  /**
-   * Remove resource with the given id from _working_resource_pool
-   */
-  function removeFromWorkingResourcePool(id) {
-    set(
-      _working_resource_pool,
-      _working_resource_pool.value.filter(obj => obj.id !== id)
-    );
   }
 
   /** @type {ComputedRef<Boolean>} Whether the select all checkbox should be indeterminate */

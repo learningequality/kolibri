@@ -366,14 +366,11 @@
         if (checked) {
           this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources(content.id);
+          this.removeFromWorkingResourcePool(content);
         }
       },
       addToSelectedResources(content) {
         this.addToWorkingResourcePool([content]);
-      },
-      removeFromSelectedResources(id) {
-        this.removeFromWorkingResourcePool(id);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
