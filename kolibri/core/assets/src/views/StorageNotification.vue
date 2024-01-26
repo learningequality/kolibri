@@ -1,6 +1,10 @@
 <template>
 
-  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
+  <div
+    v-if="bannerOpened && !isDeviceRoute"
+    class="banner"
+    :style="{ background: $themeTokens.surface }"
+  >
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -99,6 +103,7 @@
     data() {
       return {
         bannerOpened: false,
+        isDeviceRoute: window.location.pathname.includes('device'),
       };
     },
     computed: {
