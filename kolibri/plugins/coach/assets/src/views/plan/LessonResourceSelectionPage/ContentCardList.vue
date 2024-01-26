@@ -1,6 +1,10 @@
 <template>
 
-  <div>
+  <KCircularLoader
+    v-if="loadingMore"
+    :delay="false"
+  />
+  <div v-else>
     <ul class="content-list">
       <KCheckbox
         v-if="showSelectAll"
@@ -77,11 +81,13 @@
     setup() {
       const {
         //Computed
+        loadingMore,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
       } = injectQuizCreation();
 
       return {
+        loadingMore,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
       };

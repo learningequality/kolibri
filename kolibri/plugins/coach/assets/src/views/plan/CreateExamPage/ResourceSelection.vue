@@ -10,6 +10,23 @@
       >
         {{ /* selectFoldersOrExercises$() */ }}
       </h5>
+      <KGrid>
+        <KGridItem
+          :layout12="{ span:1 }"
+          :layout8="{ span:1 }"
+        >
+          <KIconButton
+            icon="back"
+          />
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span:11 }"
+          :layout8="{ span:7 }"
+        >
+          <h5 class="select-folder-style">{{ selectFoldersOrExercises$() }}</h5>
+        </KGridItem>
+      </KGrid>
 
       <div v-if="!isTopicIdSet && bookmarks.length">
 
@@ -129,7 +146,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
       } = enhancedQuizManagementStrings;
@@ -157,6 +174,7 @@
         hasMore,
         annotateTopicsWithDescendantCounts,
         setResources,
+        loadingMore,
       } = useQuizResources({ topicId });
 
       const _loading = ref(true);
@@ -204,6 +222,7 @@
         return _loading.value || quizResourcesLoading.value;
       });
 
+
       if (topicId.value) {
         fetchQuizResources().then(() => {
           _loading.value = false;
@@ -241,7 +260,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         windowIsSmall,
@@ -255,7 +274,8 @@
         workingResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
-        resetWorkingResourcePool
+        resetWorkingResourcePool,
+        loadingMore:loadingMore.value,
       };
     },
     data() {
@@ -514,4 +534,8 @@
     background-color: white;
   }
 
+  .select-folder-style{
+    font-size:18px;
+    margin-top:0.5em;
+  }
 </style>

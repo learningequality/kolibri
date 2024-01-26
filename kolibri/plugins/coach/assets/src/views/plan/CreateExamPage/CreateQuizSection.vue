@@ -305,7 +305,7 @@
 
     <SectionSidePanel @closePanel="focusActiveSectionTab()" />
 
-  
+
   </div>
 
 </template>
@@ -525,7 +525,7 @@
         const tabRef = this.$refs[label];
         console.log("closing......");
         console.log(this.workingResourcePool.value);
-        
+
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
         if (tabRef) {

@@ -58,8 +58,10 @@ export default function useFetchTree({ topicId, params = {} } = {}) {
     return ContentNodeResource.fetchTree({ id: get(topicId), ...params }).then(topicTree => {
       // results is the list of all children from this call to the API
       // more is an object that contains the parameters we need to fetch the next batch of nodes
-      const { results, more } = topicTree.children || { results: [], more: null };
 
+      const { results, more } = topicTree.children || { results: [], more: null };
+      console.log(topicTree);
+      console.log(more);
       set(_resources, [...get(_resources), ...results]);
       set(_topic, topicTree);
       set(_moreParams, more);
