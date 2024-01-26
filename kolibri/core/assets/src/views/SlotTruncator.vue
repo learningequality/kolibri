@@ -26,7 +26,7 @@
 <script>
 
   import debounce from 'lodash/debounce';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

@@ -361,7 +361,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import sortLanguages from 'kolibri.utils.sortLanguages';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { checkCapability } from 'kolibri.utils.appCapabilities';
   import commonDeviceStrings from '../commonDeviceStrings';
   import DeviceAppBarPage from '../DeviceAppBarPage';

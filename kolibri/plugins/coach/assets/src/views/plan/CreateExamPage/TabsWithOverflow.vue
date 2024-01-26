@@ -29,7 +29,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   /**
    * @typedef   {Object}    Tab

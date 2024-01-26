@@ -51,7 +51,7 @@
 <script>
 
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {

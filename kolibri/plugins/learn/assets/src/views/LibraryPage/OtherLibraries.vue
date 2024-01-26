@@ -135,7 +135,7 @@
 
   import { get } from '@vueuse/core';
   import { computed } from 'kolibri.lib.vueCompositionApi';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import coreStrings from 'kolibri.utils.coreStrings';
   import useCardLayoutSpan from '../../composables/useCardLayoutSpan';
   import useContentLink from '../../composables/useContentLink';

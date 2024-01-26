@@ -157,7 +157,7 @@
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import shuffled from 'kolibri.utils.shuffled';

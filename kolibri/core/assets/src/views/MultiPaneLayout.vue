@@ -59,7 +59,7 @@
 <script>
 
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
+  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
 
   export default {
     name: 'MultiPaneLayout',
