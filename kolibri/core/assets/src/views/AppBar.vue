@@ -122,7 +122,7 @@
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
   import themeConfig from 'kolibri.themeConfig';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import navComponentsMixin from '../mixins/nav-components';
   import SkipNavigationLink from './SkipNavigationLink';
 

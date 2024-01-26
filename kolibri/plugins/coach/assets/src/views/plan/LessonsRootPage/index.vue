@@ -173,7 +173,7 @@
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKShow from 'kolibri.coreVue.composables.useKShow';
+  import useKShow from 'kolibri-design-system/lib/composables/useKShow';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import { LessonsPageNames } from '../../../constants/lessonsConstants';

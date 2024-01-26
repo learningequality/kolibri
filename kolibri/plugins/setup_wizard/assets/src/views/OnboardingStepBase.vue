@@ -144,7 +144,7 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import AppError from 'kolibri-common/components/AppError';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import { FooterMessageTypes } from '../constants';
 

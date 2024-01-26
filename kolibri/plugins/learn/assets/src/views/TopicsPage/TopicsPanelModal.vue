@@ -44,7 +44,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonLearnStrings from '../commonLearnStrings';
   import SidePanelModal from '../SidePanelModal';
