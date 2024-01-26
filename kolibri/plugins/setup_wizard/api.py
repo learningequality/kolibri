@@ -1,6 +1,7 @@
 import requests
 from django.urls import reverse
 from rest_framework import decorators
+from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotFound
 from rest_framework.exceptions import PermissionDenied
 from rest_framework.exceptions import ValidationError
@@ -154,7 +155,12 @@ class FacilityImportViewSet(ViewSet):
         baseurl = request.data.get("baseurl")
         password = request.data.get("password")
         username = request.data.get("username")
-        facility_info = get_remote_users_info(baseurl, facility_id, username, password)
+        try:
+            facility_info = get_remote_users_info(
+                baseurl, facility_id, username, password
+            )
+        except AuthenticationFailed:
+            raise PermissionDenied()
         user_info = facility_info["user"]
         roles = user_info["roles"]
         admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
