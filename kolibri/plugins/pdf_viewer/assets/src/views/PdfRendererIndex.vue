@@ -747,7 +747,7 @@
     overflow: hidden;
     pointer-events: none;
     background-color: transparent;
-    border: none;
+    border: 0;
     opacity: 0;
   }
 
