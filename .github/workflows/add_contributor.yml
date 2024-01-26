@@ -62,4 +62,4 @@ jobs:
         run: |
           git add AUTHORS.md
           git commit -m "Add ${{ github.event.pull_request.user.login }} to AUTHORS.md"
-          git push git@github.com:github.com/${{ github.event.pull_request.user.login }}/kolibri.git pr:${{ github.head_ref }}
+          git push origin pr:${{ github.event.pull_request.head.ref }}
