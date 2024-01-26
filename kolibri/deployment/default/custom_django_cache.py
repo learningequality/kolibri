@@ -13,6 +13,32 @@ class CustomDjangoCache(DjangoCache):
     https://github.com/grantjenks/python-diskcache/blob/v4.1.0/diskcache/djangocache.py
     """
 
+    ERRORS_TO_HANDLE = (sqlite3.OperationalError, AssertionError)
+
+    def try_execute_return_none_on_error(self, method, *args, **kwargs):
+        try:
+            return method(*args, **kwargs)
+        except self.ERRORS_TO_HANDLE:
+            return None
+
+    def try_execute_return_false_on_error(self, method, *args, **kwargs):
+        try:
+            return method(*args, **kwargs)
+        except self.ERRORS_TO_HANDLE:
+            return False
+
+    def try_execute_no_return_on_error(self, method, *args, **kwargs):
+        try:
+            method(*args, **kwargs)
+        except self.ERRORS_TO_HANDLE:
+            pass
+
+    def try_execute_return_zero_on_error(self, method, *args, **kwargs):
+        try:
+            return method(*args, **kwargs)
+        except self.ERRORS_TO_HANDLE:
+            return 0
+
     def add(
         self,
         key,
@@ -23,12 +49,16 @@ class CustomDjangoCache(DjangoCache):
         tag=None,
         retry=True,
     ):
-        try:
-            return super(CustomDjangoCache, self).add(
-                key, value, timeout, version, read, tag, retry
-            )
-        except sqlite3.OperationalError:
-            return False
+        return self.try_execute_return_false_on_error(
+            super(CustomDjangoCache, self).add,
+            key,
+            value,
+            timeout,
+            version,
+            read,
+            tag,
+            retry,
+        )
 
     def has_key(self, key, version=None):
         """Returns True if the key is in the cache and has not expired.
@@ -38,12 +68,9 @@ class CustomDjangoCache(DjangoCache):
         :return: True if key is found
 
         """
-        try:
-            return super(CustomDjangoCache, self).has_key(  # noqa: W601
-                key, version=version
-            )
-        except sqlite3.OperationalError:
-            return False
+        return self.try_execute_return_false_on_error(
+            super(CustomDjangoCache, self).has_key, key, version=version
+        )
 
     def get(
         self,
@@ -55,12 +82,16 @@ class CustomDjangoCache(DjangoCache):
         tag=False,
         retry=False,
     ):
-        try:
-            return super(CustomDjangoCache, self).get(
-                key, default, version, read, expire_time, tag, retry
-            )
-        except sqlite3.OperationalError:
-            return None
+        return self.try_execute_return_none_on_error(
+            super(CustomDjangoCache, self).get,
+            key,
+            default,
+            version,
+            read,
+            expire_time,
+            tag,
+            retry,
+        )
 
     def set(
         self,
@@ -72,95 +103,77 @@ class CustomDjangoCache(DjangoCache):
         tag=None,
         retry=True,
     ):
-        try:
-            return super(CustomDjangoCache, self).set(
-                key, value, timeout, version, read, tag, retry
-            )
-        except sqlite3.OperationalError:
-            return False
+        return self.try_execute_return_false_on_error(
+            super(CustomDjangoCache, self).set,
+            key,
+            value,
+            timeout,
+            version,
+            read,
+            tag,
+            retry,
+        )
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None, retry=True):
-        try:
-            return super(CustomDjangoCache, self).touch(key, timeout, version, retry)
-        except sqlite3.OperationalError:
-            return False
+        return self.try_execute_return_false_on_error(
+            super(CustomDjangoCache, self).touch, key, timeout, version, retry
+        )
 
     def pop(
         self, key, default=None, version=None, expire_time=False, tag=False, retry=True
     ):
-        try:
-            return super(CustomDjangoCache, self).pop(
-                key, default, version, expire_time, tag, retry
-            )
-        except sqlite3.OperationalError:
-            return None
+        return self.try_execute_return_none_on_error(
+            super(CustomDjangoCache, self).pop,
+            key,
+            default,
+            version,
+            expire_time,
+            tag,
+            retry,
+        )
 
     def delete(self, key, version=None, retry=True):
-        try:
-            super(CustomDjangoCache, self).delete(key, version, retry)
-        except sqlite3.OperationalError:
-            pass
+        self.try_execute_no_return_on_error(
+            super(CustomDjangoCache, self).delete, key, version, retry
+        )
 
     def incr(self, key, delta=1, version=None, default=None, retry=True):
-        try:
-            return super(CustomDjangoCache, self).incr(
-                key, delta, version, default, retry
-            )
-        except sqlite3.OperationalError:
-            return None
+        return self.try_execute_return_none_on_error(
+            super(CustomDjangoCache, self).incr, key, delta, version, default, retry
+        )
 
     def decr(self, key, delta=1, version=None, default=None, retry=True):
-        try:
-            return super(CustomDjangoCache, self).decr(
-                key, delta, version, default, retry
-            )
-        except sqlite3.OperationalError:
-            return None
+        return self.try_execute_return_none_on_error(
+            super(CustomDjangoCache, self).decr, key, delta, version, default, retry
+        )
 
     def expire(self, retry=False):
-        try:
-            return super(CustomDjangoCache, self).expire(retry)
-        except sqlite3.OperationalError:
-            return 0
+        return self.try_execute_return_zero_on_error(super().expire, retry)
 
     def stats(self, enable=True, reset=False):
-        try:
-            return super(CustomDjangoCache, self).stats(enable, reset)
-        except sqlite3.OperationalError:
-            return 0, 0
+        result = self.try_execute_return_none_on_error(super().stats, enable, reset)
+        return result if isinstance(result, tuple) else (0, 0)
 
     def create_tag_index(self):
-        try:
-            super(CustomDjangoCache, self).create_tag_index()
-        except sqlite3.OperationalError:
-            pass
+        self.try_execute_no_return_on_error(
+            super(CustomDjangoCache, self).create_tag_index
+        )
 
     def drop_tag_index(self):
-        try:
-            super(CustomDjangoCache, self).drop_tag_index()
-        except sqlite3.OperationalError:
-            pass
+        self.try_execute_no_return_on_error(
+            super(CustomDjangoCache, self).drop_tag_index
+        )
 
     def evict(self, tag):
-        try:
-            return super(CustomDjangoCache, self).evict(tag)
-        except sqlite3.OperationalError:
-            return 0
+        return self.try_execute_return_zero_on_error(super().evict, tag)
 
     def cull(self):
-        try:
-            return super(CustomDjangoCache, self).cull()
-        except sqlite3.OperationalError:
-            return 0
+        return self.try_execute_return_zero_on_error(super().cull)
 
     def clear(self):
-        try:
-            return super(CustomDjangoCache, self).clear()
-        except sqlite3.OperationalError:
-            return 0
+        return self.try_execute_return_zero_on_error(super().clear)
 
     def close(self, **kwargs):
-        try:
-            super(CustomDjangoCache, self).close(**kwargs)
-        except sqlite3.OperationalError:
-            pass
+        self.try_execute_no_return_on_error(
+            super(CustomDjangoCache, self).close, **kwargs
+        )
