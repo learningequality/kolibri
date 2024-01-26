@@ -297,7 +297,19 @@ export default function useQuizCreation(DEBUG = false) {
     if (!validateQuiz(get(_quiz))) {
       throw new Error(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
     }
-    return ExamResource.saveModel({ data: get(_quiz) });
+
+    // Here we update each section's `resource_pool` to only be the IDs of the resources
+    const sectionsWithResourcePoolAsIDs = get(allSections).map(section => {
+      const resourcePoolAsIds = get(section).resource_pool.map(content => content.id);
+      section.resource_pool = resourcePoolAsIds;
+      return section;
+    });
+
+    const finalQuiz = get(_quiz);
+
+    finalQuiz.question_sources = sectionsWithResourcePoolAsIDs;
+
+    return ExamResource.saveModel({ data: finalQuiz });
   }
 
   /**
