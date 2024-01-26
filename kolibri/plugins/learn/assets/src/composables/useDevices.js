@@ -25,11 +25,13 @@ import useChannels from './useChannels';
  */
 const currentDevice = ref(null);
 
+const { kolibriLibrary$ } = learnStrings;
+
 const KolibriStudioDeviceData = {
   ...plugin_data.studioDevice,
   id: KolibriStudioId,
   get device_name() {
-    return learnStrings.$tr('kolibriLibrary');
+    return kolibriLibrary$();
   },
 };
 

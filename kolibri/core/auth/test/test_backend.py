@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import mock
 from django.test import TestCase
 
@@ -17,6 +13,11 @@ class FacilityUserBackendTestCase(TestCase):
         cls.user = FacilityUser(username="Mike", facility=cls.facility)
         cls.user.set_password("foo")
         cls.user.save()
+        cls.user_other_mike = FacilityUser.objects.create(
+            username="mike", facility=cls.facility
+        )
+        cls.user_other_mike.set_password("foo")
+        cls.user_other_mike.save()
         cls.request = mock.Mock()
 
     def test_facility_user_authenticated(self):
@@ -24,6 +25,14 @@ class FacilityUserBackendTestCase(TestCase):
             self.user,
             FacilityUserBackend().authenticate(
                 self.request, username="Mike", password="foo", facility=self.facility
+            ),
+        )
+
+    def test_facility_user_other_mike_authenticated(self):
+        self.assertEqual(
+            self.user_other_mike,
+            FacilityUserBackend().authenticate(
+                self.request, username="mike", password="foo", facility=self.facility
             ),
         )
 
@@ -35,11 +44,27 @@ class FacilityUserBackendTestCase(TestCase):
             ),
         )
 
+    def test_facility_user_other_mike_authenticated__facility_id(self):
+        self.assertEqual(
+            self.user_other_mike,
+            FacilityUserBackend().authenticate(
+                self.request, username="mike", password="foo", facility=self.facility.pk
+            ),
+        )
+
     def test_facility_user_authentication_does_not_require_facility(self):
         self.assertEqual(
             self.user,
             FacilityUserBackend().authenticate(
                 self.request, username="Mike", password="foo"
+            ),
+        )
+
+    def test_facility_user_other_mike_authentication_does_not_require_facility(self):
+        self.assertEqual(
+            self.user_other_mike,
+            FacilityUserBackend().authenticate(
+                self.request, username="mike", password="foo"
             ),
         )
 

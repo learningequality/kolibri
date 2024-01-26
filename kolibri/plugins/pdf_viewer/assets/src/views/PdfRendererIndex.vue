@@ -122,17 +122,20 @@
   import Hammer from 'hammerjs';
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
+  import logger from 'kolibri.lib.logging';
   import { RecycleList } from 'vue-virtual-scroller';
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
+
+  const logging = logger.getLogger(__filename);
 
   // How often should we respond to changes in scrolling to render new pages?
   const renderDebounceTime = 300;
@@ -146,7 +149,14 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsSmall,
+      };
+    },
     data: () => ({
       progress: null,
       scale: null,
@@ -415,6 +425,10 @@
           if (currentPage === this.totalPages - 1 && this.scrolledToEnd()) {
             this.storeVisitedPage(currentPage + 1);
           }
+          // If users has already zoomed then set the scale to that particular zoom scale.
+          if (localStorage.getItem('pdf_scale') != null) {
+            this.setScale(parseFloat(localStorage.getItem('pdf_scale')));
+          }
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
@@ -439,6 +453,7 @@
       },
       setScale: throttle(function(scaleValue) {
         this.scale = scaleValue;
+        localStorage.setItem('pdf_scale', scaleValue);
       }, 500),
       toggleSideBar() {
         this.showSideBar = !this.showSideBar;
@@ -512,13 +527,13 @@
         Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
           explicitDest => {
             if (!Array.isArray(explicitDest)) {
-              console.error('Error getting destination');
+              logging.error('Error getting destination');
               return;
             }
 
             this.getDestinationPageNumber(explicitDest).then(pageNumber => {
               if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-                console.error('Invalid destination page');
+                logging.error('Invalid destination page');
                 return;
               }
 
@@ -549,13 +564,13 @@
         Promise.resolve(dest === 'string' ? this.pdfDocument.getDestination(dest) : dest).then(
           explicitDest => {
             if (!Array.isArray(explicitDest)) {
-              console.error('Error getting destination');
+              logging.error('Error getting destination');
               return;
             }
 
             this.getDestinationPageNumber(explicitDest).then(pageNumber => {
               if (!pageNumber || pageNumber < 1 || pageNumber > this.pagesCount) {
-                console.error('Invalid destination page');
+                logging.error('Invalid destination page');
                 return;
               }
 
@@ -618,14 +633,14 @@
                 resolve(pageIndex + 1);
               })
               .catch(e => {
-                console.error('Error getting destination page number', e);
+                logging.error('Error getting destination page number', e);
                 resolve();
               });
           }
           if (Number.isInteger(destRef)) {
             return resolve(destRef + 1);
           }
-          console.error('Invalid destination reference');
+          logging.error('Invalid destination reference');
           resolve();
         });
       },

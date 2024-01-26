@@ -1,6 +1,6 @@
 FROM ubuntu:bionic
 
-ENV NODE_VERSION=16.20.0
+ENV NODE_VERSION=18.19.0
 
 # install required packages
 RUN apt-get update && \
@@ -10,7 +10,7 @@ RUN apt-get update && \
     gettext \
     git \
     git-lfs \
-    python2.7 \
+    python3.6 \
     python-pip \
     python-sphinx
 
@@ -24,7 +24,7 @@ RUN (curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | apt-key add -) && \
 
 # install nodejs and yarn
 RUN apt-get update && \
-    curl -sSO https://deb.nodesource.com/node_16.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
+    curl -sSO https://deb.nodesource.com/node_18.x/pool/main/n/nodejs/nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     dpkg -i ./nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     rm nodejs_$NODE_VERSION-1nodesource1_amd64.deb && \
     apt-get install yarn

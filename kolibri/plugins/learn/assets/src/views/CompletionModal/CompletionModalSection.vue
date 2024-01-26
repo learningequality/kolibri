@@ -80,7 +80,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   /**
    * A responsive section of the completion modal.
@@ -94,7 +94,12 @@
    */
   export default {
     name: 'CompletionModalSection',
-    mixins: [KResponsiveWindowMixin],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       title: {
         type: String,

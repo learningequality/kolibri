@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from django.conf import settings
 from django.urls import reverse
 from django.urls.exceptions import NoReverseMatch

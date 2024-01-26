@@ -64,7 +64,7 @@
 
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import commonLearnStrings from '../commonLearnStrings.js';
 
@@ -74,7 +74,13 @@
       Backdrop,
       FocusTrap,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings, commonLearnStrings],
+    mixins: [commonCoreStrings, commonLearnStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       /* CloseButtonIconType icon from parent component */
       closeButtonIconType: {

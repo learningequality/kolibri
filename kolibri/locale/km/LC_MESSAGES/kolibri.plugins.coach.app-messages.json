@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "សូមទាក់ទងអ្នកគ្រប់គ្រង Kolibri របស់អ្នក",
   "CoachExamsPage.newQuiz": "បង្កើតសំណួរថ្មី",
   "CoachExamsPage.noExams": "អ្នកមិនមានសំណួរអ្វីទេ",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "ជ្រើសសំណួរ",
   "CoachExamsPage.totalQuizSize": "ទំហំសរុបនៃសំណួរ និងលំហាត់ដែលអ្នកសិក្សាអាចមើលឃើញ ៖ {size}",
   "CoachImmersivePage.errorPageTitle": "កំហុស",

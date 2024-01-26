@@ -354,6 +354,7 @@
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
   import urls from 'kolibri.urls';
+  import logger from 'kolibri.lib.logging';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
@@ -373,6 +374,8 @@
   import AddStorageLocationModal from './AddStorageLocationModal';
   import RemoveStorageLocationModal from './RemoveStorageLocationModal';
   import ServerRestartModal from './ServerRestartModal';
+
+  const logging = logger.getLogger(__filename);
 
   const SignInPageOptions = Object.freeze({
     LOCKED_CONTENT: 'LOCKED_CONTENT',
@@ -840,7 +843,7 @@
             }
           })
           .catch(err => {
-            console.error(err);
+            logging.error(err);
             this.$store.dispatch('createSnackbar', this.$tr('saveFailureNotification'));
           });
       },

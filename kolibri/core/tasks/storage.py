@@ -3,6 +3,7 @@ from contextlib import contextmanager
 from datetime import datetime
 from datetime import timedelta
 
+import pytz
 from sqlalchemy import Column
 from sqlalchemy import DateTime
 from sqlalchemy import func as sql_func
@@ -199,6 +200,42 @@ class Storage(object):
             )
             return job.job_id
 
+    def enqueue_lifo(
+        self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
+    ):
+        naive_utc_now = datetime.utcnow()
+        with self.session_scope() as session:
+            soonest_job = (
+                session.query(ORMJob)
+                .filter(ORMJob.state == State.QUEUED)
+                .filter(ORMJob.scheduled_time <= naive_utc_now)
+                .order_by(ORMJob.scheduled_time)
+                .first()
+            )
+            dt = (
+                pytz.timezone("UTC").localize(soonest_job.scheduled_time)
+                - timedelta(microseconds=1)
+                if soonest_job
+                else self._now()
+            )
+        try:
+            return self.schedule(
+                dt,
+                job,
+                queue,
+                priority=priority,
+                interval=0,
+                repeat=0,
+                retry_interval=retry_interval,
+            )
+        except JobRunning:
+            logger.debug(
+                "Attempted to enqueue a running job {job_id}, ignoring.".format(
+                    job_id=job.job_id
+                )
+            )
+            return job.job_id
+
     def enqueue_job_if_not_enqueued(
         self, job, queue=DEFAULT_QUEUE, priority=Priority.REGULAR, retry_interval=None
     ):
@@ -239,7 +276,7 @@ class Storage(object):
             query.filter(ORMJob.state == State.QUEUED)
             .filter(ORMJob.scheduled_time <= naive_utc_now)
             .filter(ORMJob.priority <= priority)
-            .order_by(ORMJob.priority, ORMJob.time_created)
+            .order_by(ORMJob.priority, ORMJob.scheduled_time, ORMJob.time_created)
         )
 
     def _postgres_next_queued_job(self, session, priority):

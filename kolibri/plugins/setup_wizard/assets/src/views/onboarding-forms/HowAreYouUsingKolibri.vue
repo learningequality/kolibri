@@ -9,15 +9,17 @@
     <KRadioButton
       v-model="selected"
       style="margin-bottom: 1em"
-      :value="UsePresets.ON_MY_OWN"
+      :value="Presets.PERSONAL"
       :label="$tr('onMyOwnLabel')"
       :description="getCommonSyncString('onMyOwn')"
+      :autofocus="selected !== UsePresets.GROUP"
     />
     <KRadioButton
       v-model="selected"
       :value="UsePresets.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
+      :autofocus="selected === UsePresets.GROUP"
     />
   </OnboardingStepBase>
 
@@ -27,8 +29,9 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { Presets, UsePresets } from '../../constants';
+  import { UsePresets } from '../../constants';
 
   export default {
     name: 'HowAreYouUsingKolibri',
@@ -36,29 +39,21 @@
     mixins: [commonSyncElements],
     inject: ['wizardService'],
     data() {
-      const selected = this.wizardService.state.context['onMyOwnOrGroup'] || UsePresets.ON_MY_OWN;
+      const selected = this.wizardService.state.context['onMyOwnOrGroup'] || Presets.PERSONAL;
       return {
         selected,
       };
     },
     computed: {
-      isOnMyOwnSetup() {
-        return this.selected === UsePresets.ON_MY_OWN;
-      },
       UsePresets() {
         return UsePresets;
+      },
+      Presets() {
+        return Presets;
       },
     },
     methods: {
       handleContinue() {
-        if (this.isOnMyOwnSetup) {
-          // If the user is on their own, set the preset to personal here
-          // If not then the user will set it using a form later on
-          this.$store.commit('SET_FACILITY_PRESET', Presets.PERSONAL);
-        }
-        this.goToNextStep();
-      },
-      goToNextStep() {
         this.wizardService.send({ type: 'CONTINUE', value: this.selected });
       },
     },

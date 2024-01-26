@@ -353,7 +353,7 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
             return Response(content, status=status.HTTP_412_PRECONDITION_FAILED)
         try:
             facility = Facility.objects.get(id=facility_id)
-        except (AttributeError, Facility.DoesNotExist):
+        except (AttributeError, Facility.DoesNotExist, ValueError):
             content = "The facility does not exist in this device"
             return Response(content, status=status.HTTP_404_NOT_FOUND)
 
@@ -363,7 +363,7 @@ class FacilitySearchUsernameViewSet(BaseValuesViewset):
         else:
             username = request.query_params.get("search", None)
             queryset = self.get_queryset().filter(
-                facility=facility_id, username=username
+                facility=facility_id, username__iexact=username
             )
             response = (
                 [

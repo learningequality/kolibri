@@ -1,8 +1,8 @@
 import uuid
+from io import StringIO
 
 from django.core.management import call_command
 from django.test import TestCase
-from django.utils import six
 
 from kolibri.core.content import models as content
 
@@ -13,7 +13,7 @@ class ChannelOrderMixin(object):
             obj.refresh_from_db()
 
     def setUp(self):
-        self.out = six.StringIO()
+        self.out = StringIO()
         node = content.ContentNode.objects.create(
             id=uuid.uuid4(),
             title="test",

@@ -166,7 +166,6 @@
   "ManageSyncSchedule.addDevice": "डिवाइस जोड़ें",
   "ManageSyncSchedule.connected": "कनेक्ट हो गया",
   "ManageSyncSchedule.disconnected": "कनेक्टेड नहीं है",
-  "ManageSyncSchedule.forgetText": "भूल जाएँ",
   "ManageSyncSchedule.introduction": "इस सुविधा को साझा करने वाले अन्य Kolibri डिवाइस के साथ स्वचालित रूप से समन्वयित करने के लिए Kolibri के लिए एक शेड्यूल सेट करें। समान सिंक शेड्यूल वाले डिवाइस एक बार में सिंक किए जाएंगे।",
   "ManageSyncSchedule.syncSchedules": "शेड्यूल सिंक करें",
   "PaginatedListContainerWithBackend.nextResults": "अगले परिणाम",

@@ -5,37 +5,11 @@ import set from 'lodash/set';
 import debounce from 'lodash/debounce';
 import unset from 'lodash/unset';
 import Toposort from 'toposort-class';
-import { unzip, strFromU8 } from 'fflate';
+import ZipFile from 'kolibri-zip';
 import filenameObj from '../../h5p_build.json';
-import mimetypes from '../mimetypes.json';
 import { XAPIVerbMap } from '../xAPI/xAPIVocabulary';
-import loadBinary from './loadBinary';
 
 const H5PFilename = filenameObj.filename;
-
-class Zip {
-  constructor(file) {
-    this.zipfile = file;
-  }
-
-  _getFiles(filter) {
-    return new Promise((resolve, reject) => {
-      unzip(this.zipfile, { filter }, (err, unzipped) => {
-        if (err) {
-          reject(err);
-        }
-        resolve(Object.entries(unzipped).map(([name, obj]) => ({ name, obj })));
-      });
-    });
-  }
-
-  file(filename) {
-    return this._getFiles(file => file.name === filename).then(files => files[0]);
-  }
-  files(path) {
-    return this._getFiles(file => file.name.startsWith(path));
-  }
-}
 
 const CONTENT_ID = '1234567890';
 
@@ -67,48 +41,6 @@ for (const completionVerb of completionVerbs) {
 
 function contentIdentifier(contentId) {
   return `cid-${contentId}`;
-}
-
-/*
- * Create a blob and URL for a uint8array
- * set the mimetype and return the URL
- */
-function createBlobUrl(uint8array, fileName) {
-  let type = '';
-  const fileNameExt = fileName.split('.').slice(-1)[0];
-  if (fileNameExt) {
-    const ext = fileNameExt.toLowerCase();
-    type = mimetypes[ext];
-  }
-  const blob = new Blob([uint8array.buffer], { type });
-  return URL.createObjectURL(blob);
-}
-
-// Looks for any URLs referenced inside url()
-const cssPathRegex = /(url\(['"]?)([^"')]+)?(['"]?\))/g;
-
-export function replacePaths(dep, packageFiles) {
-  return packageFiles[dep].replace(cssPathRegex, function(match, p1, p2, p3) {
-    try {
-      // Construct a URL with a dummy base so that we can concatenate the
-      // dependency URL with the URL relative to the dependency
-      // and then read the pathname to get the new path.
-      // Take substring to remove the leading slash to match the reference file paths
-      // in packageFiles.
-      const path = new URL(p2, new URL(dep, 'http://b.b/')).pathname.substring(1);
-      // Look to see if there is a URL in our packageFiles mapping that
-      // that has this as the source path.
-      const newUrl = packageFiles[path];
-      if (newUrl) {
-        // If so, replace the instance with the new URL.
-        return `${p1}${newUrl}${p3}`;
-      }
-    } catch (e) {
-      console.debug('Error during URL handling', e); // eslint-disable-line no-console
-    }
-    // Otherwise just return the match so that it is unchanged.
-    return match;
-  });
 }
 
 const metadataKeys = [
@@ -205,45 +137,42 @@ export default class H5PRunner {
     // and for logging xAPI statements about the content.
     this.contentNamespace = CONTENT_ID;
     const start = performance.now();
-    // First load the full H5P file as binary so we can read it using JSZip
-    loadBinary(this.filepath)
-      .then(file => {
-        // Store the zip locally for later reference
-        this.zip = new Zip(file);
-        // Recurse all the package dependencies
-        return this.recurseDependencies('h5p.json', true);
-      })
-      .then(() => {
-        // Once we have found all the dependencies, we call this
-        // to sort the dependencies by their dependencies to make an
-        // ordered list, with every package being loaded only once its
-        // dependencies have been loaded.
-        this.setDependencies();
-        return this.processFiles().then(() => {
-          console.debug(`H5P file processed in ${performance.now() - start} ms`);
-          this.metadata = pick(this.rootConfig, metadataKeys);
-          // Do any URL substitition on CSS dependencies
-          // and turn them into Blob URLs.
-          // Also order the dendencies according to our sorted
-          // dependency tree.
-          this.processCssDependencies();
-          this.processJsDependencies();
-          // If the iframe has already loaded, start H5P
-          // Sometimes this check can catch the iframe before it has started
-          // to load H5P, when it is still blank, but loaded.
-          // So we also check that H5P is defined on the contentWindow to be sure
-          // that the ready state applies to the loading of the H5P html file.
-          if (
-            this.iframe.contentDocument &&
-            this.iframe.contentDocument.readyState === 'complete' &&
-            this.iframe.contentWindow.H5P
-          ) {
-            return this.initH5P();
-          }
-          // Otherwise wait for the load event.
-          this.iframe.addEventListener('load', () => this.initH5P());
-        });
+    // First load the full H5P file
+    // Store the zip locally for later reference
+    this.zip = new ZipFile(this.filepath);
+    // Recurse all the package dependencies
+    return this.recurseDependencies('h5p.json', true).then(() => {
+      // Once we have found all the dependencies, we call this
+      // to sort the dependencies by their dependencies to make an
+      // ordered list, with every package being loaded only once its
+      // dependencies have been loaded.
+      this.setDependencies();
+      return this.processFiles().then(() => {
+        // eslint-disable-next-line no-console
+        console.debug(`H5P file processed in ${performance.now() - start} ms`);
+        this.metadata = pick(this.rootConfig, metadataKeys);
+        // Do any URL substitition on CSS dependencies
+        // and turn them into Blob URLs.
+        // Also order the dendencies according to our sorted
+        // dependency tree.
+        this.processCssDependencies();
+        this.processJsDependencies();
+        // If the iframe has already loaded, start H5P
+        // Sometimes this check can catch the iframe before it has started
+        // to load H5P, when it is still blank, but loaded.
+        // So we also check that H5P is defined on the contentWindow to be sure
+        // that the ready state applies to the loading of the H5P html file.
+        if (
+          this.iframe.contentDocument &&
+          this.iframe.contentDocument.readyState === 'complete' &&
+          this.iframe.contentWindow.H5P
+        ) {
+          return this.initH5P();
+        }
+        // Otherwise wait for the load event.
+        this.iframe.addEventListener('load', () => this.initH5P());
       });
+    });
   }
 
   stateUpdated() {
@@ -381,6 +310,7 @@ export default class H5PRunner {
       debouncedHandlers[verb] = debounce(
         function(statement) {
           contentWindow.xAPI.sendStatement(statement, true).catch(err => {
+            // eslint-disable-next-line no-console
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         },
@@ -412,6 +342,7 @@ export default class H5PRunner {
           debouncedHandlers[statement.verb.id](statement);
         } else {
           contentWindow.xAPI.sendStatement(event.data.statement, true).catch(err => {
+            // eslint-disable-next-line no-console
             console.error('Statement: ', statement, 'gave the following error: ', err);
           });
         }
@@ -547,7 +478,7 @@ export default class H5PRunner {
       if (!file) {
         return;
       }
-      const json = JSON.parse(strFromU8(file.obj));
+      const json = JSON.parse(file.toString());
       const preloadedDependencies = json['preloadedDependencies'] || [];
       // Make a copy so that we are not modifying the same object
       visitedPaths = {
@@ -625,9 +556,7 @@ export default class H5PRunner {
   processCssDependencies() {
     const concatenatedCSS = this.sortedDependencies.reduce((wholeCSS, dependency) => {
       return (this.cssDependencies[dependency] || []).reduce((allCss, cssDep) => {
-        const css = replacePaths(cssDep, this.packageFiles[dependency]);
-        // We have completed the path substition, so concatenate the CSS.
-        return `${allCss}${css}\n\n`;
+        return `${allCss}${this.packageFiles[dependency][cssDep]}\n\n`;
       }, wholeCSS);
     }, '');
     this.cssURL = URL.createObjectURL(new Blob([concatenatedCSS], { type: 'text/css' }));
@@ -643,10 +572,10 @@ export default class H5PRunner {
     if (fileName === 'content.json') {
       // Store this special file contents here as raw text
       // as that is how H5P expects it.
-      this.contentJson = strFromU8(file.obj);
+      this.contentJson = file.toString();
     } else {
       // Create blob urls for every item in the content folder
-      this.contentPaths[fileName] = createBlobUrl(file.obj, fileName);
+      this.contentPaths[fileName] = file.toUrl();
     }
   }
 
@@ -676,10 +605,10 @@ export default class H5PRunner {
       // If it's a CSS file load as a string from the zipfile for later
       // replacement of URLs.
       // For JS or CSS, we load as string to concatenate and later turn into a single file.
-      this.packageFiles[packagePath][fileName] = strFromU8(file.obj);
+      this.packageFiles[packagePath][fileName] = file.toString();
     } else {
       // Otherwise just create a blob URL for this file and store it in our packageFiles maps.
-      this.packageFiles[packagePath][fileName] = createBlobUrl(file.obj, fileName);
+      this.packageFiles[packagePath][fileName] = file.toUrl();
     }
   }
 
@@ -692,8 +621,6 @@ export default class H5PRunner {
         contentFiles.map(file => this.processContent(file));
       }),
       ...Object.keys(this.packageFiles).map(packagePath => {
-        // JSZip uses regex for path matching, so we first do regex escaping on the packagePath
-        // in order to get an exact match, and not accidentally do a regex match based on the path
         return this.zip.files(packagePath).then(packageFiles => {
           packageFiles.map(file => this.processPackageFile(file, packagePath));
         });

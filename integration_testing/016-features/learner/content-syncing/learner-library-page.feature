@@ -9,10 +9,11 @@ Feature: My downloads - Library page
 		Given I'm not connected to any device, network, or external storage
 		When I load the *Learn > Library* page
 			And I look at the *Other libraries* section of the page
-		Then I see the label *Other libraries* connection status
+		Then I see the label *Other libraries*
+			And I see *Searching for libraries around you.* and a spinner icon
 		When the search is over
 		Then I see *No other libraries around you right now*
-			And I see *Searching for new materials around you* #TO DO, this is not clear
+			And I see a *Refresh* link
 
 	Scenario: Learner is connected to the Internet and there are up 1-3 libraries
 		Given I'm connected to the Internet and there are devices with available libraries

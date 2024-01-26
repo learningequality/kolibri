@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
+import base64
 import csv
 import datetime
 import hashlib
@@ -18,7 +15,6 @@ from kolibri.core.analytics.constants.nutrition_endpoints import STATISTICS
 from kolibri.core.analytics.models import PingbackNotification
 from kolibri.core.analytics.utils import calculate_list_stats
 from kolibri.core.analytics.utils import create_and_update_notifications
-from kolibri.core.analytics.utils import encodestring
 from kolibri.core.analytics.utils import extract_channel_statistics
 from kolibri.core.analytics.utils import extract_facility_statistics
 from kolibri.core.auth.constants import demographics
@@ -338,9 +334,9 @@ class SoudFacilityStatisticsTestCase(BaseDeviceSetupMixin, TransactionTestCase):
         actual = extract_facility_statistics(facility)
         users = sorted(self.users, key=lambda u: u.id)
         user_ids = ":".join([user.id for user in users])
-        expected_soud_hash = encodestring(hashlib.md5(user_ids.encode()).digest())[
-            :10
-        ].decode()
+        expected_soud_hash = base64.encodebytes(
+            hashlib.md5(user_ids.encode()).digest()
+        )[:10].decode()
         self.assertEqual(expected_soud_hash, actual.pop("sh"))
 
 

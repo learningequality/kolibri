@@ -5,7 +5,6 @@ from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import CommandError
 from django.core.validators import URLValidator
-from django.utils.six.moves import input
 from morango.models import Certificate
 from morango.models import Filter
 from morango.models import InstanceIDModel

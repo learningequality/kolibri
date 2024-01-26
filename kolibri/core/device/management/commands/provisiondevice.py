@@ -6,7 +6,6 @@ import sys
 from django.conf import settings
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
-from django.utils import six
 
 from kolibri.core.auth.constants.facility_presets import presets
 from kolibri.core.device.utils import get_facility_by_name
@@ -22,7 +21,7 @@ def get_user_response(prompt, valid_answers=None, to_lower_case=True):
     while not answer or (
         valid_answers is not None and answer.lower() not in valid_answers
     ):
-        answer = six.moves.input(prompt)
+        answer = input(prompt)
     if to_lower_case:
         return answer.lower()
     return answer

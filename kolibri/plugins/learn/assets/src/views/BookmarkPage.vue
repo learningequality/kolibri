@@ -45,6 +45,7 @@
     <!-- Side panel for showing the information of selected content with a link to view it -->
     <SidePanelModal
       v-if="sidePanelContent"
+      class="fix-pos"
       alignment="right"
       closeButtonIconType="close"
       @closePanel="sidePanelContent = null"
@@ -86,7 +87,7 @@
 
   import { mapActions } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { ContentNodeResource } from 'kolibri.resources';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -117,12 +118,18 @@
       LearnAppBarPage,
       HybridLearningFooter,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { canDownloadExternally } = useCoreLearn();
       const { fetchContentNodeProgress } = useContentNodeProgress();
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
-      return { canDownloadExternally, fetchContentNodeProgress, genContentLinkBackLinkCurrentPage };
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        canDownloadExternally,
+        fetchContentNodeProgress,
+        genContentLinkBackLinkCurrentPage,
+        windowIsSmall,
+      };
     },
     data() {
       return {
@@ -193,6 +200,11 @@
 
 
 <style scoped lang="scss">
+
+  .fix-pos {
+    position: fixed;
+    z-index: 4;
+  }
 
   .side-panel-chips {
     display: flex;

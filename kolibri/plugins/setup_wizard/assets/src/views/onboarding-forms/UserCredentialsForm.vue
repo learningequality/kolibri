@@ -12,11 +12,10 @@
   >
     <slot name="aboveform"></slot>
 
-    <!-- HACK in Import mode, this slot will be replaced by Password-only form -->
     <!-- VUE3-COMPAT: linter doesn't like that we are injecting "footer" slot from
          inside a slot default
     -->
-    <slot name="form">
+    <form>
       <!-- Hiding the fullname and username textboxes, but their values are filled in and presumed
            valid if we're given the user that we're taking credentials for (ie, just entering
            password for admin)
@@ -50,6 +49,7 @@
         :isValid.sync="passwordValid"
         :shouldValidate="formSubmitted"
         :showConfirmationInput="!selectedUser"
+        :shouldValidateOnEnter="false"
         autocomplete="new-password"
       />
 
@@ -57,7 +57,7 @@
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
 
-    </slot>
+    </form>
 
     <slot name="footer">
       <div class="reminder">
@@ -109,15 +109,15 @@
       },
       step: {
         type: Number,
-        required: true,
+        default: null,
       },
       steps: {
         type: Number,
-        required: true,
+        default: null,
       },
       footerMessageType: {
         type: String,
-        required: true,
+        default: null,
       },
       // A passthrough to the onboarding step base to hide "GO BACK" when needed
       noBackAction: {

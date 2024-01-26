@@ -8,12 +8,12 @@ Feature: Facility settings
     	And I am at *Facility > Settings* page
 
 	Scenario: Allow learners to join the facility
-		When I select the option *Allow learners to join this facility*
+		When I select the option *Allow learners to join this facility* #NOT IMPLEMENTED
 			And I click the *Save changes* button
 		Then the option to allow learners to join the facility is enabled
 			And I can join the facility as a learner
 
-	Scenario: Allow users to leave this facility and join a different facility
+	Scenario: Allow users to leave this facility and join a different facility #NOT IMPLEMENTED
 		When I select the option *Allow users to leave this facility and join a different facility*
 			And I click the *Save changes* button
 		Then the option to allow users to leave this facility and join a different facility is enabled

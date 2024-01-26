@@ -1,13 +1,25 @@
 import { shallowMount, mount } from '@vue/test-utils';
+import Vuex from 'vuex';
 import { useDevicesWithFilter } from 'kolibri.coreVue.componentSets.sync';
 import { LearningActivities } from 'kolibri.coreVue.vuex.constants';
 import LearningActivityBar from '../../src/views/LearningActivityBar';
 
 jest.mock('kolibri.coreVue.componentSets.sync');
 function makeWrapper({ propsData } = {}) {
+  const store = new Vuex.Store({
+    state: { core: { loading: false } },
+    mutations: {
+      SET_SHOW_COMPLETE_CONTENT_MODAL: jest.fn(),
+    },
+  });
   // stubbing out KCircularLoader, as using the actual component led to errors related to
   // Vue Composition API - stub may not be needed once we upgrade to Vue 2.7
-  return mount(LearningActivityBar, { propsData, stubs: ['KCircularLoader'] });
+  return mount(LearningActivityBar, {
+    propsData,
+    stubs: ['KCircularLoader'],
+    data: () => ({ windowBreakpoint: 6 }),
+    store,
+  });
 }
 
 describe('LearningActivityBar', () => {

@@ -2,7 +2,6 @@ import io
 import json
 import os
 import shutil
-import sys
 from collections import defaultdict
 from collections import OrderedDict
 
@@ -133,14 +132,8 @@ class Command(BaseCommand):
                 data[table_name] = [get_dict(r) for r in session.query(record).all()]
 
             data_path = DATA_PATH_TEMPLATE.format(name=version)
-            # Handle Python 2 unicode issue by opening the file in binary mode
-            # with no encoding as the data has already been encoded
-            if sys.version[0] == "2":
-                with io.open(data_path, mode="wb") as f:
-                    json.dump(data, f)
-            else:
-                with io.open(data_path, mode="w", encoding="utf-8") as f:
-                    json.dump(data, f)
+            with io.open(data_path, mode="w", encoding="utf-8") as f:
+                json.dump(data, f)
 
             shutil.rmtree(
                 os.path.join(

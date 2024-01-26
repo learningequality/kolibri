@@ -150,6 +150,7 @@ export const ERROR_CONSTANTS = {
   ALREADY_REGISTERED_FOR_COMMUNITY: 'ALREADY_REGISTERED_FOR_COMMUNITY',
   // 401 error constants
   INVALID_CREDENTIALS: 'INVALID_CREDENTIALS',
+  INVALID_USERNAME: 'INVALID_USERNAME',
   // 404 error constants
   NOT_FOUND: 'NOT_FOUND',
   INVALID_KDP_REGISTRATION_TOKEN: 'INVALID_KDP_REGISTRATION_TOKEN',
@@ -186,3 +187,10 @@ export const ApplicationTypes = {
   KOLIBRI: 'kolibri',
   STUDIO: 'studio',
 };
+
+// aliasing 'informal' to 'personal' since it's how we talk about it
+export const Presets = Object.freeze({
+  PERSONAL: 'informal',
+  FORMAL: 'formal',
+  NONFORMAL: 'nonformal',
+});

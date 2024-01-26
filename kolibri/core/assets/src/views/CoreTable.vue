@@ -82,7 +82,6 @@
           });
         }
       });
-
       // If we have loaded the data, but have no empty message and no rows, we log an error.
       if (!this.dataLoading && !this.emptyMessage && !tableHasRows) {
         logging.error('CoreTable: No rows in table, but no empty message provided.');
@@ -101,7 +100,7 @@
         createElement('table', { class: 'core-table' }, [
           ...(this.$slots.default || []),
           theadEl,
-          tbodyCopy,
+          this.dataLoading ? null : tbodyCopy,
         ]),
         dataStatusEl,
       ]);

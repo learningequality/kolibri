@@ -268,7 +268,7 @@
             if (!this.wizardService.state.context.firstImportedLodUser) {
               this.wizardService.send({
                 type: 'SET_FIRST_LOD',
-                value: { username: this.username, password },
+                value: { username: task.extra_metadata.username, password },
               });
             }
 
@@ -284,6 +284,7 @@
               ERROR_CONSTANTS.MISSING_PASSWORD,
               ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
               ERROR_CONSTANTS.AUTHENTICATION_FAILED,
+              ERROR_CONSTANTS.INVALID_USERNAME,
             ]);
 
             const errorData = error.response.data;

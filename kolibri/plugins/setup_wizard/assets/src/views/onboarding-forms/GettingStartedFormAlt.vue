@@ -32,7 +32,7 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { Presets } from '../../constants';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import OnboardingForm from './OnboardingForm';
 
   export default {

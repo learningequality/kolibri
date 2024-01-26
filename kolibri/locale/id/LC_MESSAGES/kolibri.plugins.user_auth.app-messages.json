@@ -27,7 +27,7 @@
   "FacilitySelect.canSignUpForFacilityLabel": "Pilih fasilitas yang ingin anda kaitkan dengan akun anda:",
   "FacilitySelect.selectFacilityLabel": "Pilih fasilitas yang memiliki akun anda",
   "NewPasswordPage.needToMakeNewPasswordLabel": "Halo, {user}. Kamu perlu mengatur kata sandi baru untuk akun anda.",
-  "ReportErrorModal.emailDescription": "Hubungi tim dukungan dengan detail kesalahan anda dan kami akan melakukan yang terbaik untuk membantu.",
+  "ReportErrorModal.emailDescription": "Hubungi tim dukungan dengan menyertakan detail error dan kami akan melakukan yang terbaik.",
   "ReportErrorModal.emailPrompt": "Kirim email ke pengembang",
   "ReportErrorModal.errorDetailsHeader": "Ringkasan kesalahan",
   "ReportErrorModal.forumPostingTips": "Sertakan deskripsi tentang apa yang anda coba lakukan dan apa yang anda klik saat kesalahan muncul.",

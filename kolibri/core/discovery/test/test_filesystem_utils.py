@@ -1,11 +1,6 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import ntpath
 import os
 import posixpath
-import sys
 
 from django.test import TestCase
 from mock import patch
@@ -70,9 +65,7 @@ class patch_disk_usage(object):
         self.mocked_disk_usage = _get_mocked_disk_usage(disk_sizes)
 
     def __call__(self, f):
-        if sys.version_info >= (3, 3):
-            return patch("shutil.disk_usage", self.mocked_disk_usage)(f)
-        return patch("os.statvfs", self.mocked_disk_usage)(f)
+        return patch("shutil.disk_usage", self.mocked_disk_usage)(f)
 
 
 def patch_os_access(readable, writable):

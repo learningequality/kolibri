@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Favor contatar seu administrador Kolibri",
   "CoachExamsPage.newQuiz": "Criar um novo teste",
   "CoachExamsPage.noExams": "Ainda não há nenhum teste",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "Selecionar teste",
   "CoachExamsPage.totalQuizSize": "Tamanho total dos testes visíveis para os alunos: {size}",
   "CoachImmersivePage.errorPageTitle": "Erro",

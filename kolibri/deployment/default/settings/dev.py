@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import os
 
 from .base import *  # noqa isort:skip @UnusedWildImport
@@ -25,20 +21,6 @@ ROOT_URLCONF = "kolibri.deployment.default.dev_urls"
 
 DEVELOPER_MODE = True
 os.environ.update({"KOLIBRI_DEVELOPER_MODE": "True"})
-
-try:
-    process_cache = CACHES["process_cache"]  # noqa F405
-except KeyError:
-    process_cache = None
-
-# Create a memcache for each cache
-CACHES = {
-    key: {"BACKEND": "django.core.cache.backends.locmem.LocMemCache"}
-    for key in CACHES  # noqa F405
-}
-
-if process_cache:
-    CACHES["process_cache"] = process_cache
 
 
 REST_FRAMEWORK = {

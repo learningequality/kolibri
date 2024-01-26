@@ -3,7 +3,7 @@
   <div>
 
     <template v-if="sessionReady">
-      <KContentRenderer
+      <ContentRenderer
         v-if="!content.assessmentmetadata"
         class="content-renderer"
         :kind="content.kind"
@@ -107,7 +107,7 @@
   import { mapState, mapGetters } from 'vuex';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import { ContentNodeResource } from 'kolibri.resources';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import router from 'kolibri.coreVue.router';
   import Modalities from 'kolibri-constants/Modalities';
   import { setContentNodeProgress } from '../composables/useContentNodeProgress';
@@ -135,7 +135,7 @@
       QuizRenderer,
       MarkAsCompleteModal,
     },
-    mixins: [commonLearnStrings, responsiveWindowMixin],
+    mixins: [commonLearnStrings],
     setup() {
       const {
         progress,
@@ -158,7 +158,7 @@
         }
         return Promise.resolve();
       };
-
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         errored,
         progress,
@@ -173,6 +173,7 @@
         startTracking: startTrackingProgress,
         stopTracking: stopTrackingProgress,
         genContentLinkKeepCurrentBackLink,
+        windowIsSmall,
       };
     },
     props: {

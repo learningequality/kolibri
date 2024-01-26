@@ -2,7 +2,8 @@
 This module defines functions to install c extensions for all the platforms into
 Kolibri.
 
-It is required to have pip version greater than 19.3.1 to run this script.
+See requirements/build.txt for the list of requirements that must be installed for this
+script to run.
 Usage:
 > python build_tools/install_cexts.py --file "requirements/cext.txt" --cache-path "/cext_cache"
 
@@ -170,8 +171,6 @@ def parse_package_page(files, pk_version, index_url, cache_path):
         * not the version specified in requirements.txt
         * not python versions that kolibri does not support
         * not macosx
-        * not win_x64 with python 3.8
-        * not win32 with python 3.8
     """
 
     result = []
@@ -191,12 +190,9 @@ def parse_package_page(files, pk_version, index_url, cache_path):
 
         if package_version != pk_version:
             continue
-        if python_version != "27" and python_version not in supported_python3_versions:
+        if python_version not in supported_python3_versions:
             continue
         if "macosx" in platform:
-            continue
-        if "win_amd64" in platform or "win32" in platform and python_version == "27":
-            # Don't install win_amd64 or win32 with python 2.7
             continue
 
         info = {

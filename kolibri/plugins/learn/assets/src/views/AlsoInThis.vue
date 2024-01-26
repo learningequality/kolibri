@@ -97,7 +97,7 @@
   import isBoolean from 'lodash/isBoolean';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
@@ -113,17 +113,18 @@
       TimeDuration,
       MissingResourceAlert,
     },
-    mixins: [KResponsiveWindowMixin],
     setup() {
       const { contentNodeProgressMap } = useContentNodeProgress();
       const {
         genContentLinkKeepCurrentBackLink,
         genContentLinkKeepPreviousBackLink,
       } = useContentLink();
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         contentNodeProgressMap,
         genContentLinkKeepCurrentBackLink,
         genContentLinkKeepPreviousBackLink,
+        windowIsSmall,
       };
     },
     props: {

@@ -1,7 +1,4 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
+import logging
 import time
 from datetime import datetime
 from datetime import timedelta
@@ -16,6 +13,7 @@ from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.models import AnonymousUser
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.exceptions import PermissionDenied
+from django.core.exceptions import ValidationError
 from django.db.models import Func
 from django.db.models import OuterRef
 from django.db.models import Q
@@ -61,6 +59,7 @@ from .models import LearnerGroup
 from .models import Membership
 from .models import Role
 from .serializers import ClassroomSerializer
+from .serializers import CreateFacilitySerializer
 from .serializers import ExtraFieldsSerializer
 from .serializers import FacilityDatasetSerializer
 from .serializers import FacilitySerializer
@@ -75,8 +74,10 @@ from kolibri.core.api import ValuesViewset
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
+from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
+from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
@@ -86,6 +87,9 @@ from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
+
+
+logger = logging.getLogger(__name__)
 
 
 class OptionalPageNumberPagination(ValuesViewsetPageNumberPagination):
@@ -629,6 +633,13 @@ class FacilityViewSet(ValuesViewset):
             )
         )
 
+    @decorators.action(methods=["post"], detail=False, permission_classes=[IsSuperuser])
+    def create_facility(self, request):
+        serializer = CreateFacilitySerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response()
+
 
 class PublicFacilityViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Facility.objects.all()
@@ -846,6 +857,16 @@ class SetNonSpecifiedPasswordView(views.APIView):
 
 @method_decorator(ensure_csrf_cookie, name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
+    def _check_os_user(self, request, username):
+        auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+        if auth_token:
+            try:
+                user = FacilityUser.objects.get_or_create_os_user(auth_token)
+                if user is not None and user.username == username:
+                    return user
+            except ValidationError as e:
+                logger.error(e)
+
     def create(self, request):
         username = request.data.get("username", "")
         password = request.data.get("password", "")
@@ -880,8 +901,21 @@ class SessionViewSet(viewsets.ViewSet):
                 ],
                 status=status.HTTP_400_BAD_REQUEST,
             )
-
-        user = authenticate(username=username, password=password, facility=facility_id)
+        except FacilityUser.MultipleObjectsReturned:
+            # Handle case of multiple matching usernames
+            unauthenticated_user = FacilityUser.objects.get(
+                username__exact=username, facility=facility_id
+            )
+        user = None
+        if interface.enabled and valid_app_key_on_request(request):
+            # If we are in app context, then try to get the automatically created OS User
+            # if it matches the username, without needing a password.
+            user = self._check_os_user(request, username)
+        if user is None:
+            # Otherwise attempt full authentication
+            user = authenticate(
+                username=username, password=password, facility=facility_id
+            )
         if user is not None and user.is_active:
             # Correct password, and the user is marked "active"
             login(request, user)

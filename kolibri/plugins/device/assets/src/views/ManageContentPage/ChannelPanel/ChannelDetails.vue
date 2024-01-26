@@ -58,7 +58,7 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
 
   export default {
@@ -66,7 +66,12 @@
     components: {
       CoachContentLabel,
     },
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     props: {
       channel: {
         type: Object,

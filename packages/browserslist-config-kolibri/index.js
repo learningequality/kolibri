@@ -9,7 +9,6 @@ module.exports = [
   'Chrome >= 49',
   'ChromeAndroid >= 49',
   'Edge >= 18',
-  'IE >= 11',
   'Firefox >= 52',
   'FirefoxAndroid >= 68',
   'iOS >= 9.3',

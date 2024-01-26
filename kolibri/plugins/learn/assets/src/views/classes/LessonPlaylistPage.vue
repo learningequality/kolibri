@@ -53,7 +53,7 @@
 
   import { mapMutations, mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -80,11 +80,16 @@
       LearnAppBarPage,
       ResourceSyncingUiAlert,
     },
-    mixins: [commonCoreStrings, commonLearnStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonLearnStrings],
     setup() {
       const { genContentLinkBackLinkCurrentPage } = useContentLink();
       const { contentNodeProgressMap } = useContentNodeProgress();
-      return { contentNodeProgressMap, genContentLinkBackLinkCurrentPage };
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        contentNodeProgressMap,
+        genContentLinkBackLinkCurrentPage,
+        windowIsSmall,
+      };
     },
     computed: {
       ...mapState('lessonPlaylist', ['contentNodesMap', 'currentLesson']),

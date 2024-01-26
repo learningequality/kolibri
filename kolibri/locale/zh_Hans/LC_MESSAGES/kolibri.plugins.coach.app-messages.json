@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "请咨询您的 Kolibri 管理员",
   "CoachExamsPage.newQuiz": "创建新测验",
   "CoachExamsPage.noExams": "你没有任何测验",
-  "CoachExamsPage.noStartedExams": "",
   "CoachExamsPage.selectQuiz": "选择测验",
   "CoachExamsPage.totalQuizSize": "对学生可见的测验总大小：{size}",
   "CoachImmersivePage.errorPageTitle": "出错",

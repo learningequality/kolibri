@@ -9,6 +9,8 @@ import '../vendor/h5p/styles/h5p.css';
 import '../vendor/h5p/styles/h5p-core-button.css';
 import '../vendor/h5p/styles/h5p-confirmation-dialog.css';
 
+const logging = console; //elsint-disable-line no-console
+
 window.H5P = {
   jQuery,
   // H5P complains if this is undefined, but because of our monkey patching
@@ -30,7 +32,7 @@ window.H5P.jQuery.fn.load = function(url) {
    * now is elem.on('load', fn)
    */
   if (typeof url === 'function') {
-    console.warn('You are using a deprecated H5P library. Please upgrade!');
+    logging.warn('You are using a deprecated H5P library. Please upgrade!');
     const args = Array.prototype.slice.call(arguments);
     args.unshift('load');
     return window.H5P.jQuery.fn.on.apply(this, args);

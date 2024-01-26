@@ -36,7 +36,7 @@ baseClient.interceptors.response.use(
     // client code is still trying to access data that they would be allowed to see
     // if they were logged in.
     if (error.response) {
-      if (error.response.status === 403) {
+      if (error.response.status === 403 || error.response.status === 401) {
         if (!store.state.core.session.id) {
           // Don't have any session information, so assume that this
           // page has just been reopened and the session has expired.

@@ -72,7 +72,7 @@
 
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useLearnerResources from '../../composables/useLearnerResources';
   import CopiesModal from '../CopiesModal';
   import LibraryAndChannelBrowserMainContent from '../LibraryAndChannelBrowserMainContent';
@@ -83,7 +83,7 @@
       CopiesModal,
       LibraryAndChannelBrowserMainContent,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const {
         resumableContentNodes,
@@ -103,7 +103,7 @@
           activityKeys[firstActivity].value.focusFirstEl();
         }
       };
-
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         activityRefs,
         findFirstEl,
@@ -112,6 +112,7 @@
         resumableContentNodes,
         moreResumableContentNodes,
         fetchMoreResumableContentNodes,
+        windowIsSmall,
       };
     },
     props: {

@@ -1,7 +1,5 @@
 import re
-
-from six import raise_from
-from six.moves.urllib.parse import urlparse
+from urllib.parse import urlparse
 
 from . import errors
 
@@ -123,7 +121,7 @@ def parse_address_into_components(address):  # noqa C901
     try:
         parsed = urlparse(address)
     except ValueError as e:
-        raise_from(errors.InvalidHostname(address), e)
+        raise errors.InvalidHostname(address) from e
     p_scheme = parsed.scheme
     p_hostname = parsed.hostname
     p_path = parsed.path.rstrip("/") + "/"

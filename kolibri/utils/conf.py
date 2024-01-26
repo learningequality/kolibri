@@ -15,10 +15,6 @@ This module should be easier to document, for instance by having VARIABLES
 instead of a dict.
 
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 

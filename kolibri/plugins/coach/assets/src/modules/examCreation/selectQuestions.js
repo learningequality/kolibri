@@ -11,6 +11,8 @@ const logging = logger.getLogger(__filename);
 const getTotalOfQuestions = sumBy(qArray => qArray.length);
 
 /**
+ * TODO: Move this into the composables directory, clarify typing expectations below
+ *
  * Choose a an evenly-distributed random selection of questions from exercises.
  * @param {number} numQuestions - target number of questions
  * @param {array} exerciseIds - exercise IDs

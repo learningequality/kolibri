@@ -3,7 +3,7 @@ Feature: Learners automatic syncing
   Background:
     Given I am signed in as a learner user
 
-	Scenario: Learner on a learn-only device can see the device status in the side menu
+	Scenario: Learner on a learn-only device can see the device status in the side menu #NOT IMPLEMENTED
 		Given I am on a learn-only device
 		When I expand the side menu
 		Then I see a *Device status* label

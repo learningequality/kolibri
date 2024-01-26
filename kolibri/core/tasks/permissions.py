@@ -1,12 +1,10 @@
 from abc import ABCMeta
 from abc import abstractmethod
 
-from six import with_metaclass
-
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 
 
-class BasePermission(with_metaclass(ABCMeta)):
+class BasePermission(metaclass=ABCMeta):
     """
     Base Permission class from which all other Permission classes should inherit.
 

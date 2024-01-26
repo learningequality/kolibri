@@ -84,7 +84,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { TaskResource } from 'kolibri.resources';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';
@@ -119,9 +119,13 @@
       TaskProgress,
       UiAlert,
     },
-    mixins: [commonDeviceStrings, responsiveWindowMixin, taskNotificationMixin],
+    mixins: [commonDeviceStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
     },
     data() {
       return {

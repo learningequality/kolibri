@@ -11,7 +11,6 @@
           class="app-bar"
           :title="title"
           @toggleSideNav="navShown = !navShown"
-          @showLanguageModal="languageModalShown = true"
         >
           <template #sub-nav>
             <slot name="subNav"></slot>
@@ -44,14 +43,6 @@
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
-    <LanguageSwitcherModal
-      v-if="languageModalShown"
-      ref="languageSwitcherModal"
-      :style="{ color: $themeTokens.text }"
-      @cancel="languageModalShown = false"
-    />
-
-    <MeteredConnectionNotificationModal />
 
   </div>
 
@@ -62,14 +53,12 @@
 
   import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
-  import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
-  import MeteredConnectionNotificationModal from 'kolibri-common/components/MeteredConnectionNotificationModal';
   import AppBar from '../AppBar';
   import StorageNotification from '../StorageNotification';
   import useUserSyncStatus from '../../composables/useUserSyncStatus';
@@ -78,8 +67,6 @@
     name: 'AppBarPage',
     components: {
       AppBar,
-      MeteredConnectionNotificationModal,
-      LanguageSwitcherModal,
       ScrollingHeader,
       SideNav,
       StorageNotification,
@@ -114,7 +101,6 @@
     data() {
       return {
         appBarHeight: 0,
-        languageModalShown: false,
         navShown: false,
         lastScrollTop: 0,
         hideAppBars: true,

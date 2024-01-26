@@ -76,7 +76,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import { TaskResource } from 'kolibri.resources';
@@ -95,7 +95,7 @@
       };
     },
     components: { BottomAppBar },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const changeFacilityService = inject('changeFacilityService');
       const state = inject('state');
@@ -111,6 +111,7 @@
       onMounted(() => {
         pollTask();
       });
+      const { windowIsSmall } = useKResponsiveWindow();
 
       function updateMachineContext(updatedTask) {
         task.value = updatedTask;
@@ -302,6 +303,7 @@
         to_retry,
         successfullyJoined,
         errorMessage,
+        windowIsSmall,
       };
     },
 

@@ -37,6 +37,9 @@
   import client from 'kolibri.client';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import appCapabilities, { checkCapability } from 'kolibri.utils.appCapabilities';
+  import logger from 'kolibri.lib.logging';
+
+  const logging = logger.getLogger(__filename);
 
   const Options = Object.freeze({
     DO_NOT_USE_METERED: 'DO_NOT_USE_METERED',
@@ -87,15 +90,15 @@
           // if we only include one of the keys for the extra_settings object
           client({ method: 'GET', url: this.settingsUrl })
             .then(({ data }) => {
-              console.log('mounted', isMetered);
-              console.log(data);
+              logging.log('mounted', isMetered);
+              logging.log(data);
               this.extra_settings = data.extra_settings;
               this.selected = this.extra_settings.allow_download_on_metered_connection
                 ? Options.USE_METERED
                 : Options.DO_NOT_USE_METERED;
             })
             .catch(e => {
-              console.error(e);
+              logging.error(e);
             })
             .finally(() => (this.loading = false));
         });
@@ -116,6 +119,7 @@
           data: { extra_settings },
         })
           .then(() => {
+            this.$emit('update', allow_download_on_metered_connection);
             window.sessionStorage.setItem(meteredNetworkModalDismissedKey, true);
             this.dismissed = true;
 
@@ -123,7 +127,7 @@
             //this.$store.dispatch("createSnackbar", this.$tr("saveSuccessNotification"));
           })
           .catch(e => {
-            console.error(e);
+            logging.error(e);
             // TODO Uncomment this when strings are not frozen
             //this.$store.dispatch("createSnackbar", this.$tr("saveFailureNotification"));
           })

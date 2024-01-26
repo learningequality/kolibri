@@ -25,7 +25,7 @@ describe('Coach Notification Strings', () => {
   // Test that the rest of the messages don't need paramaters
   it('The other notification strings do not require params', () => {
     const paramMsgs = pluralTestCases.map(([key]) => key);
-    Object.keys(NotificationStrings.defaultMessages).forEach(key => {
+    Object.keys(NotificationStrings._defaultMessages).forEach(key => {
       if (paramMsgs.includes(key)) {
         expect(() => {
           NotificationStrings.$tr(key);

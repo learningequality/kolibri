@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from django.urls import reverse
 
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
@@ -64,6 +60,9 @@ class LearnAsset(webpack_hooks.WebpackBundleHook):
         from kolibri.core.discovery.well_known import CENTRAL_CONTENT_BASE_INSTANCE_ID
 
         return {
+            "allowDownloadOnMeteredConnection": get_device_setting(
+                "allow_download_on_metered_connection"
+            ),
             "allowGuestAccess": get_device_setting("allow_guest_access"),
             "allowLearnerDownloads": get_device_setting(
                 "allow_learner_download_resources"

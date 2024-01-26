@@ -190,7 +190,6 @@
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import find from 'lodash/find';
   import pickBy from 'lodash/pickBy';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
@@ -221,7 +220,7 @@
       PointsIcon,
       UserTypeDisplay,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
     setup() {
       const showPasswordModal = ref(false);
       const showLearnModal = ref(false);

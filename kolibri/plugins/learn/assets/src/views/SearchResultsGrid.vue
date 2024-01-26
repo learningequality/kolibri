@@ -70,7 +70,7 @@
 <script>
 
   import { ref } from 'kolibri.lib.vueCompositionApi';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CopiesModal from './CopiesModal';
   import SearchChips from './SearchChips';
@@ -83,14 +83,15 @@
       LibraryAndChannelBrowserMainContent,
       SearchChips,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);
-
+      const { windowIsSmall } = useKResponsiveWindow();
       return {
         sidePanelContent,
         toggleInfoPanel,
+        windowIsSmall,
       };
     },
     props: {

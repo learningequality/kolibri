@@ -9,7 +9,7 @@ Feature: Learner explores other libraries
 	Scenario: Explore someone else's library
 		When I load the *Learn > Library* page
 			And I look at a library in the *Other libraries* section of the page
-			And I click the *Explore this library* card
+			And I click the *Explore* card
 		Then I see the *Explore libraries* page
 			And I see the search by keyword and the search filters to the left
 			And I see a *All libraries* link and a back arrow at the top
@@ -25,13 +25,12 @@ Feature: Learner explores other libraries
 		Then I see there only channels for pinned libraries
 			And I see a *More libraries* section under the *Other libraries* section
 			And I see some of the unpinned libraries
-			And I see a *See all libraries* card
-		When I click the *See all libraries* card
-		Then I see the *All libraries* page
+			And I see a *View all* card
+		When I click the *View all* card
+		Then I see the *Explore libraries* page
 			And I see a *All libraries* label
-			And I see *Showing the libraries on other devices and networks around you* below the *All libraries* label
+			And I see *Showing libraries on other devices around you* below the *All libraries* label
 			And I see the available full devices
-			And I see the *External storage* section
 			Ans I see a pin icon next to each device name
 			And I see an *Explore* button next to each section
 
@@ -39,6 +38,7 @@ Feature: Learner explores other libraries
 		Given I am at the *All libraries* page
 		When I click the pin icon next to a unpinned library
 		Then the color of the icon is changed to black
+			And I see a *Pinned to my library page* snackbar message
 		When I close the *Explore library* page
 		Then I am back at the *Library* page
 			And I can see the newly pinned library
@@ -47,11 +47,12 @@ Feature: Learner explores other libraries
 		Given I am at the *All libraries* page
 		When I click the pin icon next to a pinned library
 		Then the color of the icon is changed to white
+			And I see a *Pin removed from my library page* snackbar message
 		When I close the *Explore library* page
 		Then I am back at the *Library* page
 			And I can see the that the unpinned library is no longer displayed there
 
-	Scenario: Show other learn-only devices under "More libraries"
+	Scenario: Show other learn-only devices under *More libraries* #POSSIBLY NOT IMPLEMENTED
 		Given I am at the *All libraries* page
 			And there are available learn-only devices
 		When I scroll down to the *More libraries* section
@@ -85,21 +86,21 @@ Feature: Learner explores other libraries
 			And there is a download icon on the resource card
 		Then that resource is available
 		When I click the download icon to download the resource
-		Then I see a confirmation *Started download Go to downloads*
+		Then I see a snackbar confirmation *Download requested Go to downloads*
 		When I look at another resource card
 			And there is no download icon
 			And there is an elipsis button to the right of the info icon
 		Then the resource has already been downloaded
 
-	Scenario: Add resource to My downloads from folder/resource browsing page
+	Scenario: Add resource to *My downloads* from folder/resource browsing page
 		Given I am exploring a library with folders and resources available for download
 		When I click the download icon of the resource
-		Then I see a confirmation *Started download Go to downloads*
+		Then I see a confirmation *Download requested Go to downloads*
 		When the download has finished
 			And I go to *My downloads*
 		Then I see the resource in *My downloads*
 
-	Scenario: Add resource to My downloads from the information panel
+	Scenario: Add resource to *My downloads* from the information panel #NOT IMPLEMENTED
 		Given I am exploring a library with folders and resources available for download
 		When I click the *i* icon of the resource
 		Then I see the info side panel for the resource

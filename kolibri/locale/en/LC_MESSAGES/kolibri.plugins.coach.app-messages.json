@@ -18,7 +18,6 @@
   "CoachClassListPage.noClassesDetailsForFacilityCoach": "Please consult your Kolibri administrator",
   "CoachExamsPage.newQuiz": "Create new quiz",
   "CoachExamsPage.noExams": "You do not have any quizzes",
-  "CoachExamsPage.noStartedExams": "No started quizzes",
   "CoachExamsPage.selectQuiz": "Select quiz",
   "CoachExamsPage.totalQuizSize": "Total size of quizzes visible to learners: {size}",
   "CoachImmersivePage.errorPageTitle": "Error",

@@ -183,22 +183,23 @@ describe('TopicsPage', () => {
     });
   });
 
-  it('displays the header with tabs when on a large screen', async () => {
+  it('displays the header with tabs when not on a small screen', async () => {
     const wrapper = shallowMount(TopicsPage, {
       store: store,
       localVue,
       router,
-      computed: { windowIsLarge: () => true },
+      computed: { windowIsSmall: () => false },
     });
     await flushPromises();
     expect(wrapper.findComponent({ name: 'TopicsHeader' }).exists()).toBe(true);
   });
 
-  it('displays the topic title when page is medium - large', async () => {
+  it('displays the topic title when page is not small', async () => {
     const wrapper = mount(TopicsPage, {
       store: store,
       localVue,
       router,
+      computed: { windowIsSmall: () => false },
     });
     await flushPromises();
     expect(wrapper.find("[data-test='header-title']").element).toHaveTextContent(

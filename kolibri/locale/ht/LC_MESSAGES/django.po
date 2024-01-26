@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-14 16:32-0700\n"
-"PO-Revision-Date: 2023-04-05 22:12\n"
+"PO-Revision-Date: 2023-09-13 22:57\n"
 "Last-Translator: \n"
 "Language-Team: Haitian Creole\n"
 "Language: ht_HT\n"
@@ -271,7 +271,7 @@ msgstr "Tan ki Pase (sec)"
 
 #: core/logger/csv_export.py:103
 msgid "Progress (0-1)"
-msgstr "Pwogrè (0-1)"
+msgstr "Pwogresyon (0-1)"
 
 #: core/logger/csv_export.py:104
 msgid "Content kind"

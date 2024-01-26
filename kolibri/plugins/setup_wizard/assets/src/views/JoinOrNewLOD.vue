@@ -10,15 +10,18 @@
       :label="$tr('joinFacilityLabel')"
       :value="Options.JOIN"
       class="radio-button"
+      :autofocus="isJoinSetup"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFromFacilityLabel')"
       :value="Options.IMPORT"
       class="radio-button"
+      :autofocus="isImportSetup"
     />
     <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
+      :filterLODAvailable="true"
       :filterByFacilityCanSignUp="selected === Options.JOIN ? true : null"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"
@@ -47,6 +50,14 @@
         selected: Options.JOIN,
         showSelectAddressModal: false,
       };
+    },
+    computed: {
+      isJoinSetup() {
+        return this.selected === Options.JOIN;
+      },
+      isImportSetup() {
+        return this.selected === Options.IMPORT;
+      },
     },
     methods: {
       handleContinueImport(address) {
