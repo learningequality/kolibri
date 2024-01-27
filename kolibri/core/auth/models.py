@@ -639,7 +639,7 @@ class FacilityUserModelManager(SyncableModelManager, UserManager):
         if extra_fields.get("facility") is None:
             extra_fields["facility"] = Facility.get_default_facility()
         if self.filter(
-            username_iexact=username, facility=extra_fields["facility"]
+            username__iexact=username, facility=extra_fields["facility"]
         ).exists():
             raise ValidationError("An account with that username already exists")
         user = self.model(username=username, password=password, **extra_fields)
