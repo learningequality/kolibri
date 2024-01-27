@@ -1,10 +1,6 @@
 <template>
 
-  <div
-    v-if="bannerOpened && !isDeviceRoute"
-    class="banner"
-    :style="{ background: $themeTokens.surface }"
-  >
+  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -57,7 +53,7 @@
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import urls from 'kolibri.urls';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import useUserSyncStatus from '../composables/useUserSyncStatus';
+  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
 
   export default {
     name: 'StorageNotification',
@@ -103,7 +99,6 @@
     data() {
       return {
         bannerOpened: false,
-        isDeviceRoute: window.location.pathname.includes('device'),
       };
     },
     computed: {

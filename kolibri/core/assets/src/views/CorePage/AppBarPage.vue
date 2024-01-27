@@ -22,9 +22,7 @@
         type="indeterminate"
         :delay="false"
       />
-      <div aria-live="polite">
-        <StorageNotification :showBanner="showStorageNotification" />
-      </div>
+      <slot name="storageNotif"></slot>
     </ScrollingHeader>
 
     <div
@@ -56,12 +54,10 @@
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
-  import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
+  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
   import AppBar from '../AppBar';
-  import StorageNotification from '../StorageNotification';
-  import useUserSyncStatus from '../../composables/useUserSyncStatus';
 
   export default {
     name: 'AppBarPage',
@@ -69,7 +65,6 @@
       AppBar,
       ScrollingHeader,
       SideNav,
-      StorageNotification,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -135,9 +130,6 @@
       },
       paddingLeftRight() {
         return this.isAppContext || this.windowIsSmall ? '8px' : '32px';
-      },
-      showStorageNotification() {
-        return this.userDeviceStatus === LearnerDeviceStatus.INSUFFICIENT_STORAGE;
       },
       showAppBarsOnScroll() {
         let show = true;
