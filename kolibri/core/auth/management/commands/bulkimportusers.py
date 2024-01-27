@@ -582,7 +582,7 @@ class Command(AsyncCommand):
                 # If UUID is not specified, check for a username clash
                 if values["uuid"] == "":
                     existing_user = FacilityUser.objects.filter(
-                        username_iexact=user, facility=self.default_facility
+                        username__iexact=user, facility=self.default_facility
                     ).first()
                     if existing_user:
                         error = {
