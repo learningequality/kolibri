@@ -2,10 +2,11 @@ import requests
 from django.core.management import call_command
 from morango.errors import MorangoError
 from rest_framework import serializers
-from rest_framework.exceptions import AuthenticationFailed
+from rest_framework.exceptions import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 
 from .utils import TokenGenerator
+from kolibri.core import error_constants
 from kolibri.core.auth.constants import role_kinds
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.tasks import PeerImportSingleSyncJobValidator
@@ -40,9 +41,17 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
     def validate(self, data):
         try:
             job_data = super(MergeUserValidator, self).validate(data)
-        except AuthenticationFailed:
-            self.create_remote_user(data)
-            job_data = super(MergeUserValidator, self).validate(data)
+        except ValidationError as e:
+            details = e.detail if isinstance(e.detail, list) else [e.detail]
+            for detail in details:
+                # If any of the errors are authentication related, then we need to create the user
+                if detail.code == error_constants.AUTHENTICATION_FAILED:
+                    self.create_remote_user(data)
+                    job_data = super(MergeUserValidator, self).validate(data)
+                    break
+            else:
+                # If we didn't break out of the loop, then we need to raise the original error
+                raise
 
         job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
         job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)

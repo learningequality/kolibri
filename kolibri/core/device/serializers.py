@@ -52,7 +52,7 @@ class DeviceSerializerMixin(object):
 class DeviceProvisionSerializer(DeviceSerializerMixin, serializers.Serializer):
     facility = FacilitySerializer(required=False, allow_null=True)
     facility_id = serializers.CharField(max_length=50, required=False, allow_null=True)
-    preset = serializers.ChoiceField(choices=choices)
+    preset = serializers.ChoiceField(choices=choices, required=False, allow_null=True)
     superuser = NoFacilityFacilityUserSerializer(required=False)
     language_id = serializers.CharField(max_length=15)
     device_name = serializers.CharField(max_length=50, allow_null=True)
