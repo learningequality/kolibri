@@ -24,7 +24,7 @@
           :layout12="{ span:11 }"
           :layout8="{ span:7 }"
         >
-          <h5 class="select-folder-style">{{ selectFoldersOrExercises$() }}</h5>
+          <h5 class="select-folder-style">{{ selectFoldersOrExercises$() }} {{ loadingMore }}</h5>
         </KGridItem>
       </KGrid>
 

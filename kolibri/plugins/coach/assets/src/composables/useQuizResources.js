@@ -8,7 +8,7 @@ import useFetchTree from './useFetchTree';
 import { QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
-const _loadingMore = ref(true);
+const _loadingMore = ref(false);
 
 /**
  * @typedef {Object} QuizResourcesConfig
@@ -103,7 +103,8 @@ export default function useQuizResources({ topicId } = {}) {
    */
   async function fetchMoreQuizResources() {
     set(_loading, true);
-    set(_loadingMore,true);
+    set(_loadingMore, true);
+    console.log(_loadingMore.value);
 
     return fetchMore().then(async results => {
       set(_resources, [...get(_resources), ...results]);
@@ -112,6 +113,7 @@ export default function useQuizResources({ topicId } = {}) {
       ).then(() =>{
         set(_loading, false);
         set(_loadingMore,false);
+        console.log(_loadingMore.value);
       });
     });
   }
@@ -132,7 +134,7 @@ export default function useQuizResources({ topicId } = {}) {
     setResources,
     resources: computed(() => get(_resources)),
     loading: computed(() => get(_loading) || get(treeLoading)),
-    loadingMore:computed(()=> get(_loadingMore)),
+    loadingMore: computed(()=> get(_loadingMore)),
     fetchQuizResources,
     fetchMoreQuizResources,
     hasCheckbox,

@@ -43,13 +43,13 @@
 
     <template>
       <KButton
-        v-if="showButton"
+        v-if="showButton & !loadingMore"
         :text="coreString('viewMoreAction')"
         :primary="false"
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="viewMoreButtonState === 'waiting'"
+        v-if="viewMoreButtonState === 'waiting' & loadingMore"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->
@@ -57,9 +57,7 @@
         <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
-      <!-- <p v-else-if="viewMoreButtonState === 'no_more_results'">
-        {{ $tr('noMoreResults') }}
-      </p> -->
+
     </template>
   </div>
 
