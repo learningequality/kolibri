@@ -1,7 +1,7 @@
 <template>
 
   <KIconButton
-    icon="tune"
+    icon="settings"
     :ariaLabel="$tr('toggleSettingsSideBar')"
     data-test="settings button"
     size="small"
