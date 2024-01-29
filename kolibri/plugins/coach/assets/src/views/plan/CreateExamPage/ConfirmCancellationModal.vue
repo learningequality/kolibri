@@ -44,21 +44,10 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
 
   export default {
     name: 'ConfirmCancellationModal',
     mixins: [commonCoreStrings],
-    setup() {
-      const {
-        //Computed
-        resetWorkingResourcePool,
-      } = injectQuizCreation();
-
-      return {
-        resetWorkingResourcePool,
-      };
-    },
     props: {
       closePanelRoute: {
         type: Object,
@@ -67,7 +56,7 @@
     },
     methods: {
       handleContinueAction() {
-        this.resetWorkingResourcePool();
+        this.$emit('continue');
         this.$router.replace(this.closePanelRoute);
       },
       closeModal() {
