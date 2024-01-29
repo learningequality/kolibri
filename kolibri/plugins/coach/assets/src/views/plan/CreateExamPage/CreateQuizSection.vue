@@ -372,7 +372,6 @@
         addSection,
         removeSection,
         setActiveSection,
-        initializeWorkingResourcePool,
         initializeQuiz,
         updateQuiz,
         addQuestionToSelection,
@@ -425,7 +424,6 @@
         addSection,
         removeSection,
         setActiveSection,
-        initializeWorkingResourcePool,
         initializeQuiz,
         updateQuiz,
         addQuestionToSelection,
@@ -567,8 +565,6 @@
         set(this.dragActive, true);
       },
       openSelectResources(section_id) {
-        //initialize workingResourcePool
-        this.initializeWorkingResourcePool();
         this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
       },
     },

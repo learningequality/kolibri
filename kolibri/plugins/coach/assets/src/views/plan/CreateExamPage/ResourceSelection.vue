@@ -122,8 +122,10 @@
         removeFromWorkingResourcePool,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
+        initializeWorkingResourcePool,
       } = injectQuizCreation();
 
+      initializeWorkingResourcePool();
       const {
         sectionSettings$,
         selectFromBookmarks$,
