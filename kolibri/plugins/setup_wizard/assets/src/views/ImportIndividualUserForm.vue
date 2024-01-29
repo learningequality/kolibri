@@ -252,10 +252,12 @@
         });
       },
       handleSubmit() {
-        this.shouldValidate = true;
-        if (this.invalidText) {
-          this.$refs.usernameTextbox.focus();
-          return;
+        if (this.wizardService.state.context.importedUsers.length === 0) {
+          this.shouldValidate = true;
+          if (this.invalidText) {
+            this.$refs.usernameTextbox.focus();
+            return;
+          }
         }
         this.formSubmitted = true;
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
