@@ -29,7 +29,17 @@ class CoachToolsModule extends KolibriApp {
         redirectBrowser();
         return;
       }
-      this.store.dispatch('loading');
+
+      const skipLoading = [
+        PageNames.EXAM_CREATION_ROOT,
+        PageNames.QUIZ_SECTION_EDITOR,
+        PageNames.QUIZ_REPLACE_QUESTIONS,
+        PageNames.QUIZ_SELECT_RESOURCES,
+        PageNames.BOOK_MARKED_RESOURCES,
+      ];
+      if (!skipLoading.includes(to.name)) {
+        this.store.dispatch('loading');
+      }
       const promises = [];
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
