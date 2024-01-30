@@ -5,11 +5,24 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5
-        class="title-style"
-      >
-        {{ /* selectFoldersOrExercises$() */ }}
-      </h5>
+      <KGrid class="align-select-folder-style">
+        <KGridItem
+          :layout12="{ span: 1 }"
+          :layout8="{ span: 1 }"
+        >
+          <KIconButton
+            icon="back"
+            @click="goBack()"
+          />
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span: 11 }"
+          :layout8="{ span: 7 }"
+        >
+          <h5 class="select-folder-style"> {{ selectFoldersOrExercises$() }} </h5>
+        </KGridItem>
+      </KGrid>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -126,7 +139,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         selectedResourcesInformation$,
@@ -282,7 +295,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         windowIsSmall,
@@ -505,6 +518,14 @@
     span {
       line-height: 2.5em;
     }
+  }
+
+  .select-folder-style{
+    font-size: 18px;
+    margin-top:0.5em;
+  }
+  .align-select-folder-style{
+    margin-top:2em;
   }
 
 </style>
