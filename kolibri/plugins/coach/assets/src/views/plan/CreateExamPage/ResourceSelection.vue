@@ -64,7 +64,7 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            {{ numberOfResources$({ count: channels.length }) }}
+            <span>{{ numberOfResources$({ count: workingResourcePool.length }) }}</span>
           </KGridItem>
           <KGridItem
             :layout12="{ span: 6 }"
@@ -72,6 +72,7 @@
             :layout4="{ span: 2 }"
           >
             <KButton
+              style="float: right;"
               :text="coreString('saveChangesAction')"
               :primary="true"
               :disabled="!hasTopicId() && !showBookmarks"
@@ -484,13 +485,19 @@
   }
 
   .bottom-navigation {
-    position: fixed;
-    bottom: 0;
-    width: 50%;
-    padding: 10px;
-    color: black;
+    position: absolute;
+    right: 0;
+    bottom: 1.5em;
+    left: 0;
+    width: 100%;
+    padding: 1em;
     text-align: center;
     background-color: white;
+    border-top: 1px solid black;
+
+    span {
+      line-height: 2.5em;
+    }
   }
 
 </style>
