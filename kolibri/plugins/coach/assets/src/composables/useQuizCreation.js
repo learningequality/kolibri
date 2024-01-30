@@ -170,13 +170,8 @@ export default function useQuizCreation(DEBUG = false) {
       } else if (question_count > (targetSection.question_count || 0)) {
         // If the question_count is being increased, we need to add new questions to the end of the
         // questions array
-        const newQuestions = selectQuestions(
-          question_count - (targetSection.question_count || 0),
-          targetSection.resource_pool.map(r => r.content_id),
-          targetSection.resource_pool.map(r => r.title),
-          targetSection.resource_pool.map(r => r.questions.map(q => q.question_id)),
-          get(_quiz).seed
-        );
+        const numQuestionsToAdd = question_count - (targetSection.question_count || 0);
+        const newQuestions = selectRandomQuestionsFromResources(numQuestionsToAdd);
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
     }
@@ -191,6 +186,23 @@ export default function useQuizCreation(DEBUG = false) {
         return section;
       }),
     });
+  }
+
+  /**
+   * @description Selects random questions from the active section's `resource_pool` - no side
+   * effects
+   * @param numQuestions
+   * @returns {QuizQuestion[]}
+   */
+  function selectRandomQuestionsFromResources(numQuestions) {
+    const pool = get(activeResourcePool);
+    return selectQuestions(
+      numQuestions,
+      pool.map(r => r.content_id),
+      pool.map(r => r.title),
+      pool.map(r => r.assessmentmetadata.assessment_item_ids),
+      get(_quiz).seed
+    );
   }
 
   /**
@@ -264,6 +276,16 @@ export default function useQuizCreation(DEBUG = false) {
       setActiveSection(newSection.section_id);
     }
     _fetchChannels();
+
+    // Set watcher once we have a section in place
+    watch(activeResourcePool, (resourcePool, old) => {
+      if (!isEqual(resourcePool, old)) {
+        updateSection({
+          section_id: get(_activeSectionId),
+          questions: selectRandomQuestionsFromResources(get(activeSection).question_count),
+        });
+      }
+    });
   }
 
   // // Method to initialize the working resource pool
@@ -486,8 +508,6 @@ export default function useQuizCreation(DEBUG = false) {
   const selectAllIsIndeterminate = computed(() => {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
-
-  watch(activeResourcePool, () => {});
 
   provide('saveQuiz', saveQuiz);
   provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
