@@ -65,6 +65,7 @@
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :selectAllIndeterminate="selectAllIndeterminate"
+        :loadingMoreState="loadingMore"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreQuizResources"
@@ -204,6 +205,7 @@
         hasMore,
         annotateTopicsWithDescendantCounts,
         setResources,
+        loadingMore,
       } = useQuizResources({ topicId });
 
       const _loading = ref(true);
@@ -288,6 +290,7 @@
         hasCheckbox,
         loading,
         hasMore,
+        loadingMore,
         fetchMoreQuizResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
