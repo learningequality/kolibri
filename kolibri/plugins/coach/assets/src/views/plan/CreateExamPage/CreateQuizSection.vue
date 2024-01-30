@@ -304,6 +304,8 @@
     </KTabsPanel>
 
     <SectionSidePanel @closePanel="focusActiveSectionTab()" />
+
+
   </div>
 
 </template>
@@ -382,6 +384,7 @@
         allSections,
         activeSection,
         inactiveSections,
+        workingResourcePool,
         activeExercisePool,
         activeQuestionsPool,
         activeQuestions,
@@ -431,6 +434,7 @@
         allSections,
         activeSection,
         inactiveSections,
+        workingResourcePool,
         activeExercisePool,
         activeQuestionsPool,
         activeQuestions,
@@ -515,6 +519,7 @@
       focusActiveSectionTab() {
         const label = this.tabRefLabel(this.activeSection.section_id);
         const tabRef = this.$refs[label];
+
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
         // nextTick if we're getting the error
         if (tabRef) {

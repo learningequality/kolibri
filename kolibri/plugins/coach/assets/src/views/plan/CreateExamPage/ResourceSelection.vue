@@ -8,13 +8,6 @@
       <h5
         class="title-style"
       >
-        <KRouterLink
-          :to="goBack"
-        >
-          <KIcon
-            icon="back"
-          />
-        </KRouterLink>
         {{ /* selectFoldersOrExercises$() */ }}
       </h5>
 
@@ -53,11 +46,12 @@
         :contentList="contentList"
         :showSelectAll="true"
         :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="false"
-        :contentIsChecked="() => false"
+        :selectAllChecked="isSelectAllChecked"
+        :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
+        :selectAllIndeterminate="selectAllIndeterminate"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreQuizResources"
@@ -78,9 +72,10 @@
             :layout4="{ span: 2 }"
           >
             <KButton
-              :text="coreString('continueAction')"
+              :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="false"
+              :disabled="!hasTopicId()"
+              @click="saveSelectedResource"
             />
           </KGridItem>
         </KGrid>
@@ -102,7 +97,7 @@
   import { PageNames } from '../../../constants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
-  //import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
@@ -118,7 +113,19 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
+      const {
+        updateSection,
+        activeSection,
+        selectAllQuestions,
+        workingResourcePool,
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
+        resetWorkingResourcePool,
+        contentPresentInWorkingResourcePool,
+        initializeWorkingResourcePool,
+      } = injectQuizCreation();
 
+      initializeWorkingResourcePool();
       const {
         sectionSettings$,
         selectFromBookmarks$,
@@ -230,6 +237,8 @@
         loading,
         hasMore,
         fetchMoreQuizResources,
+        resetWorkingResourcePool,
+        contentPresentInWorkingResourcePool,
         //contentList,
         sectionSettings$,
         selectFromBookmarks$,
@@ -241,11 +250,37 @@
         bookmarks,
         channels,
         viewMoreButtonState,
+        updateSection,
+        activeSection,
+        selectAllQuestions,
+        workingResourcePool,
+        addToWorkingResourcePool,
+        removeFromWorkingResourcePool,
       };
+    },
+    props: {
+      closePanelRoute: {
+        type: Object,
+        required: true,
+      },
     },
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
+      },
+      isSelectAllChecked() {
+        // Returns true if all the resources in the topic are in the working resource pool
+        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
+        return this.contentList.every(content => workingResourceIds.includes(content.id));
+      },
+      selectAllIndeterminate() {
+        // Returns true if some, but not all, of the resources in the topic are in the working
+        // resource
+        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
+        return (
+          !this.isSelectAllChecked &&
+          this.contentList.some(content => workingResourceIds.includes(content.id))
+        );
       },
       selectionMetadata(/*content*/) {
         // TODO This should return a function that returns a string telling us how many of this
@@ -270,12 +305,7 @@
         //   console.log('Dynamic function called');
         // };
       },
-      goBack() {
-        // TODO This should only be shown w/ the back arrow KRouterLink when we've gone past the
-        // initial screen w/ the channels
-        // See https://github.com/learningequality/kolibri/issues/11733
-        return {}; // This will need to be gleaned in a nav guard
-      },
+
       getBookmarksLink() {
         return {
           name: PageNames.BOOK_MARKED_RESOURCES,
@@ -323,19 +353,19 @@
         if (checked) {
           this.addToSelectedResources(content);
         } else {
-          this.removeFromSelectedResources([content]);
+          this.removeFromWorkingResourcePool(content);
         }
+      },
+      addToSelectedResources(content) {
+        this.addToWorkingResourcePool([content]);
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
-          this.addableContent.forEach(resource => {
-            this.addToResourceCache({
-              node: { ...resource },
-            });
-          });
-          this.addToWorkingResources(this.addableContent);
+          this.isSelectAllChecked = true;
+          this.addToWorkingResourcePool(this.contentList);
         } else {
-          this.removeFromSelectedResources(this.channels.value);
+          this.isSelectAllChecked = false;
+          this.resetWorkingResourcePool();
         }
       },
       topicListingLink({ topicId }) {
@@ -348,6 +378,33 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
+      hasTopicId() {
+        return Boolean(this.$route.params.topic_id);
+      },
+      saveSelectedResource() {
+        this.updateSection({
+          section_id: this.$route.params.section_id,
+          resource_pool: this.workingResourcePool,
+        });
+
+        //Also reset workingResourcePool
+        this.resetWorkingResourcePool();
+
+        this.$router.replace(this.closePanelRoute);
+      },
+      // selectionMetadata(content) {
+      //   if (content.kind === ContentNodeKinds.TOPIC) {
+      //     const count = content.exercises.filter(exercise =>
+      //       Boolean(this.selectedExercises[exercise.id])
+      //     ).length;
+      //     if (count === 0) {
+      //       return '';
+      //     }
+      //     const total = content.exercises.length;
+      //     return this.$tr('total_number', { count, total });
+      //   }
+      //   return '';
+      // },
     },
   };
 

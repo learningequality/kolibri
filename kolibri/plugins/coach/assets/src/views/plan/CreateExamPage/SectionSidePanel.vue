@@ -1,16 +1,23 @@
 <template>
 
-  <SidePanelModal
-    v-if="$route.params.section_id"
-    ref="resourcePanel"
-    alignment="right"
-    sidePanelWidth="700px"
-    :closeButtonIconType="closeIcon"
-    @closePanel="handleClosePanel"
-    @shouldFocusFirstEl="findFirstEl()"
-  >
-    <component :is="panel" :ref="$route.name" />
-  </SidePanelModal>
+  <div>
+    <SidePanelModal
+      v-if="$route.params.section_id"
+      ref="resourcePanel"
+      alignment="right"
+      sidePanelWidth="700px"
+      :closeButtonIconType="closeIcon"
+      @closePanel="handleClosePanel"
+      @shouldFocusFirstEl="findFirstEl()"
+    >
+      <component :is="panel" :ref="$route.name" :closePanelRoute="closePanelRoute" />
+    </SidePanelModal>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      :closePanelRoute="closePanelRoute"
+      @cancel="showConfirmationModal = false"
+    />
+  </div>
 
 </template>
 
@@ -20,9 +27,11 @@
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
+  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   //import ShowBookMarkedResources from './ShowBookMarkedResources.vue';
   // import SelectedChannel from './SelectedChannel.vue';
 
@@ -42,10 +51,25 @@
       ResourceSelection,
       // SelectedChannel,
       ResourceSelectionBreadcrumbs,
-      //ShowBookMarkedResources,
+      ConfirmCancellationModal,
+    },
+    setup() {
+      const {
+        //Computed
+        activeResourcePool,
+        workingResourcePool,
+        resetWorkingResourcePool,
+      } = injectQuizCreation();
+
+      return {
+        activeResourcePool,
+        workingResourcePool,
+        resetWorkingResourcePool,
+      };
     },
     data() {
       return {
+        showConfirmationModal: false,
         prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
       };
     },
@@ -81,8 +105,12 @@
     },
     methods: {
       handleClosePanel() {
+        if (this.workingResourcePool.length > this.activeResourcePool.length) {
+          this.showConfirmationModal = true;
+        } else {
+          this.$router.replace(this.closePanelRoute);
+        }
         this.$emit('closePanel');
-        this.$router.replace(this.closePanelRoute);
       },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
