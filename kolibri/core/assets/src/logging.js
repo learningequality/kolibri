@@ -11,7 +11,6 @@ class Logger {
   constructor(loggerName) {
     this.loggerName = loggerName;
     this.logger = loglevel.getLogger(loggerName);
-    loglevel.levels['log'] = 1;
     Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
