@@ -12,7 +12,7 @@ import { get, set } from '@vueuse/core';
 import { computed, ref, watch, provide, inject } from 'kolibri.lib.vueCompositionApi';
 import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
-import selectQuestions from '../modules/examCreation/selectQuestions.js';
+import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
