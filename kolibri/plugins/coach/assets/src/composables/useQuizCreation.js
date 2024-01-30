@@ -421,6 +421,13 @@ export default function useQuizCreation(DEBUG = false) {
   );
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
+  /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
+  const activeResourceMap = computed(() =>
+    get(activeResourcePool).reduce((acc, resource) => {
+      acc[resource.content_id] = resource;
+      return acc;
+    }, {})
+  );
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
    *                                      exercises */
   const activeQuestionsPool = computed(() => []);
@@ -530,6 +537,7 @@ export default function useQuizCreation(DEBUG = false) {
   provide('activeSection', activeSection);
   provide('inactiveSections', inactiveSections);
   provide('activeResourcePool', activeResourcePool);
+  provide('activeResourceMap', activeResourceMap);
   provide('workingResourcePool', workingResourcePool);
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
@@ -565,6 +573,7 @@ export default function useQuizCreation(DEBUG = false) {
     inactiveSections,
     workingResourcePool,
     activeResourcePool,
+    activeResourceMap,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
@@ -607,6 +616,7 @@ export function injectQuizCreation() {
   const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
+  const activeResourceMap = inject('activeResourceMap');
   const workingResourcePool = inject('workingResourcePool');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
@@ -645,6 +655,7 @@ export function injectQuizCreation() {
     inactiveSections,
     workingResourcePool,
     activeResourcePool,
+    activeResourceMap,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,

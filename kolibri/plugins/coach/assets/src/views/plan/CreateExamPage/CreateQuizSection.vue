@@ -281,16 +281,25 @@
                     </template>
                     <template #content>
                       <div
+                        v-if="isItemExpanded(question.question_id)"
                         :id="`question-panel-${question.question_id}`"
                         :ref="`question-panel-${question.question_id}`"
                         :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                       >
-                        <p
-                          v-if="isItemExpanded(question.question_id) && !dragActive"
-                          class="question-content-panel"
-                        >
-                          CONTENT OF {{ question.title }}
-                        </p>
+                        <ContentRenderer
+                          :ref="`contentRenderer-${question.question_id}`"
+                          :kind="activeResourceMap[question.exercise_id].kind"
+                          :lang="activeResourceMap[question.exercise_id].lang"
+                          :files="activeResourceMap[question.exercise_id].files"
+                          :available="activeResourceMap[question.exercise_id].available"
+                          :itemId="question.question_id"
+                          :assessment="true"
+                          :allowHints="false"
+                          @interaction="() => null"
+                          @updateProgress="() => null"
+                          @updateContentState="() => null"
+                          @error="err => $emit('error', err)"
+                        />
                       </div>
                     </template>
                   </AccordionItem>
@@ -386,6 +395,8 @@
         inactiveSections,
         workingResourcePool,
         activeQuestionsPool,
+        activeResourceMap,
+        activeResourcePool,
         activeQuestions,
         selectedActiveQuestions,
         replacementQuestionPool,
@@ -434,6 +445,8 @@
         activeSection,
         inactiveSections,
         workingResourcePool,
+        activeResourceMap,
+        activeResourcePool,
         activeQuestionsPool,
         activeQuestions,
         selectedActiveQuestions,
