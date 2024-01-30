@@ -9,7 +9,7 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref, watch, provide, inject } from 'kolibri.lib.vueCompositionApi';
 import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../modules/examCreation/selectQuestions.js';
@@ -28,14 +28,6 @@ function uuidv4() {
 
 function validateQuiz(quiz) {
   return validateObject(quiz, Quiz);
-}
-
-/**
- * @param {QuizExercise} o - The resource to check
- * @returns {boolean} - True if the resource is a valid QuizExercise
- */
-function isExercise(o) {
-  return o.kind === ContentNodeKinds.EXERCISE;
 }
 
 /**
@@ -391,21 +383,6 @@ export default function useQuizCreation(DEBUG = false) {
   }
 
   // Utilities
-  /**
-   * @params  {string} section_id - The section_id whose resource_pool we'll use.
-   * @returns {QuizQuestion[]}
-   */
-  /*
-  function _getQuestionsFromSection(section_id) {
-    const section = get(allSections).find(s => s.section_id === section_id);
-    if (!section) {
-      throw new Error(`Section with id ${section_id} not found.`);
-    }
-    return get(activeExercisePool).reduce((acc, exercise) => {
-      return [...acc, ...exercise.questions];
-    }, []);
-  }
-  */
 
   // Computed properties
   /** @type {ComputedRef<Quiz>} The value of _quiz */
@@ -422,10 +399,6 @@ export default function useQuizCreation(DEBUG = false) {
   );
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
-  /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
-   *                                          Exercises from which we will enumerate all
-   *                                          available questions */
-  const activeExercisePool = computed(() => get(activeResourcePool).filter(isExercise));
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
    *                                      exercises */
   const activeQuestionsPool = computed(() => []);
@@ -514,6 +487,8 @@ export default function useQuizCreation(DEBUG = false) {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
+  watch(activeResourcePool, () => {});
+
   provide('saveQuiz', saveQuiz);
   provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
   provide('addToWorkingResourcePool', addToWorkingResourcePool);
@@ -536,7 +511,6 @@ export default function useQuizCreation(DEBUG = false) {
   provide('inactiveSections', inactiveSections);
   provide('activeResourcePool', activeResourcePool);
   provide('workingResourcePool', workingResourcePool);
-  provide('activeExercisePool', activeExercisePool);
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
@@ -571,7 +545,6 @@ export default function useQuizCreation(DEBUG = false) {
     inactiveSections,
     workingResourcePool,
     activeResourcePool,
-    activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
@@ -615,7 +588,6 @@ export function injectQuizCreation() {
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
   const workingResourcePool = inject('workingResourcePool');
-  const activeExercisePool = inject('activeExercisePool');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
@@ -653,7 +625,6 @@ export function injectQuizCreation() {
     inactiveSections,
     workingResourcePool,
     activeResourcePool,
-    activeExercisePool,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,

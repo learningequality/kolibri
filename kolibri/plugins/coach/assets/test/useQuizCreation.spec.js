@@ -22,7 +22,6 @@ const {
   quiz,
   allSections,
   activeSection,
-  // activeExercisePool,
   activeQuestions,
   selectedActiveQuestions,
   // replacementQuestionPool,
