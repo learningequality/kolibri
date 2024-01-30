@@ -11,14 +11,14 @@ class Logger {
   constructor(loggerName) {
     this.loggerName = loggerName;
     this.logger = loglevel.getLogger(loggerName);
-    loglevel.levels["log"] = 1
+    loglevel.levels['log'] = 1;
     Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
       if (logFunction) {
-        this[name] = (param) => {
+        this[name] = param => {
           return this.logger[name].bind(console, this.messagePrefix(name))(param);
-        }
+        };
       }
     });
   }
