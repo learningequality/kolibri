@@ -325,7 +325,7 @@
         // topic's descendants are selected out of its total descendants -- basically answering
         // "How many resources in the working resource_pool are from this topic?"
         // Tracked in https://github.com/learningequality/kolibri/issues/11741
-        return () => '';
+        return () => { this.workingResourcePool.length };
         // let count = 0;
         // let total = 0;
         // if (this.ancestorCounts[content.id]) {
@@ -401,10 +401,8 @@
       },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
-          this.isSelectAllChecked = true;
           this.addToWorkingResourcePool(this.contentList);
         } else {
-          this.isSelectAllChecked = false;
           this.resetWorkingResourcePool();
         }
       },
