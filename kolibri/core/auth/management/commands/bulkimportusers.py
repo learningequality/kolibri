@@ -534,7 +534,7 @@ class Command(AsyncCommand):
                     setattr(user_obj, field, values[field])
         return changed
 
-    def build_users_objects(self, users):
+    def build_users_objects(self, users): # noqa C901
         new_users = []
         update_users = []
         keeping_users = []
