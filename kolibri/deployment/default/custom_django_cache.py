@@ -48,8 +48,8 @@ class CustomDjangoCache(DjangoCache):
         retry=True,
     ):
         return self.try_execute(
-            method_name="add",
-            error_return_value=False,
+            "add",
+            False,
             key=key,
             value=value,
             timeout=timeout,
@@ -67,9 +67,7 @@ class CustomDjangoCache(DjangoCache):
         :return: True if key is found
 
         """
-        return self.try_execute(
-            method_name="has_key", error_return_value=False, key=key, version=version
-        )
+        return self.try_execute("has_key", False, key=key, version=version)
 
     def get(
         self,
@@ -82,8 +80,8 @@ class CustomDjangoCache(DjangoCache):
         retry=False,
     ):
         return self.try_execute(
-            method_name="get",
-            error_return_value=None,
+            "get",
+            None,
             key=key,
             default=default,
             version=version,
@@ -104,8 +102,8 @@ class CustomDjangoCache(DjangoCache):
         retry=True,
     ):
         return self.try_execute(
-            method_name="set",
-            error_return_value=False,
+            "set",
+            False,
             key=key,
             value=value,
             timeout=timeout,
@@ -117,8 +115,8 @@ class CustomDjangoCache(DjangoCache):
 
     def touch(self, key, timeout=DEFAULT_TIMEOUT, version=None, retry=True):
         return self.try_execute(
-            method_name="touch",
-            error_return_value=False,
+            "touch",
+            False,
             key=key,
             timeout=timeout,
             version=version,
@@ -129,8 +127,8 @@ class CustomDjangoCache(DjangoCache):
         self, key, default=None, version=None, expire_time=False, tag=False, retry=True
     ):
         return self.try_execute(
-            method_name="pop",
-            error_return_value=None,
+            "pop",
+            None,
             key=key,
             default=default,
             version=version,
@@ -141,8 +139,8 @@ class CustomDjangoCache(DjangoCache):
 
     def delete(self, key, version=None, retry=True):
         self.try_execute(
-            method_name="delete",
-            error_return_value=None,
+            "delete",
+            None,
             key=key,
             version=version,
             retry=retry,
@@ -150,8 +148,8 @@ class CustomDjangoCache(DjangoCache):
 
     def incr(self, key, delta=1, version=None, default=None, retry=True):
         return self.try_execute(
-            method_name="incr",
-            error_return_value=None,
+            "incr",
+            None,
             key=key,
             delta=delta,
             version=version,
@@ -161,9 +159,9 @@ class CustomDjangoCache(DjangoCache):
 
     def decr(self, key, delta=1, version=None, default=None, retry=True):
         return self.try_execute(
-            method_name="decr",
+            "decr",
+            None,
             key=key,
-            error_return_value=None,
             delta=delta,
             version=version,
             default=default,
@@ -171,27 +169,25 @@ class CustomDjangoCache(DjangoCache):
         )
 
     def expire(self, retry=False):
-        return self.try_execute(method_name="expire", error_return_value=0, retry=retry)
+        return self.try_execute("expire", 0, retry=retry)
 
     def stats(self, enable=True, reset=False):
-        return self.try_execute(
-            method_name="stats", error_return_value=(0, 0), enable=enable, reset=reset
-        )
+        return self.try_execute("stats", (0, 0), enable=enable, reset=reset)
 
     def create_tag_index(self):
-        return self.try_execute(method_name="create_tag_index", error_return_value=None)
+        return self.try_execute("create_tag_index", None)
 
     def drop_tag_index(self):
-        return self.try_execute(method_name="drop_tag_index", error_return_value=None)
+        return self.try_execute("drop_tag_index", None)
 
     def evict(self, tag):
-        return self.try_execute(method_name="evict", error_return_value=0, tag=tag)
+        return self.try_execute("evict", 0, tag=tag)
 
     def cull(self):
-        return self.try_execute(method_name="cull", error_return_value=0)
+        return self.try_execute("cull", 0)
 
     def clear(self):
-        return self.try_execute(method_name="clear", error_return_value=0)
+        return self.try_execute("clear", 0)
 
     def close(self, **kwargs):
-        return self.try_execute(method_name="close", error_return_value=None, **kwargs)
+        return self.try_execute("close", None, **kwargs)
