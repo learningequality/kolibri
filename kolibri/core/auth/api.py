@@ -775,7 +775,11 @@ class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
     serializer_class = FacilityUserSerializer
 
     def check_can_signup(self, serializer):
-        if not serializer.validated_data["facility"].dataset.learner_can_sign_up:
+        facility = serializer.validated_data["facility"]
+        if (
+            not facility.dataset.learner_can_sign_up
+            or not facility.dataset.full_facility_import
+        ):
             raise PermissionDenied("Cannot sign up to this facility")
 
     def perform_create(self, serializer):
