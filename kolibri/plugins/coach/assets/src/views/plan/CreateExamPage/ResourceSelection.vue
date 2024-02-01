@@ -228,7 +228,7 @@
           // to the value of the channels (treating those channels as the topics) -- we then
           // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
           // annotated with their num_assessments and those without assessments are filtered out
-          annotateTopicsWithDescendantCounts(channels.value.map(c => c.id)).then(() => {
+          annotateTopicsWithDescendantCounts(resources.value.map(c => c.id)).then(() => {
             _loading.value = false;
           });
         });
