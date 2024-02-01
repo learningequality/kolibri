@@ -99,7 +99,7 @@
         return this.$router.getRoute(route);
       },
     },
-    beforeRouteEnter(to, from, next) {
+    async beforeRouteEnter(to, from, next) {
       return LessonResource.fetchModel({
         id: to.params.lessonId,
       })
