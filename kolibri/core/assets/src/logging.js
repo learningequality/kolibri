@@ -26,7 +26,7 @@ class Logger {
     this.logger.methodFactory = function(methodName, logLevel, loggerName) {
       var rawMethod = originalFactory(methodName, logLevel, loggerName);
       return function(message) {
-        rawMethod(`[${methodName}: ${loggerName}] ` + message);
+        rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message);
       };
     };
     this.logger.setLevel(this.logger.getLevel());
