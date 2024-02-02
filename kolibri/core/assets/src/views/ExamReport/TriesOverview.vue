@@ -6,7 +6,11 @@
         {{ coreString('statusLabel') }}
       </th>
       <td>
-        <ProgressIcon class="svg-icon" :progress="progress" />
+        <ProgressIcon 
+          class="svg-icon" 
+          :progress="progress" 
+          :data-testid="`progress-icon-${progress}`" 
+        />
         <template v-if="complete">
           {{ coreString('completedLabel') }}
         </template>
