@@ -1,10 +1,11 @@
-/* eslint-disable import/namespace */
-import { render } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import TriesOverview from '../TriesOverview.vue';
 import * as tryValidatorModule from '../utils';
 
+// Mock the tryValidator namespace as the same is used in the component
+// eslint-disable-next-line import/namespace
 tryValidatorModule.tryValidator = jest.fn(() => true);
 
 // Helper function to render the component with some default props
@@ -35,7 +36,7 @@ const renderComponent = props => {
 describe('TriesOverview', () => {
   describe('Test the progress icon and label', () => {
     test('renders progress icon and completed label when there is a completed try', () => {
-      const { getByTestId, getByText } = renderComponent({
+      renderComponent({
         pastTries: [
           {
             id: '1',
@@ -44,24 +45,24 @@ describe('TriesOverview', () => {
         ],
       });
 
-      expect(getByTestId('progress-icon-1')).toBeInTheDocument();
-      expect(getByText('completedLabel')).toBeInTheDocument();
+      expect(screen.getByTestId('progress-icon-1')).toBeInTheDocument();
+      expect(screen.getByText('completedLabel')).toBeInTheDocument();
     });
 
     test('renders progress icon and in-progress label when there is an in-progress try', () => {
-      const { getByTestId, getByText } = renderComponent({
+      renderComponent({
         pastTries: [{ id: '2' }],
       });
 
-      expect(getByTestId('progress-icon-0.5')).toBeInTheDocument();
-      expect(getByText('inProgressLabel')).toBeInTheDocument();
+      expect(screen.getByTestId('progress-icon-0.5')).toBeInTheDocument();
+      expect(screen.getByText('inProgressLabel')).toBeInTheDocument();
     });
 
     test('renders progress icon and not started label when there are no past tries', () => {
-      const { getByTestId, getByText } = renderComponent();
+      renderComponent();
 
-      expect(getByTestId('progress-icon-0')).toBeInTheDocument();
-      expect(getByText('notStartedLabel')).toBeInTheDocument();
+      expect(screen.getByTestId('progress-icon-0')).toBeInTheDocument();
+      expect(screen.getByText('notStartedLabel')).toBeInTheDocument();
     });
   });
 });

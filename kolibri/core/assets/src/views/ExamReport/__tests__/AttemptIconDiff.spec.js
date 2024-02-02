@@ -1,4 +1,4 @@
-import { render } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import AttemptIconDiff from '../AttemptIconDiff.vue';
@@ -19,20 +19,20 @@ const renderComponent = props => {
 
 describe('AttemptIconDiff', () => {
   test('renders KIcon with correct styles when correct and diff conditions are met', () => {
-    const { getByTestId } = renderComponent();
+    renderComponent();
 
-    const kIcon = getByTestId('correct-icon');
+    const kIcon = screen.getByTestId('correct-icon');
     expect(kIcon).toBeInTheDocument();
     expect(kIcon).toHaveStyle({ fill: successThemeColor });
   });
 
   test('does not render KIcon when correct condition is not met', () => {
-    const { queryByTestId } = renderComponent({ correct: 0 });
-    expect(queryByTestId('correct-icon')).not.toBeInTheDocument();
+    renderComponent({ correct: 0 });
+    expect(screen.queryByTestId('correct-icon')).not.toBeInTheDocument();
   });
 
   test('does not render KIcon when diff condition is not met', () => {
-    const { queryByTestId } = renderComponent({ diff: 0 });
-    expect(queryByTestId('k-icon')).not.toBeInTheDocument();
+    renderComponent({ diff: 0 });
+    expect(screen.queryByTestId('k-icon')).not.toBeInTheDocument();
   });
 });

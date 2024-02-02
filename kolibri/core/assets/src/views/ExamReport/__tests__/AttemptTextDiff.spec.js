@@ -1,4 +1,4 @@
-import { render } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
 import AttemptTextDiff from '../AttemptTextDiff.vue';
@@ -63,13 +63,13 @@ const testCases = [
 describe('AttemptTextDiff', () => {
   testCases.forEach(({ caseName, correct, diff, userId, expectedMessage }) => {
     test(caseName, () => {
-      const { getByText } = renderComponent({ correct, diff, userId });
-      expect(getByText(expectedMessage)).toBeInTheDocument();
+      renderComponent({ correct, diff, userId });
+      expect(screen.getByText(expectedMessage)).toBeInTheDocument();
     });
   });
 
   test('No text is shown when the props are invalid', () => {
-    const { queryByTestId } = renderComponent({ correct: 1, diff: 0, userId: 'mockUser1' });
-    expect(queryByTestId('attempt-text-diff')).not.toBeInTheDocument();
+    renderComponent({ correct: 1, diff: 0, userId: 'mockUser1' });
+    expect(screen.queryByTestId('attempt-text-diff')).not.toBeInTheDocument();
   });
 });
