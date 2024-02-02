@@ -2,58 +2,63 @@
 
   <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeTokens.surface }">
 
-    <CardThumbnail
-      class="thumbnail"
-      :thumbnail="thumbnail"
-      :kind="kind"
-      :isMobile="windowIsSmall"
-    />
-
-    <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
-      <div
-        :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
-        :style="{ color: $themeTokens.text }"
-      >
-        <h3
+    <div>
+      <CardThumbnail
+        class="thumbnail"
+        :thumbnail="thumbnail"
+        :kind="kind"
+        :isMobile="windowIsSmall"
+      />
+  
+      <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
+        <div
+          :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
+          :style="{ color: $themeTokens.text }"
+        >
+          <h3
+            v-if="!windowIsSmall"
+            class="title"
+            dir="auto"
+          >
+            <KLabeledIcon :label="title">
+              <template #icon>
+                <ContentIcon :kind="kind" />
+              </template>
+            </KLabeledIcon>
+          </h3>
+          <h3
+            v-if="windowIsSmall"
+            dir="auto"
+          >
+            <KLabeledIcon :label="title">
+              <template #icon>
+                <ContentIcon :kind="kind" />
+              </template>
+            </KLabeledIcon>
+          </h3>
+          <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
+            {{ message }}
+          </div>
+        </div>
+        <TextTruncatorCss
           v-if="!windowIsSmall"
-          class="title"
-          dir="auto"
-        >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
-        </h3>
-        <h3
-          v-if="windowIsSmall"
-          dir="auto"
-        >
-          <KLabeledIcon :label="title">
-            <template #icon>
-              <ContentIcon :kind="kind" />
-            </template>
-          </KLabeledIcon>
-        </h3>
-        <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
-          {{ message }}
+          :text="description"
+          :maxLines="3"
+          class="description"
+        />
+        <div>
+          <CoachContentLabel
+            class="coach-content-label"
+            :value="numCoachContents"
+            :isTopic="isTopic"
+          />
         </div>
       </div>
-      <TextTruncatorCss
-        v-if="!windowIsSmall"
-        :text="description"
-        :maxLines="3"
-        class="description"
-      />
-      <div>
-        <CoachContentLabel
-          class="coach-content-label"
-          :value="numCoachContents"
-          :isTopic="isTopic"
-        />
-      </div>
     </div>
-
+    <br>
+    <div class="background-color:grey;border-radius:0.5em;height:50px">
+      Folder exceeds 12 exercises
+    </div>
   </router-link>
 
 </template>

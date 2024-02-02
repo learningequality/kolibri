@@ -1,5 +1,4 @@
 <template>
-
   <div>
     <ul class="content-list">
       <KCheckbox
@@ -9,6 +8,18 @@
         :indeterminate="selectAllIndeterminate"
         @change="$emit('changeselectall', $event)"
       />
+
+      <template>
+        <div 
+          class="warning-div-style" 
+          :style="{ backgroundColor: $themePalette.grey.v_300 }"
+        >
+          <p>
+            {{ chooseSmallerFolderDescription$() }}
+          </p>
+        </div>
+      </template>
+
       <li
         v-for="content in contentList"
         :key="content.id"
@@ -64,6 +75,7 @@
 
 <script>
 
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import LessonContentCard from './LessonContentCard';
 
@@ -73,6 +85,15 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const {
+        chooseSmallerFolderDescription$,
+      } = enhancedQuizManagementStrings;
+
+      return {
+        chooseSmallerFolderDescription$
+      }
+    },
     props: {
       showSelectAll: {
         type: Boolean,
@@ -174,6 +195,13 @@
 
   .with-checkbox {
     margin-left: $checkbox-offset;
+  }
+
+  .warning-div-style{
+    padding:0.4em;
+    margin-bottom:0.5em;
+    border-radius: 0.2em;
+    font-weight: bold;
   }
 
 </style>
