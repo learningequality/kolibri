@@ -311,7 +311,16 @@
       isSelectAllChecked() {
         // Returns true if all the resources in the topic are in the working resource pool
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        return this.contentList.every(content => workingResourceIds.includes(content.id));
+        if(this.contentList.every(content => workingResourceIds.includes(content.id))){
+          this.contentList.forEach(resource => {
+            if(resource.kind === ContentNodeKinds.TOPIC){
+              this.addToWorkingResourcePool(resource.children.results);
+            }
+          });
+          return true;
+        }else{
+          return false;
+        }
       },
       selectAllIndeterminate() {
         // Returns true if some, but not all, of the resources in the topic are in the working
@@ -439,9 +448,7 @@
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
           const count = this.workingResourcePool.length;
-          const total = content.children.results.length;
-          console.log(content);
-          console.log(this.workingResourcePool);
+          const total = content.num_exercises;
           return this.selectedResourcesInformation$({ count, total });
         }
         return '';
