@@ -295,7 +295,7 @@
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
-        selectedResourcesInformation$
+        selectedResourcesInformation$,
       };
     },
     props: {
@@ -311,14 +311,15 @@
       isSelectAllChecked() {
         // Returns true if all the resources in the topic are in the working resource pool
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        if(this.contentList.every(content => workingResourceIds.includes(content.id))){
+
+        if (this.contentList.every(content => workingResourceIds.includes(content.id))) {
           this.contentList.forEach(resource => {
-            if(resource.kind === ContentNodeKinds.TOPIC){
+            if (resource.kind === ContentNodeKinds.TOPIC) {
               this.addToWorkingResourcePool(resource.children.results);
             }
           });
           return true;
-        }else{
+        } else {
           return false;
         }
       },
@@ -334,27 +335,27 @@
       // selectionMetadata(content) {
       //   console.log(content);
       //   return ()=>{};
-        // TODO This should return a function that returns a string telling us how many of this
-        // topic's descendants are selected out of its total descendants -- basically answering
-        // "How many resources in the working resource_pool are from this topic?"
-        // Tracked in https://github.com/learningequality/kolibri/issues/11741
-        // return () => { this.workingResourcePool.length };
-        // let count = 0;
-        // let total = 0;
-        // if (this.ancestorCounts[content.id]) {
-        //   count = this.ancestorCounts[content.id].count;
-        //   total = this.ancestorCounts[content.id].total;
-        // }
-        // if (count) {
-        //   return this.$tr('selectionInformation', {
-        //     '32',
-        //     '45',
-        //   });
-        // }
-        // return '';
-        // return function() {
-        //   console.log('Dynamic function called');
-        // };
+      // TODO This should return a function that returns a string telling us how many of this
+      // topic's descendants are selected out of its total descendants -- basically answering
+      // "How many resources in the working resource_pool are from this topic?"
+      // Tracked in https://github.com/learningequality/kolibri/issues/11741
+      // return () => { this.workingResourcePool.length };
+      // let count = 0;
+      // let total = 0;
+      // if (this.ancestorCounts[content.id]) {
+      //   count = this.ancestorCounts[content.id].count;
+      //   total = this.ancestorCounts[content.id].total;
+      // }
+      // if (count) {
+      //   return this.$tr('selectionInformation', {
+      //     '32',
+      //     '45',
+      //   });
+      // }
+      // return '';
+      // return function() {
+      //   console.log('Dynamic function called');
+      // };
       // },
 
       getBookmarksLink() {
