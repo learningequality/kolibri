@@ -51,14 +51,14 @@
         return this.$route.params.classId;
       },
     },
-    async created() {
+    created() {
       const initClassInfoPromise = this.$store.dispatch('initClassInfo', this.classId);
       const getFacilitiesPromise =
         this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
           ? this.$store.dispatch('getFacilities').catch(() => {})
           : Promise.resolve();
 
-      await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
+      Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     },
     mounted() {
       this.$store.commit('CORE_SET_PAGE_LOADING', false);
