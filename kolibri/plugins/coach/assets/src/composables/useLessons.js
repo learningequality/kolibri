@@ -12,7 +12,7 @@ export function useLessons() {
 
   // Show the Lessons Root Page, where all the Lessons are listed for a given Classroom
   async function showLessonsRootPage(store, classId) {
-    const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
+    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
     const getFacilitiesPromise =
       store.getters.isSuperuser && store.state.core.facilities.length === 0
         ? store.dispatch('getFacilities').catch(() => {})
