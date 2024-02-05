@@ -11,7 +11,7 @@
         {{ /* selectFoldersOrExercises$() */ }}
       </h5>
 
-      <div v-if="!isTopicIdSet && bookmarks.length">
+      <div v-if="!isTopicIdSet && bookmarks.length && !bookMarksFlag">
 
         <p>{{ selectFromBookmarks$() }}</p>
 
@@ -74,7 +74,7 @@
             <KButton
               :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="!hasTopicId()"
+              :disabled="!hasTopicId() && !bookMarksFlag"
               @click="saveSelectedResource"
             />
           </KGridItem>
@@ -113,6 +113,7 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
+      const bookMarksFlag = computed(() => route.value.query.bookmarks);
       const {
         updateSection,
         activeSection,
@@ -217,6 +218,12 @@
           return channels.value;
         }
         */
+        if (bookMarksFlag.value) {
+          return bookmarks.value
+            .filter(item => item.kind === 'exercise')
+            .map(item => ({ ...item, is_leaf: true }));
+        }
+
         return resources.value;
       });
 
@@ -256,6 +263,7 @@
         workingResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
+        bookMarksFlag,
       };
     },
     props: {
@@ -305,13 +313,10 @@
         //   console.log('Dynamic function called');
         // };
       },
-
       getBookmarksLink() {
         return {
-          name: PageNames.BOOK_MARKED_RESOURCES,
-          params: {
-            section_id: this.$route.params.section_id,
-          },
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          query: { bookmarks: true },
         };
       },
       channelsLink() {
@@ -336,7 +341,9 @@
         this.$refs.textbox.focus();
       },
       contentLink(content) {
-        if (!content.is_leaf) {
+        if (this.bookMarksFlag) {
+          return this.$route;
+        } else if (!content.is_leaf) {
           return {
             name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
@@ -375,6 +382,7 @@
           this.$route.query
         );
       },
+
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
