@@ -313,11 +313,7 @@
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
 
         if (this.contentList.every(content => workingResourceIds.includes(content.id))) {
-          this.contentList.forEach(resource => {
-            if (resource.kind === ContentNodeKinds.TOPIC) {
-              this.addToWorkingResourcePool(resource.children.results);
-            }
-          });
+          this.addToWorkingResourcePoolForTopics(this.contentList);
           return true;
         } else {
           return false;
@@ -386,15 +382,22 @@
           this.removeFromWorkingResourcePool(content);
         }
       },
-      addToSelectedResources(content) {
-        this.addToWorkingResourcePool([content]);
-      },
+      // addToSelectedResources(content) {
+      //   this.addToWorkingResourcePool([content]);
+      // },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
           this.addToWorkingResourcePool(this.contentList);
         } else {
           this.resetWorkingResourcePool();
         }
+      },
+      addToWorkingResourcePoolForTopics(topics) {
+        topics.forEach(topic => {
+          if (topic.kind === ContentNodeKinds.TOPIC) {
+            this.addToWorkingResourcePool(topic.children.results);
+          }
+        });
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
