@@ -295,6 +295,7 @@
                           :itemId="question.question_id"
                           :assessment="true"
                           :allowHints="false"
+                          :interactive="false"
                           @interaction="() => null"
                           @updateProgress="() => null"
                           @updateContentState="() => null"
