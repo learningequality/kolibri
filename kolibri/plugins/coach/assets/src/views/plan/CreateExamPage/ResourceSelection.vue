@@ -311,13 +311,7 @@
       isSelectAllChecked() {
         // Returns true if all the resources in the topic are in the working resource pool
         const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-
-        if (this.contentList.every(content => workingResourceIds.includes(content.id))) {
-          this.addToWorkingResourcePoolForTopics(this.contentList);
-          return true;
-        } else {
-          return false;
-        }
+        return this.contentList.every(content => workingResourceIds.includes(content.id));
       },
       selectAllIndeterminate() {
         // Returns true if some, but not all, of the resources in the topic are in the working
@@ -382,22 +376,16 @@
           this.removeFromWorkingResourcePool(content);
         }
       },
-      // addToSelectedResources(content) {
-      //   this.addToWorkingResourcePool([content]);
-      // },
       toggleTopicInWorkingResources(isChecked) {
         if (isChecked) {
           this.addToWorkingResourcePool(this.contentList);
         } else {
-          this.resetWorkingResourcePool();
+          this.contentList.forEach(content => {
+            if (content.kind === ContentNodeKinds.TOPIC) {
+              this.removeFromWorkingResourcePool(content);
+            }
+          });
         }
-      },
-      addToWorkingResourcePoolForTopics(topics) {
-        topics.forEach(topic => {
-          if (topic.kind === ContentNodeKinds.TOPIC) {
-            this.addToWorkingResourcePool(topic.children.results);
-          }
-        });
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
