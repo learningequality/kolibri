@@ -54,7 +54,7 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
-
+      {{ scrollable }}
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -320,6 +320,11 @@
         required: true,
       },
     },
+    data() {
+      return {
+        scrollable: 0,
+      };
+    },
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
@@ -363,6 +368,13 @@
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
+      storedScrollPosition(newValue, oldValue) {
+        // Handle the scroll position change here
+        this.addScrollListener();
+      },
+    },
+    mounted() {
+      this.addScrollListener();
     },
     methods: {
       /** @public */
