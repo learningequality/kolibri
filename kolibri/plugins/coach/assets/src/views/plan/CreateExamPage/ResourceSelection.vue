@@ -414,9 +414,18 @@
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
-          const count = this.workingResourcePool.length;
           const total = content.num_exercises;
-          return this.selectedResourcesInformation$({ count, total });
+          const numberOfresourcesSelected = this.workingResourcePool.reduce((acc, wr) => {
+            if (wr.ancestors.map(ancestor => ancestor.id).includes(content.id)) {
+              return acc + 1;
+            }
+            return acc;
+          }, 0);
+
+          return this.selectedResourcesInformation$({
+            count: numberOfresourcesSelected,
+            total: total,
+          });
         }
         return '';
       },
