@@ -1,6 +1,5 @@
 import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
-import uniqWith from 'lodash/uniqWith';
 import range from 'lodash/range';
 import shuffle from 'lodash/shuffle';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -37,10 +36,6 @@ export default function useQuizCreation(DEBUG = false) {
   // -----------
   // Local state
   // -----------
-
-  /** @type {ComputedRef<QuizExercise[]>}  Currently selected resource_pool
-   *  from the side_panel*/
-  const _working_resource_pool = ref([]);
 
   /** @type {ref<Quiz>}
    * The "source of truth" quiz object from which all reactive properties should derive */
@@ -288,12 +283,6 @@ export default function useQuizCreation(DEBUG = false) {
     });
   }
 
-  // // Method to initialize the working resource pool
-  function initializeWorkingResourcePool() {
-    // Set the value of _working_resource_pool to the resource_pool of the active section
-    set(_working_resource_pool, get(activeResourcePool));
-  }
-
   /**
    * @returns {Promise<Quiz>}
    * @throws {Error} if quiz is not valid
@@ -378,11 +367,6 @@ export default function useQuizCreation(DEBUG = false) {
     }
   }
 
-  function resetWorkingResourcePool() {
-    // Set the WorkingResource to empty array again!
-    set(_working_resource_pool, []);
-  }
-
   /**
    * @affects _channels - Fetches all channels with exercises and sets them to _channels */
   function _fetchChannels() {
@@ -442,9 +426,6 @@ export default function useQuizCreation(DEBUG = false) {
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
 
-  // /** @type {ComputedRef<QuizExercise[]>} The current value of _working_resource_pool */
-  const workingResourcePool = computed(() => get(_working_resource_pool));
-
   /** Handling the Select All Checkbox
    * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
 
@@ -482,45 +463,12 @@ export default function useQuizCreation(DEBUG = false) {
     }
   });
 
-  /**
-   * @param {QuizExercise[]} resources
-   * @affects _working_resource_pool -- Updates it with the given resources and is ensured to have
-   * a list of unique resources to avoid unnecessary duplication
-   */
-  function addToWorkingResourcePool(resources = []) {
-    set(_working_resource_pool, uniqWith([...get(_working_resource_pool), ...resources], isEqual));
-  }
-
-  /**
-   * @param {QuizExercise} content
-   * @affects _working_resource_pool - Remove given quiz exercise from _working_resource_pool
-   */
-  function removeFromWorkingResourcePool(content) {
-    set(
-      _working_resource_pool,
-      _working_resource_pool.value.filter(obj => obj.id !== content.id)
-    );
-  }
-
-  /**
-   * @param {QuizExercise} content
-   * Check if the content is present in working_resource_pool
-   */
-  function contentPresentInWorkingResourcePool(content) {
-    const workingResourceIds = get(workingResourcePool).map(wr => wr.id);
-    return workingResourceIds.includes(content.id);
-  }
-
   /** @type {ComputedRef<Boolean>} Whether the select all checkbox should be indeterminate */
   const selectAllIsIndeterminate = computed(() => {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
   provide('saveQuiz', saveQuiz);
-  provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
-  provide('addToWorkingResourcePool', addToWorkingResourcePool);
-  provide('removeFromWorkingResourcePool', removeFromWorkingResourcePool);
-  provide('contentPresentInWorkingResourcePool', contentPresentInWorkingResourcePool);
   provide('updateSection', updateSection);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
@@ -530,7 +478,6 @@ export default function useQuizCreation(DEBUG = false) {
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
-  provide('resetWorkingResourcePool', resetWorkingResourcePool);
   provide('channels', channels);
   provide('quiz', quiz);
   provide('allSections', allSections);
@@ -538,7 +485,6 @@ export default function useQuizCreation(DEBUG = false) {
   provide('inactiveSections', inactiveSections);
   provide('activeResourcePool', activeResourcePool);
   provide('activeResourceMap', activeResourceMap);
-  provide('workingResourcePool', workingResourcePool);
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
@@ -550,13 +496,8 @@ export default function useQuizCreation(DEBUG = false) {
   return {
     // Methods
     saveQuiz,
-    initializeWorkingResourcePool,
-    removeFromWorkingResourcePool,
-    addToWorkingResourcePool,
-    contentPresentInWorkingResourcePool,
     updateSection,
     replaceSelectedQuestions,
-    resetWorkingResourcePool,
     addSection,
     removeSection,
     setActiveSection,
@@ -571,7 +512,6 @@ export default function useQuizCreation(DEBUG = false) {
     allSections,
     activeSection,
     inactiveSections,
-    workingResourcePool,
     activeResourcePool,
     activeResourceMap,
     activeQuestionsPool,
@@ -596,14 +536,9 @@ export default function useQuizCreation(DEBUG = false) {
 
 export function injectQuizCreation() {
   const saveQuiz = inject('saveQuiz');
-  const initializeWorkingResourcePool = inject('initializeWorkingResourcePool');
-  const removeFromWorkingResourcePool = inject('removeFromWorkingResourcePool');
-  const contentPresentInWorkingResourcePool = inject('contentPresentInWorkingResourcePool');
-  const addToWorkingResourcePool = inject('addToWorkingResourcePool');
   const updateSection = inject('updateSection');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
-  const resetWorkingResourcePool = inject('resetWorkingResourcePool');
   const removeSection = inject('removeSection');
   const setActiveSection = inject('setActiveSection');
   const initializeQuiz = inject('initializeQuiz');
@@ -617,7 +552,6 @@ export function injectQuizCreation() {
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
   const activeResourceMap = inject('activeResourceMap');
-  const workingResourcePool = inject('workingResourcePool');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
@@ -629,14 +563,9 @@ export function injectQuizCreation() {
   return {
     // Methods
     saveQuiz,
-    initializeWorkingResourcePool,
-    addToWorkingResourcePool,
-    contentPresentInWorkingResourcePool,
-    removeFromWorkingResourcePool,
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
-    resetWorkingResourcePool,
     replaceSelectedQuestions,
     addSection,
     removeSection,
@@ -653,7 +582,6 @@ export function injectQuizCreation() {
     allSections,
     activeSection,
     inactiveSections,
-    workingResourcePool,
     activeResourcePool,
     activeResourceMap,
     activeQuestionsPool,

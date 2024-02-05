@@ -89,6 +89,8 @@
 
 <script>
 
+  import uniqWith from 'lodash/uniqWith';
+  import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -114,23 +116,8 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
-      // We use this query parameter to decide if we want to show the Bookmarks Card
-      // or the actual exercises that are bookmarked and can be selected
-      // to be added to Quiz Section.
-      const showBookmarks = computed(() => route.value.query.showBookmarks);
-      const {
-        updateSection,
-        activeSection,
-        selectAllQuestions,
-        workingResourcePool,
-        addToWorkingResourcePool,
-        removeFromWorkingResourcePool,
-        resetWorkingResourcePool,
-        contentPresentInWorkingResourcePool,
-        initializeWorkingResourcePool,
-      } = injectQuizCreation();
+      const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
 
-      initializeWorkingResourcePool();
       const {
         sectionSettings$,
         selectFromBookmarks$,
@@ -151,7 +138,43 @@
 
       const { windowIsSmall } = useKResponsiveWindow();
 
-      //const { channels, loading, bookmarks, contentList } = useExerciseResources();
+      /**
+       * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
+       */
+      const workingResourcePool = ref(activeResourcePool.value);
+
+      /**
+       * @param {QuizExercise[]} resources
+       * @affects workingResourcePool -- Updates it with the given resources and is ensured to have
+       * a list of unique resources to avoid unnecessary duplication
+       */
+      function addToWorkingResourcePool(resources = []) {
+        workingResourcePool.value = uniqWith([...workingResourcePool.value, ...resources], isEqual);
+      }
+
+      /**
+       * @param {QuizExercise} content
+       * @affects workingResourcePool - Remove given quiz exercise from workingResourcePool
+       */
+      function removeFromWorkingResourcePool(content) {
+        workingResourcePool.value = workingResourcePool.value.filter(obj => obj.id !== content.id);
+      }
+
+      /**
+       * @affects workingResourcePool - Resets the workingResourcePool to the previous state
+       */
+      function resetWorkingResourcePool() {
+        workingResourcePool.value = activeResourcePool.value;
+      }
+
+      /**
+       * @param {QuizExercise} content
+       * Check if the content is present in workingResourcePool
+       */
+      function contentPresentInWorkingResourcePool(content) {
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        return workingResourceIds.includes(content.id);
+      }
 
       const {
         hasCheckbox,
@@ -262,7 +285,6 @@
         channels,
         viewMoreButtonState,
         updateSection,
-        activeSection,
         selectAllQuestions,
         workingResourcePool,
         addToWorkingResourcePool,
