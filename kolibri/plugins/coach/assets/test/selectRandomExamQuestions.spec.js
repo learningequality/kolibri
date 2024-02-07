@@ -1,5 +1,5 @@
 import filter from 'lodash/filter';
-import selectQuestions from '../src/modules/examCreation/selectQuestions';
+import selectQuestions from '../src/utils/selectQuestions';
 
 jest.mock('kolibri.lib.logging');
 

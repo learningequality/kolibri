@@ -42,9 +42,9 @@ export const QuizExercise = {
     type: String,
     default: '',
   },
-  assessment_ids: {
-    type: Array,
-    default: () => [],
+  assessmentmetadata: {
+    type: Object,
+    default: () => ({ assessment_item_ids: [] }),
   },
   contentnode: {
     type: String,
