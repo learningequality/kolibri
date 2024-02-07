@@ -99,6 +99,9 @@
     "npm": ">= 8"
   },
   "devDependencies": {
-    "rewire": "^6.0.0"
+    "rewire": "^6.0.0",
+    "@testing-library/jest-dom": "^6.4.1",
+    "@testing-library/vue": "^5",
+    "eslint-plugin-jest-dom": "^5.1.0"
   }
 }
