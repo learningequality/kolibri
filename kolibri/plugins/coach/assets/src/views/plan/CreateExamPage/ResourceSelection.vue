@@ -116,6 +116,10 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
+      // We use this query parameter to decide if we want to show the Bookmarks Card
+      // or the actual exercises that are bookmarked and can be selected
+      // to be added to Quiz Section.
+      const showBookmarks = computed(() => route.value.query.showBookmarks);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
 
       const {
