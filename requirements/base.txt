@@ -3,7 +3,7 @@ django-js-asset<2
 django-filter==1.1.0 # pyup: <2.0.0
 django-js-reverse==0.9.1
 djangorestframework==3.9.1
-django==1.11.29  # pyup: >=1.11,<2
+django==3.2.24  # pyup: >=1.11,<2
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.9.1
