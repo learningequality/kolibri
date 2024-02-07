@@ -51,7 +51,9 @@ class SetupWizardResource(ViewSet):
         url = "{}{}".format(baseurl, api_url)
 
         payload = {
-            "facility_id": facility_id,
+            # N.B. facility is keyed by facility not facility_id on the signup
+            # viewset serializer.
+            "facility": facility_id,
             "username": username,
             "password": password,
             "full_name": full_name,
