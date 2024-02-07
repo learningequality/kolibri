@@ -40,7 +40,7 @@ def update_individual_syncable_lessons_from_assignments(user_id):
 
     # update existing syncable lesson objects for all active assignments
     for syncablelesson in to_update:
-        assignment = assignments.get(lesson_id=syncablelesson.lesson_id)
+        assignment = assignments.filter(lesson_id=syncablelesson.lesson_id).first()
         updated_serialization = IndividualSyncableLesson.serialize_lesson(
             assignment.lesson
         )

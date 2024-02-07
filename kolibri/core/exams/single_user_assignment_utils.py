@@ -32,7 +32,7 @@ def update_individual_syncable_exams_from_assignments(user_id):
 
     # update existing syncable exam objects for all active assignments
     for syncableexam in to_update:
-        assignment = assignments.get(exam_id=syncableexam.exam_id)
+        assignment = assignments.filter(exam_id=syncableexam.exam_id).first()
         updated_serialization = IndividualSyncableExam.serialize_exam(assignment.exam)
         if (
             syncableexam.serialized_exam != updated_serialization
