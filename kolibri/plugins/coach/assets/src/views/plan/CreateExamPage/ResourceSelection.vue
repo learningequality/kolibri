@@ -11,7 +11,7 @@
         {{ /* selectFoldersOrExercises$() */ }}
       </h5>
 
-      <div v-if="!isTopicIdSet && bookmarks.length">
+      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
         <p>{{ selectFromBookmarks$() }}</p>
 
@@ -74,7 +74,7 @@
             <KButton
               :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="!hasTopicId()"
+              :disabled="!hasTopicId() && !showBookmarks"
               @click="saveSelectedResource"
             />
           </KGridItem>
@@ -113,6 +113,10 @@
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
+      // We use this query parameter to decide if we want to show the Bookmarks Card
+      // or the actual exercises that are bookmarked and can be selected
+      // to be added to Quiz Section.
+      const showBookmarks = computed(() => route.value.query.showBookmarks);
       const {
         updateSection,
         activeSection,
@@ -217,6 +221,12 @@
           return channels.value;
         }
         */
+        if (showBookmarks.value) {
+          return bookmarks.value
+            .filter(item => item.kind === 'exercise')
+            .map(item => ({ ...item, is_leaf: true }));
+        }
+
         return resources.value;
       });
 
@@ -256,6 +266,7 @@
         workingResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
+        showBookmarks,
       };
     },
     props: {
@@ -305,13 +316,13 @@
         //   console.log('Dynamic function called');
         // };
       },
-
       getBookmarksLink() {
+        // Inject the showBookmarks parameter so that
+        // the resourceSelection component now renderes only the
+        // the exercises that are bookmarked for the Quiz selection.
         return {
-          name: PageNames.BOOK_MARKED_RESOURCES,
-          params: {
-            section_id: this.$route.params.section_id,
-          },
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          query: { showBookmarks: true },
         };
       },
       channelsLink() {
@@ -336,7 +347,9 @@
         this.$refs.textbox.focus();
       },
       contentLink(content) {
-        if (!content.is_leaf) {
+        if (this.showBookmarks) {
+          return this.$route;
+        } else if (!content.is_leaf) {
           return {
             name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
@@ -375,6 +388,7 @@
           this.$route.query
         );
       },
+
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
