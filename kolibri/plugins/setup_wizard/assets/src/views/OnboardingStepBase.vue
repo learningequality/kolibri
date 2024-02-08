@@ -275,12 +275,13 @@
   @import '../../../../../core/assets/src/styles/definitions';
 
   .base-container {
-    max-width: $page-container-max-width;
+    width: 55%;
+    min-width: 540px;
     padding-bottom: 5em;
     margin: 5em auto 0;
 
     &.windowIsSmall {
-      width: 100vw;
+      min-width: 100%;
       height: 100vh;
       margin: 0;
     }
