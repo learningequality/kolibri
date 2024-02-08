@@ -9,6 +9,7 @@ from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 from rest_framework.viewsets import ViewSet
 
+from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import user_kinds
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -53,7 +54,7 @@ class SetupWizardResource(ViewSet):
         payload = {
             # N.B. facility is keyed by facility not facility_id on the signup
             # viewset serializer.
-            "facility": facility_id,
+            FACILITY_CREDENTIAL_KEY: facility_id,
             "username": username,
             "password": password,
             "full_name": full_name,
