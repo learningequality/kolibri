@@ -9,6 +9,7 @@ import { PageNames } from './constants';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import { LessonsPageNames } from './constants/lessonsConstants';
+import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -55,6 +56,7 @@ class CoachToolsModule extends KolibriApp {
           LessonsPageNames.PLAN_LESSONS_ROOT,
           LessonsPageNames.LESSON_CREATION_ROOT,
           LessonsPageNames.SUMMARY,
+          LessonEditDetailsPage.name,
           LessonsPageNames.SELECTION_ROOT,
           LessonsPageNames.SELECTION,
           LessonsPageNames.SELECTION_SEARCH,

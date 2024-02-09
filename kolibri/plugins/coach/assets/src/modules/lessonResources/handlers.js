@@ -173,6 +173,7 @@ export function showLessonResourceBookmarksMain(store, params) {
   return store.dispatch('loading').then(() => {
     getBookmarks().then(bookmarks => {
       return showResourceSelectionPage(store, {
+        classId: params.classId,
         lessonId: params.lessonId,
         bookmarksList: bookmarks[0],
       });

@@ -117,7 +117,7 @@
         )
         .then(lesson => this.setData(lesson))
         .catch(error => this.setError(error))
-        .finally(() => this.$store.dispatch('notLoading'));
+        .then(() => this.$store.dispatch('notLoading'));
     },
     methods: {
       // @public
