@@ -20,7 +20,9 @@
           :layout12="{ span: 11 }"
           :layout8="{ span: 7 }"
         >
-          <h5 class="select-folder-style"> {{ selectFoldersOrExercises$() }} </h5>
+          <h5 class="select-folder-style">
+            {{ selectFoldersOrExercises$() }}
+          </h5>
         </KGridItem>
       </KGrid>
 
@@ -54,7 +56,6 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
-      {{ scrollable }}
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -320,11 +321,6 @@
         required: true,
       },
     },
-    data() {
-      return {
-        scrollable: 0,
-      };
-    },
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
@@ -368,13 +364,6 @@
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
-      storedScrollPosition(newValue, oldValue) {
-        // Handle the scroll position change here
-        this.addScrollListener();
-      },
-    },
-    mounted() {
-      this.addScrollListener();
     },
     methods: {
       /** @public */
@@ -535,12 +524,13 @@
     }
   }
 
-  .select-folder-style{
+  .select-folder-style {
+    margin-top: 0.5em;
     font-size: 18px;
-    margin-top:0.5em;
   }
-  .align-select-folder-style{
-    margin-top:2em;
+
+  .align-select-folder-style {
+    margin-top: 2em;
   }
 
 </style>
