@@ -1,7 +1,7 @@
 <template>
 
   <div class="select-resource">
-    <div v-if="loading">
+    <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
     <div v-else>
@@ -369,6 +369,9 @@
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
+      },
+      goBack() {
+        return this.$router.go(-1);
       },
       contentLink(content) {
         if (this.showBookmarks) {
