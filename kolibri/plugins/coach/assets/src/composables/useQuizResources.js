@@ -120,11 +120,10 @@ export default function useQuizResources({ topicId } = {}) {
       set(_resources, [...get(_resources), ...results]);
       return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
-      ).then(() =>{
+      ).then(() => {
         set(_loading, false);
         set(_loadingMore, false);
-      }
-      );
+      });
     });
   }
 

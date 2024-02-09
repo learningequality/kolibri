@@ -120,10 +120,10 @@
         type: Function, // ContentNode => Route
         required: true,
       },
-      loadingMoreState:{
+      loadingMoreState: {
         type: Boolean,
         default: false,
-      }
+      },
     },
     computed: {
       showButton() {
