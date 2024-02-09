@@ -1,5 +1,4 @@
 import { shallowMount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import ProgressBar from '../src/views/ProgressBar';
 
 function testProgressBar(wrapper, expected) {
@@ -14,7 +13,6 @@ describe('ProgressBar Component', () => {
       propsData: {
         progress: -0.0000001,
       },
-      store,
     });
     // The negative still shows up...
     testProgressBar(wrapper, { text: '-0%', width: '0%' });
@@ -25,7 +23,6 @@ describe('ProgressBar Component', () => {
       propsData: {
         progress: 0.1,
       },
-      store,
     });
     testProgressBar(wrapper, { text: '10%', width: '10%' });
   });
@@ -35,7 +32,6 @@ describe('ProgressBar Component', () => {
       propsData: {
         progress: 1.0,
       },
-      store,
     });
     testProgressBar(wrapper, { text: '100%', width: '100%' });
   });
@@ -45,7 +41,6 @@ describe('ProgressBar Component', () => {
       propsData: {
         progress: 1.0000001,
       },
-      store,
     });
     testProgressBar(wrapper, { text: '100%', width: '100%' });
   });
