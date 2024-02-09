@@ -47,31 +47,44 @@ export default function useQuizResources({ topicId } = {}) {
    *   the_resources have been updated, filtering out all topics which do not have assessments
    */
   async function annotateTopicsWithDescendantCounts(topicIds = []) {
-    return ContentNodeResource.fetchDescendantsAssessments(topicIds)
-      .then(({ data: topicsWithDescendantCounts }) => {
+    const promises = [
+      ContentNodeResource.fetchDescendantsAssessments(topicIds),
+      ContentNodeResource.fetchDescendants(topicIds, {
+        descendant__kind: ContentNodeKinds.EXERCISE,
+      }),
+    ];
+    return Promise.all(promises)
+      .then(([{ data: topicsWithAssessmentCounts }, { data: exerciseDescendants }]) => {
         const childrenWithAnnotatedTopics = get(_resources)
           .map(node => {
             // We'll map so that the topics are updated in place with the num_assessments, others
             // are left as-is
-            if (node.kind === ContentNodeKinds.TOPIC) {
-              const topic = topicsWithDescendantCounts.find(t => t.id === node.id);
-              if (topic) {
-                node.num_assessments = topic.num_assessments;
+            if ([ContentNodeKinds.TOPIC, ContentNodeKinds.CHANNEL].includes(node.kind)) {
+              const topicWithAssessments = topicsWithAssessmentCounts.find(t => t.id === node.id);
+              if (topicWithAssessments) {
+                node.num_assessments = topicWithAssessments.num_assessments;
               }
+              exerciseDescendants.forEach(exercise => {
+                if (exercise.ancestor_id === node.id) {
+                  node.num_exercises ? (node.num_exercises += 1) : (node.num_exercises = 1);
+                }
+              });
+
               if (!validateObject(node, QuizExercise)) {
-                logger.warn('Topic node was not a valid QuizExercise after annotation:', node);
+                logger.error('Topic node was not a valid QuizExercise after annotation:', node);
               }
             }
             return node;
           })
           .filter(node => {
             // Only keep topics which have assessments in them to begin with
-            if (node.kind !== ContentNodeKinds.TOPIC) {
-              return true;
-            }
-            return node.num_assessments > 0;
+            return (
+              node.kind === ContentNodeKinds.EXERCISE ||
+              ([ContentNodeKinds.TOPIC, ContentNodeKinds.CHANNEL].includes(node.kind) &&
+                node.num_assessments > 0)
+            );
           });
-        set(_resources, childrenWithAnnotatedTopics);
+        setResources(childrenWithAnnotatedTopics);
       })
       .catch(e => {
         // TODO Work out best UX for this situation -- it may depend on if we're fetching more
