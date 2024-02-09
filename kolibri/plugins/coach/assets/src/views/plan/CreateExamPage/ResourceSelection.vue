@@ -371,7 +371,7 @@
       },
       toggleSelected({ content, checked }) {
         if (checked) {
-          this.addToSelectedResources(content);
+          this.addToWorkingResourcePool([content]);
         } else {
           this.removeFromWorkingResourcePool(content);
         }
@@ -381,9 +381,7 @@
           this.addToWorkingResourcePool(this.contentList);
         } else {
           this.contentList.forEach(content => {
-            if (content.kind === ContentNodeKinds.TOPIC) {
-              this.removeFromWorkingResourcePool(content);
-            }
+            this.removeFromWorkingResourcePool(content);
           });
         }
       },
