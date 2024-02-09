@@ -19,6 +19,9 @@
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
     },
+    return {
+        windowBreakpoint,
+    };
     props: {
       /**
        * `1` or `2`
