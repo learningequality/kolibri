@@ -1,5 +1,6 @@
+from urllib.parse import urljoin
+
 from django.urls import reverse
-from six.moves.urllib.parse import urljoin
 
 from kolibri.utils.conf import OPTIONS
 

@@ -43,6 +43,30 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     message: 'Newly downloaded resources will be added to the primary storage location',
     context: 'Label for primary storage location.',
   },
+  statusInProgress: {
+    message: 'In-progress',
+    context: 'Label indicating that a task is in progress.',
+  },
+  statusInQueue: {
+    message: 'Waiting',
+    context: 'Label indicating that a task is queued.\n',
+  },
+  statusComplete: {
+    message: 'Finished',
+    context: 'Label indicating that the *task* was completed successfully.',
+  },
+  statusFailed: {
+    message: 'Failed',
+    context: 'Label indicating that a task failed, i.e. it has not been completed.',
+  },
+  statusCanceled: {
+    message: 'Canceled',
+    context: 'Refers to a canceled task in the task manager section.',
+  },
+  statusCanceling: {
+    message: 'Canceling',
+    context: 'Refers to a task being canceled in the task manager section.',
+  },
 });
 
 /**

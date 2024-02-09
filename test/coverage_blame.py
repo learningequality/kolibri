@@ -3,10 +3,6 @@
 # Derived from http://scottlobdell.me/2015/04/gamifying-test-coverage-project/
 # Before running this script, first run tests with coverage using:
 #  tox -e py3.9
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from collections import Counter
 from subprocess import PIPE
 from subprocess import Popen

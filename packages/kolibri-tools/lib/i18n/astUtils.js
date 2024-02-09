@@ -140,23 +140,33 @@ function getObjectifiedValue(nodePropertyValue) {
       n => n.key.name === 'message'
     );
 
+    if (!messageNode) {
+      // This is mostly for dev debugging. If this happens then somethings wrong enough that
+      // we should let the user know and just bail for now until it gets worked out
+      throw new ReferenceError(
+        'Trying to get the message from an object in $trs but did not find a `message` key.\n' +
+          'Available keys on the message object include:\n' +
+          get(nodePropertyValue, 'properties', [])
+            .map(p => p.key.name)
+            .join(', ')
+      );
+    }
+
     message = stringFromAnyLiteral(messageNode);
     try {
       context = stringFromAnyLiteral(contextNode);
     } catch (e) {
       context = '';
     }
-
-    if (!message) {
-      // This is mostly for dev debugging. If this happens then somethings wrong enough that
-      // we should let the user know and just bail for now until it gets worked out
-      logging.error(
-        'Trying to get the message from an object in $trs but did not find a `message` key.\n\n',
-        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.'
-      );
-      logging.error(nodePropertyValue.properties[0].value.value);
-      process.exit(1);
-    }
+  }
+  if (!message) {
+    // This is mostly for dev debugging. If this happens then somethings wrong enough that
+    // we should let the user know and just bail for now until it gets worked out
+    throw new ReferenceError(
+      'Trying to get the message from an object in $trs but did not find a `message` key.\n\n' +
+        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
+        nodePropertyValue.properties[0].value.value
+    );
   }
   return { message, context: `${CONTEXT_LINE}${context}` };
 }
@@ -351,9 +361,15 @@ function generateMessagesFromASTNode(messageNodeProperties, messageNamespace, as
   if (messageNodeProperties && messageNamespace) {
     // Now that we have the properties we care about, let's do the thing we're here to do!
     for (const $trProperty of messageNodeProperties) {
-      results[
-        `${messageNamespace}.${getPropertyKey($trProperty, ast, filePath)}`
-      ] = getObjectifiedValue($trProperty.value);
+      const messageId = `${messageNamespace}.${getPropertyKey($trProperty, ast, filePath)}`;
+      try {
+        results[messageId] = getObjectifiedValue($trProperty.value);
+      } catch (e) {
+        logging.error('Issue in file: ', filePath);
+        logging.error('Could not extract message from: ', messageId);
+        logging.error(e);
+        process.exit(1);
+      }
     }
   }
   return results;

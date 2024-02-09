@@ -11,14 +11,18 @@ const logging = logger.getLogger(__filename);
 const getTotalOfQuestions = sumBy(qArray => qArray.length);
 
 /**
- * Choose a an evenly-distributed random selection of questions from exercises.
- * @param {number} numQuestions - target number of questions
- * @param {array} exerciseIds - exercise IDs
- * @param {array} exerciseTitle - exercise titles
- * @param {array} questionIdArrays - arrays of question/assessment IDs
- *  corresponding to the exercise IDs
+ * Choose a an evenly-distributed random selection of questions from exercises. Note that the order
+ * of the arrays should correspond to each other, ie, exerciseIds[i] should correspond to
+ * questionIdArrays[i] should correspond to exerciseTitles[i], etc.
+ *
+ * @param {Number} numQuestions - target number of questions
+ * @param {String[]} exerciseIds - QuizExercise IDs
+ * @param {String[]} exerciseTitle - QuizExercise titles
+ * @param {Array[String[]]} questionIdArrays - QuizQuestion (assessment) ID arrays corresponding
+ *  to each exercise by index (ie, questionIdArrays[i] corresponds to exerciseIds[i])
  * @param {number} seed - value to seed the random shuffle with
- * @return {array} - objects of the form { exercise_id, question_id, title }
+ *
+ * @return {QuizQuestion[]}
  */
 export default function selectQuestions(
   numQuestions,

@@ -474,13 +474,23 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
     def test_on_downloadable_assignment__exam(self):
         callable_mock = mock.MagicMock()
         Exam.content_assignments.on_downloadable_assignment(callable_mock)
-
-        resources = [
+        questions = [
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": uuid.uuid4().hex,
-                "title": "Test questions",
-                "counter_in_exercise": 1,
+                "title": "Test question Title 1",
+                "counter_in_exercise": 0,
+            }
+        ]
+        resources = [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "resource_pool": [],
+                "question_count": len(questions),
+                "learners_see_fixed_order": False,
             }
         ]
 
@@ -503,7 +513,9 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         assignments = list(callable_mock.call_args[0][1])
         self.assertEqual(len(assignments), 1)
         self.assertIsInstance(assignments[0], ContentAssignment)
-        self.assertEqual(assignments[0].contentnode_id, resources[0]["exercise_id"])
+        self.assertEqual(
+            assignments[0].contentnode_id, resources[0]["questions"][0]["exercise_id"]
+        )
         self.assertEqual(assignments[0].source_id, exam.id)
         self.assertEqual(assignments[0].source_model, Exam.morango_model_name)
         self.assertEqual(assignments[0].metadata, None)
@@ -513,13 +525,23 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         IndividualSyncableExam.content_assignments.on_downloadable_assignment(
             callable_mock
         )
-
-        resources = [
+        questions = [
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": uuid.uuid4().hex,
-                "title": "Test questions",
-                "counter_in_exercise": 1,
+                "title": "Test question Title 1",
+                "counter_in_exercise": 0,
+            }
+        ]
+        resources = [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "resource_pool": [],
+                "question_count": len(questions),
+                "learners_see_fixed_order": False,
             }
         ]
 
@@ -547,7 +569,9 @@ class ContentAssignmentManagerIntegrationTestCase(TestCase):
         assignments = list(callable_mock.call_args[0][1])
         self.assertEqual(len(assignments), 1)
         self.assertIsInstance(assignments[0], ContentAssignment)
-        self.assertEqual(assignments[0].contentnode_id, resources[0]["exercise_id"])
+        self.assertEqual(
+            assignments[0].contentnode_id, resources[0]["questions"][0]["exercise_id"]
+        )
         self.assertEqual(assignments[0].source_id, syncable_exam.id)
         self.assertEqual(
             assignments[0].source_model, IndividualSyncableExam.morango_model_name

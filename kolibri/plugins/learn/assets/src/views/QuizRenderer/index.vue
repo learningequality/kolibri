@@ -35,7 +35,7 @@
             <h1>
               {{ $tr('question', { num: questionNumber + 1, total: questionsTotal }) }}
             </h1>
-            <KContentRenderer
+            <ContentRenderer
               v-if="itemId"
               ref="contentRenderer"
               :kind="content.kind"
@@ -157,8 +157,8 @@
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import UiIconButton from 'kolibri.coreVue.components.UiIconButton';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import shuffled from 'kolibri.utils.shuffled';
   import { LearnerClassroomResource } from '../../apiResources';
@@ -174,7 +174,15 @@
       BottomAppBar,
       QuizReport,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint, windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+        windowIsLarge,
+        windowIsSmall,
+      };
+    },
     props: {
       content: {
         type: Object,

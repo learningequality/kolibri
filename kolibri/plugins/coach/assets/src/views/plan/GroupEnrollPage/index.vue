@@ -79,7 +79,6 @@
 
   import { mapActions, mapGetters, mapState } from 'vuex';
   import differenceWith from 'lodash/differenceWith';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import filterUsersByNames from 'kolibri.utils.filterUsersByNames';
@@ -94,7 +93,7 @@
       FilterTextbox,
       UserTable,
     },
-    mixins: [responsiveWindowMixin, commonCoach, commonCoreStrings],
+    mixins: [commonCoach, commonCoreStrings],
     data() {
       return {
         filterInput: '',

@@ -15,12 +15,14 @@
       v-model="setting"
       :label="$tr('yesOptionLabel')"
       :value="true"
+      :autofocus="setting"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
       :label="$tr('noOptionLabel')"
       :value="false"
+      :autofocus="!setting"
     />
     <p class="form">
       {{ $tr('changeLater') }}
@@ -33,7 +35,8 @@
 
 <script>
 
-  import { Presets, FooterMessageTypes } from '../../constants';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
+  import { FooterMessageTypes } from '../../constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {

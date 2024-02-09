@@ -1,12 +1,7 @@
 """
 Modified and extended from https://github.com/camsaul/django-rest-params/blob/master/django_rest_params/decorators.py
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import hashlib
-import sys
 from threading import local
 
 from django.core.cache import cache
@@ -14,7 +9,6 @@ from django.utils.cache import patch_response_headers
 from django.views.decorators.http import etag
 from rest_framework.exceptions import APIException
 from rest_framework.views import APIView
-from six import string_types
 
 from kolibri import __version__ as kolibri_version
 
@@ -39,10 +33,7 @@ class MissingRequiredParamsException(APIException):
 
 # Types that we'll all for as 'tuple' params
 TUPLE_TYPES = tuple, set, frozenset, list
-if sys.version_info > (3, 0):
-    VALID_TYPES = int, float, str, bool
-else:
-    VALID_TYPES = int, float, str, unicode, bool  # noqa F821
+VALID_TYPES = int, float, str, bool
 
 
 class ParamValidator(object):
@@ -89,7 +80,7 @@ class ParamValidator(object):
         elif self.param_type == float:
             param = float(param)
         elif self.param_type == str:
-            if not isinstance(param, string_types):
+            if not isinstance(param, str):
                 raise AssertionError
         elif self.param_type == bool:
             param = str(param).lower()  # bool isn't case sensitive
@@ -205,7 +196,7 @@ class ParamValidator(object):
             self.default = value
 
         elif suffix == "field":
-            if not isinstance(suffix, string_types):
+            if not isinstance(suffix, str):
                 raise AssertionError
             self.field = value
         else:

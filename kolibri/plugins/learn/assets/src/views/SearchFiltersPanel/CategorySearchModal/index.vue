@@ -34,7 +34,7 @@
 
   import Teleport from 'vue2-teleport';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
 
   export default {
@@ -43,7 +43,13 @@
       CategorySearchOptions,
       Teleport,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsLarge } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+      };
+    },
     props: {
       selectedCategory: {
         type: String,

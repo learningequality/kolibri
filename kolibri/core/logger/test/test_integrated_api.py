@@ -13,7 +13,6 @@ from le_utils.constants import exercises
 from le_utils.constants import modalities
 from mock import patch
 from rest_framework.test import APITestCase
-from six import string_types
 
 from ..models import AttemptLog
 from ..models import ContentSessionLog
@@ -315,7 +314,7 @@ class ProgressTrackingViewSetStartSessionFreshTestCase(APITestCase):
                 save_queue_mock.mock_calls[0][1][0], quiz_started_notification
             )
             self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], MasteryLog)
-            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], str)
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
@@ -2365,7 +2364,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
             self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
-            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], str)
 
     def test_update_assessment_session_create_errored_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2377,7 +2376,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
             self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
-            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], str)
 
     def test_update_assessment_session_create_hinted_attempt_succeeds(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2389,7 +2388,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 save_queue_mock.mock_calls[0][1][0], quiz_answered_notification
             )
             self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], AttemptLog)
-            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], str)
 
     def test_update_session_absolute_progress_triggers_completion(self):
         with patch("kolibri.core.logger.api.wrap_to_save_queue") as save_queue_mock:
@@ -2415,7 +2414,7 @@ class ProgressTrackingViewSetLoggedInUpdateSessionCoachQuizTestCase(
                 save_queue_mock.mock_calls[0][1][0], quiz_completed_notification
             )
             self.assertIsInstance(save_queue_mock.mock_calls[0][1][1], MasteryLog)
-            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], string_types)
+            self.assertIsInstance(save_queue_mock.mock_calls[0][1][2], str)
 
     def test_update_assessment_session_update_attempt_submitted_quiz_fails(self):
         timestamp = local_now()

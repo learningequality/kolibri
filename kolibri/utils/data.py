@@ -1,6 +1,5 @@
 import re
 
-from six import string_types
 
 BYTES_PREFIXES = ("", "K", "M", "G", "T", "P")
 PREFIX_FACTOR_BYTES = 1000.0
@@ -36,7 +35,7 @@ def bytes_from_humans(size, suffix="B"):
     if isinstance(size, int):
         # If it is already an integer, return early.
         return size
-    if not isinstance(size, string_types):
+    if not isinstance(size, str):
         raise ValueError("size must be an integer or string")
     # Be lenient by making all input uppercase to maximize chance of a match.
     size = size.upper()

@@ -1,12 +1,7 @@
 import uniq from 'lodash/uniq';
 import { checkCapability } from 'kolibri.utils.appCapabilities';
-import {
-  DeviceTypePresets,
-  FacilityTypePresets,
-  LodTypePresets,
-  UsePresets,
-  Presets,
-} from '../constants';
+import { Presets } from 'kolibri.coreVue.vuex.constants';
+import { DeviceTypePresets, FacilityTypePresets, LodTypePresets, UsePresets } from '../constants';
 
 /**
  * __ Setting up the XState Visualizer __

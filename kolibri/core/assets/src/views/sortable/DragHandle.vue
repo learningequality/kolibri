@@ -24,3 +24,10 @@
   };
 
 </script>
+
+
+<style scoped>
+  *{
+    cursor :pointer;
+  }
+</style>

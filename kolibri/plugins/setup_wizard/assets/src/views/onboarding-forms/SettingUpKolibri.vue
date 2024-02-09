@@ -41,10 +41,11 @@
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import KolibriLoadingSnippet from 'kolibri.coreVue.components.KolibriLoadingSnippet';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import urls from 'kolibri.urls';
   import client from 'kolibri.client';
   import Lockr from 'lockr';
-  import { DeviceTypePresets, Presets } from '../../constants';
+  import { DeviceTypePresets } from '../../constants';
 
   export default {
     name: 'SettingUpKolibri',

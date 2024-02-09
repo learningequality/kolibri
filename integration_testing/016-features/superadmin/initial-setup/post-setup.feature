@@ -4,7 +4,7 @@ Feature: Post-setup onboarding
     Given that the Kolibri installation was successful
     	And I have completed the device setup
 
-	Scenario: Finish *On my own* setup path - first user (super admin)
+	Scenario: Finish *On my own* setup path - first user (super admin) #NOT IMPLEMENTED
 		Given I've finished the *On my own* setup path as a super admin
 			And I'm connected to the Internet
 			And there are no channels on the device
@@ -24,7 +24,7 @@ Feature: Post-setup onboarding
 		Then I am at the *Library* page
 			And I no longer see any inline tips
 
-	Scenario: Finish *On my own* setup path - connected to other Kolibri server on local network
+	Scenario: Finish *On my own* setup path - connected to other Kolibri server on local network #NOT IMPLEMENTED
 		Given I've finished the *On my own* setup path as a super admin
 			And I'm connected to another Kolibri server on the local network
 		When I click on a library card
@@ -35,7 +35,7 @@ Feature: Post-setup onboarding
 		When I click *Continue*
 		Then I see the following inline tip for a highlighted card: *Learn more about this learning material and download it to use anytime.*
 
-	Scenario: Finish *Learn-only* setup path - Import individual user - connected to the Internet
+	Scenario: Finish *Learn-only* setup path - Import individual user - connected to the Internet #NOT IMPLEMENTED
 		Given I've finished the *On my own* setup path as a learner
 			And I'm connected to the Internet and another Kolibri server on the local network
 		When I go to the *Library* page
@@ -52,7 +52,7 @@ Feature: Post-setup onboarding
 		When I click *Continue*
 		Then I see the following inline tip for a highlighted card: *Learn more about this learning material and download it to use anytime.*
 
-	Scenario: Finish *Full device* setup path
+	Scenario: Finish *Full device* setup path #NOT IMPLEMENTED
 		Given I've selected the *Full device* setup path at *What kind of device is this?*
 		When I finish the setup
 		Then I am redirected to *Device > Channels*
@@ -68,11 +68,11 @@ Feature: Post-setup onboarding
 			And I don't have content yet
 		When I go to the *Library* page
 		Then I see a *Your library* label
-			And I see the following text: *No channels yet. Start exploring libraries around you and find materials to add to your library.*
-			And I see the following text to the right: *No libraries found around you.*
+			And I see the following text: *There is nothing in your library yet. Explore libraries around you and start adding materials to your own.*
+			And I see the following text to the right: *No other libraries around you right now.*
 			And I see a *Refresh* link next to the text
 
-	Scenario: First time use - content already on device
+	Scenario: First time use - content already on device #NOT IMPLEMENTED
 		Given there's content already on device
 		When I finish the setup up path
 		Then I see the following message: *Welcome to [facility name]. Learning materials from your classes can be found on the home page.*

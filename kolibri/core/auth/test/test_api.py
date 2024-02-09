@@ -1,10 +1,5 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import base64
 import collections
-import sys
 import time
 import uuid
 from datetime import datetime
@@ -19,11 +14,12 @@ from morango.constants import transfer_statuses
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
-from rest_framework.test import APITestCase as BaseTestCase
+from rest_framework.test import APITestCase
 
 from .. import models
 from ..constants import role_kinds
 from ..constants.facility_presets import mappings
+from ..models import Facility
 from .helpers import create_superuser
 from .helpers import DUMMY_PASSWORD
 from .helpers import provision_device
@@ -31,19 +27,6 @@ from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
 from kolibri.core.device.utils import set_device_settings
-
-# A weird hack because of http://bugs.python.org/issue17866
-if sys.version_info >= (3,):
-
-    class APITestCase(BaseTestCase):
-        def assertItemsEqual(self, *args, **kwargs):
-            self.assertCountEqual(*args, **kwargs)
-
-
-else:
-
-    class APITestCase(BaseTestCase):
-        pass
 
 
 class FacilityFactory(factory.DjangoModelFactory):
@@ -115,11 +98,9 @@ class LearnerGroupAPITestCase(APITestCase):
             )
             for group in self.learner_groups
         ]
-        # assertItemsEqual does not deal well with embedded objects, as it does
-        # not do a deepEqual, so check each individual list of user_ids
         for i, group in enumerate(response.data):
-            self.assertItemsEqual(group.pop("user_ids"), expected[i].pop("user_ids"))
-        self.assertItemsEqual(response.data, expected)
+            self.assertCountEqual(group.pop("user_ids"), expected[i].pop("user_ids"))
+        self.assertCountEqual(response.data, expected)
 
     def test_learnergroup_list_user(self):
         self.client.login(
@@ -131,7 +112,7 @@ class LearnerGroupAPITestCase(APITestCase):
             reverse("kolibri:core:learnergroup-list"), format="json"
         )
         expected = []
-        self.assertItemsEqual(response.data, expected)
+        self.assertCountEqual(response.data, expected)
 
     def test_learnergroup_list_user_parent_filter(self):
         self.client.login(
@@ -146,7 +127,7 @@ class LearnerGroupAPITestCase(APITestCase):
             format="json",
         )
         expected = []
-        self.assertItemsEqual(response.data, expected)
+        self.assertCountEqual(response.data, expected)
 
     def test_learnergroup_detail(self):
         self.login_superuser()
@@ -163,7 +144,7 @@ class LearnerGroupAPITestCase(APITestCase):
             "parent": self.learner_groups[0].parent.id,
             "user_ids": [member.id for member in self.learner_groups[0].get_members()],
         }
-        self.assertItemsEqual(response.data, expected)
+        self.assertCountEqual(response.data, expected)
 
     def test_learnergroup_detail_user(self):
         self.client.login(
@@ -200,11 +181,11 @@ class LearnerGroupAPITestCase(APITestCase):
             for group in self.learner_groups
             if group.parent.id == classroom_id
         ]
-        # assertItemsEqual does not deal well with embedded objects, as it does
+        # assertCountEqual does not deal well with embedded objects, as it does
         # not do a deepEqual, so check each individual list of user_ids
         for i, group in enumerate(response.data):
-            self.assertItemsEqual(group.pop("user_ids"), expected[i].pop("user_ids"))
-        self.assertItemsEqual(response.data, expected)
+            self.assertCountEqual(group.pop("user_ids"), expected[i].pop("user_ids"))
+        self.assertCountEqual(response.data, expected)
 
     def test_cannot_create_learnergroup_same_name(self):
         self.login_superuser()
@@ -270,7 +251,7 @@ class ClassroomAPITestCase(APITestCase):
             )
             for classroom in sorted(self.classrooms, key=lambda x: x.id)
         ]
-        self.assertItemsEqual(response.data, expected)
+        self.assertCountEqual(response.data, expected)
 
     def test_classroom_list_user(self):
         self.client.login(
@@ -281,7 +262,7 @@ class ClassroomAPITestCase(APITestCase):
         response = self.client.get(
             reverse("kolibri:core:classroom-list"), format="json"
         )
-        self.assertItemsEqual(response.data, [])
+        self.assertCountEqual(response.data, [])
 
     def test_classroom_list_user_parent_filter(self):
         self.client.login(
@@ -293,7 +274,7 @@ class ClassroomAPITestCase(APITestCase):
             reverse("kolibri:core:classroom-list") + "?parent=" + self.facility.id,
             format="json",
         )
-        self.assertItemsEqual(response.data, [])
+        self.assertCountEqual(response.data, [])
 
     def test_classroom_detail(self):
         self.login_superuser()
@@ -619,52 +600,32 @@ class FacilityAPITestCase(APITestCase):
         self.assertEqual(models.Facility.objects.all().count(), len(response.data))
 
     def test_public_facilityuser_endpoint(self):
-        if sys.version_info[0] == 2:
-            credentials = base64.b64encode(
+        credentials = base64.b64encode(
+            str.encode(
                 "username={}&{}={}:{}".format(
                     self.user1.username,
                     FACILITY_CREDENTIAL_KEY,
                     self.facility1.id,
                     DUMMY_PASSWORD,
-                ).encode("utf-8")
-            )
-        else:
-            credentials = base64.b64encode(
-                str.encode(
-                    "username={}&{}={}:{}".format(
-                        self.user1.username,
-                        FACILITY_CREDENTIAL_KEY,
-                        self.facility1.id,
-                        DUMMY_PASSWORD,
-                    )
                 )
-            ).decode("ascii")
+            )
+        ).decode("ascii")
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
             format="json",
         )
         self.assertEqual(len(response.data), 1)
-        if sys.version_info[0] == 2:
-            credentials = base64.b64encode(
+        credentials = base64.b64encode(
+            str.encode(
                 "username={}&{}={}:{}".format(
                     self.superuser.username,
                     FACILITY_CREDENTIAL_KEY,
                     self.facility1.id,
                     DUMMY_PASSWORD,
-                ).encode("utf-8")
-            )
-        else:
-            credentials = base64.b64encode(
-                str.encode(
-                    "username={}&{}={}:{}".format(
-                        self.superuser.username,
-                        FACILITY_CREDENTIAL_KEY,
-                        self.facility1.id,
-                        DUMMY_PASSWORD,
-                    )
                 )
-            ).decode("ascii")
+            )
+        ).decode("ascii")
         self.client.credentials(HTTP_AUTHORIZATION="Basic {}".format(credentials))
         response = self.client.get(
             reverse("kolibri:core:publicuser-list"),
@@ -680,6 +641,104 @@ class FacilityAPITestCase(APITestCase):
                 self.facility1.id,
                 item["facility"],
             )
+
+    def test_create_new_facility_non_superuser_permission_denied(self):
+        self.client.login(
+            username=self.user1.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.post(reverse("kolibri:core:facility-create-facility"))
+        assert response.status_code == status.HTTP_403_FORBIDDEN
+
+    def test_create_new_facility_empty_data_fails(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data={}
+        )
+        response_data = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        missing_name = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        missing_preset = {
+            "id": "REQUIRED",
+            "metadata": {"field": "name", "message": "This field is required."},
+        }
+        assert missing_name in response_data
+        assert missing_preset in response_data
+
+    def test_create_new_facility_invalid_preset_option_fails(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "formal facility", "preset": "invalid"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        response_data = response.json()
+        assert response.status_code == status.HTTP_400_BAD_REQUEST
+        assert response_data[0]["id"] == "INVALID_CHOICE"
+        assert response_data[0]["metadata"]["field"] == "preset"
+
+    def test_create_new_facility_valid_data_preset_formal(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "formal facility", "preset": "formal"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        # Test that correct preset is saved
+        facility = Facility.objects.get(name=data["name"])
+        assert facility.dataset.preset == data["preset"]
+
+        # Test that setting have been applied based on the preset
+        dataset = facility.dataset
+        assert dataset.learner_can_edit_username is False
+        assert dataset.learner_can_edit_name is False
+        assert dataset.learner_can_edit_password is False
+        assert dataset.learner_can_sign_up is False
+        assert dataset.learner_can_delete_account is False
+        assert dataset.learner_can_login_with_no_password is True
+        assert dataset.show_download_button_in_learn is False
+
+    def test_create_new_facility_valid_data_preset_nonformal(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility1,
+        )
+        data = {"name": "non-formal facility", "preset": "nonformal"}
+        response = self.client.post(
+            reverse("kolibri:core:facility-create-facility"), data=data
+        )
+        assert response.status_code == status.HTTP_200_OK
+
+        # Test that correct preset is saved
+        facility = Facility.objects.get(name=data["name"])
+        assert facility.dataset.preset == data["preset"]
+
+        # Test that setting have been applied based on the preset
+        dataset = facility.dataset
+        assert dataset.learner_can_edit_username is True
+        assert dataset.learner_can_edit_name is True
+        assert dataset.learner_can_edit_password is True
+        assert dataset.learner_can_sign_up is True
+        assert dataset.learner_can_delete_account is True
+        assert dataset.learner_can_login_with_no_password is False
+        assert dataset.show_download_button_in_learn is True
 
 
 class UserCreationTestCase(APITestCase):
@@ -908,7 +967,7 @@ class UserRetrieveTestCase(APITestCase):
         )
         response = self.client.get(reverse("kolibri:core:facilityuser-list"))
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             response.data,
             [
                 {
@@ -950,7 +1009,7 @@ class UserRetrieveTestCase(APITestCase):
         )
         response = self.client.get(reverse("kolibri:core:facilityuser-list"))
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             response.data,
             [
                 {
@@ -970,7 +1029,7 @@ class UserRetrieveTestCase(APITestCase):
     def test_anonymous_user_list(self):
         response = self.client.get(reverse("kolibri:core:facilityuser-list"))
         self.assertEqual(response.status_code, 200)
-        self.assertItemsEqual(
+        self.assertCountEqual(
             response.data,
             [],
         )

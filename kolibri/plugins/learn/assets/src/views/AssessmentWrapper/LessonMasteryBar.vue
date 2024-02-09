@@ -21,7 +21,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BaseToolbar from 'kolibri.coreVue.components.BaseToolbar';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
 
   export default {
     name: 'LessonMasteryBar',
@@ -29,7 +29,13 @@
       BaseToolbar,
       TextTruncatorCss,
     },
-    mixins: [KResponsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     props: {
       // typically this would be "m" from "m of n" mastery model
       requiredCorrectAnswers: {

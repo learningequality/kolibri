@@ -1,6 +1,7 @@
 import hashlib
 from base64 import b64encode
 from collections import OrderedDict
+from urllib.parse import urlencode
 
 from django.core.cache import cache
 from django.core.exceptions import EmptyResultSet
@@ -15,7 +16,6 @@ from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.pagination import NotFound
 from rest_framework.pagination import PageNumberPagination
 from rest_framework.response import Response
-from six.moves.urllib.parse import urlencode
 
 
 class ValuesPage(Page):

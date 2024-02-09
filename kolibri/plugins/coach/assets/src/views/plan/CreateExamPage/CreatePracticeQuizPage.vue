@@ -41,7 +41,6 @@
 
   import { mapState } from 'vuex';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
   import { PageNames } from '../../../constants';
@@ -56,7 +55,7 @@
       ContentCardList,
       ResourceSelectionBreadcrumbs,
     },
-    mixins: [commonCoreStrings, commonCoach, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonCoach],
     data() {
       return {
         viewMoreButtonState: 'no_more_results',

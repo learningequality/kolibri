@@ -17,7 +17,6 @@ from requests.exceptions import ChunkedEncodingError
 from requests.exceptions import ConnectionError
 from requests.exceptions import HTTPError
 from requests.exceptions import Timeout
-from six import with_metaclass
 
 from kolibri.utils.filesystem import mkdirp
 
@@ -447,7 +446,7 @@ class ChunkedFile(BufferedIOBase):
         return True
 
 
-class Transfer(with_metaclass(ABCMeta)):
+class Transfer(metaclass=ABCMeta):
     DEFAULT_TIMEOUT = 60
 
     def __init__(

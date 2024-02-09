@@ -139,7 +139,6 @@
   import omit from 'lodash/omit';
   import some from 'lodash/some';
   import uniqBy from 'lodash/uniqBy';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { TaskResource } from 'kolibri.resources';
@@ -176,7 +175,7 @@
       SelectionBottomBar,
       UiAlert,
     },
-    mixins: [commonCoreStrings, commonDeviceStrings, responsiveWindowMixin, taskNotificationMixin],
+    mixins: [commonCoreStrings, commonDeviceStrings, taskNotificationMixin],
     setup() {
       useContentTasks();
     },

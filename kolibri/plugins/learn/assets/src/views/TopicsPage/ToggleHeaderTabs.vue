@@ -50,13 +50,19 @@
 
 <script>
 
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
 
   export default {
     name: 'ToggleHeaderTabs',
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsLarge } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+      };
+    },
     props: {
       topic: {
         type: Object,

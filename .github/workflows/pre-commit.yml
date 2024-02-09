@@ -51,4 +51,4 @@ jobs:
       run: |
         yarn --frozen-lockfile
         npm rebuild node-sass
-    - uses: pre-commit/action@v3.0.0
+    - uses: pre-commit/action@v3.0.1

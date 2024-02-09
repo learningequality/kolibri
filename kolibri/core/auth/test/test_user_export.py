@@ -7,7 +7,6 @@ import tempfile
 
 from django.core.management import call_command
 from django.test import TestCase
-from six.moves import filter
 
 from .helpers import setup_device
 from kolibri.core.auth.constants.demographics import DEFERRED

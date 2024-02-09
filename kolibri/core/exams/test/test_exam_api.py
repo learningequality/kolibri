@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import uuid
 
 from django.urls import reverse
@@ -20,7 +16,6 @@ from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
-
 
 DUMMY_PASSWORD = "password"
 
@@ -44,17 +39,49 @@ class ExamAPITestCase(APITestCase):
         )
 
     def make_basic_exam(self):
+        sections = self.make_basic_sections(1)
+        total_questions = sum(section["question_count"] for section in sections)
         return {
             "title": "Exam",
-            "question_count": 1,
+            "question_count": total_questions,
             "active": True,
             "collection": self.classroom.id,
             "learners_see_fixed_order": False,
-            "question_sources": [],
+            "question_sources": sections,
             "assignments": [],
             "date_activated": None,
             "date_archived": None,
         }
+
+    def make_basic_sections(self, no_of_sec):
+        sections = []
+        questions = self.make_basic_questions(3)
+        for i in range(1, no_of_sec + 1):
+            section = {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "resource_pool": [],
+                "question_count": len(questions),
+                "learners_see_fixed_order": False,
+            }
+            sections.append(section)
+        return sections
+
+    def make_basic_questions(self, no_of_ques):
+        questions = []
+
+        for i in range(1, no_of_ques + 1):
+            question = {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": f"Test question Title {i}",
+                "counter_in_exercise": 0,
+            }
+            questions.append(question)
+
+        return questions
 
     def post_new_exam(self, exam):
         return self.client.post(reverse("kolibri:core:exam-list"), exam, format="json")
@@ -266,7 +293,7 @@ class ExamAPITestCase(APITestCase):
         exam = self.make_basic_exam()
         title = "invalid_question_sources"
         exam["title"] = title
-        exam["question_sources"].append(
+        exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": uuid.uuid4().hex,
@@ -281,9 +308,22 @@ class ExamAPITestCase(APITestCase):
     def test_exam_with_invalid_exercise_id(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["question_sources"].append(
+        exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": "e1",
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 1,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+
+    def test_exam_with_no_exercise_id(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["question_sources"][0]["questions"].append(
+            {
                 "question_id": uuid.uuid4().hex,
                 "title": "Title",
                 "counter_in_exercise": 1,
@@ -295,7 +335,7 @@ class ExamAPITestCase(APITestCase):
     def test_exam_with_invalid_question_id(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["question_sources"].append(
+        exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": "q1",
@@ -309,7 +349,7 @@ class ExamAPITestCase(APITestCase):
     def test_exam_with_no_question_id_succeeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["question_sources"].append(
+        exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": uuid.uuid4().hex,
                 "title": "Title",
@@ -322,7 +362,7 @@ class ExamAPITestCase(APITestCase):
     def test_exam_with_valid_question_sources_succeeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        exam["question_sources"].append(
+        exam["question_sources"][0]["questions"].append(
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": uuid.uuid4().hex,
@@ -342,3 +382,170 @@ class ExamAPITestCase(APITestCase):
             },
         )
         self.assertEqual(response.status_code, 200)
+
+    def test_quiz_section_with_no_section_id(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        title = "no_section_id"
+        questions = self.make_basic_questions(1)
+        exam["title"] = title
+        exam["question_sources"].append(
+            {
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "resource_pool": [],
+                "question_count": 0,
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Exam.objects.filter(title=title).exists())
+
+    def test_quiz_section_with_invalid_section_id(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        title = "invalid_section_sources"
+        exam["title"] = title
+        exam["question_sources"].append(
+            {
+                "section_id": "evil ID",
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "resource_pool": [],
+                "question_count": 0,
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Exam.objects.filter(title=title).exists())
+
+    def test_quiz_section_with_no_resource_pool(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        title = "invalid_question_sources"
+        questions = self.make_basic_questions(1)
+        exam["title"] = title
+        exam["question_sources"].append(
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "question_count": len(questions),
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Exam.objects.filter(title=title).exists())
+
+    def test_quiz_section_with_no_question_count(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        title = "invalid_question_sources"
+        questions = self.make_basic_questions(1)
+        exam["title"] = title
+        exam["question_sources"].append(
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "questions": questions,
+                "resource_pool": [],
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+        self.assertFalse(models.Exam.objects.filter(title=title).exists())
+
+    def test_quiz_section_with_no_question_succeds(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        title = "invalid_question_sources"
+        exam["title"] = title
+        exam["question_sources"].append(
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "resource_pool": [],
+                "question_count": 0,
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(models.Exam.objects.filter(title=title).exists())
+
+    def test_get_on_older_versions_of_exam_model(self):
+        self.login_as_admin()
+        self.exam.question_sources.append(
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        )
+
+        self.exam.save()
+
+        response = self.client.get(
+            reverse("kolibri:core:exam-detail", kwargs={"pk": self.exam.id}),
+        )
+
+        self.assertEqual(response.status_code, 200)
+
+    def test_post_exam_v2_model_fails(self):
+        self.login_as_admin()
+        basic_exam = {
+            "title": "Exam",
+            "question_count": 1,
+            "active": True,
+            "collection": self.classroom.id,
+            "learners_see_fixed_order": False,
+            "question_sources": [],
+            "assignments": [],
+            "date_activated": None,
+            "date_archived": None,
+            "creator": self.admin.id,
+        }
+        basic_exam["question_sources"] = [
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        ]
+
+        response = self.post_new_exam(basic_exam)
+        self.assertEqual(response.status_code, 400)
+
+    def test_exam_model_get_questions_v3(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        response = self.post_new_exam(exam)
+        exam_id = response.data["id"]
+        self.assertEqual(response.status_code, 201)
+        exam_model_instance = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam_model_instance.get_questions()), 3)
+
+    def test_exam_model_get_questions_v2_v1(self):
+        self.login_as_admin()
+        self.exam.data_model_version = 2
+        self.exam.question_sources.append(
+            {
+                "exercise_id": uuid.uuid4().hex,
+                "question_id": uuid.uuid4().hex,
+                "title": "Title",
+                "counter_in_exercise": 0,
+            }
+        )
+
+        self.exam.save()
+        self.assertEqual(len(self.exam.get_questions()), 1)

@@ -62,7 +62,7 @@ Python and Pip
 
 To develop on Kolibri, you'll need:
 
-* Python 3.4+ or Python 2.7+ (Kolibri doesn't currently support Python 3.11.0 or higher)
+* Python 3.6+ (Kolibri doesn't currently support Python 3.12.0 or higher)
 * `pip <https://pypi.python.org/pypi/pip>`__
 
 Managing Python installations can be quite tricky. We *highly* recommend using `pyenv <https://github.com/pyenv/pyenv>`__ or if you are more comfortable using a package manager, then package managers like `Homebrew <http://brew.sh/>`__ on Mac or ``apt`` on Debian for this.

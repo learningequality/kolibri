@@ -4,10 +4,6 @@ Kolibri Content hooks
 
 Hooks for managing the display and rendering of content.
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import json
 from abc import abstractmethod
 from abc import abstractproperty

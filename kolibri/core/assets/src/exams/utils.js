@@ -1,5 +1,6 @@
 import every from 'lodash/every';
 import uniq from 'lodash/uniq';
+import { v4 as uuidv4 } from 'uuid';
 import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
@@ -82,6 +83,51 @@ function annotateQuestionsWithItem(questions) {
   });
 }
 
+/* Given a V2 question_sources, return V3 structure with those questions within one new section */
+/**
+ * @param {Array} questionSources - a V2 question_sources object
+ * @param {boolean} learners_see_fixed_order - whether the questions should be randomized or not
+ *                         - a V2 quiz will have this value on itself, but a V3 quiz will have it
+ *                         on each section, so it should be passed in here
+ * @returns V3 formatted question_sources
+ */
+export function convertV2toV3(questionSources, exam) {
+  questionSources = questionSources || []; // Default value while requiring all params
+  const questions = annotateQuestionsWithItem(questionSources);
+  return {
+    section_id: uuidv4(),
+    section_title: '',
+    description: '',
+    resource_pool: [],
+    questions,
+    learners_see_fixed_order: exam.learners_see_fixed_order,
+    question_count: exam.question_count,
+  };
+}
+
+export function revertV3toV2(questionSources) {
+  if (!questionSources.length) {
+    return [];
+  }
+  return questionSources[0].questions;
+}
+
+/**
+ * @param {object} exam - an exam object of any question_sources version
+ * @returns V3 formatted question_sources
+ */
+export function convertExamQuestionSourcesToV3(exam, extraArgs = {}) {
+  if (exam.data_model_version !== 3) {
+    const V2_sources = convertExamQuestionSources(exam, extraArgs);
+    return [convertV2toV3(V2_sources, exam)];
+  }
+
+  return exam.question_sources;
+}
+
+/**
+ * @returns V2 formatted question_sources
+ */
 export function convertExamQuestionSources(exam, extraArgs = {}) {
   const { data_model_version } = exam;
   if (data_model_version === 0) {
@@ -107,12 +153,23 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
   if (data_model_version === 1) {
     return annotateQuestionsWithItem(convertExamQuestionSourcesV1V2(exam.question_sources));
   }
+
+  // For backwards compatibility. If you are using V3, use the convertExamQuestionSourcesToV3 func
+  if (data_model_version === 3) {
+    return revertV3toV2(exam.question_sources);
+  }
+
   return annotateQuestionsWithItem(exam.question_sources);
 }
 
 export function fetchNodeDataAndConvertExam(exam) {
   const { data_model_version } = exam;
-  if (data_model_version >= 2) {
+  if (data_model_version >= 3) {
+    /* For backwards compatibility, we need to convert V3 to V2 */
+    exam.question_sources = revertV3toV2(exam.question_sources);
+    return Promise.resolve(exam);
+  }
+  if (data_model_version == 2) {
     exam.question_sources = annotateQuestionsWithItem(exam.question_sources);
     return Promise.resolve(exam);
   }

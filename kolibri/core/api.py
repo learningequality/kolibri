@@ -17,7 +17,6 @@ from rest_framework.serializers import UUIDField
 from rest_framework.serializers import ValidationError
 from rest_framework.status import HTTP_201_CREATED
 from rest_framework.status import HTTP_503_SERVICE_UNAVAILABLE
-from six import string_types
 
 from .utils.portal import registerfacility
 from kolibri.core.auth.models import Facility
@@ -76,9 +75,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         # All the fields that we have field maps defined for - this only allows for simple mapped fields
         # where the field is essentially a rename, as we have no good way of doing ordering on a field that
         # that is doing more complex function based mapping.
-        mapped_fields = {
-            v: k for k, v in view.field_map.items() if isinstance(v, string_types)
-        }
+        mapped_fields = {v: k for k, v in view.field_map.items() if isinstance(v, str)}
         # All the fields of the model
         model_fields = {f.name for f in queryset.model._meta.get_fields()}
         # Loop through every value in the view's values tuple
@@ -109,9 +106,7 @@ class ValuesViewsetOrderingFilter(OrderingFilter):
         to do filtering based on valuesviewset setup
         """
         # We filter the mapped fields to ones that do simple string mappings here, any functional maps are excluded.
-        mapped_fields = {
-            k: v for k, v in view.field_map.items() if isinstance(v, string_types)
-        }
+        mapped_fields = {k: v for k, v in view.field_map.items() if isinstance(v, str)}
         valid_fields = [
             item[0]
             for item in self.get_valid_fields(queryset, view, {"request": request})
@@ -167,9 +162,7 @@ class BaseValuesViewset(viewsets.GenericViewSet):
         model = getattr(queryset, "model", None)
         if model is None:
             return Serializer
-        mapped_fields = {
-            v: k for k, v in self.field_map.items() if isinstance(v, string_types)
-        }
+        mapped_fields = {v: k for k, v in self.field_map.items() if isinstance(v, str)}
         fields = []
         extra_kwargs = {}
         for value in self.values:

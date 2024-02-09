@@ -45,6 +45,12 @@ Feature: Find new things in your library
 			And I see the topic title of the first available folder
 			And I see the available folders and resources cards in a single column view
 
+	Scenario: The *Show* dropdown is hidden if there are no resources downloaded by the user #NOT IMPLEMENTED
+		When I go to the *Library > Explore channel* modal
+			And there are available resources
+			And I have previously not downloaded any of the resources
+		Then the the *Show* dropdown is not being displayed
+
 	Scenario: All resources are displayed by default
 		Given I am at the *Library > Explore channel* modal
 			And I have previously downloaded resources
@@ -53,12 +59,6 @@ Feature: Find new things in your library
 			And I can see that all resources are displayed in that case
 		When I select the option *My downloads only*
 		Then I see only the downloaded resources
-
-	Scenario: The *Show* dropdown is hidden if there are no resources downloaded by the user
-		When I go to the *Library > Explore channel* modal
-			And there are available resources
-			And I have previously not downloaded any of the resources
-		Then the the *Show* dropdown is not being displayed
 
 	Scenario: Add resource to My downloads from folder/resource browsing page
 		Given I am at the *Library > Explore channel* modal

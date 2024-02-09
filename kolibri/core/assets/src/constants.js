@@ -187,3 +187,10 @@ export const ApplicationTypes = {
   KOLIBRI: 'kolibri',
   STUDIO: 'studio',
 };
+
+// aliasing 'informal' to 'personal' since it's how we talk about it
+export const Presets = Object.freeze({
+  PERSONAL: 'informal',
+  FORMAL: 'formal',
+  NONFORMAL: 'nonformal',
+});

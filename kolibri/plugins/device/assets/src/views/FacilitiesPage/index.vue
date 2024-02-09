@@ -14,11 +14,18 @@
               @click="showSyncAllModal = true"
             />
             <KButton
-              :text="getCommonSyncString('importFacilityAction')"
+              hasDropdown
+              :text="$tr('createFacilityLabel')"
               primary
               style="margin-top: 16px; margin-bottom: -16px;"
-              @click="showImportModal = true"
-            />
+            >
+              <template #menu>
+                <KDropdownMenu
+                  :options="options"
+                  @select="handleSelect"
+                />
+              </template>
+            </KButton>
           </KButtonGroup>
         </template>
       </HeaderWithOptions>
@@ -143,6 +150,11 @@
         @success="handleStartImportSuccess"
         @cancel="showImportModal = false"
       />
+      <CreateNewFacilityModal
+        v-if="showCreateFacilityModal"
+        @success="handleCreateFacilitySuccess"
+        @cancel="showCreateFacilityModal = false"
+      />
 
       <!-- NOTE similar code for KDP Registration in SyncInterface -->
       <template v-if="Boolean(facilityForRegister)">
@@ -181,7 +193,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';
@@ -194,13 +206,14 @@
   import { TaskStatuses, TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import some from 'lodash/some';
   import DeviceAppBarPage from '../DeviceAppBarPage';
-  import { PageNames } from '../../constants';
+  import { PageNames, ImportFacility, CreateNewFacility } from '../../constants';
   import { deviceString } from '../commonDeviceStrings';
   import TasksBar from '../ManageContentPage/TasksBar';
   import HeaderWithOptions from '../HeaderWithOptions';
   import RemoveFacilityModal from './RemoveFacilityModal';
   import SyncAllFacilitiesModal from './SyncAllFacilitiesModal';
   import ImportFacilityModalGroup from './ImportFacilityModalGroup';
+  import CreateNewFacilityModal from './CreateNewFacilityModal';
   import facilityTaskQueue from './facilityTasksQueue';
 
   const Options = Object.freeze({
@@ -220,6 +233,7 @@
       DeviceAppBarPage,
       ConfirmationRegisterModal,
       CoreTable,
+      CreateNewFacilityModal,
       HeaderWithOptions,
       FacilityNameAndSyncStatus,
       ImportFacilityModalGroup,
@@ -229,11 +243,18 @@
       SyncAllFacilitiesModal,
       TasksBar,
     },
-    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue, responsiveWindowMixin],
+    mixins: [commonCoreStrings, commonSyncElements, facilityTaskQueue],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         showSyncAllModal: false,
         showImportModal: false,
+        showCreateFacilityModal: false,
         facilities: [],
         facilityForSync: null,
         facilityForRemoval: null,
@@ -244,6 +265,18 @@
       };
     },
     computed: {
+      options() {
+        return [
+          {
+            label: this.$tr('importFacilityLabel'),
+            value: ImportFacility,
+          },
+          {
+            label: this.$tr('createNewFacilityLabel'),
+            value: CreateNewFacility,
+          },
+        ];
+      },
       pageTitle() {
         return deviceString('deviceManagementTitle');
       },
@@ -343,6 +376,10 @@
         });
         this.showImportModal = false;
       },
+      handleCreateFacilitySuccess() {
+        this.showCreateFacilityModal = false;
+        this.fetchFacilites();
+      },
       manageSync(facilityId) {
         return {
           name: PageNames.MANAGE_SYNC_SCHEDULE,
@@ -388,6 +425,13 @@
             this.$emit('failure');
           });
       },
+      handleSelect(option) {
+        if (option.value == ImportFacility) {
+          this.showImportModal = true;
+        } else {
+          this.showCreateFacilityModal = true;
+        }
+      },
     },
     $trs: {
       syncAllAction: {
@@ -399,6 +443,18 @@
         message: "Removed '{facilityName}' from this device",
         context:
           "Notification that appears after a facility has been deleted. For example, \"Removed 'Zuk Village' from this device'.",
+      },
+      createFacilityLabel: {
+        message: 'ADD FACILITY',
+        context: 'Label for a button used to create new facility.',
+      },
+      importFacilityLabel: {
+        message: 'Import facility',
+        context: 'Label for the dropdown option of import facility',
+      },
+      createNewFacilityLabel: {
+        message: 'Create new facility',
+        context: 'Label for the dropdown option of create new facility',
       },
     },
   };

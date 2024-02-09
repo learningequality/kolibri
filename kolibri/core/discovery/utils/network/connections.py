@@ -1,13 +1,13 @@
 import socket
 from contextlib import closing
 from contextlib import contextmanager
+from ipaddress import ip_address
 
 from . import errors
 from .client import NetworkClient
 from .urls import parse_address_into_components
 from kolibri.core.discovery.models import ConnectionStatus
 from kolibri.core.discovery.models import NetworkLocation
-from kolibri.core.discovery.utils.network.ipaddress import ip_address
 
 
 def check_if_port_open(base_url, timeout=1):

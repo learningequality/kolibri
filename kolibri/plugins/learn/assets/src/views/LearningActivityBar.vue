@@ -169,7 +169,7 @@
 
 <script>
 
-  import KResponsiveWindowMixin from 'kolibri-design-system/lib/KResponsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import CoreMenu from 'kolibri.coreVue.components.CoreMenu';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -208,7 +208,13 @@
         return value;
       },
     },
-    mixins: [KResponsiveWindowMixin, commonLearnStrings, commonCoreStrings],
+    mixins: [commonLearnStrings, commonCoreStrings],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     /**
      * Emits the following events:
      * - `navigateBack` on back button click

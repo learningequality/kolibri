@@ -1,13 +1,10 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import mimetypes
 import os
 import re
 import time
 import zipfile
+from urllib.parse import unquote
 
 import html5lib
 from cheroot import wsgi
@@ -23,7 +20,6 @@ from django.http.response import StreamingHttpResponse
 from django.utils.cache import patch_response_headers
 from django.utils.encoding import force_str
 from django.utils.http import http_date
-from six.moves.urllib.parse import unquote
 
 from kolibri.core.content.errors import InvalidStorageFilenameError
 from kolibri.core.content.utils.paths import get_content_storage_file_path

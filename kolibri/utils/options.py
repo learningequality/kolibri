@@ -9,15 +9,14 @@ import logging
 import os
 import sys
 from functools import update_wrapper
+from urllib.parse import urlparse
+from urllib.parse import urlunparse
 
 from configobj import ConfigObj
 from configobj import flatten_errors
 from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
-from django.utils.six import string_types
-from six.moves.urllib.parse import urlparse
-from six.moves.urllib.parse import urlunparse
 from validate import is_boolean
 from validate import Validator
 from validate import VdtTypeError
@@ -132,7 +131,7 @@ def _process_list(value, separator=","):
     if not isinstance(value, list):
         if not value:
             value = []
-        elif isinstance(value, string_types):
+        elif isinstance(value, str):
             value = value.split(separator)
         else:
             value = [value]
@@ -176,7 +175,7 @@ def language_list(value):
 def path(value):
     from kolibri.utils.conf import KOLIBRI_HOME
 
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise VdtValueError(repr(value))
     # Allow for blank paths
     if value:
@@ -190,7 +189,7 @@ def path_list(value):
     Check that the supplied value is a semicolon-delimited list of paths.
     Note: we do not guarantee that these paths all currently exist.
     """
-    if isinstance(value, string_types):
+    if isinstance(value, str):
         value = value.split(";")
 
     out = []
@@ -248,7 +247,7 @@ def validate_bytes(value):
 
 
 def url_prefix(value):
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise VdtValueError(value)
     return value.lstrip("/").rstrip("/") + "/"
 
@@ -301,7 +300,7 @@ def lazy_import_callback(value):
     is internal to Kolibri, and also because the module may not be available
     in some contexts.
     """
-    if not isinstance(value, string_types):
+    if not isinstance(value, str):
         raise VdtValueError(value)
     try:
         # Check that the string is at least parseable as a module name

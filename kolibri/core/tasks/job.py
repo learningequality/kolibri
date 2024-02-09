@@ -5,9 +5,6 @@ import traceback
 import uuid
 from collections import namedtuple
 
-from six import raise_from
-from six import string_types
-
 from kolibri.core.tasks.constants import (  # noqa F401 - imported for backwards compatibility
     Priority,
 )
@@ -151,7 +148,7 @@ class Job(object):
         except TypeError as e:
             # A Job's arguments, results, or metadata are prime suspects for
             # what might cause this error.
-            raise_from(TypeError("Job objects need to be JSON-serializable"), e)
+            raise TypeError("Job objects need to be JSON-serializable") from e
         return string_result
 
     @classmethod
@@ -202,7 +199,7 @@ class Job(object):
         :param func: func can be a callable object, in which case it is turned into an importable string,
         or it can be an importable string already.
         """
-        if not callable(func) and not isinstance(func, string_types):
+        if not callable(func) and not isinstance(func, str):
             raise TypeError(
                 "Cannot create Job for object of type {}".format(type(func))
             )

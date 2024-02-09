@@ -5,12 +5,12 @@ import sys
 import tempfile
 import time
 import uuid
+from io import StringIO
 
 from django.core.management import call_command
 from django.core.management import CommandError
 from django.db.models import Q
 from django.test import TestCase
-from django.utils import six
 from le_utils.constants import content_kinds
 from mock import call
 from mock import MagicMock
@@ -1538,7 +1538,7 @@ class ImportContentTestCase(TestCase):
         # according to channel_id in the detected manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            {six.text_type(self.c2c1_node_id)},
+            {str(self.c2c1_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1591,7 +1591,7 @@ class ImportContentTestCase(TestCase):
 
         get_import_export_mock.return_value = (0, [], 0)
 
-        manifest_file = six.StringIO(
+        manifest_file = StringIO(
             json.dumps(
                 {
                     "channels": [
@@ -1655,7 +1655,7 @@ class ImportContentTestCase(TestCase):
         manager = DiskChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             path=import_source_dir,
-            manifest_file=six.StringIO(
+            manifest_file=StringIO(
                 json.dumps(
                     {
                         "channels": [
@@ -1692,7 +1692,7 @@ class ImportContentTestCase(TestCase):
         # list of node_ids built from all versions of the channel_id channel.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            {six.text_type(self.c2c1_node_id), six.text_type(self.c2c2_node_id)},
+            {str(self.c2c1_node_id), str(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1739,7 +1739,7 @@ class ImportContentTestCase(TestCase):
         # of node_ids, ignoring the detected manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            {six.text_type(self.c2c2_node_id)},
+            {str(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1795,7 +1795,7 @@ class ImportContentTestCase(TestCase):
         manager = DiskChannelResourceImportManager.from_manifest(
             self.the_channel_id,
             path=import_source_dir,
-            manifest_file=six.StringIO(
+            manifest_file=StringIO(
                 json.dumps(
                     {
                         "channels": [
@@ -1818,7 +1818,7 @@ class ImportContentTestCase(TestCase):
         # node_ids according to channel_id in the provided manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            {six.text_type(self.c2c2_node_id)},
+            {str(self.c2c2_node_id)},
             None,
             False,
             renderable_only=True,
@@ -1890,7 +1890,7 @@ class ImportContentTestCase(TestCase):
 
         manager = RemoteChannelResourceImportManager.from_manifest(
             self.the_channel_id,
-            manifest_file=six.StringIO(
+            manifest_file=StringIO(
                 json.dumps(
                     {
                         "channels": [
@@ -1912,7 +1912,7 @@ class ImportContentTestCase(TestCase):
         # channel_id in the provided manifest file.
         get_import_export_mock.assert_called_once_with(
             self.the_channel_id,
-            {six.text_type(self.c2c1_node_id)},
+            {str(self.c2c1_node_id)},
             None,
             False,
             renderable_only=True,

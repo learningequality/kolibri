@@ -87,10 +87,10 @@
 <script>
 
   import invert from 'lodash/invert';
-  import JSZip from 'jszip';
-  import client from 'kolibri.client';
+  import ZipFile from 'kolibri-zip';
+  import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import urls from 'kolibri.urls';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
@@ -124,9 +124,75 @@
 
   const blobImageRegex = /blob:[^)^"]+/g;
 
+  Khan.imageUrls = {};
+
+  function getImagePaths(itemResponse) {
+    const graphieMatches = {};
+    const imageMatches = {};
+    const matches = Array.from(itemResponse.matchAll(allImageRegex));
+
+    for (let i = 0; i < matches.length; i++) {
+      const match = matches[i];
+      if (match[1]) {
+        // We have a match for the optional web+graphie matching group
+        graphieMatches[match[3]] = true;
+      } else {
+        imageMatches[match[3]] = true;
+      }
+    }
+    const graphieImages = Object.keys(graphieMatches);
+    const images = Object.keys(imageMatches);
+    const svgAndJson = graphieImages.reduce(
+      (acc, image) => [...acc, `${image}.svg`, `${image}-data.json`],
+      []
+    );
+    return images.concat(svgAndJson);
+  }
+
+  function replaceImageUrls(itemResponse, packageFiles) {
+    Object.assign(Khan.imageUrls, packageFiles);
+    // If the file is not present in the zip file, then fill in a missing image
+    // file for images, and an empty dummy json file for json
+    return itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
+      if (g1) {
+        // Replace any placeholder values for image URLs with the
+        // `web+graphie:` prefix separately from any others,
+        // as they are parsed slightly differently to standard image
+        // urls (Perseus adds the protocol in place of `web+graphie:`).
+        if (!Khan.imageUrls[image]) {
+          Khan.imageUrls[image] = 'data:application/json,';
+        }
+        return `web+graphie:${image}`;
+      } else {
+        // Replace any placeholder values for image URLs with
+        // the base URL for the perseus file we are reading from
+        return packageFiles[image] || imageMissing;
+      }
+    });
+  }
+
+  class JSONMapper extends Mapper {
+    getPaths() {
+      return getImagePaths(this.file.toString());
+    }
+    replacePaths(packageFiles) {
+      return replaceImageUrls(this.file.toString(), packageFiles);
+    }
+  }
+
+  const filePathMappers = {
+    ...defaultFilePathMappers,
+    json: JSONMapper,
+  };
+
   export default {
     name: 'PerseusRendererIndex',
-    mixins: [responsiveWindowMixin],
+    setup() {
+      const { windowBreakpoint } = useKResponsiveWindow();
+      return {
+        windowBreakpoint,
+      };
+    },
     data: () => ({
       // Is the perseus item renderer loading?
       loading: true,
@@ -204,15 +270,14 @@
     },
 
     beforeDestroy() {
-      this.clearItemRenderer();
       this.$emit('stopTracking');
+      this.clearItemRenderer();
+      if (this.perseusFile) {
+        this.perseusFile.close();
+      }
     },
     created() {
       this.perseusFile = null;
-      this.imageUrls = {};
-      // Make a global reference for this object
-      // for access inside perseus.
-      Khan.imageUrls = this.imageUrls;
       const initPromise = mathJaxPromise.then(() =>
         perseus.init({ skipMathJax: true, loadExtraWidgets: true })
       );
@@ -308,12 +373,7 @@
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
-        for (const key in this.imageUrls) {
-          if (this.imageUrls[key].indexOf('blob:') === 0) {
-            URL.revokeObjectURL(this.imageUrls[key]);
-          }
-          delete this.imageUrls[key];
-        }
+        Khan.imageUrls = {};
       },
       /*
        * Special method to extract the current state of a Perseus Sorter widget
@@ -350,7 +410,7 @@
         return this.restoreImageUrls({ hints, question });
       },
       restoreSerializedState(answerState) {
-        answerState = this.replaceImageUrls(JSON.stringify(answerState));
+        answerState = JSON.parse(replaceImageUrls(JSON.stringify(answerState)));
         this.itemRenderer.restoreSerializedState(answerState);
         this.itemRenderer.getWidgetIds().forEach(id => {
           if (sorterWidgetRegex.test(id)) {
@@ -427,109 +487,21 @@
         // dismiss the error message when user click anywhere inside the perseus element.
         this.message = null;
       },
-      loadPerseusFile() {
-        if (this.defaultFile && this.defaultFile.storage_url) {
-          this.loading = true;
-          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
-            return client({
-              method: 'get',
-              url: this.defaultFile.storage_url,
-              responseType: 'arraybuffer',
-            })
-              .then(response => {
-                return JSZip.loadAsync(response.data);
-              })
-              .then(perseusFile => {
-                this.perseusFile = perseusFile;
-                this.perseusFileUrl = this.defaultFile.storage_url;
-              })
-              .catch(err => {
-                logging.error('Error loading Perseus file', err);
-                this.reportLoadingError(err);
-                return Promise.reject(err);
-              });
-          } else {
-            return Promise.resolve();
-          }
-        }
-      },
       loadItemData() {
         // Only try to do this if itemId is defined.
         if (this.itemId && this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          this.loadPerseusFile()
-            .then(() => {
-              const itemDataFile = this.perseusFile.file(`${this.itemId}.json`);
-              if (itemDataFile) {
-                return itemDataFile.async('string');
-              }
-              return Promise.reject(`item data for ${this.itemId} not found`);
-            })
-            .then(itemResponse => {
-              const graphieMatches = {};
-              const imageMatches = {};
-              const matches = Array.from(itemResponse.matchAll(allImageRegex));
-
-              for (let i = 0; i < matches.length; i++) {
-                const match = matches[i];
-                if (match[1]) {
-                  // We have a match for the optional web+graphie matching group
-                  graphieMatches[match[3]] = true;
-                } else {
-                  imageMatches[match[3]] = true;
-                }
-              }
-
-              const graphieImages = Object.keys(graphieMatches);
-              const images = Object.keys(imageMatches);
-
-              const processFile = file => {
-                if (!this.imageUrls[file]) {
-                  const fileData = this.perseusFile.file(file);
-                  const ext = file.split('.').slice(-1)[0];
-                  if (fileData) {
-                    return fileData.async('arraybuffer').then(buffer => {
-                      let type;
-                      if (ext === 'json') {
-                        type = 'application/json';
-                      } else if (ext === 'svg') {
-                        type = 'image/svg+xml';
-                      } else {
-                        type = `image/${ext}`;
-                      }
-                      const blob = new Blob([buffer], { type });
-                      this.imageUrls[file] = URL.createObjectURL(blob);
-                    });
-                  } else {
-                    // If the file is not present in the zip file, then fill in a missing image
-                    // file for images, and an empty dummy json file for json
-                    let url;
-                    if (ext === 'json') {
-                      url = 'data:application/json,';
-                    } else {
-                      url = imageMissing;
-                    }
-                    this.imageUrls[file] = url;
-                  }
-                }
-                return Promise.resolve();
-              };
-
-              const promises = images.map(processFile).concat(
-                graphieImages.map(image => {
-                  const svgFile = `${image}.svg`;
-                  const jsonFile = `${image}-data.json`;
-                  return Promise.all([processFile(svgFile), processFile(jsonFile)]);
-                })
-              );
-
-              return Promise.all(promises)
-                .catch(() => {
-                  return Promise.reject('error loading assessment item images');
-                })
-                .then(() => {
-                  this.setItemData(this.replaceImageUrls(itemResponse));
-                });
+          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
+            this.perseusFile = new ZipFile(this.defaultFile.storage_url, {
+              filePathMappers,
+            });
+            this.perseusFileUrl = this.defaultFile.storage_url;
+          }
+          this.perseusFile
+            .file(`${this.itemId}.json`)
+            .then(itemFile => {
+              const itemResponse = itemFile.toString();
+              this.setItemData(JSON.parse(itemResponse));
             })
             .catch(reason => {
               logging.debug('There was an error loading the assessment item data: ', reason);
@@ -538,25 +510,8 @@
             });
         }
       },
-      replaceImageUrls(itemResponse) {
-        return JSON.parse(
-          itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
-            if (g1) {
-              // Replace any placeholder values for image URLs with the
-              // `web+graphie:` prefix separately from any others,
-              // as they are parsed slightly differently to standard image
-              // urls (Perseus adds the protocol in place of `web+graphie:`).
-              return `web+graphie:${image}`;
-            } else {
-              // Replace any placeholder values for image URLs with
-              // the base URL for the perseus file we are reading from
-              return this.imageUrls[image] || imageMissing;
-            }
-          })
-        );
-      },
       restoreImageUrls(itemResponse) {
-        const lookup = invert(this.imageUrls);
+        const lookup = invert(Khan.imageUrls);
         return JSON.parse(
           JSON.stringify(itemResponse).replace(blobImageRegex, match => {
             // Make sure to add our prefix back in

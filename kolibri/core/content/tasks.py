@@ -1,10 +1,10 @@
+from urllib.parse import urljoin
+
 import requests
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.db.models import Q
 from rest_framework import serializers
-from six import with_metaclass
-from six.moves.urllib.parse import urljoin
 
 from kolibri.core.auth.models import FacilityDataset
 from kolibri.core.content.models import ChannelMetadata
@@ -131,7 +131,7 @@ class DriveIdField(serializers.CharField):
         return drive_id
 
 
-class LocalMixin(with_metaclass(serializers.SerializerMetaclass)):
+class LocalMixin(metaclass=serializers.SerializerMetaclass):
     drive_id = DriveIdField()
 
     def validate(self, data):
@@ -181,7 +181,7 @@ def diskcontentimport(
     manager.run()
 
 
-class RemoteImportMixin(with_metaclass(serializers.SerializerMetaclass)):
+class RemoteImportMixin(metaclass=serializers.SerializerMetaclass):
     peer = serializers.PrimaryKeyRelatedField(
         required=False, queryset=NetworkLocation.objects.all().values("base_url", "id")
     )

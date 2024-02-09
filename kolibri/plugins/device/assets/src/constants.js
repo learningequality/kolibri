@@ -71,3 +71,7 @@ export const MeteredConnectionDownloadOptions = {
   DISALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'DISALLOW_DOWNLOAD_ON_METERED_CONNECTION',
   ALLOW_DOWNLOAD_ON_METERED_CONNECTION: 'ALLOW_DOWNLOAD_ON_METERED_CONNECTION',
 };
+
+export const ImportFacility = 'import_facility';
+
+export const CreateNewFacility = 'create_new_facility';

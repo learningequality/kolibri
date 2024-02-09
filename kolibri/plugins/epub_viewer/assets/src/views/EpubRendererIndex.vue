@@ -176,8 +176,8 @@
   import Lockr from 'lockr';
   import FocusLock from 'vue-focus-lock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
-  import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';
@@ -226,7 +226,13 @@
       SearchButton,
       LoadingError,
     },
-    mixins: [responsiveWindowMixin, responsiveElementMixin],
+    mixins: [responsiveElementMixin],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsSmall,
+      };
+    },
     data() {
       return {
         book: null,

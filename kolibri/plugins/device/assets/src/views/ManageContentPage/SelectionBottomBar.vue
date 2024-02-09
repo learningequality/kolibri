@@ -40,7 +40,6 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
 
   // Shows a 'EXPORT', 'IMPORT', or 'DELETE' button next to a message
   // of how many items are selected plus their size.
@@ -49,7 +48,7 @@
     components: {
       BottomAppBar,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
     props: {
       // TODO remove this and only pass in resourceCounts object
       selectedObjects: {

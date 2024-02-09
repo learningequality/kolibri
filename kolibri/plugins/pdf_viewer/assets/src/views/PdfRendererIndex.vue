@@ -128,7 +128,7 @@
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
@@ -149,7 +149,14 @@
       RecycleList,
       CoreFullscreen,
     },
-    mixins: [responsiveWindowMixin, commonCoreStrings],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+      return {
+        windowIsLarge,
+        windowIsSmall,
+      };
+    },
     data: () => ({
       progress: null,
       scale: null,
@@ -418,6 +425,10 @@
           if (currentPage === this.totalPages - 1 && this.scrolledToEnd()) {
             this.storeVisitedPage(currentPage + 1);
           }
+          // If users has already zoomed then set the scale to that particular zoom scale.
+          if (localStorage.getItem('pdf_scale') != null) {
+            this.setScale(parseFloat(localStorage.getItem('pdf_scale')));
+          }
           this.storeVisitedPage(currentPage);
           this.updateProgress();
           this.updateContentState();
@@ -442,6 +453,7 @@
       },
       setScale: throttle(function(scaleValue) {
         this.scale = scaleValue;
+        localStorage.setItem('pdf_scale', scaleValue);
       }, 500),
       toggleSideBar() {
         this.showSideBar = !this.showSideBar;

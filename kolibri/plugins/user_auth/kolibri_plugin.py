@@ -1,7 +1,3 @@
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 from kolibri.core.auth.constants.user_kinds import ANONYMOUS
 from kolibri.core.device.utils import get_device_setting
 from kolibri.core.device.utils import is_landing_page

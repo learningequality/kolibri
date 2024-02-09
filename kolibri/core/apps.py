@@ -11,6 +11,7 @@ from django.db.utils import DatabaseError
 from django_filters.filters import UUIDFilter
 from django_filters.rest_framework.filterset import FilterSet
 
+from kolibri.core.errors import RedisConnectionError
 from kolibri.core.sqlite.pragmas import CONNECTION_PRAGMAS
 from kolibri.core.sqlite.pragmas import START_PRAGMAS
 from kolibri.core.sqlite.utils import repair_sqlite_db
@@ -108,12 +109,15 @@ class KolibriCoreConfig(AppConfig):
             cursor.execute(START_PRAGMAS)
             connection.close()
 
-    @staticmethod
-    def check_redis_settings():
+    @staticmethod  # noqa C901
+    def check_redis_settings():  # noqa C901
         """
         Check that Redis settings are sensible, and use the lower level Redis client to make updates
         if we are configured to do so, and if we should, otherwise make some logging noise.
         """
+
+        from redis.exceptions import ConnectionError
+
         if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
             return
         config_maxmemory = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY"]
@@ -161,6 +165,14 @@ class KolibriCoreConfig(AppConfig):
                     "Problematic Redis settings detected, please see Redis configuration "
                     "documentation for details: https://redis.io/topics/config"
                 )
+
+        except ConnectionError as e:
+            logger.warning("Unable to connect to Redis: {}".format(str(e)))
+
+            raise RedisConnectionError(
+                "Unable to connect to Redis: {}".format(str(e))
+            ) from e
+
         except Exception as e:
             logger.warning("Unable to check Redis settings")
             logger.warning(e)

@@ -12,12 +12,14 @@
       :value="Presets.PERSONAL"
       :label="$tr('onMyOwnLabel')"
       :description="getCommonSyncString('onMyOwn')"
+      :autofocus="selected !== UsePresets.GROUP"
     />
     <KRadioButton
       v-model="selected"
       :value="UsePresets.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
+      :autofocus="selected === UsePresets.GROUP"
     />
   </OnboardingStepBase>
 
@@ -27,8 +29,9 @@
 <script>
 
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { Presets } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
-  import { Presets, UsePresets } from '../../constants';
+  import { UsePresets } from '../../constants';
 
   export default {
     name: 'HowAreYouUsingKolibri',

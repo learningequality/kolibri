@@ -226,7 +226,7 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { createTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';
@@ -286,7 +286,11 @@
       ChangePinModal,
       RemovePinModal,
     },
-    mixins: [commonCoreStrings, responsiveWindowMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { windowIsSmall } = useKResponsiveWindow();
+      return { windowIsSmall };
+    },
     data() {
       return {
         showModal: false,

@@ -1,6 +1,6 @@
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { convertExamQuestionSources } from 'kolibri.utils.exams';
+import { convertExamQuestionSourcesToV3 } from 'kolibri.utils.exams';
 import shuffled from 'kolibri.utils.shuffled';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
@@ -30,10 +30,19 @@ export function showExam(store, params, alreadyOnQuiz) {
           store.commit('classAssignments/SET_CURRENT_CLASSROOM', classroom);
 
           let contentPromise;
-          if (exam.question_sources.length) {
+          let allExerciseIds = [];
+          if (exam.data_version == 3) {
+            allExerciseIds = exam.question_sources.reduce((acc, section) => {
+              acc = [...acc, ...section.questions.map(q => q.exercise_id)];
+              return acc;
+            }, []);
+          } else {
+            allExerciseIds = exam.question_sources.map(q => q.exercise_id);
+          }
+          if (allExerciseIds.length) {
             contentPromise = ContentNodeResource.fetchCollection({
               getParams: {
-                ids: exam.question_sources.map(item => item.exercise_id),
+                ids: allExerciseIds,
               },
             });
           } else {
@@ -43,26 +52,36 @@ export function showExam(store, params, alreadyOnQuiz) {
             contentNodes => {
               if (shouldResolve()) {
                 // If necessary, convert the question source info
-                let questions = convertExamQuestionSources(exam, { contentNodes });
+                const question_sources = convertExamQuestionSourcesToV3(exam, { contentNodes });
 
                 // When necessary, randomize the questions for the learner.
                 // Seed based on the user ID so they see a consistent order each time.
-                if (!exam.learners_see_fixed_order) {
-                  questions = shuffled(questions, store.state.core.session.user_id);
-                }
+                question_sources.forEach(section => {
+                  if (!section.learners_see_fixed_order) {
+                    section.questions = shuffled(
+                      section.questions,
+                      store.state.core.session.user_id
+                    );
+                  }
+                });
+
+                const allQuestions = question_sources.reduce((acc, section) => {
+                  acc = [...acc, ...section.questions];
+                  return acc;
+                }, []);
 
                 // Exam is drawing solely on malformed exercise data, best to quit now
-                if (questions.some(question => !question.question_id)) {
+                if (allQuestions.some(question => !question.question_id)) {
                   store.dispatch(
                     'handleError',
                     `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
-                      questions
+                      allQuestions
                     )}\nExam: ${JSON.stringify(exam)}`
                   );
                   return;
                 }
                 // Illegal question number!
-                else if (questionNumber >= questions.length) {
+                else if (questionNumber >= allQuestions.length) {
                   store.dispatch(
                     'handleError',
                     `Question number ${questionNumber} is not valid for this quiz`
@@ -76,15 +95,15 @@ export function showExam(store, params, alreadyOnQuiz) {
                   contentNodeMap[node.id] = node;
                 }
 
-                for (const question of questions) {
+                for (const question of allQuestions) {
                   question.missing = !contentNodeMap[question.exercise_id];
                 }
-
+                exam.question_sources = question_sources;
                 store.commit('examViewer/SET_STATE', {
                   contentNodeMap,
                   exam,
                   questionNumber,
-                  questions,
+                  questions: allQuestions,
                 });
                 store.commit('CORE_SET_PAGE_LOADING', false);
                 store.commit('CORE_SET_ERROR', null);

@@ -66,7 +66,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri.coreVue.composables.useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import useContentLink from '../../composables/useContentLink';
   import { KolibriStudioId } from '../../constants';
   import ChannelCardGroupGrid from '../ChannelCardGroupGrid';

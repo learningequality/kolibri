@@ -12,15 +12,10 @@ system/windows.py
 
 etc..
 """
-from __future__ import absolute_import
-from __future__ import print_function
-from __future__ import unicode_literals
-
 import logging
 import os
 import sys
 
-import six
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
@@ -58,7 +53,7 @@ def _windows_pid_exists(pid):
     return False
 
 
-buffering = int(six.PY3)  # No unbuffered text I/O on Python 3 (#20815).
+buffering = 1  # No unbuffered text I/O on Python 3 (#20815).
 
 
 def _posix_become_daemon(
