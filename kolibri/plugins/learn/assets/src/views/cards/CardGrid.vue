@@ -18,10 +18,10 @@
     name: 'CardGrid',
     setup() {
       const { windowBreakpoint } = useKResponsiveWindow();
-    },
-    return {
+      return {
         windowBreakpoint,
-    };
+      };
+    },
     props: {
       /**
        * `1` or `2`
