@@ -22,7 +22,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
-from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
+from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings

@@ -7,7 +7,7 @@ from rest_framework.test import APITestCase
 from kolibri.core.content import base_models
 from kolibri.core.content import models as content
 from kolibri.core.content.constants.schema_versions import CONTENT_SCHEMA_VERSION
-from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
+from kolibri.core.content.test.helpers import ChannelBuilder
 
 
 class ImportMetadataTestCase(APITestCase):

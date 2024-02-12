@@ -15,7 +15,7 @@ from kolibri.core.content.models import ContentNode
 from kolibri.core.content.models import File
 from kolibri.core.content.models import Language
 from kolibri.core.content.models import LocalFile
-from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
+from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.annotation import calculate_included_languages
 from kolibri.core.content.utils.annotation import calculate_published_size
 from kolibri.core.content.utils.annotation import calculate_total_resource_count
