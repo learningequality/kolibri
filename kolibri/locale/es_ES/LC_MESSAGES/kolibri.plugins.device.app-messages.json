@@ -103,7 +103,7 @@
   "DeviceSettingsPage.enableAutoDownloadDescription": "Kolibri descargará automáticamente las lecciones y pruebas asignadas, y otros recursos en la lista de 'Mis descargas'.",
   "DeviceSettingsPage.enabledPages": "Páginas habilitadas",
   "DeviceSettingsPage.externalDeviceSettings": "Dispositivos externos",
-  "DeviceSettingsPage.facilitySettings": "También se puede configurar el centro educativo",
+  "DeviceSettingsPage.facilitySettings": "También se puede ajustar la configuración del centro educativo",
   "DeviceSettingsPage.landingPageLabel": "Página de inicio predeterminada",
   "DeviceSettingsPage.learnerAppPageChoice": "Página Aprender",
   "DeviceSettingsPage.lockedContent": "Los estudiantes que inician su sesión verán solo los recursos que tienen asignados en sus clases",

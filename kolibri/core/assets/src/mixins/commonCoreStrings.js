@@ -55,7 +55,7 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
   editAction: {
     message: 'Edit',
     context:
-      "Edit allows users to change some element in Kolibri.\n\nFor example, a coach can use 'Edit' to rename their class or an admin can edit the name of their facility.",
+      "Edit allows users to change some element in Kolbri.\n\nFor example, a coach can use 'Edit' to rename their class or an admin can edit the name of their facility.",
   },
   editDetailsAction: {
     message: 'Edit details',

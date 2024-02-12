@@ -3,7 +3,7 @@ msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2023-03-14 16:32-0700\n"
-"PO-Revision-Date: 2023-09-13 22:57\n"
+"PO-Revision-Date: 2024-02-12 05:26\n"
 "Last-Translator: \n"
 "Language-Team: Haitian Creole\n"
 "Language: ht_HT\n"
@@ -105,7 +105,7 @@ msgstr "Sèks ({})"
 #: core/auth/management/commands/bulkexportusers.py:64
 msgctxt "CSV column header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Enskripsyon etidyan ({})"
+msgstr "Enskripsyon elèv ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
@@ -120,7 +120,7 @@ msgstr "Tip itilizatè ({})"
 #: core/auth/management/commands/bulkexportusers.py:141
 msgctxt "CSV file header for the list of classrooms names where the learner is going to be enrolled"
 msgid "Learner enrollment ({})"
-msgstr "Enskripsyon etidyan ({})"
+msgstr "Enskripsyon elèv ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:148
 msgctxt "CSV file header for the list of classrooms names where the tutor is going to be a coach"
