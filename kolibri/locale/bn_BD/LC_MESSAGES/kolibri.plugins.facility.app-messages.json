@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "প্রতি মাসে",
   "EditDeviceSyncSchedule.everyTwoWeeks": "প্রতি দুই সপ্তাহ",
   "EditDeviceSyncSchedule.everyWeek": "প্রতি সপ্তাহে",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "পুনরাবৃত্তি",
   "EditDeviceSyncSchedule.removeDevice": "ডিভাইস অপসারণ করুন",
   "EditDeviceSyncSchedule.removeDeviceLabel": "সিঙ্ক শিডিউল থেকে ডিভাইস অপসারণ করুন",
   "EditDeviceSyncSchedule.removeDeviceWarning": "আপনি সিঙ্ক সময়সূচী থেকে এই ডিভাইসটি অপসারণ করতে চলেছেন।",

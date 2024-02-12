@@ -137,7 +137,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Setiap bulan",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Setiap dua minggu",
   "EditDeviceSyncSchedule.everyWeek": "Setiap minggu",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Frekuensi",
   "EditDeviceSyncSchedule.removeDevice": "Hapus perangkat",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Hapus perangkat dari jadwal sinkronisasi",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Anda akan menghapus perangkat ini dari jadwal sinkronisasi.",

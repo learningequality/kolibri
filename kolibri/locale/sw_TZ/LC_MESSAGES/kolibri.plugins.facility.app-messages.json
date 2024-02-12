@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Kila mwezi",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Kila baada ya wiki mbili",
   "EditDeviceSyncSchedule.everyWeek": "Kila wiki",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Mara za kusawazisha",
   "EditDeviceSyncSchedule.removeDevice": "Ondoa kifaa",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Ondoa kifaa kwenye ratiba ya usawazishaji",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Unakaribia kuondoa kifaa hiki kwenye ratiba ya usawazishaji.",

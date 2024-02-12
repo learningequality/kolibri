@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "每个月",
   "EditDeviceSyncSchedule.everyTwoWeeks": "每两周",
   "EditDeviceSyncSchedule.everyWeek": "每周",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "频率",
   "EditDeviceSyncSchedule.removeDevice": "移除设备",
   "EditDeviceSyncSchedule.removeDeviceLabel": "从同步计划中移除设备",
   "EditDeviceSyncSchedule.removeDeviceWarning": "您即将从同步计划中移除此设备。",

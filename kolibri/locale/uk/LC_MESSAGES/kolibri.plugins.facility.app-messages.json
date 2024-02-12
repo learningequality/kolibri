@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Щомісяця",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Кожні два тижні",
   "EditDeviceSyncSchedule.everyWeek": "Щотижня",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Частота",
   "EditDeviceSyncSchedule.removeDevice": "Видалити пристрій",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Видалити пристрій із розкладу синхронізації",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Ви збираєтесь видалити цей пристрій із розкладу синхронізації.",

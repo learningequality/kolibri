@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Κάθε μήνα",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Κάθε δύο εβδομάδες",
   "EditDeviceSyncSchedule.everyWeek": "Κάθε εβδομάδα",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Συχνότητα",
   "EditDeviceSyncSchedule.removeDevice": "Αφαίρεση συσκευής",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Αφαίρεση συσκευής από το πρόγραμμα συγχρονισμού",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Πρόκειται να αφαιρέσετε αυτή τη συσκευή από το χρονοδιάγραμμα συγχρονισμού.",

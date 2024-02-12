@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Monatlich",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Alle 2 Wochen",
   "EditDeviceSyncSchedule.everyWeek": "Wöchentlich",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Häufigkeit",
   "EditDeviceSyncSchedule.removeDevice": "Gerät entfernen",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Gerät aus Gerätesynchronisierungszeitplan entfernen",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Sie sind im Begriff, das Gerät aus dem Gerätesynchronisierungszeitplan zu entfernen.",

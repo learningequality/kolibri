@@ -137,7 +137,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Всеки месец",
   "EditDeviceSyncSchedule.everyTwoWeeks": "На всеки две седмици",
   "EditDeviceSyncSchedule.everyWeek": "Всяка седмица",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Честота",
   "EditDeviceSyncSchedule.removeDevice": "Премахни устройството",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Премахни устройството от графика за синхронизиране",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Наистина ли искаш да премахнеш устройството от графика за синхронизиране?",

@@ -137,7 +137,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Ko wane wata",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Duk mako biyu",
   "EditDeviceSyncSchedule.everyWeek": "Ko wane mako",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Adadin aukuwa",
   "EditDeviceSyncSchedule.removeDevice": "Cire na'urarka",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Cire na'urarka daga tsarin sync",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Kana gab da cire na'urarka daga tsarin sync",

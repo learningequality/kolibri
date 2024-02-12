@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "매월",
   "EditDeviceSyncSchedule.everyTwoWeeks": "2주마다",
   "EditDeviceSyncSchedule.everyWeek": "매주",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "빈도",
   "EditDeviceSyncSchedule.removeDevice": "기기 제거",
   "EditDeviceSyncSchedule.removeDeviceLabel": "동기화 일정에서 기기 제거하기",
   "EditDeviceSyncSchedule.removeDeviceWarning": "동기화 일정에서 이 기기를 제거하려고 합니다.",

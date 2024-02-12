@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Hằng tháng",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Hai tuần một lần",
   "EditDeviceSyncSchedule.everyWeek": "Hằng tuần",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Tần suất",
   "EditDeviceSyncSchedule.removeDevice": "Xoá thiết bị",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Xoá thiết bị khỏi lịch đồng bộ hoá",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Bạn sắp xoá thiết bị này khỏi lịch đồng bộ hoá.",

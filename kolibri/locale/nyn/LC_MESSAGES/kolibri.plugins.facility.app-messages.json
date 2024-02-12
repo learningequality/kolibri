@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "Mwezi uliwonse",
   "EditDeviceSyncSchedule.everyTwoWeeks": "Sabata ziwiri zilizonse",
   "EditDeviceSyncSchedule.everyWeek": "Sabata iliyonse",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "Kuchuluka",
   "EditDeviceSyncSchedule.removeDevice": "Chotsani chipangizo",
   "EditDeviceSyncSchedule.removeDeviceLabel": "Chotsani chipangizo pa mndandanda wa kalumikizidwe",
   "EditDeviceSyncSchedule.removeDeviceWarning": "Mwatsala pang'ono kuti muchotse chipangizochi pa mndandanda wa kalumikizidwe.",

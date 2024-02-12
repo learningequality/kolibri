@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "हर महीने",
   "EditDeviceSyncSchedule.everyTwoWeeks": "हर दो सप्ताह में",
   "EditDeviceSyncSchedule.everyWeek": "हर सप्ताह",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "आवृत्ति",
   "EditDeviceSyncSchedule.removeDevice": "डिवाइस हटाएं",
   "EditDeviceSyncSchedule.removeDeviceLabel": "डिवाइस को सिंक शेड्यूल से हटाएं",
   "EditDeviceSyncSchedule.removeDeviceWarning": "आप इस डिवाइस को सिंक शेड्यूल से हटाने वाले हैं।",

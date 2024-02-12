@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "هر ماه",
   "EditDeviceSyncSchedule.everyTwoWeeks": "هر دو هفته",
   "EditDeviceSyncSchedule.everyWeek": "هر هفته",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "تناوب",
   "EditDeviceSyncSchedule.removeDevice": "حذف دستگاه",
   "EditDeviceSyncSchedule.removeDeviceLabel": "دستگاه را از برنامه زمانی همگام‌سازی حذف کنید",
   "EditDeviceSyncSchedule.removeDeviceWarning": "در حال حذف این دستگاه از برنامه زمانی همگام‌سازی هستید.",

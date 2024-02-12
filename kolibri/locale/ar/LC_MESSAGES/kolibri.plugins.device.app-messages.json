@@ -137,7 +137,7 @@
   "EditDeviceSyncSchedule.everyMonth": "كل شهر",
   "EditDeviceSyncSchedule.everyTwoWeeks": "كل أسبوعين",
   "EditDeviceSyncSchedule.everyWeek": "كل اسبوع",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "عدد المرات",
   "EditDeviceSyncSchedule.removeDevice": "إزالة الجهاز",
   "EditDeviceSyncSchedule.removeDeviceLabel": "إزالة الجهاز من جدولة المُزامنة",
   "EditDeviceSyncSchedule.removeDeviceWarning": "أنت على وشك حذف هذا الجهاز من جدولة المُزامنة.",

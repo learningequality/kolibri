@@ -91,7 +91,7 @@
   "EditDeviceSyncSchedule.everyMonth": "လစဉ်လတိုင်း",
   "EditDeviceSyncSchedule.everyTwoWeeks": "နှစ်ပတ်တစ်ကြိမ်",
   "EditDeviceSyncSchedule.everyWeek": "အပတ်တိုင်း",
-  "EditDeviceSyncSchedule.frequency": "",
+  "EditDeviceSyncSchedule.frequency": "အကြိမ်ရေ",
   "EditDeviceSyncSchedule.removeDevice": "ကိရိယာကိုဖယ်ရှားမည်",
   "EditDeviceSyncSchedule.removeDeviceLabel": "စင့်ခ်အချိန်ဇယားမှ ကိရိယာကို ဖယ်ရှားမည်",
   "EditDeviceSyncSchedule.removeDeviceWarning": "သင်သည် ဤစက်ပစ္စည်းကို စင့်ခ်အချိန်ဇယားမှ ဖယ်ရှားပါတော့မည်။",
