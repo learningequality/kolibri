@@ -1,15 +1,30 @@
 <template>
 
   <div class="select-resource">
-    <div v-if="loading">
+    <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5
-        class="title-style"
-      >
-        {{ /* selectFoldersOrExercises$() */ }}
-      </h5>
+      <KGrid class="align-select-folder-style">
+        <KGridItem
+          :layout12="{ span: 1 }"
+          :layout8="{ span: 1 }"
+        >
+          <KIconButton
+            icon="back"
+            @click="goBack()"
+          />
+        </KGridItem>
+
+        <KGridItem
+          :layout12="{ span: 11 }"
+          :layout8="{ span: 7 }"
+        >
+          <h5 class="select-folder-style">
+            {{ selectFoldersOrExercises$() }}
+          </h5>
+        </KGridItem>
+      </KGrid>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -41,7 +56,6 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
-
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -52,6 +66,7 @@
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :selectAllIndeterminate="selectAllIndeterminate"
+        :loadingMoreState="loadingMore"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreQuizResources"
@@ -126,7 +141,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         selectedResourcesInformation$,
@@ -191,6 +206,7 @@
         hasMore,
         annotateTopicsWithDescendantCounts,
         setResources,
+        loadingMore,
       } = useQuizResources({ topicId });
 
       const _loading = ref(true);
@@ -275,6 +291,7 @@
         hasCheckbox,
         loading,
         hasMore,
+        loadingMore,
         fetchMoreQuizResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
@@ -282,7 +299,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         windowIsSmall,
@@ -352,6 +369,9 @@
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
+      },
+      goBack() {
+        return this.$router.go(-1);
       },
       contentLink(content) {
         if (this.showBookmarks) {
@@ -505,6 +525,15 @@
     span {
       line-height: 2.5em;
     }
+  }
+
+  .select-folder-style {
+    margin-top: 0.5em;
+    font-size: 18px;
+  }
+
+  .align-select-folder-style {
+    margin-top: 2em;
   }
 
 </style>
