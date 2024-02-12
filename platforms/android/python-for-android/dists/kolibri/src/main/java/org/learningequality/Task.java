@@ -188,7 +188,12 @@ public class Task {
             String id, String notificationTitle, String notificationText, int progress, int total
     ) {
         NotificationRef ref = Worker.buildNotificationRef(id);
-        Manager manager = new Manager(ContextUtil.getApplicationContext(), ref);
-        manager.send(notificationTitle, notificationText, progress, total);
+        try {
+            Context context = ContextUtil.getApplicationContext();
+            Manager manager = new Manager(context, ref);
+            manager.send(notificationTitle, notificationText, progress, total);
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to update progress", e);
+        }
     }
 }
