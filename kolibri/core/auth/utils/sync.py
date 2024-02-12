@@ -2,6 +2,10 @@ import json
 
 from django.core.management import call_command
 from django.core.management.base import CommandError
+from django.db import connection
+from django.db.models import IntegerField
+from django.db.models.expressions import Case
+from django.db.models.expressions import When
 from morango.models import ScopeDefinition
 from morango.models import SyncSession
 from morango.sync.controller import MorangoProfileController
@@ -9,6 +13,9 @@ from requests.exceptions import HTTPError
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import PermissionDenied
 
+from kolibri.core.auth.constants.collection_kinds import ADHOCLEARNERSGROUP
+from kolibri.core.auth.constants.collection_kinds import CLASSROOM
+from kolibri.core.auth.constants.collection_kinds import LEARNERGROUP
 from kolibri.core.auth.constants.morango_sync import PROFILE_FACILITY_DATA
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.auth.management.utils import get_client_and_server_certs
@@ -102,3 +109,51 @@ def validate_and_create_sync_credentials(
             )
         else:
             raise AuthenticationFailed(e)
+
+
+def learner_canonicalized_assignments(resource_name, assignments):
+    """
+    Creates a queryset of assignments to ensure that there is only one assignment
+    per 'resource_name' (e.g. lesson or exam), and that the canonical assignment is the one
+    with assigned in this order: classroom, learnergroup, adhoclearnersgroup, none.
+
+    This should not be used for a queryset that holds assignments for more than one learner.
+
+    :param resource_name: The name of the resource that the assignments are for
+    :param assignments: An assignment queryset, for LessonAssignment or ExamAssignment
+    :return: A queryset of canonicalized assignments
+    """
+    resource_id_name = "{}_id".format(resource_name)
+    annotated_assignments = assignments.annotate(
+        canonical_preference=Case(
+            When(collection__kind=CLASSROOM, then=1),
+            When(collection__kind=LEARNERGROUP, then=2),
+            When(collection__kind=ADHOCLEARNERSGROUP, then=3),
+            default=4,
+            output_field=IntegerField(),
+        )
+    )
+
+    # if postgres, we can use DISTINCT ON to get a list of distinct resource assignments
+    # ordered by preference of which we use as the canonical assignment
+    if connection.vendor == "postgresql":
+        return annotated_assignments.distinct(resource_id_name).order_by(
+            resource_id_name, "canonical_preference"
+        )
+
+    # Theoretically, we could use a subquery to get the canonical assignment for each resource_id
+    # but Django pushes the ORDER BY clause into the subquery's SELECT clause, even with
+    # `values('id')`, which breaks the `id__in` filter because 2 columns are returned instead of 1
+    return assignments.filter(
+        id__in=[
+            (
+                annotated_assignments.filter(**{resource_id_name: resource_id})
+                .order_by("canonical_preference")
+                .values_list("id", flat=True)
+                .first()
+            )
+            for resource_id in assignments.values_list(
+                resource_id_name, flat=True
+            ).distinct()
+        ]
+    )
