@@ -1,11 +1,12 @@
 <template>
 
   <OnboardingStepBase
+    ref="container"
     :title="$tr('languageFormHeader')"
     @continue="handleSubmit"
-    ref="container" @resize="updateWidth"
+    @resize="updateWidth"
   >
-    <LanguageSwitcherList :parentBreakpoint="parentBreakpoint"/>
+    <LanguageSwitcherList :parentBreakpoint="parentBreakpoint" />
   </OnboardingStepBase>
 
 </template>
@@ -21,42 +22,42 @@
     components: {
       OnboardingStepBase,
       LanguageSwitcherList,
-  },
+    },
     data() {
       return {
-        parentBreakpoint: 4
-      }
-  },
+        parentBreakpoint: 4,
+      };
+    },
     mounted() {
-    this.updateWidth();
-    window.addEventListener('resize', this.updateWidth);
-  },
+      this.updateWidth();
+      window.addEventListener('resize', this.updateWidth);
+    },
     beforeDestroy() {
-    window.removeEventListener('resize', this.updateWidth);
-  },
+      window.removeEventListener('resize', this.updateWidth);
+    },
     inject: ['wizardService'],
     methods: {
       handleSubmit() {
         this.wizardService.send('CONTINUE');
       },
       updateWidth() {
-        const element = this.$refs.container.$el
-        const width = element.offsetWidth
+        const element = this.$refs.container.$el;
+        const width = element.offsetWidth;
         let num = 4;
 
         if (width < 440) {
           num = 0;
-        } else if(width < 520) {
+        } else if (width < 520) {
           num = 1;
-        } else if(width < 600) {
+        } else if (width < 600) {
           num = 2;
         } else if (width < 660) {
           num = 3;
         } else {
           num = 4;
         }
-      this.parentBreakpoint =  num;
-    },
+        this.parentBreakpoint = num;
+      },
     },
     $trs: {
       languageFormHeader: {

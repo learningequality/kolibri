@@ -55,12 +55,13 @@
     components: {
       LanguageSwitcherModal,
     },
-  mixins: [responsiveWindowMixin, languageSwitcherMixin],
+    mixins: [responsiveWindowMixin, languageSwitcherMixin],
     props: {
-    parentBreakpoint: {
-      type: Number
+      parentBreakpoint: {
+        type: Number,
+        default: -1,
+      },
     },
-  },
     data() {
       return {
         showLanguageModal: false,
@@ -76,11 +77,10 @@
       numVisibleLanguageBtns() {
         // At visibleBtns = 0, only the "More languages" button will show
         let visibleBtns = 4;
-        if (this.parentBreakpoint === undefined) {
-          visibleBtns = this.windowBreakpoint
-        }
-        else {
-          visibleBtns=this.parentBreakpoint
+        if (this.parentBreakpoint < 0) {
+          visibleBtns = this.windowBreakpoint;
+        } else {
+          visibleBtns = this.parentBreakpoint;
         }
         return Math.min(4, visibleBtns);
       },

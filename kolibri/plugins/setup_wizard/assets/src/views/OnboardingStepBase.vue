@@ -278,6 +278,7 @@
     max-width: $page-container-max-width;
     padding-bottom: 5em;
     margin: 5em auto 0;
+
     &.windowIsSmall {
       width: 100vw;
       height: 100vh;
