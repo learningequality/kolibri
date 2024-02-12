@@ -3,7 +3,7 @@
   "AppError.defaultErrorHeader": "Samahani! Kuna tatizo lililotokea!",
   "AppError.defaultErrorMessage": "Tunajali kuhusu uzoefu wako kwenye Kolibri na tunajikakamua kurekebisha suala hili",
   "AppError.defaultErrorReportPrompt": "Tusaidie kwa kuripoti hitilafu hii",
-  "AppError.defaultErrorResolution": "Jaribu kuonesha upya ukurasa huu au kurudi nyuma katika ukurasa wa juu",
+  "AppError.defaultErrorResolution": "Jaribu kuonesha upya ukurasa huu au kurudi nyuma katika ukurasa wa mwanzo",
   "AppError.resourceNotFoundHeader": "Nyenzo haipatikani",
   "AppError.resourceNotFoundMessage": "Samahani, nyenzo hiyo haipatikani",
   "AuthBase.accessAsGuest": "Tazama bila kuwa na akaunti",

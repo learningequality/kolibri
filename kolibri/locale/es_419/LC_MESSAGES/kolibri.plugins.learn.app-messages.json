@@ -92,7 +92,7 @@
   "ContentUnavailablePage.documentTitle": "Material no disponible",
   "ContentUnavailablePage.header": "No hay materiales disponibles",
   "ContentUnavailablePage.learnerText": "Pide ayuda a tus tutores o administradores",
-  "ContinueLearning.continueLearningFromClassesHeader": "Continua aprendiendo en tus grupos",
+  "ContinueLearning.continueLearningFromClassesHeader": "Continua aprendiendo en tus clases",
   "ContinueLearning.continueLearningOnYourOwnHeader": "Continua aprendiendo por tu cuenta",
   "CopiesModal.copies": "Ubicaciones",
   "DownloadRequests.downloadStartedLabel": "Descarga solicitada",
@@ -137,6 +137,10 @@
   "LibraryPage.searchingOtherLibrary": "Buscando bibliotecas a tu alrededor.",
   "LibraryPage.showingAllLibraries": "Mostrando todas las bibliotecas disponibles a tu alrededor.",
   "MarkAsCompleteModal.markResourceAsCompleteConfirmation": "Confirma que deseas marcar este material como completado",
+  "MeteredConnectionNotificationModal.doNotUseMetered": "No permitir que Kolibri use plan de datos móviles",
+  "MeteredConnectionNotificationModal.modalDescription": "Puede que tengas una cantidad limitada de datos en tu plan móvil. Permitir a Kolibri descargar materiales a través del plan de datos de móvil puede consumir todo tu plan y/o resultar en cargos adicionales.",
+  "MeteredConnectionNotificationModal.modalTitle": "¿Usar plan de datos del móvil?",
+  "MeteredConnectionNotificationModal.useMetered": "Permitir a Kolibri usar el plan de datos del móvil",
   "MissingResourceAlert.learnMore": "Más información",
   "MissingResourceAlert.resourcesUnavailableP1": "Faltan algunos materiales, ya sea porque no se han encontrado en el dispositivo o porque no son compatibles con tu versión de Kolibri.",
   "MissingResourceAlert.resourcesUnavailableP2": "Consulta a tu administrador, o utiliza una cuenta con permisos de dispositivo para gestionar canales y recursos.",
@@ -196,6 +200,6 @@
   "WelcomeModal.welcomeModalContentDescription": "La primera cosa que tienes que hacer es importar recursos desde la pestaña Canales.",
   "WelcomeModal.welcomeModalHeader": "¡Te damos la bienvenida a Kolibri!",
   "WelcomeModal.welcomeModalPermissionsDescription": "La cuenta de super administrador que creaste durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
-  "YourClasses.noClasses": "No estás inscrito en ningún grupo",
-  "YourClasses.yourClassesHeader": "Tus grupos"
+  "YourClasses.noClasses": "No estás inscrito en ninguna clase",
+  "YourClasses.yourClassesHeader": "Tus clases"
 }

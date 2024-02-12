@@ -10,7 +10,7 @@
   "AuthBase.oidcGenericExplanation": "Kolibri ɗum laawol janngugo nder kompiita. Bee sigorɗum Kolibri maaɗa a waaway nastugo app-ji goɗɗi feere.",
   "AuthBase.oidcSpecificExplanation": "A yerɓoyaama daga app bi'eteeɗum '{app_name}'.Kolibri ɗum laawol janngugo nder kompiita. Bee sigorɗum Kolibri maaɗa a waaway nastugo app bi'eteeɗum '{app_name}'.",
   "AuthBase.photoCreditLabel": "Koosuɗo foto ɗu'um: {photoCredit}",
-  "AuthBase.poweredBy": "Kolibri {version}",
+  "AuthBase.poweredBy": "{version} Kolibri",
   "AuthBase.poweredByKolibri": "Semmbiɗinaama bee Kolibri",
   "AuthBase.restrictedAccess": "Kolibri haɗii kompiitaaji diga yaasi nastugo",
   "AuthBase.restrictedAccessDescription": "Laawol wo''ingoɗum: Sey dawroowo mawɗo hokka junngo nden hesɗitina settings nastugo moɓgal kompiitaaji",
