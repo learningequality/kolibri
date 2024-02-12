@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Sie haben für den Erhalt von Statistik-Cookies {choice, string} ausgewählt. Sie können diese Einstellung hier ändern:",
+  "CookiePolicy.choicesP1": "Sie haben für den Erhalt von Statistik-Cookies {choice} ausgewählt. Sie können diese Einstellung hier ändern:",
   "CookiePolicy.cookieExpiryTableHeader": "Ablauf",
   "CookiePolicy.cookieP1": "Die Kolibri-Lernplattform verwendet Cookies, um Ihnen ein personalisiertes und sicheres Benutzererlebnis zu bieten, den Datenverkehr zu analysieren sowie um die Leistung und Funktionalität des bereitsgestellten Dienstes zu optimieren. Cookies sind kleine Textdateien, die von Websites verwendet werden, um die Erfahrung der Benutzer zu verbessern.",
   "CookiePolicy.cookieP2": "In Übereinstimmung mit den aktuellen Datenschutzgesetzen (GDPR bzw. CCPA) dürfen wir Cookies auf Ihrem Gerät speichern, wenn diese für die Funktion des Dienstes unbedingt erforderlich sind (technisch notwendige Cookies). Für alle anderen Arten von Cookies benötigen wir Ihre Zustimmung.",

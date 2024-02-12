@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-14 16:32-0700\n"
-"PO-Revision-Date: 2023-04-05 22:23\n"
+"POT-Creation-Date: 2024-02-12 04:17-0800\n"
+"PO-Revision-Date: 2024-02-12 16:21\n"
 "Last-Translator: \n"
 "Language-Team: Bengali\n"
 "Language: bn_BD\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: bn\n"
-"X-Crowdin-File: /release-v0.16.x/django.po\n"
-"X-Crowdin-File-ID: 4241\n"
+"X-Crowdin-File: /016-test/django.po\n"
+"X-Crowdin-File-ID: 4744\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -173,45 +173,45 @@ msgid "Database ID is not valid"
 msgstr "ডেটাবেস আই.ডি বৈধ নয়"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:63
+#: core/auth/tasks.py:56
 msgid "Data syncing in progress"
 msgstr "ডেটা সিঙ্ক করা হচ্ছে"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:67
+#: core/auth/tasks.py:60
 msgid "Do not disconnect your device from the network."
 msgstr "নেটওয়ার্ক থেকে আপনার ডিভাইসের সংযোগ বিচ্ছিন্ন করবেন না।"
 
-#: core/content/api.py:352
+#: core/content/api.py:418
 msgid "Resource"
 msgstr "উপকরণ"
 
-#: core/content/api.py:1622
+#: core/content/api.py:1780
 msgid "The requested channel does not exist on the content server"
 msgstr "এই চ্যানেলের বিষয়বস্তু সার্ভারে বিদ্যমান নয়"
 
-#: core/content/models.py:265
+#: core/content/models.py:282
 msgid "Unknown format"
 msgstr "ভুল হয়েছে"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:46
+#: core/content/tasks.py:57
 msgid "Updating your library"
 msgstr "আপনার লাইব্রেরি আপডেট করা হচ্ছে"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:49
+#: core/content/tasks.py:60
 msgid "Library updated"
 msgstr "লাইব্রেরি আপডেট করা হয়েছে"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:52
+#: core/content/tasks.py:63
 msgid "Library update failed"
 msgstr "লাইব্রেরি আপডেট করা ব্যর্থ হয়েছে"
 
-#: core/device/serializers.py:43
+#: core/device/serializers.py:48
 msgid "Language is not supported by Kolibri"
 msgstr "ভাষাটি কলিব্রিতে ব্যবহারযোগ্য নয়"
 
@@ -278,35 +278,30 @@ msgid "Content kind"
 msgstr "বিষয়বস্তুর প্রকার"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
-#: core/tasks/job.py:100
+#: core/tasks/job.py:89
 msgid "Complete"
 msgstr "সম্পূর্ণ হয়েছে"
 
 #. Translators: Message shown to indicate that a background process has failed.
-#: core/tasks/job.py:103
+#: core/tasks/job.py:92
 msgid "Failed"
 msgstr "ব্যর্থ হয়েছে"
 
 #. Translators: Message shown to indicate that a background process has been cancelled.
-#: core/tasks/job.py:106
+#: core/tasks/job.py:95
 msgid "Cancelled"
 msgstr "বাতিল করা হয়েছে"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
-#: core/tasks/job.py:109
+#: core/tasks/job.py:98
 #, python-brace-format
 msgid "In progress - {percent}%"
 msgstr "চলছে - {percent}%"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
-#: core/tasks/job.py:113
+#: core/tasks/job.py:102
 msgid "Waiting"
 msgstr "অপেক্ষায় আছে"
-
-#: core/templates/kolibri/base.html:13
-#: core/templates/kolibri/unsupported_browser.html:13
-msgid "Kolibri"
-msgstr "কলিব্রি"
 
 #: core/templates/kolibri/loading_page.html:8
 msgid "Kolibri is starting"
@@ -344,15 +339,19 @@ msgstr "কলিব্রি ব্যবহারের জন্য আমর
 msgid "You can also try updating your current browser."
 msgstr "আপনার বর্তমান ব্রাউজারটি আপডেট করার চেষ্টাও করতে পারেন।"
 
-#: core/views.py:165
+#: core/templatetags/core_tags.py:84
+msgid "Kolibri"
+msgstr "কলিব্রি"
+
+#: core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "কোনও উপযুক্ত পুনর্নির্দেশ পাতা খুঁজে পাওয়া যায়নি। সম্ভবত কলিব্রি ঠিকভাবে কনফিগার করা হয়নি।"
 
-#: plugins/coach/kolibri_plugin.py:36
+#: plugins/coach/kolibri_plugin.py:27
 msgid "Coach"
 msgstr "প্রশিক্ষক"
 
-#: plugins/facility/kolibri_plugin.py:30
+#: plugins/facility/kolibri_plugin.py:22
 msgid "Facility"
 msgstr "ফ্যাসিলিটি"
 
@@ -376,11 +375,11 @@ msgctxt "Default name for the exported CSV file of facility user data. Please ke
 msgid "users"
 msgstr "ব্যবহারকারী"
 
-#: plugins/learn/kolibri_plugin.py:33
+#: plugins/learn/kolibri_plugin.py:35
 msgid "Learn"
 msgstr "শিখুন"
 
-#: plugins/policies/kolibri_plugin.py:19
+#: plugins/policies/kolibri_plugin.py:21
 msgid "Policies"
 msgstr "নীতিমালা"
 
@@ -388,16 +387,16 @@ msgstr "নীতিমালা"
 msgid "Setup Wizard"
 msgstr "সেটআপ উইজার্ড"
 
-#: plugins/user_profile/kolibri_plugin.py:25
+#: plugins/user_profile/kolibri_plugin.py:24
 msgid "User Profile"
 msgstr "ব্যবহারকারীর প্রোফাইল"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:67
+#: plugins/user_profile/tasks.py:84
 msgid "Account transfer in progress"
 msgstr "অ্যাকাউন্ট ট্রান্সফার চলছে"
 
-#: plugins/user_profile/tasks.py:70
+#: plugins/user_profile/tasks.py:87
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "{learner_name}কে {facility_name} শিক্ষাকেন্দ্রে স্থানান্তর করা হচ্ছে"

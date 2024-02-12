@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-03 11:11+0100\n"
+"POT-Creation-Date: 2024-02-12 04:17-0800\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -195,20 +195,57 @@ msgstr ""
 msgid "Database ID is not valid"
 msgstr ""
 
-#: core/content/api.py:352
+#. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
+#: core/auth/tasks.py:56
+msgid "Data syncing in progress"
+msgstr ""
+
+#. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
+#. to encourage them to stay connected to their network to ensure a successful sync.
+#: core/auth/tasks.py:60
+msgid "Do not disconnect your device from the network."
+msgstr ""
+
+#: core/content/api.py:418
 msgid "Resource"
 msgstr ""
 
-#: core/content/api.py:1622
+#: core/content/api.py:1780
 msgid "The requested channel does not exist on the content server"
 msgstr ""
 
-#: core/content/models.py:265
+#: core/content/models.py:282
 msgid "Unknown format"
 msgstr ""
 
-#: core/device/serializers.py:41
+#. Translators: Message shown to an App user when the device's library is being updated
+#. either with new resources, or unwanted resources being deleted.
+#: core/content/tasks.py:57
+msgid "Updating your library"
+msgstr ""
+
+#. Translators: Message shown to an App user when an update to the library has been successful.
+#: core/content/tasks.py:60
+msgid "Library updated"
+msgstr ""
+
+#. Translators: Message shown to an App user when an update to the library has failed.
+#: core/content/tasks.py:63
+msgid "Library update failed"
+msgstr ""
+
+#: core/device/serializers.py:48
 msgid "Language is not supported by Kolibri"
+msgstr ""
+
+#. Translators: A notification title shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:11
+msgid "Searching"
+msgstr ""
+
+#. Translators: Notification text shown to users when Kolibri is looking for other Kolibri devices on the network.
+#: core/device/task_notifications.py:13
+msgid "Looking for other Kolibri devices"
 msgstr ""
 
 #: core/logger/csv_export.py:69
@@ -235,41 +272,62 @@ msgstr ""
 msgid "Content title"
 msgstr ""
 
-#: core/logger/csv_export.py:75
+#: core/logger/csv_export.py:79
 msgctxt ""
 "CSV column header for the time of the first interaction in the exported logs"
 msgid "Time of first interaction"
 msgstr ""
 
-#: core/logger/csv_export.py:76
+#: core/logger/csv_export.py:86
 msgctxt ""
 "CSV column header for the time of the last interaction in the exported logs"
 msgid "Time of last interaction"
 msgstr ""
 
-#: core/logger/csv_export.py:77
+#: core/logger/csv_export.py:93
 msgctxt ""
 "CSV column header for the percentage of completion in the exported logs"
 msgid "Time of completion"
 msgstr ""
 
-#: core/logger/csv_export.py:78
+#: core/logger/csv_export.py:100
 msgctxt ""
 "CSV column header for the time spent in a resource in the exported logs"
 msgid "Time Spent (sec)"
 msgstr ""
 
-#: core/logger/csv_export.py:79
+#: core/logger/csv_export.py:103
 msgid "Progress (0-1)"
 msgstr ""
 
-#: core/logger/csv_export.py:80
+#: core/logger/csv_export.py:104
 msgid "Content kind"
 msgstr ""
 
-#: core/templates/kolibri/base.html:13
-#: core/templates/kolibri/unsupported_browser.html:13
-msgid "Kolibri"
+#. Translators: Message shown to indicate that a background process has finished successfully.
+#: core/tasks/job.py:89
+msgid "Complete"
+msgstr ""
+
+#. Translators: Message shown to indicate that a background process has failed.
+#: core/tasks/job.py:92
+msgid "Failed"
+msgstr ""
+
+#. Translators: Message shown to indicate that a background process has been cancelled.
+#: core/tasks/job.py:95
+msgid "Cancelled"
+msgstr ""
+
+#. Translators: Message shown to indicate the percentage completed of a background process.
+#: core/tasks/job.py:98
+#, python-brace-format
+msgid "In progress - {percent}%"
+msgstr ""
+
+#. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
+#: core/tasks/job.py:102
+msgid "Waiting"
 msgstr ""
 
 #: core/templates/kolibri/loading_page.html:8
@@ -308,17 +366,21 @@ msgstr ""
 msgid "You can also try updating your current browser."
 msgstr ""
 
-#: core/views.py:165
+#: core/templatetags/core_tags.py:84
+msgid "Kolibri"
+msgstr ""
+
+#: core/views.py:184
 msgid ""
 "No appropriate redirect pages found. It is likely that Kolibri is badly "
 "configured"
 msgstr ""
 
-#: plugins/coach/kolibri_plugin.py:30
+#: plugins/coach/kolibri_plugin.py:27
 msgid "Coach"
 msgstr ""
 
-#: plugins/facility/kolibri_plugin.py:30
+#: plugins/facility/kolibri_plugin.py:22
 msgid "Facility"
 msgstr ""
 
@@ -350,11 +412,11 @@ msgctxt ""
 msgid "users"
 msgstr ""
 
-#: plugins/learn/kolibri_plugin.py:32
+#: plugins/learn/kolibri_plugin.py:35
 msgid "Learn"
 msgstr ""
 
-#: plugins/policies/kolibri_plugin.py:19
+#: plugins/policies/kolibri_plugin.py:21
 msgid "Policies"
 msgstr ""
 
@@ -362,6 +424,16 @@ msgstr ""
 msgid "Setup Wizard"
 msgstr ""
 
-#: plugins/user_profile/kolibri_plugin.py:25
+#: plugins/user_profile/kolibri_plugin.py:24
 msgid "User Profile"
+msgstr ""
+
+#. Translators: A notification title shown to users when their learner account is joining a new learning facility.
+#: plugins/user_profile/tasks.py:84
+msgid "Account transfer in progress"
+msgstr ""
+
+#: plugins/user_profile/tasks.py:87
+#, python-brace-format
+msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr ""

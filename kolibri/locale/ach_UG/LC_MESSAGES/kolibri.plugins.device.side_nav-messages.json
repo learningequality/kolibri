@@ -1,11 +1,11 @@
 {
-  "CommonDeviceStrings.deviceManagementTitle": "crwdns370101:0crwdne370101:0",
-  "CommonDeviceStrings.emptyTasksMessage": "crwdns332585:0crwdne332585:0",
-  "CommonDeviceStrings.newChannelLabel": "crwdns332587:0crwdne332587:0",
-  "CommonDeviceStrings.newEnabledPluginsState": "crwdns370103:0crwdne370103:0",
-  "CommonDeviceStrings.newResourceLabel": "crwdns332589:0crwdne332589:0",
-  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "crwdns370105:0crwdne370105:0",
-  "CommonDeviceStrings.permissionsLabel": "crwdns370107:0crwdne370107:0",
-  "CommonDeviceStrings.primaryStorageLabel": "crwdns370109:0crwdne370109:0",
-  "CommonDeviceStrings.unlistedChannelLabel": "crwdns332591:0crwdne332591:0"
+  "CommonDeviceStrings.deviceManagementTitle": "crwdns377276:0crwdne377276:0",
+  "CommonDeviceStrings.emptyTasksMessage": "crwdns377278:0crwdne377278:0",
+  "CommonDeviceStrings.newChannelLabel": "crwdns377280:0crwdne377280:0",
+  "CommonDeviceStrings.newEnabledPluginsState": "crwdns377282:0crwdne377282:0",
+  "CommonDeviceStrings.newResourceLabel": "crwdns377284:0crwdne377284:0",
+  "CommonDeviceStrings.notEnoughSpaceForChannelsWarning": "crwdns377286:0crwdne377286:0",
+  "CommonDeviceStrings.permissionsLabel": "crwdns377288:0crwdne377288:0",
+  "CommonDeviceStrings.primaryStorageLabel": "crwdns377290:0crwdne377290:0",
+  "CommonDeviceStrings.unlistedChannelLabel": "crwdns377292:0crwdne377292:0"
 }

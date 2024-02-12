@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Você {choice, string} para receber cookies de estatística. Você pode mudar esta preferência aqui:",
+  "CookiePolicy.choicesP1": "Você {choice} para receber cookies de estatística. Você pode mudar esta preferência aqui:",
   "CookiePolicy.cookieExpiryTableHeader": "Validade",
   "CookiePolicy.cookieP1": "A Plataforma de Aprendizagem Kolibri usa cookies para personalizar e proteger sua experiência, analisar o tráfego e melhorar o desempenho e funcionalidade de seus serviços. Cookies são pequenos arquivos de texto que podem ser usados por sites para tornar a experiência de um usuário mais eficiente.",
   "CookiePolicy.cookieP2": "De acordo com as leis de privacidade atuais (LGPD e CCPA), podemos armazenar os cookies no seu dispositivo se forem estritamente necessários para a operação do serviço. Para todos os outros tipos de cookies, precisamos da sua permissão.",
