@@ -41,7 +41,6 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
-
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -97,7 +96,7 @@
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import { PageNames } from '../../../constants';
+  import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
@@ -135,9 +134,9 @@
       // TODO let's not use text for this
       const viewMoreButtonState = computed(() => {
         if (hasMore.value) {
-          return 'yes';
+          return ViewMoreButtonStates.HAS_MORE;
         } else {
-          return 'no_more_results';
+          return ViewMoreButtonStates.NO_MORE;
         }
       });
 

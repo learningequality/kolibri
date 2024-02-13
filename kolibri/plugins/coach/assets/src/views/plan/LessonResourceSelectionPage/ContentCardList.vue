@@ -45,11 +45,11 @@
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="viewMoreButtonState === 'waiting'"
+        v-if="viewMoreButtonState === ViewMoreButtonStates.LOADING"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->
-      <p v-else-if="viewMoreButtonState === 'error'">
+      <p v-else-if="viewMoreButtonState === ViewMoreButtonStates.ERROR">
         <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
@@ -65,6 +65,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ViewMoreButtonStates } from '../../../constants/index';
+
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -73,6 +75,12 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
+
+    setup() {
+      return {
+        ViewMoreButtonStates,
+      };
+    },
     props: {
       showSelectAll: {
         type: Boolean,
@@ -121,11 +129,10 @@
         required: true,
       },
     },
+
     computed: {
       showButton() {
-        return (
-          this.viewMoreButtonState !== 'waiting' && this.viewMoreButtonState !== 'no_more_results'
-        );
+        return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },
       needCheckboxes() {
         return this.contentList.some(c => this.contentHasCheckbox(c));

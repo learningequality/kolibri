@@ -53,6 +53,13 @@ export const GroupModals = {
   DELETE_GROUP: 'DELETE_GROUP',
 };
 
+export const ViewMoreButtonStates = {
+  LOADING: 'LOADING',
+  HAS_MORE: 'HAS_MORE',
+  NO_MORE: 'NO_MORE',
+  ERROR: 'ERROR',
+};
+
 export const pageNameToModuleMap = {
   [PageNames.EXAMS]: 'examsRoot',
   [PageNames.EXAM_REPORT]: 'examReport',
