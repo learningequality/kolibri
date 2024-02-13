@@ -208,7 +208,6 @@
           <KButton
             :primary="true"
             :text="applySettings$()"
-            class="apply-settings-style"
             @click="applySettings"
           />
 
