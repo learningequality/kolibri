@@ -125,7 +125,6 @@
 <script>
 
   import uniqWith from 'lodash/uniqWith';
-  import differenceWith from 'lodash/differenceWith';
   import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { toRefs, computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
@@ -456,7 +455,7 @@
         if (isClosing) {
           if (
             workingResourcePool.value.length != activeResourcePool.value.length ||
-            differenceWith(workingResourcePool.value, activeResourcePool.value, isEqual).length
+            isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
           ) {
             showConfirmationModal.value = true;
           } else {
