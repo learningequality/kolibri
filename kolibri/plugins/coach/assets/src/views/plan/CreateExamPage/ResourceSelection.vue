@@ -477,7 +477,7 @@
         if (isClosing) {
           if (
             workingResourcePool.value.length != activeResourcePool.value.length ||
-            isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
+            !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
           ) {
             showConfirmationModal.value = true;
           } else {
