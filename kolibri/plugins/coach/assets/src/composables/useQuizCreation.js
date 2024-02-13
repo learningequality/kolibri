@@ -418,7 +418,16 @@ export default function useQuizCreation(DEBUG = false) {
   );
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
    *                                      exercises */
-  const activeQuestionsPool = computed(() => []);
+  const activeQuestionsPool = computed(() => {
+    const pool = get(activeResourcePool);
+    return selectQuestions(
+      pool.reduce((count, r) => count + r.assessmentmetadata.assessment_item_ids.length, 0),
+      pool.map(r => r.content_id),
+      pool.map(r => r.title),
+      pool.map(r => r.assessmentmetadata.assessment_item_ids),
+      get(_quiz).seed
+    );
+  });
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
    *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
@@ -426,7 +435,10 @@ export default function useQuizCreation(DEBUG = false) {
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
   /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's `resource_pool` that
    *                                         are not in `questions` */
-  const replacementQuestionPool = computed(() => {});
+  const replacementQuestionPool = computed(() => {
+    const activeQuestionIds = get(activeQuestions).map(q => q.question_id);
+    return get(activeQuestionsPool).filter(q => !activeQuestionIds.includes(q.question_id));
+  });
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
 
