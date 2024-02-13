@@ -41,21 +41,21 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@master
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.16.0
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: master
+      ref: v0.16.0
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.0
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: develop
+      ref: v1.6.0
   apk:
     name: Build APK file
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@develop
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.0
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: develop
+      ref: v0.1.0
