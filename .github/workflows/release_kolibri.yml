@@ -35,11 +35,11 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@main
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.0
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: main
+      ref: v0.4.0
     secrets:
       KOLIBRI_MAC_APP_IDENTITY: ${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}
       KOLIBRI_MAC_APP_CERTIFICATE: ${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}
@@ -56,10 +56,10 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@master
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.16.0
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: master
+      ref: v0.16.0
   upload_deb:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: deb
@@ -69,11 +69,11 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@develop
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.0
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: develop
+      ref: v1.6.0
     secrets:
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}
@@ -86,10 +86,10 @@ jobs:
   zip:
     name: Build Raspberry Pi Image
     needs: deb
-    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@master
+    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@v0.16.0
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
-      ref: master
+      ref: v0.16.0
   upload_zip:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: zip
@@ -99,11 +99,11 @@ jobs:
   apk:
     name: Build Android APK
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@develop
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.0
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       release: true
-      ref: develop
+      ref: v0.1.0
     secrets:
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD }}
@@ -196,9 +196,9 @@ jobs:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
     needs: [apk, block_release_step]
-    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@develop
+    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@v0.1.0
     with:
       version-code: ${{ needs.apk.outputs.version-code }}
-      ref: develop
+      ref: v0.1.0
     secrets:
       KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON: ${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}
