@@ -78,5 +78,5 @@ try:
             super(RedisCache, self).set(*args, **kwargs)
 
 
-except ImportError:
+except (ImportError, InvalidCacheBackendError):
     pass
