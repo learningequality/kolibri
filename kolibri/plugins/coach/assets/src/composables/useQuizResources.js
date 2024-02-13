@@ -8,7 +8,7 @@ import useFetchTree from './useFetchTree';
 import { QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
-
+const _loadingMore = ref(false);
 /**
  * @typedef {Object} QuizResourcesConfig
  * @property { computed <string|null|undefined> } topicId - The id of the root node to fetch the
@@ -115,11 +115,15 @@ export default function useQuizResources({ topicId } = {}) {
    */
   async function fetchMoreQuizResources() {
     set(_loading, true);
+    set(_loadingMore, true);
     return fetchMore().then(async results => {
       set(_resources, [...get(_resources), ...results]);
       return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
-      ).then(() => set(_loading, false));
+      ).then(() => {
+        set(_loading, false);
+        set(_loadingMore, false);
+      });
     });
   }
 
@@ -139,6 +143,7 @@ export default function useQuizResources({ topicId } = {}) {
     setResources,
     resources: computed(() => get(_resources)),
     loading: computed(() => get(_loading) || get(treeLoading)),
+    loadingMore: computed(() => get(_loadingMore)),
     fetchQuizResources,
     fetchMoreQuizResources,
     hasCheckbox,
