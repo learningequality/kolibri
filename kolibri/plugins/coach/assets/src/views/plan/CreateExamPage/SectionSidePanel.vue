@@ -1,21 +1,30 @@
 <template>
 
-  <SidePanelModal
-    ref="resourcePanel"
-    alignment="right"
-    sidePanelWidth="700px"
-    :closeButtonIconType="closeIcon"
-    @closePanel="handleClosePanel"
-    @shouldFocusFirstEl="findFirstEl()"
-  >
-    <router-view @closePanel="handleClosePanel" />
-  </SidePanelModal>
+  <div>
+    <SidePanelModal
+      v-if="$route.params.section_id"
+      ref="resourcePanel"
+      alignment="right"
+      sidePanelWidth="700px"
+      :closeButtonIconType="closeIcon"
+      @closePanel="handleClosePanel"
+      @shouldFocusFirstEl="findFirstEl()"
+    >
+      <component :is="panel" :ref="$route.name" :closePanelRoute="closePanelRoute" />
+    </SidePanelModal>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      :closePanelRoute="closePanelRoute"
+      @cancel="showConfirmationModal = false"
+    />
+  </div>
 
 </template>
 
 
 <script>
 
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
 
