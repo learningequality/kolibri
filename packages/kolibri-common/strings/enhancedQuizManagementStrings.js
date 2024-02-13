@@ -141,7 +141,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   numberOfSelectedReplacements: {
     message:
-      '{ count, number } of{ count, number } {count, plural, one {question selected} other {questions selected}}',
+      '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',
   },
   numberOfQuestionsReplaced: {
     message:
