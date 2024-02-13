@@ -270,7 +270,7 @@
                           :aria-controls="`question-panel-${question.question_id}`"
                           @click="toggleItemState(question.question_id)"
                         >
-                          <span>{{ title }}</span>
+                          <span>{{ title + " " + question.counter_in_exercise }}</span>
                           <KIcon
                             style="position: absolute; right:0; top: 0.92em"
                             :icon="isItemExpanded(question.question_id) ?
