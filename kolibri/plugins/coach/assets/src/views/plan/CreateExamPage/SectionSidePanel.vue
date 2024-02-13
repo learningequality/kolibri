@@ -7,16 +7,17 @@
       alignment="right"
       sidePanelWidth="700px"
       :closeButtonIconType="closeIcon"
-      @closePanel="handleClosePanel"
+      @closePanel="() => panelClosing = true"
       @shouldFocusFirstEl="findFirstEl()"
     >
-      <component :is="panel" :ref="$route.name" :closePanelRoute="closePanelRoute" />
+      <component
+        :is="panel"
+        :ref="$route.name"
+        :panelClosing="panelClosing"
+        @closePanel="handleClosePanel"
+        @cancelClosePanel="panelClosing = false"
+      />
     </SidePanelModal>
-    <ConfirmCancellationModal
-      v-if="showConfirmationModal"
-      :closePanelRoute="closePanelRoute"
-      @cancel="showConfirmationModal = false"
-    />
   </div>
 
 </template>
@@ -24,10 +25,10 @@
 
 <script>
 
+  import { ref } from 'kolibri.lib.vueCompositionApi';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
   import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
-  import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import SectionEditor from './SectionEditor';
   import ReplaceQuestions from './ReplaceQuestions';
   import ResourceSelection from './ResourceSelection';
@@ -54,22 +55,16 @@
       ConfirmCancellationModal,
     },
     setup() {
-      const {
-        //Computed
-        activeResourcePool,
-        workingResourcePool,
-        resetWorkingResourcePool,
-      } = injectQuizCreation();
-
-      return {
-        activeResourcePool,
-        workingResourcePool,
-        resetWorkingResourcePool,
-      };
+      /**
+       * This ref is used to signal to the child component that it is trying to close
+       *
+       */
+      const panelClosing = ref(false);
+      const canClosePanel = ref(false);
+      return { canClosePanel, panelClosing };
     },
     data() {
       return {
-        showConfirmationModal: false,
         prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
       };
     },
@@ -105,15 +100,7 @@
     },
     methods: {
       handleClosePanel() {
-        if (
-          this.workingResourcePool &&
-          this.workingResourcePool.length > this.activeResourcePool.length
-        ) {
-          this.showConfirmationModal = true;
-        } else {
-          this.$router.replace(this.closePanelRoute);
-        }
-        this.$emit('closePanel');
+        this.$router.replace(this.closePanelRoute);
       },
       /**
        * Calls the currently displayed ref's focusFirstEl method.

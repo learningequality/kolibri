@@ -112,6 +112,11 @@
         </KGrid>
       </div>
     </div>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      @cancel="handleCancelClose"
+      @continue="handleConfirmClose"
+    />
   </div>
 
 </template>
@@ -120,9 +125,10 @@
 <script>
 
   import uniqWith from 'lodash/uniqWith';
+  import differenceWith from 'lodash/differenceWith';
   import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
+  import { toRefs, computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -133,6 +139,7 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -142,9 +149,11 @@
       BookmarkIcon,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
+      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(props, context) {
+      const { panelClosing } = toRefs(props);
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -154,6 +163,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
+      const showConfirmationModal = ref(false);
 
       const {
         sectionSettings$,
@@ -432,16 +442,43 @@
         return fetchMoreQuizResources();
       }
 
+      function handleCancelClose() {
+        showConfirmationModal.value = false;
+        context.emit('cancelClosePanel');
+      }
+
+      function handleConfirmClose() {
+        handleCancelClose();
+        context.emit('closePanel');
+      }
+
+      watch(panelClosing, isClosing => {
+        if (isClosing) {
+          if (
+            workingResourcePool.value.length != activeResourcePool.value.length ||
+            differenceWith(workingResourcePool.value, activeResourcePool.value, isEqual).length
+          ) {
+            showConfirmationModal.value = true;
+          } else {
+            context.emit('cancelClosePanel');
+            context.emit('closePanel');
+          }
+        }
+      });
+
       return {
         selectAllChecked,
         selectAllIndeterminate,
         showSelectAll,
         handleSelectAll,
         toggleSelected,
+        handleConfirmClose,
+        handleCancelClose,
         topic,
         topicId,
         contentList,
         resources,
+        showConfirmationModal,
         hasCheckbox,
         loading,
         hasMore,
@@ -471,8 +508,10 @@
       };
     },
     props: {
-      closePanelRoute: {
-        type: Object,
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      panelClosing: {
+        type: Boolean,
+        default: false,
         required: true,
       },
     },
@@ -559,7 +598,7 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$router.replace(this.closePanelRoute);
+        this.$emit('closePanel');
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
