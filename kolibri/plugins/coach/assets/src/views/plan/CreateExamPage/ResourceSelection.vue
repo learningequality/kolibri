@@ -64,16 +64,16 @@
       />
       <ContentCardList
         :contentList="contentList"
-        :showSelectAll="true"
+        :showSelectAll="showSelectAll"
         :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="isSelectAllChecked"
+        :selectAllChecked="selectAllChecked"
+        :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
-        :selectAllIndeterminate="selectAllIndeterminate"
         :loadingMoreState="loadingMore"
-        @changeselectall="toggleTopicInWorkingResources"
+        @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreResources"
       />
@@ -178,7 +178,29 @@
        * a list of unique resources to avoid unnecessary duplication
        */
       function addToWorkingResourcePool(resources = []) {
-        workingResourcePool.value = uniqWith([...workingResourcePool.value, ...resources], isEqual);
+        workingResourcePool.value = uniqWith(
+          [
+            ...workingResourcePool.value,
+            ...resources.filter(r => r.kind === ContentNodeKinds.EXERCISE),
+          ],
+          isEqual
+        );
+      }
+
+      /**
+       * @description Returns the list of Exercises which can possibly be selected from the current
+       * contentList taking into consideration the logic for whether a topic can be selected or not.
+       * @returns {QuizExercise[]} - All contents which can be selected
+       */
+      function selectableContentList() {
+        return contentList.value.reduce((newList, content) => {
+          if (content.kind === ContentNodeKinds.TOPIC && hasCheckbox(content)) {
+            newList = [...newList, ...content.children.results];
+          } else {
+            newList.push(content);
+          }
+          return newList;
+        }, []);
       }
 
       /**
@@ -202,6 +224,9 @@
        */
       function contentPresentInWorkingResourcePool(content) {
         const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return content.children.results.every(child => workingResourceIds.includes(child.id));
+        }
         return workingResourceIds.includes(content.id);
       }
 
@@ -224,6 +249,63 @@
           searchResults.value = searchResults.value.concat(response.results);
           moreSearchResults.value = response.more;
         });
+      }
+
+      const selectAllChecked = computed(() => {
+        // Returns true if all the resources in the topic are in the working resource pool
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        const selectableIds = selectableContentList().map(content => content.id);
+        return selectableIds.every(id => workingResourceIds.includes(id));
+      });
+
+      const selectAllIndeterminate = computed(() => {
+        // Returns true if some, but not all, of the resources in the topic are in the working
+        // resource
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        const selectableIds = selectableContentList().map(content => content.id);
+        return !selectAllChecked.value && selectableIds.some(id => workingResourceIds.includes(id));
+      });
+
+      const showSelectAll = computed(() => {
+        return contentList.value.every(content => hasCheckbox(content));
+      });
+
+      function handleSelectAll(isChecked) {
+        if (isChecked) {
+          this.addToWorkingResourcePool(this.contentList);
+        } else {
+          this.contentList.forEach(content => {
+            var contentToRemove = [];
+            if (content.kind === ContentNodeKinds.TOPIC) {
+              contentToRemove = content.children.results;
+            } else {
+              contentToRemove.push(content);
+            }
+            contentToRemove.forEach(c => {
+              this.removeFromWorkingResourcePool(c);
+            });
+          });
+        }
+      }
+
+      /**
+       * @param {Object} param
+       * @param {ContentNode} param.content
+       * @param {boolean} param.checked
+       * @affects workingResourcePool - Adds or removes the content from the workingResourcePool
+       * When given a topic, it adds or removes all the exercises in the topic from the
+       * workingResourcePool. This assumes that topics which should not be added are not able to
+       * be checked and does not do any additional checks.
+       */
+      function toggleSelected({ content, checked }) {
+        content = content.kind === ContentNodeKinds.TOPIC ? content.children.results : [content];
+        if (checked) {
+          this.addToWorkingResourcePool(content);
+        } else {
+          content.forEach(c => {
+            this.removeFromWorkingResourcePool(c);
+          });
+        }
       }
 
       const {
@@ -341,6 +423,11 @@
       }
 
       return {
+        selectAllChecked,
+        selectAllIndeterminate,
+        showSelectAll,
+        handleSelectAll,
+        toggleSelected,
         topic,
         topicId,
         contentList,
@@ -381,20 +468,6 @@
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
-      },
-      isSelectAllChecked() {
-        // Returns true if all the resources in the topic are in the working resource pool
-        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        return this.contentList.every(content => workingResourceIds.includes(content.id));
-      },
-      selectAllIndeterminate() {
-        // Returns true if some, but not all, of the resources in the topic are in the working
-        // resource
-        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        return (
-          !this.isSelectAllChecked &&
-          this.contentList.some(content => workingResourceIds.includes(content.id))
-        );
       },
 
       getBookmarksLink() {
@@ -445,22 +518,6 @@
         }
 
         return {}; // or return {} if you prefer an empty object
-      },
-      toggleSelected({ content, checked }) {
-        if (checked) {
-          this.addToWorkingResourcePool([content]);
-        } else {
-          this.removeFromWorkingResourcePool(content);
-        }
-      },
-      toggleTopicInWorkingResources(isChecked) {
-        if (isChecked) {
-          this.addToWorkingResourcePool(this.contentList);
-        } else {
-          this.contentList.forEach(content => {
-            this.removeFromWorkingResourcePool(content);
-          });
-        }
       },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
