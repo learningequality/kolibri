@@ -215,6 +215,11 @@
         </KGridItem>
       </KGrid>
     </div>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      @cancel="handleCancelClose"
+      @continue="handleConfirmClose"
+    />
   </div>
 
 </template>
@@ -222,23 +227,84 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
-  import { get } from '@vueuse/core';
+  import isEqual from 'lodash/isEqual';
+  import { computed, ref, toRefs, watch } from 'kolibri.lib.vueCompositionApi';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   export default {
     name: 'SectionEditor',
     components: {
+      ConfirmCancellationModal,
       Draggable,
       DragContainer,
       DragHandle,
     },
-    setup() {
+    setup(props, context) {
+      const {
+        activeSection,
+        allSections,
+        updateSection,
+        updateQuiz,
+        deleteSection,
+      } = injectQuizCreation();
+
+      const { panelClosing } = toRefs(props);
+
+      const showConfirmationModal = ref(false);
+
+      function handleCancelClose() {
+        showConfirmationModal.value = false;
+        context.emit('cancelClosePanel');
+      }
+
+      function handleConfirmClose() {
+        handleCancelClose();
+        context.emit('closePanel');
+      }
+
+      const selectedQuestionOrder = ref(activeSection.value.learners_see_fixed_order);
+      const numberOfQuestions = ref(activeSection.value.question_count);
+      const descriptionText = ref(activeSection.value.description);
+      const sectionTitle = ref(activeSection.value.section_title);
+
+      const originalFormData = {
+        selectedQuestionOrder: activeSection.value.learners_see_fixed_order,
+        numberOfQuestions: activeSection.value.question_count,
+        descriptionText: activeSection.value.description,
+        sectionTitle: activeSection.value.section_title,
+      };
+
+      const formDataHasChanged = computed(() => {
+        return !isEqual(
+          {
+            selectedQuestionOrder: selectedQuestionOrder.value,
+            numberOfQuestions: numberOfQuestions.value,
+            descriptionText: descriptionText.value,
+            sectionTitle: sectionTitle.value,
+          },
+          originalFormData
+        );
+      });
+
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+
+      watch(panelClosing, isClosing => {
+        if (isClosing) {
+          if (formDataHasChanged.value) {
+            showConfirmationModal.value = true;
+          } else {
+            context.emit('cancelClosePanel');
+            context.emit('closePanel');
+          }
+        }
+      });
+
       const {
         sectionSettings$,
         sectionTitle$,
@@ -258,21 +324,10 @@
         fixedOptionDescription$,
       } = enhancedQuizManagementStrings;
 
-      const {
-        activeSection,
-        allSections,
-        updateSection,
-        updateQuiz,
-        deleteSection,
-      } = injectQuizCreation();
-
-      const selectedQuestionOrder = ref(get(activeSection).learners_see_fixed_order);
-      const numberOfQuestions = ref(get(activeSection).question_count);
-      const descriptionText = ref(get(activeSection).description);
-      const sectionTitle = ref(get(activeSection).section_title);
-
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
+        showConfirmationModal,
+        handleCancelClose,
+        handleConfirmClose,
         // useQuizCreation
         activeSection,
         allSections,
@@ -305,6 +360,14 @@
         fixedLabel$,
         fixedOptionDescription$,
       };
+    },
+    props: {
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      panelClosing: {
+        type: Boolean,
+        default: false,
+        required: true,
+      },
     },
     computed: {
       borderStyle() {
@@ -343,6 +406,7 @@
           question_count: this.numberOfQuestions,
           learners_see_fixed_order: this.selectedQuestionOrder,
         });
+        this.$emit('closePanel');
       },
     },
   };

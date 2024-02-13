@@ -99,6 +99,7 @@
     },
     methods: {
       handleClosePanel() {
+        this.panelClosing = false;
         this.$router.replace(this.closePanelRoute);
       },
       /**
