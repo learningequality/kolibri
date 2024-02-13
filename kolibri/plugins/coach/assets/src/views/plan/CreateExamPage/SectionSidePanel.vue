@@ -60,8 +60,7 @@
        *
        */
       const panelClosing = ref(false);
-      const canClosePanel = ref(false);
-      return { canClosePanel, panelClosing };
+      return { panelClosing };
     },
     data() {
       return {
