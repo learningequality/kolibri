@@ -3,7 +3,6 @@ import logging
 from django.core.cache import caches
 from django.core.cache import InvalidCacheBackendError
 from django.utils.functional import SimpleLazyObject
-from redis_cache import RedisCache as BaseRedisCache
 
 
 logger = logging.getLogger(__name__)
@@ -64,13 +63,20 @@ class RedisSettingsHelper(object):
             self.changed = False
 
 
-class RedisCache(BaseRedisCache):
-    def set(self, *args, **kwargs):
-        """
-        Overwrite the set method to not return a value, in line with the Django cache interface
-        This causes particular issues for Django's caching middleware, which expects the set method to return None
-        as it invokes it directly in a lambda in the response.add_post_render_callback method
-        We use a similar pattern in our own caching decorator in kolibri/core/content/api.py and saw errors
-        due to the fact if the lambda returns a value, it is interpreted as a replacement for the response object.
-        """
-        super(RedisCache, self).set(*args, **kwargs)
+try:
+    from redis_cache import RedisCache as BaseRedisCache
+
+    class RedisCache(BaseRedisCache):
+        def set(self, *args, **kwargs):
+            """
+            Overwrite the set method to not return a value, in line with the Django cache interface
+            This causes particular issues for Django's caching middleware, which expects the set method to return None
+            as it invokes it directly in a lambda in the response.add_post_render_callback method
+            We use a similar pattern in our own caching decorator in kolibri/core/content/api.py and saw errors
+            due to the fact if the lambda returns a value, it is interpreted as a replacement for the response object.
+            """
+            super(RedisCache, self).set(*args, **kwargs)
+
+
+except ImportError:
+    pass
