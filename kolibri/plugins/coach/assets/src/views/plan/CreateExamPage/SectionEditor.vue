@@ -246,7 +246,7 @@
       DragContainer,
       DragHandle,
     },
-    setup(_, context) {
+    setup(props, context) {
       const {
         activeSection,
         allSections,
@@ -255,39 +255,56 @@
         deleteSection,
       } = injectQuizCreation();
 
+      const { panelClosing } = toRefs(props);
+
       const showConfirmationModal = ref(false);
 
       function handleCancelClose() {
         showConfirmationModal.value = false;
+        context.emit('cancelClosePanel');
       }
 
       function handleConfirmClose() {
+        handleCancelClose();
         context.emit('closePanel');
       }
 
-      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const question_count = ref(activeSection.value.question_count);
-      const description = ref(activeSection.value.description);
-      const section_title = ref(activeSection.value.section_title);
+      const selectedQuestionOrder = ref(activeSection.value.learners_see_fixed_order);
+      const numberOfQuestions = ref(activeSection.value.question_count);
+      const descriptionText = ref(activeSection.value.description);
+      const sectionTitle = ref(activeSection.value.section_title);
+
+      const originalFormData = {
+        selectedQuestionOrder: activeSection.value.learners_see_fixed_order,
+        numberOfQuestions: activeSection.value.question_count,
+        descriptionText: activeSection.value.description,
+        sectionTitle: activeSection.value.section_title,
+      };
 
       const formDataHasChanged = computed(() => {
         return !isEqual(
           {
-            learners_see_fixed_order: learners_see_fixed_order.value,
-            question_count: question_count.value,
-            description: description.value,
-            section_title: section_title.value,
+            selectedQuestionOrder: selectedQuestionOrder.value,
+            numberOfQuestions: numberOfQuestions.value,
+            descriptionText: descriptionText.value,
+            sectionTitle: sectionTitle.value,
           },
-          pick(activeSection.value, [
-            'learners_see_fixed_order',
-            'question_count',
-            'description',
-            'section_title',
-          ])
+          originalFormData
         );
       });
 
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+
+      watch(panelClosing, isClosing => {
+        if (isClosing) {
+          if (formDataHasChanged.value) {
+            showConfirmationModal.value = true;
+          } else {
+            context.emit('cancelClosePanel');
+            context.emit('closePanel');
+          }
+        }
+      });
 
       const {
         sectionSettings$,
@@ -309,7 +326,6 @@
       } = enhancedQuizManagementStrings;
 
       return {
-        formDataHasChanged,
         showConfirmationModal,
         handleCancelClose,
         handleConfirmClose,
@@ -345,6 +361,14 @@
         fixedLabel$,
         fixedOptionDescription$,
       };
+    },
+    props: {
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      panelClosing: {
+        type: Boolean,
+        default: false,
+        required: true,
+      },
     },
     computed: {
       borderStyle() {
@@ -391,6 +415,7 @@
           question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
+        this.$emit('closePanel');
       },
     },
   };
