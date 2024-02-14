@@ -99,18 +99,25 @@
         return this.$router.getRoute(route);
       },
     },
-    beforeRouteEnter(to, from, next) {
-      return LessonResource.fetchModel({
-        id: to.params.lessonId,
-      })
-        .then(lesson => {
-          next(vm => {
-            vm.setData(lesson);
-          });
-        })
-        .catch(error => {
-          next(vm => vm.setError(error));
-        });
+    created() {
+      const initClassInfoPromise = this.$store.dispatch(
+        'initClassInfo',
+        this.$route.params.classId
+      );
+      const getFacilitiesPromise =
+        this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
+          ? this.$store.dispatch('getFacilities').catch(() => {})
+          : Promise.resolve();
+
+      Promise.all([initClassInfoPromise, getFacilitiesPromise])
+        .then(() =>
+          LessonResource.fetchModel({
+            id: this.$route.params.lessonId,
+          })
+        )
+        .then(lesson => this.setData(lesson))
+        .catch(error => this.setError(error))
+        .then(() => this.$store.dispatch('notLoading'));
     },
     methods: {
       // @public

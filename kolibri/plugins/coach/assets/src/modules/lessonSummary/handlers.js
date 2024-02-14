@@ -1,7 +1,7 @@
 import { LearnerGroupResource } from 'kolibri.resources';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
-export function setLessonSummaryState(store, params) {
+export async function setLessonSummaryState(store, params) {
   const { classId, lessonId } = params;
   store.commit('lessonSummary/resources/RESET_STATE');
   store.commit('lessonSummary/SET_STATE', {
@@ -11,6 +11,13 @@ export function setLessonSummaryState(store, params) {
     resourceCache: store.state.lessonSummary.resourceCache || {},
     lessonsModalSet: null,
   });
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
 
   const loadRequirements = [
     store.dispatch('lessonSummary/updateCurrentLesson', lessonId),
