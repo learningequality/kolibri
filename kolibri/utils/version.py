@@ -406,7 +406,7 @@ def normalize_version_to_semver(version):
     after = (after or "").strip("-").strip("+").strip(".").split("+")[0]
 
     # split up the alpha/beta letters from the numbers, to sort numerically not alphabetically
-    after_pieces = re.match(r"([a-z])(\d+)", after)
+    after_pieces = re.match(r"([a-z]{1,2})(\d+)", after)
     if after_pieces:
         after = ".".join([piece for piece in after_pieces.group() if piece])
 
