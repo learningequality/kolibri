@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import TableOfContentsSection from '../src/views/TableOfContentsSection';
 
 const section = {
@@ -35,7 +34,6 @@ function createWrapper({ section, depth, currentSection } = {}) {
       depth,
       currentSection,
     },
-    store,
   });
 }
 

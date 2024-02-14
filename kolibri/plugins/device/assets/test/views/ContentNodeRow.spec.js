@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import ContentNodeRow from '../../src/views/SelectContentPage/ContentNodeRow';
 import { makeNode } from '../utils/data';
 import router from './testRouter';
@@ -25,7 +24,6 @@ const defaultProps = {
 function makeWrapper(props = {}) {
   return mount(ContentNodeRow, {
     propsData: { ...defaultProps, ...props },
-    store,
     ...router,
   });
 }
@@ -73,7 +71,7 @@ describe('contentNodeRow component', () => {
   });
 
   it('topic links have the correct route', () => {
-    const wrapper = makeWrapper({ store });
+    const wrapper = makeWrapper();
     const { goToTopicButton } = getElements(wrapper);
     expect(goToTopicButton().props().to).toMatchObject({
       name: 'SELECT_CONTENT',

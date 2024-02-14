@@ -144,7 +144,7 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
     const { contentNodes } = extraArgs;
     const questionIds = {};
     contentNodes.forEach(node => {
-      questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
+      questionIds[node.id] = node.assessmentmetadata.assessmentIds;
     });
     return annotateQuestionsWithItem(
       convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds)

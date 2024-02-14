@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import SearchButton from '../src/views/SearchButton';
 
 function createWrapper() {
-  return mount(SearchButton, { store });
+  return mount(SearchButton);
 }
 
 describe('Search button', () => {
