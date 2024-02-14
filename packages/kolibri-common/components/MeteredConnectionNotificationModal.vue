@@ -13,14 +13,14 @@
       <KRadioButton
         v-model="selected"
         :label="$tr('doNotUseMetered')"
-        :value="Options.DO_NOT_USE_METERED"
+        :buttonValue="Options.DO_NOT_USE_METERED"
         :disabled="loading"
         class="radio-button"
       />
       <KRadioButton
         v-model="selected"
         :label="$tr('useMetered')"
-        :value="Options.USE_METERED"
+        :buttonValue="Options.USE_METERED"
         :disabled="loading"
         class="radio-button"
       />

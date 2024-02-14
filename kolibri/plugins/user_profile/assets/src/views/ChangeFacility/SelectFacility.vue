@@ -23,7 +23,7 @@
       <KRadioButton
         :key="f.id"
         v-model="selectedFacilityId"
-        :value="f.id"
+        :buttonValue="f.id"
         :label="formatNameAndId(f.name, f.id)"
         :disabled="facilityDisabled(f)"
       />

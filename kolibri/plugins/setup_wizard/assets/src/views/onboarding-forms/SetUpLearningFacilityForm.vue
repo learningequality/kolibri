@@ -8,14 +8,14 @@
     <KRadioButton
       v-model="selected"
       :label="$tr('createFacilityLabel')"
-      :value="Options.NEW"
+      :buttonValue="Options.NEW"
       class="radio-button"
       :autofocus="isNewFacilitySetup"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFacilityLabel')"
-      :value="Options.IMPORT"
+      :buttonValue="Options.IMPORT"
       class="radio-button"
       :autofocus="isImportFacilitySetup"
     />

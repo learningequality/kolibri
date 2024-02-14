@@ -9,7 +9,7 @@
     <KRadioButton
       v-model="source"
       :label="$tr('dataPortalLabel')"
-      :value="SyncSources.PORTAL"
+      :buttonValue="SyncSources.PORTAL"
       :disabled="portalIsOffline || formIsDisabled"
       :autofocus="!portalIsOffline"
       :description="$tr('dataPortalDescription')"
@@ -17,7 +17,7 @@
     <KRadioButton
       v-model="source"
       :label="$tr('localNetworkLabel')"
-      :value="SyncSources.PEER"
+      :buttonValue="SyncSources.PEER"
       :disabled="formIsDisabled"
       :description="$tr('localNetworkDescription')"
     />

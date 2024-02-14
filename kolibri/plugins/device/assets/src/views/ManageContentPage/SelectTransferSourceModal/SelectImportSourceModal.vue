@@ -9,7 +9,7 @@
     <KRadioButton
       v-model="source"
       :label="$tr('network')"
-      :value="ContentSources.KOLIBRI_STUDIO"
+      :buttonValue="ContentSources.KOLIBRI_STUDIO"
       :disabled="kolibriStudioIsOffline || formIsDisabled"
       :autofocus="!kolibriStudioIsOffline"
       :description="$tr('studioDescription')"
@@ -17,14 +17,14 @@
     <KRadioButton
       v-model="source"
       :label="$tr('localNetworkOrInternet')"
-      :value="ContentSources.PEER_KOLIBRI_SERVER"
+      :buttonValue="ContentSources.PEER_KOLIBRI_SERVER"
       :disabled="formIsDisabled"
       :description="$tr('networkDescription')"
     />
     <KRadioButton
       v-model="source"
       :label="$tr('localDrives')"
-      :value="ContentSources.LOCAL_DRIVE"
+      :buttonValue="ContentSources.LOCAL_DRIVE"
       :disabled="formIsDisabled"
       :description="$tr('localDescription')"
     />
