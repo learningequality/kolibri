@@ -83,6 +83,18 @@ class CoachToolsModule extends KolibriApp {
       } else {
         next();
       }
+
+      if (!this.store.getters.isUserLoggedIn) {
+        const currentURL = window.encodeURIComponent(window.location.href);
+        router.replace({
+          path: '/',
+          query: {
+            next: currentURL,
+          },
+        });
+      } else {
+        next();
+      }
     });
 
     router.afterEach((toRoute, fromRoute) => {
