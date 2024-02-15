@@ -41,10 +41,10 @@ jobs:
   deb:
     name: Build DEB file
     needs: whl
-    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.16.0
+    uses: learningequality/kolibri-installer-debian/.github/workflows/build_deb.yml@v0.16.1
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.16.0
+      ref: v0.16.1
   exe:
     name: Build EXE file
     needs: whl
