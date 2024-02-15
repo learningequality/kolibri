@@ -342,7 +342,6 @@
         loading,
         hasMore,
         loadingMore,
-        searchQuery,
         fetchMoreQuizResources: searchQuery ? fetchMoreSearchResults : fetchMoreQuizResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
