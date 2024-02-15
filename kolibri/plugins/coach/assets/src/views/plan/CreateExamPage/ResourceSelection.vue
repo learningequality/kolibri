@@ -26,7 +26,7 @@
         </KGridItem>
       </KGrid>
 
-      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
+      <div v-if="!searchQuery && !isTopicIdSet && bookmarks.length && !showBookmarks">
 
         <p>{{ selectFromBookmarks$() }}</p>
 
@@ -58,7 +58,7 @@
       />
 
       <LessonsSearchBox
-        v-if="!showBookmarks && !isTopicIdSet"
+        v-if="!showBookmarks"
         @clear="clearSearchTerm"
         @searchterm="handleSearchTermChange"
       />
@@ -143,7 +143,7 @@
       // or the actual exercises that are bookmarked and can be selected
       // to be added to Quiz Section.
       const showBookmarks = computed(() => route.value.query.showBookmarks);
-      const { searchQuery } = computed(() => (showBookmarks.value ? '' : route.value.query.search));
+      const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
 
       const {
@@ -222,31 +222,49 @@
 
       const channels = ref([]);
       const bookmarks = ref([]);
+      const searchResults = ref([]);
 
       // Load up the channels
+
       if (!topicId.value) {
         const channelBookmarkPromises = [
-          ChannelResource.fetchCollection({
-            params: { has_exercises: true, available: true },
-          }).then(response => {
-            setResources(
-              response.map(chnl => {
-                return {
-                  ...chnl,
-                  id: chnl.root,
-                  title: chnl.name,
-                  kind: ContentNodeKinds.CHANNEL,
-                  is_leaf: false,
-                };
-              })
-            );
-          }),
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
               bookmarks.value = data.results ? data.results : [];
             }
           ),
         ];
+        
+        if (searchQuery.value) {
+          const getParams = {
+            max_results: 25,
+            keywords: searchQuery.value,
+            kind: ContentNodeKinds.EXERCISE,
+          };
+          channelBookmarkPromises.push(
+            ContentNodeResource.fetchCollection({ getParams }).then(response => {
+              searchResults.value = response.results;
+            })
+          );
+        } else {
+          channelBookmarkPromises.push(
+            ChannelResource.fetchCollection({
+              params: { has_exercises: true, available: true },
+            }).then(response => {
+              setResources(
+                response.map(chnl => {
+                  return {
+                    ...chnl,
+                    id: chnl.root,
+                    title: chnl.name,
+                    kind: ContentNodeKinds.CHANNEL,
+                    is_leaf: false,
+                  };
+                })
+              );
+            })
+          );
+        }
 
         Promise.all(channelBookmarkPromises).then(() => {
           // When we don't have a topicId we're setting the value of useQuizResources.resources
@@ -281,6 +299,10 @@
             .map(item => ({ ...item, is_leaf: true }));
         }
 
+        if (searchQuery.value) {
+          return searchResults.value;
+        }
+
         return resources.value;
       });
 
@@ -301,6 +323,7 @@
         loading,
         hasMore,
         loadingMore,
+        searchQuery,
         fetchMoreQuizResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
