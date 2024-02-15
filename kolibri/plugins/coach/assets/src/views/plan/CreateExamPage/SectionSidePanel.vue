@@ -93,8 +93,8 @@
       },
     },
     watch: {
-      $route: function(_, o) {
-        this.prevRoute = o;
+      $route: function(_, from) {
+        this.prevRoute = from;
       },
     },
     methods: {
