@@ -220,12 +220,10 @@
       function fetchMoreSearchResults() {
         return ContentNodeResource.fetchCollection({
           getParams: moreSearchResults.value,
-        }).then(
-          response => {
-            searchResults.value = searchResults.value.concat(response.results);
-            moreSearchResults.value = response.more;
-          }
-        );
+        }).then(response => {
+          searchResults.value = searchResults.value.concat(response.results);
+          moreSearchResults.value = response.more;
+        });
       }
 
       const {
@@ -258,7 +256,7 @@
             }
           ),
         ];
-        
+
         if (searchQuery.value) {
           channelBookmarkPromises.push(fetchSearchResults());
         } else {
