@@ -93,7 +93,7 @@
     },
     mixins: [commonCoach, commonCoreStrings],
     setup() {
-      const { coachReportsLesson$ } = coachStrings();
+      const { coachReportsLesson$ } = coachStrings;
       const { saveTabsClick, wereTabsClickedRecently } = useCoachTabs();
       return {
         saveTabsClick,
