@@ -313,8 +313,6 @@
 
     </KTabsPanel>
 
-    <SectionSidePanel @closePanel="focusActiveSectionTab()" />
-
 
   </div>
 
@@ -334,7 +332,6 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
-  import SectionSidePanel from './SectionSidePanel';
   import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
@@ -351,7 +348,6 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
-      SectionSidePanel,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -509,13 +505,13 @@
     methods: {
       handleReplaceSelection() {
         const section_id = get(this.activeSection).section_id;
-        this.$router.replace({ path: 'new/' + section_id + '/replace-questions' });
+        this.$router.push({ path: 'new/' + section_id + '/replace-questions' });
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
         switch (opt.label) {
           case this.editSectionLabel$():
-            this.$router.replace({ path: 'new/' + section_id + '/edit' });
+            this.$router.push({ path: 'new/' + section_id + '/edit' });
             break;
           case this.deleteSectionLabel$():
             this.removeSection(this.activeSection.section_id);
@@ -573,7 +569,7 @@
         set(this.dragActive, true);
       },
       openSelectResources(section_id) {
-        this.$router.replace({ path: 'new/' + section_id + '/select-resources' });
+        this.$router.push({ path: 'new/' + section_id + '/select-resources' });
       },
     },
   };

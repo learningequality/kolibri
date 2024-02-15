@@ -15,7 +15,7 @@
         :layout4="{ span: 2 }"
       >
         <KTextbox
-          v-model="sectionTitle"
+          v-model="section_title"
           :label="sectionTitle$()"
           :maxlength="100"
         />
@@ -29,7 +29,7 @@
           <div>
             <KTextbox
               ref="numQuest"
-              v-model="numberOfQuestions"
+              v-model="question_count"
               type="number"
               :label="numberOfQuestionsLabel$()"
             />
@@ -43,8 +43,8 @@
                 icon="minus"
                 aria-hidden="true"
                 class="number-btn"
-                :disabled="numberOfQuestions === 1"
-                @click="numberOfQuestions -= 1"
+                :disabled="question_count === 1"
+                @click="question_count -= 1"
               />
               <span
                 :style="dividerStyle"
@@ -53,7 +53,7 @@
                 icon="plus"
                 aria-hidden="true"
                 class="number-btn"
-                @click="numberOfQuestions += 1"
+                @click="question_count += 1"
               />
             </div>
           </div>
@@ -62,7 +62,7 @@
     </KGrid>
 
     <KTextbox
-      v-model="descriptionText"
+      v-model="description"
       :label="optionalDescriptionLabel$()"
       :maxlength="400"
       :textArea="true"
@@ -84,7 +84,7 @@
           :layout4="{ span: 2 }"
         >
           <KRadioButton
-            v-model="selectedQuestionOrder"
+            v-model="learners_see_fixed_order"
             :label="randomizedLabel$()"
             :buttonValue="true"
             :description="randomizedOptionDescription$()"
@@ -96,7 +96,7 @@
           :layout4="{ span: 2 }"
         >
           <KRadioButton
-            v-model="selectedQuestionOrder"
+            v-model="learners_see_fixed_order"
             :label="fixedLabel$()"
             :buttonValue="false"
             :description="fixedOptionDescription$()"
@@ -228,7 +228,8 @@
 <script>
 
   import isEqual from 'lodash/isEqual';
-  import { computed, ref, toRefs, watch } from 'kolibri.lib.vueCompositionApi';
+  import pick from 'lodash/pick';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
@@ -245,7 +246,7 @@
       DragContainer,
       DragHandle,
     },
-    setup(props, context) {
+    setup(_, context) {
       const {
         activeSection,
         allSections,
@@ -254,56 +255,39 @@
         deleteSection,
       } = injectQuizCreation();
 
-      const { panelClosing } = toRefs(props);
-
       const showConfirmationModal = ref(false);
 
       function handleCancelClose() {
         showConfirmationModal.value = false;
-        context.emit('cancelClosePanel');
       }
 
       function handleConfirmClose() {
-        handleCancelClose();
         context.emit('closePanel');
       }
 
-      const selectedQuestionOrder = ref(activeSection.value.learners_see_fixed_order);
-      const numberOfQuestions = ref(activeSection.value.question_count);
-      const descriptionText = ref(activeSection.value.description);
-      const sectionTitle = ref(activeSection.value.section_title);
-
-      const originalFormData = {
-        selectedQuestionOrder: activeSection.value.learners_see_fixed_order,
-        numberOfQuestions: activeSection.value.question_count,
-        descriptionText: activeSection.value.description,
-        sectionTitle: activeSection.value.section_title,
-      };
+      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
+      const question_count = ref(activeSection.value.question_count);
+      const description = ref(activeSection.value.description);
+      const section_title = ref(activeSection.value.section_title);
 
       const formDataHasChanged = computed(() => {
         return !isEqual(
           {
-            selectedQuestionOrder: selectedQuestionOrder.value,
-            numberOfQuestions: numberOfQuestions.value,
-            descriptionText: descriptionText.value,
-            sectionTitle: sectionTitle.value,
+            learners_see_fixed_order: learners_see_fixed_order.value,
+            question_count: question_count.value,
+            description: description.value,
+            section_title: section_title.value,
           },
-          originalFormData
+          pick(activeSection.value, [
+            'learners_see_fixed_order',
+            'question_count',
+            'description',
+            'section_title',
+          ])
         );
       });
 
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-
-      watch(panelClosing, isClosing => {
-        if (isClosing) {
-          if (formDataHasChanged.value) {
-            showConfirmationModal.value = true;
-          } else {
-            context.emit('cancelClosePanel');
-            context.emit('closePanel');
-          }
-        }
-      });
 
       const {
         sectionSettings$,
@@ -325,6 +309,7 @@
       } = enhancedQuizManagementStrings;
 
       return {
+        formDataHasChanged,
         showConfirmationModal,
         handleCancelClose,
         handleConfirmClose,
@@ -335,10 +320,10 @@
         updateQuiz,
         deleteSection,
         // Form models
-        selectedQuestionOrder,
-        numberOfQuestions,
-        descriptionText,
-        sectionTitle,
+        learners_see_fixed_order,
+        question_count,
+        description,
+        section_title,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
@@ -360,14 +345,6 @@
         fixedLabel$,
         fixedOptionDescription$,
       };
-    },
-    props: {
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
-      panelClosing: {
-        type: Boolean,
-        default: false,
-        required: true,
-      },
     },
     computed: {
       borderStyle() {
@@ -394,6 +371,14 @@
         };
       },
     },
+    beforeRouteLeave(_, __, next) {
+      if (!this.showConfirmationModal && this.formDataHasChanged) {
+        this.showConfirmationModal = true;
+        next(false);
+      } else {
+        next();
+      }
+    },
     methods: {
       handleSectionSort(e) {
         this.updateQuiz({ question_sources: e.newArray });
@@ -401,12 +386,11 @@
       applySettings() {
         this.updateSection({
           section_id: this.activeSection.section_id,
-          section_title: this.sectionTitle,
-          description: this.descriptionText,
-          question_count: this.numberOfQuestions,
-          learners_see_fixed_order: this.selectedQuestionOrder,
+          section_title: this.section_title,
+          description: this.description,
+          question_count: this.question_count,
+          learners_see_fixed_order: this.learners_see_fixed_order,
         });
-        this.$emit('closePanel');
       },
     },
   };

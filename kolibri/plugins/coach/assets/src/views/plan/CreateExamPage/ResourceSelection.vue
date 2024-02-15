@@ -105,7 +105,7 @@
               style="float: right;"
               :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="!hasTopicId() && !showBookmarks"
+              :disabled="!workingPoolHasChanged"
               @click="saveSelectedResource"
             />
           </KGridItem>
@@ -127,7 +127,7 @@
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { toRefs, computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -151,8 +151,7 @@
       ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
-    setup(props, context) {
-      const { panelClosing } = toRefs(props);
+    setup(_, context) {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -163,6 +162,8 @@
       const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
       const showConfirmationModal = ref(false);
+
+      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
 
       const {
         sectionSettings$,
@@ -446,28 +447,20 @@
         return fetchMoreQuizResources();
       }
 
+
       function handleCancelClose() {
         showConfirmationModal.value = false;
-        context.emit('cancelClosePanel');
       }
 
       function handleConfirmClose() {
-        handleCancelClose();
         context.emit('closePanel');
       }
 
-      watch(panelClosing, isClosing => {
-        if (isClosing) {
-          if (
-            workingResourcePool.value.length != activeResourcePool.value.length ||
-            !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
-          ) {
-            showConfirmationModal.value = true;
-          } else {
-            context.emit('cancelClosePanel');
-            context.emit('closePanel');
-          }
-        }
+      const workingPoolHasChanged = computed(() => {
+        return (
+          workingResourcePool.value.length != activeResourcePool.value.length ||
+          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
+        );
       });
 
       return {
@@ -476,6 +469,8 @@
         showSelectAll,
         handleSelectAll,
         toggleSelected,
+        prevRoute,
+        workingPoolHasChanged,
         handleConfirmClose,
         handleCancelClose,
         topic,
@@ -505,19 +500,12 @@
         updateSection,
         selectAllQuestions,
         workingResourcePool,
+        activeResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
         selectedResourcesInformation$,
       };
-    },
-    props: {
-      // eslint-disable-next-line kolibri/vue-no-unused-properties
-      panelClosing: {
-        type: Boolean,
-        default: false,
-        required: true,
-      },
     },
     computed: {
       isTopicIdSet() {
@@ -548,6 +536,19 @@
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
+    },
+    beforeRouteEnter(_, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
+    },
+    beforeRouteLeave(_, __, next) {
+      if (!this.showConfirmationModal && this.workingPoolHasChanged) {
+        this.showConfirmationModal = true;
+        next(false);
+      } else {
+        next();
+      }
     },
     methods: {
       showTopicSizeWarningCard(content) {
@@ -590,9 +591,6 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
-      hasTopicId() {
-        return Boolean(this.$route.params.topic_id);
-      },
       saveSelectedResource() {
         this.updateSection({
           section_id: this.$route.params.section_id,
@@ -602,7 +600,7 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$emit('closePanel');
+        this.$router.replace(this.prevRoute);
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {

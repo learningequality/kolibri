@@ -1,66 +1,28 @@
 <template>
 
-  <div>
-    <SidePanelModal
-      v-if="$route.params.section_id"
-      ref="resourcePanel"
-      alignment="right"
-      sidePanelWidth="700px"
-      :closeButtonIconType="closeIcon"
-      @closePanel="() => panelClosing = true"
-      @shouldFocusFirstEl="findFirstEl()"
-    >
-      <component
-        :is="panel"
-        :ref="$route.name"
-        :panelClosing="panelClosing"
-        @closePanel="handleClosePanel"
-        @cancelClosePanel="panelClosing = false"
-      />
-    </SidePanelModal>
-  </div>
+  <SidePanelModal
+    ref="resourcePanel"
+    alignment="right"
+    sidePanelWidth="700px"
+    :closeButtonIconType="closeIcon"
+    @closePanel="handleClosePanel"
+    @shouldFocusFirstEl="findFirstEl()"
+  >
+    <router-view @closePanel="handleClosePanel" />
+  </SidePanelModal>
 
 </template>
 
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { PageNames } from '../../../constants';
-  import ResourceSelectionBreadcrumbs from '../../plan/LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs';
-  import SectionEditor from './SectionEditor';
-  import ReplaceQuestions from './ReplaceQuestions';
-  import ResourceSelection from './ResourceSelection';
-  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
-  //import ShowBookMarkedResources from './ShowBookMarkedResources.vue';
-  // import SelectedChannel from './SelectedChannel.vue';
-
-  const pageNameComponentMap = {
-    [PageNames.QUIZ_SECTION_EDITOR]: SectionEditor,
-    [PageNames.QUIZ_REPLACE_QUESTIONS]: ReplaceQuestions,
-    [PageNames.QUIZ_SELECT_RESOURCES]: ResourceSelection,
-    //[PageNames.BOOK_MARKED_RESOURCES]: ShowBookMarkedResources,
-  };
 
   export default {
     name: 'SectionSidePanel',
     components: {
       SidePanelModal,
-      SectionEditor,
-      ReplaceQuestions,
-      ResourceSelection,
-      // SelectedChannel,
-      ResourceSelectionBreadcrumbs,
-      ConfirmCancellationModal,
-    },
-    setup() {
-      /**
-       * This ref is used to signal to the child component that it is trying to close
-       *
-       */
-      const panelClosing = ref(false);
-      return { panelClosing };
     },
     data() {
       return {
@@ -68,16 +30,6 @@
       };
     },
     computed: {
-      panel() {
-        return pageNameComponentMap[this.$route.name];
-      },
-      closePanelRoute() {
-        if (this.closeIcon === 'close') {
-          return { name: PageNames.EXAM_CREATION_ROOT };
-        } else {
-          return this.prevRoute;
-        }
-      },
       /**
        * When the previous route was the root page OR select resources, we want an X icon.
        * Otherwise, we want a back icon.
@@ -99,8 +51,7 @@
     },
     methods: {
       handleClosePanel() {
-        this.panelClosing = false;
-        this.$router.replace(this.closePanelRoute);
+        this.$router.push({ name: PageNames.EXAM_CREATION_ROOT });
       },
       /**
        * Calls the currently displayed ref's focusFirstEl method.
