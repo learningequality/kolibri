@@ -158,7 +158,7 @@
 
       // TODO let's not use text for this
       const viewMoreButtonState = computed(() => {
-        if (hasMore.value) {
+        if (hasMore.value || moreSearchResults.value) {
           return ViewMoreButtonStates.HAS_MORE;
         } else {
           return ViewMoreButtonStates.NO_MORE;
@@ -205,6 +205,29 @@
         return workingResourceIds.includes(content.id);
       }
 
+      function fetchSearchResults() {
+        const getParams = {
+          max_results: 25,
+          keywords: searchQuery.value,
+          kind: ContentNodeKinds.EXERCISE,
+        };
+        return ContentNodeResource.fetchCollection({ getParams }).then(response => {
+          searchResults.value = response.results;
+          moreSearchResults.value = response.more;
+        });
+      }
+
+      function fetchMoreSearchResults() {
+        return ContentNodeResource.fetchCollection({
+          getParams: moreSearchResults.value,
+        }).then(
+          response => {
+            searchResults.value = searchResults.value.concat(response.results);
+            moreSearchResults.value = response.more;
+          }
+        );
+      }
+
       const {
         hasCheckbox,
         topic,
@@ -223,6 +246,7 @@
       const channels = ref([]);
       const bookmarks = ref([]);
       const searchResults = ref([]);
+      const moreSearchResults = ref(null);
 
       // Load up the channels
 
@@ -236,16 +260,7 @@
         ];
         
         if (searchQuery.value) {
-          const getParams = {
-            max_results: 25,
-            keywords: searchQuery.value,
-            kind: ContentNodeKinds.EXERCISE,
-          };
-          channelBookmarkPromises.push(
-            ContentNodeResource.fetchCollection({ getParams }).then(response => {
-              searchResults.value = response.results;
-            })
-          );
+          channelBookmarkPromises.push(fetchSearchResults());
         } else {
           channelBookmarkPromises.push(
             ChannelResource.fetchCollection({
@@ -314,6 +329,12 @@
         }
       });
 
+      watch(searchQuery, () => {
+        if (searchQuery.value) {
+          fetchSearchResults();
+        }
+      });
+
       return {
         topic,
         topicId,
@@ -324,7 +345,7 @@
         hasMore,
         loadingMore,
         searchQuery,
-        fetchMoreQuizResources,
+        fetchMoreQuizResources: searchQuery ? fetchMoreSearchResults : fetchMoreQuizResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
