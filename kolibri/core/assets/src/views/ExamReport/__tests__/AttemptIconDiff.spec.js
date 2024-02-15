@@ -1,9 +1,10 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
 import VueRouter from 'vue-router';
+import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import AttemptIconDiff from '../AttemptIconDiff.vue';
 
-const successThemeColor = '#43a047';
+const successThemeColor = themeTokens().correct;
 
 // Helper function to render the component with some default props
 const renderComponent = props => {
