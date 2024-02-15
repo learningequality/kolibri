@@ -26,7 +26,7 @@
         </KGridItem>
       </KGrid>
 
-      <div v-if="!searchQuery && !isTopicIdSet && bookmarks.length && !showBookmarks">
+      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
         <p>{{ selectFromBookmarks$() }}</p>
 
@@ -499,14 +499,18 @@
         return '';
       },
       handleSearchTermChange(searchTerm) {
-        this.$router.push({
-          query: { search: searchTerm },
-        });
+        const query = {
+          ...this.$route.query,
+          search: searchTerm,
+        };
+        this.$router.push({ query });
       },
       clearSearchTerm() {
-        this.$router.push({
-          query: { search: null },
-        });
+        const query = {
+          ...this.$route.query,
+        };
+        delete query.search;
+        this.$router.push({ query });
       },
     },
   };
