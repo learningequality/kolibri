@@ -23,6 +23,7 @@ from kolibri.core.device.utils import get_device_setting
 from kolibri.core.fields import JSONField
 from kolibri.core.public.constants.user_sync_options import STALE_QUEUE_TIME
 from kolibri.core.utils.cache import process_cache as cache
+from kolibri.core.utils.lock import retry_on_db_lock
 from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.deployment.default.sqlite_db_names import SYNC_QUEUE
 from kolibri.plugins.app.utils import interface
@@ -432,6 +433,12 @@ class SyncQueue(models.Model):
         self.attempts += 1
         # exponential backoff with min of 30 seconds
         self.set_next_attempt(28 + 2 ** self.attempts)
+
+    # Saving these models seems unusually prone to hitting database locks, so we'll retry
+    # the save operation if we hit a lock.
+    @retry_on_db_lock
+    def save(self, *args, **kwargs):
+        return super(SyncQueue, self).save(*args, **kwargs)
 
     class Meta:
         unique_together = ("user_id", "instance_id")
