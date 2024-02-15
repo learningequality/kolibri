@@ -1,3 +1,16 @@
+kolibri-source (0.16.0~rc0-0ubuntu1) jammy; urgency=medium
+
+  * New upstream release
+  * Bumped for latest standards policy
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 15 Feb 2024 18:49:12 +0100
+
+kolibri-source (0.15.12-0ubuntu3) bionic; urgency=medium
+
+  * debian/control: Remove conflict with python3-markdown
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Thu, 15 Feb 2024 18:34:00 +0100
+
 kolibri-source (0.15.12-0ubuntu2) bionic; urgency=medium
 
   * debian/control: Drop support for python 3.4 & 3.5
