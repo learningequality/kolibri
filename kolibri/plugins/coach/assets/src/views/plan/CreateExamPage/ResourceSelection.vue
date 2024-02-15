@@ -127,7 +127,7 @@
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { toRefs, computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -465,26 +465,17 @@
 
       function handleCancelClose() {
         showConfirmationModal.value = false;
-        context.emit('cancelClosePanel');
       }
 
       function handleConfirmClose() {
-        handleCancelClose();
         context.emit('closePanel');
       }
 
-      watch(panelClosing, isClosing => {
-        if (isClosing) {
-          if (
-            workingResourcePool.value.length != activeResourcePool.value.length ||
-            !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
-          ) {
-            showConfirmationModal.value = true;
-          } else {
-            context.emit('cancelClosePanel');
-            context.emit('closePanel');
-          }
-        }
+      const workingPoolHasChanged = computed(() => {
+        return (
+          workingResourcePool.value.length != activeResourcePool.value.length ||
+          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
+        );
       });
 
       return {
@@ -624,7 +615,7 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$emit('closePanel');
+        this.$router.replace(this.prevRoute);
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
