@@ -56,6 +56,12 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
+
+      <LessonsSearchBox
+        v-if="!showBookmarks && !isTopicIdSet"
+        @clear="clearSearchTerm"
+        @searchterm="handleSearchTermChange"
+      />
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -116,6 +122,7 @@
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
@@ -124,6 +131,7 @@
     components: {
       ContentCardList,
       BookmarkIcon,
+      LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
@@ -135,6 +143,7 @@
       // or the actual exercises that are bookmarked and can be selected
       // to be added to Quiz Section.
       const showBookmarks = computed(() => route.value.query.showBookmarks);
+      const { searchQuery } = computed(() => (showBookmarks.value ? '' : route.value.query.search));
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
 
       const {
@@ -446,6 +455,16 @@
           });
         }
         return '';
+      },
+      handleSearchTermChange(searchTerm) {
+        this.$router.push({
+          query: { search: searchTerm },
+        });
+      },
+      clearSearchTerm() {
+        this.$router.push({
+          query: { search: null },
+        });
       },
     },
   };

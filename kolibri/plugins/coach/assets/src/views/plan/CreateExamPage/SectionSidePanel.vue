@@ -105,7 +105,10 @@
     },
     methods: {
       handleClosePanel() {
-        if (this.workingResourcePool.length > this.activeResourcePool.length) {
+        if (
+          this.workingResourcePool &&
+          this.workingResourcePool.length > this.activeResourcePool.length
+        ) {
           this.showConfirmationModal = true;
         } else {
           this.$router.replace(this.closePanelRoute);
