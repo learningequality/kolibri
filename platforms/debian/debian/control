@@ -2,14 +2,14 @@ Source: kolibri-source
 Priority: optional
 Section: education
 Maintainer: José L. Redrejo Rodríguez <jredrejo@debian.org>
-Build-Depends: debhelper (>=9),
+Build-Depends: debhelper-compat (= 13),
                dh-python,
                python3-all,
                python3-setuptools,
                python3-pytest,
                python3-pip,
                po-debconf
-Standards-Version: 3.9.7
+Standards-Version: 4.8.0
 Homepage: https://learningequality.org/kolibri
 X-Python-Version: >= 2.7
 X-Python3-Version: >= 3.6
@@ -23,7 +23,6 @@ Depends: python3 (>= 3.6),
          python3-pkg-resources,
          adduser
 Recommends: python3-cryptography (>= 1.2.3)
-Conflicts: python3-markdown (>= 3.4.1)
 Description: The offline app for universal education
  An educational platform for learners of all ages.
  .
