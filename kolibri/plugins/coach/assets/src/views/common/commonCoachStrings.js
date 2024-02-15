@@ -603,6 +603,10 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       'Indicates to the coach how many questions the learner answered correctly compared to the previous attempt',
   },
+  coachReportsLesson: {
+    message: 'Report lesson',
+    context: 'Labels the Reports > Lesson tab for screen reader users',
+  },
 });
 
 // Strings for the Missing Content modals, tooltips, alerts, etc.
