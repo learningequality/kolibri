@@ -386,6 +386,7 @@
           // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
           // annotated with their num_assessments and those without assessments are filtered out
           annotateTopicsWithDescendantCounts(resources.value.map(c => c.id)).then(() => {
+            channels.value = resources.value;
             _loading.value = false;
           });
         });
@@ -415,6 +416,10 @@
 
         if (searchQuery.value) {
           return searchResults.value;
+        }
+
+        if (!topicId.value) {
+          return channels.value;
         }
 
         return resources.value;
