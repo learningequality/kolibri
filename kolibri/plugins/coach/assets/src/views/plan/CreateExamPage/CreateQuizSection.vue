@@ -332,6 +332,7 @@
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
+  import { PageNames } from '../../../constants';
   import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
@@ -505,13 +506,15 @@
     methods: {
       handleReplaceSelection() {
         const section_id = get(this.activeSection).section_id;
-        this.$router.push({ path: 'new/' + section_id + '/replace-questions' });
+        const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
+        this.$router.push(route);
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
+        const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
         switch (opt.label) {
           case this.editSectionLabel$():
-            this.$router.push({ path: 'new/' + section_id + '/edit' });
+            this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
             this.removeSection(this.activeSection.section_id);
@@ -569,7 +572,8 @@
         set(this.dragActive, true);
       },
       openSelectResources(section_id) {
-        this.$router.push({ path: 'new/' + section_id + '/select-resources' });
+        const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });
+        this.$router.push(route);
       },
     },
   };
