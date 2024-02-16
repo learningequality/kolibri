@@ -50,6 +50,14 @@
         </div>
       </div>
 
+      <div
+        v-if="showTopicSizeWarning()"
+        class="shadow"
+        :style=" { padding: '1em', backgroundColor: $themePalette.grey.v_100 }"
+      >
+        {{ cannotSelectSomeTopicWarning$() }}
+      </div>
+
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
         :ancestors="topic.ancestors"
@@ -75,8 +83,15 @@
         :loadingMoreState="loadingMore"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreResources"
-      />
+        @moreresults="fetchMoreQuizResources"
+      >
+        <template #notice="{ content }">
+          <div v-if="showTopicSizeWarningCard(content)" style="position: absolute; bottom: 1em;">
+            <KIcon icon="warning" :color="$themePalette.orange.v_400" />
+            <span>&nbsp;&nbsp;{{ cannotSelectTopicCard$() }}</span>
+          </div>
+        </template>
+      </ContentCardList>
 
       <div class="bottom-navigation">
         <KGrid>
@@ -154,6 +169,8 @@
         numberOfSelectedResources$,
         numberOfResources$,
         selectedResourcesInformation$,
+        cannotSelectTopicCard$,
+        cannotSelectSomeTopicWarning$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -440,6 +457,8 @@
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
+        cannotSelectTopicCard$,
+        cannotSelectSomeTopicWarning$,
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
@@ -496,6 +515,12 @@
       },
     },
     methods: {
+      showTopicSizeWarningCard(content) {
+        return !this.hasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
+      },
+      showTopicSizeWarning() {
+        return this.contentList.some(this.showTopicSizeWarningCard);
+      },
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
@@ -662,6 +687,11 @@
 
   .align-select-folder-style {
     margin-top: 2em;
+  }
+
+  .shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+      0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
 
 </style>
