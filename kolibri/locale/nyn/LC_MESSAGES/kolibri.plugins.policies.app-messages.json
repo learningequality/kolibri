@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Inu {choice, string} kuti mulandire ma 'cookies' okhudza uthenga operekedwa m'manambala. Mukhonza kusintha njira imeneyi apa:",
+  "CookiePolicy.choicesP1": "Inu {choice} kuti mulandire ma 'cookies' okhudza uthenga operekedwa m'manambala. Mukhonza kusintha njira imeneyi apa:",
   "CookiePolicy.cookieExpiryTableHeader": "Kutha mphamvu",
   "CookiePolicy.cookieP1": "Malo ophunzilira a Kolibri amagwiritsa ntchito ma 'cookies' pofuna kuteteza zochita zanu pa intaneti, kumvetsa za ogwiritsa ntchito pulogalamuyi, komanso kupititsa patsogolo momwe izi zimagwirira ntchito. Ma 'cookies' akutathawuza mafayilo ang'onoang'ono a mawu amene akhonza kugwiritsidwa ntchito ndi mawebusayiti pofuna kupititsa patsogolo zochita za wogwiritsa ntchitoyo.",
   "CookiePolicy.cookieP2": "Malamulo okhudza chinsinsi pa intaneti (GDPR ndi CCPA) amanena kuti tikhonza kusunga ma 'cookies' pa chipangizo chanu ngati ali ofunikira kwambiri ku ntchito yake. Koma pa ma 'cookies' ena onse, timafuna chilolezo chanu.",

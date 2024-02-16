@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "{choice, string}으로 통계 쿠키를 수신할 수 있습니다. 여기에서 선호 사항을 변경할 수 있습니다:",
+  "CookiePolicy.choicesP1": "{choice}으로 통계 쿠키를 수신할 수 있습니다. 여기에서 선호 사항을 변경할 수 있습니다:",
   "CookiePolicy.cookieExpiryTableHeader": "만료",
   "CookiePolicy.cookieP1": "Kolibri 학습 플랫폼은 쿠키를 사용하여 사용자 경험의 맞춤화 및 보호, 트래픽 분석, 서비스의 성과 및 기능성 개선을 달성합니다. 쿠키는 보다 효율적인 사용자 경험을 위해 웹사이트에서 사용하는 작은 텍스트 파일입니다.",
   "CookiePolicy.cookieP2": "현재 개인정보 보호법규(GDPR 및 CCPA)에 의하여 당사는 이 서비스의 운영에 쿠키가 반드시 필수적이라면 본인의 기기에 해당 쿠키를 저장할 수 있습니다. 다른 모든 유형의 쿠키는 본인의 동의가 필요합니다.",

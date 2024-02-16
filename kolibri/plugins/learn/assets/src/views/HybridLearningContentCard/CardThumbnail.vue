@@ -5,7 +5,7 @@
   >
     <template #labels>
       <LearningActivityDuration
-        v-if="checkIfExercise || displayDurationChip"
+        v-if="displayDurationChip"
         :contentNode="contentNode"
         appearance="chip"
         class="duration"
@@ -47,18 +47,8 @@
     },
     computed: {
       displayDurationChip() {
-        if (this.hideDuration) {
-          return false;
-        } else if (this.isMobile) {
-          return false;
-        }
-        return true;
-      },
-      checkIfExercise() {
-        if (this.contentNode.kind === 'exercise') {
-          return true;
-        }
-        return false;
+        // Hide if hideDuration or isMobile is true, display if contentNode kind is exercise
+        return this.hideDuration || this.isMobile ? false : this.contentNode.kind === 'exercise';
       },
     },
   };

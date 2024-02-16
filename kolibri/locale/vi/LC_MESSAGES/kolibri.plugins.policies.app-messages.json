@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Bạn {choice, string} để nhận cookie thống kê. Bạn có thể thay đổi tuỳ chọn này ở đây:",
+  "CookiePolicy.choicesP1": "Bạn {choice} để nhận cookie thống kê. Bạn có thể thay đổi tuỳ chọn này ở đây:",
   "CookiePolicy.cookieExpiryTableHeader": "Hết hạn",
   "CookiePolicy.cookieP1": "Nền tảng Học tập Kolibri sử dụng cookie để cá nhân hoá và bảo mật trải nghiệm của bạn, để phân tích lưu lượng và cải thiện hiệu suất cũng như chức năng dịch vụ của nền tảng. Cookie là các tệp văn bản nhỏ có thể được các trang web sử dụng để nâng cao trải nghiệm người dùng.",
   "CookiePolicy.cookieP2": "Các luật về quyền riêng tư hiện tại (Quy định Chung về Bảo vệ Dữ liệu - GDPR và Đạo luật Quyền riêng tư của Người tiêu dùng California - CCPA) nêu rằng chúng tôi có thể lưu trữ cookie trên thiết bị của bạn nếu cookie này cực kỳ cần thiết để vận hành dịch vụ. Với tất cả các loại cookie khác, chúng tôi cần bạn cho phép.",
