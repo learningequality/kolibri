@@ -5,4 +5,4 @@
 # installed - as these dependencies are installed
 # without their dependencies.
 cffi==1.14.4
-cryptography==3.3.2
+cryptography==42.0.2
