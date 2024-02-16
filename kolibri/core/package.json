@@ -21,7 +21,7 @@
     "js-cookie": "^3.0.5",
     "knuth-shuffle-seeded": "^1.0.6",
     "kolibri-constants": "0.2.0",
-    "kolibri-design-system": "https://github.com/learningequality/kolibri-design-system#0ed2f274b1bc3808218a4d3f526c181b96b32c6d",
+    "kolibri-design-system": "~3.0.0",
     "lockr": "0.8.5",
     "lodash": "^4.17.21",
     "loglevel": "^1.8.1",

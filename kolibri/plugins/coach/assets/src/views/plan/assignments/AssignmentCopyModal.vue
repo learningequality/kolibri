@@ -14,7 +14,7 @@
         :key="classroom.id"
         v-model="selectedClassroomId"
         :label="classroomLabel(classroom)"
-        :value="classroom.id"
+        :buttonValue="classroom.id"
         data-test="radio-button"
       />
     </div>

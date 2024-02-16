@@ -21,14 +21,14 @@
     <KRadioButton
       v-model="preset"
       class="permission-preset-radio-button"
-      :value="Presets.NONFORMAL"
+      :buttonValue="Presets.NONFORMAL"
       :label="$tr('nonFormalLabel')"
       :description="$tr('nonFormalDescription')"
     />
     <KRadioButton
       v-model="preset"
       class="permission-preset-radio-button"
-      :value="Presets.FORMAL"
+      :buttonValue="Presets.FORMAL"
       :label="$tr('formalLabel')"
       :description="$tr('formalDescription')"
     />
