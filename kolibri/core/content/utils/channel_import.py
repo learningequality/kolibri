@@ -241,7 +241,9 @@ class ChannelImport(object):
         self.channel_version = channel_version
         try:
             self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+            print(self.current_channel)
         except ChannelMetadata.DoesNotExist:
+            print("Not Possible")
             self.current_channel = None
 
         self.cancel_check = cancel_check
@@ -722,7 +724,6 @@ class ChannelImport(object):
         return result
 
     def check_and_delete_existing_channel(self):
-
         if self.current_channel:
             current_version = self.current_channel.version
             current_partial = self.current_channel.partial
@@ -741,7 +742,9 @@ class ChannelImport(object):
                     )
                     return False
                 return True
-            elif current_version < self.channel_version or current_partial:
+            elif current_version and (
+                current_version < self.channel_version or current_partial
+            ):
                 # We have an older version of this channel, so let's clean out the old stuff first
                 # Or we only have a partial import of this channel.
                 logger.info(
@@ -779,7 +782,6 @@ class ChannelImport(object):
                     )
                 )
                 return False
-
         return True
 
     def _can_use_optimized_pre_deletion(self, model):
