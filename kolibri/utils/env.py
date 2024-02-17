@@ -103,6 +103,17 @@ def check_python_versions():
         warn(warning_text, DeprecationWarning)
 
 
+def monkey_patch_markdown():
+    """
+    Monkey patch markdown module into module cache to set to None.
+    This is to avoid a bug caused by newer versions of markdown that causes
+    a crash during the attempted optional import of markdown in DRF.
+    """
+    # TODO: rtibbles remove this once we upgrade to a newer version of Django REST Framework
+    # that doesn't have this issue.
+    sys.modules["markdown"] = None
+
+
 def set_env():
     """
     Sets the Kolibri environment for the CLI or other application worker
@@ -113,6 +124,8 @@ def set_env():
     else.
     """
     check_python_versions()
+
+    monkey_patch_markdown()
 
     from kolibri import dist as kolibri_dist  # noqa
 
