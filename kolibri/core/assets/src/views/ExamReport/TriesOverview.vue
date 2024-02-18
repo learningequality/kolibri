@@ -115,30 +115,25 @@
           return 0.0;
         }
       },
+      // Returns the time spent on the best attempt or null if there are no attempts
       bestTimeSpent() {
-        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
-        if (!bestScoreAttempt) {
-          return null;
-        }
-        return bestScoreAttempt.time_spent;
-      },
-      maxQuestionsCorrect() {
-        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : null;
-      },
-      bestScore() {
-        return this.maxQuestionsCorrect !== null
-          ? this.maxQuestionsCorrect / this.totalQuestions
+        return this.pastTries.length
+          ? this.pastTries.find(t => t.correct === this.maxQuestionsCorrect).time_spent
           : null;
       },
+      // Returns the number of questions correct in the best attempt or 0 if there are no attempts
+      maxQuestionsCorrect() {
+        return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : 0;
+      },
+      bestScore() {
+        return this.maxQuestionsCorrect / this.totalQuestions;
+      },
       suggestedTimeAnnotation() {
-        if (!this.suggestedTime || this.bestTimeSpent === null) {
+        if (!this.suggestedTime || !this.bestTimeSpent) {
           return null;
         }
 
         const diff = Math.floor((this.bestTimeSpent - this.suggestedTime) / 60);
-        if (!diff) {
-          return null;
-        }
 
         return diff >= 1
           ? this.$tr('practiceQuizReportSlowerSuggestedLabel', { value: diff })
