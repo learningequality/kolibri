@@ -270,8 +270,15 @@ class Validator(object):
 
     def get_username(self, row):
         username = row.get(self.header_translation["USERNAME"])
-        if username in self.users.keys():
-            return None
+    
+        # Convert username to lowercase for case-insensitive comparison
+        lowercase_username = username.lower()
+
+        if lowercase_username in self.users:
+            return None  # Duplicate username
+
+        # Store the lowercase username in the users dictionary
+        self.users[lowercase_username] = True
 
         return username
 
