@@ -12,11 +12,11 @@ tryValidatorModule.tryValidator = jest.fn(() => true);
 const renderComponent = props => {
   const commonCoreStrings = {
     methods: {
-      // Add comma seperated options as key value pairs
       coreString: (x, options) =>
         !options
           ? x
-          : `${x} ${Object.keys(options)
+          : // Add comma seperated options as key value pairs at the end of the label
+            `${x} ${Object.keys(options)
               .map(key => `${key}=${options[key]}`)
               .join(', ')}`,
     },
