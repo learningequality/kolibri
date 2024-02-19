@@ -75,7 +75,7 @@
         :loadingMoreState="loadingMore"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreQuizResources"
+        @moreresults="fetchMoreResources"
       />
 
       <div class="bottom-navigation">
@@ -333,6 +333,13 @@
         }
       });
 
+      function fetchMoreResources() {
+        if (searchQuery.value) {
+          return fetchMoreSearchResults();
+        }
+        return fetchMoreQuizResources();
+      }
+
       return {
         topic,
         topicId,
@@ -342,7 +349,7 @@
         loading,
         hasMore,
         loadingMore,
-        fetchMoreQuizResources: searchQuery ? fetchMoreSearchResults : fetchMoreQuizResources,
+        fetchMoreResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
