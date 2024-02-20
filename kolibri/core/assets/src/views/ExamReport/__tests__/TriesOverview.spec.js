@@ -26,7 +26,6 @@ const renderComponent = props => {
     pastTries: [],
     totalQuestions: 20,
     suggestedTime: 240,
-    ...props,
   };
 
   return render(TriesOverview, {
