@@ -25,9 +25,10 @@
           <KButton
             v-if="hasDownloads"
             :text="$tr('goToDownloads')"
+            style="margin-right: 10px"
             appearance="raised-button"
             :secondary="true"
-            @click="closeBanner"
+            @click="openDownloads"
           />
           <KButton
             v-if="isAdmin"
@@ -163,6 +164,10 @@
         if (this.previouslyFocusedElement) {
           this.previouslyFocusedElement.focus();
         }
+      },
+      openDownloads() {
+        const downloadsUrl = urls['kolibri:kolibri.plugins.learn:my_downloads']();
+        redirectBrowser(downloadsUrl);
       },
       manageChannel() {
         const deviceManagementUrl = urls['kolibri:kolibri.plugins.device:device_management']();
