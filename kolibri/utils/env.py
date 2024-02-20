@@ -77,15 +77,20 @@ def prepend_cext_path(dist_path):
         else:
             dirname = os.path.join(dirname, python_version + "mu")
 
-    dirname = os.path.join(dirname, machine_name)
+    arch_dirname = os.path.join(dirname, machine_name)
     noarch_dir = os.path.join(dist_path, "cext")
-    if sys.version_info >= (3, 6) and os.path.exists(abi3_dirname):
-        sys.path = [str(abi3_dirname)] + sys.path
+    abi3_dir_exists = sys.version_info >= (3, 6) and os.path.exists(abi3_dirname)
+    arch_dir_exists = os.path.exists(arch_dirname)
+    # If either the abi3 or arch directory exists, add the noarch directory to sys.path
+    if abi3_dir_exists or arch_dir_exists:
+        # Add the noarch (OpenSSL) modules to sys.path
+        sys.path = [str(noarch_dir)] + sys.path
 
-    if os.path.exists(dirname):
+    if abi3_dir_exists:
+        sys.path = [str(abi3_dirname)] + sys.path
+    if arch_dir_exists:
         # If the directory of platform-specific cextensions (cryptography) exists,
-        # add it + the matching noarch (OpenSSL) modules to sys.path
-        sys.path = [str(dirname), str(noarch_dir)] + sys.path
+        sys.path = [str(arch_dirname)] + sys.path
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
         logging.StreamHandler(sys.stdout)
