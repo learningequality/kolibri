@@ -1,6 +1,6 @@
 <template>
 
-  <span v-if="text">{{ text }}</span>
+  <span v-if="text" data-testid="attempt-text-diff">{{ text }}</span>
 
 </template>
 

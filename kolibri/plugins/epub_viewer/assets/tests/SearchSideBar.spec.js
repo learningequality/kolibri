@@ -24,6 +24,6 @@ describe('Search side bar', () => {
     const wrapper = createWrapper();
     wrapper.vm.focusOnInput();
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.classList.contains('search-input')).toBe(true);
+    expect(elementThatIsFocused).toHaveClass('search-input');
   });
 });
