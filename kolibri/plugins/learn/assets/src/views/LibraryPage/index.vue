@@ -458,11 +458,11 @@
         }
       },
       gridOffset() {
-        const marginTop =
+        const paddingTop =
           !this.windowIsLarge && (this.isLocalLibraryEmpty || this.deviceId) ? '140px' : '110px';
         return this.isRtl
-          ? { marginRight: `${this.sidePanelWidth + 24}px`, marginTop }
-          : { marginLeft: `${this.sidePanelWidth + 24}px`, marginTop };
+          ? { paddingRight: `${this.sidePanelWidth + 24}px`, paddingTop }
+          : { paddingLeft: `${this.sidePanelWidth + 24}px`, paddingTop };
       },
       sidePanelWidth() {
         if (
@@ -605,9 +605,9 @@
   }
 
   .main-grid {
-    margin-top: 110px;
-    margin-right: 24px;
-    margin-bottom: 96px;
+    padding-top: 110px;
+    padding-right: 24px;
+    padding-bottom: 96px;
   }
 
   .channels-label {
