@@ -71,7 +71,7 @@
       style() {
         const activeStyles = this.active
           ? {
-              backgroundColor: this.$themePalette.grey.v_300,
+              backgroundColor: this.$themePalette.grey.v_400,
               borderLeftColor: this.$themeTokens.video,
             }
           : {};

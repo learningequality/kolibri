@@ -109,7 +109,7 @@
         return this.$computedClass({ ':focus': this.$coreOutline });
       },
       bgStyle() {
-        const color = this.isSelected ? this.$themePalette.grey.v_300 : this.$themeTokens.surface;
+        const color = this.isSelected ? this.$themePalette.grey.v_400 : this.$themeTokens.surface;
         return { backgroundColor: color };
       },
     },

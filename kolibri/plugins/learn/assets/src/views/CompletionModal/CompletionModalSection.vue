@@ -142,7 +142,7 @@
       sectionStyle() {
         return {
           ':not(:last-child)': {
-            borderBottom: `1px solid ${this.$themePalette.grey.v_300}`,
+            borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
           },
         };
       },
