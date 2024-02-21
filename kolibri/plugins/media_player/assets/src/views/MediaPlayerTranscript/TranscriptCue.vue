@@ -72,7 +72,7 @@
         const activeStyles = this.active
           ? {
               backgroundColor: this.$themePalette.grey.v_400,
-              borderLeftColor: this.$themeTokens.video,
+              borderLeftColor: this.$themeTokens.watch,
             }
           : {};
 
