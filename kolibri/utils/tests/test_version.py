@@ -104,6 +104,18 @@ class TestKolibriVersion(unittest.TestCase):
         v = get_version((0, 7, 1))
         self.assertIn("0.7.1b1.dev0+git.2.gfd48a7a", v)
 
+    @mock.patch(
+        "kolibri.utils.version.get_version_file",
+        return_value="0.7.1rc1.dev0+git.2.gfd48a7a",
+    )
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
+    def test_version_file_local_git_version_rc(self, describe_mock, file_mock):
+        """
+        Test that a version file with git describe output is correctly parsed
+        """
+        v = get_version((0, 7, 1))
+        self.assertIn("0.7.1rc1.dev0+git.2.gfd48a7a", v)
+
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0a1\n")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
     @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
@@ -169,6 +181,16 @@ class TestKolibriVersion(unittest.TestCase):
         Test that the VERSION file is used when git data is available
         """
         assert get_version((0, 1, 0)) == "0.1.0b1"
+
+    @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0rc1")
+    @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)
+    @mock.patch("kolibri.utils.version.get_git_changeset", return_value=None)
+    def test_version_file_rc(self, get_git_changeset_mock, describe_mock, file_mock):
+        """
+        Test that a VERSION specifying a final version will work when the
+        kolibri.VERSION tuple is consistent.
+        """
+        assert get_version((0, 1, 0)) == "0.1.0rc1"
 
     @mock.patch("kolibri.utils.version.get_version_file", return_value="0.1.0")
     @mock.patch("kolibri.utils.version.get_git_describe", return_value=None)

@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Ou {choice, string} pou resevwa kouki estatistik yo. Ou kapab chanje preferans sa isit la:",
+  "CookiePolicy.choicesP1": "Ou {choice} pou resevwa kouki estatistik yo. Ou kapab chanje preferans sa isit la:",
   "CookiePolicy.cookieExpiryTableHeader": "Ekspirasyon",
   "CookiePolicy.cookieP1": "Platfòm Aprantisaj Kolibri a ap itilize kouki yo pou pèsonalize ak sekirize eksperyans, pou analize trafik, ak pou amelyore pèfòmans ak fonksyonalite sèvis li a. Kouki yo se ti fichye tèks ki kapab itilize pa sitwèb yo pou rann eksperyans itilizatè a vin pi efikas.",
   "CookiePolicy.cookieP2": "Aktyèlman lwa sou vi prive yo (GDPR ak CCPA) endike nou kapab estoke kouki yo sou aparèy ou an si yo estrikteman nesesè pou operasyon sèvis la. Pou tout lòt tip kouki yo, nou bezwen pèmisyon ou.",
@@ -36,7 +36,7 @@
   "UsageAndPrivacy.kolibriUsersP2": "Sonje enfòmasyon pèsonèl ou ka vizib pou lòt moun, sa depann de kijan ou te konfigire lojisyèl la epi kijan ou aksede lojisyèl la.",
   "UsageAndPrivacy.kolibriUsersP3": "Tanpri kontakte administratè Kolibri lokal ou an pou konprann ki enfòmasyon pèsonèl ou genyen ki kapab estoke, pou kiyès yo vizib, kòman pou mete yo ajou oubyen efase yo, oubyen si ou panse yo te konpwomèt kont ou an.",
   "UsageAndPrivacy.kolibriUsersP4": "Ou pa ta dwe:",
-  "UsageAndPrivacy.kolibriUsersP5": "Lè w ap itilize Kolibri kòm yon itilizatè ki konekte, enfòmasyon tankou non w, non itilizatè w, laj, ane nesans, nimewo idantifikasyon, resous ou wè yo, ak pèfòmans ou nan evalyasyon yo ka disponib pou administratè ak edikatè nan etablisman ou an. Enfòmasyon ou yo ka itilize tou pa devlopè Kolibri yo epi pataje ak kreyatè kontni pou ede amelyore lojisyèl la ak resous yo pou diferan tip etidyan ak nesesite.",
+  "UsageAndPrivacy.kolibriUsersP5": "Lè w ap itilize Kolibri kòm yon itilizatè ki konekte, enfòmasyon tankou non w, non itilizatè w, laj, ane nesans, nimewo idantifikasyon, resous ou wè yo, ak pèfòmans ou nan evalyasyon yo ka disponib pou administratè ak edikatè nan etablisman ou an. Enfòmasyon ou yo ka itilize tou pa devlopè Kolibri yo epi pataje ak kreyatè kontni pou ede amelyore lojisyèl la ak resous yo pou diferan tip elèv ak nesesite.",
   "UsageAndPrivacy.kolibriUsersP6": "Lè w itilize Kolibri kòm yon envite, enfòmasyon agreje sou resous ou menm ak lòt itilizatè envite konsilte ka disponib pou administratè yo ak kèk edikatè.",
   "UsageAndPrivacy.openIdH1": "Koneksyon nan aplikasyon yon lòt konpayi pandan w ap itilize Kolibri",
   "UsageAndPrivacy.openIdP1": "Li posib pou w itilize Kolibri pou enskri oubyen konekte nan aplikasyon lòt konpayi. Si ou fè sa, lòt aplikasyon pral gen aksè ak non itilizatè w sou Kolibri, idantifikasyon itilizatè inik ou an, ak non konplè w."

@@ -1,6 +1,7 @@
 from .models import ExamAssignment
 from .models import IndividualSyncableExam
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
+from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
 
 
 def update_individual_syncable_exams_from_assignments(user_id):
@@ -8,9 +9,12 @@ def update_individual_syncable_exams_from_assignments(user_id):
     Updates the set of IndividualSyncableExam objects for the user.
     """
     syncableexams = IndividualSyncableExam.objects.filter(user_id=user_id)
-    assignments = ExamAssignment.objects.filter(
-        collection__membership__user_id=user_id, exam__active=True
-    ).distinct()
+    assignments = learner_canonicalized_assignments(
+        "exam",
+        ExamAssignment.objects.filter(
+            collection__membership__user_id=user_id, exam__active=True
+        ).distinct(),
+    )
 
     # get a list of all active assignments that don't have a syncable exam
     to_create = assignments.exclude(exam_id__in=syncableexams.values_list("exam_id"))

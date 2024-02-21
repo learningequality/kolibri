@@ -18,6 +18,7 @@ from configobj import get_extra_values
 from django.utils.functional import SimpleLazyObject
 from django.utils.module_loading import import_string
 from validate import is_boolean
+from validate import is_option
 from validate import Validator
 from validate import VdtTypeError
 from validate import VdtValueError
@@ -270,6 +271,28 @@ def multiprocess_bool(value):
         return False
 
 
+def cache_option(value):
+    """
+    Validate the cache options.
+    Do this by checking it's an allowed option, and also that redis cache
+    can be imported properly on this platform.
+    """
+    value = is_option(value, "memory", "redis")
+    try:
+        if value == "redis":
+            # Check that we can properly import our RedisCache
+            # implementation, to ensure that we can use it.
+            # Also ensure that the redis package is installed.
+            from kolibri.core.utils.cache import RedisCache  # noqa
+            import redis  # noqa
+        return value
+    except ImportError:
+        logger.error(
+            "Redis cache backend is not available, are Redis packages installed?"
+        )
+        raise VdtValueError(value)
+
+
 class LazyImportFunction(object):
     """
     A function wrapper that will import a module when called.
@@ -338,8 +361,7 @@ def lazy_import_callback_list(value):
 base_option_spec = {
     "Cache": {
         "CACHE_BACKEND": {
-            "type": "option",
-            "options": ("memory", "redis"),
+            "type": "cache_option",
             "default": "memory",
             "description": """
                 Which backend to use for the main cache - if 'memory' is selected, then for most cache operations,
@@ -715,6 +737,7 @@ def _get_validator():
             "url_prefix": url_prefix,
             "bytes": validate_bytes,
             "multiprocess_bool": multiprocess_bool,
+            "cache_option": cache_option,
             "lazy_import_callback_list": lazy_import_callback_list,
         }
     )

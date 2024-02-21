@@ -2,6 +2,65 @@
 
 List of the most important changes for each release.
 
+
+## 0.16.0
+
+### Features
+
+#### Robust syncing of user data and resources
+##### Support for quick learner setup and independent learners
+- Kolibri has a new onboarding experience which allows joining a facility, and streamlines getting started as an independent learner with a rapid “on my own setup” option
+- Independent learners can transfer their existing data and learning progress to a facility.
+##### Resource discovery
+- Assigned lesson and quiz resources are now automatically transferred to learner devices, allowing coaches to dynamically manage learner content, rather than an administrator needing to import all content devices before distribution.
+- Administrators and independent learners are now able to view other Kolibri Libraries on their local network and browse their resources, without having to import content. If they are connected to the internet, they will be able to browse resources on the Kolibri Content Library (hosted on Kolibri Studio).
+- Administrators can allow learners to download resources from other Kolibri Libraries to their device to view within Kolibri, even when they are no longer on the same network.
+##### Support for administrators
+- Administrators have a new option to add a PIN on learner-only devices, which allows an administrator easy access to the Device page while preventing learners from inadvertently making changes.
+- Administrators are now able to schedule syncing of facility data on a recurring basis at custom intervals.
+- When exporting log files, administrators are able to select the date range for the logs.
+##### Practice quizzes
+- This release supports practice quizzes, which are resources in the format of quizzes that learners can take in preparation for an assessment. They are able to see their score, and retry as many times as they would like, independently. Practice quiz resources are available through the Library, or can be assigned as part of a lesson. The same questions can also be assigned as a coach assigned quiz as a standardized assessment.
+
+### Changes
+
+#### Dev documentation/dev updates
+- Updated node version to 18
+- Getting started documentation updated
+- Updated to Webpack 5
+- Created Github actions for build pipeline
+- Created Github action to add assets to PRs
+- Task API changes have been finalized after initial work in 0.15. Documentation is now updated to describe how to interact with the API and define tasks in plugins.
+
+#### Architectural changes
+- There is a new page architecture that is used across all Kolibri plugins, and the component has been removed. (Selected relevant high level issues and PRs: #9102, #9128, 9134.)
+- The Kolibri Process Bus has been updated to support easier composability for custom deployment architectures.
+- Conditional promises have been removed.
+- To support the new onboarding process for Kolibri, Kolibri apps can now access a capability to provide access controls based on the currently active operating system user.
+
+#### API Breaking Changes
+- Tasks API has now been finalized, previous methods for interacting with tasks that do not use the pluggable Tasks API have been removed.
+- The drive info endpoint has been moved the into the device app but functionality remains the same
+- The API for coordinating learner only device synchronization within a local area network has been updated to ensure robust and reliable syncing. Any users wishing to use learner only device synchronization must update all Kolibri devices to this newer version
+
+#### API Additions (non-breaking changes)
+- REST API for enabling and disabling plugins
+- Add API endpoint and hook driven capability for UI initiated device restart
+- Public signup viewset
+- Public content metadata endpoints to support granular resource import
+
+#### Accessibility improvements
+- Landmarks have been added and refined across the Library page and its related subpages, for better accessibility. This is a first step in support of more robust accessibility support, particularly in terms of page navigation for screen reader users.
+
+### Deprecations
+- Support for Python 2.7 will be dropped in the upcoming version, 0.17. Upgrade your Python version to Python 3.6+ to continue working with Kolibri. More recent versions of Python 3 are recommended.
+- Support for this Internet Explorer 11 will be dropped in the upcoming version, 0.17. We recommend installing other browsers, such as Mozilla Firefox or Google Chrome, in order to continue working with Kolibri.
+
+### Kolibry Design System upgrades
+- Kolibri is now using kolibri-design-system v2.0.0 (a major version upgrade!). Please see the KDS release's Github page for documentation and full details about breaking changes and new features.
+
+
+
 ## 0.15.12
 
 ### Added

@@ -38,7 +38,7 @@ process_cache = {
 
 if cache_options["CACHE_BACKEND"] == "redis":
     base_cache = {
-        "BACKEND": "redis_cache.RedisCache",
+        "BACKEND": "kolibri.core.utils.cache.RedisCache",
         "LOCATION": cache_options["CACHE_LOCATION"],
         # Default time out of each cache key
         "TIMEOUT": cache_options["CACHE_TIMEOUT"],
