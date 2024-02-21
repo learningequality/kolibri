@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import AssignmentDeleteModal from '../../src/views/plan/assignments/AssignmentDeleteModal';
 
 const defaultProps = {
@@ -21,7 +20,6 @@ describe('AssignmentDeleteModal', () => {
     const submitListener = jest.fn();
     const { els } = makeWrapper({
       propsData: { ...defaultProps },
-      store,
       listeners: {
         submit: submitListener,
       },
@@ -34,7 +32,6 @@ describe('AssignmentDeleteModal', () => {
     const cancelListener = jest.fn();
     const { els } = makeWrapper({
       propsData: { ...defaultProps },
-      store,
       listeners: {
         cancel: cancelListener,
       },

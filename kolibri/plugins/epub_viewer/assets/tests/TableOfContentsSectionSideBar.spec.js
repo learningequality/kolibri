@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import TableOfContentsSideBar from '../src/views/TableOfContentsSideBar';
 
 const toc = [
@@ -31,7 +30,6 @@ function createWrapper({ toc, currentSection } = {}) {
       toc,
       currentSection,
     },
-    store,
   });
 }
 
