@@ -1009,6 +1009,69 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
         )
         assert assignment_t.lesson.title == "Bee Boo"
 
+        # START BUG 11845
+        # https://github.com/learningequality/kolibri/pull/11845
+        # Create a lesson and exam that is assigned to the classroom and also to the user
+        # through another assignment, such as ad hoc or learner group
+        self.laptop_a.create_model(
+            LearnerGroup,
+            parent_id=self.classroom.id,
+        )
+        learner_group_11845 = LearnerGroup.objects.using(self.laptop_a.db_alias).get(
+            parent_id=self.classroom.id
+        )
+        self.laptop_a.create_model(
+            Membership, user_id=self.learner.id, collection_id=learner_group_11845.id
+        )
+        classroom_lesson_11845 = LessonAssignment.objects.using(
+            self.laptop_a.db_alias
+        ).get(id=self.create_assignment("lesson"))
+        self.laptop_a.create_model(
+            LessonAssignment,
+            lesson_id=classroom_lesson_11845.lesson_id,
+            collection_id=learner_group_11845.id,
+            assigned_by_id=self.teacher.id,
+        )
+        group_lesson_11845 = LessonAssignment.objects.using(self.laptop_a.db_alias).get(
+            lesson_id=classroom_lesson_11845.lesson_id,
+            collection_id=learner_group_11845.id,
+        )
+        # not failing during sync is part proof enough that the bug is fixed
+        self.sync_single_user(self.laptop_a)
+        # Check that the lesson is assigned to the classroom and the learner group
+        self.assert_existence(
+            self.tablet, "lesson", classroom_lesson_11845.id, should_exist=True
+        )
+        self.assert_existence(
+            self.tablet, "lesson", group_lesson_11845.id, should_exist=False
+        )
+
+        # == NOW EXAMS ==
+
+        classroom_exam_11845 = ExamAssignment.objects.using(self.laptop_a.db_alias).get(
+            id=self.create_assignment("exam")
+        )
+        self.laptop_a.create_model(
+            ExamAssignment,
+            exam_id=classroom_exam_11845.exam_id,
+            collection_id=learner_group_11845.id,
+            assigned_by_id=self.teacher.id,
+        )
+        group_exam_11845 = ExamAssignment.objects.using(self.laptop_a.db_alias).get(
+            exam_id=classroom_exam_11845.exam_id,
+            collection_id=learner_group_11845.id,
+        )
+        # not failing during sync is part proof enough that the bug is fixed
+        self.sync_single_user(self.laptop_a)
+        # Check that the exam is assigned to the classroom and the learner group
+        self.assert_existence(
+            self.tablet, "exam", classroom_exam_11845.id, should_exist=True
+        )
+        self.assert_existence(
+            self.tablet, "exam", group_exam_11845.id, should_exist=False
+        )
+        # END BUG 11845
+
         # The morango dirty bits should not be set on exams, lessons, and assignments on the tablet,
         # since we never want these "ghost" copies to sync back out to anywhere else
         assert (

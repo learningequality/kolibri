@@ -613,20 +613,18 @@ def deletefacility(facility):
 
 
 class CleanUpSyncsValidator(JobValidator):
-    is_pull = serializers.BooleanField(required=False)
-    is_push = serializers.BooleanField(required=False)
+    pull = serializers.BooleanField(required=False)
+    push = serializers.BooleanField(required=False)
     sync_filter = serializers.CharField(required=True)
     client_instance_id = HexOnlyUUIDField(required=False)
     server_instance_id = HexOnlyUUIDField(required=False)
 
     def validate(self, data):
-        if data.get("is_pull") is None and data.get("is_push") is None:
+        if data.get("pull") is None and data.get("push") is None:
+            raise serializers.ValidationError("Either pull or push must be specified")
+        elif data.get("pull") is data.get("push"):
             raise serializers.ValidationError(
-                "Either is_pull or is_push must be specified"
-            )
-        elif data.get("is_pull") is data.get("is_push"):
-            raise serializers.ValidationError(
-                "Only one of is_pull or is_push needs to be specified"
+                "Only one of pull or push needs to be specified"
             )
 
         if (

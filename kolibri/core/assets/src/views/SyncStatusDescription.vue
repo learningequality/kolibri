@@ -43,7 +43,7 @@
       },
       queuedDescription: {
         message: 'The device is waiting to sync.',
-        context: 'Description of the device syncing status.',
+        context: 'Description of the device syncing status',
       },
       unableOrNoSyncDescription: {
         message:

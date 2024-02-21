@@ -30,8 +30,8 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
         from kolibri.core.device.utils import device_provisioned
 
         if context.is_receiver and device_provisioned():
-            is_pull = context.is_pull
-            is_push = context.is_push
+            pull = context.is_pull
+            push = context.is_push
             sync_filter = str(context.filter)
 
             instance_kwargs = {}
@@ -51,10 +51,7 @@ class CleanUpTaskOperation(KolibriSyncOperationMixin, LocalOperation):
 
             cleanupsync.enqueue(
                 kwargs=dict(
-                    is_pull=is_pull,
-                    is_push=is_push,
-                    sync_filter=sync_filter,
-                    **instance_kwargs
+                    pull=pull, push=push, sync_filter=sync_filter, **instance_kwargs
                 )
             )
 
