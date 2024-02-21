@@ -20,7 +20,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -41,7 +41,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -206,7 +206,7 @@
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
           };
         }
-        return { backgroundColor: this.$themeBrand.primary.v_900 };
+        return { backgroundColor: this.$themeBrand.primary.v_800 };
       },
       guestURL() {
         return urls['kolibri:core:guest']();
