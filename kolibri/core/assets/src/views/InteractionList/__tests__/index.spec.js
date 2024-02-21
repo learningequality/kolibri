@@ -4,7 +4,7 @@ import InteractionList from '../';
 
 const renderComponent = props => {
   const defaultProps = {
-    interactions: [{ type: 'answer', correct: true }, { type: 'hint' }, { type: 'error' }],
+    interactions: [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }],
     selectedInteractionIndex: 0,
   };
 
@@ -17,26 +17,35 @@ const renderComponent = props => {
   });
 };
 
-const checkSelectedStatus = (interactionItems, selectedIndex) => {
+describe('InteractionList', () => {
   // Check if the selected interaction has the correct cursor
   // Auto cursor means that the interaction is selected, and pointer cursor means that it is not
   const isSelected = iteractionItem => iteractionItem.style.cursor === 'auto';
 
-  interactionItems.forEach((interactionItem, index) =>
-    expect(isSelected(interactionItem)).toBe(index === selectedIndex)
-  );
-};
-
-describe('InteractionList', () => {
-  test('the item renders correctly and the selected iteraction changes correctly on user clicks', async () => {
-    renderComponent();
+  test('renders correctly and the selected iteraction changes correctly on user clicks', async () => {
+    const { emitted } = renderComponent();
 
     const interactionItems = screen.getAllByTestId('attemptBox');
     expect(interactionItems).toHaveLength(3);
-    checkSelectedStatus(interactionItems, 0);
+    expect(isSelected(interactionItems[0])).toBeTruthy();
+    expect(isSelected(interactionItems[1])).toBeFalsy();
+    expect(isSelected(interactionItems[2])).toBeFalsy();
 
-    // Click the second interaction
-    await fireEvent.click(interactionItems[1]);
-    checkSelectedStatus(interactionItems, 1);
+    // Has the correct attempt label
+    expect(screen.getByText('Attempt 1')).toBeInTheDocument();
+
+    // Click the same interaction
+    await fireEvent.click(interactionItems[0], { native: true });
+    expect(emitted()).not.toHaveProperty('select');
+
+    // Click a different interaction
+    await fireEvent.click(interactionItems[2], { native: true });
+    expect(emitted()).toHaveProperty('select');
+    expect(emitted().select[0]).toEqual([2]);
+  });
+
+  test('renders the correct label when they are no interactions', () => {
+    renderComponent({ interactions: [] });
+    expect(screen.getByText('No attempts made on this question')).toBeInTheDocument();
   });
 });
