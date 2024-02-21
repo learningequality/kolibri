@@ -1,6 +1,6 @@
 <template>
 
-  <div class="alert" :style="{ backgroundColor: $themePalette.red.v_50, display: displayBanner }">
+  <div class="alert" :style="{ backgroundColor: $themePalette.red.v_200, display: displayBanner }">
     <h1 style="display: none">
       {{ $tr('insufficientStorageHeader') }}
     </h1>
