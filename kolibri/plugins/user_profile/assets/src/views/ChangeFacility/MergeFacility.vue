@@ -8,7 +8,7 @@
           <KIcon
             v-if="taskCompleted"
             icon="check"
-            :style="{ fill: $themePalette.green.v_500 }"
+            :style="{ fill: $themePalette.green.v_1100 }"
             data-test="syncStatusIcon"
           />
           <KCircularLoader

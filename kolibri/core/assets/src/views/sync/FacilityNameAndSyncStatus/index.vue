@@ -10,7 +10,7 @@
               v-if="facility.dataset.registered"
               ref="icon"
               icon="registered"
-              :style="{ fill: $themePalette.green.v_500 }"
+              :style="{ fill: $themePalette.green.v_1100 }"
             />
           </template>
         </KLabeledIcon>
