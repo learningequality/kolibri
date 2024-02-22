@@ -19,7 +19,7 @@
           ref="missing"
           icon="warning"
           :style=" {
-            fill: $themePalette.orange.v_400, float: isRtl ? 'left' : 'right'
+            fill: $themePalette.yellow.v_1100, float: isRtl ? 'left' : 'right'
           }"
         />
       </span>
