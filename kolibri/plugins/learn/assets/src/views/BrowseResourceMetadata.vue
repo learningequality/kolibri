@@ -8,7 +8,7 @@
           v-if="forBeginners"
           class="beginners-chip"
           :style="{
-            backgroundColor: $themeBrand.secondary.v_600,
+            backgroundColor: $themeBrand.primary.v_800,
             color: $themeTokens.textInverted
           }"
           data-test="beginners-chip"
