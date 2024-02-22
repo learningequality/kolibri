@@ -10,7 +10,7 @@
         <KIcon
           icon="warning"
           class="icon"
-          :color="$themePalette.amber.v_a400"
+          :color="$themePalette.yellow.v_800"
         />
       </div>
 
