@@ -339,12 +339,16 @@ def cache_no_user_data(view_func):
     _response = local()
 
     def render_and_cache(response, cache_key):
-        response.render()
-        etag = hashlib.md5(
-            kolibri_version.encode("utf-8") + str(response.content).encode("utf-8")
-        ).hexdigest()
-        cache.set(cache_key, etag, CACHE_TIMEOUT)
-        return etag
+        if hasattr(response, "render") and callable(response.render):
+            response.render()
+        if response.content:
+            etag = hashlib.md5(
+                kolibri_version.encode("utf-8") + str(response.content).encode("utf-8")
+            ).hexdigest()
+            cache.set(cache_key, etag, CACHE_TIMEOUT)
+            return etag
+        else:
+            return None
 
     def calculate_spa_etag(*args, **kwargs):
         # Clear the local thread 'response' property
