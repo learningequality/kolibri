@@ -31,5 +31,5 @@ jobs:
         with:
           payload: |
             {
-              "text": "*Kolibri: New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ steps.escape_title.outputs.ISSUE_TITLE }} by ${{ github.event.comment.user.login }}>*"
+              "text": "*[Kolibri] New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ steps.escape_title.outputs.ISSUE_TITLE }} by ${{ github.event.comment.user.login }}>*"
             }
