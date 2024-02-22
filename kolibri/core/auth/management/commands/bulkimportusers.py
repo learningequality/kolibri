@@ -270,8 +270,13 @@ class Validator(object):
 
     def get_username(self, row):
         username = row.get(self.header_translation["USERNAME"])
-        if username in self.users.keys():
-            return None
+        lowercase_username = username.lower()
+
+        # Convert existing keys in self.users to lowercase
+        lowercase_users = {key.lower(): value for key, value in self.users.items()}
+
+        if lowercase_username in lowercase_users:
+            return None  # Duplicate username
 
         return username
 
