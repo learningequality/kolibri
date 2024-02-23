@@ -1,4 +1,14 @@
-const globbySync = require('globby').sync;
+const fastGlob = require('fast-glob');
+
+const defaultOptions = {
+  ignore: [],
+  expandDirectories: true,
+  braceExpansion: true,
+  dot: false,
+  extglob: true,
+  globstar: true,
+  caseSensitiveMatch: true,
+};
 
 /**
  * Small wrapper around glob dependency to make it easier to switch to a different library
@@ -6,12 +16,20 @@ const globbySync = require('globby').sync;
 module.exports = {
   /**
    * Synchronously search for files that match a glob pattern
-   * @param {string} globPath
-   * @param {object} options
-   * @param {string[]} options.ignore
+   * @param {string|string[]} globPaths
+   * @param {object} options - see fast-glob options
    * @returns {string[]}
    */
-  sync(globPath, { ignore = [] } = {}) {
-    return globbySync(globPath, { ignore });
+  sync(globPaths, options = {}) {
+    if (Array.isArray(globPaths)) {
+      globPaths = [...new Set(globPaths)];
+    } else {
+      globPaths = [globPaths];
+    }
+
+    return fastGlob.sync(globPaths, {
+      ...defaultOptions,
+      ...options,
+    });
   },
 };
