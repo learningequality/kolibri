@@ -534,7 +534,7 @@ class Command(AsyncCommand):
                     setattr(user_obj, field, values[field])
         return changed
 
-    def build_users_objects(self, users):
+    def build_users_objects(self, users):  # noqa C901
         new_users = []
         update_users = []
         keeping_users = []
@@ -564,7 +564,7 @@ class Command(AsyncCommand):
                 if user_obj.username != user:
                     # check for duplicated username in the facility
                     existing_user = FacilityUser.objects.get(
-                        username=user, facility=self.default_facility
+                        username__iexact=user, facility=self.default_facility
                     )
                     if existing_user:
                         error = {
@@ -579,6 +579,21 @@ class Command(AsyncCommand):
                 if self.compare_fields(user_obj, values):
                     update_users.append(user_obj)
             else:
+                # If UUID is not specified, check for a username clash
+                if values["uuid"] == "":
+                    existing_user = FacilityUser.objects.filter(
+                        username__iexact=user, facility=self.default_facility
+                    ).first()
+                    if existing_user:
+                        error = {
+                            "row": users[user]["position"],
+                            "username": user,
+                            "message": MESSAGES[DUPLICATED_USERNAME],
+                            "field": "USERNAME",
+                            "value": user,
+                        }
+                        per_line_errors.append(error)
+                        continue
                 if values["uuid"] != "":
                     error = {
                         "row": users[user]["position"],
