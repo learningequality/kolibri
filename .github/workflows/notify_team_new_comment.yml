@@ -20,8 +20,7 @@ jobs:
       - name: Escape title double quotes
         id: escape_title
         run: |
-          title=${{ github.event.issue.title }}
-          echo "ISSUE_TITLE=${title//\"/\\\"}" >> "$GITHUB_OUTPUT"
+          echo "ISSUE_TITLE=${{ toJSON(github.event.issue.title) }}" >> "$GITHUB_OUTPUT"
 
       - name: Send message to Slack channel
         env:
