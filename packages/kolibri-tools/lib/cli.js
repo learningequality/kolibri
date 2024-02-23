@@ -356,7 +356,7 @@ program
       const Minimatch = require('minimatch').Minimatch;
       patternCheck = new Minimatch(options.pattern, {});
     }
-    const glob = require('glob');
+    const glob = require('./glob');
     const { logging, lint, noChange } = require('./lint');
     const chokidar = require('chokidar');
     const watchMode = options.monitor;
@@ -447,7 +447,7 @@ program
     if (!files.length) {
       program.command('compress').help();
     } else {
-      const glob = require('glob');
+      const glob = require('./glob');
       const compressFile = require('./compress');
       Promise.all(
         files.map(file => {

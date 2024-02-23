@@ -1,10 +1,10 @@
 // Import packages
 const fs = require('fs');
 const path = require('path');
-const glob = require('glob');
 const traverse = require('ast-traverse');
 const get = require('lodash/get');
 const vueCompiler = require('vue-template-compiler');
+const glob = require('../glob');
 const logging = require('../logging');
 const { insertContent } = require('../vueTools');
 const {
