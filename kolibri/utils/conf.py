@@ -29,6 +29,7 @@ logger = logging.getLogger(__name__)
 #: Absolute path of the main user data directory.
 #: Will be created automatically if it doesn't exist.
 KOLIBRI_HOME = os.path.abspath(os.path.expanduser(os.environ["KOLIBRI_HOME"]))
+NO_FILE_BASED_LOGGING = os.environ.get("KOLIBRI_NO_FILE_BASED_LOGGING", False)
 
 # Creating KOLIBRI_HOME atm. has to happen here as for instance utils.cli is not
 # called through py.test. This file is the first basic entry point of
@@ -43,7 +44,7 @@ if not os.path.exists(KOLIBRI_HOME):
 
 # Create a folder named logs inside KOLIBRI_HOME to store all the log files.
 LOG_ROOT = os.path.join(KOLIBRI_HOME, "logs")
-if not os.path.exists(LOG_ROOT):
+if not os.path.exists(LOG_ROOT) and not NO_FILE_BASED_LOGGING:
     os.mkdir(LOG_ROOT)
 
 

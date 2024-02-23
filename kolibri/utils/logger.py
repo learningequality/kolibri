@@ -205,6 +205,43 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
     DEFAULT_LEVEL = "INFO" if not debug else "DEBUG"
     DATABASE_LEVEL = "INFO" if not debug_database else "DEBUG"
 
+    handlers = {
+        "console-error": {
+            "level": "ERROR",
+            "class": "kolibri.utils.logger.EncodingStreamHandler",
+            "formatter": "color",
+            "stream": "ext://sys.stderr",
+        },
+        "console": {
+            "level": DEFAULT_LEVEL,
+            "filters": ["no_exceptions"],
+            "class": "kolibri.utils.logger.EncodingStreamHandler",
+            "formatter": "color",
+            "stream": "ext://sys.stdout",
+        },
+    }
+
+    if not NO_FILE_BASED_LOGGING:
+        handlers["file"] = {
+            "level": "INFO",
+            "filters": [],
+            "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
+            "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
+            "formatter": "simple_date",
+            "when": "midnight",
+            "backupCount": 30,
+            "encoding": "utf-8",
+        }
+
+        handlers["file_debug"] = {
+            "level": "DEBUG",
+            "filters": ["require_debug_true"],
+            "class": "logging.FileHandler",
+            "filename": os.path.join(LOG_ROOT, "debug.txt"),
+            "formatter": "simple_date",
+            "encoding": "utf-8",
+        }
+
     return {
         "version": 1,
         "disable_existing_loggers": False,
@@ -223,39 +260,7 @@ def get_default_logging_config(LOG_ROOT, debug=False, debug_database=False):
                 "log_colors": LOG_COLORS,
             },
         },
-        "handlers": {
-            "console-error": {
-                "level": "ERROR",
-                "class": "kolibri.utils.logger.EncodingStreamHandler",
-                "formatter": "color",
-                "stream": "ext://sys.stderr",
-            },
-            "console": {
-                "level": DEFAULT_LEVEL,
-                "filters": ["no_exceptions"],
-                "class": "kolibri.utils.logger.EncodingStreamHandler",
-                "formatter": "color",
-                "stream": "ext://sys.stdout",
-            },
-            "file": {
-                "level": "INFO",
-                "filters": [],
-                "class": "kolibri.utils.logger.KolibriTimedRotatingFileHandler",
-                "filename": os.path.join(LOG_ROOT, "kolibri.txt"),
-                "formatter": "simple_date",
-                "when": "midnight",
-                "backupCount": 30,
-                "encoding": "utf-8",
-            },
-            "file_debug": {
-                "level": "DEBUG",
-                "filters": ["require_debug_true"],
-                "class": "logging.FileHandler",
-                "filename": os.path.join(LOG_ROOT, "debug.txt"),
-                "formatter": "simple_date",
-                "encoding": "utf-8",
-            },
-        },
+        "handlers": handlers,
         "loggers": {
             "": {
                 "handlers": DEFAULT_HANDLERS,
