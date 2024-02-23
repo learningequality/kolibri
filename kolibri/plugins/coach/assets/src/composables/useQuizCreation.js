@@ -356,9 +356,13 @@ export default function useQuizCreation(DEBUG = false) {
     }
   }
 
+  function clearSelectedQuestions() {
+    set(_selectedQuestionIds, []);
+  }
+
   function selectAllQuestions() {
     if (get(allQuestionsSelected)) {
-      set(_selectedQuestionIds, []);
+      clearSelectedQuestions();
     } else {
       set(
         _selectedQuestionIds,
@@ -431,11 +435,14 @@ export default function useQuizCreation(DEBUG = false) {
 
   /** @type {ComputedRef<Boolean>} Whether all active questions are selected */
   const allQuestionsSelected = computed(() => {
-    return isEqual(
-      get(selectedActiveQuestions).sort(),
-      get(activeQuestions)
-        .map(q => q.question_id)
-        .sort()
+    return (
+      get(selectedActiveQuestions).length &&
+      isEqual(
+        get(selectedActiveQuestions).sort(),
+        get(activeQuestions)
+          .map(q => q.question_id)
+          .sort()
+      )
     );
   });
 
@@ -478,6 +485,7 @@ export default function useQuizCreation(DEBUG = false) {
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
+  provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('channels', channels);
   provide('quiz', quiz);
   provide('allSections', allSections);
@@ -488,6 +496,8 @@ export default function useQuizCreation(DEBUG = false) {
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
+  provide('allQuestionsSelected', allQuestionsSelected);
+  provide('selectAllIsIndeterminate', selectAllIsIndeterminate);
   provide('replacementQuestionPool', replacementQuestionPool);
   provide('selectAllQuestions', selectAllQuestions);
   provide('deleteActiveSelectedQuestions', deleteActiveSelectedQuestions);
@@ -503,6 +513,7 @@ export default function useQuizCreation(DEBUG = false) {
     setActiveSection,
     initializeQuiz,
     updateQuiz,
+    clearSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
 
@@ -545,6 +556,7 @@ export function injectQuizCreation() {
   const updateQuiz = inject('updateQuiz');
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
+  const clearSelectedQuestions = inject('clearSelectedQuestions');
   const channels = inject('channels');
   const quiz = inject('quiz');
   const allSections = inject('allSections');
@@ -554,6 +566,8 @@ export function injectQuizCreation() {
   const activeResourceMap = inject('activeResourceMap');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
+  const allQuestionsSelected = inject('allQuestionsSelected');
+  const selectAllIsIndeterminate = inject('selectAllIsIndeterminate');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const replacementQuestionPool = inject('replacementQuestionPool');
   const selectAllQuestions = inject('selectAllQuestions');
@@ -572,11 +586,14 @@ export function injectQuizCreation() {
     setActiveSection,
     initializeQuiz,
     updateQuiz,
+    clearSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
     toggleQuestionInSelection,
 
     // Computed
+    allQuestionsSelected,
+    selectAllIsIndeterminate,
     channels,
     quiz,
     allSections,
