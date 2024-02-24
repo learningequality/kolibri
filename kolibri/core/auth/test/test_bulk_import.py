@@ -252,6 +252,7 @@ class ImportTestCase(TestCase):
         assert "'value': '*'" in result[1]
         assert "new_coach" in result[1]
         assert "'row': 2" in result[1]
+
     def test_case_insensitive_usernames(self):
         _, first_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
@@ -282,10 +283,10 @@ class ImportTestCase(TestCase):
         ]
         self.create_csv(first_filepath, rows)
         call_command("bulkimportusers", first_filepath, facility=self.facility.id)
-    
+
         # Retrieve the user(s)
         users = FacilityUser.objects.filter(username__iexact="peter")
-    
+
         # Ensure that only one user is created, and it has the latest password
         assert users.count() == 1
 

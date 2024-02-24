@@ -274,7 +274,9 @@ class Validator(object):
         lowercase_username = username.lower()
 
         # Check if a user with the provided username exists (case-insensitive)
-        existing_user = FacilityUser.objects.filter(username__iexact=lowercase_username).first()
+        existing_user = FacilityUser.objects.filter(
+            username__iexact=lowercase_username
+        ).first()
         # Convert existing keys in self.users to lowercase
         if existing_user and uuid == "":
             return None  # Duplicate username
