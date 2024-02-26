@@ -447,7 +447,6 @@
         return fetchMoreQuizResources();
       }
 
-
       function handleCancelClose() {
         showConfirmationModal.value = false;
       }
