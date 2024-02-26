@@ -70,6 +70,7 @@
         @clear="clearSearchTerm"
         @searchterm="handleSearchTermChange"
       />
+
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="showSelectAll"
@@ -83,15 +84,8 @@
         :loadingMoreState="loadingMore"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreQuizResources"
-      >
-        <template #notice="{ content }">
-          <div v-if="showTopicSizeWarningCard(content)" style="position: absolute; bottom: 1em;">
-            <KIcon icon="warning" :color="$themePalette.orange.v_400" />
-            <span>&nbsp;&nbsp;{{ cannotSelectTopicCard$() }}</span>
-          </div>
-        </template>
-      </ContentCardList>
+        @moreresults="fetchMoreResources"
+      />
 
       <div class="bottom-navigation">
         <KGrid>
