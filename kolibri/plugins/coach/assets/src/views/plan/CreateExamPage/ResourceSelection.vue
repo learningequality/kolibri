@@ -60,7 +60,7 @@
 
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
-        :ancestors="topic.ancestors"
+        :ancestors="[...topic.ancestors, topic]"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
@@ -579,16 +579,8 @@
 
         return {}; // or return {} if you prefer an empty object
       },
-      topicListingLink({ topicId }) {
-        return this.$router.getRoute(
-          PageNames.QUIZ_SELECT_RESOURCES,
-          { topicId },
-          this.$route.query
-        );
-      },
-
-      topicsLink(topicId) {
-        return this.topicListingLink({ ...this.$route.params, topicId });
+      topicsLink(topic_id) {
+        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id });
       },
       saveSelectedResource() {
         this.updateSection({
