@@ -53,7 +53,7 @@
       <div
         v-if="showTopicSizeWarning()"
         class="shadow"
-        :style=" { padding: '1em', backgroundColor: $themePalette.grey.v_100 }"
+        :style=" { padding: '1em', marginBottom: '1em', backgroundColor: $themePalette.grey.v_100 }"
       >
         {{ cannotSelectSomeTopicWarning$() }}
       </div>
