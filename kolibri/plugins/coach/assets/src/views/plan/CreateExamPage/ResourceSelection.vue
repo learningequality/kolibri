@@ -283,7 +283,7 @@
 
       function handleSelectAll(isChecked) {
         if (isChecked) {
-          this.addToWorkingResourcePool(this.contentList);
+          this.addToWorkingResourcePool(selectableContentList());
         } else {
           this.contentList.forEach(content => {
             var contentToRemove = [];
