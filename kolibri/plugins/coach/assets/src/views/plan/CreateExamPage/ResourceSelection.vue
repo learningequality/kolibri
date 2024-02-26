@@ -521,7 +521,7 @@
         };
       },
       channelsLink() {
-        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES);
+        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id: null });
       },
       /*
       selectAllIsVisible() {
