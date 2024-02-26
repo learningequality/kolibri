@@ -56,6 +56,12 @@
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
+
+      <LessonsSearchBox
+        v-if="!showBookmarks"
+        @clear="clearSearchTerm"
+        @searchterm="handleSearchTermChange"
+      />
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="true"
@@ -69,7 +75,7 @@
         :loadingMoreState="loadingMore"
         @changeselectall="toggleTopicInWorkingResources"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreQuizResources"
+        @moreresults="fetchMoreResources"
       />
 
       <div class="bottom-navigation">
@@ -116,6 +122,7 @@
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
@@ -124,6 +131,7 @@
     components: {
       ContentCardList,
       BookmarkIcon,
+      LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
@@ -135,6 +143,7 @@
       // or the actual exercises that are bookmarked and can be selected
       // to be added to Quiz Section.
       const showBookmarks = computed(() => route.value.query.showBookmarks);
+      const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
 
       const {
@@ -149,7 +158,7 @@
 
       // TODO let's not use text for this
       const viewMoreButtonState = computed(() => {
-        if (hasMore.value) {
+        if (hasMore.value || moreSearchResults.value) {
           return ViewMoreButtonStates.HAS_MORE;
         } else {
           return ViewMoreButtonStates.NO_MORE;
@@ -196,6 +205,27 @@
         return workingResourceIds.includes(content.id);
       }
 
+      function fetchSearchResults() {
+        const getParams = {
+          max_results: 25,
+          keywords: searchQuery.value,
+          kind: ContentNodeKinds.EXERCISE,
+        };
+        return ContentNodeResource.fetchCollection({ getParams }).then(response => {
+          searchResults.value = response.results;
+          moreSearchResults.value = response.more;
+        });
+      }
+
+      function fetchMoreSearchResults() {
+        return ContentNodeResource.fetchCollection({
+          getParams: moreSearchResults.value,
+        }).then(response => {
+          searchResults.value = searchResults.value.concat(response.results);
+          moreSearchResults.value = response.more;
+        });
+      }
+
       const {
         hasCheckbox,
         topic,
@@ -213,31 +243,41 @@
 
       const channels = ref([]);
       const bookmarks = ref([]);
+      const searchResults = ref([]);
+      const moreSearchResults = ref(null);
 
       // Load up the channels
+
       if (!topicId.value) {
         const channelBookmarkPromises = [
-          ChannelResource.fetchCollection({
-            params: { has_exercises: true, available: true },
-          }).then(response => {
-            setResources(
-              response.map(chnl => {
-                return {
-                  ...chnl,
-                  id: chnl.root,
-                  title: chnl.name,
-                  kind: ContentNodeKinds.CHANNEL,
-                  is_leaf: false,
-                };
-              })
-            );
-          }),
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
               bookmarks.value = data.results ? data.results : [];
             }
           ),
         ];
+
+        if (searchQuery.value) {
+          channelBookmarkPromises.push(fetchSearchResults());
+        } else {
+          channelBookmarkPromises.push(
+            ChannelResource.fetchCollection({
+              params: { has_exercises: true, available: true },
+            }).then(response => {
+              setResources(
+                response.map(chnl => {
+                  return {
+                    ...chnl,
+                    id: chnl.root,
+                    title: chnl.name,
+                    kind: ContentNodeKinds.CHANNEL,
+                    is_leaf: false,
+                  };
+                })
+              );
+            })
+          );
+        }
 
         Promise.all(channelBookmarkPromises).then(() => {
           // When we don't have a topicId we're setting the value of useQuizResources.resources
@@ -272,6 +312,10 @@
             .map(item => ({ ...item, is_leaf: true }));
         }
 
+        if (searchQuery.value) {
+          return searchResults.value;
+        }
+
         return resources.value;
       });
 
@@ -283,6 +327,19 @@
         }
       });
 
+      watch(searchQuery, () => {
+        if (searchQuery.value) {
+          fetchSearchResults();
+        }
+      });
+
+      function fetchMoreResources() {
+        if (searchQuery.value) {
+          return fetchMoreSearchResults();
+        }
+        return fetchMoreQuizResources();
+      }
+
       return {
         topic,
         topicId,
@@ -292,7 +349,7 @@
         loading,
         hasMore,
         loadingMore,
-        fetchMoreQuizResources,
+        fetchMoreResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
@@ -446,6 +503,20 @@
           });
         }
         return '';
+      },
+      handleSearchTermChange(searchTerm) {
+        const query = {
+          ...this.$route.query,
+          search: searchTerm,
+        };
+        this.$router.push({ query });
+      },
+      clearSearchTerm() {
+        const query = {
+          ...this.$route.query,
+        };
+        delete query.search;
+        this.$router.push({ query });
       },
     },
   };
