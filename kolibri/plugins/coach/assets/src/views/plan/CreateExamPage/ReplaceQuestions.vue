@@ -28,7 +28,7 @@
           ref="selectAllCheckbox"
           class="select-all-box"
           :label="selectAllLabel$()"
-          :checked="replacements.length === replacementQuestionPool.length"
+          :checked="replacements.length && replacements.length === selectedActiveQuestions.length"
           :indeterminate="selectAllIsIndeterminate"
           @change="() => selectAllQuestions()"
         />
@@ -127,7 +127,7 @@
 <script>
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { ref } from 'kolibri.lib.vueCompositionApi';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import AccordionItem from './AccordionItem';
@@ -156,7 +156,6 @@
         activeSection,
         selectedActiveQuestions,
         replacementQuestionPool,
-        selectAllIsIndeterminate,
         clearSelectedQuestions,
         toggleItemState,
         isItemExpanded,
@@ -200,6 +199,13 @@
           replacements.value.push(question);
         }
       }
+
+      const selectAllIsIndeterminate = computed(() => {
+        return (
+          replacements.value.length > 0 &&
+          replacements.value.length !== selectedActiveQuestions.value.length
+        );
+      });
 
       return {
         activeQuestions,
