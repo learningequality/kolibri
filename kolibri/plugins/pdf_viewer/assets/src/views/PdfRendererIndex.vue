@@ -84,11 +84,11 @@
           :layout8="{ span: showSideBar ? 6 : 8 }"
           :layout12="{ span: showSideBar ? 9 : 12 }"
         >
-          <RecycleList
+          <RecyclableScroller
             id="pdf-container"
             ref="recycleList"
             :items="pdfPages"
-            :itemHeight="itemHeight"
+            :buffer="itemHeight * 2"
             :emitUpdate="true"
             class="pdf-container scroller-height"
             keyField="index"
@@ -107,7 +107,7 @@
                 :eventBus="eventBus"
               />
             </template>
-          </RecycleList>
+          </RecyclableScroller>
         </KGridItem>
       </KGrid>
     </template>
@@ -123,8 +123,6 @@
   import throttle from 'lodash/throttle';
   import debounce from 'lodash/debounce';
   import logger from 'kolibri.lib.logging';
-  import { RecycleList } from 'vue-virtual-scroller';
-  import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
   // polyfill necessary for recycle list
   import 'intersection-observer';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -132,6 +130,7 @@
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import '../utils/domPolyfills';
   import { EventBus } from '../utils/event_utils';
+  import RecyclableScroller from './RecyclableScroller';
   import PdfPage from './PdfPage';
   import SideBar from './SideBar';
 
@@ -146,8 +145,8 @@
     components: {
       SideBar,
       PdfPage,
-      RecycleList,
       CoreFullscreen,
+      RecyclableScroller,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
     data: () => ({
@@ -289,42 +288,38 @@
       };
       this.eventBus = new EventBus();
       this.prepComponentData = loadingPdf.promise
-        .then(pdfDocument => {
+        .then(async pdfDocument => {
           // Get initial info from the loaded pdf document
           this.pdfDocument = pdfDocument;
           this.totalPages = this.pdfDocument.numPages;
+          // Is either the first page or the saved last page visited
+          const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
+
+          const firstPage = await this.getPage(firstPageToRender + 1);
+          const viewPort = firstPage.getViewport({ scale: 1 });
+          this.firstPageHeight = viewPort.height;
+          this.firstPageWidth = viewPort.width;
+          this.scale = this.$el.clientWidth / (this.firstPageWidth * this.screenSizeMultiplier);
+
           // init pdfPages array
+          // ensuring that firstPageToRender is resolved so that we do not refetch the page
           for (let i = 0; i < this.totalPages; i++) {
             this.pdfPages.push({
-              page: null,
-              resolved: false,
+              page: i == firstPageToRender ? firstPage : null,
+              resolved: i == firstPageToRender,
+              size: () => {
+                return this.firstPageHeight * this.scale + MARGIN;
+              },
               index: i,
             });
           }
-          // Is either the first page or the saved last page visited
-          const firstPageToRender = parseInt(this.getSavedPosition() * this.totalPages);
-          return this.getPage(firstPageToRender + 1).then(firstPage => {
-            const viewPort = firstPage.getViewport({ scale: 1 });
-            this.firstPageHeight = viewPort.height;
-            this.firstPageWidth = viewPort.width;
-            this.scale = this.$el.clientWidth / (this.firstPageWidth * this.screenSizeMultiplier);
 
-            // Set the firstPageToRender into the pdfPages object so that we do not refetch the page
-            // from PDFJS when we do our initial render
-            // splice so changes are detected
-            this.pdfPages.splice(firstPageToRender, 1, {
-              ...this.pdfPages[firstPageToRender],
-              page: firstPage,
-              resolved: true,
-            });
-            pdfDocument.getOutline().then(outline => {
-              this.outline = outline;
-              this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
-              // Reduce the scale slightly if we are showing the sidebar
-              // at first load.
-              this.scale = this.showSideBar ? 0.75 * this.scale : this.scale;
-            });
-          });
+          const outline = await pdfDocument.getOutline();
+          this.outline = outline;
+          this.showSideBar = outline && outline.length > 0 && this.windowIsLarge; // Remove if other tabs are already implemented
+          // Reduce the scale slightly if we are showing the sidebar
+          // at first load.
+          this.scale = this.showSideBar ? 0.75 * this.scale : this.scale;
         })
         .catch(error => {
           this.reportLoadingError(error);
@@ -372,11 +367,16 @@
         if (pageNum > 0 && pageNum <= this.totalPages && !this.pdfPages[pageNum - 1].resolved) {
           const pageIndex = pageNum - 1;
           this.getPage(pageNum).then(pdfPage => {
+            const { height } = pdfPage.getViewport({ scale: 1 });
+
             // splice so changes are detected
             this.pdfPages.splice(pageIndex, 1, {
               ...this.pdfPages[pageIndex],
               page: pdfPage,
               resolved: true,
+              size: () => {
+                return height * this.scale + MARGIN;
+              },
             });
           });
         }
@@ -691,8 +691,8 @@
     margin: 0 auto;
   }
   // enable horizontal scrolling
-  /deep/ .recycle-list {
-    .item-wrapper {
+  /deep/ .vue-recycle-scroller {
+    .vue-recycle-scroller-item-wrapper {
       overflow-x: auto;
     }
   }
@@ -734,6 +734,21 @@
 
   /deep/ .full-height-container > div {
     height: 100%;
+  }
+
+  /deep/ .resize-observer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    display: block;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+    background-color: transparent;
+    border: 0;
+    opacity: 0;
   }
 
 </style>
