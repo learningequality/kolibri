@@ -265,6 +265,7 @@
         context.emit('closePanel');
       }
 
+      /* Note that the use of snake_case here is to map directly to the API */
       const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
       const question_count = ref(activeSection.value.question_count);
       const description = ref(activeSection.value.description);
