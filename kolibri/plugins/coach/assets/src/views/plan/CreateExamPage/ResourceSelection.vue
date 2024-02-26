@@ -163,7 +163,6 @@
         numberOfSelectedResources$,
         numberOfResources$,
         selectedResourcesInformation$,
-        cannotSelectTopicCard$,
         cannotSelectSomeTopicWarning$,
       } = enhancedQuizManagementStrings;
 
@@ -451,7 +450,6 @@
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
-        cannotSelectTopicCard$,
         cannotSelectSomeTopicWarning$,
         sectionSettings$,
         selectFromBookmarks$,

@@ -154,11 +154,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
   },
-  cannotSelectTopicCard: {
-    message: 'Folder exceeds 12 exercises',
-  },
   cannotSelectSomeTopicWarning: {
     message:
-      'Select only folders with 12 or fewer exercises and no subfolders to avoid oversized quizzes. Proceed to choose a smaller folder.',
+      'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
   },
 });
