@@ -463,21 +463,6 @@
         );
       });
 
-      function handleCancelClose() {
-        showConfirmationModal.value = false;
-      }
-
-      function handleConfirmClose() {
-        context.emit('closePanel');
-      }
-
-      const workingPoolHasChanged = computed(() => {
-        return (
-          workingResourcePool.value.length != activeResourcePool.value.length ||
-          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
-        );
-      });
-
       return {
         selectAllChecked,
         selectAllIndeterminate,
