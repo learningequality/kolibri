@@ -56,6 +56,12 @@
       LanguageSwitcherModal,
     },
     mixins: [responsiveWindowMixin, languageSwitcherMixin],
+    props: {
+      parentBreakpoint: {
+        type: Number,
+        default: -1,
+      },
+    },
     data() {
       return {
         showLanguageModal: false,
@@ -69,8 +75,14 @@
         return availableLanguages[currentLanguage];
       },
       numVisibleLanguageBtns() {
-        // At windowBreakpoint = 0, only the "More languages" button will show
-        return Math.min(4, this.windowBreakpoint);
+        // At visibleBtns = 0, only the "More languages" button will show
+        let visibleBtns = 4;
+        if (this.parentBreakpoint < 0) {
+          visibleBtns = this.windowBreakpoint;
+        } else {
+          visibleBtns = this.parentBreakpoint;
+        }
+        return Math.min(4, visibleBtns);
       },
       numSelectableLanguages() {
         return this.selectableLanguages.length;
