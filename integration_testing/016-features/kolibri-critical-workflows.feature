@@ -190,7 +190,7 @@ Feature: Kolibri critical workflows
       Given I am signed in to Kolibri as a super admin
   	  	And I am at *Facility > Classes*
   	  	And there are created classes
-      When I click on class
+      When I click on a class
       Then I see the class page
       When I click the *Enroll learners* button
       Then I see the *Enroll learners into '<class>'* page
@@ -203,6 +203,199 @@ Feature: Kolibri critical workflows
       Then I see the class page again
         And I see the selected learner user accounts listed in the *Learners* table
 
-  Scenario:
+  Scenario: Coach creates a new lesson for the entire class
+  	Given I am signed in to Kolibri as a super admin or a coach
+  	  	And I am at *Coach > Plan*
+    When I click the *New lesson* button
+    Then I see the *Create new lesson* modal
+    When I fill in the title for the lesson
+      And I fill in the description # optional
+      And I click the *Save changes* button
+    Then the modal closes
+      And I see the lesson page
+      And I see that the *Visible to learners* toggle is switched off
+      And I see that there are no resources in the lesson
 
-  Scenario:
+  Scenario: Coach adds resources to a lesson and makes it visible to learners
+  	Given I am signed in to Kolibri as a super admin or a coach
+  	  	And I am at *Coach > Plan > <lesson>*
+  	When I click the *Manage resources* button
+  	Then I am at the *Manage resources in '<lesson>'* page
+  	  And I see the available content channels
+  	When I click on a channel
+  	Then I see the available channel resources
+  	When I select one or several resources
+  		And I click the *Save changes* button
+  	Then I am back at the lesson page
+  	  And I see the resources which I've just added to the lesson
+  	When I switch on the *Visible to learners* toggle
+  	Then I see the *Lesson is visible to learners* snackbar
+
+  Scenario: Coach creates a new quiz for the entire class and starts it
+  	Given I am signed in to Kolibri as a super admin or a coach
+  	  	And I am at *Coach > Plan > Quizzes*
+    When I click the *New quiz* button
+    	And I select *Create new quiz*
+    Then I see the *Create new quiz* modal
+    When I fill in the title for the quiz
+      And I select a quiz from the available channel resources
+      And I click the *Continue* button
+    Then I see the *Preview quiz* page
+      And I see the lesson details, question order and questions
+    When I click the *Finish* button
+    Then I am back at *Coach > Plan > Quizzes*
+    	And I see the newly created quiz
+    When I click the *Start quiz* button
+    Then I see the *Start quiz* modal
+    When I click *Continue*
+    Then I see the *Quiz started* snackbar message
+
+  Scenario: Learner completes an assigned lesson
+  	Given I am signed in as a learner user
+			And I am at *Learn > Home > Classes > '<class>'* page
+			And there is a lesson assigned to me
+			And the lesson contains each of the available resource types #exercise, document, video, audio, HTML
+		When I complete each of the available resources in the lesson
+		Then I see the *Completed* icon next to the lesson's title
+
+  Scenario: Learner completes an assigned quiz
+  	Given I am signed in as a learner user
+			And I am at *Learn > Home > Classes > '<class>'* page
+			And there is a quiz assigned to me
+		When I submit the quiz
+		Then I am back at *Learn > Home > Classes > '<class>'* page
+			And I see a yellow star icon at the lower left corner of the quiz card
+    	And I see the score of the quiz in percents
+
+  Scenario: Learner explores the *Library* while signed in
+  	Given I am signed in as a learner user
+  		And there is at least one channel imported on the device
+  		And there are other connected devices in the network
+    When I go to *Learn > Library*
+    Then I see both *Your library* and the *Other libraries* sections
+    	And I see my imported channels in *Your library*
+    	And I see the channels imported on devices in my network in the *Other libraries* section
+    When I click on the channel card of a channel from *Your library* section
+    Then I am at the channel page
+    	And I can see and explore all of the available resources
+    	And I can search for a resource
+    When I close the channel page
+    Then I am back at *Learn > Library*
+    When I click on a channel card of a channel from the *Other libraries* section
+    Then I am at the channel page
+    	And I can see and explore all of the available resources
+    	And I can search for a resource
+    When I close the channel page
+    Then I am back at *Learn > Library*
+
+  Scenario: Learner can filter resources at the *Library* page
+  	Given I am signed in as a learner user
+  		And I am at *Learn > Library*
+  		And there is at least one channel imported on the device
+  		And there are other connected devices in the network
+    When I type a keyword in the *Find something to learn* field
+    Then I see the available search results for the entered keyword
+    When I click on a resource card
+    Then I can see and interact with the resource
+    When I click the back arrow
+    Then I can see the same search results as before
+    When I select any of the available filters such as filter by category, by activity type, language, channel or accessibility
+    Then I see only results matching the applied filter(s)
+    When I click on *Clear all*
+    Then I see the *Your library*, *Recent* and *Other libraries* sections
+
+  Scenario: Learner explores the *Library* while not being signed in
+  	Given I am not signed in
+  		And the option *Explore without account* is visible at the *Sign in* page
+  		And there are channels downloaded on the device
+    When I click the *Explore without account* link
+    Then I am at *Learn > Library*
+    	And I see all of the available filters to the left
+    	And I see my imported channels in *Your library*
+    	And I don't see the *Other libraries* section
+
+  Scenario: Learner explores the *Home* page
+  	Given I am signed in as a learner user assigned to a class
+  		And there are imported channels on the device
+  		And I have already completed some lessons an quizzes
+  		And I have interacted with resources
+  	When I go to *Learn > Home*
+  	Then I see the *Your classes* section at the top of the page
+  		And I see the *Continue learning on your own*, *Recent lessons*, *Recent quizzes* and *Explore channels* sections
+
+  Scenario: Learner explores the *Bookmarks* page
+  	Given I am signed in as a learner user assigned to a class
+  		And there are imported channels on the device
+  		And I have already bookmarked some resources
+  	When I go to *Learn > Bookmarks*.
+  	Then I see all of my bookmarked resources
+  		And I can see the most recently bookmarked resource at the top of the page
+  	When I click the *i* icon on a card
+  	Then I can see the information for the resource
+  	When I click the *x* icon on a card
+  	Then the card disappears
+  		And I see a *Removed from bookmarks* snackbar message
+  	When I remove all of the available bookmarks
+  	Then I see *You have no bookmarked resources*
+
+  Scenario: Learner explores the *My downloads* page
+  	Given I am signed in as a learner user
+  		And there are other connected devices in the network
+  		And a super admin has enabled the *Allow learners to download resources* at *Device > Settings*
+  	When I go to *My downloads*
+  	Then I see *You do not have any resources downloaded*
+  		And I see information for the total size of my downloads and the available storage
+  		And I see filter for *Activity type* and a *Sort by* drop-down
+  	When I go to *Learn > Library > Other libraries*
+  		And I click on a channel card
+  		And I open the contents of a folder with resources
+  	Then I see all of the available resource cards
+  		And I see a *Download* icon at the lower right corner of each card
+  	When I click on the *Download* icon
+  	Then I see a *Download requested Go to downloads* snackbar message
+  	When I click on *Go to downloads*
+  	Then I am at *My downloads* page
+  		And I can see the downloaded resources
+  		And I can see the *Name*, *File size*, *Date added* and *Status* of each resource
+  		And I can see a *View* and a *Remove* button next to each resource
+  	When I filter by *Activity type*
+  	Then I only see resources matching the applied filter
+  	When I click the *Sort by* drop-down
+  		And change the default value
+  	Then I see that the available resources are sorted by the applied criteria
+  	When I click on the *View* button next to a resource
+  	Then I am able to view and interact with the resource
+  	When I click the *Go back* arrow
+  	Then I am back at *My downloads* page
+  	When I click the *Remove* button next to a resource
+  	Then I see the *Remove from library* modal window
+  	When I click *Remove*
+  	Then the resource is removed from the list with downloaded resources
+
+  Scenario: Learner explores the *Profile* page
+  	Given I am signed in as a learner user
+  		And the facility is set up to allow learners to edit full names, usernames and passwords
+  	When I expand the sidebar
+  		And I click *Profile*
+  	Then I am at the *Profile* page
+  		And I can see the following fields: *Points*, *User type*, *Full name*, *Username*, *Gender*, *Birth year*, *Password - Change password*
+  	When I click the *Edit* button
+    Then I see the *Edit profile* page
+    When I change my full name, username, gender and birth year
+  	  And I click the *Save* button
+    Then I see a *Changes saved* snackbar message
+	    And I see the new full name, username, gender and birth year
+	  When I click the *Change password* button
+	  Then I see the *Change password* modal
+	  When I enter a new password
+	    And I re-enter the new password
+	    And I click the *Update* button
+	  Then I see a *Your password has been changed* snackbar message
+
+  Scenario: Change language
+
+  Scenario: View results for completed quiz
+
+  Scenario: Create an account
+
+  Scenario: Sign in and sign out
