@@ -105,13 +105,18 @@
               style="float: right;"
               :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="!hasTopicId() && !showBookmarks"
+              :disabled="!workingPoolHasChanged"
               @click="saveSelectedResource"
             />
           </KGridItem>
         </KGrid>
       </div>
     </div>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      @cancel="handleCancelClose"
+      @continue="handleConfirmClose"
+    />
   </div>
 
 </template>
@@ -133,6 +138,7 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -142,9 +148,10 @@
       BookmarkIcon,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
+      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(_, context) {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -154,6 +161,9 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
+      const showConfirmationModal = ref(false);
+
+      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
 
       const {
         sectionSettings$,
@@ -377,6 +387,7 @@
           // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
           // annotated with their num_assessments and those without assessments are filtered out
           annotateTopicsWithDescendantCounts(resources.value.map(c => c.id)).then(() => {
+            channels.value = resources.value;
             _loading.value = false;
           });
         });
@@ -408,6 +419,10 @@
           return searchResults.value;
         }
 
+        if (!topicId.value) {
+          return channels.value;
+        }
+
         return resources.value;
       });
 
@@ -432,16 +447,36 @@
         return fetchMoreQuizResources();
       }
 
+      function handleCancelClose() {
+        showConfirmationModal.value = false;
+      }
+
+      function handleConfirmClose() {
+        context.emit('closePanel');
+      }
+
+      const workingPoolHasChanged = computed(() => {
+        return (
+          workingResourcePool.value.length != activeResourcePool.value.length ||
+          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
+        );
+      });
+
       return {
         selectAllChecked,
         selectAllIndeterminate,
         showSelectAll,
         handleSelectAll,
         toggleSelected,
+        prevRoute,
+        workingPoolHasChanged,
+        handleConfirmClose,
+        handleCancelClose,
         topic,
         topicId,
         contentList,
         resources,
+        showConfirmationModal,
         hasCheckbox,
         loading,
         hasMore,
@@ -464,17 +499,12 @@
         updateSection,
         selectAllQuestions,
         workingResourcePool,
+        activeResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
         selectedResourcesInformation$,
       };
-    },
-    props: {
-      closePanelRoute: {
-        type: Object,
-        required: true,
-      },
     },
     computed: {
       isTopicIdSet() {
@@ -505,6 +535,19 @@
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
+    },
+    beforeRouteEnter(_, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
+    },
+    beforeRouteLeave(_, __, next) {
+      if (!this.showConfirmationModal && this.workingPoolHasChanged) {
+        this.showConfirmationModal = true;
+        next(false);
+      } else {
+        next();
+      }
     },
     methods: {
       showTopicSizeWarningCard(content) {
@@ -547,9 +590,6 @@
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
       },
-      hasTopicId() {
-        return Boolean(this.$route.params.topic_id);
-      },
       saveSelectedResource() {
         this.updateSection({
           section_id: this.$route.params.section_id,
@@ -559,7 +599,7 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$router.replace(this.closePanelRoute);
+        this.$router.replace(this.prevRoute);
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
