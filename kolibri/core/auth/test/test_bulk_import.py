@@ -253,6 +253,98 @@ class ImportTestCase(TestCase):
         assert "new_coach" in result[1]
         assert "'row': 2" in result[1]
 
+    def test_case_insensitive_usernames(self):
+        _, first_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                None,
+                "peter",
+                "password1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+            [
+                None,
+                "PETER",
+                "password2",
+                None,
+                "FACILITY_COACH",
+                None,
+                "1969",
+                "MALE",
+                None,
+                "new_class",
+            ],
+        ]
+        self.create_csv(first_filepath, rows)
+        call_command("bulkimportusers", first_filepath, facility=self.facility.id)
+
+        # Retrieve the user(s)
+        users = FacilityUser.objects.filter(username__iexact="peter")
+
+        # Ensure that only one user is created, and it has the latest password
+        assert users.count() == 1
+
+    def test_username_already_exists(self):
+        _, first_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                None,
+                "peter",  # Adding the first user with the username "peter"
+                "passwd1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+        ]
+        self.create_csv(first_filepath, rows)
+
+        call_command("bulkimportusers", first_filepath, facility=self.facility.id)
+
+        # Get the initial count of users with the username "peter"
+        initial_peter_count = FacilityUser.objects.filter(username="peter").count()
+        peter1 = FacilityUser.objects.get(username="peter")
+        passwd1 = peter1.password
+        # Check that the count of users with the username "peter" is one
+        assert initial_peter_count == 1
+
+        # Attempt to add another user with the same username "peter"
+        _, second_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                None,
+                "peter",  # Attempting to add another user with the same username "peter"
+                "another_password",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+        ]
+        self.create_csv(second_filepath, rows)
+
+        # Check that the command raises an IntegrityError when trying to add a user with an existing username
+        call_command("bulkimportusers", second_filepath, facility=self.facility.id)
+
+        # Check that the count of users with the username "peter" is still one
+        assert FacilityUser.objects.filter(username="peter").count() == 1
+        peter2 = FacilityUser.objects.get(username="peter")
+        passwd2 = peter2.password
+        # Check that the password of the existing user remains unchanged
+        assert passwd2 == passwd1
+
     def test_asterisk_in_password(self):
         _, first_filepath = tempfile.mkstemp(suffix=".csv")
         rows = [
