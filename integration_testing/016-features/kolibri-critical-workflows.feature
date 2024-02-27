@@ -250,6 +250,36 @@ Feature: Kolibri critical workflows
     When I click *Continue*
     Then I see the *Quiz started* snackbar message
 
+  Scenario: Guest user can create a learner account
+  	Given that the *Allow learners to create accounts* setting is activated in *Facility > Settings*
+      And I am at the Kolibri sign-in page
+    When I click the *Create an account* button
+    Then I am the *Create an account* page
+    When I fill in the *Full name*, *Username*, *Password* and *Re-enter password* fields
+     And I click the *Continue* button
+    Then I am at the *Create an account* page
+    When I select my gender and birth year
+      And I click the *Finish* button
+    Then I am signed in
+    	And I am at the *Learn > Home* page
+
+  Scenario: Users can sign in and sign out
+  	Given I am at the Kolibri sign-in page
+  		And I have a valid account
+  	When I fill in my *Username*
+  		And I click the *Next* button
+  		And I fill in my password in the *Password* field
+  		And I click the *Sign in* button
+  	Then I am signed in
+  		And I can navigate through the available pages based on my permissions
+  	When I expand the sidebar
+  		And I click on *Sign out*
+  	Then I am back at the *Sign in* page
+  		And I am no longer signed in
+  	When I click the browsers back button
+  	Then I see *You must be signed in to view this page*
+  		And I see a link *Sign in to Kolibri*
+
   Scenario: Learner completes an assigned lesson
   	Given I am signed in as a learner user
 			And I am at *Learn > Home > Classes > '<class>'* page
@@ -266,6 +296,18 @@ Feature: Kolibri critical workflows
 		Then I am back at *Learn > Home > Classes > '<class>'* page
 			And I see a yellow star icon at the lower left corner of the quiz card
     	And I see the score of the quiz in percents
+
+  Scenario: Learner can view the results for a completed quiz
+  	Given I am signed in as a learner user
+  		And I have successfully completed a quiz
+  		And I am at *Home > Classes > <class>*
+  	When I click on a quiz card
+  	Then I see the details for that quiz such as title, status, questions answered correctly, time spent, attempted
+  		And I see the answer history
+  	When I click on a question
+  	Then I see the question details
+  		And I see a checkbox *Show correct answer*
+  		And I see the number of attempts made on this question
 
   Scenario: Learner explores the *Library* while signed in
   	Given I am signed in as a learner user
@@ -392,10 +434,217 @@ Feature: Kolibri critical workflows
 	    And I click the *Update* button
 	  Then I see a *Your password has been changed* snackbar message
 
-  Scenario: Change language
+  Scenario: Learner can change the UI language
+  	Given I am signed in as a learner user
+  	When I open the sidebar
+  		And I click on *Change language*
+  	Then I see the *Change language* modal
+  	When I select a new language
+  		And I click the *Confirm* button
+  	Then I see the UI changed to the selected language
+  	When I expand the sidebar
+  		And I click on *Sign out*
+  	Then I am at the *Sign in* page
+  		And I see the Sign in* page in the previously selected language
+  	When I select a new language from the language bar in the footer
+  	Then the UI is changed to the selected language
 
-  Scenario: View results for completed quiz
+  Scenario: Super admin can import a learning facility
+  	Given I am signed in as a super admin
+			And I am at *Device > Facilities*
+		When I click the *Import learning facility* button
+		Then I see the *Select device* modal
+			And I see a list of peer devices
+			And I see the network address of each device
+		When I select a device
+			And I click *Continue*
+		Then I see the *Select learning facility* modal
+			And I see one or more facilities on that device
+		When I select a facility
+			And I click *Continue*
+		Then I see the *Enter admin credentials* modal
+		When I enter the username and the password of a facility admin or a super admin for the facility
+			And I click *Continue*
+		Then I see the *Facilities - Task manager* page
+			And I see that the import task is in progress
+		When the import has finished
+			And I close the *Facilities - Task manager* page
+		Then I see the imported facility in my *Facilities* list
 
-  Scenario: Create an account
+	Scenario: Super admin can sync an imported learning facility to a peer device
+		Given I am signed in as a super admin
+			And I am at *Device > Facilities*
+			And I have imported a learning facility
+			And I am connected to that learning facility
+		When I click the *Sync* button next to an imported facility
+			Then I see the *Select a source* modal
+		When I select *Local network or internet*
+			And I click *Continue*
+		Then I see the *Select device* modal
+			And I see a list of devices that also have my facility
+		When I select a device
+			And I click *Continue*
+		Then I see a task progress bar above the list with facilities
+			And I see a *Syncing* message under the facility
+			And I see an indeterminate spinner
+		When the facility is done syncing
+			Then I see a message under the facility: *Last synced: just now*
 
-  Scenario: Sign in and sign out
+	Scenario: Super admin can register and sync a facility to Kolibri Data Portal
+		Given I am signed in as a super admin
+			And I am at *Device > Facilities*
+		When I click the *Sync* button next to an imported facility
+		Then I see the *Select a source* modal
+		When I select *Kolibri data portal (online)*
+			And I click *Continue*
+		Then I see the *REgister facility* modal
+			And I see the *Project token* field
+		When I enter a valid project token
+			And I click *Continue*
+		The I see the *Select a source* modal
+			And I see *Register with <project_name>? Data will be saved in the cloud*
+		When I click *Register*
+		Then I see a task progress bar above the list with facilities
+			And I see a *Syncing* message under the facility
+			And I see an indeterminate spinner
+		When the facility is done syncing
+			Then I see a message under the facility: *Last synced: just now*
+
+  Scenario: Super admin can change the device settings
+  	Given I am signed in as a super admin
+			And I am at *Device > Settings*
+		When I change any of the available settings such as default language, external devices, default landing page, primary storage location, auto-download and enabled pages
+			And I click *Save changes*
+		Then I can see a *Settings have been updated* snackbar message
+
+  Scenario: Super admin can change the device permissions
+  	Given I am signed in as a super admin
+			And I am at *Device > Permissions*
+			And there is a facility user who does not have device permissions
+		When I click *Edit permissions* button for the user
+      Then I see the *Permissions* page
+      	And I can see the username, user type and facility of the user
+      When I select the *Make super admin* checkbox
+      Then I see that the checkbox under *Device permissions* is checked and disabled
+        And the *Save changes* button becomes active
+      When I click *Save changes*
+      Then I see the confirmation snackbar *Changes saved*
+      When I click on *Edit permissions* next to the user
+      Then I see that the *User type* is now *Super admin*
+        And I see the *Make Super admin* checkbox is checked but not disabled
+        And I see the *Save changes* button is disabled
+
+  Scenario: Super admin can see the device info and change the device name
+  	Given I am signed in as a super admin
+		When I go to *Device > Info*
+		Then I see the correct info for the following: Server URL, Free disk space, Kolibri version and Device name
+			And I see the Advanced section
+		When I click the *Show* link
+		Then I see advanced info for the version, OS, Python, installer, server, database, free disk space, server time, server timezone, device id
+			And I see a *Copy to clipboard* button
+		When I click *Edit* next to the device name
+    Then I see the *Device name* modal
+    When I enter a new name
+    	And I click *Save*
+    Then I see the new device name
+      And I see a snackbar that says *Changes saved*
+
+  Scenario: Admin can change the facility settings
+  	Given I am signed in as an admin
+  	When I go to *Facility > Settings*
+  	Then I can see the facility name
+  		And I can see the following checkboxes: Allow learners to edit their username, Allow learners to edit their full name, Allow learners to create accounts, Requires password for learners, Allow learners to edit their password when signed in, Show 'download' button with resources
+  		And I can see the *Device management PIN* section
+  		And I can see a *Create PIN* button
+  	When I deselect or select any of the checkboxes
+  		And I click *Save changes*
+  	Then I see the *Facility settings updated* snackbar message
+  	When I click the *Create PIN* button
+  	Then I see the *Create device management PIN* modal
+  	When I enter a valid PIN
+  		And I click *Save*
+  	Then I see the *New PIN created* snackbar message
+  		And I see an *Options* drop-down at the place of the *Create PIN* button
+  	When I click on the *Options* drop-down
+  	Then I see the following options: View PIN, Change PIN, Remove PIN
+  	When I click the *Remove PIN* option
+  	Then I see the *Remove device management PIN* modal
+  	When I click the *Remove PIN* button
+  	Then I see the *PIN removed* snackbar message
+
+  Scenario: Admin can export usage data
+  	Given I am signed in to Kolibri as an admin
+      And I am at *Facility > Data* page
+      And learners have interacted with content on the device
+    When I click on the *Generate log* button under *Session logs* heading
+    Then I see the *Select a date range* modal
+    When I select a start and an end date
+    	And I click *Generate*
+    Then I see a *Download* button displayed to the left of the *Generate log* button
+    When I click on the *Download* button
+    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
+    When I click on the *Generate log* button under *Summary logs* heading
+    Then I see the *Select a date range* modal
+    When I select a start and an end date
+    	And I click *Generate*
+    Then I see a *Download* button displayed to the left of the *Generate log* button
+    When I click on the *Download* button
+    Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
+
+  Scenario: Admin can import and export users
+  	Given I am signed in to Kolibri as a an admin
+      And I am at *Facility > Data* page
+    When I click the *Import* button under *Import and export users* heading
+    Then I see the *Import users from spreadsheet* page with a text explaining the consequences of importing
+    When I click the *Choose file* button
+      And I select a CSV file with the right format
+    Then I see the *Continues* button is now enabled
+    When I click the *Continue* button
+    Then I see the *Import users* page
+      And I see the loading indicator
+    When the file is processed
+    Then I see a list of the users and classes that are going to be updated and created
+      And I see the list of errors, if any
+      And I see the *Back* and *Import* buttons
+    When I click the *Import* button
+    Then I see the *The import succeeded* message
+      And I see a report with the changes made in the database
+    When I click *Close* button
+    Then I am back at *Facility > Data*
+    When I click *Generate user CSV file*
+    Then the *Download CSV* button gets enabled
+    When I click *Download CSV*
+    Then I see the *Open/Save as* window, or the file 'facility_name_users.csv' is automatically saved on my local drive, depending on the browser defaults
+
+  Scenario: Admin can sync facility data to KDP or another Kolibri server
+  	Given I am signed in to Kolibri as a an admin
+      And I am at *Facility > Data* page
+      And my facility is already registered to KDP
+      And there is another active Kolibri server in the network
+    When I click the *Sync* button
+    Then I see the *Select a source* modal
+    When I select one of the available options
+    	And I click *Continue*
+    Then I see a *Syncing* message under the facility
+			And I see an indeterminate spinner
+		When the facility is done syncing
+			Then I see a message under the facility: *Last synced: just now*
+
+  Scenario: Admin can reset reset the password of a user
+  	Given I am signed in to Kolibri as a an admin
+      And I am at *Facility > Users* page
+    When I click on the *Options* drop-down next to a user
+      And I select the *Reset password* option
+    Then I see the *Reset user password* modal
+    When I fill in the *Password* and *Re-enter password* fields
+      And I click the *Save* button
+    Then the modal closes
+      And I see the *Password reset* snackbar message
+
+  Scenario: Coach can view the reports
+
+  Scenario: Coach can export reports
+
+  Scenario: Setup Wizard - import learners
+
+  Scenario:
