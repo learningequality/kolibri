@@ -409,11 +409,13 @@
   }
 
   .section-settings-heading {
+    margin-bottom: 0.5em;
     font-size: 1em;
     font-weight: 600;
   }
 
   .section-settings-top-heading {
+    margin-bottom: 0.5em;
     font-size: 18px;
     font-weight: 600;
   }
@@ -461,13 +463,25 @@
   }
 
   .bottom-buttons-style {
-    bottom: 0;
-    margin-top: 4em;
-    margin-bottom: 1em;
+    position: absolute;
+    right: 0;
+    bottom: 1.5em;
+    left: 0;
+    padding: 1em;
+    margin-top: 1em;
+    border-top: 1px solid black;
+
+    > div {
+      padding-right: 1em;
+    }
+  }
+
+  /deep/ .textbox {
+    max-width: 100% !important;
   }
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 160%;
+    width: 100%;
   }
 
   /deep/ .KButton-noKey-0_1xktocf {
