@@ -154,4 +154,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
   },
+  cannotSelectSomeTopicWarning: {
+    message:
+      'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
+  },
 });

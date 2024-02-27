@@ -128,11 +128,17 @@ export default function useQuizResources({ topicId } = {}) {
   }
 
   /** @returns {Boolean} Whether the given node should be displayed with a checkbox
-   * @description Returns whether the given node is an exercise or not -- although, could be
-   * extended in the future to permit topic-level selection if desired
+   *  @description Returns true for exercises and for topics that have no topic children and no
+   *  more children to load
    */
   function hasCheckbox(node) {
-    return node.kind === ContentNodeKinds.EXERCISE;
+    return (
+      node.kind === ContentNodeKinds.EXERCISE ||
+      // Has children, no more to load, and no children are topics
+      (node.children &&
+        !node.children.more &&
+        !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC))
+    );
   }
 
   function setResources(r) {
