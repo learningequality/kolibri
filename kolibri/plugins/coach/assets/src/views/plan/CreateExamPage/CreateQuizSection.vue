@@ -386,6 +386,7 @@
         selectAllQuestions,
 
         // Computed
+        toggleQuestionInSelection,
         channels,
         quiz,
         allSections,
@@ -420,6 +421,7 @@
         replaceAction$,
         questionList$,
 
+        toggleQuestionInSelection,
         selectAllQuestions,
         saveQuiz,
         updateSection,
