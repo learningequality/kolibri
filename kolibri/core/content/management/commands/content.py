@@ -18,8 +18,7 @@ class Command(BaseCommand):
             dest="command", help="The following subcommands are available."
         )
         movedir_subparser = subparsers.add_parser(
-            name="movedirectory",
-            cmd=self,
+            "movedirectory",
             help="Migrates the content to a specific folder defined by users.",
         )
         movedir_subparser.add_argument(
