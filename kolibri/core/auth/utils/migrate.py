@@ -1,7 +1,7 @@
 import logging
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connections
-from django.db.models import FieldDoesNotExist
 from morango.registry import syncable_models
 from morango.sync.backends.utils import calculate_max_sqlite_variables
 
