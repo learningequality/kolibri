@@ -23,6 +23,8 @@ from kolibri.core.auth.test.test_api import FacilityUserFactory
 @mock.patch.object(requests.Session, "request", mock_request)
 @mock.patch.object(connections, "check_if_port_open", lambda *a: True)
 class NetworkLocationAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -132,6 +134,8 @@ class NetworkLocationAPITestCase(APITestCase):
 
 
 class PinnedDeviceAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

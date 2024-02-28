@@ -39,6 +39,8 @@ from kolibri.utils.time_utils import local_now
 
 class ContentSummaryLogCSVExportTestCase(APITestCase):
 
+    databases = "__all__"
+
     fixtures = ["content_test.json"]
 
     @classmethod
@@ -200,6 +202,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
 
 
 class ContentSessionLogCSVExportTestCase(APITestCase):
+    databases = "__all__"
 
     fixtures = ["content_test.json"]
 

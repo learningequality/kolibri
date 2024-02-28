@@ -149,6 +149,8 @@ class UserImportCommandTestCase(TestCase):
     Tests for 'kolibri manage importusers' command.
     """
 
+    databases = "__all__"
+
     @classmethod
     def setUpClass(self):
         super(UserImportCommandTestCase, self).setUpClass()

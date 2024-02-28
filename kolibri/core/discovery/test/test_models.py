@@ -8,7 +8,7 @@ from ..models import StaticNetworkLocation
 
 
 class NetworkLocationTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def test_property__available(self):
         location = NetworkLocation()

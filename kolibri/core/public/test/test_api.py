@@ -283,7 +283,7 @@ class SyncQueueViewSetTestCase(APITestCase):
     to be changed, and not the tests themselves.
     """
 
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         setup_device()

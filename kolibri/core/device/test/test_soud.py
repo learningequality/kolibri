@@ -26,6 +26,8 @@ from kolibri.core.discovery.models import StaticNetworkLocation
 
 
 class SoudContextTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super(SoudContextTestCase, self).setUp()
         self.context = Context(uuid.uuid4().hex, uuid.uuid4().hex)
@@ -59,7 +61,7 @@ class SoudContextTestCase(TestCase):
 
 
 class SoudRequestSyncHookHandlerTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         super(SoudRequestSyncHookHandlerTestCase, self).setUp()
@@ -171,7 +173,7 @@ class SoudRequestSyncHookHandlerTestCase(TestCase):
 
 @mute_signals(post_save)
 class SoudExecuteSyncsTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         super(SoudExecuteSyncsTestCase, self).setUp()
@@ -373,7 +375,7 @@ class SoudExecuteSyncsTestCase(TestCase):
 
 @mute_signals(post_save)
 class SoudExecuteSyncTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         super(SoudExecuteSyncTestCase, self).setUp()

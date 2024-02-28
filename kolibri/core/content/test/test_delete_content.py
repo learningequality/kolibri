@@ -25,6 +25,8 @@ test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class UnavailableContentDeletion(TransactionTestCase):
+    databases = "__all__"
+
     def setUp(self):
         super(UnavailableContentDeletion, self).setUp()
 
@@ -110,6 +112,7 @@ class DeleteContentTestCase(TransactionTestCase):
     Testcase for delete content management command
     """
 
+    databases = "__all__"
     fixtures = ["content_test.json"]
 
     def _get_node_ids(self):

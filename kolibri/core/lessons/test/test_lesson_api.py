@@ -20,6 +20,8 @@ DUMMY_PASSWORD = "password"
 
 
 class LessonAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

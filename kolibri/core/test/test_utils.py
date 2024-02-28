@@ -15,7 +15,7 @@ from kolibri.core.utils.lock import retry_on_db_lock
 
 class DBBasedProcessLockTestCase(SimpleTestCase):
 
-    allow_database_queries = True
+    databases = "__all__"
 
     @unittest.skipIf(
         True,

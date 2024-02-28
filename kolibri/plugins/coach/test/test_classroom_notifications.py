@@ -10,6 +10,8 @@ DUMMY_PASSWORD = "password"
 
 
 class ClassroomNotificationsTestCase(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         provision_device()
         self.facility = Facility.objects.create(name="My Facility")
