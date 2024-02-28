@@ -68,17 +68,17 @@ def update_assignments_from_individual_syncable_lessons(user_id):
     syncablelessons = IndividualSyncableLesson.objects.filter(user_id=user_id)
     assignments = LessonAssignment.objects.filter(
         collection__membership__user_id=user_id, lesson__is_active=True
-    ).distinct()
+    )
 
     # get a list of all syncable lessons that aren't locally assigned
     to_create = syncablelessons.exclude(
         lesson_id__in=assignments.values_list("lesson_id")
-    )
+    ).distinct()
 
     # get a list of all assignments that may need updating from syncable lessons
     to_update = assignments.filter(
         lesson_id__in=syncablelessons.values_list("lesson_id")
-    )
+    ).distinct()
 
     # get a list of all active assignments that no longer have a syncable lesson
     to_delete = assignments.exclude(
