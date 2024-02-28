@@ -297,7 +297,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = UserSyncStatus.objects.all()
-    filter_class = SyncStatusFilter
+    filterset_class = SyncStatusFilter
 
     values = (
         "status",

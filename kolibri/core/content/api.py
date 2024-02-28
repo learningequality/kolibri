@@ -19,7 +19,7 @@ from django.utils.cache import add_never_cache_headers
 from django.utils.decorators import method_decorator
 from django.utils.encoding import force_bytes
 from django.utils.encoding import iri_to_uri
-from django.utils.translation import ugettext as _
+from django.utils.translation import gettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
 from django.views.decorators.http import etag
@@ -278,7 +278,7 @@ class ChannelMetadataFilter(FilterSet):
 
 class BaseChannelMetadataMixin(object):
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ChannelMetadataFilter
+    filterset_class = ChannelMetadataFilter
 
     values = (
         "author",
@@ -582,7 +582,7 @@ class BaseContentNodeMixin(object):
     """
 
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ContentNodeFilter
+    filterset_class = ContentNodeFilter
 
     values = (
         "id",
@@ -1349,7 +1349,7 @@ class ContentNodeBookmarksViewset(
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_class = BookmarkFilter
+    filterset_class = BookmarkFilter
     pagination_class = ValuesViewsetLimitOffsetPagination
 
     def get_queryset(self):
@@ -1391,7 +1391,7 @@ class ContentRequestFilter(FilterSet):
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = ContentRequestFilter
+    filterset_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
     permission_classes = [IsAuthenticated]
 
@@ -1665,7 +1665,7 @@ class UserContentNodeViewset(
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields = ["last_interacted"]
     ordering = ("lft", "id")
-    filter_class = UserContentNodeFilter
+    filterset_class = UserContentNodeFilter
     pagination_class = OptionalPagination
 
     def get_queryset(self):
@@ -1702,7 +1702,7 @@ class ContentNodeProgressViewset(
     filter_backends = (DjangoFilterBackend, filters.OrderingFilter)
     ordering_fields = ["last_interacted"]
     ordering = ("lft", "id")
-    filter_class = UserContentNodeFilter
+    filterset_class = UserContentNodeFilter
     # Use same pagination class as ContentNodeViewset so we can
     # return identically paginated responses.
     # The only deviation is that we only return the results

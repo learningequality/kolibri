@@ -192,7 +192,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_class = FacilityDatasetFilter
+    filterset_class = FacilityDatasetFilter
     serializer_class = FacilityDatasetSerializer
 
     values = (
@@ -397,7 +397,7 @@ class FacilityUserViewSet(ValuesViewset):
 
     queryset = FacilityUser.objects.all()
     serializer_class = FacilityUserSerializer
-    filter_class = FacilityUserFilter
+    filterset_class = FacilityUserFilter
     search_fields = ("username", "full_name")
 
     values = (
@@ -524,7 +524,7 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    filter_class = MembershipFilter
+    filterset_class = MembershipFilter
     filter_fields = ["user", "collection", "user_ids"]
 
 
@@ -544,7 +544,7 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    filter_class = RoleFilter
+    filterset_class = RoleFilter
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
@@ -695,7 +695,7 @@ class ClassroomViewSet(ValuesViewset):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
-    filter_class = ClassroomFilter
+    filterset_class = ClassroomFilter
 
     values = (
         "id",
