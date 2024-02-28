@@ -13,7 +13,7 @@ Feature: Kolibri critical workflows
     	And I open the default browser at http://127.0.0.1:8080
     Then I see the first step of the *Setup wizard*
 
-  Scenario: *On my own* setup
+  Scenario: Setup Wizard - *On my own* setup
   	Given I am using a desktop browser
   		And Kolibri has finished loading after opening it for the first time
 	  	And I see *How are you using Kolibri?*
@@ -100,7 +100,144 @@ Feature: Kolibri critical workflows
   		And I can see the *Other libraries* section
   		And I can explore all the available channels there
 
-  Scenario: Group learning - Full device - Create facility with default options
+  Scenario: Setup Wizard - Group learning - Full device - Create a formal facility
+		Given I am at the *How are you using Kolibri?* page
+			And I select the *Group learning* option
+		When I click *Continue*
+		Then I see the *Device name* page
+			And I can see the device name pre-filled in the *Device name* field
+		When I click *Continue*
+		Then I see the *What kind of device is this?* page
+			And I see that the *Full device* option is selected
+		When I click *Continue*
+		Then I am at the *Set up the learning facility for this full device* page
+			And I see that the *Create a new facility* option is selected
+		When I click *Continue*
+		Then I am at the *What kind of learning environment is your facility?* page
+		When I select *Formal*
+			And I click *Continue*
+		Then I am at the *Enable guest access?* page
+			And I see that the *No. Users must have an account to view resources on Kolibri* option is selected
+		When I click *Continue*
+		Then I am at the *Allow learners to join this facility?* page
+			And I see that the *No. Admins must create all accounts* option is selected
+		When I click *Continue*
+		Then I am at the *Enable passwords on learner accounts?* page
+			And I see that the *No. Learner accounts can sign in with just a username* option is selected
+		When I click *Continue*
+		Then I am at the *Responsibilities as an administrator* page
+		When I click *Continue*
+		Then I see the *Create super admin* page
+		When I fill in the *Full name*, *Username*, *Password* and *Re-enter password* fields
+			And I click *Continue*
+		Then I see the *Setting up Kolibri* page
+		When the setup has finished
+		Then I am at the *Device > Channels* page
+			And I can see the *Welcome to Kolibri!* modal
+
+  Scenario: Setup Wizard - Group learning - Full device - Import all data from an existing learning facility
+		Given I am at the *Set up the learning facility for this full device* page
+		When I select the *Import all data from an existing facility* option
+			And I click *Continue*
+		Then I see the *Select network address* modal
+			And I can select a network address
+		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
+		Then I am at the *Import learning facility - 1 of 4* page
+			And I see *Import learning facility*
+    	And I see the name of the device from which I am importing
+    	And I see the network address of that device
+    	And I see *Enter the username and password for a facility admin of '<facility>' or a super admin of '<device>'*
+		When I enter the username and password of a facility admin or super admin
+			And I click *Continue*
+		Then I am at the *Import learning facility - 2 of 4* page
+			And I see *Loading '<facility>'*
+			And I see loading status bar
+		When the facility has finished loading
+		Then I see the status *Finished*
+			And I see a green check icon
+			And I see *The '<facility>' learning facility has been successfully loaded to this device*
+		When I click *Continue*
+		Then I am at the *Import learning facility - 3 of 4* page
+			And I see *Select super admin*
+			And I see a dropdown for super admin
+			And I see the username of the admin that I used to load the facility
+		When I enter a password
+			And I click *Continue*
+		Then I am at the *Import facility - 4 of 4* page
+			And I see *Responsibilities as an administrator*
+			And a the *Usage and privacy* link
+		When I click *Continue*
+		Then I see the *Setting up Kolibri* page
+		When the setup has finished
+		Then I am at the *Device > Channels* page
+			And I can see the *Welcome to Kolibri!* modal
+
+	Scenario: Setup Wizard - Group learning - Learn-only - Join a facility
+		Given I am at the *Select a facility setup for this device* page
+		When I select *Create a new user account for an existing facility*
+			And I click *Continue*
+		Then I am at the  *Select facility* page #this page is shown only if there's more than 1 facility on the selected device
+			And I see a list of facilities in my network
+			And I see *Don't see your facility?*
+			And I see *Add new address*
+		When I click *Continue*
+		Then I am at the page *Create your account*
+			And I see text fields for *Full name*, *Username*, *Password* and *Re-enter password*
+			And I see the *Usage and privacy* link
+		When I fill in *Full name*, *Username*, *Password* and *Re-enter password*
+			And I click *Continue*
+		Then I am at the *Load user account* page
+			And I see a progress bar
+		When the process is complete
+		Then I see *'<full name>' from <facility> successfully loaded to this device*
+			And I see a green check icon
+		When I click *Finish*
+		Then I see *Setting up Kolibri*
+			And I see *This may take several minutes*
+			And I see the Kolibri loading icon
+		When the setup has finished
+		Then I can see the *Welcome to Kolibri!* modal
+		When I click *Continue*
+		Then I am at the *Learn > Library* page
+
+	Scenario: Setup Wizard - Group learning - Learn-only - Import individual users
+		Given I am at the *Select a facility setup for this learn-only device* page
+		When I select the *Import one or more existing user accounts from an existing facility?* option
+			And I click *Continue*
+		Then I see the *Select network address* modal
+			And I can select a network address
+		When I click *Continue*
+		Then I am at *Select learning facility* #this page is shown only if there's more than 1 facility on the selected device
+			And I see all of the available facilities
+		When I select a facility
+			And I click *Continue*
+		Then I am at the *Import individual user accounts - 1 of 2* page
+			And I see *Import individual user accounts*
+			And I see the name of the device from which I am importing
+			And I see the network address of that device
+			And I see *Enter the credentials of the user account you want to import*
+ 		When I enter the username and password of a learner
+			And I click *Continue*
+		Then I am at the *Import individual user accounts - 2 of 2* page
+			And I see *Loading user*
+			And I see a progress bar
+		When the import has finished
+		Then I am at the *Loading user* page
+			And I see a green check icon
+			And I see *'<full name>' from <facility> successfully loaded to this device*
+			And I see an *Import another user account* link
+		When I click *Finish*
+		Then I see the *Setting up Kolibri* page
+		When the setup has finished
+		Then I can see the *Welcome to Kolibri!* modal
+		When I click *Continue*
+		Then I am at the *Learn > Home* page
+
+  Scenario: Setup Wizard - Group learning - Full device - Create facility with default options
   	Given I am at the *How are you using Kolibri?* page
   		And I select the *Group learning* option
   	When I click *Continue*
@@ -164,7 +301,7 @@ Feature: Kolibri critical workflows
   		And I see the *Clear* button for the finished task
   		And I see the *Clear completed* button
 
-  Scenario: Create a learner user account
+  Scenario: Super admin creates a learner user account
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Users*
     When I click the *New user* button
@@ -175,7 +312,34 @@ Feature: Kolibri critical workflows
       And I see the the snackbar confirmation that the user has been created
       And I see that the new learner is added to the *Users* table
 
-  Scenario: Create a class
+  Scenario: Super admin creates a facility coach user account
+  	Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
+    When I click the *New user* button
+    Then I see the *Create new user* page
+    When I select *Coach* from the *User type* drop-down
+    	And I select the *Facility coach* radio-button
+    	And I fill in all the required fields
+      And I click the *Save* button
+    Then the page reloads
+      And I see the the snackbar confirmation that the user has been created
+      And I see that the new facility coach is added to the *Users* table
+      And there's a label *Facility coach* next to the full name of the coach
+
+  Scenario: Super admin creates an admin user account
+  	Given I am signed in to Kolibri as a super admin
+  	  And I am at *Facility > Users*
+    When I click the *New user* button
+    Then I see the *Create new user* page
+    When I select *Admin* from the *User type* drop-down
+    	And I fill in all the required fields
+      And I click the *Save* button
+    Then the page reloads
+      And I see the the snackbar confirmation that the user has been created
+      And I see that the new admin is added to the *Users* table
+      And there's a label *Admin* next to the full name of the admin
+
+  Scenario: Super admin creates a class
   	Given I am signed in to Kolibri as a super admin
   	  And I am at *Facility > Classes*
     When I click the *New class* button
@@ -186,7 +350,7 @@ Feature: Kolibri critical workflows
       And I see the the snackbar confirmation that the class has been created
       And I see that the new class is added to the *Classes* table
 
-  Scenario: Enroll learners to a class
+  Scenario: Super admin enrolls learners to a class
       Given I am signed in to Kolibri as a super admin
   	  	And I am at *Facility > Classes*
   	  	And there are created classes
@@ -592,7 +756,7 @@ Feature: Kolibri critical workflows
     Then I see the *Open/Save as* window, or the file 'content_session_logs.csv' is automatically saved on my local drive, depending on the browser defaults
 
   Scenario: Admin can import and export users
-  	Given I am signed in to Kolibri as a an admin
+  	Given I am signed in to Kolibri as an admin
       And I am at *Facility > Data* page
     When I click the *Import* button under *Import and export users* heading
     Then I see the *Import users from spreadsheet* page with a text explaining the consequences of importing
@@ -617,7 +781,7 @@ Feature: Kolibri critical workflows
     Then I see the *Open/Save as* window, or the file 'facility_name_users.csv' is automatically saved on my local drive, depending on the browser defaults
 
   Scenario: Admin can sync facility data to KDP or another Kolibri server
-  	Given I am signed in to Kolibri as a an admin
+  	Given I am signed in to Kolibri as an admin
       And I am at *Facility > Data* page
       And my facility is already registered to KDP
       And there is another active Kolibri server in the network
@@ -631,7 +795,7 @@ Feature: Kolibri critical workflows
 			Then I see a message under the facility: *Last synced: just now*
 
   Scenario: Admin can reset reset the password of a user
-  	Given I am signed in to Kolibri as a an admin
+  	Given I am signed in to Kolibri as an admin
       And I am at *Facility > Users* page
     When I click on the *Options* drop-down next to a user
       And I select the *Reset password* option
@@ -641,10 +805,69 @@ Feature: Kolibri critical workflows
     Then the modal closes
       And I see the *Password reset* snackbar message
 
-  Scenario: Coach can view the reports
+  Scenario: Coach can review a lesson report
+  	Given I am signed in to Kolibri as a coach
+      And I am at *Coach > Reports > Lessons* page
+      And there are completed lessons
+    When I click on the title of a lesson
+    Then I see the *Report* tab and the table with each lesson resource
+      And I see the *Progress* and *Average time spent* columns for each resource
+    When I click on a resource's title
+    Then I see the report page for the resource
+    	And I see a *Preview* button
+    	And I see the title, description, suggested time, license, copyright holder and average time spent of the resource
+    	And I see the *View by groups* checkbox
+    	And I see a table with the users to whom the resource is assigned
+    	And I see options to print or export the report
+    When I click the back arrow
+    Then I am back at the *Report* tab
+    When I click on the *Learners* tab
+    Then I see a table with each user's name, progress and groups
+    When I click on the name of a learner
+    Then I see a table with the resources assigned to the learner
+      And I see the title, progress and time spent values for each resource
+
+  Scenario: Coach can review a quiz reports
+  	Given I am signed in to Kolibri as a coach
+      And I am at *Coach > Reports > Quizzes* page
+      And there are assigned quizzes
+      And I see a table with the assigned quizzes
+      And I see the title, average score, progress, recipients, size and status of each quiz
+    When I click on the title of a quiz which is in progress
+    Then I see the title, description, recipients, average score, question order and size of the quiz
+    	And I see options to print or export the quiz
+    	And I see an *End quiz* button
+    	And I see that I am on the *Reports* tab for the quiz
+			And I see the *Name*, *Progress*, *Score*, *Groups* and *Last activity* columns for each learner
+		When I click on the name of a learner who has completed the quiz
+		Then I see the quiz report page
+			And I see the status, score, questions answered correctly, time spent and attempted times information for the quiz
+			And I see the answer history
+		When I click the back arrow
+		Then I am back at the previous page
+		When I click the *Difficult questions* tab
+		Then I see a table for the difficult questions with a *Question* and a *Help needed* columns
+		When I click on the title of a question
+		Then I see details for the number of attempts made on this question
 
   Scenario: Coach can export reports
+  	Given I am signed in to Kolibri as a coach
+      And I am at *Coach > Reports > Lessons* page
+      And there are completed lessons
+    When I navigate through the available pages
+    	And I click the *Export as CSV file* icon
+    Then I can download and view a lesson report as a .csv file
+    When I go to any of the *Quizzes*, *Groups* and *Learners* tabs
+    	And I click the *Export as CSV file* icon
+    Then I can download and view a report as a .csv file
 
-  Scenario: Setup Wizard - import learners
-
-  Scenario:
+  Scenario: Coach can print reports
+  	Given I am signed in to Kolibri as a coach
+      And I am at *Coach > Reports > Lessons* page
+      And there are completed lessons
+    When I navigate through the available pages
+    	And I click the *Print report* icon
+    Then I can print a report
+    When I go to any of the *Quizzes*, *Groups* and *Learners* tabs
+    	And I click the *Print report* icon
+    Then I can print a report
