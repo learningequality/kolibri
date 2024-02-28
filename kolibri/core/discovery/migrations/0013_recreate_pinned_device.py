@@ -13,7 +13,7 @@ from django.db import models
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
+        ("kolibriauth", "0001_initial"),
         ("discovery", "0012_remove_pinned_device"),
     ]
 

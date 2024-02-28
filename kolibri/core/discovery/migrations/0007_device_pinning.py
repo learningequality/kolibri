@@ -14,7 +14,7 @@ import kolibri.core.discovery.models
 class Migration(migrations.Migration):
 
     dependencies = [
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
+        ("kolibriauth", "0001_initial"),
         ("discovery", "0006_networklocation_min_content_schema_version"),
     ]
 

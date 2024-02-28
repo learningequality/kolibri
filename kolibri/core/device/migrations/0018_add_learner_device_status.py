@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("kolibriauth", "0020_facilitydataset_extra_fields"),
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
         ("device", "0017_extra_settings"),
     ]
 
