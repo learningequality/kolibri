@@ -1,9 +1,9 @@
 from itertools import compress
 from itertools import groupby
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connections
 from django.db.models import F
-from django.db.models import FieldDoesNotExist
 from django.db.models import Value
 from django.db.models.functions import Greatest
 from le_utils.constants import content_kinds
