@@ -60,7 +60,7 @@ class InitializeAppView(APIView):
         if not valid_app_key(token):
             raise PermissionDenied("You have provided an invalid token")
         auth_token = request.GET.get("auth_token")
-        if request.user.is_anonymous() and device_provisioned() and auth_token:
+        if request.user.is_anonymous and device_provisioned() and auth_token:
             # If we are in app context, then login as the automatically created OS User
             try:
                 user = FacilityUser.objects.get_or_create_os_user(auth_token)
