@@ -1,7 +1,9 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import ContentPermalinkRedirect
 
 urlpatterns = [
-    url(r"^viewcontent$", ContentPermalinkRedirect.as_view(), name="contentpermalink"),
+    re_path(
+        r"^viewcontent$", ContentPermalinkRedirect.as_view(), name="contentpermalink"
+    ),
 ]

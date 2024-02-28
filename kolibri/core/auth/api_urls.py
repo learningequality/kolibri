@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.urls import re_path
 from rest_framework import routers
 
 from .api import ClassroomViewSet
@@ -40,17 +40,17 @@ urlpatterns = (
     router.urls
     + bulk_delete_router.urls
     + [
-        url(
+        re_path(
             r"^setnonspecifiedpassword$",
             SetNonSpecifiedPasswordView.as_view(),
             name="setnonspecifiedpassword",
         ),
-        url(
+        re_path(
             r"^usernameavailable$",
             UsernameAvailableView.as_view(),
             name="usernameavailable",
         ),
-        url(
+        re_path(
             r"^ispinvalid/(?P<pk>[a-f0-9]{32})$",
             IsPINValidView.as_view(),
             name="ispinvalid",

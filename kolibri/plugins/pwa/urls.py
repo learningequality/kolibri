@@ -3,10 +3,10 @@
 #
 # Copyright 2023 Endless OS Foundation, LLC
 # SPDX-License-Identifier: MIT
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import PwaManifestView
 
 urlpatterns = [
-    url(r"^manifest.webmanifest$", PwaManifestView.as_view(), name="manifest"),
+    re_path(r"^manifest.webmanifest$", PwaManifestView.as_view(), name="manifest"),
 ]
