@@ -1027,7 +1027,9 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
-            correct=Coalesce(Sum("attemptlogs__correct"), Value(0))
+            correct=Coalesce(
+                Sum("attemptlogs__correct"), Value(0), output_field=IntegerField()
+            )
         )
 
     @action(detail=True)
