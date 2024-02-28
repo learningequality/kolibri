@@ -31,7 +31,6 @@ from django.db import models
 from django.db import transaction
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
@@ -144,7 +143,6 @@ class FacilityDataSyncableModel(SyncableModel):
         abstract = True
 
 
-@python_2_unicode_compatible
 class FacilityDataset(FacilityDataSyncableModel):
     """
     ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``.
@@ -761,7 +759,6 @@ def validate_role_kinds(kinds):
     return kinds
 
 
-@python_2_unicode_compatible
 class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     """
     ``FacilityUser`` is the fundamental object of the auth app. These users represent the main users, and can be associated
@@ -1011,7 +1008,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return True
 
 
-@python_2_unicode_compatible
 class Collection(AbstractFacilityDataModel):
     """
     ``Collections`` are hierarchical groups of ``FacilityUsers``, used for grouping users and making decisions about permissions.
@@ -1205,7 +1201,6 @@ class Collection(AbstractFacilityDataModel):
         return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
 
 
-@python_2_unicode_compatible
 class Membership(AbstractFacilityDataModel):
     """
     A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership`` object. Being a member of a
@@ -1299,7 +1294,6 @@ class Membership(AbstractFacilityDataModel):
             return super(Membership, self).delete(**kwargs)
 
 
-@python_2_unicode_compatible
 class Role(AbstractFacilityDataModel):
     """
     A ``FacilityUser`` can have a role for a particular ``Collection`` through a ``Role`` object, which also stores
@@ -1413,7 +1407,6 @@ class CollectionProxyManager(SyncableModelManager):
         )
 
 
-@python_2_unicode_compatible
 class Facility(Collection):
 
     # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
@@ -1525,7 +1518,6 @@ class Facility(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class Classroom(Collection):
 
     morango_model_name = "classroom"
@@ -1596,7 +1588,6 @@ class Classroom(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
@@ -1640,7 +1631,6 @@ class LearnerGroup(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class AdHocGroup(Collection):
     """
     An ``AdHocGroup`` is a collection kind that can be used in an assignment

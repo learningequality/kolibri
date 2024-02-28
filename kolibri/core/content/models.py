@@ -33,7 +33,6 @@ from django.db.models import F
 from django.db.models import Min
 from django.db.models import OuterRef
 from django.db.models import QuerySet
-from django.utils.encoding import python_2_unicode_compatible
 from le_utils.constants import content_kinds
 from le_utils.constants import format_presets
 from morango.models.fields import UUIDField
@@ -58,7 +57,6 @@ from kolibri.utils.time_utils import local_now
 PRESET_LOOKUP = dict(format_presets.choices)
 
 
-@python_2_unicode_compatible
 class ContentTag(base_models.ContentTag):
     def __str__(self):
         return self.tag_name
@@ -185,7 +183,6 @@ class ContentNodeManager(
         return stack
 
 
-@python_2_unicode_compatible
 class ContentNode(base_models.ContentNode):
     """
     The primary object type in a content database. Defines the properties that are shared
@@ -248,7 +245,6 @@ for field_name in bitmask_fieldnames:
     field.contribute_to_class(ContentNode, field_name)
 
 
-@python_2_unicode_compatible
 class Language(base_models.Language):
     def __str__(self):
         return self.lang_name or ""
@@ -316,7 +312,6 @@ class LocalFileQueryset(models.QuerySet, FilterByUUIDQuerysetMixin):
         )
 
 
-@python_2_unicode_compatible
 class LocalFile(base_models.LocalFile):
     """
     The bottom layer of the contentDB schema, defines the local state of files on the device storage.
@@ -375,7 +370,6 @@ class ChannelMetadataQueryset(QuerySet, FilterByUUIDQuerysetMixin):
 BATCH_SIZE = 1000
 
 
-@python_2_unicode_compatible
 class ChannelMetadata(base_models.ChannelMetadata):
     """
     Holds metadata about all existing content databases that exist locally.
