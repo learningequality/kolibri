@@ -20,6 +20,8 @@ _module = "kolibri.core.content.utils.assignment."
 
 
 class ContentAssignmentManagerTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super(ContentAssignmentManagerTestCase, self).setUp()
 
@@ -288,6 +290,8 @@ class ContentAssignmentManagerTestCase(TestCase):
 
 
 class ContentAssignmentManagerIntegrationTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpClass(cls):
         super(ContentAssignmentManagerIntegrationTestCase, cls).setUpClass()

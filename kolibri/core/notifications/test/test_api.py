@@ -49,6 +49,8 @@ from kolibri.utils.time_utils import local_now
 
 
 class NotificationsAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1124,6 +1126,8 @@ class NotificationsAPITestCase(APITestCase):
 
 
 class BulkNotificationsAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

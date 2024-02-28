@@ -41,6 +41,7 @@ test_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class SetContentNodesInvisibleTestCase(TransactionTestCase):
 
+    databases = "__all__"
     fixtures = ["content_test.json"]
 
     def test_all_leaves(self):

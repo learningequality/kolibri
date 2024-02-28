@@ -413,6 +413,8 @@ class ClassroomAPITestCase(APITestCase):
 
 
 class FacilityAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -892,6 +894,8 @@ class UserCreationTestCase(APITestCase):
 
 
 class UserUpdateTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1014,6 +1018,8 @@ class UserUpdateTestCase(APITestCase):
 
 
 class UserDeleteTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1212,6 +1218,8 @@ class FacilityUserFilterTestCase(APITestCase):
 
 
 class LoginLogoutTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()

@@ -42,6 +42,8 @@ class ContentNodeTestBase(object):
     Basecase for content metadata methods
     """
 
+    databases = "__all__"
+
     def test_get_prerequisites_for(self):
         """
         test the directional characteristic of prerequisite relationship

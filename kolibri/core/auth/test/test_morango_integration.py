@@ -8,6 +8,7 @@ import uuid
 
 import requests
 from django.core.management import call_command
+from django.db import connections
 from django.test import TestCase
 from django.test import TransactionTestCase
 from django.utils import timezone
@@ -78,11 +79,28 @@ class DateTimeTZFieldTestCase(TransactionTestCase):
             self.fail(e.message)
 
 
+class MultipleServerTestCase(TestCase):
+    """
+    A test case to do special teardown handling to prevent errors from our additional databases.
+    """
+
+    @classmethod
+    def _remove_databases_failures(cls):
+        for alias in connections:
+            if alias in cls.databases:
+                continue
+            connection = connections[alias]
+            for name, _ in cls._disallowed_connection_methods:
+                method = getattr(connection, name)
+                if hasattr(method, "wrapped"):
+                    setattr(connection, name, method.wrapped)
+
+
 @unittest.skipIf(
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
 )
-class CertificateAuthenticationTestCase(TestCase):
+class CertificateAuthenticationTestCase(MultipleServerTestCase):
     @multiple_kolibri_servers(1)
     def test_multi_facility_authentication(self, servers):
         """
@@ -218,7 +236,7 @@ class CertificateAuthenticationTestCase(TestCase):
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
 )
-class EcosystemTestCase(TestCase):
+class EcosystemTestCase(MultipleServerTestCase):
     """
     Where possible this test case uses the using kwarg with the db alias in order
     to save models to the write DB. Unfortunately, because of an internal issue with
@@ -589,7 +607,7 @@ class EcosystemTestCase(TestCase):
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
 )
-class EcosystemSingleUserTestCase(TestCase):
+class EcosystemSingleUserTestCase(MultipleServerTestCase):
     @multiple_kolibri_servers(3)
     def test_single_user_sync(self, servers):
 
@@ -782,7 +800,7 @@ class EcosystemSingleUserTestCase(TestCase):
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
 )
-class EcosystemSingleUserAssignmentTestCase(TestCase):
+class EcosystemSingleUserAssignmentTestCase(MultipleServerTestCase):
     @multiple_kolibri_servers(3)
     def test_single_user_assignment_sync(self, servers):
         """
@@ -1242,7 +1260,7 @@ class EcosystemSingleUserAssignmentTestCase(TestCase):
     not os.environ.get("INTEGRATION_TEST"),
     "This test will only be run during integration testing.",
 )
-class SingleUserSyncRegressionsTestCase(TestCase):
+class SingleUserSyncRegressionsTestCase(MultipleServerTestCase):
     @multiple_kolibri_servers(2)
     def test_facility_user_conflict_syncing_from_tablet(self, servers):
         self._test_facility_user_conflict(servers, True)
