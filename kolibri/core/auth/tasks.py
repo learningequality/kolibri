@@ -44,7 +44,7 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.filesystem import mkdirp
 from kolibri.utils.time_utils import naive_utc_datetime
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 
 logger = logging.getLogger(__name__)

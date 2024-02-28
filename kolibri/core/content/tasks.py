@@ -45,7 +45,7 @@ from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.tasks.validation import JobValidator
 from kolibri.core.utils.urls import reverse_remote
 from kolibri.utils import conf
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 from kolibri.utils.version import version_matches_range
 
 QUEUE = "content"

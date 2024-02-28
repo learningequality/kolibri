@@ -2,18 +2,18 @@
 This module is used to provide translation support for Kolibri,
 prior to the loading of the Django stack.
 Most of these functions are vendored from Django:
-https://github.com/django/django/blob/stable/1.11.x/django/utils/translation/trans_real.py
+https://github.com/django/django/blob/stable/3.2.x/django/utils/translation/trans_real.py
 
 In order to give a completely transparent interface.
 """
 import gettext as gettext_module
 import os
-from threading import local
+from contextlib import ContextDecorator
 
+from asgiref.local import Local
 from django.core.exceptions import AppRegistryNotReady
 from django.core.exceptions import ImproperlyConfigured
 from django.utils import translation as django_translation_module
-from django.utils.decorators import ContextDecorator
 from django.utils.safestring import mark_safe
 from django.utils.safestring import SafeData
 from django.utils.translation.trans_real import DjangoTranslation
@@ -24,7 +24,7 @@ import kolibri
 # Translations are cached in a dictionary for every language.
 # The active translations are stored by threadid to make them thread local.
 _translations = {}
-_active = local()
+_active = Local()
 _default = "en"
 
 
@@ -127,40 +127,27 @@ class override(ContextDecorator):
             activate(self.old_language)
 
 
-def do_translate(message, translation_function):
+@prefer_django
+def gettext(message):
     """
-    Translates 'message' using the given 'translation_function' name -- which
-    will be either gettext or ugettext. It uses the current thread to find the
+    Translate the 'message' string. It uses the current thread to find the
     translation object to use. If no current translation is activated, the
     message will be run through the default translation object.
     """
     global _default
 
-    # str() is allowing a bytestring message to remain bytestring on Python 2
-    eol_message = message.replace(str("\r\n"), str("\n")).replace(str("\r"), str("\n"))
+    eol_message = message.replace("\r\n", "\n").replace("\r", "\n")
 
-    if len(eol_message) == 0:
+    if eol_message:
+        translation_object = getattr(_active, "value", _default)
+
+        result = translation_object.gettext(eol_message)
+    else:
         # Returns an empty value of the corresponding type if an empty message
         # is given, instead of metadata, which is the default gettext behavior.
         result = type(message)("")
-    else:
-        translation_object = getattr(_active, "value", _default)
-
-        result = getattr(translation_object, translation_function)(eol_message)
 
     if isinstance(message, SafeData):
         return mark_safe(result)
 
     return result
-
-
-@prefer_django
-def gettext(message):
-    """
-    Returns a string of the translation of the message.
-    Returns a string on Python 3 and an UTF-8-encoded bytestring on Python 2.
-    """
-    return do_translate(message, "gettext")
-
-
-ugettext = gettext
