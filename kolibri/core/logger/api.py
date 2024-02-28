@@ -1013,7 +1013,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
     )
     queryset = MasteryLog.objects.all().order_by(LOG_ORDER_BY)
     pagination_class = OptionalPageNumberPagination
-    filter_class = MasteryFilter
+    filterset_class = MasteryFilter
     values = (
         "id",
         "mastery_criterion",
@@ -1101,7 +1101,7 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     )
     queryset = AttemptLog.objects.all()
     pagination_class = OptionalPageNumberPagination
-    filter_class = AttemptFilter
+    filterset_class = AttemptFilter
 
     values = attemptlog_values
 
@@ -1136,7 +1136,7 @@ class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = GenerateCSVLogRequest.objects.all()
     serializer_class = GenerateCSVLogRequestSerializer
-    filter_class = GenerateCSVLogRequestFilter
+    filterset_class = GenerateCSVLogRequestFilter
 
     def _get_or_create_logrequest(
         self,
