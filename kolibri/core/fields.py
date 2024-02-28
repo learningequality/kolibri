@@ -66,7 +66,7 @@ class DateTimeTzField(Field):
     def db_type(self, connection):
         return "varchar"
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if value is None:
             return value
         return parse_timezonestamp(value)
@@ -99,7 +99,7 @@ class DateTimeTzField(Field):
 
 
 class JSONField(JSONFieldBase):
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if isinstance(value, str):
             try:
                 return json.loads(value, **self.load_kwargs)

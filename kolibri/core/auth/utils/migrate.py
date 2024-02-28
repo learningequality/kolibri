@@ -101,7 +101,7 @@ def merge_users(source_user, target_user):  # noqa C901
                 try:
                     field_obj = LogModel._meta.get_field(field)
                     if hasattr(field_obj, "from_db_value"):
-                        value = field_obj.from_db_value(value, None, None, None)
+                        value = field_obj.from_db_value(value, None, None)
                 except FieldDoesNotExist:
                     pass
                 setattr(new_log, field, value)
@@ -162,7 +162,7 @@ def _copy_data(Model, id_map, source_data):
             try:
                 field_obj = Model._meta.get_field(field)
                 if hasattr(field_obj, "from_db_value"):
-                    value = field_obj.from_db_value(value, None, None, None)
+                    value = field_obj.from_db_value(value, None, None)
             except FieldDoesNotExist:
                 pass
             setattr(new_obj, field, value)
