@@ -1216,8 +1216,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
             reverse("kolibri:core:contentnode-list"),
             data={"content_id": "this is not a uuid"},
         )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.data), 0)
+        self.assertEqual(response.status_code, 400)
 
     def test_contentnode_parent(self):
         parent = content.ContentNode.objects.get(title="c2")
