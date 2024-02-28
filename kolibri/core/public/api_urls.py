@@ -11,8 +11,8 @@ instead, at a different URL (e.g. with version number v2 instead of v1), leaving
 endpoint in place and maintained to the best extent possible so older clients can still use it.
 
 """
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 from rest_framework import routers
 
 from ..auth.api import PublicFacilityUserViewSet
@@ -58,24 +58,24 @@ public_content_v2_router.register(
 
 # Add public api endpoints
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(r"v2/", include(public_content_v2_router.urls)),
-    url(
+    re_path(r"^", include(router.urls)),
+    re_path(r"v2/", include(public_content_v2_router.urls)),
+    re_path(
         r"(?P<version>[^/]+)/channels/lookup/(?P<identifier>[^/]+)",
         get_public_channel_lookup,
         name="get_public_channel_lookup",
     ),
-    url(
+    re_path(
         r"(?P<version>[^/]+)/channels",
         get_public_channel_list,
         name="get_public_channel_list",
     ),
-    url(
+    re_path(
         r"(?P<version>[^/]+)/file_checksums/",
         get_public_file_checksums,
         name="get_public_file_checksums",
     ),
-    url(
+    re_path(
         r"syncqueue/",
         SyncQueueAPIView.as_view(),
         name="syncqueue",

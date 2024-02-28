@@ -1,7 +1,7 @@
 import logging
 
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import path
 
 from kolibri.core.device.translation import i18n_patterns
 from kolibri.plugins.registry import registered_plugins
@@ -66,10 +66,10 @@ def get_urls():
         if url_module:
             instance_patterns += i18n_patterns(url_module.urlpatterns, prefix=slug)
         if api_url_module:
-            instance_patterns.append(url(slug + "api/", include(api_url_module)))
+            instance_patterns.append(path(slug + "api/", include(api_url_module)))
         if instance_patterns:
             urlpatterns.append(
-                url(
+                path(
                     "",
                     include((instance_patterns, plugin_instance.module_path)),
                 )
@@ -83,6 +83,6 @@ def get_root_urls():
     for plugin_instance in registered_plugins:
         root_url_module = plugin_instance.root_url_module
         if root_url_module:
-            urlpatterns.append(url("", include(root_url_module)))
+            urlpatterns.append(path("", include(root_url_module)))
 
     return urlpatterns

@@ -100,7 +100,7 @@ class AllUrlsTest(APITransactionTestCase):
             the client while testing, and login again
         Specify @default_kwargs to be used for patterns that expect keyword parameters,
             e.g. if you specify default_kwargs={'username': 'testuser'}, then
-            for pattern url(r'^accounts/(?P<username>[\.\w-]+)/$'
+            for pattern re_path(r'^accounts/(?P<username>[\.\w-]+)/$'
             the url /accounts/testuser/ will be tested.
         If @quiet=False, print all the urls checked. If status code of the response is not 200,
             print the status code.
@@ -122,7 +122,7 @@ class AllUrlsTest(APITransactionTestCase):
                         )
                     check_urls(pattern.url_patterns, prefix=new_prefix)
                 skip = False
-                regex = pattern.regex
+                regex = pattern.pattern.regex
                 if regex.groups > 0:
                     skip = True
                 if hasattr(pattern, "name") and pattern.name:
