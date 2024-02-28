@@ -498,9 +498,7 @@ class SyncQueueRouter(object):
 
 
 class UserSyncStatus(models.Model):
-    user = models.ForeignKey(
-        FacilityUser, on_delete=models.CASCADE, null=False, unique=True
-    )
+    user = models.OneToOneField(FacilityUser, on_delete=models.CASCADE, null=False)
     # the last sync session
     sync_session = models.ForeignKey(
         SyncSession, on_delete=models.SET_NULL, null=True, blank=True

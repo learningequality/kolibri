@@ -212,9 +212,9 @@ class ContentNode(base_models.ContentNode):
     # whether a device super admin, or via initial configuration.
     # These nodes will not be subject to automatic garbage collection
     # to manage space.
-    # Set as a NullBooleanField to limit migration time in creating the new column,
+    # Set as a nullable BooleanField to limit migration time in creating the new column,
     # needs a subsequent Kolibri upgrade step to backfill these values.
-    admin_imported = models.NullBooleanField()
+    admin_imported = models.BooleanField(null=True)
 
     objects = ContentNodeManager()
 
@@ -382,10 +382,10 @@ class ChannelMetadata(base_models.ChannelMetadata):
         "Language", related_name="channels", verbose_name="languages", blank=True
     )
     order = models.PositiveIntegerField(default=0, null=True, blank=True)
-    public = models.NullBooleanField()
+    public = models.BooleanField(null=True)
     # Has only a subset of this channel's metadata been imported?
     # Use a null boolean field to avoid issues during metadata import
-    partial = models.NullBooleanField(default=False)
+    partial = models.BooleanField(null=True, default=False)
 
     objects = ChannelMetadataQueryset.as_manager()
 
