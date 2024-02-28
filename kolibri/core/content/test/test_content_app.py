@@ -396,7 +396,7 @@ class ContentNodeAPIBase(object):
         self.assertEqual(response.status_code, 200)
         self.assertNotIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(len(response.data), expected_len)
-        self.assertEqual(response["ETag"], expected_etag)
+        self.assertEqual(response.headers["ETag"], expected_etag)
         self.assertIn(url, self.client_cache)
         cached_response = self.client_cache[url]
         self.assertEqual(len(cached_response.data), expected_len)
@@ -408,7 +408,7 @@ class ContentNodeAPIBase(object):
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
         self.assertEqual(response.content, b"")
-        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
 
         # Update the content cache key to get a new response.
         time.sleep(0.01)
@@ -421,7 +421,7 @@ class ContentNodeAPIBase(object):
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], old_expected_etag)
         self.assertEqual(len(response.data), expected_len)
-        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
         old_cached_response = cached_response
         cached_response = self.client_cache[url]
         self.assertEqual(len(cached_response.data), expected_len)
@@ -434,7 +434,7 @@ class ContentNodeAPIBase(object):
         self.assertIn("HTTP_IF_NONE_MATCH", response.request)
         self.assertEqual(response.request["HTTP_IF_NONE_MATCH"], expected_etag)
         self.assertEqual(response.content, b"")
-        self.assertEqual(response["ETag"], '"{}"'.format(cache_key))
+        self.assertEqual(response.headers["ETag"], '"{}"'.format(cache_key))
 
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]
@@ -1585,7 +1585,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         response = self.client.get(
             reverse("kolibri:core:usercontentnode-list"), data={"resume": True}
         )
-        self.assertEqual(response["Cache-Control"], "max-age=0")
+        self.assertEqual(response.headers["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq(self):
         facility = Facility.objects.create(name="MyFac")
@@ -1628,7 +1628,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         response = self.client.get(
             reverse("kolibri:core:usercontentnode-list"), data={"next_steps": True}
         )
-        self.assertEqual(response["Cache-Control"], "max-age=0")
+        self.assertEqual(response.headers["Cache-Control"], "max-age=0")
 
     def test_next_steps_prereq_in_progress(self):
         facility = Facility.objects.create(name="MyFac")

@@ -15,7 +15,7 @@ from kolibri.utils.conf import OPTIONS
 class KolibriLocaleMiddleware(object):
     """
     Copied and then modified into a new style middleware from:
-    https://github.com/django/django/blob/stable/1.11.x/django/middleware/locale.py
+    https://github.com/django/django/blob/stable/3.2.x/django/middleware/locale.py#L10
     Also has several other changes to suit our purposes.
     The principal concern of this middleware is to activate translation for the current
     language, so that throughout the lifecycle of this request, any translation or language
@@ -80,8 +80,8 @@ class KolibriLocaleMiddleware(object):
                     return HttpResponseRedirect(language_url)
 
             # Add a content language header to the response if not already present.
-            if "Content-Language" not in response:
-                response["Content-Language"] = language
+            if "Content-Language" not in response.headers:
+                response.headers["Content-Language"] = language
 
         return response
 
@@ -132,7 +132,7 @@ class DatabaseBusyErrorHandler(object):
             "Database is not available for write operations",
             status=503,
         )
-        response["Retry-After"] = 10
+        response.headers["Retry-After"] = 10
         return response
 
     def __call__(self, request):
