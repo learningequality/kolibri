@@ -1722,7 +1722,7 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_facility_admin_can_set_pin_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.update_pin({"pin_code": None})
+        response = self.update_pin({})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_unset_pin(self):
@@ -1817,7 +1817,7 @@ class IsPINValidAPITestCase(APITestCase):
     def test_facility_admin_can_check_is_pin_valid_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         self.update_pin({"pin_code": "1234"})
-        response = self.is_pin_valid({"pin_code": None})
+        response = self.is_pin_valid({})
         self.assertEqual(response.status_code, 400)
 
 
