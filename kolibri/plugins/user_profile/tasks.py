@@ -25,7 +25,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import reverse_remote
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):

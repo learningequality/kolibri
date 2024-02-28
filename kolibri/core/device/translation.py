@@ -8,7 +8,7 @@ import re
 from django.conf import settings
 from django.urls import resolve
 from django.urls import Resolver404
-from django.urls.resolvers import RegexURLResolver
+from django.urls import URLResolver
 from django.utils.translation import get_language
 from django.utils.translation import LANGUAGE_SESSION_KEY
 from django.utils.translation.trans_real import check_for_language
@@ -110,7 +110,7 @@ def get_language_from_request_and_is_from_path(request):  # noqa complexity-16
 def i18n_patterns(urls, prefix=None):
     """
     Add the language code prefix to every URL pattern within this function.
-    Vendored from https://github.com/django/django/blob/stable/1.11.x/django/conf/urls/i18n.py
+    Vendored from https://github.com/django/django/blob/stable/3.2.x/django/conf/urls/i18n.py#L8
     to allow use of this outside of the root URL conf to prefix plugin non-api urls.
     """
     if not settings.USE_I18N:
@@ -124,43 +124,53 @@ def i18n_patterns(urls, prefix=None):
                 setattr(url.callback, "translated", True)
 
     recurse_urls_and_set(urls)
-    return [LocaleRegexURLResolver(list(urls), prefix=prefix)]
+    return [
+        URLResolver(
+            LocalePrefixPattern(prefix=prefix),
+            list(urls),
+        )
+    ]
 
 
-class LocaleRegexURLResolver(RegexURLResolver):
+class LocalePrefixPattern:
     """
-    A URL resolver that always matches the active language code as URL prefix.
-    Rather than taking a regex argument, we just override the ``regex``
-    function to always return the active language-code as regex.
-    Vendored from https://github.com/django/django/blob/stable/1.11.x/django/urls/resolvers.py
+    A Locale prefix pattern that uses our device language setting for the active language.
+    It also allows passing a prefix to allow nested i18n_patterns to work correctly.
+    Vendored from https://github.com/django/django/blob/stable/3.2.x/django/urls/resolvers.py#L298
     As using the Django internal version inside included URL configs is disallowed.
     Rather than monkey patch Django to allow this for our use case, make a copy of this here
     and use this instead.
     """
 
-    def __init__(
-        self,
-        urlconf_name,
-        default_kwargs=None,
-        app_name=None,
-        namespace=None,
-        prefix_default_language=True,
-        prefix=None,
-    ):
-        super(LocaleRegexURLResolver, self).__init__(
-            None, urlconf_name, default_kwargs, app_name, namespace
-        )
+    def __init__(self, prefix=None, prefix_default_language=True):
         self.prefix_default_language = prefix_default_language
+        self.converters = {}
         self._prefix = prefix
 
     @property
     def regex(self):
+        # This is only used by reverse() and cached in _reverse_dict.
+        return re.compile(re.escape(self.language_prefix))
+
+    @property
+    def language_prefix(self):
         device_language = get_device_language() or get_settings_language()
         language_code = get_language() or device_language
-        if language_code not in self._regex_dict:
-            if language_code == device_language and not self.prefix_default_language:
-                regex_string = self._prefix or ""
-            else:
-                regex_string = ("^%s/" % language_code) + (self._prefix or "")
-            self._regex_dict[language_code] = re.compile(regex_string, re.UNICODE)
-        return self._regex_dict[language_code]
+        if language_code == device_language and not self.prefix_default_language:
+            return self._prefix or ""
+        return ("%s/" % language_code) + (self._prefix or "")
+
+    def match(self, path):
+        language_prefix = self.language_prefix
+        if path.startswith(language_prefix):
+            return path[len(language_prefix) :], (), {}
+        return None
+
+    def check(self):
+        return []
+
+    def describe(self):
+        return "'{}'".format(self)
+
+    def __str__(self):
+        return self.language_prefix

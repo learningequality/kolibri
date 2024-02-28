@@ -11,8 +11,8 @@ from django.urls import reverse
 from django.urls import translate_url
 from django.utils.decorators import method_decorator
 from django.utils.translation import check_for_language
+from django.utils.translation import gettext_lazy as _
 from django.utils.translation import LANGUAGE_SESSION_KEY
-from django.utils.translation import ugettext_lazy as _
 from django.views.decorators.http import require_POST
 from django.views.generic.base import TemplateView
 from django.views.generic.base import View

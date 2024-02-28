@@ -18,7 +18,7 @@ from kolibri.core.tasks.validation import validate_priority
 from kolibri.core.tasks.validation import validate_repeat
 from kolibri.core.tasks.validation import validate_timedelay
 from kolibri.utils import translation
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 logger = logging.getLogger(__name__)
 
