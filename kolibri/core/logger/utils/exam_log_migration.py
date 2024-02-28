@@ -139,7 +139,7 @@ def _create_attemptlog(examattemptlog, sessionlog_id, masterylog_id):
             try:
                 field_obj = AttemptLog._meta.get_field(field)
                 if hasattr(field_obj, "from_db_value"):
-                    value = field_obj.from_db_value(value, None, None, None)
+                    value = field_obj.from_db_value(value, None, None)
             except FieldDoesNotExist:
                 pass
             setattr(attemptlog, field, value)
