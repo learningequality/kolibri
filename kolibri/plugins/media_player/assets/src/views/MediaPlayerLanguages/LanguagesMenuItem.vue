@@ -5,7 +5,7 @@
       ref="kRadioButton"
       name="languages-menu-item"
       :label="label"
-      :value="1"
+      :buttonValue="1"
       :currentValue="selected ? 1 : 0"
       @change="setLanguage(value)"
       @keydown.enter="setLanguage(value), $emit('hide')"

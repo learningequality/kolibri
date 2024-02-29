@@ -70,14 +70,14 @@
           <KRadioButton
             data-test="landingPageButton"
             :label="$tr('learnerAppPageChoice')"
-            :value="landingPageChoices.LEARN"
+            :buttonValue="landingPageChoices.LEARN"
             :currentValue="landingPage"
             @input="handleLandingPageChange"
           />
           <KRadioButton
             data-test="signInPageButton"
             :label="$tr('signInPageChoice')"
-            :value="landingPageChoices.SIGN_IN"
+            :buttonValue="landingPageChoices.SIGN_IN"
             :currentValue="landingPage"
             @input="handleLandingPageChange"
           />
@@ -85,7 +85,7 @@
             <KRadioButton
               data-test="allowGuestAccessButton"
               :label="$tr('allowGuestAccess')"
-              :value="SignInPageOptions.ALLOW_GUEST_ACCESS"
+              :buttonValue="SignInPageOptions.ALLOW_GUEST_ACCESS"
               :currentValue="signInPageOption"
               :disabled="disableSignInPageOptions"
               @input="handleSignInPageChange"
@@ -93,7 +93,7 @@
             <KRadioButton
               data-test="disallowGuestAccessButton"
               :label="$tr('disallowGuestAccess')"
-              :value="SignInPageOptions.DISALLOW_GUEST_ACCESS"
+              :buttonValue="SignInPageOptions.DISALLOW_GUEST_ACCESS"
               :currentValue="signInPageOption"
               :disabled="disableSignInPageOptions"
               @input="handleSignInPageChange"
@@ -101,7 +101,7 @@
             <KRadioButton
               data-test="lockedContentButton"
               :label="$tr('lockedContent')"
-              :value="SignInPageOptions.LOCKED_CONTENT"
+              :buttonValue="SignInPageOptions.LOCKED_CONTENT"
               :currentValue="signInPageOption"
               :disabled="disableSignInPageOptions"
               @input="handleSignInPageChange"
@@ -118,13 +118,13 @@
           </p>
           <KRadioButton
             :label="$tr('doNotAllowDownload')"
-            :value="meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION"
+            :buttonValue="meteredConnectionDownloadOptions.DISALLOW_DOWNLOAD_ON_METERED_CONNECTION"
             :currentValue="meteredConnectionDownloadOption"
             @input="handleMeteredConnectionDownloadChange"
           />
           <KRadioButton
             :label="$tr('allowDownload')"
-            :value="meteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION"
+            :buttonValue="meteredConnectionDownloadOptions.ALLOW_DOWNLOAD_ON_METERED_CONNECTION"
             :currentValue="meteredConnectionDownloadOption"
             @input="handleMeteredConnectionDownloadChange"
           />

@@ -8,13 +8,13 @@
     <KRadioButton
       v-model="selected"
       :label="$tr('joinFacilityLabel')"
-      :value="Options.JOIN"
+      :buttonValue="Options.JOIN"
       class="radio-button"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFromFacilityLabel')"
-      :value="Options.IMPORT"
+      :buttonValue="Options.IMPORT"
       class="radio-button"
     />
     <SelectDeviceModalGroup

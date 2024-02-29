@@ -13,14 +13,14 @@
       v-model="setting"
       class="radio-button"
       :label="$tr('yesOptionLabel')"
-      :value="true"
+      :buttonValue="true"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
       class="radio-button"
       :label="$tr('noOptionLabel')"
-      :value="false"
+      :buttonValue="false"
     />
     <p class="description">
       {{ getCommonSyncString('changeLater') }}

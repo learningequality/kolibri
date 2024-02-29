@@ -7,13 +7,13 @@
     <KRadioButton
       v-model="selected"
       :label="$tr('fullDeviceLabel')"
-      :value="Options.FULL"
+      :buttonValue="Options.FULL"
       :description="$tr('fullDeviceDescription')"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('learnOnlyDeviceLabel')"
-      :value="Options.LOD"
+      :buttonValue="Options.LOD"
       :description="$tr('learnOnlyDeviceDescription')"
     />
   </OnboardingStepBase>

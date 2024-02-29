@@ -54,14 +54,14 @@
               :disabled="busy"
               :label="coreString('classCoachLabel')"
               :description="coreString('classCoachDescription')"
-              :value="true"
+              :buttonValue="true"
             />
             <KRadioButton
               v-model="classCoachIsSelected"
               :disabled="busy"
               :label="coreString('facilityCoachLabel')"
               :description="coreString('facilityCoachDescription')"
-              :value="false"
+              :buttonValue="false"
             />
           </fieldset>
 
