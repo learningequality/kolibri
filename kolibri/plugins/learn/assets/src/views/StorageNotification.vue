@@ -15,28 +15,31 @@
 
         <!-- Grid Buttons -->
         <KGridItem class="button-grid-item" :layout12="{ span: 12 }">
-          <KButton
-            :text="coreString('closeAction')"
-            style="margin-right: 10px"
-            appearance="flat-button"
-            :secondary="true"
-            @click="closeBanner"
-          />
-          <KButton
-            v-if="hasDownloads"
-            :text="$tr('goToDownloads')"
-            style="margin-right: 10px"
-            appearance="raised-button"
-            :secondary="true"
-            @click="openDownloads"
-          />
-          <KButton
-            v-if="isAdmin"
-            :text="$tr('manageChannels')"
-            appearance="raised-button"
-            :secondary="true"
-            @click="manageChannel"
-          />
+          <div class="button-layout">
+            <KButton
+              :text="coreString('closeAction')"
+              class="button-style"
+              appearance="flat-button"
+              :secondary="true"
+              @click="closeBanner"
+            />
+            <KButton
+              v-if="hasDownloads"
+              :text="$tr('goToDownloads')"
+              class="button-style"
+              appearance="raised-button"
+              :secondary="true"
+              @click="openDownloads"
+            />
+            <KButton
+              v-if="isAdmin"
+              :text="$tr('manageChannels')"
+              class="button-style"
+              appearance="raised-button"
+              :secondary="true"
+              @click="manageChannel"
+            />
+          </div>
         </KGridItem>
       </KGrid>
     </div>
@@ -251,10 +254,26 @@
     margin: 0 auto;
   }
 
-  .button-grid-item {
-    display: flex;
-    justify-content: flex-end;
-    min-height: 60px;
+  @media (min-width: 426px) {
+    .button-style {
+      margin-right: 10px;
+    }
+
+    .button-grid-item {
+      display: flex;
+      justify-content: flex-end;
+      min-height: 60px;
+    }
+  }
+  @media (max-width: 426px) {
+    .button-style {
+      margin-bottom: 5px;
+    }
+
+    .button-layout {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
 </style>
