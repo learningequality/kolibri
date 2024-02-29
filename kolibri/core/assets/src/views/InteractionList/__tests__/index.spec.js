@@ -4,8 +4,8 @@ import InteractionList from '../';
 
 const renderComponent = props => {
   const defaultProps = {
-    interactions: [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }],
-    selectedInteractionIndex: 0,
+    interactions: [],
+    selectedInteractionIndex: -1,
   };
 
   return render(InteractionList, {
@@ -22,26 +22,71 @@ describe('InteractionList', () => {
   // Auto cursor means that the interaction is selected, and pointer cursor means that it is not
   const isSelected = iteractionItem => iteractionItem.style.cursor === 'auto';
 
-  test('renders correctly and the selected iteraction changes correctly on user clicks', async () => {
-    const { emitted } = renderComponent();
+  describe('when there are interactions', () => {
+    test('renders the interactions correctly [No selected interactions]', async () => {
+      const interactions = [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }];
+      const selectedInteractionIndex = -1;
 
-    const interactionItems = screen.getAllByTestId('attemptBox');
-    expect(interactionItems).toHaveLength(3);
-    expect(isSelected(interactionItems[0])).toBeTruthy();
-    expect(isSelected(interactionItems[1])).toBeFalsy();
-    expect(isSelected(interactionItems[2])).toBeFalsy();
+      renderComponent({
+        interactions,
+        selectedInteractionIndex,
+      });
 
-    // Has the correct attempt label
-    expect(screen.getByText('Attempt 1')).toBeInTheDocument();
+      const interactionItems = screen.getAllByTestId('attemptBox');
+      // Check if all the interactions are rendered and none of them are selected
+      expect(interactionItems).toHaveLength(interactions.length);
+      for (const interactionItem of interactionItems)
+        expect(isSelected(interactionItem)).toBeFalsy();
+    });
 
-    // Click the same interaction
-    await fireEvent.click(interactionItems[0], { native: true });
-    expect(emitted()).not.toHaveProperty('select');
+    test('renders the interactions correctly [Selected interaction]', async () => {
+      const interactions = [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }];
+      const selectedInteractionIndex = 1;
 
-    // Click a different interaction
-    await fireEvent.click(interactionItems[2], { native: true });
-    expect(emitted()).toHaveProperty('select');
-    expect(emitted().select[0]).toEqual([2]);
+      renderComponent({
+        interactions,
+        selectedInteractionIndex,
+      });
+
+      const interactionItems = screen.getAllByTestId('attemptBox');
+
+      // Check if all the interactions are rendered and the selected one is selected
+      expect(interactionItems).toHaveLength(interactions.length);
+      for (let i = 0; i < interactionItems.length; i++)
+        expect(isSelected(interactionItems[i])).toBe(selectedInteractionIndex === i);
+
+      // Check if the correct attempt label is rendered
+      expect(screen.getByText(`Attempt ${selectedInteractionIndex + 1}`)).toBeInTheDocument();
+    });
+
+    test("no event is emitted when the user clicks on the same interaction that's already selected", async () => {
+      const interactions = [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }];
+      const selectedInteractionIndex = 1;
+
+      const { emitted } = renderComponent({
+        interactions,
+        selectedInteractionIndex,
+      });
+
+      const interactionItems = screen.getAllByTestId('attemptBox');
+      await fireEvent.click(interactionItems[selectedInteractionIndex], { native: true });
+      expect(emitted()).not.toHaveProperty('select');
+    });
+
+    test('emits the correct event when the user clicks on a different interaction', async () => {
+      const interactions = [{ type: 'hint' }, { type: 'answer', correct: true }, { type: 'error' }];
+      const selectedInteractionIndex = 1;
+
+      const { emitted } = renderComponent({
+        interactions,
+        selectedInteractionIndex,
+      });
+
+      const interactionItems = screen.getAllByTestId('attemptBox');
+      await fireEvent.click(interactionItems[2], { native: true });
+      expect(emitted()).toHaveProperty('select');
+      expect(emitted().select[0]).toEqual([2]);
+    });
   });
 
   test('renders the correct label when they are no interactions', () => {
