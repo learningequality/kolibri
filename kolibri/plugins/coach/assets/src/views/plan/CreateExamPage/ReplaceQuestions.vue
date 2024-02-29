@@ -45,7 +45,7 @@
               class="accordion-header"
             >
               <KCheckbox
-                style="padding-left: 0.5em"
+                class="accordion-checkbox"
                 :checked="replacements.map(q => q.id).includes(
                   question.question_id
                 )"
@@ -62,7 +62,7 @@
               >
                 <span>{{ title + " " + question.counter_in_exercise }}</span>
                 <KIcon
-                  style="position: absolute; right:0; top: 0.92em"
+                  style="position: absolute; right:1em; top: 0.625em;"
                   :icon="isItemExpanded(question.question_id) ?
                     'chevronUp' : 'chevronRight'"
                 />
@@ -268,3 +268,37 @@
   };
 
 </script>
+
+
+<style lang="scss" scoped>
+
+  .accordion-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    padding: 0;
+    margin: 0;
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.5;
+    text-align: left;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color 0.3s ease;
+  }
+
+  .accordion-header-label {
+    display: block;
+    width: 100%;
+  }
+
+  .accordion-checkbox {
+    margin-bottom: 0;
+    margin-left: 1em;
+  }
+
+  .select-all-box {
+    margin-left: 1em;
+  }
+
+</style>
