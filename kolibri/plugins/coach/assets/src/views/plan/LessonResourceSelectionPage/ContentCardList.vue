@@ -33,23 +33,27 @@
           :link="contentCardLink(content)"
           :numCoachContents="content.num_coach_contents"
           :isLeaf="content.is_leaf"
-        />
+        >
+          <template #notice>
+            <slot name="notice" :content="content"></slot>
+          </template>
+        </LessonContentCard>
       </li>
     </ul>
 
     <template>
       <KButton
-        v-if="showButton"
+        v-if="showButton && !loadingMoreState"
         :text="coreString('viewMoreAction')"
         :primary="false"
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="viewMoreButtonState === 'waiting'"
+        v-if="viewMoreButtonState === ViewMoreButtonStates.LOADING & loadingMoreState"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->
-      <p v-else-if="viewMoreButtonState === 'error'">
+      <p v-else-if="viewMoreButtonState === ViewMoreButtonStates.ERROR">
         <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
@@ -65,6 +69,8 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ViewMoreButtonStates } from '../../../constants/index';
+
   import LessonContentCard from './LessonContentCard';
 
   export default {
@@ -73,6 +79,12 @@
       LessonContentCard,
     },
     mixins: [commonCoreStrings],
+
+    setup() {
+      return {
+        ViewMoreButtonStates,
+      };
+    },
     props: {
       showSelectAll: {
         type: Boolean,
@@ -120,12 +132,15 @@
         type: Function, // ContentNode => Route
         required: true,
       },
+      loadingMoreState: {
+        type: Boolean,
+        default: false,
+      },
     },
+
     computed: {
       showButton() {
-        return (
-          this.viewMoreButtonState !== 'waiting' && this.viewMoreButtonState !== 'no_more_results'
-        );
+        return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },
       needCheckboxes() {
         return this.contentList.some(c => this.contentHasCheckbox(c));

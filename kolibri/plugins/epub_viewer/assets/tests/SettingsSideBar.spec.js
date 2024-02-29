@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import SettingsSideBar from '../src/views/SettingsSideBar';
 import { THEMES } from '../src/views/EpubConstants';
 
@@ -8,7 +7,6 @@ function createWrapper({ theme = THEMES.BEIGE } = {}) {
     propsData: {
       theme,
     },
-    store,
   });
 }
 

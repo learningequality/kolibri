@@ -59,7 +59,7 @@
   "TaskStrings.receivingDataStatus": "Λήψη δεδομένων",
   "TaskStrings.remotelyIntegratingDataStatus": "Απομακρυσμένη ενσωμάτωση δεδομένων",
   "TaskStrings.remotelyPreparingDataStatus": "Απομακρυσμένη προετοιμασία δεδομένων",
-  "TaskStrings.removeFacilitySuccessStatus": "Το εκπαιδευτικό πλαίσιο αφαιρέθηκε επιτυχώς",
+  "TaskStrings.removeFacilitySuccessStatus": "Το εκπαιδευτικό πλαίσιο αφαιρέθηκε επιτυχώς.",
   "TaskStrings.removeFacilityTaskLabel": "Αφαίρεση {facilityName}",
   "TaskStrings.removingFacilityStatus": "Αφαίρεση εκπαιδευτικού πλαισίου",
   "TaskStrings.sendingDataStatus": "Αποστολή δεδομένων",

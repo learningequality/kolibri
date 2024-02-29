@@ -13,7 +13,7 @@
       v-model="setting"
       class="radio-button"
       :label="$tr('yesOptionLabel')"
-      :value="true"
+      :buttonValue="true"
       :autofocus="setting"
     />
     <KRadioButton
@@ -21,7 +21,7 @@
       v-model="setting"
       class="radio-button"
       :label="$tr('noOptionLabel')"
-      :value="false"
+      :buttonValue="false"
       :autofocus="!setting"
     />
     <p class="description">

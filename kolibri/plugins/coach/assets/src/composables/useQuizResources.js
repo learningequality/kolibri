@@ -8,7 +8,7 @@ import useFetchTree from './useFetchTree';
 import { QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
-
+const _loadingMore = ref(false);
 /**
  * @typedef {Object} QuizResourcesConfig
  * @property { computed <string|null|undefined> } topicId - The id of the root node to fetch the
@@ -47,31 +47,44 @@ export default function useQuizResources({ topicId } = {}) {
    *   the_resources have been updated, filtering out all topics which do not have assessments
    */
   async function annotateTopicsWithDescendantCounts(topicIds = []) {
-    return ContentNodeResource.fetchDescendantsAssessments(topicIds)
-      .then(({ data: topicsWithDescendantCounts }) => {
+    const promises = [
+      ContentNodeResource.fetchDescendantsAssessments(topicIds),
+      ContentNodeResource.fetchDescendants(topicIds, {
+        descendant__kind: ContentNodeKinds.EXERCISE,
+      }),
+    ];
+    return Promise.all(promises)
+      .then(([{ data: topicsWithAssessmentCounts }, { data: exerciseDescendants }]) => {
         const childrenWithAnnotatedTopics = get(_resources)
           .map(node => {
             // We'll map so that the topics are updated in place with the num_assessments, others
             // are left as-is
-            if (node.kind === ContentNodeKinds.TOPIC) {
-              const topic = topicsWithDescendantCounts.find(t => t.id === node.id);
-              if (topic) {
-                node.num_assessments = topic.num_assessments;
+            if ([ContentNodeKinds.TOPIC, ContentNodeKinds.CHANNEL].includes(node.kind)) {
+              const topicWithAssessments = topicsWithAssessmentCounts.find(t => t.id === node.id);
+              if (topicWithAssessments) {
+                node.num_assessments = topicWithAssessments.num_assessments;
               }
+              exerciseDescendants.forEach(exercise => {
+                if (exercise.ancestor_id === node.id) {
+                  node.num_exercises ? (node.num_exercises += 1) : (node.num_exercises = 1);
+                }
+              });
+
               if (!validateObject(node, QuizExercise)) {
-                logger.warn('Topic node was not a valid QuizExercise after annotation:', node);
+                logger.error('Topic node was not a valid QuizExercise after annotation:', node);
               }
             }
             return node;
           })
           .filter(node => {
             // Only keep topics which have assessments in them to begin with
-            if (node.kind !== ContentNodeKinds.TOPIC) {
-              return true;
-            }
-            return node.num_assessments > 0;
+            return (
+              node.kind === ContentNodeKinds.EXERCISE ||
+              ([ContentNodeKinds.TOPIC, ContentNodeKinds.CHANNEL].includes(node.kind) &&
+                node.num_assessments > 0)
+            );
           });
-        set(_resources, childrenWithAnnotatedTopics);
+        setResources(childrenWithAnnotatedTopics);
       })
       .catch(e => {
         // TODO Work out best UX for this situation -- it may depend on if we're fetching more
@@ -102,20 +115,30 @@ export default function useQuizResources({ topicId } = {}) {
    */
   async function fetchMoreQuizResources() {
     set(_loading, true);
+    set(_loadingMore, true);
     return fetchMore().then(async results => {
       set(_resources, [...get(_resources), ...results]);
       return annotateTopicsWithDescendantCounts(
         results.filter(({ kind }) => kind === ContentNodeKinds.TOPIC).map(topic => topic.id)
-      ).then(() => set(_loading, false));
+      ).then(() => {
+        set(_loading, false);
+        set(_loadingMore, false);
+      });
     });
   }
 
   /** @returns {Boolean} Whether the given node should be displayed with a checkbox
-   * @description Returns whether the given node is an exercise or not -- although, could be
-   * extended in the future to permit topic-level selection if desired
+   *  @description Returns true for exercises and for topics that have no topic children and no
+   *  more children to load
    */
   function hasCheckbox(node) {
-    return node.kind === ContentNodeKinds.EXERCISE;
+    return (
+      node.kind === ContentNodeKinds.EXERCISE ||
+      // Has children, no more to load, and no children are topics
+      (node.children &&
+        !node.children.more &&
+        !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC))
+    );
   }
 
   function setResources(r) {
@@ -126,6 +149,7 @@ export default function useQuizResources({ topicId } = {}) {
     setResources,
     resources: computed(() => get(_resources)),
     loading: computed(() => get(_loading) || get(treeLoading)),
+    loadingMore: computed(() => get(_loadingMore)),
     fetchQuizResources,
     fetchMoreQuizResources,
     hasCheckbox,

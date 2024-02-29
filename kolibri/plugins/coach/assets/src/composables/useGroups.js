@@ -10,9 +10,14 @@ export function useGroups() {
     groupsAreLoading.value = loading;
   }
 
-  function showGroupsPage(store, classId) {
-    // On this page, handle loading state locally
-    // TODO: Open follow-up so that we don't need to do this
+  async function showGroupsPage(store, classId) {
+    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+    const getFacilitiesPromise =
+      store.getters.isSuperuser && store.state.core.facilities.length === 0
+        ? store.dispatch('getFacilities').catch(() => {})
+        : Promise.resolve();
+
+    await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     store.dispatch('notLoading');
 
     setGroupsLoading(true);

@@ -4,7 +4,7 @@
     <KRadioButton
       v-for="(item, idx) in items"
       :key="idx"
-      :value="itemValue(item)"
+      :buttonValue="itemValue(item)"
       :currentValue="currentValue"
       :label="itemLabel(item)"
       :description="description(item)"

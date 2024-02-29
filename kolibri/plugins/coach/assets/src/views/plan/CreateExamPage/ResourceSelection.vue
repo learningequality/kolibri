@@ -1,17 +1,32 @@
 <template>
 
   <div class="select-resource">
-    <div v-if="loading">
+    <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5
-        class="title-style"
-      >
-        {{ /* selectFoldersOrExercises$() */ }}
-      </h5>
+      <KGrid class="align-select-folder-style">
+        <KGridItem
+          :layout12="{ span: 1 }"
+          :layout8="{ span: 1 }"
+        >
+          <KIconButton
+            icon="back"
+            @click="goBack()"
+          />
+        </KGridItem>
 
-      <div v-if="!isTopicIdSet && bookmarks.length">
+        <KGridItem
+          :layout12="{ span: 11 }"
+          :layout8="{ span: 7 }"
+        >
+          <h5 class="select-folder-style">
+            {{ selectFoldersOrExercises$() }}
+          </h5>
+        </KGridItem>
+      </KGrid>
+
+      <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
         <p>{{ selectFromBookmarks$() }}</p>
 
@@ -35,6 +50,14 @@
         </div>
       </div>
 
+      <div
+        v-if="showTopicSizeWarning()"
+        class="shadow"
+        :style=" { padding: '1em', marginBottom: '1em', backgroundColor: $themePalette.grey.v_100 }"
+      >
+        {{ cannotSelectSomeTopicWarning$() }}
+      </div>
+
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
         :ancestors="topic.ancestors"
@@ -42,19 +65,26 @@
         :topicsLink="topicsLink"
       />
 
+      <LessonsSearchBox
+        v-if="!showBookmarks"
+        @clear="clearSearchTerm"
+        @searchterm="handleSearchTermChange"
+      />
+
       <ContentCardList
         :contentList="contentList"
-        :showSelectAll="true"
+        :showSelectAll="showSelectAll"
         :viewMoreButtonState="viewMoreButtonState"
-        :selectAllChecked="isSelectAllChecked"
+        :selectAllChecked="selectAllChecked"
+        :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
         :contentHasCheckbox="hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
-        :selectAllIndeterminate="selectAllIndeterminate"
-        @changeselectall="toggleTopicInWorkingResources"
+        :loadingMoreState="loadingMore"
+        @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
-        @moreresults="fetchMoreQuizResources"
+        @moreresults="fetchMoreResources"
       />
 
       <div class="bottom-navigation">
@@ -64,7 +94,7 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            {{ numberOfResources$({ count: channels.length }) }}
+            <span>{{ numberOfResources$({ count: workingResourcePool.length }) }}</span>
           </KGridItem>
           <KGridItem
             :layout12="{ span: 6 }"
@@ -72,15 +102,21 @@
             :layout4="{ span: 2 }"
           >
             <KButton
+              style="float: right;"
               :text="coreString('saveChangesAction')"
               :primary="true"
-              :disabled="!hasTopicId()"
+              :disabled="!workingPoolHasChanged"
               @click="saveSelectedResource"
             />
           </KGridItem>
         </KGrid>
       </div>
     </div>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      @cancel="handleCancelClose"
+      @continue="handleConfirmClose"
+    />
   </div>
 
 </template>
@@ -88,17 +124,21 @@
 
 <script>
 
+  import uniqWith from 'lodash/uniqWith';
+  import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import { PageNames } from '../../../constants';
+  import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -106,47 +146,187 @@
     components: {
       ContentCardList,
       BookmarkIcon,
+      LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
+      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
-    setup() {
+    setup(_, context) {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
-      const {
-        updateSection,
-        activeSection,
-        selectAllQuestions,
-        workingResourcePool,
-        addToWorkingResourcePool,
-        removeFromWorkingResourcePool,
-        resetWorkingResourcePool,
-        contentPresentInWorkingResourcePool,
-        initializeWorkingResourcePool,
-      } = injectQuizCreation();
+      // We use this query parameter to decide if we want to show the Bookmarks Card
+      // or the actual exercises that are bookmarked and can be selected
+      // to be added to Quiz Section.
+      const showBookmarks = computed(() => route.value.query.showBookmarks);
+      const searchQuery = computed(() => route.value.query.search);
+      const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
+      const showConfirmationModal = ref(false);
 
-      initializeWorkingResourcePool();
+      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
+
       const {
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
+        selectedResourcesInformation$,
+        cannotSelectSomeTopicWarning$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
       const viewMoreButtonState = computed(() => {
-        if (hasMore.value) {
-          return 'yes';
+        if (hasMore.value || moreSearchResults.value) {
+          return ViewMoreButtonStates.HAS_MORE;
         } else {
-          return 'no_more_results';
+          return ViewMoreButtonStates.NO_MORE;
         }
       });
 
       const { windowIsSmall } = useKResponsiveWindow();
 
-      //const { channels, loading, bookmarks, contentList } = useExerciseResources();
+      /**
+       * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
+       */
+      const workingResourcePool = ref(activeResourcePool.value);
+
+      /**
+       * @param {QuizExercise[]} resources
+       * @affects workingResourcePool -- Updates it with the given resources and is ensured to have
+       * a list of unique resources to avoid unnecessary duplication
+       */
+      function addToWorkingResourcePool(resources = []) {
+        workingResourcePool.value = uniqWith(
+          [
+            ...workingResourcePool.value,
+            ...resources.filter(r => r.kind === ContentNodeKinds.EXERCISE),
+          ],
+          isEqual
+        );
+      }
+
+      /**
+       * @description Returns the list of Exercises which can possibly be selected from the current
+       * contentList taking into consideration the logic for whether a topic can be selected or not.
+       * @returns {QuizExercise[]} - All contents which can be selected
+       */
+      function selectableContentList() {
+        return contentList.value.reduce((newList, content) => {
+          if (content.kind === ContentNodeKinds.TOPIC && hasCheckbox(content)) {
+            newList = [...newList, ...content.children.results];
+          } else {
+            newList.push(content);
+          }
+          return newList;
+        }, []);
+      }
+
+      /**
+       * @param {QuizExercise} content
+       * @affects workingResourcePool - Remove given quiz exercise from workingResourcePool
+       */
+      function removeFromWorkingResourcePool(content) {
+        workingResourcePool.value = workingResourcePool.value.filter(obj => obj.id !== content.id);
+      }
+
+      /**
+       * @affects workingResourcePool - Resets the workingResourcePool to the previous state
+       */
+      function resetWorkingResourcePool() {
+        workingResourcePool.value = activeResourcePool.value;
+      }
+
+      /**
+       * @param {QuizExercise} content
+       * Check if the content is present in workingResourcePool
+       */
+      function contentPresentInWorkingResourcePool(content) {
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          return content.children.results.every(child => workingResourceIds.includes(child.id));
+        }
+        return workingResourceIds.includes(content.id);
+      }
+
+      function fetchSearchResults() {
+        const getParams = {
+          max_results: 25,
+          keywords: searchQuery.value,
+          kind: ContentNodeKinds.EXERCISE,
+        };
+        return ContentNodeResource.fetchCollection({ getParams }).then(response => {
+          searchResults.value = response.results;
+          moreSearchResults.value = response.more;
+        });
+      }
+
+      function fetchMoreSearchResults() {
+        return ContentNodeResource.fetchCollection({
+          getParams: moreSearchResults.value,
+        }).then(response => {
+          searchResults.value = searchResults.value.concat(response.results);
+          moreSearchResults.value = response.more;
+        });
+      }
+
+      const selectAllChecked = computed(() => {
+        // Returns true if all the resources in the topic are in the working resource pool
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        const selectableIds = selectableContentList().map(content => content.id);
+        return selectableIds.every(id => workingResourceIds.includes(id));
+      });
+
+      const selectAllIndeterminate = computed(() => {
+        // Returns true if some, but not all, of the resources in the topic are in the working
+        // resource
+        const workingResourceIds = workingResourcePool.value.map(wr => wr.id);
+        const selectableIds = selectableContentList().map(content => content.id);
+        return !selectAllChecked.value && selectableIds.some(id => workingResourceIds.includes(id));
+      });
+
+      const showSelectAll = computed(() => {
+        return contentList.value.every(content => hasCheckbox(content));
+      });
+
+      function handleSelectAll(isChecked) {
+        if (isChecked) {
+          this.addToWorkingResourcePool(selectableContentList());
+        } else {
+          this.contentList.forEach(content => {
+            var contentToRemove = [];
+            if (content.kind === ContentNodeKinds.TOPIC) {
+              contentToRemove = content.children.results;
+            } else {
+              contentToRemove.push(content);
+            }
+            contentToRemove.forEach(c => {
+              this.removeFromWorkingResourcePool(c);
+            });
+          });
+        }
+      }
+
+      /**
+       * @param {Object} param
+       * @param {ContentNode} param.content
+       * @param {boolean} param.checked
+       * @affects workingResourcePool - Adds or removes the content from the workingResourcePool
+       * When given a topic, it adds or removes all the exercises in the topic from the
+       * workingResourcePool. This assumes that topics which should not be added are not able to
+       * be checked and does not do any additional checks.
+       */
+      function toggleSelected({ content, checked }) {
+        content = content.kind === ContentNodeKinds.TOPIC ? content.children.results : [content];
+        if (checked) {
+          this.addToWorkingResourcePool(content);
+        } else {
+          content.forEach(c => {
+            this.removeFromWorkingResourcePool(c);
+          });
+        }
+      }
 
       const {
         hasCheckbox,
@@ -158,31 +338,20 @@
         hasMore,
         annotateTopicsWithDescendantCounts,
         setResources,
+        loadingMore,
       } = useQuizResources({ topicId });
 
       const _loading = ref(true);
 
       const channels = ref([]);
       const bookmarks = ref([]);
+      const searchResults = ref([]);
+      const moreSearchResults = ref(null);
 
       // Load up the channels
+
       if (!topicId.value) {
         const channelBookmarkPromises = [
-          ChannelResource.fetchCollection({
-            params: { has_exercises: true, available: true },
-          }).then(response => {
-            setResources(
-              response.map(chnl => {
-                return {
-                  ...chnl,
-                  id: chnl.root,
-                  title: chnl.name,
-                  kind: ContentNodeKinds.CHANNEL,
-                  is_leaf: false,
-                };
-              })
-            );
-          }),
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
               bookmarks.value = data.results ? data.results : [];
@@ -190,12 +359,35 @@
           ),
         ];
 
+        if (searchQuery.value) {
+          channelBookmarkPromises.push(fetchSearchResults());
+        } else {
+          channelBookmarkPromises.push(
+            ChannelResource.fetchCollection({
+              params: { has_exercises: true, available: true },
+            }).then(response => {
+              setResources(
+                response.map(chnl => {
+                  return {
+                    ...chnl,
+                    id: chnl.root,
+                    title: chnl.name,
+                    kind: ContentNodeKinds.CHANNEL,
+                    is_leaf: false,
+                  };
+                })
+              );
+            })
+          );
+        }
+
         Promise.all(channelBookmarkPromises).then(() => {
           // When we don't have a topicId we're setting the value of useQuizResources.resources
           // to the value of the channels (treating those channels as the topics) -- we then
           // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
           // annotated with their num_assessments and those without assessments are filtered out
-          annotateTopicsWithDescendantCounts(channels.value.map(c => c.id)).then(() => {
+          annotateTopicsWithDescendantCounts(resources.value.map(c => c.id)).then(() => {
+            channels.value = resources.value;
             _loading.value = false;
           });
         });
@@ -217,6 +409,20 @@
           return channels.value;
         }
         */
+        if (showBookmarks.value) {
+          return bookmarks.value
+            .filter(item => item.kind === 'exercise')
+            .map(item => ({ ...item, is_leaf: true }));
+        }
+
+        if (searchQuery.value) {
+          return searchResults.value;
+        }
+
+        if (!topicId.value) {
+          return channels.value;
+        }
+
         return resources.value;
       });
 
@@ -228,22 +434,62 @@
         }
       });
 
+      watch(searchQuery, () => {
+        if (searchQuery.value) {
+          fetchSearchResults();
+        }
+      });
+
+      function fetchMoreResources() {
+        if (searchQuery.value) {
+          return fetchMoreSearchResults();
+        }
+        return fetchMoreQuizResources();
+      }
+
+      function handleCancelClose() {
+        showConfirmationModal.value = false;
+      }
+
+      function handleConfirmClose() {
+        context.emit('closePanel');
+      }
+
+      const workingPoolHasChanged = computed(() => {
+        return (
+          workingResourcePool.value.length != activeResourcePool.value.length ||
+          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
+        );
+      });
+
       return {
+        selectAllChecked,
+        selectAllIndeterminate,
+        showSelectAll,
+        handleSelectAll,
+        toggleSelected,
+        prevRoute,
+        workingPoolHasChanged,
+        handleConfirmClose,
+        handleCancelClose,
         topic,
         topicId,
         contentList,
         resources,
+        showConfirmationModal,
         hasCheckbox,
         loading,
         hasMore,
-        fetchMoreQuizResources,
+        loadingMore,
+        fetchMoreResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         //contentList,
+        cannotSelectSomeTopicWarning$,
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        //selectFoldersOrExercises$,
+        selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResources$,
         windowIsSmall,
@@ -251,67 +497,27 @@
         channels,
         viewMoreButtonState,
         updateSection,
-        activeSection,
         selectAllQuestions,
         workingResourcePool,
+        activeResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
+        showBookmarks,
+        selectedResourcesInformation$,
       };
-    },
-    props: {
-      closePanelRoute: {
-        type: Object,
-        required: true,
-      },
     },
     computed: {
       isTopicIdSet() {
         return this.$route.params.topic_id;
       },
-      isSelectAllChecked() {
-        // Returns true if all the resources in the topic are in the working resource pool
-        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        return this.contentList.every(content => workingResourceIds.includes(content.id));
-      },
-      selectAllIndeterminate() {
-        // Returns true if some, but not all, of the resources in the topic are in the working
-        // resource
-        const workingResourceIds = this.workingResourcePool.map(wr => wr.id);
-        return (
-          !this.isSelectAllChecked &&
-          this.contentList.some(content => workingResourceIds.includes(content.id))
-        );
-      },
-      selectionMetadata(/*content*/) {
-        // TODO This should return a function that returns a string telling us how many of this
-        // topic's descendants are selected out of its total descendants -- basically answering
-        // "How many resources in the working resource_pool are from this topic?"
-        // Tracked in https://github.com/learningequality/kolibri/issues/11741
-        return () => '';
-        // let count = 0;
-        // let total = 0;
-        // if (this.ancestorCounts[content.id]) {
-        //   count = this.ancestorCounts[content.id].count;
-        //   total = this.ancestorCounts[content.id].total;
-        // }
-        // if (count) {
-        //   return this.$tr('selectionInformation', {
-        //     count,
-        //     total,
-        //   });
-        // }
-        // return '';
-        // return function() {
-        //   console.log('Dynamic function called');
-        // };
-      },
 
       getBookmarksLink() {
+        // Inject the showBookmarks parameter so that
+        // the resourceSelection component now renderes only the
+        // the exercises that are bookmarked for the Quiz selection.
         return {
-          name: PageNames.BOOK_MARKED_RESOURCES,
-          params: {
-            section_id: this.$route.params.section_id,
-          },
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          query: { showBookmarks: true },
         };
       },
       channelsLink() {
@@ -330,13 +536,37 @@
         this.bookmarksCount = newVal.length;
       },
     },
+    beforeRouteEnter(_, from, next) {
+      next(vm => {
+        vm.prevRoute = from;
+      });
+    },
+    beforeRouteLeave(_, __, next) {
+      if (!this.showConfirmationModal && this.workingPoolHasChanged) {
+        this.showConfirmationModal = true;
+        next(false);
+      } else {
+        next();
+      }
+    },
     methods: {
+      showTopicSizeWarningCard(content) {
+        return !this.hasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
+      },
+      showTopicSizeWarning() {
+        return this.contentList.some(this.showTopicSizeWarningCard);
+      },
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
       },
+      goBack() {
+        return this.$router.go(-1);
+      },
       contentLink(content) {
-        if (!content.is_leaf) {
+        if (this.showBookmarks) {
+          return this.$route;
+        } else if (!content.is_leaf) {
           return {
             name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
@@ -349,25 +579,6 @@
 
         return {}; // or return {} if you prefer an empty object
       },
-      toggleSelected({ content, checked }) {
-        if (checked) {
-          this.addToSelectedResources(content);
-        } else {
-          this.removeFromWorkingResourcePool(content);
-        }
-      },
-      addToSelectedResources(content) {
-        this.addToWorkingResourcePool([content]);
-      },
-      toggleTopicInWorkingResources(isChecked) {
-        if (isChecked) {
-          this.isSelectAllChecked = true;
-          this.addToWorkingResourcePool(this.contentList);
-        } else {
-          this.isSelectAllChecked = false;
-          this.resetWorkingResourcePool();
-        }
-      },
       topicListingLink({ topicId }) {
         return this.$router.getRoute(
           PageNames.QUIZ_SELECT_RESOURCES,
@@ -375,11 +586,9 @@
           this.$route.query
         );
       },
+
       topicsLink(topicId) {
         return this.topicListingLink({ ...this.$route.params, topicId });
-      },
-      hasTopicId() {
-        return Boolean(this.$route.params.topic_id);
       },
       saveSelectedResource() {
         this.updateSection({
@@ -390,21 +599,39 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$router.replace(this.closePanelRoute);
+        this.$router.replace(this.prevRoute);
       },
-      // selectionMetadata(content) {
-      //   if (content.kind === ContentNodeKinds.TOPIC) {
-      //     const count = content.exercises.filter(exercise =>
-      //       Boolean(this.selectedExercises[exercise.id])
-      //     ).length;
-      //     if (count === 0) {
-      //       return '';
-      //     }
-      //     const total = content.exercises.length;
-      //     return this.$tr('total_number', { count, total });
-      //   }
-      //   return '';
-      // },
+      selectionMetadata(content) {
+        if (content.kind === ContentNodeKinds.TOPIC) {
+          const total = content.num_exercises;
+          const numberOfresourcesSelected = this.workingResourcePool.reduce((acc, wr) => {
+            if (wr.ancestors.map(ancestor => ancestor.id).includes(content.id)) {
+              return acc + 1;
+            }
+            return acc;
+          }, 0);
+
+          return this.selectedResourcesInformation$({
+            count: numberOfresourcesSelected,
+            total: total,
+          });
+        }
+        return '';
+      },
+      handleSearchTermChange(searchTerm) {
+        const query = {
+          ...this.$route.query,
+          search: searchTerm,
+        };
+        this.$router.push({ query });
+      },
+      clearSearchTerm() {
+        const query = {
+          ...this.$route.query,
+        };
+        delete query.search;
+        this.$router.push({ query });
+      },
     },
   };
 
@@ -470,13 +697,33 @@
   }
 
   .bottom-navigation {
-    position: fixed;
-    bottom: 0;
-    width: 50%;
-    padding: 10px;
-    color: black;
+    position: absolute;
+    right: 0;
+    bottom: 1.5em;
+    left: 0;
+    width: 100%;
+    padding: 1em;
     text-align: center;
     background-color: white;
+    border-top: 1px solid black;
+
+    span {
+      line-height: 2.5em;
+    }
+  }
+
+  .select-folder-style {
+    margin-top: 0.5em;
+    font-size: 18px;
+  }
+
+  .align-select-folder-style {
+    margin-top: 2em;
+  }
+
+  .shadow {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+      0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
 
 </style>

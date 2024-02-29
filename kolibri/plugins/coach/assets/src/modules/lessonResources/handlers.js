@@ -10,10 +10,17 @@ import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import chunk from 'lodash/chunk';
 import { LessonsPageNames } from '../../constants/lessonsConstants';
 
-function showResourceSelectionPage(store, params) {
+async function showResourceSelectionPage(store, params) {
   const { lessonId, contentList, pageName, bookmarksList, ancestors = [] } = params;
   const pendingSelections = store.state.lessonSummary.workingResources || [];
   const cache = store.state.lessonSummary.resourceCache || {};
+  const initClassInfoPromise = store.dispatch('initClassInfo', params.classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   const lessonSummaryState = {
     currentLesson: {},
     // contains all selections, including those that haven't been committed to server
@@ -166,6 +173,7 @@ export function showLessonResourceBookmarksMain(store, params) {
   return store.dispatch('loading').then(() => {
     getBookmarks().then(bookmarks => {
       return showResourceSelectionPage(store, {
+        classId: params.classId,
         lessonId: params.lessonId,
         bookmarksList: bookmarks[0],
       });
@@ -188,8 +196,15 @@ function getBookmarks() {
       return Promise.all(fetchPromises);
     });
 }
-export function showLessonResourceContentPreview(store, params) {
+export async function showLessonResourceContentPreview(store, params) {
   const { classId, lessonId, contentId } = params;
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   return store.dispatch('loading').then(() => {
     return _prepLessonContentPreview(store, classId, lessonId, contentId).then(() => {
       store.dispatch('notLoading');
@@ -197,8 +212,15 @@ export function showLessonResourceContentPreview(store, params) {
   });
 }
 
-export function showLessonSelectionContentPreview(store, params, query = {}) {
+export async function showLessonSelectionContentPreview(store, params, query = {}) {
   const { classId, lessonId, contentId } = params;
+  const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+  const getFacilitiesPromise =
+    store.getters.isSuperuser && store.state.core.facilities.length === 0
+      ? store.dispatch('getFacilities').catch(() => {})
+      : Promise.resolve();
+
+  await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
   return store.dispatch('loading').then(() => {
     const pendingSelections = store.state.lessonSummary.workingResources || [];
     return Promise.all([

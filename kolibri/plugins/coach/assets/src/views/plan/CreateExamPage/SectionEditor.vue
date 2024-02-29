@@ -15,7 +15,7 @@
         :layout4="{ span: 2 }"
       >
         <KTextbox
-          v-model="sectionTitle"
+          v-model="section_title"
           :label="sectionTitle$()"
           :maxlength="100"
         />
@@ -29,7 +29,7 @@
           <div>
             <KTextbox
               ref="numQuest"
-              v-model="numberOfQuestions"
+              v-model="question_count"
               type="number"
               :label="numberOfQuestionsLabel$()"
             />
@@ -43,8 +43,8 @@
                 icon="minus"
                 aria-hidden="true"
                 class="number-btn"
-                :disabled="numberOfQuestions === 1"
-                @click="numberOfQuestions -= 1"
+                :disabled="question_count === 1"
+                @click="question_count -= 1"
               />
               <span
                 :style="dividerStyle"
@@ -53,7 +53,7 @@
                 icon="plus"
                 aria-hidden="true"
                 class="number-btn"
-                @click="numberOfQuestions += 1"
+                @click="question_count += 1"
               />
             </div>
           </div>
@@ -62,7 +62,7 @@
     </KGrid>
 
     <KTextbox
-      v-model="descriptionText"
+      v-model="description"
       :label="optionalDescriptionLabel$()"
       :maxlength="400"
       :textArea="true"
@@ -84,9 +84,9 @@
           :layout4="{ span: 2 }"
         >
           <KRadioButton
-            v-model="selectedQuestionOrder"
+            v-model="learners_see_fixed_order"
             :label="randomizedLabel$()"
-            :value="true"
+            :buttonValue="true"
             :description="randomizedOptionDescription$()"
           />
         </KGridItem>
@@ -96,9 +96,9 @@
           :layout4="{ span: 2 }"
         >
           <KRadioButton
-            v-model="selectedQuestionOrder"
+            v-model="learners_see_fixed_order"
             :label="fixedLabel$()"
-            :value="false"
+            :buttonValue="false"
             :description="fixedOptionDescription$()"
           />
         </KGridItem>
@@ -215,6 +215,11 @@
         </KGridItem>
       </KGrid>
     </div>
+    <ConfirmCancellationModal
+      v-if="showConfirmationModal"
+      @cancel="handleCancelClose"
+      @continue="handleConfirmClose"
+    />
   </div>
 
 </template>
@@ -222,23 +227,69 @@
 
 <script>
 
-  import { ref } from 'kolibri.lib.vueCompositionApi';
-  import { get } from '@vueuse/core';
+  import isEqual from 'lodash/isEqual';
+  import pick from 'lodash/pick';
+  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   export default {
     name: 'SectionEditor',
     components: {
+      ConfirmCancellationModal,
       Draggable,
       DragContainer,
       DragHandle,
     },
-    setup() {
+    setup(_, context) {
+      const {
+        activeSection,
+        allSections,
+        updateSection,
+        updateQuiz,
+        deleteSection,
+      } = injectQuizCreation();
+
+      const showConfirmationModal = ref(false);
+
+      function handleCancelClose() {
+        showConfirmationModal.value = false;
+      }
+
+      function handleConfirmClose() {
+        context.emit('closePanel');
+      }
+
+      /* Note that the use of snake_case here is to map directly to the API */
+      const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
+      const question_count = ref(activeSection.value.question_count);
+      const description = ref(activeSection.value.description);
+      const section_title = ref(activeSection.value.section_title);
+
+      const formDataHasChanged = computed(() => {
+        return !isEqual(
+          {
+            learners_see_fixed_order: learners_see_fixed_order.value,
+            question_count: question_count.value,
+            description: description.value,
+            section_title: section_title.value,
+          },
+          pick(activeSection.value, [
+            'learners_see_fixed_order',
+            'question_count',
+            'description',
+            'section_title',
+          ])
+        );
+      });
+
+      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
+
       const {
         sectionSettings$,
         sectionTitle$,
@@ -258,21 +309,11 @@
         fixedOptionDescription$,
       } = enhancedQuizManagementStrings;
 
-      const {
-        activeSection,
-        allSections,
-        updateSection,
-        updateQuiz,
-        deleteSection,
-      } = injectQuizCreation();
-
-      const selectedQuestionOrder = ref(get(activeSection).learners_see_fixed_order);
-      const numberOfQuestions = ref(get(activeSection).question_count);
-      const descriptionText = ref(get(activeSection).description);
-      const sectionTitle = ref(get(activeSection).section_title);
-
-      const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
       return {
+        formDataHasChanged,
+        showConfirmationModal,
+        handleCancelClose,
+        handleConfirmClose,
         // useQuizCreation
         activeSection,
         allSections,
@@ -280,10 +321,10 @@
         updateQuiz,
         deleteSection,
         // Form models
-        selectedQuestionOrder,
-        numberOfQuestions,
-        descriptionText,
-        sectionTitle,
+        learners_see_fixed_order,
+        question_count,
+        description,
+        section_title,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
@@ -331,6 +372,14 @@
         };
       },
     },
+    beforeRouteLeave(_, __, next) {
+      if (!this.showConfirmationModal && this.formDataHasChanged) {
+        this.showConfirmationModal = true;
+        next(false);
+      } else {
+        next();
+      }
+    },
     methods: {
       handleSectionSort(e) {
         this.updateQuiz({ question_sources: e.newArray });
@@ -338,10 +387,10 @@
       applySettings() {
         this.updateSection({
           section_id: this.activeSection.section_id,
-          section_title: this.sectionTitle,
-          description: this.descriptionText,
-          question_count: this.numberOfQuestions,
-          learners_see_fixed_order: this.selectedQuestionOrder,
+          section_title: this.section_title,
+          description: this.description,
+          question_count: this.question_count,
+          learners_see_fixed_order: this.learners_see_fixed_order,
         });
       },
     },

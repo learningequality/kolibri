@@ -8,14 +8,14 @@
     <KRadioButton
       v-model="selected"
       :label="$tr('joinFacilityLabel')"
-      :value="Options.JOIN"
+      :buttonValue="Options.JOIN"
       class="radio-button"
       :autofocus="isJoinSetup"
     />
     <KRadioButton
       v-model="selected"
       :label="$tr('importFromFacilityLabel')"
-      :value="Options.IMPORT"
+      :buttonValue="Options.IMPORT"
       class="radio-button"
       :autofocus="isImportSetup"
     />

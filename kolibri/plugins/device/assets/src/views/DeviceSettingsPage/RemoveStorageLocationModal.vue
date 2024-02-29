@@ -15,7 +15,7 @@
       v-for="path in storageLocations"
       :key="path.index"
       v-model="selectedPath"
-      :value="path"
+      :buttonValue="path"
       :label="path"
     />
   </KModal>

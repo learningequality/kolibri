@@ -11,7 +11,6 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { PageNames } from '../../constants';
 import { MAX_QUESTIONS } from '../../constants/examConstants';
 import { createExam } from '../examShared/exams';
-import selectQuestions from './selectQuestions';
 
 export function resetExamCreationState(store) {
   store.commit('RESET_STATE');
@@ -216,6 +215,9 @@ export function updateSelectedQuestions(store) {
       contentNodes.forEach(exercise => {
         exercises[exercise.id] = exercise;
       });
+      // TODO This file needs to be cleaned up when updates to quiz management are complete -- this
+      // will be removed altogether so just no-op for now is ok
+      const doNothing = () => null;
       const availableExercises = exerciseIds.filter(id => exercises[id]);
       const exerciseTitles = availableExercises.map(id => exercises[id].title);
       const questionIdArrays = availableExercises.map(
@@ -223,7 +225,7 @@ export function updateSelectedQuestions(store) {
       );
       store.commit(
         'SET_SELECTED_QUESTIONS',
-        selectQuestions(
+        doNothing(
           store.state.numberOfQuestions,
           availableExercises,
           exerciseTitles,

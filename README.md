@@ -3,7 +3,6 @@
 
 [![Python test status](https://github.com/learningequality/kolibri/actions/workflows/tox.yml/badge.svg?branch=develop)](https://github.com/learningequality/kolibri/actions/workflows/tox.yml)
 [![JS test status](https://github.com/learningequality/kolibri/actions/workflows/yarn.yml/badge.svg?branch=develop)](https://github.com/learningequality/kolibri/actions/workflows/yarn.yml)
-[![Build status](https://img.shields.io/buildkite/d84228011571e7dddb0a560f0358979c8a385173b4f58a11f8/develop.svg)](https://buildkite.com/learningequality/kolibri)
 [![Developer docs](https://img.shields.io/badge/docs-dev-blue.svg)](http://kolibri-dev.readthedocs.org/en/develop/)
 [![Developer chat](https://img.shields.io/badge/chat-dev-blue.svg)](http://webchat.freenode.net?channels=%23kolibri)
 [![PyPI](https://img.shields.io/pypi/v/kolibri.svg?color=blue)](https://pypi.org/project/kolibri/)

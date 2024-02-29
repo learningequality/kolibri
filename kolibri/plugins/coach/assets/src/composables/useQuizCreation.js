@@ -1,6 +1,5 @@
 import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
-import uniqWith from 'lodash/uniqWith';
 import range from 'lodash/range';
 import shuffle from 'lodash/shuffle';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -9,10 +8,10 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref, watch, provide, inject } from 'kolibri.lib.vueCompositionApi';
 import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
-import selectQuestions from '../modules/examCreation/selectQuestions.js';
+import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
 
 const logger = logging.getLogger(__filename);
@@ -31,24 +30,12 @@ function validateQuiz(quiz) {
 }
 
 /**
- * @param {QuizExercise} o - The resource to check
- * @returns {boolean} - True if the resource is a valid QuizExercise
- */
-function isExercise(o) {
-  return o.kind === ContentNodeKinds.EXERCISE;
-}
-
-/**
  * Composable function presenting primary interface for Quiz Creation
  */
 export default function useQuizCreation(DEBUG = false) {
   // -----------
   // Local state
   // -----------
-
-  /** @type {ComputedRef<QuizExercise[]>}  Currently selected resource_pool
-   *  from the side_panel*/
-  const _working_resource_pool = ref([]);
 
   /** @type {ref<Quiz>}
    * The "source of truth" quiz object from which all reactive properties should derive */
@@ -178,13 +165,8 @@ export default function useQuizCreation(DEBUG = false) {
       } else if (question_count > (targetSection.question_count || 0)) {
         // If the question_count is being increased, we need to add new questions to the end of the
         // questions array
-        const newQuestions = selectQuestions(
-          question_count - (targetSection.question_count || 0),
-          targetSection.resource_pool.map(r => r.content_id),
-          targetSection.resource_pool.map(r => r.title),
-          targetSection.resource_pool.map(r => r.questions.map(q => q.question_id)),
-          get(_quiz).seed
-        );
+        const numQuestionsToAdd = question_count - (targetSection.question_count || 0);
+        const newQuestions = selectRandomQuestionsFromResources(numQuestionsToAdd);
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
     }
@@ -199,6 +181,23 @@ export default function useQuizCreation(DEBUG = false) {
         return section;
       }),
     });
+  }
+
+  /**
+   * @description Selects random questions from the active section's `resource_pool` - no side
+   * effects
+   * @param numQuestions
+   * @returns {QuizQuestion[]}
+   */
+  function selectRandomQuestionsFromResources(numQuestions) {
+    const pool = get(activeResourcePool);
+    return selectQuestions(
+      numQuestions,
+      pool.map(r => r.content_id),
+      pool.map(r => r.title),
+      pool.map(r => r.assessmentmetadata.assessment_item_ids),
+      get(_quiz).seed
+    );
   }
 
   /**
@@ -272,12 +271,16 @@ export default function useQuizCreation(DEBUG = false) {
       setActiveSection(newSection.section_id);
     }
     _fetchChannels();
-  }
 
-  // // Method to initialize the working resource pool
-  function initializeWorkingResourcePool() {
-    // Set the value of _working_resource_pool to the resource_pool of the active section
-    set(_working_resource_pool, get(activeResourcePool));
+    // Set watcher once we have a section in place
+    watch(activeResourcePool, (resourcePool, old) => {
+      if (!isEqual(resourcePool, old)) {
+        updateSection({
+          section_id: get(_activeSectionId),
+          questions: selectRandomQuestionsFromResources(get(activeSection).question_count),
+        });
+      }
+    });
   }
 
   /**
@@ -364,11 +367,6 @@ export default function useQuizCreation(DEBUG = false) {
     }
   }
 
-  function resetWorkingResourcePool() {
-    // Set the WorkingResource to empty array again!
-    set(_working_resource_pool, []);
-  }
-
   /**
    * @affects _channels - Fetches all channels with exercises and sets them to _channels */
   function _fetchChannels() {
@@ -391,21 +389,6 @@ export default function useQuizCreation(DEBUG = false) {
   }
 
   // Utilities
-  /**
-   * @params  {string} section_id - The section_id whose resource_pool we'll use.
-   * @returns {QuizQuestion[]}
-   */
-  /*
-  function _getQuestionsFromSection(section_id) {
-    const section = get(allSections).find(s => s.section_id === section_id);
-    if (!section) {
-      throw new Error(`Section with id ${section_id} not found.`);
-    }
-    return get(activeExercisePool).reduce((acc, exercise) => {
-      return [...acc, ...exercise.questions];
-    }, []);
-  }
-  */
 
   // Computed properties
   /** @type {ComputedRef<Quiz>} The value of _quiz */
@@ -422,10 +405,13 @@ export default function useQuizCreation(DEBUG = false) {
   );
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
-  /** @type {ComputedRef<ExerciseResource[]>} The active section's `resource_pool` - that is,
-   *                                          Exercises from which we will enumerate all
-   *                                          available questions */
-  const activeExercisePool = computed(() => get(activeResourcePool).filter(isExercise));
+  /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
+  const activeResourceMap = computed(() =>
+    get(activeResourcePool).reduce((acc, resource) => {
+      acc[resource.content_id] = resource;
+      return acc;
+    }, {})
+  );
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
    *                                      exercises */
   const activeQuestionsPool = computed(() => []);
@@ -439,9 +425,6 @@ export default function useQuizCreation(DEBUG = false) {
   const replacementQuestionPool = computed(() => {});
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
-
-  // /** @type {ComputedRef<QuizExercise[]>} The current value of _working_resource_pool */
-  const workingResourcePool = computed(() => get(_working_resource_pool));
 
   /** Handling the Select All Checkbox
    * See: remove/toggleQuestionFromSelection() & selectAllQuestions() for more */
@@ -480,45 +463,12 @@ export default function useQuizCreation(DEBUG = false) {
     }
   });
 
-  /**
-   * @param {QuizExercise[]} resources
-   * @affects _working_resource_pool -- Updates it with the given resources and is ensured to have
-   * a list of unique resources to avoid unnecessary duplication
-   */
-  function addToWorkingResourcePool(resources = []) {
-    set(_working_resource_pool, uniqWith([...get(_working_resource_pool), ...resources], isEqual));
-  }
-
-  /**
-   * @param {QuizExercise} content
-   * @affects _working_resource_pool - Remove given quiz exercise from _working_resource_pool
-   */
-  function removeFromWorkingResourcePool(content) {
-    set(
-      _working_resource_pool,
-      _working_resource_pool.value.filter(obj => obj.id !== content.id)
-    );
-  }
-
-  /**
-   * @param {QuizExercise} content
-   * Check if the content is present in working_resource_pool
-   */
-  function contentPresentInWorkingResourcePool(content) {
-    const workingResourceIds = get(workingResourcePool).map(wr => wr.id);
-    return workingResourceIds.includes(content.id);
-  }
-
   /** @type {ComputedRef<Boolean>} Whether the select all checkbox should be indeterminate */
   const selectAllIsIndeterminate = computed(() => {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
   provide('saveQuiz', saveQuiz);
-  provide('initializeWorkingResourcePool', initializeWorkingResourcePool);
-  provide('addToWorkingResourcePool', addToWorkingResourcePool);
-  provide('removeFromWorkingResourcePool', removeFromWorkingResourcePool);
-  provide('contentPresentInWorkingResourcePool', contentPresentInWorkingResourcePool);
   provide('updateSection', updateSection);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
@@ -528,15 +478,13 @@ export default function useQuizCreation(DEBUG = false) {
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
-  provide('resetWorkingResourcePool', resetWorkingResourcePool);
   provide('channels', channels);
   provide('quiz', quiz);
   provide('allSections', allSections);
   provide('activeSection', activeSection);
   provide('inactiveSections', inactiveSections);
   provide('activeResourcePool', activeResourcePool);
-  provide('workingResourcePool', workingResourcePool);
-  provide('activeExercisePool', activeExercisePool);
+  provide('activeResourceMap', activeResourceMap);
   provide('activeQuestionsPool', activeQuestionsPool);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
@@ -548,13 +496,8 @@ export default function useQuizCreation(DEBUG = false) {
   return {
     // Methods
     saveQuiz,
-    initializeWorkingResourcePool,
-    removeFromWorkingResourcePool,
-    addToWorkingResourcePool,
-    contentPresentInWorkingResourcePool,
     updateSection,
     replaceSelectedQuestions,
-    resetWorkingResourcePool,
     addSection,
     removeSection,
     setActiveSection,
@@ -569,9 +512,8 @@ export default function useQuizCreation(DEBUG = false) {
     allSections,
     activeSection,
     inactiveSections,
-    workingResourcePool,
     activeResourcePool,
-    activeExercisePool,
+    activeResourceMap,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
@@ -594,14 +536,9 @@ export default function useQuizCreation(DEBUG = false) {
 
 export function injectQuizCreation() {
   const saveQuiz = inject('saveQuiz');
-  const initializeWorkingResourcePool = inject('initializeWorkingResourcePool');
-  const removeFromWorkingResourcePool = inject('removeFromWorkingResourcePool');
-  const contentPresentInWorkingResourcePool = inject('contentPresentInWorkingResourcePool');
-  const addToWorkingResourcePool = inject('addToWorkingResourcePool');
   const updateSection = inject('updateSection');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
-  const resetWorkingResourcePool = inject('resetWorkingResourcePool');
   const removeSection = inject('removeSection');
   const setActiveSection = inject('setActiveSection');
   const initializeQuiz = inject('initializeQuiz');
@@ -614,8 +551,7 @@ export function injectQuizCreation() {
   const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
-  const workingResourcePool = inject('workingResourcePool');
-  const activeExercisePool = inject('activeExercisePool');
+  const activeResourceMap = inject('activeResourceMap');
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
@@ -627,14 +563,9 @@ export function injectQuizCreation() {
   return {
     // Methods
     saveQuiz,
-    initializeWorkingResourcePool,
-    addToWorkingResourcePool,
-    contentPresentInWorkingResourcePool,
-    removeFromWorkingResourcePool,
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
-    resetWorkingResourcePool,
     replaceSelectedQuestions,
     addSection,
     removeSection,
@@ -651,9 +582,8 @@ export function injectQuizCreation() {
     allSections,
     activeSection,
     inactiveSections,
-    workingResourcePool,
     activeResourcePool,
-    activeExercisePool,
+    activeResourceMap,
     activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
