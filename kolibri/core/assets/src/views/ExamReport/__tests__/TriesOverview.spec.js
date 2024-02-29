@@ -72,7 +72,10 @@ describe('TriesOverview', () => {
     });
 
     test('renders progress icon and not started label when there are no past tries', () => {
-      renderComponent();
+      renderComponent({
+        pastTries: [],
+        totalQuestions: 20,
+      });
 
       expect(screen.getByTestId('progress-icon-0')).toBeInTheDocument();
       expect(screen.getByText('notStartedLabel')).toBeInTheDocument();
