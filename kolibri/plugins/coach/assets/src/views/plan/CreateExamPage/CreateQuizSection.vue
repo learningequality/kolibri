@@ -35,8 +35,8 @@
 
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
-        :layout4="{ span: 3 }"
-        :layout8="{ span: 6 }"
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 5 }"
         :layout12="{ span: 10 }"
       >
         <TabsWithOverflow
@@ -85,15 +85,15 @@
       </KGridItem>
 
       <KGridItem
-        style="padding: 0; margin-right: 0;"
-        :layout4="{ span: 1 }"
-        :layout8="{ span: 2 }"
+        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right;"
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 3 }"
         :layout12="{ span: 2 }"
       >
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="height: 3rem"
+          style="height: 3rem; position: relative; right: 0; padding: 0;"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
