@@ -3,17 +3,19 @@ import { render, screen, fireEvent } from '@testing-library/vue';
 import TotalPoints from '../TotalPoints.vue';
 import '@testing-library/jest-dom';
 
+let store, storeActions;
+
 // Create a mock Vuex store with the required getters and actions
 // This is a helper function to avoid create a new store for each test and not reuse the same object
 const getMockStore = () => {
   return {
     getters: {
-      totalPoints: () => 100,
-      currentUserId: () => 'user123',
-      isUserLoggedIn: () => true,
+      totalPoints: () => store.totalPoints,
+      currentUserId: () => store.currentUserId,
+      isUserLoggedIn: () => store.isUserLoggedIn,
     },
     actions: {
-      fetchPoints: jest.fn(),
+      fetchPoints: storeActions.fetchPoints,
     },
   };
 };
@@ -27,35 +29,49 @@ const renderComponent = store => {
 };
 
 describe('TotalPoints', () => {
+  beforeEach(() => {
+    store = {
+      totalPoints: 0,
+      currentUserId: 1,
+      isUserLoggedIn: false,
+    };
+    storeActions = {
+      fetchPoints: jest.fn(),
+    };
+  });
+
   test('renders when user is logged in', async () => {
-    const store = getMockStore();
-    renderComponent(store);
+    store.isUserLoggedIn = true;
+    store.totalPoints = 100;
+    renderComponent(getMockStore());
 
     expect(screen.getByRole('presentation')).toBeInTheDocument();
-    expect(screen.getByText('100')).toBeInTheDocument();
+    expect(screen.getByText(store.totalPoints)).toBeInTheDocument();
   });
 
   test('does not render when user is not logged in', async () => {
-    const store = getMockStore();
-    store.getters.isUserLoggedIn = () => false;
-    renderComponent(store);
+    store.isUserLoggedIn = false;
+    store.totalPoints = 100;
+    renderComponent(getMockStore());
 
     expect(screen.queryByRole('presentation')).not.toBeInTheDocument();
-    expect(screen.queryByText('100')).not.toBeInTheDocument();
+    expect(screen.queryByText(store.totalPoints)).not.toBeInTheDocument();
   });
 
   test('fetchPoints method is called on created', async () => {
-    const store = getMockStore();
-    renderComponent(store);
+    store.isUserLoggedIn = true;
+    const mockedStore = getMockStore();
+    renderComponent(mockedStore);
 
-    expect(store.actions.fetchPoints).toHaveBeenCalledTimes(1);
+    expect(mockedStore.actions.fetchPoints).toHaveBeenCalledTimes(1);
   });
 
   test('tooltip message is displayed correctly when the mouse hovers over the icon', async () => {
-    const store = getMockStore();
-    renderComponent(store);
+    store.isUserLoggedIn = true;
+    store.totalPoints = 100;
+    renderComponent(getMockStore());
 
     await fireEvent.mouseOver(screen.getByRole('presentation'));
-    expect(screen.getByText('You earned 100 points')).toBeInTheDocument();
+    expect(screen.getByText(`You earned ${store.totalPoints} points`)).toBeInTheDocument();
   });
 });
