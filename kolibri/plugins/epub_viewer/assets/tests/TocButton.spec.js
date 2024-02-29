@@ -1,9 +1,8 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import TocButton from '../src/views/TocButton';
 
 function createWrapper() {
-  return mount(TocButton, { store });
+  return mount(TocButton);
 }
 
 describe('Table of contents button', () => {

@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Wewe {choice, string} utapokea vidakuzi vya takwimu. Unaweza kubadilisha mapendeleo haya hapa:",
+  "CookiePolicy.choicesP1": "Wewe {choice} utapokea vidakuzi vya takwimu. Unaweza kubadilisha mapendeleo haya hapa:",
   "CookiePolicy.cookieExpiryTableHeader": "Muda wake unaisha",
   "CookiePolicy.cookieP1": "Mfumo wa Kujifunza wa Kolibri hutumia vidakuzi kubinafsisha na kulinda matumizi yako, kuchanganua trafiki, na kuboresha utendaji na utendaji wa huduma yake. Vidakuzi ni faili ndogo za maandishi zinazoweza kutumiwa na tovuti ili kufanya matumizi ya mtumiaji kuwa bora zaidi.",
   "CookiePolicy.cookieP2": "Sheria za sasa za faragha (GDPR na CCPA) zinasema kwamba tunaweza kuhifadhi vidakuzi kwenye kifaa chako ikiwa ni muhimu kabisa kwa uendeshaji wa huduma. Kwa aina zingine zote za vidakuzi, tunahitaji ruhusa yako.",

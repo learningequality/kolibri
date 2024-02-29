@@ -67,20 +67,36 @@ def prepend_cext_path(dist_path):
     dirname = os.path.join(dist_path, "cext", python_version, system_name)
     abi3_dirname = os.path.join(dist_path, "cext", "abi3", system_name, machine_name)
 
-    dirname = os.path.join(dirname, machine_name)
+    arch_dirname = os.path.join(dirname, machine_name)
     noarch_dir = os.path.join(dist_path, "cext")
-    if os.path.exists(abi3_dirname):
-        sys.path = [str(abi3_dirname)] + sys.path
+    abi3_dir_exists = os.path.exists(abi3_dirname)
+    arch_dir_exists = os.path.exists(arch_dirname)
+    # If either the abi3 or arch directory exists, add the noarch directory to sys.path
+    if abi3_dir_exists or arch_dir_exists:
+        # Add the noarch (OpenSSL) modules to sys.path
+        sys.path = [str(noarch_dir)] + sys.path
 
-    if os.path.exists(dirname):
+    if abi3_dir_exists:
+        sys.path = [str(abi3_dirname)] + sys.path
+    if arch_dir_exists:
         # If the directory of platform-specific cextensions (cryptography) exists,
-        # add it + the matching noarch (OpenSSL) modules to sys.path
-        sys.path = [str(dirname), str(noarch_dir)] + sys.path
+        sys.path = [str(arch_dirname)] + sys.path
     else:
         logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
         logging.StreamHandler(sys.stdout)
         logger = logging.getLogger("env")
         logger.debug("No C extensions are available for this platform")
+
+
+def monkey_patch_markdown():
+    """
+    Monkey patch markdown module into module cache to set to None.
+    This is to avoid a bug caused by newer versions of markdown that causes
+    a crash during the attempted optional import of markdown in DRF.
+    """
+    # TODO: rtibbles remove this once we upgrade to a newer version of Django REST Framework
+    # that doesn't have this issue.
+    sys.modules["markdown"] = None
 
 
 def set_env():
@@ -92,6 +108,8 @@ def set_env():
     from the distributed version in case it exists before importing anything
     else.
     """
+    monkey_patch_markdown()
+
     from kolibri import dist as kolibri_dist  # noqa
 
     monkey_patch_collections()

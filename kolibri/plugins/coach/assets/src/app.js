@@ -10,6 +10,9 @@ import routes from './routes';
 import pluginModule from './modules/pluginModule';
 import { LessonsPageNames } from './constants/lessonsConstants';
 import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
+import GroupsPage from './views/plan/GroupsPage';
+import GroupMembersPage from './views/plan/GroupMembersPage';
+import GroupEnrollPage from './views/plan/GroupEnrollPage';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -74,6 +77,9 @@ class CoachToolsModule extends KolibriApp {
           LessonsPageNames.LESSON_SELECTION_BOOKMARKS_MAIN,
           LessonsPageNames.SELECTION_CONTENT_PREVIEW,
           LessonsPageNames.RESOURCE_CONTENT_PREVIEW,
+          GroupsPage.name,
+          GroupMembersPage.name,
+          GroupEnrollPage.name,
         ].includes(to.name)
       ) {
         next();

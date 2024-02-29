@@ -10,7 +10,7 @@
   "AuthBase.oidcGenericExplanation": "Kolibri သည် အီလက်ထရောနစ်သင်ကြားမှုဆိုင်ရာအစီအစဉ်တစ်ခုဖြစ်ပါသည်။ တခြား တတိယ application များကိုဝင်ရောက်ရန်အတွက်လည်း သင်၏ Kolibri အကောင့်ကိုအသုံးပြုနိုင်ပါသည်။",
   "AuthBase.oidcSpecificExplanation": "{app_name} အက်ပလီကေးရှင်းမှ သင့်ကို ဤနေရာသို့ ပို့ဆောင်ခဲ့ပါသည်။ Kolibri သည် အီလက်ထရွန်းနစ် သင်ယူမှုပလက်ဖောင်းနှင့် {app_name} ကို အသုံးပြုနိုင်ရန် သင်၏လည်း Kolibri အကောင့်ကို အသုံးပြုနိုင်သည်။",
   "AuthBase.photoCreditLabel": "ဓါတ်ပုံကိုးကား {photoCredit}",
-  "AuthBase.poweredBy": "တေးဆိုငှက်{version}",
+  "AuthBase.poweredBy": "Kolibri {version}",
   "AuthBase.poweredByKolibri": "Kolibri မှ ထောက်ပံ့ထားသည်",
   "AuthBase.restrictedAccess": "ပြင်ပပစ္စည်းများအတွက် Kolibri ကိုရယူအသုံးပြုမှု ကန့်သတ်ထားသည်",
   "AuthBase.restrictedAccessDescription": "ဒါကိုပြောင်းလဲရန် လုပ်ပိုင်ခွင့်ရစီမံသူတစ်ဦးအဖြစ်ဝင်ပြီး စက်ပစ္စည်း၏ကွန်ရက်ရရှိမှုချိန်ညှိချက်များကို အဆင့်မြှင့်ပါ",

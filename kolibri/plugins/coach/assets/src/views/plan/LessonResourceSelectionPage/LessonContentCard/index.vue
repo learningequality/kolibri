@@ -52,6 +52,7 @@
           :isTopic="isTopic"
         />
       </div>
+      <slot name="notice"></slot>
     </div>
 
   </router-link>

@@ -1,6 +1,7 @@
 from .models import IndividualSyncableLesson
 from .models import LessonAssignment
 from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
+from kolibri.core.auth.utils.sync import learner_canonicalized_assignments
 
 
 def update_individual_syncable_lessons_from_assignments(user_id):
@@ -8,9 +9,12 @@ def update_individual_syncable_lessons_from_assignments(user_id):
     Updates the set of IndividualSyncableLesson objects for the user.
     """
     syncablelessons = IndividualSyncableLesson.objects.filter(user_id=user_id)
-    assignments = LessonAssignment.objects.filter(
-        collection__membership__user_id=user_id, lesson__is_active=True
-    ).distinct()
+    assignments = learner_canonicalized_assignments(
+        "lesson",
+        LessonAssignment.objects.filter(
+            collection__membership__user_id=user_id, lesson__is_active=True
+        ).distinct(),
+    )
 
     # get a list of all active assignments that don't have a syncable lesson
     to_create = assignments.exclude(

@@ -13,7 +13,7 @@
   "AuthBase.poweredBy": "Kolibri {version}",
   "AuthBase.poweredByKolibri": "Con tecnología de Kolibri",
   "AuthBase.restrictedAccess": "El acceso a Kolibri ha sido restringido para los dispositivos externos",
-  "AuthBase.restrictedAccessDescription": "Para cambiar esto, inicia sesión como super administrador y actualiza la configuración de acceso a la red del dispositivo",
+  "AuthBase.restrictedAccessDescription": "Para cambiar esto, inicie sesión como super administrador y actualice la configuración de acceso a la red del dispositivo.",
   "AuthBase.whatsThis": "¿Qué es esto?",
   "AuthSelect.newUserPrompt": "¿Eres un nuevo usuario?",
   "CommonUserPageStrings.createAccountAction": "Crear cuenta",

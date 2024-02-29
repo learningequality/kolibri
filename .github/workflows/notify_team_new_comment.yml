@@ -21,9 +21,10 @@ jobs:
         env:
             SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
             SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
+            ISSUE_TITLE: ${{ toJSON(github.event.issue.title) }}
         uses: slackapi/slack-github-action@v1.25.0
         with:
           payload: |
             {
-              "text": "*New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|${{ github.event.issue.title }} by ${{ github.event.comment.user.login }}>*"
+              "text": "*[Kolibri] New comment on issue: <${{ github.event.issue.html_url }}#issuecomment-${{ github.event.comment.id }}|$ISSUE_TITLE by ${{ github.event.comment.user.login }}>*"
             }

@@ -884,16 +884,17 @@ def process_user_downloads_for_removal():
     largest_user_download = user_downloads.order_by("-total_size").first()
 
     # adding this opposite of the user download request allows us to detect this situation
-    user_download_removal = ContentRemovalRequest(
-        facility_id=largest_user_download.facility_id,
+    # this removal request will be processed on the next loop
+    ContentRemovalRequest.objects.update_or_create(
         source_model=largest_user_download.source_model,
         source_id=largest_user_download.source_id,
-        reason=ContentRequestReason.SyncInitiated,
-        status=ContentRequestStatus.Pending,
         contentnode_id=largest_user_download.contentnode_id,
+        defaults=dict(
+            facility_id=largest_user_download.facility_id,
+            reason=ContentRequestReason.SyncInitiated,
+            status=ContentRequestStatus.Pending,
+        ),
     )
-    # this removal request will be processed on the next loop
-    user_download_removal.save()
     logger.info(
         "Added removal request for user download of {}".format(
             largest_user_download.contentnode_id

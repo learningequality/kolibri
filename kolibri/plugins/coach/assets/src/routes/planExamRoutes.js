@@ -14,6 +14,10 @@ import {
 import CreatePracticeQuizPage from '../views/plan/CreateExamPage/CreatePracticeQuizPage.vue';
 import CreateExamPage from '../views/plan/CreateExamPage';
 import CreateExamPreview from '../views/plan/CreateExamPage/CreateExamPreview.vue';
+import SectionSidePanel from '../views/plan/CreateExamPage/SectionSidePanel.vue';
+import SectionEditor from '../views/plan/CreateExamPage/SectionEditor.vue';
+import ResourceSelection from '../views/plan/CreateExamPage/ResourceSelection.vue';
+import ReplaceQuestions from '../views/plan/CreateExamPage/ReplaceQuestions.vue';
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
 import { showExamsPage } from '../modules/examsRoot/handlers';
@@ -37,26 +41,30 @@ export default [
     name: PageNames.EXAM_CREATION_ROOT,
     path: '/:classId/plan/quizzes/new',
     component: CreateExamPage,
-  },
-  {
-    name: PageNames.QUIZ_SECTION_EDITOR,
-    path: '/:classId/plan/quizzes/new/:section_id/edit',
-    component: CreateExamPage,
-  },
-  {
-    name: PageNames.QUIZ_REPLACE_QUESTIONS,
-    path: '/:classId/plan/quizzes/new/:section_id/replace-questions',
-    component: CreateExamPage,
-  },
-  {
-    name: PageNames.QUIZ_SELECT_RESOURCES,
-    path: '/:classId/plan/quizzes/new/:section_id/select-resources/:topic_id?',
-    component: CreateExamPage,
-  },
-  {
-    name: PageNames.BOOK_MARKED_RESOURCES,
-    path: '/:classId/plan/quizzes/new/:section_id/select-resources/bookmarks',
-    component: CreateExamPage,
+    children: [
+      {
+        name: PageNames.EXAM_SIDE_PANEL,
+        path: ':section_id',
+        component: SectionSidePanel,
+        children: [
+          {
+            name: PageNames.QUIZ_SECTION_EDITOR,
+            path: 'edit',
+            component: SectionEditor,
+          },
+          {
+            name: PageNames.QUIZ_REPLACE_QUESTIONS,
+            path: 'replace-questions',
+            component: ReplaceQuestions,
+          },
+          {
+            name: PageNames.QUIZ_SELECT_RESOURCES,
+            path: 'select-resources/:topic_id?',
+            component: ResourceSelection,
+          },
+        ],
+      },
+    ],
   },
   {
     name: PageNames.EXAM_CREATION_PRACTICE_QUIZ,

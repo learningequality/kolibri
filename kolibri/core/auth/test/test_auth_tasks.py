@@ -802,26 +802,24 @@ class CleanUpSyncsTaskValidatorTestCase(TestCase):
     def setUp(self):
         self.kwargs = dict(
             type=cleanupsync.__name__,
-            is_push=True,
-            is_pull=False,
+            push=True,
+            pull=False,
             sync_filter=uuid4().hex,
             client_instance_id=uuid4().hex,
         )
 
     def test_validator__no_push_no_pull(self):
-        self.kwargs.pop("is_push")
-        self.kwargs.pop("is_pull")
+        self.kwargs.pop("push")
+        self.kwargs.pop("pull")
         validator = CleanUpSyncsValidator(data=self.kwargs)
-        with self.assertRaisesRegex(
-            serializers.ValidationError, "Either is_pull or is_push"
-        ):
+        with self.assertRaisesRegex(serializers.ValidationError, "Either pull or push"):
             validator.is_valid(raise_exception=True)
 
     def test_validator__both_push_and_pull(self):
-        self.kwargs.update(is_pull=True)
+        self.kwargs.update(pull=True)
         validator = CleanUpSyncsValidator(data=self.kwargs)
         with self.assertRaisesRegex(
-            serializers.ValidationError, "Only one of is_pull or is_push"
+            serializers.ValidationError, "Only one of pull or push"
         ):
             validator.is_valid(raise_exception=True)
 
@@ -853,8 +851,8 @@ class CleanUpSyncsTaskValidatorTestCase(TestCase):
 class CleanUpSyncsTaskTestCase(TestCase):
     def setUp(self):
         self.kwargs = dict(
-            is_push=True,
-            is_pull=False,
+            push=True,
+            pull=False,
             sync_filter=uuid4().hex,
             client_instance_id=uuid4().hex,
         )
@@ -876,8 +874,8 @@ class CleanUpSyncsTaskTestCase(TestCase):
         mock_call_command.assert_called_with(
             "cleanupsyncs",
             expiration=1,
-            is_push=self.kwargs["is_push"],
-            is_pull=self.kwargs["is_pull"],
+            push=self.kwargs["push"],
+            pull=self.kwargs["pull"],
             sync_filter=self.kwargs["sync_filter"],
             client_instance_id=self.kwargs["client_instance_id"],
         )
@@ -903,7 +901,7 @@ class CleanUpSyncsTaskTestCase(TestCase):
             id=uuid4().hex,
             active=True,
             sync_session=sync_session,
-            push=self.kwargs["is_push"],
+            push=self.kwargs["push"],
             filter=self.kwargs["sync_filter"],
             last_activity_timestamp=last_activity_timestamp,
         )

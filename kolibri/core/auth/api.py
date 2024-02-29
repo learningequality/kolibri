@@ -78,6 +78,7 @@ from kolibri.core.device.permissions import IsSuperuser
 from kolibri.core.device.utils import allow_guest_access
 from kolibri.core.device.utils import allow_other_browsers_to_connect
 from kolibri.core.device.utils import APP_AUTH_TOKEN_COOKIE_NAME
+from kolibri.core.device.utils import is_full_facility_import
 from kolibri.core.device.utils import valid_app_key_on_request
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.core.mixins import BulkCreateMixin
@@ -180,6 +181,10 @@ class FacilityDatasetFilter(FilterSet):
         fields = ["facility_id"]
 
 
+def _is_full_facility_import(dataset):
+    return is_full_facility_import(dataset["id"])
+
+
 class FacilityDatasetViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (
@@ -205,7 +210,10 @@ class FacilityDatasetViewSet(ValuesViewset):
         "preset",
     )
 
-    field_map = {"allow_guest_access": lambda x: allow_guest_access()}
+    field_map = {
+        "allow_guest_access": lambda x: allow_guest_access(),
+        "is_full_facility_import": _is_full_facility_import,
+    }
 
     def get_queryset(self):
         return FacilityDataset.objects.filter(
@@ -772,7 +780,11 @@ class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
     serializer_class = FacilityUserSerializer
 
     def check_can_signup(self, serializer):
-        if not serializer.validated_data["facility"].dataset.learner_can_sign_up:
+        facility = serializer.validated_data["facility"]
+        if (
+            not facility.dataset.learner_can_sign_up
+            or not facility.dataset.full_facility_import
+        ):
             raise PermissionDenied("Cannot sign up to this facility")
 
     def perform_create(self, serializer):

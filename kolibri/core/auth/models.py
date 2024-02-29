@@ -244,6 +244,13 @@ class FacilityDataset(FacilityDataSyncableModel):
             setattr(self, key, value)
         self.save()
 
+    @cached_property
+    def full_facility_import(self):
+        """
+        Returns True if this user is a member of a facility that has been fully imported.
+        """
+        return is_full_facility_import(self.id)
+
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):
     """

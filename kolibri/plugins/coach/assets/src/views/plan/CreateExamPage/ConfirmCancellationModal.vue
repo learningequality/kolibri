@@ -48,16 +48,9 @@
   export default {
     name: 'ConfirmCancellationModal',
     mixins: [commonCoreStrings],
-    props: {
-      closePanelRoute: {
-        type: Object,
-        required: true,
-      },
-    },
     methods: {
       handleContinueAction() {
         this.$emit('continue');
-        this.$router.replace(this.closePanelRoute);
       },
       closeModal() {
         this.$emit('cancel');

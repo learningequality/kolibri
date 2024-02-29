@@ -23,7 +23,7 @@
           />
         </template>
       </HeaderWithOptions>
-      <MissingResourceAlert v-if="!$isPrint && !resource.available" :multiple="false" />
+      <MissingResourceAlert v-if="resourceMissing" :multiple="false" />
       <h1>
         <KLabeledIcon :icon="resource.kind" :label="resource.title" />
       </h1>
@@ -180,6 +180,12 @@
           this.resource.license_name,
           this.resource.license_description
         );
+      },
+      resourceMissing() {
+        if (Object.keys(this.resource).length !== 0) {
+          return !this.$isPrint && !this.resource.available;
+        }
+        return false;
       },
     },
     $trs: {

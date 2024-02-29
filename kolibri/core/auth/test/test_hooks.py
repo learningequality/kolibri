@@ -39,8 +39,8 @@ class CleanUpTaskOperationTestCase(TestCase):
         self.assertFalse(result)
         mock_task.enqueue.assert_called_once_with(
             kwargs=dict(
-                is_pull=self.context.is_pull,
-                is_push=self.context.is_push,
+                pull=self.context.is_pull,
+                push=self.context.is_push,
                 sync_filter=str(self.context.filter),
                 client_instance_id=self.context.sync_session.client_instance_id.hex,
             )
@@ -53,8 +53,8 @@ class CleanUpTaskOperationTestCase(TestCase):
         self.assertFalse(result)
         mock_task.enqueue.assert_called_once_with(
             kwargs=dict(
-                is_pull=self.context.is_pull,
-                is_push=self.context.is_push,
+                pull=self.context.is_pull,
+                push=self.context.is_push,
                 sync_filter=str(self.context.filter),
                 server_instance_id=self.context.sync_session.server_instance_id.hex,
             )
