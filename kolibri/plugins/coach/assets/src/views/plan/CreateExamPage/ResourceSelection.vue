@@ -5,26 +5,9 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <KGrid class="align-select-folder-style">
-        <KGridItem
-          :layout12="{ span: 1 }"
-          :layout8="{ span: 1 }"
-        >
-          <KIconButton
-            icon="back"
-            @click="goBack()"
-          />
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 11 }"
-          :layout8="{ span: 7 }"
-        >
-          <h5 class="select-folder-style">
-            {{ selectFoldersOrExercises$() }}
-          </h5>
-        </KGridItem>
-      </KGrid>
+      <h5 class="select-folder-style">
+        {{ selectFoldersOrExercises$() }}
+      </h5>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -560,9 +543,6 @@
       focusFirstEl() {
         this.$refs.textbox.focus();
       },
-      goBack() {
-        return this.$router.go(-1);
-      },
       contentLink(content) {
         if (this.showBookmarks) {
           return this.$route;
@@ -636,7 +616,6 @@
 
   .select-resource {
     padding-bottom: 6em;
-    margin-top: -4em;
   }
 
   .title-style {

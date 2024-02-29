@@ -415,6 +415,7 @@
   }
 
   .section-settings-top-heading {
+    margin-top: 0;
     margin-bottom: 0.5em;
     font-size: 18px;
     font-weight: 600;
@@ -490,10 +491,6 @@
 
   .current-section-text {
     text-align: right;
-  }
-
-  .section-settings-content {
-    margin-top: -50px;
   }
 
 </style>
