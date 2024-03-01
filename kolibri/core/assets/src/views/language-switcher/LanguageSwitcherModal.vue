@@ -26,7 +26,7 @@
             :key="language.id"
             ref="languageItem"
             v-model="selectedLanguage"
-            :value="language.id"
+            :buttonValue="language.id"
             :label="language.lang_name"
             :title="language.english_name"
             class="language-name"

@@ -3,7 +3,7 @@
   <div>
     <!-- Entire class -->
     <KRadioButton
-      :value="true"
+      :buttonValue="true"
       :currentValue="entireClassIsSelected"
       :disabled="disabled"
       @change="selectEntireClass()"

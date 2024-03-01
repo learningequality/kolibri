@@ -9,13 +9,13 @@
     <KRadioButton
       v-model="selected"
       style="margin-bottom: 1em"
-      :value="Presets.PERSONAL"
+      :buttonValue="Presets.PERSONAL"
       :label="$tr('onMyOwnLabel')"
       :description="getCommonSyncString('onMyOwn')"
     />
     <KRadioButton
       v-model="selected"
-      :value="UsePresets.GROUP"
+      :buttonValue="UsePresets.GROUP"
       :label="$tr('groupLearningLabel')"
       :description="$tr('groupLearningDescription')"
     />

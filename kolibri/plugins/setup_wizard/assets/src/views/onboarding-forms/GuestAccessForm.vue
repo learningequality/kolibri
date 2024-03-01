@@ -14,13 +14,13 @@
       ref="yesRadio"
       v-model="setting"
       :label="$tr('yesOptionLabel')"
-      :value="true"
+      :buttonValue="true"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
       :label="$tr('noOptionLabel')"
-      :value="false"
+      :buttonValue="false"
     />
     <p class="form">
       {{ $tr('changeLater') }}

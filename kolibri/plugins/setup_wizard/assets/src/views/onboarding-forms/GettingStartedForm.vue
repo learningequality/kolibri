@@ -6,13 +6,13 @@
   >
     <KRadioButton
       v-model="selected"
-      :value="Options.PERSONAL"
+      :buttonValue="Options.PERSONAL"
       :label="$tr('quickStartLabel')"
       :description="getCommonSyncString('onMyOwn')"
     />
     <KRadioButton
       v-model="selected"
-      :value="Options.PUBLIC"
+      :buttonValue="Options.PUBLIC"
       :label="$tr('advancedSetupLabel')"
       :description="$tr('advancedSetupDescription')"
     />

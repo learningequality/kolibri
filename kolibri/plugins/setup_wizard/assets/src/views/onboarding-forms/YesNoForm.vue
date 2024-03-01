@@ -10,13 +10,13 @@
       ref="yesRadio"
       v-model="setting"
       :label="yesOptionLabel"
-      :value="true"
+      :buttonValue="true"
     />
     <KRadioButton
       ref="noRadio"
       v-model="setting"
       :label="noOptionLabel"
-      :value="false"
+      :buttonValue="false"
       :description="noOptionDescription"
     />
 
