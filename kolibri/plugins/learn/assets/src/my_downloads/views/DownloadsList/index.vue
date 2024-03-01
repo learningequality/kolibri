@@ -66,7 +66,7 @@
                   <div v-if="download.status === 'IN_PROGRESS'" class="inline-loader">
                     <KCircularLoader
                       :size="20"
-                      disableDefaultTransition="true"
+                      :disableDefaultTransition="true"
                       class="icon"
                     />
                   </div>
