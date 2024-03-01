@@ -126,11 +126,9 @@
         return this.pastTries.length ? Math.max(...this.pastTries.map(t => t.correct)) : null;
       },
       bestScore() {
-        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
-        if (!bestScoreAttempt) {
-          return null;
-        }
-        return bestScoreAttempt.time_spent;
+        return this.maxQuestionsCorrect !== null
+          ? this.maxQuestionsCorrect / this.totalQuestions
+          : null;
       },
       suggestedTimeAnnotation() {
         if (!this.suggestedTime || this.bestTimeSpent === null) {
