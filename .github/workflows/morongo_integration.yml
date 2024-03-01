@@ -1,0 +1,38 @@
+name: Morango Integration Tests
+
+on:
+    schedule:
+    - cron: '0 0 * * 0'
+
+jobs:
+  morango_integration_tests:
+    name: Morango Integration Tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/dev.txt --upgrade
+          pip install -r requirements/test.txt --upgrade
+          pip install -r requirements/base.txt --upgrade
+          pip install -r requirements/cext.txt --upgrade
+
+      - name: Run tests
+        run: python -O -m  pytest  kolibri/core/auth/test/test_morango_integration.py
+
+      - name: Run tests with PostgreSQL
+        run: |
+          export KOLIBRI_DATABASE_ENGINE=postgres; \
+          export KOLIBRI_DATABASE_NAME=default; \
+          export KOLIBRI_DATABASE_USER=postgres; \
+          export KOLIBRI_DATABASE_PASSWORD=postgres; \
+          export KOLIBRI_DATABASE_HOST=127.0.0.1; \
+          export KOLIBRI_DATABASE_PORT=15432; \
+          python -O -m  pytest kolibri/core/auth/test/test_morango_integration.py
