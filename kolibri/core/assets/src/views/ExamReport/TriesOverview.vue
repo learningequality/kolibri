@@ -117,9 +117,11 @@
       },
       // Returns the time spent on the best attempt or null if there are no attempts
       bestTimeSpent() {
-        return this.pastTries.length
-          ? this.pastTries.find(t => t.correct === this.maxQuestionsCorrect).time_spent
-          : null;
+        const bestScoreAttempt = this.pastTries.find(t => t.correct === this.maxQuestionsCorrect);
+        if (!bestScoreAttempt) {
+          return null;
+        }
+        return bestScoreAttempt.time_spent;
       },
       // Returns the number of questions correct in the best attempt or 0 if there are no attempts
       maxQuestionsCorrect() {

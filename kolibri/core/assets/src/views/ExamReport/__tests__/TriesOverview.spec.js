@@ -184,7 +184,7 @@ describe('TriesOverview', () => {
     });
 
     test('does not render the row if there are no past tries', () => {
-      renderComponent();
+      renderComponent({ pastTries: [] });
       expect(screen.queryByText('Best score time')).not.toBeInTheDocument();
     });
   });
