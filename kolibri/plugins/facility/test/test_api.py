@@ -22,7 +22,7 @@ from kolibri.core.logger.test.factory_logger import ContentSummaryLogFactory
 from kolibri.core.logger.test.factory_logger import FacilityUserFactory
 from kolibri.plugins.facility.views import CSV_EXPORT_FILENAMES
 from kolibri.utils import conf
-from kolibri.utils.time_utils import local_now
+from kolibri.utils.time_utils import utc_now
 
 
 def output_filename(log_type, facility, **kwargs):
@@ -67,7 +67,7 @@ class ContentSummaryLogCSVExportTestCase(APITestCase):
         ]
         cls.facility.add_admin(cls.admin)
         cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
-        cls.end_date = local_now().isoformat()
+        cls.end_date = utc_now().isoformat()
 
     @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
     def test_csv_download_anonymous_permissions(self, mock_enqueue):
@@ -170,7 +170,7 @@ class ContentSessionLogCSVExportTestCase(APITestCase):
         ]
         cls.facility.add_admin(cls.admin)
         cls.start_date = datetime.datetime(2020, 10, 21, tzinfo=pytz.UTC).isoformat()
-        cls.end_date = local_now().isoformat()
+        cls.end_date = utc_now().isoformat()
 
     @mock.patch.object(log_exports_cleanup, "enqueue", return_value=None)
     def test_csv_download_anonymous_permissions(self, mock_enqueue):
