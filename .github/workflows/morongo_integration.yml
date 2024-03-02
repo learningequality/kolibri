@@ -1,13 +1,53 @@
 name: Morango Integration Tests
 
 on:
-    schedule:
+  schedule:
     - cron: '0 0 * * 0'
 
 jobs:
-  morango_integration_tests:
+  morango_integration_tests_sqlite:
     name: Morango Integration Tests
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [3.6, 3.7, 3.8, 3.9, 3.10, 3.11]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install dependencies
+        run: |
+          pip install -r requirements/test.txt --upgrade
+          pip install -r requirements/base.txt --upgrade
+          pip install -r requirements/cext.txt --upgrade
+
+      - name: Run pre-test script
+        run: python test/patch_pytest.py
+
+      - name: Run tests with SQLite
+        run: python -O -m pytest kolibri/core/auth/test/test_morango_integration.py
+
+  morango_integration_tests_postgres:
+    name: Morango Integration Tests with PostgreSQL
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:latest
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: test
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -19,20 +59,13 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install -r requirements/dev.txt --upgrade
           pip install -r requirements/test.txt --upgrade
           pip install -r requirements/base.txt --upgrade
           pip install -r requirements/cext.txt --upgrade
+          pip install -r requirements/postgres.txt --upgrade
 
-      - name: Run tests
-        run: python -O -m  pytest  kolibri/core/auth/test/test_morango_integration.py
+      - name: Run pre-test script
+        run: python test/patch_pytest.py
 
       - name: Run tests with PostgreSQL
-        run: |
-          export KOLIBRI_DATABASE_ENGINE=postgres; \
-          export KOLIBRI_DATABASE_NAME=default; \
-          export KOLIBRI_DATABASE_USER=postgres; \
-          export KOLIBRI_DATABASE_PASSWORD=postgres; \
-          export KOLIBRI_DATABASE_HOST=127.0.0.1; \
-          export KOLIBRI_DATABASE_PORT=15432; \
-          python -O -m  pytest kolibri/core/auth/test/test_morango_integration.py
+        run: python -O -m pytest kolibri/core/auth/test/test_morango_integration.py
