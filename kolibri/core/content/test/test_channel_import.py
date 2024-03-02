@@ -960,3 +960,77 @@ class NoVersionv040ImportTestCase(NoVersionv020ImportTestCase):
     @classmethod
     def setUpClass(cls):
         super(NoVersionv040ImportTestCase, cls).setUpClass()
+
+
+@patch("kolibri.core.content.utils.channel_import.Bridge")
+@patch("kolibri.core.content.utils.channel_import.logger")
+@patch("kolibri.core.content.utils.channel_import.select")
+@patch("kolibri.core.content.utils.channel_import.apps")
+class ChannelImportTestCase(ContentImportTestBase, TransactionTestCase):
+    name = CONTENT_SCHEMA_VERSION
+    legacy_schema = None
+
+    def setUp(self):
+        super(ChannelImportTestCase, self).setUp()
+        self.channel_id = "6199dde695db4ee4ab392222d5af1e5c"
+        self.channel_version = 2
+        self.current_channel = None
+
+    def tearDown(self):
+        return super().tearDown()
+
+    def test_channel_already_exists(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertFalse(result)
+
+    def test_partial_import_no_deletion(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version
+        self.channel_import.partial = True
+
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertTrue(result)
+
+    def test_partial_import_with_deletion(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Simulate partial import with the same version
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version - 1
+        self.channel_import.partial = True
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertFalse(result)
+
+    def test_full_import_with_newer_version(
+        self, select_mock, logger_mock, apps_mock, BridgeMock
+    ):
+        # Simulate full import with a newer version
+        self.current_channel = ChannelMetadata.objects.get(id=self.channel_id)
+        self.current_channel.version = self.channel_version
+        self.current_channel.save()
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version + 1
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertTrue(result)
+
+    def test_channel_not_exists(self, select_mock, logger_mock, apps_mock, BridgeMock):
+        # Simulate channel not existing in the database
+        self.channel_import = ChannelImport(self.channel_id, "")
+        self.channel_import.channel_version = self.channel_version
+        result = self.channel_import.check_and_delete_existing_channel()
+        self.assertTrue(result)
