@@ -13,9 +13,9 @@
         @keydown.enter="visibleSubMenu = !visibleSubMenu"
       >
         <slot>
-          <KLabeledIcon :iconAfter="iconAfter">
+          <KLabeledIcon :iconAfter="iconAfter" :data-testid="`icon-${iconAfter}`">
             <template v-if="icon" #icon>
-              <KIcon :icon="icon" :color="optionIconColor" />
+              <KIcon :icon="icon" :color="optionIconColor" :data-testid="`icon-${icon}`" />
             </template>
             <div v-if="label">{{ label }}</div>
           </KLabeledIcon>
@@ -37,7 +37,7 @@
         <slot>
           <KLabeledIcon>
             <template v-if="icon" #icon>
-              <KIcon :icon="icon" :color="optionIconColor" />
+              <KIcon :icon="icon" :color="optionIconColor" :data-testid="`icon-${icon}`" />
             </template>
             <div v-if="label">{{ label }}</div>
           </KLabeledIcon>
@@ -46,7 +46,7 @@
       </a>
     </li>
 
-    <div v-if="visibleSubMenu">
+    <div v-if="visibleSubMenu" data-testid="subroutes-container">
       <div v-for="subRoute in subRoutes" :key="subRoute.label">
         <div class="link-container">
           <router-link
