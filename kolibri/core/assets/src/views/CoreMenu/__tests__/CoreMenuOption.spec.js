@@ -113,6 +113,53 @@ describe('CoreMenuOption', () => {
         renderComponent({ label: 'Sample Option', subRoutes: [] });
         expect(screen.getByText('Sample Option')).toBeInTheDocument();
       });
+
+      describe('testing the user interactions', () => {
+        const testcases = [
+          {
+            name: 'should emit with link is not provided and is not disabled',
+            disabled: false,
+            link: null,
+            expected: true,
+          },
+          {
+            name: 'should not emit when disabled',
+            disabled: true,
+            link: null,
+            expected: false,
+          },
+          {
+            name: 'should not emit when link is provided',
+            disabled: false,
+            link: sampleLink,
+            expected: false,
+          },
+        ];
+
+        test.each(testcases)('%s [Mouse Click]', async ({ disabled, link, expected }) => {
+          const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
+
+          await fireEvent.click(screen.getByRole('menuitem'));
+          if (expected) {
+            expect(emitted()).toHaveProperty('select');
+            expect(emitted().select).toHaveLength(1);
+          } else {
+            expect(emitted()).not.toHaveProperty('select');
+          }
+        });
+
+        test.each(testcases)('%s [Enter Key]', async ({ disabled, link, expected }) => {
+          const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
+
+          await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter', code: 'Enter' });
+          if (expected) {
+            expect(emitted()).toHaveProperty('select');
+            expect(emitted().select).toHaveLength(1);
+          } else {
+            expect(emitted()).not.toHaveProperty('select');
+          }
+        });
+      });
     });
   });
 });
