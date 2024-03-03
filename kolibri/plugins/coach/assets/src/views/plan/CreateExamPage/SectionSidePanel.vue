@@ -43,7 +43,14 @@
 
       watch(route, (to, from) => {
         // We're on the same route we were on when we started so should be able to close it
-        canCloseSidePanel.value = to.name === routeWhenSidePanelOpened.name;
+        canCloseSidePanel.value =
+          to.name === routeWhenSidePanelOpened.name &&
+          // I tried using _.isEqual on the params & query objects but it didn't work as I expected
+          // so this is hard-coded for now.
+          to.params.section_id === routeWhenSidePanelOpened.params.section_id &&
+          to.params.topic_id === routeWhenSidePanelOpened.params.topic_id &&
+          to.query.showBookmarks === routeWhenSidePanelOpened.query.showBookmarks &&
+          to.query.search === routeWhenSidePanelOpened.query.search;
         prevRoute.value = from;
       });
 
