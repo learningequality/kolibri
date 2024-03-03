@@ -110,7 +110,9 @@
       subRoutes: {
         type: Array,
         required: false,
-        default: null,
+        default: () => [],
+        // subRoutes should be an array of objects with the name, label, and route properties
+        validate: subRoutes => subRoutes.every(route => route.name && route.label && route.route),
       },
       disabled: {
         type: Boolean,
