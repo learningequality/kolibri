@@ -197,7 +197,7 @@
         >
           <KButton
             :text="deleteSectionLabel$()"
-            @click="deleteSection(activeSection.section_id)"
+            @click="handleDeleteSection(activeSection.section_id)"
           />
         </KGridItem>
         <KGridItem
@@ -215,9 +215,14 @@
       </KGrid>
     </div>
     <ConfirmCancellationModal
-      v-if="showConfirmationModal"
+      v-if="showCloseConfirmation"
       @cancel="handleCancelClose"
       @continue="handleConfirmClose"
+    />
+    <ConfirmCancellationModal
+      v-if="showDeleteConfirmation"
+      @cancel="handleCancelDelete"
+      @continue="handleConfirmDelete"
     />
   </div>
 
@@ -251,17 +256,32 @@
         allSections,
         updateSection,
         updateQuiz,
-        deleteSection,
+        removeSection,
       } = injectQuizCreation();
 
-      const showConfirmationModal = ref(false);
+      const showCloseConfirmation = ref(false);
 
       function handleCancelClose() {
-        showConfirmationModal.value = false;
+        showCloseConfirmation.value = false;
       }
 
       function handleConfirmClose() {
         context.emit('closePanel');
+      }
+
+      const showDeleteConfirmation = ref(false);
+
+      function handleCancelDelete() {
+        showDeleteConfirmation.value = false;
+      }
+
+      function handleConfirmDelete() {
+        context.emit('closePanel');
+        removeSection(showDeleteConfirmation.value);
+      }
+
+      function handleDeleteSection(section_id) {
+        showDeleteConfirmation.value = section_id;
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
@@ -310,15 +330,18 @@
 
       return {
         formDataHasChanged,
-        showConfirmationModal,
+        showCloseConfirmation,
+        showDeleteConfirmation,
         handleCancelClose,
         handleConfirmClose,
+        handleCancelDelete,
+        handleConfirmDelete,
         // useQuizCreation
         activeSection,
         allSections,
         updateSection,
         updateQuiz,
-        deleteSection,
+        handleDeleteSection,
         // Form models
         learners_see_fixed_order,
         question_count,
