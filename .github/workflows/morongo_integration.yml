@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [3.6, 3.7, 3.8, 3.9, 3.10, 3.11]
+        python-version: [3.6, 3.7, 3.8, 3.9, '3.10', '3.11']
 
     steps:
       - name: Checkout repository
@@ -21,7 +21,18 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
+      - name: Cache SQLite3
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements/test.txt', 'requirements/base.txt', 'requirements/cext.txt') }}
+          restore-keys: |
+            ${{ runner.os }}-pip-
+
       - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
         run: |
           pip install -r requirements/test.txt --upgrade
           pip install -r requirements/base.txt --upgrade
@@ -32,6 +43,7 @@ jobs:
 
       - name: Run tests with SQLite
         run: python -O -m pytest kolibri/core/auth/test/test_morango_integration.py
+
 
   morango_integration_tests_postgres:
     name: Morango Integration Tests with PostgreSQL
