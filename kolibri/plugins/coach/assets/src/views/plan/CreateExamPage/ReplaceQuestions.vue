@@ -125,11 +125,16 @@
         </KGridItem>
       </KGrid>
     </div>
-    <ConfirmCancellationModal
-      v-if="showConfirmationModal"
+    <KModal
+      v-if="showCloseConfirmation"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
       @cancel="handleCancelClose"
-      @continue="handleConfirmClose"
-    />
+      @submit="handleConfirmClose"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
   </div>
 
 </template>
@@ -140,24 +145,26 @@
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import AccordionItem from './AccordionItem';
   import AccordionContainer from './AccordionContainer';
-  import ConfirmCancellationModal from './ConfirmCancellationModal';
 
   export default {
     name: 'ReplaceQuestions',
     components: {
       AccordionContainer,
       AccordionItem,
-      ConfirmCancellationModal,
     },
+    mixins: [commonCoreStrings],
     setup(_, context) {
       const {
         replaceQuestions$,
         deleteSectionLabel$,
         replaceAction$,
         selectAllLabel$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
         replaceQuestionsExplaination$,
         numberOfSelectedReplacements$,
       } = enhancedQuizManagementStrings;
@@ -177,10 +184,10 @@
         updateSection,
       } = injectQuizCreation();
 
-      const showConfirmationModal = ref(false);
+      const showCloseConfirmation = ref(false);
 
       function handleCancelClose() {
-        showConfirmationModal.value = false;
+        showCloseConfirmation.value = false;
       }
 
       function handleConfirmClose() {
@@ -230,8 +237,8 @@
         selectAllIsIndeterminate,
         replaceSelectedQuestions,
         activeResourceMap,
+        showCloseConfirmation,
 
-        showConfirmationModal,
         handleCancelClose,
         handleConfirmClose,
         clearSelectedQuestions,
@@ -245,6 +252,8 @@
         selectAllLabel$,
         replaceQuestionsExplaination$,
         numberOfSelectedReplacements$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
       };
     },
     computed: {
@@ -258,8 +267,11 @@
       },
     },
     beforeRouteLeave(_, __, next) {
-      if (!this.showConfirmationModal && this.formDataHasChanged) {
-        this.showConfirmationModal = true;
+      if (
+        !this.showCloseConfirmation &&
+        this.replacements.length !== this.selectedActiveQuestions.length
+      ) {
+        this.showCloseConfirmation = true;
         next(false);
       } else {
         next();

@@ -95,11 +95,16 @@
         </KGrid>
       </div>
     </div>
-    <ConfirmCancellationModal
-      v-if="showConfirmationModal"
+    <KModal
+      v-if="showCloseConfirmation"
+      submitText="YES CLOSE IT"
+      cancelText="CANCEL"
+      title="CLOSE PANEL"
       @cancel="handleCancelClose"
-      @continue="handleConfirmClose"
-    />
+      @submit="handleConfirmClose"
+    >
+      yes?
+    </KModal>
   </div>
 
 </template>
@@ -121,7 +126,6 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -131,7 +135,6 @@
       BookmarkIcon,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
@@ -144,7 +147,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
-      const showConfirmationModal = ref(false);
+      const showCloseConfirmation = ref(false);
 
       const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
 
@@ -431,7 +434,7 @@
       }
 
       function handleCancelClose() {
-        showConfirmationModal.value = false;
+        showCloseConfirmation.value = false;
       }
 
       function handleConfirmClose() {
@@ -459,7 +462,7 @@
         topicId,
         contentList,
         resources,
-        showConfirmationModal,
+        showCloseConfirmation,
         hasCheckbox,
         loading,
         hasMore,
@@ -525,8 +528,8 @@
       });
     },
     beforeRouteLeave(_, __, next) {
-      if (!this.showConfirmationModal && this.workingPoolHasChanged) {
-        this.showConfirmationModal = true;
+      if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
+        this.showCloseConfirmation = true;
         next(false);
       } else {
         next();

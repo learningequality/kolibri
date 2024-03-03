@@ -135,6 +135,22 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   reviewSelectedResources: {
     message: 'Review selected resources',
   },
+  deleteConfirmation: {
+    message: "Are you sure you want to delete section '{section_title}'?",
+    context:
+      'A warning message that appears when the user tries to leave the page without saving their work',
+  },
+  closeConfirmationTitle: {
+    message: 'Are you sure you want to leave this page?',
+    context:
+      'The title of a confirmation modal informing the user that they will lose their work if they leave the page',
+  },
+  closeConfirmationMessage: {
+    message: 'You will lose any unsaved edits to your work',
+    context:
+      'The body of a confirmation modal informing the user that they will lose their work if they leave the page',
+  },
+
   numberOfSelectedResources: {
     message:
       '{ count, number } { count, plural, one { resource selected } other { resources selected }} from { count, number } { count, plural, one { channel } other { channels }}',

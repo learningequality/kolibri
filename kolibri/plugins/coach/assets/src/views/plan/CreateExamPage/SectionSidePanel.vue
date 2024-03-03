@@ -5,7 +5,7 @@
     ref="resourcePanel"
     alignment="right"
     sidePanelWidth="700px"
-    :closeButtonIconType="closeIcon"
+    :closeButtonIconType="closeBackIcon"
     @closePanel="handleClosePanel"
     @shouldFocusFirstEl="findFirstEl()"
   >
@@ -18,7 +18,7 @@
 <script>
 
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
-  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
+  import { ref, watch, computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import { PageNames } from '../../../constants';
@@ -37,12 +37,36 @@
       const route = computed(() => store.state.route);
       const section_id = computed(() => route.value.params.section_id);
 
+      const routeWhenSidePanelOpened = route.value;
+      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
+      const canCloseSidePanel = ref(true);
+
+      watch(route, (to, from) => {
+        // We're on the same route we were on when we started so should be able to close it
+        canCloseSidePanel.value = to.name === routeWhenSidePanelOpened.name;
+        prevRoute.value = from;
+      });
+
       function handleClosePanel() {
-        router.push({
-          name: PageNames.EXAM_CREATION_ROOT,
-          params: { section_id: null },
-        });
+        if (canCloseSidePanel.value) {
+          // Avoid redundant navigation error
+          if (prevRoute.value.name === PageNames.EXAM_CREATION_ROOT) {
+            router.back();
+          } else {
+            router.push({ name: PageNames.EXAM_CREATION_ROOT });
+          }
+        } else {
+          router.back();
+        }
       }
+
+      const closeBackIcon = computed(() => {
+        if (canCloseSidePanel.value) {
+          return 'close';
+        } else {
+          return 'back';
+        }
+      });
 
       /**
        * Avoids flashing the side panel when we're going to just hide it anyway.
@@ -51,39 +75,17 @@
 
       if (section_id.value !== activeSection.value.section_id) {
         logger.warn("Section ID doesn't match active section ID, forcing close of side panel.");
-        handleClosePanel();
+        router.push({ name: PageNames.EXAM_CREATION_ROOT });
       } else {
         showSidePanel = true;
       }
+
       return {
         showSidePanel,
+        canCloseSidePanel,
+        closeBackIcon,
         handleClosePanel,
       };
-    },
-    data() {
-      return {
-        prevRoute: { name: PageNames.EXAM_CREATION_ROOT },
-      };
-    },
-    computed: {
-      /**
-       * When the previous route was the root page OR select resources, we want an X icon.
-       * Otherwise, we want a back icon.
-       * X  means "close this side panel"
-       * <- means "go back to last view of this panel" - which we only want when we were selecting
-       *           resources.
-       */
-      closeIcon() {
-        return this.prevRoute.name === PageNames.EXAM_CREATION_ROOT ||
-          this.prevRoute.name === PageNames.QUIZ_SELECT_RESOURCES
-          ? 'close'
-          : 'back';
-      },
-    },
-    watch: {
-      $route: function(_, from) {
-        this.prevRoute = from;
-      },
     },
     methods: {
       /**

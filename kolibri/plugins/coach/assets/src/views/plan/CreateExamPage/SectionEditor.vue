@@ -214,16 +214,26 @@
         </KGridItem>
       </KGrid>
     </div>
-    <ConfirmCancellationModal
+    <KModal
       v-if="showCloseConfirmation"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
       @cancel="handleCancelClose"
-      @continue="handleConfirmClose"
-    />
-    <ConfirmCancellationModal
+      @submit="handleConfirmClose"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
+    <KModal
       v-if="showDeleteConfirmation"
+      :title="deleteSectionLabel$()"
+      :submitText="coreString('deleteAction')"
+      :cancelText="coreString('cancelAction')"
       @cancel="handleCancelDelete"
-      @continue="handleConfirmDelete"
-    />
+      @submit="handleConfirmDelete"
+    >
+      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+    </KModal>
   </div>
 
 </template>
@@ -235,21 +245,21 @@
   import pick from 'lodash/pick';
   import { computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
-  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
 
   export default {
     name: 'SectionEditor',
     components: {
-      ConfirmCancellationModal,
       Draggable,
       DragContainer,
       DragHandle,
     },
+    mixins: [commonCoreStrings],
     setup(_, context) {
       const {
         activeSection,
@@ -276,8 +286,8 @@
       }
 
       function handleConfirmDelete() {
-        context.emit('closePanel');
         removeSection(showDeleteConfirmation.value);
+        context.emit('closePanel');
       }
 
       function handleDeleteSection(section_id) {
@@ -326,6 +336,9 @@
         randomizedOptionDescription$,
         fixedLabel$,
         fixedOptionDescription$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
+        deleteConfirmation$,
       } = enhancedQuizManagementStrings;
 
       return {
@@ -360,6 +373,9 @@
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
+        deleteConfirmation$,
         changeResources$,
         sectionOrder$,
         questionOrder$,
@@ -394,9 +410,9 @@
         };
       },
     },
-    beforeRouteLeave(_, __, next) {
-      if (!this.showConfirmationModal && this.formDataHasChanged) {
-        this.showConfirmationModal = true;
+    beforeRouteLeave(to, __, next) {
+      if (!this.showCloseConfirmation && this.formDataHasChanged && !this.showDeleteConfirmation) {
+        this.showCloseConfirmation = true;
         next(false);
       } else {
         next();
@@ -472,12 +488,6 @@
     float: right;
   }
 
-  .change-resource-button-style {
-    display: block;
-    width: 100%;
-    margin-bottom: 1.5em;
-  }
-
   .section-order-style {
     font-size: 1em;
   }
@@ -505,10 +515,6 @@
   }
 
   .description-ktextbox-style /deep/ .ui-textbox-label {
-    width: 100%;
-  }
-
-  /deep/ .KButton-noKey-0_1xktocf {
     width: 100%;
   }
 
