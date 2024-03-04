@@ -163,7 +163,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
-  numberOfResources: {
+  numberOfResourcesSelected: {
     message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
   selectedResourcesInformation: {
@@ -173,5 +173,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   cannotSelectSomeTopicWarning: {
     message:
       'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
+  },
+  changesSavedSuccessfully: {
+    message: 'Changes saved successfully',
+    context: 'A snackbar message that appears when the user saves their changes',
   },
 });
