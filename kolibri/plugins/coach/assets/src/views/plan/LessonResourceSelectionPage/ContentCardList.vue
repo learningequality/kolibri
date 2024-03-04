@@ -57,9 +57,9 @@
         <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
-      <!-- <p v-else-if="viewMoreButtonState === 'no_more_results'">
-        {{ $tr('noMoreResults') }}
-      </p> -->
+      <p v-else-if="contentList.length === 0">
+        {{ coreString('noResultsLabel') }}
+      </p>
     </template>
   </div>
 
