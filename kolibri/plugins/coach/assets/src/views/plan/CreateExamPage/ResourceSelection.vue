@@ -97,13 +97,13 @@
     </div>
     <KModal
       v-if="showCloseConfirmation"
-      submitText="YES CLOSE IT"
-      cancelText="CANCEL"
-      title="CLOSE PANEL"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
       @cancel="handleCancelClose"
       @submit="handleConfirmClose"
     >
-      yes?
+      {{ closeConfirmationMessage$() }}
     </KModal>
   </div>
 
@@ -161,6 +161,8 @@
         changesSavedSuccessfully$,
         selectedResourcesInformation$,
         cannotSelectSomeTopicWarning$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -473,6 +475,8 @@
         contentPresentInWorkingResourcePool,
         //contentList,
         cannotSelectSomeTopicWarning$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
         changesSavedSuccessfully$,
         sectionSettings$,
         selectFromBookmarks$,
