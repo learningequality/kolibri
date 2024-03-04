@@ -63,10 +63,13 @@
                     :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
                     class="icon"
                   />
-                  <KCircularLoader
-                    v-if="download.status === 'IN_PROGRESS'"
-                    class="icon"
-                  />
+                  <div v-if="download.status === 'IN_PROGRESS'" class="inline-loader">
+                    <KCircularLoader
+                      :size="20"
+                      :disableDefaultTransition="true"
+                      class="icon"
+                    />
+                  </div>
                   <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
                 </div>
               </td>
@@ -83,10 +86,13 @@
                   :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
                   class="icon"
                 />
-                <KCircularLoader
-                  v-if="download.status === 'IN_PROGRESS'"
-                  class="icon"
-                />
+                <div v-if="download.status === 'IN_PROGRESS'" class="inline-loader">
+                  <KCircularLoader
+                    :size="20"
+                    :disableDefaultTransition="true"
+                    class="icon"
+                  />
+                </div>
                 <span class="status-text">{{ formattedDownloadStatus(download) }} </span>
               </td>
               <td class="resource-action">
@@ -425,8 +431,14 @@
   }
 
   .small-screen-status {
-    margin: 0 48px;
+    margin: 0 0 0 48px;
     font-size: 12px;
+  }
+
+  .inline-loader {
+    display: inline-block;
+    margin-left: 0;
+    vertical-align: bottom;
   }
 
 </style>

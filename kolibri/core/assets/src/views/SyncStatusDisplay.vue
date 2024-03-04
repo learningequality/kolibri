@@ -1,6 +1,6 @@
 <template>
 
-  <span>
+  <span :style="{ display: 'flex', alignItems: 'center' }">
     <KCircularLoader
       v-if="syncInProgress"
       :size="20"
@@ -135,6 +135,7 @@
   .inline-loader {
     display: inline-block;
     margin-right: 8px;
+    margin-left: 0;
     vertical-align: bottom;
   }
 
@@ -146,6 +147,7 @@
   .small {
     display: inline-block;
     margin-top: 0;
+    margin-bottom: 0;
     font-size: 11px;
   }
 
