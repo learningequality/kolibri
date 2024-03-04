@@ -366,6 +366,7 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
+        sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -420,6 +421,7 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
+        sectionDeletedNotification$,
 
         toggleQuestionInSelection,
         selectAllQuestions,
@@ -505,6 +507,13 @@
         ];
       },
     },
+    created() {
+      const { query } = this.$route;
+      if (query.snackbar) {
+        delete query.snackbar;
+        this.$router.replace({ query: { snackbar: null } });
+      }
+    },
     methods: {
       handleReplaceSelection() {
         const section_id = get(this.activeSection).section_id;
@@ -513,14 +522,21 @@
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
+        const section_title = this.activeSection.section_title;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
-            this.removeSection(this.activeSection.section_id);
-            this.focusActiveSectionTab();
+            this.removeSection(section_id);
+            this.$nextTick(() => {
+              this.$store.dispatch(
+                'createSnackbar',
+                this.sectionDeletedNotification$({ section_title })
+              );
+              this.focusActiveSectionTab();
+            });
             break;
         }
       },

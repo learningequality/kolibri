@@ -178,4 +178,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Changes saved successfully',
     context: 'A snackbar message that appears when the user saves their changes',
   },
+  sectionDeletedNotification: {
+    message: "Section '{ section_title }' deleted",
+    context: 'A snackbar message that appears when the user deletes a section',
+  },
 });

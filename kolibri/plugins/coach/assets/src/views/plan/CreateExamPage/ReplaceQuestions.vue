@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="wrapper">
     <h1 class="section-header" :style="{ color: `${$themeTokens.annotation}` }">
       {{ activeSection.section_title }}
     </h1>
@@ -96,7 +96,7 @@
         </AccordionItem>
       </template>
     </AccordionContainer>
-    <div class="bottom-buttons-style">
+    <div class="bottom-navigation">
       <KGrid>
         <KGridItem
           style="text-align: left;"
@@ -312,6 +312,27 @@
   .accordion-header-label {
     display: block;
     width: 100%;
+  }
+
+  .wrapper {
+    // Accounts for height of .bottom-navigation
+    padding-bottom: 6em;
+  }
+
+  .bottom-navigation {
+    position: absolute;
+    right: 0;
+    bottom: 1.5em;
+    left: 0;
+    width: 100%;
+    padding: 1em;
+    text-align: center;
+    background-color: white;
+    border-top: 1px solid black;
+
+    div {
+      line-height: 2.5em;
+    }
   }
 
   .accordion-checkbox {

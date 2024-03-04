@@ -199,8 +199,10 @@
             :text="deleteSectionLabel$()"
             @click="handleDeleteSection(activeSection.section_id)"
           />
+
         </KGridItem>
         <KGridItem
+          style="text-align: right;"
           :layout12="{ span: 8 }"
           :layout8="{ span: 6 }"
           :layout4="{ span: 3 }"
@@ -243,13 +245,14 @@
 
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
-  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
+  import { PageNames } from '../../../constants/index';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
 
   export default {
@@ -261,6 +264,32 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
+      const router = getCurrentInstance().proxy.$router;
+
+      const {
+        sectionSettings$,
+        sectionTitle$,
+        numberOfQuestionsLabel$,
+        optionalDescriptionLabel$,
+        quizResourceSelection$,
+        numberOfSelectedResources$,
+        currentSection$,
+        deleteSectionLabel$,
+        applySettings$,
+        changeResources$,
+        sectionOrder$,
+        questionOrder$,
+        randomizedLabel$,
+        randomizedOptionDescription$,
+        fixedLabel$,
+        fixedOptionDescription$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
+        deleteConfirmation$,
+        changesSavedSuccessfully$,
+        sectionDeletedNotification$,
+      } = enhancedQuizManagementStrings;
+
       const {
         activeSection,
         allSections,
@@ -286,8 +315,12 @@
       }
 
       function handleConfirmDelete() {
+        const section_title = activeSection.value.section_title;
         removeSection(showDeleteConfirmation.value);
-        context.emit('closePanel');
+        router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          query: { snackbar: sectionDeletedNotification$({ section_title }) },
+        });
       }
 
       function handleDeleteSection(section_id) {
@@ -319,29 +352,6 @@
 
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
-      const {
-        sectionSettings$,
-        sectionTitle$,
-        numberOfQuestionsLabel$,
-        optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
-        currentSection$,
-        deleteSectionLabel$,
-        applySettings$,
-        changeResources$,
-        sectionOrder$,
-        questionOrder$,
-        randomizedLabel$,
-        randomizedOptionDescription$,
-        fixedLabel$,
-        fixedOptionDescription$,
-        closeConfirmationMessage$,
-        closeConfirmationTitle$,
-        deleteConfirmation$,
-        changesSavedSuccessfully$,
-      } = enhancedQuizManagementStrings;
-
       return {
         formDataHasChanged,
         showCloseConfirmation,
@@ -371,6 +381,7 @@
         optionalDescriptionLabel$,
         quizResourceSelection$,
         numberOfSelectedResources$,
+        sectionDeletedNotification$,
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
