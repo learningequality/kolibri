@@ -143,10 +143,11 @@
 <script>
 
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
-  import { computed, ref } from 'kolibri.lib.vueCompositionApi';
+  import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
+  import { PageNames } from '../../../constants/index';
   import AccordionItem from './AccordionItem';
   import AccordionContainer from './AccordionContainer';
 
@@ -158,6 +159,7 @@
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
+      const router = getCurrentInstance().proxy.$router;
       const {
         replaceQuestions$,
         deleteSectionLabel$,
@@ -167,6 +169,7 @@
         closeConfirmationTitle$,
         replaceQuestionsExplaination$,
         numberOfSelectedReplacements$,
+        numberOfQuestionsReplaced$,
       } = enhancedQuizManagementStrings;
       const {
         // Computed
@@ -197,6 +200,7 @@
       const replacements = ref([]);
 
       function handleReplacement() {
+        const count = replacements.value.length;
         const questionsNotSelectedToBeReplaced = activeQuestions.value.filter(
           question => !selectedActiveQuestions.value.includes(question.question_id)
         );
@@ -204,8 +208,12 @@
           section_id: activeSection.value.section_id,
           questions: [...questionsNotSelectedToBeReplaced, ...replacements.value],
         });
-        clearSelectedQuestions();
-        context.emit('closePanel');
+        router.replace({
+          name: PageNames.EXAM_CREATION_ROOT,
+          query: {
+            snackbar: numberOfQuestionsReplaced$({ count }),
+          },
+        });
       }
 
       function toggleInReplacements(question) {
@@ -269,11 +277,13 @@
     beforeRouteLeave(_, __, next) {
       if (
         !this.showCloseConfirmation &&
+        this.replacements.length &&
         this.replacements.length !== this.selectedActiveQuestions.length
       ) {
         this.showCloseConfirmation = true;
         next(false);
       } else {
+        this.clearSelectedQuestions();
         next();
       }
     },

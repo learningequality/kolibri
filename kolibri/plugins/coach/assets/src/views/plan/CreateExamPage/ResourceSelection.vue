@@ -77,7 +77,7 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            <span>{{ numberOfResources$({ count: workingResourcePool.length }) }}</span>
+            <span>{{ numberOfResourcesSelected$({ count: workingResourcePool.length }) }}</span>
           </KGridItem>
           <KGridItem
             :layout12="{ span: 6 }"
@@ -157,7 +157,8 @@
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
         numberOfSelectedResources$,
-        numberOfResources$,
+        numberOfResourcesSelected$,
+        changesSavedSuccessfully$,
         selectedResourcesInformation$,
         cannotSelectSomeTopicWarning$,
       } = enhancedQuizManagementStrings;
@@ -472,12 +473,13 @@
         contentPresentInWorkingResourcePool,
         //contentList,
         cannotSelectSomeTopicWarning$,
+        changesSavedSuccessfully$,
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
         numberOfSelectedResources$,
-        numberOfResources$,
+        numberOfResourcesSelected$,
         windowIsSmall,
         bookmarks,
         channels,
@@ -574,7 +576,10 @@
         //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$router.replace(this.prevRoute);
+        this.$router.replace({
+          ...this.prevRoute,
+          ...{ query: { snackbar: this.changesSavedSuccessfully$() } },
+        });
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {

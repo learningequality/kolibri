@@ -339,6 +339,7 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         deleteConfirmation$,
+        changesSavedSuccessfully$,
       } = enhancedQuizManagementStrings;
 
       return {
@@ -373,6 +374,7 @@
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
+        changesSavedSuccessfully$,
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
@@ -430,6 +432,7 @@
           question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
+        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
     },
   };
