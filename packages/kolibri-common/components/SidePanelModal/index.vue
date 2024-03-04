@@ -117,10 +117,8 @@
     },
     computed: {
       isMobile() {
-        if (!get(this.windowBreakpoint)) {
-          return false;
-        }
-        return get(this.windowBreakpoint) == 0;
+        // This should be suitable for any mobile/tablet
+        return get(this.windowBreakpoint) <= 2;
       },
       /* Returns an object with properties left or right set to the appropriate value
            depending on isRtl and this.alignment */
