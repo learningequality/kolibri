@@ -17,6 +17,7 @@
 
 <script>
 
+  import { onClickOutside } from '@vueuse/core';
   import SidePanelModal from 'kolibri-common/components/SidePanelModal';
   import { ref, watch, computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
@@ -30,7 +31,7 @@
     components: {
       SidePanelModal,
     },
-    setup() {
+    setup(_, context) {
       const { activeSection } = injectQuizCreation();
       const store = getCurrentInstance().proxy.$store;
       const router = getCurrentInstance().proxy.$router;
@@ -51,6 +52,7 @@
           to.params.topic_id === routeWhenSidePanelOpened.params.topic_id &&
           to.query.showBookmarks === routeWhenSidePanelOpened.query.showBookmarks &&
           to.query.search === routeWhenSidePanelOpened.query.search;
+
         prevRoute.value = from;
       });
 
@@ -66,6 +68,11 @@
           router.back();
         }
       }
+
+      onClickOutside(context.refs.resourcePanel, () => {
+        canCloseSidePanel.value = true;
+        handleClosePanel();
+      });
 
       const closeBackIcon = computed(() => {
         if (canCloseSidePanel.value) {
