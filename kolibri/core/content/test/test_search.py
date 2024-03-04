@@ -5,7 +5,7 @@ from le_utils.constants import content_kinds
 from parameterized import parameterized
 
 from kolibri.core.content.models import ContentNode
-from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
+from kolibri.core.content.test.helpers import ChannelBuilder
 from kolibri.core.content.utils.search import annotate_label_bitmasks
 from kolibri.core.content.utils.search import get_available_metadata_labels
 from kolibri.core.content.utils.search import metadata_lookup
