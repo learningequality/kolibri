@@ -553,9 +553,13 @@
         this.$refs.textbox.focus();
       },
       contentLink(content) {
+        /* The click handler for the content card, no-op for non-folder cards */
         if (this.showBookmarks) {
-          return this.$route;
+          // If we're showing bookmarks, we don't want to link to anything
+          const { name, params, query } = this.$route;
+          return { name, params, query };
         } else if (!content.is_leaf) {
+          // Link folders to their page
           return {
             name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
@@ -565,8 +569,7 @@
             },
           };
         }
-
-        return {}; // or return {} if you prefer an empty object
+        return {}; // Or this could be how we handle leaf nodes if we wanted them to link somewhere
       },
       topicsLink(topic_id) {
         return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id });
@@ -577,7 +580,6 @@
           resource_pool: this.workingResourcePool,
         });
 
-        //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
         this.$router.replace({
