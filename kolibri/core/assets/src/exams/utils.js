@@ -1,7 +1,6 @@
 import every from 'lodash/every';
 import uniq from 'lodash/uniq';
 import { v4 as uuidv4 } from 'uuid';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
 /*
@@ -144,7 +143,9 @@ export function convertExamQuestionSources(exam, extraArgs = {}) {
     const { contentNodes } = extraArgs;
     const questionIds = {};
     contentNodes.forEach(node => {
-      questionIds[node.id] = assessmentMetaDataState(node).assessmentIds;
+      questionIds[node.id] = node.assessmentmetadata
+        ? node.assessmentmetadata.assessment_item_ids
+        : [];
     });
     return annotateQuestionsWithItem(
       convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds)

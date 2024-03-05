@@ -1,5 +1,4 @@
 import pickBy from 'lodash/pickBy';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import {
   BookmarksResource,
   ContentNodeResource,
@@ -268,7 +267,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     getParams: { no_available_filtering: true },
   }).then(
     contentNode => {
-      const contentMetadata = assessmentMetaDataState(contentNode);
+      const contentMetadata = contentNode.assessmentmetadata;
       store.commit('lessonSummary/SET_STATE', {
         toolbarRoute: {},
         // only exist if exercises
@@ -277,8 +276,8 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
       });
       store.commit('lessonSummary/resources/SET_CURRENT_CONTENT_NODE', contentNode);
       store.commit('lessonSummary/resources/SET_PREVIEW_STATE', {
-        questions: contentMetadata.assessmentIds,
-        completionData: contentMetadata.masteryModel,
+        questions: contentMetadata.assessment_item_ids,
+        completionData: contentMetadata.mastery_model,
       });
       store.commit('SET_PAGE_NAME', LessonsPageNames.CONTENT_PREVIEW);
       return contentNode;

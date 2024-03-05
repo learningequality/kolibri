@@ -3,7 +3,6 @@ import uniq from 'lodash/uniq';
 import unionBy from 'lodash/unionBy';
 import union from 'lodash/union';
 import shuffled from 'kolibri.utils.shuffled';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { ContentNodeResource, ContentNodeSearchResource } from 'kolibri.resources';
 import { getContentNodeThumbnail } from 'kolibri.utils.contentNode';
 import router from 'kolibri.coreVue.router';
@@ -220,8 +219,8 @@ export function updateSelectedQuestions(store) {
       const doNothing = () => null;
       const availableExercises = exerciseIds.filter(id => exercises[id]);
       const exerciseTitles = availableExercises.map(id => exercises[id].title);
-      const questionIdArrays = availableExercises.map(
-        id => assessmentMetaDataState(exercises[id]).assessmentIds
+      const questionIdArrays = availableExercises.map(id =>
+        exercises[id].assessmentmetadata ? exercises[id].assessmentmetadata.assessment_item_ids : []
       );
       store.commit(
         'SET_SELECTED_QUESTIONS',
