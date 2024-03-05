@@ -8,7 +8,7 @@
           <div
             v-if="!$store.getters.allowAccess"
             class="box"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+            :style="{ backgroundColor: $themeTokens.surface }"
           >
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
@@ -30,7 +30,7 @@
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
-          <div v-else class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
+          <div v-else class="box" :style="{ backgroundColor: $themeTokens.surface }">
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
               class="logo"
