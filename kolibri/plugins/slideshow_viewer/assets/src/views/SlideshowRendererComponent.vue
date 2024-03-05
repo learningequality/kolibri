@@ -81,7 +81,7 @@
   import client from 'kolibri.client';
 
   import responsiveElementMixin from 'kolibri.coreVue.mixins.responsiveElementMixin';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
