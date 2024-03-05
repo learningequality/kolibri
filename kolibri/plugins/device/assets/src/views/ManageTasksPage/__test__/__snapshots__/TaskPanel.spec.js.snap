@@ -3,12 +3,12 @@
 exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT task 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #c62828;">
+    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #D21E00;">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
       </svg></transition-stub>
   </div>
   <div class="details">
-    <p class="details-status" style="color: rgb(97, 97, 97);">
+    <p class="details-status" style="color: rgb(102, 102, 102);">
       Canceled
     </p>
     <h2 class="details-description">
@@ -18,11 +18,11 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
     <p class="details-size">
       500 resources (5 KB)
     </p>
-    <p class="details-startedby" style="color: rgb(97, 97, 97);">
+    <p class="details-startedby" style="color: rgb(102, 102, 102);">
       Started by 'Tester'
     </p>
   </div>
-  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
+  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_170m2tm">
       <!---->
       <!----> <span class="link-text">Clear</span>
       <!---->
@@ -33,12 +33,12 @@ exports[`TaskPanel renders correctly when it is a canceled DISKCONTENTEXPORT tas
 exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk export) 1`] = `
 <div class="task-panel">
   <div class="icon">
-    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #c62828;">
+    <transition-stub mode="out-in"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #D21E00;">
         <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"></path>
       </svg></transition-stub>
   </div>
   <div class="details">
-    <p class="details-status" style="color: rgb(97, 97, 97);">
+    <p class="details-status" style="color: rgb(102, 102, 102);">
       Canceled
     </p>
     <h2 class="details-description">
@@ -48,11 +48,11 @@ exports[`TaskPanel renders correctly when it is a canceled DISKEXPORT task (bulk
     <p class="details-size">
       500 resources (5 KB)
     </p>
-    <p class="details-startedby" style="color: rgb(97, 97, 97);">
+    <p class="details-startedby" style="color: rgb(102, 102, 102);">
       Started by 'Tester'
     </p>
   </div>
-  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_37nh0f">
+  <div class="buttons"><button dir="auto" type="button" tabindex="0" class="button KButton-noKey-0_170m2tm">
       <!---->
       <!----> <span class="link-text">Clear</span>
       <!---->
