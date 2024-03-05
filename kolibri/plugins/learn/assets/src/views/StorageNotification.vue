@@ -254,7 +254,7 @@
     margin: 0 auto;
   }
 
-  @media (min-width: 426px) {
+  @media (min-width: 509px) {
     .button-style {
       margin-right: 10px;
     }
@@ -265,9 +265,9 @@
       min-height: 60px;
     }
   }
-  @media (max-width: 426px) {
+  @media (max-width: 509px) {
     .button-style {
-      margin-bottom: 5px;
+      margin-bottom: 10px;
     }
 
     .button-layout {
