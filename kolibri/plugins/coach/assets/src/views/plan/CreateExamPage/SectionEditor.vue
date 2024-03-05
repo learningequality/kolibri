@@ -112,7 +112,16 @@
     >
       {{ quizResourceSelection$() }}
     </h5>
-    <p>{{ numberOfSelectedResources$({ count: 4 }) }}</p>
+    <p>
+      {{
+        numberOfSelectedResources$(
+          {
+            count: activeResourcePool.length,
+            channels: channels.length
+          }
+        )
+      }}
+    </p>
 
     <KRouterLink
       appearance="raised-button"
@@ -191,9 +200,9 @@
     <div class="bottom-buttons-style">
       <KGrid>
         <KGridItem
-          :layout12="{ span: 4 }"
-          :layout8="{ span: 2 }"
-          :layout4="{ span: 1 }"
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
         >
           <KButton
             :text="deleteSectionLabel$()"
@@ -203,9 +212,9 @@
         </KGridItem>
         <KGridItem
           style="text-align: right;"
-          :layout12="{ span: 8 }"
-          :layout8="{ span: 6 }"
-          :layout4="{ span: 3 }"
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
         >
           <KButton
             :primary="true"
@@ -292,10 +301,12 @@
 
       const {
         activeSection,
+        activeResourcePool,
         allSections,
         updateSection,
         updateQuiz,
         removeSection,
+        channels,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -361,7 +372,9 @@
         handleCancelDelete,
         handleConfirmDelete,
         // useQuizCreation
+        channels,
         activeSection,
+        activeResourcePool,
         allSections,
         updateSection,
         updateQuiz,
