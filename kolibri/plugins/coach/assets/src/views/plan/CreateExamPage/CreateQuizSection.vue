@@ -820,4 +820,8 @@
     align-self: flex-end;
   }
 
+  /deep/ .tab {
+    outline-offset: -5px !important;
+  }
+
 </style>
