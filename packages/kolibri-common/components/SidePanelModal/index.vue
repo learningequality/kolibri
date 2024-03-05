@@ -36,8 +36,8 @@
             :icon="closeButtonIconType"
             class="close-button"
             :style="closeButtonStyle"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
+            :ariaLabel="closeButtonMessage"
+            :tooltip="closeButtonMessage"
             @click="closePanel"
           />
 
@@ -165,6 +165,11 @@
           backgroundColor: this.$themeTokens.surface,
           'z-index': 12,
         };
+      },
+      closeButtonMessage() {
+        return this.closeButtonIconType === 'back'
+          ? this.coreString('backAction')
+          : this.coreString('closeAction');
       },
       /* Change of position with change of close button type, default is close */
       closeButtonStyle() {
