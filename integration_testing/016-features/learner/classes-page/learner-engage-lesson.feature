@@ -50,7 +50,3 @@ Feature: Learner engages with an assigned lesson
 		Then I am at *Learn > Home > Classes > '<class>' > '<lesson>'* page
 			And I see the yellow star icon and *Completed* label displayed at the lower left corner of the cards
 			And I see my points counter is increased by the sum of the points for the completed number of resources
-
-Examples:
-  | class      | lesson     | exercise      | video   |
-  | Test Class | Test Lesson| Add within 5  | Welcome |

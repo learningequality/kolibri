@@ -51,8 +51,3 @@ Feature: Learner engages with content of the video kind using transcript
       Then the video seeks to the time of the transcript cue
       When I move the mouse outside of the transcript
       Then the transcript resumes automatically scrolling
-
-
-Examples:
-  | channel              | folder | subfolder         | resource        | language_option            | language |
-  | Touchable Earth (en) | India | Culture in India | Girl's Clothing | Français, langue française | French   |

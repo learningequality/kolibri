@@ -47,7 +47,3 @@ Feature: Super admin imports granular resources from peer
         And I see the size of resources that were imported
       When I go to *Learn* page
       Then I can see the <topic>, <subtopic1>, <subtopic2>, <subtopic3>, <subtopic4>, <sub-subtopic1>, <sub-subtopic2>, <sub-subtopic3>, <resource1>, <resource2> and <resource3> correctly
-
-Examples:
-| local_address | channel    | topic | subtopic1 | subtopic2 | subtopic3 | subtopic4              | sub-subtopic1             | sub-subtopic2    | sub-subtopic3              | resource1                                                                        | resource2                                                                                | resource3                                                                              |
-| 192.168.1.46  | KA English | Math  | Physics   | Chemistry | Biology   | Electrical engineering | Physics > Work and energy | Biology > Lipids | Chemistry > Periodic table | Science > Electrical engineering > Amplifiers > Operational amplifier > Feedback | Science > Electrical engineering > Amplifiers > Operational amplifier > Inverting op-amp | Science > Electrical engineering > Amplifiers > Operational amplifier > Virtual ground |

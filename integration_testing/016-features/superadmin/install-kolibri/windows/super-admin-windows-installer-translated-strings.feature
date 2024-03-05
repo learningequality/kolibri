@@ -52,7 +52,3 @@ Feature: Super admin can see the Windows installer translated strings
           And I click the *Sí* button
         Then I see the windows and alerts during the uninstall process in <language> language
           And I see that Kolibri is successfully uninstalled
-
-Examples:
-| language |
-| Spanish  |

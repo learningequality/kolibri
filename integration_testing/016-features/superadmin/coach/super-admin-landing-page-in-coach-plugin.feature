@@ -51,7 +51,3 @@ Feature: Landing page for super admins in Coach plugin
     When I click *All facilities*
     Then I see the *Coach > Facilities* page
       And I see a list of facilities on the device
-
-Examples:
-| facility | class   |
-| MySchool | MyClass |

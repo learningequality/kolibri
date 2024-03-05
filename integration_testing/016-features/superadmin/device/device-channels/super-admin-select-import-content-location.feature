@@ -62,8 +62,3 @@ Feature: Super admin selects import content location
       Then I see Kolibri searching for local drives
         And I see the *Select a drive* modal
         And I see the *No drives with Kolibri content are connected to the server*
-
-Examples:
-| drive       | network_name  |
-| Hard_Disc_1 | CasaPaco      |
-| USB_Card_2  | CountryServer |

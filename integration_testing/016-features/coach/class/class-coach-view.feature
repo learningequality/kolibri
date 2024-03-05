@@ -13,8 +13,3 @@ Feature: Class coach view
     When I click on the class <class>
     Then I am on *Class home* for class <class>
     # Run the rest of the coach scenarios
-
-Examples:
-| class    |
-| Buffoons |
-| Jugglers |

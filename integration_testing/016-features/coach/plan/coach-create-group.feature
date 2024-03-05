@@ -23,8 +23,3 @@ Feature: Coach creates groups
     When I leave the name field empty
       And I click *Save*
     Then I see the error notification *This field is required*
-
-Examples:
-| group   |
-| Team A  |
-| Team B  |

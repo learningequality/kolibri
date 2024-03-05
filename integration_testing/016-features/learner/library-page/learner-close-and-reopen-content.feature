@@ -35,6 +35,3 @@ Feature: Learner closes and reopens content
     When I reopen it through *Library* or *Bookmarks*
     Then the pdf opens at the page I left off at
 
-Examples:
-  | content_item                     |
-  | Intro to springs and Hooke's law |

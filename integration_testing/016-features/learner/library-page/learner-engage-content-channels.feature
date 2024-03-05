@@ -38,6 +38,3 @@ Feature: Learner engages content channels
     Then I see the *Download resource* button
       And I am able to download the resource
 
-Examples:
-  | channel        | folder    | subfolder | content_item                   |
-  | Kolibri Demo 1 | Science  | Physics  | Intro to springs and Hooke's law |

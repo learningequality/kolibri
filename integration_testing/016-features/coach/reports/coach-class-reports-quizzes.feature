@@ -70,7 +70,3 @@ Feature: Coach reviews learner reports for quizzes
     Then their *Progress* column says *Completed*
       And their *Progress* column says *N questions answered* or *All questions answered*
       And their *Score* column shows the final score
-
-Examples:
-| class    | quiz    | group  | question |
-| My class | My quiz | group1 | Sumar 1  |

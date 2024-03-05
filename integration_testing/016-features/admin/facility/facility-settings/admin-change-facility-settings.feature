@@ -67,10 +67,3 @@ Feature: Admin changes facility settings
     Then I see the *Explore without account* link on the sign-in page
     When I click *Explore without account*
     Then I see the *Learn > Library* page
-
-
-Examples:
-| full_name | username | password |
-| Pinco P.  | coach    | coach    |
-| Neela R.  | ccoach   | ccoach   |
-| John C.   | learner  | learner  |

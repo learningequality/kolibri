@@ -26,7 +26,3 @@ Coach needs to be able to determine which questions in a quiz are difficult
       And I as a <learner2> also give correct answer to question <question2> in the <quiz2>
     Then I as a coach <coach> go to *Coach - '<class>' > Reports > Quizzes > '<quiz2>' > Difficult questions* subtab
     	And I don't see any question under the *Question* column
-
-Examples:
-| class | quiz    | exercise | question   |
-| First | Conting | Under 10 | Question 1 |

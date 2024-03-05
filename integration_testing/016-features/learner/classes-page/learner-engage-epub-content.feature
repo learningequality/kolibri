@@ -90,9 +90,3 @@ Feature: Learner engages ePUB content
       Then I see ePUB viewer expands fullscreen
       When I click the button to exit fullscreen or I press the Esc key
       Then I see ePUB viewer as before
-
-
-Examples:
-  | channel              | folder            | resource                          | search |
-  | EPub Testing Channel | Richard's EPubs  | The Adventures of Sherlock Holmes | home   |
-  | EPub Testing Channel | Blaine's EPubs   | Epub with Tables!                 | street |

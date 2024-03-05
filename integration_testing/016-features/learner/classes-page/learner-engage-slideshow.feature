@@ -52,8 +52,3 @@ Feature: Learner engages with content of the slideshow kind
       When I click the exit full screen button or hit ESC
       Then I see the *'<folder>' > '<resource>'* page
         And I maintain my position in the slideshow
-
-Examples:
-  | channel           | folder             | resource            |
-  | Slideshow Test    | Slideshows!       | Demo Slideshow      |
-  | All Slideshows    | Slideshows!       | Jacob's Slideshow   |

@@ -22,7 +22,3 @@ Feature: Learner interacts with the View lesson resources side panel
     Then I see the icons and titles of the available lesson resources listed in the side panel
     	And I see a yellow start icon next to the completed resources
     	And I see a progress bar icon next to the in progress resources
-
-  Examples:
-  | class     | content_item  |
-  | Test Class  | Intro to addition |

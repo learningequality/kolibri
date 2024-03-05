@@ -13,7 +13,3 @@ Feature: Coach sign-in
       And I fill in my password <password>
       And I click the *Sign in* button
     Then I am signed in and I can see the *Coach > Class home* page
-
-Examples:
-| username | password |
-| coach    | coach    |

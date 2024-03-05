@@ -40,7 +40,3 @@ Feature: Learner engages with an assigned quiz
     Then I see a *Show correct answer* check box
     When I check the *Show correct answer* check box
     Then I see the correct answer below
-
-Examples:
-  | class      | quiz     |
-  | Test Class | Test Quiz|

@@ -75,8 +75,3 @@ Feature: Super admin customizes the Kolibri settings with the options.ini file
     	And I click on the channel with custom navigation
     Then I am at the *Browse channel* modal window
     	And I can interact with the contents of the channel
-
-
-Examples:
-  | port number | language intl_code | content folder                   | content fallback folder  | content base URL                              |
-  | 8081        | en                 | C:\Users\IEUser\.kolibri\content | C:\Users\IEUser\.kolibri\| https://hotfixes.studio.learningequality.org/ |

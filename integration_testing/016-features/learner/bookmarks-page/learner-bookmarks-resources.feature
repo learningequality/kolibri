@@ -5,7 +5,7 @@ Feature: Learners can bookmark resources
     	And there is at least one channel imported on the device
 
 	Scenario: Learners can bookmark resources
-		When I navigate to a resource
+		When I navigate to a channel resource
 			And I select the bookmark icon of the resource
 		Then I see the color of the icon changed to black indicating that the resource was bookmarked
 		When I go to the *Learn > Bookmarks* page
