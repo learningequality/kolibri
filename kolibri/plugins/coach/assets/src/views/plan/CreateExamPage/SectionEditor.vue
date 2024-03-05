@@ -126,7 +126,7 @@
     <KRouterLink
       appearance="raised-button"
       :to="{ path: 'select-resources' }"
-      class="change-resource-button-style"
+      style="margin-bottom: 1em;"
       iconAfter="forward"
     >
       {{ changeResources$() }}
@@ -161,6 +161,7 @@
                 <KGridItem
                   :layout12="{ span: 1 }"
                   :layout8="{ span: 1 }"
+                  :layout4="{ span: 1 }"
                 >
                   <KIcon
                     icon="dragVertical"
@@ -170,16 +171,20 @@
 
                 <KGridItem
                   :layout12="{ span: 6 }"
-                  :layout8="{ span: 5 }"
+                  :layout8="{ span: 4 }"
+                  :layout4="{ span: 2 }"
                 >
                   <p class="space-content">
                     {{ section.section_title.toUpperCase() }}
                   </p>
                 </KGridItem>
 
+                <!-- Perhaps this should be positioned absolutely to
+                     accommodate longer section titles -->
                 <KGridItem
                   :layout12="{ span: 5 }"
-                  :layout8="{ span: 2 }"
+                  :layout8="{ span: 3 }"
+                  :layout4="{ span: 1 }"
                   class="current-section-style"
                   :style="{ color: $themePalette.grey.v_700 }"
                 >
