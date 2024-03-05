@@ -1,6 +1,6 @@
 <template>
 
-  <div style="padding-top: 2rem;">
+  <div style="padding-top: 2rem; scroll: none;">
     <KGrid>
       <KGridItem
         :layout4="{ span: 1 }"
@@ -160,6 +160,8 @@
           <KGridItem
             class="left-side-heading"
             :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
           >
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionList$() }}
@@ -168,6 +170,8 @@
           <KGridItem
             class="right-side-heading"
             :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
           >
             <KButton
               primary
@@ -321,7 +325,7 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { get } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -459,7 +463,7 @@
           color: this.$themeTokens.text + '!important',
           textDecoration: 'none',
           // Ensure text doesn't get highlighted as we drag
-          userSelect: get(this.dragActive) ? 'none!important' : 'text',
+          userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
       addQuizSectionsStyles() {
@@ -574,12 +578,12 @@
         };
       },
       handleQuestionOrderChange({ newArray }) {
-        set(this.dragActive, false);
         const payload = {
           section_id: get(this.activeSection).section_id,
           questions: newArray,
         };
         this.updateSection(payload);
+        this.dragActive = false;
       },
       handleAddSection() {
         const newSection = this.addSection();
@@ -587,7 +591,8 @@
         this.sectionCreationCount++;
       },
       handleDragStart() {
-        set(this.dragActive, true);
+        // Used to mitigate the issue of text being selected while dragging
+        this.dragActive = true;
       },
       openSelectResources(section_id) {
         const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });

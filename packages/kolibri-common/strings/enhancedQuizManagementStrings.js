@@ -153,7 +153,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
 
   numberOfSelectedResources: {
     message:
-      '{ count, number } { count, plural, one { resource selected } other { resources selected }} from { count, number } { count, plural, one { channel } other { channels }}',
+      '{ count, number } { count, plural, one { resource selected } other { resources selected }} from { channels, number } { channels, plural, one { channel } other { channels }}',
   },
   numberOfSelectedReplacements: {
     message:
