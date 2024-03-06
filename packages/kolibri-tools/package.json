@@ -95,7 +95,7 @@
     "webpack-dev-server": "^4.15.1",
     "webpack-merge": "^5.10.0",
     "@testing-library/jest-dom": "^6.4.1",
-    "@testing-library/vue": "^5"
+    "@testing-library/vue": "^8"
   },
   "engines": {
     "node": "18.x",
