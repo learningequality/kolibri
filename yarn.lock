@@ -5747,10 +5747,12 @@ flush-promises@^1.0.2:
   resolved "https://registry.yarnpkg.com/flush-promises/-/flush-promises-1.0.2.tgz#4948fd58f15281fed79cbafc86293d5bb09b2ced"
   integrity sha512-G0sYfLQERwKz4+4iOZYQEZVpOt9zQrlItIxQAAYAWpfby3gbHrx0osCHz5RLl/XoXevXk0xoN4hDFky/VV9TrA==
 
-focus-lock@^0.5.4:
-  version "0.5.4"
-  resolved "https://registry.yarnpkg.com/focus-lock/-/focus-lock-0.5.4.tgz#537644d61b9e90fd97075aa680b8add1de24e819"
-  integrity sha512-A9ngdb0NyI6UygBQ0eD+p8SpLWTkdEDn67I3EGUUcDUfxH694mLA/xBWwhWhoj/2YLtsv2EoQdAx9UOKs8d/ZQ==
+focus-lock@^1.3.2:
+  version "1.3.4"
+  resolved "https://registry.yarnpkg.com/focus-lock/-/focus-lock-1.3.4.tgz#a143aa327224df2e83414f87e8a3328cb5a62156"
+  integrity sha512-Gv0N3mvej3pD+HWkNryrF8sExzEHqhQ6OSFxD4DPxm9n5HGCaHme98ZMBZroNEAJcsdtHxk+skvThGKyUeoEGA==
+  dependencies:
+    tslib "^2.0.3"
 
 follow-redirects@^1.0.0, follow-redirects@^1.15.4:
   version "1.15.5"
@@ -11682,10 +11684,10 @@ videojs-vtt.js@^0.15.5:
   dependencies:
     global "^4.3.1"
 
-vue-demi@*:
-  version "0.9.0"
-  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.9.0.tgz#b30da61450079d60a132d7aaf9e86d1949e8445e"
-  integrity sha512-f8vVUpC726YXv99fF/3zHaw5CUYbP5H/DVWBN+pncXM8P2Uz88kkffwj9yD7MukuVzPICDHNrgS3VC2ursaP7g==
+vue-demi@*, vue-demi@^0.13.11:
+  version "0.13.11"
+  resolved "https://registry.yarnpkg.com/vue-demi/-/vue-demi-0.13.11.tgz#7d90369bdae8974d87b1973564ad390182410d99"
+  integrity sha512-IR8HoEEGM65YY3ZJYAjMlKygDQn25D5ajNFNoKh9RSDMQtlzCxtfQjdQgv9jjK+m3377SsJXY8ysq8kLCZL25A==
 
 vue-eslint-parser@^7.3.0:
   version "7.3.0"
@@ -11699,12 +11701,13 @@ vue-eslint-parser@^7.3.0:
     esquery "^1.0.1"
     lodash "^4.17.15"
 
-vue-focus-lock@^1.2.0:
-  version "1.4.0"
-  resolved "https://registry.yarnpkg.com/vue-focus-lock/-/vue-focus-lock-1.4.0.tgz#315f8ce6305b1f99236fbc61179751ce4012b572"
-  integrity sha512-oEIvojC3okNOlnPYJUSzqAK6M+m1VoBSieUfTUqXiaUqa8t6xXTmn3UEhVqUnk6cUgLum+p2z04Btqr6gWNn2Q==
+vue-focus-lock@^2.0.6:
+  version "2.0.6"
+  resolved "https://registry.yarnpkg.com/vue-focus-lock/-/vue-focus-lock-2.0.6.tgz#aab7e5e42a7423be056595eb872ee845c6848637"
+  integrity sha512-Jq55DSpQsv4bh8vYfefIk1HyZDPTPHor2FdRr6YPlGUrQttWJv0ZynfYKkdDNP1lMFQF6ks+iRi63AC+dYx0dQ==
   dependencies:
-    focus-lock "^0.5.4"
+    focus-lock "^1.3.2"
+    vue-demi "^0.13.11"
 
 vue-hot-reload-api@^2.3.0:
   version "2.3.4"
