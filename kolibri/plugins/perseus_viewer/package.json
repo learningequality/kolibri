@@ -38,7 +38,7 @@
     "babel-preset-stage-1": "6.24.1",
     "babel-preset-stage-2": "6.24.1",
     "babel-register": "6.8.0",
-    "espree": "^9.6.1",
+    "espree": "^10.0.1",
     "exports-loader": "^5.0.0",
     "imports-loader": "^5.0.0",
     "pofile": "^1.0.8",
