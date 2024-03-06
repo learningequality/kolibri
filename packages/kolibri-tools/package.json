@@ -27,7 +27,7 @@
     "browserslist-config-kolibri": "0.16.0-dev.7",
     "chalk": "4.1.2",
     "check-node-version": "^4.2.1",
-    "chokidar": "^3.5.3",
+    "chokidar": "^3.6.0",
     "cli-table": "^0.3.11",
     "commander": "^11.1.0",
     "core-js": "^3",
