@@ -28,7 +28,7 @@
     "markdown-it": "14.0.0",
     "path-to-regexp": "1.8.0",
     "screenfull": "^5.2.0",
-    "shave": "^5.0.3",
+    "shave": "^5.0.4",
     "tinycolor2": "^1.6.0",
     "ua-parser-js": "^1.0.37",
     "vue": "^2.6.14",

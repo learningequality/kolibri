@@ -10334,10 +10334,10 @@ shallow-clone@^3.0.0:
   dependencies:
     kind-of "^6.0.2"
 
-shave@^5.0.3:
-  version "5.0.3"
-  resolved "https://registry.yarnpkg.com/shave/-/shave-5.0.3.tgz#879497dc5828a786d7fee5edc8f791a4c82901bd"
-  integrity sha512-zasjCCHaDekREKmywPtHjlOaqrE6q+E0+NJad3FOVAq1RQXNd2jixjxihLHK04rqt71+ReKr9JVozhg9AraJUw==
+shave@^5.0.4:
+  version "5.0.4"
+  resolved "https://registry.yarnpkg.com/shave/-/shave-5.0.4.tgz#88a696c5d7f4959a875c6e904a38dd054ff95d8d"
+  integrity sha512-AnvEI1wM2rQmrwCl364LVLLhzCzSHJ7DQmdd+fHJTnNzbD2mjsUAOcxWLLYKam7Q63skwyQf2CB2TCdJ2O5c8w==
 
 shebang-command@^1.2.0:
   version "1.2.0"
