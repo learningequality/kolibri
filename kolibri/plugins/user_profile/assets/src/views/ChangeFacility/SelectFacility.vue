@@ -33,7 +33,7 @@
       :style="{
         marginTop: '34px',
         paddingTop: '10px',
-        borderTop: `1px solid ${$themePalette.grey.v_400}`
+        borderTop: `1px solid ${$themeTokens.fineLine}`
       }"
     >
 
