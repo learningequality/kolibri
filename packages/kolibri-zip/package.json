@@ -9,7 +9,7 @@
   "author": "Learning Equality",
   "license": "MIT",
   "dependencies": {
-    "fflate": "^0.8.1"
+    "fflate": "^0.8.2"
   },
   "devDependencies": {
     "mime-db": "^1.52.0"
