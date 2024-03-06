@@ -80,4 +80,11 @@ jobs:
         run: python test/patch_pytest.py
 
       - name: Run tests with PostgreSQL
+        env:
+          KOLIBRI_DATABASE_ENGINE: postgres
+          KOLIBRI_DATABASE_NAME: test
+          KOLIBRI_DATABASE_USER: postgres
+          KOLIBRI_DATABASE_PASSWORD: postgres
+          KOLIBRI_DATABASE_HOST: localhost
+          KOLIBRI_DATABASE_PORT: 5432
         run: python -O -m pytest kolibri/core/auth/test/test_morango_integration.py
