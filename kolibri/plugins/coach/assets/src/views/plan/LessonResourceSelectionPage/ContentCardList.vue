@@ -13,6 +13,7 @@
         v-for="content in contentList"
         :key="content.id"
         class="content-list-item"
+        :aria-selected="contentIsChecked(content)"
       >
         <KCheckbox
           v-if="contentHasCheckbox(content)"

@@ -239,7 +239,13 @@
                   tabindex="-1"
                   style="background: white"
                 >
-                  <AccordionItem :id="question.question_id" :title="question.title">
+                  <AccordionItem
+                    :id="question.question_id"
+                    :title="question.title"
+                    :aria-selected="selectedActiveQuestions.includes(
+                      question.question_id
+                    )"
+                  >
                     <template #heading="{ title }">
                       <h3
                         class="accordion-header"

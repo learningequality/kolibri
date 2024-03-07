@@ -39,6 +39,9 @@
           :id="question.question_id"
           :key="index"
           :title="question.title"
+          :aria-selected="
+            replacements.length && replacements.length === selectedActiveQuestions.length
+          "
         >
           <template #heading="{ title }">
             <h3
