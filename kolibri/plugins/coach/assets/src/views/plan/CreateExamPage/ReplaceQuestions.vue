@@ -273,6 +273,11 @@
       },
     },
     beforeRouteLeave(_, __, next) {
+      /**
+        If we don't have replacement.length then there are no changes to prompt about.
+        But if there are we only show if the number of replacements is the same as the number
+        of selected questions to be replaced
+      */
       if (
         !this.showCloseConfirmation &&
         this.replacements.length &&
