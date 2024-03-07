@@ -135,8 +135,8 @@
       max-width: $thumbside;
       height: auto;
       max-height: $thumbside;
-      object-fit: contain;
       margin-right: 16px;
+      object-fit: contain;
     }
 
     .thumbnail-svg {
