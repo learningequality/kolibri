@@ -130,7 +130,7 @@
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       :title="closeConfirmationTitle$()"
-      @cancel="handleCancelClose"
+      @cancel="showCloseConfirmation = false"
       @submit="handleConfirmClose"
     >
       {{ closeConfirmationMessage$() }}
@@ -189,10 +189,6 @@
 
       const showCloseConfirmation = ref(false);
 
-      function handleCancelClose() {
-        showCloseConfirmation.value = false;
-      }
-
       function handleConfirmClose() {
         context.emit('closePanel');
       }
@@ -247,7 +243,6 @@
         activeResourceMap,
         showCloseConfirmation,
 
-        handleCancelClose,
         handleConfirmClose,
         clearSelectedQuestions,
         toggleItemState,
