@@ -24,14 +24,14 @@
           @change="handleCheckboxChange(content, $event)"
         />
         <!--
-          disabled, tabindex, style cursor set here to hack making the card not clickable
+          disabled, tabindex, is-leaf class set here to hack making the card not clickable
           if you're trying to make the card clickable remove these properties
         -->
         <LessonContentCard
+          class="content-card"
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
-          :style="{ cursor: content.is_leaf ? 'default' : 'pointer' }"
-          :class="{ 'with-checkbox': needCheckboxes }"
+          :class="{ 'with-checkbox': needCheckboxes, 'is-leaf': content.is_leaf }"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
@@ -75,6 +75,7 @@
 
 <script>
 
+  import { computed, toRefs } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ViewMoreButtonStates } from '../../../constants/index';
 
@@ -87,8 +88,14 @@
     },
     mixins: [commonCoreStrings],
 
-    setup() {
+    setup(props) {
+      const { selectAllChecked, selectAllIndeterminate } = toRefs(props);
+      // Code too long to display in template
+      const ariaChecked = computed(() => {
+        return selectAllChecked.value ? true : selectAllIndeterminate.value ? 'mixed' : false;
+      });
       return {
+        ariaChecked,
         ViewMoreButtonStates,
       };
     },
