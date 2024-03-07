@@ -23,7 +23,14 @@
           :indeterminate="contentIsIndeterminate(content)"
           @change="handleCheckboxChange(content, $event)"
         />
+        <!--
+          disabled, tabindex, style cursor set here to hack making the card not clickable
+          if you're trying to make the card clickable remove these properties
+        -->
         <LessonContentCard
+          :disabled="content.is_leaf"
+          :tabindex="content.is_leaf ? -1 : 0"
+          :style="{ cursor: content.is_leaf ? 'default' : 'pointer' }"
           :class="{ 'with-checkbox': needCheckboxes }"
           :title="content.title"
           :thumbnail="content.thumbnail"
