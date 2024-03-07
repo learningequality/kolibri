@@ -33,7 +33,7 @@
     "core-js": "^3",
     "css-loader": "6.10.0",
     "css-minimizer-webpack-plugin": "6.0.0",
-    "csv-parse": "^5.5.3",
+    "csv-parse": "^5.5.5",
     "csv-writer": "^1.3.0",
     "del": "^6.1.1",
     "escodegen": "^2.1.0",
