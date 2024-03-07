@@ -5,7 +5,7 @@ module.exports = {
     resolve: {
       fallback: {
         "zlib": require.resolve("browserify-zlib"),
-        "stream": require.resolve("web-streams-polyfill/ponyfill")
+        "stream": require.resolve("web-streams-polyfill/es5")
       }
     },
   },
