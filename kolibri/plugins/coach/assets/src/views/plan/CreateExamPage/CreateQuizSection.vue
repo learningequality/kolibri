@@ -826,6 +826,7 @@
     align-self: flex-end;
   }
 
+  // This makes sure that the keyboard focus ring is visible on the section tabs
   /deep/ .tab {
     outline-offset: -5px !important;
   }
