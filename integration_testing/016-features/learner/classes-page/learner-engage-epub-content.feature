@@ -7,7 +7,7 @@ Feature: Learner engages ePUB content
       And I am on the *Browse channel* page for a channel with ePUB content
 
     Scenario: Browse and find ePUB content
-      When I am on the *Browse channel* page for <channel>
+      When I am on the *Browse channel* page for a channel
       Then I see the <channel> name, logo and description
         And I see all the available folders for the channel <channel>
       When I click the folder <folder>

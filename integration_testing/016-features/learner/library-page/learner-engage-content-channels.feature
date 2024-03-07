@@ -37,4 +37,3 @@ Feature: Learner engages content channels
       And I click the *i* icon
     Then I see the *Download resource* button
       And I am able to download the resource
-

@@ -3,23 +3,22 @@ Feature: Learner engages with content of the slideshow kind
 
   Background:
     Given I am signed in as a learner user
-      And there are one or more channels imported on the device with slideshow content
-      And I am on the *Browse channel* page for a channel with slideshow content
+      And there are is at least one channel with slideshow content imported on the device
+      And I am at the *Browse channel* page for a channel with slideshow content
 
     Scenario: Browse and find slideshow content
-      When I am on the *Browse channel* page for <channel>
-      Then I see the <channel> name, logo and description
-        And I see all the folders for the channel <channel>
-      When I click the folder <folder>
+      When I am on the *Browse channel* page
+      Then I see the channel name, logo and description
+        And I see all the folders for the channel
+      When I click a folder
       Then I see the *'<channel>' > '<folder>'* breadcrumb
-        And I see all the subfolders and resources of the folder <folder>
-        And I recognize <resource> resource as a slideshow by the content type icon in the upper left corner
+        And I see all the subfolders and resources of the folder
+        And I recognize the resource as a slideshow by the content type icon in the upper left corner
 
     Scenario: Open slideshow
-      Given that <resource> resource is a slideshow
-        When I click the <resource> resource
+        When I click the resource
         Then I see the *'<folder>' > '<resource>'* page
-          And I see the <resource> content
+          And I see the slideshow resource content
 
     Scenario: Engage with the slideshow content
       When I view a slide that has caption text

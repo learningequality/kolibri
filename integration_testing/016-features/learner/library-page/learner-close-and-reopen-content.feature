@@ -34,4 +34,3 @@ Feature: Learner closes and reopens content
     Given <content_item> is a pdf
     When I reopen it through *Library* or *Bookmarks*
     Then the pdf opens at the page I left off at
-
