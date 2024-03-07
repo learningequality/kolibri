@@ -236,12 +236,12 @@ export function showPracticeQuizCreationPreviewPage(store, params) {
 function _prepPracticeQuizContentPreview(store, classId, contentId) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
-      const contentMetadata = contentNode.assessmentmetadata || {};
+      const assessmentMetadata = contentNode.assessmentmetadata || {};
       store.commit('SET_TOOLBAR_ROUTE', {});
       store.commit('examCreation/SET_CURRENT_CONTENT_NODE', { ...contentNode });
       store.commit('examCreation/SET_PREVIEW_STATE', {
-        questions: contentMetadata.assessment_item_ids,
-        completionData: contentMetadata.mastery_model,
+        questions: assessmentMetadata.assessment_item_ids,
+        completionData: assessmentMetadata.mastery_model,
       });
       store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_PRACTICE_QUIZ_PREVIEW);
       return contentNode;
@@ -254,12 +254,12 @@ function _prepPracticeQuizContentPreview(store, classId, contentId) {
 function _prepExamContentPreview(store, classId, contentId) {
   return ContentNodeResource.fetchModel({ id: contentId }).then(
     contentNode => {
-      const contentMetadata = contentNode.assessmentmetadata || {};
+      const assessmentMetadata = contentNode.assessmentmetadata || {};
       store.commit('SET_TOOLBAR_ROUTE', {});
       store.commit('examCreation/SET_CURRENT_CONTENT_NODE', { ...contentNode });
       store.commit('examCreation/SET_PREVIEW_STATE', {
-        questions: contentMetadata.assessment_item_ids,
-        completionData: contentMetadata.mastery_model,
+        questions: assessmentMetadata.assessment_item_ids,
+        completionData: assessmentMetadata.mastery_model,
       });
       store.commit('SET_PAGE_NAME', PageNames.EXAM_CREATION_PREVIEW);
       return contentNode;
