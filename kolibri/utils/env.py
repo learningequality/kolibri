@@ -3,7 +3,6 @@ import os
 import platform
 import sys
 
-from kolibri.utils.compat import monkey_patch_collections
 from kolibri.utils.compat import monkey_patch_translation
 
 
@@ -111,8 +110,6 @@ def set_env():
     monkey_patch_markdown()
 
     from kolibri import dist as kolibri_dist  # noqa
-
-    monkey_patch_collections()
 
     monkey_patch_translation()
 
