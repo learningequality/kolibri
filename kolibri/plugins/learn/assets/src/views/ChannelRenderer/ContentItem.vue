@@ -26,7 +26,6 @@
 <script>
 
   import { mapState, mapGetters } from 'vuex';
-  import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import { setContentNodeProgress } from '../../composables/useContentNodeProgress';
   import useProgressTracking from '../../composables/useProgressTracking';
@@ -114,14 +113,14 @@
         if (!this.contentIsExercise) {
           return {};
         }
-        const assessment = assessmentMetaDataState(this.contentNode);
+        const assessment = this.contentNode.assessmentmetadata || {};
         return {
           kind: this.contentNode.kind,
           files: this.contentNode.files,
           lang: this.contentNode.lang,
           randomize: this.contentNode.randomize,
-          masteryModel: assessment.masteryModel,
-          assessmentIds: assessment.assessmentIds,
+          masteryModel: assessment.mastery_model,
+          assessmentIds: assessment.assessment_item_ids,
           available: this.contentNode.available,
           extraFields: this.extra_fields,
           progress: this.progress,
@@ -137,7 +136,7 @@
         if (this.contentNode.kind !== ContentNodeKinds.EXERCISE) {
           return null;
         } else {
-          return assessmentMetaDataState(this.contentNode);
+          return this.contentNode.assessmentmetadata || {};
         }
       },
     },
