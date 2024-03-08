@@ -1,5 +1,5 @@
-from collections import Mapping
 from collections import OrderedDict
+from collections.abc import Mapping
 
 import pytz
 from django.core.exceptions import ValidationError as DjangoValidationError
