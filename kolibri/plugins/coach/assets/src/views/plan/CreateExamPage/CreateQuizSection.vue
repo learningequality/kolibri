@@ -113,6 +113,7 @@
           style="padding: 0.7em 0.75em;"
         >
           <KButton
+            ref="addQuestionsButton"
             primary
             :text="coreString('optionsLabel')"
           >
@@ -122,7 +123,8 @@
                 :disabled="false"
                 :hasIcons="true"
                 :options="activeSectionActions"
-                @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
+                @tab="$refs.addQuestionsButton.$el.focus()"
+                @close="$refs.addQuestionsButton.$el.focus()"
                 @select="handleActiveSectionAction"
               />
             </template>
@@ -183,7 +185,6 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="activeSectionActions"
-                  @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
                   @select="handleActiveSectionAction"
                 />
               </template>

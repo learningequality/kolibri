@@ -63,6 +63,7 @@
       tabs() {
         this.$nextTick(() => {
           this.setOverflowTabs();
+          this.setTabindex();
         });
       },
     },
@@ -70,9 +71,15 @@
       this.mounted = true;
       this.$nextTick(() => {
         this.setOverflowTabs();
+        this.setTabindex();
       });
     },
     methods: {
+      setTabindex() {
+        Array.from(this.$refs.tabsWrapper.$el.children).forEach(tab => {
+          tab.setAttribute('tabindex', 0);
+        });
+      },
       setOverflowTabs() {
         this.overflowTabs =
           this.mounted && this.windowWidth
