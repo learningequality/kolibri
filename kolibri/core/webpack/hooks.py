@@ -124,9 +124,9 @@ class WebpackBundleHook(hooks.KolibriHook):
                 try:
                     f["url"] = f["publicPath"]
                 except KeyError:
-                    f["url"] = staticfiles_storage.path(relpath)
+                    f["url"] = staticfiles_storage.url(relpath)
             else:
-                f["url"] = staticfiles_storage.path(relpath)
+                f["url"] = staticfiles_storage.url(relpath)
             yield f
 
     @property
