@@ -139,9 +139,9 @@
             color: this.$themeTokens.primaryDark,
             fontWeight: 'bold',
             margin: '8px',
-            backgroundColor: this.$themeBrand.primary.v_200,
+            backgroundColor: this.$themePalette.grey.v_100,
             ':hover': {
-              backgroundColor: this.$themeBrand.primary.v_400,
+              backgroundColor: this.$themePalette.grey.v_200,
             },
             ':focus': this.$coreOutline,
           };
@@ -149,7 +149,7 @@
         return {
           color: this.$themeTokens.text,
           ':hover': {
-            backgroundColor: this.$themeBrand.primary.v_200,
+            backgroundColor: this.$themePalette.grey.v_100,
           },
           ':focus': this.$coreOutline,
         };
