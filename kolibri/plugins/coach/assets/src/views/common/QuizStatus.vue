@@ -309,15 +309,11 @@
           ? this.coachString('orderFixedLabel')
           : this.coachString('orderRandomLabel');
       },
-      // Background color needs to be v_1100 dark for the button
-      // to pass the contrast check. However, we don't have darker
-      // red in the palette (as of March 2024) so the hover state doesn't work.
-      // This is being discussed with the design team.
       cancelStyleOverrides() {
         return {
           color: this.$themeTokens.textInverted,
           'background-color': this.$themePalette.red.v_1100,
-          ':hover': { 'background-color': this.$themePalette.red.v_1100 },
+          ':hover': { 'background-color': '#A81700' },
         };
       },
       examDateArchived() {
