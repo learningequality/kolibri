@@ -19,17 +19,28 @@ import tempfile
 import noto_source
 import utils
 
-try:
-    import fontTools  # noqa
-except ImportError:
-    utils.install_requirement("fonttools==4.28.1")
-
-from fontTools import merge
-from fontTools import subset
-
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
 logging.StreamHandler(sys.stdout)
+
+
+font_tools_version = "4.49.0"
+
+try:
+    import fontTools  # noqa
+
+    assert fontTools.version == font_tools_version
+except ImportError:
+    utils.install_requirement(f"fonttools=={font_tools_version}")
+except AssertionError:
+    utils.install_requirement(f"fonttools=={font_tools_version}")
+    logging.error(
+        "Wrong fontTools version was installed. This has been updated. Please re-run the command."
+    )
+    sys.exit(1)
+
+from fontTools import merge  # noqa E402
+from fontTools import subset  # noqa E402
 
 
 """
