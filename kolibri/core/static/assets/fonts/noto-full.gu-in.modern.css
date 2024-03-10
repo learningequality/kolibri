@@ -658,33 +658,6 @@
 
 @font-face {
   font-family: 'noto-full';
-  src: url('noto-full.NotoSansKawi.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+11F00-11F10,U+11F12-11F3A,U+11F3C,U+11F3E-11F59;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansKawi.600.woff') format('woff');
-  font-style: normal;
-  font-weight: 600;
-  unicode-range: U+11F00-11F10,U+11F12-11F3A,U+11F3C,U+11F3E-11F59;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansKawi.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+11F00-11F10,U+11F12-11F3A,U+11F3C,U+11F3E-11F59;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
   src: url('noto-full.NotoSansKayahLi.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
@@ -1117,7 +1090,7 @@
 
 @font-face {
   font-family: 'noto-full';
-  src: url('noto-full.NotoSansSyriac.400.woff') format('woff');
+  src: url('noto-full.NotoSansSyriacEastern.400.woff') format('woff');
   font-style: normal;
   font-weight: normal;
   unicode-range: U+700-70D,U+70F-74A,U+74D-74F;
@@ -1126,7 +1099,7 @@
 
 @font-face {
   font-family: 'noto-full';
-  src: url('noto-full.NotoSansSyriac.600.woff') format('woff');
+  src: url('noto-full.NotoSansSyriacEastern.600.woff') format('woff');
   font-style: normal;
   font-weight: 600;
   unicode-range: U+700-70D,U+70F-74A,U+74D-74F;
@@ -1135,7 +1108,7 @@
 
 @font-face {
   font-family: 'noto-full';
-  src: url('noto-full.NotoSansSyriac.700.woff') format('woff');
+  src: url('noto-full.NotoSansSyriacEastern.700.woff') format('woff');
   font-style: normal;
   font-weight: bold;
   unicode-range: U+700-70D,U+70F-74A,U+74D-74F;
@@ -1301,32 +1274,5 @@
   font-style: normal;
   font-weight: bold;
   unicode-range: U+EC00-EC06,U+EC09-EC0B;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansVithkuqi.400.woff') format('woff');
-  font-style: normal;
-  font-weight: normal;
-  unicode-range: U+10570-1057A,U+1057C-1058A,U+1058C-10592,U+10594-10595,U+10597-105A1,U+105A3-105B1,U+105B3-105B9,U+105BB-105BC;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansVithkuqi.600.woff') format('woff');
-  font-style: normal;
-  font-weight: 600;
-  unicode-range: U+10570-1057A,U+1057C-1058A,U+1058C-10592,U+10594-10595,U+10597-105A1,U+105A3-105B1,U+105B3-105B9,U+105BB-105BC;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'noto-full';
-  src: url('noto-full.NotoSansVithkuqi.700.woff') format('woff');
-  font-style: normal;
-  font-weight: bold;
-  unicode-range: U+10570-1057A,U+1057C-1058A,U+1058C-10592,U+10594-10595,U+10597-105A1,U+105A3-105B1,U+105B3-105B9,U+105BB-105BC;
   font-display: swap;
 }
