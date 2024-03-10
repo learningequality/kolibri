@@ -35,10 +35,25 @@ FONT_MANIFEST_PATH = os.path.join(FONTS_SOURCE, FONT_MANIFEST_NAME)
 with open(FONT_MANIFEST_PATH, "r") as mf:
     MANIFEST = json.load(mf)
 
-TYPEFACE_EXCLUSION_NAME = "excluded_typefaces.json"
-TYPEFACE_EXCLUSION_PATH = os.path.join(FONTS_SOURCE, TYPEFACE_EXCLUSION_NAME)
-with open(TYPEFACE_EXCLUSION_PATH, "r") as mf:
-    EXCLUDED_TYPEFACES = set(json.load(mf))
+EXCLUDED_TYPEFACES = set(
+    [
+        # Kawi is an old Javanese script used for texts from the 8th to 16th centuries, so we exclude it.
+        # https://en.wikipedia.org/wiki/Kawi_script
+        "NotoSansKawi",
+        # Syriac alphabet - https://en.wikipedia.org/wiki/Syriac_alphabet
+        # The base Syriac script is used primarily in ancient texts and scholarly publications, so we exclude it.
+        "NotoSansSyriac",
+        # Western Syriac is used by Western Neo-Aramaic which is spoken by two villages in Western Syria.
+        # c.f. https://en.wikipedia.org/wiki/Western_Neo-Aramaic
+        # We exclude it as it is not widely used, and instead leave only the Eastern Syriac script.
+        "NotoSansSyriacWestern",
+        # Vithkuqi is an extinct alphabet used for the Albanian language. It was used in the 19th century and is no longer in use.
+        # https://en.wikipedia.org/wiki/Vithkuqi_alphabet
+        "NotoSansVithkuqi",
+        # This font is a test font, so we exclude it
+        "NotoSansTest",
+    ]
+)
 
 KEY_REF = "ref"
 KEY_FONTS = "fonts"

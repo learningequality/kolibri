@@ -110,11 +110,6 @@
       "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKannada/hinted/ttf/NotoSansKannada-Regular.ttf",
       "SemiBold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKannada/hinted/ttf/NotoSansKannada-SemiBold.ttf"
     },
-    "NotoSansKawi": {
-      "Bold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKawi/hinted/ttf/NotoSansKawi-Bold.ttf",
-      "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKawi/hinted/ttf/NotoSansKawi-Regular.ttf",
-      "Variable": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKawi/unhinted/variable-ttf/NotoSansKawi[wght].ttf"
-    },
     "NotoSansKayahLi": {
       "Bold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKayahLi/hinted/ttf/NotoSansKayahLi-Bold.ttf",
       "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansKayahLi/hinted/ttf/NotoSansKayahLi-Regular.ttf",
@@ -205,17 +200,9 @@
       "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSymbols/hinted/ttf/NotoSansSymbols-Regular.ttf",
       "SemiBold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSymbols/hinted/ttf/NotoSansSymbols-SemiBold.ttf"
     },
-    "NotoSansSyriac": {
-      "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriac/hinted/ttf/NotoSansSyriac-Regular.ttf",
-      "Variable": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriac/unhinted/variable-ttf/NotoSansSyriac[wght].ttf"
-    },
     "NotoSansSyriacEastern": {
       "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriacEastern/hinted/ttf/NotoSansSyriacEastern-Regular.ttf",
       "Variable": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriacEastern/unhinted/variable-ttf/NotoSansSyriacEastern[wght].ttf"
-    },
-    "NotoSansSyriacWestern": {
-      "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriacWestern/hinted/ttf/NotoSansSyriacWestern-Regular.ttf",
-      "Variable": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansSyriacWestern/unhinted/variable-ttf/NotoSansSyriacWestern[wght].ttf"
     },
     "NotoSansTaiTham": {
       "Bold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansTaiTham/hinted/ttf/NotoSansTaiTham-Bold.ttf",
@@ -251,11 +238,6 @@
       "Bold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansThaiLooped/hinted/ttf/NotoSansThaiLooped-Bold.ttf",
       "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansThaiLooped/hinted/ttf/NotoSansThaiLooped-Regular.ttf",
       "SemiBold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansThaiLooped/hinted/ttf/NotoSansThaiLooped-SemiBold.ttf"
-    },
-    "NotoSansVithkuqi": {
-      "Bold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansVithkuqi/hinted/ttf/NotoSansVithkuqi-Bold.ttf",
-      "Regular": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansVithkuqi/hinted/ttf/NotoSansVithkuqi-Regular.ttf",
-      "SemiBold": "https://raw.githubusercontent.com/notofonts/notofonts.github.io/c9776a57605346fc7a577fbc06661d06251941a5/fonts/NotoSansVithkuqi/hinted/ttf/NotoSansVithkuqi-SemiBold.ttf"
     }
   },
   "ref": "c9776a57605346fc7a577fbc06661d06251941a5"
