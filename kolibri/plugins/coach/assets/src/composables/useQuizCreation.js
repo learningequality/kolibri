@@ -447,19 +447,19 @@ export default function useQuizCreation(DEBUG = false) {
 
   /** @type {ComputedRef<Boolean>} Whether all active questions are selected */
   const allQuestionsSelected = computed(() => {
-    return (
+    return Boolean(
       get(selectedActiveQuestions).length &&
-      isEqual(
-        get(selectedActiveQuestions).sort(),
-        get(activeQuestions)
-          .map(q => q.question_id)
-          .sort()
-      )
+        isEqual(
+          get(selectedActiveQuestions).sort(),
+          get(activeQuestions)
+            .map(q => q.question_id)
+            .sort()
+        )
     );
   });
 
   /**
-   * Deletes and clears the selected questions from the active section
+
    */
   function deleteActiveSelectedQuestions() {
     const { section_id, questions } = get(activeSection);
