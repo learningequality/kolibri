@@ -122,7 +122,7 @@
           <KButton
             :primary="true"
             :text="replaceAction$()"
-            :disable="replacements.length !== selectedActiveQuestions.length"
+            :disable="canProceedToReplace"
             @click="handleReplacement"
           />
         </KGridItem>
@@ -271,18 +271,21 @@
           userSelect: get(this.dragActive) ? 'none!important' : 'text',
         };
       },
-    },
-    beforeRouteLeave(_, __, next) {
       /**
         If we don't have replacement.length then there are no changes to prompt about.
         But if there are we only show if the number of replacements is the same as the number
         of selected questions to be replaced
       */
-      if (
-        !this.showCloseConfirmation &&
-        this.replacements.length &&
-        this.replacements.length !== this.selectedActiveQuestions.length
-      ) {
+      canProceedToReplace() {
+        return (
+          !this.showCloseConfirmation &&
+          this.replacements.length &&
+          this.replacements.length !== this.selectedActiveQuestions.length
+        );
+      },
+    },
+    beforeRouteLeave(_, __, next) {
+      if (this.canProceedToReplace) {
         this.showCloseConfirmation = true;
         next(false);
       } else {
