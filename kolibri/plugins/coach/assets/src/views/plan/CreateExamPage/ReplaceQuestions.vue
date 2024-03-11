@@ -28,9 +28,9 @@
           ref="selectAllCheckbox"
           class="select-all-box"
           :label="selectAllLabel$()"
-          :checked="replacements.length && replacements.length === selectedActiveQuestions.length"
+          :checked="selectAllIsChecked"
           :indeterminate="selectAllIsIndeterminate"
-          @change="() => selectAllQuestions()"
+          @change="selectAllReplacementQuestions"
         />
       </template>
       <template #default="{ toggleItemState, isItemExpanded }">
@@ -49,9 +49,7 @@
             >
               <KCheckbox
                 class="accordion-checkbox"
-                :checked="replacements.map(q => q.id).includes(
-                  question.question_id
-                )"
+                :checked="replacements.map(r => r.question_id).includes(question.question_id)"
                 @change="() => toggleInReplacements(question)"
               />
               <KButton
@@ -122,7 +120,7 @@
           <KButton
             :primary="true"
             :text="replaceAction$()"
-            :disable="canProceedToReplace"
+            :disabled="!canProceedToReplace"
             @click="handleReplacement"
           />
         </KGridItem>
@@ -184,7 +182,6 @@
         clearSelectedQuestions,
         toggleItemState,
         isItemExpanded,
-        selectAllReplacementQuestions,
         replaceSelectedQuestions,
         toggleQuestionInSelection,
         updateSection,
@@ -229,9 +226,23 @@
       const selectAllIsIndeterminate = computed(() => {
         return (
           replacements.value.length > 0 &&
-          replacements.value.length !== selectedActiveQuestions.value.length
+          replacements.value.length !== replacementQuestionPool.value.length
         );
       });
+
+      const selectAllIsChecked = computed(() => {
+        return (
+          replacements.value && replacements.value.length === replacementQuestionPool.value.length
+        );
+      });
+
+      function selectAllReplacementQuestions() {
+        if (replacements.value.length === replacementQuestionPool.value.length) {
+          replacements.value = [];
+        } else {
+          replacements.value = replacementQuestionPool.value;
+        }
+      }
 
       return {
         toggleInReplacements,
@@ -242,6 +253,7 @@
         selectedActiveQuestions,
         replacementQuestionPool,
         selectAllIsIndeterminate,
+        selectAllIsChecked,
         replaceSelectedQuestions,
         activeResourceMap,
         showCloseConfirmation,
@@ -278,14 +290,13 @@
       */
       canProceedToReplace() {
         return (
-          !this.showCloseConfirmation &&
           this.replacements.length &&
-          this.replacements.length !== this.selectedActiveQuestions.length
+          this.replacements.length === this.selectedActiveQuestions.length
         );
       },
     },
     beforeRouteLeave(_, __, next) {
-      if (this.canProceedToReplace) {
+      if (!this.showCloseConfirmation && this.canProceedToReplace) {
         this.showCloseConfirmation = true;
         next(false);
       } else {
