@@ -26,6 +26,7 @@ from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -573,6 +574,7 @@ def _map_dataset(facility):
     return dataset
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
@@ -775,6 +777,7 @@ class LearnerGroupViewSet(ValuesViewset):
         return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
 
     serializer_class = FacilityUserSerializer
@@ -867,10 +870,11 @@ class SetNonSpecifiedPasswordView(views.APIView):
         return Response()
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
+@method_decorator([ensure_csrf_cookie, csrf_protect], name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def _check_os_user(self, request, username):
         auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+        print("Auth", auth_token)
         if auth_token:
             try:
                 user = FacilityUser.objects.get_or_create_os_user(auth_token)
@@ -880,6 +884,8 @@ class SessionViewSet(viewsets.ViewSet):
                 logger.error(e)
 
     def create(self, request):
+        auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
+        print("Auth", auth_token)
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
