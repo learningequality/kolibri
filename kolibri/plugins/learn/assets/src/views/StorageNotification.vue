@@ -15,27 +15,31 @@
 
         <!-- Grid Buttons -->
         <KGridItem class="button-grid-item" :layout12="{ span: 12 }">
-          <KButton
-            :text="coreString('closeAction')"
-            style="margin-right: 10px"
-            appearance="flat-button"
-            :secondary="true"
-            @click="closeBanner"
-          />
-          <KButton
-            v-if="hasDownloads"
-            :text="$tr('goToDownloads')"
-            appearance="raised-button"
-            :secondary="true"
-            @click="closeBanner"
-          />
-          <KButton
-            v-if="isAdmin"
-            :text="$tr('manageChannels')"
-            appearance="raised-button"
-            :secondary="true"
-            @click="manageChannel"
-          />
+          <div class="button-layout">
+            <KButton
+              :text="coreString('closeAction')"
+              class="button-style"
+              appearance="flat-button"
+              :secondary="true"
+              @click="closeBanner"
+            />
+            <KButton
+              v-if="hasDownloads"
+              :text="$tr('goToDownloads')"
+              class="button-style"
+              appearance="raised-button"
+              :secondary="true"
+              @click="openDownloads"
+            />
+            <KButton
+              v-if="isAdmin"
+              :text="$tr('manageChannels')"
+              class="button-style"
+              appearance="raised-button"
+              :secondary="true"
+              @click="manageChannel"
+            />
+          </div>
         </KGridItem>
       </KGrid>
     </div>
@@ -53,7 +57,7 @@
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
   import urls from 'kolibri.urls';
   import redirectBrowser from 'kolibri.utils.redirectBrowser';
-  import useUserSyncStatus from '../composables/useUserSyncStatus';
+  import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
 
   export default {
     name: 'StorageNotification',
@@ -164,6 +168,10 @@
           this.previouslyFocusedElement.focus();
         }
       },
+      openDownloads() {
+        const downloadsUrl = urls['kolibri:kolibri.plugins.learn:my_downloads']();
+        redirectBrowser(downloadsUrl);
+      },
       manageChannel() {
         const deviceManagementUrl = urls['kolibri:kolibri.plugins.device:device_management']();
         if (this.canManageContent && deviceManagementUrl) {
@@ -246,10 +254,26 @@
     margin: 0 auto;
   }
 
-  .button-grid-item {
-    display: flex;
-    justify-content: flex-end;
-    min-height: 60px;
+  @media (min-width: 509px) {
+    .button-style {
+      margin-right: 10px;
+    }
+
+    .button-grid-item {
+      display: flex;
+      justify-content: flex-end;
+      min-height: 60px;
+    }
+  }
+  @media (max-width: 509px) {
+    .button-style {
+      margin-bottom: 10px;
+    }
+
+    .button-layout {
+      display: flex;
+      flex-direction: column;
+    }
   }
 
 </style>
