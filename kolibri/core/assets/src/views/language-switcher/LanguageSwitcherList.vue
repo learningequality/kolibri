@@ -1,35 +1,44 @@
 <template>
 
   <div>
-    <KButtonGroup style="margin-top: 8px; position: relative; left: -16px;">
+    <div class="languages-list">
       <KIconButton
         icon="language"
         aria-hidden="true"
         tabindex="-1"
-        class="globe"
+        class="globe px-8"
         @click="showLanguageModal = true"
       />
-      <span class="selected" :title="selectedLanguage.english_name">
+      <span class="selected no-shrink px-8" :title="selectedLanguage.english_name">
         {{ selectedLanguage.lang_name }}
       </span>
-      <KButton
-        v-for="language in buttonLanguages"
-        :key="language.id"
-        :text="language.lang_name"
-        :title="language.english_name"
-        class="lang"
-        appearance="basic-link"
-        @click="switchLanguage(language.id)"
-      />
-
-      <KButton
-        v-if="numSelectableLanguages > numVisibleLanguageBtns + 1"
-        :text="$tr('showMoreLanguagesSelector')"
-        :primary="false"
-        appearance="flat-button"
-        @click="showLanguageModal = true"
-      />
-    </KButtonGroup>
+      <KListWithOverflow
+        :items="buttonLanguages"
+        :appearanceOverrides="{
+          justifyContent: 'flex-start',
+          alignItems: 'center',
+        }"
+      >
+        <template #item="{ item }">
+          <KButton
+            :text="item.lang_name"
+            :title="item.english_name"
+            class="lang px-8"
+            appearance="basic-link"
+            @click="switchLanguage(item.id)"
+          />
+        </template>
+        <template #more>
+          <KButton
+            :text="$tr('showMoreLanguagesSelector')"
+            :primary="false"
+            class="px-8"
+            appearance="flat-button"
+            @click="showLanguageModal = true"
+          />
+        </template>
+      </KListWithOverflow>
+    </div>
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
@@ -80,23 +89,10 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
-      numVisibleLanguageBtns() {
-        // At visibleBtns = 0, only the "More languages" button will show
-        let visibleBtns = 4;
-        if (this.parentBreakpoint < 0) {
-          visibleBtns = this.windowBreakpoint;
-        } else {
-          visibleBtns = this.parentBreakpoint;
-        }
-        return Math.min(4, visibleBtns);
-      },
       numSelectableLanguages() {
         return this.selectableLanguages.length;
       },
       buttonLanguages() {
-        if (this.selectableLanguages.length <= this.numVisibleLanguageBtns + 1) {
-          return this.selectableLanguages.slice().sort(compareLanguages);
-        }
         return this.selectableLanguages
           .slice()
           .sort((a, b) => {
@@ -111,7 +107,6 @@
             }
             return compareLanguages(a, b);
           })
-          .slice(0, this.numVisibleLanguageBtns);
       },
     },
     $trs: {
@@ -144,6 +139,23 @@
 
   .ta-l {
     text-align: left;
+  }
+
+  .languages-list {
+    margin-top: 8px;
+    position: relative;
+    left: -16px;
+    display: flex;
+    align-items: center;
+  }
+
+  .no-shrink {
+    flex-shrink: 0;
+  }
+
+  .px-8 {
+    padding-left: 8px;
+    padding-right: 8px;
   }
 
 </style>
