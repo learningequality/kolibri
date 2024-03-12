@@ -154,7 +154,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=self.facility.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -195,7 +194,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=facility2.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
         self.assertEqual(
@@ -204,7 +202,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=facility3.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -269,7 +266,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 no_provision=True,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -333,7 +329,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 "facility": self.facility.id,
                 "chunk_size": 200,
                 "noninteractive": True,
-                "sync_session_id": None,
             },
         )
 
@@ -506,7 +501,6 @@ class FacilityTaskHelperTestCase(TestCase):
             kwargs=dict(
                 baseurl="https://some.server.test/",
                 facility=facility_id,
-                sync_session_id=None,
                 chunk_size=200,
                 noninteractive=True,
             ),
