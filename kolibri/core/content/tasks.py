@@ -225,7 +225,6 @@ def remotechannelimport(channel_id, baseurl=None, peer_id=None):
         "network",
         channel_id,
         baseurl=baseurl,
-        peer_id=peer_id,
     )
 
 
@@ -636,7 +635,6 @@ def diskchannelimport(
         "disk",
         channel_id,
         drive.datafolder,
-        drive_id=drive_id,
     )
 
 
