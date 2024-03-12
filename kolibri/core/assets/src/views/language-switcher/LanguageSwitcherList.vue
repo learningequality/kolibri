@@ -9,7 +9,7 @@
         class="globe px-8"
         @click="showLanguageModal = true"
       />
-      <span class="selected no-shrink px-8" :title="selectedLanguage.english_name">
+      <span class="no-shrink px-8 selected" :title="selectedLanguage.english_name">
         {{ selectedLanguage.lang_name }}
       </span>
       <KListWithOverflow
@@ -89,24 +89,19 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
-      numSelectableLanguages() {
-        return this.selectableLanguages.length;
-      },
       buttonLanguages() {
-        return this.selectableLanguages
-          .slice()
-          .sort((a, b) => {
-            const aPriority = prioritizedLanguages.includes(a.id);
-            const bPriority = prioritizedLanguages.includes(b.id);
-            if (aPriority && bPriority) {
-              return compareLanguages(a, b);
-            } else if (aPriority && !bPriority) {
-              return -1;
-            } else if (!aPriority && bPriority) {
-              return 1;
-            }
+        return this.selectableLanguages.slice().sort((a, b) => {
+          const aPriority = prioritizedLanguages.includes(a.id);
+          const bPriority = prioritizedLanguages.includes(b.id);
+          if (aPriority && bPriority) {
             return compareLanguages(a, b);
-          })
+          } else if (aPriority && !bPriority) {
+            return -1;
+          } else if (!aPriority && bPriority) {
+            return 1;
+          }
+          return compareLanguages(a, b);
+        });
       },
     },
     $trs: {
@@ -142,11 +137,11 @@
   }
 
   .languages-list {
-    margin-top: 8px;
     position: relative;
     left: -16px;
     display: flex;
     align-items: center;
+    margin-top: 8px;
   }
 
   .no-shrink {
@@ -154,8 +149,8 @@
   }
 
   .px-8 {
-    padding-left: 8px;
     padding-right: 8px;
+    padding-left: 8px;
   }
 
 </style>
