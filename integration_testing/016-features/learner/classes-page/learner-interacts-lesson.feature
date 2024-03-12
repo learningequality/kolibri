@@ -1,4 +1,4 @@
-Feature: Learner engages with an assigned lesson
+Feature: Learner interacts with an assigned lesson
   Learner can access the lesson that has been assigned by coach, interact with resources, pause/resume them, complete a lesson and collect points
 
 	Background:
