@@ -12,6 +12,7 @@ from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities
 from mock import patch
+from rest_framework import status
 from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
@@ -2902,4 +2903,4 @@ class CSRFProtectedLoggerTestCase(APITestCase):
         }
         url = reverse("kolibri:core:trackprogress-list")
         response = self.client_csrf.post(url, post_data, format="json")
-        self.assertEqual(response.status_code, 403)
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
