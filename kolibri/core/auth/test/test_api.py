@@ -1919,7 +1919,7 @@ class DuplicateUsernameTestCase(APITestCase):
         self.assertEqual(response.data, True)
 
 
-class CSRFProtectedTestCase(APITestCase):
+class CSRFProtectedAuthTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
         provision_device()

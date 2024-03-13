@@ -120,7 +120,7 @@ class CreateSuperuserTest(APITestCase):
         self.assertTrue(superuser.is_superuser)
 
 
-class CSRFProtectedTestCase(APITestCase):
+class CSRFProtectedSetupTestCase(APITestCase):
     def setUp(self):
         provision_device()
         clear_process_cache()
@@ -142,7 +142,7 @@ class CSRFProtectedTestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
     def test_csrf_protected_setupwizard(self):
-        # passing and empty dictionary as data as i don't know what will be in baseurl
+        # passing and empty dictionary as data as i don't know what is baseurl
         response = self.client_csrf.post(
             reverse(
                 "kolibri:kolibri.plugins.setup_wizard:setupwizard-createuseronremote"
