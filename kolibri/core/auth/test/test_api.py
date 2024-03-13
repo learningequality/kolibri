@@ -14,6 +14,7 @@ from morango.constants import transfer_statuses
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -1916,3 +1917,29 @@ class DuplicateUsernameTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.data, True)
+
+
+class CSRFProtectedTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        # Naming client as client_csrf as self.client is already used in the parent class
+        cls.client_csrf = APIClient(enforce_csrf_checks=True)
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+
+    def test_csrf_protected_session_list(self):
+        response = self.client_csrf.post(
+            reverse("kolibri:core:session-list"),
+            data={"username": self.user.username, "password": DUMMY_PASSWORD},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_csrf_protected_signup_list(self):
+        response = self.client_csrf.post(
+            reverse("kolibri:core:signup-list"),
+            data={"username": "user", "password": DUMMY_PASSWORD},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
