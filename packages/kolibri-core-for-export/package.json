@@ -14,7 +14,7 @@
     "clipboard": "^2.0.11",
     "core-js": "^3.36",
     "csv-generator-client": "^2.1.1",
-    "date-fns": "^1.28.2",
+    "date-fns": "^3.4.0",
     "deep-object-diff": "^1.1.9",
     "fontfaceobserver": "^2.3.0",
     "frame-throttle": "^3.0.0",
