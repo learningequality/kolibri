@@ -15,7 +15,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("kolibriauth", "0019_collection_no_mptt"),
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
         ("lessons", "0002_auto_20180221_1115"),
     ]
 
