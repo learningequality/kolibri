@@ -12,6 +12,7 @@ from le_utils.constants import content_kinds
 from le_utils.constants import exercises
 from le_utils.constants import modalities
 from mock import patch
+from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from ..models import AttemptLog
@@ -2884,3 +2885,21 @@ class ProgressTrackingViewSetLoggedInUpdateSessionAssessmentPracticeQuizTestCase
 
     def tearDown(self):
         self.client.logout()
+
+
+class CSRFProtectedLoggerTestCase(APITestCase):
+    def setUp(self):
+        self.client_csrf = APIClient(enforce_csrf_checks=True)
+        self.facility = FacilityFactory.create()
+        provision_device()
+        self.user = FacilityUserFactory.create(facility=self.facility)
+
+    def test_csrf_protected_trackprogress(self):
+        quiz = create_assigned_quiz_for_user(self.user)
+
+        post_data = {
+            "quiz_id": quiz.id,
+        }
+        url = reverse("kolibri:core:trackprogress-list")
+        response = self.client_csrf.post(url, post_data, format="json")
+        self.assertEqual(response.status_code, 403)
