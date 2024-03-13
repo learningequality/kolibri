@@ -22,7 +22,6 @@ from django.utils.encoding import iri_to_uri
 from django.utils.translation import ugettext as _
 from django.views.decorators.cache import cache_page
 from django.views.decorators.cache import never_cache
-from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.http import etag
 from django_filters.rest_framework import BaseInFilter
 from django_filters.rest_framework import BooleanFilter
@@ -1388,7 +1387,6 @@ class ContentRequestFilter(FilterSet):
         fields = ("contentnode_id", "contentnode_id__in")
 
 
-@method_decorator(csrf_protect, name="dispatch")
 class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     serializer_class = serializers.ContentDownloadRequestSerializer
     filter_backends = (DjangoFilterBackend,)
