@@ -67,6 +67,7 @@ class SetupWizardResource(ViewSet):
         return Response({"status": r.status_code, "data": r.content})
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class FacilityImportViewSet(ViewSet):
     """
     A group of endpoints that are used by the SetupWizard to import a facility
