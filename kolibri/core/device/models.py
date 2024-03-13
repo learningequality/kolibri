@@ -6,6 +6,7 @@ from django.conf import settings
 from django.db import models
 from django.db.models import F
 from django.db.models import QuerySet
+from django.db.utils import IntegrityError
 from morango.models import UUIDField
 from morango.models.core import InstanceIDModel
 from morango.models.core import SyncSession
@@ -561,8 +562,14 @@ class UserSyncStatus(models.Model):
             # Only update the sync_session_id if it is not None, as otherwise we will be clearing
             # historical data that is used by the sync status API
             defaults["sync_session_id"] = sync_session_id
-
-        cls.objects.update_or_create(user_id=user_id, defaults=defaults)
+        try:
+            cls.objects.update_or_create(user_id=user_id, defaults=defaults)
+        except IntegrityError:
+            # If we get an IntegrityError, it probably means that the user does not exist locally yet.
+            # This can happen if the user was created on the server and has not been synced down yet.
+            # In this case, we will just ignore the error as the sync status
+            # will be updated when the sync finalizes.
+            pass
 
     @property
     def queued(self):
