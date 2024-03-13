@@ -1,4 +1,6 @@
 from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from kolibri.core.auth.models import FacilityUser
@@ -116,3 +118,36 @@ class CreateSuperuserTest(APITestCase):
         self.assertEqual(response.status_code, 200)
         superuser = FacilityUser.objects.get(username="new_superuser")
         self.assertTrue(superuser.is_superuser)
+
+
+class CSRFProtectedTestCase(APITestCase):
+    def setUp(self):
+        provision_device()
+        clear_process_cache()
+        self.client_csrf = APIClient(enforce_csrf_checks=True)
+
+    # Only testing for one endpoint, as the CSRF protection is applied to all endpoints
+    def test_csrf_protected_facilityimport(self):
+        response = self.client_csrf.post(
+            reverse(
+                "kolibri:kolibri.plugins.setup_wizard:facilityimport-createsuperuser"
+            ),
+            {
+                "username": "new_superuser",
+                "password": "password",
+                "full_name": "Super User",
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_csrf_protected_setupwizard(self):
+        # passing and empty dictionary as data as i don't know what will be in baseurl
+        response = self.client_csrf.post(
+            reverse(
+                "kolibri:kolibri.plugins.setup_wizard:setupwizard-createuseronremote"
+            ),
+            {},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
