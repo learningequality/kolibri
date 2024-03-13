@@ -198,7 +198,6 @@ class TasksViewSet(viewsets.GenericViewSet):
             object, including args, kwargs, and extra_metadata.
         """
         validated_data = self.validate_create_req_data(request)
-        print("HI")
         enqueued_jobs_response = []
 
         # Once we have validated all the tasks, we are good to go!

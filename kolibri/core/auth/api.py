@@ -874,7 +874,6 @@ class SetNonSpecifiedPasswordView(views.APIView):
 class SessionViewSet(viewsets.ViewSet):
     def _check_os_user(self, request, username):
         auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
-        print("Auth", auth_token)
         if auth_token:
             try:
                 user = FacilityUser.objects.get_or_create_os_user(auth_token)
@@ -884,8 +883,6 @@ class SessionViewSet(viewsets.ViewSet):
                 logger.error(e)
 
     def create(self, request):
-        auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
-        print("Auth", auth_token)
         username = request.data.get("username", "")
         password = request.data.get("password", "")
         facility_id = request.data.get("facility", None)
