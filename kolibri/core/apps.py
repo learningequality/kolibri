@@ -111,10 +111,15 @@ class KolibriCoreConfig(AppConfig):
         if we are configured to do so, and if we should, otherwise make some logging noise.
         """
 
-        from redis.exceptions import ConnectionError
-
         if OPTIONS["Cache"]["CACHE_BACKEND"] != "redis":
             return
+
+        # Don't import until we've confirmed we're using Redis
+        # to avoid a hard dependency on Redis
+        # the options config has already been validated at this point
+        # so we know that redis is available.
+        from redis.exceptions import ConnectionError
+
         config_maxmemory = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY"]
         config_maxmemory_policy = OPTIONS["Cache"]["CACHE_REDIS_MAXMEMORY_POLICY"]
 
