@@ -251,12 +251,13 @@ class SyncJobValidator(JobValidator):
         kwargs = dict(
             chunk_size=200,
             noninteractive=True,
-            facility=facility_id,
         )
         if data["command"] == "resumesync":
             # Selectively add in the sync_session_id if resuming
             # as the sync command will reject the id parameter.
             kwargs["id"] = data["sync_session_id"]
+        else:
+            kwargs["facility"] = facility_id
         return {
             "extra_metadata": dict(
                 facility_id=facility_id,
