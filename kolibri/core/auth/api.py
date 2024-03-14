@@ -574,7 +574,6 @@ def _map_dataset(facility):
     return dataset
 
 
-@method_decorator(csrf_protect, name="dispatch")
 class FacilityViewSet(ValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter,)
