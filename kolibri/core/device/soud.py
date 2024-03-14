@@ -375,11 +375,18 @@ def execute_sync(context):
     sync_session_id = sync_queue.sync_session_id
     cleanup = False
     command = "sync"
-    resume_kwargs = {}
+    kwargs = dict(
+        user=context.user_id,
+        baseurl=context.network_location.base_url,
+        keep_alive=True,
+        noninteractive=True,
+    )
 
     if sync_session_id:
         command = "resumesync"
-        resume_kwargs["id"] = sync_session_id
+        kwargs["id"] = sync_session_id
+    else:
+        kwargs["facility"] = context.user.facility_id
 
     sync_queue.status = SyncQueueStatus.Syncing
     sync_queue.save()
@@ -389,15 +396,7 @@ def execute_sync(context):
         if not context.network_location:
             raise NetworkLocation.DoesNotExist
 
-        call_command(
-            command,
-            user=context.user_id,
-            facility=context.user.facility_id,
-            baseurl=context.network_location.base_url,
-            keep_alive=True,
-            noninteractive=True,
-            **resume_kwargs
-        )
+        call_command(command, **kwargs)
     except NetworkLocation.DoesNotExist:
         cleanup = True
         logger.debug("{} Network location unavailable".format(context))
