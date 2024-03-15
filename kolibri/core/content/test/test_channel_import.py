@@ -1,5 +1,6 @@
 import io
 import json
+import logging
 import os
 import tempfile
 import uuid
@@ -44,6 +45,8 @@ from kolibri.core.content.utils.channel_import import import_channel_from_local_
 from kolibri.core.content.utils.channel_import import topological_sort
 from kolibri.core.content.utils.sqlalchemybridge import get_default_db_string
 from kolibri.core.content.utils.sqlalchemybridge import load_metadata
+
+logger = logging.getLogger(__name__)
 
 
 class UtilityTestCase(TestCase):
@@ -399,7 +402,7 @@ class ContentImportTestBase(TransactionTestCase):
         try:
             self.set_content_fixture()
         except (IOError, EOFError):
-            print(
+            logger.error(
                 "No content schema and/or data for {name}".format(name=self.schema_name)
             )
 

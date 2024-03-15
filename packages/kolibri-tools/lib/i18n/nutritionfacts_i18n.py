@@ -85,7 +85,7 @@ def main(title, message, link_text):
         output[lang_object[utils.KEY_INTL_CODE]] = i18n
 
     # output JSON
-    print(
+    logging.info(
         json.dumps(
             output, sort_keys=True, indent=2, separators=(",", ": "), ensure_ascii=False
         )

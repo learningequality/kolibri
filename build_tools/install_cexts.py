@@ -24,6 +24,7 @@ passed into the function is not writable, a folder named `cext_cache` will be
 created under the directory where the script runs to store the cache data.
 """
 import argparse
+import logging
 import os
 import shutil
 import subprocess
@@ -40,6 +41,8 @@ DIST_CEXT = os.path.join(
 )
 PYPI_DOWNLOAD = "https://pypi.python.org/simple/"
 PIWHEEL_DOWNLOAD = "https://www.piwheels.org/simple/"
+
+logger = logging.getLogger(__name__)
 
 
 def get_path_with_arch(platform, path, abi, implementation, python_version):
@@ -135,7 +138,7 @@ def install_package(package_name, package_version, index_url, info, cache_path):
             platform, version_path, abi, implementation, python_version
         )
 
-        print("Installing package {}...".format(filename))
+        logger.info("Installing package {}...".format(filename))
         # Install the package using pip with cache_path as the cache directory
         install_return = run_pip_install(
             package_path,
@@ -218,13 +221,13 @@ def parse_pypi_and_piwheels(name, pk_version, cache_path, session):
                 r = session.get(url)
                 r.raise_for_status()
             except Exception as e:
-                print("Error retrieving {}: {}".format(url, e))
+                logger.info("Error retrieving {}: {}".format(url, e))
             else:
                 if r.status_code == 200:
                     # Got a valid response
                     break
 
-                print(
+                logger.info(
                     "Unexpected response from {}: {} {}".format(
                         url, r.status_code, r.reason
                     )
@@ -253,7 +256,7 @@ def check_cache_path_writable(cache_path):
         return cache_path
     except (OSError, IOError):
         new_path = os.path.realpath("cext_cache")
-        print(
+        logger.info(
             "The cache directory {old_path} is not writable. Changing to directory {new_path}.".format(
                 old_path=cache_path, new_path=new_path
             )
