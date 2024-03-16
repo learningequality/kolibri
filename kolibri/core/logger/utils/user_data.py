@@ -47,7 +47,7 @@ def logger_info(message, verbosity=1):
         # print("====> verbosity %s" % verbosity)
         if verbosity > 0:
             # REF: [Python, Unicode, and the Windows console](https://stackoverflow.com/a/32176732/845481)
-            print(message)  # noqa: T001
+            print(message)  # noqa: T201
     except Exception:
         # TODO(cpauya): Don't just pass on everything, capture only specific ones.
         pass
