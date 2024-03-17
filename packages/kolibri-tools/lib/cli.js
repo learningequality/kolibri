@@ -345,21 +345,9 @@ program
   .option('-w, --write', 'Write autofixes to file', false)
   .option('-e, --encoding <string>', 'Text encoding of file', 'utf-8')
   .option('-m, --monitor', 'Monitor files and check on change', false)
-  .option(
-    '-i, --ignore <patterns...>',
-    'Ignore these comma separated patterns',
-    list,
-    ignoreDefaults
-  )
+  .option('-i, --ignore <string>', 'Ignore these comma separated patterns', list, ignoreDefaults)
   .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
-  .action(function(args, options) {
-    const files = [];
-    if (!(args instanceof Command)) {
-      files.push(...args);
-    } else {
-      options = args;
-    }
-
+  .action(function (files, options) {
     let patternCheck;
     if (!files.length && !options.pattern) {
       cliLogging.error('Must specify files or glob patterns to lint!');
