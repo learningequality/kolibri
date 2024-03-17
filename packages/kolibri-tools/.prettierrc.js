@@ -5,7 +5,7 @@
 module.exports = {
   printWidth: 100,
   singleQuote: true,
-  trailingComma: 'es5',
-  parser: 'babel',
-  endOfLine: 'lf',
+  arrowParens: 'avoid',
+  vueIndentScriptAndStyle: true,
+  singleAttributePerLine: true,
 };
