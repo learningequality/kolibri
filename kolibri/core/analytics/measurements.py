@@ -1,3 +1,4 @@
+import logging
 from collections import namedtuple
 from datetime import timedelta
 
@@ -15,6 +16,8 @@ from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import UserSessionLog
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PID_FILE
+
+logger = logging.getLogger(__name__)
 
 try:
     import kolibri.utils.pskolibri as psutil
@@ -53,7 +56,9 @@ def get_db_info():
             ).count()
         )
     except OperationalError:
-        print("Database unavailable, impossible to retrieve users and sessions info")
+        logger.info(
+            "Database unavailable, impossible to retrieve users and sessions info"
+        )
 
     return (active_sessions, active_users, active_users_minute)
 
@@ -94,7 +99,7 @@ def get_channels_usage_info():
                     )
                 )
     except OperationalError:
-        print("Database unavailable, impossible to retrieve channels usage info")
+        logger.info("Database unavailable, impossible to retrieve channels usage info")
     return channels_info
 
 

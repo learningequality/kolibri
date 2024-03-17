@@ -84,7 +84,7 @@ class Command(BaseCommand):
         ]
 
         if options["json"]:
-            print(json.dumps(dict(data), indent=2))
+            logger.info(json.dumps(dict(data), indent=2))
         else:
             header = ("Device setting", "Value")
             self._tabulate(header, data)
@@ -143,11 +143,11 @@ class Command(BaseCommand):
             for i, col in enumerate(row):
                 col_length[i] = max(col_length[i], len(str(col)))
 
-        print(
+        logger.info(
             " | ".join([str(col).ljust(col_length[i]) for i, col in enumerate(header)])
         )
-        print("-+-".join(["-" * col_length[i] for i, col in enumerate(header)]))
+        logger.info("-+-".join(["-" * col_length[i] for i, col in enumerate(header)]))
         for row in data:
-            print(
+            logger.info(
                 " | ".join([str(col).ljust(col_length[i]) for i, col in enumerate(row)])
             )

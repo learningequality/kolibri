@@ -3,10 +3,12 @@
 # Derived from http://scottlobdell.me/2015/04/gamifying-test-coverage-project/
 # Before running this script, first run tests with coverage using:
 #  tox -e py3.9
+import logging
 from collections import Counter
 from subprocess import PIPE
 from subprocess import Popen
 
+logger = logging.getLogger(__name__)
 
 LINE_COUNT_THRESH = 50
 
@@ -53,7 +55,7 @@ class ExcludeLineParser(object):
             try:
                 line_number = int(exclude_line_string)
             except ValueError:
-                print("Error for values ({})".format(exclude_line_string))
+                logger.error("Error for values ({})".format(exclude_line_string))
                 return []
             return [line_number]
 
@@ -172,7 +174,7 @@ if __name__ == "__main__":
     for author, cov in sorted(
         author_to_test_coverage.items(), key=lambda t: t[1], reverse=True
     ):
-        print(
+        logger.info(
             "#%s. %s: %.2d%% coverage (%d out of %d lines)"
             % (
                 rank,

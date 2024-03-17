@@ -35,7 +35,7 @@ status_code = None
 timeout = 30  # wait for kolibri to start
 now = time()
 
-print("mock provisioning...")
+logger.info("mock provisioning...")
 while time() < now + timeout and status_code != 201:
     sleep(1)
     try:
@@ -45,8 +45,8 @@ while time() < now + timeout and status_code != 201:
         pass
 
 if status_code == 201:
-    print("success!")
+    logger.info("success!")
     exit(0)
 else:
-    print("failed with status %i" % status_code)
+    logger.error("failed with status %i" % status_code)
     exit(1)
