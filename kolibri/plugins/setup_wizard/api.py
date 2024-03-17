@@ -1,5 +1,7 @@
 import requests
 from django.urls import reverse
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from rest_framework import decorators
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework.exceptions import NotFound
@@ -32,6 +34,7 @@ class HasPermissionDuringLODSetup(BasePermission):
         return get_device_setting("subset_of_users_device")
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class SetupWizardResource(ViewSet):
     """
     Generic endpoints for use during various setup wizard onboarding flows
@@ -64,6 +67,7 @@ class SetupWizardResource(ViewSet):
         return Response({"status": r.status_code, "data": r.content})
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class FacilityImportViewSet(ViewSet):
     """
     A group of endpoints that are used by the SetupWizard to import a facility
