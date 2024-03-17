@@ -11,7 +11,7 @@ How can I install this plugin?
 
 2. Activate the plugin:
 
-    ``kolibri plugin kolibri_sentry_plugin enable``
+    ``kolibri plugin enable kolibri_sentry_plugin``
 
 3. Restart Kolibri.
 
@@ -26,7 +26,7 @@ How can I install this plugin for development?
 
     ``pip install -e <LOCAL-PATH-TO-REPO>``
 
-    ``kolibri plugin kolibri_sentry_plugin enable``
+    ``kolibri plugin enable kolibri_sentry_plugin``
 
 
 4. Then run the commands to install frontend packages in Kolibri, this plugin will have its dependencies recursively installed.
