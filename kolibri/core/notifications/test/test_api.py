@@ -1,4 +1,3 @@
-import json
 import uuid
 from datetime import timedelta
 
@@ -99,20 +98,18 @@ class NotificationsAPITestCase(APITestCase):
             is_active=True,
             created_by=self.superuser,
             collection=self.classroom,
-            resources=json.dumps(
-                [
-                    {
-                        "contentnode_id": self.node_1.id,
-                        "content_id": self.node_1.content_id,
-                        "channel_id": self.channel_id,
-                    },
-                    {
-                        "contentnode_id": self.node_2.id,
-                        "content_id": self.node_2.content_id,
-                        "channel_id": self.channel_id,
-                    },
-                ]
-            ),
+            resources=[
+                {
+                    "contentnode_id": self.node_1.id,
+                    "content_id": self.node_1.content_id,
+                    "channel_id": self.channel_id,
+                },
+                {
+                    "contentnode_id": self.node_2.id,
+                    "content_id": self.node_2.content_id,
+                    "channel_id": self.channel_id,
+                },
+            ],
         )
 
         self.assignment_1 = LessonAssignment.objects.create(
@@ -1174,20 +1171,18 @@ class BulkNotificationsAPITestCase(APITestCase):
             is_active=True,
             created_by=cls.superuser,
             collection=cls.classroom,
-            resources=json.dumps(
-                [
-                    {
-                        "contentnode_id": cls.node_1.id,
-                        "content_id": cls.node_1.content_id,
-                        "channel_id": cls.channel_id,
-                    },
-                    {
-                        "contentnode_id": cls.node_2.id,
-                        "content_id": cls.node_2.content_id,
-                        "channel_id": cls.channel_id,
-                    },
-                ]
-            ),
+            resources=[
+                {
+                    "contentnode_id": cls.node_1.id,
+                    "content_id": cls.node_1.content_id,
+                    "channel_id": cls.channel_id,
+                },
+                {
+                    "contentnode_id": cls.node_2.id,
+                    "content_id": cls.node_2.content_id,
+                    "channel_id": cls.channel_id,
+                },
+            ],
         )
 
         cls.lesson_assignment = LessonAssignment.objects.create(
