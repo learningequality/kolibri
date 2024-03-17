@@ -25,7 +25,7 @@
 <script>
 
   import range from 'lodash/range';
-  import getYear from 'date-fns/get_year';
+  import { getYear } from 'date-fns';
   import { now } from 'kolibri.utils.serverClock';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
