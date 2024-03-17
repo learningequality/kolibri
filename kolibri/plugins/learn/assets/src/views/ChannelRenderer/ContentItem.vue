@@ -160,7 +160,10 @@
        * source of truth for referencing progress of content nodes.
        */
       cacheProgress() {
-        setContentNodeProgress({ content_id: this.content.content_id, progress: this.progress });
+        setContentNodeProgress({
+          content_id: this.contentNode.content_id,
+          progress: this.progress,
+        });
       },
       updateInteraction({ progress, interaction }) {
         this.updateContentSession({
