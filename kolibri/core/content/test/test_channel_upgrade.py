@@ -1,4 +1,5 @@
 import copy
+import json
 import logging
 import random
 import tempfile
@@ -314,9 +315,14 @@ class ChannelBuilder(object):
 
     @property
     def data(self):
+        contentnode_list = []
+        for node in self.nodes.values():
+            node["ancestors"] = json.dumps(node["ancestors"])
+            contentnode_list.append(node)
+
         return {
             "content_channel": [self.channel],
-            "content_contentnode": list(self.nodes.values()),
+            "content_contentnode": contentnode_list,
             "content_file": list(self.files.values()),
             "content_localfile": list(self.localfiles.values()),
         }
