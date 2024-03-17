@@ -6,6 +6,7 @@ module.exports = {
     'stylelint-config-sass-guidelines',
     'stylelint-config-recess-order',
     'stylelint-config-prettier',
+    'stylelint-config-html/vue',
   ],
   rules: {
     'color-hex-length': 'long',
@@ -47,6 +48,10 @@ module.exports = {
     {
       "files": ["**/*.sass"],
       "customSyntax": "postcss-sass",
+    },
+    {
+      "files": ["*.html", "**/*.html", "*.vue", "**/*.vue"],
+      "customSyntax": "postcss-html",
     },
   ]
 };

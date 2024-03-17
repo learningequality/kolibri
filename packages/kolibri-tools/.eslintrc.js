@@ -36,6 +36,14 @@ module.exports = {
         jestPuppeteer: true,
       },
     },
+    // Recommended by https://eslint.vuejs.org/rules/script-indent.html
+    // When using the script indent.
+    {
+      "files": ["*.vue"],
+      "rules": {
+        "indent": "off"
+      }
+    }
   ],
   parserOptions: {
     sourceType: 'module',
@@ -59,7 +67,7 @@ module.exports = {
     'plugin:jest-dom/recommended',
     'prettier',
   ],
-  plugins: ['import', 'vue', 'kolibri', 'jest-dom'],
+  plugins: ['import', 'vue', 'kolibri', 'jest-dom', 'jest'],
   settings: {
     'import/resolver': {
       [path.resolve(path.join(path.dirname(__filename), './lib/alias_import_resolver.js'))]: {
@@ -110,10 +118,11 @@ module.exports = {
     'vue/max-attributes-per-line': [
       ERROR,
       {
-        singleline: 5,
+        singleline: {
+          max: 1,
+        },
         multiline: {
           max: 1,
-          allowFirstLine: false,
         },
       },
     ],
@@ -139,6 +148,7 @@ module.exports = {
         ],
       },
     ],
+    'vue/multi-word-component-names': 'off',
     'vue/no-spaces-around-equal-signs-in-attribute': ERROR,
     'vue/multiline-html-element-content-newline': [
       ERROR,
@@ -189,6 +199,11 @@ module.exports = {
         alignAttributesVertically: true,
       },
     ],
+    // Turn this rule off explicitly so that it doesn't interfere
+    // with our vendored version that implements our Kolibri
+    // specific component formatting specifications.
+    'vue/block-tag-newline': 'off',
+    "vue/script-indent": [ERROR, 2, { "baseIndent": 1 }],
     'vue/static-class-names-order': ERROR,
     'vue/no-deprecated-scope-attribute': ERROR,
     'vue/valid-v-bind-sync': ERROR,
@@ -221,6 +236,11 @@ module.exports = {
     'kolibri/vue-no-unused-translations': ERROR,
     'kolibri/vue-no-undefined-string-uses': ERROR,
     'kolibri/vue-string-objects-formatting': ERROR,
+    "kolibri/vue-component-block-padding": ERROR,
+    'kolibri/vue-component-block-tag-newline': ERROR,
+    'kolibri/vue-component-require-img-src': ERROR,
+    'kolibri/vue-component-class-name-casing': ERROR,
+    'kolibri/vue-component-no-duplicate-ids': ERROR,
 
     'prefer-const': [
       ERROR,
@@ -229,5 +249,6 @@ module.exports = {
         ignoreReadBeforeAssign: false,
       },
     ],
+
   },
 };
