@@ -194,7 +194,7 @@
 
         <AccordionContainer
           :items="activeQuestions.map(i => ({
-            id: i.question_id,
+            id: i.id,
           }))"
         >
           <template #left-actions>
@@ -236,15 +236,15 @@
               >
                 <Draggable
                   v-for="(question, index) in activeQuestions"
-                  :key="`drag-${question.question_id}`"
+                  :key="`drag-${question.id}`"
                   tabindex="-1"
                   style="background: white"
                 >
                   <AccordionItem
-                    :id="question.question_id"
+                    :id="question.id"
                     :title="question.title"
                     :aria-selected="selectedActiveQuestions.includes(
-                      question.question_id
+                      question.id
                     )"
                   >
                     <template #heading="{ title }">
@@ -268,23 +268,23 @@
                         <KCheckbox
                           style="padding-left: 0.5em"
                           :checked="selectedActiveQuestions.includes(
-                            question.question_id
+                            question.id
                           )"
-                          @change="() => toggleQuestionInSelection(question.question_id)"
+                          @change="() => toggleQuestionInSelection(question.id)"
                         />
                         <KButton
                           tabindex="0"
                           appearance="basic-link"
                           :style="accordionStyleOverrides"
                           class="accordion-header-label"
-                          :aria-expanded="isItemExpanded(question.question_id)"
-                          :aria-controls="`question-panel-${question.question_id}`"
-                          @click="toggleItemState(question.question_id)"
+                          :aria-expanded="isItemExpanded(question.id)"
+                          :aria-controls="`question-panel-${question.id}`"
+                          @click="toggleItemState(question.id)"
                         >
                           <span>{{ title + " " + question.counter_in_exercise }}</span>
                           <KIcon
                             style="position: absolute; right:0; top: 0.92em"
-                            :icon="isItemExpanded(question.question_id) ?
+                            :icon="isItemExpanded(question.id) ?
                               'chevronUp' : 'chevronRight'"
                           />
                         </KButton>
@@ -292,18 +292,18 @@
                     </template>
                     <template #content>
                       <div
-                        v-if="isItemExpanded(question.question_id)"
-                        :id="`question-panel-${question.question_id}`"
-                        :ref="`question-panel-${question.question_id}`"
+                        v-if="isItemExpanded(question.id)"
+                        :id="`question-panel-${question.id}`"
+                        :ref="`question-panel-${question.id}`"
                         :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                       >
                         <ContentRenderer
-                          :ref="`contentRenderer-${question.question_id}`"
+                          :ref="`contentRenderer-${question.id}`"
                           :kind="activeResourceMap[question.exercise_id].kind"
                           :lang="activeResourceMap[question.exercise_id].lang"
                           :files="activeResourceMap[question.exercise_id].files"
                           :available="activeResourceMap[question.exercise_id].available"
-                          :itemId="question.question_id"
+                          :itemId="question.id"
                           :assessment="true"
                           :allowHints="false"
                           :interactive="false"

@@ -20,7 +20,7 @@
     </span>
     <AccordionContainer
       :items="replacementQuestionPool.map(i => ({
-        id: i.question_id,
+        id: i.id,
       }))"
     >
       <template #left-actions>
@@ -36,7 +36,7 @@
       <template #default="{ toggleItemState, isItemExpanded }">
         <AccordionItem
           v-for="(question, index) in replacementQuestionPool"
-          :id="question.question_id"
+          :id="question.id"
           :key="index"
           :title="question.title"
           :aria-selected="
@@ -49,7 +49,7 @@
             >
               <KCheckbox
                 class="accordion-checkbox"
-                :checked="replacements.map(r => r.question_id).includes(question.question_id)"
+                :checked="replacements.map(r => r.id).includes(question.id)"
                 @change="() => toggleInReplacements(question)"
               />
               <KButton
@@ -57,14 +57,14 @@
                 appearance="basic-link"
                 :style="accordionStyleOverrides"
                 class="accordion-header-label"
-                :aria-expanded="isItemExpanded(question.question_id)"
-                :aria-controls="`question-panel-${question.question_id}`"
-                @click="toggleItemState(question.question_id)"
+                :aria-expanded="isItemExpanded(question.id)"
+                :aria-controls="`question-panel-${question.id}`"
+                @click="toggleItemState(question.id)"
               >
                 <span>{{ title + " " + question.counter_in_exercise }}</span>
                 <KIcon
                   style="position: absolute; right:1em; top: 0.625em;"
-                  :icon="isItemExpanded(question.question_id) ?
+                  :icon="isItemExpanded(question.id) ?
                     'chevronUp' : 'chevronRight'"
                 />
               </KButton>
@@ -72,18 +72,18 @@
           </template>
           <template #content>
             <div
-              v-if="isItemExpanded(question.question_id)"
-              :id="`question-panel-${question.question_id}`"
-              :ref="`question-panel-${question.question_id}`"
+              v-if="isItemExpanded(question.id)"
+              :id="`question-panel-${question.id}`"
+              :ref="`question-panel-${question.id}`"
               :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
             >
               <ContentRenderer
-                :ref="`contentRenderer-${question.question_id}`"
+                :ref="`contentRenderer-${question.id}`"
                 :kind="activeResourceMap[question.exercise_id].kind"
                 :lang="activeResourceMap[question.exercise_id].lang"
                 :files="activeResourceMap[question.exercise_id].files"
                 :available="activeResourceMap[question.exercise_id].available"
-                :itemId="question.question_id"
+                :itemId="question.id"
                 :assessment="true"
                 :allowHints="false"
                 :interactive="false"
@@ -213,7 +213,7 @@
       function handleReplacement() {
         const count = replacements.value.length;
         const questionsNotSelectedToBeReplaced = activeQuestions.value.filter(
-          question => !selectedActiveQuestions.value.includes(question.question_id)
+          question => !selectedActiveQuestions.value.includes(question.id)
         );
         updateSection({
           section_id: activeSection.value.section_id,
@@ -232,11 +232,9 @@
       }
 
       function toggleInReplacements(question) {
-        const replacementIds = replacements.value.map(q => q.question_id);
-        if (replacementIds.includes(question.question_id)) {
-          replacements.value = replacements.value.filter(
-            q => q.question_id !== question.question_id
-          );
+        const replacementIds = replacements.value.map(q => q.id);
+        if (replacementIds.includes(question.id)) {
+          replacements.value = replacements.value.filter(q => q.id !== question.id);
         } else {
           replacements.value.push(question);
         }

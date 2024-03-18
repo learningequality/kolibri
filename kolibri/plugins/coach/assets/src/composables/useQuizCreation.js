@@ -46,7 +46,7 @@ export default function useQuizCreation(DEBUG = false) {
   const _activeSectionId = ref(null);
 
   /** @type {ref<String[]>}
-   * The question_ids that are currently selected for action in the active section */
+   * The QuizQuestion.id's that are currently selected for action in the active section */
   const _selectedQuestionIds = ref([]);
 
   /** @type {ref<Array>} A list of all channels available which have exercises */
@@ -75,7 +75,7 @@ export default function useQuizCreation(DEBUG = false) {
     const dummyQuestions = range(1, 100).map(i => {
       const questionOverrides = {
         exercise_id: uuidv4(),
-        question_id: uuidv4(),
+        id: uuidv4(),
         title: `Question ${i}`,
         counter_in_exercise: i,
         missing_resource: false,
@@ -86,7 +86,7 @@ export default function useQuizCreation(DEBUG = false) {
     // Create some resources that we can put into the section resource_pool arrays
     const resources = range(1, 10).map(i => {
       // Get a random set of questions to put in this resource -- note here that we're only
-      // getting the QuizQuestion.question_id, which is what we'll get from the API when fetching
+      // getting the QuizQuestion.id, which is what we'll get from the API when fetching
       // ContentNodes which are Exercises
       const sliceOfQuestions = shuffle(dummyQuestions).splice(0, 5);
       const resourceOverrides = {
@@ -95,7 +95,7 @@ export default function useQuizCreation(DEBUG = false) {
         kind: ContentNodeKinds.EXERCISE,
         is_leaf: true,
         id: uuidv4(),
-        assessment_ids: sliceOfQuestions.map(q => q.question_id),
+        assessment_ids: sliceOfQuestions.map(q => q.id),
         contentnode: uuidv4(),
       };
       return objectWithDefaults(resourceOverrides, QuizExercise);
@@ -110,7 +110,7 @@ export default function useQuizCreation(DEBUG = false) {
         acc = [
           ...acc,
           // It may not be immediately clear, but this is where we're getting the QuizQuestion objs
-          ...dummyQuestions.filter(q => resource.assessment_ids.includes(q.question_id)),
+          ...dummyQuestions.filter(q => resource.assessment_ids.includes(q.id)),
         ];
         return acc;
       }, []);
@@ -168,7 +168,7 @@ export default function useQuizCreation(DEBUG = false) {
         const numQuestionsToAdd = question_count - (targetSection.question_count || 0);
         const newQuestions = selectRandomQuestionsFromResources(
           numQuestionsToAdd,
-          get(activeQuestions).map(q => q.question_id)
+          get(activeQuestions).map(q => q.id)
         );
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
@@ -341,25 +341,25 @@ export default function useQuizCreation(DEBUG = false) {
   /** @param {QuizQuestion} question
    * @affects _selectedQuestionIds - Adds question to _selectedQuestionIds if it isn't
    * there already */
-  function addQuestionToSelection(question_id) {
-    set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), question_id]));
+  function addQuestionToSelection(id) {
+    set(_selectedQuestionIds, uniq([...get(_selectedQuestionIds), id]));
   }
 
   /**
    * @param {QuizQuestion} question
    * @affects _selectedQuestionIds - Removes question from _selectedQuestionIds if it is there */
-  function removeQuestionFromSelection(question_id) {
+  function removeQuestionFromSelection(id) {
     set(
       _selectedQuestionIds,
-      get(_selectedQuestionIds).filter(id => id !== question_id)
+      get(_selectedQuestionIds).filter(_id => id !== _id)
     );
   }
 
-  function toggleQuestionInSelection(question_id) {
-    if (get(_selectedQuestionIds).includes(question_id)) {
-      removeQuestionFromSelection(question_id);
+  function toggleQuestionInSelection(id) {
+    if (get(_selectedQuestionIds).includes(id)) {
+      removeQuestionFromSelection(id);
     } else {
-      addQuestionToSelection(question_id);
+      addQuestionToSelection(id);
     }
   }
 
@@ -373,7 +373,7 @@ export default function useQuizCreation(DEBUG = false) {
     } else {
       set(
         _selectedQuestionIds,
-        get(activeQuestions).map(q => q.question_id)
+        get(activeQuestions).map(q => q.id)
       );
     }
   }
@@ -445,13 +445,13 @@ export default function useQuizCreation(DEBUG = false) {
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
    *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
-  /** @type {ComputedRef<String[]>} All question_ids the user has selected for the active section */
+  /** @type {ComputedRef<String[]>} All QuizQuestion.ids the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
   /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's `resource_pool` that
    *                                         are not in `questions` */
   const replacementQuestionPool = computed(() => {
-    const activeQuestionIds = get(activeQuestions).map(q => q.question_id);
-    return get(activeQuestionsPool).filter(q => !activeQuestionIds.includes(q.question_id));
+    const activeQuestionIds = get(activeQuestions).map(q => q.id);
+    return get(activeQuestionsPool).filter(q => !activeQuestionIds.includes(q.id));
   });
   /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
   const channels = computed(() => get(_channels));
@@ -466,7 +466,7 @@ export default function useQuizCreation(DEBUG = false) {
         isEqual(
           get(selectedActiveQuestions).sort(),
           get(activeQuestions)
-            .map(q => q.question_id)
+            .map(q => q.id)
             .sort()
         )
     );
@@ -478,7 +478,7 @@ export default function useQuizCreation(DEBUG = false) {
   function deleteActiveSelectedQuestions() {
     const { section_id, questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
-    const newQuestions = questions.filter(q => !selectedIds.includes(q.question_id));
+    const newQuestions = questions.filter(q => !selectedIds.includes(q.id));
     updateSection({ section_id, questions: newQuestions });
     set(_selectedQuestionIds, []);
   }
