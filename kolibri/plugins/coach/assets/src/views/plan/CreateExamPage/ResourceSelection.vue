@@ -343,7 +343,8 @@
         const channelBookmarkPromises = [
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
-              bookmarks.value = data.results ? data.results : [];
+              const isExercise = item => item.kind === ContentNodeKinds.EXERCISE;
+              bookmarks.value = data.results ? data.results.filter(isExercise) : [];
             }
           ),
         ];
@@ -399,9 +400,7 @@
         }
         */
         if (showBookmarks.value) {
-          return bookmarks.value
-            .filter(item => item.kind === 'exercise')
-            .map(item => ({ ...item, is_leaf: true }));
+          return bookmarks.value.map(item => ({ ...item, is_leaf: true }));
         }
 
         if (searchQuery.value) {
