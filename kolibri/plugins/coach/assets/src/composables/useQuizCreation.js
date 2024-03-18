@@ -166,7 +166,10 @@ export default function useQuizCreation(DEBUG = false) {
         // If the question_count is being increased, we need to add new questions to the end of the
         // questions array
         const numQuestionsToAdd = question_count - (targetSection.question_count || 0);
-        const newQuestions = selectRandomQuestionsFromResources(numQuestionsToAdd);
+        const newQuestions = selectRandomQuestionsFromResources(
+          numQuestionsToAdd,
+          get(activeQuestions).map(q => q.question_id)
+        );
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
     }
@@ -189,14 +192,15 @@ export default function useQuizCreation(DEBUG = false) {
    * @param numQuestions
    * @returns {QuizQuestion[]}
    */
-  function selectRandomQuestionsFromResources(numQuestions) {
+  function selectRandomQuestionsFromResources(numQuestions, excludedIds = []) {
     const pool = get(activeResourcePool);
     return selectQuestions(
       numQuestions,
       pool.map(r => r.content_id),
       pool.map(r => r.title),
       pool.map(r => r.assessmentmetadata.assessment_item_ids),
-      get(_quiz).seed
+      get(_quiz).seed,
+      excludedIds
     );
   }
 

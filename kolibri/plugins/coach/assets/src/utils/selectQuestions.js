@@ -29,7 +29,8 @@ export default function selectQuestions(
   exerciseIds,
   exerciseTitles,
   questionIdArrays,
-  seed
+  seed,
+  excludedQuestionIds = []
 ) {
   if (exerciseIds.length !== questionIdArrays.length) {
     logging.error('exerciseIds and questionIdArrays must have the same length');
@@ -52,14 +53,22 @@ export default function selectQuestions(
   // copy and shuffle the question IDs
   const shuffledQuestionIdArrays = questionIdArrays.map(shuffleWithSeed);
 
+  // reduced to remove excludedQuestionIds, ternary expression avoids iterating unnecessarily
+  const filteredQuestionIdArrays = !excludedQuestionIds.length
+    ? shuffledQuestionIdArrays
+    : shuffledQuestionIdArrays.reduce((acc, resourceQuestions) => {
+        acc.push(resourceQuestions.filter(qId => !excludedQuestionIds.includes(qId)));
+        return acc;
+      }, []);
+
   // fill up the output list
   let output = [];
   let i = 0;
   while (output.length < numQuestions) {
     const ri = randomIndexes[i];
     // check if we've used up all questions in one exercise
-    if (shuffledQuestionIdArrays[ri].length > 0) {
-      const qId = shuffledQuestionIdArrays[ri].pop();
+    if (filteredQuestionIdArrays[ri].length > 0) {
+      const qId = filteredQuestionIdArrays[ri].pop();
 
       // Only add the question/assessment to the list if it is not already there
       // from another identical exercise with a different exercise/node ID
@@ -70,7 +79,7 @@ export default function selectQuestions(
           title: exerciseTitles[ri],
         });
       }
-    } else if (getTotalOfQuestions(shuffledQuestionIdArrays) === 0) {
+    } else if (getTotalOfQuestions(filteredQuestionIdArrays) === 0) {
       // If there are not enough questions, then break the loop
       break;
     }
