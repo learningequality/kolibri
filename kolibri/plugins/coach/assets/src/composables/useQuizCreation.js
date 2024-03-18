@@ -194,11 +194,14 @@ export default function useQuizCreation(DEBUG = false) {
    */
   function selectRandomQuestionsFromResources(numQuestions, excludedIds = []) {
     const pool = get(activeResourcePool);
+    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseTitles = pool.map(r => r.title);
+    const questionIdArrays = pool.map(r => r.assessmentmetadata.assessment_item_ids);
     return selectQuestions(
       numQuestions,
-      pool.map(r => r.content_id),
-      pool.map(r => r.title),
-      pool.map(r => r.assessmentmetadata.assessment_item_ids),
+      exerciseIds,
+      exerciseTitles,
+      questionIdArrays,
       get(_quiz).seed,
       excludedIds
     );
@@ -424,11 +427,18 @@ export default function useQuizCreation(DEBUG = false) {
    *                                      exercises */
   const activeQuestionsPool = computed(() => {
     const pool = get(activeResourcePool);
+    const numQuestions = pool.reduce(
+      (count, r) => count + r.assessmentmetadata.assessment_item_ids.length,
+      0
+    );
+    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseTitles = pool.map(r => r.title);
+    const questionIdArrays = pool.map(r => r.assessmentmetadata.assessment_item_ids);
     return selectQuestions(
-      pool.reduce((count, r) => count + r.assessmentmetadata.assessment_item_ids.length, 0),
-      pool.map(r => r.content_id),
-      pool.map(r => r.title),
-      pool.map(r => r.assessmentmetadata.assessment_item_ids),
+      numQuestions,
+      exerciseIds,
+      exerciseTitles,
+      questionIdArrays,
       get(_quiz).seed
     );
   });
