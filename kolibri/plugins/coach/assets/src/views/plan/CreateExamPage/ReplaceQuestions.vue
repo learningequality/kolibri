@@ -121,11 +121,24 @@
             :primary="true"
             :text="replaceAction$()"
             :disabled="!canProceedToReplace"
-            @click="handleReplacement"
+            @click="confirmReplacement"
           />
         </KGridItem>
       </KGrid>
     </div>
+    <KModal
+      v-if="showReplacementConfirmation"
+      :submitText="coreString('confirmAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="replaceQuestions$()"
+      @cancel="showReplacementConfirmation = false"
+      @submit="handleReplacement"
+    >
+      <div> {{ replaceQuestionsExplaination$() }} </div>
+      <div style="font-weight: bold;">
+        {{ noUndoWarning$() }}
+      </div>
+    </KModal>
     <KModal
       v-if="showCloseConfirmation"
       :submitText="coreString('continueAction')"
@@ -171,6 +184,7 @@
         replaceQuestionsExplaination$,
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
+        noUndoWarning$,
       } = enhancedQuizManagementStrings;
       const {
         // Computed
@@ -188,6 +202,7 @@
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
+      const showReplacementConfirmation = ref(false);
 
       function handleConfirmClose() {
         context.emit('closePanel');
@@ -210,6 +225,10 @@
             snackbar: numberOfQuestionsReplaced$({ count }),
           },
         });
+      }
+
+      function confirmReplacement() {
+        showReplacementConfirmation.value = true;
       }
 
       function toggleInReplacements(question) {
@@ -257,6 +276,8 @@
         replaceSelectedQuestions,
         activeResourceMap,
         showCloseConfirmation,
+        showReplacementConfirmation,
+        confirmReplacement,
 
         handleConfirmClose,
         clearSelectedQuestions,
@@ -268,10 +289,11 @@
         deleteSectionLabel$,
         replaceAction$,
         selectAllLabel$,
-        replaceQuestionsExplaination$,
         numberOfSelectedReplacements$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
+        noUndoWarning$,
+        replaceQuestionsExplaination$,
       };
     },
     computed: {
@@ -296,7 +318,12 @@
       },
     },
     beforeRouteLeave(_, __, next) {
-      if (!this.showCloseConfirmation && this.canProceedToReplace) {
+      if (
+        !this.showCloseConfirmation && // We aren't here because the user confirmed closing
+        !this.showReplacementConfirmation && // And they haven't confirmed replacing either
+        this.replacements.length > 0 // And there are changes to prompt about
+      ) {
+        // We show the confirmation to close and lose changes
         this.showCloseConfirmation = true;
         next(false);
       } else {
