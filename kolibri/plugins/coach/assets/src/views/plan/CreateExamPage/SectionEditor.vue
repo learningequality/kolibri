@@ -125,7 +125,7 @@
 
     <KRouterLink
       appearance="raised-button"
-      :to="{ path: 'select-resources' }"
+      :to="selectResourcesRoute"
       style="margin-bottom: 1em;"
       iconAfter="forward"
     >
@@ -440,11 +440,22 @@
           backgroundColor: this.$themeTokens.surface,
         };
       },
+      selectResourcesRoute() {
+        return { name: PageNames.QUIZ_SELECT_RESOURCES };
+      },
     },
     beforeRouteLeave(to, __, next) {
       if (!this.showCloseConfirmation && this.formDataHasChanged && !this.showDeleteConfirmation) {
-        this.showCloseConfirmation = true;
-        next(false);
+        if (to.name === PageNames.QUIZ_SELECT_RESOURCES) {
+          // We're going from here to select resources so we'll save settings and move on without
+          // asking for confirmation.
+          // TODO This needs to be updated when/if "autosave" is implemented
+          this.applySettings();
+          next();
+        } else {
+          this.showCloseConfirmation = true;
+          next(false);
+        }
       } else {
         next();
       }
