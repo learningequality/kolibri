@@ -2,7 +2,7 @@ diskcache==4.1.0
 django-filter==21.1
 django-js-reverse==0.10.2
 djangorestframework==3.14.0
-django==3.2.24
+django==3.2.25
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.14.0
