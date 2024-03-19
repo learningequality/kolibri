@@ -144,7 +144,7 @@
         return this.windowBreakpoint < 3;
       },
       usesTouch() {
-        return isTouchDevice;
+        return isTouchDevice && localStorage.getItem('mouseUsed') !== 'true';
       },
       itemRenderData() {
         return {
