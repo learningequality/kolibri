@@ -3,12 +3,12 @@ package org.learningequality;
 import android.content.Context;
 
 import org.kivy.android.PythonActivity;
-import org.learningequality.Kolibri.WorkerService;
+import org.kivy.android.PythonProvider;
 
 public class ContextUtil {
     public static Context getApplicationContext() {
-        if (isServiceContext()) {
-            return WorkerService.mService.getApplicationContext();
+        if (PythonProvider.isActive()) {
+            return PythonProvider.get().getContext();
         }
         if (isActivityContext()) {
             return PythonActivity.mActivity.getApplicationContext();
@@ -18,9 +18,5 @@ public class ContextUtil {
 
     public static boolean isActivityContext() {
         return PythonActivity.mActivity != null;
-    }
-
-    public static boolean isServiceContext() {
-        return WorkerService.mService != null;
     }
 }

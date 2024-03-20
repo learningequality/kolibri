@@ -52,7 +52,7 @@ public class Builder extends NotificationCompat.Builder {
     }
 
     public Builder(Context context, int channelRef) {
-        this(context, NotificationRef.getChannelId(context, channelRef));
+        this(context, NotificationRef.getChannelId(channelRef));
     }
 
     public Builder(Context context, NotificationRef ref) {

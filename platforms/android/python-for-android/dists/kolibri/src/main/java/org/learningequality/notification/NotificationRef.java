@@ -1,8 +1,5 @@
 package org.learningequality.notification;
 
-import android.content.Context;
-
-import org.learningequality.Kolibri.R;
 
 public final class NotificationRef {
     public static final int ID_DEFAULT = 1;
@@ -24,8 +21,8 @@ public final class NotificationRef {
         this(channelRef, ID_DEFAULT, tag);
     }
 
-    public NotificationRef(int channelRef) {
-        this(channelRef, ID_DEFAULT, null);
+    public NotificationRef(int channelRef, int id) {
+        this(channelRef, id, null);
     }
 
     public int getChannelRef() {
@@ -40,7 +37,7 @@ public final class NotificationRef {
         return tag;
     }
 
-    public static String getChannelId(Context context, int channelRef) {
+    public static String getChannelId(int channelRef) {
         switch (channelRef) {
             case REF_CHANNEL_SERVICE:
                 return ID_CHANNEL_SERVICE;
