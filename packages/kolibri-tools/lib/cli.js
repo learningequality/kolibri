@@ -235,6 +235,7 @@ program
     false
   )
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
+  .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
   .action(function(mode, options) {
     if (options.requireKdsPath) {
       if (!options.kdsPath) {
@@ -320,7 +321,19 @@ program
         });
       }
     }
-    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
+
+    if (options.writeToDisk && mode === modes.DEV) {
+      cliLogging.warn(
+        'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.'
+      );
+      runWebpackBuild(mode, bundleData, false, {
+        ...options,
+        cache: false,
+        hot: false,
+      });
+    } else {
+      runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
+    }
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
