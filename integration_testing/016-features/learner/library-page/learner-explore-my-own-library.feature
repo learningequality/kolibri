@@ -29,7 +29,6 @@ Feature: Find new things in your library
 		Then I see the *Explore channel* modal
 			And I see the bread crumb navigation on top
 			And I see the channel's title, icon and description
-			And I see the *Show available resources only* toggle
 			And I see the *Folders* section to the right
 			And I see the *Search* tab next to the *Folders* tab
 			And I see all of the available folders
@@ -39,42 +38,26 @@ Feature: Find new things in your library
 		Given I am viewing the *Learn > Library* page in a mobile browser
 		When I tap on a channel
 		Then I see the *Explore channel* modal
-			And I see the channel's title, icon and the *Show available resources only* toggle
+			And I see the channel's title, icon
 			And I see the bread crumb navigation
 			And I see the *Folders* and *Search* buttons
 			And I see the topic title of the first available folder
 			And I see the available folders and resources cards in a single column view
 
-	Scenario: The *Show* dropdown is hidden if there are no resources downloaded by the user #NOT IMPLEMENTED
-		When I go to the *Library > Explore channel* modal
-			And there are available resources
-			And I have previously not downloaded any of the resources
-		Then the the *Show* dropdown is not being displayed
-
-	Scenario: All resources are displayed by default
-		Given I am at the *Library > Explore channel* modal
-			And I have previously downloaded resources
-		When I look at the *Show* dropdown
-		Then I see that *All resources* is selected by default
-			And I can see that all resources are displayed in that case
-		When I select the option *My downloads only*
-		Then I see only the downloaded resources
-
 	Scenario: Add resource to My downloads from folder/resource browsing page
 		Given I am at the *Library > Explore channel* modal
 			And there are downloadable resources
 		When I click the download icon on a resource card
-		Then I see the following snackbar: *Started download Go to downloads*
+		Then I see the following snackbar: *Download requested Go to downloads*
 		When I go to *My downloads*
 		Then I can see that the resource is downloaded
 
-	Scenario: Add resource to My downloads from the information panel
+	Scenario: Add resource to My downloads from the content render
 		Given I am at the *Library > Explore channel* modal
-		When I click the info icon of a resource
-		Then I see the metadata panel
-			And I see an option to add a resource to *My downloads*
-		When I add the resource to *My downloads*
-		Then I see *Added to My downloads.*
-			And I see a *Remove* button next to it
-		When I click the *Remove* button
-		Then the resource is removed from *My downloads*
+		When I open a resource
+			And I look at the top right corner of the content renderer
+		Then I see a *Download* icon
+		When I click the download icon
+		Then I see the following snackbar: *Download requested Go to downloads*
+		When I go to *My downloads*
+		Then I can see that the resource is downloaded
