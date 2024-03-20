@@ -25,10 +25,6 @@ on:
       tar-url:
         required: false
         type: string
-      ref:
-        description: 'A ref for this workflow to check out its own repo'
-        required: false
-        type: string
       signed:
         description: 'Should this be signed with the development key? (mutually exclusive with release)'
         required: false
@@ -75,6 +71,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
+      REPOSITORY: ${{ github.action_repository }}
+      REF: ${{ github.action_ref }}
     outputs:
       apk-file-name: ${{ steps.get-apk-filename.outputs.apk-file-name }}
       version-code: ${{ steps.get-version-code.outputs.version-code}}
@@ -90,12 +88,9 @@ jobs:
         echo "Must specify only one reference for the tar file to build the APK with."
         exit 1
     - uses: actions/checkout@v4
-      if: ${{ !inputs.ref }}
-    - uses: actions/checkout@v4
-      if: ${{ inputs.ref }}
       with:
-        repository: learningequality/kolibri-installer-android
-        ref: ${{ inputs.ref }}
+        repository: ${{ env.REPOSITORY }}
+        ref: ${{ env.REF }}
     - name: Get SHA of current commit
       id: get-commit
       # Note that we do this, so that we get the same commit regardless
