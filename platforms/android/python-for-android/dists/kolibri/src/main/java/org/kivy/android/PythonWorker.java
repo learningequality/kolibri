@@ -6,8 +6,6 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 
-import java.io.File;
-
 /**
  * Ideally this would be called `PythonWorkerImpl` but the name is used in the native code.
  */

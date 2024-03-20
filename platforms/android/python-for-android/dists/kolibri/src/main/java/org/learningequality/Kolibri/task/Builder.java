@@ -9,11 +9,9 @@ import androidx.work.OneTimeWorkRequest;
 import androidx.work.OutOfQuotaPolicy;
 import androidx.work.WorkInfo;
 import androidx.work.WorkQuery;
-import androidx.work.multiprocess.RemoteListenableWorker;
 
 import org.learningequality.Kolibri.BackgroundWorker;
 import org.learningequality.Kolibri.ForegroundWorker;
-import org.learningequality.Kolibri.WorkerService;
 import org.learningequality.Kolibri.sqlite.JobStorage;
 import org.learningequality.task.Worker;
 
@@ -161,16 +159,6 @@ public class Builder {
             String dataArgument = id == null ? "" : id;
             Data.Builder builder = new Data.Builder()
                     .putString(Worker.ARGUMENT_WORKER_ARGUMENT, dataArgument);
-
-            if (longRunning || expedite) {
-                builder.putString(
-                            RemoteListenableWorker.ARGUMENT_PACKAGE_NAME, "org.learningequality.Kolibri"
-                        )
-                        .putString(
-                                RemoteListenableWorker.ARGUMENT_CLASS_NAME,
-                                WorkerService.class.getName()
-                        );
-            }
             Data data = builder.build();
             Log.v(TAG, "Worker request data: " + data.toString());
             return data;

@@ -9,6 +9,7 @@ from kolibri.plugins.hooks import register_hook
 
 Locale = autoclass("java.util.Locale")
 Task = autoclass("org.learningequality.Task")
+TaskWorker = autoclass("org.learningequality.Kolibri.task.TaskWorkerImpl")
 PROGRESS_LIMIT = 10000
 
 
@@ -73,11 +74,10 @@ class StorageHook(StorageHook):
             # avoid passing integers that are too large
             # PROGRESS_LIMIT gives sufficient precision for a % progress calculation
             if total_progress > PROGRESS_LIMIT:
-                progress = progress // total_progress * PROGRESS_LIMIT
+                progress = PROGRESS_LIMIT * progress // total_progress
                 total_progress = PROGRESS_LIMIT
 
-            Task.updateProgress(
-                orm_job.worker_extra,
+            TaskWorker.notifyLocalObservers(
                 status.title,
                 status.text,
                 progress,

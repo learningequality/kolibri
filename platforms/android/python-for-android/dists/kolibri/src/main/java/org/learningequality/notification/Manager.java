@@ -1,7 +1,11 @@
 package org.learningequality.notification;
 
+import android.Manifest;
+import android.app.Notification;
 import android.content.Context;
+import android.content.pm.PackageManager;
 
+import androidx.core.app.ActivityCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class Manager {
@@ -17,9 +21,9 @@ public class Manager {
         send(null, null, -1, -1);
     }
 
-    public void send(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
+    public Notification prepare(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
         if (ref == null) {
-            return;
+            return null;
         }
         Builder builder = new Builder(context, ref);
         if (notificationTitle != null) {
@@ -31,8 +35,21 @@ public class Manager {
         if (notificationProgress != -1 && notificationTotal != -1) {
             builder.setProgress(notificationTotal, notificationProgress, false);
         }
+        return builder.build();
+    }
+
+    public Notification send(String notificationTitle, String notificationText, int notificationProgress, int notificationTotal) {
+        if (ref == null) {
+            return null;
+        }
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: handle this case
+            return null;
+        }
+        Notification notification = prepare(notificationTitle, notificationText, notificationProgress, notificationTotal);
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(context);
-        notificationManager.notify(ref.getTag(), ref.getId(), builder.build());
+        notificationManager.notify(ref.getTag(), ref.getId(), notification);
+        return notification;
     }
 
     public void hide() {

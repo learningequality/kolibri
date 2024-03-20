@@ -1,5 +1,6 @@
 package org.learningequality.notification;
 
+import android.app.Notification;
 import android.content.Context;
 
 
@@ -18,13 +19,13 @@ public interface Notifier {
         return new Manager(getApplicationContext(), ref);
     }
 
-    default void sendNotification(
+    default Notification sendNotification(
             String notificationTitle,
             String notificationText,
             int notificationProgress,
             int notificationTotal
     ) {
-        getNotificationManager(getNotificationRef())
+        return getNotificationManager(getNotificationRef())
                 .send(notificationTitle, notificationText, notificationProgress, notificationTotal);
     }
 
