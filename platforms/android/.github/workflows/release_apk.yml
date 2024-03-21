@@ -14,6 +14,10 @@ on:
         description: 'The version code to promote to the open testing track'
         required: true
         type: string
+      ref:
+        description: 'A ref for this workflow to check out its own repo'
+        required: true
+        type: string
     secrets:
       KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON:
         required: false
@@ -23,13 +27,14 @@ jobs:
     runs-on: ubuntu-latest
     env:
       SERVICE_ACCOUNT_JSON: '${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}'
-      REPOSITORY: ${{ github.action_repository }}
-      REF: ${{ github.action_ref }}
     steps:
       - uses: actions/checkout@v4
+        if: ${{ !inputs.ref }}
+      - uses: actions/checkout@v4
+        if: ${{ inputs.ref }}
         with:
-          repository: ${{ env.REPOSITORY }}
-          ref: ${{ env.REF }}
+          repository: learningequality/kolibri-installer-android
+          ref: ${{ inputs.ref }}
       - name: Set up Python 3.9
         uses: actions/setup-python@v5
         with:
