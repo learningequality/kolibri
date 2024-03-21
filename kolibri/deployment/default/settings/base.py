@@ -64,7 +64,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "kolibri.core",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -393,11 +392,6 @@ REST_FRAMEWORK = {
 # see https://docs.djangoproject.com/en/3.2/ref/settings/#silenced-system-checks
 # and https://docs.djangoproject.com/en/3.2/ref/checks/#auth
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
-
-# Configuration for Django JS Reverse
-# https://github.com/ierror/django-js-reverse#options
-
-JS_REVERSE_EXCLUDE_NAMESPACES = ["admin"]
 
 ENABLE_DATA_BOOTSTRAPPING = True
 
