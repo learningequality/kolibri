@@ -326,14 +326,9 @@ program
       cliLogging.warn(
         'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.'
       );
-      runWebpackBuild(mode, bundleData, false, {
-        ...options,
-        cache: false,
-        hot: false,
-      });
-    } else {
-      runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
     }
+
+    runWebpackBuild(mode, bundleData, !options.writeToDisk && mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
