@@ -17,7 +17,6 @@ Including another URLconf
 .. moduleauthor:: Learning Equality <info@learningequality.org>
 
 """
-from django.contrib import admin
 from django.urls import include
 from django.urls import path
 from django.urls import re_path
@@ -32,7 +31,6 @@ if path_prefix == "/":
     path_prefix = ""
 
 url_patterns_prefixed = [
-    re_path(r"^admin/", admin.site.urls),
     re_path(r"", include(morango_urls)),
     re_path(r"", include("kolibri.core.urls")),
     re_path(r"", include(get_root_urls())),
