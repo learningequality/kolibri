@@ -58,11 +58,6 @@ export default class KolibriApp extends KolibriModule {
     return {};
   }
 
-  handlePointerDown(event) {
-    if (event.pointerType === 'mouse' && localStorage.getItem('mouseUsed') !== 'true') {
-      localStorage.setItem('mouseUsed', 'true');
-    }
-  }
 
   setupVue() {
     // VueRouter instance needs to be defined to use vuex-router-sync
@@ -116,10 +111,6 @@ export default class KolibriApp extends KolibriModule {
         ...this.stateSetters.map(setter => setter(this.store)),
       ]).then(() => {
         this.startRootVue();
-        window.addEventListener('pointerdown', this.handlePointerDown.bind(this));
-        this.rootvue.$on('hook:beforeDestroy', () => {
-          window.removeEventListener('pointerdown', this.handlePointerDown.bind(this));
-        });
       });
     });
   }
