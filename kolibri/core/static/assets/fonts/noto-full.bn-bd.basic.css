@@ -19,6 +19,15 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansBengali.600.woff') format('woff');
+  font-style: normal;
+  font-weight: 600;
+  unicode-range: U+0,U+D,U+20-23,U+25,U+27-3F,U+5B-5F,U+7B-7E,U+A0,U+AD,U+D7,U+F7,U+2BC,U+951-952,U+964-965,U+980-983,U+985-98C,U+98F-990,U+993-9A8,U+9AA-9B0,U+9B2,U+9B6-9B9,U+9BC-9C4,U+9C7-9C8,U+9CB-9CE,U+9D7,U+9DC-9DD,U+9DF-9E3,U+9E6-9FE,U+1CD0,U+1CD2,U+1CD5-1CD6,U+1CD8,U+1CE1,U+1CEA,U+1CED,U+1CF2,U+1CF5-1CF7,U+200B-200D,U+2010,U+2013-2014,U+2018-2019,U+201C-201D,U+2026,U+20B9,U+2212,U+25CC,U+A8F1;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansBengali.700.woff') format('woff');
   font-style: normal;
   font-weight: bold;

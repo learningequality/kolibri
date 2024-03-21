@@ -19,6 +19,15 @@
 
 @font-face {
   font-family: 'noto-full';
+  src: url('noto-full.NotoSansKhmer.600.woff') format('woff');
+  font-style: normal;
+  font-weight: 600;
+  unicode-range: U+0,U+D,U+20-22,U+27-29,U+2C-2F,U+3A-3B,U+3F,U+A0,U+AB,U+AD,U+BB,U+1780-17DD,U+17E0-17E9,U+17F0-17F9,U+19E0-19FF,U+200B-200D,U+2010,U+2018-2019,U+201C-201D,U+2026,U+25CC;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'noto-full';
   src: url('noto-full.NotoSansKhmer.700.woff') format('woff');
   font-style: normal;
   font-weight: bold;

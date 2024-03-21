@@ -19,17 +19,28 @@ import tempfile
 import noto_source
 import utils
 
-try:
-    import fontTools  # noqa
-except ImportError:
-    utils.install_requirement("fonttools==4.28.1")
-
-from fontTools import merge
-from fontTools import subset
-
 logging.basicConfig(format="%(levelname)s: %(message)s", level=logging.INFO)
 logging.getLogger("fontTools").setLevel(logging.WARNING)
 logging.StreamHandler(sys.stdout)
+
+
+font_tools_version = "4.49.0"
+
+try:
+    import fontTools  # noqa
+
+    assert fontTools.version == font_tools_version
+except ImportError:
+    utils.install_requirement(f"fonttools=={font_tools_version}")
+except AssertionError:
+    utils.install_requirement(f"fonttools=={font_tools_version}")
+    logging.error(
+        "Wrong fontTools version was installed. This has been updated. Please re-run the command."
+    )
+    sys.exit(1)
+
+from fontTools import merge  # noqa E402
+from fontTools import subset  # noqa E402
 
 
 """
@@ -85,9 +96,21 @@ _FONT_FACE = """
 }}
 """
 
+FONT_WEIGHT_NAME_MAP = {
+    "Regular": "normal",
+    "SemiBold": "600",
+    "Bold": "bold",
+}
 
-def _gen_font_face(family, url, is_bold, unicodes):
-    weight = "bold" if is_bold else "normal"
+FONT_WEIGHT_MAP = {
+    "Regular": "400",
+    "SemiBold": "600",
+    "Bold": "700",
+}
+
+
+def _gen_font_face(family, url, weight, unicodes):
+    weight = FONT_WEIGHT_NAME_MAP[weight]
     return _FONT_FACE.format(family=family, url=url, weight=weight, unicodes=unicodes)
 
 
@@ -96,10 +119,8 @@ def _scoped(scope, name):
 
 
 @utils.memoize
-def _woff_font_path(name, is_bold):
-    file_name = "{name}.{weight}.woff".format(
-        name=name, weight="700" if is_bold else "400"
-    )
+def _woff_font_path(name, weight):
+    file_name = "{name}.{weight}.woff".format(name=name, weight=FONT_WEIGHT_MAP[weight])
     return os.path.join(OUTPUT_PATH, file_name)
 
 
@@ -234,20 +255,18 @@ Full Fonts
 """
 
 
-def _full_font_face(font_family, font_name, is_bold, omit_glyphs=None):
+def _full_font_face(font_family, font_name, weight, omit_glyphs=None):
     """
     generate the CSS reference for a single full font
     """
     if omit_glyphs is None:
         omit_glyphs = set()
-    file_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=is_bold)
+    file_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
     file_name = os.path.basename(file_path)
     glyphs = _font_glyphs(file_path) - omit_glyphs
     if not glyphs:
         return ""
-    return _gen_font_face(
-        font_family, file_name, is_bold=is_bold, unicodes=_fmt_range(glyphs)
-    )
+    return _gen_font_face(font_family, file_name, weight, unicodes=_fmt_range(glyphs))
 
 
 def _gen_full_css_modern(lang_info):
@@ -261,20 +280,16 @@ def _gen_full_css_modern(lang_info):
     # all available fonts
     font_faces = []
     for font_name in _font_priorities(lang_info[utils.KEY_DEFAULT_FONT]):
-        font_faces.append(
-            _full_font_face(
-                SCOPE_FULL, font_name, is_bold=False, omit_glyphs=previous_glyphs
+        for weight in noto_source.WEIGHTS:
+            font_faces.append(
+                _full_font_face(
+                    SCOPE_FULL, font_name, weight, omit_glyphs=previous_glyphs
+                )
             )
-        )
-        font_faces.append(
-            _full_font_face(
-                SCOPE_FULL, font_name, is_bold=True, omit_glyphs=previous_glyphs
-            )
-        )
 
         # Assumes all four variants have the same glyphs, from the content Regular font
         previous_glyphs |= _font_glyphs(
-            _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=False)
+            _woff_font_path(_scoped(SCOPE_FULL, font_name), "Regular")
         )
 
     output_name = os.path.join(
@@ -296,13 +311,13 @@ def _gen_full_css_basic(lang_info):
     with open(output_name, "w") as f:
         f.write(CSS_HEADER)
         default_font = lang_info[utils.KEY_DEFAULT_FONT]
-        f.write(_full_font_face(SCOPE_FULL, default_font, is_bold=False))
-        f.write(_full_font_face(SCOPE_FULL, default_font, is_bold=True))
+        for weight in noto_source.WEIGHTS:
+            f.write(_full_font_face(SCOPE_FULL, default_font, weight))
 
 
-def _write_full_font(font_name, is_bold):
-    font = _load_font(noto_source.get_path(font_name, is_bold=is_bold))
-    output_name = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=is_bold)
+def _write_full_font(font_name, weight):
+    font = _load_font(noto_source.get_path(font_name, weight))
+    output_name = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
     logging.info("Writing {}".format(output_name))
     font.save(output_name)
 
@@ -313,8 +328,8 @@ def command_gen_full_fonts():
     _clean_up(SCOPE_FULL)
 
     for font_name in noto_source.FONT_MANIFEST:
-        _write_full_font(font_name, is_bold=False)
-        _write_full_font(font_name, is_bold=True)
+        for weight in noto_source.WEIGHTS:
+            _write_full_font(font_name, weight)
 
     languages = utils.available_languages(include_in_context=True, include_english=True)
     for lang_info in languages:
@@ -337,7 +352,7 @@ def _chunks(string, n=72):
         yield string[i : i + n]
 
 
-def _write_inline_font(file_object, font_path, font_family, is_bold):
+def _write_inline_font(file_object, font_path, font_family, weight):
     """
     Inlines a font as base64 encoding within a CSS file
     """
@@ -353,7 +368,7 @@ def _write_inline_font(file_object, font_path, font_family, is_bold):
         _gen_font_face(
             family=font_family,
             url=data_uri,
-            is_bold=is_bold,
+            weight=weight,
             unicodes=_fmt_range(glyphs),
         )
     )
@@ -364,18 +379,14 @@ def _generate_inline_font_css(name, font_family):
     Generate CSS and clean up inlined woff files
     """
 
-    font_path_reg = _woff_font_path(name, is_bold=False)
-    font_path_bold = _woff_font_path(name, is_bold=True)
-
     output_name = os.path.join(OUTPUT_PATH, "{}.css".format(name))
     logging.info("Writing {}".format(output_name))
     with open(output_name, "w") as f:
         f.write(CSS_HEADER)
-        _write_inline_font(f, font_path_reg, font_family, is_bold=False)
-        _write_inline_font(f, font_path_bold, font_family, is_bold=True)
-
-    os.unlink(font_path_reg)
-    os.unlink(font_path_bold)
+        for weight in noto_source.WEIGHTS:
+            font_path = _woff_font_path(name, weight)
+            _write_inline_font(f, font_path, font_family, weight)
+            os.unlink(font_path)
 
 
 def _get_subset_font(source_file_path, text):
@@ -477,25 +488,39 @@ def _merge_fonts(fonts, output_file_path):
     logging.info("created {}".format(output_file_path))
 
 
-def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_path):
+# For reasons that are not entirely clear, these fonts do not subset well.
+# They are not used in app interface text, so we exclude them from the subset font generation.
+FONTS_TO_EXCLUDE_FROM_SUBSET = {
+    "NotoSansCanadianAboriginal",
+    "NotoSansEthiopic",
+    "NotoSansSoraSompeng",
+    "NotoSansSymbols",
+    "NotoSansThaana",
+}
+
+
+def _subset_and_merge_fonts(text, default_font, scope):
     """
     Given text, generate both a bold and a regular font that can render it.
     """
-    reg_subsets = []
-    bold_subsets = []
+    subsets = {}
+    for weight in noto_source.WEIGHTS:
+        subsets[weight] = []
 
     # track which glyphs are left
     remaining_glyphs = set([ord(c) for c in text])
 
     for font_name in _font_priorities(default_font):
-        full_reg_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=False)
-        full_bold_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), is_bold=True)
-        reg_subset = _get_subset_font(full_reg_path, text)
-        bold_subset = _get_subset_font(full_bold_path, text)
 
-        reg_subsets.append(reg_subset)
-        bold_subsets.append(bold_subset)
+        if font_name in FONTS_TO_EXCLUDE_FROM_SUBSET:
+            continue
 
+        for weight in noto_source.WEIGHTS:
+            full_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), weight)
+            subset = _get_subset_font(full_path, text)
+            subsets[weight].append(subset)
+
+        full_reg_path = _woff_font_path(_scoped(SCOPE_FULL, font_name), "Regular")
         new_glyphs = _font_glyphs(full_reg_path)
         remaining_glyphs -= new_glyphs
         if not remaining_glyphs:
@@ -503,8 +528,10 @@ def _subset_and_merge_fonts(text, default_font, subset_reg_path, subset_bold_pat
 
         text = "".join([c for c in text if ord(c) in remaining_glyphs])
 
-    _merge_fonts(reg_subsets, os.path.join(OUTPUT_PATH, subset_reg_path))
-    _merge_fonts(bold_subsets, os.path.join(OUTPUT_PATH, subset_bold_path))
+    for weight in noto_source.WEIGHTS:
+        subset_path = _woff_font_path(scope, weight)
+        subset = subsets[weight]
+        _merge_fonts(subset, os.path.join(OUTPUT_PATH, subset_path))
 
 
 def command_gen_subset_fonts(locale_data_folder):
@@ -525,8 +552,7 @@ def command_gen_subset_fonts(locale_data_folder):
     _subset_and_merge_fonts(
         text=" ".join(_get_common_strings()),
         default_font=NOTO_SANS_LATIN,
-        subset_reg_path=_woff_font_path(SCOPE_COMMON, is_bold=False),
-        subset_bold_path=_woff_font_path(SCOPE_COMMON, is_bold=True),
+        scope=SCOPE_COMMON,
     )
 
     languages = utils.available_languages(include_in_context=True, include_english=True)
@@ -541,8 +567,7 @@ def command_gen_subset_fonts(locale_data_folder):
         _subset_and_merge_fonts(
             text=" ".join(strings),
             default_font=lang_info[utils.KEY_DEFAULT_FONT],
-            subset_reg_path=_woff_font_path(_scoped(SCOPE_SUBSET, name), is_bold=False),
-            subset_bold_path=_woff_font_path(_scoped(SCOPE_SUBSET, name), is_bold=True),
+            scope=_scoped(SCOPE_SUBSET, name),
         )
 
     # generate common subset file
@@ -570,6 +595,10 @@ def command_update_font_manifest(ref):
 
 def command_download_source_fonts():
     noto_source.fetch_fonts()
+
+
+def command_show_all_available_typefaces():
+    noto_source.show_typefaces()
 
 
 """
@@ -614,7 +643,16 @@ def main():
 
     subparsers.add_parser(
         "update-font-manifest",
-        help="Update manifest from https://github.com/googlei18n/noto-fonts/",
+        help="Update manifest from https://github.com/notofonts/notofonts.github.io",
+    ).add_argument(
+        "--ref",
+        help="Github reference, e.g. commit or tag. Defaults to head of master.",
+        type=str,
+    )
+
+    subparsers.add_parser(
+        "show-all-available-typefaces",
+        help="Show available typefaces from https://github.com/notofonts/notofonts.github.io",
     ).add_argument(
         "--ref",
         help="Github reference, e.g. commit or tag. Defaults to head of master.",
@@ -623,7 +661,7 @@ def main():
 
     subparsers.add_parser(
         "download-source-fonts",
-        help="Download sources from https://github.com/googlei18n/noto-fonts/",
+        help="Download sources from https://github.com/notofonts/notofonts.github.io",
     )
 
     subparsers.add_parser(
@@ -638,6 +676,8 @@ def main():
 
     if args.command == "update-font-manifest":
         command_update_font_manifest(args.ref)
+    elif args.command == "show-all-available-typefaces":
+        command_show_all_available_typefaces()
     elif args.command == "download-source-fonts":
         command_download_source_fonts()
     elif args.command == "generate-subset-fonts":

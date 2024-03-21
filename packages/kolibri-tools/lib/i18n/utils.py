@@ -97,43 +97,29 @@ def local_locale_source_path(locale_data_folder):
     return local_locale_path({KEY_INTL_CODE: "en"}, locale_data_folder)
 
 
-def json_dump_formatted(data, file_path, file_name):
+def json_dump_formatted(data, file_path):
     """
     dump json in a way that plays nicely with source control and our precommit hooks:
     - prevents trailing whitespace
     - sorted keys
     - make sure it's utf-8
     """
-
+    dir_name = os.path.dirname(file_path)
     # Ensure that the directory exists for the file to be opened inside of.
-    if not os.path.exists(file_path):
-        os.makedirs(file_path)
-
-    # Join the filename to the path which we now know exists for sure.
-    file_path_with_file_name = os.path.join(file_path, file_name)
+    if not os.path.exists(dir_name):
+        os.makedirs(dir_name)
 
     # Format and write the JSON file
-    with io.open(file_path_with_file_name, mode="w+", encoding="utf-8") as file_object:
+    with io.open(file_path, mode="w+", encoding="utf-8") as file_object:
         # Manage unicode for the JSON dumping
-        if sys.version_info[0] < 3:
-            output = json.dumps(
-                data,
-                sort_keys=True,
-                indent=2,
-                separators=(",", ": "),
-                ensure_ascii=False,
-            )
-            output = unicode(output, "utf-8")  # noqa
-            file_object.write(output)
-        else:
-            json.dump(
-                data,
-                file_object,
-                sort_keys=True,
-                indent=2,
-                separators=(",", ": "),
-                ensure_ascii=False,
-            )
+        json.dump(
+            data,
+            file_object,
+            sort_keys=True,
+            indent=2,
+            separators=(",", ": "),
+            ensure_ascii=False,
+        )
 
 
 def read_config_file():
