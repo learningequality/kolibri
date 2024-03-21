@@ -144,7 +144,7 @@
         return this.windowBreakpoint < 3;
       },
       usesTouch() {
-        return isTouchDevice && !isMouseUsed();
+        return isTouchDevice && !isMouseUsed;
       },
       itemRenderData() {
         return {
