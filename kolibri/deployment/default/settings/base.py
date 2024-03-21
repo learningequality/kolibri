@@ -393,8 +393,6 @@ REST_FRAMEWORK = {
 # and https://docs.djangoproject.com/en/3.2/ref/checks/#auth
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
 
-ENABLE_DATA_BOOTSTRAPPING = True
-
 # Session configuration
 
 SESSION_ENGINE = "django.contrib.sessions.backends.file"
