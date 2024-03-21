@@ -76,7 +76,7 @@ export default function selectQuestions(
         output.push({
           exercise_id: exerciseIds[ri],
           question_id: qId,
-          id: `${exerciseIds[ri]}.${qId}`,
+          id: `${exerciseIds[ri]}:${qId}`,
           title: exerciseTitles[ri],
         });
       }
