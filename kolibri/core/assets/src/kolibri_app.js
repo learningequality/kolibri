@@ -58,7 +58,6 @@ export default class KolibriApp extends KolibriModule {
     return {};
   }
 
-
   setupVue() {
     // VueRouter instance needs to be defined to use vuex-router-sync
     if (!router._vueRouter) {
