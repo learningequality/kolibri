@@ -6,8 +6,6 @@
     :style="mainWrapperStyles"
   >
 
-    <div v-if="blockDoubleClicks" class="click-mask"></div>
-
     <div
       v-if="!loading"
       class="scrolling-pane"
@@ -89,7 +87,6 @@
       ...mapState({
         error: state => state.core.error,
         loading: state => state.core.loading,
-        blockDoubleClicks: state => state.core.blockDoubleClicks,
       }),
       isAuthorized() {
         return !(
@@ -166,15 +163,6 @@
     margin-top: 0;
     margin-bottom: 0;
     overflow-x: auto;
-  }
-
-  .click-mask {
-    position: fixed;
-    top: 0;
-    left: 0;
-    z-index: 24;
-    width: 100%;
-    height: 100%;
   }
 
   .debug {

@@ -1240,9 +1240,34 @@ class LoginLogoutTestCase(APITestCase):
         # Assert the expected behavior for the second user
         self.assertEqual(response_user2.status_code, 200)
 
-        # Cleanup: Delete the created users
-        self.user1.delete()
-        self.user2.delete()
+    def test_case_sensitive_matching_usernames(self):
+        FacilityUserFactory.create(username="shared_username", facility=self.facility)
+
+        response_user2 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "shared_username",
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        # Assert the expected behavior for the second user
+        self.assertEqual(response_user2.status_code, 200)
+
+        # Test no error when authentication fails
+        response_user3 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "shared_username",
+                "password": "wrong_password",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response_user3.status_code, 401)
 
 
 class SignUpBase(object):
