@@ -46,7 +46,7 @@ android {
 
     defaultConfig {
         minSdkVersion 23
-        targetSdkVersion 33
+        targetSdk 34
         versionCode code
         versionName name
         manifestPlaceholders = [:]
