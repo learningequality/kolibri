@@ -395,7 +395,7 @@ class FacilityUserViewSet(ValuesViewset):
     )
     order_by_field = "username"
 
-    queryset = FacilityUser.objects.all()
+    queryset = FacilityUser.objects.all().order_by(order_by_field)
     serializer_class = FacilityUserSerializer
     filterset_class = FacilityUserFilter
     search_fields = ("username", "full_name")
