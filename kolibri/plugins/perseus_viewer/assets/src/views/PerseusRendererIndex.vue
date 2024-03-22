@@ -91,7 +91,7 @@
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import { isTouchDevice } from 'kolibri.utils.browserInfo';
+  import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
   import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
@@ -144,7 +144,7 @@
         return this.windowBreakpoint < 3;
       },
       usesTouch() {
-        return isTouchDevice;
+        return isTouchDevice && !isMouseUsed;
       },
       itemRenderData() {
         return {
