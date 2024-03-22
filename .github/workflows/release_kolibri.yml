@@ -99,11 +99,11 @@ jobs:
   apk:
     name: Build Android APK
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.0
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.1
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
       release: true
-      ref: v0.1.0
+      ref: v0.1.1
     secrets:
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}
       KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD: ${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE_PASSWORD }}
@@ -196,9 +196,9 @@ jobs:
     name: Release Android App
     if: ${{ !github.event.release.prerelease }}
     needs: [apk, block_release_step]
-    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@v0.1.0
+    uses: learningequality/kolibri-installer-android/.github/workflows/release_apk.yml@v0.1.1
     with:
       version-code: ${{ needs.apk.outputs.version-code }}
-      ref: v0.1.0
+      ref: v0.1.1
     secrets:
       KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON: ${{ secrets.KOLIBRI_ANDROID_PLAY_STORE_API_SERVICE_ACCOUNT_JSON }}
