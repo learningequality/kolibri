@@ -1,7 +1,8 @@
 Feature: Learners can discover practice quizzes in search results
+
   Scenario: Practice quizzes in search results
-    Given that I am on the 'Learn > Library > Search' page
-      And I made a search related to practice quizzes
+    Given that I am at the *Learn > Library > Search* page
+      And I make a search for practice quizzes
     Then I see practice-type resources appear in the search results
 
   Scenario: Practice quizzes details

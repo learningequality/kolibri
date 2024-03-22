@@ -36,7 +36,3 @@ Feature: Coach manages lesson resources
     When I click the *Remove* button for <resource> resource
     Then the snackbar notification appears
       And I don't see the <resource> on the list of resources anymore
-
-Examples:
-| lesson         | resource          |
-| Read the story | Night Trouble     |

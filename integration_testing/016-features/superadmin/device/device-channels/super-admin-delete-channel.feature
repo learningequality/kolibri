@@ -78,7 +78,3 @@ Feature: Super admin deletes channel(s) or resource(s)
         And I go to *Learn > Channels* page
         And I navigate the <channel2> to the topic(s) where the <resource> used to be located
       Then I do not see the <resource> anymore
-
-Examples:
-| channel      | resource |
-| MIT Blossoms | Flowers  |

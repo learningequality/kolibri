@@ -26,7 +26,3 @@ Feature: Super admin edits the order of channels
   Scenario: Review the channel order
     When I go to *Learn > Channels*
     Then I see the same channel order that I established in the previous scenario
-
-Examples:
-| channel      |
-| MIT Blossoms |

@@ -3,38 +3,34 @@ Feature: Learner closes and reopens content
 
   Background:
     Given I am signed in to Kolibri as a learner user
-      And I have previously interacted with the <content_item> content item
+      And I have previously interacted with the resource
 
   Scenario: Learner reopens a video/audio within a lesson
-    Given <content_item> is a video/audio
+    Given the resource is a video/audio
       When I reopen it within a lesson
       Then the video/audio starts playing at the timecode where I had left it off
 
   Scenario: Learner reopens a video/audio through *Library* or *Bookmarks*
-    Given <content_item> is a video/audio
+    Given the resource is a video/audio
       When I reopen it through *Library* or *Bookmarks*
       Then the video/audio starts playing at the timecode where I had left it off
 
   Scenario: Learner reopens an epub within a lesson
-    Given <content_item> is an epub
+    Given the resource is an epub
       When I reopen it within a lesson
-      Then the epub opens at the page I left off at
+      Then the epub opens at the page which I had previously reached
 
   Scenario: Learner reopens an epub through *Library* or *Bookmarks*
-    Given <content_item> is an epub
+    Given the resource is an epub
       When I reopen it through *Library* or *Bookmarks*
-      Then the epub opens at the page I left off at
+      Then the epub opens at the page which I had previously reached
 
   Scenario: Learner reopens a pdf within a lesson
-    Given <content_item> is a pdf
+    Given the resource is a pdf
     When I reopen it within a lesson
-    Then the pdf opens at the page I left off at
+    Then the pdf opens at the page which I had previously reached
 
   Scenario: Learner reopens a pdf through *Library* or *Bookmarks*
-    Given <content_item> is a pdf
+    Given the resource is a pdf
     When I reopen it through *Library* or *Bookmarks*
-    Then the pdf opens at the page I left off at
-
-Examples:
-  | content_item                     |
-  | Intro to springs and Hooke's law |
+    Then the pdf opens at the page which I had previously reached

@@ -50,8 +50,3 @@ Feature: Super admin enrolls learners and assigns coaches to classes
     When I click *Remove* button
     Then the modal closes
       And I don't see <coach> user account listed under *Coaches*
-
-Examples:
-| class    |
-| Primera  |
-| Segunda  |

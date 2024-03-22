@@ -77,7 +77,3 @@ Feature: Super admin exports entire channels or resources to local drive
     When I click *Export*
     Then I see Kolibri searching for local drives
       And I see the *Could not find a writable drive connected to the server* notification
-
-Examples:
-| channel      | resource |
-| MIT Blossoms | Flowers  |

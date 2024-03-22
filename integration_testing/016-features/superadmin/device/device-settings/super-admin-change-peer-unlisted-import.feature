@@ -43,7 +43,3 @@ Feature: Super admin changes device setting allowing unlisted channel peer impor
     Then I see *Select resources for import*
       And I see the public channel <public_channel>
       And I see the unlisted channel <unlisted_channel>
-
-Examples:
-| instance1 | instance2 | network_address1 | network_address2 | public_channel | unlisted_channel    |
-| Kolibri A | Kolibri B | 192.168.0.5      | 192.168.0.6      | MIT Blossoms   | My Private Channel |

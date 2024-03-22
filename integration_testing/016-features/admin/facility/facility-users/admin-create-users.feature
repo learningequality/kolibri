@@ -71,10 +71,3 @@ Feature: Admin creates users
       And I see the the snackbar confirmation that the user has been created
       And I see the new user on the *Facility > Users* page
       And I see the *Admin* label besides their name
-
-Examples:
-| full_name | username | password |
-| Pinco P.  | coach    | coach    |
-| Neela R.  | ccoach   | ccoach   |
-| John C.   | learner  | learner  |
-| Carrie W. | admin2   | admin2   |

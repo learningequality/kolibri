@@ -26,7 +26,3 @@ Feature: Super admin imports content from Studio or local address with token
     Then I see the *Check whether you entered token correctly* error message
 
 # continue testing using the select and import scenarios from `super-admin-import-new-content-channel-from-studio.feature`
-
-Examples:
-| channel      | token       | local_address |
-| MIT Blossoms | nakav-mafak | StudioDevelop |

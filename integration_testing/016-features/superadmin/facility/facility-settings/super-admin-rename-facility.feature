@@ -21,7 +21,3 @@ Feature: Rename facility
       And that device has the old name of the <facility>
     When the sync finishes
     Then the I see the new <facility> name on the other device
-
-Examples:
-| facility |
-| MySchool |

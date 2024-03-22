@@ -19,7 +19,3 @@ Feature: Coach deletes lesson
     But if I click the *Cancel* button
     Then the modal closes
       And I still see the lesson on the list
-
-Examples:
-| lesson     |
-| Counting 2 |

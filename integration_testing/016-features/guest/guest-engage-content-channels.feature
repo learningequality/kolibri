@@ -22,7 +22,3 @@ Feature: Guest engages content channels
     When I click on the <content_item> card
     Then I see the <content_item> page
     	And I am able to interact with the resource
-
-Examples:
-  | channel        | folder    | subfolder | content_item                   |
-  | Kolibri Demo 1 | Science  | Physics  | Intro to springs and Hooke's law |

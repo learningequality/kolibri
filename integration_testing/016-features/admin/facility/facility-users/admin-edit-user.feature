@@ -122,7 +122,3 @@ Feature: Admin edit users
     When I scroll to my name in the user list
       And I click on the *Options* dropdown button
     Then I see that the *Delete* action is disabled
-
-Examples:
-| full_name | username | password |
-| Neela R.  | ccoach   | ccoach   |
