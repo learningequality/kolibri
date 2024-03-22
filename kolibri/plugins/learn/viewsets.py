@@ -224,7 +224,9 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 }
             missing_resource = False
             for question_source in exam["question_sources"]:
-                missing_resource = not question_source["exercise_id"] in contentnode_map
+                if question_source["exercise_id"] not in contentnode_map:
+                    missing_resource = True
+                    break
             exam["missing_resource"] = missing_resource
         out_items = []
         for item in items:
