@@ -3,7 +3,6 @@ import useUser from 'kolibri.coreVue.composables.useUser';
 import redirectBrowser from 'kolibri.utils.redirectBrowser';
 import { setChannelInfo } from 'kolibri.coreVue.vuex.actions';
 import router from 'kolibri.coreVue.router';
-import PageRoot from 'kolibri.coreVue.components.PageRoot';
 import KolibriApp from 'kolibri_app';
 import { PageNames } from './constants';
 import routes from './routes';
@@ -20,9 +19,6 @@ class CoachToolsModule extends KolibriApp {
   }
   get routes() {
     return routes;
-  }
-  get RootVue() {
-    return PageRoot;
   }
   get pluginModule() {
     return pluginModule;

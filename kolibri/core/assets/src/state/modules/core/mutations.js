@@ -15,9 +15,6 @@ export default {
   CORE_SET_ERROR(state, error) {
     state.error = error;
   },
-  CORE_BLOCK_CLICKS(state, blocked) {
-    state.blockDoubleClicks = blocked;
-  },
   SET_TOTAL_PROGRESS(state, progress) {
     state.totalProgress = progress;
   },

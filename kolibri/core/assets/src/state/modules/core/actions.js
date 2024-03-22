@@ -92,22 +92,6 @@ export function handleApiError(store, { error, reloadOnReconnect = false } = {})
   throw error;
 }
 
-/**
- * Used to prevent inadvertent actions if a user double-clicks to navigate
- *
- * Something of a hack. A better strategy would be to create a new
- * `setLoading` action which handles both `state.core.loading` and
- * `state.core.blockDoubleClicks` with a single function.
- */
-export function blockDoubleClicks(store) {
-  if (!store.state.blockDoubleClicks) {
-    store.commit('CORE_BLOCK_CLICKS', true);
-    setTimeout(() => {
-      store.commit('CORE_BLOCK_CLICKS', false);
-    }, 500);
-  }
-}
-
 export function setSession(store, { session, clientNow }) {
   const serverTime = session.server_time;
   if (clientNow) {

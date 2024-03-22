@@ -26,7 +26,7 @@ class Migration(migrations.Migration):
                         primary_key=True,
                         related_name="os_user",
                         serialize=False,
-                        to=settings.AUTH_USER_MODEL,
+                        to="kolibriauth.FacilityUser",
                     ),
                 ),
                 ("os_username", models.CharField(db_index=True, max_length=64)),

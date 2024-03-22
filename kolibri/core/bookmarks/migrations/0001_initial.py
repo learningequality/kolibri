@@ -15,7 +15,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("kolibriauth", "0019_collection_no_mptt"),
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
     ]
 
     operations = [

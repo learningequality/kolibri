@@ -40,6 +40,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
@@ -1392,6 +1393,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
+    permission_classes = [IsAuthenticated]
 
     values = (
         "id",
