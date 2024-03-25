@@ -401,7 +401,7 @@
         if (children.every(c => c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
           // if all children are leaf nodes (i.e. they have no children themselves)
           // then redirect to search results
-          if (children.every(c => c.title == "")) {
+          if (children.every(c => c.title == '')) {
             router.replace({
               name: PageNames.TOPICS_TOPIC_SEARCH,
               params: { ...route.params, id },
