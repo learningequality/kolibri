@@ -176,7 +176,7 @@
       },
       currentlyViewingTextStyle() {
         return {
-          color: this.$themePalette.grey.v_700,
+          color: this.$themePalette.grey.v_800,
           fontSize: '12px',
           margin: 'auto',
         };

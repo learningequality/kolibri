@@ -88,10 +88,7 @@
                   :omitLearner="true"
                   class="role-badge"
                   data-test="userRoleBadge"
-                  :style="{
-                    color: $themeTokens.textInverted,
-                    backgroundColor: $themeTokens.annotation,
-                  }"
+                  :class="$computedClass(userRoleBadgeStyle)"
                 />
               </KCheckbox>
               <!--
@@ -130,10 +127,7 @@
                   :omitLearner="true"
                   class="role-badge"
                   data-test="userRoleBadge"
-                  :style="{
-                    color: $themeTokens.textInverted,
-                    backgroundColor: $themeTokens.annotation,
-                  }"
+                  :class="$computedClass(userRoleBadgeStyle)"
                 />
               </KRadioButton>
               <template v-else>
@@ -149,10 +143,7 @@
                   :omitLearner="true"
                   class="role-badge"
                   data-test="userRoleBadge"
-                  :style="{
-                    color: $themeTokens.textInverted,
-                    backgroundColor: $themeTokens.annotation,
-                  }"
+                  :class="$computedClass(userRoleBadgeStyle)"
                 />
               </template>
             </td>
@@ -269,6 +260,15 @@
       },
     },
     computed: {
+      userRoleBadgeStyle() {
+        return {
+          color: this.$themeTokens.textInverted,
+          backgroundColor: this.$themeTokens.annotation,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
+      },
       showSelectAllCheckbox() {
         return this.selectable && this.enableMultipleSelection;
       },

@@ -113,7 +113,7 @@
           <h2>
             <label>{{ $tr('allowDownloadOnMeteredConnection') }}</label>
           </h2>
-          <p class="info-description">
+          <p :class="InfoDescriptionColor">
             {{ $tr('DownloadOnMeteredConnectionDescription') }}
           </p>
           <KRadioButton
@@ -134,7 +134,7 @@
           <h2>
             {{ $tr('primaryStorage') }}
           </h2>
-          <p class="info-description">
+          <p :class="InfoDescriptionColor">
             {{ $tr('primaryStorageDescription') }}
           </p>
           <p>
@@ -163,7 +163,7 @@
           <h2>
             {{ $tr('secondaryStorage') }}
           </h2>
-          <p v-show="multipleReadOnlyPaths" class="info-description">
+          <p v-show="multipleReadOnlyPaths" :class="InfoDescriptionColor">
             {{ $tr('secondaryStorageDescription') }}
           </p>
           <p v-for="path in secondaryStorageLocations" :key="path.index">
@@ -255,7 +255,7 @@
           <h2>
             {{ $tr('enabledPages') }}
           </h2>
-          <p class="info-description">
+          <p :class="InfoDescriptionColor">
             {{ deviceString('newEnabledPluginsState') }}
           </p>
 
@@ -479,6 +479,11 @@
     computed: {
       ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
+      InfoDescriptionColor() {
+        return {
+          color: this.$themePalette.grey.v_700,
+        };
+      },
       pageTitle() {
         return this.deviceString('deviceManagementTitle');
       },
@@ -1195,10 +1200,6 @@
     display: flex;
     flex-direction: row;
     align-items: center;
-  }
-
-  .info-description {
-    color: #616161;
   }
 
   input[type='range'] {

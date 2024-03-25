@@ -31,19 +31,19 @@
             title: this.coreString('classHome'),
             link: this.navRoute(PageNames.HOME_PAGE),
             icon: 'dashboard',
-            color: this.$themeTokens.textInverted,
+            color: this.$themeTokens.text,
           },
           {
             title: this.coachString('reportsLabel'),
             link: this.navRoute(PageNames.REPORTS_PAGE),
             icon: 'reports',
-            color: this.$themeTokens.textInverted,
+            color: this.$themeTokens.text,
           },
           {
             title: this.coachString('planLabel'),
             link: this.navRoute(PageNames.PLAN_PAGE),
             icon: 'edit',
-            color: this.$themeTokens.textInverted,
+            color: this.$themeTokens.text,
           },
         ];
       },

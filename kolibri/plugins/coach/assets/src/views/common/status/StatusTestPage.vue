@@ -214,7 +214,7 @@
         return { border: `1px solid ${this.$themeTokens.fineLine}` };
       },
       thickBorderStyle() {
-        return { border: `2px solid ${this.$themePalette.grey.v_500}` };
+        return { border: `2px solid ${this.$themePalette.grey.v_600}` };
       },
     },
     mounted() {

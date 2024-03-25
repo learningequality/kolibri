@@ -1,6 +1,6 @@
 import { mount } from '@vue/test-utils';
 import Vuex from 'vuex';
-import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import FacilityAppBarPage from '../../src/views/FacilityAppBarPage';
 
 function makeWrapper({ propsData = {}, getters = {} }) {
@@ -16,7 +16,7 @@ function makeWrapper({ propsData = {}, getters = {} }) {
   });
 }
 jest.mock('kolibri.urls');
-jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 describe('FacilityAppBarPage', function() {
   beforeAll(() => {

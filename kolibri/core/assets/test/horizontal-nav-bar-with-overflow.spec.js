@@ -1,8 +1,8 @@
 import HorizontalNavBarWithOverflowMenu from 'kolibri.coreVue.components.HorizontalNavBarWithOverflowMenu';
-import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { shallowMount } from '@vue/test-utils';
 
-jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 function makeWrapper({ propsData } = {}) {
   return shallowMount(HorizontalNavBarWithOverflowMenu, { propsData });

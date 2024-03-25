@@ -96,8 +96,6 @@
     computed: {
       selectorStyle() {
         return {
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themePalette.grey.v_200,
           height: '52px',
           paddingTop: '10px',
           borderRadius: '2px',

@@ -122,7 +122,7 @@
               width: '100%',
               maxWidth: '1064px',
               margin: 'auto',
-              backgroundColor: this.$themePalette.grey.v_100,
+              backgroundColor: this.$themePalette.grey.v_50,
               paddingLeft: this.paddingLeftRight,
               paddingRight: this.paddingLeftRight,
               paddingTop: this.appBarHeight + this.paddingTop + 'px',

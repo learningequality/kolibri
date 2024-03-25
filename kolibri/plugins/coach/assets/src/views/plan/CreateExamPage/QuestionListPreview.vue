@@ -84,7 +84,7 @@
         :interactive="false"
       />
       <p v-else>
-        <KIcon icon="warning" :style=" { fill: $themePalette.orange.v_400 }" />
+        <KIcon icon="warning" :style=" { fill: $themePalette.yellow.v_1100 }" />
         {{ resourceMissingText }}
       </p>
     </KGridItem>

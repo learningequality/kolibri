@@ -12,7 +12,7 @@
       <KIcon
         v-else
         icon="topic"
-        :color="$themePalette.grey.v_500"
+        :color="$themePalette.grey.v_600"
       />
     </template>
 

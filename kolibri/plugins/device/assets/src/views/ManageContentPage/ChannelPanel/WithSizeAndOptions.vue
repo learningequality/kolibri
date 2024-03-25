@@ -3,7 +3,7 @@
   <div
     class="panel"
     :class="{ 'panel-sm': windowIsSmall }"
-    :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
+    :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
   >
     <ChannelDetails :channel="channel">
 

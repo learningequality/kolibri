@@ -16,7 +16,7 @@
         v-else
         class="icon"
         icon="topic"
-        :color="$themePalette.grey.v_500"
+        :color="$themePalette.grey.v_600"
       />
     </template>
 
@@ -33,7 +33,7 @@
         v-if="contentNode.duration"
         class="duration"
         :seconds="contentNode.duration"
-        :style="{ color: $themePalette.grey.v_700 }"
+        :style="{ color: $themePalette.grey.v_800 }"
       />
     </span>
   </span>

@@ -71,7 +71,7 @@
                 v-if="!getCachedResource(resource.contentnode_id) ||
                   !getCachedResource(resource.contentnode_id).available"
                 icon="warning"
-                :style=" { fill: $themePalette.orange.v_400 }"
+                :style=" { fill: $themePalette.yellow.v_1100 }"
               />
             </div>
 

@@ -3,7 +3,8 @@
   <span
     v-if="isReference || displayPreciseDuration || displayEstimatedDuration || exerciseDescription"
     :class="[ appearance === 'chip' ? 'chip' : '']"
-    :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted } : {}]"
+    :style="[ appearance === 'chip' ? { color: $themeTokens.textInverted,
+                                        backgroundColor: $themePalette.black } : {}]"
   >
     <template v-if="isReference">
       {{ ReferenceLabel }}
@@ -93,8 +94,8 @@
   .chip {
     padding: 8px;
     font-size: 13px;
-    background-color: rgba(0, 0, 0, 0.7);
     border-radius: 4px;
+    opacity: 0.7;
   }
 
 </style>

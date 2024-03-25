@@ -7,10 +7,7 @@
         <span
           v-if="forBeginners"
           class="beginners-chip"
-          :style="{
-            backgroundColor: $themeBrand.secondary.v_600,
-            color: $themeTokens.textInverted
-          }"
+          :class="$computedClass(chipStyle)"
           data-test="beginners-chip"
         >
           {{ coreString('forBeginners') }}
@@ -301,6 +298,15 @@
           get(this, 'content.license_name', null),
           get(this, 'content.license_description', null)
         );
+      },
+      chipStyle() {
+        return {
+          backgroundColor: this.$themeBrand.primary.v_800,
+          color: this.$themeTokens.textInverted,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
       },
     },
     mounted() {

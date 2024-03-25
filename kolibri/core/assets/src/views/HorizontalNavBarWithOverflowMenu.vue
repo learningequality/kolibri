@@ -89,7 +89,7 @@
         return this.navigationLinks.filter(l => !l.isHidden);
       },
       color() {
-        return this.$themeTokens.textInverted;
+        return this.$themeTokens.text;
       },
       overflowMenuLinks() {
         if (!this.mounted || isUndefined(this.windowWidth)) {

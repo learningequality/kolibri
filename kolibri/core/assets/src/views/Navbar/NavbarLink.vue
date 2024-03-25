@@ -61,9 +61,9 @@
     computed: {
       tabStyles() {
         return {
-          color: this.$themePalette.grey.v_50,
+          color: this.$themeTokens.text,
           ':hover': {
-            'background-color': this.$themeTokens.appBarDark,
+            'background-color': this.$themeBrand.secondary.v_1100,
           },
           ':focus': {
             ...this.$coreOutline,
@@ -81,7 +81,7 @@
       activeClasses() {
         // return both fixed and dynamic classes
         return `router-link-active ${this.$computedClass({
-          color: this.$themeTokens.textInverted,
+          color: this.$themeTokens.text,
         })}`;
       },
     },

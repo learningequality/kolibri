@@ -45,7 +45,7 @@
           <div
             v-if="$route.query.token"
             class="token-chip"
-            :style="{ backgroundColor: $themePalette.grey.v_300 }"
+            :style="{ backgroundColor: $themePalette.grey.v_400 }"
           >
             <span>
               <p class="token-chip-text">{{ $route.query.token }}</p>

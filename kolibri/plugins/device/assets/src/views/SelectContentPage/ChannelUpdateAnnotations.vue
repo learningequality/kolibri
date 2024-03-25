@@ -1,6 +1,6 @@
 <template>
 
-  <span :class="styleClass" :style="style">
+  <span :class="[styleClass, $computedClass(style)]">
     {{ label }}
   </span>
 
@@ -45,6 +45,9 @@
           return {
             color: this.$themeTokens.textInverted,
             backgroundColor: this.$themeTokens.success,
+            '::selection': {
+              color: this.$themeTokens.text,
+            },
           };
         }
         return {};

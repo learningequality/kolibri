@@ -11,7 +11,7 @@
       :route="back"
       :appBarTitle="barTitle"
       :appearanceOverrides="{}"
-      :primary="!allowDownloads"
+      :primary="false"
       class="page"
     >
       <template #actions>

@@ -51,7 +51,7 @@ oriented data synchronization.
           @click="nextQuestion"
         />
       </UiAlert>
-      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
+      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_50 }">
         <KContentRenderer
           ref="contentRenderer"
           :kind="kind"

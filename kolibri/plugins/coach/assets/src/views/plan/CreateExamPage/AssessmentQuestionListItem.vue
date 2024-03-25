@@ -19,7 +19,7 @@
           ref="missing"
           icon="warning"
           :style=" {
-            fill: $themePalette.orange.v_400, float: isRtl ? 'left' : 'right'
+            fill: $themePalette.yellow.v_1100, float: isRtl ? 'left' : 'right'
           }"
         />
       </span>
@@ -109,7 +109,7 @@
         return this.$computedClass({ ':focus': this.$coreOutline });
       },
       bgStyle() {
-        const color = this.isSelected ? this.$themePalette.grey.v_300 : this.$themeTokens.surface;
+        const color = this.isSelected ? this.$themePalette.grey.v_100 : this.$themeTokens.surface;
         return { backgroundColor: color };
       },
     },

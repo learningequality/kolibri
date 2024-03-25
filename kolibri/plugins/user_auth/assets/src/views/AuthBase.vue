@@ -8,7 +8,7 @@
           <div
             v-if="!$store.getters.allowAccess"
             class="box"
-            :style="{ backgroundColor: $themePalette.grey.v_100 }"
+            :style="{ backgroundColor: $themeTokens.surface }"
           >
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
@@ -20,7 +20,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -30,7 +30,7 @@
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
-          <div v-else class="box" :style="{ backgroundColor: $themePalette.grey.v_100 }">
+          <div v-else class="box" :style="{ backgroundColor: $themeTokens.surface }">
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
               class="logo"
@@ -41,7 +41,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeBrand.primary.v_300 }, themeConfig.signIn.titleStyle]"
+              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -206,7 +206,7 @@
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
           };
         }
-        return { backgroundColor: this.$themeBrand.primary.v_900 };
+        return { backgroundColor: this.$themeBrand.primary.v_800 };
       },
       guestURL() {
         return urls['kolibri:core:guest']();

@@ -1,41 +1,41 @@
-import { themeTokens, themePalette } from 'kolibri-design-system/lib/styles/theme';
-
+// colors are hardcoded deliberately since Epub Reader
+// themes are meant to be independent of Kolibri themes
 export const THEMES = {
   WHITE: {
     name: 'WHITE',
-    backgroundColor: themeTokens().surface,
-    hoverColor: themePalette().grey.v_200,
-    textColor: themeTokens().text,
+    backgroundColor: '#ffffff',
+    hoverColor: '#eeeeee',
+    textColor: '#212121',
   },
   BEIGE: {
     name: 'BEIGE',
-    backgroundColor: themePalette().brown.v_50,
-    hoverColor: themePalette().brown.v_100,
-    textColor: themePalette().brown.v_800,
+    backgroundColor: '#efebe9',
+    hoverColor: '#d7ccc8',
+    textColor: '#4e342e',
   },
   GREY: {
     name: 'GREY',
-    backgroundColor: themePalette().grey.v_800,
-    hoverColor: themePalette().grey.v_600,
-    textColor: themePalette().white,
+    backgroundColor: '#424242',
+    hoverColor: '#757575',
+    textColor: '#ffffff',
   },
   BLACK: {
     name: 'BLACK',
-    backgroundColor: themePalette().grey.v_900,
-    hoverColor: themePalette().grey.v_700,
-    textColor: themePalette().grey.v_400,
+    backgroundColor: '#212121',
+    hoverColor: '#616161',
+    textColor: '#bdbdbd',
   },
   YELLOW: {
     name: 'YELLOW',
-    backgroundColor: themePalette().grey.v_900,
-    hoverColor: themePalette().grey.v_700,
-    textColor: themePalette().yellow.v_300,
+    backgroundColor: '#212121',
+    hoverColor: '#616161',
+    textColor: '#fff176',
   },
   BLUE: {
     name: 'BLUE',
-    backgroundColor: themeTokens().surface,
-    hoverColor: themePalette().grey.v_200,
-    textColor: themePalette().blue.v_800,
+    backgroundColor: '#ffffff',
+    hoverColor: '#eeeeee',
+    textColor: '#1565c0',
   },
 };
 
