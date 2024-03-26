@@ -42,7 +42,7 @@ def logger_info(message, verbosity=1):
     # doesn't work on Windows, see: https://github.com/learningequality/kolibri/issues/7077
     try:
         # MUST: Follow the verbosity mechanism of Django's management commands
-        # https://docs.djangoproject.com/en/1.11/ref/django-admin/#cmdoption-verbosity
+        # https://docs.djangoproject.com/en/3.2/ref/django-admin/#cmdoption-verbosity
         # and only show when it's > 0.
         # print("====> verbosity %s" % verbosity)
         if verbosity > 0:

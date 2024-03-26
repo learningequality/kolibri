@@ -107,7 +107,7 @@ class XhrPreventLoginPromptMiddleware(object):
     def __call__(self, request):
         response = self.get_response(request)
         if response and response.status_code == 401 and request.is_ajax():
-            del response["WWW-Authenticate"]
+            del response.headers["WWW-Authenticate"]
         return response
 
 

@@ -216,17 +216,17 @@ def download_csv_file(request, csv_type, facility_id):
     # generate a file response
     response = FileResponse(io.open(filepath, "rb"))
     # set the content-type by guessing from the filename
-    response["Content-Type"] = "text/csv"
+    response.headers["Content-Type"] = "text/csv"
 
     # set the content-disposition as attachment to force download
     if csv_type == "user":
-        response["Content-Disposition"] = "attachment; filename={}".format(
+        response.headers["Content-Disposition"] = "attachment; filename={}".format(
             str(csv_translated_filenames[csv_type]).format(
                 facility.name, facility.id[:4]
             )
         )
     else:
-        response["Content-Disposition"] = "attachment; filename={}".format(
+        response.headers["Content-Disposition"] = "attachment; filename={}".format(
             str(csv_translated_filenames[csv_type]).format(
                 facility.name, facility.id[:4], start[:10], end[:10]
             )
@@ -234,6 +234,6 @@ def download_csv_file(request, csv_type, facility_id):
     translation.deactivate()
 
     # set the content-length to the file size
-    response["Content-Length"] = os.path.getsize(filepath)
+    response.headers["Content-Length"] = os.path.getsize(filepath)
 
     return response

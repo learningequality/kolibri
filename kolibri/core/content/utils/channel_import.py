@@ -918,6 +918,11 @@ class ChannelImport(object):
         try:
             self.try_attaching_sqlite_database()
             transaction = self.destination.connection.begin()
+            if self.destination.engine.name == "sqlite":
+                # turn off foreign key integrity checking for the duration of the transaction
+                # so that we get similar behaviour to Postgresql, where the integrity of foreign
+                # keys is checked at the end of the transaction, rather than after each statement
+                self.destination.execute("PRAGMA foreign_keys=OFF")
             if self.check_and_delete_existing_channel():
                 for model in self.content_models:
                     model_start = time.time()
@@ -933,6 +938,9 @@ class ChannelImport(object):
                         )
                     )
                 import_ran = True
+            if self.destination.engine.name == "sqlite":
+                # reenable foreign key integrity checking before we commit the transaction
+                self.destination.execute("PRAGMA foreign_keys=ON")
 
             transaction.commit()
             self.try_detaching_sqlite_database()

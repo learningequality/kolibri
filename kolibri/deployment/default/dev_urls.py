@@ -1,7 +1,7 @@
 from django.conf import settings
-from django.conf.urls import include
-from django.conf.urls import url
 from django.http.response import HttpResponseRedirect
+from django.urls import include
+from django.urls import re_path
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -31,27 +31,27 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = urlpatterns + [
-    url(r"^__open-in-editor/", webpack_redirect_view),
-    url(
+    re_path(r"^__open-in-editor/", webpack_redirect_view),
+    re_path(
         r"^swagger(?P<format>\.json|\.yaml)$",
         schema_view.without_ui(cache_timeout=0),
         name="schema-json",
     ),
-    url(
+    re_path(
         r"^api_explorer/$",
         schema_view.with_ui("swagger", cache_timeout=0),
         name="schema-swagger-ui",
     ),
-    url(
+    re_path(
         r"^redoc/$",
         schema_view.with_ui("redoc", cache_timeout=0),
         name="schema-redoc",
     ),
-    url(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
+    re_path(r"^api-auth/", include("rest_framework.urls", namespace="rest_framework")),
 ]
 
 if getattr(settings, "DEBUG_PANEL_ACTIVE", False):
 
     import debug_toolbar
 
-    urlpatterns = [url(r"^__debug__/", include(debug_toolbar.urls))] + urlpatterns
+    urlpatterns = [re_path(r"^__debug__/", include(debug_toolbar.urls))] + urlpatterns

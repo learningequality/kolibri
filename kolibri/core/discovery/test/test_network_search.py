@@ -17,7 +17,7 @@ DYNAMIC_NETWORK_LOCATION_TASK_PRIORITY_METHOD = (
 
 
 class NetworkLocationListenerTestCase(TransactionTestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         super(NetworkLocationListenerTestCase, self).setUp()

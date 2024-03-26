@@ -1,5 +1,6 @@
 import uuid
 
+from django.core.exceptions import FieldDoesNotExist
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils import timezone
@@ -154,7 +155,7 @@ class NetworkLocation(models.Model):
         try:
             cls._meta.get_field(field)
             return True
-        except models.FieldDoesNotExist:
+        except FieldDoesNotExist:
             return False
 
     def matches_version(self, version):

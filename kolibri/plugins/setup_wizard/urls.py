@@ -1,5 +1,5 @@
-from django.conf.urls import url
+from django.urls import re_path
 
 from . import views
 
-urlpatterns = [url(r"^$", views.SetupWizardView.as_view(), name="setupwizard")]
+urlpatterns = [re_path(r"^$", views.SetupWizardView.as_view(), name="setupwizard")]

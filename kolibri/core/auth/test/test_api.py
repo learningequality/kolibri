@@ -413,6 +413,8 @@ class ClassroomAPITestCase(APITestCase):
 
 
 class FacilityAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -839,6 +841,8 @@ class UserCreationTestCase(APITestCase):
 
 
 class UserUpdateTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -917,6 +921,8 @@ class UserUpdateTestCase(APITestCase):
 
 
 class UserDeleteTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1112,6 +1118,8 @@ class FacilityUserFilterTestCase(APITestCase):
 
 
 class LoginLogoutTestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1614,7 +1622,7 @@ class FacilityDatasetAPITestCase(APITestCase):
 
     def test_facility_admin_can_set_pin_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
-        response = self.update_pin({"pin_code": None})
+        response = self.update_pin({})
         self.assertEqual(response.status_code, 400)
 
     def test_facility_admin_can_unset_pin(self):
@@ -1709,7 +1717,7 @@ class IsPINValidAPITestCase(APITestCase):
     def test_facility_admin_can_check_is_pin_valid_pin_as_none(self):
         self.client.login(username=self.superuser.username, password=DUMMY_PASSWORD)
         self.update_pin({"pin_code": "1234"})
-        response = self.is_pin_valid({"pin_code": None})
+        response = self.is_pin_valid({})
         self.assertEqual(response.status_code, 400)
 
 

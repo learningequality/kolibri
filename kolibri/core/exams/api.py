@@ -60,7 +60,7 @@ class ExamViewset(ValuesViewset):
     pagination_class = OptionalPageNumberPagination
     permission_classes = (ExamPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
-    filter_class = ExamFilter
+    filterset_class = ExamFilter
 
     values = (
         "id",

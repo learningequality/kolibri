@@ -5,7 +5,7 @@ from kolibri.core.webpack.hooks import WebpackBundleHook
 from kolibri.plugins import KolibriPluginBase
 from kolibri.plugins.hooks import register_hook
 from kolibri.utils import translation
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 
 class FacilityManagementPlugin(KolibriPluginBase):

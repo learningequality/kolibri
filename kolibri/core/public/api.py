@@ -119,7 +119,7 @@ def public_metadata_cache(view_func):
         patch_cache_control(
             response, max_age=300, stale_while_revalidate=100, public=True
         )
-        response["Expires"] = http_date(time.time() + 300)
+        response.headers["Expires"] = http_date(time.time() + 300)
         return response
 
     return session_exempt(wrapped_view)

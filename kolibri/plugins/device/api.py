@@ -99,7 +99,7 @@ class DeviceChannelMetadataFilter(ChannelMetadataFilter):
 class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = DeviceChannelMetadataSerializer
     filter_backends = (DjangoFilterBackend,)
-    filter_class = DeviceChannelMetadataFilter
+    filterset_class = DeviceChannelMetadataFilter
     permission_classes = (CanManageContent,)
 
     def get_queryset(self):

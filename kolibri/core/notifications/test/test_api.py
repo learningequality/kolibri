@@ -1,4 +1,3 @@
-import json
 import uuid
 from datetime import timedelta
 
@@ -49,6 +48,8 @@ from kolibri.utils.time_utils import local_now
 
 
 class NotificationsAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -97,20 +98,18 @@ class NotificationsAPITestCase(APITestCase):
             is_active=True,
             created_by=self.superuser,
             collection=self.classroom,
-            resources=json.dumps(
-                [
-                    {
-                        "contentnode_id": self.node_1.id,
-                        "content_id": self.node_1.content_id,
-                        "channel_id": self.channel_id,
-                    },
-                    {
-                        "contentnode_id": self.node_2.id,
-                        "content_id": self.node_2.content_id,
-                        "channel_id": self.channel_id,
-                    },
-                ]
-            ),
+            resources=[
+                {
+                    "contentnode_id": self.node_1.id,
+                    "content_id": self.node_1.content_id,
+                    "channel_id": self.channel_id,
+                },
+                {
+                    "contentnode_id": self.node_2.id,
+                    "content_id": self.node_2.content_id,
+                    "channel_id": self.channel_id,
+                },
+            ],
         )
 
         self.assignment_1 = LessonAssignment.objects.create(
@@ -1124,6 +1123,8 @@ class NotificationsAPITestCase(APITestCase):
 
 
 class BulkNotificationsAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         provision_device()
@@ -1170,20 +1171,18 @@ class BulkNotificationsAPITestCase(APITestCase):
             is_active=True,
             created_by=cls.superuser,
             collection=cls.classroom,
-            resources=json.dumps(
-                [
-                    {
-                        "contentnode_id": cls.node_1.id,
-                        "content_id": cls.node_1.content_id,
-                        "channel_id": cls.channel_id,
-                    },
-                    {
-                        "contentnode_id": cls.node_2.id,
-                        "content_id": cls.node_2.content_id,
-                        "channel_id": cls.channel_id,
-                    },
-                ]
-            ),
+            resources=[
+                {
+                    "contentnode_id": cls.node_1.id,
+                    "content_id": cls.node_1.content_id,
+                    "channel_id": cls.channel_id,
+                },
+                {
+                    "contentnode_id": cls.node_2.id,
+                    "content_id": cls.node_2.content_id,
+                    "channel_id": cls.channel_id,
+                },
+            ],
         )
 
         cls.lesson_assignment = LessonAssignment.objects.create(

@@ -1,5 +1,5 @@
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 from rest_framework import routers
 
 from .api import CalculateImportExportSizeView
@@ -13,13 +13,13 @@ router.register(
 )
 
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(
+    re_path(r"^", include(router.urls)),
+    re_path(
         r"devicechannelorder",
         DeviceChannelOrderView.as_view(),
         name="devicechannelorder",
     ),
-    url(
+    re_path(
         r"importexportsizeview",
         CalculateImportExportSizeView.as_view(),
         name="importexportsizeview",

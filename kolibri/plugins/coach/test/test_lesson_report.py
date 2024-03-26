@@ -1,5 +1,4 @@
 import datetime
-import json
 
 from django.urls import reverse
 from rest_framework.test import APITestCase
@@ -91,15 +90,13 @@ class LessonReportTestCase(APITestCase):
             title="My Lesson",
             created_by=self.facility_and_classroom_coach,
             collection=self.classroom,
-            resources=json.dumps(
-                [
-                    {
-                        "contentnode_id": self.node_1.id,
-                        "content_id": self.node_1.content_id,
-                        "channel_id": self.channel_id,
-                    }
-                ]
-            ),
+            resources=[
+                {
+                    "contentnode_id": self.node_1.id,
+                    "content_id": self.node_1.content_id,
+                    "channel_id": self.channel_id,
+                }
+            ],
         )
         self.assignment_1 = LessonAssignment.objects.create(
             lesson=self.lesson,

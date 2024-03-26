@@ -30,6 +30,7 @@ file_id_2 = "e00699f859624e0f875ac6fe1e13d648"
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileByDisk(TransactionTestCase):
+    databases = "__all__"
 
     fixtures = ["content_test.json"]
 
@@ -130,6 +131,7 @@ local_file_qs = LocalFile.objects.filter(
 
 @patch("kolibri.core.content.utils.sqlalchemybridge.get_engine", new=get_engine)
 class LocalFileRemote(TransactionTestCase):
+    databases = "__all__"
 
     fixtures = ["content_test.json"]
 

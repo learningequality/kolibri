@@ -48,8 +48,7 @@ class Command(AsyncCommand):
         )
 
         network_subparser = subparsers.add_parser(
-            name="network",
-            cmd=self,
+            "network",
             help="Download the given channel through the network.",
         )
         network_subparser.add_argument(
@@ -80,7 +79,7 @@ class Command(AsyncCommand):
         )
 
         local_subparser = subparsers.add_parser(
-            name="disk", cmd=self, help="Copy the content from the given folder."
+            "disk", help="Copy the content from the given folder."
         )
         local_subparser.add_argument(
             "channel_id",

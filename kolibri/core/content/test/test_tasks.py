@@ -117,6 +117,8 @@ class ValidateContentTaskTestCase(TestCase):
 
 
 class ValidateRemoteImportTaskTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create(name="pytest_facility")

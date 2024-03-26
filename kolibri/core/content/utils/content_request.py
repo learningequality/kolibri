@@ -64,18 +64,6 @@ def _uuid_to_hex(_uuid):
     return _uuid.hex if isinstance(_uuid, uuid.UUID) else uuid.UUID(_uuid).hex
 
 
-class FixedExists(Exists):
-    """
-    Exists() subquery that allows positional arguments, to get around issue:
-    TypeError: resolve_expression() takes from 1 to 2 positional arguments but 6 were given
-    """
-
-    def resolve_expression(self, query=None, *args, **kwargs):
-        # @see Exists.resolve_expression
-        self.queryset = self.queryset.order_by()
-        return Subquery.resolve_expression(self, query, *args, **kwargs)
-
-
 def create_content_download_requests(facility, assignments, source_instance_id=None):
     """
     Creates sync-initiated content download requests and removes corresponding removals
@@ -425,7 +413,7 @@ def incomplete_downloads_queryset():
             is_learner_download=Case(
                 When(
                     source_model=FacilityUser.morango_model_name,
-                    then=FixedExists(
+                    then=Exists(
                         FacilityUser.objects.filter(
                             id=OuterRef("source_id"),
                             roles__isnull=True,

@@ -58,13 +58,17 @@ def update_assignments_from_individual_syncable_exams(user_id):
     syncableexams = IndividualSyncableExam.objects.filter(user_id=user_id)
     assignments = ExamAssignment.objects.filter(
         collection__membership__user_id=user_id, exam__active=True
-    ).distinct()
+    )
 
     # get a list of all syncable exams that aren't locally assigned
-    to_create = syncableexams.exclude(exam_id__in=assignments.values_list("exam_id"))
+    to_create = syncableexams.exclude(
+        exam_id__in=assignments.values_list("exam_id")
+    ).distinct()
 
     # get a list of all assignments that may need updating from syncable exams
-    to_update = assignments.filter(exam_id__in=syncableexams.values_list("exam_id"))
+    to_update = assignments.filter(
+        exam_id__in=syncableexams.values_list("exam_id")
+    ).distinct()
 
     # get a list of all active assignments that no longer have a syncable exam
     to_delete = assignments.exclude(exam_id__in=syncableexams.values_list("exam_id"))

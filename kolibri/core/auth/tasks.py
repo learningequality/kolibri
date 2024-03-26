@@ -44,7 +44,7 @@ from kolibri.core.tasks.validation import JobValidator
 from kolibri.utils.conf import KOLIBRI_HOME
 from kolibri.utils.filesystem import mkdirp
 from kolibri.utils.time_utils import naive_utc_datetime
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 
 logger = logging.getLogger(__name__)
@@ -248,6 +248,16 @@ class SyncJobValidator(JobValidator):
         else:
             facility_id = facility
             facility_name = data["facility_name"]
+        kwargs = dict(
+            chunk_size=200,
+            noninteractive=True,
+        )
+        if data["command"] == "resumesync":
+            # Selectively add in the sync_session_id if resuming
+            # as the sync command will reject the id parameter.
+            kwargs["id"] = data["sync_session_id"]
+        else:
+            kwargs["facility"] = facility_id
         return {
             "extra_metadata": dict(
                 facility_id=facility_id,
@@ -257,12 +267,7 @@ class SyncJobValidator(JobValidator):
                 bytes_received=0,
             ),
             "facility_id": facility_id,
-            "kwargs": dict(
-                chunk_size=200,
-                noninteractive=True,
-                facility=facility_id,
-                sync_session_id=data.get("sync_session_id"),
-            ),
+            "kwargs": kwargs,
             "args": [data["command"]],
         }
 

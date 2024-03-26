@@ -63,10 +63,12 @@ class DateTimeTzField(Field):
     against this in the database. Mostly engineered for SQLite usage.
     """
 
+    morango_serialize_to_string = True
+
     def db_type(self, connection):
         return "varchar"
 
-    def from_db_value(self, value, expression, connection, context):
+    def from_db_value(self, value, expression, connection):
         if value is None:
             return value
         return parse_timezonestamp(value)
@@ -93,13 +95,16 @@ class DateTimeTzField(Field):
             value = self.get_prep_value(value)
         return value
 
-    def value_from_object_json_compatible(self, obj):
-        if self.value_from_object(obj):
+    def value_to_string(self, obj):
+        value = self.value_from_object(obj)
+        if value is not None:
             return create_timezonestamp(self.value_from_object(obj))
 
 
 class JSONField(JSONFieldBase):
-    def from_db_value(self, value, expression, connection, context):
+    morango_serialize_to_string = True
+
+    def from_db_value(self, value, expression, connection):
         if isinstance(value, str):
             try:
                 return json.loads(value, **self.load_kwargs)

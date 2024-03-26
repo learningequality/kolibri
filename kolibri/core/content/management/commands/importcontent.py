@@ -128,8 +128,7 @@ class Command(BaseCommand):
         # parser object with its own thing, hence why we need to add cmd. See
         # http://stackoverflow.com/questions/36706220/is-it-possible-to-create-subparsers-in-a-django-management-command
         network_subparser = subparsers.add_parser(
-            name="network",
-            cmd=self,
+            "network",
             help="Download the given channel through the network.",
         )
         network_subparser.add_argument("channel_id", type=str)
@@ -158,7 +157,7 @@ class Command(BaseCommand):
         )
 
         disk_subparser = subparsers.add_parser(
-            name="disk", cmd=self, help="Copy the content from the given folder."
+            "disk", help="Copy the content from the given folder."
         )
         disk_subparser.add_argument("channel_id", type=str)
         disk_subparser.add_argument("directory", type=str, nargs="?")

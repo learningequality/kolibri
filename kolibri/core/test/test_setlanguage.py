@@ -81,12 +81,13 @@ class I18NTests(TestCase):
             translate_url(reverse("kolibri:core:redirect_user"), lang_code),
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
-        post_data = dict(language=None)
+        post_data = {}
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
+        current_language = get_language()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.content.decode("utf-8"),
-            translate_url(reverse("kolibri:core:redirect_user"), "en"),
+            translate_url(reverse("kolibri:core:redirect_user"), current_language),
         )
         self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 
@@ -105,12 +106,15 @@ class I18NTests(TestCase):
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = reverse("kolibri:kolibri.plugins.learn:learn")
-        post_data = dict(language=None, next=next_url)
+        post_data = dict(next=next_url)
+        current_language = get_language()
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.content.decode("utf-8"),
-            translate_url(reverse("kolibri:kolibri.plugins.learn:learn"), "en"),
+            translate_url(
+                reverse("kolibri:kolibri.plugins.learn:learn"), current_language
+            ),
         )
         self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 
@@ -129,12 +133,13 @@ class I18NTests(TestCase):
         )
         self.assertEqual(self.client.session[LANGUAGE_SESSION_KEY], lang_code)
         next_url = "/not/a/real/url"
-        post_data = dict(language=None, next=next_url)
+        post_data = dict(next=next_url)
         response = self.client.post(reverse("kolibri:core:set_language"), post_data)
+        current_language = get_language()
         self.assertEqual(response.status_code, 200)
         self.assertEqual(
             response.content.decode("utf-8"),
-            translate_url(reverse("kolibri:core:redirect_user"), "en"),
+            translate_url(reverse("kolibri:core:redirect_user"), current_language),
         )
         self.assertNotIn(LANGUAGE_SESSION_KEY, self.client.session)
 

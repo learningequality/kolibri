@@ -1,5 +1,5 @@
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 from rest_framework import routers
 
 from .api import DeviceInfoView
@@ -22,16 +22,16 @@ router.register(r"driveinfo", DriveInfoViewSet, basename="driveinfo")
 
 
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(
+    re_path(r"^", include(router.urls)),
+    re_path(
         r"^deviceprovision/",
         DeviceProvisionView.as_view({"post": "create"}),
         name="deviceprovision",
     ),
-    url(r"^freespace/", FreeSpaceView.as_view({"get": "list"}), name="freespace"),
-    url(r"^deviceinfo/", DeviceInfoView.as_view(), name="deviceinfo"),
-    url(r"^devicesettings/", DeviceSettingsView.as_view(), name="devicesettings"),
-    url(r"^devicename/", DeviceNameView.as_view(), name="devicename"),
-    url(r"^devicerestart/", DeviceRestartView.as_view(), name="devicerestart"),
-    url(r"^pathpermission/", PathPermissionView.as_view(), name="pathpermission"),
+    re_path(r"^freespace/", FreeSpaceView.as_view({"get": "list"}), name="freespace"),
+    re_path(r"^deviceinfo/", DeviceInfoView.as_view(), name="deviceinfo"),
+    re_path(r"^devicesettings/", DeviceSettingsView.as_view(), name="devicesettings"),
+    re_path(r"^devicename/", DeviceNameView.as_view(), name="devicename"),
+    re_path(r"^devicerestart/", DeviceRestartView.as_view(), name="devicerestart"),
+    re_path(r"^pathpermission/", PathPermissionView.as_view(), name="pathpermission"),
 ]

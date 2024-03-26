@@ -6,6 +6,8 @@ from kolibri.core.discovery.models import NetworkLocation
 
 
 class NetworkDiscoveryForSoUDHookTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         super(NetworkDiscoveryForSoUDHookTestCase, self).setUp()
         self.hook = NetworkLocationDiscoveryHook.get_hook(

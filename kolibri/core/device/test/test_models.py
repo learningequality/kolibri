@@ -18,7 +18,7 @@ from kolibri.utils.conf import OPTIONS
 
 
 class SyncQueueTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         clear_process_cache()

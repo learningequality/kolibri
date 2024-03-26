@@ -3,9 +3,6 @@ import os
 import platform
 import sys
 
-from kolibri.utils.compat import monkey_patch_collections
-from kolibri.utils.compat import monkey_patch_translation
-
 
 def settings_module():
     from .build_config.default_settings import settings_path
@@ -111,10 +108,6 @@ def set_env():
     monkey_patch_markdown()
 
     from kolibri import dist as kolibri_dist  # noqa
-
-    monkey_patch_collections()
-
-    monkey_patch_translation()
 
     sys.path = [os.path.realpath(os.path.dirname(kolibri_dist.__file__))] + sys.path
 
