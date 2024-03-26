@@ -20,6 +20,12 @@ that take a ``choices`` keyword argument, where the choices are strings. The
 strings should have no prefix (``u`` or ``b``) and the migration should contain
 ``from __future__ import unicode_literals`` as an import.
 
+For any migrations involving Foreign keys to the FacilityUser model, the migration
+will automatically be generated to use a swappable dependency on settings.AUTH_USER_MODEL.
+This should be changed to remove the swappable dependency, set a fixed migration dependency
+and remove the AUTH_USER_MODEL setting from the settings file. FacilityUser should be used
+instead.
+
 We also use the upgrade functionality triggered during the CLI
 initialization to copy in new copies of static files that are used in the frontend
 app. These upgrades are only triggered for a subset of our CLI commands - start,
