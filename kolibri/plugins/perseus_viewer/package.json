@@ -7,7 +7,7 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "aphrodite": "https://github.com/learningequality/aphrodite/",
+    "aphrodite": "https://github.com/learningequality/aphrodite.git",
     "btoa": "1.2.1",
     "classnames": "^2.2.5",
     "draft-js": "^0.10.1",
