@@ -51,8 +51,9 @@
   "private": true,
   "devDependencies": {
     "@types/jest": "^29.5.12",
-    "xhr-mock": "^2.5.1",
-    "concurrently": "^8.0.1"
+    "concurrently": "^8.0.1",
+    "node-sass": "^9.0.0",
+    "xhr-mock": "^2.5.1"
   },
   "optionalDependencies": {
     "fsevents": "*"
@@ -68,5 +69,8 @@
   "volta": {
     "node": "18.19.0",
     "yarn": "1.12.3"
+  },
+  "dependencies": {
+    "node-gyp": "^10.1.0"
   }
 }
