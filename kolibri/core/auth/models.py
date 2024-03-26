@@ -68,8 +68,13 @@ from .permissions.general import IsOwn
 from .permissions.general import IsSelf
 from kolibri.core import error_constants
 from kolibri.core.auth.constants.demographics import choices as GENDER_CHOICES
+from kolibri.core.auth.constants.demographics import custom_demographics_schema
 from kolibri.core.auth.constants.demographics import DEFERRED
+from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
+from kolibri.core.auth.constants.demographics import EnumValuesValidator
+from kolibri.core.auth.constants.demographics import LabelTranslationValidator
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
+from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.constants.morango_sync import ScopeDefinitions
 from kolibri.core.device.utils import device_provisioned
 from kolibri.core.device.utils import get_device_setting
@@ -84,6 +89,9 @@ from kolibri.utils.time_utils import local_now
 
 logger = logging.getLogger(__name__)
 
+DEMOGRAPHIC_FIELDS_KEY = "demographic_fields"
+
+
 # '"optional":True' is obsolete but needed while we keep using an
 # old json_schema_validator version compatible with python 2.7.
 # "additionalProperties": False must be avoided for backwards compatibility
@@ -93,6 +101,7 @@ extra_fields_schema = {
         "facility": {"type": "object", "optional": True},
         "on_my_own_setup": {"type": "boolean", "optional": True},
         "pin_code": {"type": ["string", "null"], "optional": True},
+        DEMOGRAPHIC_FIELDS_KEY: custom_demographics_schema,
     },
 }
 
@@ -185,7 +194,13 @@ class FacilityDataset(FacilityDataSyncableModel):
     extra_fields = JSONField(
         null=True,
         blank=True,
-        validators=[JSON_Schema_Validator(extra_fields_schema)],
+        validators=[
+            JSON_Schema_Validator(extra_fields_schema),
+            UniqueIdsValidator(DEMOGRAPHIC_FIELDS_KEY),
+            DescriptionTranslationValidator(DEMOGRAPHIC_FIELDS_KEY),
+            EnumValuesValidator(DEMOGRAPHIC_FIELDS_KEY),
+            LabelTranslationValidator(DEMOGRAPHIC_FIELDS_KEY),
+        ],
         default=extra_fields_default_values,
     )
     registered = models.BooleanField(default=False)
@@ -806,6 +821,14 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
     )
 
     id_number = models.CharField(max_length=64, default="", blank=True)
+
+    extra_demographics = JSONField(
+        # We deliberately do no validation on this field, to avoid user data being stuck
+        # and unserializable if the Facility's demographic schema has been updated, but
+        # the user data now conflicts with that.
+        null=True,
+        blank=True,
+    )
 
     @classmethod
     def deserialize(cls, dict_model):
