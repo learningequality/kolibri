@@ -1,3 +1,4 @@
+import glob
 import io
 import logging
 import os
@@ -393,11 +394,9 @@ def download_translations(branch, project, locale_data_folder):
         locale_dir_path = local_locale_path(lang_object, locale_data_folder)
         logging.info("\tExtracting {} to {}".format(code, locale_dir_path))
 
-        #clear out existing files in langugage directory
-        for file_name in os.listdr(locale_dir_path):
-            file_path = os.path.join(locale_dir_path, file_name)
-            if os.path.isfile(file_path):
-                os.remove(file_path)
+        csv_files = glob.glob(os.path.join(locale_dir_path, '*.csv'))
+        for csv_file in csv_files:
+            os.remove(csv_file)
 
         MESSAGES = os.path.join(zip_dir, code)
         if os.path.exists(MESSAGES):
