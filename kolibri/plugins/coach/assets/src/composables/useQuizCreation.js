@@ -8,7 +8,7 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, watch, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
 import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../utils/selectQuestions.js';
@@ -168,13 +168,17 @@ export default function useQuizCreation(DEBUG = false) {
         );
         return resource;
       });
+      // These are set into the updates so that questions are populated when the resource_pool
+      // changes
+      updates.questions = [];
     }
 
     /* Handle edge cases re: questions and question_count changing. When the question_count changes,
      * we remove/add questions to match the new count. If questions are deleted, then we will
      * update question_count accordingly. */
     const { questions, question_count } = updates;
-    if (question_count && question_count !== questions?.length) {
+
+    if (question_count !== questions?.length) {
       // If the question count changed AND questions have changed, be sure they're the same length
       // or we can add questions to match the new question_count
       if (question_count < targetSection.question_count) {
@@ -203,6 +207,22 @@ export default function useQuizCreation(DEBUG = false) {
         return section;
       }),
     });
+    if (questions?.length === 0 && resource_pool?.length) {
+      // We have no questions but have updated the resource_pool, so now let's set the questions.
+      // This is happening here because we have to persist the resource_pool so that we can select
+      // questions from it.
+      const questions = selectRandomQuestionsFromResources(targetSection.question_count);
+      set(_quiz, {
+        ...get(quiz),
+        // Update matching QuizSections with the updates object
+        question_sources: get(allSections).map(section => {
+          if (section.section_id === section_id) {
+            return { ...section, questions };
+          }
+          return section;
+        }),
+      });
+    }
   }
 
   /**
@@ -301,16 +321,6 @@ export default function useQuizCreation(DEBUG = false) {
       setActiveSection(newSection.section_id);
     }
     _fetchChannels();
-
-    // Set watcher once we have a section in place
-    watch(activeResourcePool, (resourcePool, old) => {
-      if (!isEqual(resourcePool, old)) {
-        updateSection({
-          section_id: get(_activeSectionId),
-          questions: selectRandomQuestionsFromResources(get(activeSection).question_count),
-        });
-      }
-    });
   }
 
   /**
