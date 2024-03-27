@@ -55,6 +55,7 @@ export const QuizExercise = {
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
  *                                         from an QuizExercise.
+ * @property {string} id                   A  ** unique **  identifier for this question
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -63,6 +64,10 @@ export const QuizExercise = {
  *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
+  id: {
+    type: String,
+    required: true,
+  },
   exercise_id: {
     type: String,
     required: true,

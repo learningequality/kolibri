@@ -13,6 +13,7 @@
         v-for="content in contentList"
         :key="content.id"
         class="content-list-item"
+        :aria-selected="contentIsChecked(content)"
       >
         <KCheckbox
           v-if="contentHasCheckbox(content)"
@@ -23,8 +24,15 @@
           :indeterminate="contentIsIndeterminate(content)"
           @change="handleCheckboxChange(content, $event)"
         />
+        <!--
+          disabled, tabindex, is-leaf class set here to hack making the card not clickable
+          if you're trying to make the card clickable remove these properties
+        -->
         <LessonContentCard
-          :class="{ 'with-checkbox': needCheckboxes }"
+          class="content-card"
+          :disabled="content.is_leaf"
+          :tabindex="content.is_leaf ? -1 : 0"
+          :class="{ 'with-checkbox': needCheckboxes, 'is-leaf': content.is_leaf }"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
@@ -57,9 +65,9 @@
         <KIcon icon="error" />
         <!-- {{ $tr('moreResultsError') }} -->
       </p>
-      <!-- <p v-else-if="viewMoreButtonState === 'no_more_results'">
-        {{ $tr('noMoreResults') }}
-      </p> -->
+      <p v-else-if="contentList.length === 0">
+        {{ coreString('noResultsLabel') }}
+      </p>
     </template>
   </div>
 
@@ -68,6 +76,7 @@
 
 <script>
 
+  import { computed, toRefs } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ViewMoreButtonStates } from '../../../constants/index';
 
@@ -80,8 +89,14 @@
     },
     mixins: [commonCoreStrings],
 
-    setup() {
+    setup(props) {
+      const { selectAllChecked, selectAllIndeterminate } = toRefs(props);
+      // Code too long to display in template
+      const ariaChecked = computed(() => {
+        return selectAllChecked.value ? true : selectAllIndeterminate.value ? 'mixed' : false;
+      });
       return {
+        ariaChecked,
         ViewMoreButtonStates,
       };
     },

@@ -1,6 +1,6 @@
 <template>
 
-  <div style="padding-top: 2rem;">
+  <div style="padding-top: 2rem; scroll: none;">
     <KGrid>
       <KGridItem
         :layout4="{ span: 1 }"
@@ -35,8 +35,8 @@
 
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
-        :layout4="{ span: 3 }"
-        :layout8="{ span: 6 }"
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 5 }"
         :layout12="{ span: 10 }"
       >
         <TabsWithOverflow
@@ -85,15 +85,15 @@
       </KGridItem>
 
       <KGridItem
-        style="padding: 0; margin-right: 0;"
-        :layout4="{ span: 1 }"
-        :layout8="{ span: 2 }"
+        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right;"
+        :layout4="{ span: 2 }"
+        :layout8="{ span: 3 }"
         :layout12="{ span: 2 }"
       >
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="height: 3rem"
+          style="height: 3rem; position: relative; right: 0; padding: 0;"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
@@ -113,6 +113,7 @@
           style="padding: 0.7em 0.75em;"
         >
           <KButton
+            ref="addQuestionsButton"
             primary
             :text="coreString('optionsLabel')"
           >
@@ -122,7 +123,8 @@
                 :disabled="false"
                 :hasIcons="true"
                 :options="activeSectionActions"
-                @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
+                @tab="$refs.addQuestionsButton.$el.focus()"
+                @close="$refs.addQuestionsButton.$el.focus()"
                 @select="handleActiveSectionAction"
               />
             </template>
@@ -160,6 +162,8 @@
           <KGridItem
             class="left-side-heading"
             :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
           >
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionList$() }}
@@ -168,6 +172,8 @@
           <KGridItem
             class="right-side-heading"
             :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
           >
             <KButton
               primary
@@ -179,7 +185,6 @@
                   :disabled="false"
                   :hasIcons="true"
                   :options="activeSectionActions"
-                  @tab="e => (e.preventDefault() || $refs.selectAllCheckbox.focus())"
                   @select="handleActiveSectionAction"
                 />
               </template>
@@ -189,7 +194,7 @@
 
         <AccordionContainer
           :items="activeQuestions.map(i => ({
-            id: i.question_id,
+            id: i.id,
           }))"
         >
           <template #left-actions>
@@ -231,11 +236,17 @@
               >
                 <Draggable
                   v-for="(question, index) in activeQuestions"
-                  :key="`drag-${question.question_id}`"
+                  :key="`drag-${question.id}`"
                   tabindex="-1"
                   style="background: white"
                 >
-                  <AccordionItem :id="question.question_id" :title="question.title">
+                  <AccordionItem
+                    :id="question.id"
+                    :title="question.title"
+                    :aria-selected="selectedActiveQuestions.includes(
+                      question.id
+                    )"
+                  >
                     <template #heading="{ title }">
                       <h3
                         class="accordion-header"
@@ -257,23 +268,23 @@
                         <KCheckbox
                           style="padding-left: 0.5em"
                           :checked="selectedActiveQuestions.includes(
-                            question.question_id
+                            question.id
                           )"
-                          @change="() => toggleQuestionInSelection(question.question_id)"
+                          @change="() => toggleQuestionInSelection(question.id)"
                         />
                         <KButton
                           tabindex="0"
                           appearance="basic-link"
                           :style="accordionStyleOverrides"
                           class="accordion-header-label"
-                          :aria-expanded="isItemExpanded(question.question_id)"
-                          :aria-controls="`question-panel-${question.question_id}`"
-                          @click="toggleItemState(question.question_id)"
+                          :aria-expanded="isItemExpanded(question.id)"
+                          :aria-controls="`question-panel-${question.id}`"
+                          @click="toggleItemState(question.id)"
                         >
-                          <span>{{ title }}</span>
+                          <span>{{ title + " " + question.counter_in_exercise }}</span>
                           <KIcon
                             style="position: absolute; right:0; top: 0.92em"
-                            :icon="isItemExpanded(question.question_id) ?
+                            :icon="isItemExpanded(question.id) ?
                               'chevronUp' : 'chevronRight'"
                           />
                         </KButton>
@@ -281,13 +292,13 @@
                     </template>
                     <template #content>
                       <div
-                        v-if="isItemExpanded(question.question_id)"
-                        :id="`question-panel-${question.question_id}`"
-                        :ref="`question-panel-${question.question_id}`"
+                        v-if="isItemExpanded(question.id)"
+                        :id="`question-panel-${question.id}`"
+                        :ref="`question-panel-${question.id}`"
                         :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                       >
                         <ContentRenderer
-                          :ref="`contentRenderer-${question.question_id}`"
+                          :ref="`contentRenderer-${question.id}`"
                           :kind="activeResourceMap[question.exercise_id].kind"
                           :lang="activeResourceMap[question.exercise_id].lang"
                           :files="activeResourceMap[question.exercise_id].files"
@@ -321,7 +332,7 @@
 
 <script>
 
-  import { get, set } from '@vueuse/core';
+  import { get } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -366,6 +377,7 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
+        sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -386,6 +398,7 @@
         selectAllQuestions,
 
         // Computed
+        toggleQuestionInSelection,
         channels,
         quiz,
         allSections,
@@ -419,7 +432,9 @@
         deleteSectionLabel$,
         replaceAction$,
         questionList$,
+        sectionDeletedNotification$,
 
+        toggleQuestionInSelection,
         selectAllQuestions,
         saveQuiz,
         updateSection,
@@ -455,7 +470,7 @@
           color: this.$themeTokens.text + '!important',
           textDecoration: 'none',
           // Ensure text doesn't get highlighted as we drag
-          userSelect: get(this.dragActive) ? 'none!important' : 'text',
+          userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
       addQuizSectionsStyles() {
@@ -503,6 +518,13 @@
         ];
       },
     },
+    created() {
+      const { query } = this.$route;
+      if (query.snackbar) {
+        delete query.snackbar;
+        this.$router.replace({ query: { snackbar: null } });
+      }
+    },
     methods: {
       handleReplaceSelection() {
         const section_id = get(this.activeSection).section_id;
@@ -511,14 +533,21 @@
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
+        const section_title = this.activeSection.section_title;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
-            this.removeSection(this.activeSection.section_id);
-            this.focusActiveSectionTab();
+            this.removeSection(section_id);
+            this.$nextTick(() => {
+              this.$store.dispatch(
+                'createSnackbar',
+                this.sectionDeletedNotification$({ section_title })
+              );
+              this.focusActiveSectionTab();
+            });
             break;
         }
       },
@@ -556,12 +585,12 @@
         };
       },
       handleQuestionOrderChange({ newArray }) {
-        set(this.dragActive, false);
         const payload = {
           section_id: get(this.activeSection).section_id,
           questions: newArray,
         };
         this.updateSection(payload);
+        this.dragActive = false;
       },
       handleAddSection() {
         const newSection = this.addSection();
@@ -569,7 +598,8 @@
         this.sectionCreationCount++;
       },
       handleDragStart() {
-        set(this.dragActive, true);
+        // Used to mitigate the issue of text being selected while dragging
+        this.dragActive = true;
       },
       openSelectResources(section_id) {
         const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });
@@ -795,6 +825,11 @@
 
   /deep/ .sortable-handled {
     align-self: flex-end;
+  }
+
+  // This makes sure that the keyboard focus ring is visible on the section tabs
+  /deep/ .tab {
+    outline-offset: -5px !important;
   }
 
 </style>
