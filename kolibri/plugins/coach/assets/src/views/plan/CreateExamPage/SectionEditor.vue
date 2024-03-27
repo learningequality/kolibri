@@ -129,7 +129,7 @@
       style="margin-bottom: 1em;"
       iconAfter="forward"
     >
-      {{ changeResources$() }}
+      {{ resourceButtonLabel }}
     </KRouterLink>
 
     <hr :style="dividerStyle">
@@ -301,6 +301,7 @@
         closeConfirmationTitle$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
+        selectResourcesFromChannels$,
         sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -368,6 +369,14 @@
 
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
+      const resourceButtonLabel = computed(() => {
+        if (activeResourcePool.value.length === 0) {
+          return selectResourcesFromChannels$();
+        } else {
+          return changeResources$();
+        }
+      });
+
       return {
         formDataHasChanged,
         showCloseConfirmation,
@@ -389,10 +398,12 @@
         question_count,
         description,
         section_title,
+        resourceButtonLabel,
         // Responsiveness
         windowIsLarge,
         windowIsSmall,
         // i18n
+        selectResourcesFromChannels$,
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
