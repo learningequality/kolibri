@@ -72,6 +72,7 @@ from kolibri.core.auth.constants.demographics import custom_demographics_schema
 from kolibri.core.auth.constants.demographics import DEFERRED
 from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
 from kolibri.core.auth.constants.demographics import EnumValuesValidator
+from kolibri.core.auth.constants.demographics import FacilityUserDemographicValidator
 from kolibri.core.auth.constants.demographics import LabelTranslationValidator
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.constants.demographics import UniqueIdsValidator
@@ -270,6 +271,14 @@ class FacilityDataset(FacilityDataSyncableModel):
         Returns True if this user is a member of a facility that has been fully imported.
         """
         return is_full_facility_import(self.id)
+
+    def validate_demographic_data(self, demographic_data):
+        """
+        Use the custom schema to validate demographic data being set on a FacilityUser.
+        """
+        FacilityUserDemographicValidator(self.extra_fields[DEMOGRAPHIC_FIELDS_KEY])(
+            demographic_data
+        )
 
 
 class AbstractFacilityDataModel(FacilityDataSyncableModel):

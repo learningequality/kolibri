@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from django.core.exceptions import ValidationError
 from django.utils.deconstruct import deconstructible
 
+from kolibri.core.utils.validators import JSON_Schema_Validator
 from kolibri.core.utils.validators import NoRepeatedValueJSONArrayValidator
 from kolibri.utils.i18n import KOLIBRI_SUPPORTED_LANGUAGES
 
@@ -152,3 +153,17 @@ class LabelTranslationValidator(object):
                         code="invalid",
                     )
         return value
+
+
+class FacilityUserDemographicValidator(JSON_Schema_Validator):
+    def __init__(self, custom_schema):
+        schema = {
+            "type": "object",
+            "properties": {},
+        }
+        for field in custom_schema:
+            schema["properties"][field["id"]] = {
+                "type": "string",
+                "enum": [enum["value"] for enum in field["enumValues"]],
+            }
+        super(FacilityUserDemographicValidator, self).__init__(schema)
