@@ -43,7 +43,7 @@
     "eslint-plugin-import": "^2.29.1",
     "eslint-plugin-jest": "^23.3.0",
     "eslint-plugin-kolibri": "0.16.1-dev.1",
-    "eslint-plugin-jest-dom": "^5.1.0",
+    "eslint-plugin-jest-dom": "^5.2.0",
     "eslint-plugin-vue": "^7.3.0",
     "espree": "10.0.1",
     "esquery": "^1.5.0",
