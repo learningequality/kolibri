@@ -3,7 +3,6 @@ import range from 'lodash/range';
 import sumBy from 'lodash/fp/sumBy';
 import sortBy from 'lodash/sortBy';
 import shuffled from 'kolibri.utils.shuffled';
-import { annotateQuestionSourcesWithCounter } from 'kolibri.utils.exams';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -57,26 +56,27 @@ export default function selectQuestions(
   const filteredQuestionIdArrays = !excludedQuestionIds.length
     ? shuffledQuestionIdArrays
     : shuffledQuestionIdArrays.reduce((acc, resourceQuestions) => {
-        acc.push(resourceQuestions.filter(qId => !excludedQuestionIds.includes(qId)));
+        acc.push(resourceQuestions.filter(uId => !excludedQuestionIds.includes(uId)));
         return acc;
       }, []);
 
   // fill up the output list
-  let output = [];
+  const output = [];
   let i = 0;
   while (output.length < numQuestions) {
     const ri = randomIndexes[i];
     // check if we've used up all questions in one exercise
     if (filteredQuestionIdArrays[ri].length > 0) {
-      const qId = filteredQuestionIdArrays[ri].pop();
+      const uId = filteredQuestionIdArrays[ri].pop();
 
       // Only add the question/assessment to the list if it is not already there
       // from another identical exercise with a different exercise/node ID
-      if (!find(output, { question_id: qId })) {
+      if (!find(output, { id: uId })) {
         output.push({
+          counter_in_exercise: questionIdArrays[ri].indexOf(uId) + 1,
           exercise_id: exerciseIds[ri],
-          question_id: qId,
-          id: `${exerciseIds[ri]}:${qId}`,
+          question_id: uId.split(':')[1],
+          id: uId,
           title: exerciseTitles[ri],
         });
       }
@@ -87,9 +87,6 @@ export default function selectQuestions(
     // cycle through questions
     i = (i + 1) % exerciseIds.length;
   }
-
-  // Add the counter_in_exercise field to make it match the V2 Exam specification
-  output = annotateQuestionSourcesWithCounter(output);
 
   // sort the resulting questions by exercise title
   return sortBy(output, 'title');

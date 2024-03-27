@@ -156,9 +156,28 @@ export default function useQuizCreation(DEBUG = false) {
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
     }
-    const { question_count } = updates;
-    if (question_count) {
-      if (question_count < (targetSection.question_count || 0)) {
+    // Make sure all questions in the an updated pool have proper unique IDs
+    const { resource_pool } = updates;
+    if (resource_pool) {
+      // This is where we annotate the resource_pool with unique question IDs that we'll use
+      // within the quiz creation editor. NOTE that this is not to be persisted to the server
+      // and ideally should be done by way of a Question class for a more consistant API
+      updates.resource_pool = resource_pool.map(resource => {
+        resource.unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
+          id => `${resource.content_id}:${id}`
+        );
+        return resource;
+      });
+    }
+
+    /* Handle edge cases re: questions and question_count changing. When the question_count changes,
+     * we remove/add questions to match the new count. If questions are deleted, then we will
+     * update question_count accordingly. */
+    const { questions, question_count } = updates;
+    if (question_count && question_count !== questions?.length) {
+      // If the question count changed AND questions have changed, be sure they're the same length
+      // or we can add questions to match the new question_count
+      if (question_count < targetSection.question_count) {
         // If the question_count is being reduced, we need to remove any questions that are now
         // outside the bounds of the new question_count
         updates.questions = targetSection.questions.slice(0, question_count);
@@ -189,20 +208,24 @@ export default function useQuizCreation(DEBUG = false) {
   /**
    * @description Selects random questions from the active section's `resource_pool` - no side
    * effects
-   * @param numQuestions
+   * @param {Number} numQuestions
+   * @param {String[]} excludedIds A list of IDs to exclude from random selection
+   * @param {boolean} reseed - Whether to reseed the random selection - this can be useful
+   * if you're replacing one question with another to avoid an infinite loop of replacing the
+   * same two questions with each other when we have to add questions to match the question_count
    * @returns {QuizQuestion[]}
    */
-  function selectRandomQuestionsFromResources(numQuestions, excludedIds = []) {
+  function selectRandomQuestionsFromResources(numQuestions, excludedIds = [], reseed = false) {
     const pool = get(activeResourcePool);
     const exerciseIds = pool.map(r => r.content_id);
     const exerciseTitles = pool.map(r => r.title);
-    const questionIdArrays = pool.map(r => r.assessmentmetadata.assessment_item_ids);
+    const questionIdArrays = pool.map(r => r.unique_question_ids);
     return selectQuestions(
       numQuestions,
       exerciseIds,
       exerciseTitles,
       questionIdArrays,
-      get(_quiz).seed,
+      reseed ? Math.floor(Math.random() * 1000) : get(_quiz).seed,
       excludedIds
     );
   }
@@ -476,10 +499,21 @@ export default function useQuizCreation(DEBUG = false) {
 
    */
   function deleteActiveSelectedQuestions() {
-    const { section_id, questions } = get(activeSection);
+    const { section_id, questions: section_questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
-    const newQuestions = questions.filter(q => !selectedIds.includes(q.id));
-    updateSection({ section_id, questions: newQuestions });
+    let questions = section_questions.filter(q => !selectedIds.includes(q.id));
+    let question_count = questions.length;
+    if (question_count === 0) {
+      // They've deleted all of the questions. We don't allow `question_count` to be 0,
+      // so we'll randomly select 1 question for the section -- pass `true` to reseed the shuffle.
+      questions = selectRandomQuestionsFromResources(1, selectedIds, true);
+      question_count = 1;
+    }
+    updateSection({
+      section_id,
+      questions,
+      question_count,
+    });
     set(_selectedQuestionIds, []);
   }
 
