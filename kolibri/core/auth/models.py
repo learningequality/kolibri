@@ -1498,7 +1498,20 @@ class Facility(Collection):
     def infer_dataset(self, *args, **kwargs):
         # if we don't yet have a dataset, create a new one for this facility
         if not self.dataset_id:
-            self.dataset = FacilityDataset.objects.create()
+            from kolibri.core.device.models import DEFAULT_DEMOGRAPHIC_FIELDS_KEY
+
+            kwargs = {}
+
+            default_demographic_fields = get_device_setting(
+                DEFAULT_DEMOGRAPHIC_FIELDS_KEY
+            )
+
+            if default_demographic_fields:
+                kwargs["extra_fields"] = {
+                    DEMOGRAPHIC_FIELDS_KEY: default_demographic_fields
+                }
+
+            self.dataset = FacilityDataset.objects.create(**kwargs)
         return self.dataset_id
 
     def get_classrooms(self):
