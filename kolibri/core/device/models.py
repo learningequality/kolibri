@@ -194,29 +194,20 @@ class DeviceSettings(models.Model):
         :return: mixed
         """
         try:
-            return self.extra_settings.get(name, extra_settings_default_values[name])
+            return self.extra_settings[name]
         except KeyError:
-            return extra_settings_default_values[name]
+            return extra_settings_default_values.get(name)
 
-    @property
-    def allow_download_on_metered_connection(self):
-        return self._get_extra("allow_download_on_metered_connection")
+    def __getattribute__(self, name):
+        if name in extra_settings_schema["properties"]:
+            return self._get_extra(name)
+        return super(DeviceSettings, self).__getattribute__(name)
 
-    @property
-    def enable_automatic_download(self):
-        return self._get_extra("enable_automatic_download")
-
-    @property
-    def allow_learner_download_resources(self):
-        return self._get_extra("allow_learner_download_resources")
-
-    @property
-    def set_limit_for_autodownload(self):
-        return self._get_extra("set_limit_for_autodownload")
-
-    @property
-    def limit_for_autodownload(self):
-        return self._get_extra("limit_for_autodownload")
+    def __setattr__(self, name, value):
+        if name in extra_settings_schema["properties"]:
+            self.extra_settings[name] = value
+        else:
+            super(DeviceSettings, self).__setattr__(name, value)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
