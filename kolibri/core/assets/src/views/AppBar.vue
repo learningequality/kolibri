@@ -78,7 +78,11 @@
             </span>
             <span
               v-if="isUserLoggedIn"
+              onclick="window.location.href = '/profile'"
               tabindex="-1"
+              :style="{
+                cursor: 'pointer',
+              }"
             >
               <KIcon
                 icon="person"
