@@ -33,6 +33,7 @@ export function createFacilityUser(store, payload) {
       id_number: payload.id_number,
       gender: payload.gender,
       birth_year: payload.birth_year,
+      extra_demographics: payload.extra_demographics,
     },
   }).then(facilityUser => {
     if (payload.role.kind !== UserKinds.LEARNER) {
