@@ -37,6 +37,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         required=False,
         error_messages={"does_not_exist": "Facility does not exist."},
     )
+    extra_demographics = serializers.JSONField(required=False)
 
     class Meta:
         model = FacilityUser
@@ -52,6 +53,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "id_number",
             "gender",
             "birth_year",
+            "extra_demographics",
         )
         read_only_fields = ("is_superuser",)
 
@@ -63,6 +65,15 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
             instance.save()
         return instance
+
+    def _validate_extra_demographics(self, attrs, facility):
+        # Validate the extra demographics here, as we need access to the facility dataset
+        extra_demographics = attrs.get("extra_demographics")
+        if extra_demographics:
+            try:
+                facility.dataset.validate_demographic_data(extra_demographics)
+            except DjangoValidationError as e:
+                raise serializers.ValidationError({"extra_demographics": e.message})
 
     def validate(self, attrs):
         username = attrs.get("username", None)
@@ -91,6 +102,8 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 "No password specified and it is required",
                 code=error_constants.PASSWORD_NOT_SPECIFIED,
             )
+        self._validate_extra_demographics(attrs, facility)
+
         # if obj doesn't exist, return data
         try:
             obj = FacilityUser.objects.get(username__iexact=username, facility=facility)

@@ -82,6 +82,12 @@
             class="select"
           />
 
+          <ExtraDemographics
+            v-model="extraDemographics"
+            :facilityDatasetExtraFields="facilityConfig.extra_fields"
+            :disabled="busy"
+          />
+
         </section>
 
         <div class="buttons">
@@ -122,6 +128,7 @@
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import IdentifierTextbox from './IdentifierTextbox';
 
   const { NOT_SPECIFIED } = DemographicConstants;
@@ -141,6 +148,7 @@
       PasswordTextbox,
       IdentifierTextbox,
       ImmersivePage,
+      ExtraDemographics,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -153,6 +161,7 @@
         passwordValid: false,
         gender: NOT_SPECIFIED,
         birthYear: NOT_SPECIFIED,
+        extraDemographics: {},
         idNumber: '',
         loading: true,
         kind: {
@@ -240,6 +249,7 @@
             id_number: this.idNumber,
             gender: this.gender,
             birth_year: this.birthYear,
+            extra_demographics: this.extraDemographics,
             role: {
               kind: this.newUserRole,
             },
