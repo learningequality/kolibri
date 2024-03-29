@@ -166,8 +166,6 @@ jobs:
         echo -n "${{ secrets.KOLIBRI_ANDROID_APP_PRODUCTION_KEYSTORE }}" | base64 --decode > production.keystore
         export RELEASE_KEYSTORE=$(realpath production.keystore)
         make kolibri.aab
-        # Upload to Play Store - this will also download the universal APK into the dist folder
-        make playstore-upload
     - name: Get AAB filename
       if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
       id: get-aab-filename
@@ -177,6 +175,9 @@ jobs:
       with:
         name: ${{ steps.get-aab-filename.outputs.aab-file-name }}
         path: dist/${{ steps.get-aab-filename.outputs.aab-file-name }}
+    - name: Upload the AAB to the Play Store and download the signed Universal APK
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      run: make playstore-upload
     - name: Build the apk
       if: ${{ inputs.signed == true || github.event.inputs.signed == 'true' }}
       env:
