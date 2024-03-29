@@ -168,6 +168,15 @@ jobs:
         make kolibri.aab
         # Upload to Play Store - this will also download the universal APK into the dist folder
         make playstore-upload
+    - name: Get AAB filename
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      id: get-aab-filename
+      run: echo "aab-file-name=$(ls dist | grep .aab | cat)" >> $GITHUB_OUTPUT
+    - uses: actions/upload-artifact@v4
+      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      with:
+        name: ${{ steps.get-aab-filename.outputs.aab-file-name }}
+        path: dist/${{ steps.get-aab-filename.outputs.aab-file-name }}
     - name: Build the apk
       if: ${{ inputs.signed == true || github.event.inputs.signed == 'true' }}
       env:
