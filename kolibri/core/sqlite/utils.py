@@ -68,7 +68,7 @@ def check_sqlite_integrity(connection):
         conn.close()
 
     if not (len(result) == 1 and result[0] == ("ok",)):
-        raise sqlite3.DatabaseError
+        raise sqlite3.DatabaseError                            
 
 
 def repair_sqlite_db(connection):
