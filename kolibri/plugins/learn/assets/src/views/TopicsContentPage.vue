@@ -164,6 +164,7 @@
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { ContentNodeKinds, ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
+  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -425,6 +426,9 @@
       lessonId() {
         return lodashGet(this.back, 'params.lessonId', null);
       },
+      classId() {
+        return lodashGet(this.back, 'params.classId', null);
+      },
       viewResourcesTitle() {
         /* eslint-disable kolibri/vue-no-undefined-string-uses */
         return this.lessonContext
@@ -515,6 +519,9 @@
         this.resourcesSidePanelLoading = false;
         if (this.content) {
           const id = this.content.id;
+          if (!this.isUserLoggedIn && (this.lessonId || this.classId)) {
+            redirectBrowser(window.location.href.split('?')[0]);
+          }
           client({
             method: 'get',
             url: urls['kolibri:core:bookmarks-list'](),
