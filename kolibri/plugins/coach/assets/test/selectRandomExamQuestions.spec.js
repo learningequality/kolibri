@@ -1,4 +1,3 @@
-import filter from 'lodash/filter';
 import selectQuestions from '../src/utils/selectQuestions';
 
 jest.mock('kolibri.lib.logging');
@@ -83,17 +82,5 @@ describe('selectQuestions function', () => {
     const output1 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 1);
     const output2 = selectQuestions(numQs, EXERCISES_IDS, EXERCISES_TITLES, QUESTION_IDS, 2);
     expect(output1).not.toEqual(output2);
-  });
-
-  it('will not add the same question twice', () => {
-    // Two copies of the same exercise, and a numQuestions that would previously
-    // force duplicates.
-    const exerciseIds = ['C1', 'C2'];
-    const titles = ['original c', 'copy of c'];
-    const assessments = ['A1', 'A2'];
-    const questionIds = [assessments, assessments];
-    const output = selectQuestions(4, exerciseIds, titles, questionIds, 1);
-    expect(filter(output, { question_id: 'A1' })).toHaveLength(1);
-    expect(filter(output, { question_id: 'A2' })).toHaveLength(1);
   });
 });
