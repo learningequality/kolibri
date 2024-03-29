@@ -2,11 +2,11 @@ import io
 import logging
 import os
 import sqlite3
-from django.core.management import call_command
 from datetime import datetime
 from shutil import copyfile
 
 from django.conf import settings
+from django.core.management import call_command
 from django.db.utils import DatabaseError
 from sqlalchemy import exc
 
@@ -15,8 +15,8 @@ from kolibri.deployment.default.sqlite_db_names import NOTIFICATIONS
 logger = logging.getLogger(__name__)
 
 # My test
-def common_clean(db_name, db_file):                    
-    # let's remove the damaged db files 
+def common_clean(db_name, db_file):
+    # let's remove the damaged db files
     if settings.DATABASES["default"]["ENGINE"] != "django.db.backends.sqlite3":
         return
     os.remove(db_file)
@@ -37,7 +37,7 @@ def regenerate_database(connection):
         call_command(
             "migrate",
             interactive=False,
-            verbosity=False,                    
+            verbosity=False,
             app_label="notifications",
             database=NOTIFICATIONS,
         )
@@ -68,10 +68,10 @@ def check_sqlite_integrity(connection):
         conn.close()
 
     if not (len(result) == 1 and result[0] == ("ok",)):
-        raise sqlite3.DatabaseError                            
+        raise sqlite3.DatabaseError
 
 
-def repair_sqlite_db(connection):                  
+def repair_sqlite_db(connection):
     from kolibri.core.deviceadmin.utils import KWARGS_IO_WRITE
     from kolibri.core.deviceadmin.utils import default_backup_folder
 
