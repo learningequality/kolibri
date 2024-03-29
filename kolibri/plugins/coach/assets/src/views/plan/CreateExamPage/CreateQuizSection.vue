@@ -39,49 +39,42 @@
         :layout8="{ span: 6 }"
         :layout12="{ span: 10 }"
       >
-        <TabsWithOverflow
+        <KListWithOverflow
           tabsId="quizSectionTabs"
           class="section-tabs"
-          :tabs="tabs"
-          :activeTabId="activeSection ?
-            activeSection.section_id :
-            '' "
-          backgroundColor="transparent"
-          hoverBackgroundColor="transparent"
-          :aria-label="quizSectionsLabel$()"
-          @click="id => setActiveSection(id)"
+          :items="tabs"
         >
-          <template #tab="{ tab }">
+          <template #item="{ item }">
             <span
-              :ref="tabRefLabel(tab.id)"
+              :ref="tabRefLabel(item.id)"
               appearance="flat-button"
               style="display: inline-block;"
               :appearanceOverrides="tabStyles"
             >
-              {{ tab.label }}
+              {{ item.label }}
             </span>
           </template>
 
-          <template #overflow="{ overflowTabs }">
+          <template #more="{ overflowItems }">
             <KIconButton
-              v-if="overflowTabs.length"
+              v-if="overflowItems.length"
               tabindex="-1"
               class="overflow-tabs"
               icon="optionsHorizontal"
-              :style="overflowButtonStyles(overflowTabs)"
+              :style="overflowButtonStyles(overflowItems)"
             >
               <template #menu>
                 <KDropdownMenu
                   :primary="false"
                   :disabled="false"
                   :hasIcons="true"
-                  :options="overflowTabs"
+                  :options="overflowItems"
                   @select="opt => setActiveSection(opt.id)"
                 />
               </template>
             </KIconButton>
           </template>
-        </TabsWithOverflow>
+        </KListWithOverflow>
       </KGridItem>
 
       <KGridItem
@@ -330,10 +323,10 @@
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
+  import KListWithOverflow from 'kolibri-design-system/lib/KListWithOverflow';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
-  import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
 
@@ -348,7 +341,7 @@
       Draggable,
       DragSortWidget,
       DragHandle,
-      TabsWithOverflow,
+      KListWithOverflow
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
