@@ -71,7 +71,7 @@ def check_sqlite_integrity(connection):
         raise sqlite3.DatabaseError                            
 
 
-def repair_sqlite_db(connection):
+def repair_sqlite_db(connection):                  
     from kolibri.core.deviceadmin.utils import KWARGS_IO_WRITE
     from kolibri.core.deviceadmin.utils import default_backup_folder
 
