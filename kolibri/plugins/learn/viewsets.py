@@ -182,15 +182,28 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "title",
                 "closed",
                 "answer_count",
+                "data_model_version",
                 "score",
                 "question_sources",
             )
         )
         exam_node_ids = set()
+        section_questions = list()
+
         for exam in exams:
-            exam_node_ids |= {
-                question["exercise_id"] for question in exam.get("question_sources")
-            }
+            if exam.get("data_model_version", 0) >= 3:
+                for section in exam.get("question_sources"):
+                    questions = section.get("questions", [])
+                    section_questions.extend(questions)
+
+                exam_node_ids |= {
+                    question["exercise_id"] for question in section_questions
+                }
+            else:
+                # OR WE COULD DO A MIGRATION TO UPDATE THE DATA
+                exam_node_ids |= {
+                    question["exercise_id"] for question in exam.get("question_sources")
+                }
 
         available_exam_ids = set(
             ContentNode.objects.filter_by_uuids(exam_node_ids).values_list(
@@ -218,7 +231,7 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 }
             exam["missing_resource"] = any(
                 question["exercise_id"] not in available_exam_ids
-                for question in exam.get("question_sources")
+                for question in (section_questions or exam.get("question_sources"))
             )
         out_items = []
         for item in items:
