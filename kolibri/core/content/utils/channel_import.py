@@ -741,7 +741,9 @@ class ChannelImport(object):
                     )
                     return False
                 return True
-            elif current_version < self.channel_version or current_partial:
+            elif current_version is not None and (
+                current_version < self.channel_version or current_partial
+            ):
                 # We have an older version of this channel, so let's clean out the old stuff first
                 # Or we only have a partial import of this channel.
                 logger.info(

@@ -37,8 +37,8 @@ describe('multiFacility signUpPage component', () => {
   it('right facility', async () => {
     const wrapper = makeWrapper();
     const facilityLabel = wrapper.find('[data-test="facilityLabel"]').element;
-    expect(facilityLabel.textContent).toMatch(/Facility 1/);
+    expect(facilityLabel).toHaveTextContent(/Facility 1/);
     await wrapper.vm.$store.commit('SET_FACILITY_ID', 2);
-    expect(facilityLabel.textContent).toMatch(/Facility 2/);
+    expect(facilityLabel).toHaveTextContent(/Facility 2/);
   });
 });

@@ -6,7 +6,7 @@
   "dependencies": {
     "intersection-observer": "0.12.2",
     "pdfjs-dist": "^2.16.105",
-    "vue-virtual-scroller": "0.12.0",
-    "web-streams-polyfill": "^3.2.1"
+    "vue-virtual-scroller": "1.1.2",
+    "web-streams-polyfill": "^4.0.0"
   }
 }

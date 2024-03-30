@@ -12,7 +12,3 @@ Feature: Admin sign-in
       And I click the *Sign in* button
     Then I am signed in
     	And I am at the *Facility > Classes* page
-
-  Examples:
-  | username | password |
-  | admin    | admin    |

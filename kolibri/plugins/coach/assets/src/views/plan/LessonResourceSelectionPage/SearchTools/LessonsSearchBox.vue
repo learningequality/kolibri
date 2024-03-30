@@ -65,13 +65,16 @@
     name: 'LessonsSearchBox',
     mixins: [commonCoreStrings],
     data() {
+      const { params, query } = this.$route;
       return {
-        searchTerm: this.$route.params.searchTerm || '',
+        searchTerm: params.searchTerm || query.search || '',
       };
     },
     computed: {
       searchTermHasChanged() {
-        return this.searchTerm !== this.$route.params.searchTerm;
+        const { params, query } = this.$route;
+        const newSearchTerm = params.searchTerm || query.search;
+        return this.searchTerm !== newSearchTerm;
       },
       inputPlaceHolderStyle() {
         return {
@@ -85,6 +88,7 @@
       clearSearchTerm() {
         this.searchTerm = '';
         this.$refs.searchinput.focus();
+        this.$emit('clear');
       },
       search() {
         if (this.searchTerm !== '' && this.searchTermHasChanged) {

@@ -36,6 +36,6 @@ describe('FacilityPermissionsForm', () => {
     expect(wrapper.vm.selected).toEqual('nonformal');
     expect(els.nonFormalRadioButton().vm.isChecked).toEqual(true);
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.classList.contains('ui-textbox-input')).toBe(true);
+    expect(elementThatIsFocused).toHaveClass('ui-textbox-input');
   });
 });

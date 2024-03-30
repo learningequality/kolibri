@@ -56,9 +56,10 @@ module.exports = {
     'plugin:vue/recommended',
     'plugin:import/errors',
     'plugin:import/warnings',
+    'plugin:jest-dom/recommended',
     'prettier',
   ],
-  plugins: ['import', 'vue', 'kolibri'],
+  plugins: ['import', 'vue', 'kolibri', 'jest-dom'],
   settings: {
     'import/resolver': {
       [path.resolve(path.join(path.dirname(__filename), './lib/alias_import_resolver.js'))]: {
@@ -68,7 +69,7 @@ module.exports = {
   },
   rules: {
     'comma-style': ERROR,
-    "no-console": ERROR,
+    'no-console': ERROR,
     'max-len': [
       ERROR,
       100,
@@ -221,9 +222,12 @@ module.exports = {
     'kolibri/vue-no-undefined-string-uses': ERROR,
     'kolibri/vue-string-objects-formatting': ERROR,
 
-    'prefer-const': [ERROR, {
-      destructuring: 'any',
-      ignoreReadBeforeAssign: false
-    }]
+    'prefer-const': [
+      ERROR,
+      {
+        destructuring: 'any',
+        ignoreReadBeforeAssign: false,
+      },
+    ],
   },
 };

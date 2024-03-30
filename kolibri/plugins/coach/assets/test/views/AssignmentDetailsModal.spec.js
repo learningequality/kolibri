@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-//import store from 'kolibri.coreVue.vuex.store';
 import makeStore from '../makeStore';
 import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 

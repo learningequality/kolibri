@@ -47,9 +47,3 @@ Feature: Super admin searches for users
     When I write enough characters for all other users to be excluded
     Then I see just the user I was searching for
       And I see the number of pages as '1 of 1'
-
-Examples:
-| full_name | username | role     |
-| Pinco P.  | coach    | Coaches  |
-| John C.   | learner  | Learners |
-| Carrie W. | admin2   | Admins   |

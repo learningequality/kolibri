@@ -25,7 +25,6 @@ Feature: Coaches need to be able to print or save as PDF all the available views
         And I confirm # could be *Save* or *OK* depending on the browser
       Then I have a PDF version of the report
 
-
   Scenario: Check print results for Lessons' reports
 
     When I print or save the report from *Reports > Lessons* subtab
@@ -53,7 +52,6 @@ Feature: Coaches need to be able to print or save as PDF all the available views
     When I print or save the report from *Reports > Lessons > '<lesson1>' > Learners > '<learner1>'* page
     Then on the paper/PDF I see a high level <learner1> overview on top
       And below I see the table with the same columns and values for all the resources in <lesson1>, as in *Reports > Lessons > '<lesson1>' > Learners > '<learner1>'* page
-
 
   Scenario: Check print results for Quizzes' reports
 

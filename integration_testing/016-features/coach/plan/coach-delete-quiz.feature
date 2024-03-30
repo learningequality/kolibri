@@ -15,7 +15,3 @@ Feature: Coach deletes quiz
     Then the modal closes
       And I see the snackbar notification
       And I don't see the <quiz> on the list of *Quizzes*
-
-Examples:
-| quiz                              |
-| First Quarter English Examination |

@@ -38,7 +38,7 @@
   "CommonCoachStrings.filterLessonVisible": "",
   "CommonCoachStrings.filterQuizAll": "ყველა",
   "CommonCoachStrings.filterQuizEnded": "",
-  "CommonCoachStrings.filterQuizNotStarted": "",
+  "CommonCoachStrings.filterQuizNotStarted": "არ არის დაწყებული",
   "CommonCoachStrings.filterQuizStarted": "დაწყებულია",
   "CommonCoachStrings.filterQuizStatus": "სტატუსი",
   "CommonCoachStrings.generalInformationLabel": "",

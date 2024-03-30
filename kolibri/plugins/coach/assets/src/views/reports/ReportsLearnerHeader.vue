@@ -55,11 +55,11 @@
     <HeaderTabs :enablePrint="enablePrint">
       <KTabsList
         ref="tabList"
-        :tabsId="LEARNERS_TABS_ID"
+        :tabsId="REPORTS_LEARNERS_TABS_ID"
         :ariaLabel="$tr('reportLearners')"
         :activeTabId="activeTabId"
         :tabs="tabs"
-        @click="() => saveTabsClick(LEARNERS_TABS_ID)"
+        @click="() => saveTabsClick(REPORTS_LEARNERS_TABS_ID)"
       />
     </HeaderTabs>
   </div>
@@ -71,7 +71,7 @@
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
-  import { LEARNERS_TABS_ID, LearnersTabs } from '../../constants/tabsConstants';
+  import { REPORTS_LEARNERS_TABS_ID, ReportsLearnersTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
 
   export default {
@@ -97,7 +97,7 @@
     },
     data() {
       return {
-        LEARNERS_TABS_ID,
+        REPORTS_LEARNERS_TABS_ID,
       };
     },
     computed: {
@@ -136,12 +136,12 @@
       tabs() {
         return [
           {
-            id: LearnersTabs.REPORTS,
+            id: ReportsLearnersTabs.REPORTS,
             label: this.coachString('reportsLabel'),
             to: this.classRoute('ReportsLearnerReportPage', {}),
           },
           {
-            id: LearnersTabs.ACTIVITY,
+            id: ReportsLearnersTabs.ACTIVITY,
             label: this.coachString('activityLabel'),
             to: this.classRoute('ReportsLearnerActivityPage', {}),
           },
@@ -153,8 +153,8 @@
       // that this header was re-mounted as a result
       // of navigation after clicking a tab (focus shouldn't
       // be manipulated programatically in other cases, e.g.
-      // when visiting the Plan page for the first time)
-      if (this.wereTabsClickedRecently(this.LEARNERS_TABS_ID)) {
+      // when visiting the page for the first time)
+      if (this.wereTabsClickedRecently(this.REPORTS_LEARNERS_TABS_ID)) {
         this.$nextTick(() => {
           this.$refs.tabList.focusActiveTab();
         });
@@ -168,7 +168,7 @@
       },
       reportLearners: {
         message: 'Report learners',
-        context: 'Labels the Reports > Learners tab for screen reander users',
+        context: 'Labels the Reports > Learners tab for screen reader users',
       },
     },
   };

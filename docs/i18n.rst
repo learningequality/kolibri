@@ -102,7 +102,7 @@ Common strings modules should typically have a translator created using the ``cr
   export default {
     name: 'someComponent',
     setup() {
-      const { myCoolString$, stringWithArgument$ } = commonStringsModule();
+      const { myCoolString$, stringWithArgument$ } = commonStringsModule;
       return {
         myCoolString$, stringWithArgument$
       };

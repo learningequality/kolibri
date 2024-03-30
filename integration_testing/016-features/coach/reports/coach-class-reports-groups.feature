@@ -47,7 +47,3 @@ Feature: Groups subtab
     When I click on the *Activity* subtab
     Then I see an activity feed of resources members engaged with
       And I see the *Resource type* and *Progress type* filter options
-
-Examples:
-| class     | group  | quiz    | lesson    |
-| Mi classe | GrupoA | Sumar 1 | Dividir 2 |

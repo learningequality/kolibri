@@ -82,7 +82,3 @@ Feature: Super admin imports more content
   # for this scenario you will need to have a more recent version of the channel on the local drive than on the device
   # disconnect the device from Internet and work only with local drives
   # workflow should be the same, no new version alert until you select to *Import more* and then the drive
-
-Examples:
-| channel      |
-| MIT Blossoms |

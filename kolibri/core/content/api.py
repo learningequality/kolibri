@@ -40,6 +40,7 @@ from rest_framework import status
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from kolibri.core.api import BaseValuesViewset
@@ -117,7 +118,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
         # Prevent the Django caching middleware from caching
         # this response, as we want to cache it ourselves
         request._cache_update_cache = False
-        key_prefix = get_cache_key(request)
+        key_prefix = cache_key_func(request)
         url_key = hashlib.md5(
             force_bytes(iri_to_uri(request.build_absolute_uri()))
         ).hexdigest()
@@ -129,7 +130,7 @@ def metadata_cache(view_func, cache_key_func=get_cache_key):
             response = view_func(*args, **kwargs)
             if response.status_code == 200:
                 if key_prefix is None:
-                    key_prefix = get_cache_key(request)
+                    key_prefix = cache_key_func(request)
                 if (
                     key_prefix is not None
                     and hasattr(response, "render")
@@ -1392,6 +1393,7 @@ class ContentRequestViewset(ReadOnlyValuesViewset, CreateModelMixin):
     filter_backends = (DjangoFilterBackend,)
     filter_class = ContentRequestFilter
     pagination_class = OptionalPageNumberPagination
+    permission_classes = [IsAuthenticated]
 
     values = (
         "id",

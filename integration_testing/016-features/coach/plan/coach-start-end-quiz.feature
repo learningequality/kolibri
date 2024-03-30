@@ -73,7 +73,3 @@ Feature: Coach start and end quizzes according to their teaching needs
     Then I see a snackbar notification saying *Quiz report is not visible to learners*
     When I click the switch again
     Then I see a snackbar notification saying *Quiz report is visible to learners*
-
-Examples:
-| quiz          |
-| First quarter |

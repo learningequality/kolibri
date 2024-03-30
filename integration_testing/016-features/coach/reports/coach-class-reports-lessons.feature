@@ -90,7 +90,3 @@ Feature: Lessons subtab
     Then I am on the <resource> resource page again
       And I see separate tables for each group
       And the *View by groups* checkbox is still checked
-
-Examples:
-| class     | learner  | lesson         | exercise   | resource                 |
-| My class  | Marc G.  | Basic division | Divide up! | One digit division video |

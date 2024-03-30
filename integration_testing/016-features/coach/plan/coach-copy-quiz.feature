@@ -45,7 +45,3 @@ Feature: Coach copies quiz
       And I click on *Quizzes* tab
     Then I see the *Copy of '<quiz>'* in the list of quizzes on *Coach - '<class2>' > Plan > Quizzes* page
       And I see <group> group under the *Recipients* heading
-
-Examples:
-| quiz          | class    | class2   | group     |
-| First Quarter | Buffoons | Maestros | Virtuosas |

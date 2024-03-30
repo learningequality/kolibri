@@ -11,7 +11,14 @@ export function useLessons() {
   }
 
   // Show the Lessons Root Page, where all the Lessons are listed for a given Classroom
-  function showLessonsRootPage(store, classId) {
+  async function showLessonsRootPage(store, classId) {
+    const initClassInfoPromise = store.dispatch('initClassInfo', classId);
+    const getFacilitiesPromise =
+      store.getters.isSuperuser && store.state.core.facilities.length === 0
+        ? store.dispatch('getFacilities').catch(() => {})
+        : Promise.resolve();
+
+    await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
     // on this page, don't handle loading state globally so we can do it locally
     store.dispatch('notLoading');
 

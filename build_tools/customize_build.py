@@ -5,6 +5,7 @@ the DJANGO_SETTINGS_MODULE environment variable.
 
 For more detail see the documentation in __init__.py
 """
+import logging
 import os
 import sys
 import tempfile
@@ -13,6 +14,7 @@ import requests
 
 sys.path.append(os.path.realpath(os.path.join(os.path.dirname(__file__), "..")))
 
+logger = logging.getLogger(__name__)
 plugins_cache = {}
 
 
@@ -21,7 +23,7 @@ def load_plugins_from_file(file_path):
     if file_path not in plugins_cache:
         # We have been passed a URL, not a local file path
         if file_path.startswith("http"):
-            print(
+            logger.info(
                 "Downloading plugins manifest from {file_path}".format(
                     file_path=file_path
                 )
@@ -53,7 +55,7 @@ def set_default_settings_module():
         default_settings_path = os.environ["DEFAULT_SETTINGS_MODULE"]
         with open(os.path.join(build_config_path, "default_settings.py"), "w") as f:
             # Just write out settings_path = '<settings_path>'
-            print(
+            logger.info(
                 "Setting default settings module to {path}".format(
                     path=default_settings_path
                 )
@@ -69,10 +71,10 @@ def set_run_time_plugins():
         runtime_plugins = load_plugins_from_file(os.environ["RUN_TIME_PLUGINS"])
         with open(os.path.join(build_config_path, "default_plugins.py"), "w") as f:
             # Just write out 'plugins = [...]' <-- list of plugins
-            print("Setting run time plugins to:")
+            logger.info("Setting run time plugins to:")
             for runtime_plugin in runtime_plugins:
-                print(runtime_plugin)
-            print("### End run time plugins ###")
+                logger.info(runtime_plugin)
+            logger.info("### End run time plugins ###")
             f.write(run_time_plugin_template.format(plugins=runtime_plugins.__str__()))
 
 

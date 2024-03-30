@@ -14,6 +14,7 @@ from morango.constants import transfer_statuses
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 from .. import models
@@ -1239,9 +1240,34 @@ class LoginLogoutTestCase(APITestCase):
         # Assert the expected behavior for the second user
         self.assertEqual(response_user2.status_code, 200)
 
-        # Cleanup: Delete the created users
-        self.user1.delete()
-        self.user2.delete()
+    def test_case_sensitive_matching_usernames(self):
+        FacilityUserFactory.create(username="shared_username", facility=self.facility)
+
+        response_user2 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "shared_username",
+                "password": DUMMY_PASSWORD,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        # Assert the expected behavior for the second user
+        self.assertEqual(response_user2.status_code, 200)
+
+        # Test no error when authentication fails
+        response_user3 = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": "shared_username",
+                "password": "wrong_password",
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response_user3.status_code, 401)
 
 
 class SignUpBase(object):
@@ -1916,3 +1942,29 @@ class DuplicateUsernameTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.data, True)
+
+
+class CSRFProtectedAuthTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        # Naming client as client_csrf as self.client is already used in the parent class
+        cls.client_csrf = APIClient(enforce_csrf_checks=True)
+        cls.facility = FacilityFactory.create()
+        cls.user = FacilityUserFactory.create(facility=cls.facility)
+
+    def test_csrf_protected_session_list(self):
+        response = self.client_csrf.post(
+            reverse("kolibri:core:session-list"),
+            data={"username": self.user.username, "password": DUMMY_PASSWORD},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+    def test_csrf_protected_signup_list(self):
+        response = self.client_csrf.post(
+            reverse("kolibri:core:signup-list"),
+            data={"username": "user", "password": DUMMY_PASSWORD},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

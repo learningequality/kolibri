@@ -78,13 +78,13 @@
           v-model="fixedOrder"
           :label="coachString('orderRandomLabel')"
           :description="coachString('orderRandomDescription')"
-          :value="false"
+          :buttonValue="false"
         />
         <KRadioButton
           v-model="fixedOrder"
           :label="coachString('orderFixedLabel')"
           :description="coachString('orderFixedDescription')"
-          :value="true"
+          :buttonValue="true"
         />
       </div>
 

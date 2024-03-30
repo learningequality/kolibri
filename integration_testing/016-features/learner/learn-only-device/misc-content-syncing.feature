@@ -21,11 +21,6 @@ Feature: Misc content syncing
 		Then I see the *Save* button at the bottom right corner of the form
 			And I see the *Cancel* button the left of it
 
-	Scenario: Changed input fields style
-		When I go to the *Profile* page
-			And I click *Edit*
-		Then I see that all the fields are changed to KTextbox
-
 	Scenario: *Download resource* button is changed to *Save to device*
 		When I go to a channel resource
 			And I click the *View information* button

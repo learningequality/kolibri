@@ -20,8 +20,8 @@ export const ReportsGroupTabs = {
   ACTIVITY: 'tabActivity',
 };
 
-export const LEARNERS_TABS_ID = 'reportLearners';
-export const LearnersTabs = {
+export const REPORTS_LEARNERS_TABS_ID = 'coachReportsLearners';
+export const ReportsLearnersTabs = {
   REPORTS: 'tabReports',
   ACTIVITY: 'tabActivity',
 };
@@ -30,4 +30,9 @@ export const QUIZZES_TABS_ID = 'coachReportsQuizzes';
 export const QuizzesTabs = {
   REPORT: 'tabReport',
   DIFFICULT_QUESTIONS: 'tabDifficultQuestions',
+};
+export const REPORTS_LESSON_TABS_ID = 'coachReportsLesson';
+export const ReportsLessonTabs = {
+  REPORTS: 'tabReports',
+  LEARNERS: 'tabLearners',
 };

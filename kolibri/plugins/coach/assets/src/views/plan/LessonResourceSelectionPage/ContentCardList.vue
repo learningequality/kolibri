@@ -33,7 +33,11 @@
           :link="contentCardLink(content)"
           :numCoachContents="content.num_coach_contents"
           :isLeaf="content.is_leaf"
-        />
+        >
+          <template #notice>
+            <slot name="notice" :content="content"></slot>
+          </template>
+        </LessonContentCard>
       </li>
     </ul>
 

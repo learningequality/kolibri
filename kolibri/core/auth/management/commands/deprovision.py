@@ -88,6 +88,6 @@ class Command(AsyncCommand):
                 "ARE YOU SURE? If you do this, there is no way to recover the user data on this device."
             )
 
-        print("Proceeding with deprovisioning. Deleting all user data.")
+        logger.info("Proceeding with deprovisioning. Deleting all user data.")
         self.deprovision()
-        print("Deprovisioning complete. All user data has been deleted.")
+        logger.info("Deprovisioning complete. All user data has been deleted.")

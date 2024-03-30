@@ -126,10 +126,10 @@ describe('DeviceSettingsPage', () => {
   function assertIsSelected(button, expected) {
     /*
      * HACK(kds-test) The only way to tell it's checked in the DOM
-     * is to check if "value" and "currentValue" props have the same value
+     * is to check if "buttonValue" and "currentValue" props have the same value
      */
     const buttonProps = button.props();
-    const checked = buttonProps.value === buttonProps.currentValue;
+    const checked = buttonProps.buttonValue === buttonProps.currentValue;
     expect(checked).toBe(expected);
   }
 

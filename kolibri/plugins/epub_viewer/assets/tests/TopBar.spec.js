@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import TopBar from '../src/views/TopBar';
 
 function createWrapper({ title, isInFullscreen = false } = {}) {
@@ -10,7 +9,6 @@ function createWrapper({ title, isInFullscreen = false } = {}) {
       title,
       isInFullscreen,
     },
-    store,
     attachTo: node,
   });
 }
@@ -33,19 +31,19 @@ describe('Top bar', () => {
     const wrapper = createWrapper();
     wrapper.vm.focusOnTocButton();
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.getAttribute('data-test')).toEqual('toc button');
+    expect(elementThatIsFocused).toHaveAttribute('data-test', 'toc button');
   });
   it('should allow parent to focus on settings button', () => {
     const wrapper = createWrapper();
     wrapper.vm.focusOnSettingsButton();
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.getAttribute('data-test')).toEqual('settings button');
+    expect(elementThatIsFocused).toHaveAttribute('data-test', 'settings button');
   });
   it('should allow parent to focus on search button', () => {
     const wrapper = createWrapper();
     wrapper.vm.focusOnSearchButton();
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.getAttribute('data-test')).toEqual('search button');
+    expect(elementThatIsFocused).toHaveAttribute('data-test', 'search button');
   });
 
   it('should emit and event when the table of contents button is clicked', () => {

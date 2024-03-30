@@ -107,7 +107,7 @@
               <KRadioButton
                 v-else-if="selectable && !enableMultipleSelection"
                 :disabled="disabled"
-                :value="user.id"
+                :buttonValue="user.id"
                 :currentValue="firstSelectedUser"
                 :label="''"
                 data-test="userRadioButton"

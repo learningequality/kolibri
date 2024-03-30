@@ -43,7 +43,6 @@ class LearnModule extends KolibriApp {
 
     // after every navigation, block double-clicks
     router.afterEach((toRoute, fromRoute) => {
-      this.store.dispatch('blockDoubleClicks');
       this.store.dispatch('resetModuleState', { toRoute, fromRoute });
     });
     super.ready();

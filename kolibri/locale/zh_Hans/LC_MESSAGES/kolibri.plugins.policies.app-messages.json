@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "您{choice, string}接收统计 Cookie。您可以在以下位置更改此首选项：",
+  "CookiePolicy.choicesP1": "您{choice}接收统计 Cookie。您可以在以下位置更改此首选项：",
   "CookiePolicy.cookieExpiryTableHeader": "到期",
   "CookiePolicy.cookieP1": "课励彼学习平台使用 Cookie 来个性化并保护您的使用体验，分析流量并改善其服务的性能和功能。Cookie 是一些小型文本文件，可帮助网站提高用户体验的效率。",
   "CookiePolicy.cookieP2": "当前的隐私法（GDPR 和 CCPA）规定，我们可以在您的设备上存储服务运行所绝对必要的 Cookie。对于所有其他类型的 Cookie，则需要获取您的许可。",

@@ -8,8 +8,9 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "friday"
+      day: "wednesday"
       time: "00:00"
+    open-pull-requests-limit: 10
     groups:
       babel:
         patterns:
@@ -20,7 +21,7 @@ updates:
     directory: "/"
     schedule:
       interval: "weekly"
-      day: "friday"
+      day: "wednesday"
       time: "00:00"
     groups:
       github:

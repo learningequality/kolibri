@@ -17,6 +17,7 @@ from morango.models import InstanceIDModel
 from morango.models import SyncSession
 from morango.models import TransferSession
 from rest_framework import status
+from rest_framework.test import APIClient
 from rest_framework.test import APITestCase
 
 import kolibri
@@ -993,3 +994,31 @@ class UserSyncStatusTestCase(APITestCase):
         content_removal_request.save()
         response = self.client.get(reverse("kolibri:core:usersyncstatus-list"))
         self.assertFalse(response.data[0]["sync_downloads_in_progress"])
+
+
+class CSRFProtectedDeviceTestCase(APITestCase):
+    def setUp(self):
+        clear_process_cache()
+        self.client_csrf = APIClient(enforce_csrf_checks=True)
+        self.superuser_data = {"username": "superuser", "password": "password"}
+        self.facility_data = {"name": "Wilson Elementary"}
+        self.preset_data = "nonformal"
+        self.settings = {}
+        self.allow_guest_access = True
+        self.language_id = "en"
+
+    def test_csrf_protected_deviceprovision(self):
+        response = self.client_csrf.post(
+            reverse("kolibri:core:deviceprovision"),
+            {
+                "device_name": None,
+                "superuser": self.superuser_data,
+                "facility": self.facility_data,
+                "preset": self.preset_data,
+                "settings": self.settings,
+                "language_id": self.language_id,
+                "allow_guest_access": self.allow_guest_access,
+            },
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

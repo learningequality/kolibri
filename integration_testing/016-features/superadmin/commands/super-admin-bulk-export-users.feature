@@ -20,7 +20,3 @@ Feature: Super Admin export users for a facility in a device with manage bulkexp
     Then I open the file with a text editor or a spreadsheet application
       And I see the column headers are localized in <language> language
       And the English column identifiers are in capital letters inside parenthesis #Example *Identificador (IDENTIFIER)*
-
-Examples:
-| language |
-| Spanish  |

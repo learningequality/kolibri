@@ -13,7 +13,6 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("kolibriauth", "0020_facilitydataset_extra_fields"),
-        migrations.swappable_dependency(settings.AUTH_USER_MODEL),
         ("device", "0017_extra_settings"),
     ]
 
@@ -58,7 +57,7 @@ class Migration(migrations.Migration):
                     models.OneToOneField(
                         on_delete=django.db.models.deletion.CASCADE,
                         related_name="learner_device_status",
-                        to=settings.AUTH_USER_MODEL,
+                        to="kolibriauth.FacilityUser",
                     ),
                 ),
             ],

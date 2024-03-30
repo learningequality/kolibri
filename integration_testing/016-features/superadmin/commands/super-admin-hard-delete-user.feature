@@ -15,9 +15,3 @@ Feature: Super admin hard delete user
     When I type "yes"
       And I press *Enter* key
     Then I get confirmation message that the user data associated with username <username> has been deleted
-
-Examples:
-| username |
-| coach    |
-| learner  |
-| admin    |

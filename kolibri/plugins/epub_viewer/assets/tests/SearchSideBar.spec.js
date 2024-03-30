@@ -1,5 +1,4 @@
 import { mount } from '@vue/test-utils';
-import store from 'kolibri.coreVue.vuex.store';
 import SearchSideBar from '../src/views/SearchSideBar';
 
 function createWrapper() {
@@ -9,7 +8,6 @@ function createWrapper() {
     propsData: {
       book: {},
     },
-    store,
     attachTo: node,
   });
 }
@@ -24,6 +22,6 @@ describe('Search side bar', () => {
     const wrapper = createWrapper();
     wrapper.vm.focusOnInput();
     const elementThatIsFocused = document.activeElement;
-    expect(elementThatIsFocused.classList.contains('search-input')).toBe(true);
+    expect(elementThatIsFocused).toHaveClass('search-input');
   });
 });

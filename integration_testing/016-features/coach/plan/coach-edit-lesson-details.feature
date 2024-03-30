@@ -63,7 +63,3 @@ Feature: Coach edits lessons
       Then I see the report for all the learners for that resource
       When I click the *Preview* button
       Then I see the resource in a full page
-
-Examples:
-| lesson        |
-| First lesson  |

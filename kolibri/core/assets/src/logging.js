@@ -5,23 +5,31 @@
 
 import loglevel from 'loglevel';
 
-const console = global.console;
-
 class Logger {
   constructor(loggerName) {
     this.loggerName = loggerName;
     this.logger = loglevel.getLogger(loggerName);
+    this.setMessagePrefix();
     Object.keys(loglevel.levels).forEach(methodName => {
       const name = methodName.toLowerCase();
       const logFunction = this.logger[name];
       if (logFunction) {
-        this[name] = logFunction.bind(console, this.messagePrefix(name));
+        this[name] = param => {
+          return this.logger[name](param);
+        };
       }
     });
   }
 
-  messagePrefix(type) {
-    return `[${type.toUpperCase()}: ${this.loggerName}]`;
+  setMessagePrefix() {
+    var originalFactory = this.logger.methodFactory;
+    this.logger.methodFactory = function(methodName, logLevel, loggerName) {
+      var rawMethod = originalFactory(methodName, logLevel, loggerName);
+      return function(message) {
+        rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message);
+      };
+    };
+    this.logger.setLevel(this.logger.getLevel());
   }
 
   setLevel(level, persist) {

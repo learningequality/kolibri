@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: kolibri\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2023-03-14 16:32-0700\n"
-"PO-Revision-Date: 2023-04-05 22:11\n"
+"POT-Creation-Date: 2024-02-12 04:17-0800\n"
+"PO-Revision-Date: 2024-02-12 16:21\n"
 "Last-Translator: \n"
 "Language-Team: Gujarati\n"
 "Language: gu_IN\n"
@@ -14,8 +14,8 @@ msgstr ""
 "X-Crowdin-Project: kolibri\n"
 "X-Crowdin-Project-ID: 201933\n"
 "X-Crowdin-Language: gu-IN\n"
-"X-Crowdin-File: /release-v0.16.x/django.po\n"
-"X-Crowdin-File-ID: 4241\n"
+"X-Crowdin-File: /016-test/django.po\n"
+"X-Crowdin-File-ID: 4744\n"
 
 #: core/auth/constants/commands_errors.py:17
 msgid "Unexpected exception [{}]: {}"
@@ -110,7 +110,7 @@ msgstr "વિદ્યાર્થીની નોંધણી ({})"
 #: core/auth/management/commands/bulkexportusers.py:71
 msgctxt "CSV column header for the list of classrooms names where the tutor is going to be a coach"
 msgid "Coach assignment ({})"
-msgstr "પ્રશિક્ષકને સોંપાયેલું કામ ({})"
+msgstr "પ્રશિક્ષકને સોંપાયેલું કાર્ય ({})"
 
 #: core/auth/management/commands/bulkexportusers.py:131
 msgctxt "CSV header for the type of user: ADMIN, LEARNER, COACH..."
@@ -173,45 +173,45 @@ msgid "Database ID is not valid"
 msgstr "ડેટાબેઝ આઈડી માન્ય નથી"
 
 #. Translators: A notification title shown to users when their Kolibri device is syncing data to another Kolibri instance
-#: core/auth/tasks.py:63
+#: core/auth/tasks.py:56
 msgid "Data syncing in progress"
 msgstr "ડેટા સિંક કરવાની પ્રક્રિયા ચાલુ છે"
 
 #. Translators: Notification text shown to users when their Kolibri device is syncing data to another Kolibri instance
 #. to encourage them to stay connected to their network to ensure a successful sync.
-#: core/auth/tasks.py:67
+#: core/auth/tasks.py:60
 msgid "Do not disconnect your device from the network."
 msgstr "તમારા ડિવાઇસને નેટવર્કથી ડિસકનેક્ટ કરશો નહીં."
 
-#: core/content/api.py:352
+#: core/content/api.py:418
 msgid "Resource"
 msgstr "સંસાધનો"
 
-#: core/content/api.py:1622
+#: core/content/api.py:1780
 msgid "The requested channel does not exist on the content server"
 msgstr "વિનંતી કરેલ ચેનલ સામગ્રી સર્વર પર અસ્તિત્વમાં નથી"
 
-#: core/content/models.py:265
+#: core/content/models.py:282
 msgid "Unknown format"
 msgstr "અજ્ઞાત ફોર્મેટ"
 
 #. Translators: Message shown to an App user when the device's library is being updated
 #. either with new resources, or unwanted resources being deleted.
-#: core/content/tasks.py:46
+#: core/content/tasks.py:57
 msgid "Updating your library"
 msgstr "તમારી લાઇબ્રેરીને અપડેટ કરી રહ્યા છીએ"
 
 #. Translators: Message shown to an App user when an update to the library has been successful.
-#: core/content/tasks.py:49
+#: core/content/tasks.py:60
 msgid "Library updated"
 msgstr "લાઇબ્રેરીને અપડેટ કરવામાં આવી"
 
 #. Translators: Message shown to an App user when an update to the library has failed.
-#: core/content/tasks.py:52
+#: core/content/tasks.py:63
 msgid "Library update failed"
 msgstr "લાઇબ્રેરીને અપડેટ કરવાનું નિષ્ફળ ગયું"
 
-#: core/device/serializers.py:43
+#: core/device/serializers.py:48
 msgid "Language is not supported by Kolibri"
 msgstr "કોલિબ્રી દ્વારા ભાષાને સમર્થન નથી"
 
@@ -278,35 +278,30 @@ msgid "Content kind"
 msgstr "સામગ્રીનો પ્રકાર"
 
 #. Translators: Message shown to indicate that a background process has finished successfully.
-#: core/tasks/job.py:100
+#: core/tasks/job.py:89
 msgid "Complete"
 msgstr "પૂર્ણ"
 
 #. Translators: Message shown to indicate that a background process has failed.
-#: core/tasks/job.py:103
+#: core/tasks/job.py:92
 msgid "Failed"
-msgstr "નિષ્ફળ થયેલ છે"
+msgstr "નિષ્ફળ થયું"
 
 #. Translators: Message shown to indicate that a background process has been cancelled.
-#: core/tasks/job.py:106
+#: core/tasks/job.py:95
 msgid "Cancelled"
 msgstr "રદ કરાયેલ"
 
 #. Translators: Message shown to indicate the percentage completed of a background process.
-#: core/tasks/job.py:109
+#: core/tasks/job.py:98
 #, python-brace-format
 msgid "In progress - {percent}%"
 msgstr "ચાલુ છે - {percent}%"
 
 #. Translators: Message shown to indicate that while a background process has started, no progress can be reported yet.
-#: core/tasks/job.py:113
+#: core/tasks/job.py:102
 msgid "Waiting"
-msgstr "રાહ જુએ છે"
-
-#: core/templates/kolibri/base.html:13
-#: core/templates/kolibri/unsupported_browser.html:13
-msgid "Kolibri"
-msgstr "કોલિબ્રી"
+msgstr "કતારમાં છે"
 
 #: core/templates/kolibri/loading_page.html:8
 msgid "Kolibri is starting"
@@ -344,17 +339,21 @@ msgstr "કોલિબ્રી ઉપયોગ કરવા માટે, અ�
 msgid "You can also try updating your current browser."
 msgstr "તમે તમારા વર્તમાન બ્રાઉઝરને અપડેટ કરવાનો પણ પ્રયાસ કરી શકો છો."
 
-#: core/views.py:165
+#: core/templatetags/core_tags.py:84
+msgid "Kolibri"
+msgstr "કોલિબ્રી"
+
+#: core/views.py:184
 msgid "No appropriate redirect pages found. It is likely that Kolibri is badly configured"
 msgstr "કોઈ યોગ્ય રીડાયરેક્ટ પૃષ્ઠ મળ્યું નથી. શક્યતા એ છે કે કોલિબ્રીની ગોઠવણ યોગ્ય રીતે કરવામાં આવી નથી"
 
-#: plugins/coach/kolibri_plugin.py:36
+#: plugins/coach/kolibri_plugin.py:27
 msgid "Coach"
 msgstr "પ્રશિક્ષક"
 
-#: plugins/facility/kolibri_plugin.py:30
+#: plugins/facility/kolibri_plugin.py:22
 msgid "Facility"
-msgstr "સુવિધા કેન્દ્ર"
+msgstr "સુવિધા"
 
 #: plugins/facility/views.py:151
 msgctxt "Default name for the exported CSV file with content session logs. Please keep the underscores between words in the translation"
@@ -376,11 +375,11 @@ msgctxt "Default name for the exported CSV file of facility user data. Please ke
 msgid "users"
 msgstr "વપરાશકર્તા"
 
-#: plugins/learn/kolibri_plugin.py:33
+#: plugins/learn/kolibri_plugin.py:35
 msgid "Learn"
 msgstr "શીખવું"
 
-#: plugins/policies/kolibri_plugin.py:19
+#: plugins/policies/kolibri_plugin.py:21
 msgid "Policies"
 msgstr "નીતિઓ"
 
@@ -388,16 +387,16 @@ msgstr "નીતિઓ"
 msgid "Setup Wizard"
 msgstr "સેટઅપ વિઝાર્ડ"
 
-#: plugins/user_profile/kolibri_plugin.py:25
+#: plugins/user_profile/kolibri_plugin.py:24
 msgid "User Profile"
 msgstr "વપરાશકર્તા પ્રોફાઇલ"
 
 #. Translators: A notification title shown to users when their learner account is joining a new learning facility.
-#: plugins/user_profile/tasks.py:67
+#: plugins/user_profile/tasks.py:84
 msgid "Account transfer in progress"
 msgstr "એકાઉન્ટને ટ્રાન્સફર કરવાની પ્રક્રિયા ચાલુ છે"
 
-#: plugins/user_profile/tasks.py:70
+#: plugins/user_profile/tasks.py:87
 #, python-brace-format
 msgid "Moving {learner_name} to learning facility {facility_name}"
 msgstr "{learner_name}ને શિક્ષણ સુવિધા {facility_name}માં ખસેડી રહ્યા છીએ"

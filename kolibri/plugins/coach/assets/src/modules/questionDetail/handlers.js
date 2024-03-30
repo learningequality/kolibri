@@ -1,6 +1,5 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
-import { assessmentMetaDataState } from 'kolibri.coreVue.vuex.mappers';
 import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 
@@ -55,7 +54,7 @@ function showQuestionDetailView(params) {
   return promise
     .then(exam => {
       return ContentNodeResource.fetchModel({ id: exerciseNodeId }).then(exercise => {
-        exercise.assessmentmetadata = assessmentMetaDataState(exercise);
+        exercise.assessmentmetadata = exercise.assessmentmetadata || {};
         let title;
         if (exam) {
           const question = exam.question_sources.find(source => source.item === questionId);
@@ -66,7 +65,7 @@ function showQuestionDetailView(params) {
         } else {
           const questionNumber = Math.max(
             1,
-            exercise.assessmentmetadata.assessmentIds.indexOf(questionId)
+            exercise.assessmentmetadata.assessment_item_ids.indexOf(questionId)
           );
           title = coachStrings.$tr('nthExerciseName', {
             name: exercise.title,

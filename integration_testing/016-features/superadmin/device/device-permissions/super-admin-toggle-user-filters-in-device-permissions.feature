@@ -61,7 +61,3 @@ Feature: Toggle user filters in Device > Permissions
     When I click the *User type* filter
       And I select *Admin*
     Then I see users who have both the permission *Can manage content* and are *Admin* users in all facilities
-
-Examples:
-| facility    |
-| my-facility |

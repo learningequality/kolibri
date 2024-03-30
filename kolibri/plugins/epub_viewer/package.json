@@ -7,7 +7,7 @@
     "browserify-zlib": "^0.2.0",
     "epubjs": "0.3.84",
     "mark.js": "^8.11.1",
-    "vue-focus-lock": "^1.2.0",
-    "web-streams-polyfill": "^3.2.1"
+    "vue-focus-lock": "^1.4.1",
+    "web-streams-polyfill": "^4.0.0"
   }
 }
