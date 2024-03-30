@@ -14,13 +14,13 @@ etc..
 """
 import logging
 import os
+import shutil
 import sys
 
 from django.db import connections
 
 from .conf import KOLIBRI_HOME
 from .conf import OPTIONS
-from kolibri.utils.android import on_android
 
 logger = logging.getLogger(__name__)
 
@@ -127,44 +127,13 @@ class _WindowsNullDevice:
 
 def get_free_space(path=KOLIBRI_HOME):
 
-    while path and not os.path.exists(path):
-        path = os.path.dirname(path)  # look to parent if it doesn't exist
-    if not path:
-        raise Exception("Could not calculate free space")
+    path = os.path.realpath(path)
 
-    if sys.platform.startswith("win"):
-        import ctypes
-
-        free = ctypes.c_ulonglong(0)
-        check = ctypes.windll.kernel32.GetDiskFreeSpaceExW(
-            ctypes.c_wchar_p(path), None, None, ctypes.pointer(free)
-        )
-        if check == 0:
-            raise ctypes.winError()
-        result = free.value
-    elif on_android():
-        # This is meant for android, which needs to interact with android API to understand free
-        # space. If we're somehow getting here on non-android, we've got a problem.
-        try:
-            from jnius import autoclass
-
-            StatFs = autoclass("android.os.StatFs")
-            AndroidString = autoclass("java.lang.String")
-
-            st = StatFs(AndroidString(path))
-
-            try:
-                # for api version 18+
-                result = st.getFreeBlocksLong() * st.getBlockSizeLong()
-            except Exception:
-                # for api versions < 18
-                result = st.getFreeBlocks() * st.getBlockSize()
-
-        except Exception as e:
-            raise e
-    else:
-        st = os.statvfs(os.path.realpath(path))
-        result = st.f_bavail * st.f_frsize
+    while path and not os.path.exists(path) and not os.path.isdir(path):
+        path = os.path.dirname(
+            path
+        )  # look to parent if it doesn't exist or isn't a directory
+    result = shutil.disk_usage(path).free
 
     return max(result - OPTIONS["Deployment"]["MINIMUM_DISK_SPACE"], 0)
 

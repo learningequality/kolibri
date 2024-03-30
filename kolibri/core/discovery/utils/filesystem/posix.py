@@ -72,7 +72,7 @@ PATH_PREFIX_BLACKLIST = ["/proc", "/sys", "/tmp", "/var", "/boot", "/dev"]
 def get_drive_list():
     """
     Gets a list of drives and metadata by parsing the output of `mount`, and adding additional info from various commands.
-    Disk size/usage comes from shutil.disk_usage or os.statvfs, and name/type info from dbus (Linux) or diskutil (OSX).
+    Disk size/usage comes from shutil.disk_usage, and name/type info from dbus (Linux) or diskutil (OSX).
     """
 
     if sys.platform == "darwin":

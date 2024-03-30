@@ -1,6 +1,5 @@
 import os
 import platform
-import sys
 import uuid
 from collections import namedtuple
 from datetime import timedelta
@@ -375,30 +374,17 @@ class FreeSpaceTestCase(APITestCase):
             facility=self.facility,
         )
 
-    def test_posix_freespace(self):
-        if not sys.platform.startswith("win"):
-            with mock.patch("kolibri.utils.system.os.statvfs") as os_statvfs_mock:
-                statvfs_result = namedtuple("statvfs_result", ["f_frsize", "f_bavail"])
-                os_statvfs_mock.return_value = statvfs_result(f_frsize=1, f_bavail=2)
+    def test_freespace(self):
+        with mock.patch("kolibri.utils.system.shutil.disk_usage") as diskusage_mock:
+            diskusage_result = namedtuple("diskusage_result", ["free"])
+            diskusage_mock.return_value = diskusage_result(free=2)
 
-                response = self.client.get(
-                    reverse("kolibri:core:freespace"), {"path": "test"}
-                )
+            response = self.client.get(
+                reverse("kolibri:core:freespace"), {"path": "test"}
+            )
 
-                os_statvfs_mock.assert_called_with(os.path.realpath("test"))
-                self.assertEqual(response.data, {"freespace": 2})
-
-    def test_win_freespace_fail(self):
-        if sys.platform.startswith("win"):
-            ctypes_mock = mock.MagicMock()
-            with mock.patch.dict("sys.modules", ctypes=ctypes_mock):
-                ctypes_mock.windll.kernel32.GetDiskFreeSpaceExW.return_value = 0
-                ctypes_mock.winError.side_effect = OSError
-                try:
-                    self.client.get(reverse("kolibri:core:freespace"), {"path": "test"})
-                except OSError:
-                    # check if ctypes.winError() has been called
-                    ctypes_mock.winError.assert_called_with()
+            diskusage_mock.assert_called_with(os.path.realpath("test"))
+            self.assertEqual(response.data, {"freespace": 2})
 
 
 class DeviceInfoTestCase(APITestCase):
