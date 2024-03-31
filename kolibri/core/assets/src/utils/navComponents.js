@@ -28,11 +28,32 @@ function validateSection(section) {
   return !checkDeclared(section) || Object.values(NavComponentSections).includes(section);
 }
 
+function validateRoutes(routes) {
+  // Required, must be an array of objects
+  return (
+    !checkDeclared(routes) ||
+    (Array.isArray(routes) &&
+      routes.every(route => {
+        return (
+          checkDeclared(route.label) &&
+          checkDeclared(route.route) &&
+          checkDeclared(route.name) &&
+          checkDeclared(route.icon) &&
+          typeof route.label === 'string' &&
+          typeof route.route === 'string' &&
+          typeof route.name === 'string' &&
+          typeof route.icon === 'string'
+        );
+      }))
+  );
+}
+
 function validateComponent(component) {
   return (
     validatePriority(component.priority) &&
     validateRole(component.role) &&
-    validateSection(component.section)
+    validateSection(component.section) &&
+    validateRoutes(component.routes)
   );
 }
 
@@ -41,7 +62,7 @@ navComponents.register = component => {
     if (validateComponent(component)) {
       navComponents.push(component);
     } else {
-      logging.error('Component has invalid priority, role, or section');
+      logging.error('Component has invalid priority, role, section, or routes');
     }
   } else {
     logging.warn('Component has already been registered');
