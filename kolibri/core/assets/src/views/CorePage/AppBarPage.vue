@@ -10,6 +10,7 @@
           ref="appBar"
           class="app-bar"
           :title="title"
+          :showNavigation="showNavigation"
           @toggleSideNav="navShown = !navShown"
         >
           <template #sub-nav>
@@ -80,6 +81,10 @@
       title: {
         type: String,
         default: null,
+      },
+      showNavigation: {
+        type: Boolean,
+        default: true,
       },
       appearanceOverrides: {
         type: Object,

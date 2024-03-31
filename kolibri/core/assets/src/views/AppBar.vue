@@ -41,10 +41,15 @@
         </template>
 
         <template
-          v-if="windowIsLarge"
+          v-if="showNavigation && windowIsLarge"
           #navigation
         >
-          <slot name="sub-nav"></slot>
+          <slot name="sub-nav">
+            <HorizontalNavBarWithOverflowMenu
+              v-if="links.length > 0"
+              :navigationLinks="links"
+            />
+          </slot>
         </template>
 
         <template #actions>
@@ -104,10 +109,15 @@
     <!-- Window size and app context. Changes may need to be made -->
     <!-- in parallel in both files for non-breaking updates -->
     <div
-      v-if="!windowIsLarge && (!isAppContext || (isAppContext && !isTouchDevice))"
+      v-if="showNavigation && !windowIsLarge && (!isAppContext || (isAppContext && !isTouchDevice))"
       class="subpage-nav"
     >
-      <slot name="sub-nav"></slot>
+      <slot name="sub-nav">
+        <HorizontalNavBarWithOverflowMenu
+          v-if="links.length > 0"
+          :navigationLinks="links"
+        />
+      </slot>
     </div>
   </div>
 
@@ -117,6 +127,8 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
+  import { get } from '@vueuse/core';
+  import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import KIconButton from 'kolibri-design-system/lib/buttons-and-links/KIconButton';
@@ -125,6 +137,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useNav from '../composables/useNav';
   import SkipNavigationLink from './SkipNavigationLink';
+  import HorizontalNavBarWithOverflowMenu from './HorizontalNavBarWithOverflowMenu';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -134,17 +147,36 @@
       UiToolbar,
       KIconButton,
       SkipNavigationLink,
+      HorizontalNavBarWithOverflowMenu,
     },
     mixins: [commonCoreStrings],
     setup() {
+      const store = getCurrentInstance().proxy.$store;
+      const $route = computed(() => store.state.route);
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      const { topBarHeight } = useNav();
-      return { themeConfig, windowIsLarge, windowIsSmall, topBarHeight };
+      const { topBarHeight, navComponents } = useNav();
+      const links = computed(() => {
+        const currentComponent = navComponents.find(nc => nc.url === window.location.pathname);
+        if (!currentComponent) {
+          return [];
+        }
+        return currentComponent.routes.map(route => ({
+          title: route.label,
+          link: { name: route.name, params: get($route).params, query: get($route).query },
+          icon: route.icon,
+          condition: route.condition,
+        }));
+      });
+      return { themeConfig, windowIsLarge, windowIsSmall, topBarHeight, links };
     },
     props: {
       title: {
         type: String,
         required: true,
+      },
+      showNavigation: {
+        type: Boolean,
+        default: true,
       },
     },
     data() {

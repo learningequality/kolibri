@@ -245,7 +245,6 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import CoreLogo from 'kolibri.coreVue.components.CoreLogo';
   import LearnOnlyDeviceNotice from 'kolibri.coreVue.components.LearnOnlyDeviceNotice';
-  import navComponents from 'kolibri.utils.navComponents';
   import PrivacyInfoModal from 'kolibri.coreVue.components.PrivacyInfoModal';
   import themeConfig from 'kolibri.themeConfig';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
@@ -293,7 +292,7 @@
       const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const { isLearnerOnlyImport } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
-      const { topBarHeight } = useNav();
+      const { topBarHeight, navComponents } = useNav();
       return {
         topBarHeight,
         windowIsLarge,
@@ -302,6 +301,7 @@
         themeConfig,
         userSyncStatus: status,
         userLastSynced: lastSynced,
+        navComponents,
       };
     },
     props: {
@@ -356,14 +356,14 @@
         return this.$tr('poweredBy', { version: __version });
       },
       topComponents() {
-        return navComponents
+        return this.navComponents
           .filter(component => component.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents)
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
       },
       accountComponents() {
-        const accountComponents = navComponents
+        const accountComponents = this.navComponents
           .filter(component => component.section === NavComponentSections.ACCOUNT)
           .sort(this.compareMenuComponents);
 
@@ -372,7 +372,7 @@
           .filter(this.filterByFullFacilityOnly);
       },
       bottomMenuOptions() {
-        return navComponents.filter(component => component.bottomBar == true);
+        return this.navComponents.filter(component => component.bottomBar == true);
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
