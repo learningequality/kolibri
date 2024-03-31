@@ -46,7 +46,7 @@
       </a>
     </li>
 
-    <div v-if="visibleSubMenu" data-testid="subroutes-container">
+    <div v-if="visibleSubMenu">
       <div v-for="subRoute in subRoutes" :key="subRoute.label">
         <div class="link-container">
           <router-link

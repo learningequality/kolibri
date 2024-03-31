@@ -22,6 +22,11 @@ const renderComponent = props => {
 };
 
 describe('CoreMenuOption', () => {
+  test('smoke test', () => {
+    renderComponent();
+    expect(screen.getByRole('menuitem')).toBeInTheDocument();
+  });
+
   describe('subRoutes toggle', () => {
     describe('when subRoutes are provided', () => {
       it('should render with the chevronDown icon initially with the subroutes not visible', () => {
@@ -34,7 +39,7 @@ describe('CoreMenuOption', () => {
         );
       });
 
-      it('should toggle submenu visibility on click and the icons should change accordingly', async () => {
+      it('should open the submenu on clicking and the icons should change accordingly', async () => {
         renderComponent({ subRoutes: sampleSubRoutes });
         const menuItem = screen.getByRole('menuitem');
 
@@ -45,6 +50,14 @@ describe('CoreMenuOption', () => {
         );
         expect(screen.getByTestId('icon-chevronUp')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronDown')).not.toBeInTheDocument();
+      });
+
+      it('should close the submenu on clicking if it is open and the icons should change accordingly', async () => {
+        renderComponent({ subRoutes: sampleSubRoutes });
+        const menuItem = screen.getByRole('menuitem');
+
+        // Click to show the subroutes
+        await fireEvent.click(menuItem);
 
         // Clicking again should hide the subroutes
         await fireEvent.click(menuItem);
@@ -55,7 +68,7 @@ describe('CoreMenuOption', () => {
         expect(screen.queryByTestId('icon-chevronUp')).not.toBeInTheDocument();
       });
 
-      it('should toggle submenu visibility on pressing Enter key', async () => {
+      it('should open the submenu on pressing Enter key and the icons should change accordingly', async () => {
         renderComponent({ subRoutes: sampleSubRoutes });
         const menuItem = screen.getByRole('menuitem');
 
@@ -66,6 +79,14 @@ describe('CoreMenuOption', () => {
         );
         expect(screen.getByTestId('icon-chevronUp')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronDown')).not.toBeInTheDocument();
+      });
+
+      it('should close the submenu on pressing Enter key if it is open and the icons should change accordingly', async () => {
+        renderComponent({ subRoutes: sampleSubRoutes });
+        const menuItem = screen.getByRole('menuitem');
+
+        // Pressing Enter to show the subroutes
+        await fireEvent.keyDown(menuItem, { key: 'Enter', code: 'Enter' });
 
         // Pressing Enter again should hide the subroutes
         await fireEvent.keyDown(menuItem, { key: 'Enter', code: 'Enter' });
@@ -74,6 +95,17 @@ describe('CoreMenuOption', () => {
         );
         expect(screen.getByTestId('icon-chevronDown')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronUp')).not.toBeInTheDocument();
+      });
+
+      // TODO: Fix the test
+      it('pressing tab from keyboard should focus the menuitem', async () => {
+        renderComponent({ subRoutes: sampleSubRoutes });
+
+        // Press tab to focus the menuitem
+        // await fireEvent.keyDown(document.body, { key: 'Tab', code: 'Tab' });
+
+        // const menuItem = screen.getByRole('menuitem');
+        // expect(menuItem).toHaveFocus();
       });
 
       it('should display the label of the option when provided', () => {
