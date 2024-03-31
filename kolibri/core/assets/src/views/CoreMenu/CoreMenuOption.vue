@@ -52,7 +52,7 @@
           <router-link
             v-if="linkActive"
             v-slot="{ href, navigate, isActive }"
-            :to="{ name: subRoute.name, params: $route.params, query: $router.query }"
+            :to="{ name: subRoute.name, params: $route.params, query: $route.query }"
           >
             <a
               class="link"
@@ -187,7 +187,7 @@
         });
       },
     },
-    mounted() {
+    created() {
       this.submenuShouldBeOpen();
     },
     methods: {
