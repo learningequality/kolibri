@@ -14,21 +14,25 @@ const sideNavConfig = {
       {
         label: coreStrings.$tr('classesLabel'),
         route: baseRoutes.classes.path,
+        icon: 'classes',
         name: baseRoutes.classes.name,
       },
       {
         label: coreStrings.$tr('usersLabel'),
         route: baseRoutes.users.path,
+        icon: 'people',
         name: baseRoutes.users.name,
       },
       {
         label: coreStrings.$tr('settingsLabel'),
         route: baseRoutes.settings.path,
+        icon: 'settings',
         name: baseRoutes.settings.name,
       },
       {
         label: coreStrings.$tr('dataLabel'),
         route: baseRoutes.data.path,
+        icon: 'save',
         name: baseRoutes.data.name,
       },
     ];
