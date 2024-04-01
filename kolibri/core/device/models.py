@@ -13,6 +13,11 @@ from morango.models.core import SyncSession
 from .utils import LANDING_PAGE_LEARN
 from .utils import LANDING_PAGE_SIGN_IN
 from kolibri.core.auth.constants import role_kinds
+from kolibri.core.auth.constants.demographics import custom_demographics_schema
+from kolibri.core.auth.constants.demographics import DescriptionTranslationValidator
+from kolibri.core.auth.constants.demographics import EnumValuesValidator
+from kolibri.core.auth.constants.demographics import LabelTranslationValidator
+from kolibri.core.auth.constants.demographics import UniqueIdsValidator
 from kolibri.core.auth.models import AbstractFacilityDataModel
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
@@ -88,6 +93,9 @@ def app_is_enabled():
     return interface.enabled
 
 
+DEFAULT_DEMOGRAPHIC_FIELDS_KEY = "default_demographic_field_schema"
+
+
 # '"optional":True' is obsolete but needed while we keep using an
 # old json_schema_validator version compatible with python 2.7
 extra_settings_schema = {
@@ -98,6 +106,7 @@ extra_settings_schema = {
         "allow_learner_download_resources": {"type": "boolean", "optional": True},
         "set_limit_for_autodownload": {"type": "boolean", "optional": True},
         "limit_for_autodownload": {"type": "integer", "optional": True},
+        DEFAULT_DEMOGRAPHIC_FIELDS_KEY: custom_demographics_schema,
     },
     "required": [
         "allow_download_on_metered_connection",
@@ -155,7 +164,13 @@ class DeviceSettings(models.Model):
 
     extra_settings = JSONField(
         null=False,
-        validators=[JSON_Schema_Validator(extra_settings_schema)],
+        validators=[
+            JSON_Schema_Validator(extra_settings_schema),
+            UniqueIdsValidator(DEFAULT_DEMOGRAPHIC_FIELDS_KEY),
+            DescriptionTranslationValidator(DEFAULT_DEMOGRAPHIC_FIELDS_KEY),
+            EnumValuesValidator(DEFAULT_DEMOGRAPHIC_FIELDS_KEY),
+            LabelTranslationValidator(DEFAULT_DEMOGRAPHIC_FIELDS_KEY),
+        ],
         default=extra_settings_default_values,
     )
 
@@ -194,29 +209,20 @@ class DeviceSettings(models.Model):
         :return: mixed
         """
         try:
-            return self.extra_settings.get(name, extra_settings_default_values[name])
+            return self.extra_settings[name]
         except KeyError:
-            return extra_settings_default_values[name]
+            return extra_settings_default_values.get(name)
 
-    @property
-    def allow_download_on_metered_connection(self):
-        return self._get_extra("allow_download_on_metered_connection")
+    def __getattribute__(self, name):
+        if name in extra_settings_schema["properties"]:
+            return self._get_extra(name)
+        return super(DeviceSettings, self).__getattribute__(name)
 
-    @property
-    def enable_automatic_download(self):
-        return self._get_extra("enable_automatic_download")
-
-    @property
-    def allow_learner_download_resources(self):
-        return self._get_extra("allow_learner_download_resources")
-
-    @property
-    def set_limit_for_autodownload(self):
-        return self._get_extra("set_limit_for_autodownload")
-
-    @property
-    def limit_for_autodownload(self):
-        return self._get_extra("limit_for_autodownload")
+    def __setattr__(self, name, value):
+        if name in extra_settings_schema["properties"]:
+            self.extra_settings[name] = value
+        else:
+            super(DeviceSettings, self).__setattr__(name, value)
 
 
 CONTENT_CACHE_KEY_CACHE_KEY = "content_cache_key"
