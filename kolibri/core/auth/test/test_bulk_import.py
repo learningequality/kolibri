@@ -163,7 +163,7 @@ class ImportTestCase(TestCase):
         with open_csv_for_reading(self.filepath) as source:
             reader = csv.DictReader(source, strict=True)
             per_line_errors, classes, users, roles = cmd.csv_values_validation(
-                reader, header_translation
+                reader, header_translation, self.facility
             )
 
         assert len(users) == 10  # admins have not been exported
@@ -233,7 +233,7 @@ class ImportTestCase(TestCase):
         with open_csv_for_reading(new_filepath) as source:
             reader = csv.DictReader(source, strict=True)
             per_line_errors, classes, users, roles = cmd.csv_values_validation(
-                reader, header_translation
+                reader, header_translation, self.facility
             )
         assert len(per_line_errors) == 1
         assert (
@@ -344,6 +344,44 @@ class ImportTestCase(TestCase):
         passwd2 = peter2.password
         # Check that the password of the existing user remains unchanged
         assert passwd2 == passwd1
+
+    def test_username_already_exists_on_different_facility(self):
+        _, first_filepath = tempfile.mkstemp(suffix=".csv")
+        rows = [
+            [
+                None,
+                "peter",  # Adding the first user with the username "peter"
+                "passwd1",
+                None,
+                "LEARNER",
+                None,
+                "2001",
+                "FEMALE",
+                "new_class",
+                None,
+            ],
+        ]
+        self.create_csv(first_filepath, rows)
+
+        data = create_dummy_facility_data(
+            classroom_count=CLASSROOMS, learnergroup_count=1
+        )
+
+        facility2 = data["facility"]
+
+        # First import this user into a different facility
+        call_command("bulkimportusers", first_filepath, facility=facility2.id)
+
+        # Then import into the main facility and confirm that it works!
+        call_command("bulkimportusers", first_filepath, facility=self.facility.id)
+
+        # Assert that we have created a user like this in both facilities.
+        assert FacilityUser.objects.filter(
+            username="peter", facility=facility2
+        ).exists()
+        assert FacilityUser.objects.filter(
+            username="peter", facility=self.facility
+        ).exists()
 
     def test_asterisk_in_password(self):
         _, first_filepath = tempfile.mkstemp(suffix=".csv")
