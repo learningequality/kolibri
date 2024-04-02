@@ -92,6 +92,13 @@
             :disabled="formDisabled"
             class="select"
           />
+
+          <ExtraDemographics
+            v-model="extraDemographics"
+            :facilityDatasetExtraFields="facilityConfig.extra_fields"
+            :disabled="formDisabled"
+          />
+
         </section>
 
         <p v-if="willBeLoggedOut">
@@ -129,7 +136,7 @@
   import pickBy from 'lodash/pickBy';
   import UserType from 'kolibri.utils.UserType';
   import { FacilityUserResource } from 'kolibri.resources';
-  import { mapState, mapGetters } from 'vuex';
+  import { mapActions, mapState, mapGetters } from 'vuex';
   import urls from 'kolibri.urls';
   import { UserKinds, ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
@@ -140,6 +147,7 @@
   import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
   import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import ExtraDemographics from 'kolibri-common/components/ExtraDemographics';
   import IdentifierTextbox from './IdentifierTextbox';
 
   export default {
@@ -157,6 +165,7 @@
       IdentifierTextbox,
       UsernameTextbox,
       UserTypeDisplay,
+      ExtraDemographics,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -173,13 +182,14 @@
         gender: '',
         birthYear: '',
         idNumber: '',
+        extraDemographics: null,
         userCopy: {},
         caughtErrors: [],
         status: '',
       };
     },
     computed: {
-      ...mapGetters(['currentUserId']),
+      ...mapGetters(['currentUserId', 'facilityConfig']),
       ...mapState('userManagement', ['facilityUsers']),
       formDisabled() {
         return this.status === 'BUSY';
@@ -238,17 +248,21 @@
       },
     },
     created() {
-      FacilityUserResource.fetchModel({
+      const facilityConfigPromise = this.getFacilityConfig();
+      const facilityUserPromise = FacilityUserResource.fetchModel({
         id: this.$route.params.id,
-      })
-        .then(user => {
-          this.username = user.username;
-          this.fullName = user.full_name;
-          this.idNumber = user.id_number;
-          this.gender = user.gender;
-          this.birthYear = user.birth_year;
-          this.setKind(user);
-          this.makeCopyOfUser(user);
+      }).then(user => {
+        this.username = user.username;
+        this.fullName = user.full_name;
+        this.idNumber = user.id_number;
+        this.gender = user.gender;
+        this.birthYear = user.birth_year;
+        this.extraDemographics = user.extra_demographics;
+        this.setKind(user);
+        this.makeCopyOfUser(user);
+      });
+      Promise.all([facilityConfigPromise, facilityUserPromise])
+        .then(() => {
           this.loading = false;
         })
         .catch(error => {
@@ -256,6 +270,7 @@
         });
     },
     methods: {
+      ...mapActions(['getFacilityConfig']),
       setKind(user) {
         this.kind = UserType(user);
         const coachOption = this.userTypeOptions[1];
@@ -275,6 +290,7 @@
           full_name: this.fullName,
           gender: this.gender,
           id_number: this.idNumber,
+          extra_demographics: this.extraDemographics,
           username: this.username,
           kind: UserType(user),
         };
@@ -300,6 +316,7 @@
             full_name: this.fullName,
             gender: this.gender,
             id_number: this.idNumber,
+            extra_demographics: this.extraDemographics,
             username: this.username,
           },
           (value, key) => {

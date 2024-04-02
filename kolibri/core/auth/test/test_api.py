@@ -682,6 +682,33 @@ class FacilityAPITestCase(APITestCase):
             )
 
 
+def _add_demographic_schema_to_facility(facility):
+    facility.dataset.extra_fields.update(
+        {
+            models.DEMOGRAPHIC_FIELDS_KEY: [
+                {
+                    "id": "status",
+                    "description": "Up or Down",
+                    "enumValues": [
+                        {
+                            "value": "up",
+                            "defaultLabel": "Up",
+                            "translations": [{"language": "en", "message": "Up"}],
+                        },
+                        {
+                            "value": "down",
+                            "defaultLabel": "Down",
+                            "translations": [{"language": "en", "message": "Down"}],
+                        },
+                    ],
+                    "translations": [{"language": "en", "message": "Up or Down"}],
+                }
+            ]
+        }
+    )
+    facility.dataset.save()
+
+
 class UserCreationTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):
@@ -777,6 +804,32 @@ class UserCreationTestCase(APITestCase):
         self.assertEqual(response.data[0]["id"], error_constants.MAX_LENGTH)
         self.assertEqual(response.data[0]["metadata"]["field"], "username")
 
+    def test_can_add_extra_demographics_to_facility_user(self):
+        _add_demographic_schema_to_facility(self.facility)
+        data = {
+            "username": "goliath",
+            "password": "davidsucks",
+            "extra_demographics": {"status": "up"},
+        }
+        response = self.client.post(
+            reverse("kolibri:core:facilityuser-list"), data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["extra_demographics"], {"status": "up"})
+
+    def test_cant_add_invalid_extra_demographics_to_facility_user(self):
+        _add_demographic_schema_to_facility(self.facility)
+        data = {
+            "username": "goliath",
+            "password": "davidsucks",
+            "extra_demographics": {"status": "invalid"},
+        }
+        response = self.client.post(
+            reverse("kolibri:core:facilityuser-list"), data, format="json"
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
+
 
 class UserUpdateTestCase(APITestCase):
     @classmethod
@@ -855,6 +908,50 @@ class UserUpdateTestCase(APITestCase):
             ).exists()
         )
 
+    def test_updating_extra_demographics_previously_none(self):
+        _add_demographic_schema_to_facility(self.facility)
+        response = self.client.patch(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
+            {"extra_demographics": {"status": "up"}},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["extra_demographics"], {"status": "up"})
+
+    def test_updating_extra_demographics_previously_set(self):
+        _add_demographic_schema_to_facility(self.facility)
+        self.user.extra_fields = {"status": "down"}
+        self.user.save()
+        response = self.client.patch(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
+            {"extra_demographics": {"status": "up"}},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        self.assertEqual(response.data["extra_demographics"], {"status": "up"})
+
+    def test_updating_extra_demographics_previously_none_invalid_value(self):
+        _add_demographic_schema_to_facility(self.facility)
+        response = self.client.patch(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
+            {"extra_demographics": {"status": "invalid"}},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
+
+    def test_updating_extra_demographics_previously_set_invalid_value(self):
+        _add_demographic_schema_to_facility(self.facility)
+        self.user.extra_fields = {"status": "down"}
+        self.user.save()
+        response = self.client.patch(
+            reverse("kolibri:core:facilityuser-detail", kwargs={"pk": self.user.pk}),
+            {"extra_demographics": {"status": "invalid"}},
+            format="json",
+        )
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+        self.assertEqual(response.data[0]["metadata"]["field"], "extra_demographics")
+
 
 class UserDeleteTestCase(APITestCase):
     @classmethod
@@ -921,6 +1018,7 @@ class UserRetrieveTestCase(APITestCase):
                     "birth_year": self.user.birth_year,
                     "is_superuser": False,
                     "roles": [],
+                    "extra_demographics": None,
                 },
                 {
                     "id": self.superuser.id,
@@ -938,6 +1036,7 @@ class UserRetrieveTestCase(APITestCase):
                             "id": self.superuser.roles.first().id,
                         }
                     ],
+                    "extra_demographics": None,
                 },
             ],
         )
@@ -963,6 +1062,7 @@ class UserRetrieveTestCase(APITestCase):
                     "birth_year": self.user.birth_year,
                     "is_superuser": False,
                     "roles": [],
+                    "extra_demographics": None,
                 },
             ],
         )
