@@ -7567,10 +7567,10 @@ kolibri-constants@0.2.0:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.0.tgz#47c9d773894e23251ba5ac4db420822e45603142"
   integrity sha512-WYDMGDzB9gNxRbpX1O2cGe1HrJvLvSZGwMuAv6dqrxJgPf7iO+Hi40/1CXjHM7nk5CRt+hn5bqnMzCBmj1omPA==
 
-kolibri-design-system@4.0.1:
-  version "4.0.1"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-4.0.1.tgz#24cb0b81c53b1c9731c941df297397a58ec5e667"
-  integrity sha512-wMbRMX6lTSdG77G9OVVeJek0GKg/d5RoGifZhjIq0x0lpgWLDecJpMtBGZfn+/nLGWXguvOsf/EAxY6wIqjPMg==
+kolibri-design-system@4.1.0:
+  version "4.1.0"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-4.1.0.tgz#f9dc9026e75a457af7b51678f2129a61eaa1f9ab"
+  integrity sha512-ZoDL40u9YgXnJ/OBD7Ju4F9o7zdl7OKwRqjUyzCjN0dg1bQGXgB4qaq7LCOVBhIOeqw0SOtG0tvT7Fxsmena5Q==
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
@@ -7579,9 +7579,9 @@ kolibri-design-system@4.0.1:
     date-fns "1.30.1"
     frame-throttle "3.0.0"
     fuzzysearch "1.0.3"
-    lodash "4.17.15"
+    lodash "4.17.21"
     popper.js "1.14.6"
-    purecss "0.6.2"
+    purecss "2.2.0"
     tippy.js "4.2.1"
     vue-intl "3.1.0"
     xstate "4.38.3"
@@ -7738,11 +7738,6 @@ lodash.uniq@^4.5.0:
   version "4.5.0"
   resolved "https://registry.yarnpkg.com/lodash.uniq/-/lodash.uniq-4.5.0.tgz#d0225373aeb652adc1bc82e4945339a842754773"
   integrity sha1-0CJTc662Uq3BvILklFM5qEJ1R3M=
-
-lodash@4.17.15:
-  version "4.17.15"
-  resolved "https://registry.yarnpkg.com/lodash/-/lodash-4.17.15.tgz#b447f6670a0455bbfeedd11392eff330ea097548"
-  integrity sha512-8xOcRHvCjnocdS5cpwXQXVzmmh5e5+saE2QGoeQmbKmRS6J3VQppPOIt0MnmE+4xlZoumy0GPG0D0MVIQbNA1A==
 
 lodash@4.17.21, lodash@^4.17.10, lodash@^4.17.11, lodash@^4.17.12, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4, lodash@^4.2.1, lodash@~4.17.12:
   version "4.17.21"
@@ -9318,10 +9313,10 @@ pure-rand@^6.0.0:
   resolved "https://registry.yarnpkg.com/pure-rand/-/pure-rand-6.0.1.tgz#31207dddd15d43f299fdcdb2f572df65030c19af"
   integrity sha512-t+x1zEHDjBwkDGY5v5ApnZ/utcd4XYDiJsaQQoptTXgUXX95sDg1elCdJghzicm7n2mbCBJ3uYWr6M22SO19rg==
 
-purecss@0.6.2:
-  version "0.6.2"
-  resolved "https://registry.yarnpkg.com/purecss/-/purecss-0.6.2.tgz#f0827d227e909543c5138f36d56c8c613f476b8c"
-  integrity sha512-6BZF+rr9UAy8xwWDW6mi//2TnImxqMAjfLTYCO80OzPcavSI3DMjnD4fY92383KB5FA+gEHO/ug46q/yeitu9w==
+purecss@2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/purecss/-/purecss-2.2.0.tgz#71249802e1babd562b236cf5d0b75b16f158a421"
+  integrity sha512-jEPrAALLgE+InDARWdPDt0AkZ1Bi0yXxHj4BOwWImq06sGIDe5CagPyS6Z9WGyEgMuZonrrhinInJ80nAHTIUA==
 
 purgecss@^5.0.0:
   version "5.0.0"
