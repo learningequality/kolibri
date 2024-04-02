@@ -184,13 +184,13 @@ jobs:
     - name: Upload files to Google Cloud Storage
       uses: 'google-github-actions/upload-cloud-storage@v2'
       with:
-        path: 'dist/${{ matrix.filename }}'
+        path: 'dist/${{ matrix.filename }}/${{ matrix.filename }}'
         destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}/${{ matrix.filename }}'
     - name: Upload to BCK bucket
       if: ${{ github.event.release.name == 'latest' }} && ${{ endsWith(matrix.filename, '.whl') }}
       uses: 'google-github-actions/upload-cloud-storage@v2'
       with:
-        path: 'dist/${{ matrix.filename }}'
+        path: 'dist/${{ matrix.filename }}/${{ matrix.filename }}'
         destination: '${{ secrets.BCK_PROD_BUILD_ARTIFACT_GCS_BUCKET }}/${{ matrix.filename }}'
   android_release:
     name: Release Android App
