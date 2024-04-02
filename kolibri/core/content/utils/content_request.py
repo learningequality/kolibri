@@ -584,7 +584,9 @@ def process_metadata_import(incomplete_downloads_without_metadata):
     preferred_instance_ids = list(
         incomplete_downloads_without_metadata.values_list(
             "source_instance_id", flat=True
-        ).distinct()
+        )
+        # Remove any ordering to ensure the distinct makes the list properly unique.
+        .order_by().distinct()
     )
     version_filter = ">=0.16.0"
     preferred_peers = PreferredDevicesWithClient(
