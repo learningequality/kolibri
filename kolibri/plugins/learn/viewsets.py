@@ -16,6 +16,7 @@ from kolibri.core.content.api import ContentNodeViewset
 from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import exam_assignment_lookup
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
@@ -197,10 +198,12 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                     section_questions.extend(questions)
 
                 exam_node_ids |= {
-                    question["exercise_id"] for question in section_questions
+                    exercise_id
+                    for exercise_id, _ in exam_assignment_lookup(
+                        exam.get("question_sources", [])
+                    )
                 }
             else:
-                # OR WE COULD DO A MIGRATION TO UPDATE THE DATA
                 exam_node_ids |= {
                     question["exercise_id"] for question in exam.get("question_sources")
                 }
