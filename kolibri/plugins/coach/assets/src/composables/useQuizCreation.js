@@ -164,7 +164,7 @@ export default function useQuizCreation(DEBUG = false) {
       // and ideally should be done by way of a Question class for a more consistant API
       updates.resource_pool = resource_pool.map(resource => {
         resource.unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
-          id => `${resource.content_id}:${id}`
+          question_id => `${resource.id}:${question_id}`
         );
         return resource;
       });
