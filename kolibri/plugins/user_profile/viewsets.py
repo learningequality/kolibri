@@ -53,7 +53,7 @@ class RemoteFacilityUserViewset(APIView):
 
 class RemoteFacilityUserAuthenticatedViewset(APIView):
     def post(self, request, *args, **kwargs):
-        baseurl = request.query_params.get("baseurl", "")
+        baseurl = request.data.get("baseurl", "")
         try:
             validator(baseurl)
         except DjangoValidationError as e:
