@@ -1,12 +1,10 @@
 <template>
 
   <OnboardingStepBase
-    ref="container"
     :title="$tr('languageFormHeader')"
     @continue="handleSubmit"
-    @resize="updateWidth"
   >
-    <LanguageSwitcherList :parentBreakpoint="parentBreakpoint" />
+    <LanguageSwitcherList />
   </OnboardingStepBase>
 
 </template>
@@ -23,40 +21,10 @@
       OnboardingStepBase,
       LanguageSwitcherList,
     },
-    data() {
-      return {
-        parentBreakpoint: 4,
-      };
-    },
-    mounted() {
-      this.updateWidth();
-      window.addEventListener('resize', this.updateWidth);
-    },
-    beforeDestroy() {
-      window.removeEventListener('resize', this.updateWidth);
-    },
     inject: ['wizardService'],
     methods: {
       handleSubmit() {
         this.wizardService.send('CONTINUE');
-      },
-      updateWidth() {
-        const element = this.$refs.container.$el;
-        const width = element.offsetWidth;
-        let num = 4;
-
-        if (width < 440) {
-          num = 0;
-        } else if (width < 520) {
-          num = 1;
-        } else if (width < 600) {
-          num = 2;
-        } else if (width < 660) {
-          num = 3;
-        } else {
-          num = 4;
-        }
-        this.parentBreakpoint = num;
       },
     },
     $trs: {

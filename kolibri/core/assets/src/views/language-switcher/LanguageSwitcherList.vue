@@ -52,7 +52,6 @@
 <script>
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
@@ -65,18 +64,6 @@
       LanguageSwitcherModal,
     },
     mixins: [languageSwitcherMixin],
-    setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
-      return {
-        windowBreakpoint,
-      };
-    },
-    props: {
-      parentBreakpoint: {
-        type: Number,
-        default: -1,
-      },
-    },
     data() {
       return {
         showLanguageModal: false,
