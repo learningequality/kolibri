@@ -99,7 +99,3 @@ Feature: Import facility from a peer (post-setup)
 		Then I see the list with facilities
 			And I can see the newly imported facility
 			And I can see a message stating when it was last synced
-
-Examples:
-| facility | peer	 |
-| MySchool | MyPeer |

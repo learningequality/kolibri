@@ -19,7 +19,3 @@ Feature: Super admin imports from a new channel on a local drive
       And I see the *Import* button is inactive
 
 # continue testing using the select and import scenarios from `super-admin-import-new-content-channel-from-studio.feature`
-
-Examples:
-| drive       | channel      |
-| Hard_Disc_1 | MIT Blossoms |

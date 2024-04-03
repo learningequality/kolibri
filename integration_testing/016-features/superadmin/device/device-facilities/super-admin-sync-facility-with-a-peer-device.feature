@@ -80,7 +80,3 @@ Feature: Sync facility with a peer device
 			And I see a progress bar indicating that a task is in progress
 		When the <facility> is done syncing
 			Then I see a message under the <facility> *Last synced: just now*
-
-Examples:
-| facility |
-| MySchool |

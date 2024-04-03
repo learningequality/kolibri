@@ -26,6 +26,7 @@ from django.http import HttpResponseBadRequest
 from django.utils.decorators import method_decorator
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.csrf import csrf_protect
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -775,6 +776,7 @@ class LearnerGroupViewSet(ValuesViewset):
         return annotate_array_aggregate(queryset, user_ids="membership__user__id")
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class SignUpViewSet(viewsets.GenericViewSet, CreateModelMixin):
 
     serializer_class = FacilityUserSerializer
@@ -867,7 +869,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         return Response()
 
 
-@method_decorator(ensure_csrf_cookie, name="dispatch")
+@method_decorator([ensure_csrf_cookie, csrf_protect], name="dispatch")
 class SessionViewSet(viewsets.ViewSet):
     def _check_os_user(self, request, username):
         auth_token = request.COOKIES.get(APP_AUTH_TOKEN_COOKIE_NAME)
@@ -895,7 +897,23 @@ class SessionViewSet(viewsets.ViewSet):
                 status=status.HTTP_401_UNAUTHORIZED,
             )
 
-        # Find the FacilityUser we're looking for use later on
+        user = None
+        if interface.enabled and valid_app_key_on_request(request):
+            # If we are in app context, then try to get the automatically created OS User
+            # if it matches the username, without needing a password.
+            user = self._check_os_user(request, username)
+        if user is None:
+            # Otherwise attempt full authentication
+            user = authenticate(
+                username=username, password=password, facility=facility_id
+            )
+        if user is not None and user.is_active:
+            # Correct password, and the user is marked "active"
+            login(request, user)
+            # Success!
+            return self.get_session_response(request)
+        # Otherwise, try to give a helpful error message
+        # Find the FacilityUser we're looking for
         try:
             unauthenticated_user = FacilityUser.objects.get(
                 username__iexact=username, facility=facility_id
@@ -915,24 +933,9 @@ class SessionViewSet(viewsets.ViewSet):
             )
         except FacilityUser.MultipleObjectsReturned:
             # Handle case of multiple matching usernames
-            unauthenticated_user = FacilityUser.objects.get(
+            unauthenticated_user = FacilityUser.objects.filter(
                 username__exact=username, facility=facility_id
-            )
-        user = None
-        if interface.enabled and valid_app_key_on_request(request):
-            # If we are in app context, then try to get the automatically created OS User
-            # if it matches the username, without needing a password.
-            user = self._check_os_user(request, username)
-        if user is None:
-            # Otherwise attempt full authentication
-            user = authenticate(
-                username=username, password=password, facility=facility_id
-            )
-        if user is not None and user.is_active:
-            # Correct password, and the user is marked "active"
-            login(request, user)
-            # Success!
-            return self.get_session_response(request)
+            ).first()
         if unauthenticated_user.password == NOT_SPECIFIED:
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now

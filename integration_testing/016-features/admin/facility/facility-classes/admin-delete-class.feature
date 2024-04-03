@@ -13,8 +13,3 @@ Feature: Admin can delete classes
     Then the modal closes
     # no confirmation that the class has been deleted
       And I don't see the deleted class on the *Classes* page anymore
-
-Examples:
-| class    |
-| Primera  |
-| Segunda  |

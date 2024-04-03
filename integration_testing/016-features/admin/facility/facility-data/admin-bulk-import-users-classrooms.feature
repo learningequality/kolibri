@@ -32,11 +32,3 @@ Feature: Admin bulk export of users and classrooms
     When I click the top left X button to close the modal
       And I click on the *Classes* top menu
     Then I see that classes, enrolled learners and assigned coaches now match what was in the CSV
-
-# Example CSV file (for the first row, texts not inside parenthesis may be translated) :
-Username (USERNAME),Password (PASSWORD),Full name (FULL_NAME),User type (USER_TYPE),Identifier (IDENTIFIER),Birth year (BIRTH_YEAR),Gender (GENDER),Enrolled in (ENROLLED_IN),Assigned to (ASSIGNED_TO)
-jkrowling,,Too bad to be here,STUDENT,Potter1,1899,FEMALE,Literature 0,
-ignored_data,,You are not a coach,LEARNER,,,,,Ignored class
-new_coach,,Miguel de Cervantes,COACH,Sancho1,1969,MALE,,Literature 1
-student1,,William Shakespeare,LEARNER,Otelo1,2001,MALE,Literature 1,
-student2,,Agatha Christie,LEARNER,Poirot1,1999,FEMALE,"Literature 1,Chemistry2",

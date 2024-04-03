@@ -46,7 +46,3 @@ Feature: Super admin imports entire large channel
         And I select the source
       Then I see that *Total size* and *On your device* values are identical
         And I see that all the checkboxes for all the <channel> topics are checked and inactive
-
-Examples:
-| channel |
-| TBD     |

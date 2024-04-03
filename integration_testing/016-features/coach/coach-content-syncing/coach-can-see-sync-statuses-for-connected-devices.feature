@@ -24,7 +24,3 @@ Feature: Coaches can see sync statuses for connected devices
 		Given I am at the *Learners in '<class>'* page
 		When I click the *Information about sync statuses* hyperlink
 		Then I see a modal giving me information on each individual sync status
-
-Examples:
-|class      |
-|First Grade|

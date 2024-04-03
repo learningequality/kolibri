@@ -6,6 +6,7 @@ It exposes the WSGI callable as a module-level variable named ``application``.
 For more information on this file, see
 https://docs.djangoproject.com/en/1.11/howto/deployment/wsgi/
 """
+import logging
 import os
 import time
 
@@ -16,6 +17,8 @@ from django.db.utils import OperationalError
 from kolibri.core.content.utils import paths
 from kolibri.utils import conf
 from kolibri.utils.kolibri_whitenoise import DynamicWhiteNoise
+
+logger = logging.getLogger(__name__)
 
 os.environ.setdefault(
     "DJANGO_SETTINGS_MODULE", "kolibri.deployment.default.settings.base"
@@ -49,7 +52,7 @@ while not application and tries_remaining:
     except OperationalError:
         # An OperationalError happens when sqlite vacuum is being
         # executed. the db is locked
-        print(
+        logger.error(
             "Database assumed to be undergoing a VACUUM, retrying again in {} seconds...".format(
                 interval
             )
@@ -58,7 +61,7 @@ while not application and tries_remaining:
         time.sleep(interval)
 
 if not application:
-    print(
+    logger.error(
         "Could not start Kolibri with {} retries. Trying one last time".format(
             tries_remaining
         )

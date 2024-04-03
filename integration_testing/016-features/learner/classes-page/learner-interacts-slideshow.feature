@@ -1,27 +1,23 @@
-Feature: Learner engages with content of the slideshow kind
-  Leaner can engage with slideshow content and use all slideshow renderer features
+Feature: Learner interacts with slideshow resource
+  Leaner can engage with slideshow resource and use all slideshow renderer features
 
   Background:
     Given I am signed in as a learner user
-      And there are one or more channels imported on the device with slideshow content
-      And I am on the *Browse channel* page for a channel with slideshow content
+      And there is at least one channel with slideshow resource imported on the device
+      And I am at the *Browse channel* page for a channel with slideshow resource
 
-    Scenario: Browse and find slideshow content
-      When I am on the *Browse channel* page for <channel>
-      Then I see the <channel> name, logo and description
-        And I see all the folders for the channel <channel>
-      When I click the folder <folder>
+    Scenario: Learner browses for and opens a slideshow resource
+      When I am on the *Browse channel* page
+      Then I see the channel name, logo and description
+        And I see all the folders for the channel
+      When I click on a folder
       Then I see the *'<channel>' > '<folder>'* breadcrumb
-        And I see all the subfolders and resources of the folder <folder>
-        And I recognize <resource> resource as a slideshow by the content type icon in the upper left corner
-
-    Scenario: Open slideshow
-      Given that <resource> resource is a slideshow
-        When I click the <resource> resource
+        And I see all the subfolders and resources of the folder
+        When I click on the slideshow resource card
         Then I see the *'<folder>' > '<resource>'* page
-          And I see the <resource> content
+          And I see the slideshow resource
 
-    Scenario: Engage with the slideshow content
+    Scenario: Learner interacts with a slideshow resource
       When I view a slide that has caption text
       Then I see the caption text beneath the slide image
       When I am viewing the first slide
@@ -42,18 +38,13 @@ Feature: Learner engages with content of the slideshow kind
       When I click a specific pagination dot
       Then the slideshow presents the slide that is associated with the dot's positional order
 
-    Scenario: Engaging with full screen mode
+    Scenario: Learner interacts with the full screen mode
       When I click the enter full screen button
       Then I view the slideshow renderer in full screen
         And I maintain my position in the slideshow
         And I see left and right arrow buttons on the left and right sides of the screen
         And I see the exit full screen button in the top right corner of the screen
-        And I can navigate the content by keyboard, swiping or clicking the left and right arrow buttons
+        And I can navigate the resource by keyboard, swiping or clicking the left and right arrow buttons
       When I click the exit full screen button or hit ESC
       Then I see the *'<folder>' > '<resource>'* page
         And I maintain my position in the slideshow
-
-Examples:
-  | channel           | folder             | resource            |
-  | Slideshow Test    | Slideshows!       | Demo Slideshow      |
-  | All Slideshows    | Slideshows!       | Jacob's Slideshow   |

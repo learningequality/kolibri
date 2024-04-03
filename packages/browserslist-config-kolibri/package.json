@@ -1,6 +1,6 @@
 {
   "name": "browserslist-config-kolibri",
-  "version": "0.16.0-dev.7",
+  "version": "0.16.1-dev.1",
   "description": "Browsers list configuration for Kolibri",
   "main": "index.js",
   "repository": "github.com/learningequality/kolibri",

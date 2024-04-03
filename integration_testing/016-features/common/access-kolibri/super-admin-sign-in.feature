@@ -13,7 +13,3 @@ Feature: Super admin signs-in
     When I fill out my password <password>
       And I click the *Sign in* button
     Then I am signed in and I can see the *Device > Channels* page
-
-  Examples:
-  | username | password |
-  | admin    | admin    |

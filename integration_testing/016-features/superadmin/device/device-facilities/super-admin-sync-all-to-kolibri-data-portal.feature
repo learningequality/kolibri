@@ -38,7 +38,3 @@ Feature: Sync all to Kolibri Data Portal
       And I see that the *Sync* button is disabled
     When I hover my mouse over the disabled *Sync* button
     Then I see a tooltip that says *You are currently offline*
-
-Examples:
-| facility |
-| MySchool |

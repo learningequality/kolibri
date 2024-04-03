@@ -172,7 +172,3 @@ Feature: Coach makes lessons visible
     Then I see a snackbar notification that says *Lesson is not visible to learners*
     When I reload the browser as a learner
     Then I don't see the lesson '<lesson>'
-
-Examples:
-| lesson                |
-| mathematics exercises |

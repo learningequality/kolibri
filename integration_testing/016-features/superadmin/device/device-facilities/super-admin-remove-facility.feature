@@ -58,8 +58,3 @@ Feature: Remove facility
       And I see *Super admins cannot remove facilities they are a member of*
       And I see other instructions on how I can remove it from the device
       And I see a *Close* button
-
-
-Examples:
-| facility |
-| MySchool |

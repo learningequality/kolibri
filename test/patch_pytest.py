@@ -2,11 +2,14 @@
 This script backports this Python 3.10 compatibility fix https://github.com/pytest-dev/pytest/pull/8540
 in order to allow pytest to run in Python 3.10 without upgrading to version 6.2.5 which does not support 2.7
 """
+import logging
 import os
 import subprocess
 import sys
 
 import pytest
+
+logger = logging.getLogger(__name__)
 
 
 def patch():
@@ -14,7 +17,7 @@ def patch():
 
     patch_file = os.path.join(os.path.dirname(__file__), "pytest_3.10.patch")
 
-    print("Applying patch: " + str(patch_file))
+    logger.info("Applying patch: " + str(patch_file))
 
     # -N: insist this is FORWARD patch, don't reverse apply
     # -p1: strip first path component
@@ -29,7 +32,7 @@ def patch():
         "-i",
         patch_file,
     ]
-    print(" ".join(patch_command))
+    logger.info(" ".join(patch_command))
     try:
         # Use a dry run to establish whether the patch is already applied.
         # If we don't check this, the patch may be partially applied (which is bad!)
@@ -38,8 +41,8 @@ def patch():
         if e.returncode == 1:
             # Return code 1 means not all hunks could be applied, this usually
             # means the patch is already applied.
-            print(
-                "Warning: failed to apply patch (exit code 1), "
+            logger.warning(
+                "Failed to apply patch (exit code 1), "
                 "assuming it is already applied: ",
                 str(patch_file),
             )

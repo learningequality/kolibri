@@ -63,7 +63,3 @@ Feature: Super admin selects to import entire channels or only topics/resources
         And I see the *Select resources* button for each of the channels
 
         # continue testing from `super-admin-import-new-content-channel-from-studio.feature`
-
-Examples:
-| channel      |
-| MIT Blossoms |

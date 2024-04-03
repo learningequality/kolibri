@@ -241,7 +241,3 @@ Feature: Coach creates quizzes
 			And I am creating a second copy of the same channel-based quiz
 		When I am on the "Preview page" of this second copy
 		Then I see that the title of the channel quiz has a number appended to it to indicate it is a copy
-
-Examples:
-    | quiz          | number_of_question | exercises_questions | channel                | topic               |
-    | First Quarter | 5                  | Mathématiques       | Khan Academy (English) | Recognize fractions |

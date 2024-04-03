@@ -235,6 +235,7 @@ program
     false
   )
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
+  .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
   .action(function(mode, options) {
     if (options.requireKdsPath) {
       if (!options.kdsPath) {
@@ -286,6 +287,10 @@ program
     }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
+      // Watch core for changes if KDS option is provided; all KDS components are linked to core.
+      if (options.requireKdsPath && !options.watchonly.includes('core')) {
+        options.watchonly.push('core');
+      }
       const findModuleName = bundleDatum => {
         return !options.watchonly.some(m => bundleDatum.module_path.includes(m));
       };
@@ -320,7 +325,14 @@ program
         });
       }
     }
-    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
+
+    if (options.writeToDisk && mode === modes.DEV) {
+      cliLogging.warn(
+        'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.'
+      );
+    }
+
+    runWebpackBuild(mode, bundleData, !options.writeToDisk && mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
@@ -358,7 +370,7 @@ program
       const Minimatch = require('minimatch').Minimatch;
       patternCheck = new Minimatch(options.pattern, {});
     }
-    const glob = require('glob');
+    const glob = require('./glob');
     const { logging, lint, noChange } = require('./lint');
     const chokidar = require('chokidar');
     const watchMode = options.monitor;
@@ -449,7 +461,7 @@ program
     if (!files.length) {
       program.command('compress').help();
     } else {
-      const glob = require('glob');
+      const glob = require('./glob');
       const compressFile = require('./compress');
       Promise.all(
         files.map(file => {

@@ -1,4 +1,5 @@
 import csv
+import logging
 import os.path
 import sys
 import time
@@ -15,6 +16,8 @@ from kolibri.utils import conf
 from kolibri.utils.server import NotRunning
 from kolibri.utils.server import PROFILE_LOCK
 from kolibri.utils.system import pid_exists
+
+logger = logging.getLogger(__name__)
 
 
 def remove_lock():
@@ -54,11 +57,11 @@ class Command(BaseCommand):
 
     def check_start_conditions(self):
         if not SUPPORTED_OS:
-            print("This OS is not yet supported")
+            logger.error("This OS is not yet supported")
             sys.exit(1)
 
         if not conf.OPTIONS["Server"]["PROFILE"]:
-            print(
+            logger.error(
                 "Kolibri has not enabled profiling of its requests."
                 "To enable it, edit the Kolibri options.ini file and "
                 "add `PROFILE = true` in the [Server] section"
@@ -73,7 +76,7 @@ class Command(BaseCommand):
                 remove_lock()
             if command_pid:
                 if pid_exists(command_pid):
-                    print("Profile command is already running")
+                    logger.error("Profile command is already running")
                     sys.exit(1)
                 else:
                     remove_lock()
@@ -89,7 +92,7 @@ class Command(BaseCommand):
                 f.write("%d" % this_pid)
                 f.write("\n{}".format(file_timestamp))
         except (IOError, OSError):
-            print(
+            logger.error(
                 "Impossible to create profile lock file. Kolibri won't profile its requests"
             )
         samples = 1
@@ -102,7 +105,7 @@ class Command(BaseCommand):
             try:
                 os.mkdir(performance_dir)
             except OSError:
-                print("Not enough permissions to write performance logs")
+                logger.error("Not enough permissions to write performance logs")
                 sys.exit(1)
         with open(self.performance_file, mode="w") as profile_file:
             profile_writer = csv.writer(

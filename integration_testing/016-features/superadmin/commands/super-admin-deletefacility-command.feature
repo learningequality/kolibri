@@ -22,7 +22,3 @@ Feature: Super Admin deletes facility from the command line
     Then I see the output *INFO Deletion complete*
     When I go to *Device > Facilities*
     Then I don't see the <facility> facility anymore
-
-Examples:
-| facility |
-| MySchool |
