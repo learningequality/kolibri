@@ -1,5 +1,5 @@
-var path = require('path');
-var fs = require('fs');
+var path = require('node:path');
+var fs = require('node:fs');
 var logging = require('./logging');
 
 var deleteRecursive = function(p) {

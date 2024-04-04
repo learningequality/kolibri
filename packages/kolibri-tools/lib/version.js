@@ -1,5 +1,5 @@
-const fs = require('fs');
-const execSync = require('child_process').execSync;
+const fs = require('node:fs');
+const execSync = require('node:child_process').execSync;
 const temp = require('temp').track();
 const readlineSync = require('readline-sync');
 const semver = require('semver');
