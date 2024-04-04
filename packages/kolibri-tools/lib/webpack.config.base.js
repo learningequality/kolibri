@@ -1,4 +1,4 @@
-const path = require('path');
+const path = require('node:path');
 const { VueLoaderPlugin } = require('vue-loader');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const CssMinimizerPlugin = require('css-minimizer-webpack-plugin');
@@ -17,28 +17,33 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
   const base_dir = path.join(__dirname, '..');
 
   const postCSSLoader = {
-    loader: 'postcss-loader',
+    loader: require.resolve('postcss-loader'),
     options: {
       postcssOptions: {
-        plugins: [['autoprefixer']],
+        plugins: [[require.resolve('autoprefixer')]],
       },
       sourceMap: !production,
     },
   };
 
   const cssLoader = {
-    loader: 'css-loader',
+    loader: require.resolve('css-loader'),
     options: { sourceMap: !production },
   };
 
   // for scss blocks
-  const sassLoaders = [cssInsertionLoader, cssLoader, postCSSLoader, 'sass-loader'];
+  const sassLoaders = [
+    cssInsertionLoader,
+    cssLoader,
+    postCSSLoader,
+    require.resolve('sass-loader'),
+  ];
 
   const rules = [
     // Transpilation and code loading rules
     {
       test: /\.vue$/,
-      loader: 'vue-loader',
+      loader: require.resolve('vue-loader'),
       options: {
         compilerOptions: {
           preserveWhitespace: false,
@@ -70,7 +75,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
   if (transpile) {
     rules.push({
       test: /\.(js|mjs)$/,
-      loader: 'babel-loader',
+      loader: require.resolve('babel-loader'),
       exclude: [
         // From: https://webpack.js.org/loaders/babel-loader/#exclude-libraries-that-should-not-be-transpiled
         // \\ for Windows, / for macOS and Linux
@@ -143,7 +148,7 @@ module.exports = ({ mode = 'development', hot = false, cache = false, transpile 
         'process.server': JSON.stringify(false),
       }),
       new webpack.ProvidePlugin({
-        process: 'process/browser',
+        process: require.resolve('process/browser'),
       }),
     ],
     devtool: production ? 'source-map' : 'cheap-module-source-map',
