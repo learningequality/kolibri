@@ -14,6 +14,8 @@ from django.db.models import Value
 from django.db.models import When
 from django.db.models.functions import Coalesce
 from django.http import Http404
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_protect
 from django_filters.rest_framework import BooleanFilter
 from django_filters.rest_framework import CharFilter
 from django_filters.rest_framework import ChoiceFilter
@@ -226,6 +228,7 @@ class LogContext(object):
         return output
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
     def _precache_dataset_id(self, user):
         if user is None or user.is_anonymous:

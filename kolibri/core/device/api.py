@@ -13,7 +13,9 @@ from django.db.models.query import Q
 from django.http import Http404
 from django.http.response import HttpResponseBadRequest
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.translation import get_language
+from django.views.decorators.csrf import csrf_protect
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters.rest_framework import FilterSet
 from django_filters.rest_framework import ModelChoiceFilter
@@ -93,6 +95,7 @@ class DevicePermissionsViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter,)
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class DeviceProvisionView(viewsets.GenericViewSet):
     permission_classes = (NotProvisionedCanPost,)
     serializer_class = DeviceProvisionSerializer

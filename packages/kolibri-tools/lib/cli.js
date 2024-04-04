@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 const fs = require('fs');
 const path = require('path');
-const program = require('commander');
+const { Command } = require('commander');
 const checkVersion = require('check-node-version');
 const ini = require('ini');
 const toml = require('toml');
@@ -12,6 +12,8 @@ const logger = require('./logging');
 const readWebpackJson = require('./read_webpack_json');
 
 const cliLogging = logger.getLogger('Kolibri CLI');
+
+const program = new Command();
 
 function list(val) {
   // Handle the differences between the TOML and cfg parsers: TOML returns an array already,
@@ -203,7 +205,7 @@ program
   .arguments('<mode>', 'Mode to run in, options are: d/dev/development, p/prod/production, c/clean')
   .option('-f , --file <file>', 'Set custom file which lists plugins that should be built')
   .option(
-    '-p, --plugins <plugins...>',
+    '--plugins <plugins...>',
     'An explicit comma separated list of plugins that should be built',
     list,
     []
@@ -216,7 +218,7 @@ program
   )
   .option('--parallel <parallel>', 'Run multiple bundles in parallel', Number, 0)
   .option('-h, --hot', 'Use hot module reloading in the webpack devserver', false)
-  .option('-p, --port <port>', 'Set a port number to start devserver on', Number, 3000)
+  .option('--port <port>', 'Set a port number to start devserver on', Number, 3000)
   .option('--host <host>', 'Set a host to serve devserver', String, '0.0.0.0')
   .option('--json', 'Output webpack stats in JSON format - only works in prod mode', false)
   .option('--cache', 'Use cache in webpack', false)
@@ -233,6 +235,7 @@ program
     false
   )
   .option('--kds-path <kdsPath>', 'Full path to local kds directory', String, '')
+  .option('--write-to-disk', 'Write files to disk instead of using webpack devserver', false)
   .action(function(mode, options) {
     if (options.requireKdsPath) {
       if (!options.kdsPath) {
@@ -284,6 +287,10 @@ program
     }
     if (options.watchonly.length) {
       const unwatchedBundles = [];
+      // Watch core for changes if KDS option is provided; all KDS components are linked to core.
+      if (options.requireKdsPath && !options.watchonly.includes('core')) {
+        options.watchonly.push('core');
+      }
       const findModuleName = bundleDatum => {
         return !options.watchonly.some(m => bundleDatum.module_path.includes(m));
       };
@@ -318,7 +325,14 @@ program
         });
       }
     }
-    runWebpackBuild(mode, bundleData, mode === modes.DEV, options);
+
+    if (options.writeToDisk && mode === modes.DEV) {
+      cliLogging.warn(
+        'Enabling write-to-disk mode may fill up your developer machine with lots of different built files if frequent changes are made.'
+      );
+    }
+
+    runWebpackBuild(mode, bundleData, !options.writeToDisk && mode === modes.DEV, options);
   });
 
 const ignoreDefaults = ['**/node_modules/**', '**/static/**'];
@@ -340,7 +354,7 @@ program
   .option('-p, --pattern <string>', 'Lint only files that match this comma separated pattern', null)
   .action(function(args, options) {
     const files = [];
-    if (!(args instanceof program.Command)) {
+    if (!(args instanceof Command)) {
       files.push(...args);
     } else {
       options = args;
@@ -356,7 +370,7 @@ program
       const Minimatch = require('minimatch').Minimatch;
       patternCheck = new Minimatch(options.pattern, {});
     }
-    const glob = require('glob');
+    const glob = require('./glob');
     const { logging, lint, noChange } = require('./lint');
     const chokidar = require('chokidar');
     const watchMode = options.monitor;
@@ -447,7 +461,7 @@ program
     if (!files.length) {
       program.command('compress').help();
     } else {
-      const glob = require('glob');
+      const glob = require('./glob');
       const compressFile = require('./compress');
       Promise.all(
         files.map(file => {

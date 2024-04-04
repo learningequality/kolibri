@@ -7,21 +7,14 @@ Feature: Classes page default behaviors
     Then I see any assigned lessons under the header *Your lessons*
       And I see any assigned quizzes under the header *Your quizzes*
 
-  Scenario: Opening a lesson
-    When I click on the lesson
-    Then I see the lesson resources
-      And I see the resources are displayed as single-column cards
-
-  Scenario: Opening a lesson resource
-    Given I am viewing a list of resources within a lesson
+  Scenario: Learner opens a lesson and interacts with a resource
+    When I click on the lesson card
+    Then I see the lesson resources displayed as single-column cards
     When I click on a resource
     Then I see the resource's viewer page
-      And I see the correct resource displayed within the renderer
+      And I can interact with the resource
 
-# Note: this is not a new feature - just a new card link to an existing feature
-# Testing is for regression prevention
-  Scenario: Opening a quiz
-      Given I have a quiz assigned
-      When I click on the quiz
-      Then I see the *Quiz renderer* open
-        And I am able to engage with the quiz
+	Scenario: Learner opens a a quiz
+      When I click on the quiz card
+      Then I am at the quiz page
+        And I can see and interact with the available questions

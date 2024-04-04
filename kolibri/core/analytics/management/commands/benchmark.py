@@ -1,3 +1,4 @@
+import logging
 import sys
 
 from django.conf import settings
@@ -16,6 +17,8 @@ from kolibri.utils.server import installation_type
 from kolibri.utils.server import NotRunning
 from kolibri.utils.system import get_free_space
 from kolibri.utils.time_utils import local_now
+
+logger = logging.getLogger(__name__)
 
 
 def format_line(parameter, value, indented=False):
@@ -75,7 +78,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         if not SUPPORTED_OS:
-            print("This OS is not yet supported")
+            logger.error("This OS is not yet supported")
             sys.exit(1)
 
         try:
@@ -146,7 +149,7 @@ class Command(BaseCommand):
         self.messages.append(format_line("Server timezone", settings.TIME_ZONE))
 
         self.messages.append("")
-        print("\n".join(self.messages))
+        logger.info("\n".join(self.messages))
 
     def add_header(self, header):
         self.messages.append("")

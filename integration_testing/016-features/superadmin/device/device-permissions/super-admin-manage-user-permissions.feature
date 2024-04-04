@@ -66,10 +66,3 @@ Feature: Super admin grants and revokes the super-admin and content import permi
         When I click on *Cancel* button after saving
         Then I see the *Device permissions* page again
           And I don't see the black key icon in front of the <username> user
-
-Examples:
-| full_name | username |
-| Pinco P.  | coach    |
-| Neela R.  | ccoach   |
-| John C.   | learner  |
-| Carrie W. | admin2   |

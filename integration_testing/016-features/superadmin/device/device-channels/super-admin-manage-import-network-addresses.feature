@@ -50,10 +50,3 @@ Feature: Super admin manages import network locations
       And I enter <network_name> in the *Network name* field
       And I press the *Add* button
     Then I see *Could not connect to this network address* error under the *Full network address* field
-
-Examples:
-| network_address  | network_name       | is_available | url_valid | has_kolibri |
-| 126.1.1.5:8000   | Main Server        | true         | true      | true        |
-| 126.1.1.6:8000   | Unavailable Server | false        | true      | true        |
-| !!!.&&&.???      | Invalid Server     | false        | false     | false       |
-| doesnotexist.tor | Unreachable server | false        | true      | false       |

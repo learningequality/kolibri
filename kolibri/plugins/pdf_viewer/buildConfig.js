@@ -8,7 +8,7 @@ module.exports = {
     resolve: {
       fallback: {
         "zlib": false,
-        "stream": require.resolve("web-streams-polyfill/ponyfill")
+        "stream": require.resolve("web-streams-polyfill/es5")
       },
     },
   },

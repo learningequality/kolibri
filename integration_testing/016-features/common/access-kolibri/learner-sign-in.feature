@@ -136,7 +136,3 @@ Feature: Learner sign-in
         When I type my password
           And I click *Continue*
         Then I am signed in and I am at the *Learn > Home* page
-
-  Examples:
-  | username | password | facility   |
-  | learner  | learner  | MyFacility |

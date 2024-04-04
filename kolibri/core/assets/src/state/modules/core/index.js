@@ -10,7 +10,6 @@ export default {
   state() {
     return {
       error: '',
-      blockDoubleClicks: false,
       loading: true,
       pageSessionId: 0,
       totalProgress: null,

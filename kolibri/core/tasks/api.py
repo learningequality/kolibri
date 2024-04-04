@@ -1,7 +1,9 @@
 import logging
 
 from django.http.response import Http404
+from django.utils.decorators import method_decorator
 from django.utils.timezone import make_aware
+from django.views.decorators.csrf import csrf_protect
 from pytz import utc
 from rest_framework import decorators
 from rest_framework import serializers
@@ -40,6 +42,7 @@ class TasksSerializer(serializers.Serializer):
         return fields
 
 
+@method_decorator(csrf_protect, name="dispatch")
 class TasksViewSet(viewsets.GenericViewSet):
     serializer_class = TasksSerializer
 
@@ -195,7 +198,6 @@ class TasksViewSet(viewsets.GenericViewSet):
             object, including args, kwargs, and extra_metadata.
         """
         validated_data = self.validate_create_req_data(request)
-
         enqueued_jobs_response = []
 
         # Once we have validated all the tasks, we are good to go!

@@ -40,7 +40,3 @@ Feature: Guest interacts with the View folder resources side panel
     When I click the *Next folder* section
     Then I see the *Browse channel* modal
     	And I see the folders and resources of the channel <channel>
-
-	Examples:
-	| channel     | content_item       |
-	| QA Channel  | Intro to addition  |

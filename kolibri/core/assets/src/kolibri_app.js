@@ -27,7 +27,12 @@ export default class KolibriApp extends KolibriModule {
    * @return {Object} A component definition for the root component of this single page app.
    */
   get RootVue() {
-    return {};
+    // By default return the component that just renders router-view,
+    // which will render the component for the current route.
+    return {
+      functional: true,
+      render: createElement => createElement('router-view'),
+    };
   }
   /*
    * @return {Store} A convenience getter to return the vuex store.

@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
 
     dependencies = [
         ("morango", "0016_store_deserialization_error"),
-        migrations.swappable_dependency("kolibriauth.FacilityUser"),
+        ("kolibriauth", "0001_initial"),
         ("device", "0012_syncqueue"),
     ]
 

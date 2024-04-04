@@ -25,8 +25,3 @@ Feature: Sync facility to Kolibri Data Portal
     When the sync fails for a <facility>
     Then I see *Failed sync: just now* under the <facility> name
       And I see *Last successfully synced: <X> <time> ago under the failed sync message
-
-
-Examples:
-| facility |
-| MySchool |

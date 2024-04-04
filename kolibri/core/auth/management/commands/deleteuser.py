@@ -1,8 +1,12 @@
+import logging
+
 from django.core.management.base import BaseCommand
 from django.core.management.base import CommandError
 
 from kolibri.core.auth.management.utils import confirm_or_exit
 from kolibri.core.auth.models import FacilityUser
+
+logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
@@ -51,10 +55,10 @@ class Command(BaseCommand):
             "ARE YOU SURE? If you do this, there is no way to recover the user data on this device."
         )
 
-        print(
+        logger.info(
             "Proceeding with user deletion. Deleting all data for user <{}>".format(
                 options["username"]
             )
         )
         user.delete(hard_delete=True)
-        print("Deletion complete. All data for this user has been deleted.")
+        logger.info("Deletion complete. All data for this user has been deleted.")

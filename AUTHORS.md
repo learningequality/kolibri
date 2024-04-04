@@ -103,3 +103,4 @@ If you have contributed to Kolibri, feel free to add your name and Github accoun
 | Alex Vélez | AlexVelezLl |
 | Mazen Oweiss | moweiss |
 | Eshaan Aggarwal | EshaanAgg |
+| Nikhil Sharma | ThEditor |

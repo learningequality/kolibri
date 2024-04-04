@@ -181,8 +181,3 @@ Feature: Coach creates lessons
     Given I am on the search results page
     When I click *Exit search*
     Then I see the *Manage resources in '<lesson>'* page again
-
-
-Examples:
-| lesson        | description  | channel                | topic                |
-| First lesson  | Fractions 1  | Khan Academy (English) | Recognize fractions  |

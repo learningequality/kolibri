@@ -4,10 +4,13 @@ and hence bundled into the dist folder.
 
 For more detail see the documentation in __init__.py
 """
+import logging
 import os
 import tempfile
 
 import requests
+
+logger = logging.getLogger(__name__)
 
 
 def add_requirements_to_base():
@@ -15,7 +18,7 @@ def add_requirements_to_base():
         file_path = os.environ["EXTRA_REQUIREMENTS"]
         # We have been passed a URL, not a local file path
         if file_path.startswith("http"):
-            print(
+            logger.info(
                 "Downloading extra requirements from {file_path}".format(
                     file_path=file_path
                 )

@@ -35,7 +35,7 @@ Feature: Super admin can provision a device in the same way the setup wizard wou
   Scenario: Setup a device by modifying the AUTOMATIC_PROVISION_FILE setting in the options.ini file
     When I add "AUTOMATIC_PROVISION_FILE = <file path>" under the [Paths] section
       And I save my changes
-      And I run the "kolibri start" command in the terminal or command prompt
+      And I run the "kolibri start" command in the terminal or command prompt #example file path: /home/user/.kolibri/automatic_device_provisioning.json
     Then I see in the terminal that a facility with name 'My Facility' has been created
     	And I see that all the other presets and settings are updated as specified in the JSON file
     	And I see that the automatic provisioning file is removed from the directory after successful provisioning
@@ -54,8 +54,3 @@ Feature: Super admin can provision a device in the same way the setup wizard wou
     When I go to *Facility > Settings*
     Then I see that the facility name is set to *My facility*
     	And I see that all of the available checkboxes are checked
-
-
-Examples:
-  | file path |
-  | /home/user/.kolibri/automatic_device_provisioning.json |

@@ -27,7 +27,3 @@ Feature: Guest creates an account
   	Given I am either on *Step 1 of 1 > Create an account* page or on *Step 1 of 2 > Create an account* page
   	When I click the *Sign in if you have an existing account* link
   	Then I am back at the sign-in page
-
-  Examples:
-  | full_name | password | username | password | facility |
-  | juan .p   | learner  | juan     | pass     | school   |

@@ -82,8 +82,3 @@ Feature: Managing facility tasks
     #this is not on *Tasks* page, but on *Facilities*
       And I don't see a progress bar
       And I don't see *Clear completed*
-
-
-Examples:
-| facility | peer   | username |
-| MySchool | MyPeer | pincop   |

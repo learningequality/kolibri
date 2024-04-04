@@ -10,6 +10,7 @@ updates:
       interval: "weekly"
       day: "wednesday"
       time: "00:00"
+    open-pull-requests-limit: 10
     groups:
       babel:
         patterns:

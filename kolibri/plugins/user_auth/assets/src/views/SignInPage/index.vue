@@ -339,6 +339,7 @@
         // and forth
         this.usernameBlurred = false;
         this.passwordBlurred = false;
+        this.usernameSubmittedWithoutPassword = false;
         this.loginError = null;
       },
       // Sets the selected list user and/or logs them in

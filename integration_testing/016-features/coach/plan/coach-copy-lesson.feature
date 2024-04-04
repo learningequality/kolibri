@@ -45,7 +45,3 @@ Feature: Coach copies lesson
       And I click on *Plan > Lessons* tab
     Then I see the *Copy of '<lesson>'* in the list of lessons
       And I see *1 group* value for it under the *Recipients* heading
-
-Examples:
-| lesson       | class    | class2    | group     |
-| Mathematics  | Buffoons | Maestros  | Virtuosas |

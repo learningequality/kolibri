@@ -47,7 +47,3 @@ Feature: Coach can add or remove bookmarked lesson resources
 		When I click the *Close* button
 		Then I am back at the *Coach > <class> > Plan > <lesson>* page
 			And I can see that the deselected bookmarked resources have been removed from the lesson resources
-
-Examples:
-  | class     | lesson         |
-  | 1st grade | Counting to 10 |

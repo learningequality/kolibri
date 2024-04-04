@@ -62,7 +62,3 @@ Feature: Coach edits quizzes
     Then I see the <quiz> report page again
     # No snackbar
       And I see the changes I made reflected in the report header
-
-Examples:
-| quiz        | description  |
-| First quiz  | Fractions 1  |

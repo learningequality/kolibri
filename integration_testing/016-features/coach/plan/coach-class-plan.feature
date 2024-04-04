@@ -31,19 +31,3 @@ Feature: General navigation through the *Plan* tab
     When I click on the *Groups* subtab
     Then the *Groups* subtab is the active tab
       And I see the list of groups
-
-#  Scenario: Filter quizzes
-#    Given that I am in the *Coach - '<class>' > Plan > Quizzes* tab
-#      And that the filter by default is “All quizzes”
-#    When I change the filter to “Active quizzes”
-#    Then I see only active quizzes
-#    When I change the filter to “Inactive quizzes”
-#    Then I see only inactive quizzes
-
-#  Scenario: Filter lessons
-#    Given that I am in the *Coach - '<class>' > Plan > Lessons* tab
-#      And the filter by default is “All lessons”
-#    When I change the filter to “Active lessons”
-#    Then I see only active lessons
-#    When I change the filter to “Inactive lessons”
-#    Then I see only inactive lessons

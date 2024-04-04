@@ -65,9 +65,3 @@ Feature: Admin changes facility settings
     When I go to *Learn > Channels* page
       And browse any channel's topics until I open an single resource
     Then I see the *Download resource* button
-
-Examples:
-| full_name | username | password |
-| Pinco P.  | coach    | coach    |
-| Neela R.  | ccoach   | ccoach   |
-| John C.   | learner  | learner  |
