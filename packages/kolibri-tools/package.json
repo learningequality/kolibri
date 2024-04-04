@@ -70,7 +70,7 @@
     "query-ast": "^1.0.5",
     "readline-sync": "^1.4.9",
     "recast": "^0.23.6",
-    "rewire": "^7.0.0",
+    "rewire": "^6.0.0",
     "rtlcss": "4.1.1",
     "sass-loader": "14.1.1",
     "scss-parser": "^1.0.6",
