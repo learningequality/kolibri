@@ -1,4 +1,5 @@
 import { render, fireEvent, screen } from '@testing-library/vue';
+import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import CoreMenuOption from '../CoreMenuOption.vue';
 import '@testing-library/jest-dom';
@@ -97,15 +98,11 @@ describe('CoreMenuOption', () => {
         expect(screen.queryByTestId('icon-chevronUp')).not.toBeInTheDocument();
       });
 
-      // TODO: Fix the test
       it('pressing tab from keyboard should focus the menuitem', async () => {
         renderComponent({ subRoutes: sampleSubRoutes });
 
-        // Press tab to focus the menuitem
-        // await fireEvent.keyDown(document.body, { key: 'Tab', code: 'Tab' });
-
-        // const menuItem = screen.getByRole('menuitem');
-        // expect(menuItem).toHaveFocus();
+        await userEvent.tab();
+        expect(screen.getByRole('menuitem')).toHaveFocus();
       });
 
       it('should display the label of the option when provided', () => {
@@ -144,6 +141,14 @@ describe('CoreMenuOption', () => {
       it('should display the label of the option when provided', () => {
         renderComponent({ label: 'Sample Option', subRoutes: [] });
         expect(screen.getByText('Sample Option')).toBeInTheDocument();
+      });
+
+      it('pressing tab from keyboard should focus the menuitem', async () => {
+        renderComponent({ subRoutes: [] });
+
+        // Press tab to focus the menuitem
+        await userEvent.tab();
+        expect(screen.getByRole('menuitem')).toHaveFocus();
       });
 
       describe('testing the user interactions', () => {
