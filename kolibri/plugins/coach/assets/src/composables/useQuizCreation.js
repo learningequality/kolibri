@@ -264,7 +264,8 @@ export default function useQuizCreation() {
    * use */
 
   function initializeQuiz(collection) {
-    set(_quiz, objectWithDefaults({ collection }, Quiz));
+    const assignments = [collection];
+    set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
     const newSection = addSection();
     setActiveSection(newSection.section_id);
     _fetchChannels();
