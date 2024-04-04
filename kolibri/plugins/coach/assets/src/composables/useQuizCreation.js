@@ -1,7 +1,5 @@
 import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
-import range from 'lodash/range';
-import shuffle from 'lodash/shuffle';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
 import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
@@ -9,12 +7,9 @@ import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
-import logging from 'kolibri.lib.logging';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../utils/selectQuestions.js';
-import { Quiz, QuizSection, QuizQuestion, QuizExercise } from './quizCreationSpecs.js';
-
-const logger = logging.getLogger(__filename);
+import { Quiz, QuizSection } from './quizCreationSpecs.js';
 
 function uuidv4() {
   return v4().replace(/-/g, '');
@@ -32,7 +27,7 @@ function validateQuiz(quiz) {
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
-export default function useQuizCreation(DEBUG = false) {
+export default function useQuizCreation() {
   // -----------
   // Local state
   // -----------
@@ -55,92 +50,6 @@ export default function useQuizCreation(DEBUG = false) {
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
 
-  /**
-   * DEBUG Data
-   *
-   * Generates a test quiz with multiple sections. It generates properly shaped QuizExercise type
-   * and QuizQuestion type objects, but the content is not real.
-   *
-   * This should be suitable for all UI testing purposes EXCEPT for resource selection.
-   * DO NOT use this if you're testing resource selection or want to use real resources.
-   */
-  function _generateTestData() {
-    if (process.env.NODE_ENV === 'production') {
-      logger.error("You're trying to generate test data in production. Please set DEBUG = false.");
-    }
-    /**
-     * @type {QuizQuestion[]} - dummyQuestions
-     * Typically this data would be fetched and usable from the useExerciseResources module.
-     */
-    const dummyQuestions = range(1, 100).map(i => {
-      const questionOverrides = {
-        exercise_id: uuidv4(),
-        id: uuidv4(),
-        title: `Question ${i}`,
-        counter_in_exercise: i,
-        missing_resource: false,
-      };
-      return objectWithDefaults(questionOverrides, QuizQuestion);
-    });
-
-    // Create some resources that we can put into the section resource_pool arrays
-    const resources = range(1, 10).map(i => {
-      // Get a random set of questions to put in this resource -- note here that we're only
-      // getting the QuizQuestion.id, which is what we'll get from the API when fetching
-      // ContentNodes which are Exercises
-      const sliceOfQuestions = shuffle(dummyQuestions).splice(0, 5);
-      const resourceOverrides = {
-        title: `Resource ${i}`,
-        content_id: uuidv4(),
-        kind: ContentNodeKinds.EXERCISE,
-        is_leaf: true,
-        id: uuidv4(),
-        assessment_ids: sliceOfQuestions.map(q => q.id),
-        contentnode: uuidv4(),
-      };
-      return objectWithDefaults(resourceOverrides, QuizExercise);
-    });
-
-    const sections = range(1, 5).map(i => {
-      const resource_pool = shuffle(resources).slice(0, 3);
-      // We'll reduce the resource_pool down to a list of QuizQuestion typed objects in order to
-      // imitate what we'll otherwise get from a separate module which will handle the API calls
-      // Typically the question_pool will be set whenever the resource_pool changes
-      const question_pool = resource_pool.reduce((acc, resource) => {
-        acc = [
-          ...acc,
-          // It may not be immediately clear, but this is where we're getting the QuizQuestion objs
-          ...dummyQuestions.filter(q => resource.assessment_ids.includes(q.id)),
-        ];
-        return acc;
-      }, []);
-
-      // These will be the questions that are currently "in the section" -- that is, the questions
-      // which could possibly be deleted from the section (which will affect the question_count)
-      // or replaced with other questions from the question_pool
-      const questions = question_pool.slice(0, 5);
-
-      const sectionOverrides = {
-        section_id: uuidv4(),
-        section_title: `Section ${i}`,
-        description: `Section ${i} description`,
-        question_count: questions.length,
-        questions,
-        resource_pool,
-        question_pool,
-      };
-
-      return objectWithDefaults(sectionOverrides, QuizSection);
-    });
-
-    logger.log('Generated DEBUG dummyQuestions', dummyQuestions);
-    logger.log('Generated DEBUG resources', resources);
-    logger.log('Generated DEBUG sections', sections);
-
-    // Now we're committing this all ot the _quiz ref from which reactive properties will derive
-    updateQuiz({ question_sources: sections });
-    setActiveSection(sections[0].section_id);
-  }
   // ------------------
   // Section Management
   // ------------------
@@ -314,12 +223,8 @@ export default function useQuizCreation(DEBUG = false) {
 
   function initializeQuiz(collection) {
     set(_quiz, objectWithDefaults({ collection }, Quiz));
-    if (DEBUG) {
-      _generateTestData();
-    } else {
-      const newSection = addSection();
-      setActiveSection(newSection.section_id);
-    }
+    const newSection = addSection();
+    setActiveSection(newSection.section_id);
     _fetchChannels();
   }
 
