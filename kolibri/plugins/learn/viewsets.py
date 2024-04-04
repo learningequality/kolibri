@@ -189,24 +189,14 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
             )
         )
         exam_node_ids = set()
-        section_questions = list()
 
         for exam in exams:
-            if exam.get("data_model_version", 0) >= 3:
-                for section in exam.get("question_sources"):
-                    questions = section.get("questions", [])
-                    section_questions.extend(questions)
-
-                exam_node_ids |= {
-                    exercise_id
-                    for exercise_id, _ in exam_assignment_lookup(
-                        exam.get("question_sources", [])
-                    )
-                }
-            else:
-                exam_node_ids |= {
-                    question["exercise_id"] for question in exam.get("question_sources")
-                }
+            exam_node_ids |= {
+                exercise_id
+                for exercise_id, _ in exam_assignment_lookup(
+                    exam.get("question_sources", [])
+                )
+            }
 
         available_exam_ids = set(
             ContentNode.objects.filter_by_uuids(exam_node_ids).values_list(
@@ -233,8 +223,10 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                     "started": False,
                 }
             exam["missing_resource"] = any(
-                question["exercise_id"] not in available_exam_ids
-                for question in (section_questions or exam.get("question_sources"))
+                exercise_id not in available_exam_ids
+                for exercise_id, _ in exam_assignment_lookup(
+                    exam.get("question_sources", [])
+                )
             )
         out_items = []
         for item in items:
