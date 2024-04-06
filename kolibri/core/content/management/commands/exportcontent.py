@@ -60,6 +60,12 @@ class Command(AsyncCommand):
 
         parser.add_argument("channel_id", type=str)
         parser.add_argument("destination", type=str)
+        parser.add_argument(
+            "--manifest-only",
+            action="store_true",
+            default=False,
+            help="Generate only the manifest.json file",
+        )
 
     def update_job_metadata(self, total_bytes_to_transfer, total_resource_count):
         job = get_current_job()
@@ -75,9 +81,6 @@ class Command(AsyncCommand):
         data_dir = os.path.realpath(options["destination"])
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
-        logger.info(
-            "Exporting content for channel id {} to {}".format(channel_id, data_dir)
-        )
 
         channel_metadata = ChannelMetadata.objects.get(id=channel_id)
 
@@ -91,19 +94,23 @@ class Command(AsyncCommand):
 
         self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 
-        exported_files = []
+        # dont copy files if we are only exporting the manifest
+        if not options["manifest_only"]:
+            logger.info(
+                "Exporting content for channel id {} to {}".format(channel_id, data_dir)
+            )
+            exported_files = []
+            with self.start_progress(
+                total=total_bytes_to_transfer
+            ) as overall_progress_update:
+                for f in files:
 
-        with self.start_progress(
-            total=total_bytes_to_transfer
-        ) as overall_progress_update:
-            for f in files:
+                    if self.is_cancelled():
+                        break
 
-                if self.is_cancelled():
-                    break
-
-                dest = self.export_file(f, data_dir, overall_progress_update)
-                if dest:
-                    exported_files.append(dest)
+                    dest = self.export_file(f, data_dir, overall_progress_update)
+                    if dest:
+                        exported_files.append(dest)
 
         # Reraise any cancellation
         self.check_for_cancel()
