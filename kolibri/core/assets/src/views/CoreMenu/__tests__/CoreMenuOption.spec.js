@@ -1,8 +1,7 @@
-import { render, fireEvent, screen } from '@testing-library/vue';
+import { render, screen, fireEvent } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import VueRouter from 'vue-router';
 import CoreMenuOption from '../CoreMenuOption.vue';
-import '@testing-library/jest-dom';
 
 const sampleSubRoutes = [
   { name: 'subRoute1', label: 'Sub Route 1' },
@@ -45,7 +44,7 @@ describe('CoreMenuOption', () => {
         const menuItem = screen.getByRole('menuitem');
 
         // Clicking should show the subroutes
-        await fireEvent.click(menuItem);
+        await userEvent.click(menuItem);
         sampleSubRoutes.forEach(subRoute =>
           expect(screen.getByText(subRoute.label)).toBeInTheDocument()
         );
@@ -58,10 +57,10 @@ describe('CoreMenuOption', () => {
         const menuItem = screen.getByRole('menuitem');
 
         // Click to show the subroutes
-        await fireEvent.click(menuItem);
+        await userEvent.click(menuItem);
 
         // Clicking again should hide the subroutes
-        await fireEvent.click(menuItem);
+        await userEvent.click(menuItem);
         sampleSubRoutes.forEach(subRoute =>
           expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument()
         );
@@ -71,10 +70,9 @@ describe('CoreMenuOption', () => {
 
       it('should open the submenu on pressing Enter key and the icons should change accordingly', async () => {
         renderComponent({ subRoutes: sampleSubRoutes });
-        const menuItem = screen.getByRole('menuitem');
-
         // Pressing Enter should show the subroutes
-        await fireEvent.keyDown(menuItem, { key: 'Enter', code: 'Enter' });
+
+        await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter' });
         sampleSubRoutes.forEach(subRoute =>
           expect(screen.getByText(subRoute.label)).toBeInTheDocument()
         );
@@ -87,10 +85,10 @@ describe('CoreMenuOption', () => {
         const menuItem = screen.getByRole('menuitem');
 
         // Pressing Enter to show the subroutes
-        await fireEvent.keyDown(menuItem, { key: 'Enter', code: 'Enter' });
+        await fireEvent.keyDown(menuItem, { key: 'Enter' });
 
         // Pressing Enter again should hide the subroutes
-        await fireEvent.keyDown(menuItem, { key: 'Enter', code: 'Enter' });
+        await fireEvent.keyDown(menuItem, { key: 'Enter' });
         sampleSubRoutes.forEach(subRoute =>
           expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument()
         );
@@ -176,7 +174,7 @@ describe('CoreMenuOption', () => {
         test.each(testcases)('%s [Mouse Click]', async ({ disabled, link, expected }) => {
           const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
 
-          await fireEvent.click(screen.getByRole('menuitem'));
+          await userEvent.click(screen.getByRole('menuitem'));
           if (expected) {
             expect(emitted()).toHaveProperty('select');
             expect(emitted().select).toHaveLength(1);
@@ -188,7 +186,7 @@ describe('CoreMenuOption', () => {
         test.each(testcases)('%s [Enter Key]', async ({ disabled, link, expected }) => {
           const { emitted } = renderComponent({ link, disabled, subRoutes: [] });
 
-          await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter', code: 'Enter' });
+          await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter' });
           if (expected) {
             expect(emitted()).toHaveProperty('select');
             expect(emitted().select).toHaveLength(1);
