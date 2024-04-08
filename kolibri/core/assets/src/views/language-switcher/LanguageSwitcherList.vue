@@ -2,31 +2,34 @@
 
   <div>
     <div class="languages-list">
-      <KIconButton
-        icon="language"
-        aria-hidden="true"
-        tabindex="-1"
-        class="globe px-8"
-        @click="showLanguageModal = true"
-      />
-      <span class="no-shrink px-8 selected" :title="selectedLanguage.english_name">
-        {{ selectedLanguage.lang_name }}
-      </span>
       <KListWithOverflow
         :items="buttonLanguages"
         :appearanceOverrides="{
-          justifyContent: 'flex-start',
+          justifyContent: 'center',
           alignItems: 'center',
         }"
       >
         <template #item="{ item }">
           <KButton
+            v-if="!item.isSelected"
             :text="item.lang_name"
             :title="item.english_name"
             class="lang px-8"
             appearance="basic-link"
             @click="switchLanguage(item.id)"
           />
+          <div v-else>
+            <KIconButton
+              icon="language"
+              aria-hidden="true"
+              tabindex="-1"
+              class="globe px-8"
+              @click="showLanguageModal = true"
+            />
+            <span class="no-shrink px-8 selected" :title="item.english_name">
+              {{ item.lang_name }}
+            </span>
+          </div>
         </template>
         <template #more>
           <KButton
@@ -77,7 +80,7 @@
         return availableLanguages[currentLanguage];
       },
       buttonLanguages() {
-        return this.selectableLanguages.slice().sort((a, b) => {
+        const buttonLanguages = this.selectableLanguages.slice().sort((a, b) => {
           const aPriority = prioritizedLanguages.includes(a.id);
           const bPriority = prioritizedLanguages.includes(b.id);
           if (aPriority && bPriority) {
@@ -89,6 +92,11 @@
           }
           return compareLanguages(a, b);
         });
+        buttonLanguages.unshift({
+          ...this.selectedLanguage,
+          isSelected: true,
+        });
+        return buttonLanguages;
       },
     },
     $trs: {
@@ -117,6 +125,9 @@
 
   .lang {
     @include font-family-language-names;
+    /deep/ span {
+      white-space: nowrap !important;
+    }
   }
 
   .ta-l {
@@ -129,6 +140,7 @@
     display: flex;
     align-items: center;
     margin-top: 8px;
+    justify-content: center;
   }
 
   .no-shrink {
