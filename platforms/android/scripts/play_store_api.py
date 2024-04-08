@@ -205,7 +205,7 @@ def release_app(version_code):
     internal_track = (
         service.edits()
         .tracks()
-        .get(track="internal", editId=edit_id, packageName=package_name)
+        .get(track="internal", editId=edit_id, packageName=package_name())
         .execute()
     )
     release = None
