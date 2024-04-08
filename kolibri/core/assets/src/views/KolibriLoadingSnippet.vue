@@ -3,95 +3,7 @@
   <div class="container">
     <div class="rel">
       <div class="flapping-kolibri">
-        <svg
-          class="svg"
-          xmlns="http://www.w3.org/2000/svg"
-          role="img"
-          aria-labelledby="kolibri-loader"
-          viewBox="0 0 402 382"
-          width="402"
-          height="382"
-          fill="none"
-        >
-          <title id="kolibri-loader">{{ $tr('kolibriLoading') }}</title>
-          <use xlink:href="#body" />
-          <use xlink:href="#right-wing-inner" class="wing-inner" />
-          <use xlink:href="#right-wing-middle" class="wing-middle" />
-          <use xlink:href="#right-wing-outer" class="wing-outer" />
-          <use xlink:href="#left-wing-inner" class="wing-inner" />
-          <use xlink:href="#left-wing-middle" class="wing-middle" />
-          <use xlink:href="#left-wing-outer" class="wing-outer" />
-          <defs>
-            <g id="body">
-              <path
-                d="M261.5 61.5L218 105.5M218 105.5C211.5 101 197.6 98.9 190 106.5C185.206 111.294
-                184.181 120.692 184.5 127C184.856 134.046 184.797 140.116 181.5 146.5C165.746 177
-                156 207 200.566 254.5C203.473 257.325 206.613 260.16 210 263M218 105.5C221.5 116
-                218.711 134.8 222.5 143C233.5 169.5 250 196.67 216 251C214.022 254.16 212.36 259.788
-                210 263M210 263C199.5 291.5 203.222 309.173 211.5 316C220.505 323.427 229 315 231
-                306.5C233 298 225.5 280.5 210 263Z"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="right-wing-inner">
-              <path
-                d="M261 158C271.333 168.667 285.8 196.4 261 222"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="right-wing-middle">
-              <path
-                d="M282.5 138C299.102 155.333 322.344 200.4 282.5 242"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="right-wing-outer">
-              <path
-                d="M303.5 116C326.893 140.667 359.644 204.8 303.5 264"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="left-wing-inner">
-              <path
-                d="M141.5 158C131.167 168.667 116.7 196.4 141.5 222"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="left-wing-middle">
-              <path
-                d="M120 138C103.398 155.333 80.1559 200.4 120 242"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-            <g id="left-wing-outer">
-              <path
-                d="M99 116C75.6067 140.667 42.856 204.8 99 264"
-                stroke="#4368F5"
-                stroke-width="13"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-              />
-            </g>
-          </defs>
-        </svg>
+        <KLogo size="250" :animate="true" :altText="$tr('kolibriLoading')" />
       </div>
     </div>
   </div>
@@ -122,7 +34,7 @@
   }
 
   .flapping-kolibri {
-    /* Set the width of this to match the .svg width if you want to center it */
+    /* Set the width of this to match the size prop to center it */
     width: 250px;
     margin: 0 auto;
     animation: fadeIn;
@@ -131,74 +43,4 @@
     animation-fill-mode: both;
   }
 
-  .svg {
-    width: 250px;
-    height: 250px;
-  }
-
-  .wing-inner {
-    animation: flapInner 2s 1.2s both infinite;
-  }
-
-  .wing-middle {
-    animation: flapMiddle 2s 1.2s both infinite;
-  }
-
-  .wing-outer {
-    animation: flapOuter 2s 1.2s both infinite;
-  }
-
-  @keyframes fadeIn {
-    from {
-      opacity: 0;
-    }
-    to {
-      opacity: 1;
-    }
-  }
-
-  @keyframes flapInner {
-    0% {
-      opacity: 0;
-    }
-    10% {
-      opacity: 1;
-    }
-    30% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes flapMiddle {
-    0% {
-      opacity: 0;
-    }
-    20% {
-      opacity: 0;
-    }
-    40% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
-
-  @keyframes flapOuter {
-    0% {
-      opacity: 0;
-    }
-    40% {
-      opacity: 0;
-    }
-    50% {
-      opacity: 1;
-    }
-    100% {
-      opacity: 0;
-    }
-  }
 </style>

@@ -319,7 +319,7 @@
     .logo-text {
       position: absolute;
       // Aligns text vertically with logo
-      bottom: 3px;
+      bottom: 5px;
       // Spaces the text from the logo
       left: 48px;
       font-size: 18px;
