@@ -1,3 +1,15 @@
+kolibri-source (0.16.1-0ubuntu3) jammy; urgency=medium
+
+  * debian/compat restored, needed in Ubuntu even if it's not in Debian
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 08 Apr 2024 18:07:02 +0200
+
+kolibri-source (0.16.1-0ubuntu1) bionic; urgency=medium
+
+  * New upstream version
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Mon, 08 Apr 2024 17:44:18 +0200
+
 kolibri-source (0.16.0~rc0-0ubuntu1) jammy; urgency=medium
 
   * New upstream release
