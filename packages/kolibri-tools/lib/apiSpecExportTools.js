@@ -1,6 +1,6 @@
 /* eslint-disable */
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const resolve = require('resolve');
 const espree = require('espree');
 const escodegen = require('escodegen');
