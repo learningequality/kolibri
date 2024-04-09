@@ -33,7 +33,8 @@ export default function useQuizCreation() {
   // -----------
 
   /** @type {ref<Quiz>}
-   * The "source of truth" quiz object from which all reactive properties should derive */
+   * The "source of truth" quiz object from which all reactive properties should derive
+   * This will be validated and sent to the API when the user saves the quiz */
   const _quiz = ref(objectWithDefaults({}, Quiz));
 
   /** @type {ref<QuizSection>}
@@ -65,42 +66,78 @@ export default function useQuizCreation() {
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
     }
-    // Make sure all questions in the an updated pool have proper unique IDs
-    const { resource_pool } = updates;
-    if (resource_pool) {
-      // This is where we annotate the resource_pool with unique question IDs that we'll use
-      // within the quiz creation editor. NOTE that this is not to be persisted to the server
-      // and ideally should be done by way of a Question class for a more consistant API
-      updates.resource_pool = resource_pool.map(resource => {
-        resource.unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
-          question_id => `${resource.id}:${question_id}`
-        );
-        return resource;
-      });
-      // These are set into the updates so that questions are populated when the resource_pool
-      // changes
+
+    // og* variables are the original values of the properties we're updating
+    const {
+      resource_pool: ogResourcePool,
+      questions: ogQuestions,
+      question_count: ogQuestionCount,
+    } = targetSection;
+
+    const { resource_pool, question_count } = updates;
+
+    if (resource_pool?.length === 0) {
+      // The user has removed all resources from the section, so we can clear all questions too
       updates.questions = [];
     }
+    if (resource_pool?.length > 0) {
+      // The resource_pool is being updated
+      if (ogResourcePool.length === 0) {
+        // We're adding resources to a section which didn't previously have any
 
-    /* Handle edge cases re: questions and question_count changing. When the question_count changes,
-     * we remove/add questions to match the new count. If questions are deleted, then we will
-     * update question_count accordingly. */
-    const { questions, question_count } = updates;
+        // ***
+        // Note that we're basically assuming that `questions*` properties aren't being updated --
+        // meaning we expect that we can only update one or the other of `resource_pool` and
+        // `questions*` at a time. We can safely assume this because there can't be questions
+        // if there weren't resources in the ogResourcePool before.
+        // ***
+        updates.questions = selectRandomQuestionsFromResources(
+          question_count || ogQuestionCount,
+          resource_pool
+        );
+      } else {
+        // In this case, we already had resources in the section, so we need to handle the
+        // case where a resource has been removed so that we remove & replace the questions
+        const removedResourceQuestionIds = ogResourcePool.reduce((questionIds, ogResource) => {
+          if (!resource_pool.map(r => r.id).includes(ogResource.id)) {
+            // If the resource_pool doesn't have the ogResource, we're removing it
+            questionIds = [...questionIds, ...ogResource.unique_question_ids];
+            return questionIds;
+          }
+          return questionIds;
+        }, []);
+        if (removedResourceQuestionIds.length === 0) {
+          // If no resources were removed, we don't need to update the questions
+          return;
+        }
+        const questionsToKeep = ogQuestions.filter(q => !removedResourceQuestionIds.includes(q.id));
+        const numReplacementsNeeded = (question_count || ogQuestionCount) - questionsToKeep.length;
+        updates.questions = [
+          ...questionsToKeep,
+          ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
+        ];
+      }
+    } else if (question_count !== ogQuestionCount) {
+      /**
+       * Handle edge cases re: questions and question_count changing. When the question_count
+       * changes, we remove/add questions to match the new count. If questions are deleted, then
+       * we will update question_count accordingly.
+       **/
 
-    if (question_count !== questions?.length) {
       // If the question count changed AND questions have changed, be sure they're the same length
       // or we can add questions to match the new question_count
-      if (question_count < targetSection.question_count) {
+      if (question_count < ogQuestionCount) {
         // If the question_count is being reduced, we need to remove any questions that are now
         // outside the bounds of the new question_count
-        updates.questions = targetSection.questions.slice(0, question_count);
-      } else if (question_count > (targetSection.question_count || 0)) {
+        updates.questions = ogQuestions.slice(0, question_count);
+      } else if (question_count > ogQuestionCount) {
         // If the question_count is being increased, we need to add new questions to the end of the
         // questions array
-        const numQuestionsToAdd = question_count - (targetSection.question_count || 0);
+        const numQuestionsToAdd = question_count - ogQuestionCount;
         const newQuestions = selectRandomQuestionsFromResources(
           numQuestionsToAdd,
-          get(activeQuestions).map(q => q.id)
+          ogResourcePool,
+          ogQuestions.map(q => q.id) // Exclude questions we already have to avoid duplicates
         );
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
@@ -116,36 +153,20 @@ export default function useQuizCreation() {
         return section;
       }),
     });
-    if (questions?.length === 0 && resource_pool?.length) {
-      // We have no questions but have updated the resource_pool, so now let's set the questions.
-      // This is happening here because we have to persist the resource_pool so that we can select
-      // questions from it.
-      const questions = selectRandomQuestionsFromResources(targetSection.question_count);
-      set(_quiz, {
-        ...get(quiz),
-        // Update matching QuizSections with the updates object
-        question_sources: get(allSections).map(section => {
-          if (section.section_id === section_id) {
-            return { ...section, questions };
-          }
-          return section;
-        }),
-      });
-    }
   }
 
   /**
    * @description Selects random questions from the active section's `resource_pool` - no side
    * effects
    * @param {Number} numQuestions
+   * @param {QuizExercise[]} pool The resource pool to select questions from, will default to
+   *  the activeResourcePool's value if not provided. This is useful if you need to select questions
+   *  from a resource pool that hasn't been committed to the section yet.
    * @param {String[]} excludedIds A list of IDs to exclude from random selection
-   * @param {boolean} reseed - Whether to reseed the random selection - this can be useful
-   * if you're replacing one question with another to avoid an infinite loop of replacing the
-   * same two questions with each other when we have to add questions to match the question_count
    * @returns {QuizQuestion[]}
    */
-  function selectRandomQuestionsFromResources(numQuestions, excludedIds = [], reseed = false) {
-    const pool = get(activeResourcePool);
+  function selectRandomQuestionsFromResources(numQuestions, pool = [], excludedIds = []) {
+    pool = pool.length ? pool : get(activeResourcePool);
     const exerciseIds = pool.map(r => r.content_id);
     const exerciseTitles = pool.map(r => r.title);
     const questionIdArrays = pool.map(r => r.unique_question_ids);
@@ -154,7 +175,7 @@ export default function useQuizCreation() {
       exerciseIds,
       exerciseTitles,
       questionIdArrays,
-      reseed ? Math.floor(Math.random() * 1000) : get(_quiz).seed,
+      Math.floor(Math.random() * 1000),
       excludedIds
     );
   }
@@ -421,7 +442,7 @@ export default function useQuizCreation() {
     if (question_count === 0) {
       // They've deleted all of the questions. We don't allow `question_count` to be 0,
       // so we'll randomly select 1 question for the section -- pass `true` to reseed the shuffle.
-      questions = selectRandomQuestionsFromResources(1, selectedIds, true);
+      questions = selectRandomQuestionsFromResources(1, get(activeResourcePool), selectedIds);
       question_count = 1;
     }
     updateSection({
