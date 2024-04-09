@@ -576,7 +576,19 @@
       saveSelectedResource() {
         this.updateSection({
           section_id: this.$route.params.section_id,
-          resource_pool: this.workingResourcePool,
+          resource_pool: this.workingResourcePool.map(resource => {
+            // Add the unique_question_ids to the resource
+            const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
+              question_id => {
+                return `${resource.id}:${question_id}`;
+              }
+            );
+
+            return {
+              ...resource,
+              unique_question_ids,
+            };
+          }),
         });
 
         this.resetWorkingResourcePool();
