@@ -9,15 +9,19 @@
 /**
  * @typedef   {Object}  QuizExercise    An object referencing an exercise or topic to be used
  *                                      within the `QuizSeciton.resource_pool` property.
+ * @property  {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
  * @property  {string}  title           The resource title
  * @property  {string}  ancestor_id     The ID of the parent contentnode
  * @property  {string}  content_id      The ID for the piece of content
- * @property  {string}  id              Unique ID for this exercise
  * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
  * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
  */
 
 export const QuizExercise = {
+  id: {
+    type: String,
+    default: '',
+  },
   title: {
     type: String,
     default: '',
@@ -27,10 +31,6 @@ export const QuizExercise = {
     default: '',
   },
   content_id: {
-    type: String,
-    default: '',
-  },
-  id: {
     type: String,
     default: '',
   },
