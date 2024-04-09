@@ -5,7 +5,7 @@
       <KListWithOverflow
         :items="buttonLanguages"
         :appearanceOverrides="{
-          justifyContent: 'center',
+          justifyContent: center ? 'center' : 'flex-start',
           alignItems: 'center',
         }"
       >
@@ -63,6 +63,12 @@
 
   export default {
     name: 'LanguageSwitcherList',
+    props: {
+      center: {
+        type: Boolean,
+        default: false,
+      },
+    },
     components: {
       LanguageSwitcherModal,
     },
