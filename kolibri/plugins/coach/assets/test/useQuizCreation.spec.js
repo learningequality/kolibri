@@ -53,7 +53,12 @@ function generateExercise(numQuestions) {
   const assessments = generateQuestions(numQuestions);
   const assessmentmetadata = { assessment_item_ids: assessments.map(q => q.question_id) };
   const exercise = objectWithDefaults(
-    { content_id: 'exercise_1', assessmentmetadata },
+    {
+      id: 'exercise_1',
+      content_id: 'exercise_1',
+      assessmentmetadata,
+      unique_question_ids: assessments.map(q => `exercise_1:${q.question_id}`),
+    },
     QuizExercise
   );
   return exercise;
