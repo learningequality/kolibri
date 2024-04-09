@@ -107,6 +107,7 @@
             <template #menu>
               <KDropdownMenu
                 :options="dropdownOption"
+                :constrainToScrollParent="false"
                 class="options-btn"
                 @select="handleSelect"
               />
