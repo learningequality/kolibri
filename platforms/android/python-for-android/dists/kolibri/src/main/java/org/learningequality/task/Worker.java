@@ -9,9 +9,11 @@ import androidx.work.Data;
 import androidx.work.WorkerParameters;
 
 import org.kivy.android.PythonProvider;
+import org.learningequality.Kolibri.sqlite.JobStorage;
 import org.learningequality.Kolibri.task.TaskWorkerImpl;
 import org.learningequality.notification.Notifier;
 import org.learningequality.notification.NotificationRef;
+import org.learningequality.sqlite.query.UpdateQuery;
 
 import java.util.UUID;
 import java.util.zip.CRC32;
@@ -25,10 +27,13 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
     private int lastProgressUpdateHash;
     private Notification lastNotification;
 
+    private final JobStorage db;
+
     public Worker(
             @NonNull Context context, @NonNull WorkerParameters workerParams
     ) {
         super(context, workerParams);
+        this.db = JobStorage.readwrite(context);
     }
 
     /**
@@ -64,15 +69,28 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
             r = Result.failure();
         }
         hideNotification();
-        return r;
+      return r;
     }
 
     @Override
     public void onStopped() {
         Log.d(TAG, "Stopping background remote task " + getId());
+        // Here we need to update the task in the database to be marked as failed
+        if(updateTaskStatus(getId().toString())==0){
+            Log.e(TAG, "Failed to update TaskStatus for remote Task" + getId());
+        };
         hideNotification();
         super.onStopped();
     }
+
+    protected int updateTaskStatus(String id) {
+        Log.d(TAG, "Updating Task Status for job " + id);
+        UpdateQuery q = new UpdateQuery(JobStorage.Jobs.TABLE_NAME)
+                .where(JobStorage.Jobs.worker_extra, id)
+                .set(JobStorage.Jobs.state, JobStorage.Jobs.State.FAILED.toString());
+        return q.execute(db);
+    }
+
 
     protected Notification getLastNotification() {
         return lastNotification;
