@@ -13,7 +13,7 @@
 // DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 // Vendored and simplified from https://github.com/romainberger/webpack-rtl-plugin/blob/master/src/index.js
-const path = require('path');
+const path = require('node:path');
 const rtlcss = require('rtlcss');
 const webpack = require('webpack');
 

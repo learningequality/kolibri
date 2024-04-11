@@ -1,5 +1,6 @@
 import requests
 from django.contrib.auth import login
+from django.core.exceptions import ValidationError as DjangoValidationError
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -7,6 +8,7 @@ from rest_framework.views import APIView
 from .utils import TokenGenerator
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.utils.urls import reverse_remote
+from kolibri.utils.urls import validator
 
 
 class OnMyOwnSetupViewset(APIView):
@@ -27,7 +29,11 @@ class OnMyOwnSetupViewset(APIView):
 
 class RemoteFacilityUserViewset(APIView):
     def get(self, request):
-        baseurl = request.query_params.get("baseurl", request.build_absolute_uri("/"))
+        baseurl = request.query_params.get("baseurl", "")
+        try:
+            validator(baseurl)
+        except DjangoValidationError as e:
+            raise ValidationError(detail=str(e))
         username = request.query_params.get("username", None)
         facility = request.query_params.get("facility", None)
         if username is None or facility is None:
@@ -47,7 +53,11 @@ class RemoteFacilityUserViewset(APIView):
 
 class RemoteFacilityUserAuthenticatedViewset(APIView):
     def post(self, request, *args, **kwargs):
-        baseurl = request.data.get("baseurl", request.build_absolute_uri("/"))
+        baseurl = request.data.get("baseurl", "")
+        try:
+            validator(baseurl)
+        except DjangoValidationError as e:
+            raise ValidationError(detail=str(e))
         username = request.data.get("username", None)
         facility = request.data.get("facility", None)
         password = request.data.get("password", None)

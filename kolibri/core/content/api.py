@@ -1770,7 +1770,11 @@ class RemoteChannelViewSet(viewsets.ViewSet):
     def _make_channel_endpoint_request(
         self, identifier=None, baseurl=None, keyword=None, language=None
     ):
-
+        if baseurl is not None:
+            try:
+                validator(baseurl)
+            except ValidationError:
+                baseurl = None
         url = get_channel_lookup_url(
             identifier=identifier, baseurl=baseurl, keyword=keyword, language=language
         )

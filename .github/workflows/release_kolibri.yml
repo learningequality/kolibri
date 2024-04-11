@@ -69,11 +69,11 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.0
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.3
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
       release: true
-      ref: v1.6.0
+      ref: v1.6.3
     secrets:
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE }}
       KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD: ${{ secrets.KOLIBRI_WINDOWS_INSTALLER_CERTIFICATE_PASSWORD }}
@@ -86,10 +86,10 @@ jobs:
   zip:
     name: Build Raspberry Pi Image
     needs: deb
-    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@v0.16.0
+    uses: learningequality/pi-gen/.github/workflows/build_zip.yml@v0.16.1
     with:
       deb-file-name: ${{ needs.deb.outputs.deb-file-name }}
-      ref: v0.16.0
+      ref: v0.16.1
   upload_zip:
     uses: ./.github/workflows/upload_github_release_asset.yml
     needs: zip
@@ -184,13 +184,13 @@ jobs:
     - name: Upload files to Google Cloud Storage
       uses: 'google-github-actions/upload-cloud-storage@v2'
       with:
-        path: 'dist/${{ matrix.filename }}'
+        path: 'dist/${{ matrix.filename }}/${{ matrix.filename }}'
         destination: '${{ secrets.KOLIBRI_PUBLIC_RELEASE_GCS_BUCKET }}/downloads/kolibri/${{ github.event.release.name }}/${{ matrix.filename }}'
     - name: Upload to BCK bucket
       if: ${{ github.event.release.name == 'latest' }} && ${{ endsWith(matrix.filename, '.whl') }}
       uses: 'google-github-actions/upload-cloud-storage@v2'
       with:
-        path: 'dist/${{ matrix.filename }}'
+        path: 'dist/${{ matrix.filename }}/${{ matrix.filename }}'
         destination: '${{ secrets.BCK_PROD_BUILD_ARTIFACT_GCS_BUCKET }}/${{ matrix.filename }}'
   android_release:
     name: Release Android App
