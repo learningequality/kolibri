@@ -341,7 +341,7 @@
       Draggable,
       DragSortWidget,
       DragHandle,
-      KListWithOverflow
+      KListWithOverflow,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
