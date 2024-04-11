@@ -1,3 +1,4 @@
+import glob
 import io
 import logging
 import os
@@ -392,6 +393,11 @@ def download_translations(branch, project, locale_data_folder):
         code = lang_object[KEY_CROWDIN_CODE]
         locale_dir_path = local_locale_path(lang_object, locale_data_folder)
         logging.info("\tExtracting {} to {}".format(code, locale_dir_path))
+
+        csv_files = glob.glob(os.path.join(locale_dir_path, "*.csv"))
+        for csv_file in csv_files:
+            os.remove(csv_file)
+
         MESSAGES = os.path.join(zip_dir, code)
         if os.path.exists(MESSAGES):
             for msg_file in os.listdir(MESSAGES):
