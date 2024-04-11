@@ -189,6 +189,11 @@
     &::-ms-clear {
       display: none;
     }
+
+    // removes the Chrome clear button
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
   }
 
   .search-buttons-wrapper {

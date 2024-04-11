@@ -146,6 +146,11 @@
   }
 
   .k-filter-input {
+    // removes the Chrome clear button
+    &::-webkit-search-cancel-button {
+      appearance: none;
+    }
+
     width: 100%;
     height: 40px;
     padding-top: 0;
