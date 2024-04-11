@@ -146,7 +146,7 @@
   }
 
   .k-filter-input {
-    width: calc(100% - 80px);
+    width: 100%;
     height: 40px;
     padding-top: 0;
     padding-right: 40px;
