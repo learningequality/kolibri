@@ -394,7 +394,7 @@ def download_translations(branch, project, locale_data_folder):
         locale_dir_path = local_locale_path(lang_object, locale_data_folder)
         logging.info("\tExtracting {} to {}".format(code, locale_dir_path))
 
-        csv_files = glob.glob(os.path.join(locale_dir_path, '*.csv'))
+        csv_files = glob.glob(os.path.join(locale_dir_path, "*.csv"))
         for csv_file in csv_files:
             os.remove(csv_file)
 
