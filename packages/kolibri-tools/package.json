@@ -76,7 +76,7 @@
     "scss-parser": "^1.0.6",
     "semver": "^7.6.0",
     "strip-ansi": "6.0.1",
-    "style-loader": "^3.3.4",
+    "style-loader": "^4.0.0",
     "stylelint": "14.16.1",
     "stylelint-config-prettier": "9.0.5",
     "stylelint-config-recess-order": "4.6.0",
