@@ -2254,6 +2254,33 @@ class ExportContentTestCase(TestCase):
         )
         cancel_mock.assert_called_with()
 
+    @patch(
+        "kolibri.core.content.management.commands.exportcontent.Command.copy_content_files"
+    )
+    def test_manifest_only(
+        self,
+        copy_content_files_mock,
+        ContentManifestMock,
+        get_content_nodes_data_mock,
+        get_import_export_nodes_mock,
+    ):
+        get_content_nodes_data_mock.return_value = (
+            1,
+            [LocalFile.objects.values("id", "file_size", "extension").first()],
+            10,
+        )
+
+        # run with manifest-only option
+        call_command(
+            "exportcontent", self.the_channel_id, tempfile.mkdtemp(), manifest_only=True
+        )
+
+        copy_content_files_mock.assert_not_called()
+
+        ContentManifestMock.return_value.write.assert_called_once()
+
+        # Shall be enough mock assertions for now ?
+
 
 class TestFilesToTransfer(TestCase):
 
