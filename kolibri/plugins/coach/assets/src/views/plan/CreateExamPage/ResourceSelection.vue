@@ -595,8 +595,8 @@
 
         this.$router.replace({
           ...this.prevRoute,
-          ...{ query: { snackbar: this.changesSavedSuccessfully$() } },
         });
+        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {

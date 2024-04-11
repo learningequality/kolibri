@@ -336,8 +336,8 @@
         removeSection(showDeleteConfirmation.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
-          query: { snackbar: sectionDeletedNotification$({ section_title }) },
         });
+        this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
       function handleDeleteSection(section_id) {

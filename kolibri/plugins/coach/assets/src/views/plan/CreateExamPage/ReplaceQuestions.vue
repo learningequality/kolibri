@@ -212,10 +212,8 @@
         const count = replacements.value.length;
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
-          query: {
-            snackbar: numberOfQuestionsReplaced$({ count }),
-          },
         });
+        this.$store.dispatch('createSnackbar', numberOfQuestionsReplaced$({ count }));
       }
 
       function confirmReplacement() {
