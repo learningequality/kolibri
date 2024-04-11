@@ -119,19 +119,13 @@ class Command(AsyncCommand):
         logger.info(
             "Exporting content for channel id {} to {}".format(channel_id, data_dir)
         )
-        exported_files = []
         with self.start_progress(
             total=total_bytes_to_transfer
         ) as overall_progress_update:
             for f in files:
                 if self.is_cancelled():
                     break
-
-                dest = self.export_file(f, data_dir, overall_progress_update)
-                if dest:
-                    exported_files.append(dest)
-
-        return exported_files
+                self.export_file(f, data_dir, overall_progress_update)
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)
