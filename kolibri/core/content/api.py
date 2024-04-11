@@ -1533,16 +1533,15 @@ class UserContentNodeFilter(ContentNodeFilter):
     popular = BooleanFilter(method="filter_by_popular")
 
     def filter_by_lesson(self, queryset, name, value):
-        try:
-            lesson = Lesson.objects.filter(
-                lesson_assignments__collection__membership__user=self.request.user,
-                is_active=True,
-                pk=value,
-            ).first()
-            node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
-            return queryset.filter(pk__in=node_ids)
-        except Lesson.DoesNotExist:
+        lesson = Lesson.objects.filter(
+            lesson_assignments__collection__membership__user=self.request.user,
+            is_active=True,
+            pk=value,
+        ).first()
+        if lesson is None:
             return queryset.none()
+        node_ids = list(map(lambda x: x["contentnode_id"], lesson.resources))
+        return queryset.filter(pk__in=node_ids)
 
     def filter_by_resume(self, queryset, name, value):
         user = self.request.user
