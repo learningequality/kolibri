@@ -1,9 +1,12 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
 import VueRouter from 'vue-router';
+import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import DownloadButton from '../DownloadButton.vue';
 import { RENDERER_SUFFIX } from '../constants';
 import '@testing-library/jest-dom';
+
+jest.mock('kolibri.coreVue.composables.useUser');
 
 const getDownloadableFile = (isExercise = false) => {
   const PRESET = isExercise ? 'exercise' : 'thumbnail';
@@ -23,17 +26,18 @@ const getDownloadableFile = (isExercise = false) => {
 
 // A helper function to render the component with the given props and some default mocks
 const renderComponent = props => {
+  useUser.mockImplementation(() =>
+    useUserMock({
+      isAppContext: props.isAppContext || false,
+    })
+  );
+
   return render(DownloadButton, {
     routes: new VueRouter(),
     props: {
       files: [],
       nodeTitle: '',
       ...props,
-    },
-    store: {
-      getters: {
-        isAppContext: () => props.isAppContext || false,
-      },
     },
   });
 };
@@ -45,7 +49,7 @@ describe('DownloadButton', () => {
     Vue.options.components = {};
   });
 
-  test('not render if isAppContext is true', () => {
+  test('does not render if isAppContext is true', () => {
     renderComponent({ isAppContext: true });
     expect(screen.queryByText(SAVE_BUTTON_TEXT)).not.toBeInTheDocument();
   });
