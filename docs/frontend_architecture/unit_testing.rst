@@ -69,6 +69,11 @@ The last and less-recommended priority:
 8. ``getByTestId``: The user cannot see (or hear) these, so this is only recommended for cases where you can't match by role or text or it doesn't make sense (e.g. the text is dynamic). Using this would involve adding a ``data-testid`` attribute to the particular node, and then using that value as the argument to
 ``getByTestId`` function.
 
+Making use of ``screen`` 
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Instead of importing the query functions from the object returned by the ``render`` function, you should import the ``screen`` object for the same. The ``screen`` object is a global object that is provided by the ``@testing-library/vue`` package, and it contains all the query functions as properties. This ensures that we do not have to import the query functions in test, and can call them directly.
+
 ``userEvent`` over ``fireEvent``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -87,8 +92,7 @@ More References
 The following are some resources that have greatly influenced the above described design philosphy as well as are great resources in themselves to learn more about frontend testing:
 
 -  `Testing Library Documentation <https://testing-library.com/docs/>`__
--  `Vue Testing Library
-   Documentation <https://testing-library.com/docs/vue-testing-library/api>`__
+-  `Vue Testing Library Documentation <https://testing-library.com/docs/vue-testing-library/api>`__
 -  `Querying Methods <https://testing-library.com/docs/queries/about>`__
 -  `Query Priorities <https://testing-library.com/docs/queries/about#priority>`__
 -  `User Interaction Documentation <https://testing-library.com/docs/user-event/intro>`__
