@@ -67,11 +67,11 @@ export default function useQuizCreation() {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
     }
 
-    // og* variables are the original values of the properties we're updating
+    // original variables are the original values of the properties we're updating
     const {
-      resource_pool: ogResourcePool,
-      questions: ogQuestions,
-      question_count: ogQuestionCount,
+      resource_pool: originalResourcePool,
+      questions: originalQuestions,
+      question_count: originalQuestionCount,
     } = targetSection;
 
     const { resource_pool, question_count } = updates;
@@ -82,42 +82,50 @@ export default function useQuizCreation() {
     }
     if (resource_pool?.length > 0) {
       // The resource_pool is being updated
-      if (ogResourcePool.length === 0) {
+      if (originalResourcePool.length === 0) {
         // We're adding resources to a section which didn't previously have any
+
+        // TODO This code could be broken out into a separate functions
 
         // ***
         // Note that we're basically assuming that `questions*` properties aren't being updated --
         // meaning we expect that we can only update one or the other of `resource_pool` and
         // `questions*` at a time. We can safely assume this because there can't be questions
-        // if there weren't resources in the ogResourcePool before.
+        // if there weren't resources in the originalResourcePool before.
         // ***
         updates.questions = selectRandomQuestionsFromResources(
-          question_count || ogQuestionCount,
+          question_count || originalQuestionCount,
           resource_pool
         );
       } else {
         // In this case, we already had resources in the section, so we need to handle the
         // case where a resource has been removed so that we remove & replace the questions
-        const removedResourceQuestionIds = ogResourcePool.reduce((questionIds, ogResource) => {
-          if (!resource_pool.map(r => r.id).includes(ogResource.id)) {
-            // If the resource_pool doesn't have the ogResource, we're removing it
-            questionIds = [...questionIds, ...ogResource.unique_question_ids];
+        const removedResourceQuestionIds = originalResourcePool.reduce(
+          (questionIds, originalResource) => {
+            if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
+              // If the resource_pool doesn't have the originalResource, we're removing it
+              questionIds = [...questionIds, ...originalResource.unique_question_ids];
+              return questionIds;
+            }
             return questionIds;
-          }
-          return questionIds;
-        }, []);
+          },
+          []
+        );
         if (removedResourceQuestionIds.length === 0) {
           // If no resources were removed, we don't need to update the questions
           return;
         }
-        const questionsToKeep = ogQuestions.filter(q => !removedResourceQuestionIds.includes(q.id));
-        const numReplacementsNeeded = (question_count || ogQuestionCount) - questionsToKeep.length;
+        const questionsToKeep = originalQuestions.filter(
+          q => !removedResourceQuestionIds.includes(q.id)
+        );
+        const numReplacementsNeeded =
+          (question_count || originalQuestionCount) - questionsToKeep.length;
         updates.questions = [
           ...questionsToKeep,
           ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
         ];
       }
-    } else if (question_count !== ogQuestionCount) {
+    } else if (question_count !== originalQuestionCount) {
       /**
        * Handle edge cases re: questions and question_count changing. When the question_count
        * changes, we remove/add questions to match the new count. If questions are deleted, then
@@ -126,18 +134,18 @@ export default function useQuizCreation() {
 
       // If the question count changed AND questions have changed, be sure they're the same length
       // or we can add questions to match the new question_count
-      if (question_count < ogQuestionCount) {
+      if (question_count < originalQuestionCount) {
         // If the question_count is being reduced, we need to remove any questions that are now
         // outside the bounds of the new question_count
-        updates.questions = ogQuestions.slice(0, question_count);
-      } else if (question_count > ogQuestionCount) {
+        updates.questions = originalQuestions.slice(0, question_count);
+      } else if (question_count > originalQuestionCount) {
         // If the question_count is being increased, we need to add new questions to the end of the
         // questions array
-        const numQuestionsToAdd = question_count - ogQuestionCount;
+        const numQuestionsToAdd = question_count - originalQuestionCount;
         const newQuestions = selectRandomQuestionsFromResources(
           numQuestionsToAdd,
-          ogResourcePool,
-          ogQuestions.map(q => q.id) // Exclude questions we already have to avoid duplicates
+          originalResourcePool,
+          originalQuestions.map(q => q.id) // Exclude questions we already have to avoid duplicates
         );
         updates.questions = [...targetSection.questions, ...newQuestions];
       }
