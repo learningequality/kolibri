@@ -1,5 +1,6 @@
-import { render, fireEvent, screen } from '@testing-library/vue';
+import { render, screen } from '@testing-library/vue';
 import VueRouter from 'vue-router';
+import userEvent from '@testing-library/user-event';
 import ContentRendererError from '../ContentRendererError.vue';
 import '@testing-library/jest-dom';
 
@@ -28,7 +29,7 @@ describe('ContentRendererError', () => {
     renderComponent({ error: sampleError });
 
     const reportErrorButton = screen.getByText(DEFAULT_REPORT_ERROR_MESSAGE);
-    await fireEvent.click(reportErrorButton);
+    await userEvent.click(reportErrorButton);
 
     expect(screen.getByText(sampleError.message)).toBeInTheDocument();
   });
@@ -40,11 +41,11 @@ describe('ContentRendererError', () => {
 
     const reportErrorButton = screen.getByText(DEFAULT_REPORT_ERROR_MESSAGE);
     // Open the Report Error Modal
-    await fireEvent.click(reportErrorButton);
+    await userEvent.click(reportErrorButton);
 
     // Close the Report Error Modal
     const closeButton = screen.getByRole('button', { name: /close/i });
-    await fireEvent.click(closeButton);
+    await userEvent.click(closeButton);
     expect(screen.queryByText(sampleError.message)).not.toBeInTheDocument();
   });
 
