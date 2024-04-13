@@ -13,3 +13,4 @@ Frontend architecture
   dependencies
   unit_testing
   frontend_build_pipeline
+  testing_layout
