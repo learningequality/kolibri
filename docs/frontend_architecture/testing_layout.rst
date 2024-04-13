@@ -89,7 +89,7 @@ Store
 ~~~~~
 
 A store object for a component can be mocked by simply providing the methods and properties accessed by the component as a ``store`` object. For example, in the
-```TotalPoints`` <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/views/TotalPoints.vue>`__ component, we need to mock some getters (``totalPoints``, ``currentUserId``, ``isUserLoggedIn``) and the ``fetchPoints`` action.
+`TotalPoints <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/views/TotalPoints.vue>`__ component, we need to mock some getters (``totalPoints``, ``currentUserId``, ``isUserLoggedIn``) and the ``fetchPoints`` action.
 
 The same can be done via:
 
@@ -117,7 +117,7 @@ The same can be done via:
 Composables
 ~~~~~~~~~~~
 
-Each composable (like ```useUser`` <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/useUser.js>`__) must have an associated mock file (like ```useUserMock`` <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/__mocks__/useUser.js>`__) that gives the required functionality, as well as the documentation of how to use it and what parameters does it support.
+Each composable (like `useUser <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/useUser.js>`__) must have an associated mock file (like `useUserMock <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/composables/__mocks__/useUser.js>`__) that gives the required functionality, as well as the documentation of how to use it and what parameters does it support.
 
 It any composable does not have an associated mock file, please do create one before using the same in tests. It would help in future maintainability and eaxe of testing. Here is small snippet of what a mock of composable would look like:
 
@@ -151,7 +151,7 @@ Mixins
 
 Sometimes the components make use of `mixins <https://v2.vuejs.org/v2/guide/mixins.html?redirect=true>`__ to reuse functionality across components, and may be required to be mocked sometimes. To overwrite the mixins passed to a component in testing, you can make use of the ``mixins`` property to the ``render`` function object, and pass it the array of your custom mocked mixins.
 
-The following example mocks the ```commonCoreStrings`` <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/mixins/commonCoreStrings.js>`__ mixin used in many components:
+The following example mocks the `commonCoreStrings <https://github.com/learningequality/kolibri/blob/develop/kolibri/core/assets/src/mixins/commonCoreStrings.js>`__ mixin used in many components:
 
 .. code:: javascript
 

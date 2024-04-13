@@ -21,10 +21,10 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
   });
 
 
-For the frontend testing of ``Vue.js`` components, we make use of ```Vue Testing Library`` <https://testing-library.com/docs/vue-testing-library/intro/>`__
+For the frontend testing of ``Vue.js`` components, we make use of `Vue Testing Library <https://testing-library.com/docs/vue-testing-library/intro/>`__
 and the associated ecosystem.
 
-It is based on the philosphy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes in the same way the user would. This deals to more user centric and a better quality of tests generally, and thus we have been making efforts to use the same (in constrast to the earlier used ```Vue Test Utils`` <https://v1.test-utils.vuejs.org/>`__).
+It is based on the philosphy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes in the same way the user would. This deals to more user centric and a better quality of tests generally, and thus we have been making efforts to use the same (in constrast to the earlier used `Vue Test Utils <https://v1.test-utils.vuejs.org/>`__).
 
 If you have never worked with Vue Testing Library's (VTL) before, it is highly recommeed to the `VTL examples page <https://testing-library.com/docs/vue-testing-library/examples>`__ to see the library in action and understand it's use. If you're comfortable with the same, you can either:
 
@@ -77,14 +77,14 @@ Instead of importing the query functions from the object returned by the ``rende
 ``userEvent`` over ``fireEvent``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-```@testing-library/user-event`` <https://testing-library.com/docs/user-event/intro/>`__ is a package that's built on top of `fireEvent <https://testing-library.com/docs/dom-testing-library/api-events/#fireevent>`__, but it provides several methods that resemble the user interactions more closely. You should use ``userEvent`` to mock the user interactions by default, and only fallback to ``fireEvent`` when you need more granular control.
+`@testing-library/user-event <https://testing-library.com/docs/user-event/intro/>`__ is a package that's built on top of `fireEvent <https://testing-library.com/docs/dom-testing-library/api-events/#fireevent>`__, but it provides several methods that resemble the user interactions more closely. You should use ``userEvent`` to mock the user interactions by default, and only fallback to ``fireEvent`` when you need more granular control.
 
 For example, using ``fireEvent.change`` on an text input will simply trigger a single change event on the input. However using the ``userEvent.type`` function, it will trigger ``keyDown``, ``keyPress``, and ``keyUp`` events for each character as well. It's much closer to the user's actual interactions. This has the benefit of working well with libraries that you may use which don't actually listen for the change event.
 
 Using ``testing-library/jest-dom``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-```testing-library/jest-dom`` <https://github.com/testing-library/jest-dom>`__ provides a set of custom jest matchers that extend jest to common usecases for frontend testing, like checking classes, attributes text content, CSS properties etc. The use of these matchers helps to make the tests more declarative and clear to read and maintain. Please make sure you use the appropiate matcher from the same, and not just the regular default matchers. The library is already imported as a part of the setup, so you needn't import it your test files. You would also get help from your editor in the same due to the configured `Jest DOM ESLint plugin <https://github.com/testing-library/eslint-plugin-jest-dom>`__!
+`testing-library/jest-dom <https://github.com/testing-library/jest-dom>`__ provides a set of custom jest matchers that extend jest to common usecases for frontend testing, like checking classes, attributes text content, CSS properties etc. The use of these matchers helps to make the tests more declarative and clear to read and maintain. Please make sure you use the appropiate matcher from the same, and not just the regular default matchers. The library is already imported as a part of the setup, so you needn't import it your test files. You would also get help from your editor in the same due to the configured `Jest DOM ESLint plugin <https://github.com/testing-library/eslint-plugin-jest-dom>`__!
 
 More References
 ---------------
