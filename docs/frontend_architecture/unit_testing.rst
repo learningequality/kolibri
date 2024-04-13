@@ -64,12 +64,12 @@ The queries also have a recommened priority, so that we can ensure our tests exa
 6. ``getByAltText``: If your element is one which supports alt text (``img``, ``area``, ``input``), then you make use of this query.
 7. ``getByTitle``: The title attribute is not consistently read by screenreaders, and is not visible by default for sighted users. Thus is it not the best option, but better than ``getByTestId``
 
-The last and less-recommended priority: 
+The last and less-recommended priority:
 
 8. ``getByTestId``: The user cannot see (or hear) these, so this is only recommended for cases where you can't match by role or text or it doesn't make sense (e.g. the text is dynamic). Using this would involve adding a ``data-testid`` attribute to the particular node, and then using that value as the argument to
 ``getByTestId`` function.
 
-Making use of ``screen`` 
+Making use of ``screen``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Instead of importing the query functions from the object returned by the ``render`` function, you should import the ``screen`` object for the same. The ``screen`` object is a global object that is provided by the ``@testing-library/vue`` package, and it contains all the query functions as properties. This ensures that we do not have to import the query functions in test, and can call them directly.

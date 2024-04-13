@@ -23,7 +23,7 @@ The general template of a test file will be like:
        props: {
            propA: samplePropA,
            propB: samplePropB,
-           ...props        
+           ...props
        }
      });
    };
@@ -48,11 +48,11 @@ The general template of a test file will be like:
      });
    });
 
-Some quick notes about the code snippet: 
+Some quick notes about the code snippet:
 
-1. You would need to replace the ``YourExampleComponent`` with the actual component you want to test. 
-2. It is usually a good practice to have the first test as a smoke test in all your components. 
-3. You can add describe blocks to add context to your tests. Remember to keep them as short as possible, and a test block should be responsible for testing only one functionality. 
+1. You would need to replace the ``YourExampleComponent`` with the actual component you want to test.
+2. It is usually a good practice to have the first test as a smoke test in all your components.
+3. You can add describe blocks to add context to your tests. Remember to keep them as short as possible, and a test block should be responsible for testing only one functionality.
 4. It is advisable to define the default props as global constants so they are easily accessible in the tests (though this may vary from file to file).
 5. In case if you are using some particular text/value in your assertions because they are derived from the props that you pass in, then it is advisable to explicity pass them to the ``renderComponent`` as arguments to give the reader context of where they are coming from.
 
@@ -107,7 +107,7 @@ The same can be done via:
          },
          actions: {
            fetchPoints: () => props.points ?? 0,
-         },  
+         },
        },
        routes: new VueRouter(),
        props
