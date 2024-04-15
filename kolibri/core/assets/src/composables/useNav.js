@@ -76,8 +76,12 @@ export const registerNavItem = component => {
 export default function useNav() {
   const { windowIsSmall } = useKResponsiveWindow();
   const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
+  const exportedComponents = navComponents.map(component => ({
+    ...component,
+    active: window.location.pathname == component.url,
+  }));
   return {
-    navComponents,
+    navComponents: exportedComponents,
     topBarHeight,
   };
 }

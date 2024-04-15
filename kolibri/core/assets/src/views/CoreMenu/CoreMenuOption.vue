@@ -107,6 +107,11 @@
         required: false,
         default: '',
       },
+      linkActive: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
       subRoutes: {
         type: Array,
         required: false,
@@ -126,9 +131,6 @@
       };
     },
     computed: {
-      linkActive() {
-        return window.location.pathname == this.link;
-      },
       optionStyle() {
         if (this.disabled) {
           return {

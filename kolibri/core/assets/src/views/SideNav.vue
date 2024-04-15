@@ -94,6 +94,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  :linkActive="component.active"
                   data-test="side-nav-component"
                   @toggleMenu="toggleNav"
                 />
@@ -105,6 +106,7 @@
                   :subRoutes="component.routes"
                   :link="component.url"
                   :icon="component.icon"
+                  :linkActive="component.active"
                   style="cursor: pointer;"
                   data-test="side-nav-component"
                   @toggleMenu="toggleNav"
@@ -207,7 +209,7 @@
 
     <BottomNavigationBar
       v-if="showAppNavView"
-      :bottomMenuOptions="bottomMenuOptions"
+      :bottomMenuItem="bottomMenuItem"
       :navShown="navShown"
       @toggleNav="toggleNav"
     />
@@ -368,8 +370,13 @@
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
       },
-      bottomMenuOptions() {
-        return this.navComponents.filter(component => component.bottomBar == true);
+      bottomMenuItem() {
+        const allNavItems = this.topComponents.concat(this.accountComponents);
+        const bottombarItems = allNavItems.filter(component => component.bottomBar == true);
+        if (bottombarItems.length > 0) {
+          return bottombarItems[0];
+        }
+        return allNavItems.find(item => item.active);
       },
       sideNavTitleText() {
         if (this.themeConfig.sideNav.title) {
