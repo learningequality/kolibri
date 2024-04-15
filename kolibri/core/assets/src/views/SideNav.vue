@@ -68,7 +68,7 @@
 
 
               <!-- display sync status, when relevant -->
-              <div v-if="isLearnerOnlyImport" data-test="syncStatusInDropdown">
+              <div v-if="isLearnerOnlyImport">
                 <div class="sync-status">
                   {{ $tr('deviceStatus') }}
                 </div>
@@ -109,7 +109,12 @@
                   data-test="side-nav-component"
                   @toggleMenu="toggleNav"
                 />
-                <LogoutSideNavEntry v-if="isUserLoggedIn" />
+                <CoreMenuOption
+                  v-if="logoutUrl && isUserLoggedIn"
+                  :label="$tr('signOut')"
+                  :link="logoutUrl"
+                  icon="logout"
+                />
                 <CoreMenuOption
                   :label="coreString('changeLanguageOption')"
                   icon="language"
@@ -173,7 +178,7 @@
             </div>
           </div>
           <div
-            v-if="!isAppContext || !isTouchDevice || windowIsLarge"
+            v-if="!showAppNavView || windowIsLarge"
             class="side-nav-header"
             :style="{
               height: topBarHeight + 'px',
@@ -210,7 +215,7 @@
 
 
     <Backdrop
-      v-show="navShown && !isAppContext"
+      v-show="navShown && !showAppNavView"
       :transitions="true"
       class="side-nav-backdrop"
       @click="toggleNav"
@@ -236,7 +241,6 @@
 
 <script>
 
-  import { mapGetters, mapState } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -250,7 +254,7 @@
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
-  import { isTouchDevice } from 'kolibri.utils.browserInfo';
+  import urls from 'kolibri.urls';
   import useNav from '../composables/useNav';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
@@ -258,7 +262,6 @@
   import SideNavDivider from './SideNavDivider';
   import FocusTrap from './FocusTrap.vue';
   import BottomNavigationBar from './BottomNavigationBar';
-  import LogoutSideNavEntry from './LogoutSideNavEntry';
 
   // Explicit ordered list of roles for nav item sorting
   const navComponentRoleOrder = [
@@ -284,19 +287,36 @@
       FocusTrap,
       TotalPoints,
       LanguageSwitcherModal,
-      LogoutSideNavEntry,
       BottomNavigationBar,
     },
     mixins: [commonCoreStrings, responsiveElementMixin],
     setup() {
       const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
-      const { isLearnerOnlyImport } = useUser();
+      const {
+        canManageContent,
+        isLearner,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isUserLoggedIn,
+        isLearnerOnlyImport,
+        username,
+        full_name,
+      } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
       const { topBarHeight, navComponents } = useNav();
       return {
+        fullName: full_name,
+        username,
         topBarHeight,
         windowIsLarge,
         windowIsSmall,
+        canManageContent,
+        isLearner,
+        isSuperuser,
+        isAdmin,
+        isCoach,
+        isUserLoggedIn,
         isLearnerOnlyImport,
         themeConfig,
         userSyncStatus: status,
@@ -309,6 +329,10 @@
         type: Boolean,
         required: true,
       },
+      showAppNavView: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -319,38 +343,11 @@
       };
     },
     computed: {
-      ...mapGetters([
-        'isSuperuser',
-        'isAdmin',
-        'isCoach',
-        'getUserKind',
-        'isAppContext',
-        'isUserLoggedIn',
-      ]),
-      ...mapState({
-        username: state => state.core.session.username,
-        fullName: state => state.core.session.full_name,
-      }),
-      isTouchDevice() {
-        return isTouchDevice;
-      },
       width() {
         return this.showAppNavView ? '100vw' : `${this.topBarHeight * 4.5}px`;
       },
       showSoudNotice() {
         return this.isLearnerOnlyImport && (this.isSuperuser || this.isAdmin || this.isCoach);
-      },
-      showAppNavView() {
-        // IF making changes to the sub nav, make sure to make
-        // corresponding changes in SideNav.vue in regards to
-        //  Window size and app context. Changes may need to be made
-        // in parallel in both files for non-breaking updates
-        // The expected behavior is:
-        // In an app context, on screens with touch capabilities,
-        // show the app Nav.
-        // In browser based contexts, and large screen app view
-        // use the "non-app" upper navigation bar
-        return this.isAppContext && this.isTouchDevice;
       },
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
@@ -382,22 +379,22 @@
       },
       userIsLearner() {
         // learners and SOUD learners should display
-        return (
-          this.getUserKind == UserKinds.LEARNER ||
-          (this.getUserKind !== UserKinds.ANONYMOUS && this.isLearnerOnlyImport)
-        );
+        return this.isLearner || (this.isUserLoggedIn && this.isLearnerOnlyImport);
       },
       loggedInUserKind() {
         if (this.userIsLearner) {
           return this.coreString('learnerLabel');
         }
-        if (this.getUserKind === UserKinds.ADMIN) {
+        if (this.isAdmin) {
           return this.coreString('adminLabel');
         }
-        if (this.getUserKind === UserKinds.COACH) {
+        if (this.isCoach) {
           return this.coreString('coachLabel');
         }
         return this.coreString('superAdminLabel');
+      },
+      logoutUrl() {
+        return urls['kolibri:core:logout'] && urls['kolibri:core:logout']();
       },
     },
     watch: {
@@ -512,6 +509,11 @@
         message: 'Device status',
         context:
           "Label in the side navigation menu. Indicates the status of an individual learner's device.",
+      },
+      signOut: {
+        message: 'Sign out',
+        context:
+          "Users can exit Kolibri by selecting 'Sign out' from the user menu in the upper right corner.",
       },
     },
   };

@@ -1,100 +1,75 @@
-import times from 'lodash/times';
 import { mount } from '@vue/test-utils';
-import navComponents from 'kolibri.utils.navComponents';
-import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import SideNav from '../../src/views/SideNav';
-import logoutSideNavEntry from '../../src/views/LogoutSideNavEntry';
+// eslint-disable-next-line import/named
+import useNav, { useNavMock } from '../../src/composables/useNav';
+// eslint-disable-next-line import/named
+import useUser, { useUserMock } from '../../src/composables/useUser';
 import LearnOnlyDeviceNotice from '../../src/views/LearnOnlyDeviceNotice';
 import SyncStatusDisplay from '../../src/views/SyncStatusDisplay';
 import { stubWindowLocation } from 'testUtils'; // eslint-disable-line
 
-import { coreStoreFactory as makeStore } from '../../src/state/store';
-
 jest.mock('kolibri.urls');
+jest.mock('../../src/composables/useNav');
+jest.mock('../../src/composables/useUser');
 
-function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}, data = {}) {
+function createWrapper({ navShown = true, headerHeight = 20, width = 100 } = {}) {
   return mount(SideNav, {
     propsData: {
       navShown,
       headerHeight,
       width,
     },
-    data() {
-      return { ...data };
-    },
-    store: makeStore(),
+    stubs: ['SyncStatusDisplay', 'TotalPoints'],
   });
 }
 
-function setUserKind(store, userKind) {
-  let canManageContent = false;
+function setUserKind(userKind, isLearnerOnlyImport = false) {
+  const mockOverrides = { isLearnerOnlyImport, isUserLoggedIn: true, isLearner: false };
   if (userKind == UserKinds.CAN_MANAGE_CONTENT) {
-    userKind = UserKinds.LEARNER;
-    canManageContent = true;
+    mockOverrides.canManageContent = true;
+    mockOverrides.isLearner = true;
+  } else if (userKind == UserKinds.COACH) {
+    mockOverrides.isCoach = true;
+  } else if (userKind == UserKinds.ADMIN) {
+    mockOverrides.isAdmin = true;
+  } else if (userKind == UserKinds.LEARNER) {
+    mockOverrides.isLearner = true;
+  } else if (userKind == UserKinds.SUPERUSER) {
+    mockOverrides.isSuperuser = true;
+  } else if (userKind == UserKinds.ANONYMOUS) {
+    mockOverrides.isUserLoggedIn = false;
   }
-  store.commit('CORE_SET_SESSION', {
-    id: 'test',
-    username: 'test',
-    full_name: 'testing test',
-    user_id: 'test_id',
-    facility_id: 'a real school',
-    kind: [userKind],
-    can_manage_content: canManageContent,
-  });
+  useUser.mockImplementation(() => useUserMock(mockOverrides));
 }
 
 const url = '/test/url';
 const label = 'label1';
 const label2 = 'label2';
 const icon = 'library';
-const role = UserKinds.LEARNER;
-
-function createAndRegisterComponent(name, url, label, icon, role, priority, section) {
-  const config = {
-    name: name,
-    url: url,
-    label: label,
-    icon: icon,
-    role: role,
-    priority: priority,
-    section: section,
-    bottomBar: true,
-  };
-  navComponents.register(config);
-  return config;
-}
-
-function emptyNavComponents(n = 1) {
-  times(n, () => {
-    navComponents.pop();
-  });
-  expect(navComponents).toHaveLength(0);
-}
 
 describe('side nav component', () => {
   stubWindowLocation(beforeAll, afterAll);
+  beforeEach(() => {
+    useNav.mockImplementation(() => useNavMock());
+    useUser.mockImplementation(() => useUserMock());
+  });
 
   it('should be hidden if navShown is false', () => {
     const wrapper = createWrapper({ navShown: false });
     expect(wrapper.find('.side-nav').element).not.toBeVisible();
   });
   it('should show nothing if no components are added and user is not logged in', () => {
-    expect(navComponents).toHaveLength(0);
     const wrapper = createWrapper();
     expect(wrapper.find('a.ui-menu-option:not(.is-divider)').element).toBeFalsy();
   });
   it('should show logout if no components are added and user is logged in', async () => {
-    expect(navComponents).toHaveLength(0);
+    setUserKind(UserKinds.LEARNER);
     const wrapper = createWrapper();
-    setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
-    await wrapper.vm.$nextTick();
-    expect(wrapper.findComponent(logoutSideNavEntry).element).toBeTruthy();
+    expect(wrapper.text()).toContain('Sign out');
   });
 
   describe('SideNav components are shown/hidden depending on role', () => {
-    afterEach(() => {
-      emptyNavComponents(1);
-    });
     const testCases = [
       [UserKinds.ADMIN, UserKinds.ADMIN, true],
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT, false],
@@ -123,11 +98,20 @@ describe('side nav component', () => {
     it.each(testCases)(
       'if user is %s, then %s component should show (%s)',
       async (kind, otherKind, shouldShow) => {
-        createAndRegisterComponent(`${otherKind}SideNavEntry`, url, label, icon, otherKind);
-        expect(navComponents).toHaveLength(1);
+        useNav.mockImplementation(() =>
+          useNavMock({
+            navComponents: [
+              {
+                url: url,
+                label: label,
+                icon: icon,
+                role: otherKind,
+              },
+            ],
+          })
+        );
+        setUserKind(kind);
         const wrapper = createWrapper();
-        setUserKind(wrapper.vm.$store, kind);
-        await wrapper.vm.$nextTick();
         if (shouldShow) {
           expect(wrapper.text()).toContain(label);
         } else {
@@ -138,9 +122,6 @@ describe('side nav component', () => {
   });
 
   describe('with multiple components', () => {
-    afterEach(() => {
-      emptyNavComponents(2);
-    });
     // All user kinds that can be copresented in the side nav.
     const testCases = [
       [UserKinds.LEARNER, UserKinds.COACH],
@@ -151,107 +132,71 @@ describe('side nav component', () => {
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT],
     ];
     it.each(testCases)('%s component should above %s component', async (kind, otherKind) => {
-      createAndRegisterComponent(`${kind}SideNavEntry`, url, label, icon, kind, 10);
-      createAndRegisterComponent(`${otherKind}SideNavEntry`, url, label2, icon, otherKind, 10);
-      expect(navComponents).toHaveLength(2);
-      const wrapper = createWrapper();
-      setUserKind(wrapper.vm.$store, UserKinds.SUPERUSER);
-      await wrapper.vm.$nextTick();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
-      expect(sideNavComponents.exists()).toBeTruthy();
-      expect(sideNavComponents.at(0).html()).toContain(label);
-      expect(sideNavComponents.at(1).html()).toContain(label2);
-    });
-  });
-
-  describe('and the priority flag', () => {
-    afterEach(() => {
-      emptyNavComponents(2);
-    });
-
-    it('should show higher priority component above lower priority component', () => {
-      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
-      createAndRegisterComponent('2SideNavEntry', url, label2, icon, role, 10);
-      expect(navComponents).toHaveLength(2);
-      const wrapper = createWrapper();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
-      expect(sideNavComponents.exists()).toBeTruthy();
-      expect(sideNavComponents.at(0).html()).toContain(label);
-      expect(sideNavComponents.at(1).html()).toContain(label2);
-    });
-
-    it('should show account section component below lower priority component', () => {
-      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, 1);
-      createAndRegisterComponent(
-        '2SideNavEntry',
-        url,
-        label2,
-        icon,
-        role,
-        10,
-        NavComponentSections.ACCOUNT
+      useNav.mockImplementation(() =>
+        useNavMock({
+          navComponents: [
+            {
+              url: url,
+              label: label,
+              icon: icon,
+              role: kind,
+            },
+            {
+              url: url,
+              label: label2,
+              icon: icon,
+              role: otherKind,
+            },
+          ],
+        })
       );
-      expect(navComponents).toHaveLength(2);
+      setUserKind(UserKinds.SUPERUSER);
       const wrapper = createWrapper();
       const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
       expect(sideNavComponents.exists()).toBeTruthy();
-      expect(sideNavComponents.at(1).html()).toContain(label2);
       expect(sideNavComponents.at(0).html()).toContain(label);
-    });
-
-    it('should show component with priority above undefined priority component', () => {
-      // Component 2 should be registered first
-      createAndRegisterComponent('2SideNavEntry', url, label2, icon, role, 10);
-      createAndRegisterComponent('1SideNavEntry', url, label, icon, role, undefined);
-      expect(navComponents).toHaveLength(2);
-      const wrapper = createWrapper();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
-      expect(sideNavComponents.exists()).toBeTruthy();
-      expect(sideNavComponents.at(0).html()).toContain(label2);
-      expect(sideNavComponents.at(1).html()).toContain(label);
+      expect(sideNavComponents.at(1).html()).toContain(label2);
     });
   });
 
   describe('when on an SoUD or NOT', () => {
     describe('on an SoUD with learn-only device indicators', () => {
-      let wrapper;
-      beforeAll(() => {
-        wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
-      });
       describe('showing the SyncStatusDisplay', () => {
         it.each([UserKinds.COACH, UserKinds.ADMIN, UserKinds.LEARNER])(
           'does show the SyncStatusDisplay to %s',
           async kind => {
-            setUserKind(wrapper.vm.$store, kind);
-            await wrapper.vm.$nextTick();
+            setUserKind(kind, true);
+            const wrapper = createWrapper();
             expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
           }
         );
         it('does not show the SyncStatusDisplay to guest users', async () => {
-          setUserKind(wrapper.vm.$store, UserKinds.ANONYMOUS);
-          await wrapper.vm.$nextTick();
+          setUserKind(UserKinds.ANONYMOUS);
+          const wrapper = createWrapper();
           expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(false);
         });
       });
       /* Note that Facilty & Coach plugins are hackily disabled in their kolibri_plugin
        * definitions - hence no tests to ensure they're hidden here when on SoUD */
-      it('shows the Learn-only notice to non-Learners', async () => {
-        const wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
-        setUserKind(wrapper.vm.$store, UserKinds.COACH);
-        await wrapper.vm.$nextTick();
+      it('shows the Learn-only notice to coaches', async () => {
+        setUserKind(UserKinds.COACH, true);
+        const wrapper = createWrapper();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
-        setUserKind(wrapper.vm.$store, UserKinds.ADMIN);
-        await wrapper.vm.$nextTick();
+      });
+      it('shows the Learn-only notice to admins', async () => {
+        setUserKind(UserKinds.ADMIN, true);
+        const wrapper = createWrapper();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(true);
       });
 
-      it('does not show learn-only notice to Learners or Guests', async () => {
-        const wrapper = createWrapper(undefined, { isLearnerOnlyImport: true });
-        setUserKind(wrapper.vm.$store, UserKinds.LEARNER);
-        await wrapper.vm.$nextTick();
+      it('does not show learn-only notice to Learners', async () => {
+        setUserKind(UserKinds.LEARNER, true);
+        const wrapper = createWrapper();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
-        setUserKind(wrapper.vm.$store, UserKinds.ANONYMOUS);
-        await wrapper.vm.$nextTick();
+      });
+      it('does not show learn-only notice to Guests', async () => {
+        setUserKind(UserKinds.ANONYMOUS, true);
+        const wrapper = createWrapper();
         expect(wrapper.findComponent(LearnOnlyDeviceNotice).exists()).toBe(false);
       });
     });

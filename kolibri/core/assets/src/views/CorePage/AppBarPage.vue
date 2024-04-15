@@ -38,6 +38,7 @@
         v-if="showAppBarsOnScroll"
         ref="sideNav"
         :navShown="navShown"
+        :showAppNavView="isAppContextAndTouchDevice"
         @toggleSideNav="navShown = !navShown"
         @shouldFocusFirstEl="findFirstEl()"
       />
