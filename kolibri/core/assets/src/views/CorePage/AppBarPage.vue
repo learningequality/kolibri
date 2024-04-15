@@ -82,7 +82,7 @@
     props: {
       title: {
         type: String,
-        default: null,
+        default: '',
       },
       showNavigation: {
         type: Boolean,
