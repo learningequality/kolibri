@@ -7567,10 +7567,10 @@ kolibri-constants@0.2.0:
   resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.0.tgz#47c9d773894e23251ba5ac4db420822e45603142"
   integrity sha512-WYDMGDzB9gNxRbpX1O2cGe1HrJvLvSZGwMuAv6dqrxJgPf7iO+Hi40/1CXjHM7nk5CRt+hn5bqnMzCBmj1omPA==
 
-kolibri-design-system@4.1.0:
-  version "4.1.0"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-4.1.0.tgz#f9dc9026e75a457af7b51678f2129a61eaa1f9ab"
-  integrity sha512-ZoDL40u9YgXnJ/OBD7Ju4F9o7zdl7OKwRqjUyzCjN0dg1bQGXgB4qaq7LCOVBhIOeqw0SOtG0tvT7Fxsmena5Q==
+kolibri-design-system@4.2.0:
+  version "4.2.0"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-4.2.0.tgz#7ef5355ecfd330893e4f9b37ec2bcad6b4cd9e56"
+  integrity sha512-50lkYsPIx0zfrbAwsEC5QPMJcpmZGmne8BhFVtgcWS4xEn6Uc6BefHQAxqZriomnLRd5otAP3XwFkrkycly0fA==
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
@@ -7580,7 +7580,7 @@ kolibri-design-system@4.1.0:
     frame-throttle "3.0.0"
     fuzzysearch "1.0.3"
     lodash "4.17.21"
-    popper.js "1.14.6"
+    popper.js "1.16.1"
     purecss "2.2.0"
     tippy.js "4.2.1"
     vue-intl "3.1.0"
@@ -8848,12 +8848,7 @@ pofile@^1.0.8:
   resolved "https://registry.yarnpkg.com/pofile/-/pofile-1.1.1.tgz#a581df04a6fae4941eebd7c1211dbd43700c5541"
   integrity sha512-RVAzFGo1Mx9+YukVKSgTLut6r4ZVBW8IVrqGHAPfEsVJN93WSp5HRD6+qNa7av1q/joPKDNJd55m5AJl9GBQGA==
 
-popper.js@1.14.6:
-  version "1.14.6"
-  resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.14.6.tgz#ab20dd4edf9288b8b3b6531c47c361107b60b4b0"
-  integrity sha512-AGwHGQBKumlk/MDfrSOf0JHhJCImdDMcGNoqKmKkU+68GFazv3CQ6q9r7Ja1sKDZmYWTckY/uLyEznheTDycnA==
-
-popper.js@^1.14.7:
+popper.js@1.16.1, popper.js@^1.14.7:
   version "1.16.1"
   resolved "https://registry.yarnpkg.com/popper.js/-/popper.js-1.16.1.tgz#2a223cb3dc7b6213d740e40372be40de43e65b1b"
   integrity sha512-Wb4p1J4zyFTbM+u6WuO4XstYx4Ky9Cewe4DWrel7B0w6VVICvPwdOpotjzcf6eD8TsckVnIMNONQyPIUFOUbCQ==
