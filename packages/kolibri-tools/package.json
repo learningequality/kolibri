@@ -72,7 +72,7 @@
     "recast": "^0.23.6",
     "rewire": "^6.0.0",
     "rtlcss": "4.1.1",
-    "sass-loader": "14.1.1",
+    "sass-loader": "14.2.1",
     "scss-parser": "^1.0.6",
     "semver": "^7.6.0",
     "strip-ansi": "6.0.1",
