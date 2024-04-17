@@ -18,8 +18,6 @@ import org.learningequality.sqlite.query.UpdateQuery;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
-import kotlinx.coroutines.Job;
-
 /**
  * Abstract worker class that executes a task worker implementation
  */
