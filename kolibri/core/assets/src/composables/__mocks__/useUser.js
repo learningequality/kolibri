@@ -30,6 +30,20 @@
  * useUser.mockImplementation(() => useUserMock())
  * ```
  */
+import { computed } from 'kolibri.lib.vueCompositionApi';
+import { UserKinds } from '../../constants';
+
+const session = {
+  app_context: false,
+  can_manage_content: false,
+  facility_id: undefined,
+  full_name: '',
+  id: undefined,
+  kind: [UserKinds.ANONYMOUS],
+  user_id: undefined,
+  username: '',
+  full_facility_import: true,
+};
 
 const MOCK_DEFAULTS = {
   isLearnerOnlyImport: false,
@@ -39,13 +53,31 @@ const MOCK_DEFAULTS = {
   isAdmin: false,
   isSuperuser: false,
   canManageContent: false,
+  isAppContext: false,
+  isClassCoach: false,
+  isFacilityCoach: false,
+  isLearner: true,
+  isFacilityAdmin: false,
+  userIsMultipleFacility: false,
+  getUserPermissions: {},
+  userFacilityId: undefined,
+  getUserKind: UserKinds.ANONYMOUS,
+  userHasPermissions: false,
+  session,
+  //state
+  ...session,
 };
 
 export function useUserMock(overrides = {}) {
-  return {
+  const mocks = {
     ...MOCK_DEFAULTS,
     ...overrides,
   };
+  const computedMocks = {};
+  for (const key in mocks) {
+    computedMocks[key] = computed(() => mocks[key]);
+  }
+  return computedMocks;
 }
 
 export default jest.fn(() => useUserMock());
