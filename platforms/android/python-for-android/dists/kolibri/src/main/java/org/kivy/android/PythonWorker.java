@@ -21,14 +21,12 @@ public class PythonWorker {
     private final String androidArgument;
     private final String pythonHome;
     private final String pythonPath;
-    private final JobStorage db;
 
 
     public PythonWorker(@NonNull Context context, String pythonName, String workerEntrypoint) {
         PythonLoader.doLoad(context);
         this.pythonName = pythonName;
         this.workerEntrypoint = workerEntrypoint;
-        this.db = JobStorage.readwrite(context);
         String appRoot = PythonUtil.getAppRoot(context);
         androidPrivate = appRoot;
         androidArgument = appRoot;
@@ -43,14 +41,6 @@ public class PythonWorker {
             String pythonHome, String pythonPath,
             String pythonServiceArgument
     );
-
-    protected int updateTaskStatus(String id) {
-        Log.d(TAG, "Updating Task Status for job " + id);
-        UpdateQuery q = new UpdateQuery(JobStorage.Jobs.TABLE_NAME)
-                .where(JobStorage.Jobs.worker_extra, id)
-                .set(JobStorage.Jobs.state, JobStorage.Jobs.State.FAILED.toString());
-        return q.execute(db);
-    }
 
     public static native int tearDownPython();
 
@@ -67,7 +57,6 @@ public class PythonWorker {
 
         int res;
         try {
-
             res = nativeStart(
                     androidPrivate, androidArgument,
                     workerEntrypoint, pythonName,
@@ -81,17 +70,11 @@ public class PythonWorker {
             } else {
                 // For any result other than 0, log and treat as a failure
                 Log.e(TAG, "Python work execution failed with result code: " + res);
-                if(updateTaskStatus(id)==0){
-                    Log.e(TAG, "Failed to update TaskStatus for remote Task" + id);
-                };
                 return false;
             }
         } catch (Exception e) {
             // Catch and log any exceptions, treating them as execution failures
             Log.e(TAG, "Error executing python work", e);
-            if(updateTaskStatus(id)==0){
-                Log.e(TAG, "Failed to update TaskStatus for remote Task" + id);
-            }
             return false;
         }
     }

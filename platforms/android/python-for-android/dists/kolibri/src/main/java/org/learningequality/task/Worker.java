@@ -18,6 +18,8 @@ import org.learningequality.sqlite.query.UpdateQuery;
 import java.util.UUID;
 import java.util.zip.CRC32;
 
+import kotlinx.coroutines.Job;
+
 /**
  * Abstract worker class that executes a task worker implementation
  */
@@ -27,13 +29,11 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
     private int lastProgressUpdateHash;
     private Notification lastNotification;
 
-    private final JobStorage db;
 
     public Worker(
             @NonNull Context context, @NonNull WorkerParameters workerParams
     ) {
         super(context, workerParams);
-        this.db = JobStorage.readwrite(context);
     }
 
     /**
@@ -51,7 +51,6 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
         final String id = getId().toString();
         final String arg = getArgument();
         Result r;
-
         Log.d(TAG, "Executing task implementation: " + getId());
         try (WorkerImpl<TaskWorkerImpl.Message> workerImpl = getWorkerImpl()) {
             workerImpl.addObserver(new Observer<TaskWorkerImpl.Message>() {
@@ -62,7 +61,13 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
             });
             // Provide context to PythonProvider
             try (PythonProvider ignored = PythonProvider.create(getApplicationContext())) {
-                r = workerImpl.execute(id, arg) ? Result.success() : Result.failure();
+                boolean result = workerImpl.execute(id,arg);
+                if(!result){
+                    if(updateTaskStatus(getArgument(), JobStorage.Jobs.State.FAILED.toString())==0){
+                        Log.e(TAG, "Failed to update TaskStatus for remote Task " + getId());
+                    };
+                }
+                r = result ? Result.success() : Result.failure();
             }
         } catch (Exception e) {
             Log.e(TAG, "Error executing task implementation: " + getId(), e);
@@ -76,19 +81,28 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
     public void onStopped() {
         Log.d(TAG, "Stopping background remote task " + getId());
         // Here we need to update the task in the database to be marked as failed
-        if(updateTaskStatus(getId().toString())==0){
-            Log.e(TAG, "Failed to update TaskStatus for remote Task" + getId());
+        if(updateTaskStatus(getArgument(), JobStorage.Jobs.State.CANCELED.toString())==0){
+            Log.e(TAG, "Failed to update TaskStatus for remote Task " + getId());
         };
         hideNotification();
         super.onStopped();
     }
 
-    protected int updateTaskStatus(String id) {
-        Log.d(TAG, "Updating Task Status for job " + id);
-        UpdateQuery q = new UpdateQuery(JobStorage.Jobs.TABLE_NAME)
-                .where(JobStorage.Jobs.worker_extra, id)
-                .set(JobStorage.Jobs.state, JobStorage.Jobs.State.FAILED.toString());
-        return q.execute(db);
+    protected int updateTaskStatus(String id, String stateToBeUpdatedTo) {
+        int result = 0;
+        try (JobStorage db = JobStorage.readwrite(getApplicationContext())){
+            if(db!=null){
+                Log.d(TAG, "Updating Task Status for job " + id);
+                UpdateQuery q = new UpdateQuery(JobStorage.Jobs.TABLE_NAME)
+                        .where(JobStorage.Jobs.id, id)
+                        .set(JobStorage.Jobs.state, stateToBeUpdatedTo);
+                result = q.execute(db);
+            }
+            Log.e(TAG, "Failed to initialize JobStorage");
+        }catch (Exception e){
+            Log.e(TAG, "Error managing JobStorage", e);
+        }
+        return result;
     }
 
 
