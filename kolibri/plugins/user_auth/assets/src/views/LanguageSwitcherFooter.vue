@@ -28,11 +28,12 @@
     justify-content: center;
     width: 100%;
   }
+
   .list {
+    flex-grow: 1;
+    max-width: 1000px;
     margin-right: 36px;
     margin-left: 36px;
-    max-width: 1000px;
-    flex-grow: 1;
   }
 
 </style>

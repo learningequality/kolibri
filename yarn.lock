@@ -2376,6 +2376,15 @@ aphrodite@1.1.0:
     asap "^2.0.3"
     inline-style-prefixer "^2.0.0"
 
+"aphrodite@git+https://github.com/learningequality/aphrodite.git":
+  version "2.2.3"
+  uid fdc8d7be8912a5cf17f74ff10f124013c52c3e32
+  resolved "git+https://github.com/learningequality/aphrodite.git#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
+  dependencies:
+    asap "^2.0.3"
+    inline-style-prefixer "^4.0.2"
+    string-hash "^1.1.3"
+
 "aphrodite@https://github.com/learningequality/aphrodite/":
   version "2.2.3"
   resolved "https://github.com/learningequality/aphrodite/#fdc8d7be8912a5cf17f74ff10f124013c52c3e32"
@@ -7778,10 +7787,10 @@ kolibri-design-system@3.1.0:
     vue-intl "^3.1.0"
     xstate "^4.38.3"
 
-kolibri-design-system@3.1.1:
-  version "3.1.1"
-  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-3.1.1.tgz#f140b5732d57432eb6ac02af6a01ba00d227eedf"
-  integrity sha512-cqC3J0ztp2VpGjrs4G0ujgxVYFQb96BXnfqiYg/mmmOVd+mSA2ci3dCFUKYXRtFZQswcLAL2XeaFg0aWpqVdXg==
+kolibri-design-system@3.2.0:
+  version "3.2.0"
+  resolved "https://registry.yarnpkg.com/kolibri-design-system/-/kolibri-design-system-3.2.0.tgz#c96de8c09133bf7f60545254233bd042a51554ba"
+  integrity sha512-wZwRRQDv1Xy/FWgBVYXvZZXfELjsDsyS09q3A7wE00VyqTNYj7gZwkKUA35pJ9SOqYTKhJbdNYeWo9N2eXXVaw==
   dependencies:
     "@vue/composition-api" "^1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"

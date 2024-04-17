@@ -26,7 +26,7 @@
               class="globe px-8"
               @click="showLanguageModal = true"
             />
-            <span class="no-shrink px-8 selected" :title="item.english_name">
+            <span class="no-shrink px-8" :title="item.english_name">
               {{ item.lang_name }}
             </span>
           </div>
@@ -63,16 +63,16 @@
 
   export default {
     name: 'LanguageSwitcherList',
+    components: {
+      LanguageSwitcherModal,
+    },
+    mixins: [languageSwitcherMixin],
     props: {
       center: {
         type: Boolean,
         default: false,
       },
     },
-    components: {
-      LanguageSwitcherModal,
-    },
-    mixins: [languageSwitcherMixin],
     data() {
       return {
         showLanguageModal: false,
@@ -125,12 +125,9 @@
     right: -4px;
   }
 
-  .selected {
-    margin-left: 8px;
-  }
-
   .lang {
     @include font-family-language-names;
+
     /deep/ span {
       white-space: nowrap !important;
     }
@@ -145,8 +142,8 @@
     left: -16px;
     display: flex;
     align-items: center;
-    margin-top: 8px;
     justify-content: center;
+    margin-top: 8px;
   }
 
   .no-shrink {
