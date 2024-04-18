@@ -1,4 +1,5 @@
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
+import uniq from 'lodash/uniq';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
 import { convertExamQuestionSourcesToV3 } from 'kolibri.utils.exams';
 import shuffled from 'kolibri.utils.shuffled';
@@ -31,11 +32,13 @@ export function showExam(store, params, alreadyOnQuiz) {
 
           let contentPromise;
           let allExerciseIds = [];
-          if (exam.data_version == 3) {
-            allExerciseIds = exam.question_sources.reduce((acc, section) => {
-              acc = [...acc, ...section.questions.map(q => q.exercise_id)];
-              return acc;
-            }, []);
+          if (exam.data_model_version == 3) {
+            allExerciseIds = uniq(
+              exam.question_sources.reduce((acc, section) => {
+                acc = [...acc, ...section.questions.map(q => q.exercise_id)];
+                return acc;
+              }, [])
+            );
           } else {
             allExerciseIds = exam.question_sources.map(q => q.exercise_id);
           }

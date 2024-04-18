@@ -3,7 +3,6 @@ import range from 'lodash/range';
 import sumBy from 'lodash/fp/sumBy';
 import sortBy from 'lodash/sortBy';
 import shuffled from 'kolibri.utils.shuffled';
-import { annotateQuestionSourcesWithCounter } from 'kolibri.utils.exams';
 import logger from 'kolibri.lib.logging';
 
 const logging = logger.getLogger(__filename);
@@ -29,7 +28,8 @@ export default function selectQuestions(
   exerciseIds,
   exerciseTitles,
   questionIdArrays,
-  seed
+  seed,
+  excludedQuestionIds = []
 ) {
   if (exerciseIds.length !== questionIdArrays.length) {
     logging.error('exerciseIds and questionIdArrays must have the same length');
@@ -52,34 +52,41 @@ export default function selectQuestions(
   // copy and shuffle the question IDs
   const shuffledQuestionIdArrays = questionIdArrays.map(shuffleWithSeed);
 
+  // reduced to remove excludedQuestionIds, ternary expression avoids iterating unnecessarily
+  const filteredQuestionIdArrays = !excludedQuestionIds.length
+    ? shuffledQuestionIdArrays
+    : shuffledQuestionIdArrays.reduce((acc, resourceQuestions) => {
+        acc.push(resourceQuestions.filter(uId => !excludedQuestionIds.includes(uId)));
+        return acc;
+      }, []);
+
   // fill up the output list
-  let output = [];
+  const output = [];
   let i = 0;
   while (output.length < numQuestions) {
     const ri = randomIndexes[i];
     // check if we've used up all questions in one exercise
-    if (shuffledQuestionIdArrays[ri].length > 0) {
-      const qId = shuffledQuestionIdArrays[ri].pop();
+    if (filteredQuestionIdArrays[ri].length > 0) {
+      const uId = filteredQuestionIdArrays[ri].pop();
 
       // Only add the question/assessment to the list if it is not already there
       // from another identical exercise with a different exercise/node ID
-      if (!find(output, { question_id: qId })) {
+      if (!find(output, { id: uId })) {
         output.push({
+          counter_in_exercise: questionIdArrays[ri].indexOf(uId) + 1,
           exercise_id: exerciseIds[ri],
-          question_id: qId,
+          question_id: uId.split(':')[1],
+          id: uId,
           title: exerciseTitles[ri],
         });
       }
-    } else if (getTotalOfQuestions(shuffledQuestionIdArrays) === 0) {
+    } else if (getTotalOfQuestions(filteredQuestionIdArrays) === 0) {
       // If there are not enough questions, then break the loop
       break;
     }
     // cycle through questions
     i = (i + 1) % exerciseIds.length;
   }
-
-  // Add the counter_in_exercise field to make it match the V2 Exam specification
-  output = annotateQuestionSourcesWithCounter(output);
 
   // sort the resulting questions by exercise title
   return sortBy(output, 'title');

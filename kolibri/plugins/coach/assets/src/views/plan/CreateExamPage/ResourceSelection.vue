@@ -5,26 +5,9 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <KGrid class="align-select-folder-style">
-        <KGridItem
-          :layout12="{ span: 1 }"
-          :layout8="{ span: 1 }"
-        >
-          <KIconButton
-            icon="back"
-            @click="goBack()"
-          />
-        </KGridItem>
-
-        <KGridItem
-          :layout12="{ span: 11 }"
-          :layout8="{ span: 7 }"
-        >
-          <h5 class="select-folder-style">
-            {{ selectFoldersOrExercises$() }}
-          </h5>
-        </KGridItem>
-      </KGrid>
+      <h5 class="select-folder-style">
+        {{ selectFoldersOrExercises$() }}
+      </h5>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -60,7 +43,7 @@
 
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
-        :ancestors="topic.ancestors"
+        :ancestors="[...topic.ancestors, topic]"
         :channelsLink="channelsLink"
         :topicsLink="topicsLink"
       />
@@ -94,7 +77,7 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            <span>{{ numberOfResources$({ count: workingResourcePool.length }) }}</span>
+            <span>{{ numberOfResourcesSelected$({ count: workingResourcePool.length }) }}</span>
           </KGridItem>
           <KGridItem
             :layout12="{ span: 6 }"
@@ -112,11 +95,16 @@
         </KGrid>
       </div>
     </div>
-    <ConfirmCancellationModal
-      v-if="showConfirmationModal"
+    <KModal
+      v-if="showCloseConfirmation"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
       @cancel="handleCancelClose"
-      @continue="handleConfirmClose"
-    />
+      @submit="handleConfirmClose"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
   </div>
 
 </template>
@@ -138,7 +126,6 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import LessonsSearchBox from '../LessonResourceSelectionPage/SearchTools/LessonsSearchBox.vue';
   import ContentCardList from './../LessonResourceSelectionPage/ContentCardList.vue';
-  import ConfirmCancellationModal from './ConfirmCancellationModal.vue';
   import ResourceSelectionBreadcrumbs from './../LessonResourceSelectionPage/SearchTools/ResourceSelectionBreadcrumbs.vue';
 
   export default {
@@ -148,7 +135,6 @@
       BookmarkIcon,
       LessonsSearchBox,
       ResourceSelectionBreadcrumbs,
-      ConfirmCancellationModal,
     },
     mixins: [commonCoreStrings],
     setup(_, context) {
@@ -161,7 +147,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
-      const showConfirmationModal = ref(false);
+      const showCloseConfirmation = ref(false);
 
       const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
 
@@ -171,9 +157,12 @@
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
         numberOfSelectedResources$,
-        numberOfResources$,
+        numberOfResourcesSelected$,
+        changesSavedSuccessfully$,
         selectedResourcesInformation$,
         cannotSelectSomeTopicWarning$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -354,7 +343,8 @@
         const channelBookmarkPromises = [
           ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
             data => {
-              bookmarks.value = data.results ? data.results : [];
+              const isExercise = item => item.kind === ContentNodeKinds.EXERCISE;
+              bookmarks.value = data.results ? data.results.filter(isExercise) : [];
             }
           ),
         ];
@@ -410,9 +400,7 @@
         }
         */
         if (showBookmarks.value) {
-          return bookmarks.value
-            .filter(item => item.kind === 'exercise')
-            .map(item => ({ ...item, is_leaf: true }));
+          return bookmarks.value.map(item => ({ ...item, is_leaf: true }));
         }
 
         if (searchQuery.value) {
@@ -448,7 +436,7 @@
       }
 
       function handleCancelClose() {
-        showConfirmationModal.value = false;
+        showCloseConfirmation.value = false;
       }
 
       function handleConfirmClose() {
@@ -476,7 +464,7 @@
         topicId,
         contentList,
         resources,
-        showConfirmationModal,
+        showCloseConfirmation,
         hasCheckbox,
         loading,
         hasMore,
@@ -486,12 +474,15 @@
         contentPresentInWorkingResourcePool,
         //contentList,
         cannotSelectSomeTopicWarning$,
+        closeConfirmationMessage$,
+        closeConfirmationTitle$,
+        changesSavedSuccessfully$,
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectFoldersOrExercises$,
         numberOfSelectedResources$,
-        numberOfResources$,
+        numberOfResourcesSelected$,
         windowIsSmall,
         bookmarks,
         channels,
@@ -521,7 +512,7 @@
         };
       },
       channelsLink() {
-        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES);
+        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id: null });
       },
       /*
       selectAllIsVisible() {
@@ -542,8 +533,8 @@
       });
     },
     beforeRouteLeave(_, __, next) {
-      if (!this.showConfirmationModal && this.workingPoolHasChanged) {
-        this.showConfirmationModal = true;
+      if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
+        this.showCloseConfirmation = true;
         next(false);
       } else {
         next();
@@ -560,13 +551,14 @@
       focusFirstEl() {
         this.$refs.textbox.focus();
       },
-      goBack() {
-        return this.$router.go(-1);
-      },
       contentLink(content) {
+        /* The click handler for the content card, no-op for non-folder cards */
         if (this.showBookmarks) {
-          return this.$route;
+          // If we're showing bookmarks, we don't want to link to anything
+          const { name, params, query } = this.$route;
+          return { name, params, query };
         } else if (!content.is_leaf) {
+          // Link folders to their page
           return {
             name: PageNames.QUIZ_SELECT_RESOURCES,
             params: {
@@ -576,30 +568,35 @@
             },
           };
         }
-
-        return {}; // or return {} if you prefer an empty object
+        return {}; // Or this could be how we handle leaf nodes if we wanted them to link somewhere
       },
-      topicListingLink({ topicId }) {
-        return this.$router.getRoute(
-          PageNames.QUIZ_SELECT_RESOURCES,
-          { topicId },
-          this.$route.query
-        );
-      },
-
-      topicsLink(topicId) {
-        return this.topicListingLink({ ...this.$route.params, topicId });
+      topicsLink(topic_id) {
+        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id });
       },
       saveSelectedResource() {
         this.updateSection({
           section_id: this.$route.params.section_id,
-          resource_pool: this.workingResourcePool,
+          resource_pool: this.workingResourcePool.map(resource => {
+            // Add the unique_question_ids to the resource
+            const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
+              question_id => {
+                return `${resource.id}:${question_id}`;
+              }
+            );
+
+            return {
+              ...resource,
+              unique_question_ids,
+            };
+          }),
         });
 
-        //Also reset workingResourcePool
         this.resetWorkingResourcePool();
 
-        this.$router.replace(this.prevRoute);
+        this.$router.replace({
+          ...this.prevRoute,
+          ...{ query: { snackbar: this.changesSavedSuccessfully$() } },
+        });
       },
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
@@ -644,7 +641,6 @@
 
   .select-resource {
     padding-bottom: 6em;
-    margin-top: -4em;
   }
 
   .title-style {
@@ -724,6 +720,12 @@
   .shadow {
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
+  }
+
+  // Force the leaf nodes not to look like a link
+  /deep/ .is-leaf.content-card {
+    cursor: default;
+    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
   }
 
 </style>

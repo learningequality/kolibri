@@ -36,8 +36,8 @@
             :icon="closeButtonIconType"
             class="close-button"
             :style="closeButtonStyle"
-            :ariaLabel="coreString('closeAction')"
-            :tooltip="coreString('closeAction')"
+            :ariaLabel="closeButtonMessage"
+            :tooltip="closeButtonMessage"
             @click="closePanel"
           />
 
@@ -117,10 +117,8 @@
     },
     computed: {
       isMobile() {
-        if (!get(this.windowBreakpoint)) {
-          return false;
-        }
-        return get(this.windowBreakpoint) == 0;
+        // This should be suitable for any mobile/tablet
+        return get(this.windowBreakpoint) <= 2;
       },
       /* Returns an object with properties left or right set to the appropriate value
            depending on isRtl and this.alignment */
@@ -167,6 +165,11 @@
           backgroundColor: this.$themeTokens.surface,
           'z-index': 12,
         };
+      },
+      closeButtonMessage() {
+        return this.closeButtonIconType === 'back'
+          ? this.coreString('backAction')
+          : this.coreString('closeAction');
       },
       /* Change of position with change of close button type, default is close */
       closeButtonStyle() {

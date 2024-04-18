@@ -16,6 +16,7 @@ from kolibri.core.content.api import ContentNodeViewset
 from kolibri.core.content.api import UserContentNodeViewset
 from kolibri.core.content.models import ContentNode
 from kolibri.core.exams.models import Exam
+from kolibri.core.exams.models import exam_assignment_lookup
 from kolibri.core.lessons.models import Lesson
 from kolibri.core.logger.models import AttemptLog
 from kolibri.core.logger.models import MasteryLog
@@ -182,14 +183,19 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                 "title",
                 "closed",
                 "answer_count",
+                "data_model_version",
                 "score",
                 "question_sources",
             )
         )
         exam_node_ids = set()
+
         for exam in exams:
             exam_node_ids |= {
-                question["exercise_id"] for question in exam.get("question_sources")
+                exercise_id
+                for exercise_id, _ in exam_assignment_lookup(
+                    exam.get("question_sources", [])
+                )
             }
 
         available_exam_ids = set(
@@ -217,8 +223,10 @@ class LearnerClassroomViewset(ReadOnlyValuesViewset):
                     "started": False,
                 }
             exam["missing_resource"] = any(
-                question["exercise_id"] not in available_exam_ids
-                for question in exam.get("question_sources")
+                exercise_id not in available_exam_ids
+                for exercise_id, _ in exam_assignment_lookup(
+                    exam.get("question_sources", [])
+                )
             )
         out_items = []
         for item in items:

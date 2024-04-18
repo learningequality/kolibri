@@ -9,15 +9,19 @@
 /**
  * @typedef   {Object}  QuizExercise    An object referencing an exercise or topic to be used
  *                                      within the `QuizSeciton.resource_pool` property.
+ * @property  {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
  * @property  {string}  title           The resource title
  * @property  {string}  ancestor_id     The ID of the parent contentnode
  * @property  {string}  content_id      The ID for the piece of content
- * @property  {string}  id              Unique ID for this exercise
  * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
  * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
  */
 
 export const QuizExercise = {
+  id: {
+    type: String,
+    default: '',
+  },
   title: {
     type: String,
     default: '',
@@ -27,10 +31,6 @@ export const QuizExercise = {
     default: '',
   },
   content_id: {
-    type: String,
-    default: '',
-  },
-  id: {
     type: String,
     default: '',
   },
@@ -55,6 +55,8 @@ export const QuizExercise = {
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
  *                                         from an QuizExercise.
+ * @property {string} id                   A  ** unique **  identifier for this question that is
+ *                                          a combination of <exercise_id>:<question_id>
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -63,6 +65,10 @@ export const QuizExercise = {
  *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
+  id: {
+    type: String,
+    required: true,
+  },
   exercise_id: {
     type: String,
     required: true,

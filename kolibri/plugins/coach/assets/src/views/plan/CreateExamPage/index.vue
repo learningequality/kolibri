@@ -98,6 +98,17 @@
         });
       },
     },
+    beforeRouteUpdate(to, from, next) {
+      // Handle snackbar query param and show message - particularly for when closing the side panel
+      // and saying "Action Succeeded"
+      if (to.query.snackbar) {
+        this.$store.dispatch('createSnackbar', to.query.snackbar).then(() => {
+          delete to.query.snackbar;
+          next(to);
+        });
+      }
+      next();
+    },
     mounted() {
       this.$store.dispatch('notLoading');
     },
