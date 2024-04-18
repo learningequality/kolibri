@@ -26,7 +26,7 @@ describe('Utility Functions', () => {
   });
 
   describe('getRenderableFiles', () => {
-    test('returns renderable files', () => {
+    test('returns renderable files (files which are available, can be rendered and do not have a thumbnail)', () => {
       const files = [
         { preset: 'preset1', available: true },
         { preset: 'preset2', available: true },
@@ -40,7 +40,7 @@ describe('Utility Functions', () => {
       expect(renderableFiles[0]).toEqual(files[0]);
     });
 
-    test('returns empty array if no renderable files', () => {
+    test('returns empty array if no renderable file is available', () => {
       const files = [
         { preset: 'preset1', available: false },
         { preset: 'preset2', available: false, thumbnail: true },
