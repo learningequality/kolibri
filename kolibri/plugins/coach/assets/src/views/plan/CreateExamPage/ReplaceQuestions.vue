@@ -78,7 +78,7 @@
               :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
             >
               <ContentRenderer
-                :ref="`contentRenderer-${question.question_id}`"
+                :ref="`contentRenderer-${question.id}`"
                 :kind="activeResourceMap[question.exercise_id].kind"
                 :lang="activeResourceMap[question.exercise_id].lang"
                 :files="activeResourceMap[question.exercise_id].files"
