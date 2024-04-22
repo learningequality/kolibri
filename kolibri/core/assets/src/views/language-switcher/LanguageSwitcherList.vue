@@ -18,14 +18,16 @@
             appearance="basic-link"
             @click="switchLanguage(item.id)"
           />
-          <div v-else>
-            <KIconButton
-              icon="language"
-              aria-hidden="true"
-              tabindex="-1"
-              class="globe px-8"
-              @click="showLanguageModal = true"
-            />
+          <div v-else class="d-flex">
+            <div class="lang-icon">
+              <KIconButton
+                icon="language"
+                aria-hidden="true"
+                tabindex="-1"
+                class="globe px-8"
+                @click="showLanguageModal = true"
+              />
+            </div>
             <span class="no-shrink px-8" :title="item.english_name">
               {{ item.lang_name }}
             </span>
@@ -148,11 +150,21 @@
 
   .no-shrink {
     flex-shrink: 0;
+    white-space: nowrap;
   }
 
   .px-8 {
     padding-right: 8px;
     padding-left: 8px;
+  }
+
+  .d-flex {
+    display: flex;
+    align-items: center;
+  }
+
+  .lang-icon {
+    min-width: 40px;
   }
 
 </style>
