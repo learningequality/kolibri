@@ -80,7 +80,7 @@ function runWebpackBuild(mode, bundleData, devServer, options, cb = null) {
     hot: options.hot && devServer,
     port: devServer && options.port,
     mode: webpackMode,
-    cache: false,
+    cache: options.cache,
     transpile: options.transpile,
     devServer,
     requireKdsPath: options.requireKdsPath,
