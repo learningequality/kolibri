@@ -172,9 +172,14 @@ function useAsyncDeviceFilter(filterFunction) {
  * Produces a function that resolves with a boolean for a device that has the specified facility
  * @param {string|null} [id]
  * @param {bool|null} [learner_can_sign_up]
+ * @param {bool|null} [on_my_own_setup]
  * @return {function(NetworkLocation): Promise<boolean>}
  */
-export function useDeviceFacilityFilter({ id = null, learner_can_sign_up = null }) {
+export function useDeviceFacilityFilter({
+  id = null,
+  learner_can_sign_up = null,
+  on_my_own_setup = null,
+}) {
   const filters = {};
 
   // If `id` is an empty string, we don't want to filter by that
@@ -184,6 +189,10 @@ export function useDeviceFacilityFilter({ id = null, learner_can_sign_up = null 
 
   if (learner_can_sign_up !== null) {
     filters.learner_can_sign_up = learner_can_sign_up;
+  }
+
+  if (on_my_own_setup !== null) {
+    filters.on_my_own_setup = on_my_own_setup;
   }
 
   if (Object.keys(filters).length === 0) {

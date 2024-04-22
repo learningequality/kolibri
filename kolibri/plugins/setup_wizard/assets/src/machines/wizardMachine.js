@@ -74,6 +74,7 @@ const initialContext = {
   importedUsers: [],
   firstImportedLodUser: null,
   facilitiesOnDeviceCount: null,
+  isImportedFacility: false,
 };
 
 export const wizardMachine = createMachine(
@@ -307,6 +308,7 @@ export const wizardMachine = createMachine(
             on: {
               BACK: 'selectSuperAdminAccountForm',
             },
+            exit: 'setImportedFacility',
           },
         },
         // Listener on the importFacility state; typically this would be above `states` but
@@ -537,6 +539,11 @@ export const wizardMachine = createMachine(
        * This effectively resets the machine's state
        */
       resetContext: assign(initialContext),
+      setImportedFacility: assign({
+        isImportedFacility: () => {
+          return true;
+        },
+      }),
     },
     guards: {
       // Functions used to return a true/false value. When the functions are called, they are passed

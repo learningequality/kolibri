@@ -194,7 +194,12 @@
         })
           .then(() => {
             const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
+            const facilityImported = 'FACILITY_IS_IMPORTED';
             window.sessionStorage.setItem(welcomeDismissalKey, false);
+            window.sessionStorage.setItem(
+              facilityImported,
+              this.wizardContext('isImportedFacility')
+            );
 
             Lockr.rm('savedState'); // Clear out saved state machine
             redirectBrowser();

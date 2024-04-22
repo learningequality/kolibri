@@ -19,6 +19,7 @@
     />
     <SelectDeviceModalGroup
       v-if="showSelectAddressModal"
+      :filterByOnMyOwnFacility="false"
       @cancel="showSelectAddressModal = false"
       @submit="handleContinueImport"
     />

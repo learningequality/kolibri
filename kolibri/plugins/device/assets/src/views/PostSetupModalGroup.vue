@@ -41,6 +41,8 @@
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
 
+  const facilityImported = 'FACILITY_IS_IMPORTED';
+
   const Steps = Object.freeze({
     WELCOME: 'WELCOME',
     PERMISSIONS_CHANGE: 'PERMISSIONS_CHANGE',
@@ -70,12 +72,9 @@
     },
     computed: {
       ...mapGetters(['isUserLoggedIn']),
-      // Assume that if first facility has non-null 'last_successful_sync'
-      // field, then it was imported in Setup Wizard.
-      // This used to determine Select Source workflow to enter into
       importedFacility() {
         const [facility] = this.$store.state.core.facilities;
-        if (facility && facility.last_successful_sync !== null) {
+        if (facility && window.sessionStorage.getItem(facilityImported) === 'true') {
           return facility;
         }
         return null;
