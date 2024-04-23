@@ -35,6 +35,12 @@ logging.setLevel('silent');
 
 // Register Vue plugins and components
 Vue.use(Vuex);
+Vue.mixin({
+  beforeCreate: function () {
+    // This fix some problems between the VueRouter plugin, and Vue-testing-library.
+    this.$options.router ||= undefined;
+  }
+});
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
