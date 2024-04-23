@@ -14,6 +14,8 @@ import logging from 'kolibri.lib.logging';
 import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 
+/* eslint-disable vue/one-component-per-file */
+
 global.beforeEach(() => {
   return new Promise(resolve => {
     Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
@@ -75,3 +77,4 @@ global.flushPromises = function flushPromises() {
     scheduler(resolve);
   });
 };
+/* eslint-enable vue/one-component-per-file */
