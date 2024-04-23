@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import VueRouter from 'vue-router';
 import TriesOverview from '../TriesOverview.vue';
 import * as tryValidatorModule from '../utils';
 
@@ -33,7 +32,6 @@ const renderComponent = props => {
       ...defaultProps,
       ...props,
     },
-    routes: new VueRouter(),
     mixins: [commonCoreStrings],
   });
 };

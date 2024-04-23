@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import userEvent from '@testing-library/user-event';
 import ContentRendererError from '../ContentRendererError.vue';
 
@@ -7,7 +6,6 @@ import ContentRendererError from '../ContentRendererError.vue';
 const renderComponent = props => {
   return render(ContentRendererError, {
     props,
-    routes: new VueRouter(),
   });
 };
 

@@ -1,12 +1,9 @@
 import { render, screen, fireEvent } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import GenderSelect from '../GenderSelect.vue';
 import '@testing-library/jest-dom';
 
 const renderComponent = () => {
-  return render(GenderSelect, {
-    routes: new VueRouter(),
-  });
+  return render(GenderSelect);
 };
 
 describe('GenderSelect', () => {

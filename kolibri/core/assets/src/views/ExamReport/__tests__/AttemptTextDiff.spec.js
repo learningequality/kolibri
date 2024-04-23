@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import VueRouter from 'vue-router';
 import AttemptTextDiff from '../AttemptTextDiff.vue';
 
 const renderComponent = props => {
   return render(AttemptTextDiff, {
-    routes: new VueRouter(),
     props,
     store: {
       getters: {

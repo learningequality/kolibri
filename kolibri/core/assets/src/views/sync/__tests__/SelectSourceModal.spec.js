@@ -1,11 +1,9 @@
 import { render, fireEvent, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import SelectSourceModal from '../SelectSourceModal.vue';
 
 const renderComponent = props => {
   return render(SelectSourceModal, {
     props,
-    routes: new VueRouter(),
   });
 };
 

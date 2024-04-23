@@ -1,4 +1,3 @@
-import VueRouter from 'vue-router';
 import { render, screen, fireEvent } from '@testing-library/vue';
 import TotalPoints from '../TotalPoints.vue';
 import '@testing-library/jest-dom';
@@ -24,7 +23,6 @@ const getMockStore = () => {
 const renderComponent = store => {
   return render(TotalPoints, {
     store,
-    routes: new VueRouter(),
   });
 };
 

@@ -36,10 +36,10 @@ logging.setLevel('silent');
 // Register Vue plugins and components
 Vue.use(Vuex);
 Vue.mixin({
-  beforeCreate: function () {
+  beforeCreate: function() {
     // This fix some problems between the VueRouter plugin, and Vue-testing-library.
-    this.$options.router ||= undefined;
-  }
+    this.$options.router = this.$options.router || undefined;
+  },
 });
 Vue.use(VueRouter);
 Vue.use(VueMeta);
