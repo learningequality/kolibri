@@ -329,7 +329,7 @@
       :title="deleteSectionLabel$()"
       :submitText="coreString('deleteAction')"
       :cancelText="coreString('cancelAction')"
-      @cancel="handleCancelDelete"
+      @cancel="handleShowConfirmation"
       @submit="handleConfirmDelete"
     >
       {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
@@ -543,9 +543,6 @@
       }
     },
     methods: {
-      handleCancelDelete() {
-        this.showDeleteConfirmation = false;
-      },
       handleConfirmDelete() {
         const { section_id, section_title } = this.activeSection;
         this.removeSection(section_id);
@@ -556,9 +553,9 @@
           );
           this.focusActiveSectionTab();
         });
-        this.handleDeleteSection(null);
+        this.handleShowConfirmation();
       },
-      handleDeleteSection(section_id) {
+      handleShowConfirmation(section_id = null) {
         this.showDeleteConfirmation = section_id;
       },
       handleReplaceSelection() {
@@ -574,7 +571,7 @@
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
-            this.handleDeleteSection(section_id);
+            this.handleShowConfirmation(section_id);
             break;
         }
       },
