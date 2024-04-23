@@ -48,7 +48,6 @@
     ],
     "modules" : [
         "modules/iproute2.json",
-        "modules/python3-markdown.json",
         "modules/python3-kolibri.json",
         "modules/python3-kolibri-pytz.json",
         "modules/python3-kolibri-app-desktop-xdg-plugin.json",
