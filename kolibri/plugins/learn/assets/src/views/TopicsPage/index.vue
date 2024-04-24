@@ -414,6 +414,8 @@
           // If we have skipped down the topic tree, replace to the new top level topic
           router.replace({ name: route.name, params: { ...route.params, id }, query: route.query });
           return true;
+        } else {
+          sidePanelIsOpen.value = false;
         }
       }
 
