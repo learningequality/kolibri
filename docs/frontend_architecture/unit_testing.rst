@@ -4,6 +4,7 @@ Unit testing
 Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. All JavaScript code should have unit tests for all object methods and functions. All the tests are written in JavaScript. An example test is shown below:
 
 .. code-block:: javascript
+
   // Testing a JavaScript module
   var assert = require('assert');
 
@@ -39,7 +40,7 @@ We use `Vue Testing Library (VTL) <https://testing-library.com/docs/vue-testing-
 
 It is based on the philosophy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes and simulate interactions the same way the user would. We earlier made use of `Vue Test Utils <https://v1.test-utils.vuejs.org/>`__ for the frontend testing, but have been transitioning to VTL for the same.
 
-To learn more about VTL, you can check it's `examples page <https://testing-library.com/docs/vue-testing-library/examples>`__. You can also check out our `testing templates </frontend_architecture/testing_layout.html>` and our style guide to start writing new test suites in Kolibri.
+To learn more about VTL, you can check it's `examples page <https://testing-library.com/docs/vue-testing-library/examples>`__. You can also check out our `testing templates <testing_layout.html>`__ and our style guide to start writing new test suites in Kolibri.
 
 Style Guide
 -----------
