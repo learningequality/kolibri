@@ -60,10 +60,10 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
             // Provide context to PythonProvider
             try (PythonProvider ignored = PythonProvider.create(getApplicationContext())) {
                 boolean result = workerImpl.execute(id,arg);
-                if(!result){
-                    if(updateTaskStatus(getArgument(), JobStorage.Jobs.State.FAILED.toString())==0){
+                if (!result) {
+                    if (updateTaskStatus(getArgument(), JobStorage.Jobs.State.FAILED.toString()) == 0) {
                         Log.e(TAG, "Failed to update TaskStatus for remote Task " + getId());
-                    };
+                    }
                 }
                 r = result ? Result.success() : Result.failure();
             }
@@ -79,17 +79,17 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
     public void onStopped() {
         Log.d(TAG, "Stopping background remote task " + getId());
         // Here we need to update the task in the database to be marked as failed
-        if(updateTaskStatus(getArgument(), JobStorage.Jobs.State.CANCELED.toString())==0){
+        if (updateTaskStatus(getArgument(), JobStorage.Jobs.State.CANCELED.toString()) == 0) {
             Log.e(TAG, "Failed to update TaskStatus for remote Task " + getId());
-        };
+        }
         hideNotification();
         super.onStopped();
     }
 
     protected int updateTaskStatus(String id, String stateToBeUpdatedTo) {
         int result = 0;
-        try (JobStorage db = JobStorage.readwrite(getApplicationContext())){
-            if(db!=null){
+        try (JobStorage db = JobStorage.readwrite(getApplicationContext())) {
+            if (db!=null) {
                 Log.d(TAG, "Updating Task Status for job " + id);
                 UpdateQuery q = new UpdateQuery(JobStorage.Jobs.TABLE_NAME)
                         .where(JobStorage.Jobs.id, id)
@@ -97,7 +97,7 @@ abstract public class Worker extends androidx.work.Worker implements Notifier {
                 result = q.execute(db);
             }
             Log.e(TAG, "Failed to initialize JobStorage");
-        }catch (Exception e){
+        }catch (Exception e) {
             Log.e(TAG, "Error managing JobStorage", e);
         }
         return result;
