@@ -72,17 +72,15 @@
                 </template>
                 {{ permissionTypeText }}
               </KLabeledIcon>
-              <p>
-                {{ $tr('youCan') }}
-                <ul class="permissions-list">
-                  <li v-if="isSuperuser">
-                    {{ $tr('manageDevicePermissions') }}
-                  </li>
-                  <li v-for="(value, key) in userPermissions" :key="key">
-                    {{ getPermissionString(key) }}
-                  </li>
-                </ul>
-              </p>
+              <p>{{ $tr('youCan') }}</p>
+              <ul class="permissions-list">
+                <li v-if="isSuperuser">
+                  {{ $tr('manageDevicePermissions') }}
+                </li>
+                <li v-for="(value, key) in userPermissions" :key="key">
+                  {{ getPermissionString(key) }}
+                </li>
+              </ul>
             </td>
           </tr>
 
