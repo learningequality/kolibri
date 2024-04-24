@@ -1,12 +1,10 @@
 Unit testing
 ============
 
-Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. All JavaScript code should have unit tests for all object methods and functions.
-
-Tests are written in JavaScript, and placed in the 'assets/test' folder. An example test is shown below:
+Unit testing is carried out using `Jest <https://facebook.github.io/jest/>`__. All JavaScript code should have unit tests for all object methods and functions. All the tests are written in JavaScript. An example test is shown below:
 
 .. code-block:: javascript
-
+  // Testing a JavaScript module
   var assert = require('assert');
 
   var SearchModel = require('../src/search/search_model.js');
@@ -20,16 +18,28 @@ Tests are written in JavaScript, and placed in the 'assets/test' folder. An exam
     });
   });
 
+  // Testing a UI component
+  import { render, screen } from '@testing-library/vue';
+  import Heading from './Heading.vue';
 
-For the frontend testing of ``Vue.js`` components, we make use of `Vue Testing Library <https://testing-library.com/docs/vue-testing-library/intro/>`__
-and the associated ecosystem.
+  describe('Heading', () => {
+    it('renders a heading', async () => {
+      render(Heading, {
+        props: {
+          text: 'Hello, world!',
+        },
+      });
 
-It is based on the philosphy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes in the same way the user would. This deals to more user centric and a better quality of tests generally, and thus we have been making efforts to use the same (in constrast to the earlier used `Vue Test Utils <https://v1.test-utils.vuejs.org/>`__).
+      expect(screen.getByRole('heading')).toHaveTextContent('Hello, world!');
+    });
+  });
 
-If you have never worked with Vue Testing Library's (VTL) before, it is highly recommeed to the `VTL examples page <https://testing-library.com/docs/vue-testing-library/examples>`__ to see the library in action and understand it's use. If you're comfortable with the same, you can either:
 
--  Read some of the exisiting tests in Kolibri to see how we make use of the same.
--  Checkout the `test template <TODO>`__ and the `style guide <TODO>`__ to start writing your own!
+We use `Vue Testing Library (VTL) <https://testing-library.com/docs/vue-testing-library/intro/>`__ and its associated ecosystem to test Vue components, as it allows us to test UI components in a user-centric way.
+
+It is based on the philosophy that “The more your tests resemble the way your software is used, the more confidence they can give you." Rather than dealing with instances of rendered Vue components, it allows our tests to work with actual DOM nodes and simulate interactions the same way the user would. We earlier made use of `Vue Test Utils <https://v1.test-utils.vuejs.org/>`__ for the frontend testing, but have been transitioning to VTL for the same.
+
+To learn more about VTL, you can check it's `examples page <https://testing-library.com/docs/vue-testing-library/examples>`__. You can also check out our `testing templates <./testing_layout>` and our style guide to start writing new test suites in Kolibri.
 
 Style Guide
 -----------
@@ -44,30 +54,15 @@ Each folder is expected to have a ``__tests__`` folder, which would contain all 
 Use of ``renderComponent`` function
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-All the files testing ``Vue.js`` components are expected to have their first function as ``renderComponent``. The job of this function should be to setup all the necesary mocks to render the component in the testing environment properly. It can also revieve an optional argument ``props``, which can be used to overwrite:
+To avoid repeating boilerplate code while testing Vue components, define a ``renderComponent`` function to set up all the necessary mocks, stubs, and default props values to render the component to test. It can also revieve an optional argument ``props``, which can be used to overwrite:
 
 -  The default props passed to the component being rendered
--  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc)
+-  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc) according to the test case
 
 Queries
 ~~~~~~~
 
-VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All three of them have two variants: one to query just a single DOM node, and the other to query multiple. Please ensure that you are using the correct kind of the query according to the particular usecase.
-
-The queries also have a recommened priority, so that we can ensure our tests exactly mock the behaviour like a typical user:
-
-1. ``getByRole``: This can be used to query every element that is exposed in the accessibility tree. With the “name” option you can filter the returned elements by their accessible name.
-2. ``getByLabelText``: It is mostly used form fields.
-3. ``getByPlaceholderText``: Not a substitute for labels, but if that's all you have, then it's better than alternatives.
-4. ``getByText``: Outside of forms, text content is the main way users find elements. This can be used to find non-interactive elements (e.g. divs, spans, and paragraphs).
-5. ``getByDisplayValue``: Querying by the current value of a form element can be useful when navigating a page with filled-in values.
-6. ``getByAltText``: If your element is one which supports alt text (``img``, ``area``, ``input``), then you make use of this query.
-7. ``getByTitle``: The title attribute is not consistently read by screenreaders, and is not visible by default for sighted users. Thus is it not the best option, but better than ``getByTestId``
-
-The last and less-recommended priority:
-
-8. ``getByTestId``: The user cannot see (or hear) these, so this is only recommended for cases where you can't match by role or text or it doesn't make sense (e.g. the text is dynamic). Using this would involve adding a ``data-testid`` attribute to the particular node, and then using that value as the argument to
-``getByTestId`` function.
+VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All of these queries have different variants, which are used to query the DOM nodes based on different criteria. Some examples of the same include: ``getByText``, ``queryByRole``, ``findByText`` etc. These queries also have a recommened priority based on what the user would most likely interact with. You can read more about the same `here <https://testing-library.com/docs/queries/about#priority>`__. 
 
 Making use of ``screen``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

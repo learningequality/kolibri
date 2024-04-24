@@ -7,11 +7,9 @@ The general template of a test file will be like:
 
 .. code:: javascript
 
-   import VueRouter from 'vue-router';
    import { render, screen } from '@testing-library/vue';
    import userEvent from '@testing-library/user-event'
    import YourExampleComponent from '../YourExampleComponent.vue';
-
 
    const samplePropA = "someTestingValue1"
    const samplePropB = "someTestingValue2"
@@ -19,7 +17,6 @@ The general template of a test file will be like:
    // Helper function to render the component with the provided props
    const renderComponent = props => {
      return render(YourExampleComponent, {
-       routes: new VueRouter(),
        props: {
            propA: samplePropA,
            propB: samplePropB,
@@ -53,8 +50,7 @@ Some quick notes about the code snippet:
 1. You would need to replace the ``YourExampleComponent`` with the actual component you want to test.
 2. It is usually a good practice to have the first test as a smoke test in all your components.
 3. You can add describe blocks to add context to your tests. Remember to keep them as short as possible, and a test block should be responsible for testing only one functionality.
-4. It is advisable to define the default props as global constants so they are easily accessible in the tests (though this may vary from file to file).
-5. In case if you are using some particular text/value in your assertions because they are derived from the props that you pass in, then it is advisable to explicity pass them to the ``renderComponent`` as arguments to give the reader context of where they are coming from.
+4. In case if you are using some particular text/value in your assertions because they are derived from the props that you pass in, then it is advisable to explicity pass them to the ``renderComponent`` as arguments to give the reader context of where they are coming from.
 
 For example, in the ``describe some use case`` test, since we are querying on the value of ``samplePropA``, we are explicity passing it to the ``renderComponent`` even though it is the exact same as the default prop.
 
@@ -66,7 +62,7 @@ This section lists down some code snippets that can be used as reference to see 
 Vue Router
 ~~~~~~~~~~
 
-All the components need to be associated with a Router to run successfully. The same can be mocked easily by passing a ``routes`` prop to the ``render`` function with the value as new ``VueRouter`` object. The same is included in the template by default (with no routes configured). To add additional routes to the name, you can pass it an array of objects containg the keys ``name`` and ``path`` for the required paths needed to be mocked.
+You can pass a ``routes`` prop to the ``render`` function with the value as a new ``VueRouter`` object to mock Vue Router and to test navigation in your components. The same is included in the template by default (with no routes configured). To add additional routes to the name, you can pass it an array of objects containg the keys ``name`` and ``path`` for the required paths needed to be mocked.
 
 .. code:: javascript
 
@@ -132,9 +128,11 @@ It any composable does not have an associated mock file, please do create one be
 
    // A helper function to render the component with the given props and some default mocks
    const renderComponent = props => {
+     const { useUserMock: useUserMockData, ...componentProps } = props;
+
      useUser.mockImplementation(() =>
        useUserMock({
-         isAppContext: props.isAppContext || false,
+         isAppContext: useUserMockData?.isAppContext ?? false,
        })
      );
 
@@ -142,9 +140,21 @@ It any composable does not have an associated mock file, please do create one be
 
      return render(YourSampleComponent, {
        routes: new VueRouter(),
-       props
+       props: componentProps,
      });
    };
+
+   ...
+   // A sample call to the renderComponent function
+   renderComponent({
+     useUserMock: {
+       isAppContext: true,
+     },
+     propA: "someTestingValue1",
+     propB: "someTestingValue2",
+   });
+
+As a design pattern, all the mock data for a composable should be passed as a named key in the props object, so that it is clear to the reader that which props are being used for the component, and which are being used for the composable. A neat way of doing this is to destructure the props object in the render function, and then pass the rest of the props to the component, and the named key to the composable as shown.
 
 Mixins
 ~~~~~~

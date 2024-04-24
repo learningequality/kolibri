@@ -12,5 +12,5 @@ Frontend architecture
   HTML5_API
   dependencies
   unit_testing
-  frontend_build_pipeline
   testing_layout
+  frontend_build_pipeline
