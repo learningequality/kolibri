@@ -1,4 +1,4 @@
-Testing Template
+Testing template
 ================
 
 This is a common template that should serve as a nice starter for any test file testing a ``Vue.js`` component, and also gives a brief description on mocking the various dependencies of a common.
