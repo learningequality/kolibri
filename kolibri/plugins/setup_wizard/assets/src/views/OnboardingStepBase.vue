@@ -2,7 +2,7 @@
 
   <!-- Always base-container class, wrapping screen size class when small -->
   <div
-    :class="{ 'base-container': true, 'windowIsSmall': windowIsSmall }"
+    :class="{ 'base-container': true, 'window-is-small': windowIsSmall }"
     :style="{ 'background-color': windowIsSmall ? $themeTokens.surface : '' }"
     @keyup.enter="handleEnterKey"
   >
@@ -283,7 +283,7 @@
     padding-bottom: 5em;
     margin: 5em auto 0;
 
-    &.windowIsSmall {
+    &.window-is-small {
       width: 100vw;
       height: 100vh;
       margin: 0;
@@ -305,7 +305,7 @@
     font-size: 0.875em;
   }
 
-  .windowIsSmall .logo-lang-container {
+  .window-is-small .logo-lang-container {
     padding: 16px;
   }
 
@@ -340,7 +340,7 @@
     font-weight: bold;
   }
 
-  .windowIsSmall .languages-button {
+  .window-is-small .languages-button {
     top: 16px;
     right: 16px;
   }
@@ -351,7 +351,7 @@
     padding: 16px 32px 32px;
   }
 
-  .windowIsSmall .content {
+  .window-is-small .content {
     padding: 32px;
   }
 
@@ -371,7 +371,7 @@
     }
   }
 
-  .windowIsSmall .footer-section {
+  .window-is-small .footer-section {
     width: 100%;
     max-width: 100%;
   }

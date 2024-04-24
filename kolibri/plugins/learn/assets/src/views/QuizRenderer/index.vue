@@ -115,7 +115,7 @@
           <KPageContainer v-if="!windowIsLarge">
             <div
               class="bottom-block"
-              :class="{ windowIsSmall }"
+              :class="{ 'window-is-small': windowIsSmall }"
             >
               <div class="answered">
                 {{ answeredText }}
@@ -532,7 +532,7 @@
     margin-top: 8px;
   }
 
-  .bottom-block.windowIsSmall {
+  .bottom-block.window-is-small {
     text-align: center;
   }
 
