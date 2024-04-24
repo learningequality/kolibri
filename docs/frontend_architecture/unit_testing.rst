@@ -62,7 +62,7 @@ To avoid repeating boilerplate code while testing Vue components, define a ``ren
 Queries
 ~~~~~~~
 
-VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All of these queries have different variants, which are used to query the DOM nodes based on different criteria. Some examples of the same include: ``getByText``, ``queryByRole``, ``findByText`` etc. These queries also have a recommened priority based on what the user would most likely interact with. You can read more about the same `here <https://testing-library.com/docs/queries/about#priority>`__. 
+VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All of these queries have different variants, which are used to query the DOM nodes based on different criteria. Some examples of the same include: ``getByText``, ``queryByRole``, ``findByText`` etc. These queries also have a recommened priority based on what the user would most likely interact with. You can read more about the same `here <https://testing-library.com/docs/queries/about#priority>`__.
 
 Making use of ``screen``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
