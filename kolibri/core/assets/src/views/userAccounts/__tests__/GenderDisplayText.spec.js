@@ -1,4 +1,3 @@
-import VueRouter from 'vue-router';
 import { render, screen } from '@testing-library/vue';
 import { FacilityUserGender } from 'kolibri.coreVue.vuex.constants';
 import GenderDisplayText from '../GenderDisplayText.vue';
@@ -6,7 +5,6 @@ import '@testing-library/jest-dom';
 
 const renderComponent = gender => {
   return render(GenderDisplayText, {
-    routes: new VueRouter(),
     props: {
       gender,
     },

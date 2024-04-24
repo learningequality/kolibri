@@ -1,6 +1,5 @@
 import { render, screen } from '@testing-library/vue';
 import '@testing-library/jest-dom';
-import VueRouter from 'vue-router';
 import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import AttemptIconDiff from '../AttemptIconDiff.vue';
 
@@ -14,7 +13,6 @@ const renderComponent = props => {
       diff: 1,
       ...props,
     },
-    routes: new VueRouter(),
   });
 };
 

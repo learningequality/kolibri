@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import { render, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import useUser, { useUserMock } from 'kolibri.coreVue.composables.useUser';
 import DownloadButton from '../DownloadButton.vue';
 import { RENDERER_SUFFIX } from '../constants';
@@ -35,7 +34,6 @@ const renderComponent = props => {
   );
 
   return render(DownloadButton, {
-    routes: new VueRouter(),
     props: {
       files: [],
       nodeTitle: '',

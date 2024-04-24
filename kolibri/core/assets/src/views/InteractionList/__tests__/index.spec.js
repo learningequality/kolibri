@@ -1,5 +1,4 @@
 import { render, fireEvent, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import InteractionList from '../';
 
 const renderComponent = props => {
@@ -13,7 +12,6 @@ const renderComponent = props => {
       ...defaultProps,
       ...props,
     },
-    routes: new VueRouter(),
   });
 };
 
