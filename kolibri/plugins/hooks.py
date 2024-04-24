@@ -234,6 +234,28 @@ def register_hook(subclass):
     return subclass
 
 
+def unregister_hook(subclass):
+    """
+    This method must be used as a decorator to unregister a hook and prevent it from being
+    registered against the abstract hook classes it inherits from.
+    """
+    if not any(
+        hasattr(base, "_registered_hooks")
+        and base.abstract
+        and issubclass(base, KolibriHook)
+        for base in subclass.__bases__
+    ):
+        raise TypeError(
+            "unregister_hook decorator used on a class that does not inherit from any abstract KolibriHook subclasses"
+        )
+    if not subclass.__module__.endswith("kolibri_plugin"):
+        raise RuntimeError(
+            "unregister_hook decorator invoked outside of a kolibri_plugin.py module - this hook will not be initialized"
+        )
+    subclass.remove_hook_from_registries()
+    subclass._registered = False
+
+
 class KolibriHookMeta(SingletonMeta):
     """
     We use a metaclass to define class level properties and methods in a simple way.
@@ -314,6 +336,37 @@ class KolibriHookMeta(SingletonMeta):
         logger.debug(
             "{} added to registry for defined hook: {}".format(hook.unique_id, cls)
         )
+
+    def remove_hook_from_registries(cls):
+        """
+        Remove a concrete hook class from all relevant abstract hook registries.
+        """
+        if not cls.abstract and cls._registered:
+            hook = cls()
+            for parent in cls.__mro__:
+                if (
+                    isabstract(parent)
+                    and issubclass(parent, KolibriHook)
+                    and parent is not KolibriHook
+                    and hasattr(parent, "_registered_hooks")
+                ):
+                    parent.remove_hook_from_class_registry(hook)
+
+    def remove_hook_from_class_registry(cls, hook):
+        """
+        Remove a concrete hook instance from the hook registry on this abstract hook
+        """
+        if not cls.abstract:
+            raise TypeError(
+                "remove_hook_from_registry method used on a non-abstract hook"
+            )
+        if hook.unique_id in cls._registered_hooks:
+            del cls._registered_hooks[hook.unique_id]
+            logger.debug(
+                "{} removed from registry for defined hook: {}".format(
+                    hook.unique_id, cls
+                )
+            )
 
     def get_hook(cls, unique_id):
         """
