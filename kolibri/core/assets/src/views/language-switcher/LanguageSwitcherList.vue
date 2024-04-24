@@ -18,29 +18,26 @@
             appearance="basic-link"
             @click="switchLanguage(item.id)"
           />
-          <div v-else class="d-flex">
-            <div class="lang-icon">
-              <KIconButton
-                icon="language"
-                aria-hidden="true"
-                tabindex="-1"
-                class="globe px-8"
-                @click="showLanguageModal = true"
-              />
-            </div>
-            <span class="no-shrink px-8" :title="item.english_name">
-              {{ item.lang_name }}
-            </span>
-          </div>
-        </template>
-        <template #more>
-          <KButton
-            :text="$tr('showMoreLanguagesSelector')"
-            :primary="false"
-            class="px-8"
-            appearance="flat-button"
+          <SelectedLanguage
+            v-else
+            :selectedLanguage="item"
             @click="showLanguageModal = true"
           />
+        </template>
+        <template #more="{ overflowItems }">
+          <div>
+            <SelectedLanguage
+              v-if="overflowItems.length === buttonLanguages.length"
+              :selectedLanguage="selectedLanguage"
+              @click="showLanguageModal = true"
+            />
+            <KButton
+              :text="$tr('showMoreLanguagesSelector')"
+              class="px-8"
+              appearance="flat-button"
+              @click="showLanguageModal = true"
+            />
+          </div>
         </template>
       </KListWithOverflow>
     </div>
@@ -59,6 +56,7 @@
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
   import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
+  import SelectedLanguage from './SelectedLanguage';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
   const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
@@ -66,6 +64,7 @@
   export default {
     name: 'LanguageSwitcherList',
     components: {
+      SelectedLanguage,
       LanguageSwitcherModal,
     },
     mixins: [languageSwitcherMixin],
@@ -146,19 +145,9 @@
     margin-top: 8px;
   }
 
-  .no-shrink {
-    flex-shrink: 0;
-    white-space: nowrap;
-  }
-
   .px-8 {
     padding-right: 8px;
     padding-left: 8px;
-  }
-
-  .d-flex {
-    display: flex;
-    align-items: center;
   }
 
   .lang-icon {
