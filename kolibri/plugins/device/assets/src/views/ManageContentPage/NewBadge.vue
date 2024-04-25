@@ -2,7 +2,7 @@
 
   <span
     class="new-badge"
-    :style="{ color: $themeTokens.textInverted, backgroundColor: $themeTokens.success }"
+    :class="$computedClass(badgeStyle)"
   >
     {{ label }}
   </span>
@@ -21,6 +21,17 @@
       label: {
         type: String,
         required: true,
+      },
+    },
+    computed: {
+      badgeStyle() {
+        return {
+          color: this.$themeTokens.textInverted,
+          backgroundColor: this.$themeTokens.success,
+          '::selection': {
+            color: this.$themeTokens.text,
+          },
+        };
       },
     },
   };

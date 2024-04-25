@@ -51,7 +51,7 @@
     computed: {
       thumbnailStyles() {
         const styles = {
-          backgroundColor: this.$themePalette.grey.v_200,
+          backgroundColor: this.$themePalette.grey.v_50,
         };
         if (this.rounded) {
           styles.borderRadius = '4px';

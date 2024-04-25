@@ -24,7 +24,7 @@
 
           <KFixedGridItem :span="isMobile ? 4 : 3" class="text-area">
             <span :style="{ color: $themeTokens.text }">
-              <div class="metadata-info" :style="{ color: $themePalette.grey.v_700 }">
+              <div class="metadata-info" :style="{ color: $themePalette.grey.v_800 }">
                 <LearningActivityLabel
                   :contentNode="contentNode"
                   :hideDuration="true"
@@ -47,12 +47,12 @@
                   :contentNode="contentNode"
                   :class="categoryAndLevelString ? 'duration prepends' : 'duration'"
                   condensed
-                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                  :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
                 />
                 <p
                   v-if="categoryAndLevelString"
                   class="metadata-info"
-                  :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                  :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
                 >{{ categoryAndLevelString }}</p>
                 <div>
                   <img
@@ -60,12 +60,12 @@
                     :src="channelThumbnail"
                     :alt="learnString('logo', { channelTitle: channelTitle })"
                     class="channel-logo"
-                    :style="{ color: $themePalette.grey.v_700 }"
+                    :style="{ color: $themePalette.grey.v_800 }"
                   >
                   <p
                     v-else
                     class="metadata-info"
-                    :style="{ color: $themePalette.grey.v_700, marginTop: 0 }"
+                    :style="{ color: $themePalette.grey.v_800, marginTop: 0 }"
                   >{{ learnString('logo', { channelTitle: channelTitle }) }}</p>
                   <KButton
                     v-if="contentNode.copies"
@@ -81,7 +81,7 @@
             <p
               v-if="createdDate"
               class="created-info"
-              :style="{ color: $themePalette.grey.v_700 }"
+              :style="{ color: $themePalette.grey.v_800 }"
             >
               {{ bookmarkCreated }}
             </p>

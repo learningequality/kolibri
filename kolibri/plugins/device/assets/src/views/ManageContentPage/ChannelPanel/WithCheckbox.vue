@@ -3,7 +3,7 @@
   <div
     class="channel-card"
     :class="{ 'channel-card-sm': windowIsSmall }"
-    :style="{ borderTopColor: $themePalette.grey.v_200 }"
+    :style="{ borderTopColor: $themeTokens.fineLine }"
   >
     <ChannelDetails :channel="channel">
       <template #beforethumbnail>

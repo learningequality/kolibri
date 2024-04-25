@@ -145,7 +145,7 @@
           position: 'fixed',
           top: 0,
           backgroundColor: this.$themeTokens.surface,
-          'border-bottom': `1px solid ${this.$themePalette.grey.v_500}`,
+          'border-bottom': `1px solid ${this.$themeTokens.fineLine}`,
           padding: '24px 32px',
           // Header border stays over content with this, but under any tooltips
           'z-index': 16,

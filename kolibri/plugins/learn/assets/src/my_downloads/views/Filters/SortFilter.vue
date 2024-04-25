@@ -47,8 +47,6 @@
     computed: {
       selectorStyle() {
         return {
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themePalette.grey.v_200,
           borderRadius: '2px',
           marginTop: '16px',
           marginBottom: 0,

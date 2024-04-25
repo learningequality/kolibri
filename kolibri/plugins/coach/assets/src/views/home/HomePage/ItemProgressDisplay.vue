@@ -71,8 +71,6 @@
       themeClass() {
         return this.$computedClass({
           ':hover': {
-            // Background is light enough so that contents colored at grey.v_300
-            // are still visible.
             backgroundColor: this.$themePalette.grey.v_100,
             // Add equal and opposite margin and padding to give the highlighted
             // region more space without increasing the size of the parent div.

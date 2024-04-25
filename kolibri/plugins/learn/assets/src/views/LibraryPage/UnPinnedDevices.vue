@@ -26,8 +26,12 @@
               :text="deviceName"
               :maxLines="2"
               class="name"
+              :style="{ color: $themePalette.black }"
             />
-            <p class="channels">
+            <p
+              class="channels"
+              :style="{ color: channelColor }"
+            >
               {{ $tr('channels', { count: channelCount }) }}
             </p>
           </div>
@@ -106,6 +110,9 @@
           return 'laptop';
         }
       },
+      channelColor() {
+        return this.$themePalette.grey.v_700;
+      },
     },
     $trs: {
       channels: {
@@ -172,7 +179,6 @@
     font-size: 19px;
     font-weight: 700;
     line-height: 140%;
-    color: black;
   }
 
   .channels {
@@ -180,7 +186,6 @@
     margin: 5px 0 0;
     font-size: 17px;
     font-weight: 500;
-    color: #616161;
   }
 
   .view-all {

@@ -107,7 +107,7 @@
     methods: {
       appearanceOverrides(category, bolded) {
         const activeOverrides = {
-          backgroundColor: this.$themeBrand.primary.v_50,
+          backgroundColor: this.$themeBrand.primary.v_200,
           border: '2px',
           borderColor: this.$themeTokens.primary,
           borderStyle: 'solid',
