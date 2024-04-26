@@ -2,68 +2,80 @@ Feature: Admin changes facility settings
   Admin needs to be able to change the user sign-in/up, self-edit, and content download options according to the needs of the facility
 
   Background:
-    Given I am signed in to Kolibri as facility admin user
-      And I am on *Facility > Settings* page
+    Given I am signed in to Kolibri as a facility admin user
+      And I am at *Facility > Settings* page
       And there are learner and coach user accounts created in the facility
 
-  Scenario: Allow username edit
-    Given the *Allow learners and coaches to edit their username* checkbox is checked
-    When I uncheck the *Allow learners and coaches to edit their username* checkbox
-      And I click the *Save changes* button
-      And I sign out
-      And I sign in as learner <learner>, or coach <coach>
-      And I (as learner <learner>, or coach <coach>) open the user menu
-      And I select *Profile*
-    Then I (as learner <learner>, or coach <coach>) see that the *Username* field is not editable
+  Scenario: Change the facility name
+  	When I click *Edit* next to the facility name
+  	Then I see the *Rename facility* modal
+  	When I enter a new name
+  		And I click the *Save* button
+  	Then I see the *Changes saved* snackbar message
+  		And I see the new facility name
 
-  Scenario: Allow password change
-    Given the *Allow learners and coaches to change their password when signed in* checkbox is checked
-    When I uncheck the *Allow learners and coaches to change their password when signed in* checkbox
+  Scenario: Allow and disallow full name and username edit
+    Given both the *Allow learners to edit their username* and the *Allow learners to edit their full name* checkboxes are checked
+    When I sign in to Kolibri in a separate browser as a learner
+      And I go to the *Profile* page
+      And I click the *Edit* button
+    Then I see the *Edit profile* page
+    	And I see that both the *Full name* and *Username* fields are editable
+    When as an admin I uncheck both the *Allow learners to edit their username* and the *Allow learners to edit their full name* checkboxes
       And I click the *Save changes* button
-      And I sign out
-      And I sign in as learner <learner>, or coach <coach>
-      And I (as learner <learner>, or coach <coach>) open the user menu
-      And I select *Profile*
-    Then I (as learner <learner>, or coach <coach>) don't see the *Change password* link
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I sign in again to Kolibri in a separate browser
+      And I go to the *Profile* page
+      And I click the *Edit* button
+    Then I see the *Edit profile* page
+    	And I see that both the *Full name* and *Username* fields are not editable
 
-  Scenario: Allow full name edit
-    Given the *Allow learners and coaches to edit their full name* checkbox is checked
-    When I uncheck the *Allow learners and coaches to edit their full name* checkbox
-      And I click the *Save changes* button
-      And I sign out
-      And I sign in as learner <learner>, or coach <coach>
-      And I (as learner <learner>, or coach <coach>) open the user menu
-      And I select *Profile*
-    Then I (as learner <learner>, or coach <coach>) see that the *Full name* field is not editable
-
-  Scenario: Allow visitors to create accounts
+  Scenario: Allow and disallow visitors to create accounts
     Given the *Allow learners to create accounts* checkbox is unchecked
     When I check the *Allow learners to create accounts* checkbox
       And I click the *Save changes* button
-      And I sign out
+    Then I see the *Facility settings updated* snackbar message
+    When I open Kolibri in a separate browser
     Then I see the *Create an account* button on the sign-in page
+    When as an admin I check the *Allow learners to create accounts* checkbox
+    And I click the *Save changes* button
+    Then I see the *Facility settings updated* snackbar message
+    When I open Kolibri in a separate browser
+    Then I no longer see the *Create an account* button on the sign-in page
 
   Scenario: Allow simplified sign-in
-    Given the *Allow learners to sign in with no password* checkbox is unchecked
-    When I check the *Allow learners to sign in with no password* checkbox
+    Given the *Require password for learners* checkbox is unchecked
+    When I check the *Require password for learners* checkbox
       And I click the *Save changes* button
-      And I sign out
-    Then I don't see the *Password* field on the sign-in page
-      And I'm able to sign-in as learner <learner> and no password
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I open Kolibri in a separate browser
+    Then I don't see the *Password* field at the sign-in page
+      And I can sign-in without a password
 
-  Scenario: Allow content download
-    Given the *Show 'download' button with content* checkbox is unchecked
-    When I check the *Show 'download' button with content* checkbox
+  Scenario: Allow and disallow password change
+    Given both the Require password for learners* and *Allow learners to change their password when signed in* checkboxes are checked
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Profile* page
+    Then I can see the *Change password* link
+    When as an admin I uncheck the *Allow learners to change their password when signed in* checkbox
       And I click the *Save changes* button
-    When I go to *Learn > Library* page
-      And browse any channel's topics until I open an single resource
-    Then I see the *Download content* button
+    Then I see the *Facility settings updated* snackbar message
+    WWhen as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Profile* page
+    Then the *Change password* link is no longer visible
 
-  Scenario: Allow guest browsing
-    Given the *Allow users to access content without signing in* checkbox is unchecked
-    When I check the *Allow users to access content without signing in* checkbox
+  Scenario: Allow and disallow content download
+    Given the *Show 'download' button with content* checkbox is checked
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Learn > Library*
+      And I open a single resource
+      And I click the *View information* icon
+    Then I see the *Save to device* button
+    When as an admin I uncheck the *Show 'download' button with content* checkbox
       And I click the *Save changes* button
-      And I sign out
-    Then I see the *Explore without account* link on the sign-in page
-    When I click *Explore without account*
-    Then I see the *Learn > Library* page
+    Then I see the *Facility settings updated* snackbar message
+    When as a learner I sign in to Kolibri in a separate browser
+      And I go to the *Learn > Library*
+      And I open a single resource
+      And I click the *View information* icon
+    Then I no longer see the *Save to device* button
