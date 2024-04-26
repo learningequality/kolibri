@@ -169,16 +169,25 @@ export async function convertExamQuestionSources(exam) {
  * @returns {Promise} - resolves to an object with the exam and the exercises
  */
 export async function fetchExamWithContent(exam) {
-  // All data_model_versions have the `exercise_id` field
-  const ids = uniq(exam.question_sources.map(item => item.exercise_id));
-  return ContentNodeResource.fetchCollection({
-    getParams: {
-      ids,
-      no_available_filtering: true,
-    },
-  }).then(async exercises => {
-    return convertExamQuestionSources(exam, exercises).then(exam => {
-      return { exam, exercises };
+  return convertExamQuestionSources(exam).then(converted => {
+    exam.question_sources = converted.question_sources;
+    const ids = uniq(
+      exam.question_sources.reduce((acc, section) => {
+        acc = [...acc, ...section.questions.map(item => item.exercise_id)];
+        return acc;
+      }, [])
+    );
+
+    return ContentNodeResource.fetchCollection({
+      getParams: {
+        ids,
+        no_available_filtering: true,
+      },
+    }).then(exercises => {
+      return {
+        exam,
+        exercises,
+      };
     });
   });
 }

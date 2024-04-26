@@ -1,28 +1,16 @@
-import map from 'lodash/map';
-import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
-import { ExamResource, ContentNodeResource } from 'kolibri.resources';
+import { fetchExamWithContent } from 'kolibri.utils.exams';
+import { ExamResource } from 'kolibri.resources';
 
 export function fetchQuizSummaryPageData(examId) {
-  const payload = {
-    // To display the title, status, etc. of the Quiz
-    exam: {},
-    // To render the exercises in QuestionListPreview > ContentRenderer
-    exerciseContentNodes: {},
-  };
   return ExamResource.fetchModel({ id: examId })
     .then(exam => {
-      return fetchNodeDataAndConvertExam(exam);
+      return fetchExamWithContent(exam);
     })
-    .then(exam => {
-      payload.exam = exam;
-      return ContentNodeResource.fetchCollection({
-        getParams: {
-          ids: map(exam.question_sources, 'exercise_id'),
-        },
-      }).then(contentNodes => {
-        payload.exerciseContentNodes = contentNodes;
-        return payload;
-      });
+    .then(({ exam, exercises }) => {
+      return {
+        exerciseContentNodes: exercises,
+        exam,
+      };
     });
 }
 
