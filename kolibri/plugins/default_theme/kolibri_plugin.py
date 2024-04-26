@@ -32,7 +32,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     "size": "32x32",
                 },
                 {
-                    "src": static("kolibri-logo.svg"),
+                    "src": static("assets/kolibri-logo.svg"),
                     "content_type": "image/svg+xml",
                     # See https://web.dev/maskable-icon/ for details on what
                     # icons count as maskable. The default Kolibri logo is not,
@@ -41,12 +41,12 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     "size": "any",
                 },
                 {
-                    "src": static("kolibri-logo-192.png"),
+                    "src": static("assets/kolibri-logo-192.png"),
                     "content_type": "image/png",
                     "size": "192x192",
                 },
                 {
-                    "src": static("kolibri-logo-512.png"),
+                    "src": static("assets/kolibri-logo-512.png"),
                     "content_type": "image/png",
                     "size": "512x512",
                 },
