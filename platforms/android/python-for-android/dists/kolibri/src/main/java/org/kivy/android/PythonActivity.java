@@ -354,7 +354,7 @@ public class PythonActivity extends Activity {
          * 'lime', 'maroon', 'navy', 'olive', 'purple', 'silver', 'teal'.
          */
         try {
-        mImageView.setBackgroundColor(Color.parseColor("#FFFFFF"));
+        mImageView.setBackgroundColor(Color.parseColor("#FFCB00"));
         } catch (IllegalArgumentException e) {}
         mImageView.setLayoutParams(new ViewGroup.LayoutParams(
         ViewGroup.LayoutParams.FILL_PARENT,

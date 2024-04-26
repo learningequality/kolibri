@@ -12,7 +12,7 @@
 --permission FOREGROUND_SERVICE
 --worker TaskWorker:taskworker.py
 --service remoteshell:remoteshell.py
---presplash-color #FFFFFF
+--presplash-color #FFCB00
 --whitelist ./allowlist.txt
 --blacklist ./blocklist.txt
 --storage-dir ./python-for-android
