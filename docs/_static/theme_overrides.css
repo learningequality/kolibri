@@ -1,4 +1,120 @@
 
+html[lang=ar] {
+  direction: rtl;
+}
+
+/* Preformatted and code formatted segments LTR */
+html[lang=ar] pre {
+  direction: ltr;
+  text-align: left;
+}
+
+html[lang=ar] code {
+  unicode-bidi: bidi-override;
+  direction: ltr;
+}
+
+html[lang=ar] div.highlight {
+  unicode-bidi: bidi-override;
+  direction: ltr;
+}
+
+/* Force floated images float opposite in Arabic */
+html[lang=ar] .rst-content .align-right {
+  float: left;
+}
+
+/* RTD navigation changes for Arabic */
+html[lang=ar] .wy-breadcrumbs select.wy-breadcrumbs-aside {
+  float: left;
+}
+
+html[lang=ar] .wy-nav-side, html[lang=ar] .rst-versions {
+  right:0;
+}
+
+html[lang=ar] .wy-nav-content-wrap {
+  margin-right: 300px;
+  margin-left: 0;
+}
+
+@media screen and (max-width: 768px) {
+  html[lang=ar] .wy-nav-side {
+      right:-300px;
+  }
+  html[lang=ar] .wy-nav-side.shift {
+      right:0;
+  }
+  html[lang=ar] .wy-nav-content-wrap {
+      margin-right:0;
+  }
+  html[lang=ar] .wy-nav-content-wrap.shift {
+      right:85%;
+  }
+}
+
+html[lang=ar] .wy-nav-top i {
+  float:right;
+}
+
+html[lang=ar] .wy-menu-vertical li span.toctree-expand {
+  float:none;
+  margin-right: -1.2em;
+  margin-left: 0;
+  padding-left: .4em;
+}
+
+html[lang=ar] .wy-breadcrumbs li.wy-breadcrumbs-aside {
+  float:left;
+}
+
+html[lang=ar] .wy-menu-vertical li.current>a span.toctree-expand {
+  display:inline-block;
+}
+
+html[lang=ar] .wy-plain-list-disc li, .rst-content .section ul li, .rst-content .toctree-wrapper ul li, article ul li {
+  margin-right: 24px;
+}
+
+html[lang=ar] .wy-plain-list-decimal li, .rst-content .section ol li, .rst-content ol.arabic li, article ol li {
+  margin-right: 24px;
+}
+
+.rst-content .admonition-title::before {
+  margin-left: 4px;
+}
+
+.rst-content blockquote {
+margin-left: 5px;
+}
+
+.rst-content .section ul li {
+  margin-bottom: 8px;
+}
+
+.figure img {
+  padding: 4px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: auto 5px;
+}
+
+.rst-content div.figure p.caption {
+  padding-right: 5px;
+}
+
+span.caption-text {
+  overflow:hidden; display:block;
+  margin-left: 6px;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 5px;
+  font-size: smaller;
+}
+
+code.docutils.literal.notranslate {
+  padding-top: 4px;
+}
+
 .wy-table-responsive table td {
   /* !important prevents the common CSS stylesheets from overriding
      this as on RTD they are loaded after this stylesheet */
@@ -6,46 +122,155 @@
   vertical-align: top !important;
 }
 
-.wy-plain-list-disc li p:last-child,
-.rst-content .section ul li p:last-child,
-.rst-content .toctree-wrapper ul li p:last-child,
-article ul li p:last-child {
-  margin-bottom: 8px;
-}
-.wy-plain-list-disc li ul,
-.rst-content .section ul li ul,
-.rst-content .toctree-wrapper ul li ul,
-article ul li ul {
-  margin-bottom: 8px;
+/* Change background color to match Kolibri brand */
+.wy-side-nav-search {
+  background-color: #4368F5 !important;
 }
 
-/*.rst-content .section ul li p:last-child, {
-    margin-bottom: 0;
+.wy-nav-top {
+  background: #4368F5 !important;
 }
 
-.rst-content .section ol p, .rst-content .section ul p {
-margin-bottom: 0px;
+/* Improve the contrast for the version number.*/
+.wy-side-nav-search > div.version {
+  color: rgba(255,255,255,0.9);
 }
-.rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li {
- list-style: none;
- margin-left: 0;
- padding-left: 0;
+
+.local_library {
+color: #2196f3;
 }
-.rst-content #contents.hidden-first-item > ul:nth-of-type(1) > li > p {
- display: none;
+
+.outline {
+  padding-bottom: 1px !important;
+  border: 2px solid;
+  border-radius: 50%;
 }
-.rst-content #contents.hidden-first-item > ul:nth-of-type(1) {
- margin-left: 0;
- padding-left: 0;
+
+.schedule {
+padding-bottom: 1px !important;
+background-color: #2196f3;
+border-radius: 50%;
+color: #fff;
 }
-.rst-content #contents.hidden-first-item ul li li {
- list-style: disc;
+
+.clock {
+  padding-bottom: 1px !important;
+  border-radius: 50%;
+  color: #2196f3;
 }
-.rst-content #contents.hidden-first-item ul li li li {
- list-style: circle;
-}*/
+
+.star {
+padding-bottom: 1px !important;
+background-color: #ffc107;
+border-radius: 50%;
+color: #fff;
+}
+
+.star-small {
+  padding-bottom: 1px !important;
+  border-radius: 50%;
+  color: #ffc107;
+}
+
+.help {
+  padding-bottom: 1px !important;
+  border-radius: 50%;
+  color: #df4d4f;
+}
+
+.drag {
+  transform: rotate(90deg);
+}
+
+img {
+height: 1.2em;
+vertical-align: text-bottom;
+}
+
+.rst-content span.guilabel {
+  background-color: #f7f7f7;
+  border: 1px solid #c6cbd1;
+  border-bottom-color: #959da5;
+  border-radius: 3px;
+  box-shadow: inset 0 -1px 0 #959da5;
+  color: #444d56;
+  font-size: 80%;
+  font-weight: 500;
+  padding: 4px 5px 3px;
+  margin-top: -2px;
+  font-family: Noto, sans-serif;
+}
+
+.rst-content div.highlight {
+  background: #feffe9 !important;
+}
+
+/* Reported upstream: https://github.com/rtfd/sphinx_rtd_theme/issues/722 */
+.admonition {
+clear: both;
+}
 
 /* push down the RTD banner so it's not confused with menu */
 .keep-us-sustainable {
-  margin-top: 20em !important;
+margin-top: 20em !important;
+}
+
+/*
+  Design system icon replacements default colors
+
+  See pregenerate.css in the design system for usage and for specific color
+  values see https://kolibri-design-system.netlify.app/colors/#tokens
+
+  This is not automatically generated anywhere so you must add colors if they aren't
+  already defined on a theme token name derived class
+*/
+
+.design-system-icon svg {
+  width: 24px;
+  height: 24px;
+  vertical-align: top;
+}
+
+.design-system-icon-color-annotation {
+  fill: #616161;
+}
+
+.design-system-icon-color-coachContent {
+  fill: #0277bd;
+}
+
+.design-system-icon-color-correct {
+  fill: #43a047;
+}
+
+.design-system-icon-color-error {
+  fill: #d32f2f;
+}
+
+.design-system-icon-color-incorrect {
+  fill: #c62828;
+}
+
+.design-system-icon-color-mastered {
+  fill: #ffc107;
+}
+
+.design-system-icon-color-primary {
+  fill: #4368F5;
+}
+
+.design-system-icon-color-progress {
+  fill: #03a9f4;
+}
+
+.design-system-icon-color-success {
+  fill: #388e3c;
+}
+
+.design-system-icon-color-focusOutline {
+  fill: #388e3c;
+}
+
+.design-system-icon-color-textDisabled {
+  fill: #e0e0e0;
 }
