@@ -411,7 +411,7 @@ export default function useQuizCreation() {
       (count, r) => count + r.assessmentmetadata.assessment_item_ids.length,
       0
     );
-    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseIds = pool.map(r => r.exercise_id);
     const exerciseTitles = pool.map(r => r.title);
     const questionIdArrays = pool.map(r => r.unique_question_ids);
     return selectQuestions(

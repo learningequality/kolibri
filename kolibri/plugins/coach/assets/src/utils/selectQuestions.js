@@ -74,7 +74,7 @@ export default function selectQuestions(
       if (!find(output, { id: uId })) {
         output.push({
           counter_in_exercise: questionIdArrays[ri].indexOf(uId) + 1,
-          exercise_id: exerciseIds[ri],
+          exercise_id: uId.includes(':') ? uId.split(':')[0] : uId,
           question_id: uId.split(':')[1],
           id: uId,
           title: exerciseTitles[ri],

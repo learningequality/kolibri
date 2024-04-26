@@ -1,4 +1,3 @@
-import every from 'lodash/every';
 import uniq from 'lodash/uniq';
 import { v4 as uuidv4 } from 'uuid';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
@@ -15,7 +14,7 @@ import { ExamResource, ContentNodeResource } from 'kolibri.resources';
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { exercise_id, question_id }
  */
-function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
+function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
@@ -63,16 +62,14 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
 
 function convertExamQuestionSourcesV1V2(questionSources) {
   // In case a V1 quiz already has this with the old name, rename it
-  if (every(questionSources, 'counterInExercise')) {
-    return questionSources.map(source => {
-      const copy = source;
-      copy.counter_in_exercise = copy.counterInExercise;
+  return annotateQuestionSourcesWithCounter(
+    questionSources.map(question => {
+      const copy = question;
+      copy.counter_in_exercise = copy.counter_in_exercise || copy.counterInExercise;
       delete copy.counterInExercise;
       return copy;
-    });
-  }
-
-  return annotateQuestionSourcesWithCounter(questionSources);
+    })
+  );
 }
 
 function annotateQuestionsWithItem(questions) {
@@ -84,106 +81,105 @@ function annotateQuestionsWithItem(questions) {
 
 /* Given a V2 question_sources, return V3 structure with those questions within one new section */
 /**
- * @param {Array} questionSources - a V2 question_sources object
- * @param {boolean} learners_see_fixed_order - whether the questions should be randomized or not
+ * @param {Exam} learners_see_fixed_order - whether the questions should be randomized or not
  *                         - a V2 quiz will have this value on itself, but a V3 quiz will have it
  *                         on each section, so it should be passed in here
  * @returns V3 formatted question_sources
  */
-export function convertV2toV3(questionSources, exam) {
-  questionSources = questionSources || []; // Default value while requiring all params
-  const questions = annotateQuestionsWithItem(questionSources);
-  return {
-    section_id: uuidv4(),
-    section_title: '',
-    description: '',
-    resource_pool: [],
-    questions,
-    learners_see_fixed_order: exam.learners_see_fixed_order,
-    question_count: exam.question_count,
-  };
-}
-
-export function revertV3toV2(questionSources) {
-  if (!questionSources.length) {
-    return [];
-  }
-  return questionSources[0].questions;
+export function convertExamQuestionSourcesV2toV3({ question_sources, learners_see_fixed_order }) {
+  // In V2, question_sources are questions so we add them
+  // to the newly created section's `questions` property
+  const questions = question_sources;
+  return [
+    {
+      section_id: uuidv4(),
+      section_title: '',
+      description: '',
+      questions,
+      learners_see_fixed_order,
+      question_count: questions.length,
+    },
+  ];
 }
 
 /**
- * @param {object} exam - an exam object of any question_sources version
- * @returns V3 formatted question_sources
+ * Fetches the content nodes for an exam and converts the exam to the latest data_model_version
+ *
+ * data_model_version 0 (V0):
+ * - question_sources here refer to exercise nodes that the exam drew questions from at that time
+ *
+ * data_model_version 1 (V1):
+ * - question_sources is changed to now refer to the questions themselves by including the
+ *   exercise_id and question_id along with a title
+ *
+ * data_model_version 2 (V2):
+ * - The objects in question_sources are now annotated with a counter_in_exercise field
+ *
+ * data_model_version 3 (V3):
+ * - question_sources now refers to a list of sections, each with their own list of questions
  */
-export function convertExamQuestionSourcesToV3(exam, extraArgs = {}) {
-  if (exam.data_model_version !== 3) {
-    const V2_sources = convertExamQuestionSources(exam, extraArgs);
-    return [convertV2toV3(V2_sources, exam)];
-  }
 
-  return exam.question_sources;
+export async function convertExamQuestionSources(exam) {
+  const { data_model_version } = exam;
+
+  return new Promise(resolve => {
+    if (data_model_version === 0) {
+      const ids = uniq(exam.question_sources.map(item => item.exercise_id));
+      return ContentNodeResource.fetchCollection({
+        getParams: {
+          ids,
+          no_available_filtering: true,
+        },
+      }).then(exercises => {
+        const questionIds = exercises.reduce((nodeIds, node) => {
+          nodeIds[node.id] = node.assessmentmetadata
+            ? node.assessmentmetadata.assessment_item_ids
+            : [];
+          return nodeIds;
+        }, []);
+        exam.question_sources = convertExamQuestionSourcesV0V1(
+          exam.question_sources,
+          exam.seed,
+          questionIds
+        );
+        resolve(exam);
+      });
+    } else {
+      resolve(exam);
+    }
+  }).then(exam => {
+    if (data_model_version <= 1) {
+      exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
+    }
+    if (data_model_version <= 2) {
+      exam.question_sources = convertExamQuestionSourcesV2toV3(exam);
+    }
+    if (data_model_version <= 3) {
+      // Annotate all of the questions with the `item` field
+      exam.question_sources = exam.question_sources.map(section => {
+        section.questions = annotateQuestionsWithItem(section.questions);
+        return section;
+      });
+      return exam;
+    }
+  });
 }
 
 /**
- * @returns V2 formatted question_sources
+ * @returns {Promise} - resolves to an object with the exam and the exercises
  */
-export function convertExamQuestionSources(exam, extraArgs = {}) {
-  const { data_model_version } = exam;
-  if (data_model_version === 0) {
-    // TODO contentNodes are only needed for V0 -> V2 conversion, but a request to the
-    // ContentNode API is made regardless of the version being converted
-    if (extraArgs.contentNodes === undefined) {
-      throw new Error(
-        "Missing 'contentNodes' array, which is required when converting a V0 Exam model"
-      );
-    }
-    if (exam.seed === undefined) {
-      throw new Error("Missing 'seed' integer, which is required when converting a V0 Exam model");
-    }
-    const { contentNodes } = extraArgs;
-    const questionIds = {};
-    contentNodes.forEach(node => {
-      questionIds[node.id] = node.assessmentmetadata
-        ? node.assessmentmetadata.assessment_item_ids
-        : [];
-    });
-    return annotateQuestionsWithItem(
-      convertExamQuestionSourcesV0V2(exam.question_sources, exam.seed, questionIds)
-    );
-  }
-  if (data_model_version === 1) {
-    return annotateQuestionsWithItem(convertExamQuestionSourcesV1V2(exam.question_sources));
-  }
-
-  // For backwards compatibility. If you are using V3, use the convertExamQuestionSourcesToV3 func
-  if (data_model_version === 3) {
-    return revertV3toV2(exam.question_sources);
-  }
-
-  return annotateQuestionsWithItem(exam.question_sources);
-}
-
-export function fetchNodeDataAndConvertExam(exam) {
-  const { data_model_version } = exam;
-  if (data_model_version >= 3) {
-    /* For backwards compatibility, we need to convert V3 to V2 */
-    exam.question_sources = revertV3toV2(exam.question_sources);
-    return Promise.resolve(exam);
-  }
-  if (data_model_version == 2) {
-    exam.question_sources = annotateQuestionsWithItem(exam.question_sources);
-    return Promise.resolve(exam);
-  }
+export async function fetchExamWithContent(exam) {
+  // All data_model_versions have the `exercise_id` field
+  const ids = uniq(exam.question_sources.map(item => item.exercise_id));
   return ContentNodeResource.fetchCollection({
     getParams: {
-      ids: uniq(exam.question_sources.map(item => item.exercise_id)),
+      ids,
       no_available_filtering: true,
     },
-  }).then(contentNodes => {
-    return {
-      ...exam,
-      question_sources: convertExamQuestionSources(exam, { contentNodes }),
-    };
+  }).then(async exercises => {
+    return convertExamQuestionSources(exam, exercises).then(exam => {
+      return { exam, exercises };
+    });
   });
 }
 
@@ -193,6 +189,9 @@ export function fetchNodeDataAndConvertExam(exam) {
 export function annotateQuestionSourcesWithCounter(questionSources) {
   const counterInExerciseMap = {};
   return questionSources.map(source => {
+    if (source.counter_in_exercise) {
+      return source;
+    }
     const { exercise_id } = source;
     if (!counterInExerciseMap[exercise_id]) {
       counterInExerciseMap[exercise_id] = 0;
@@ -206,54 +205,31 @@ export function annotateQuestionSourcesWithCounter(questionSources) {
 
 // idk the best place to place this function
 export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interactionIndex = 0) {
-  return new Promise((resolve, reject) => {
-    const examPromise = ExamResource.fetchModel({ id: examId });
+  return ExamResource.fetchModel({ id: examId }).then(examData => {
+    return fetchExamWithContent(examData).then(({ exam, exercises }) => {
+      // When all the Exercises are not available on the server
+      if (exam.question_count === 0) {
+        return exam;
+      }
 
-    examPromise.then(
-      exam => {
-        const questionSources = exam.question_sources;
+      // TODO: Reports will eventually want to have the proper section-specific data to render
+      // the report page - but we are not updating the report UI yet.
+      const questions = exam.question_sources.reduce((qs, sect) => {
+        qs = [...qs, ...sect.questions];
+        return qs;
+      }, []);
 
-        let contentPromise;
+      const exercise = exercises.find(node => node.id === questions[questionNumber].exercise_id);
 
-        if (questionSources.length) {
-          contentPromise = ContentNodeResource.fetchCollection({
-            getParams: {
-              ids: uniq(questionSources.map(item => item.exercise_id)),
-              no_available_filtering: true,
-            },
-          });
-        } else {
-          contentPromise = Promise.resolve([]);
-        }
-
-        contentPromise.then(
-          contentNodes => {
-            const questions = convertExamQuestionSources(exam, { contentNodes });
-
-            // When all the Exercises are not available on the server
-            if (questions.length === 0) {
-              return resolve({ exam });
-            }
-
-            const exercise = contentNodes.find(
-              node => node.id === questions[questionNumber].exercise_id
-            );
-
-            const payload = {
-              exerciseContentNodes: [...contentNodes],
-              exam,
-              questions,
-              tryIndex: Number(tryIndex),
-              questionNumber: Number(questionNumber),
-              exercise,
-              interactionIndex: Number(interactionIndex),
-            };
-            resolve(payload);
-          },
-          error => reject(error)
-        );
-      },
-      error => reject(error)
-    );
+      return {
+        exerciseContentNodes: [...exercises],
+        exam,
+        questions,
+        tryIndex: Number(tryIndex),
+        questionNumber: Number(questionNumber),
+        exercise,
+        interactionIndex: Number(interactionIndex),
+      };
+    });
   });
 }

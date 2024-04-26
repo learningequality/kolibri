@@ -5,9 +5,9 @@ jest.mock('kolibri.lib.logging');
 const EXERCISES_IDS = ['A', 'B', 'C'];
 const EXERCISES_TITLES = ['title_x', 'title_y', 'title_z'];
 const QUESTION_IDS = [
-  ['A1', 'A2', 'A3'],
-  ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'B7', 'B8'],
-  ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8', 'C9'],
+  ['A:A1', 'A:A2', 'A:A3'],
+  ['B:B1', 'B:B2', 'B:B3', 'B:B4', 'B:B5', 'B:B6', 'B:B7', 'B:B8'],
+  ['C:C1', 'C:C2', 'C:C3', 'C:C4', 'C:C5', 'C:C6', 'C:C7', 'C:C8', 'C:C9'],
 ];
 
 function countQuestions(exerciseId, questionList) {

@@ -1,5 +1,6 @@
 import map from 'lodash/map';
-import { convertExamQuestionSources, convertExamQuestionSourcesToV3 } from '../../src/exams/utils';
+import { ContentNodeResource } from 'kolibri.resources';
+import { convertExamQuestionSources } from '../../src/exams/utils';
 
 // map of content IDs to lists of question IDs
 const QUESTION_IDS = {
@@ -80,94 +81,100 @@ const contentNodes = map(QUESTION_IDS, (assessmentIds, nodeId) => {
   };
 });
 
+jest.mock('kolibri.resources');
+ContentNodeResource.fetchCollection = jest.fn(() => Promise.resolve(contentNodes));
+
 describe('exam utils', () => {
-  describe('convertExamQuestionSourcesToV3 converting from any previous version to V3', () => {
-    // Stolen from test below to ensure we're getting expected V2 values... as expected
-    const exam = {
-      data_model_version: 1,
-      learners_see_fixed_order: true,
-      question_count: 8,
-      question_sources: [
+  describe('convertExamQuestionSources converting from any previous version to V3', () => {
+    let exam;
+    let expectedSources;
+    beforeEach(() => {
+      // Stolen from test below to ensure we're getting expected V2 values... as expected
+      exam = {
+        data_model_version: 1,
+        learners_see_fixed_order: true,
+        question_count: 8,
+        question_sources: [
+          {
+            exercise_id: 'E1',
+            question_id: 'Q1',
+            title: 'Question 1',
+          },
+          {
+            exercise_id: 'E1',
+            question_id: 'Q2',
+            title: 'Question 2',
+          },
+          {
+            exercise_id: 'E2',
+            question_id: 'Q1',
+            title: 'Question 1',
+          },
+        ],
+      };
+      expectedSources = [
         {
           exercise_id: 'E1',
           question_id: 'Q1',
           title: 'Question 1',
+          counter_in_exercise: 1,
+          item: 'E1:Q1',
         },
         {
           exercise_id: 'E1',
           question_id: 'Q2',
           title: 'Question 2',
+          counter_in_exercise: 2,
+          item: 'E1:Q2',
         },
         {
           exercise_id: 'E2',
           question_id: 'Q1',
           title: 'Question 1',
+          counter_in_exercise: 1,
+          item: 'E2:Q1',
         },
-      ],
-    };
-    const expectedSources = [
-      {
-        exercise_id: 'E1',
-        question_id: 'Q1',
-        title: 'Question 1',
-        counter_in_exercise: 1,
-        item: 'E1:Q1',
-      },
-      {
-        exercise_id: 'E1',
-        question_id: 'Q2',
-        title: 'Question 2',
-        counter_in_exercise: 2,
-        item: 'E1:Q2',
-      },
-      {
-        exercise_id: 'E2',
-        question_id: 'Q1',
-        title: 'Question 1',
-        counter_in_exercise: 1,
-        item: 'E2:Q1',
-      },
-    ];
-    it('returns an array of newly structured objects with old question sources in questions', () => {
-      const converted = convertExamQuestionSourcesToV3(exam);
+      ];
+    });
+
+    it('returns an array of newly structured objects with old question sources in questions', async () => {
+      const converted = await convertExamQuestionSources(exam);
       // The section id is randomly generated so just test that it is there and is set on the object
-      expect(converted[0].section_id).toBeTruthy();
-      expect(converted).toEqual([
+      expect(converted.question_sources[0].section_id).toBeTruthy();
+      expect(converted.question_sources).toEqual([
         {
-          section_id: converted[0].section_id,
+          section_id: converted.question_sources[0].section_id,
           section_title: '',
           description: '',
-          resource_pool: [],
           questions: expectedSources.sort(),
           learners_see_fixed_order: true,
-          question_count: 8,
+          question_count: 3,
         },
       ]);
     });
-    it('sets the fixed order property to what the exam property value is', () => {
+    it('sets the fixed order property to what the exam property value is', async () => {
       exam.learners_see_fixed_order = false;
-      const converted = convertExamQuestionSourcesToV3(exam);
-      expect(converted[0].learners_see_fixed_order).toEqual(false);
+      const converted = await convertExamQuestionSources(exam);
+      expect(converted.question_sources[0].learners_see_fixed_order).toEqual(false);
     });
-    it('always sets the question_count and learners_see_fixed_order properties to the original exam values', () => {
+    it('always sets the question_count and learners_see_fixed_order properties to the original exam values', async () => {
       exam.learners_see_fixed_order = false;
-      exam.question_count = 49;
-      const converted = convertExamQuestionSourcesToV3(exam);
-      expect(converted).toEqual([
+      exam.question_count = 12;
+      const converted = await convertExamQuestionSources(exam);
+      expect(converted.question_sources).toEqual([
         {
-          section_id: converted[0].section_id,
+          section_id: converted.question_sources[0].section_id,
           section_title: '',
           description: '',
-          resource_pool: [],
           questions: expectedSources.sort(),
           learners_see_fixed_order: false,
-          question_count: 49,
+          question_count: 3, // There are only 3 questions in the question_sources
         },
       ]);
     });
   });
   describe('convertExamQuestionSources converting from V1 to V2', () => {
-    it('returns a question_sources array with a counter_in_exercise field', () => {
+    it('returns a question_sources array with a counter_in_exercise field', async () => {
       const exam = {
         data_model_version: 1,
         question_sources: [
@@ -188,7 +195,7 @@ describe('exam utils', () => {
           },
         ],
       };
-      const converted = convertExamQuestionSources(exam);
+      const converted = await convertExamQuestionSources(exam);
       const expectedOutput = [
         {
           exercise_id: 'E1',
@@ -212,9 +219,9 @@ describe('exam utils', () => {
           item: 'E2:Q1',
         },
       ];
-      expect(converted).toEqual(expectedOutput);
+      expect(converted.question_sources[0].questions).toEqual(expectedOutput);
     });
-    it('renames counterInExercise field if it has it', () => {
+    it('renames counterInExercise field if it has it', async () => {
       const exam = {
         data_model_version: 1,
         question_sources: [
@@ -232,8 +239,8 @@ describe('exam utils', () => {
           },
         ],
       };
-      const converted = convertExamQuestionSources(exam);
-      expect(converted).toEqual([
+      const converted = await convertExamQuestionSources(exam);
+      expect(converted.question_sources[0].questions).toEqual([
         {
           question_id: 'Q1',
           exercise_id: 'E1',
@@ -253,18 +260,7 @@ describe('exam utils', () => {
   });
 
   describe('convertExamQuestionSources converting from V0 to V2', () => {
-    it('throws an error if the required "contentNodes" data is not provided', () => {
-      const exam = {
-        data_model_version: 0,
-        seed: 1,
-        question_sources: [],
-      };
-      expect(() => {
-        convertExamQuestionSources(exam);
-      }).toThrow();
-    });
-
-    it('should return 10 specific ordered questions from 3 exercises', () => {
+    it('should return 10 specific ordered questions from 3 exercises', async () => {
       const exam = {
         data_model_version: 0,
         seed: 423,
@@ -286,7 +282,7 @@ describe('exam utils', () => {
           },
         ],
       };
-      const converted = convertExamQuestionSources(exam, { contentNodes });
+      const converted = await convertExamQuestionSources(exam);
 
       /*
         The selected questions should be:
@@ -365,14 +361,14 @@ describe('exam utils', () => {
         },
       ];
 
-      expect(converted).toEqual(
+      expect(converted.question_sources[0].questions).toEqual(
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
         })
       );
     });
-    it('should return 10 specific ordered questions from 1 exercise', () => {
+    it('should return 10 specific ordered questions from 1 exercise', async () => {
       const exam = {
         data_model_version: 0,
         question_sources: [
@@ -384,7 +380,7 @@ describe('exam utils', () => {
         ],
         seed: 837,
       };
-      const converted = convertExamQuestionSources(exam, { contentNodes });
+      const converted = await convertExamQuestionSources(exam);
       const expectedOutput = [
         {
           counter_in_exercise: 20,
@@ -447,14 +443,14 @@ describe('exam utils', () => {
           title: 'Count with small numbers',
         },
       ];
-      expect(converted).toEqual(
+      expect(converted.question_sources[0].questions).toEqual(
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
         })
       );
     });
-    it('should return 3 specific ordered questions from 3 exercises', () => {
+    it('should return 3 specific ordered questions from 3 exercises', async () => {
       const exam = {
         data_model_version: 0,
         question_sources: [
@@ -476,7 +472,7 @@ describe('exam utils', () => {
         ],
         seed: 168,
       };
-      const converted = convertExamQuestionSources(exam, { contentNodes });
+      const converted = await convertExamQuestionSources(exam);
       const expectedOutput = [
         {
           counter_in_exercise: 9,
@@ -497,7 +493,7 @@ describe('exam utils', () => {
           title: 'Find 1 more or 1 less than a number',
         },
       ];
-      expect(converted).toEqual(
+      expect(converted.question_sources[0].questions).toEqual(
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
