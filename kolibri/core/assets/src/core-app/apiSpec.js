@@ -106,6 +106,7 @@ import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
+import useNow from '../composables/useNow';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -230,6 +231,7 @@ export default {
       useKResponsiveWindow,
       useKShow,
       useMinimumKolibriVersion,
+      useNow,
       useUser,
       useUserSyncStatus,
     },
