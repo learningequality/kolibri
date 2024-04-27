@@ -49,7 +49,7 @@ on:
 
 jobs:
   build_dmg:
-    runs-on: macos-latest
+    runs-on: macos-13
     outputs:
       dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     env:
