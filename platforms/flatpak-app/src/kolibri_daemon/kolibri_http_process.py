@@ -9,6 +9,7 @@ from kolibri.dist.magicbus import ProcessBus
 from kolibri.dist.magicbus.plugins import SimplePlugin
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 
+from .kolibri_app_interface import KolibriAppInterface
 from .kolibri_service_context import KolibriServiceContext
 from .kolibri_service_context import KolibriServiceProcess
 from .kolibri_utils import init_kolibri
@@ -60,6 +61,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
         from kolibri.utils.server import KolibriProcessBus
 
         self.__update_kolibri_context()
+
+        KolibriAppInterface.get_default().register()
 
         self.__kolibri_bus = KolibriProcessBus(
             port=OPTIONS["Deployment"]["HTTP_PORT"],
