@@ -7,7 +7,6 @@ import typing
 _APP_MODULES_LIST = [
     "kolibri",
     "kolibri_app_desktop_xdg_plugin",
-    "kolibri_desktop_auth_plugin",
 ]
 
 
