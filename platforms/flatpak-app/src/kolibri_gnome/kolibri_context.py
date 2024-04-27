@@ -3,15 +3,16 @@ from __future__ import annotations
 import logging
 import re
 import typing
+from functools import partial
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
 from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
-from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from gi.repository import Soup
 from gi.repository import WebKit
 from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BUILD_PROFILE
@@ -34,7 +35,6 @@ LEARN_PATH_PREFIX = "/learn/#/"
 
 STATIC_PATHS_RE = r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?"
 SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?"
-AUTH_PLUGIN_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?"
 CONTENT_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?learn\/?"
 
 
@@ -267,16 +267,13 @@ class _KolibriSetupHelper(GObject.GObject):
 
     __webkit_web_context: WebKit.WebContext
     __kolibri_daemon: KolibriDaemonManager
+    __cookies_to_add: set
 
-    __login_webview: WebKit.WebView
+    INITIALIZE_API_PATH = "/app/api/initialize"
 
-    AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}"
-
-    login_token = GObject.Property(type=str, default=None)
-
-    is_app_key_cookie_ready = GObject.Property(type=bool, default=False)
-    is_session_cookie_ready = GObject.Property(type=bool, default=False)
-
+    auth_token = GObject.Property(type=str, default=None)
+    is_auth_token_ready = GObject.Property(type=bool, default=False)
+    is_cookie_manager_ready = GObject.Property(type=bool, default=False)
     is_setup_complete = GObject.Property(type=bool, default=False)
 
     def __init__(
@@ -289,95 +286,110 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__webkit_web_context = webkit_web_context
         self.__kolibri_daemon = kolibri_daemon
 
-        self.__login_webview = WebKit.WebView(web_context=self.__webkit_web_context)
-        self.__login_webview.connect(
-            "load-changed", self.__login_webview_on_load_changed
-        )
-
         self.__kolibri_daemon.connect(
             "dbus-owner-changed", self.__kolibri_daemon_on_dbus_owner_changed
-        )
-        self.__kolibri_daemon.connect(
-            "notify::app-key-cookie", self.__kolibri_daemon_on_notify_app_key_cookie
         )
 
         await_properties(
             [
                 (self.__kolibri_daemon, "is-started"),
-                (self, "login-token"),
+                (self.__kolibri_daemon, "app-key"),
+                (self, "is-auth-token-ready"),
             ],
-            self.__on_await_kolibri_is_started_and_login_token,
+            self.__initialize_kolibri_session,
         )
 
         map_properties(
             [
-                (self, "is-app-key-cookie-ready"),
-                (self, "is-session-cookie-ready"),
+                (self, "is-cookie-manager-ready"),
             ],
             self.__update_is_setup_complete,
         )
 
-        self.__kolibri_daemon_on_notify_app_key_cookie(self.__kolibri_daemon)
-
-    def __login_webview_on_load_changed(
-        self, webview: WebKit.WebView, load_event: WebKit.LoadEvent
-    ):
-        # Show the main webview once it finishes loading.
-        if load_event == WebKit.LoadEvent.FINISHED:
-            self.props.is_session_cookie_ready = True
-            self.props.login_token = None
-
     def __kolibri_daemon_on_dbus_owner_changed(
         self, kolibri_daemon: KolibriDaemonManager
     ):
-        self.props.is_session_cookie_ready = False
+        # Reset the auth token cookie: it is no longer valid
+        self.props.is_cookie_manager_ready = False
 
-        if kolibri_daemon.do_automatic_login:
-            kolibri_daemon.get_login_token(self.__kolibri_daemon_on_login_token_ready)
+        if self.__kolibri_daemon.do_automatic_login:
+            self.props.is_auth_token_ready = False
+            kolibri_daemon.get_login_token(
+                self.__kolibri_daemon_on_get_login_token_ready
+            )
         else:
-            self.props.is_session_cookie_ready = True
+            self.props.auth_token = None
+            self.props.is_auth_token_ready = True
 
-    def __kolibri_daemon_on_login_token_ready(
+    def __kolibri_daemon_on_get_login_token_ready(
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
-        self.props.login_token = login_token
+        self.props.auth_token = login_token
+        self.props.is_auth_token_ready = True
 
-    def __on_await_kolibri_is_started_and_login_token(
-        self, is_started: bool, login_token: str
+    def __initialize_kolibri_session(
+        self, is_started: bool, app_key: str, is_auth_token_ready: bool
     ):
-        if self.props.is_session_cookie_ready:
+        initialize_query = {}
+        if self.props.auth_token:
+            initialize_query["auth_token"] = self.props.auth_token
+        initialize_url = self.__kolibri_daemon.get_absolute_url(
+            f"{self.INITIALIZE_API_PATH}/{app_key}?{urlencode(initialize_query)}"
+        )
+        if not initialize_url:
+            logging.error("Kolibri initialize URL is not set")
             return
-
-        if login_token is None:
-            # If we are unable to get a login token, pretend the session cookie
-            # is ready so the app will proceed as usual. This should only happen
-            # in an edge case where kolibri-daemon is running on the system bus
-            # but is unable to communicate with AccountsService.
-            self.props.is_session_cookie_ready = True
-        elif self.__kolibri_daemon.do_automatic_login:
-            login_url = self.__kolibri_daemon.get_absolute_url(
-                self.AUTOLOGIN_URL_TEMPLATE.format(token=login_token)
-            )
-            self.__login_webview.load_uri(login_url)
-
-    def __kolibri_daemon_on_notify_app_key_cookie(
-        self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
-    ):
-        self.props.is_app_key_cookie_ready = False
-
-        if not self.__kolibri_daemon.props.app_key_cookie:
-            return
-
-        WebKit.NetworkSession.get_default().get_cookie_manager().add_cookie(
-            self.__kolibri_daemon.props.app_key_cookie,
-            None,
-            self.__on_app_key_cookie_ready,
+        self.__kolibri_daemon.kolibri_api_get_async(
+            initialize_url,
+            self.__on_kolibri_initialize_api_ready,
+            flags=Soup.MessageFlags.NO_REDIRECT,
+            parse_json=False,
         )
 
-    def __on_app_key_cookie_ready(
-        self, cookie_manager: WebKit.CookieManager, result: Gio.Task
+    def __on_kolibri_initialize_api_ready(
+        self, data: typing.Any, soup_message: Soup.Message = None
     ):
-        self.props.is_app_key_cookie_ready = True
+        website_data_manager = (
+            WebKit.NetworkSession.get_default().get_website_data_manager()
+        )
+        website_data_manager.clear(
+            WebKit.WebsiteDataTypes.COOKIES,
+            0,
+            None,
+            self.__on_website_data_clear_finished,
+            partial(self.__copy_cookies_from_soup_message_response, soup_message),
+        )
+
+    def __on_website_data_clear_finished(self, website_data_manager, result, next_fn):
+        try:
+            website_data_manager.clear_finish(result)
+        except GLib.Error as error:
+            logger.error(f"Error clearing cookies: {error}")
+            return
+
+        next_fn()
+
+    def __copy_cookies_from_soup_message_response(self, soup_message: Soup.Message):
+        cookie_manager = WebKit.NetworkSession.get_default().get_cookie_manager()
+        cookies = Soup.cookies_from_response(soup_message)
+        self.__cookies_to_add = set(cookies)
+        for cookie in cookies:
+            # FIXME: We should really be using cookie_manager.replace_cookies(),
+            #        but something is causing the cookies to not be added unless
+            #        we call add_cookie one at a time.
+            cookie_manager.add_cookie(
+                cookie, None, self.__on_webkit_add_cookie_ready, cookie
+            )
+
+    def __on_webkit_add_cookie_ready(self, cookie_manager, result, cookie):
+        try:
+            cookie_manager.add_cookie_finish(result)
+        except GLib.Error as error:
+            logger.error(f"Error adding cookie from API response: {error}")
+            return
+        self.__cookies_to_add.remove(cookie)
+        if len(self.__cookies_to_add) == 0:
+            self.props.is_cookie_manager_ready = True
 
     def __update_is_setup_complete(self, *setup_flags):
         self.props.is_setup_complete = all(setup_flags)
@@ -430,8 +442,6 @@ class KolibriChannelContext(KolibriContext):
         if re.match(STATIC_PATHS_RE, url_path):
             return True
         elif re.match(SYSTEM_PATHS_RE, url_path):
-            return True
-        elif re.match(AUTH_PLUGIN_PATHS_RE, url_path):
             return True
         elif re.match(CONTENT_PATHS_RE, url_path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)

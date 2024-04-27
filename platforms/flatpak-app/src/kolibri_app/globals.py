@@ -12,7 +12,9 @@ from .utils import getenv_as_bool
 
 logger = logging.getLogger(__name__)
 
-USE_SYSTEM_INSTANCE = getenv_as_bool(config.PROFILE_ENV_PREFIX + "USE_SYSTEM_INSTANCE", default=False)
+USE_SYSTEM_INSTANCE = getenv_as_bool(
+    config.PROFILE_ENV_PREFIX + "USE_SYSTEM_INSTANCE", default=False
+)
 
 APP_DEVELOPER_EXTRAS = getenv_as_bool(
     config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS",

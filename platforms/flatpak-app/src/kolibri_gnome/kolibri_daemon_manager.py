@@ -5,7 +5,6 @@ import logging
 import typing
 from functools import partial
 from urllib.parse import urljoin
-from urllib.parse import urlsplit
 
 from gi.repository import Gio
 from gi.repository import GLib
@@ -23,6 +22,7 @@ logger = logging.getLogger(__name__)
 
 
 APP_KEY_COOKIE_NAME = "app_key_cookie"
+AUTH_TOKEN_COOKIE_NAME = "app_auth_token_cookie"
 
 
 class KolibriDaemonManager(GObject.GObject):
@@ -41,7 +41,8 @@ class KolibriDaemonManager(GObject.GObject):
     is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)
     has_error = GObject.Property(type=bool, default=False)
-    app_key_cookie = GObject.Property(type=Soup.Cookie, default=None)
+    base_url = GObject.Property(type=str, default=None)
+    app_key = GObject.Property(type=str, default=None)
 
     __gsignals__ = {
         "dbus-owner-changed": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -271,14 +272,11 @@ class KolibriDaemonManager(GObject.GObject):
         if self.props.has_error != has_error:
             self.props.has_error = has_error
 
-        cookie = self.__create_app_key_cookie()
+        if self.props.base_url != dbus_proxy.props.base_url:
+            self.props.base_url = dbus_proxy.props.base_url
 
-        if self.props.app_key_cookie and cookie:
-            if not self.props.app_key_cookie.equal(cookie):
-                self.props.app_key_cookie = cookie
-        else:
-            if self.props.app_key_cookie != cookie:
-                self.props.app_key_cookie = cookie
+        if self.props.app_key != dbus_proxy.props.app_key:
+            self.props.app_key = dbus_proxy.props.app_key
 
     def __on_notify_is_stopped(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec
@@ -287,20 +285,6 @@ class KolibriDaemonManager(GObject.GObject):
             self.__dbus_proxy.Start(
                 result_handler=self.__dbus_proxy_default_result_handler
             )
-
-    def __create_app_key_cookie(self) -> typing.Optional[Soup.Cookie]:
-        if not self.__dbus_proxy.props.base_url or not self.__dbus_proxy.props.app_key:
-            return None
-
-        url_tuple = urlsplit(self.__dbus_proxy.props.base_url)
-
-        return Soup.Cookie.new(
-            name=APP_KEY_COOKIE_NAME,
-            value=self.__dbus_proxy.props.app_key,
-            domain=url_tuple.hostname,
-            path="",
-            max_age=-1,
-        )
 
     def __dbus_proxy_default_result_handler(
         self,
