@@ -1,7 +1,7 @@
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
 import uniq from 'lodash/uniq';
 import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
-import { convertExamQuestionSourcesToV3 } from 'kolibri.utils.exams';
+import { convertExamQuestionSources } from 'kolibri.utils.exams';
 import shuffled from 'kolibri.utils.shuffled';
 import { ClassesPageNames } from '../../constants';
 import { LearnerClassroomResource } from '../../apiResources';
@@ -55,61 +55,63 @@ export function showExam(store, params, alreadyOnQuiz) {
             contentNodes => {
               if (shouldResolve()) {
                 // If necessary, convert the question source info
-                const question_sources = convertExamQuestionSourcesToV3(exam, { contentNodes });
+                convertExamQuestionSources(exam).then(converted => {
+                  const { question_sources } = converted;
 
-                // When necessary, randomize the questions for the learner.
-                // Seed based on the user ID so they see a consistent order each time.
-                question_sources.forEach(section => {
-                  if (!section.learners_see_fixed_order) {
-                    section.questions = shuffled(
-                      section.questions,
-                      store.state.core.session.user_id
+                  // When necessary, randomize the questions for the learner.
+                  // Seed based on the user ID so they see a consistent order each time.
+                  question_sources.forEach(section => {
+                    if (!section.learners_see_fixed_order) {
+                      section.questions = shuffled(
+                        section.questions,
+                        store.state.core.session.user_id
+                      );
+                    }
+                  });
+
+                  const allQuestions = question_sources.reduce((acc, section) => {
+                    acc = [...acc, ...section.questions];
+                    return acc;
+                  }, []);
+
+                  // Exam is drawing solely on malformed exercise data, best to quit now
+                  if (allQuestions.some(question => !question.question_id)) {
+                    store.dispatch(
+                      'handleError',
+                      `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
+                        allQuestions
+                      )}\nExam: ${JSON.stringify(exam)}`
                     );
+                    return;
                   }
+                  // Illegal question number!
+                  else if (questionNumber >= allQuestions.length) {
+                    store.dispatch(
+                      'handleError',
+                      `Question number ${questionNumber} is not valid for this quiz`
+                    );
+                    return;
+                  }
+
+                  const contentNodeMap = {};
+
+                  for (const node of contentNodes) {
+                    contentNodeMap[node.id] = node;
+                  }
+
+                  for (const question of allQuestions) {
+                    question.missing = !contentNodeMap[question.exercise_id];
+                  }
+                  exam.question_sources = question_sources;
+                  store.commit('examViewer/SET_STATE', {
+                    contentNodeMap,
+                    exam,
+                    questionNumber,
+                    questions: allQuestions,
+                  });
+                  store.commit('CORE_SET_PAGE_LOADING', false);
+                  store.commit('CORE_SET_ERROR', null);
                 });
-
-                const allQuestions = question_sources.reduce((acc, section) => {
-                  acc = [...acc, ...section.questions];
-                  return acc;
-                }, []);
-
-                // Exam is drawing solely on malformed exercise data, best to quit now
-                if (allQuestions.some(question => !question.question_id)) {
-                  store.dispatch(
-                    'handleError',
-                    `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
-                      allQuestions
-                    )}\nExam: ${JSON.stringify(exam)}`
-                  );
-                  return;
-                }
-                // Illegal question number!
-                else if (questionNumber >= allQuestions.length) {
-                  store.dispatch(
-                    'handleError',
-                    `Question number ${questionNumber} is not valid for this quiz`
-                  );
-                  return;
-                }
-
-                const contentNodeMap = {};
-
-                for (const node of contentNodes) {
-                  contentNodeMap[node.id] = node;
-                }
-
-                for (const question of allQuestions) {
-                  question.missing = !contentNodeMap[question.exercise_id];
-                }
-                exam.question_sources = question_sources;
-                store.commit('examViewer/SET_STATE', {
-                  contentNodeMap,
-                  exam,
-                  questionNumber,
-                  questions: allQuestions,
-                });
-                store.commit('CORE_SET_PAGE_LOADING', false);
-                store.commit('CORE_SET_ERROR', null);
               }
             },
             error => {
