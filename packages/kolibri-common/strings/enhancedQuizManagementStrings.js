@@ -168,7 +168,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   selectedResourcesInformation: {
     message:
-      '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+      '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
   selectMoreQuestion:{
     message:'select { count } more { count, plural , one { question } other { questions }} to continue',
