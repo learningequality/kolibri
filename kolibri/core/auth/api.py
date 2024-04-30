@@ -854,7 +854,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
         except (ValueError, ObjectDoesNotExist):
             raise Http404(error_message)
 
-        if user.password != NOT_SPECIFIED:
+        if user.password != NOT_SPECIFIED or hasattr(user, "os_user"):
             raise Http404(error_message)
 
         user.set_password(password)
@@ -930,10 +930,14 @@ class SessionViewSet(viewsets.ViewSet):
             unauthenticated_user = FacilityUser.objects.filter(
                 username__exact=username, facility=facility_id
             ).first()
-        if unauthenticated_user.password == NOT_SPECIFIED:
+        if unauthenticated_user.password == NOT_SPECIFIED and not hasattr(
+            unauthenticated_user, "os_user"
+        ):
             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
             # while the "Require learners to log in with password" setting was disabled - but now
             # it is enabled again.
+            # Alternatively, they may have been created as an OSUser for automatic login with an
+            # authentication token. If this is the case, then we do not allow for the password to be set.
             return Response(
                 [
                     {
