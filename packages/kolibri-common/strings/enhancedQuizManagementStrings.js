@@ -170,6 +170,12 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
   },
+  selectMoreQuestion:{
+    message:'select { count } more { count, plural , one { question } other { questions }} to continue',
+  },
+  selectFewerQuestion:{
+    message:'select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+  },
   cannotSelectSomeTopicWarning: {
     message:
       'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
