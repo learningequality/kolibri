@@ -105,11 +105,7 @@
           :layout8="{ span: 6 }"
           :layout4="{ span: 3 }"
         >
-          {{ numberOfSelectedReplacements$({
-            count: replacements.length,
-            total: selectedActiveQuestions.length }
-          )
-          }}
+          {{ replaceSelectedQuestionsString }}
         </KGridItem>
         <KGridItem
           style="text-align: right;"
@@ -185,6 +181,8 @@
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
+        selectMoreQuestion$,
+        selectFewerQuestion$,
       } = enhancedQuizManagementStrings;
       const {
         // Computed
@@ -285,6 +283,8 @@
         closeConfirmationTitle$,
         noUndoWarning$,
         replaceQuestionsExplaination$,
+        selectMoreQuestion$,
+        selectFewerQuestion$,
       };
     },
     computed: {
@@ -307,6 +307,23 @@
           this.replacements.length === this.selectedActiveQuestions.length
         );
       },
+      replaceSelectedQuestionsString(){
+        const x = this.selectedActiveQuestions.length - this.replacements.length;
+        if(x === 0){
+          return this.numberOfSelectedReplacements$({
+            count: this.replacements.length,
+            total: this.selectedActiveQuestions.length
+          });
+        }else if(x > 0 ){
+          return this.selectMoreQuestion$({
+            count: x
+          });
+        }else{
+          return this.selectFewerQuestion$({
+            count: Math.abs(x)
+          });
+        }
+      }
     },
     beforeRouteLeave(_, __, next) {
       if (
