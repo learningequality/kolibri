@@ -124,57 +124,48 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
  */
 
 export async function convertExamQuestionSources(exam) {
-  const { data_model_version } = exam;
-
-  return new Promise(resolve => {
-    if (data_model_version === 0) {
-      const ids = uniq(exam.question_sources.map(item => item.exercise_id));
-      return ContentNodeResource.fetchCollection({
-        getParams: {
-          ids,
-          no_available_filtering: true,
-        },
-      }).then(exercises => {
-        const questionIds = exercises.reduce((nodeIds, node) => {
-          nodeIds[node.id] = node.assessmentmetadata
-            ? node.assessmentmetadata.assessment_item_ids
-            : [];
-          return nodeIds;
-        }, []);
-        exam.question_sources = convertExamQuestionSourcesV0V2(
-          exam.question_sources,
-          exam.seed,
-          questionIds
-        );
-        // v1 -> v2 only updates the `counter_in_exercise` field if it's in camelCase
-        // so we can set the data_model_version to 2 here to skip that code
-        exam.data_model_version = 2;
-        resolve(exam);
-      });
-    } else {
-      resolve(exam);
-    }
-  }).then(exam => {
-    if (data_model_version === 1) {
-      exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
-      exam.data_model_version = 2;
-    }
-
-    if (data_model_version === 2) {
-      exam.question_sources = convertExamQuestionSourcesV2toV3(exam);
-      exam.data_model_version = 3;
-    }
-
-    // TODO This avoids updating older code that used `item` to refer to the unique question id
-    // we've started calling `id` (ie, in useQuizCreation.js) but we should update this to use `id`
-    // everywhere and remove this line
-    exam.question_sources = exam.question_sources.map(section => {
-      section.questions = annotateQuestionsWithItem(section.questions);
-      return section;
+  if (exam.data_model_version === 0) {
+    const ids = uniq(exam.question_sources.map(item => item.exercise_id));
+    const exercises = await ContentNodeResource.fetchCollection({
+      getParams: {
+        ids,
+        no_available_filtering: true,
+      },
     });
+    const questionIds = exercises.reduce((nodeIds, node) => {
+      nodeIds[node.id] = node.assessmentmetadata ? node.assessmentmetadata.assessment_item_ids : [];
+      return nodeIds;
+    }, []);
+    exam.question_sources = convertExamQuestionSourcesV0V2(
+      exam.question_sources,
+      exam.seed,
+      questionIds
+    );
+    // v1 -> v2 only updates the `counter_in_exercise` field if it's in camelCase
+    // so we can set the data_model_version to 2 here to skip that code
+    exam.data_model_version = 2;
+  }
 
-    return exam;
+  if (exam.data_model_version === 1) {
+    exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
+    exam.data_model_version = 2;
+  }
+
+  if (exam.data_model_version === 2) {
+    exam.question_sources = convertExamQuestionSourcesV2toV3(exam);
+    exam.data_model_version = 3;
+  }
+
+  // TODO This avoids updating older code that used `item` to refer to the unique question id
+  // we've started calling `id` (ie, in useQuizCreation.js) but we should update this to use `id`
+  // everywhere and remove this line
+  // Now we know we have the latest V3 structure
+  exam.question_sources = exam.question_sources.map(section => {
+    section.questions = annotateQuestionsWithItem(section.questions);
+    return section;
   });
+
+  return exam;
 }
 
 /**
