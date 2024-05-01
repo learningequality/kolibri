@@ -15,11 +15,14 @@ on:
   workflow_call:
     inputs:
       whl-file-name:
-        required: true
+        required: false
+        type: string
+      whl-url:
+        required: false
         type: string
       ref:
         description: 'A ref for this workflow to check out its own repo'
-        required: true
+        required: false
         type: string
       release:
         description: 'Is this a release asset?'
@@ -46,7 +49,7 @@ on:
 
 jobs:
   build_dmg:
-    runs-on: macos-latest
+    runs-on: macos-13
     outputs:
       dmg-file-name: ${{ steps.get-dmg-filename.outputs.dmg-file-name }}
     env:
@@ -55,6 +58,11 @@ jobs:
       PYTHON_VERSION: "3.10.10"
       MACOSX_DEPLOYMENT_TARGET: "10.9"
     steps:
+    - name: Validate whl reference inputs
+      if: ${{ (inputs.whl-file-name && inputs.whl-url) || (!inputs.whl-file-name && !inputs.whl-url) }}
+      run: |
+        echo "Must specify exactly one reference for the whl file to build the EXE with."
+        exit 1
     - uses: actions/checkout@v4
       if: ${{ !inputs.ref }}
     - uses: actions/checkout@v4
@@ -85,8 +93,8 @@ jobs:
     - name: Install dependencies
       run: make dependencies
     - name: Download the whlfile from URL and install
-      if: ${{ github.event.inputs.whl-url }}
-      run: make get-whl whl=${{ github.event.inputs.whl-url }}
+      if: ${{ inputs.whl-url }}
+      run: make get-whl whl=${{ inputs.whl-url }}
     - name: Download the whlfile from artifacts
       if: ${{ inputs.whl-file-name }}
       uses: actions/download-artifact@v4
@@ -97,7 +105,7 @@ jobs:
       if: ${{ inputs.whl-file-name }}
       run: make install-whl whl=whl/${{ inputs.whl-file-name }}
     - name: Setup app signing certificate
-      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      if: ${{ inputs.release }}
       env:
         KEYCHAIN_PASSWORD: ${{ hashFiles('*')}}
       run: |
@@ -114,15 +122,15 @@ jobs:
     - name: Build the app
       run: make build-mac-app
     - name: Codesign the app
-      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      if: ${{ inputs.release }}
       run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-mac-app
     - name: Build the DMG
       run: make build-dmg
     - name: Codesign the DMG
-      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      if: ${{ inputs.release }}
       run: MAC_CODESIGN_IDENTITY="${{ secrets.KOLIBRI_MAC_APP_IDENTITY }}" make codesign-dmg
     - name: Notarize the DMG
-      if: ${{ inputs.release == true || github.event.inputs.release == 'true' }}
+      if: ${{ inputs.release }}
       env:
         MAC_NOTARIZE_USERNAME: ${{ secrets.KOLIBRI_MAC_APP_USERNAME }}
         MAC_NOTARIZE_PASSWORD: ${{ secrets.KOLIBRI_MAC_APP_PASSWORD }}
