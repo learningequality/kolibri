@@ -14,7 +14,7 @@ import { ExamResource, ContentNodeResource } from 'kolibri.resources';
  * @returns {array} - pseudo-randomized list of question objects compatible with v1 like:
  *    { exercise_id, question_id }
  */
-function convertExamQuestionSourcesV0V1(questionSources, seed, questionIds) {
+function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
   // This is the original PRNG that was used and MUST BE KEPT as-is. Logic from:
   // https://github.com/LouisT/SeededShuffle/blob/8d71a917d2f64e18fa554dbe660c7f5e6578e13e/index.js
   // (For more reliable seeded shuffling in other parts of the code base, use
@@ -72,6 +72,10 @@ function convertExamQuestionSourcesV1V2(questionSources) {
   );
 }
 
+/**
+ * This function applies an `item` field to each question in the array which is similar to
+ * where we elsewhere use `exercise_id:question_id` to uniquely identify a question.
+ */
 function annotateQuestionsWithItem(questions) {
   return questions.map(question => {
     question.item = `${question.exercise_id}:${question.question_id}`;
@@ -137,31 +141,39 @@ export async function convertExamQuestionSources(exam) {
             : [];
           return nodeIds;
         }, []);
-        exam.question_sources = convertExamQuestionSourcesV0V1(
+        exam.question_sources = convertExamQuestionSourcesV0V2(
           exam.question_sources,
           exam.seed,
           questionIds
         );
+        // v1 -> v2 only updates the `counter_in_exercise` field if it's in camelCase
+        // so we can set the data_model_version to 2 here to skip that code
+        exam.data_model_version = 2;
         resolve(exam);
       });
     } else {
       resolve(exam);
     }
   }).then(exam => {
-    if (data_model_version <= 1) {
+    if (data_model_version === 1) {
       exam.question_sources = convertExamQuestionSourcesV1V2(exam.question_sources);
+      exam.data_model_version = 2;
     }
-    if (data_model_version <= 2) {
+
+    if (data_model_version === 2) {
       exam.question_sources = convertExamQuestionSourcesV2toV3(exam);
+      exam.data_model_version = 3;
     }
-    if (data_model_version <= 3) {
-      // Annotate all of the questions with the `item` field
-      exam.question_sources = exam.question_sources.map(section => {
-        section.questions = annotateQuestionsWithItem(section.questions);
-        return section;
-      });
-      return exam;
-    }
+
+    // TODO This avoids updating older code that used `item` to refer to the unique question id
+    // we've started calling `id` (ie, in useQuizCreation.js) but we should update this to use `id`
+    // everywhere and remove this line
+    exam.question_sources = exam.question_sources.map(section => {
+      section.questions = annotateQuestionsWithItem(section.questions);
+      return section;
+    });
+
+    return exam;
   });
 }
 
