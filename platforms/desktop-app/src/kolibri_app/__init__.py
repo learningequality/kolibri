@@ -4,7 +4,7 @@ from kolibri.main import enable_plugin
 
 from kolibri_app.constants import MAC
 
-__version__ = "0.4.0"
+__version__ = "0.4.1"
 
 os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 
@@ -13,3 +13,4 @@ if MAC:
 
 os.environ["DJANGO_SETTINGS_MODULE"] = "kolibri_app.django_app_settings"
 enable_plugin("kolibri.plugins.app")
+enable_plugin("kolibri_app")

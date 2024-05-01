@@ -8,6 +8,7 @@ from kolibri.main import initialize
 from kolibri.plugins.app.utils import interface
 from kolibri.plugins.app.utils import SHARE_FILE
 from kolibri.utils.conf import KOLIBRI_HOME
+from kolibri.utils.conf import OPTIONS
 from kolibri.utils.server import KolibriProcessBus
 from magicbus.plugins import SimplePlugin
 
@@ -78,7 +79,10 @@ class KolibriApp(wx.App):
 
         if callable(share_file):
             interface.register_capabilities(**{SHARE_FILE: share_file})
-        self.kolibri_server = KolibriProcessBus()
+        self.kolibri_server = KolibriProcessBus(
+            port=OPTIONS["Deployment"]["HTTP_PORT"],
+            zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
+        )
         app_plugin = AppPlugin(self.kolibri_server, self.load_kolibri)
         app_plugin.subscribe()
         self.kolibri_server.run()
