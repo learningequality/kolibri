@@ -21,7 +21,7 @@ describe('FocusTrap', () => {
     expect(emitted().shouldFocusFirstEl.length).toBe(1);
   });
 
-  it("should trap the focus ('shouldFocusFirstEl' should be emitted twice) on pressing tab twice ", async () => {
+  it("should trap the focus and emit 'shouldFocusFirstEl' if the last focusable element is focused and we focus the next element", async () => {
     const { emitted } = renderComponent();
 
     await userEvent.tab();
@@ -31,7 +31,7 @@ describe('FocusTrap', () => {
     expect(emitted().shouldFocusFirstEl.length).toBe(2);
   });
 
-  it('should emit "shouldFocusLastEl" when the element is subsequently focused after the inital focus', async () => {
+  it('should trap the focus and emit "shouldFocusLastEl" when the first element is focused and we focus the previous element', async () => {
     const { emitted } = renderComponent();
 
     await userEvent.tab();
