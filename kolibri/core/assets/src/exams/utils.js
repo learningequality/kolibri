@@ -1,4 +1,5 @@
 import uniq from 'lodash/uniq';
+import some from 'lodash/some';
 import { v4 as uuidv4 } from 'uuid';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
@@ -61,15 +62,17 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
 }
 
 function convertExamQuestionSourcesV1V2(questionSources) {
+  if (some(questionSources, 'counterInExercise')) {
+    for (const question of questionSources) {
+      if (!question.counterInExercise) {
+        continue;
+      }
+      question.counter_in_exercise = question.counterInExercise;
+      delete question.counterInExercise;
+    }
+  }
   // In case a V1 quiz already has this with the old name, rename it
-  return annotateQuestionSourcesWithCounter(
-    questionSources.map(question => {
-      const copy = question;
-      copy.counter_in_exercise = copy.counter_in_exercise || copy.counterInExercise;
-      delete copy.counterInExercise;
-      return copy;
-    })
-  );
+  return annotateQuestionSourcesWithCounter(questionSources);
 }
 
 /**
