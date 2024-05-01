@@ -51,6 +51,9 @@ export default function useQuizCreation() {
   /** @type {ref<Number>} A counter for use in naming new sections */
   const _sectionLabelCounter = ref(1);
 
+  /** @type {ref<Array>} A list of all Question objects selected for replacement */
+  const replacements = ref([]);
+
   // ------------------
   // Section Management
   // ------------------
@@ -160,6 +163,16 @@ export default function useQuizCreation() {
         }
         return section;
       }),
+    });
+  }
+
+  function handleReplacement() {
+    const questionsNotSelectedToBeReplaced = activeQuestions.value.filter(
+      question => !selectedActiveQuestions.value.includes(question.id)
+    );
+    updateSection({
+      section_id: activeSection.value.section_id,
+      questions: [...questionsNotSelectedToBeReplaced, ...replacements.value],
     });
   }
 
@@ -481,6 +494,7 @@ export default function useQuizCreation() {
 
   provide('saveQuiz', saveQuiz);
   provide('updateSection', updateSection);
+  provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
@@ -491,6 +505,7 @@ export default function useQuizCreation() {
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('channels', channels);
+  provide('replacements', replacements);
   provide('quiz', quiz);
   provide('allSections', allSections);
   provide('activeSection', activeSection);
@@ -511,6 +526,7 @@ export default function useQuizCreation() {
     // Methods
     saveQuiz,
     updateSection,
+    handleReplacement,
     replaceSelectedQuestions,
     addSection,
     removeSection,
@@ -523,6 +539,7 @@ export default function useQuizCreation() {
 
     // Computed
     channels,
+    replacements,
     quiz,
     allSections,
     activeSection,
@@ -552,6 +569,7 @@ export default function useQuizCreation() {
 export function injectQuizCreation() {
   const saveQuiz = inject('saveQuiz');
   const updateSection = inject('updateSection');
+  const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
@@ -562,6 +580,7 @@ export function injectQuizCreation() {
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
   const channels = inject('channels');
+  const replacements = inject('replacements');
   const quiz = inject('quiz');
   const allSections = inject('allSections');
   const activeSection = inject('activeSection');
@@ -584,6 +603,7 @@ export function injectQuizCreation() {
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
+    handleReplacement,
     replaceSelectedQuestions,
     addSection,
     removeSection,
@@ -599,6 +619,7 @@ export function injectQuizCreation() {
     allQuestionsSelected,
     selectAllIsIndeterminate,
     channels,
+    replacements,
     quiz,
     allSections,
     activeSection,

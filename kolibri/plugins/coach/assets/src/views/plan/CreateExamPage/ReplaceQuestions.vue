@@ -132,7 +132,7 @@
       :cancelText="coreString('cancelAction')"
       :title="replaceQuestions$()"
       @cancel="showReplacementConfirmation = false"
-      @submit="handleReplacement"
+      @submit="submitReplacement"
     >
       <div> {{ replaceQuestionsExplaination$() }} </div>
       <div style="font-weight: bold;">
@@ -188,7 +188,6 @@
       } = enhancedQuizManagementStrings;
       const {
         // Computed
-        activeQuestions,
         activeSection,
         selectedActiveQuestions,
         activeResourceMap,
@@ -199,6 +198,8 @@
         replaceSelectedQuestions,
         toggleQuestionInSelection,
         updateSection,
+        handleReplacement,
+        replacements,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -208,17 +209,9 @@
         context.emit('closePanel');
       }
 
-      const replacements = ref([]);
-
-      function handleReplacement() {
+      function submitReplacement() {
+        handleReplacement();
         const count = replacements.value.length;
-        const questionsNotSelectedToBeReplaced = activeQuestions.value.filter(
-          question => !selectedActiveQuestions.value.includes(question.id)
-        );
-        updateSection({
-          section_id: activeSection.value.section_id,
-          questions: [...questionsNotSelectedToBeReplaced, ...replacements.value],
-        });
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           query: {
@@ -263,8 +256,6 @@
 
       return {
         toggleInReplacements,
-        handleReplacement,
-        replacements,
         activeSection,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
@@ -283,6 +274,8 @@
         isItemExpanded,
         toggleQuestionInSelection,
         updateSection,
+        submitReplacement,
+        replacements,
         replaceQuestions$,
         deleteSectionLabel$,
         replaceAction$,

@@ -1,5 +1,4 @@
 import { render, screen, fireEvent, waitFor } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import { PortalResource, FacilityDatasetResource } from 'kolibri.resources';
 import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
 import ConfirmationRegisterModal from '../ConfirmationRegisterModal.vue';
@@ -20,7 +19,6 @@ const renderComponent = props => {
       token: sampleToken,
       ...props,
     },
-    routes: new VueRouter(),
   });
 };
 

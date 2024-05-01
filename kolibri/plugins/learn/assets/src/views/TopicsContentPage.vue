@@ -164,7 +164,6 @@
   import { AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { ContentNodeKinds, ContentErrorConstants } from 'kolibri.coreVue.vuex.constants';
   import { crossComponentTranslator } from 'kolibri.utils.i18n';
-  import redirectBrowser from 'kolibri.utils.redirectBrowser';
   import samePageCheckGenerator from 'kolibri.utils.samePageCheckGenerator';
   import client from 'kolibri.client';
   import urls from 'kolibri.urls';
@@ -520,7 +519,7 @@
         if (this.content) {
           const id = this.content.id;
           if (!this.isUserLoggedIn && (this.lessonId || this.classId)) {
-            redirectBrowser(window.location.href.split('?')[0]);
+            this.$router.replace({ ...this.$route, query: null });
           }
           client({
             method: 'get',

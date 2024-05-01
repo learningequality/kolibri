@@ -14,6 +14,8 @@ import logging from 'kolibri.lib.logging';
 import { i18nSetup } from 'kolibri.utils.i18n';
 import KThemePlugin from 'kolibri-design-system/lib/KThemePlugin';
 
+/* eslint-disable vue/one-component-per-file */
+
 global.beforeEach(() => {
   return new Promise(resolve => {
     Aphrodite.StyleSheetTestUtils.suppressStyleInjection();
@@ -35,6 +37,12 @@ logging.setLevel('silent');
 
 // Register Vue plugins and components
 Vue.use(Vuex);
+Vue.mixin({
+  beforeCreate: function() {
+    // This fix some problems between the VueRouter plugin, and Vue-testing-library.
+    this.$options.router = this.$options.router || undefined;
+  },
+});
 Vue.use(VueRouter);
 Vue.use(VueMeta);
 Vue.use(KThemePlugin);
@@ -69,3 +77,4 @@ global.flushPromises = function flushPromises() {
     scheduler(resolve);
   });
 };
+/* eslint-enable vue/one-component-per-file */

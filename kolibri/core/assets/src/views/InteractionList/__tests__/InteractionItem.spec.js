@@ -1,5 +1,4 @@
 import { render, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import { themeTokens } from 'kolibri-design-system/lib/styles/theme';
 import InteractionItem from '../InteractionItem.vue';
 
@@ -11,7 +10,6 @@ const renderComponent = props => {
 
   return render(InteractionItem, {
     props: { ...defaultProps, ...props },
-    routes: new VueRouter(),
   });
 };
 
