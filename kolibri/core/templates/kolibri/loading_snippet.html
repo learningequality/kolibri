@@ -1,159 +1,176 @@
 {% load static %}
-  <style>
-    .flapping-kolibri {
-      animation: fadeIn;
-      animation-duration: 1s;
-      animation-delay: 1s;
-      animation-fill-mode: both;
+<style>
+  .flapping-kolibri {
+    animation: fadeIn;
+    animation-duration: 1s;
+    animation-delay: 1s;
+    animation-fill-mode: both;
+  }
+
+  .wing-inner {
+    animation: flapInner 2s 1.2s both infinite;
+  }
+
+  .wing-middle {
+    animation: flapMiddle 2s 1.2s both infinite;
+  }
+
+  .wing-outer {
+    animation: flapOuter 2s 1.2s both infinite;
+  }
+
+  @keyframes fadeIn {
+    from {
+      opacity: 0
     }
 
-    .wing-inner {
-      animation: flapInner 2s 1.2s both infinite;
+    to {
+      opacity: 1
+    }
+  }
+
+  @keyframes flapInner {
+    0% {
+      opacity: 0;
     }
 
-    .wing-middle {
-      animation: flapMiddle 2s 1.2s both infinite;
+    10% {
+      opacity: 1;
     }
 
-    .wing-outer {
-      animation: flapOuter 2s 1.2s both infinite;
+    30% {
+      opacity: 1;
     }
 
-    @keyframes fadeIn {
-      from {
-        opacity: 0
-      }
-      to {
-        opacity: 1
-      }
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes flapMiddle {
+    0% {
+      opacity: 0;
     }
 
-    @keyframes flapInner {
-      0% {
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      30% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+    20% {
+      opacity: 0;
     }
 
-    @keyframes flapMiddle {
-      0% {
-        opacity: 0;
-      }
-      20% {
-        opacity: 0;
-      }
-      40% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+    40% {
+      opacity: 1;
     }
 
-    @keyframes flapOuter {
-      0% {
-        opacity: 0;
-      }
-      40% {
-        opacity: 0;
-      }
-      50% {
-        opacity: 1;
-      }
-      100% {
-        opacity: 0;
-      }
+    100% {
+      opacity: 0;
     }
-  </style>
+  }
+
+  @keyframes flapOuter {
+    0% {
+      opacity: 0;
+    }
+
+    40% {
+      opacity: 0;
+    }
+
+    50% {
+      opacity: 1;
+    }
+
+    100% {
+      opacity: 0;
+    }
+  }
+</style>
 
 
-  <div class="flapping-kolibri">
-    <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="kolibri-loader" width="402" height="382" viewBox="0 0 402 382" fill="none">
-      <title id="kolibri-loader">Kolibri Loader</title>
-      <use xlink:href="#body" />
-      <use xlink:href="#right-wing-inner" class="wing-inner" />
-      <use xlink:href="#right-wing-middle" class="wing-middle" />
-      <use xlink:href="#right-wing-outer" class="wing-outer" />
-      <use xlink:href="#left-wing-inner" class="wing-inner" />
-      <use xlink:href="#left-wing-middle" class="wing-middle" />
-      <use xlink:href="#left-wing-outer" class="wing-outer" />
-      <defs>
-        <g id="body">
-          <path
-            d="M261.5 61.5L218 105.5M218 105.5C211.5 101 197.6 98.9 190 106.5C185.206 111.294
-            184.181 120.692 184.5 127C184.856 134.046 184.797 140.116 181.5 146.5C165.746 177
-            156 207 200.566 254.5C203.473 257.325 206.613 260.16 210 263M218 105.5C221.5 116
-            218.711 134.8 222.5 143C233.5 169.5 250 196.67 216 251C214.022 254.16 212.36 259.788
-            210 263M210 263C199.5 291.5 203.222 309.173 211.5 316C220.505 323.427 229 315 231
-            306.5C233 298 225.5 280.5 210 263Z"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
+<div class="flapping-kolibri">
+  <svg xmlns="http://www.w3.org/2000/svg" role="img" width="250px" height="250px" viewBox="0 0 200 200" fill="none"
+    aria-label="Kolibri loader">
+    <title>Kolibri loader</title>
+    <use href="#body" stroke="#4368F5"></use>
+    <use href="#right-wing-inner" stroke="#4368F5" class="wing-inner"></use>
+    <use href="#right-wing-middle" stroke="#4368F5" class="wing-middle"></use>
+    <use href="#right-wing-outer" stroke="#4368F5" class="wing-outer"></use>
+    <use href="#left-wing-inner" stroke="#4368F5" class="wing-inner"></use>
+    <use href="#left-wing-middle" stroke="#4368F5" class="wing-middle"></use>
+    <use href="#left-wing-outer" stroke="#4368F5" class="wing-outer"></use>
+    <defs>
+      <g id="body">
+        <path
+          d="M105 133.5C106.125 135.248 111.046 140.575 113.5 145.5C115.084 148.678 116.043
+                    151.879 115.5 154.5C114.566 159.01 110.376 162.409 106.255 159.3C104.108 157.681
+                    102.698 154.847 102.209 152.3C101.265 147.375 102.751 141.099 105 133.5ZM105 133.5C92
+                    121.5 80.5894 106.993 86.0001 88C87.8773 81.4102 91.5066 76.5374 92.5907 67.8576C92.9229
+                    65.1979 92.0525 63.0863 92.5907 60.3303C93.1958 57.2315 95.7567 53.5948 99.6458 52.8029C101.94
+                    52.3358 104.538 52.8993 106.701 54.6847C108.251 55.9644 109.53 57.5443 109.801 59.5775C110.137
+                    62.0918 109.848 65.8372 109.969 68.8091C110.064 71.1567 111.01 74.3275 111.846 76.5C123.727
+                    101.615 117 110.5 105 133.5ZM102.455 52.7427C104.844 53.1793 107.316 54.5807 111.846
+                    51.9511C117.52 46.8315 124.682 39.4836 129.898 34.0323C123.952 40.1759 122.341 41.8109
+                    114.35 49.692C112.985 51.7283 111.085 54.0494 110.647 55.8138C110.089 58.0588 109.812
+                    61.4633 109.967 63.8191"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
         </g>
-        <g id="right-wing-inner">
-          <path
-            d="M261 158C271.333 168.667 285.8 196.4 261 222"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <g id="right-wing-middle">
-          <path
-            d="M282.5 138C299.102 155.333 322.344 200.4 282.5 242"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <g id="right-wing-outer">
-          <path
-            d="M303.5 116C326.893 140.667 359.644 204.8 303.5 264"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <g id="left-wing-inner">
-          <path
-            d="M141.5 158C131.167 168.667 116.7 196.4 141.5 222"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <g id="left-wing-middle">
-          <path
-            d="M120 138C103.398 155.333 80.1559 200.4 120 242"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-        <g id="left-wing-outer">
-          <path
-            d="M99 116C75.6067 140.667 42.856 204.8 99 264"
-            stroke="#4368F5"
-            stroke-width="13"
-            stroke-linecap="round"
-            stroke-linejoin="round"
-          />
-        </g>
-      </defs>
-    </svg>
-  </div>
+      <g id="right-wing-inner">
+        <path
+          d="M128.866 81.1332C128.866 81.1332 136.087 86.4496
+                    136.087 97.0824C136.087 107.715 128.866 112.875 128.866 112.875"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
+      <g id="right-wing-middle">
+        <path
+          d="M140.213 70.8939C140.213 70.8939 151.559 79.6402
+                    151.559 97.1328C151.559 114.625 140.213 123.114 140.213 123.114"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
+      <g id="right-wing-outer">
+        <path
+          d="M150.528 60.6545C150.528 60.6545 166 72.8308 166 97.1832C166
+                    121.536 150.528 133.354 150.528 133.354"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+        </path>
+      </g>
+      <g id="left-wing-inner">
+        <path
+          d="M72.1338 81.1332C72.1338 81.1332 64.9133 86.4496
+                    64.9133 97.0824C64.9133 107.715 72.1338 112.875 72.1338 112.875"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
+      <g id="left-wing-middle">
+        <path
+          d="M60.7874 70.8939C60.7874 70.8939 49.4409 79.6402
+                    49.4409 97.1328C49.4409 114.625 60.7874 123.114 60.7874 123.114"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        ></path>
+      </g>
+      <g id="left-wing-outer">
+        <path
+          d="M50.4724 60.6545C50.4724 60.6545 35 72.8308 35 97.1832C35
+                    121.536 50.4724 133.354 50.4724 133.354"
+          stroke-width="6"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+        </path>
+      </g>
+    </defs>
+  </svg>
+</div>
