@@ -57,4 +57,44 @@ describe('FocusTrap', () => {
     await userEvent.tab({ shift: true });
     expect(emitted()).not.toHaveProperty('shouldFocusLastEl');
   });
+
+  it("should reset state when 'reset' method is called", async () => {
+    // Create a wrapper component with a Reset button to call the component's public method "reset"
+    const WrapperComponent = {
+      template: `
+        <div>
+          <FocusTrap ref="focusTrap" />
+          <button @click="reset">Reset</button>
+        </div>
+      `,
+      components: {
+        FocusTrap,
+      },
+      methods: {
+        reset() {
+          this.$refs.focusTrap.reset();
+        },
+      },
+    };
+
+    const { emitted } = render(WrapperComponent, {
+      routes: new VueRouter(),
+    });
+
+    // Activate the focus trap
+    await userEvent.tab();
+    await userEvent.tab();
+    await userEvent.tab({ shift: true });
+
+    // Check if the focus trap is working
+    expect(emitted()).toHaveProperty('shouldFocusLastEl');
+    expect(emitted().shouldFocusLastEl.length).toBe(1);
+
+    // Reset the focus trap
+    await userEvent.click(document.querySelector('button'));
+
+    await userEvent.tab();
+    expect(emitted()).toHaveProperty('shouldFocusFirstEl');
+    expect(emitted().shouldFocusFirstEl.length).toBe(2);
+  });
 });

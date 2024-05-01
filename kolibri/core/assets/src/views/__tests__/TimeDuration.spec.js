@@ -43,11 +43,9 @@ const testCases = [
 ];
 
 describe('TimeDuration', () => {
-  testCases.forEach(({ seconds, expected }) => {
-    it(`should render ${expected} for ${seconds} seconds`, () => {
-      renderComponent({ seconds });
-      expect(screen.getByText(expected)).toBeInTheDocument();
-    });
+  it.each(testCases)('should render $seconds seconds as $expected', ({ seconds, expected }) => {
+    renderComponent({ seconds });
+    expect(screen.getByText(expected)).toBeInTheDocument();
   });
 
   it('should render empty string if seconds are not provided as props', () => {
