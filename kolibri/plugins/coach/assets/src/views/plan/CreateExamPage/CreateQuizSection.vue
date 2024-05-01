@@ -324,6 +324,16 @@
 
     </KTabsPanel>
 
+    <KModal
+      v-if="showDeleteConfirmation"
+      :title="deleteSectionLabel$()"
+      :submitText="coreString('deleteAction')"
+      :cancelText="coreString('cancelAction')"
+      @cancel="handleShowConfirmation"
+      @submit="handleConfirmDelete"
+    >
+      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+    </KModal>
 
   </div>
 
@@ -378,6 +388,7 @@
         replaceAction$,
         questionList$,
         sectionDeletedNotification$,
+        deleteConfirmation$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -433,6 +444,7 @@
         replaceAction$,
         questionList$,
         sectionDeletedNotification$,
+        deleteConfirmation$,
 
         toggleQuestionInSelection,
         selectAllQuestions,
@@ -462,6 +474,11 @@
         activeQuestions,
         selectedActiveQuestions,
         replacementQuestionPool,
+      };
+    },
+    data() {
+      return {
+        showDeleteConfirmation: false,
       };
     },
     computed: {
@@ -526,6 +543,21 @@
       }
     },
     methods: {
+      handleConfirmDelete() {
+        const { section_id, section_title } = this.activeSection;
+        this.removeSection(section_id);
+        this.$nextTick(() => {
+          this.$store.dispatch(
+            'createSnackbar',
+            this.sectionDeletedNotification$({ section_title })
+          );
+          this.focusActiveSectionTab();
+        });
+        this.handleShowConfirmation();
+      },
+      handleShowConfirmation(section_id = null) {
+        this.showDeleteConfirmation = section_id;
+      },
       handleReplaceSelection() {
         const section_id = get(this.activeSection).section_id;
         const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
@@ -533,21 +565,13 @@
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
-        const section_title = this.activeSection.section_title;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
-            this.removeSection(section_id);
-            this.$nextTick(() => {
-              this.$store.dispatch(
-                'createSnackbar',
-                this.sectionDeletedNotification$({ section_title })
-              );
-              this.focusActiveSectionTab();
-            });
+            this.handleShowConfirmation(section_id);
             break;
         }
       },
