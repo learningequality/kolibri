@@ -34,10 +34,10 @@ jobs:
   dmg:
     name: Build DMG file
     needs: whl
-    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.0
+    uses: learningequality/kolibri-app/.github/workflows/build_mac.yml@v0.4.1
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v0.4.0
+      ref: v0.4.1
   deb:
     name: Build DEB file
     needs: whl
@@ -48,14 +48,14 @@ jobs:
   exe:
     name: Build EXE file
     needs: whl
-    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.3
+    uses: learningequality/kolibri-installer-windows/.github/workflows/build_exe.yml@v1.6.4
     with:
       whl-file-name: ${{ needs.whl.outputs.whl-file-name }}
-      ref: v1.6.3
+      ref: v1.6.4
   apk:
     name: Build APK file
     needs: whl
-    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.1
+    uses: learningequality/kolibri-installer-android/.github/workflows/build_apk.yml@v0.1.2
     with:
       tar-file-name: ${{ needs.whl.outputs.tar-file-name }}
-      ref: v0.1.1
+      ref: v0.1.2
