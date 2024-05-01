@@ -17,8 +17,8 @@ const getTotalOfQuestions = sumBy(qArray => qArray.length);
  * @param {Number} numQuestions - target number of questions
  * @param {String[]} exerciseIds - QuizExercise IDs
  * @param {String[]} exerciseTitle - QuizExercise titles
- * @param {Array[String[]]} questionIdArrays - QuizQuestion (assessment) ID arrays corresponding
- *  to each exercise by index (ie, questionIdArrays[i] corresponds to exerciseIds[i])
+ * @param {Array[String[]]} questionIdArrays - QuizQuestion (assessmentitem) unique IDs in the
+ *                                             composite format `exercise_id:question_id`
  * @param {number} seed - value to seed the random shuffle with
  *
  * @return {QuizQuestion[]}
