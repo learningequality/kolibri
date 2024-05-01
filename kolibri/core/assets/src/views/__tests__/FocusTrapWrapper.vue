@@ -1,4 +1,4 @@
-<!-- This is a wrapper around the FocusTrap component 
+<!-- This is a wrapper around the FocusTrap component
     to test it's exported public "reset" method -->
 <template>
 
