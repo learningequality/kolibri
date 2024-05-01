@@ -1,11 +1,9 @@
 import { render, screen } from '@testing-library/vue';
-import VueRouter from 'vue-router';
 import TimeDuration from '../TimeDuration.vue';
 
 const renderComponent = (props = {}) => {
   return render(TimeDuration, {
     props,
-    routes: new VueRouter(),
   });
 };
 
