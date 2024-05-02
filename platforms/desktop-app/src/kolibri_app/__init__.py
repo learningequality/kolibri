@@ -4,7 +4,7 @@ from kolibri.main import enable_plugin
 
 from kolibri_app.constants import MAC
 
-__version__ = "0.4.1"
+__version__ = "0.4.2"
 
 os.environ["KOLIBRI_INSTALLER_VERSION"] = __version__
 

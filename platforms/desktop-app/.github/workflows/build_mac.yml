@@ -112,7 +112,7 @@ jobs:
         security create-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
         security set-keychain-settings -lut 21600 temp.keychain
         security unlock-keychain -p "$KEYCHAIN_PASSWORD" temp.keychain
-        echo -n "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}" | base64 --decode --output certificate.p12
+        echo -n "${{ secrets.KOLIBRI_MAC_APP_CERTIFICATE }}" | base64 --decode --output=certificate.p12
         # -A option allows any application to read keys.
         # This would be insecure if the keychain was retained but GitHub action
         # VMs are thrown away after use.
