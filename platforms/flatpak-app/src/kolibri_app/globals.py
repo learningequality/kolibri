@@ -22,7 +22,7 @@ APP_DEVELOPER_EXTRAS = getenv_as_bool(
 )
 
 APP_AUTOMATIC_LOGIN = getenv_as_bool(
-    config.PROFILE_ENV_PREFIX + "APP_AUTOMATIC_LOGIN", default=USE_SYSTEM_INSTANCE
+    config.PROFILE_ENV_PREFIX + "APP_AUTOMATIC_LOGIN", default=True
 )
 
 APP_AUTOMATIC_PROVISION = getenv_as_bool(
