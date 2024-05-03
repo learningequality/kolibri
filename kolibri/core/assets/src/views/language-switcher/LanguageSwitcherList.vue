@@ -1,35 +1,46 @@
 <template>
 
   <div>
-    <KButtonGroup style="margin-top: 8px; position: relative; left: -16px;">
-      <KIconButton
-        icon="language"
-        aria-hidden="true"
-        tabindex="-1"
-        class="globe"
-        @click="showLanguageModal = true"
-      />
-      <span class="selected" :title="selectedLanguage.english_name">
-        {{ selectedLanguage.lang_name }}
-      </span>
-      <KButton
-        v-for="language in buttonLanguages"
-        :key="language.id"
-        :text="language.lang_name"
-        :title="language.english_name"
-        class="lang"
-        appearance="basic-link"
-        @click="switchLanguage(language.id)"
-      />
-
-      <KButton
-        v-if="numSelectableLanguages > numVisibleLanguageBtns + 1"
-        :text="$tr('showMoreLanguagesSelector')"
-        :primary="false"
-        appearance="flat-button"
-        @click="showLanguageModal = true"
-      />
-    </KButtonGroup>
+    <div class="languages-list">
+      <KListWithOverflow
+        :items="buttonLanguages"
+        :appearanceOverrides="{
+          justifyContent: center ? 'center' : 'flex-start',
+          alignItems: 'center',
+        }"
+      >
+        <template #item="{ item }">
+          <KButton
+            v-if="!item.isSelected"
+            :text="item.lang_name"
+            :title="item.english_name"
+            class="lang px-8"
+            appearance="basic-link"
+            @click="switchLanguage(item.id)"
+          />
+          <SelectedLanguage
+            v-else
+            :selectedLanguage="item"
+            @click="showLanguageModal = true"
+          />
+        </template>
+        <template #more="{ overflowItems }">
+          <div>
+            <SelectedLanguage
+              v-if="overflowItems.length === buttonLanguages.length"
+              :selectedLanguage="selectedLanguage"
+              @click="showLanguageModal = true"
+            />
+            <KButton
+              :text="$tr('showMoreLanguagesSelector')"
+              class="px-8"
+              appearance="flat-button"
+              @click="showLanguageModal = true"
+            />
+          </div>
+        </template>
+      </KListWithOverflow>
+    </div>
     <LanguageSwitcherModal
       v-if="showLanguageModal"
       class="ta-l"
@@ -43,9 +54,9 @@
 <script>
 
   import { availableLanguages, currentLanguage } from 'kolibri.utils.i18n';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
   import { compareLanguages } from 'kolibri.utils.sortLanguages';
   import languageSwitcherMixin from './mixin';
+  import SelectedLanguage from './SelectedLanguage';
   import LanguageSwitcherModal from './LanguageSwitcherModal';
 
   const prioritizedLanguages = ['en', 'ar', 'es-419', 'hi-in', 'fr-fr', 'sw-tz'];
@@ -53,19 +64,14 @@
   export default {
     name: 'LanguageSwitcherList',
     components: {
+      SelectedLanguage,
       LanguageSwitcherModal,
     },
     mixins: [languageSwitcherMixin],
-    setup() {
-      const { windowBreakpoint } = useKResponsiveWindow();
-      return {
-        windowBreakpoint,
-      };
-    },
     props: {
-      parentBreakpoint: {
-        type: Number,
-        default: -1,
+      center: {
+        type: Boolean,
+        default: false,
       },
     },
     data() {
@@ -80,38 +86,24 @@
       selectedLanguage() {
         return availableLanguages[currentLanguage];
       },
-      numVisibleLanguageBtns() {
-        // At visibleBtns = 0, only the "More languages" button will show
-        let visibleBtns = 4;
-        if (this.parentBreakpoint < 0) {
-          visibleBtns = this.windowBreakpoint;
-        } else {
-          visibleBtns = this.parentBreakpoint;
-        }
-        return Math.min(4, visibleBtns);
-      },
-      numSelectableLanguages() {
-        return this.selectableLanguages.length;
-      },
       buttonLanguages() {
-        if (this.selectableLanguages.length <= this.numVisibleLanguageBtns + 1) {
-          return this.selectableLanguages.slice().sort(compareLanguages);
-        }
-        return this.selectableLanguages
-          .slice()
-          .sort((a, b) => {
-            const aPriority = prioritizedLanguages.includes(a.id);
-            const bPriority = prioritizedLanguages.includes(b.id);
-            if (aPriority && bPriority) {
-              return compareLanguages(a, b);
-            } else if (aPriority && !bPriority) {
-              return -1;
-            } else if (!aPriority && bPriority) {
-              return 1;
-            }
+        const buttonLanguages = this.selectableLanguages.slice().sort((a, b) => {
+          const aPriority = prioritizedLanguages.includes(a.id);
+          const bPriority = prioritizedLanguages.includes(b.id);
+          if (aPriority && bPriority) {
             return compareLanguages(a, b);
-          })
-          .slice(0, this.numVisibleLanguageBtns);
+          } else if (aPriority && !bPriority) {
+            return -1;
+          } else if (!aPriority && bPriority) {
+            return 1;
+          }
+          return compareLanguages(a, b);
+        });
+        buttonLanguages.unshift({
+          ...this.selectedLanguage,
+          isSelected: true,
+        });
+        return buttonLanguages;
       },
     },
     $trs: {
@@ -134,16 +126,32 @@
     right: -4px;
   }
 
-  .selected {
-    margin-left: 8px;
-  }
-
   .lang {
     @include font-family-language-names;
+
+    /deep/ span {
+      white-space: nowrap !important;
+    }
   }
 
   .ta-l {
     text-align: left;
+  }
+
+  .languages-list {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .px-8 {
+    padding-right: 8px;
+    padding-left: 8px;
+  }
+
+  .lang-icon {
+    min-width: 40px;
   }
 
 </style>
