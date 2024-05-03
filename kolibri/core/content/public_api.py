@@ -3,8 +3,8 @@ from uuid import UUID
 from django.db import connection
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
-from rest_framework.generics import get_object_or_404
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 from rest_framework.viewsets import GenericViewSet
 
 from kolibri.core.content import models
@@ -14,6 +14,14 @@ from kolibri.core.content.utils.sqlalchemybridge import BASES
 
 
 class ImportMetadataViewset(GenericViewSet):
+    queryset = models.ContentNode.objects.all()
+
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
     default_content_schema = CONTENT_SCHEMA_VERSION
     min_content_schema = MIN_CONTENT_SCHEMA_VERSION
 
@@ -64,7 +72,7 @@ class ImportMetadataViewset(GenericViewSet):
 
         # Get the model for the target node here - we do this so that we trigger a 404 immediately if the node
         # does not exist.
-        node = get_object_or_404(models.ContentNode.objects.all(), pk=pk)
+        node = self.get_object()
 
         nodes = node.get_ancestors(include_self=True)
 

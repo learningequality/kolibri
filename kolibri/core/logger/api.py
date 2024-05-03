@@ -31,6 +31,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 from .models import AttemptLog
 from .models import ContentSessionLog
@@ -230,6 +231,18 @@ class LogContext(object):
 
 @method_decorator(csrf_protect, name="dispatch")
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
+    def get_queryset(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return None
+
     def _precache_dataset_id(self, user):
         if user is None or user.is_anonymous:
             return
@@ -919,11 +932,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
 
 class TotalContentProgressViewSet(viewsets.GenericViewSet):
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
+    def get_queryset(self):
+        return ContentSummaryLog.objects.filter(user=self.request.user)
+
     def retrieve(self, request, pk=None):
         if request.user.is_anonymous or pk != request.user.id:
             raise PermissionDenied("Can only access progress data for self")
         progress = (
-            request.user.contentsummarylog_set.annotate(
+            self.get_queryset()
+            .annotate(
                 mastery_progress=Sum(
                     Case(
                         When(masterylogs__complete=True, then=Value(1)),
