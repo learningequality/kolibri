@@ -61,7 +61,7 @@ urlpatterns = [
     re_path(r"^", include(router.urls)),
     re_path(r"v2/", include(public_content_v2_router.urls)),
     re_path(
-        r"(?P<version>[^/]+)/channels/lookup/(?P<identifier>[^/]+)",
+        r"(?P<version>[^/]+)/channels/lookup/(?P<identifier>[^/]+)$",
         get_public_channel_lookup,
         name="get_public_channel_lookup",
     ),
