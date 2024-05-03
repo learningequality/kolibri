@@ -180,7 +180,10 @@ class ClassroomNotificationsViewset(ValuesViewset):
         :param: after integer: all the notifications after this id will be sent.
         :param: limit integer: sets the number of notifications to provide
         """
-        classroom_id = self.kwargs["classroom_id"]
+        classroom_id = self.kwargs.get("classroom_id", None)
+
+        if classroom_id is None:
+            return LearnerProgressNotification.objects.none()
 
         notifications_query = LearnerProgressNotification.objects.filter(
             classroom_id=classroom_id

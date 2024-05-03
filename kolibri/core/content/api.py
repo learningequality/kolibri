@@ -1480,7 +1480,8 @@ class ContentNodeGranularViewset(mixins.RetrieveModelMixin, viewsets.GenericView
 
     def get_serializer_context(self):
         context = super(ContentNodeGranularViewset, self).get_serializer_context()
-        context.update({"channel_stats": self.channel_stats})
+        if hasattr(self, "channel_stats"):
+            context.update({"channel_stats": self.channel_stats})
         return context
 
     def retrieve(self, request, pk):

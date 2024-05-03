@@ -353,6 +353,8 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     }
 
     def get_queryset(self):
+        if self.request.user.is_anonymous:
+            return FacilityUser.objects.none()
         facility_id = self.request.query_params.get(
             "facility_id", self.request.user.facility_id
         )
