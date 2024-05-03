@@ -38,6 +38,8 @@ class KolibriDaemonManager(GObject.GObject):
     __dbus_proxy_owner: typing.Optional[str] = None
 
     __soup_session: Soup.Session = None
+    __last_status: typing.Optional[str] = None
+
     is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)
     has_error = GObject.Property(type=bool, default=False)
@@ -254,29 +256,26 @@ class KolibriDaemonManager(GObject.GObject):
 
         if dbus_proxy_owner_changed:
             dbus_proxy.Hold(result_handler=self.__dbus_proxy_default_result_handler)
+            self.__last_status = None
             self.emit("dbus-owner-changed")
 
     def __dbus_proxy_on_notify(
         self, dbus_proxy: KolibriDaemonDBus.MainProxy, param_spec: GObject.ParamSpec
     ):
-        is_stopped = dbus_proxy.props.status in ("STOPPED", "")
-        is_started = dbus_proxy.props.status == "STARTED"
-        has_error = dbus_proxy.props.status == "ERROR"
-
-        if self.props.is_stopped != is_stopped:
-            self.props.is_stopped = is_stopped
-
-        if self.props.is_started != is_started:
-            self.props.is_started = is_started
-
-        if self.props.has_error != has_error:
-            self.props.has_error = has_error
+        if dbus_proxy.props.status != self.__last_status:
+            self.__update_from_status_text(dbus_proxy.props.status)
+            self.__last_status = dbus_proxy.props.status
 
         if self.props.base_url != dbus_proxy.props.base_url:
             self.props.base_url = dbus_proxy.props.base_url
 
         if self.props.app_key != dbus_proxy.props.app_key:
             self.props.app_key = dbus_proxy.props.app_key
+
+    def __update_from_status_text(self, status):
+        self.props.is_stopped = status in ("STOPPED", "")
+        self.props.is_started = status == "STARTED"
+        self.props.has_error = status == "ERROR"
 
     def __on_notify_is_stopped(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec
