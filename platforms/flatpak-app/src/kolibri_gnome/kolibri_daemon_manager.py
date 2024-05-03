@@ -37,6 +37,7 @@ class KolibriDaemonManager(GObject.GObject):
     __did_init: bool = False
     __dbus_proxy_owner: typing.Optional[str] = None
 
+    __soup_session: Soup.Session = None
     is_stopped = GObject.Property(type=bool, default=False)
     is_started = GObject.Property(type=bool, default=False)
     has_error = GObject.Property(type=bool, default=False)
@@ -57,6 +58,9 @@ class KolibriDaemonManager(GObject.GObject):
             g_object_path=DAEMON_MAIN_OBJECT_PATH,
             g_interface_name=KolibriDaemonDBus.main_interface_info().name,
         )
+
+        self.__soup_session = Soup.Session.new()
+
         self.__dbus_proxy.connect(
             "notify::g-name-owner", self.__dbus_proxy_on_notify_g_name_owner
         )
@@ -125,9 +129,8 @@ class KolibriDaemonManager(GObject.GObject):
         if not url:
             return None
 
-        soup_session = Soup.Session.new()
         soup_message = Soup.Message.new("GET", url)
-        stream = soup_session.send(soup_message, None)
+        stream = self.__soup_session.send(soup_message, None)
         return _read_json_from_input_stream(stream)
 
     def kolibri_api_get_async(self, path: str, result_cb: typing.Callable):
@@ -159,14 +162,14 @@ class KolibriDaemonManager(GObject.GObject):
             result_cb(None)
             return
 
-        soup_session = Soup.Session.new()
         soup_message = Soup.Message.new(method, url)
         if request_body is not None:
             soup_message.set_request_body_from_bytes(
                 "application/json",
                 GLib.Bytes(self.__request_body_object_to_bytes(request_body)),
             )
-        soup_session.send_async(
+
+        self.__soup_session.send_async(
             soup_message,
             GLib.PRIORITY_DEFAULT,
             None,
