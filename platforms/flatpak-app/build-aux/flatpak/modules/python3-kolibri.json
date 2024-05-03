@@ -3,6 +3,7 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
+        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Don-t-let-users-that-are-used-for-os-user-have-their.patch",
         "patch -d ${KOLIBRI_MODULE_PATH}/dist/ifcfg -p3 < dist_ifcfg/0001-Remove-needless-ifcfg-warning.patch"
     ],
     "sources": [
