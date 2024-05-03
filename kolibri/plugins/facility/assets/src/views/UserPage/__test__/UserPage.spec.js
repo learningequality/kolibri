@@ -1,14 +1,14 @@
 import mock from 'xhr-mock';
 import { mount } from '@vue/test-utils';
 import VueRouter from 'vue-router';
-import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import makeStore from '../../../../test/makeStore';
 import UserPage from '../index';
 
 jest.mock('kolibri.lib.logging');
 jest.mock('kolibri.urls');
 jest.mock('lockr');
-jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
 const router = new VueRouter({
   routes: [

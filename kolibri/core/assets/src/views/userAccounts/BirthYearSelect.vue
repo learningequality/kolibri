@@ -29,7 +29,7 @@
   import { now } from 'kolibri.utils.serverClock';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { DemographicConstants } from 'kolibri.coreVue.vuex.constants';
 
   const { NOT_SPECIFIED } = DemographicConstants;

@@ -2,7 +2,7 @@
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line">
-  <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="everyone finished" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #FFCB00;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Completed by 1 of 1
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -27,18 +27,18 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 1`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #FFCB00;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     1
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #0097F2;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -48,7 +48,7 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some groups recipents only when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0 of 0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -73,12 +73,12 @@ exports[`ReportsLessonResourceLearnerListPage for a lesson restricted to some gr
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying all learners renders a correct summary tally 1`] = `
 <div class="multi-line">
-  <div showratiointooltip="" debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div showratiointooltip="" debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #FFCB00;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     Completed by 1 of 3
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #0097F2;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     1 started
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -105,18 +105,18 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 1`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #FFCB00;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     1
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #0097F2;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     1
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -126,18 +126,18 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 2`] = `
 <div class="single-line">
-  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #ffc107;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some completed" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #FFCB00;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zm4.24 16L12 15.45 7.77 18l1.12-4.81-3.73-3.23 4.92-.42L12 5l1.92 4.53 4.92.42-3.73 3.23L16.23 18z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     1
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
-  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #03a9f4;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; has some started" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #0097F2;"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"></path><path d="M12.5 7H11v6l5.25 3.15.75-1.23-4.5-2.67z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
   </div>
   <!---->
-  <div debug="ratio; not verbose" class="item" style="color: rgb(224, 224, 224);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="ratio; not verbose" class="item" style="color: rgb(204, 204, 204);"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->
@@ -147,7 +147,7 @@ exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when di
 
 exports[`ReportsLessonResourceLearnerListPage for an entire class lesson when displaying learners by groups renders a correct group tally 3`] = `
 <div class="single-line">
-  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #e0e0e0;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
+  <div debug="no learners" class="item"><span class="labeled-icon-wrapper" nowrap="nowrap"><span class="icon"><svg viewBox="0 0 24 24" role="presentation" focusable="false" xmlns="http://www.w3.org/2000/svg" width="24" height="24" class="" style="fill: #CCCCCC;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"></path></svg></span> <span class="label" style="margin-left: 1.975em; max-width: calc(100% - 1.975em);"><span dir="auto" class="debug-warning">
     0 of 0
   </span></span> <span class="icon-after"><!----></span></span>
     <!---->

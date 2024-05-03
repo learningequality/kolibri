@@ -158,7 +158,7 @@
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import UiIconButton from 'kolibri-design-system/lib/keen/UiIconButton';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import shuffled from 'kolibri.utils.shuffled';
   import { LearnerClassroomResource } from '../../apiResources';

@@ -97,7 +97,7 @@
   import isBoolean from 'lodash/isBoolean';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import MissingResourceAlert from 'kolibri-common/components/MissingResourceAlert';
   import useContentNodeProgress from '../composables/useContentNodeProgress';
   import useContentLink from '../composables/useContentLink';
@@ -177,7 +177,7 @@
       },
       currentlyViewingTextStyle() {
         return {
-          color: this.$themePalette.grey.v_700,
+          color: this.$themePalette.grey.v_800,
           fontSize: '12px',
           margin: 'auto',
         };

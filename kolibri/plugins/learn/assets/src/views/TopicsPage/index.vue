@@ -11,7 +11,7 @@
       :route="back"
       :appBarTitle="barTitle"
       :appearanceOverrides="{}"
-      :primary="!allowDownloads"
+      :primary="false"
       class="page"
     >
       <template #actions>
@@ -248,7 +248,7 @@
   import lodashGet from 'lodash/get';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import { getCurrentInstance, ref, watch } from 'kolibri.lib.vueCompositionApi';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useUser from 'kolibri.coreVue.composables.useUser';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

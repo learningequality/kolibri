@@ -21,7 +21,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import BaseToolbar from 'kolibri.coreVue.components.BaseToolbar';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'LessonMasteryBar',

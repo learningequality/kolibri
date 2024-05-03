@@ -1,13 +1,11 @@
 <template>
 
-  <img :src="image">
+  <component :is="component" altText="" :src="image" />
 
 </template>
 
 
 <script type="text/javascript">
-
-  import logo from './kolibri-logo.svg';
 
   export default {
     name: 'CoreLogo',
@@ -19,7 +17,10 @@
     },
     computed: {
       image() {
-        return this.src && this.src.length ? this.src : logo;
+        return this.src && this.src.length ? this.src : null;
+      },
+      component() {
+        return this.image ? 'img' : 'KLogo';
       },
     },
   };

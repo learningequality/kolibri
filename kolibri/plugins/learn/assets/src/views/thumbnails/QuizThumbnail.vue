@@ -4,7 +4,7 @@
     <template #icon>
       <KIcon
         icon="exercise"
-        :color="$themePalette.grey.v_500"
+        :color="$themePalette.grey.v_600"
       />
     </template>
   </Thumbnail>

@@ -44,7 +44,7 @@
 <script>
 
   import { currentLanguage } from 'kolibri.utils.i18n';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
   import languageSwitcherMixin from './mixin';

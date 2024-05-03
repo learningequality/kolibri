@@ -76,7 +76,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ChannelThumbnail from '../ChannelThumbnail';
   import commonLearnStrings from './../commonLearnStrings';
 

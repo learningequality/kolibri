@@ -77,7 +77,7 @@
           @click="$emit('navigateToSearchResult', item)"
         >
           <span>{{ item.before }}</span>
-          <span class="mark">{{ item.match }}</span>
+          <span :style="markColor">{{ item.match }}</span>
           <span>{{ item.after }}</span>
         </KButton>
       </li>
@@ -167,6 +167,12 @@
       paragraphStyle() {
         return {
           color: this.$themeTokens.annotation,
+        };
+      },
+      markColor() {
+        return {
+          color: this.$themePalette.black,
+          backgroundColor: this.$themePalette.yellow.v_200,
         };
       },
     },
@@ -388,13 +394,6 @@
   .search-results-list-item {
     padding-top: 8px;
     padding-bottom: 8px;
-  }
-
-  .mark {
-    color: #000000;
-
-    /* Styles same as markjs default styles */
-    background: #ffff00;
   }
 
   .search-results-list-item-button {

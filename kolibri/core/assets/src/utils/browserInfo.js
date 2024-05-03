@@ -69,3 +69,15 @@ export const isTouchDevice =
   'ontouchstart' in window ||
   window.navigator?.maxTouchPoints > 0 ||
   window.navigator?.msMaxTouchPoints > 0;
+
+function handlePointerDown(event) {
+  if (event.pointerType === 'mouse') {
+    localStorage.setItem('mouseUsed', 'true');
+    isMouseUsed = true;
+    window.removeEventListener('pointerdown', handlePointerDown);
+  }
+}
+
+window.addEventListener('pointerdown', handlePointerDown);
+
+export let isMouseUsed = localStorage.getItem('mouseUsed') === 'true';

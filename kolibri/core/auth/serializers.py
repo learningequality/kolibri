@@ -41,6 +41,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
         required=False,
         error_messages={"does_not_exist": "Facility does not exist."},
     )
+    extra_demographics = serializers.JSONField(required=False)
 
     class Meta:
         model = FacilityUser
@@ -56,6 +57,7 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             "id_number",
             "gender",
             "birth_year",
+            "extra_demographics",
         )
         read_only_fields = ("is_superuser",)
 
@@ -67,6 +69,15 @@ class FacilityUserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
             instance.save()
         return instance
+
+    def _validate_extra_demographics(self, attrs, facility):
+        # Validate the extra demographics here, as we need access to the facility dataset
+        extra_demographics = attrs.get("extra_demographics")
+        if extra_demographics:
+            try:
+                facility.dataset.validate_demographic_data(extra_demographics)
+            except DjangoValidationError as e:
+                raise serializers.ValidationError({"extra_demographics": e.message})
 
     def validate(self, attrs):
         username = attrs.get("username", None)
@@ -95,6 +106,8 @@ class FacilityUserSerializer(serializers.ModelSerializer):
                 "No password specified and it is required",
                 code=error_constants.PASSWORD_NOT_SPECIFIED,
             )
+        self._validate_extra_demographics(attrs, facility)
+
         # if obj doesn't exist, return data
         try:
             obj = FacilityUser.objects.get(username__iexact=username, facility=facility)
@@ -182,12 +195,18 @@ class CreateFacilitySerializer(serializers.ModelSerializer):
 class PublicFacilitySerializer(serializers.ModelSerializer):
     learner_can_login_with_no_password = serializers.SerializerMethodField()
     learner_can_sign_up = serializers.SerializerMethodField()
+    on_my_own_setup = serializers.SerializerMethodField()
 
     def get_learner_can_login_with_no_password(self, instance):
         return instance.dataset.learner_can_login_with_no_password
 
     def get_learner_can_sign_up(self, instance):
         return instance.dataset.learner_can_sign_up
+
+    def get_on_my_own_setup(self, instance):
+        if instance.dataset.extra_fields is not None:
+            return instance.dataset.extra_fields.get("on_my_own_setup", False)
+        return False
 
     class Meta:
         model = Facility
@@ -197,6 +216,7 @@ class PublicFacilitySerializer(serializers.ModelSerializer):
             "name",
             "learner_can_login_with_no_password",
             "learner_can_sign_up",
+            "on_my_own_setup",
         )
 
 

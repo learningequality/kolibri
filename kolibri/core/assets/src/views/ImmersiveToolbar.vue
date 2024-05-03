@@ -3,12 +3,12 @@
   <header>
     <UiToolbar
       :title="appBarTitle"
-      textColor="white"
+      :textColor="isFullscreen ? 'black' : 'white'"
       type="clear"
       :showIcon="showIcon"
       :style="{
         height: topBarHeight + 'px',
-        backgroundColor: isFullscreen ? $themeTokens.appBar : $themeTokens.appBarFullscreen,
+        backgroundColor: isFullscreen ? $themeTokens.appBar : $themePalette.black,
       }"
       @nav-icon-click="$emit('navIconClick')"
     >
@@ -24,14 +24,14 @@
             v-if="icon === 'close'"
             :ariaLabel="coreString('closeAction')"
             icon="close"
-            :color="$themeTokens.textInverted"
+            :color="isFullscreen ? $themeTokens.text : $themeTokens.textInverted"
             tabindex="-1"
           />
           <KIconButton
             v-else
             icon="back"
             :ariaLabel="coreString('goBackAction')"
-            :color="$themeTokens.textInverted"
+            :color="isFullscreen ? $themeTokens.text : $themeTokens.textInverted"
           />
         </router-link>
 
@@ -40,7 +40,7 @@
             v-if="icon === 'close'"
             :ariaLabel="coreString('closeAction')"
             icon="close"
-            :color="$themeTokens.textInverted"
+            :color="isFullscreen ? $themeTokens.text : $themeTokens.textInverted"
             tabindex="-1"
             @click="$emit('navIconClick')"
           />
@@ -48,7 +48,7 @@
             v-else
             icon="back"
             :ariaLabel="coreString('goBackAction')"
-            :color="$themeTokens.textInverted"
+            :color="isFullscreen ? $themeTokens.text : $themeTokens.textInverted"
             @click="$emit('navIconClick')"
           />
         </span>
@@ -109,11 +109,9 @@
       },
       linkStyle() {
         const hoverBg = this.isFullscreen
-          ? this.$themeTokens.appBarDark
-          : this.$themeTokens.appBarFullscreenDark;
-        const defaultBg = this.isFullscreen
-          ? this.$themeTokens.appBar
-          : this.$themeTokens.appBarFullscreen;
+          ? this.$themeBrand.secondary.v_1100
+          : this.$themePalette.grey.v_600;
+        const defaultBg = this.isFullscreen ? this.$themeTokens.appBar : this.$themePalette.black;
         return {
           backgroundColor: defaultBg,
           ':hover': {

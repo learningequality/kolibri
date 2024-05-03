@@ -90,8 +90,8 @@
   import ZipFile from 'kolibri-zip';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import urls from 'kolibri.urls';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
-  import { isTouchDevice } from 'kolibri.utils.browserInfo';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
   import scriptLoader from 'kolibri-common/utils/scriptLoader';
   import perseus from '../../dist/perseus';
   import icu from '../KAGlobals/icu';
@@ -210,7 +210,7 @@
         return this.windowBreakpoint < 3;
       },
       usesTouch() {
-        return isTouchDevice;
+        return isTouchDevice && !isMouseUsed;
       },
       itemRenderData() {
         return {

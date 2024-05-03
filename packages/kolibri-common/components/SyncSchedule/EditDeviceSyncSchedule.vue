@@ -242,8 +242,6 @@
       },
       selectorStyle() {
         return {
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themePalette.grey.v_200,
           borderRadius: '5px 5px 0px 0px',
           paddingTop: '5px',
           paddingLeft: '5px',

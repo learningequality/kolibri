@@ -412,6 +412,7 @@ class FacilityUserViewSet(ValuesViewset):
         "id_number",
         "gender",
         "birth_year",
+        "extra_demographics",
     )
 
     field_map = {

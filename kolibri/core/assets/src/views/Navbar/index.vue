@@ -17,7 +17,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   /**
    * Used for navigation between sub-pages of a top-level Kolibri section
    */

@@ -227,7 +227,7 @@
 <script>
 
   import { mapActions, mapGetters, mapState } from 'vuex';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { createTranslator } from 'kolibri.utils.i18n';
 
   import camelCase from 'lodash/camelCase';

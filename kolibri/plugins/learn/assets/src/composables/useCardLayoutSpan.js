@@ -1,5 +1,5 @@
 import { get } from '@vueuse/core';
-import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { computed } from 'kolibri.lib.vueCompositionApi';
 
 export default function useCardLayoutSpan() {

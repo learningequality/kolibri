@@ -51,7 +51,7 @@ oriented data synchronization.
           @click="nextQuestion"
         />
       </UiAlert>
-      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_100 }">
+      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_50 }">
         <ContentRenderer
           ref="contentRenderer"
           :kind="kind"
@@ -144,7 +144,7 @@ oriented data synchronization.
   import { MasteryModelGenerators } from 'kolibri.coreVue.vuex.constants';
   import shuffled from 'kolibri.utils.shuffled';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import CoreInfoIcon from 'kolibri.coreVue.components.CoreInfoIcon';
   import { createTranslator, defaultLanguage } from 'kolibri.utils.i18n';

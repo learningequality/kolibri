@@ -84,7 +84,7 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import { TaskTypes } from 'kolibri.utils.syncTaskUtils';
   import find from 'lodash/find';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { TaskResource } from 'kolibri.resources';
   import commonDeviceStrings from '../commonDeviceStrings';
   import TaskProgress from '../ManageContentPage/TaskProgress';

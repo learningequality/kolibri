@@ -50,7 +50,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { PageNames } from '../../constants';
 
@@ -92,7 +92,7 @@
         return this.$computedClass({
           ':focus': this.$coreOutline,
           ':hover': {
-            backgroundColor: this.$themePalette.grey.v_300,
+            backgroundColor: this.$themePalette.blue.v_200,
           },
         });
       },

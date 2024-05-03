@@ -1,5 +1,5 @@
-const { constants, createGzip } = require('zlib');
-const { pipeline } = require('stream');
+const { constants, createGzip } = require('node:zlib');
+const { pipeline } = require('node:stream');
 const { createReadStream, createWriteStream } = require('fs');
 const logger = require('./logging');
 

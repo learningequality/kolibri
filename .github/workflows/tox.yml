@@ -100,7 +100,7 @@ jobs:
   macos:
     name: Python unit tests on Mac OS
     needs: pre_job
-    runs-on: macos-latest
+    runs-on: macos-13
     strategy:
       max-parallel: 5
       matrix:

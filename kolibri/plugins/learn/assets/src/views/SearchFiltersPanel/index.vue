@@ -118,7 +118,7 @@
 
   import { NoCategories } from 'kolibri.coreVue.vuex.constants';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import SearchBox from '../SearchBox';
   import SidePanelModal from '../SidePanelModal';
@@ -212,7 +212,7 @@
       },
       categoryListItemActiveStyles() {
         return {
-          backgroundColor: this.$themeBrand.primary.v_50,
+          backgroundColor: this.$themeBrand.primary.v_200,
           border: '2px',
           borderColor: this.$themeTokens.primary,
           borderStyle: 'solid',

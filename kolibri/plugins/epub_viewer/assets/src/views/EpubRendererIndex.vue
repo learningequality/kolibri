@@ -177,7 +177,7 @@
   import FocusLock from 'vue-focus-lock';
   import CoreFullscreen from 'kolibri.coreVue.components.CoreFullscreen';
   import responsiveElementMixin from 'kolibri-design-system/lib/KResponsiveElementMixin';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import iFrameView from './SandboxIFrameView';
   import LoadingScreen from './LoadingScreen';
   import LoadingError from './LoadingError';

@@ -8,7 +8,7 @@
           <KIcon
             v-if="taskCompleted"
             icon="check"
-            :style="{ fill: $themePalette.green.v_500 }"
+            :style="{ fill: $themeTokens.success }"
             data-test="syncStatusIcon"
           />
           <KCircularLoader
@@ -76,7 +76,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import { computed, inject, onMounted, ref } from 'kolibri.lib.vueCompositionApi';
   import { TaskResource } from 'kolibri.resources';

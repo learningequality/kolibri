@@ -1,5 +1,5 @@
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 const prettier = require('prettier');
 const compiler = require('vue-template-compiler');
 const ESLintCLIEngine = require('eslint').CLIEngine;

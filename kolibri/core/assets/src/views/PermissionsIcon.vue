@@ -69,7 +69,7 @@
       iconStyle() {
         if (this.hasSuperAdminPermission) {
           return {
-            fill: this.lightIcon ? this.$themePalette.amber.v_100 : this.$themeTokens.superAdmin,
+            fill: this.lightIcon ? this.$themePalette.yellow.v_400 : this.$themeTokens.superAdmin,
           };
         } else {
           return {
