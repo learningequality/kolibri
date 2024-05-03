@@ -1,7 +1,7 @@
 <template>
 
   <KOptionalText
-    :text="seconds ? formattedTime : ''"
+    :text="seconds !== null ? formattedTime : ''"
   />
 
 </template>
