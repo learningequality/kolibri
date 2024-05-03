@@ -1,7 +1,6 @@
-import { render, screen, fireEvent } from '@testing-library/vue';
+import { render } from '@testing-library/vue';
 import userEvent from '@testing-library/user-event';
 import FocusTrap from '../FocusTrap.vue';
-import FocusTrapWrapper from './FocusTrapWrapper.vue';
 
 const renderComponent = (props = {}) => {
   return render(FocusTrap, {
@@ -56,27 +55,4 @@ describe('FocusTrap', () => {
     await userEvent.tab({ shift: true });
     expect(emitted()).not.toHaveProperty('shouldFocusLastEl');
   });
-
-  // it("should reset state when 'reset' method is called", async () => {
-  //   // FocusTrapWrapper is used to test the FocusTrap component's reset method
-  //   // It has a button which calls the reset method of the FocusTrap component
-  //   const { emitted } = render(FocusTrapWrapper);
-
-  //   await fireEvent.focus(screen.getByTestId('focusTrap'));
-  //   // Activate the focus trap
-  //   await userEvent.tab();
-  //   await userEvent.tab();
-  //   await userEvent.tab({ shift: true });
-
-  //   // The focus trap should be active
-  //   expect(emitted()).toHaveProperty('shouldFocusLastEl');
-  //   expect(emitted().shouldFocusLastEl.length).toBe(1);
-
-  //   // Reset the focus trap
-  //   await userEvent.click(screen.getByRole('button'));
-
-  //   await userEvent.tab();
-  //   expect(emitted()).toHaveProperty('shouldFocusFirstEl');
-  //   expect(emitted().shouldFocusFirstEl.length).toBe(2);
-  // });
 });
