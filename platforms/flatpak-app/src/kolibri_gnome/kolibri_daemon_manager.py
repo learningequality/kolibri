@@ -133,16 +133,17 @@ class KolibriDaemonManager(GObject.GObject):
         stream = self.__soup_session.send(soup_message, None)
         return _read_json_from_input_stream(stream)
 
-    def kolibri_api_get_async(self, path: str, result_cb: typing.Callable):
-        self.__kolibri_api_call_async(path, "GET", result_cb)
+    def kolibri_api_get_async(self, path: str, result_cb: typing.Callable, **kwargs):
+        self.__kolibri_api_call_async(path, "GET", result_cb, **kwargs)
 
     def kolibri_api_post_async(
         self,
         path: str,
         result_cb: typing.Callable,
         request_body: typing.Optional[dict] = None,
+        **kwargs,
     ):
-        self.__kolibri_api_call_async(path, "POST", result_cb, request_body)
+        self.__kolibri_api_call_async(path, "POST", result_cb, request_body, **kwargs)
 
     def __request_body_object_to_bytes(self, request_body: dict):
         return bytes(json.dumps(request_body), "utf8")
@@ -153,6 +154,8 @@ class KolibriDaemonManager(GObject.GObject):
         method: str,
         result_cb: typing.Callable,
         request_body: typing.Optional[dict] = None,
+        flags: Soup.MessageFlags = None,
+        parse_json: bool = True,
     ):
         url = self.get_absolute_url(path)
 
@@ -163,6 +166,10 @@ class KolibriDaemonManager(GObject.GObject):
             return
 
         soup_message = Soup.Message.new(method, url)
+
+        if flags is not None:
+            soup_message.add_flags(flags)
+
         if request_body is not None:
             soup_message.set_request_body_from_bytes(
                 "application/json",
@@ -177,6 +184,7 @@ class KolibriDaemonManager(GObject.GObject):
                 self.__kolibri_api_get_async_on_soup_send,
                 result_cb=result_cb,
                 soup_message=soup_message,
+                parse_json=parse_json,
             ),
         )
 
@@ -186,18 +194,24 @@ class KolibriDaemonManager(GObject.GObject):
         result: Gio.AsyncResult,
         result_cb: typing.Callable,
         soup_message: Soup.Message,
+        parse_json: bool = True,
     ):
         # On HTTP client (4xx) or server (5xx) errors:
         if soup_message.get_status() >= Soup.Status.BAD_REQUEST:
             # FIXME: It would be better to raise an exception, and
             # handle it in the other side to set SESSION_STATUS_ERROR.
             logger.warning(f"Error calling Kolibri API: {soup_message.get_status()}")
-            result_cb(None)
+            result_cb(None, soup_message=soup_message)
             return
 
         stream = session.send_finish(result)
-        data = _read_json_from_input_stream(stream)
-        result_cb(data)
+
+        if parse_json:
+            data = _read_json_from_input_stream(stream)
+        else:
+            data = None
+
+        result_cb(data, soup_message=soup_message)
 
     def get_login_token(self, login_token_ready_cb: typing.Callable):
         self.__dbus_proxy.GetLoginToken(

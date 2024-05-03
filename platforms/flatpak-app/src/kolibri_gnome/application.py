@@ -296,7 +296,7 @@ class ChannelApplication(Application):
             result_cb=self.__on_kolibri_api_channel_response,
         )
 
-    def __on_kolibri_api_channel_response(self, data: typing.Any):
+    def __on_kolibri_api_channel_response(self, data: typing.Any, **kwargs):
         if not isinstance(data, dict):
             return
 
