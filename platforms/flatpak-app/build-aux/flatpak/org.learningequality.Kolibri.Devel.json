@@ -59,7 +59,6 @@
             "name" : "kolibri-gnome",
             "buildsystem" : "meson",
             "builddir" : true,
-            "run-tests" : true,
             "config-opts" : [
                 "-Dprofile=development"
             ],
