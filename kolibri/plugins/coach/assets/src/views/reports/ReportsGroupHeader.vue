@@ -21,7 +21,6 @@
         :ariaLabel="$tr('groupReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
-        :style="{ position: 'relative', top: '5px' }"
         @click="() => saveTabsClick(REPORTS_GROUP_TABS_ID)"
       />
     </HeaderTabs>

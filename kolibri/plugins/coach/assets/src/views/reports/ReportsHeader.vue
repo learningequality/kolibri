@@ -19,7 +19,6 @@
         :ariaLabel="$tr('coachReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
-        :style="{ position: 'relative', top: '5px' }"
         @click="() => saveTabsClick(REPORTS_TABS_ID)"
       />
     </HeaderTabs>
