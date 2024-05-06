@@ -252,7 +252,7 @@
   import LanguageSwitcherModal from 'kolibri.coreVue.components.LanguageSwitcherModal';
   import TotalPoints from 'kolibri.coreVue.components.TotalPoints';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
-  import navComponentsMixin from '../mixins/nav-components';
+  import useNav from '../composables/useNav';
   import useUser from '../composables/useUser';
   import useUserSyncStatus from '../composables/useUserSyncStatus';
   import SyncStatusDisplay from './SyncStatusDisplay';
@@ -288,12 +288,14 @@
       LogoutSideNavEntry,
       BottomNavigationBar,
     },
-    mixins: [commonCoreStrings, responsiveElementMixin, navComponentsMixin],
+    mixins: [commonCoreStrings, responsiveElementMixin],
     setup() {
       const { windowIsSmall, windowIsLarge } = useKResponsiveWindow();
       const { isLearnerOnlyImport } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
+      const { topBarHeight } = useNav();
       return {
+        topBarHeight,
         windowIsLarge,
         windowIsSmall,
         isLearnerOnlyImport,
@@ -420,6 +422,30 @@
     },
 
     methods: {
+      filterByRole(navItem) {
+        if (!navItem.role) {
+          // No role defined, so always show
+          return true;
+        }
+        if (navItem.role === UserKinds.COACH) {
+          return this.isCoach || this.isAdmin || this.isSuperuser;
+        }
+        if (navItem.role === UserKinds.ADMIN) {
+          return this.isAdmin || this.isSuperuser;
+        }
+        if (navItem.role === UserKinds.CAN_MANAGE_CONTENT) {
+          return this.canManageContent || this.isSuperuser;
+        }
+        if (navItem.role === UserKinds.SUPERUSER) {
+          return this.isSuperuser;
+        }
+        if (navItem.role === UserKinds.ANONYMOUS) {
+          return !this.isUserLoggedIn;
+        }
+        if (navItem.role === UserKinds.LEARNER) {
+          return this.isLearner || this.isCoach || this.isAdmin || this.isSuperuser;
+        }
+      },
       toggleNav() {
         this.$emit('toggleSideNav');
       },

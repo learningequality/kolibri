@@ -67,14 +67,20 @@
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
   import { validateLinkObject } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import navComponentsMixin from '../mixins/nav-components';
+  import useNav from '../composables/useNav';
 
   export default {
     name: 'ImmersiveToolbar',
     components: {
       UiToolbar,
     },
-    mixins: [commonCoreStrings, navComponentsMixin],
+    mixins: [commonCoreStrings],
+    setup() {
+      const { topBarHeight } = useNav();
+      return {
+        topBarHeight,
+      };
+    },
     props: {
       appBarTitle: {
         type: String,

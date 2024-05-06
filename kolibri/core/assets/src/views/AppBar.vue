@@ -123,7 +123,7 @@
   import themeConfig from 'kolibri.themeConfig';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import navComponentsMixin from '../mixins/nav-components';
+  import useNav from '../composables/useNav';
   import SkipNavigationLink from './SkipNavigationLink';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
@@ -135,10 +135,11 @@
       KIconButton,
       SkipNavigationLink,
     },
-    mixins: [commonCoreStrings, navComponentsMixin],
+    mixins: [commonCoreStrings],
     setup() {
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      return { themeConfig, windowIsLarge, windowIsSmall };
+      const { topBarHeight } = useNav();
+      return { themeConfig, windowIsLarge, windowIsSmall, topBarHeight };
     },
     props: {
       title: {
