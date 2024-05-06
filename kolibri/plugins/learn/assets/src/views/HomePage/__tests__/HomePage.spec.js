@@ -70,7 +70,7 @@ function makeWrapper() {
   return mount(HomePage, {
     localVue,
     router,
-    stubs: ['SideNav', 'LearnTopNav'],
+    stubs: ['SideNav'],
     store: mockStore,
   });
 }

@@ -4,10 +4,6 @@
     :authorized="userIsAuthorized"
     authorizedRole="registeredUser"
   >
-    <template #sub-nav>
-      <DeviceTopNav />
-    </template>
-
     <transition name="delay-entry">
       <PinAuthenticationModal
         v-if="showModal && authenticateWithPin"

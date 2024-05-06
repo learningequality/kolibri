@@ -2,10 +2,6 @@
 
   <DeviceAppBarPage :title="pageTitle">
 
-    <template #subNav>
-      <DeviceTopNav />
-    </template>
-
     <KPageContainer v-if="!isPageLoading" class="device-container">
       <UiAlert
         v-if="showDisabledAlert && alertDismissed"

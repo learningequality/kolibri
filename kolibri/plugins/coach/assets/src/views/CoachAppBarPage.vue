@@ -4,10 +4,7 @@
     :authorized="authorized"
     :authorizedRole="authorizedRole"
   >
-    <AppBarPage :title="appBarTitle || defaultAppBarTitle">
-      <template #subNav>
-        <TopNavbar />
-      </template>
+    <AppBarPage :title="appBarTitle || defaultAppBarTitle" :showNavigation="Boolean(classId)">
       <div class="coach-main">
         <slot></slot>
       </div>
@@ -26,7 +23,6 @@
   import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useCoreCoach from '../composables/useCoreCoach';
-  import TopNavbar from './TopNavbar';
 
   export default {
     name: 'CoachAppBarPage',
@@ -47,7 +43,7 @@
         title: this.pageTitle || this.defaultPageTitle,
       };
     },
-    components: { AppBarPage, NotificationsRoot, TopNavbar },
+    components: { AppBarPage, NotificationsRoot },
     mixins: [commonCoreStrings],
     setup() {
       const { pageTitle, appBarTitle } = useCoreCoach();
@@ -80,6 +76,7 @@
       ...mapState({
         error: state => state.core.error,
       }),
+      ...mapState('classSummary', { classId: 'id' }),
     },
     $trs: {
       kolibriTitleMessage: {

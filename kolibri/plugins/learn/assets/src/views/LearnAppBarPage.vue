@@ -17,13 +17,6 @@
       />
     </template>
 
-    <template
-      v-if="!deviceId"
-      #subNav
-    >
-      <LearnTopNav ref="topNav" />
-    </template>
-
     <template #storageNotif>
       <div
         v-if="page === 'AppBarPage'"
@@ -46,7 +39,6 @@
   import ImmersivePage from 'kolibri.coreVue.components.ImmersivePage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { LearnerDeviceStatus } from 'kolibri.coreVue.vuex.constants';
-  import LearnTopNav from './LearnTopNav';
   import DeviceConnectionStatus from './DeviceConnectionStatus.vue';
   import StorageNotification from './StorageNotification';
 
@@ -55,7 +47,6 @@
     components: {
       AppBarPage,
       ImmersivePage,
-      LearnTopNav,
       DeviceConnectionStatus,
       StorageNotification,
     },
