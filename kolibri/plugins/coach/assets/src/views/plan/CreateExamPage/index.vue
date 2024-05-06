@@ -119,7 +119,10 @@
     methods: {
       saveQuizAndRedirect() {
         this.saveQuiz().then(() => {
-          this.$router.replace({ name: PageNames.EXAMS });
+          this.$router.replace({
+            name: PageNames.EXAMS,
+            classId: this.$route.params.classId,
+          });
         });
       },
     },
