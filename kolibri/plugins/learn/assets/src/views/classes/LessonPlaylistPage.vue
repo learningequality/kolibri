@@ -53,7 +53,7 @@
 
   import { mapMutations, mapState } from 'vuex';
   import KBreadcrumbs from 'kolibri-design-system/lib/KBreadcrumbs';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';

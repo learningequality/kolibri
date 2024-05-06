@@ -3,7 +3,7 @@
   <div
     class="channel-card"
     :class="{ 'channel-card-sm': windowIsSmall }"
-    :style="{ borderTopColor: $themePalette.grey.v_200 }"
+    :style="{ borderTopColor: $themeTokens.fineLine }"
   >
     <ChannelDetails :channel="channel">
       <template #beforethumbnail>
@@ -38,7 +38,7 @@
 
   // Channel Panel with Details and Checkbox
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import ChannelDetails from './ChannelDetails';
 
   export default {

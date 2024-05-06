@@ -144,7 +144,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
@@ -301,7 +301,7 @@
       sectionClass() {
         return this.$computedClass({
           ':not(:last-child)': {
-            borderBottom: `1px solid ${this.$themePalette.grey.v_300}`,
+            borderBottom: `1px solid ${this.$themePalette.grey.v_400}`,
           },
         });
       },

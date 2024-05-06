@@ -17,7 +17,7 @@
 
   import pickBy from 'lodash/pickBy';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'SortFilter',
@@ -53,8 +53,6 @@
     computed: {
       selectorStyle() {
         return {
-          color: this.$themeTokens.text,
-          backgroundColor: this.$themePalette.grey.v_200,
           borderRadius: '2px',
           marginTop: '16px',
           marginBottom: 0,

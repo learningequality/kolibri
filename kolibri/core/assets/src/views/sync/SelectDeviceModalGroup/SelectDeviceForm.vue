@@ -163,12 +163,17 @@
         deviceFilters.push(useDeviceChannelFilter({ id: props.filterByChannelId }));
       }
 
-      if (props.filterByFacilityId !== null || props.filterByFacilityCanSignUp !== null) {
+      if (
+        props.filterByFacilityId !== null ||
+        props.filterByFacilityCanSignUp !== null ||
+        props.filterByOnMyOwnFacility !== null
+      ) {
         apiParams.subset_of_users_device = false;
         deviceFilters.push(
           useDeviceFacilityFilter({
             id: props.filterByFacilityId,
             learner_can_sign_up: props.filterByFacilityCanSignUp,
+            on_my_own_setup: props.filterByOnMyOwnFacility,
           })
         );
       }
@@ -240,6 +245,12 @@
       // When looking for devices for which a learner can sign up
       // eslint-disable-next-line kolibri/vue-no-unused-properties
       filterByFacilityCanSignUp: {
+        type: Boolean,
+        default: null,
+      },
+      // In the setup wizard, to exclude importiing facilities that are "On My Own"
+      // eslint-disable-next-line kolibri/vue-no-unused-properties
+      filterByOnMyOwnFacility: {
         type: Boolean,
         default: null,
       },

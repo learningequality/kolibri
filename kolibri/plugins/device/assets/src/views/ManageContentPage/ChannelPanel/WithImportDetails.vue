@@ -3,7 +3,7 @@
   <div
     class="channel-list-item"
     :class="{ 'channel-list-item-sm': windowIsSmall }"
-    :style="[verticalPadding, { borderTop: `1px solid ${$themePalette.grey.v_200}` } ]"
+    :style="[verticalPadding, { borderTop: `1px solid ${$themeTokens.fineLine}` } ]"
   >
     <ChannelDetails
       :channel="channel"
@@ -85,7 +85,7 @@
   // Resources on Device Indicator
   import { mapGetters } from 'vuex';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { selectContentPageLink } from '../manageContentLinks';
   import NewBadge from '../NewBadge';

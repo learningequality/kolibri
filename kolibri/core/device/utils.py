@@ -101,7 +101,6 @@ def set_device_settings(**kwargs):
     :param kwargs: a dictionary of key-value pairs to set on the device settings model
     """
     from .models import DeviceSettings
-    from .models import extra_settings_schema
 
     try:
         device_settings = DeviceSettings.objects.get()
@@ -111,16 +110,9 @@ def set_device_settings(**kwargs):
             language_id=settings.LANGUAGE_CODE
         )
 
-    extra_settings_properties = extra_settings_schema.get("properties", {}).keys()
-    extra_settings = device_settings.extra_settings or {}
-
     for key, value in kwargs.items():
-        if key not in extra_settings_properties:
-            setattr(device_settings, key, value)
-        else:
-            extra_settings[key] = value
+        setattr(device_settings, key, value)
 
-    device_settings.extra_settings = extra_settings
     device_settings.save()
 
 

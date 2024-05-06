@@ -188,7 +188,7 @@
   import urls from 'kolibri.urls';
   import { FacilityResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import validationConstants from 'kolibri-design-system/lib/KDateRange/validationConstants';
   import { currentLanguage } from 'kolibri.utils.i18n';
   import { now } from 'kolibri.utils.serverClock';

@@ -14,7 +14,7 @@
 
 <script>
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'HeaderTabs',

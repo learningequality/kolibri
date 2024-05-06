@@ -193,7 +193,7 @@
 <script>
 
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
   import CoreTable from 'kolibri.coreVue.components.CoreTable';
   import { FacilityResource } from 'kolibri.resources';

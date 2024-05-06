@@ -3,7 +3,7 @@ import flushPromises from 'flush-promises';
 import Vuex from 'vuex';
 import VueRouter from 'vue-router';
 import KCircularLoader from 'kolibri-design-system/lib/loaders/KCircularLoader';
-import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 import { ContentNodeResource } from 'kolibri.resources';
 import useUser from 'kolibri.coreVue.composables.useUser';
 import { PageNames } from '../../src/constants';
@@ -45,7 +45,7 @@ jest.mock('../../src/composables/useLearningActivities');
 jest.mock('../../src/composables/useContentLink');
 jest.mock('../../src/composables/usePinnedDevices');
 jest.mock('kolibri.coreVue.composables.useUser');
-jest.mock('kolibri-design-system/lib/useKResponsiveWindow');
+jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 jest.mock('kolibri.resources');
 jest.mock('kolibri.urls');
 

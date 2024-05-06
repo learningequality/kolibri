@@ -52,7 +52,7 @@
   import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
   import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import SideNav from 'kolibri.coreVue.components.SideNav';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
@@ -117,7 +117,7 @@
               width: '100%',
               maxWidth: '1064px',
               margin: 'auto',
-              backgroundColor: this.$themePalette.grey.v_100,
+              backgroundColor: this.$themePalette.grey.v_50,
               paddingLeft: this.paddingLeftRight,
               paddingRight: this.paddingLeftRight,
               paddingTop: this.appBarHeight + this.paddingTop + 'px',

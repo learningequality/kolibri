@@ -34,7 +34,7 @@
 
   import Teleport from 'vue2-teleport';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CategorySearchOptions from './CategorySearchOptions';
 
   export default {

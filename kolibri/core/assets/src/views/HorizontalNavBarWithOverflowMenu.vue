@@ -53,7 +53,7 @@
   import Navbar from 'kolibri.coreVue.components.Navbar';
   import NavbarLink from 'kolibri.coreVue.components.NavbarLink';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
 
   export default {
     name: 'HorizontalNavBarWithOverflowMenu',
@@ -89,7 +89,7 @@
         return this.navigationLinks.filter(l => !l.isHidden);
       },
       color() {
-        return this.$themeTokens.textInverted;
+        return this.$themeTokens.text;
       },
       overflowMenuLinks() {
         if (!this.mounted || isUndefined(this.windowWidth)) {

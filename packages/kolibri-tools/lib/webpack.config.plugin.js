@@ -7,7 +7,7 @@
  * to add test specific features.
  */
 
-const path = require('path');
+const path = require('node:path');
 const webpack = require('webpack');
 const { merge } = require('webpack-merge');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');

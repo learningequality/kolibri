@@ -149,7 +149,7 @@
   import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
   import { createTranslator } from 'kolibri.utils.i18n';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useContentLink from '../../../composables/useContentLink';
   import useDevices from '../../../composables/useDevices';
   import useLearningActivities from '../../../composables/useLearningActivities';

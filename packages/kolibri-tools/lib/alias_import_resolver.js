@@ -1,4 +1,4 @@
-var path = require('path');
+var path = require('node:path');
 var resolve = require('resolve');
 var coreAliases = require('./apiSpecExportTools').coreAliases();
 var coreExternals = require('./apiSpecExportTools').coreExternals();

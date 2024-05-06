@@ -172,4 +172,4 @@ H5P Static Files
 
 This code is currently generated from https://github.com/h5p/h5p-php-library
 
-To update, update the `h5pVersion` variable in `downloadH5PVendor.js` to the desired tag and then run `yarn run build-h5p`.
+To update, update the `h5pCommit` variable in `downloadH5PVendor.js` to the desired tag and then run `yarn run build-h5p`.

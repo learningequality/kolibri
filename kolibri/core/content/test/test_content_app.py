@@ -18,14 +18,18 @@ from le_utils.constants import content_kinds
 from rest_framework import status
 from rest_framework.test import APITestCase
 
+from kolibri.core.auth.models import Classroom
 from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
+from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
 from kolibri.core.content import models as content
 from kolibri.core.content.test.test_channel_upgrade import ChannelBuilder
 from kolibri.core.device.models import ContentCacheKey
 from kolibri.core.device.models import DevicePermissions
 from kolibri.core.device.models import DeviceSettings
+from kolibri.core.lessons.models import Lesson
+from kolibri.core.lessons.models import LessonAssignment
 from kolibri.core.logger.models import ContentSessionLog
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.utils.tests.helpers import override_option
@@ -1818,6 +1822,118 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         )
         response_content_ids = {node["content_id"] for node in response.json()}
         self.assertSetEqual(set(expected_content_ids), response_content_ids)
+
+    def test_lesson_filter(self):
+        classroom = Classroom.objects.create(name="classroom", parent=self.facility)
+        user = FacilityUser.objects.create(username="user", facility=self.facility)
+        classroom.add_member(user)
+        node = content.ContentNode.objects.get(
+            content_id="ce603df7c46b424b934348995e1b05fb"
+        )
+
+        resources = [
+            {
+                "contentnode_id": node.id,
+                "content_id": node.content_id,
+                "channel_id": node.channel_id,
+            }
+        ]
+
+        own_lesson = Lesson.objects.create(
+            title="Lesson",
+            collection=classroom,
+            created_by=self.admin,
+            is_active=True,
+            resources=resources,
+        )
+        LessonAssignment.objects.create(
+            lesson=own_lesson, assigned_by=self.admin, collection=classroom
+        )
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"lesson": own_lesson.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["content_id"], node.content_id)
+
+    def test_lesson_filter_not_own_lesson(self):
+        classroom = Classroom.objects.create(name="classroom", parent=self.facility)
+        user = FacilityUser.objects.create(username="user", facility=self.facility)
+        node = content.ContentNode.objects.get(
+            content_id="ce603df7c46b424b934348995e1b05fb"
+        )
+
+        resources = [
+            {
+                "contentnode_id": node.id,
+                "content_id": node.content_id,
+                "channel_id": node.channel_id,
+            }
+        ]
+
+        own_lesson = Lesson.objects.create(
+            title="Lesson",
+            collection=classroom,
+            created_by=self.admin,
+            is_active=True,
+            resources=resources,
+        )
+        LessonAssignment.objects.create(
+            lesson=own_lesson, assigned_by=self.admin, collection=classroom
+        )
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"lesson": own_lesson.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 0)
+
+    def test_lesson_filter_multiple_assignment(self):
+        classroom = Classroom.objects.create(name="classroom", parent=self.facility)
+        user = FacilityUser.objects.create(username="user", facility=self.facility)
+        classroom.add_member(user)
+        node = content.ContentNode.objects.get(
+            content_id="ce603df7c46b424b934348995e1b05fb"
+        )
+
+        resources = [
+            {
+                "contentnode_id": node.id,
+                "content_id": node.content_id,
+                "channel_id": node.channel_id,
+            }
+        ]
+
+        own_lesson = Lesson.objects.create(
+            title="Lesson",
+            collection=classroom,
+            created_by=self.admin,
+            is_active=True,
+            resources=resources,
+        )
+        LessonAssignment.objects.create(
+            lesson=own_lesson, assigned_by=self.admin, collection=classroom
+        )
+        user.set_password(DUMMY_PASSWORD)
+        user.save()
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        group = LearnerGroup.objects.create(name="Own Group", parent=classroom)
+        group.add_member(user)
+        LessonAssignment.objects.create(
+            lesson=own_lesson, assigned_by=self.admin, collection=group
+        )
+        self.client.login(username=user.username, password=DUMMY_PASSWORD)
+        response = self.client.get(
+            reverse("kolibri:core:usercontentnode-list"), data={"lesson": own_lesson.id}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["content_id"], node.content_id)
 
     def tearDown(self):
         """

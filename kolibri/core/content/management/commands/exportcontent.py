@@ -60,6 +60,12 @@ class Command(AsyncCommand):
 
         parser.add_argument("channel_id", type=str)
         parser.add_argument("destination", type=str)
+        parser.add_argument(
+            "--manifest-only",
+            action="store_true",
+            default=False,
+            help="Generate only the manifest.json file",
+        )
 
     def update_job_metadata(self, total_bytes_to_transfer, total_resource_count):
         job = get_current_job()
@@ -75,9 +81,6 @@ class Command(AsyncCommand):
         data_dir = os.path.realpath(options["destination"])
         node_ids = options["node_ids"]
         exclude_node_ids = options["exclude_node_ids"]
-        logger.info(
-            "Exporting content for channel id {} to {}".format(channel_id, data_dir)
-        )
 
         channel_metadata = ChannelMetadata.objects.get(id=channel_id)
 
@@ -91,19 +94,11 @@ class Command(AsyncCommand):
 
         self.update_job_metadata(total_bytes_to_transfer, total_resource_count)
 
-        exported_files = []
-
-        with self.start_progress(
-            total=total_bytes_to_transfer
-        ) as overall_progress_update:
-            for f in files:
-
-                if self.is_cancelled():
-                    break
-
-                dest = self.export_file(f, data_dir, overall_progress_update)
-                if dest:
-                    exported_files.append(dest)
+        # dont copy files if we are only exporting the manifest
+        if not options["manifest_only"]:
+            self.copy_content_files(
+                channel_id, data_dir, files, total_bytes_to_transfer
+            )
 
         # Reraise any cancellation
         self.check_for_cancel()
@@ -119,6 +114,18 @@ class Command(AsyncCommand):
             channel_id, channel_metadata.version, nodes_queries_list
         )
         content_manifest.write(manifest_path)
+
+    def copy_content_files(self, channel_id, data_dir, files, total_bytes_to_transfer):
+        logger.info(
+            "Exporting content for channel id {} to {}".format(channel_id, data_dir)
+        )
+        with self.start_progress(
+            total=total_bytes_to_transfer
+        ) as overall_progress_update:
+            for f in files:
+                if self.is_cancelled():
+                    break
+                self.export_file(f, data_dir, overall_progress_update)
 
     def export_file(self, f, data_dir, overall_progress_update):
         filename = get_content_file_name(f)

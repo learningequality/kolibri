@@ -3,7 +3,7 @@
   <div
     class="panel"
     :class="{ 'panel-sm': windowIsSmall }"
-    :style="{ borderTop: `1px solid ${$themePalette.grey.v_200}` }"
+    :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
   >
     <ChannelDetails :channel="channel">
 
@@ -51,7 +51,7 @@
 
   // ChannelPanel with Details, On-Device Size, and Options Dropdown
 
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import NewBadge from '../NewBadge';

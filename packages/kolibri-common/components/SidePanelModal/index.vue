@@ -65,7 +65,7 @@
   import { get } from '@vueuse/core';
   import Backdrop from 'kolibri.coreVue.components.Backdrop';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import useKResponsiveWindow from 'kolibri-design-system/lib/useKResponsiveWindow';
+  import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
 
   export default {

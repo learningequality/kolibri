@@ -18,7 +18,7 @@
             v-if="question.missing"
             class="dot"
             icon="warning"
-            :color="$themePalette.orange.v_400"
+            :color="$themePalette.yellow.v_1100"
           />
           <KIcon
             v-else

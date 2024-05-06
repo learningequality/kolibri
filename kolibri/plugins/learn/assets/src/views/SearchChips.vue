@@ -5,7 +5,7 @@
       v-for="item in items"
       :key="item.key + item.value"
       class="filter-chip"
-      :style="{ backgroundColor: $themePalette.grey.v_300 }"
+      :style="{ backgroundColor: $themePalette.grey.v_100 }"
     >
       <span>
         <p class="filter-chip-text">{{ item.text }}</p>
