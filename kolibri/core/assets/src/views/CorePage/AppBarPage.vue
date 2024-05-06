@@ -54,13 +54,13 @@
 
   import { mapGetters } from 'vuex';
   import { throttle } from 'frame-throttle';
-  import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import SideNav from 'kolibri.coreVue.components.SideNav';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { isTouchDevice } from 'kolibri.utils.browserInfo';
   import useUserSyncStatus from 'kolibri.coreVue.composables.useUserSyncStatus';
   import AppBar from '../AppBar';
+  import SideNav from '../SideNav';
+  import ScrollingHeader from '../ScrollingHeader';
 
   export default {
     name: 'AppBarPage',

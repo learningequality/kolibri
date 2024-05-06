@@ -28,10 +28,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import AppBarPage from '../views/CorePage/AppBarPage';
-import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
-import ScrollingHeader from '../views/ScrollingHeader';
-import SideNav from '../views/SideNav';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
@@ -141,7 +138,6 @@ export default {
       mappers,
     },
     components: {
-      ScrollingHeader,
       Backdrop,
       CoachContentLabel,
       DownloadButton,
@@ -149,10 +145,8 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
-      AppBar,
       AppBarPage,
       ImmersivePage,
-      SideNav,
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
