@@ -96,6 +96,8 @@ def test_not_empty():
 
 @override_settings(LANGUAGE_CODE="en")
 class ImportTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.data = create_dummy_facility_data(
             classroom_count=CLASSROOMS, learnergroup_count=1

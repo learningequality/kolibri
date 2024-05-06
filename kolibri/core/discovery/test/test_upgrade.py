@@ -12,7 +12,7 @@ from kolibri.deployment.default.sqlite_db_names import NETWORK_LOCATION
 
 
 class TestNetworkLocationUpgrade(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     @unittest.skipIf(
         getattr(settings, "DATABASES")["default"]["ENGINE"]

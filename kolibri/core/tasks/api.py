@@ -46,6 +46,12 @@ class TasksSerializer(serializers.Serializer):
 class TasksViewSet(viewsets.GenericViewSet):
     serializer_class = TasksSerializer
 
+    def get_queryset(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return None
+
     def validate_create_req_data(self, request):
         """
         Validates the request data received on POST /api/tasks/.

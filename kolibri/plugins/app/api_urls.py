@@ -1,5 +1,5 @@
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 from rest_framework import routers
 
 from .api import AppCommandsViewset
@@ -10,6 +10,8 @@ router = routers.DefaultRouter()
 router.register(r"appcommands", AppCommandsViewset, basename="appcommands")
 
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(r"^initialize/([0-9a-f]{32})", InitializeAppView.as_view(), name="initialize"),
+    re_path(r"^", include(router.urls)),
+    re_path(
+        r"^initialize/([0-9a-f]{32})$", InitializeAppView.as_view(), name="initialize"
+    ),
 ]

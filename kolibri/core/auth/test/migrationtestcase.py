@@ -1,13 +1,13 @@
 from django.db import connection
 from django.db.migrations.executor import MigrationExecutor
 from django.db.migrations.recorder import MigrationRecorder
-from django.test import TestCase
+from django.test import TransactionTestCase
 
 
 # Modified from https://www.caktusgroup.com/blog/2016/02/02/writing-unit-tests-django-migrations/
 
 
-class TestMigrations(TestCase):
+class TestMigrations(TransactionTestCase):
 
     migrate_from = None
     migrate_to = None

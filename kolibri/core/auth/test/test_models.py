@@ -31,6 +31,8 @@ class CollectionRoleMembershipDeletionTestCase(TestCase):
     or FacilityUser deletes all associated Roles and Memberships.
     """
 
+    databases = "__all__"
+
     def setUp(self):
 
         self.facility = Facility.objects.create()

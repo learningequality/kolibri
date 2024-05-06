@@ -34,6 +34,8 @@ class GetFacilityAdminsTest(APITestCase):
 
 
 class GrantSuperuserPermissionsTest(APITestCase):
+    databases = "__all__"
+
     def setUp(self):
         clear_process_cache()
 

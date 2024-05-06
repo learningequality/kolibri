@@ -192,7 +192,7 @@ class FacilityDatasetViewSet(ValuesViewset):
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
     )
-    filter_class = FacilityDatasetFilter
+    filterset_class = FacilityDatasetFilter
     serializer_class = FacilityDatasetSerializer
 
     values = (
@@ -353,6 +353,8 @@ class PublicFacilityUserViewSet(ReadOnlyValuesViewset):
     }
 
     def get_queryset(self):
+        if self.request.user.is_anonymous:
+            return FacilityUser.objects.none()
         facility_id = self.request.query_params.get(
             "facility_id", self.request.user.facility_id
         )
@@ -395,9 +397,9 @@ class FacilityUserViewSet(ValuesViewset):
     )
     order_by_field = "username"
 
-    queryset = FacilityUser.objects.all()
+    queryset = FacilityUser.objects.all().order_by(order_by_field)
     serializer_class = FacilityUserSerializer
-    filter_class = FacilityUserFilter
+    filterset_class = FacilityUserFilter
     search_fields = ("username", "full_name")
 
     values = (
@@ -524,7 +526,7 @@ class MembershipViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Membership.objects.all()
     serializer_class = MembershipSerializer
-    filter_class = MembershipFilter
+    filterset_class = MembershipFilter
     filter_fields = ["user", "collection", "user_ids"]
 
 
@@ -544,7 +546,7 @@ class RoleViewSet(BulkDeleteMixin, BulkCreateMixin, viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Role.objects.all()
     serializer_class = RoleSerializer
-    filter_class = RoleFilter
+    filterset_class = RoleFilter
     filter_fields = ["user", "collection", "kind", "user_ids"]
 
 
@@ -695,7 +697,7 @@ class ClassroomViewSet(ValuesViewset):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
-    filter_class = ClassroomFilter
+    filterset_class = ClassroomFilter
 
     values = (
         "id",

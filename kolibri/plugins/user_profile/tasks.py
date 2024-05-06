@@ -25,7 +25,7 @@ from kolibri.core.tasks.permissions import IsSuperAdmin
 from kolibri.core.tasks.permissions import PermissionsFromAny
 from kolibri.core.tasks.utils import get_current_job
 from kolibri.core.utils.urls import reverse_remote
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 
 class MergeUserValidator(PeerImportSingleSyncJobValidator):
@@ -53,7 +53,7 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
                 # If we didn't break out of the loop, then we need to raise the original error
                 raise
 
-        job_data["kwargs"]["local_user_id"] = data["local_user_id"].id
+        job_data["args"].append(data["local_user_id"].id)
         job_data["extra_metadata"].update(user_fullname=data["local_user_id"].full_name)
         if data.get("new_superuser_id"):
             job_data["kwargs"]["new_superuser_id"] = data["new_superuser_id"].id
@@ -120,7 +120,9 @@ def start_soud_sync(user_id):
     ],
     status_fn=status_fn,
 )
-def mergeuser(command, **kwargs):
+def mergeuser(
+    command, local_user_id, new_superuser_id=None, set_as_super_user=False, **kwargs
+):
     """
     This is an example of the POST payload to create this task:
     {
@@ -138,7 +140,6 @@ def mergeuser(command, **kwargs):
     this task will try to create the user.
     """
 
-    local_user_id = kwargs.pop("local_user_id")
     local_user = FacilityUser.objects.get(id=local_user_id)
     job = get_current_job()
 
@@ -165,7 +166,6 @@ def mergeuser(command, **kwargs):
         # so that the job has to be retried by the user.
         raise
 
-    new_superuser_id = kwargs.get("new_superuser_id")
     if new_superuser_id and local_user.is_superuser:
         new_superuser = FacilityUser.objects.get(id=new_superuser_id)
         # make the user a new super user for this device:
@@ -176,7 +176,7 @@ def mergeuser(command, **kwargs):
 
     # create token to validate user in the new facility
     # after it's deleted in the current facility:
-    remote_user_pk = job.kwargs["user"]
+    remote_user_pk = kwargs["user"]
     remote_user = FacilityUser.objects.get(pk=remote_user_pk)
     token = TokenGenerator().make_token(remote_user)
     job.extra_metadata["token"] = token

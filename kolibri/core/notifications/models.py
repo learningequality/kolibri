@@ -11,7 +11,6 @@ from __future__ import unicode_literals
 
 from django.conf import settings
 from django.db import models
-from django.utils.encoding import python_2_unicode_compatible
 from morango.models import UUIDField
 
 from kolibri.core.fields import DateTimeTzField
@@ -94,7 +93,6 @@ class HelpReason(ChoicesEnum):
     Multiple = "MultipleUnsuccessfulAttempts"
 
 
-@python_2_unicode_compatible
 class LearnerProgressNotification(models.Model):
     id = (
         models.AutoField(
@@ -127,7 +125,6 @@ class LearnerProgressNotification(models.Model):
         app_label = "notifications"
 
 
-@python_2_unicode_compatible
 class NotificationsLog(models.Model):
     id = (
         models.AutoField(

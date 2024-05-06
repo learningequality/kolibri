@@ -19,6 +19,8 @@ class UserDeleteTestCase(TestCase):
     Tests for deleteuser command.
     """
 
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.facility = Facility.objects.create()

@@ -142,7 +142,9 @@ def dbrestore(from_file):
     # See: https://github.com/learningequality/kolibri/issues/2875
     with open(from_file, **KWARGS_IO_READ) as f:
         db.connections["default"].connect()
+        db.connections["default"].connection.execute("PRAGMA foreign_keys=OFF")
         db.connections["default"].connection.executescript(f.read())
+        db.connections["default"].connection.execute("PRAGMA foreign_keys=ON")
 
     # Finally, it's okay to import models and open database connections.
     # We need this to avoid generating records with identical 'Instance ID'

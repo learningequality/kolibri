@@ -44,7 +44,7 @@ def _facility(dataset_id=None):
 
 
 class BaseTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def _create_sync_and_network_location(
         self, sync_overrides=None, location_overrides=None

@@ -31,7 +31,6 @@ from django.db import models
 from django.db import transaction
 from django.db.models.query import Q
 from django.db.utils import IntegrityError
-from django.utils.encoding import python_2_unicode_compatible
 from django.utils.functional import cached_property
 from morango.models import Certificate
 from morango.models import SyncableModel
@@ -154,7 +153,6 @@ class FacilityDataSyncableModel(SyncableModel):
         abstract = True
 
 
-@python_2_unicode_compatible
 class FacilityDataset(FacilityDataSyncableModel):
     """
     ``FacilityDataset`` stores high-level metadata and settings for a particular ``Facility``.
@@ -393,28 +391,12 @@ def validate_username(value):
         validate_username_max_length(value)
 
 
-class KolibriAbstractBaseUser(AbstractBaseUser):
+class KolibriBaseUserMixin:
     """
-    Our custom user type, derived from ``AbstractBaseUser`` as described in the Django docs.
-    Draws liberally from ``django.contrib.auth.AbstractUser``, except we exclude some fields
-    we don't care about, like email.
-
-    This model is an abstract model, and is inherited by ``FacilityUser``.
+    This mixin is inherited by ``KolibriAnonymousUser`` and ``FacilityUser``.
+    Use a mixin instead of an abstract base class because of difficulties with multiple inheritance and Django's
+    ``AbstractBaseUser``.
     """
-
-    class Meta:
-        abstract = True
-
-    USERNAME_FIELD = "username"
-
-    username = models.CharField(
-        "username",
-        max_length=254,
-        help_text="Required. 254 characters or fewer.",
-        validators=[validate_username],
-    )
-    full_name = models.CharField("full name", max_length=120, blank=True)
-    date_joined = DateTimeTzField("date joined", default=local_now, editable=False)
 
     is_staff = False
     is_superuser = False
@@ -422,16 +404,13 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
 
     can_manage_content = False
 
-    def get_short_name(self):
-        return self.full_name.split(" ", 1)[0]
-
     @property
     def session_data(self):
         """
         Data that is added to the session data at login and during session updates.
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `session_data` property."
+            "Subclasses of KolibriBaseUserMixin must override the `session_data` property."
         )
 
     def is_member_of(self, coll):
@@ -443,7 +422,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `is_member_of` method."
+            "Subclasses of KolibriBaseUserMixin must override the `is_member_of` method."
         )
 
     def has_role_for_user(self, kinds, user):
@@ -457,7 +436,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `has_role_for_user` method."
+            "Subclasses of KolibriBaseUserMixin must override the `has_role_for_user` method."
         )
 
     def has_role_for_collection(self, kinds, coll):
@@ -471,14 +450,14 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `has_role_for_collection` method."
+            "Subclasses of KolibriBaseUserMixin must override the `has_role_for_collection` method."
         )
 
     def can_create_instance(self, obj):
         """
         Checks whether this user (self) has permission to create a particular model instance (obj).
 
-        This method should be overridden by classes that inherit from ``KolibriAbstractBaseUser``.
+        This method should be overridden by classes that inherit from ``KolibriBaseUserMixin``.
 
         In general, unless an instance has already been initialized, this method should not be called directly;
         instead, it should be preferred to call ``can_create``.
@@ -488,7 +467,7 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `can_create_instance` method."
+            "Subclasses of KolibriBaseUserMixin must override the `can_create_instance` method."
         )
 
     def can_create(self, Model, data):
@@ -526,55 +505,55 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         """
         Checks whether this user (self) has permission to read a particular model instance (obj).
 
-        This method should be overridden by classes that inherit from ``KolibriAbstractBaseUser``.
+        This method should be overridden by classes that inherit from ``KolibriBaseUserMixin``.
 
         :param obj: An instance of a Django model, to check permissions for.
         :return: ``True`` if this user should have permission to read the object, otherwise ``False``.
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `can_read` method."
+            "Subclasses of KolibriBaseUserMixin must override the `can_read` method."
         )
 
     def can_update(self, obj):
         """
         Checks whether this user (self) has permission to update a particular model instance (obj).
 
-        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+        This method should be overridden by classes that inherit from KolibriBaseUserMixin.
 
         :param obj: An instance of a Django model, to check permissions for.
         :return: ``True`` if this user should have permission to update the object, otherwise ``False``.
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `can_update` method."
+            "Subclasses of KolibriBaseUserMixin must override the `can_update` method."
         )
 
     def can_delete(self, obj):
         """
         Checks whether this user (self) has permission to delete a particular model instance (obj).
 
-        This method should be overridden by classes that inherit from KolibriAbstractBaseUser.
+        This method should be overridden by classes that inherit from KolibriBaseUserMixin.
 
         :param obj: An instance of a Django model, to check permissions for.
         :return: ``True`` if this user should have permission to delete the object, otherwise ``False``.
         :rtype: bool
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
+            "Subclasses of KolibriBaseUserMixin must override the `can_delete` method."
         )
 
     def has_role_for(self, kinds, obj):
         """
         Helper function that defers to ``has_role_for_user`` or ``has_role_for_collection`` based on the type of object passed in.
         """
-        if isinstance(obj, KolibriAbstractBaseUser):
+        if isinstance(obj, KolibriBaseUserMixin):
             return self.has_role_for_user(kinds, obj)
         elif isinstance(obj, Collection):
             return self.has_role_for_collection(kinds, obj)
         else:
             raise ValueError(
-                "The `obj` argument to `has_role_for` must be either an instance of KolibriAbstractBaseUser or Collection."
+                "The `obj` argument to `has_role_for` must be either an instance of KolibriBaseUserMixin or Collection."
             )
 
     def filter_readable(self, queryset):
@@ -585,17 +564,14 @@ class KolibriAbstractBaseUser(AbstractBaseUser):
         :return: Filtered ``QuerySet`` including only elements that are readable by this user.
         """
         raise NotImplementedError(
-            "Subclasses of KolibriAbstractBaseUser must override the `can_delete` method."
+            "Subclasses of KolibriBaseUserMixin must override the `can_delete` method."
         )
 
 
-class KolibriAnonymousUser(AnonymousUser, KolibriAbstractBaseUser):
+class KolibriAnonymousUser(AnonymousUser, KolibriBaseUserMixin):
     """
-    Custom anonymous user that also exposes the same interface as KolibriAbstractBaseUser, for consistency.
+    Custom anonymous user that also exposes the same interface as KolibriBaseUserMixin, for consistency.
     """
-
-    class Meta:
-        abstract = True
 
     @property
     def session_data(self):
@@ -785,8 +761,7 @@ def validate_role_kinds(kinds):
     return kinds
 
 
-@python_2_unicode_compatible
-class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
+class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataModel):
     """
     ``FacilityUser`` is the fundamental object of the auth app. These users represent the main users, and can be associated
     with a hierarchy of ``Collections`` through ``Memberships`` and ``Roles``, which then serve to help determine permissions.
@@ -812,6 +787,17 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
 
     objects = FacilityUserModelManager()
 
+    USERNAME_FIELD = "username"
+
+    username = models.CharField(
+        "username",
+        max_length=254,
+        help_text="Required. 254 characters or fewer.",
+        validators=[validate_username],
+    )
+    full_name = models.CharField("full name", max_length=120, blank=True)
+    date_joined = DateTimeTzField("date joined", default=local_now, editable=False)
+
     facility = models.ForeignKey("Facility", on_delete=models.CASCADE)
 
     is_facility_user = True
@@ -833,6 +819,9 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
         null=True,
         blank=True,
     )
+
+    def get_short_name(self):
+        return self.full_name.split(" ", 1)[0]
 
     @classmethod
     def deserialize(cls, dict_model):
@@ -1043,7 +1032,6 @@ class FacilityUser(KolibriAbstractBaseUser, AbstractFacilityDataModel):
             return True
 
 
-@python_2_unicode_compatible
 class Collection(AbstractFacilityDataModel):
     """
     ``Collections`` are hierarchical groups of ``FacilityUsers``, used for grouping users and making decisions about permissions.
@@ -1237,7 +1225,6 @@ class Collection(AbstractFacilityDataModel):
         return '"{name}" ({kind})'.format(name=self.name, kind=self.kind)
 
 
-@python_2_unicode_compatible
 class Membership(AbstractFacilityDataModel):
     """
     A ``FacilityUser`` can be marked as a member of a ``Collection`` through a ``Membership`` object. Being a member of a
@@ -1331,7 +1318,6 @@ class Membership(AbstractFacilityDataModel):
             return super(Membership, self).delete(**kwargs)
 
 
-@python_2_unicode_compatible
 class Role(AbstractFacilityDataModel):
     """
     A ``FacilityUser`` can have a role for a particular ``Collection`` through a ``Role`` object, which also stores
@@ -1445,7 +1431,6 @@ class CollectionProxyManager(SyncableModelManager):
         )
 
 
-@python_2_unicode_compatible
 class Facility(Collection):
 
     # don't require that we have a dataset set during validation, so we're not forced to generate one unnecessarily
@@ -1570,7 +1555,6 @@ class Facility(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class Classroom(Collection):
 
     morango_model_name = "classroom"
@@ -1641,7 +1625,6 @@ class Classroom(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class LearnerGroup(Collection):
 
     morango_model_name = "learnergroup"
@@ -1685,7 +1668,6 @@ class LearnerGroup(Collection):
         return self.name
 
 
-@python_2_unicode_compatible
 class AdHocGroup(Collection):
     """
     An ``AdHocGroup`` is a collection kind that can be used in an assignment

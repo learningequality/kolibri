@@ -31,6 +31,7 @@ from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 from .models import AttemptLog
 from .models import ContentSessionLog
@@ -230,6 +231,18 @@ class LogContext(object):
 
 @method_decorator(csrf_protect, name="dispatch")
 class ProgressTrackingViewSet(viewsets.GenericViewSet):
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
+    def get_queryset(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return None
+
     def _precache_dataset_id(self, user):
         if user is None or user.is_anonymous:
             return
@@ -919,11 +932,21 @@ class ProgressTrackingViewSet(viewsets.GenericViewSet):
 
 
 class TotalContentProgressViewSet(viewsets.GenericViewSet):
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
+    def get_queryset(self):
+        return ContentSummaryLog.objects.filter(user=self.request.user)
+
     def retrieve(self, request, pk=None):
         if request.user.is_anonymous or pk != request.user.id:
             raise PermissionDenied("Can only access progress data for self")
         progress = (
-            request.user.contentsummarylog_set.annotate(
+            self.get_queryset()
+            .annotate(
                 mastery_progress=Sum(
                     Case(
                         When(masterylogs__complete=True, then=Value(1)),
@@ -1013,7 +1036,7 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
     )
     queryset = MasteryLog.objects.all().order_by(LOG_ORDER_BY)
     pagination_class = OptionalPageNumberPagination
-    filter_class = MasteryFilter
+    filterset_class = MasteryFilter
     values = (
         "id",
         "mastery_criterion",
@@ -1027,7 +1050,9 @@ class MasteryLogViewSet(ReadOnlyValuesViewset):
 
     def annotate_queryset(self, queryset):
         return queryset.annotate(
-            correct=Coalesce(Sum("attemptlogs__correct"), Value(0))
+            correct=Coalesce(
+                Sum("attemptlogs__correct"), Value(0), output_field=IntegerField()
+            )
         )
 
     @action(detail=True)
@@ -1101,7 +1126,7 @@ class AttemptLogViewSet(ReadOnlyValuesViewset):
     )
     queryset = AttemptLog.objects.all()
     pagination_class = OptionalPageNumberPagination
-    filter_class = AttemptFilter
+    filterset_class = AttemptFilter
 
     values = attemptlog_values
 
@@ -1136,7 +1161,7 @@ class GenerateCSVLogRequestViewSet(viewsets.ModelViewSet):
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = GenerateCSVLogRequest.objects.all()
     serializer_class = GenerateCSVLogRequestSerializer
-    filter_class = GenerateCSVLogRequestFilter
+    filterset_class = GenerateCSVLogRequestFilter
 
     def _get_or_create_logrequest(
         self,

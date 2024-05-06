@@ -33,14 +33,14 @@ logger = logging.getLogger(__name__)
 
 
 def add_security_headers(request, response):
-    response["Access-Control-Allow-Origin"] = "*"
-    response["Access-Control-Allow-Methods"] = "GET, OPTIONS"
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET, OPTIONS"
     requested_headers = request.META.get("HTTP_ACCESS_CONTROL_REQUEST_HEADERS", "")
     if requested_headers:
-        response["Access-Control-Allow-Headers"] = requested_headers
+        response.headers["Access-Control-Allow-Headers"] = requested_headers
     # restrict CSP to only allow resources to be loaded from self, to prevent info leakage
     # (e.g. via passing user info out as GET parameters to an attacker's server), or inadvertent data usage
-    response[
+    response.headers[
         "Content-Security-Policy"
     ] = "default-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob:"
 
@@ -162,7 +162,7 @@ def get_embedded_file(zipped_path, zipped_filename, embedded_filepath):
 
         # set the content-length header to the size of the embedded file
         if file_size:
-            response["Content-Length"] = file_size
+            response.headers["Content-Length"] = file_size
         return response
 
 
@@ -289,9 +289,9 @@ def _zip_content_from_request(request):  # noqa: C901
         raise
 
     # ensure the browser knows not to try byte-range requests, as we don't support them here
-    response["Accept-Ranges"] = "none"
+    response.headers["Accept-Ranges"] = "none"
 
-    response["Last-Modified"] = http_date(time.time())
+    response.headers["Last-Modified"] = http_date(time.time())
 
     patch_response_headers(response, cache_timeout=YEAR_IN_SECONDS)
 

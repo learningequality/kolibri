@@ -17,6 +17,7 @@ from .utils.network import errors
 from .utils.network.client import NetworkClient
 from .utils.network.connections import capture_connection_state
 from .utils.network.connections import update_network_location
+from kolibri.core.api import BaseValuesViewset
 from kolibri.core.api import ValuesViewset
 from kolibri.core.device.permissions import NotProvisionedHasPermission
 from kolibri.core.utils.urls import reverse_path
@@ -74,7 +75,8 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
     queryset = StaticNetworkLocation.objects.all()
 
 
-class NetworkLocationFacilitiesView(viewsets.GenericViewSet):
+class NetworkLocationFacilitiesView(BaseValuesViewset):
+    queryset = NetworkLocation.objects.all()
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
 
     def retrieve(self, request, pk=None):

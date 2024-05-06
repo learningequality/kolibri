@@ -12,7 +12,7 @@ try:
             self.result_field = kwargs.pop("result_field", None)
             super(NotNullArrayAgg, self).__init__(*args, **kwargs)
 
-        def convert_value(self, value, expression, connection, context):
+        def convert_value(self, value, expression, connection):
             if not value:
                 return []
             results = list(filter(lambda x: x is not None, value))
@@ -56,7 +56,7 @@ class GroupConcat(Aggregate):
         self.result_field = kwargs.pop("result_field", None)
         super(GroupConcat, self).__init__(*args, **kwargs)
 
-    def convert_value(self, value, expression, connection, context):
+    def convert_value(self, value, expression, connection):
         if not value:
             return []
         results = value.split(",")

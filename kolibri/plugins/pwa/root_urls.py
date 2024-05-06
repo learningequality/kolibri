@@ -3,7 +3,7 @@
 #
 # Copyright 2023 Endless OS Foundation, LLC
 # SPDX-License-Identifier: MIT
-from django.conf.urls import url
+from django.urls import re_path
 
 from .views import PwaServiceWorkerView
 
@@ -18,5 +18,5 @@ from .views import PwaServiceWorkerView
 # namespaces are not merged. Having two urlpattern lists with identical
 # namespaces breaks name reverse lookup.
 urlpatterns = [
-    url(r"^sw.js$", PwaServiceWorkerView.as_view(), name="pwa_service_worker"),
+    re_path(r"^sw.js$", PwaServiceWorkerView.as_view(), name="pwa_service_worker"),
 ]

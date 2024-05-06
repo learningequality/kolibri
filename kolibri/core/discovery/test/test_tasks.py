@@ -37,7 +37,7 @@ def unwrap(func):
 
 
 class PerformNetworkLocationUpdateTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.network_location = DynamicNetworkLocation.objects.create(
@@ -106,7 +106,7 @@ class PerformNetworkLocationUpdateTestCase(TestCase):
 
 
 class AddDynamicNetworkLocationTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.broadcast_id = uuid.uuid4().hex
@@ -162,7 +162,7 @@ class AddDynamicNetworkLocationTestCase(TestCase):
 
 
 class RemoveDynamicNetworkLocationTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.broadcast_id = uuid.uuid4().hex
@@ -212,7 +212,7 @@ class RemoveDynamicNetworkLocationTestCase(TestCase):
 
 
 class DispatchBroadcastHooksTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.broadcast_id = uuid.uuid4().hex
@@ -271,7 +271,7 @@ class DispatchBroadcastHooksTestCase(TestCase):
 
 
 class ResetConnectionStatesTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.old_broadcast_id = uuid.uuid4().hex
@@ -356,7 +356,7 @@ class ResetConnectionStatesTestCase(TestCase):
 
 
 class TaskUtilitiesTestCase(TestCase):
-    multi_db = True
+    databases = "__all__"
 
     def setUp(self):
         self.broadcast_id = uuid.uuid4().hex

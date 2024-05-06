@@ -57,7 +57,7 @@ class ImportMetadataTestCase(APITestCase):
                 if field.column in field_names:
                     value = response_data[field.column]
                     if hasattr(field, "from_db_value"):
-                        value = field.from_db_value(value, None, connection, None)
+                        value = field.from_db_value(value, None, connection)
                     self.assertEqual(value, getattr(obj, field.column))
 
     def test_import_metadata_nodes(self):

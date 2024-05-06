@@ -8,7 +8,6 @@ from django.test import TestCase
 from django.urls import clear_url_caches
 from django.urls import reverse
 from django.utils import translation
-from django.utils._os import upath
 from mock import patch
 
 from kolibri.core.auth.test.helpers import clear_process_cache
@@ -29,7 +28,7 @@ settings_override_dict = {
     "TEMPLATES": [
         {
             "BACKEND": "django.template.backends.django.DjangoTemplates",
-            "DIRS": [os.path.join(os.path.dirname(upath(__file__)), "templates")],
+            "DIRS": [os.path.join(os.path.dirname(__file__), "templates")],
         }
     ],
 }

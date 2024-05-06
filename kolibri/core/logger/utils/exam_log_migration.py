@@ -1,9 +1,9 @@
 from itertools import compress
 from itertools import groupby
 
+from django.core.exceptions import FieldDoesNotExist
 from django.db import connections
 from django.db.models import F
-from django.db.models import FieldDoesNotExist
 from django.db.models import Value
 from django.db.models.functions import Greatest
 from le_utils.constants import content_kinds
@@ -139,7 +139,7 @@ def _create_attemptlog(examattemptlog, sessionlog_id, masterylog_id):
             try:
                 field_obj = AttemptLog._meta.get_field(field)
                 if hasattr(field_obj, "from_db_value"):
-                    value = field_obj.from_db_value(value, None, None, None)
+                    value = field_obj.from_db_value(value, None, None)
             except FieldDoesNotExist:
                 pass
             setattr(attemptlog, field, value)

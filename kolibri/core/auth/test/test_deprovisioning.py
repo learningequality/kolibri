@@ -29,6 +29,7 @@ class DeprovisionCommandTestCase(TestCase):
     Tests for the deprovision command.
     """
 
+    databases = "__all__"
     fixtures = ["content_test.json"]
 
     def setUp(self):
