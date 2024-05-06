@@ -5,6 +5,7 @@ import AppBar from '../../src/views/AppBar';
 
 jest.mock('kolibri.urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
+jest.mock('../../src/composables/useUser');
 
 const localVue = createLocalVue();
 localVue.use(Vuex);
@@ -32,7 +33,7 @@ describe('app bar component', () => {
   describe('smoke test', () => {
     it('should render', () => {
       const wrapper = createWrapper({ loading: false });
-      expect(wrapper.find({ name: 'AppBar' }).element).toBeVisible();
+      expect(wrapper.findComponent(AppBar).element).toBeVisible();
     });
   });
 });

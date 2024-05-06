@@ -11,6 +11,7 @@
           class="app-bar"
           :title="title"
           :showNavigation="showNavigation"
+          :showAppNavView="isAppContextAndTouchDevice"
           @toggleSideNav="navShown = !navShown"
         >
           <template #sub-nav>
