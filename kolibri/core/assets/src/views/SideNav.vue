@@ -464,13 +464,9 @@
             navComponentRoleOrder.indexOf(navComponentB.role)
           );
         }
-        // Next sort by priority
-        if (navComponentA.priority !== navComponentB.priority) {
-          return navComponentA.priority - navComponentB.priority;
-        }
         // Still no difference?
-        // There is no difference!
-        return 0;
+        // Sort by the URL to ensure consistent ordering
+        return navComponentA.url.localeCompare(navComponentB.url);
       },
       filterByFullFacilityOnly(component) {
         return !this.isLearnerOnlyImport || !component.fullFacilityOnly;

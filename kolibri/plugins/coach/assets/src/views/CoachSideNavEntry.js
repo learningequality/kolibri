@@ -1,12 +1,11 @@
-import navComponents from 'kolibri.utils.navComponents';
+import registerNavItem from 'kolibri.utils.registerNavItem';
 import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import baseRoutes from '../routes/baseRoutes';
 import { coachStrings } from './common/commonCoachStrings';
 
-const sideNavConfig = {
-  name: 'CoachSideNavEntry',
+registerNavItem({
   get url() {
     return urls['kolibri:kolibri.plugins.coach:coach']();
   },
@@ -37,10 +36,5 @@ const sideNavConfig = {
   },
   icon: 'coach',
   role: UserKinds.COACH,
-  priority: 10,
   fullFacilityOnly: true,
-};
-
-navComponents.register(sideNavConfig);
-
-export default sideNavConfig;
+});

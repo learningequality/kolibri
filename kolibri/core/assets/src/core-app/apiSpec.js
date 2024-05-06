@@ -97,6 +97,7 @@ import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
+import { registerNavItem } from '../composables/useNav';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -110,7 +111,6 @@ import SuggestedTime from '../views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
-import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
@@ -232,7 +232,7 @@ export default {
     i18n,
     licenseTranslations,
     loginComponents,
-    navComponents,
+    registerNavItem,
     redirectBrowser,
     samePageCheckGenerator,
     serverClock,

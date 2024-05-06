@@ -1,15 +1,13 @@
 import { get } from '@vueuse/core';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import useUser from 'kolibri.coreVue.composables.useUser';
-import navComponents from 'kolibri.utils.navComponents';
+import registerNavItem from 'kolibri.utils.registerNavItem';
 import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 import baseRoutes from '../routes/baseRoutes';
 import { deviceString } from './commonDeviceStrings';
 
-const sideNavConfig = {
-  name: 'DeviceManagementSideNavEntry',
-
+registerNavItem({
   get url() {
     return urls['kolibri:kolibri.plugins.device:device_management']();
   },
@@ -65,9 +63,4 @@ const sideNavConfig = {
   },
   icon: 'device',
   role: UserKinds.CAN_MANAGE_CONTENT,
-  priority: 10,
-};
-
-navComponents.register(sideNavConfig);
-
-export default sideNavConfig;
+});
