@@ -350,7 +350,7 @@
       const description = ref(activeSection.value.description);
       const section_title = ref(activeSection.value.section_title);
 
-      const formDataHasChanged = computed(() => {
+      const activeSectionChanged = computed(() => {
         return !isEqual(
           {
             learners_see_fixed_order: learners_see_fixed_order.value,
@@ -367,6 +367,19 @@
         );
       });
 
+      const sectionOrderList = ref(allSections.value);
+
+      const sectionOrderChanged = computed(() => {
+        return !isEqual(
+          allSections.value.map(section => section.section_id),
+          sectionOrderList.value.map(section => section.section_id)
+        );
+      });
+
+      const formDataHasChanged = computed(() => {
+        return activeSectionChanged.value || sectionOrderChanged.value;
+      });
+
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
       const resourceButtonLabel = computed(() => {
@@ -379,6 +392,7 @@
 
       return {
         formDataHasChanged,
+        sectionOrderChanged,
         showCloseConfirmation,
         showDeleteConfirmation,
         handleCancelClose,
@@ -389,7 +403,7 @@
         channels,
         activeSection,
         activeResourcePool,
-        allSections,
+        sectionOrderList,
         updateSection,
         updateQuiz,
         handleDeleteSection,
@@ -440,12 +454,6 @@
       dividerStyle() {
         return `color : ${this.$themeTokens.fineLine}`;
       },
-      /**
-       * @returns { QuizSection[] }
-       */
-      sectionOrderList() {
-        return this.allSections;
-      },
       draggableStyle() {
         return {
           backgroundColor: this.$themeTokens.surface,
@@ -473,7 +481,7 @@
     },
     methods: {
       handleSectionSort(e) {
-        this.updateQuiz({ question_sources: e.newArray });
+        this.sectionOrderList = e.newArray;
       },
       applySettings() {
         this.updateSection({
@@ -483,6 +491,11 @@
           question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
+        if (this.sectionOrderChanged) {
+          this.updateQuiz({
+            question_sources: this.sectionOrderList,
+          });
+        }
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
     },
