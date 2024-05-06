@@ -76,6 +76,7 @@ export default function selectQuestions(
           counter_in_exercise: questionIdArrays[ri].indexOf(uId) + 1,
           exercise_id: uId.includes(':') ? uId.split(':')[0] : uId,
           question_id: uId.split(':')[1],
+          // TODO See #12127 re: replacing all `id` with `item`
           id: uId,
           title: exerciseTitles[ri],
         });

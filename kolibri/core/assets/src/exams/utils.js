@@ -159,9 +159,6 @@ export async function convertExamQuestionSources(exam) {
     exam.data_model_version = 3;
   }
 
-  // TODO This avoids updating older code that used `item` to refer to the unique question id
-  // we've started calling `id` (ie, in useQuizCreation.js) but we should update this to use `id`
-  // everywhere and remove this line
   // Now we know we have the latest V3 structure
   exam.question_sources = exam.question_sources.map(section => {
     section.questions = annotateQuestionsWithItem(section.questions);
