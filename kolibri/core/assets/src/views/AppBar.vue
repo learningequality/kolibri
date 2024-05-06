@@ -45,7 +45,7 @@
           #navigation
         >
           <slot name="sub-nav">
-            <HorizontalNavBarWithOverflowMenu
+            <Navbar
               v-if="links.length > 0"
               :navigationLinks="links"
             />
@@ -113,7 +113,7 @@
       class="subpage-nav"
     >
       <slot name="sub-nav">
-        <HorizontalNavBarWithOverflowMenu
+        <Navbar
           v-if="links.length > 0"
           :navigationLinks="links"
         />
@@ -137,7 +137,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import useNav from '../composables/useNav';
   import SkipNavigationLink from './SkipNavigationLink';
-  import HorizontalNavBarWithOverflowMenu from './HorizontalNavBarWithOverflowMenu';
+  import Navbar from './Navbar';
 
   const hashedValuePattern = /^[a-f0-9]{30}$/;
 
@@ -147,7 +147,7 @@
       UiToolbar,
       KIconButton,
       SkipNavigationLink,
-      HorizontalNavBarWithOverflowMenu,
+      Navbar,
     },
     mixins: [commonCoreStrings],
     setup() {

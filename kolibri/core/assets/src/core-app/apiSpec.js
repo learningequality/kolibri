@@ -32,9 +32,6 @@ import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
 import ScrollingHeader from '../views/ScrollingHeader';
 import SideNav from '../views/SideNav';
-import Navbar from '../views/Navbar';
-import NavbarLink from '../views/Navbar/NavbarLink';
-import HorizontalNavBarWithOverflowMenu from '../views/HorizontalNavBarWithOverflowMenu';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
@@ -156,9 +153,6 @@ export default {
       AppBarPage,
       ImmersivePage,
       SideNav,
-      Navbar,
-      NavbarLink,
-      HorizontalNavBarWithOverflowMenu,
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
