@@ -21,11 +21,15 @@
 
 <script>
 
-  import { now } from 'kolibri.utils.serverClock';
+  import useNow from 'kolibri.coreVue.composables.useNow';
   import { SyncStatus } from 'kolibri.coreVue.vuex.constants';
 
   export default {
     name: 'SyncStatusDisplay',
+    setup() {
+      const { now } = useNow();
+      return { now };
+    },
     props: {
       syncStatus: {
         type: String,
@@ -42,11 +46,6 @@
           return ['small', 'large', 'large-bold'].includes(val);
         },
       },
-    },
-    data() {
-      return {
-        now: now(),
-      };
     },
     computed: {
       syncTextDisplayMap() {
