@@ -172,7 +172,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   selectMoreQuestion: {
     message:
-      'select { count } more { count, plural , one { question } other { questions }} to continue',
+      'Select { count } more { count, plural , one { question } other { questions }} to continue',
   },
   selectFewerQuestion: {
     message:
