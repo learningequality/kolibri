@@ -174,7 +174,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:'select { count } more { count, plural , one { question } other { questions }} to continue',
   },
   selectFewerQuestion:{
-    message:'select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+    message:'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
   },
   cannotSelectSomeTopicWarning: {
     message:

@@ -308,19 +308,19 @@
         );
       },
       replaceSelectedQuestionsString(){
-        const x = this.selectedActiveQuestions.length - this.replacements.length;
-        if(x === 0){
+        const unreplacedCount = this.selectedActiveQuestions.length - this.replacements.length;
+        if(unreplacedCount === 0){
           return this.numberOfSelectedReplacements$({
             count: this.replacements.length,
             total: this.selectedActiveQuestions.length
           });
-        }else if(x > 0 ){
+        }else if(unreplacedCount > 0 ){
           return this.selectMoreQuestion$({
-            count: x
+            count: unreplacedCount
           });
         }else{
           return this.selectFewerQuestion$({
-            count: Math.abs(x)
+            count: Math.abs(unreplacedCount)
           });
         }
       }
