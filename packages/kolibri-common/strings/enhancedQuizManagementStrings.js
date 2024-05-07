@@ -182,4 +182,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: "Section '{ section_title }' deleted",
     context: 'A snackbar message that appears when the user deletes a section',
   },
+  updateResources: {
+    message: 'Update resources',
+  },
 });

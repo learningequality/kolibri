@@ -389,6 +389,7 @@
         questionList$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        updateResources$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -461,6 +462,7 @@
         updateQuiz,
         addQuestionToSelection,
         removeQuestionFromSelection,
+        updateResources$,
 
         // Computed
         channels,
@@ -532,6 +534,11 @@
             icon: 'delete',
             id: 'delete',
           },
+          {
+            label: this.updateResources$(),
+            icon: 'plus',
+            id: 'plus',
+          },
         ];
       },
     },
@@ -566,12 +573,16 @@
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
+        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES);
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
             this.handleShowConfirmation(section_id);
+            break;
+          case this.updateResources$():
+            this.$router.push(resourcesRoute);
             break;
         }
       },
