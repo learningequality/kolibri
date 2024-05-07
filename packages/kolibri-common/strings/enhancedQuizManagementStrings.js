@@ -170,11 +170,13 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
-  selectMoreQuestion:{
-    message:'select { count } more { count, plural , one { question } other { questions }} to continue',
+  selectMoreQuestion: {
+    message:
+      'select { count } more { count, plural , one { question } other { questions }} to continue',
   },
-  selectFewerQuestion:{
-    message:'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+  selectFewerQuestion: {
+    message:
+      'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
   },
   cannotSelectSomeTopicWarning: {
     message:

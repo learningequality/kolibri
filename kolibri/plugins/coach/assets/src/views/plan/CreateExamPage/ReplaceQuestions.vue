@@ -307,23 +307,23 @@
           this.replacements.length === this.selectedActiveQuestions.length
         );
       },
-      replaceSelectedQuestionsString(){
+      replaceSelectedQuestionsString() {
         const unreplacedCount = this.selectedActiveQuestions.length - this.replacements.length;
-        if(unreplacedCount === 0){
+        if (unreplacedCount === 0) {
           return this.numberOfSelectedReplacements$({
             count: this.replacements.length,
-            total: this.selectedActiveQuestions.length
+            total: this.selectedActiveQuestions.length,
           });
-        }else if(unreplacedCount > 0 ){
+        } else if (unreplacedCount > 0) {
           return this.selectMoreQuestion$({
-            count: unreplacedCount
+            count: unreplacedCount,
           });
-        }else{
+        } else {
           return this.selectFewerQuestion$({
-            count: Math.abs(unreplacedCount)
+            count: Math.abs(unreplacedCount),
           });
         }
-      }
+      },
     },
     beforeRouteLeave(_, __, next) {
       if (
