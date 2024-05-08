@@ -188,7 +188,7 @@ export default function useQuizCreation() {
    */
   function selectRandomQuestionsFromResources(numQuestions, pool = [], excludedIds = []) {
     pool = pool.length ? pool : get(activeResourcePool);
-    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseIds = pool.map(r => r.id);
     const exerciseTitles = pool.map(r => r.title);
     const questionIdArrays = pool.map(r => r.unique_question_ids);
     return selectQuestions(
@@ -400,7 +400,7 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourceMap = computed(() =>
     get(activeResourcePool).reduce((acc, resource) => {
-      acc[resource.content_id] = resource;
+      acc[resource.id] = resource;
       return acc;
     }, {})
   );
