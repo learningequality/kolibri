@@ -573,7 +573,9 @@
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
-        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES);
+        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, {
+          section_id,
+        });
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
