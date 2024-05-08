@@ -277,7 +277,7 @@ export default function useQuizCreation() {
    */
   function saveQuiz() {
     const totalQuestions = get(allSections).reduce((acc, section) => {
-      acc += section.question_count;
+      acc += parseInt(section.question_count);
       return acc;
     }, 0);
 
