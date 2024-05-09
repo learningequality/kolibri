@@ -50,49 +50,6 @@
           :tabAppearanceOverrides="tabStyles"
           @click="id => setActiveSection(id)"
         />
-        <!-- <TabsWithOverflow
-          tabsId="quizSectionTabs"
-          class="section-tabs"
-          :tabs="tabs"
-          :activeTabId="activeSection ?
-            activeSection.section_id :
-            '' "
-          backgroundColor="transparent"
-          hoverBackgroundColor="transparent"
-          :aria-label="quizSectionsLabel$()"
-          @click="id => setActiveSection(id)"
-        >
-          <template #tab="{ tab }">
-            <span
-              :ref="tabRefLabel(tab.id)"
-              appearance="flat-button"
-              style="display: inline-block;"
-              :appearanceOverrides="tabStyles"
-            >
-              {{ tab.label }}
-            </span>
-          </template>
-
-          <template #overflow="{ overflowTabs }">
-            <KIconButton
-              v-if="overflowTabs.length"
-              tabindex="-1"
-              class="overflow-tabs"
-              icon="optionsHorizontal"
-              :style="overflowButtonStyles(overflowTabs)"
-            >
-              <template #menu>
-                <KDropdownMenu
-                  :primary="false"
-                  :disabled="false"
-                  :hasIcons="true"
-                  :options="overflowTabs"
-                  @select="opt => setActiveSection(opt.id)"
-                />
-              </template>
-            </KIconButton>
-          </template>
-        </TabsWithOverflow> -->
       </KGridItem>
 
       <KGridItem
@@ -365,11 +322,8 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
-  import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
-
-  const logger = logging.getLogger(__filename);
 
   export default {
     name: 'CreateQuizSection',
@@ -380,7 +334,6 @@
       Draggable,
       DragSortWidget,
       DragHandle,
-      TabsWithOverflow,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -527,6 +480,7 @@
           textOverflow: 'ellipsis',
           maxWidth: '10rem',
           height: '3.25rem',
+          backgroundColor: 'transparent !important',
         };
       },
       activeSectionActions() {
