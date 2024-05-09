@@ -7831,6 +7831,24 @@ kolibri-design-system@4.2.0:
     vue-intl "3.1.0"
     xstate "4.38.3"
 
+"kolibri-design-system@https://github.com/AlexVelezLl/kolibri-design-system.git#110b3ecb909aed2015b3cfdf66ed501fb442447e":
+  version "4.2.0"
+  resolved "https://github.com/AlexVelezLl/kolibri-design-system.git#110b3ecb909aed2015b3cfdf66ed501fb442447e"
+  dependencies:
+    "@vue/composition-api" "1.7.2"
+    aphrodite "https://github.com/learningequality/aphrodite/"
+    autosize "3.0.21"
+    css-element-queries "1.2.0"
+    date-fns "1.30.1"
+    frame-throttle "3.0.0"
+    fuzzysearch "1.0.3"
+    lodash "4.17.21"
+    popper.js "1.16.1"
+    purecss "2.2.0"
+    tippy.js "4.2.1"
+    vue-intl "3.1.0"
+    xstate "4.38.3"
+
 launch-editor-middleware@^2.6.1:
   version "2.6.1"
   resolved "https://registry.yarnpkg.com/launch-editor-middleware/-/launch-editor-middleware-2.6.1.tgz#7f2f400d8dda2283b69d02e9d83b1d272fef2bfb"

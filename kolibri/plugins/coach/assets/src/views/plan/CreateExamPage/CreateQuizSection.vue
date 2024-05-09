@@ -61,7 +61,7 @@
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="height: 3rem; position: relative; right: 0; padding: 0;"
+          style="height: 3.25rem; position: relative; right: 0; padding: 0;"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
