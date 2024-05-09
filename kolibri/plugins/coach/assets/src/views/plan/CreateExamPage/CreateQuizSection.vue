@@ -39,7 +39,18 @@
         :layout8="{ span: 5 }"
         :layout12="{ span: 10 }"
       >
-        <TabsWithOverflow
+        <KTabsList
+          ref="tabsList"
+          tabsId="quizSectionTabs"
+          :tabs="tabs"
+          :activeTabId="activeSection ?
+            activeSection.section_id :
+            '' "
+          :aria-label="quizSectionsLabel$()"
+          :tabAppearanceOverrides="tabStyles"
+          @click="id => setActiveSection(id)"
+        />
+        <!-- <TabsWithOverflow
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
@@ -81,7 +92,7 @@
               </template>
             </KIconButton>
           </template>
-        </TabsWithOverflow>
+        </TabsWithOverflow> -->
       </KGridItem>
 
       <KGridItem
@@ -513,10 +524,8 @@
       },
       tabStyles() {
         return {
-          margin: '0px',
           textOverflow: 'ellipsis',
           maxWidth: '10rem',
-          padding: '1rem 0!important',
           height: '3.25rem',
         };
       },
@@ -551,7 +560,8 @@
             'createSnackbar',
             this.sectionDeletedNotification$({ section_title })
           );
-          this.focusActiveSectionTab();
+          // Run after the focus change of KModal destroyed method
+          setTimeout(() => this.focusActiveSectionTab());
         });
         this.handleShowConfirmation();
       },
@@ -579,20 +589,9 @@
         return `section-tab-${section_id}`;
       },
       focusActiveSectionTab() {
-        const label = this.tabRefLabel(this.activeSection.section_id);
-        const tabRef = this.$refs[label];
-
-        // TODO Consider the "Delete section" button on the side panel; maybe we need to await
-        // nextTick if we're getting the error
-        if (tabRef) {
-          tabRef.focus();
-        } else {
-          logger.error(
-            'Tried to focus active tab id: ',
-            label,
-            ' - but the tab is not in the refs: ',
-            this.$refs
-          );
+        const tabsList = this.$refs.tabsList;
+        if (tabsList) {
+          tabsList.focusActiveTab();
         }
       },
       activeSectionIsHidden(overflow) {
