@@ -60,18 +60,50 @@ function _generateResourcesNeeded(learnerNeeds) {
   return resourcesNeeded;
 }
 
-function _generateGradeLevelsList(gradeLevels) {
-  return Object.keys(ContentLevels).filter(key => {
-    const value = ContentLevels[key];
-    return gradeLevels && gradeLevels.includes(value);
+function _sortArrayToMatchReferenceArrayOrder(unsortedArray, sortedReferenceArray) {
+  const indexMap = new Map(sortedReferenceArray.map((item, index) => [item, index]));
+  return unsortedArray.slice().sort((a, b) => {
+    const indexA = indexMap.get(a) ?? sortedReferenceArray.length;
+    const indexB = indexMap.get(b) ?? sortedReferenceArray.length;
+    return indexA - indexB;
   });
 }
 
+const gradeLevelsShown = [
+  'BASIC_SKILLS',
+  'PRESCHOOL',
+  'LOWER_PRIMARY',
+  'UPPER_PRIMARY',
+  'LOWER_SECONDARY',
+  'UPPER_SECONDARY',
+  'TERTIARY',
+  'PROFESSIONAL',
+  'WORK_SKILLS',
+];
+
+function _generateGradeLevelsList(gradeLevels) {
+  const unsortedLevels = Object.keys(ContentLevels).filter(key => {
+    const value = ContentLevels[key];
+    return gradeLevels && gradeLevels.includes(value);
+  });
+  return _sortArrayToMatchReferenceArrayOrder(unsortedLevels, gradeLevelsShown);
+}
+
+const accessibilityLabelsShown = [
+  'SIGN_LANGUAGE',
+  'AUDIO_DESCRIPTION',
+  'TAGGED_PDF',
+  'ALT_TEXT',
+  'HIGH_CONTRAST',
+  'CAPTIONS_SUBTITLES',
+];
+
 function _generateAccessibilityOptionsList(accessibilityLabels) {
-  return Object.keys(AccessibilityCategories).filter(key => {
+  const unsortedAccessibilityList = Object.keys(AccessibilityCategories).filter(key => {
     const value = AccessibilityCategories[key];
     return accessibilityLabels && accessibilityLabels.includes(value);
   });
+  return _sortArrayToMatchReferenceArrayOrder(unsortedAccessibilityList, accessibilityLabelsShown);
 }
 
 function _generateLibraryCategoriesLookup(categories) {
