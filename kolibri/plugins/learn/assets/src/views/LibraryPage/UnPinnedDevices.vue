@@ -111,7 +111,7 @@
         }
       },
       channelColor() {
-        return this.$themePalette.grey.v_700;
+        return this.$themePalette.grey.v_600;
       },
     },
     $trs: {

@@ -3,7 +3,7 @@
   <div
     v-show="showBanner"
     class="alert"
-    :style="{ backgroundColor: $themePalette.yellow.v_100 }"
+    :style="{ backgroundColor: $themePalette.yellow.v_200 }"
   >
     <div style="display:flex">
       <div>
