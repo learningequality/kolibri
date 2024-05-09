@@ -610,7 +610,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
     morango_model_name = "learnerdevicestatus"
 
     instance_id = UUIDField(max_length=32, editable=False, null=False)
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         FacilityUser,
         on_delete=models.CASCADE,
         related_name="learner_device_status",
