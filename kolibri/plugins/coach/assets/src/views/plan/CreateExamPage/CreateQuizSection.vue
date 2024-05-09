@@ -312,7 +312,6 @@
 
   import { get } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
-  import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
@@ -539,27 +538,11 @@
             break;
         }
       },
-      tabRefLabel(section_id) {
-        return `section-tab-${section_id}`;
-      },
       focusActiveSectionTab() {
         const tabsList = this.$refs.tabsList;
         if (tabsList) {
           tabsList.focusActiveTab();
         }
-      },
-      activeSectionIsHidden(overflow) {
-        const ids = overflow.map(i => i.id);
-        return ids.includes(get(this.activeSection).section_id);
-      },
-      overflowButtonStyles(overflow) {
-        return {
-          height: '2.25rem!important',
-          width: '2.25rem!important',
-          border: this.activeSectionIsHidden(overflow)
-            ? '2px solid ' + this.$themeTokens.primary
-            : 'none',
-        };
       },
       handleQuestionOrderChange({ newArray }) {
         const payload = {
