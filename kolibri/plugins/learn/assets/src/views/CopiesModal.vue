@@ -1,7 +1,7 @@
 <template>
 
   <KModal
-    v-if="displayedCopies.length"
+    v-if="copies.length"
     :title="$tr('copies')"
     :submitText="coreString('closeAction')"
     @submit="$emit('closeModal')"
@@ -50,8 +50,8 @@
       return { genContentLinkBackLinkCurrentPage };
     },
     props: {
-      displayedCopies: {
-        type: Object,
+      copies: {
+        type: Array,
         required: true,
       },
     },
