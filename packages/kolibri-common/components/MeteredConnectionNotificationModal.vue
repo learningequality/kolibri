@@ -90,8 +90,6 @@
           // if we only include one of the keys for the extra_settings object
           client({ method: 'GET', url: this.settingsUrl })
             .then(({ data }) => {
-              logging.info('mounted', isMetered);
-              logging.info(data);
               this.extra_settings = data.extra_settings;
               this.selected = this.extra_settings.allow_download_on_metered_connection
                 ? Options.USE_METERED
