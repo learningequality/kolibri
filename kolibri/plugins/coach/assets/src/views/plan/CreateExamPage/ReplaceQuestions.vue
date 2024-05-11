@@ -209,6 +209,7 @@
 
       function submitReplacement() {
         handleReplacement();
+        this.clearSelectedQuestions();
         const count = replacements.value.length;
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -335,7 +336,6 @@
         this.showCloseConfirmation = true;
         next(false);
       } else {
-        this.clearSelectedQuestions();
         next();
       }
     },
