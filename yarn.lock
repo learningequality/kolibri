@@ -7831,9 +7831,9 @@ kolibri-design-system@4.2.0:
     vue-intl "3.1.0"
     xstate "4.38.3"
 
-"kolibri-design-system@https://github.com/AlexVelezLl/kolibri-design-system.git#110b3ecb909aed2015b3cfdf66ed501fb442447e":
-  version "4.2.0"
-  resolved "https://github.com/AlexVelezLl/kolibri-design-system.git#110b3ecb909aed2015b3cfdf66ed501fb442447e"
+"kolibri-design-system@https://github.com/AlexVelezLl/kolibri-design-system.git#b4eb493be0da53444b321516e01602e924183aa6":
+  version "4.2.1"
+  resolved "https://github.com/AlexVelezLl/kolibri-design-system.git#b4eb493be0da53444b321516e01602e924183aa6"
   dependencies:
     "@vue/composition-api" "1.7.2"
     aphrodite "https://github.com/learningequality/aphrodite/"
