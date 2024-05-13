@@ -273,9 +273,9 @@ EXTRA_LANG_INFO = {
         "name_local": "ქართული",
     },
     "km": {"bidi": False, "code": "km", "name": "Khmer", "name_local": "ភាសាខ្មែរ"},
-    "nyn": {
+    "ny": {
         "bidi": False,
-        "code": "nyn",
+        "code": "ny",
         "name": "Chichewa, Chewa, Nyanja",
         "name_local": "Chinyanja",
     },

@@ -25,6 +25,27 @@ export const getContentLangDir = language => {
   return (language || {}).lang_direction || languageDirections.LTR;
 };
 
+const contentLanguageCodes = {
+  ff: ['ful', 'fuv'],
+  ny: ['nya'],
+  sw: ['swa'],
+  yo: ['yor'],
+};
+
+export const getContentLangActive = language => {
+  const langCode = languageIdToCode(currentLanguage);
+  const additionalCodes = contentLanguageCodes[langCode] || [];
+  if (language.id.toLowerCase() === currentLanguage.toLowerCase()) {
+    // Best possible match, return a 2 to have it still be truthy, but distinguishable
+    // from a 1 which is a lang_code match
+    return 2;
+  }
+  if (language.lang_code === langCode || additionalCodes.includes(language.lang_code)) {
+    return 1;
+  }
+  return 0;
+};
+
 const logging = logger.getLogger(__filename);
 
 const languageGlobals = plugin_data['languageGlobals'] || {};

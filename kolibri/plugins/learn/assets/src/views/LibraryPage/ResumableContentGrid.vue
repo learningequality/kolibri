@@ -61,7 +61,7 @@
     <CopiesModal
       v-if="displayedCopies.length"
       :copies="displayedCopies"
-      @submit="displayedCopies = []"
+      @closeModal="displayedCopies = []"
     />
   </div>
 
