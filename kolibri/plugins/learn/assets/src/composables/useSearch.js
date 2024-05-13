@@ -60,15 +60,6 @@ function _generateResourcesNeeded(learnerNeeds) {
   return resourcesNeeded;
 }
 
-function _sortArrayToMatchReferenceArrayOrder(unsortedArray, sortedReferenceArray) {
-  const indexMap = new Map(sortedReferenceArray.map((item, index) => [item, index]));
-  return unsortedArray.slice().sort((a, b) => {
-    const indexA = indexMap.get(a) ?? sortedReferenceArray.length;
-    const indexB = indexMap.get(b) ?? sortedReferenceArray.length;
-    return indexA - indexB;
-  });
-}
-
 const gradeLevelsShown = [
   'BASIC_SKILLS',
   'PRESCHOOL',
@@ -82,11 +73,9 @@ const gradeLevelsShown = [
 ];
 
 function _generateGradeLevelsList(gradeLevels) {
-  const unsortedLevels = Object.keys(ContentLevels).filter(key => {
-    const value = ContentLevels[key];
-    return gradeLevels && gradeLevels.includes(value);
+  return gradeLevelsShown.filter(key => {
+    return gradeLevels && gradeLevels.includes(ContentLevels[key]);
   });
-  return _sortArrayToMatchReferenceArrayOrder(unsortedLevels, gradeLevelsShown);
 }
 
 const accessibilityLabelsShown = [
@@ -99,11 +88,9 @@ const accessibilityLabelsShown = [
 ];
 
 function _generateAccessibilityOptionsList(accessibilityLabels) {
-  const unsortedAccessibilityList = Object.keys(AccessibilityCategories).filter(key => {
-    const value = AccessibilityCategories[key];
-    return accessibilityLabels && accessibilityLabels.includes(value);
+  return accessibilityLabelsShown.filter(key => {
+    return accessibilityLabels && accessibilityLabels.includes(AccessibilityCategories[key]);
   });
-  return _sortArrayToMatchReferenceArrayOrder(unsortedAccessibilityList, accessibilityLabelsShown);
 }
 
 function _generateLibraryCategoriesLookup(categories) {
