@@ -481,7 +481,7 @@
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
-          color: this.$themePalette.grey.v_700,
+          color: this.$themePalette.grey.v_600,
         };
       },
       pageTitle() {
