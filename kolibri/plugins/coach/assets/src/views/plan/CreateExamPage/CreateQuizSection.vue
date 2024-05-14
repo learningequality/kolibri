@@ -48,6 +48,7 @@
             '' "
           :aria-label="quizSectionsLabel$()"
           :tabAppearanceOverrides="tabStyles"
+          :moreButtonTooltip="coreString('moreLabel')"
           @click="id => setActiveSection(id)"
         />
       </KGridItem>

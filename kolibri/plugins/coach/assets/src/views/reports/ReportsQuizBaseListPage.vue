@@ -46,6 +46,7 @@
               :ariaLabel="coachString('detailsLabel')"
               :activeTabId="activeTabId"
               :tabs="tabs"
+              :moreButtonTooltip="coreString('moreLabel')"
               @click="() => saveTabsClick(QUIZZES_TABS_ID)"
             />
           </HeaderTabs>

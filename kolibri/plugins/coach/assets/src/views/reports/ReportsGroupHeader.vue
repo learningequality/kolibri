@@ -21,6 +21,7 @@
         :ariaLabel="$tr('groupReports')"
         :activeTabId="activeTabId"
         :tabs="tabs"
+        :moreButtonTooltip="coreString('moreLabel')"
         @click="() => saveTabsClick(REPORTS_GROUP_TABS_ID)"
       />
     </HeaderTabs>

@@ -17,6 +17,7 @@
         :ariaLabel="$tr('coachPlan')"
         :activeTabId="activeTabId"
         :tabs="tabs"
+        :moreButtonTooltip="coreString('moreLabel')"
         @click="() => saveTabsClick(PLAN_TABS_ID)"
       />
     </HeaderTabs>

@@ -382,6 +382,10 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Label that indicates a list of options. May be a button label, or a reference to the menu itself',
   },
+  moreLabel: {
+    message: 'More',
+    context: 'Label that indicates that there are more options available to the user.',
+  },
   nameLabel: {
     message: 'Name',
     context: 'Might indicate the name of a resource in Kolibri.',

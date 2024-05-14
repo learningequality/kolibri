@@ -45,6 +45,7 @@
               :ariaLabel="coachReportsLesson$()"
               :activeTabId="activeTabId"
               :tabs="tabs"
+              :moreButtonTooltip="coreString('moreLabel')"
               @click="() => saveTabsClick(REPORTS_LESSON_TABS_ID)"
             />
           </HeaderTabs>

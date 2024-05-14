@@ -59,6 +59,7 @@
         :ariaLabel="$tr('reportLearners')"
         :activeTabId="activeTabId"
         :tabs="tabs"
+        :moreButtonTooltip="coreString('moreLabel')"
         @click="() => saveTabsClick(REPORTS_LEARNERS_TABS_ID)"
       />
     </HeaderTabs>
