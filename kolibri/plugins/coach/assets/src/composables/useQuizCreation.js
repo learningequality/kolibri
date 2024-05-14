@@ -188,7 +188,7 @@ export default function useQuizCreation() {
    */
   function selectRandomQuestionsFromResources(numQuestions, pool = [], excludedIds = []) {
     pool = pool.length ? pool : get(activeResourcePool);
-    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseIds = pool.map(r => r.id);
     const exerciseTitles = pool.map(r => r.title);
     const questionIdArrays = pool.map(r => r.unique_question_ids);
     return selectQuestions(
@@ -264,7 +264,8 @@ export default function useQuizCreation() {
    * use */
 
   function initializeQuiz(collection) {
-    set(_quiz, objectWithDefaults({ collection }, Quiz));
+    const assignments = [collection];
+    set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
     const newSection = addSection();
     setActiveSection(newSection.section_id);
     _fetchChannels();
@@ -276,7 +277,7 @@ export default function useQuizCreation() {
    */
   function saveQuiz() {
     const totalQuestions = get(allSections).reduce((acc, section) => {
-      acc += section.question_count;
+      acc += parseInt(section.question_count);
       return acc;
     }, 0);
 
@@ -399,7 +400,7 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourceMap = computed(() =>
     get(activeResourcePool).reduce((acc, resource) => {
-      acc[resource.content_id] = resource;
+      acc[resource.id] = resource;
       return acc;
     }, {})
   );
@@ -411,7 +412,7 @@ export default function useQuizCreation() {
       (count, r) => count + r.assessmentmetadata.assessment_item_ids.length,
       0
     );
-    const exerciseIds = pool.map(r => r.content_id);
+    const exerciseIds = pool.map(r => r.exercise_id);
     const exerciseTitles = pool.map(r => r.title);
     const questionIdArrays = pool.map(r => r.unique_question_ids);
     return selectQuestions(

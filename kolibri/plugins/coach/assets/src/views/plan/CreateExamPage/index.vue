@@ -27,7 +27,7 @@
           <KButton
             :text="coreString('saveAction')"
             primary
-            @click="() => saveQuiz()"
+            @click="() => saveQuizAndRedirect()"
           />
         </KButtonGroup>
       </BottomAppBar>
@@ -115,6 +115,16 @@
     created() {
       this.initializeQuiz(this.$route.params.classId);
       this.quizInitialized = true;
+    },
+    methods: {
+      saveQuizAndRedirect() {
+        this.saveQuiz().then(() => {
+          this.$router.replace({
+            name: PageNames.EXAMS,
+            classId: this.$route.params.classId,
+          });
+        });
+      },
     },
     $trs: {
       createNewExamLabel: {

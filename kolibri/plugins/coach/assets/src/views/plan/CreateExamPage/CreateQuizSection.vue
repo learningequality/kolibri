@@ -137,8 +137,14 @@
         style="text-align: center; padding: 0 0 1em 0; max-width: 350px; margin: 0 auto;"
       >
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
-        <div class="question-mark-layout">
-          <span class="help-icon-style">?</span>
+        <div
+          class="question-mark-layout"
+          :style="{ backgroundColor: $themeBrand.secondary.v_200 }"
+        >
+          <span
+            class="help-icon-style"
+            :style="{ color: $themeTokens.secondaryDark }"
+          >?</span>
         </div>
 
         <p style="margin-top: 1em; font-weight: bold;">
@@ -669,7 +675,6 @@
     margin: auto;
     line-height: 1.7;
     text-align: center;
-    background-color: #dbc3d4;
   }
 
   .help-icon-style {
