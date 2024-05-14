@@ -60,6 +60,7 @@
                 ref="pointsButton"
                 icon="pointsActive"
                 :ariaLabel="$tr('pointsAriaLabel')"
+                :color="$themeTokens.primary"
               />
               <div v-if="!windowIsSmall" class="points-description">
                 {{ $formatNumber(totalPoints) }}
