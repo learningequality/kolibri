@@ -32,7 +32,10 @@
           <tr>
             <th>{{ $tr('points') }}</th>
             <td class="points-cell">
-              <PointsIcon class="points-icon" />
+              <KIcon
+                icon="pointsActive"
+                :color="$themeTokens.primary"
+              />
               <span :style="{ color: $themeTokens.correct }">
                 {{ $formatNumber(totalPoints) }}
               </span>
@@ -192,7 +195,6 @@
   import pickBy from 'lodash/pickBy';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import PermissionsIcon from 'kolibri.coreVue.components.PermissionsIcon';
   import UserTypeDisplay from 'kolibri.coreVue.components.UserTypeDisplay';
   import { PermissionTypes } from 'kolibri.coreVue.vuex.constants';
@@ -218,7 +220,6 @@
       NotificationsRoot,
       GenderDisplayText,
       PermissionsIcon,
-      PointsIcon,
       UserTypeDisplay,
     },
     mixins: [responsiveWindowMixin, commonCoreStrings],
