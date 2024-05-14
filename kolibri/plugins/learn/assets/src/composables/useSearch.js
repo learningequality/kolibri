@@ -60,17 +60,36 @@ function _generateResourcesNeeded(learnerNeeds) {
   return resourcesNeeded;
 }
 
+const gradeLevelsShown = [
+  'BASIC_SKILLS',
+  'PRESCHOOL',
+  'LOWER_PRIMARY',
+  'UPPER_PRIMARY',
+  'LOWER_SECONDARY',
+  'UPPER_SECONDARY',
+  'TERTIARY',
+  'PROFESSIONAL',
+  'WORK_SKILLS',
+];
+
 function _generateGradeLevelsList(gradeLevels) {
-  return Object.keys(ContentLevels).filter(key => {
-    const value = ContentLevels[key];
-    return gradeLevels && gradeLevels.includes(value);
+  return gradeLevelsShown.filter(key => {
+    return gradeLevels && gradeLevels.includes(ContentLevels[key]);
   });
 }
 
+const accessibilityLabelsShown = [
+  'SIGN_LANGUAGE',
+  'AUDIO_DESCRIPTION',
+  'TAGGED_PDF',
+  'ALT_TEXT',
+  'HIGH_CONTRAST',
+  'CAPTIONS_SUBTITLES',
+];
+
 function _generateAccessibilityOptionsList(accessibilityLabels) {
-  return Object.keys(AccessibilityCategories).filter(key => {
-    const value = AccessibilityCategories[key];
-    return accessibilityLabels && accessibilityLabels.includes(value);
+  return accessibilityLabelsShown.filter(key => {
+    return accessibilityLabels && accessibilityLabels.includes(AccessibilityCategories[key]);
   });
 }
 
