@@ -232,8 +232,8 @@
         TaskResource.get(this.syncTaskId).then(task => {
           if (task.clearable) {
             this.isSyncing = false;
-            this.syncTaskId = '';
             TaskResource.clear(this.syncTaskId);
+            this.syncTaskId = '';
             if (task.status === TaskStatuses.FAILED) {
               this.syncHasFailed = true;
             } else if (task.status === TaskStatuses.COMPLETED) {

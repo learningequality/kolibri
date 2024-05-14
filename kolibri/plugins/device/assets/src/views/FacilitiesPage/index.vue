@@ -253,11 +253,14 @@
     },
     watch: {
       // Update facilities whenever a watched task completes
-      facilityTasks(newTasks) {
+      facilityTasks(newTasks, prevTasks) {
         for (const index in newTasks) {
           const task = newTasks[index];
           if (this.taskIdsToWatch.includes(task.id)) {
-            if (task.status === TaskStatuses.COMPLETED) {
+            if (
+              task.status === TaskStatuses.COMPLETED ||
+              this.isRepeatingTaskCompleted(task, prevTasks)
+            ) {
               this.fetchFacilites();
               if (task.type === TaskTypes.DELETEFACILITY) {
                 this.showFacilityRemovedSnackbar(task.facility_name);
@@ -284,6 +287,16 @@
         .catch(() => (this.loadingFacilities = false));
     },
     methods: {
+      isRepeatingTaskCompleted(task, prevTasks) {
+        if (!task.repeat_interval) {
+          return false;
+        }
+        const prevTask = prevTasks.find(({ id }) => id === task.id);
+        if (!prevTask) {
+          return false;
+        }
+        return prevTask.status === TaskStatuses.RUNNING && task.status === TaskStatuses.QUEUED;
+      },
       facilityOptions() {
         return [
           {
