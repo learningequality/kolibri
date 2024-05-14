@@ -2,7 +2,10 @@
 
   <div v-if="isUserLoggedIn" ref="icon" class="points-wrapper">
     <div class="icon-wrapper" :style="{ backgroundColor: $themeTokens.surface }">
-      <PointsIcon class="icon" />
+      <KIcon
+        icon="pointsActive"
+        :color="$themeTokens.primary"
+      />
     </div>
     <div class="description">
       {{ $formatNumber(totalPoints) }}
@@ -22,13 +25,9 @@
 
   import { mapGetters, mapActions } from 'vuex';
   import responsiveWindowMixin from 'kolibri.coreVue.mixins.responsiveWindowMixin';
-  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
 
   export default {
     name: 'TotalPoints',
-    components: {
-      PointsIcon,
-    },
     mixins: [responsiveWindowMixin],
     computed: {
       ...mapGetters(['totalPoints', 'currentUserId', 'isUserLoggedIn']),
@@ -63,7 +62,6 @@
     height: 32px;
     text-align: center;
     // Aligns the round background with its siblings
-    vertical-align: middle;
     border-radius: 100%;
   }
 

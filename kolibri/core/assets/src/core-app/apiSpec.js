@@ -45,7 +45,6 @@ import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
-import PointsIcon from '../views/PointsIcon';
 import TotalPoints from '../views/TotalPoints';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
@@ -169,7 +168,6 @@ export default {
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
-      PointsIcon,
       TotalPoints,
       AuthMessage,
       FilterTextbox,
