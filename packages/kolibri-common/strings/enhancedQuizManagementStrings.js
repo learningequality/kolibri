@@ -168,7 +168,15 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   selectedResourcesInformation: {
     message:
-      '{count, number, integer} of {total, number, integer} {total, plural, one {resource selected} other {resources selected}}',
+      '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
+  },
+  selectMoreQuestion: {
+    message:
+      'Select { count } more { count, plural , one { question } other { questions }} to continue',
+  },
+  selectFewerQuestion: {
+    message:
+      'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
   },
   cannotSelectSomeTopicWarning: {
     message:
@@ -181,5 +189,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   sectionDeletedNotification: {
     message: "Section '{ section_title }' deleted",
     context: 'A snackbar message that appears when the user deletes a section',
+  },
+  updateResources: {
+    message: 'Update resources',
   },
 });

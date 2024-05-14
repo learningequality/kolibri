@@ -106,8 +106,14 @@
         style="text-align: center; padding: 0 0 1em 0; max-width: 350px; margin: 0 auto;"
       >
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
-        <div class="question-mark-layout">
-          <span class="help-icon-style">?</span>
+        <div
+          class="question-mark-layout"
+          :style="{ backgroundColor: $themeBrand.secondary.v_200 }"
+        >
+          <span
+            class="help-icon-style"
+            :style="{ color: $themeTokens.secondaryDark }"
+          >?</span>
         </div>
 
         <p style="margin-top: 1em; font-weight: bold;">
@@ -353,6 +359,7 @@
         questionList$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        updateResources$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -425,6 +432,7 @@
         updateQuiz,
         addQuestionToSelection,
         removeQuestionFromSelection,
+        updateResources$,
 
         // Computed
         channels,
@@ -495,6 +503,11 @@
             icon: 'delete',
             id: 'delete',
           },
+          {
+            label: this.updateResources$(),
+            icon: 'plus',
+            id: 'plus',
+          },
         ];
       },
     },
@@ -530,12 +543,18 @@
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
         const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
+        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, {
+          section_id,
+        });
         switch (opt.label) {
           case this.editSectionLabel$():
             this.$router.push(editRoute);
             break;
           case this.deleteSectionLabel$():
             this.handleShowConfirmation(section_id);
+            break;
+          case this.updateResources$():
+            this.$router.push(resourcesRoute);
             break;
         }
       },
@@ -606,7 +625,6 @@
     margin: auto;
     line-height: 1.7;
     text-align: center;
-    background-color: #dbc3d4;
   }
 
   .help-icon-style {

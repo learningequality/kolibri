@@ -3,10 +3,10 @@
 Django settings for kolibri project.
 
 For more information on this file, see
-https://docs.djangoproject.com/en/1.11/topics/settings/
+https://docs.djangoproject.com/en/3.2/topics/settings/
 
 For the full list of settings and their values, see
-https://docs.djangoproject.com/en/1.11/ref/settings/
+https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 import os
 import sys
@@ -50,7 +50,7 @@ BASE_DIR = os.path.abspath(os.path.dirname(__name__))
 LOCALE_PATHS = [os.path.join(KOLIBRI_MODULE_PATH, "locale")]
 
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
@@ -64,7 +64,6 @@ ALLOWED_HOSTS = ["*"]
 
 INSTALLED_APPS = [
     "kolibri.core",
-    "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -137,7 +136,7 @@ WSGI_APPLICATION = "kolibri.deployment.default.wsgi.application"
 
 
 # Database
-# https://docs.djangoproject.com/en/1.11/ref/settings/#databases
+# https://docs.djangoproject.com/en/3.2/ref/settings/#databases
 
 if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
     DATABASES = {
@@ -187,9 +186,11 @@ elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
         },
     }
 
+DEFAULT_AUTO_FIELD = "django.db.models.AutoField"
+
 
 # Internationalization
-# https://docs.djangoproject.com/en/1.11/topics/i18n/
+# https://docs.djangoproject.com/en/3.2/topics/i18n/
 
 # For language names, see:
 # https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes
@@ -326,7 +327,7 @@ USE_L10N = True
 USE_TZ = True
 
 # Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en/1.11/howto/static-files/
+# https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 path_prefix = conf.OPTIONS["Deployment"]["URL_PATH_PREFIX"]
 
@@ -342,19 +343,19 @@ FILE_UPLOAD_HANDLERS = [
     "django.core.files.uploadhandler.TemporaryFileUploadHandler",
 ]
 
-# https://docs.djangoproject.com/en/1.11/ref/settings/#csrf-cookie-path
+# https://docs.djangoproject.com/en/3.2/ref/settings/#csrf-cookie-path
 # Ensure that our CSRF cookie does not collide with other CSRF cookies
 # set by other Django apps served from the same domain.
 CSRF_COOKIE_PATH = path_prefix
 CSRF_COOKIE_NAME = "kolibri_csrftoken"
 
-# https://docs.djangoproject.com/en/1.11/ref/settings/#session-cookie-path
+# https://docs.djangoproject.com/en/3.2/ref/settings/#session-cookie-path
 # Ensure that our session cookie does not collidge with other session cookies
 # set by other Django apps served from the same domain.
 SESSION_COOKIE_PATH = path_prefix
 
-# https://docs.djangoproject.com/en/1.11/ref/settings/#std:setting-LOGGING
-# https://docs.djangoproject.com/en/1.11/topics/logging/
+# https://docs.djangoproject.com/en/3.2/ref/settings/#std:setting-LOGGING
+# https://docs.djangoproject.com/en/3.2/topics/logging/
 
 LOGGING = get_logging_config(
     conf.LOG_ROOT,
@@ -364,7 +365,7 @@ LOGGING = get_logging_config(
 
 
 # Customizing Django auth system
-# https://docs.djangoproject.com/en/1.11/topics/auth/customizing/
+# https://docs.djangoproject.com/en/3.2/topics/auth/customizing/
 
 AUTH_USER_MODEL = "kolibriauth.FacilityUser"
 
@@ -388,15 +389,9 @@ REST_FRAMEWORK = {
 }
 
 # System warnings to disable
-# see https://docs.djangoproject.com/en/1.11/ref/settings/#silenced-system-checks
+# see https://docs.djangoproject.com/en/3.2/ref/settings/#silenced-system-checks
+# and https://docs.djangoproject.com/en/3.2/ref/checks/#auth
 SILENCED_SYSTEM_CHECKS = ["auth.W004"]
-
-# Configuration for Django JS Reverse
-# https://github.com/ierror/django-js-reverse#options
-
-JS_REVERSE_EXCLUDE_NAMESPACES = ["admin"]
-
-ENABLE_DATA_BOOTSTRAPPING = True
 
 # Session configuration
 

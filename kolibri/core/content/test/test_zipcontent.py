@@ -245,7 +245,7 @@ class ZipContentTestCase(TestCase):
             )
         )
         file_size = len(expected_content)
-        self.assertEqual(int(response["Content-Length"]), file_size)
+        self.assertEqual(int(response.headers["Content-Length"]), file_size)
 
     def test_request_for_html_empty_html(self):
         response = self._get_file(self.empty_html_name)

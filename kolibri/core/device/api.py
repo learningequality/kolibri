@@ -28,6 +28,7 @@ from rest_framework import views
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.serializers import Serializer
 
 import kolibri
 from .models import DevicePermissions
@@ -122,6 +123,18 @@ class DeviceProvisionView(viewsets.GenericViewSet):
 
 class FreeSpaceView(mixins.ListModelMixin, viewsets.GenericViewSet):
     permission_classes = (IsAuthenticated,)
+
+    def get_serializer_class(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return Serializer
+
+    def get_queryset(self):
+        """
+        Add this purely to avoid warnings from DRF YASG schema generation.
+        """
+        return None
 
     def list(self, request):
         path = request.query_params.get("path")
@@ -297,7 +310,7 @@ class UserSyncStatusViewSet(ReadOnlyValuesViewset):
     permission_classes = (KolibriAuthPermissions,)
     filter_backends = (KolibriAuthPermissionsFilter, DjangoFilterBackend)
     queryset = UserSyncStatus.objects.all()
-    filter_class = SyncStatusFilter
+    filterset_class = SyncStatusFilter
 
     values = (
         "status",

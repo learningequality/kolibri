@@ -10,7 +10,7 @@ from kolibri.core.hooks import FrontEndBaseASyncHook
 from kolibri.core.hooks import FrontEndBaseHeadHook
 from kolibri.core.hooks import FrontEndBaseSyncHook
 from kolibri.core.theme_hook import ThemeHook
-from kolibri.utils.translation import ugettext as _
+from kolibri.utils.translation import gettext as _
 
 register = template.Library()
 

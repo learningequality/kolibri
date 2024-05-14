@@ -1,7 +1,6 @@
 import logging
 import time
 
-from django.contrib.admin.models import LogEntry
 from django.db import transaction
 from django.db.models import Q
 from django.db.models.signals import post_delete
@@ -193,7 +192,6 @@ def _get_users(dataset_id):
         "User models",
         querysets=[
             LearnerDeviceStatus.objects.filter(dataset_id_filter),
-            LogEntry.objects.filter(user_id_filter),
             DevicePermissions.objects.filter(user_id_filter),
             PingbackNotificationDismissed.objects.filter(user_id_filter),
             Collection.objects.filter(Q(parent_id__isnull=True) & dataset_id_filter),

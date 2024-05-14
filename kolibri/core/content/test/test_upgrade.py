@@ -28,6 +28,7 @@ mock_content_db_file = tempfile.mkstemp()
 
 @patch("kolibri.core.content.upgrade.import_channel_from_local_db")
 class FixMultipleTreesWithId1TestCase(TransactionTestCase):
+    databases = "__all__"
 
     fixtures = ["content_test.json"]
 

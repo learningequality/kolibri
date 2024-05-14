@@ -501,6 +501,10 @@
     margin-right: 0.5em;
   }
 
+  .section-settings-content {
+    margin-bottom: 7em;
+  }
+
   .section-settings-heading {
     margin-bottom: 0.5em;
     font-size: 1em;
@@ -557,6 +561,7 @@
     left: 0;
     padding: 1em;
     margin-top: 1em;
+    background-color: #ffffff;
     border-top: 1px solid black;
 
     > div {

@@ -1,6 +1,6 @@
 import { ContentNodeResource } from 'kolibri.resources';
 import store from 'kolibri.coreVue.vuex.store';
-import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
+import { fetchExamWithContent } from 'kolibri.utils.exams';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 
 export function questionRootRedirectHandler(params, name, next) {
@@ -41,7 +41,7 @@ function showQuestionDetailView(params) {
     // Additionally the questionId is actually the unique item value, made
     // of a combination of 'question_id:exercise_id'
     const baseExam = store.state.classSummary.examMap[quizId];
-    promise = fetchNodeDataAndConvertExam(baseExam).then(exam => {
+    promise = fetchExamWithContent(baseExam).then(({ exam }) => {
       exerciseNodeId = exam.question_sources.find(source => source.item === questionId).exercise_id;
       return exam;
     });

@@ -2,7 +2,7 @@ import get from 'lodash/get';
 import pickBy from 'lodash/pickBy';
 import Modalities from 'kolibri-constants/Modalities';
 import { ContentNodeResource, ExamResource } from 'kolibri.resources';
-import { fetchNodeDataAndConvertExam } from 'kolibri.utils.exams';
+import { fetchExamWithContent } from 'kolibri.utils.exams';
 import { coachStrings } from '../../views/common/commonCoachStrings';
 import ExerciseDifficulties from './../../apiResources/exerciseDifficulties';
 import QuizDifficulties from './../../apiResources/quizDifficulties';
@@ -19,7 +19,7 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
     resource = QuizDifficulties;
     itemPromise = ExamResource.fetchModel({
       id: quizId,
-    }).then(fetchNodeDataAndConvertExam);
+    }).then(fetchExamWithContent);
   } else {
     pk = exerciseId;
     practiceQuiz =
@@ -44,21 +44,26 @@ export function setItemStats(store, { classId, exerciseId, quizId, lessonId, gro
 
   return Promise.all([itemPromise, difficultiesPromise]).then(([item, stats]) => {
     if (quizId) {
-      store.commit('SET_STATE', { exam: item });
+      const exam = item.exam;
+      store.commit('SET_STATE', { exam });
       // If no one attempted one of the questions, it could get missed out of the list
       // of difficult questions, so use the exam data to fill in the blanks here.
-      stats = item.question_sources.map(source => {
-        const stat = stats.find(stat => stat.item === source.item) || {
+      const allQuestions = exam.question_sources.reduce((qs, section) => {
+        qs = [...qs, ...section.questions];
+        return qs;
+      }, []);
+      stats = allQuestions.map(question => {
+        const stat = stats.find(stat => stat.item === question.item) || {
           correct: 0,
           total: (stats[0] || {}).total || 0,
         };
         const title = coachStrings.$tr('nthExerciseName', {
-          name: source.title,
-          number: source.counter_in_exercise,
+          name: question.title,
+          number: question.counter_in_exercise,
         });
         return {
           ...stat,
-          ...source,
+          ...question,
           title,
         };
       });

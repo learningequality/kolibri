@@ -1,5 +1,5 @@
-from django.conf.urls import include
-from django.conf.urls import url
+from django.urls import include
+from django.urls import re_path
 from rest_framework import routers
 
 from .viewsets import LearnerClassroomViewset
@@ -15,7 +15,7 @@ router.register(r"learnerlesson", LearnerLessonViewset, basename="learnerlesson"
 
 
 urlpatterns = [
-    url(r"^", include(router.urls)),
-    url(r"state", LearnStateView.as_view(), name="state"),
-    url(r"homehydrate", LearnHomePageHydrationView.as_view(), name="homehydrate"),
+    re_path(r"^", include(router.urls)),
+    re_path(r"state", LearnStateView.as_view(), name="state"),
+    re_path(r"homehydrate", LearnHomePageHydrationView.as_view(), name="homehydrate"),
 ]

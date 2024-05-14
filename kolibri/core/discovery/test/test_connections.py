@@ -13,6 +13,8 @@ from kolibri.core.auth.models import Facility
 
 
 class BaseTestCase(TestCase):
+    databases = "__all__"
+
     def setUp(self):
         self.mock_location = mock.MagicMock(
             spec=NetworkLocation(),

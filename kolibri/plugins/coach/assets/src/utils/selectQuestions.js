@@ -17,8 +17,8 @@ const getTotalOfQuestions = sumBy(qArray => qArray.length);
  * @param {Number} numQuestions - target number of questions
  * @param {String[]} exerciseIds - QuizExercise IDs
  * @param {String[]} exerciseTitle - QuizExercise titles
- * @param {Array[String[]]} questionIdArrays - QuizQuestion (assessment) ID arrays corresponding
- *  to each exercise by index (ie, questionIdArrays[i] corresponds to exerciseIds[i])
+ * @param {Array[String[]]} questionIdArrays - QuizQuestion (assessmentitem) unique IDs in the
+ *                                             composite format `exercise_id:question_id`
  * @param {number} seed - value to seed the random shuffle with
  *
  * @return {QuizQuestion[]}
@@ -74,8 +74,9 @@ export default function selectQuestions(
       if (!find(output, { id: uId })) {
         output.push({
           counter_in_exercise: questionIdArrays[ri].indexOf(uId) + 1,
-          exercise_id: exerciseIds[ri],
+          exercise_id: uId.includes(':') ? uId.split(':')[0] : uId,
           question_id: uId.split(':')[1],
+          // TODO See #12127 re: replacing all `id` with `item`
           id: uId,
           title: exerciseTitles[ri],
         });

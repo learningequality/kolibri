@@ -71,6 +71,8 @@ class dummy_orm_job_data(object):
 
 @patch("kolibri.core.tasks.api.job_storage")
 class FacilityTasksAPITestCase(APITestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         DeviceSettings.objects.create(is_provisioned=True)
@@ -152,7 +154,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=self.facility.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -193,7 +194,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=facility2.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
         self.assertEqual(
@@ -202,7 +202,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 facility=facility3.id,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -267,7 +266,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 no_provision=True,
                 chunk_size=200,
                 noninteractive=True,
-                sync_session_id=None,
             ),
         )
 
@@ -331,7 +329,6 @@ class FacilityTasksAPITestCase(APITestCase):
                 "facility": self.facility.id,
                 "chunk_size": 200,
                 "noninteractive": True,
-                "sync_session_id": None,
             },
         )
 
@@ -406,6 +403,8 @@ class FacilityTasksAPITestCase(APITestCase):
 
 
 class FacilityTaskHelperTestCase(TestCase):
+    databases = "__all__"
+
     @classmethod
     def setUpTestData(cls):
         cls.device = NetworkLocation.objects.create(
@@ -502,7 +501,6 @@ class FacilityTaskHelperTestCase(TestCase):
             kwargs=dict(
                 baseurl="https://some.server.test/",
                 facility=facility_id,
-                sync_session_id=None,
                 chunk_size=200,
                 noninteractive=True,
             ),

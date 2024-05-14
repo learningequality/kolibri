@@ -59,13 +59,13 @@ def test_latest():
 
 def test_illegal_command():
 
-    with pytest.raises(CommandError):
+    with pytest.raises(ValueError):
         call_command("dbrestore", latest=True, dump_file="wup wup")
 
 
 def test_no_restore_from_no_file():
 
-    with pytest.raises(CommandError):
+    with pytest.raises(ValueError):
         call_command("dbrestore", dump_file="does not exist")
 
 

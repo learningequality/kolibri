@@ -19,6 +19,7 @@ class DeleteChannelTestCase(TransactionTestCase):
     Testcase for delete channel management command
     """
 
+    databases = "__all__"
     fixtures = ["content_test.json"]
     the_channel_id = "6199dde695db4ee4ab392222d5af1e5c"
 
