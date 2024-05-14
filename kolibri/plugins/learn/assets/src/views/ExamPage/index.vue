@@ -125,23 +125,6 @@
       <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
         <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
           <KButton
-            :disabled="questionNumber === exam.question_count - 1"
-            :primary="true"
-            :dir="layoutDirReset"
-            :aria-label="$tr('nextQuestion')"
-            :appearanceOverrides="navigationButtonStyle"
-            @click="goToQuestion(questionNumber + 1)"
-          >
-            <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
-            <template #iconAfter>
-              <KIcon
-                icon="forward"
-                :color="$themeTokens.textInverted"
-                :style="navigationIconStyleNext"
-              />
-            </template>
-          </KButton>
-          <KButton
             :disabled="questionNumber === 0"
             :primary="true"
             :dir="layoutDirReset"
@@ -158,6 +141,23 @@
               />
             </template>
             <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
+          </KButton>
+          <KButton
+            :disabled="questionNumber === exam.question_count - 1"
+            :primary="true"
+            :dir="layoutDirReset"
+            :aria-label="$tr('nextQuestion')"
+            :appearanceOverrides="navigationButtonStyle"
+            @click="goToQuestion(questionNumber + 1)"
+          >
+            <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
+            <template #iconAfter>
+              <KIcon
+                icon="forward"
+                :color="$themeTokens.textInverted"
+                :style="navigationIconStyleNext"
+              />
+            </template>
           </KButton>
         </component>
 
