@@ -39,11 +39,12 @@
       :maxHeight="96"
       :showViewMore="true"
     >
-      <!-- eslint-disable-next-line vue/no-v-html -->
+      <!-- eslint-disable vue/no-v-html -->
       <p
         dir="auto"
         v-html="description"
       ></p>
+      <!-- eslint-enable -->
     </SlotTruncator>
 
     <HeaderTable>
