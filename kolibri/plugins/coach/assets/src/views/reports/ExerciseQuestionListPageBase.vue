@@ -86,9 +86,6 @@
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
-      exercise() {
-        return this.contentMap[this.$route.params.exerciseId];
-      },
       group() {
         return this.$route.params.groupId && this.groupMap[this.$route.params.groupId];
       },
