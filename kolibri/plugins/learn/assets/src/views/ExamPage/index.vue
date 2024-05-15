@@ -226,9 +226,9 @@
           <KButton
             class="btn-size"
             primary
-            @click="toggleModal"
+            @click="finishExam"
           >
-            {{ $tr('tryAgain') }}
+            {{ $tr('submitExam') }}
           </KButton>
         </KGridItem>
       </KGrid>
@@ -563,10 +563,6 @@
         message: 'Unable to submit quiz because some resources are missing or not supported',
         context:
           'Indicates that a learner cannot submit the quiz because they are not able to see all the questions.',
-      },
-      tryAgain: {
-        message: 'Try Again',
-        context: 'Indicates that quiz can only be submitted with all questions answered.',
       },
     },
   };
