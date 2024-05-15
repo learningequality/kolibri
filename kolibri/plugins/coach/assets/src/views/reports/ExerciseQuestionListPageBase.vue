@@ -8,7 +8,7 @@
     <KPageContainer>
 
       <ReportsResourceHeader
-        :resource="exercise"
+        :resource="resource"
         @previewClick="onPreviewClick"
       />
 
@@ -81,11 +81,12 @@
     mixins: [commonCoach],
     computed: {
       ...mapState('questionList', ['exercise']),
+      ...mapState('resourceDetail', ['resource']),
       ...mapGetters('questionList', ['difficultQuestions']),
       lesson() {
         return this.lessonMap[this.$route.params.lessonId];
       },
-      resource() {
+      exercise() {
         return this.contentMap[this.$route.params.exerciseId];
       },
       group() {
