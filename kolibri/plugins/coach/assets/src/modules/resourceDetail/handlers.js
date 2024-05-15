@@ -19,7 +19,7 @@ export function generateResourceHandler(paramsToCheck) {
   };
 }
 
-function showResourceView({ resourceId, exerciseId } = {}) {
+export function showResourceView({ resourceId, exerciseId } = {}) {
   // Passed in exerciseId is the content_id of the contentNode
   // Map this to the id of the content node to do this fetch
   const nodeId = store.state.classSummary.contentMap[resourceId || exerciseId].node_id;

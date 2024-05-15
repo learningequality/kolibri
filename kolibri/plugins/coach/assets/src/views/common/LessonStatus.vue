@@ -63,9 +63,10 @@
           {{ coachString('sizeLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
-          <p>
+          <p v-if="lesson.size">
             {{ bytesForHumans(lesson.size) }}
           </p>
+          <KEmptyPlaceholder v-else />
         </KGridItem>
       </div>
     </KGrid>

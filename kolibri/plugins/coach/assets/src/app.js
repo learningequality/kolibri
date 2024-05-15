@@ -6,6 +6,7 @@ import router from 'kolibri.coreVue.router';
 import KolibriApp from 'kolibri_app';
 import routes from './routes';
 import pluginModule from './modules/pluginModule';
+import pages from './views/reports/allReportsPages';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -24,7 +25,12 @@ class CoachToolsModule extends KolibriApp {
         redirectBrowser();
         return;
       }
-      this.store.dispatch('loading');
+
+      const skipLoading = [pages.ReportsQuizLearnerPage.name];
+
+      if (!skipLoading.includes(to.name)) {
+        this.store.dispatch('loading');
+      }
       const promises = [];
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
