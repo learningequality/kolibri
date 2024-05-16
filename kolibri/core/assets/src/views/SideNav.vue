@@ -88,27 +88,27 @@
             >
               <template #options>
                 <CoreMenuOption
-                  v-for="component in topComponents"
-                  :key="component.name"
-                  :label="component.label"
-                  :subRoutes="component.routes"
-                  :link="component.url"
-                  :icon="component.icon"
-                  :linkActive="component.active"
-                  data-test="side-nav-component"
+                  v-for="item in topItems"
+                  :key="item.name"
+                  :label="item.label"
+                  :subRoutes="item.routes"
+                  :link="item.url"
+                  :icon="item.icon"
+                  :linkActive="item.active"
+                  data-test="side-nav-item"
                   @toggleMenu="toggleNav"
                 />
                 <SideNavDivider />
                 <CoreMenuOption
-                  v-for="component in accountComponents"
-                  :key="component.name"
-                  :label="component.label"
-                  :subRoutes="component.routes"
-                  :link="component.url"
-                  :icon="component.icon"
-                  :linkActive="component.active"
+                  v-for="item in accountItems"
+                  :key="item.name"
+                  :label="item.label"
+                  :subRoutes="item.routes"
+                  :link="item.url"
+                  :icon="item.icon"
+                  :linkActive="item.active"
                   style="cursor: pointer;"
-                  data-test="side-nav-component"
+                  data-test="side-nav-item"
                   @toggleMenu="toggleNav"
                 />
                 <CoreMenuOption
@@ -266,7 +266,7 @@
   import BottomNavigationBar from './BottomNavigationBar';
 
   // Explicit ordered list of roles for nav item sorting
-  const navComponentRoleOrder = [
+  const navItemRoleOrder = [
     UserKinds.ANONYMOUS,
     UserKinds.LEARNER,
     UserKinds.COACH,
@@ -306,7 +306,7 @@
         full_name,
       } = useUser();
       const { status, lastSynced } = useUserSyncStatus();
-      const { topBarHeight, navComponents } = useNav();
+      const { topBarHeight, navItems } = useNav();
       return {
         fullName: full_name,
         username,
@@ -323,7 +323,7 @@
         themeConfig,
         userSyncStatus: status,
         userLastSynced: lastSynced,
-        navComponents,
+        navItems,
       };
     },
     props: {
@@ -354,25 +354,23 @@
       footerMsg() {
         return this.$tr('poweredBy', { version: __version });
       },
-      topComponents() {
-        return this.navComponents
-          .filter(component => component.section !== NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents)
+      topItems() {
+        return this.navItems
+          .filter(item => item.section !== NavComponentSections.ACCOUNT)
+          .sort(this.compareMenuItems)
           .filter(this.filterByRole)
           .filter(this.filterByFullFacilityOnly);
       },
-      accountComponents() {
-        const accountComponents = this.navComponents
-          .filter(component => component.section === NavComponentSections.ACCOUNT)
-          .sort(this.compareMenuComponents);
+      accountItems() {
+        const accountItems = this.navItems
+          .filter(item => item.section === NavComponentSections.ACCOUNT)
+          .sort(this.compareMenuItems);
 
-        return [...accountComponents]
-          .filter(this.filterByRole)
-          .filter(this.filterByFullFacilityOnly);
+        return [...accountItems].filter(this.filterByRole).filter(this.filterByFullFacilityOnly);
       },
       bottomMenuItem() {
-        const allNavItems = this.topComponents.concat(this.accountComponents);
-        const bottombarItems = allNavItems.filter(component => component.bottomBar == true);
+        const allNavItems = this.topItems.concat(this.accountItems);
+        const bottombarItems = allNavItems.filter(item => item.bottomBar == true);
         if (bottombarItems.length > 0) {
           return bottombarItems[0];
         }
@@ -460,23 +458,20 @@
         this.privacyModalVisible = true;
         this.toggleNav();
       },
-      compareMenuComponents(navComponentA, navComponentB) {
+      compareMenuItems(navItemA, navItemB) {
         // Compare menu items to allow sorting by the following priority:
         // Sort by role
         // Nav items with no roles will be placed first
         // as index will be -1
-        if (navComponentA.role !== navComponentB.role) {
-          return (
-            navComponentRoleOrder.indexOf(navComponentA.role) -
-            navComponentRoleOrder.indexOf(navComponentB.role)
-          );
+        if (navItemA.role !== navItemB.role) {
+          return navItemRoleOrder.indexOf(navItemA.role) - navItemRoleOrder.indexOf(navItemB.role);
         }
         // Still no difference?
         // Sort by the URL to ensure consistent ordering
-        return navComponentA.url.localeCompare(navComponentB.url);
+        return navItemA.url.localeCompare(navItemB.url);
       },
-      filterByFullFacilityOnly(component) {
-        return !this.isLearnerOnlyImport || !component.fullFacilityOnly;
+      filterByFullFacilityOnly(item) {
+        return !this.isLearnerOnlyImport || !item.fullFacilityOnly;
       },
 
       /**

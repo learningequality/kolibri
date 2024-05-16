@@ -32,7 +32,7 @@
  */
 
 const MOCK_DEFAULTS = {
-  navComponents: [],
+  navItems: [],
   topBarHeight: 64,
 };
 

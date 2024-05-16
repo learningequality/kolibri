@@ -150,14 +150,14 @@
       const store = getCurrentInstance().proxy.$store;
       const $route = computed(() => store.state.route);
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
-      const { topBarHeight, navComponents } = useNav();
+      const { topBarHeight, navItems } = useNav();
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const links = computed(() => {
-        const currentComponent = navComponents.find(nc => nc.url === window.location.pathname);
-        if (!currentComponent) {
+        const currentItem = navItems.find(nc => nc.url === window.location.pathname);
+        if (!currentItem) {
           return [];
         }
-        return currentComponent.routes.map(route => ({
+        return currentItem.routes.map(route => ({
           title: route.label,
           link: { name: route.name, params: get($route).params, query: get($route).query },
           icon: route.icon,

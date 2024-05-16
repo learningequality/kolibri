@@ -1,17 +1,17 @@
 import { UserKinds, NavComponentSections } from 'kolibri.coreVue.vuex.constants';
-import { navComponents, registerNavItem } from '../useNav';
+import { navItems, registerNavItem } from '../useNav';
 
 jest.mock('kolibri.lib.logging');
 
 describe('nav component', () => {
   afterEach(() => {
     // Clean up the registered navItems
-    navComponents.pop();
+    navItems.pop();
   });
   it('should not register a navItem that has no nav navItem specific properties defined', () => {
     const navItem = {};
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   it('should register a navItem that has a valid icon', () => {
     const navItem = {
@@ -19,7 +19,7 @@ describe('nav component', () => {
       url: 'https://example.com',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(1);
+    expect(navItems).toHaveLength(1);
   });
   it('should show not register a navItem that has an invalid icon', () => {
     const navItem = {
@@ -27,7 +27,7 @@ describe('nav component', () => {
       url: 'https://example.com',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   it('should not register a navItem that has a non-string icon', () => {
     const navItem = {
@@ -35,7 +35,7 @@ describe('nav component', () => {
       icon: 0.1,
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   it('should register a navItem that has a valid url', () => {
     const navItem = {
@@ -43,14 +43,14 @@ describe('nav component', () => {
       url: 'https://example.com',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(1);
+    expect(navItems).toHaveLength(1);
   });
   it('should not register a navItem that has no url', () => {
     const navItem = {
       icon: 'search',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   it('should not register a navItem that has a non-string url', () => {
     const navItem = {
@@ -58,7 +58,7 @@ describe('nav component', () => {
       url: 0.1,
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   Object.values(UserKinds).forEach(role => {
     it(`should register a navItem that has a role of ${role}`, () => {
@@ -71,7 +71,7 @@ describe('nav component', () => {
         role,
       };
       registerNavItem(navItem);
-      expect(navComponents).toHaveLength(1);
+      expect(navItems).toHaveLength(1);
     });
   });
   it('should not register a navItem that has an unrecognized role', () => {
@@ -81,7 +81,7 @@ describe('nav component', () => {
       role: 'bill',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
   Object.values(NavComponentSections).forEach(section => {
     it(`should register a navItem that has a section of ${section}`, () => {
@@ -94,7 +94,7 @@ describe('nav component', () => {
         section,
       };
       registerNavItem(navItem);
-      expect(navComponents).toHaveLength(1);
+      expect(navItems).toHaveLength(1);
     });
   });
   it('should not register a navItem that has an unrecognized section', () => {
@@ -104,6 +104,6 @@ describe('nav component', () => {
       section: 'bill',
     };
     registerNavItem(navItem);
-    expect(navComponents).toHaveLength(0);
+    expect(navItems).toHaveLength(0);
   });
 });

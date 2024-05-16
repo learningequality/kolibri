@@ -59,17 +59,17 @@ describe('side nav component', () => {
     const wrapper = createWrapper({ navShown: false });
     expect(wrapper.find('.side-nav').element).not.toBeVisible();
   });
-  it('should show nothing if no components are added and user is not logged in', () => {
+  it('should show nothing if no items are added and user is not logged in', () => {
     const wrapper = createWrapper();
     expect(wrapper.find('a.ui-menu-option:not(.is-divider)').element).toBeFalsy();
   });
-  it('should show logout if no components are added and user is logged in', async () => {
+  it('should show logout if no items are added and user is logged in', async () => {
     setUserKind(UserKinds.LEARNER);
     const wrapper = createWrapper();
     expect(wrapper.text()).toContain('Sign out');
   });
 
-  describe('SideNav components are shown/hidden depending on role', () => {
+  describe('SideNav items are shown/hidden depending on role', () => {
     const testCases = [
       [UserKinds.ADMIN, UserKinds.ADMIN, true],
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT, false],
@@ -96,11 +96,11 @@ describe('side nav component', () => {
     ];
 
     it.each(testCases)(
-      'if user is %s, then %s component should show (%s)',
+      'if user is %s, then %s item should show (%s)',
       async (kind, otherKind, shouldShow) => {
         useNav.mockImplementation(() =>
           useNavMock({
-            navComponents: [
+            navItems: [
               {
                 url: url,
                 label: label,
@@ -121,7 +121,7 @@ describe('side nav component', () => {
     );
   });
 
-  describe('with multiple components', () => {
+  describe('with multiple items', () => {
     // All user kinds that can be copresented in the side nav.
     const testCases = [
       [UserKinds.LEARNER, UserKinds.COACH],
@@ -131,10 +131,10 @@ describe('side nav component', () => {
       [UserKinds.COACH, UserKinds.CAN_MANAGE_CONTENT],
       [UserKinds.ADMIN, UserKinds.CAN_MANAGE_CONTENT],
     ];
-    it.each(testCases)('%s component should above %s component', async (kind, otherKind) => {
+    it.each(testCases)('%s item should above %s item', async (kind, otherKind) => {
       useNav.mockImplementation(() =>
         useNavMock({
-          navComponents: [
+          navItems: [
             {
               url: url,
               label: label,
@@ -152,7 +152,7 @@ describe('side nav component', () => {
       );
       setUserKind(UserKinds.SUPERUSER);
       const wrapper = createWrapper();
-      const sideNavComponents = wrapper.findAll("[data-test='side-nav-component']");
+      const sideNavComponents = wrapper.findAll("[data-test='side-nav-item']");
       expect(sideNavComponents.exists()).toBeTruthy();
       expect(sideNavComponents.at(0).html()).toContain(label);
       expect(sideNavComponents.at(1).html()).toContain(label2);

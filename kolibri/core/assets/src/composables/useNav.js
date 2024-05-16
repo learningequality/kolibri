@@ -7,7 +7,7 @@ import { computed } from 'kolibri.lib.vueCompositionApi';
 
 const logging = logger.getLogger(__filename);
 
-export const navComponents = [];
+export const navItems = [];
 
 function checkDeclared(property) {
   return typeof property !== 'undefined' && property !== null;
@@ -32,7 +32,9 @@ function validateSection(section) {
 }
 
 function validateRoutes(routes) {
-  // Required, must be an array of objects
+  // Not required, if exists, must be an array of objects
+  // with label, route, name, and icon properties that are
+  // all strings.
   return (
     !checkDeclared(routes) ||
     (Array.isArray(routes) &&
@@ -62,11 +64,11 @@ function validateNavItem(component) {
 }
 
 export const registerNavItem = component => {
-  if (!navComponents.includes(component)) {
+  if (!navItems.includes(component)) {
     if (validateNavItem(component)) {
-      navComponents.push(component);
+      navItems.push(component);
     } else {
-      logging.error('Component has invalid priority, role, section, or routes');
+      logging.error('Component has invalid url, icon, role, section, or routes');
     }
   } else {
     logging.warn('Component has already been registered');
@@ -76,12 +78,12 @@ export const registerNavItem = component => {
 export default function useNav() {
   const { windowIsSmall } = useKResponsiveWindow();
   const topBarHeight = computed(() => (get(windowIsSmall) ? 56 : 64));
-  const exportedComponents = navComponents.map(component => ({
+  const exportedItems = navItems.map(component => ({
     ...component,
     active: window.location.pathname == component.url,
   }));
   return {
-    navComponents: exportedComponents,
+    navItems: exportedItems,
     topBarHeight,
   };
 }
