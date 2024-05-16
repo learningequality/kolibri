@@ -225,7 +225,7 @@
               :tooltip="coreString('deleteAction')"
               :aria-label="coreString('deleteAction')"
               :disabled="selectedActiveQuestions.length === 0"
-              @click="deleteActiveSelectedQuestions()"
+              @click="() => deleteQuestions()"
             />
           </template>
           <template #default="{ toggleItemState, isItemExpanded }">
@@ -396,6 +396,8 @@
         sectionDeletedNotification$,
         deleteConfirmation$,
         updateResources$,
+        changesSavedSuccessfully$,
+        questionsDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -452,6 +454,8 @@
         questionList$,
         sectionDeletedNotification$,
         deleteConfirmation$,
+        changesSavedSuccessfully$,
+        questionsDeletedNotification$,
 
         toggleQuestionInSelection,
         selectAllQuestions,
@@ -633,6 +637,7 @@
           questions: newArray,
         };
         this.updateSection(payload);
+        this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
         this.dragActive = false;
       },
       handleAddSection() {
@@ -647,6 +652,16 @@
       openSelectResources(section_id) {
         const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });
         this.$router.push(route);
+      },
+      deleteQuestions() {
+        const count = this.selectedActiveQuestions.length;
+        this.deleteActiveSelectedQuestions();
+        this.$store.dispatch(
+          'createSnackbar',
+          this.questionsDeletedNotification$({
+            count,
+          })
+        );
       },
     },
   };

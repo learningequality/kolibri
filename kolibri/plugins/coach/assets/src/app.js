@@ -42,11 +42,13 @@ class CoachToolsModule extends KolibriApp {
         this.store.dispatch('loading');
       }
       const promises = [];
+
       // Clear the snackbar at every navigation to prevent it from re-appearing
       // when the next page component mounts.
-      if (this.store.state.core.snackbar.isVisible) {
+      if (this.store.state.core.snackbar.isVisible && !skipLoading.includes(to.name)) {
         this.store.dispatch('clearSnackbar');
       }
+
       this.store.commit('SET_PAGE_NAME', to.name);
       if (
         to.name &&
