@@ -18,7 +18,7 @@
       >
         <KIcon
           :icon="link.icon"
-          :color="$themeTokens.textInverted"
+          :color="$themeTokens.text"
         />
       </NavbarLink>
     </ul>

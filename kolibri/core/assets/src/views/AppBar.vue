@@ -19,7 +19,7 @@
         :removeBrandDivider="true"
       >
         <template
-          v-if="windowIsLarge && !showAppNavView"
+          v-if="!showAppNavView"
           #icon
         >
           <KIconButton
@@ -154,7 +154,7 @@
       const { isLearner, isUserLoggedIn, username, full_name } = useUser();
       const links = computed(() => {
         const currentItem = navItems.find(nc => nc.url === window.location.pathname);
-        if (!currentItem) {
+        if (!currentItem || !currentItem.routes) {
           return [];
         }
         return currentItem.routes.map(route => ({
