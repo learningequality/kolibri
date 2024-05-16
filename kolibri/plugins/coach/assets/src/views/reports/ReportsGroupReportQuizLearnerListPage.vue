@@ -1,6 +1,6 @@
 <template>
 
-  <ReportsQuizBaseListPage @export="exportCSV">
+  <ReportsQuizBaseListPage :activeTabId="QuizzesTabs.REPORT" @export="exportCSV">
     <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
   </ReportsQuizBaseListPage>
 
@@ -15,6 +15,7 @@
   import { PageNames } from '../../constants';
   import CSVExporter from '../../csv/exporter';
   import * as csvFields from '../../csv/fields';
+  import { QuizzesTabs } from '../../constants/tabsConstants';
   import ReportsQuizBaseListPage from './ReportsQuizBaseListPage';
   import ReportsLearnersTable from './ReportsLearnersTable';
 
@@ -25,6 +26,11 @@
       ReportsLearnersTable,
     },
     mixins: [commonCoach, commonCoreStrings],
+    data() {
+      return {
+        QuizzesTabs,
+      };
+    },
     computed: {
       group() {
         return this.groupMap[this.$route.params.groupId];
