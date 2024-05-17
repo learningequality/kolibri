@@ -498,6 +498,13 @@
           this.errorLoading = true;
           this.reportLoadingError(err);
         });
+
+        // sets the iframe to be the first element in the tab order
+        // fixes accessibility for users using tabs to navigate the page
+        this.rendition.on(EVENTS.RENDITION.RENDERED, (_, view) => {
+          view.iframe.tabIndex = 1;
+          view.focus();
+        });
       });
     },
     beforeDestroy() {
