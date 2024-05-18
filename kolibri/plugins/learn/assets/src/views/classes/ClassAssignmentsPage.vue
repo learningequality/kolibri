@@ -74,7 +74,7 @@
       }
 
       onBeforeMount(() => {
-        schedulePoll();
+        pollForUpdates();
       });
 
       onBeforeUnmount(() => {
