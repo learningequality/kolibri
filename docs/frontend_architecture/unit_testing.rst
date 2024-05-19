@@ -58,7 +58,39 @@ Use of ``renderComponent`` function
 To avoid repeating boilerplate code while testing Vue components, define a ``renderComponent`` function to set up all the necessary mocks, stubs, and default props values to render the component to test. It can also revieve an optional argument ``props``, which can be used to overwrite:
 
 -  The default props passed to the component being rendered
--  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc) according to the test case
+-  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc.) according to the test case. This is especially useful when you have a lot of tests that need to render the same component with the same configuration. Here is an example of how you can define a ``renderComponent`` function:
+
+.. code:: javascript
+
+   // Helper function to render the component with Vuex store
+   const renderComponent = props => {
+     const { store = {}, ...componentProps } = props;
+
+     return render(TotalPoints, {
+       store: {
+         getters: {
+           totalPoints: () => store.totalPoints ?? 0,
+           currentUserId: () => store.currentUserId ?? "user-01",
+         },
+       },
+       props: componentProps,
+     });
+   };
+
+   ...
+
+    // Usage in the test
+    it('renders the total points', async () => {
+      renderComponent({
+        store: { totalPoints: 10 }
+        isActive: true,
+        showPoints: true,
+      });
+
+      expect(screen.getByText('10')).toBeInTheDocument();
+    });
+
+In this example, the ``renderComponent`` function is used to render the ``TotalPoints`` component. All the keys in the ``props`` object are passed as props to the component, and the ``store`` object is used to mock the Vuex store. To see more such mocking examples, you can check out the `testing layout documentation <testing_layout.html>`__.
 
 Add smoke tests
 ~~~~~~~~~~~~~~~
@@ -118,6 +150,20 @@ Using ``testing-library/jest-dom``
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `testing-library/jest-dom <https://github.com/testing-library/jest-dom>`__ provides a set of custom jest matchers that extend jest to common usecases for frontend testing, like checking classes, attributes text content, CSS properties etc. The use of these matchers helps to make the tests more declarative and clear to read and maintain. Please make sure you use the appropiate matcher from the same, and not just the regular default matchers. The library is already imported as a part of the setup, so you needn't import it your test files. You would also get help from your editor in the same due to the configured `Jest DOM ESLint plugin <https://github.com/testing-library/eslint-plugin-jest-dom>`__!
+
+Here are some examples of the matchers provided by the library, and how they make the tests more readable and declarative:
+
+.. code-block:: javascript
+
+  // ❌
+  expect(inputElement).disabled.toBeTruthy()
+  expect(sampleElement.classList.contains('active')).toBeTruthy()
+  expect(sampleElement.textContent).toBe('Hello, world!')
+
+  // ✅
+  expect(inputElement).toBeDisabled()
+  expect(sampleElement).toHaveClass('active')
+  expect(sampleElement).toHaveTextContent('Hello, world!')
 
 More References
 ---------------
