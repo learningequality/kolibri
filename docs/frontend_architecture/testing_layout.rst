@@ -45,14 +45,6 @@ The general template of a test file will be like:
      });
    });
 
-Some quick notes about the code snippet:
-
-1. You would need to replace the ``YourExampleComponent`` with the actual component you want to test.
-2. It is usually a good practice to have the first test as a smoke test in all your components.
-3. You can add describe blocks to add context to your tests. Remember to keep them as short as possible, and a test block should be responsible for testing only one functionality.
-4. In case if you are using some particular text/value in your assertions because they are derived from the props that you pass in, then it is advisable to explicity pass them to the ``renderComponent`` as arguments to give the reader context of where they are coming from.
-
-For example, in the ``describe some use case`` test, since we are querying on the value of ``samplePropA``, we are explicity passing it to the ``renderComponent`` even though it is the exact same as the default prop.
 
 Mocking Examples
 ----------------
@@ -91,24 +83,25 @@ The same can be done via:
 
 .. code:: javascript
 
-
    // Helper function to render the component with Vuex store
    const renderComponent = props => {
+     const { store = {}, ...componentProps } = props;
      return render(TotalPoints, {
        store: {
          getters: {
-           totalPoints: () => props.totalPoints ?? 0,
-           currentUserId: () => props.currentUserId ?? "user-01",
-           isUserLoggedIn: () => props.isUserLoggedIn ?? true,
+           totalPoints: () => store.totalPoints ?? 0,
+           currentUserId: () => store.currentUserId ?? "user-01",
+           isUserLoggedIn: () => store.isUserLoggedIn ?? true,
          },
          actions: {
-           fetchPoints: () => props.points ?? 0,
+           fetchPoints: () => store.points ?? 0,
          },
        },
-       routes: new VueRouter(),
-       props
+       props: componentProps,
      });
    };
+
+The ``props`` object passed to the render function can contain the store object, which can be used to mock the store in the component. All the other props can be passed as usual.
 
 Composables
 ~~~~~~~~~~~
@@ -139,7 +132,6 @@ It any composable does not have an associated mock file, please do create one be
      ...
 
      return render(YourSampleComponent, {
-       routes: new VueRouter(),
        props: componentProps,
      });
    };
@@ -175,7 +167,6 @@ The following example mocks the `commonCoreStrings <https://github.com/learninge
    const renderComponent = props => {
      return render(TriesOverview, {
        props,
-       routes: new VueRouter(),
        mixins: [commonCoreStrings],
      });
    };

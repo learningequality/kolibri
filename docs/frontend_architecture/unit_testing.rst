@@ -60,18 +60,55 @@ To avoid repeating boilerplate code while testing Vue components, define a ``ren
 -  The default props passed to the component being rendered
 -  Configuration passed to other mocks/stubs (like the values the getters for store mock should return, arguments to Vue Router etc) according to the test case
 
+Add smoke tests
+~~~~~~~~~~~~~~~
+
+Add a smoke test to every test suites that only renders the most basic example of a component, where the only thing about assert is that the simplest render does not throw an error. This is useful to ensure that the component is not broken due to some basic error like a missing import or a syntax error.
+
+Use describe blocks
+~~~~~~~~~~~~~~~~~~~
+
+Use ``describe`` blocks to group unit tests that test similar functionality. Nest describe blocks to group tests that are more closely related. This helps in organizing the tests and makes it easier to understand the test suite, specially in the case of larger components.
+
+Avoid long and complex unit tests
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A unit test should be kept simple and test a single execution flow, so that it is easy for someone else to read the test and understand the functionality of the component. You can always group related execution flows together using a ``describe`` block so that the test suite is organized.
+
+Use default props
+~~~~~~~~~~~~~~~~~
+
+Use default props that are not relevant to your unit test: within your ``renderComponent`` functions declare default props so that you do not have to define them in unit tests where they are not relevant.
+
+For example, if a component has two props, ``dataList`` and ``isActive``, if might be a good idea to define the ``isActive`` prop as a default prop in the ``renderComponent`` function with a default value of ``true``. This way, you can avoid defining the ``isActive`` prop in most of the unit tests testing how the component handles the ``dataList`` prop. For the cases where you want to test the component with ``isActive`` set to ``false``, you can always override the default prop in the unit test.
+
+Explicitly declare props that are relevant to your unit test
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Avoid using default props for inputs that are relevant to your unit tests, and instead declare them explicitly in your test. For example, if we are testing the rendering of a list, then let's explicitly declare the list in the unit test. Let's not wait until someone else reading the test has to go to the ``renderComponent`` function to see what the unit test input was.
+
 Queries
 ~~~~~~~
 
 VTL provides a number of `queries <https://testing-library.com/docs/vue-testing-library/cheatsheet#queries>`__ that can be used to query the DOM nodes. There are primarily three types of queries: ``get``, ``query`` and ``find``. All of these queries have different variants, which are used to query the DOM nodes based on different criteria. Some examples of the same include: ``getByText``, ``queryByRole``, ``findByText`` etc. These queries also have a recommened priority based on what the user would most likely interact with. You can read more about the same `here <https://testing-library.com/docs/queries/about#priority>`__.
 
-Making use of ``screen``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Making use of VTL ``screen`` object
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Instead of importing the query functions from the object returned by the ``render`` function, you should import the ``screen`` object for the same. The ``screen`` object is a global object that is provided by the ``@testing-library/vue`` package, and it contains all the query functions as properties. This ensures that we do not have to import the query functions in test, and can call them directly.
+For querying DOM nodes, the preferred way is to use the ``screen`` object provided by ``@testing-library/vue``. So instead of destructuring the queries functions from the object returned by the VTL ``render`` function, you can use the VTL ``screen`` object for faster access to all its queries:
 
-``userEvent`` over ``fireEvent``
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+.. code-block:: javascript
+
+  // ❌
+  const {getByRole} = render(Example)
+  const errorMessage = getByRole('alert')
+
+  // ✅
+  render(<Example />)
+  const errorMessage = screen.getByRole('alert')
+
+Prefer the ``userEvent`` package over ``fireEvent`` to simulate user interactions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 `@testing-library/user-event <https://testing-library.com/docs/user-event/intro/>`__ is a package that's built on top of `fireEvent <https://testing-library.com/docs/dom-testing-library/api-events/#fireevent>`__, but it provides several methods that resemble the user interactions more closely. You should use ``userEvent`` to mock the user interactions by default, and only fallback to ``fireEvent`` when you need more granular control.
 
