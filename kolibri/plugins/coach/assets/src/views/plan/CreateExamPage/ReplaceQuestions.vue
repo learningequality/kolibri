@@ -204,6 +204,7 @@
       const showReplacementConfirmation = ref(false);
 
       function handleConfirmClose() {
+        replacements.value = [];
         context.emit('closePanel');
       }
 
