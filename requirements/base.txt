@@ -6,7 +6,7 @@ django==3.2.25
 colorlog==3.2.0 # pyup: <4.0.0
 configobj==5.0.6
 django-mptt==0.14.0
-requests==2.27.1
+requests==2.32.0
 cheroot==8.6.0
 magicbus==4.1.2
 le-utils==0.2.2
