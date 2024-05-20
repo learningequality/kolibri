@@ -189,8 +189,8 @@ writeversion:
 
 preseeddb:
 	export KOLIBRI_HOME="$$(mktemp -d)"; \
-	export PYTHONPATH=".:$$PYTHONPATH"; \
 	cd kolibri; \
+	rm -rf dist/home; \
 	python -m kolibri manage deprovision --destroy-all-user-data --permanent-irrevocable-data-loss; \
 	mkdir -p dist/home; \
 	cp $$KOLIBRI_HOME/*.sqlite3 dist/home/;
