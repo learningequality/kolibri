@@ -19,6 +19,12 @@
       @submit="nextState"
       @cancel="emitCancel"
     />
+    <CreateNewCustomChannelModal
+      v-if="atCreateNewCustomChannel"
+      :manageMode="manageMode"
+      @submit="nextState"
+      @cancel="emitCancel"
+    />
 
   </div>
 
@@ -31,6 +37,7 @@
   import SelectNetworkDeviceModal from '../SelectNetworkDeviceModal';
   import SelectImportSourceModal from './SelectImportSourceModal';
   import SelectDriveModal from './SelectDriveModal';
+  import CreateNewCustomChannelModal from './CreateNewCustomChannelModal.vue';
 
   export default {
     name: 'SelectTransferSourceModal',
@@ -38,6 +45,7 @@
       SelectDriveModal,
       SelectImportSourceModal,
       SelectNetworkDeviceModal,
+      CreateNewCustomChannelModal,
     },
     props: {
       pageName: {
@@ -59,6 +67,9 @@
       atSelectNetworkAddress() {
         return this.pageName === ContentWizardPages.SELECT_NETWORK_ADDRESS;
       },
+      atCreateNewCustomChannel() {
+        return this.pageName === ContentWizardPages.CREATE_NEW_CUSTOM_CHANNEL;
+      }
     },
     mounted() {
       if (!this.pageName) {
@@ -79,6 +90,8 @@
             this.$emit('update:pageName', ContentWizardPages.SELECT_DRIVE);
           } else if (data.source === ContentSources.PEER_KOLIBRI_SERVER) {
             this.$emit('update:pageName', ContentWizardPages.SELECT_NETWORK_ADDRESS);
+          } else if (data.source === ContentSources.NEW_CUSTOM_CHANNEL) {
+            this.$emit('update:pageName', ContentWizardPages.CREATE_NEW_CUSTOM_CHANNEL);
           }
         } else if (this.atSelectDrive) {
           this.$emit('submit', { source: ContentSources.LOCAL_DRIVE, drive_id: data.driveId });

@@ -28,6 +28,13 @@
       :disabled="formIsDisabled"
       :description="$tr('localDescription')"
     />
+    <KRadioButton
+      v-model="source"
+      :label="$tr('newCustomChannel')"
+      :buttonValue="ContentSources.NEW_CUSTOM_CHANNEL"
+      :disabled="formIsDisabled"
+      :description="$tr('newCustomChannelDescription')"
+    />
   </SelectSourceModal>
 
 </template>
@@ -101,6 +108,10 @@
         message: 'Attached drive or memory card',
         context: 'Refers to a source where resources can be imported from.',
       },
+      newCustomChannel: {
+        message: 'New custom channel',
+        context: 'Refers to the creation of a new source where resources can be imported from.',
+      },
       studioDescription: {
         message: 'Import resources from Kolibri Studio if you are connected to the internet',
         context: 'Description referring to importing channels from Kolibri Studio.',
@@ -116,6 +127,12 @@
           'Import resources from a drive. Channels must have first been exported onto the drive from another Kolibri server',
         context:
           'Description referring to importing channels from an attached drive or memory card.',
+      },
+      newCustomChannelDescription: {
+        message:
+          'Create a custom channel to import your resources directly to this server, without uploading it to Kolibri Studio.',
+        context:
+          'Description referring to creating a new offline-only channel for importing custom content.',
       },
     },
   };

@@ -25,6 +25,7 @@ export const ContentWizardPages = {
   SELECT_DRIVE: 'SELECT_DRIVE',
   SELECT_IMPORT_SOURCE: 'SELECT_IMPORT_SOURCE',
   SELECT_NETWORK_ADDRESS: 'SELECT_NETWORK_ADDRESS',
+  CREATE_NEW_CUSTOM_CHANNEL: 'CREATE_NEW_CUSTOM_CHANNEL',
 };
 
 export const ContentWizardErrors = {
@@ -53,6 +54,7 @@ export const ContentSources = {
   LOCAL_DRIVE: 'local',
   KOLIBRI_STUDIO: 'network',
   PEER_KOLIBRI_SERVER: 'PEER_KOLIBRI_SERVER',
+  NEW_CUSTOM_CHANNEL: 'NEW_CUSTOM_CHANNEL', 
 };
 
 export const pageNameToModuleMap = {
