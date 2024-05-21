@@ -188,12 +188,7 @@ writeversion:
 	@echo "Current version is now `cat kolibri/VERSION`"
 
 preseeddb:
-	export KOLIBRI_HOME="$$(mktemp -d)"; \
-	cd kolibri; \
-	rm -rf dist/home; \
-	python -m kolibri manage deprovision --destroy-all-user-data --permanent-irrevocable-data-loss; \
-	mkdir -p dist/home; \
-	cp $$KOLIBRI_HOME/*.sqlite3 dist/home/;
+	./build_tools/preseed_home.sh
 
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
