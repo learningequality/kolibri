@@ -174,6 +174,7 @@ export default function useQuizCreation() {
       section_id: activeSection.value.section_id,
       questions: [...questionsNotSelectedToBeReplaced, ...replacements.value],
     });
+    set(replacements, []);
   }
 
   /**
