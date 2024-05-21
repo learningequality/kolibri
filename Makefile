@@ -188,7 +188,7 @@ writeversion:
 	@echo "Current version is now `cat kolibri/VERSION`"
 
 preseeddb:
-	PYTHONPATH=".:$PYTHONPATH" python build_tools/preseed_home.py
+	./build_tools/preseed_home.sh
 
 setrequirements:
 	rm -r requirements.txt || true # remove requirements.txt
