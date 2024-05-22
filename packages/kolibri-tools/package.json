@@ -32,7 +32,7 @@
     "check-node-version": "^4.2.1",
     "chokidar": "^3.6.0",
     "cli-table": "^0.3.11",
-    "commander": "^12.0.0",
+    "commander": "^12.1.0",
     "core-js": "^3",
     "css-loader": "7.1.1",
     "css-minimizer-webpack-plugin": "7.0.0",
