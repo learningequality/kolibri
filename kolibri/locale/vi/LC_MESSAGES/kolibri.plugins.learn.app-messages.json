@@ -157,7 +157,7 @@
   "QuizCard.questionsLeft": "Còn lại {questionsLeft, number, integer} {questionsLeft, plural, one {câu hỏi} other {các câu hỏi}}",
   "QuizRenderer.areYouSure": "Bạn không thể thay đổi câu trả lời sau khi nộp",
   "QuizRenderer.nextQuestion": "Tiếp theo",
-  "QuizRenderer.noItemId": "Câu hỏi này có lỗi, vui lòng chuyển sang câu hỏi tiếp theo",
+  "QuizRenderer.noItemId": "Câu hỏi này có một lỗi, vui lòng chuyển sang câu hỏi tiếp theo",
   "QuizRenderer.previousQuestion": "Câu hỏi trước",
   "QuizRenderer.question": "Câu hỏi {num, number, integer} / {total, number, integer}",
   "QuizRenderer.questionsAnswered": "{numAnswered, number} / {numTotal, number} {numTotal, plural, other {câu hỏi đã trả lời}}",

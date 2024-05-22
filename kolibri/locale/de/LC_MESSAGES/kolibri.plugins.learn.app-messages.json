@@ -165,7 +165,7 @@
   "QuizRenderer.submitSurvey": "Umfrage übermitteln",
   "QuizRenderer.unanswered": "Sie haben {numLeft, number} {numLeft, plural, one {unbeantwortete Frage} other {unbeantwortete Fragen}}",
   "QuizReport.submitAgainButton": "Erneut übermitteln",
-  "QuizReport.tryAgainButton": "Erneut versuchen",
+  "QuizReport.tryAgainButton": "Versuchs nochmal",
   "ReportErrorModal.emailDescription": "Wenden Sie sich mit den Fehlerdetails an das Support-Team, das Ihnen gerne weiterhilft.",
   "ReportErrorModal.emailPrompt": "E-Mail an Entwickler senden",
   "ReportErrorModal.errorDetailsHeader": "Fehlerdetails",

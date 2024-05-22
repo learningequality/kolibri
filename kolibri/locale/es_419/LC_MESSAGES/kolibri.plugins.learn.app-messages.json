@@ -92,7 +92,7 @@
   "ContentUnavailablePage.documentTitle": "Material no disponible",
   "ContentUnavailablePage.header": "No hay materiales disponibles",
   "ContentUnavailablePage.learnerText": "Pide ayuda a tus tutores o administradores",
-  "ContinueLearning.continueLearningFromClassesHeader": "Continua aprendiendo en tus clases",
+  "ContinueLearning.continueLearningFromClassesHeader": "Continua aprendiendo en tus grupos",
   "ContinueLearning.continueLearningOnYourOwnHeader": "Continua aprendiendo por tu cuenta",
   "CopiesModal.copies": "Ubicaciones",
   "DownloadRequests.downloadStartedLabel": "Descarga solicitada",
@@ -200,6 +200,6 @@
   "WelcomeModal.welcomeModalContentDescription": "La primera cosa que tienes que hacer es importar recursos desde la pestaña Canales.",
   "WelcomeModal.welcomeModalHeader": "¡Te damos la bienvenida a Kolibri!",
   "WelcomeModal.welcomeModalPermissionsDescription": "La cuenta de super administrador que creaste durante la instalación tiene permisos especiales para hacer esto. Para más detalles consultar la pestaña Permisos.",
-  "YourClasses.noClasses": "No estás inscrito en ninguna clase",
-  "YourClasses.yourClassesHeader": "Tus clases"
+  "YourClasses.noClasses": "No estás inscrito en ningún grupo",
+  "YourClasses.yourClassesHeader": "Tus grupos"
 }

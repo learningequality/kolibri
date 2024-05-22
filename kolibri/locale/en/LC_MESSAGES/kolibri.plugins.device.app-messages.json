@@ -204,6 +204,7 @@
   "PinAuthenticationModal.incorrectPin": "Incorrect PIN, please try again",
   "PinAuthenticationModal.invalidPin": "Enter four numbers to set as your new PIN",
   "PinAuthenticationModal.pinPlaceholder": "PIN",
+  "PostSetupModalGroup.addDeviceSnackbarText": "Successfully added device",
   "PostSetupModalGroup.chooseAnotherSourceLabel": "Choose another source",
   "PrimaryStorageLocationModal.changePrimaryLocation": "Change primary storage location",
   "PrivacyModal.syncToKDP": "Kolibri Data Portal",

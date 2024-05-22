@@ -157,7 +157,7 @@
   "QuizCard.questionsLeft": "{questionsLeft, plural, one {ƴamol} other {ƴami}} {questionsLeft, number, integer} lutti",
   "QuizRenderer.areYouSure": "A waawataa sanjugo jawaabu maaɗa taa hokkiti poondol",
   "QuizRenderer.nextQuestion": "Jokkotoongol",
-  "QuizRenderer.noItemId": "Ƴamol ngo'ol e woodi fitina. Yahu yeeso, huwu ƴamol tokkungol",
+  "QuizRenderer.noItemId": "Ƴamol ngo'ol e woodi fitina. Yahu e ƴamol yeesowol",
   "QuizRenderer.previousQuestion": "Saalaangol",
   "QuizRenderer.question": "Ƴamol {num, number, integer} nder {total, number, integer}",
   "QuizRenderer.questionsAnswered": "{numAnswered, plural, one {ƴamol jaabaangol {numAnswered, number}}other {ƴami njaabaaɗi {numAnswered, number}}} nder {numTotal, number}",

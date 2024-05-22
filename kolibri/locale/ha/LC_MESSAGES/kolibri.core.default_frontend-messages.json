@@ -404,7 +404,7 @@
   "ContentIcon.video": "Bidiyo",
   "ContentRendererError.rendererNotAvailable": "Kolibri bai iya samar da wannan kayan ba",
   "CurrentTryOverview.attemptedLabel": "An gwada",
-  "CurrentTryOverview.notStartedLabel": "Wanda ba a fara ba",
+  "CurrentTryOverview.notStartedLabel": "Ba'a fara ba",
   "CurrentTryOverview.practiceQuizReportFasterTimeLabel": "{value, number, integer} {value, plural, one {mintina} other {mintina}} na sauri fiye da gwajin baya",
   "CurrentTryOverview.practiceQuizReportImprovedLabelSecondPerson": "Ka ƙara ingantawa kan {value, number, integer} {value, plural, one {tambayoyi} other {tambayoyi}}",
   "CurrentTryOverview.practiceQuizReportSlowerTimeLabel": "{value, number, integer} {value, plural, one {minti} other {minti}} bai kai ma ɗazu sauri ba",

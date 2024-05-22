@@ -165,7 +165,7 @@
   "QuizRenderer.submitSurvey": "Invia sondaggio",
   "QuizRenderer.unanswered": "Hai {numLeft, number} {numLeft, plural, one {domanda senza risposta} other {domande senza risposta}}",
   "QuizReport.submitAgainButton": "Invia di nuovo",
-  "QuizReport.tryAgainButton": "Prova ancora!",
+  "QuizReport.tryAgainButton": "Riprova",
   "ReportErrorModal.emailDescription": "Contatta il team di supporto con i dettagli dell'errore e faremo del nostro meglio per aiutarti.",
   "ReportErrorModal.emailPrompt": "Invia un'email agli sviluppatori",
   "ReportErrorModal.errorDetailsHeader": "Dettagli errore",

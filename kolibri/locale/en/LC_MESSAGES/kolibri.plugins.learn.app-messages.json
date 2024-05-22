@@ -152,6 +152,7 @@
   "PerseusRendererIndex.hint": "Use a hint ({hintsLeft, number} left)",
   "PerseusRendererIndex.hintExplanation": "If you use a hint, this question will not be added to your progress",
   "PerseusRendererIndex.noMoreHint": "No more hints",
+  "PostSetupModalGroup.addDeviceSnackbarText": "Successfully added device",
   "PostSetupModalGroup.chooseAnotherSourceLabel": "Choose another source",
   "QuizCard.completedPercentLabel": "Score: {score, number, integer}%",
   "QuizCard.questionsLeft": "{questionsLeft, number, integer} {questionsLeft, plural, one {question} other {questions}} left",

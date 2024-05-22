@@ -1,5 +1,5 @@
 {
-  "CookiePolicy.choicesP1": "Ou {choice} pou resevwa kouki estatistik yo. Ou kapab chanje preferans sa isit la:",
+  "CookiePolicy.choicesP1": "Ou {choice, string} pou resevwa kouki estatistik yo. Ou kapab chanje preferans sa isit la:",
   "CookiePolicy.cookieExpiryTableHeader": "Ekspirasyon",
   "CookiePolicy.cookieP1": "Platfòm Aprantisaj Kolibri a ap itilize kouki yo pou pèsonalize ak sekirize eksperyans, pou analize trafik, ak pou amelyore pèfòmans ak fonksyonalite sèvis li a. Kouki yo se ti fichye tèks ki kapab itilize pa sitwèb yo pou rann eksperyans itilizatè a vin pi efikas.",
   "CookiePolicy.cookieP2": "Aktyèlman lwa sou vi prive yo (GDPR ak CCPA) endike nou kapab estoke kouki yo sou aparèy ou an si yo estrikteman nesesè pou operasyon sèvis la. Pou tout lòt tip kouki yo, nou bezwen pèmisyon ou.",

@@ -404,7 +404,7 @@
   "ContentIcon.video": "ویڈیو",
   "ContentRendererError.rendererNotAvailable": "کولیبری اس ڈریعے کو پیش کرنے سے قاصر ہے\n\nمواد پیش کنندہ میں خرابی۔پیش کنندہ نہیں دستیاب\n\n- متن -\n\nیہ پیغام اس وقت ظاہر ہوتا ہے جب کولبیری درخواست شدہ وسائل کو صحیح طریقے سے لوڈ کرنے یا اس کی نمائش کرنے سے قاصر ہو (یا تو سرور لوڈنگ میں غلطی ہوسکتی ہے ، یا خود وسائل کی شکل میں غلطی ہوسکتی ہے)۔",
   "CurrentTryOverview.attemptedLabel": "کوشش کی",
-  "CurrentTryOverview.notStartedLabel": "شروع نہیں ہوا",
+  "CurrentTryOverview.notStartedLabel": "نہیں شروع ہوا",
   "CurrentTryOverview.practiceQuizReportFasterTimeLabel": "{value, number, integer} {value, plural, one {minute} other {minutes}} پچھلی کوشش سے تیز",
   "CurrentTryOverview.practiceQuizReportImprovedLabelSecondPerson": "آپ بہتر ہوئے {value, number, integer} {value, plural, one {question} other {questions}}",
   "CurrentTryOverview.practiceQuizReportSlowerTimeLabel": "{value, number, integer} {value, plural, one {minute} other {minutes}} پچھلی کوشش سے سست",

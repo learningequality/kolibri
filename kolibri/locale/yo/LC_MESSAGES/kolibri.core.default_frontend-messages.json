@@ -404,7 +404,7 @@
   "ContentIcon.video": "Fídíò",
   "ContentRendererError.rendererNotAvailable": "Kolibri kò lè pèsè ohun èlò yìí",
   "CurrentTryOverview.attemptedLabel": "Ó gbìyànjú láti ṣe bẹ́ẹ̀",
-  "CurrentTryOverview.notStartedLabel": "Kò i ti bẹ̀rẹ̀",
+  "CurrentTryOverview.notStartedLabel": "Kò tíì bẹ̀rẹ̀",
   "CurrentTryOverview.practiceQuizReportFasterTimeLabel": "{value, number, integer}{value, plural, one {minute} other {minutes}} ìkan yára ju ìsapá tó ṣáájú lọ",
   "CurrentTryOverview.practiceQuizReportImprovedLabelSecondPerson": "O ti ṣe àtúnṣe sí {value, number, integer} {value, plural, one {question}other {questions}}",
   "CurrentTryOverview.practiceQuizReportSlowerTimeLabel": "{value, number, integer}{value, plural, one {minute} other {minutes}} lọ́ra ju ìsapá tó ṣáájú lọ",

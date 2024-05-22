@@ -157,7 +157,7 @@
   "QuizCard.questionsLeft": "{questionsLeft, number, integer} {questionsLeft, plural, one {tambaya} other {tambayoyi}} suka rage",
   "QuizRenderer.areYouSure": "Ba za ku iya canza amsoshin ku bayan kun miƙa",
   "QuizRenderer.nextQuestion": "Na gaba",
-  "QuizRenderer.noItemId": "Wannan tambayar tana da kuskure, da fatan za a ci gaba zuwa tambaya ta gaba",
+  "QuizRenderer.noItemId": "Wannan tambayar nada kuskure, a taimaka a cigaba zuwa tambayar na gaba",
   "QuizRenderer.previousQuestion": "Na baya",
   "QuizRenderer.question": "Tambaya {num, number, integer} na {total, number, integer}",
   "QuizRenderer.questionsAnswered": "{numAnswered, number} na {numTotal, number} {numTotal, plural, one {tambaya} other {tambayoyi}} da aka amsa",

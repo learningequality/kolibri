@@ -404,7 +404,7 @@
   "ContentIcon.video": "វីដេអូ",
   "ContentRendererError.rendererNotAvailable": "Kolibri មិនអាចបង្ហាញធនធាននេះ",
   "CurrentTryOverview.attemptedLabel": "ការព្យាយាម",
-  "CurrentTryOverview.notStartedLabel": "មិន​ទាន់​ចាប់​ផ្ដើម",
+  "CurrentTryOverview.notStartedLabel": "មិន​បាន​ចាប់​ផ្ដើម",
   "CurrentTryOverview.practiceQuizReportFasterTimeLabel": "{value, number, integer} {value, plural, one {នាទី} other {នាទី}} លឿនជាងការប៉ុនប៉ងពីមុន",
   "CurrentTryOverview.practiceQuizReportImprovedLabelSecondPerson": "អ្នកបានកែលម្អ {value, number, integer} {value, plural, one {សំណួរ} other {សំណួរ}}",
   "CurrentTryOverview.practiceQuizReportSlowerTimeLabel": "{value, number, integer} {value, plural, one {នាទី} other {នាទី}} យឺតជាងការព្យាយាមសាកល្បងពីមុន",

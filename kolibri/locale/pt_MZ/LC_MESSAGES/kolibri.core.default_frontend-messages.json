@@ -428,7 +428,7 @@
   "FacilityNameAndSyncStatus.syncing": "Sincronizando",
   "FilePresetStrings.audio": "Áudio ({fileSize})",
   "FilePresetStrings.document": "Documento ({fileSize})",
-  "FilePresetStrings.epub": "Documento ePub ({fileSize})",
+  "FilePresetStrings.epub": "Documento EPUB ({fileSize})",
   "FilePresetStrings.exercise": "Exercício ({fileSize})",
   "FilePresetStrings.high_res_video": "Alta resolução ({fileSize})",
   "FilePresetStrings.html5_zip": "Zip de HTML5 ({fileSize})",

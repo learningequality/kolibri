@@ -404,7 +404,7 @@
   "ContentIcon.video": "Видео",
   "ContentRendererError.rendererNotAvailable": "Колибри не е в състояние да покаже този ресурс",
   "CurrentTryOverview.attemptedLabel": "Направен опит",
-  "CurrentTryOverview.notStartedLabel": "Не е започнато",
+  "CurrentTryOverview.notStartedLabel": "Не започнат",
   "CurrentTryOverview.practiceQuizReportFasterTimeLabel": "{value, number, integer} {value, plural, one {минута} other {минути}} по-бързо от предишния опит",
   "CurrentTryOverview.practiceQuizReportImprovedLabelSecondPerson": "Ти се справи успешно с {value, number, integer} {value, plural,one {въпрос} other {въпроси}}",
   "CurrentTryOverview.practiceQuizReportSlowerTimeLabel": "{value, number, integer} {value, plural, one {минута} other {минути}} по-бавно от предишния опит",
