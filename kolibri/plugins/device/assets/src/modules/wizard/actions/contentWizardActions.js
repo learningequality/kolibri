@@ -38,6 +38,7 @@ export function goForwardFromSelectImportSourceModal(store, source) {
   }
 
   if (source === ContentSources.NEW_CUSTOM_CHANNEL) {
+    store.commit('SET_TRANSFER_TYPE', TransferTypes.LOCALIMPORT);
     store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.CREATE_NEW_CUSTOM_CHANNEL);
   }
 }
