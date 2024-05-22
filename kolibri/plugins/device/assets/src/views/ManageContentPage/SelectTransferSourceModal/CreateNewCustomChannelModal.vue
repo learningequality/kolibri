@@ -29,7 +29,7 @@
 
 <script>
 
-  import { mapGetters, mapMutations, mapState } from 'vuex';
+  import { mapMutations } from 'vuex';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
@@ -58,7 +58,9 @@
       }),
       handleSubmit() {
         // TODO Handle submit
-        
+        if (this.channelNameInvalid) {
+          return this.$refs.channelNameTextBox.focus();
+        }
       },
       handleClickCancel() {
         if (this.manageMode) {
