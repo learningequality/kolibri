@@ -483,9 +483,8 @@ class SyncQueueRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the SyncQueue models get created on the right database."""
-        if (
-            app_label == SyncQueue._meta.app_label
-            and model_name == SyncQueue._meta.model_name
+        if app_label == SyncQueue._meta.app_label and (
+            model_name == SyncQueue._meta.model_name or hints.get("is_syncqueue")
         ):
             # The SyncQueue model should be migrated only on the SYNC_QUEUE database.
             return db == SYNC_QUEUE
