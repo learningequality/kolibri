@@ -36,6 +36,10 @@ export function goForwardFromSelectImportSourceModal(store, source) {
     store.commit('SET_TRANSFER_TYPE', TransferTypes.PEERIMPORT);
     store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.SELECT_NETWORK_ADDRESS);
   }
+
+  if (source === ContentSources.NEW_CUSTOM_CHANNEL) {
+    store.commit('SET_WIZARD_PAGENAME', ContentWizardPages.CREATE_NEW_CUSTOM_CHANNEL);
+  }
 }
 
 // Forward from SELECT_DRIVE -> AVAILABLE_CHANNELS or SELECT_CONTENT
