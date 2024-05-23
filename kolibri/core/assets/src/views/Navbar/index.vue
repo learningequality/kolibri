@@ -29,7 +29,7 @@
       :ariaLabel="coreString('moreOptions')"
       icon="optionsHorizontal"
       appearance="flat-button"
-      :color="color"
+      :color="$themeTokens.text"
       :primary="false"
       class="kiconbutton-style"
     >
@@ -90,9 +90,6 @@
     computed: {
       allLinks() {
         return this.navigationLinks.filter(l => !l.isHidden);
-      },
-      color() {
-        return this.$themeTokens.textInverted;
       },
       overflowMenuLinks() {
         if (!this.mounted || isUndefined(this.windowWidth)) {
@@ -158,6 +155,7 @@
   }
 
   .kiconbutton-style {
+    flex-shrink: 0;
     float: right;
   }
 
