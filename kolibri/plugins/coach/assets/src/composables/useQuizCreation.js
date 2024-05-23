@@ -292,8 +292,9 @@ export default function useQuizCreation() {
 
     // Here we update each section's `resource_pool` to only be the IDs of the resources
     const questionSourcesWithoutResourcePool = get(allSections).map(section => {
-      delete section.resource_pool;
-      return section;
+      const sectionToSave = { ...section };
+      delete sectionToSave.resource_pool;
+      return sectionToSave;
     });
 
     const finalQuiz = get(_quiz);
