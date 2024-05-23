@@ -64,7 +64,6 @@ class ExamAPITestCase(APITestCase):
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
-                "resource_pool": [],
                 "question_count": len(questions),
                 "learners_see_fixed_order": False,
             }
@@ -396,7 +395,6 @@ class ExamAPITestCase(APITestCase):
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
-                "resource_pool": [],
                 "question_count": 0,
                 "learners_see_fixed_order": False,
             }
@@ -415,28 +413,7 @@ class ExamAPITestCase(APITestCase):
                 "section_id": "evil ID",
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "resource_pool": [],
                 "question_count": 0,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertFalse(models.Exam.objects.filter(title=title).exists())
-
-    def test_quiz_section_with_no_resource_pool(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "invalid_question_sources"
-        questions = self.make_basic_questions(1)
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_id": uuid.uuid4().hex,
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "questions": questions,
-                "question_count": len(questions),
                 "learners_see_fixed_order": False,
             }
         )
@@ -456,7 +433,6 @@ class ExamAPITestCase(APITestCase):
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
-                "resource_pool": [],
                 "learners_see_fixed_order": False,
             }
         )
@@ -474,7 +450,6 @@ class ExamAPITestCase(APITestCase):
                 "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "resource_pool": [],
                 "question_count": 0,
                 "learners_see_fixed_order": False,
             }
