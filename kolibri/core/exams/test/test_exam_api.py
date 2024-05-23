@@ -42,10 +42,8 @@ class ExamAPITestCase(APITestCase):
 
     def make_basic_exam(self):
         sections = self.make_basic_sections(1)
-        total_questions = sum(section["question_count"] for section in sections)
         return {
             "title": "Exam",
-            "question_count": total_questions,
             "active": True,
             "collection": self.classroom.id,
             "learners_see_fixed_order": False,
@@ -551,3 +549,13 @@ class ExamAPITestCase(APITestCase):
 
         self.exam.save()
         self.assertEqual(len(self.exam.get_questions()), 1)
+
+    def test_exam_question_count_calculation(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        question_count = sum(len(source["questions"]) for source in exam["question_sources"])
+        response = self.post_new_exam(exam)
+        exam_id = response.data["id"]
+        self.assertEqual(response.status_code, 201)
+        exam_model_instance = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(exam_model_instance.question_count, question_count)
