@@ -27,6 +27,7 @@ from .helpers import provision_device
 from kolibri.core import error_constants
 from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
 from kolibri.core.auth.constants import demographics
+from kolibri.core.device.models import OSUser
 from kolibri.core.device.utils import set_device_settings
 
 
@@ -1377,6 +1378,40 @@ class LoginLogoutTestCase(APITestCase):
 
         self.assertEqual(response_user3.status_code, 401)
 
+    def test_not_specified_password(self):
+        self.user.password = demographics.NOT_SPECIFIED
+        self.user.save()
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": self.user.username,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.PASSWORD_NOT_SPECIFIED)
+
+    def test_not_specified_password_os_user(self):
+        self.user.password = demographics.NOT_SPECIFIED
+        self.user.save()
+
+        OSUser.objects.create(user=self.user, os_username="os_user")
+
+        response = self.client.post(
+            reverse("kolibri:core:session-list"),
+            data={
+                "username": self.user.username,
+                "facility": self.facility.id,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
+
 
 class SignUpBase(object):
     @classmethod
@@ -2076,3 +2111,118 @@ class CSRFProtectedAuthTestCase(APITestCase):
             format="json",
         )
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
+
+
+class SetNonSpecifiedPasswordViewTestCase(APITestCase):
+    def setUp(self):
+        self.url = reverse("kolibri:core:setnonspecifiedpassword")
+        self.facility = FacilityFactory.create()
+        self.user = models.FacilityUser.objects.create(
+            username="testuser",
+            facility=self.facility,
+            password=demographics.NOT_SPECIFIED,
+        )
+
+    def test_set_non_specified_password(self):
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 200 OK status code
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+        # Refresh the user object from the database
+        self.user.refresh_from_db()
+
+        # Check that the password has been updated
+        self.assertTrue(self.user.check_password("newpassword"))
+
+    def test_set_non_specified_password_invalid_facility(self):
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": uuid.uuid4().hex,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 404 Not Found status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_set_non_specified_password_missing_facility(self):
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "password": "newpassword",
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 400 Bad Request status code
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_set_non_specified_password_invalid_username(self):
+        # Make a POST request to set the password
+        data = {
+            "username": "invalidusername",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 404 Not Found status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_set_non_specified_password_missing_username(self):
+        # Make a POST request to set the password
+        data = {
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 400 Bad Request status code
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_set_non_specified_password_missing_password(self):
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 400 Bad Request status code
+        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
+
+    def test_set_non_specified_password_password_is_specified(self):
+        self.user.set_password("password")
+        self.user.save()
+
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 404 Not Found status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+
+    def test_set_non_specified_password_user_is_os_user(self):
+        OSUser.objects.create(user=self.user, os_username="osuser")
+
+        # Make a POST request to set the password
+        data = {
+            "username": "testuser",
+            "password": "newpassword",
+            "facility": self.facility.id,
+        }
+        response = self.client.post(self.url, data)
+
+        # Check that the response has a 400 Bad Request status code
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)

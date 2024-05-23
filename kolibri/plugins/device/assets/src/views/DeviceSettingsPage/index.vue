@@ -18,7 +18,7 @@
         <p>
           {{ $tr('pageDescription') }}
           <KExternalLink
-            v-if="!isMultiFacilitySuperuser && getFacilitySettingsPath()"
+            v-if="!isLearnerOnlyImport && !isMultiFacilitySuperuser && getFacilitySettingsPath()"
             :text="$tr('facilitySettings')"
             :href="getFacilitySettingsPath()"
           />
@@ -473,11 +473,11 @@
       };
     },
     computed: {
-      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible']),
+      ...mapGetters(['isAppContext', 'isPageLoading', 'snackbarIsVisible', 'isLearnerOnlyImport']),
       ...mapGetters('deviceInfo', ['isRemoteContent']),
       InfoDescriptionColor() {
         return {
-          color: this.$themePalette.grey.v_700,
+          color: this.$themePalette.grey.v_600,
         };
       },
       pageTitle() {

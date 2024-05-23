@@ -484,9 +484,8 @@ class SyncQueueRouter(object):
 
     def allow_migrate(self, db, app_label, model_name=None, **hints):
         """Ensure that the SyncQueue models get created on the right database."""
-        if (
-            app_label == SyncQueue._meta.app_label
-            and model_name == SyncQueue._meta.model_name
+        if app_label == SyncQueue._meta.app_label and (
+            model_name == SyncQueue._meta.model_name or hints.get("is_syncqueue")
         ):
             # The SyncQueue model should be migrated only on the SYNC_QUEUE database.
             return db == SYNC_QUEUE
@@ -615,7 +614,7 @@ class LearnerDeviceStatus(AbstractFacilityDataModel):
     morango_model_name = "learnerdevicestatus"
 
     instance_id = UUIDField(max_length=32, editable=False, null=False)
-    user = models.OneToOneField(
+    user = models.ForeignKey(
         FacilityUser,
         on_delete=models.CASCADE,
         related_name="learner_device_status",

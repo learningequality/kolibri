@@ -12,11 +12,16 @@
       v-if="step === Steps.PERMISSIONS_CHANGE"
       newRole="superadmin"
     />
-
+    <AddDeviceForm
+      v-if="addingAddress"
+      @cancel="addingAddress = false"
+      @added_address="handleAddedAddress"
+    />
     <SelectDeviceForm
       v-else-if="step === Steps.SELECT_SOURCE_FACILITY_PEER"
       :title="getCommonSyncString('selectSourceTitle')"
       @submit="handleSubmit"
+      @click_add_address="goToAddAddress"
       @cancel="$emit('cancel')"
     >
       <template #underbuttons>
@@ -36,7 +41,7 @@
 
   import { mapGetters } from 'vuex';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { SelectDeviceForm } from 'kolibri.coreVue.componentSets.sync';
+  import { SelectDeviceForm, AddDeviceForm } from 'kolibri.coreVue.componentSets.sync';
   import { availableChannelsPageLink } from './ManageContentPage/manageContentLinks';
   import WelcomeModal from './WelcomeModal';
   import PermissionsChangeModal from './PermissionsChangeModal';
@@ -53,6 +58,7 @@
   export default {
     name: 'PostSetupModalGroup',
     components: {
+      AddDeviceForm,
       PermissionsChangeModal,
       WelcomeModal,
       SelectDeviceForm,
@@ -68,6 +74,8 @@
       return {
         step: Steps.WELCOME,
         Steps,
+        addingAddress: false,
+        addedAddressId: '',
       };
     },
     computed: {
@@ -81,9 +89,24 @@
       },
     },
     methods: {
+      createSnackbar(args) {
+        this.$store.dispatch('createSnackbar', args);
+      },
       startNormalImportWorkflow() {
         this.$emit('cancel');
         this.$store.dispatch('manageContent/startImportWorkflow');
+      },
+      goToSelectAddress() {
+        this.addingAddress = false;
+      },
+      goToAddAddress() {
+        this.addedAddressId = '';
+        this.addingAddress = true;
+      },
+      handleAddedAddress(addressId) {
+        this.addedAddressId = addressId;
+        this.createSnackbar(this.$tr('addDeviceSnackbarText'));
+        this.goToSelectAddress();
       },
       handleSubmit(data) {
         if (this.step === Steps.WELCOME) {
@@ -105,6 +128,10 @@
         message: 'Choose another source',
         context:
           'Button that opens the modal to choose source for content import workflow from Kolibri Studio or an attached local drive',
+      },
+      addDeviceSnackbarText: {
+        message: 'Successfully added device',
+        context: 'This message appears if a device has been added correctly.',
       },
     },
   };

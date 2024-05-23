@@ -1,6 +1,6 @@
 <template>
 
-  <component :is="component" altText="" :src="image" />
+  <component :is="component" altText="" :src="image" :showBackground="true" />
 
 </template>
 

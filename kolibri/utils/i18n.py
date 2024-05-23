@@ -67,7 +67,7 @@ KOLIBRI_SUPPORTED_LANGUAGES = {
     "ko",
     "mr",
     "my",
-    "nyn",
+    "ny",
     "pt-br",
     "pt-mz",
     "sw-tz",

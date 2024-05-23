@@ -33,7 +33,6 @@ import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
 import ElapsedTime from '../views/ElapsedTime';
-import PointsIcon from '../views/PointsIcon';
 import TotalPoints from '../views/TotalPoints';
 import AuthMessage from '../views/AuthMessage';
 import FilterTextbox from '../views/FilterTextbox';
@@ -95,6 +94,7 @@ import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
 import { registerNavItem } from '../composables/useNav';
+import useNow from '../composables/useNow';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -150,7 +150,6 @@ export default {
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
-      PointsIcon,
       TotalPoints,
       AuthMessage,
       FilterTextbox,
@@ -206,6 +205,7 @@ export default {
     },
     composables: {
       useMinimumKolibriVersion,
+      useNow,
       useUser,
       useUserSyncStatus,
     },

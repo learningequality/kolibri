@@ -3,23 +3,12 @@ import isObject from 'lodash/isObject';
 
 const logging = logger.getLogger(__filename);
 
-function _colorScaleValidator(value) {
+function _brandColorScaleValidator(value) {
   if (!isObject(value)) {
     logging.error(`Expected object but got '${value}'`);
     return false;
   }
-  const COLOR_NAMES = [
-    'v_50',
-    'v_100',
-    'v_200',
-    'v_300',
-    'v_400',
-    'v_500',
-    'v_600',
-    'v_700',
-    'v_800',
-    'v_900',
-  ];
+  const COLOR_NAMES = ['v_200', 'v_400', 'v_600', 'v_800', 'v_1000', 'v_1100'];
   for (const colorName of COLOR_NAMES) {
     if (!value[colorName]) {
       logging.error(`${colorName} '${name}' not defined by theme`);
@@ -60,12 +49,12 @@ export default {
       primary: {
         type: Object,
         required: true,
-        validator: _colorScaleValidator,
+        validator: _brandColorScaleValidator,
       },
       secondary: {
         type: Object,
         required: true,
-        validator: _colorScaleValidator,
+        validator: _brandColorScaleValidator,
       },
     },
   },

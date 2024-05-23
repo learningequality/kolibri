@@ -4,7 +4,7 @@ from __future__ import unicode_literals
 
 import django.db.models.deletion
 import morango.models.fields.uuids
-from django.conf import settings
+from django.db import connection
 from django.db import migrations
 from django.db import models
 
@@ -19,6 +19,14 @@ class Migration(migrations.Migration):
         migrations.RemoveField(
             model_name="usersyncstatus",
             name="queued",
+        ),
+        migrations.RunSQL(
+            [
+                "DELETE FROM device_syncqueue;"
+                if "sqlite" in connection.vendor
+                else "TRUNCATE TABLE device_syncqueue;"
+            ],
+            hints={"is_syncqueue": True},
         ),
         migrations.AddField(
             model_name="syncqueue",

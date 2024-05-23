@@ -1,4 +1,5 @@
 import store from 'kolibri.coreVue.vuex.store';
+import { showResourceView } from '../resourceDetail/handlers';
 
 export function generateQuestionListHandler(paramsToCheck) {
   return function questionListHandler(to, from) {
@@ -6,7 +7,11 @@ export function generateQuestionListHandler(paramsToCheck) {
       // Only set loading state if we are not switching
       store.dispatch('loading');
     }
-    showQuestionListView(to.params).then(() => {
+    const { exerciseId } = to.params;
+    Promise.all([
+      exerciseId ? showResourceView({ exerciseId }) : Promise.resolve(),
+      showQuestionListView(to.params),
+    ]).then(() => {
       // Set not loading regardless, as we are now
       // ready to render.
       store.dispatch('notLoading');

@@ -62,7 +62,11 @@
                 <span :style="{ color: $themeTokens.correct }">
                   {{ $tr('plusPoints', { points }) }}
                 </span>
-                <PointsIcon :style="{ display: 'inline-block' }" />
+                <KIcon
+                  icon="pointsActive"
+                  :style="{ display: 'inline-block' }"
+                  :color="$themeTokens.primary"
+                />
               </div>
               <div>{{ $tr('keepUpTheGreatProgress') }}</div>
             </div>
@@ -148,7 +152,6 @@
   import UiAlert from 'kolibri-design-system/lib/keen/UiAlert';
   import { MaxPointsPerContent } from 'kolibri.coreVue.vuex.constants';
   import FocusTrap from 'kolibri.coreVue.components.FocusTrap';
-  import PointsIcon from 'kolibri.coreVue.components.PointsIcon';
   import { ContentNodeResource } from 'kolibri.resources';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { currentDeviceData } from '../../composables/useDevices';
@@ -173,7 +176,6 @@
     name: 'CompletionModal',
     components: {
       FocusTrap,
-      PointsIcon,
       CompletionModalSection,
       ResourceItem,
       UiAlert,

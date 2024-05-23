@@ -36,11 +36,6 @@ class ExamLogsCompatibilityOperation(KolibriVersionedSyncOperation):
         )
 
 
-@register_hook
-class LoggerSyncHook(FacilityDataSyncHook):
-    cleanup_operations = [ExamLogsCompatibilityOperation()]
-
-
 class AttemptLogsConsolidationOperation(KolibriVersionedSyncOperation):
     version = "0.16.0"
 
@@ -60,3 +55,11 @@ class AttemptLogsConsolidationOperation(KolibriVersionedSyncOperation):
         consolidate_quiz_attempt_logs(
             AttemptLog.objects.filter(id__in=attempt_logs_ids)
         )
+
+
+@register_hook
+class LoggerSyncHook(FacilityDataSyncHook):
+    cleanup_operations = [
+        ExamLogsCompatibilityOperation(),
+        AttemptLogsConsolidationOperation(),
+    ]
