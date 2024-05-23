@@ -88,7 +88,7 @@
                     :text="coachString('openQuizLabel')"
                     appearance="flat-button"
                     class="table-left-aligned-button"
-                    @click="showOpenConfirmationModal = true; modalQuizId = tableRow.id"
+                    @click="showOpenConfirmationModal = true; modalQuizId = tableRow"
                   />
                   <!-- Close quiz button -->
                   <KButton
