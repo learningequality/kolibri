@@ -137,7 +137,7 @@ class ExamSerializer(ModelSerializer):
             else:
                 # Otherwise we are just updating the exam, so allow a partial update
                 self.partial = True
-        
+
         question_sources = data.get("question_sources", [])
         data["question_count"] = sum(
             len(source.get("questions", [])) for source in question_sources
