@@ -52,7 +52,7 @@
           <router-link
             v-if="linkActive"
             v-slot="{ href, navigate, isActive }"
-            :to="{ name: subRoute.name, params: $route.params, query: $router.query }"
+            :to="{ name: subRoute.name, params: $route.params, query: $route.query }"
           >
             <a
               class="link"
@@ -107,6 +107,11 @@
         required: false,
         default: '',
       },
+      linkActive: {
+        type: Boolean,
+        required: false,
+        default: false,
+      },
       subRoutes: {
         type: Array,
         required: false,
@@ -126,9 +131,6 @@
       };
     },
     computed: {
-      linkActive() {
-        return window.location.pathname == this.link;
-      },
       optionStyle() {
         if (this.disabled) {
           return {
@@ -187,7 +189,7 @@
         });
       },
     },
-    mounted() {
+    created() {
       this.submenuShouldBeOpen();
     },
     methods: {

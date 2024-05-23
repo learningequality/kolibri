@@ -135,7 +135,7 @@ describe('LibraryPage', () => {
       // mount to ensure we can click the button
       const wrapper = await makeWrapper({
         fullMount: true,
-        options: { stubs: ['SidePanelModal', 'LearnTopNav'] },
+        options: { stubs: ['SidePanelModal'] },
       });
       // not displayed by default
       expect(wrapper.findComponent({ name: 'SearchFiltersPanel' }).element).toBeUndefined();

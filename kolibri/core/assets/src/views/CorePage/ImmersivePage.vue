@@ -30,8 +30,8 @@
 <script>
 
   import { mapGetters } from 'vuex';
-  import ScrollingHeader from 'kolibri.coreVue.components.ScrollingHeader';
   import ImmersiveToolbar from '../ImmersiveToolbar';
+  import ScrollingHeader from '../ScrollingHeader';
 
   export default {
     name: 'ImmersivePage',

@@ -1,6 +1,6 @@
 <template>
 
-  <AppBarPage :title="coreString('facilityLabel')">
+  <AppBarPage :title="coreString('facilityLabel')" :showNavigation="false">
     <KPageContainer style="max-width: 1000px; margin: 32px auto 0;">
       <h1>{{ coreString('facilitiesLabel') }} </h1>
       <CoreTable>

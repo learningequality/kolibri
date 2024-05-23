@@ -16,7 +16,6 @@ import orderBy from 'lodash/orderBy';
 import { PageNames } from '../constants';
 import { LastPages } from '../constants/lastPagesConstants';
 import { STATUSES } from '../modules/classSummary/constants';
-import TopNavbar from './TopNavbar';
 import { coachStringsMixin } from './common/commonCoachStrings';
 import AverageScoreTooltip from './common/AverageScoreTooltip';
 import BackLink from './common/BackLink';
@@ -43,7 +42,6 @@ export default {
   components: {
     CoreTable,
     ContentIcon,
-    TopNavbar,
     AverageScoreTooltip,
     BackLink,
     TruncatedItemList,

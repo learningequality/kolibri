@@ -27,7 +27,7 @@ function makeWrapper() {
   const wrapper = mount(UserPage, {
     store,
     router,
-    stubs: ['RouterLinkStub', 'FacilityTopNav'],
+    stubs: ['RouterLinkStub'],
   });
   return { wrapper, store };
 }

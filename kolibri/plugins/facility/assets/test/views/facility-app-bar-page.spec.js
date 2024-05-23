@@ -12,7 +12,6 @@ function makeWrapper({ propsData = {}, getters = {} }) {
   return mount(FacilityAppBarPage, {
     propsData,
     store,
-    stubs: ['FacilityTopNav'],
   });
 }
 jest.mock('kolibri.urls');
@@ -24,9 +23,9 @@ describe('FacilityAppBarPage', function() {
       windowIsSmall: false,
     }));
   });
-  it('renders the FacilityTopNav component', () => {
+  it('renders the AppBar component', () => {
     const wrapper = makeWrapper({});
-    expect(wrapper.findComponent({ name: 'FacilityTopNav' }).exists()).toBe(true);
+    expect(wrapper.findComponent({ name: 'AppBar' }).exists()).toBe(true);
   });
   describe('the title computed property', () => {
     it('should return the value of appBarTitle prop when provided', () => {

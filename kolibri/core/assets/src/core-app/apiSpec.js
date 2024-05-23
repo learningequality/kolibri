@@ -28,13 +28,7 @@ import ContentIcon from '../views/ContentIcon';
 import ProgressIcon from '../views/ProgressIcon';
 import PermissionsIcon from '../views/PermissionsIcon';
 import AppBarPage from '../views/CorePage/AppBarPage';
-import AppBar from '../views/AppBar';
 import ImmersivePage from '../views/CorePage/ImmersivePage';
-import ScrollingHeader from '../views/ScrollingHeader';
-import SideNav from '../views/SideNav';
-import Navbar from '../views/Navbar';
-import NavbarLink from '../views/Navbar/NavbarLink';
-import HorizontalNavBarWithOverflowMenu from '../views/HorizontalNavBarWithOverflowMenu';
 import CoreLogo from '../views/CoreLogo';
 import LanguageSwitcherList from '../views/language-switcher/LanguageSwitcherList';
 import LanguageSwitcherModal from '../views/language-switcher/LanguageSwitcherModal';
@@ -100,6 +94,7 @@ import NotificationsRoot from '../views/NotificationsRoot';
 import useMinimumKolibriVersion from '../composables/useMinimumKolibriVersion';
 import useUserSyncStatus from '../composables/useUserSyncStatus';
 import useUser from '../composables/useUser';
+import { registerNavItem } from '../composables/useNav';
 
 // webpack optimization
 import CoreInfoIcon from '../views/CoreInfoIcon';
@@ -113,7 +108,6 @@ import SuggestedTime from '../views/SuggestedTime';
 
 import MultiPaneLayout from '../views/MultiPaneLayout';
 import filterUsersByNames from '../utils/filterUsersByNames';
-import navComponents from '../utils/navComponents';
 import loginComponents from '../utils/loginComponents';
 import coreBannerContent from '../utils/coreBannerContent';
 import CatchErrors from '../utils/CatchErrors';
@@ -144,7 +138,6 @@ export default {
       mappers,
     },
     components: {
-      ScrollingHeader,
       Backdrop,
       CoachContentLabel,
       DownloadButton,
@@ -152,13 +145,8 @@ export default {
       ContentIcon,
       ProgressIcon,
       PermissionsIcon,
-      AppBar,
       AppBarPage,
       ImmersivePage,
-      SideNav,
-      Navbar,
-      NavbarLink,
-      HorizontalNavBarWithOverflowMenu,
       LanguageSwitcherModal,
       LanguageSwitcherList,
       ElapsedTime,
@@ -238,7 +226,7 @@ export default {
     i18n,
     licenseTranslations,
     loginComponents,
-    navComponents,
+    registerNavItem,
     redirectBrowser,
     samePageCheckGenerator,
     serverClock,

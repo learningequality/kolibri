@@ -1,11 +1,10 @@
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import navComponents from 'kolibri.utils.navComponents';
+import registerNavItem from 'kolibri.utils.registerNavItem';
 import urls from 'kolibri.urls';
 import coreStrings from 'kolibri.utils.coreStrings';
 import baseRoutes from '../baseRoutes';
 
-const sideNavConfig = {
-  name: 'FacilityManagementSideNavEntry',
+registerNavItem({
   get url() {
     return urls['kolibri:kolibri.plugins.facility:facility_management']();
   },
@@ -14,21 +13,25 @@ const sideNavConfig = {
       {
         label: coreStrings.$tr('classesLabel'),
         route: baseRoutes.classes.path,
+        icon: 'classes',
         name: baseRoutes.classes.name,
       },
       {
         label: coreStrings.$tr('usersLabel'),
         route: baseRoutes.users.path,
+        icon: 'people',
         name: baseRoutes.users.name,
       },
       {
         label: coreStrings.$tr('settingsLabel'),
         route: baseRoutes.settings.path,
+        icon: 'settings',
         name: baseRoutes.settings.name,
       },
       {
         label: coreStrings.$tr('dataLabel'),
         route: baseRoutes.data.path,
+        icon: 'save',
         name: baseRoutes.data.name,
       },
     ];
@@ -38,10 +41,5 @@ const sideNavConfig = {
   },
   icon: 'facility',
   role: UserKinds.ADMIN,
-  priority: 10,
   fullFacilityOnly: true,
-};
-
-navComponents.register(sideNavConfig);
-
-export default sideNavConfig;
+});
