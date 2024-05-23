@@ -19,7 +19,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
     def theme(self):
         return {
             "signIn": {
-                "background": static("background.jpg"),
+                "background": static("assets/default_theme/background.jpg"),
                 "backgroundImgCredit": "Thomas Van Den Driessche",
                 "topLogo": {
                     "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
@@ -27,12 +27,12 @@ class DefaultThemeHook(theme_hook.ThemeHook):
             },
             "logos": [
                 {
-                    "src": static("assets/logo.ico"),
+                    "src": static("assets/default_theme/logo.ico"),
                     "content_type": "image/vnd.microsoft.icon",
                     "size": "32x32",
                 },
                 {
-                    "src": static("assets/kolibri-logo.svg"),
+                    "src": static("assets/default_theme/kolibri-logo.svg"),
                     "content_type": "image/svg+xml",
                     # See https://web.dev/maskable-icon/ for details on what
                     # icons count as maskable. The default Kolibri logo is not,
@@ -41,12 +41,12 @@ class DefaultThemeHook(theme_hook.ThemeHook):
                     "size": "any",
                 },
                 {
-                    "src": static("assets/kolibri-logo-192.png"),
+                    "src": static("assets/default_theme/kolibri-logo-192.png"),
                     "content_type": "image/png",
                     "size": "192x192",
                 },
                 {
-                    "src": static("assets/kolibri-logo-512.png"),
+                    "src": static("assets/default_theme/kolibri-logo-512.png"),
                     "content_type": "image/png",
                     "size": "512x512",
                 },

@@ -200,7 +200,7 @@
           const scrimOpacity =
             this.themeConfig.signIn.scrimOpacity !== undefined
               ? this.themeConfig.signIn.scrimOpacity
-              : 0.7;
+              : 0.2;
           return {
             backgroundColor: this.$themeTokens.primary,
             backgroundImage: `linear-gradient(rgba(0, 0, 0, ${scrimOpacity}), rgba(0, 0, 0, ${scrimOpacity})), url(${this.themeConfig.signIn.background})`,
