@@ -579,7 +579,12 @@ class Application(Gio.Application):
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
 
-        if APP_AUTOMATIC_PROVISION:
+        # If kolibri-daemon is running as a system service, start automatic
+        # provisioning regardless of the value of APP_AUTOMATIC_PROVISION. This
+        # works around an issue in eos-kolibri where that environment variable
+        # is unset for the Kolibri system service.
+        # FIXME: Remove the special case once the eos-kolibri issue is resolved.
+        if APP_AUTOMATIC_PROVISION or self.use_system_bus:
             self.__kolibri_service.automatic_provision()
 
         Gio.Application.do_startup(self)
