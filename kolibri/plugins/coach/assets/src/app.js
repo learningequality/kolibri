@@ -12,6 +12,7 @@ import LessonEditDetailsPage from './views/plan/LessonEditDetailsPage';
 import GroupsPage from './views/plan/GroupsPage';
 import GroupMembersPage from './views/plan/GroupMembersPage';
 import GroupEnrollPage from './views/plan/GroupEnrollPage';
+import pages from './views/reports/allReportsPages';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
@@ -37,6 +38,7 @@ class CoachToolsModule extends KolibriApp {
         PageNames.QUIZ_REPLACE_QUESTIONS,
         PageNames.QUIZ_SELECT_RESOURCES,
         PageNames.BOOK_MARKED_RESOURCES,
+        pages.ReportsQuizLearnerPage.name,
       ];
       if (!skipLoading.includes(to.name)) {
         this.store.dispatch('loading');
