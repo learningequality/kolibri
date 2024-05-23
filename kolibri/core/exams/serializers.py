@@ -60,7 +60,7 @@ class ExamSerializer(ModelSerializer):
     creator = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    question_count = IntegerField()
+    question_count = IntegerField(allow_null=True)
     date_archived = DateTimeTzField(allow_null=True)
     date_activated = DateTimeTzField(allow_null=True)
 
@@ -83,7 +83,7 @@ class ExamSerializer(ModelSerializer):
             "learners_see_fixed_order",
             "learner_ids",
         )
-        read_only_fields = ("data_model_version",)
+        read_only_fields = ("data_model_version", "question_count")
 
     def validate(self, attrs):
         title = attrs.get("title")
@@ -137,6 +137,12 @@ class ExamSerializer(ModelSerializer):
             else:
                 # Otherwise we are just updating the exam, so allow a partial update
                 self.partial = True
+        
+        question_sources = data.get("question_sources", [])
+        data["question_count"] = sum(
+            len(source.get("questions", [])) for source in question_sources
+        )
+
         return super(ExamSerializer, self).to_internal_value(data)
 
     def create(self, validated_data):
