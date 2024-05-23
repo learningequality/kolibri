@@ -553,7 +553,9 @@ class ExamAPITestCase(APITestCase):
     def test_exam_question_count_calculation(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
-        question_count = sum(len(source["questions"]) for source in exam["question_sources"])
+        question_count = sum(
+            len(source["questions"]) for source in exam["question_sources"]
+        )
         response = self.post_new_exam(exam)
         exam_id = response.data["id"]
         self.assertEqual(response.status_code, 201)
