@@ -4,6 +4,7 @@
     v-if="itemId || itemData"
     class="bibliotron-exercise perseus-root"
     :class="{ 'perseus-mobile': isMobile }"
+    @keydown.enter="answerGiven"
   >
     <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
       <div ref="perseus" class="perseus">
@@ -484,6 +485,12 @@
           };
         }
         return null;
+      },
+      answerGiven() {
+        const answer = this.checkAnswer();
+        if (answer) {
+          this.$emit('answerGiven', answer);
+        }
       },
       /*
        * @public
