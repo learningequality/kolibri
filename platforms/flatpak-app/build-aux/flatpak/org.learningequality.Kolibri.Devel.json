@@ -24,6 +24,12 @@
             "subdirectories" : true,
             "no-autodownload" : true
         },
+        "org.freedesktop.Platform.ffmpeg-full" : {
+            "directory" : "lib/ffmpeg",
+            "version" : "23.08",
+            "add-ld-path" : ".",
+            "autodelete" : false
+        },
         "org.learningequality.Kolibri.Plugin" : {
             "version" : "1.0",
             "directory" : "kolibri-plugins",
