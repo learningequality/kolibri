@@ -2,7 +2,7 @@
 <component type="desktop-application">
   <id>@BASE_APPLICATION_ID@</id>
   <name>Kolibri</name>
-  <developer>
+  <developer id="org.learningequality">
     <name>Learning Equality</name>
   </developer>
   <summary>Offline education technology platform</summary>
