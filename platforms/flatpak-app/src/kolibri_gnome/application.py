@@ -116,19 +116,17 @@ class Application(Adw.Application):
         self.open_url_in_external_application(KOLIBRI_HOME_PATH.as_uri())
 
     def __on_about(self, action, *args):
-        about_window = Adw.AboutWindow.new_from_appdata(
+        about_dialog = Adw.AboutDialog.new_from_appdata(
             f"{BASE_OBJECT_PATH}/{BASE_APPLICATION_ID}.metainfo.xml",
             get_release_notes_version(),
         )
-        about_window.set_version(get_version(self.__context.kolibri_version))
-        about_window.add_link(
+        about_dialog.set_version(get_version(self.__context.kolibri_version))
+        about_dialog.add_link(
             _("Community Forums"), "https://community.learningequality.org/"
         )
-        about_window.set_debug_info(self.__format_debug_info())
-        about_window.set_debug_info_filename("kolibri-gnome-debug-info.json")
-        about_window.set_transient_for(self.get_active_window())
-        about_window.set_modal(True)
-        about_window.present()
+        about_dialog.set_debug_info(self.__format_debug_info())
+        about_dialog.set_debug_info_filename("kolibri-gnome-debug-info.json")
+        about_dialog.present(self.get_active_window())
 
     def __format_debug_info(self):
         return json.dumps(
