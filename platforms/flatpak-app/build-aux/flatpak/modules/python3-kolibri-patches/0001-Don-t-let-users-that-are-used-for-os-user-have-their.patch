@@ -1,0 +1,215 @@
+From 6e0bcb540e56cd36917dd3edf4db218ee576e47a Mon Sep 17 00:00:00 2001
+From: Richard Tibbles <richard@learningequality.org>
+Date: Tue, 30 Apr 2024 16:51:48 -0700
+Subject: [PATCH] Don't let users that are used for os user have their
+ passwords set via the not specified password flow.
+
+---
+ kolibri/core/auth/api.py           |   8 +-
+ kolibri/core/auth/test/test_api.py | 150 +++++++++++++++++++++++++++++
+ 2 files changed, 156 insertions(+), 2 deletions(-)
+
+diff --git a/kolibri/core/auth/api.py b/kolibri/core/auth/api.py
+index 3ed56db2cd..689d399581 100644
+--- a/kolibri/core/auth/api.py
++++ b/kolibri/core/auth/api.py
+@@ -854,7 +854,7 @@ class SetNonSpecifiedPasswordView(views.APIView):
+         except (ValueError, ObjectDoesNotExist):
+             raise Http404(error_message)
+ 
+-        if user.password != NOT_SPECIFIED:
++        if user.password != NOT_SPECIFIED or hasattr(user, "os_user"):
+             raise Http404(error_message)
+ 
+         user.set_password(password)
+@@ -930,10 +930,14 @@ class SessionViewSet(viewsets.ViewSet):
+             unauthenticated_user = FacilityUser.objects.filter(
+                 username__exact=username, facility=facility_id
+             ).first()
+-        if unauthenticated_user.password == NOT_SPECIFIED:
++        if unauthenticated_user.password == NOT_SPECIFIED and not hasattr(
++            unauthenticated_user, "os_user"
++        ):
+             # Here - we have a Learner whose password is "NOT_SPECIFIED" because they were created
+             # while the "Require learners to log in with password" setting was disabled - but now
+             # it is enabled again.
++            # Alternatively, they may have been created as an OSUser for automatic login with an
++            # authentication token. If this is the case, then we do not allow for the password to be set.
+             return Response(
+                 [
+                     {
+diff --git a/kolibri/core/auth/test/test_api.py b/kolibri/core/auth/test/test_api.py
+index 5ea87b39b3..aab92784a6 100644
+--- a/kolibri/core/auth/test/test_api.py
++++ b/kolibri/core/auth/test/test_api.py
+@@ -30,6 +30,7 @@ from .helpers import provision_device
+ from kolibri.core import error_constants
+ from kolibri.core.auth.backends import FACILITY_CREDENTIAL_KEY
+ from kolibri.core.auth.constants import demographics
++from kolibri.core.device.models import OSUser
+ from kolibri.core.device.utils import set_device_settings
+ 
+ # A weird hack because of http://bugs.python.org/issue17866
+@@ -1309,6 +1310,40 @@ class LoginLogoutTestCase(APITestCase):
+ 
+         self.assertEqual(response_user3.status_code, 401)
+ 
++    def test_not_specified_password(self):
++        self.user.password = demographics.NOT_SPECIFIED
++        self.user.save()
++
++        response = self.client.post(
++            reverse("kolibri:core:session-list"),
++            data={
++                "username": self.user.username,
++                "facility": self.facility.id,
++            },
++            format="json",
++        )
++
++        self.assertEqual(response.status_code, 400)
++        self.assertEqual(response.data[0]["id"], error_constants.PASSWORD_NOT_SPECIFIED)
++
++    def test_not_specified_password_os_user(self):
++        self.user.password = demographics.NOT_SPECIFIED
++        self.user.save()
++
++        OSUser.objects.create(user=self.user, os_username="os_user")
++
++        response = self.client.post(
++            reverse("kolibri:core:session-list"),
++            data={
++                "username": self.user.username,
++                "facility": self.facility.id,
++            },
++            format="json",
++        )
++
++        self.assertEqual(response.status_code, 400)
++        self.assertEqual(response.data[0]["id"], error_constants.MISSING_PASSWORD)
++
+ 
+ class SignUpBase(object):
+     @classmethod
+@@ -1982,3 +2017,118 @@ class DuplicateUsernameTestCase(APITestCase):
+             format="json",
+         )
+         self.assertEqual(response.data, True)
++
++
++class SetNonSpecifiedPasswordViewTestCase(APITestCase):
++    def setUp(self):
++        self.url = reverse("kolibri:core:setnonspecifiedpassword")
++        self.facility = FacilityFactory.create()
++        self.user = models.FacilityUser.objects.create(
++            username="testuser",
++            facility=self.facility,
++            password=demographics.NOT_SPECIFIED,
++        )
++
++    def test_set_non_specified_password(self):
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "password": "newpassword",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 200 OK status code
++        self.assertEqual(response.status_code, status.HTTP_200_OK)
++
++        # Refresh the user object from the database
++        self.user.refresh_from_db()
++
++        # Check that the password has been updated
++        self.assertTrue(self.user.check_password("newpassword"))
++
++    def test_set_non_specified_password_invalid_facility(self):
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "password": "newpassword",
++            "facility": uuid.uuid4().hex,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 404 Not Found status code
++        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
++
++    def test_set_non_specified_password_missing_facility(self):
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "password": "newpassword",
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 400 Bad Request status code
++        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
++
++    def test_set_non_specified_password_invalid_username(self):
++        # Make a POST request to set the password
++        data = {
++            "username": "invalidusername",
++            "password": "newpassword",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 404 Not Found status code
++        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
++
++    def test_set_non_specified_password_missing_username(self):
++        # Make a POST request to set the password
++        data = {
++            "password": "newpassword",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 400 Bad Request status code
++        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
++
++    def test_set_non_specified_password_missing_password(self):
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 400 Bad Request status code
++        self.assertEqual(response.status_code, status.HTTP_400_BAD_REQUEST)
++
++    def test_set_non_specified_password_password_is_specified(self):
++        self.user.set_password("password")
++        self.user.save()
++
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "password": "newpassword",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 404 Not Found status code
++        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
++
++    def test_set_non_specified_password_user_is_os_user(self):
++        OSUser.objects.create(user=self.user, os_username="osuser")
++
++        # Make a POST request to set the password
++        data = {
++            "username": "testuser",
++            "password": "newpassword",
++            "facility": self.facility.id,
++        }
++        response = self.client.post(self.url, data)
++
++        # Check that the response has a 400 Bad Request status code
++        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND)
+-- 
+2.44.0
+

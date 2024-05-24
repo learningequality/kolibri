@@ -8,6 +8,7 @@ python_installation.install_sources(
         'futures.py',
         'glib_helpers.py',
         '__init__.py',
+        'kolibri_app_interface.py',
         'kolibri_http_process.py',
         'kolibri_search_handler.py',
         'kolibri_service_context.py',

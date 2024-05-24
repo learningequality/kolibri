@@ -13,12 +13,28 @@ metainfo_file = i18n.merge_file(
     install_dir: metainfo_dir
 )
 
-appstream_util = find_program('appstream-util', required: false)
+appstreamcli = find_program('appstreamcli', required: false)
 
-if appstream_util.found()
+if appstreamcli.found()
+    # FIXME: We have to temporarily remove the desktop ID from the metainfo
+    # file, as until https://github.com/ximion/appstream/pull/522 is shipped,
+    # appstreamcli won’t accept `endless` as a desktop ID.
+    metainfo_file_for_validation = custom_target(
+        'org.learningequality.Kolibri.Temp.metainfo.xml',
+        output: 'org.learningequality.Kolibri.Temp.metainfo.xml',
+        input: metainfo_file,
+        command: [
+            'sed',
+            's|<compulsory_for_desktop>Endless</compulsory_for_desktop>||g',
+            '@INPUT@',
+        ],
+        capture: true,
+    )
+
     test(
         'Validate metainfo file',
-        appstream_util,
-        args: ['validate', '--nonet', metainfo_file]
+        appstreamcli,
+        args: ['validate', '--no-net', '--explain', metainfo_file_for_validation],
+        workdir: meson.current_build_dir()
     )
 endif

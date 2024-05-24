@@ -1,22 +1,27 @@
 from __future__ import annotations
 
 import logging
-import platform
 import re
 import typing
-from gettext import gettext as _
+from functools import partial
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
 from urllib.parse import urlencode
 from urllib.parse import urlsplit
 
-from gi.repository import Gio
 from gi.repository import GLib
 from gi.repository import GObject
+from gi.repository import Soup
 from gi.repository import WebKit
-from kolibri_app.config import DATA_DIR
+from kolibri_app.config import APP_URI_SCHEME
+from kolibri_app.config import BUILD_PROFILE
 from kolibri_app.config import FRONTEND_APPLICATION_ID
+from kolibri_app.config import KOLIBRI_APP_DATA_DIR
+from kolibri_app.config import KOLIBRI_URI_SCHEME
+from kolibri_app.config import PROJECT_VERSION
+from kolibri_app.config import VCS_TAG
+from kolibri_app.utils import get_app_modules_debug_info
 
 from .kolibri_daemon_manager import KolibriDaemonManager
 from .utils import await_properties
@@ -25,6 +30,12 @@ from .utils import get_localized_file
 from .utils import map_properties
 
 logger = logging.getLogger(__name__)
+
+LEARN_PATH_PREFIX = "/learn/#/"
+
+STATIC_PATHS_RE = r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?"
+SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?"
+CONTENT_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?learn\/?"
 
 
 class KolibriContext(GObject.GObject):
@@ -66,8 +77,8 @@ class KolibriContext(GObject.GObject):
         )
 
         loader_path = get_localized_file(
-            Path(DATA_DIR, "assets", "_load-{}.html").as_posix(),
-            Path(DATA_DIR, "assets", "_load.html"),
+            Path(KOLIBRI_APP_DATA_DIR, "assets", "_load-{}.html").as_posix(),
+            Path(KOLIBRI_APP_DATA_DIR, "assets", "_load.html"),
         )
         self.__loader_url = loader_path.as_uri()
 
@@ -95,7 +106,7 @@ class KolibriContext(GObject.GObject):
 
     @property
     def default_url(self) -> str:
-        return "x-kolibri-app:/"
+        return f"{APP_URI_SCHEME}:/"
 
     @property
     def webkit_web_context(self) -> WebKit.WebContext:
@@ -109,10 +120,10 @@ class KolibriContext(GObject.GObject):
 
     def get_absolute_url(self, url: str) -> typing.Optional[str]:
         url_tuple = urlsplit(url)
-        if url_tuple.scheme == "kolibri":
+        if url_tuple.scheme == KOLIBRI_URI_SCHEME:
             target_url = self.parse_kolibri_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
-        elif url_tuple.scheme == "x-kolibri-app":
+        elif url_tuple.scheme == APP_URI_SCHEME:
             target_url = self.parse_x_kolibri_app_url_tuple(url_tuple)
             return self.__kolibri_daemon.get_absolute_url(target_url)
         return url
@@ -126,7 +137,8 @@ class KolibriContext(GObject.GObject):
     def should_open_url(self, url: str) -> bool:
         return (
             url == self.default_url
-            or urlsplit(url).scheme in ("kolibri", "x-kolibri-app", "about", "blob")
+            or urlsplit(url).scheme
+            in (KOLIBRI_URI_SCHEME, APP_URI_SCHEME, "about", "blob")
             or self.is_url_in_scope(url)
         )
 
@@ -143,6 +155,21 @@ class KolibriContext(GObject.GObject):
 
     def is_url_in_scope(self, url: str) -> bool:
         return self.default_is_url_in_scope(url)
+
+    def get_debug_info(self) -> dict:
+        # FIXME: It would be better to call `get_app_modules_debug_info()` from`
+        #        the kolibri_daemon service and include the output here. In some
+        #        rare cases, its Python environment may differ.
+        return {
+            "app": {
+                "project_version": PROJECT_VERSION,
+                "vcs_tag": VCS_TAG,
+                "build_profile": BUILD_PROFILE,
+                "do_automatic_login": self.__kolibri_daemon.do_automatic_login,
+            },
+            "kolibri_daemon": self.__kolibri_daemon.get_debug_info(),
+            "python_modules": get_app_modules_debug_info(),
+        }
 
     def get_loader_url(self, state: str) -> str:
         return self.__loader_url + "#" + state
@@ -177,29 +204,33 @@ class KolibriContext(GObject.GObject):
         else:
             return self._get_kolibri_library_path(url_search)
 
-    def _get_kolibri_content_path(self, node_id: str, search: str = None) -> str:
+    def _get_kolibri_content_path(
+        self, node_id: str, search: typing.Optional[str] = None
+    ) -> str:
         if search:
             query = {"keywords": search, "last": "TOPICS_TOPIC_SEARCH"}
-            return f"/learn#/topics/c/{node_id}?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}topics/c/{node_id}?{urlencode(query)}"
         else:
-            return f"/learn#/topics/c/{node_id}"
+            return f"{LEARN_PATH_PREFIX}topics/c/{node_id}"
 
-    def _get_kolibri_topic_path(self, node_id: str, search: str = None) -> str:
+    def _get_kolibri_topic_path(
+        self, node_id: str, search: typing.Optional[str] = None
+    ) -> str:
         if search:
             query = {"keywords": search}
-            return f"/learn#/topics/t/{node_id}/search?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}topics/t/{node_id}/search?{urlencode(query)}"
         else:
-            return f"/learn#/topics/t/{node_id}"
+            return f"{LEARN_PATH_PREFIX}topics/t/{node_id}"
 
-    def _get_kolibri_library_path(self, search: str = None) -> str:
+    def _get_kolibri_library_path(self, search: typing.Optional[str] = None) -> str:
         if search:
             query = {"keywords": search}
-            return f"/learn#/library?{urlencode(query)}"
+            return f"{LEARN_PATH_PREFIX}library?{urlencode(query)}"
         else:
-            return "/learn/#/home"
+            return f"{LEARN_PATH_PREFIX}home"
 
     def url_to_x_kolibri_app(self, url: str) -> str:
-        return urlsplit(url)._replace(scheme="x-kolibri-app", netloc="").geturl()
+        return urlsplit(url)._replace(scheme=APP_URI_SCHEME, netloc="").geturl()
 
     def parse_x_kolibri_app_url_tuple(self, url_tuple: SplitResult) -> str:
         """
@@ -236,17 +267,13 @@ class _KolibriSetupHelper(GObject.GObject):
 
     __webkit_web_context: WebKit.WebContext
     __kolibri_daemon: KolibriDaemonManager
+    __cookies_to_add: set
 
-    __login_webview: WebKit.WebView
+    INITIALIZE_API_PATH = "/app/api/initialize"
 
-    AUTOLOGIN_URL_TEMPLATE = "kolibri_desktop_auth_plugin/login/{token}"
-
-    login_token = GObject.Property(type=str, default=None)
-
-    is_app_key_cookie_ready = GObject.Property(type=bool, default=False)
-    is_session_cookie_ready = GObject.Property(type=bool, default=False)
-    is_facility_ready = GObject.Property(type=bool, default=False)
-
+    auth_token = GObject.Property(type=str, default=None)
+    is_auth_token_ready = GObject.Property(type=bool, default=False)
+    is_cookie_manager_ready = GObject.Property(type=bool, default=False)
     is_setup_complete = GObject.Property(type=bool, default=False)
 
     def __init__(
@@ -259,161 +286,110 @@ class _KolibriSetupHelper(GObject.GObject):
         self.__webkit_web_context = webkit_web_context
         self.__kolibri_daemon = kolibri_daemon
 
-        self.__login_webview = WebKit.WebView(web_context=self.__webkit_web_context)
-        self.__login_webview.connect(
-            "load-changed", self.__login_webview_on_load_changed
-        )
-
         self.__kolibri_daemon.connect(
             "dbus-owner-changed", self.__kolibri_daemon_on_dbus_owner_changed
-        )
-        self.__kolibri_daemon.connect(
-            "notify::app-key-cookie", self.__kolibri_daemon_on_notify_app_key_cookie
-        )
-        self.__kolibri_daemon.connect(
-            "notify::is-started", self.__kolibri_daemon_on_notify_is_started
         )
 
         await_properties(
             [
-                (self, "is-facility-ready"),
-                (self, "login-token"),
+                (self.__kolibri_daemon, "is-started"),
+                (self.__kolibri_daemon, "app-key"),
+                (self, "is-auth-token-ready"),
             ],
-            self.__on_await_facility_ready_and_login_token,
+            self.__initialize_kolibri_session,
         )
 
         map_properties(
             [
-                (self, "is-app-key-cookie-ready"),
-                (self, "is-session-cookie-ready"),
-                (self, "is-facility-ready"),
+                (self, "is-cookie-manager-ready"),
             ],
             self.__update_is_setup_complete,
         )
 
-        self.__kolibri_daemon_on_notify_app_key_cookie(self.__kolibri_daemon)
-
-    def __login_webview_on_load_changed(
-        self, webview: WebKit.WebView, load_event: WebKit.LoadEvent
-    ):
-        # Show the main webview once it finishes loading.
-        if load_event == WebKit.LoadEvent.FINISHED:
-            self.props.is_session_cookie_ready = True
-            self.props.login_token = None
-
     def __kolibri_daemon_on_dbus_owner_changed(
         self, kolibri_daemon: KolibriDaemonManager
     ):
-        self.props.is_session_cookie_ready = False
+        # Reset the auth token cookie: it is no longer valid
+        self.props.is_cookie_manager_ready = False
 
-        if kolibri_daemon.do_automatic_login:
-            kolibri_daemon.get_login_token(self.__kolibri_daemon_on_login_token_ready)
+        if self.__kolibri_daemon.do_automatic_login:
+            self.props.is_auth_token_ready = False
+            kolibri_daemon.get_login_token(
+                self.__kolibri_daemon_on_get_login_token_ready
+            )
         else:
-            self.props.is_session_cookie_ready = True
+            self.props.auth_token = None
+            self.props.is_auth_token_ready = True
 
-    def __kolibri_daemon_on_notify_is_started(
-        self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
-    ):
-        self.props.is_facility_ready = False
-
-        if not self.__kolibri_daemon.props.is_started:
-            return
-
-        if not self.__kolibri_daemon.do_automatic_login:
-            # No automatic login so we don't need a facility:
-            self.props.is_facility_ready = True
-            return
-
-        self.__kolibri_daemon.kolibri_api_get_async(
-            "/api/public/v1/facility/",
-            result_cb=self.__on_kolibri_api_facility_response,
-        )
-
-    def __on_kolibri_api_facility_response(self, data: typing.Any):
-        if isinstance(data, list) and data:
-            self.props.is_facility_ready = True
-            return
-
-        # There is no facility, so automatically provision the device:
-        self.__automatic_device_provision()
-
-    def __automatic_device_provision(self):
-        # TODO: In the future, this could be done in kolibri-daemon itself by
-        #       using a simple automatic_provision.json file in the Kolibri home
-        #       template. We need to do it here for now because we are only
-        #       using this configuration with automatic login, which is only
-        #       enabled in certain cases.
-        logger.info("Provisioning device…")
-        facility_name = _("Kolibri on {host}").format(
-            host=platform.node() or "localhost"
-        )
-        request_body_data = {
-            "facility": {
-                "name": facility_name,
-                "learner_can_login_with_no_password": False,
-            },
-            "preset": "formal",
-            "superuser": None,
-            "language_id": None,
-            "device_name": None,
-            "settings": {
-                "landing_page": "learn",
-                "allow_other_browsers_to_connect": False,
-            },
-            "allow_guest_access": False,
-        }
-        self.__kolibri_daemon.kolibri_api_post_async(
-            "/api/device/deviceprovision/",
-            result_cb=self.__on_kolibri_api_deviceprovision_response,
-            request_body=request_body_data,
-        )
-
-    def __on_kolibri_api_deviceprovision_response(self, data: dict):
-        logger.info("Device provisioned.")
-        self.props.is_facility_ready = True
-
-    def __on_await_facility_ready_and_login_token(
-        self, is_facility_ready: bool, login_token: str
-    ):
-        if self.props.is_session_cookie_ready:
-            return
-
-        login_url = self.__kolibri_daemon.get_absolute_url(
-            self.AUTOLOGIN_URL_TEMPLATE.format(token=login_token)
-        )
-
-        self.__login_webview.load_uri(login_url)
-
-    def __kolibri_daemon_on_login_token_ready(
+    def __kolibri_daemon_on_get_login_token_ready(
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
-        self.props.login_token = login_token
+        self.props.auth_token = login_token
+        self.props.is_auth_token_ready = True
 
-        if login_token is None:
-            # If we are unable to get a login token, pretend the session cookie
-            # is ready so the app will proceed as usual. This should only happen
-            # in an edge case where kolibri-daemon is running on the system bus
-            # but is unable to communicate with AccountsService.
-            self.props.is_session_cookie_ready = True
-
-    def __kolibri_daemon_on_notify_app_key_cookie(
-        self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec = None
+    def __initialize_kolibri_session(
+        self, is_started: bool, app_key: str, is_auth_token_ready: bool
     ):
-        self.props.is_app_key_cookie_ready = False
-
-        if not self.__kolibri_daemon.props.app_key_cookie:
+        initialize_query = {}
+        if self.props.auth_token:
+            initialize_query["auth_token"] = self.props.auth_token
+        initialize_url = self.__kolibri_daemon.get_absolute_url(
+            f"{self.INITIALIZE_API_PATH}/{app_key}?{urlencode(initialize_query)}"
+        )
+        if not initialize_url:
+            logging.error("Kolibri initialize URL is not set")
             return
-
-        WebKit.NetworkSession.get_default().get_cookie_manager().add_cookie(
-            self.__kolibri_daemon.props.app_key_cookie,
-            None,
-            self.__on_app_key_cookie_ready,
+        self.__kolibri_daemon.kolibri_api_get_async(
+            initialize_url,
+            self.__on_kolibri_initialize_api_ready,
+            flags=Soup.MessageFlags.NO_REDIRECT,
+            parse_json=False,
         )
 
-    def __on_app_key_cookie_ready(
-        self, cookie_manager: WebKit.CookieManager, result: Gio.Task
+    def __on_kolibri_initialize_api_ready(
+        self, data: typing.Any, soup_message: Soup.Message = None
     ):
-        self.props.is_app_key_cookie_ready = True
+        website_data_manager = (
+            WebKit.NetworkSession.get_default().get_website_data_manager()
+        )
+        website_data_manager.clear(
+            WebKit.WebsiteDataTypes.COOKIES,
+            0,
+            None,
+            self.__on_website_data_clear_finished,
+            partial(self.__copy_cookies_from_soup_message_response, soup_message),
+        )
+
+    def __on_website_data_clear_finished(self, website_data_manager, result, next_fn):
+        try:
+            website_data_manager.clear_finish(result)
+        except GLib.Error as error:
+            logger.error(f"Error clearing cookies: {error}")
+            return
+
+        next_fn()
+
+    def __copy_cookies_from_soup_message_response(self, soup_message: Soup.Message):
+        cookie_manager = WebKit.NetworkSession.get_default().get_cookie_manager()
+        cookies = Soup.cookies_from_response(soup_message)
+        self.__cookies_to_add = set(cookies)
+        for cookie in cookies:
+            # FIXME: We should really be using cookie_manager.replace_cookies(),
+            #        but something is causing the cookies to not be added unless
+            #        we call add_cookie one at a time.
+            cookie_manager.add_cookie(
+                cookie, None, self.__on_webkit_add_cookie_ready, cookie
+            )
+
+    def __on_webkit_add_cookie_ready(self, cookie_manager, result, cookie):
+        try:
+            cookie_manager.add_cookie_finish(result)
+        except GLib.Error as error:
+            logger.error(f"Error adding cookie from API response: {error}")
+            return
+        self.__cookies_to_add.remove(cookie)
+        if len(self.__cookies_to_add) == 0:
+            self.props.is_cookie_manager_ready = True
 
     def __update_is_setup_complete(self, *setup_flags):
         self.props.is_setup_complete = all(setup_flags)
@@ -435,13 +411,13 @@ class KolibriChannelContext(KolibriContext):
 
     @property
     def default_url(self) -> str:
-        return f"x-kolibri-app:{self.__default_path}"
+        return f"{APP_URI_SCHEME}:{self.__default_path}"
 
     @property
     def __default_path(self) -> str:
-        return f"/learn#/topics/t/{self.__channel_id}"
+        return f"{LEARN_PATH_PREFIX}topics/t/{self.__channel_id}"
 
-    def _get_kolibri_library_path(self, search: str = None) -> str:
+    def _get_kolibri_library_path(self, search: typing.Optional[str] = None) -> str:
         if search:
             query = {"keywords": search}
             return f"{self.__default_path}/search?{urlencode(query)}"
@@ -463,22 +439,11 @@ class KolibriChannelContext(KolibriContext):
         url_tuple = urlsplit(url)
         url_path = url_tuple.path.lstrip("/")
 
-        if re.match(
-            r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?",
-            url_path,
-        ):
+        if re.match(STATIC_PATHS_RE, url_path):
             return True
-        elif re.match(
-            r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?",
-            url_path,
-        ):
+        elif re.match(SYSTEM_PATHS_RE, url_path):
             return True
-        elif re.match(
-            r"^(?P<lang>[\w\-]+\/)?kolibri_desktop_auth_plugin\/?",
-            url_path,
-        ):
-            return True
-        elif re.match(r"^(?P<lang>[\w\-]+\/)?learn\/?", url_path):
+        elif re.match(CONTENT_PATHS_RE, url_path):
             return self.__is_learn_fragment_in_channel(url_tuple.fragment)
         else:
             return False

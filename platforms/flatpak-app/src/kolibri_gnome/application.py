@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import json
 import logging
 import typing
 from functools import partial
 from gettext import gettext as _
+from pathlib import Path
 from urllib.parse import urlsplit
 
 from gi.repository import Adw
@@ -12,8 +14,13 @@ from gi.repository import GLib
 from gi.repository import GObject
 from gi.repository import Gtk
 from gi.repository import WebKit
+from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BASE_APPLICATION_ID
-from kolibri_app.config import PROJECT_VERSION
+from kolibri_app.config import BASE_OBJECT_PATH
+from kolibri_app.config import KOLIBRI_APP_DATA_DIR
+from kolibri_app.config import KOLIBRI_URI_SCHEME
+from kolibri_app.globals import get_release_notes_version
+from kolibri_app.globals import get_version
 from kolibri_app.globals import KOLIBRI_HOME_PATH
 from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
@@ -30,8 +37,15 @@ class Application(Adw.Application):
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
 
-    def __init__(self, *args, context: KolibriContext = None, **kwargs):
+    def __init__(
+        self, *args, context: typing.Optional[KolibriContext] = None, **kwargs
+    ):
         super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
+
+        resource = Gio.Resource.load(
+            Path(KOLIBRI_APP_DATA_DIR, "kolibri-app.gresource").as_posix()
+        )
+        resource._register()
 
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
@@ -39,10 +53,6 @@ class Application(Adw.Application):
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
-        self.add_action(action)
-
-        action = Gio.SimpleAction.new("open-forums", None)
-        action.connect("activate", self.__on_open_forums)
         self.add_action(action)
 
         action = Gio.SimpleAction.new("new-window", None)
@@ -96,9 +106,6 @@ class Application(Adw.Application):
             "https://kolibri.readthedocs.io/en/latest/"
         )
 
-    def __on_open_forums(self, action, *args):
-        self.open_url_in_external_application("https://community.learningequality.org/")
-
     def __on_new_window(self, action, *args):
         self.open_kolibri_window()
 
@@ -109,21 +116,25 @@ class Application(Adw.Application):
         self.open_url_in_external_application(KOLIBRI_HOME_PATH.as_uri())
 
     def __on_about(self, action, *args):
-        about_window = Adw.AboutWindow(
-            transient_for=self.get_active_window(),
-            modal=True,
-            application_name=_("Kolibri"),
-            application_icon=BASE_APPLICATION_ID,
-            copyright=_("© 2022 Learning Equality"),
-            version=_("{kolibri_version} ({app_version})").format(
-                app_version=PROJECT_VERSION,
-                kolibri_version=self.__context.kolibri_version,
-            ),
-            license_type=Gtk.License.MIT_X11,
-            website="https://learningequality.org",
-            issue_url="https://community.learningequality.org/",
+        about_window = Adw.AboutWindow.new_from_appdata(
+            f"{BASE_OBJECT_PATH}/{BASE_APPLICATION_ID}.metainfo.xml",
+            get_release_notes_version(),
         )
+        about_window.set_version(get_version(self.__context.kolibri_version))
+        about_window.add_link(
+            _("Community Forums"), "https://community.learningequality.org/"
+        )
+        about_window.set_debug_info(self.__format_debug_info())
+        about_window.set_debug_info_filename("kolibri-gnome-debug-info.json")
+        about_window.set_transient_for(self.get_active_window())
+        about_window.set_modal(True)
         about_window.present()
+
+    def __format_debug_info(self):
+        return json.dumps(
+            self.__context.get_debug_info(),
+            indent=4,
+        )
 
     def __on_quit(self, action, *args):
         self.quit()
@@ -134,7 +145,7 @@ class Application(Adw.Application):
         file_launcher.launch(None, None, None)
 
     def open_kolibri_window(
-        self, target_url: str = None, **kwargs
+        self, target_url: typing.Optional[str] = None, **kwargs
     ) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.__context.default_url
 
@@ -148,8 +159,9 @@ class Application(Adw.Application):
         window.connect("open-new-window", self.__window_on_open_new_window)
         window.load_kolibri_url(target_url, present=True)
 
-        # Maximize windows on Endless OS
-        if XDG_CURRENT_DESKTOP == "endless:GNOME":
+        # Maximize windows on Endless OS. Typically $XDG_CURRENT_DESKTOP will be
+        # `endless:GNOME` or `Endless:GNOME`.
+        if XDG_CURRENT_DESKTOP and "endless" in XDG_CURRENT_DESKTOP.lower().split(":"):
             window.maximize()
 
         window.connect("auto-close", self.__kolibri_window_on_auto_close)
@@ -251,7 +263,7 @@ class Application(Adw.Application):
         return new_window.get_main_webview() if new_window else None
 
     def __handle_open_file_url(self, url: str):
-        valid_url_schemes = ("kolibri", "x-kolibri-app")
+        valid_url_schemes = (KOLIBRI_URI_SCHEME, APP_URI_SCHEME)
 
         url_tuple = urlsplit(url)
 
@@ -284,7 +296,7 @@ class ChannelApplication(Application):
             result_cb=self.__on_kolibri_api_channel_response,
         )
 
-    def __on_kolibri_api_channel_response(self, data: typing.Any):
+    def __on_kolibri_api_channel_response(self, data: typing.Any, **kwargs):
         if not isinstance(data, dict):
             return
 

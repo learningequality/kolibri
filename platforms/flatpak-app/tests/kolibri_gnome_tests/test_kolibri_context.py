@@ -4,6 +4,7 @@ from urllib.parse import urlsplit
 
 from kolibri_gnome.kolibri_context import KolibriChannelContext
 from kolibri_gnome.kolibri_context import KolibriContext
+from kolibri_gnome.kolibri_context import LEARN_PATH_PREFIX
 
 
 class KolibriContextTestCase(unittest.TestCase):
@@ -40,7 +41,7 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit(f"kolibri:c/{self.CONTENT_ID}")
             ),
-            f"/learn#/topics/c/{self.CONTENT_ID}",
+            f"{LEARN_PATH_PREFIX}topics/c/{self.CONTENT_ID}",
         )
 
     def test_parse_kolibri_url_tuple_content_with_search(self):
@@ -48,7 +49,7 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit(f"kolibri:c/{self.CONTENT_ID}?search=addition")
             ),
-            f"/learn#/topics/c/{self.CONTENT_ID}?keywords=addition&last=TOPICS_TOPIC_SEARCH",
+            f"{LEARN_PATH_PREFIX}topics/c/{self.CONTENT_ID}?keywords=addition&last=TOPICS_TOPIC_SEARCH",
         )
 
     def test_parse_kolibri_url_tuple_topic(self):
@@ -56,7 +57,7 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit(f"kolibri:t/{self.TOPIC_ID}")
             ),
-            f"/learn#/topics/t/{self.TOPIC_ID}",
+            f"{LEARN_PATH_PREFIX}topics/t/{self.TOPIC_ID}",
         )
 
     def test_parse_kolibri_url_tuple_topic_with_search(self):
@@ -64,7 +65,7 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit(f"kolibri:t/{self.TOPIC_ID}?search=addition")
             ),
-            f"/learn#/topics/t/{self.TOPIC_ID}",
+            f"{LEARN_PATH_PREFIX}topics/t/{self.TOPIC_ID}",
         )
 
     def test_parse_kolibri_url_tuple_base_with_search(self):
@@ -72,14 +73,14 @@ class TestKolibriContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit("kolibri:?search=addition")
             ),
-            "/learn#/library?keywords=addition",
+            f"{LEARN_PATH_PREFIX}library?keywords=addition",
         )
 
         self.assert_kolibri_path_equal(
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit("kolibri:?search=addition+and+subtraction")
             ),
-            "/learn#/library?keywords=addition+and+subtraction",
+            f"{LEARN_PATH_PREFIX}library?keywords=addition+and+subtraction",
         )
 
 
@@ -108,14 +109,14 @@ class TestKolibriChannelContext(KolibriContextTestCase):
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit("kolibri:?search=addition")
             ),
-            f"/learn#/topics/t/{self.CHANNEL_ID}/search?keywords=addition",
+            f"{LEARN_PATH_PREFIX}topics/t/{self.CHANNEL_ID}/search?keywords=addition",
         )
 
         self.assert_kolibri_path_equal(
             self.kolibri_context.parse_kolibri_url_tuple(
                 urlsplit("kolibri:?search=addition+and+subtraction")
             ),
-            f"/learn#/topics/t/{self.CHANNEL_ID}/search?keywords=addition+and+subtraction",
+            f"{LEARN_PATH_PREFIX}topics/t/{self.CHANNEL_ID}/search?keywords=addition+and+subtraction",
         )
 
 

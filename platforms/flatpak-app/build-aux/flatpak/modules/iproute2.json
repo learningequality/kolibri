@@ -1,16 +1,21 @@
 {
-    "name" : "iproute2",
-    "buildsystem" : "autotools",
-    "make-install-args" : [
+    "name": "iproute2",
+    "buildsystem": "autotools",
+    "make-install-args": [
         "PREFIX=${FLATPAK_DEST}",
         "SBINDIR=${FLATPAK_DEST}/bin",
         "CONFDIR=${FLATPAK_DEST}/etc/iproute2"
     ],
-    "sources" : [
+    "sources": [
         {
-            "type" : "archive",
-            "url" : "https://mirrors.edge.kernel.org/pub/linux/utils/net/iproute2/iproute2-5.7.0.tar.xz",
-            "sha256" : "725dc7ba94aae54c6f8d4223ca055d9fb4fe89d6994b1c03bfb4411c4dd10f21"
+            "type": "git",
+            "url": "https://git.kernel.org/pub/scm/network/iproute2/iproute2.git",
+            "tag": "v6.8.0",
+            "x-checker-data": {
+                "type": "git",
+                "tag-pattern": "^v([\\d.]+)$"
+            },
+            "commit": "e5fd785830671180e934a84a44da93c51cce839d"
         }
     ]
 }

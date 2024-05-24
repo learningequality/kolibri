@@ -34,6 +34,9 @@ class KolibriServiceManager(object):
     def __send_command(self, command: KolibriHttpProcess.Command):
         self.__command_tx.send(command)
 
+    def automatic_provision(self):
+        self.__send_command(KolibriHttpProcess.Command.AUTOMATIC_PROVISION)
+
     def start_kolibri(self):
         self.__send_command(KolibriHttpProcess.Command.START_KOLIBRI)
 

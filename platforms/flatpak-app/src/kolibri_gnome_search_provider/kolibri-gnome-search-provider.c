@@ -266,7 +266,7 @@ build_kolibri_dispatch_uri(const gchar  *channel_id,
     uri_path = g_strconcat("/", node_path, NULL);
 
   kolibri_uri = g_uri_build(G_URI_FLAGS_NONE,
-                            "x-kolibri-dispatch",
+                            DISPATCH_URI_SCHEME,
                             NULL,
                             channel_id,
                             -1,

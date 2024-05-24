@@ -134,7 +134,7 @@ class LocalSearchHandler(SearchHandler):
         args = (search,)
 
         future = self.__executor.submit(
-            LocalSearchHandler._get_item_ids_for_search, args
+            LocalSearchHandler._get_item_ids_for_search, *args
         )
         return future.result()
 

@@ -12,6 +12,7 @@ from gi.repository import KolibriDaemonDBus
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
+from kolibri_app.globals import APP_AUTOMATIC_PROVISION
 
 from .dbus_helpers import DBusManagerProxy
 from .desktop_users import AccountsServiceManager
@@ -33,11 +34,17 @@ class LoginToken(typing.NamedTuple):
     expires: int
 
     @classmethod
+    def with_no_expiry(cls, **kwargs) -> LoginToken:
+        return cls(expires=0, **kwargs)
+
+    @classmethod
     def with_expire_time(cls, expires_in: int, **kwargs) -> LoginToken:
         expires = int(time.monotonic() + expires_in)
         return cls(expires=expires, **kwargs)
 
     def is_expired(self) -> bool:
+        if self.expires == 0:
+            return False
         return self.expires < time.monotonic()
 
 
@@ -365,7 +372,7 @@ class PrivateDBusInterface(object):
         token_key: str,
     ) -> bool:
         self.__application.reset_inactivity_timeout()
-        login_token = self.__application.pop_login_token(token_key)
+        login_token = self.__application.get_login_token(token_key)
         if login_token:
             result_dict = login_token.user._asdict()
         else:
@@ -376,8 +383,6 @@ class PrivateDBusInterface(object):
 
 
 class LoginTokenManager(object):
-    TOKEN_EXPIRE_TIME = 60
-
     def __init__(self):
         self.__login_tokens = dict()
         self.__expire_tokens_timeout_source = None
@@ -386,16 +391,18 @@ class LoginTokenManager(object):
         self.__revoke_expired_tokens()
         return self.__add_login_token(user_info)
 
-    def pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
+    def get_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         self.__revoke_expired_tokens()
-        return self.__pop_login_token(token_key)
+        return self.__get_login_token(token_key)
 
     def __add_login_token(self, user_info: UserInfo) -> str:
         user_id = str(user_info.user_id)
         token_key = self.__generate_token_key(user_id)
-        login_token = LoginToken.with_expire_time(
-            self.TOKEN_EXPIRE_TIME, user=user_info, key=token_key
-        )
+        # We are unable to predict when Kolibri will attempt to authenticate
+        # using a login token, so we request a token that can be reused and
+        # has no expiry time. This is usually fine, because the login token
+        # generates a session token which lasts for the same length of time.
+        login_token = LoginToken.with_no_expiry(user=user_info, key=token_key)
         # We only allow one token at a time to be associated with a particular
         # user. Using a dictionary provides that for free.
         self.__login_tokens[user_id] = login_token
@@ -404,11 +411,11 @@ class LoginTokenManager(object):
     def __generate_token_key(self, user_id: str) -> str:
         return ":".join([user_id, uuid4().hex])
 
-    def __pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
+    def __get_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
         user_id, _sep, _uuid = token_key.partition(":")
         login_token = self.__login_tokens.get(user_id, None)
         if login_token and login_token.key == token_key:
-            self.__login_tokens.pop(user_id, None)
+            self.__login_tokens.get(user_id, None)
             return login_token
         else:
             return None
@@ -519,8 +526,8 @@ class Application(Gio.Application):
     def generate_login_token(self, user_info: UserInfo) -> str:
         return self.__login_token_manager.generate_for_user(user_info)
 
-    def pop_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
-        return self.__login_token_manager.pop_login_token(token_key)
+    def get_login_token(self, token_key: str) -> typing.Optional[LoginToken]:
+        return self.__login_token_manager.get_login_token(token_key)
 
     def get_item_ids_for_search(self, search: str) -> list:
         return self.__search_handler.get_item_ids_for_search(search)
@@ -571,6 +578,15 @@ class Application(Gio.Application):
     def do_startup(self):
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
+
+        # If kolibri-daemon is running as a system service, start automatic
+        # provisioning regardless of the value of APP_AUTOMATIC_PROVISION. This
+        # works around an issue in eos-kolibri where that environment variable
+        # is unset for the Kolibri system service.
+        # FIXME: Remove the special case once the eos-kolibri issue is resolved.
+        if APP_AUTOMATIC_PROVISION or self.use_system_bus:
+            self.__kolibri_service.automatic_provision()
+
         Gio.Application.do_startup(self)
 
     def do_shutdown(self):

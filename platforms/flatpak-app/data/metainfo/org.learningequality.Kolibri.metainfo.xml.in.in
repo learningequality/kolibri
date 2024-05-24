@@ -2,7 +2,9 @@
 <component type="desktop-application">
   <id>@BASE_APPLICATION_ID@</id>
   <name>Kolibri</name>
-  <developer_name>Learning Equality</developer_name>
+  <developer>
+    <name>Learning Equality</name>
+  </developer>
   <summary>Offline education technology platform</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
@@ -22,6 +24,16 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.0.0+next" date="2023-04-23" type="development">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          <li>
+            Kolibri is updated to 0.16.0.
+          </li>
+        </ul>
+      </description>
+    </release>
     <release version="2.3.4" date="2023-09-21" type="stable">
       <description>
         <p>Changes included in this release:</p>
@@ -203,5 +215,5 @@
   <content_rating type="oars-1.1" />
   <update_contact>info_at_learningequality.org</update_contact>
   <translation type="gettext">kolibri-gnome</translation>
-  <compulsory_for_desktop>endless</compulsory_for_desktop>
+  <compulsory_for_desktop>Endless</compulsory_for_desktop>
 </component>

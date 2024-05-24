@@ -5,6 +5,7 @@ gobject_dep = dependency('gobject-2.0')
 
 _c_config = configuration_data()
 _c_config.set_quoted('PACKAGE_STRING', package_string)
+_c_config.set_quoted('DISPATCH_URI_SCHEME', dispatch_uri_scheme)
 _c_config.set_quoted('FRONTEND_APPLICATION_ID', frontend_application_id)
 _c_config.set_quoted('FRONTEND_OBJECT_PATH', frontend_object_path)
 _c_config.set_quoted('FRONTEND_CHANNEL_APPLICATION_ID_PREFIX', frontend_channel_application_id_prefix)

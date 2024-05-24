@@ -9,8 +9,29 @@ option(
 )
 
 option(
-    'kolibri_home_template_dir',
+    'base_application_id',
     type: 'string',
-    value: '',
-    description: 'Directory where a KOLIBRI_HOME template is located'
+    value: 'org.learningequality.Kolibri',
+    description: 'Base application ID. When profile is "development", ".Devel" is appended'
+)
+
+option(
+    'base_object_path',
+    type: 'string',
+    value: '/org/learningequality/Kolibri',
+    description: 'Base D-Bus object path. When profile is "development", "/Devel" is appended'
+)
+
+option(
+    'env_prefix',
+    type: 'string',
+    value: 'KOLIBRI_',
+    description: 'Prefix for environment variables. When profile is "development", "DEVEL_" is appended'
+)
+
+option(
+    'uri_prefix',
+    type: 'string',
+    value: 'x-kolibri',
+    description: 'Prefix for custom URI schemes. When profile is "development", "-devel" is appended'
 )

@@ -27,6 +27,7 @@ if desktop_file_validate.found()
     test(
         'Validate desktop file',
         desktop_file_validate,
-        args: [desktop_file, launcher_file]
+        args: [desktop_file, launcher_file],
+        workdir: meson.current_build_dir()
     )
 endif

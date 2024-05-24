@@ -1,0 +1,43 @@
+name: Check for updates
+on:
+  schedule:
+    - cron: "0 * * * *" # run every hour
+  workflow_dispatch:
+
+jobs:
+  flatpak-external-data-checker:
+    runs-on: ubuntu-latest
+    container: ghcr.io/flathub/flatpak-external-data-checker:latest
+
+    strategy:
+      matrix:
+        branch: [ main ] # list all branches to check
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ matrix.branch }}
+
+      # The f-e-d-c safe.directory handling is currently broken when the
+      # manifest is in a subdirectory, so it has to be handled outside
+      # of the checker.
+      #
+      # https://github.com/flathub/flatpak-external-data-checker/issues/386
+      - name: Mark git checkout safe
+        run: |
+          git config --global --add safe.directory "$PWD"
+
+      - name: Run flatpak-external-data-checker
+        env:
+          GIT_AUTHOR_NAME: Flatpak External Data Checker
+          GIT_COMMITTER_NAME: Flatpak External Data Checker
+          # email sets "github-actions[bot]" as commit author, see https://github.community/t/github-actions-bot-email-address/17204/6
+          GIT_AUTHOR_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GIT_COMMITTER_EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          EMAIL: 41898282+github-actions[bot]@users.noreply.github.com
+          GITHUB_TOKEN: ${{ secrets.WORKFLOW_TOKEN }}
+        working-directory: build-aux/flatpak
+        run: |
+          /app/flatpak-external-data-checker --update --verbose --never-fork \
+            build-aux/flatpak/org.learningequality.Kolibri.Devel.json

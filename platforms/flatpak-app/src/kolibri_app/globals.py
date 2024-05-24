@@ -4,18 +4,29 @@ import gettext
 import logging
 import os
 import typing
+from gettext import gettext as _
 from pathlib import Path
 
 from . import config
+from .utils import getenv_as_bool
 
 logger = logging.getLogger(__name__)
 
-APP_DEVELOPER_EXTRAS = os.environ.get(
-    config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS"
+USE_SYSTEM_INSTANCE = getenv_as_bool(
+    config.PROFILE_ENV_PREFIX + "USE_SYSTEM_INSTANCE", default=False
 )
 
-APP_FORCE_AUTOMATIC_LOGIN = os.environ.get(
-    config.PROFILE_ENV_PREFIX + "APP_FORCE_AUTOMATIC_LOGIN"
+APP_DEVELOPER_EXTRAS = getenv_as_bool(
+    config.PROFILE_ENV_PREFIX + "APP_DEVELOPER_EXTRAS",
+    default=config.BUILD_PROFILE == "development",
+)
+
+APP_AUTOMATIC_LOGIN = getenv_as_bool(
+    config.PROFILE_ENV_PREFIX + "APP_AUTOMATIC_LOGIN", default=True
+)
+
+APP_AUTOMATIC_PROVISION = getenv_as_bool(
+    config.PROFILE_ENV_PREFIX + "APP_AUTOMATIC_PROVISION", default=USE_SYSTEM_INSTANCE
 )
 
 XDG_CURRENT_DESKTOP = os.environ.get("XDG_CURRENT_DESKTOP")
@@ -60,6 +71,26 @@ def init_logging(log_file_name: str = "kolibri-app.txt", level: int = logging.DE
     root_logger.addHandler(file_handler)
 
     return logs_dir_path
+
+
+def get_version(kolibri_version: str) -> str:
+    if config.BUILD_PROFILE == "development":
+        return _("{kolibri_version} ({vcs_tag})").format(
+            vcs_tag=config.VCS_TAG,
+            kolibri_version=kolibri_version,
+        )
+    else:
+        return _("{kolibri_version} ({app_version})").format(
+            app_version=config.PROJECT_VERSION,
+            kolibri_version=kolibri_version,
+        )
+
+
+def get_release_notes_version() -> str:
+    if config.BUILD_PROFILE == "development":
+        return config.PROJECT_VERSION + "+next"
+    else:
+        return config.PROJECT_VERSION
 
 
 def get_current_language() -> typing.Optional[str]:

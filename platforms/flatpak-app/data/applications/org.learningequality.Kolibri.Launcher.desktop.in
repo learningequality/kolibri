@@ -6,4 +6,4 @@ Exec=@KOLIBRI_APP_LIBEXECDIR@/kolibri-gnome-launcher %U
 NoDisplay=true
 StartupNotify=false
 DBusActivatable=true
-MimeType=x-scheme-handler/x-kolibri-dispatch;
+MimeType=x-scheme-handler/@DISPATCH_URI_SCHEME@;

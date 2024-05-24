@@ -50,7 +50,9 @@ class UserInfo(typing.NamedTuple):
 
     @classmethod
     def from_user_id_future(
-        cls, user_id: int, accounts_service: AccountsServiceManager = None
+        cls,
+        user_id: int,
+        accounts_service: typing.Optional[AccountsServiceManager] = None,
     ) -> Future[UserInfo]:
         out_future: Future[UserInfo] = Future()
 

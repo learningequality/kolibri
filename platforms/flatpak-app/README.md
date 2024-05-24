@@ -36,7 +36,6 @@ dependencies in addition to installing the desktop front-end.
 
 It will also take advantage of having the following Kolibri plugins installed:
 - [kolibri-app-desktop-xdg-plugin](https://github.com/endlessm/kolibri-app-desktop-xdg-plugin)
-- [kolibri-desktop-auth-plugin](https://github.com/endlessm/kolibri-desktop-auth-plugin)
 
 If so, they will be automatically registered before Kolibri is
 initialized.
@@ -128,3 +127,79 @@ URIs like `kolibri-channel://`, `x-kolibri-dispatch://` and converts
 them into kolibri-gnome arguments. Starts kolibri-gnome with a
 specific application ID depending on the URI. This is why a launcher
 process is needed instead of handling these URIs in kolibri-gnome.
+
+#### Managing release notes
+
+While making changes for an upcoming release, please update [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in)
+with information about those changes. In the `<releases>` section, there should
+always be a release entry with `version` set to the previous version followed by
+`+next`, like this:
+
+```
+<release version="3.0.0+next" date="2024-04-23" type="development">
+  <description>
+    <ul>
+      <li>The description of a new feature goes here.</li>
+    </ul>
+  </description>
+</release>
+```
+
+If there is not one, please create one as the first entry in `<releases>`.
+
+#### Creating releases
+
+To create a release, use [bump-my-version](<https://pypi.org/project/bump-my-version/>):
+
+```
+bump-my-version bump minor
+git push
+git push --tags
+```
+
+This will create a new git tag, update the `VERSION` file in the project root,
+and update the "+next" release entry in [org.learningequality.Kolibri.metainfo.xml.in.in](data/metainfo/org.learningequality.Kolibri.metainfo.xml.in.in).
+
+Note that it is possible to increment either the `major`, `minor`, or `patch`
+component of the project's version number.
+
+### Debugging and advanced usage
+
+#### Web inspector
+
+For development builds, kolibri-gnome enables WebKit developer extras. You can
+open the web inspector by pressing F12, or by right clicking and choosing
+"Inspect Element" from the context menu. If this is not available, try running
+the application with `env KOLIBRI_APP_DEVELOPER_EXTRAS=1` for a production
+build, or with `env KOLIBRI_DEVEL_APP_DEVELOPER_EXTRAS=1` for a development
+build.
+
+#### Automatic provisioning
+
+The kolibri-daemon service will automatically provision Kolibri when it starts
+for the first time. This skips Kolibri's first-run setup wizard and sets up
+Kolibri with no root user. To disable this feature, start kolibri-daemon with
+the `KOLIBRI_APP_AUTOMATIC_PROVISION` environment variable set to `0` for a
+production build, or with `KOLIBRI_DEVEL_APP_AUTOMATIC_PROVISION` for a
+development build. For example, using the reference flatpak:
+
+```
+env KOLIBRI_DEVEL_APP_AUTOMATIC_PROVISION=0 flatpak run --command=/app/libexec/kolibri-app/kolibri-daemon org.learningequality.Kolibri.Devel
+```
+
+Alternatively, provide your own [automatic provisioning file](httpshttps://github.com/learningequality/kolibri/blob/release-v0.16.x/kolibri/core/device/utils.py#L335-L365)
+and start kolibri-daemon with `env KOLIBRI_AUTOMATIC_PROVISION_FILE=/path/to/automatic_provision.json`.
+
+#### Automatic sign in
+
+The kolibri-gnome application will automatically sign in to Kolibri using a
+private token assigned to the current desktop user. This is necessary to
+support the automatic provisioning feature. To disable automatic sign in, so
+Kolibri will instead require you to sign in with a password, start the
+application with the `KOLIBRI_APP_AUTOMATIC_LOGIN` environment variable set
+to `0` for a production build, or with `KOLIBRI_DEVEL_APP_AUTOMATIC_LOGIN`
+for a development build. For example, using the reference flatpak:
+
+```
+env KOLIBRI_DEVEL_APP_AUTOMATIC_LOGIN=0 flatpak run org.learningequality.Kolibri.Devel
+```

@@ -2,18 +2,51 @@
     "name": "python3-kolibri-app-desktop-xdg-plugin",
     "buildsystem": "simple",
     "build-commands": [
-        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri-app-desktop-xdg-plugin"
+        "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} --use-pep517 kolibri-app-desktop-xdg-plugin"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/90/d4/a7c9b6c5d176654aa3dbccbfd0be4fd3a263355dc24122a5f1937bdc2689/Pillow-8.3.2.tar.gz",
-            "sha256": "dde3f3ed8d00c72631bc19cbfff8ad3b6215062a5eed402381ad365f82f0c18c"
+            "url": "https://files.pythonhosted.org/packages/f7/29/13965af254e3373bceae8fb9a0e6ea0d0e571171b80d6646932131d6439b/setuptools-69.5.1-py3-none-any.whl",
+            "sha256": "c636ac361bc47580504644275c9ad802c50415c7522212252c033bd15f301f32",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "setuptools",
+                "packagetype": "bdist_wheel"
+            }
         },
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/3e/b8/46e65ec41b08c8f78a5e571357d6a0634187286f6ba558c447fb99f4512c/kolibri_app_desktop_xdg_plugin-1.1.4-py2.py3-none-any.whl",
-            "sha256": "16d16a21c55cae262dbf587e43815af1646b3b7dac70f07bf1d0c412833911aa"
+            "url": "https://files.pythonhosted.org/packages/7d/cd/d7460c9a869b16c3dd4e1e403cce337df165368c71d6af229a74699622ce/wheel-0.43.0-py3-none-any.whl",
+            "sha256": "55c570405f142630c6b9f72fe09d9b67cf1477fcf543ae5b8dcb1f5b7377da81",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "wheel",
+                "packagetype": "bdist_wheel"
+            }
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/ef/43/c50c17c5f7d438e836c169e343695534c38c77f60e7c90389bd77981bc21/pillow-10.3.0.tar.gz",
+            "sha256": "9d2455fbf44c914840c793e89aa82d0e1763a14253a000743719ae5946814b2d",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "Pillow",
+                "versions": {
+                    ">=": "10.1.0",
+                    "<": "11.0.0"
+                }
+            }
+        },
+        {
+            "type": "file",
+            "url": "https://files.pythonhosted.org/packages/44/01/a40f3823fc367731e5cd7a90306b0cc3af080b1e13f59fd66efb3ff7bec4/kolibri_app_desktop_xdg_plugin-1.2.0-py3-none-any.whl",
+            "sha256": "d689e7cdcdad49a2897fa1ce9069ff9d57e375c7918a4e5b27bb6fbe4d3e5859",
+            "x-checker-data": {
+                "type": "pypi",
+                "name": "kolibri-app-desktop-xdg-plugin",
+                "packagetype": "bdist_wheel"
+            }
         }
     ]
 }

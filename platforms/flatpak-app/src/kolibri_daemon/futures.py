@@ -8,7 +8,7 @@ from functools import partial
 def future_chain(
     from_future: typing.Any,
     to_future: typing.Optional[Future] = None,
-    map_fn: typing.Callable = None,
+    map_fn: typing.Optional[typing.Callable] = None,
 ) -> Future:
     """
     This is an attempt to build a simple way of chaining together Future
@@ -33,7 +33,9 @@ def future_chain(
 
 
 def _future_chain_from_future_done_cb(
-    from_future: Future, to_future: Future, map_fn: typing.Callable = None
+    from_future: Future,
+    to_future: Future,
+    map_fn: typing.Optional[typing.Callable] = None,
 ):
     try:
         result = from_future.result()

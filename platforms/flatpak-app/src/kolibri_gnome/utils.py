@@ -69,7 +69,7 @@ def bubble_signal(
     source: GObject.Object,
     source_signal: str,
     next: GObject.Object,
-    next_signal: str = None,
+    next_signal: typing.Optional[str] = None,
 ):
     next_signal = next_signal or source_signal
 

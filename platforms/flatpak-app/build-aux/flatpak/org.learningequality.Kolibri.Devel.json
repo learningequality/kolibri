@@ -1,10 +1,10 @@
 {
     "app-id" : "org.learningequality.Kolibri.Devel",
     "runtime" : "org.gnome.Platform",
-    "runtime-version" : "44",
+    "runtime-version" : "45",
     "sdk" : "org.gnome.Sdk",
     "command" : "/app/bin/kolibri-gnome",
-    "desktop-file-name-suffix" : " ☢️",
+    "desktop-file-name-suffix" : " (Dev)",
     "finish-args" : [
         "--device=dri",
         "--share=ipc",
@@ -12,7 +12,6 @@
         "--socket=fallback-x11",
         "--socket=pulseaudio",
         "--socket=wayland",
-        "--socket=x11",
         "--system-talk-name=org.learningequality.Kolibri.Devel.Daemon",
         "--env=KOLIBRI_HOME=~/.var/app/org.learningequality.Kolibri.Devel/data/kolibri",
         "--env=KOLIBRI_HTTP_PORT=0",
@@ -35,39 +34,44 @@
     },
     "build-options": {
         "env": {
-            "KOLIBRI_MODULE_PATH": "/app/lib/python3.10/site-packages/kolibri"
+            "KOLIBRI_MODULE_PATH": "/app/lib/python3.11/site-packages/kolibri"
         },
         "test-args" : [
             "--socket=fallback-x11",
             "--socket=wayland"
         ]
     },
+    "cleanup-commands" : [
+        "find ${KOLIBRI_MODULE_PATH}/dist/cext -type d -name 'cp*' -not -path ${KOLIBRI_MODULE_PATH}/dist/cext/cp311 -exec rm -rf '{}' '+'",
+        "rm -rf ${KOLIBRI_MODULE_PATH}/dist/cext/*/Windows",
+        "find ${KOLIBRI_MODULE_PATH} -type d -name 'test*' -not -path ${KOLIBRI_MODULE_PATH}/dist/django/test -exec rm -rf '{}' '+'"
+    ],
     "modules" : [
         "modules/iproute2.json",
-        "modules/python3-markdown.json",
         "modules/python3-kolibri.json",
         "modules/python3-kolibri-pytz.json",
         "modules/python3-kolibri-app-desktop-xdg-plugin.json",
-        "modules/python3-kolibri-desktop-auth-plugin.json",
-        "modules/kolibri-home-template.json",
         "modules/python3-setproctitle.json",
-        "modules/python3-virtualenv-api.json",
         "modules/kolibri-content-dir.json",
         "modules/kolibri-plugins-dir.json",
         {
             "name" : "kolibri-gnome",
             "buildsystem" : "meson",
             "builddir" : true,
-            "run-tests" : true,
             "config-opts" : [
-                "-Dkolibri_home_template_dir=/app/share/kolibri-home-template",
                 "-Dprofile=development"
             ],
             "sources" : [
                 {
-                    "type" : "git",
-                    "url" : "https://github.com/learningequality/kolibri-installer-gnome.git",
-                    "branch" : "master"
+                    "type" : "dir",
+                    "path" : "../..",
+                    "skip" : [
+                        ".git",
+                        ".flatpak-builder",
+                        "build",
+                        "flatpak_app",
+                        "repo"
+                    ]
                 }
             ]
         }

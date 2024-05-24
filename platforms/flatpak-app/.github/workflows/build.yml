@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Setup python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
@@ -24,50 +24,18 @@ jobs:
     needs: lint
     runs-on: ubuntu-latest
 
+    container:
+      image: bilelmoussaoui/flatpak-github-actions:gnome-44
+      options: --privileged
+
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
-      - name: Install system dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get -y install \
-            flatpak \
-            flatpak-builder \
-            xvfb
-
-      - name: Cache flatpak user installation
-        uses: actions/cache@v3
+      - name: Build Flatpak bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6.3
         with:
-          path: ~/.local/share/flatpak
-          key: flatpak-user-${{ runner.arch }}
-
-      - name: Cache flatpak-builder state directory
-        uses: actions/cache@v3
-        with:
-          path: .flatpak-builder
-          key: flatpak-builder-${{ runner.arch }}
-
-      - name: Add Flathub repository
-        run: |
-          flatpak remote-add --user --if-not-exists flathub \
-            https://dl.flathub.org/repo/flathub.flatpakrepo
-
-      - name: Build flatpak
-        # The build needs to be run under Xvfb (or some other virtual
-        # display server) so that Gdk initialization succeeds in the
-        # tests.
-        run: |
-          xvfb-run --auto-servernum -- \
-            flatpak-builder --user --install-deps-from=flathub --repo _repo _flatpak \
-            build-aux/flatpak/org.learningequality.Kolibri.Devel.json
-
-      - name: Create flatpak bundle
-        run: |
-          flatpak build-bundle _repo org.learningequality.Kolibri.Devel.flatpak org.learningequality.Kolibri.Devel
-
-      - name: Upload flatpak bundle
-        uses: actions/upload-artifact@v3
-        with:
-          name: flatpak
-          path: org.learningequality.Kolibri.Devel.flatpak
+          bundle: org.learningequality.Kolibri.Devel.flatpak
+          manifest-path: build-aux/flatpak/org.learningequality.Kolibri.Devel.json
+          cache: ${{ github.event_name == 'push' && github.ref_name == 'main' }}
+          cache-key: kolibri-gnome-${{ github.sha }}
