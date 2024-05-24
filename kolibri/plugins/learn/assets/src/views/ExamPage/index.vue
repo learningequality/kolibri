@@ -574,6 +574,7 @@
 
   .answered {
     display: inline-block;
+    margin-right: 8px;
     margin-left: 8px;
     white-space: nowrap;
   }

@@ -277,15 +277,6 @@ export default function useQuizCreation() {
    * @throws {Error} if quiz is not valid
    */
   function saveQuiz() {
-    const totalQuestions = get(allSections).reduce((acc, section) => {
-      acc += parseInt(section.question_count);
-      return acc;
-    }, 0);
-
-    set(_quiz, {
-      ...get(_quiz),
-      question_count: totalQuestions,
-    });
     if (!validateQuiz(get(_quiz))) {
       throw new Error(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
     }
