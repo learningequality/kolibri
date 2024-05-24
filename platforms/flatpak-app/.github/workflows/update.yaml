@@ -11,7 +11,7 @@ jobs:
 
     strategy:
       matrix:
-        branch: [ main ] # list all branches to check
+        branch: [ master ] # list all branches to check
 
     steps:
       - name: Checkout
