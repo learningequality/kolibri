@@ -76,7 +76,7 @@ export default {
       },
       scrimOpacity: {
         type: Number,
-        default: 0.7,
+        default: 0.2,
         validator(opacity) {
           if (opacity < 0 || opacity > 1) {
             logging.error(`Scrim opacity '${opacity}' is not in range [0,1]`);
