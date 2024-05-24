@@ -24,12 +24,26 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.0.0+next" date="2023-04-23" type="development">
+    <release version="2.3.4+next" date="2024-05-23" type="development">
       <description>
         <p>Changes included in this release:</p>
         <ul>
           <li>
-            Kolibri is updated to 0.16.0.
+            Kolibri is updated to 0.16.1.
+          </li>
+          <li>
+            The Kolibri app will now sign in automatically using credentials
+            associated with the current desktop user account.
+          </li>
+          <li>
+            The main menu has been simplified.
+          </li>
+          <li>
+            Troubleshooting information has been added to the About window.
+          </li>
+          <li>
+            When running as a system service, Kolibri automatically creates a
+            default facility before starting for the first time.
           </li>
         </ul>
       </description>
