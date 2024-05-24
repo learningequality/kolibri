@@ -20,7 +20,7 @@ class DefaultThemeHook(theme_hook.ThemeHook):
         return {
             "signIn": {
                 "background": static("assets/default_theme/background.jpg"),
-                "backgroundImgCredit": "Thomas Van Den Driessche",
+                "backgroundImgCredit": "Lewa Wildlife Conservancy",
                 "topLogo": {
                     "style": "padding-left: 64px; padding-right: 64px; margin-bottom: 8px; margin-top: 8px",
                 },
