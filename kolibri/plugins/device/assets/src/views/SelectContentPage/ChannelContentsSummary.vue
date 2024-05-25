@@ -2,11 +2,32 @@
 
   <section>
     <div class="channel-header">
-      <img
-        v-if="channel.thumbnail"
-        class="thumbnail"
-        :src="channel.thumbnail"
-      >
+      <KFixedGrid numCols="2">
+        <KFixedGridItem
+          :span="1"
+          class="channel-icon"
+        >
+          <img
+            v-if="channel.thumbnail"
+            class="thumbnail"
+            :src="channel.thumbnail"
+          >
+        </KFixedGridItem>
+        <KFixedGridItem
+          :span="1"
+          :alignment="windowIsSmall ? 'left' : 'right'"
+        >
+          <KButtonGroup
+            v-if="isLocalChannel"
+          >
+            <KButton
+              :text="$tr('editDetails')"
+              @click="() => { /* TODO: Implement */}"
+            />
+          </KButtonGroup>
+        </KFixedGridItem>
+      </KFixedGrid>
+      
       <div class="channel-name">
         <KTooltip reference="lockicon" :refs="$refs" placement="right">
           {{ $tr('unlistedChannelTooltip') }}
@@ -125,6 +146,12 @@
       remoteContentEnabled() {
         return plugin_data.isRemoteContent;
       },
+      isLocalChannel() {
+        // TODO Change this when local channels are supported
+        // final implementation may look like this:
+        // return this.channel.local_only;
+        return true;
+      }
     },
     methods: {
       bytesForHumans,
@@ -163,6 +190,10 @@
         message: 'Free disk space',
         context:
           "In the 'Advanced' section this indicates how much disk space is free on the Device.",
+      },
+      editDetails: {
+        message: 'Edit details',
+        context: 'Option to edit the details of a channel.',
       },
     },
   };
