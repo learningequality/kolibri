@@ -40,4 +40,4 @@ jobs:
         working-directory: build-aux/flatpak
         run: |
           /app/flatpak-external-data-checker --update --verbose --never-fork \
-            build-aux/flatpak/org.learningequality.Kolibri.Devel.json
+            org.learningequality.Kolibri.Devel.json
