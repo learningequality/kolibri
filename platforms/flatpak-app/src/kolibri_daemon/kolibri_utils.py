@@ -21,6 +21,7 @@ REQUIRED_PLUGINS = [
 # These Kolibri plugins will be automatically enabled if they are available:
 OPTIONAL_PLUGINS = [
     "kolibri_app_desktop_xdg_plugin",
+    "kolibri_desktop_auth_plugin",
     "kolibri_dynamic_collections_plugin",
     "kolibri_zim_plugin",
 ]
