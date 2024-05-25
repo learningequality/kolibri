@@ -99,6 +99,7 @@
 
     <CreateNewCustomChannelModal
       v-if="editChannelDetails"
+      :channel="channel"
       :manageMode="true"
       @cancel="closeModal"
     />

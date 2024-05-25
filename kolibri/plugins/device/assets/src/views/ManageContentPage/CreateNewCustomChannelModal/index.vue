@@ -1,8 +1,8 @@
 <template>
 
   <KModal
-    :title="$tr('createNewCustomChannelLabel')"
-    :submitText="$tr('createChannelButtonLabel')"
+    :title="channel ? $tr('editChannelLabel') : $tr('createNewCustomChannelLabel')"
+    :submitText="channel ? $tr('editChannelButtonLabel') : $tr('createChannelButtonLabel')"
     :cancelText="coreString('cancelAction')"
     size="medium"
     @submit="handleSubmit"
@@ -40,11 +40,16 @@
         type: Boolean,
         required: false,
       },
+      channel: {
+        type: Object,
+        required: false,
+        default: null,
+      },
     },
     data() {
       return {
-        channelName: '',
-        channelDescription: '',
+        channelName: this.channel.name || '',
+        channelDescription: this.channel.description || '',
       };
     },
     computed: {
@@ -75,6 +80,10 @@
         message: 'Create new channel',
         context: 'Title for create new custom channel modal',
       },
+      editChannelLabel: {
+        message: 'Edit channel details',
+        context: 'Title for edit custom channel modal',
+      },
       channelNameFieldLabel: {
         message: 'Channel name',
         context: 'The field where the user adds the name for the custom channel',
@@ -86,7 +95,11 @@
       createChannelButtonLabel: {
         message: 'create',
         context: 'Label for create channel submit button.',
-      }
+      },
+      editChannelButtonLabel: {
+        message: 'edit',
+        context: 'Label for edit channel details submit button.',
+      },
     }
   }
 
