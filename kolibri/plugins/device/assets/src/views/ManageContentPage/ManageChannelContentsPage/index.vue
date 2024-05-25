@@ -80,7 +80,7 @@
         actionType="manage"
         :resourceCounts="resourceCounts"
         :disabled="!Boolean(currentNode) || bottomBarDisabled"
-        @selectoption="shownModal = $event"
+        @selectoption="handleSelectOption($event)"
       />
     </KPageContainer>
   </ImmersivePage>
@@ -189,10 +189,15 @@
       },
       resourceCounts() {
         // TODO decouple this workflow entirely from vuex
-        const { transferResourceCount, transferFileSize } = this.$store.state.manageContent.wizard;
+        const { 
+          transferResourceCount, 
+          transferFileSize, 
+          nodesForTransfer 
+        } = this.$store.state.manageContent.wizard;
         return {
           count: transferResourceCount,
           fileSize: transferFileSize,
+          includedCount: nodesForTransfer.included.length,
         };
       },
     },
@@ -320,6 +325,14 @@
         }
 
         this.$router.push(baseLinkObject);
+      },
+      handleSelectOption(event) {
+        if (event === 'EDIT') {
+          // TODO: Implement edit option for when a resource is selected
+          this.shownModal = 'NEW_FOLDER';
+        } else {
+          this.shownModal = event;
+        }
       },
       closeModal() {
         this.selectSourcePageName = null;

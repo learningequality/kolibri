@@ -5,6 +5,12 @@
       <KButtonGroup>
         <span class="message">{{ selectedMessage }}</span>
         <KButton
+          :disabled="$attrs.disabled || editButtonDisabled"
+          :text="coreString('editAction')"
+          :primary="false"
+          @click="$emit('selectoption', 'EDIT')"
+        />
+        <KButton
           :disabled="$attrs.disabled || buttonsDisabled"
           :text="coreString('deleteAction')"
           :primary="false"
@@ -98,6 +104,9 @@
         } else {
           return this.selectedObjects === 0;
         }
+      },
+      editButtonDisabled() {
+        return this.resourceCounts.includedCount !== 1;
       },
       selectedObjectsFileSize() {
         if (
