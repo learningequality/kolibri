@@ -17,14 +17,14 @@
           :span="1"
           :alignment="windowIsSmall ? 'left' : 'right'"
         >
-          <KButtonGroup
+          <div
             v-if="isLocalChannel"
           >
             <KButton
               :text="$tr('editDetails')"
-              @click="() => { /* TODO: Implement */}"
+              @click="editChannelDetails = true"
             />
-          </KButtonGroup>
+          </div>
         </KFixedGridItem>
       </KFixedGrid>
       
@@ -95,6 +95,13 @@
         <td>{{ bytesForHumans(freeSpace || 0) }}</td>
       </tr>
     </table>
+
+
+    <CreateNewCustomChannelModal
+      v-if="editChannelDetails"
+      :manageMode="true"
+      @cancel="closeModal"
+    />
   </section>
 
 </template>
@@ -106,12 +113,14 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import CreateNewCustomChannelModal from '../ManageContentPage/CreateNewCustomChannelModal';
   import plugin_data from 'plugin_data';
 
   export default {
     name: 'ChannelContentsSummary',
     components: {
       TextTruncatorCss,
+      CreateNewCustomChannelModal,
     },
     mixins: [commonCoreStrings],
     setup() {
@@ -136,6 +145,11 @@
         default: null,
       },
     },
+    data() {
+      return {
+        editChannelDetails: false,
+      }
+    },
     computed: {
       versionNumber() {
         if (!this.channelOnDevice.available || this.channelOnDevice.version === undefined) {
@@ -155,6 +169,9 @@
     },
     methods: {
       bytesForHumans,
+      closeModal() {
+        this.editChannelDetails = false;
+      },
     },
     $trs: {
       onDeviceRow: {

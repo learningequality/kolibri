@@ -35,9 +35,9 @@
 
   import { ContentWizardPages, ContentSources } from '../../../constants';
   import SelectNetworkDeviceModal from '../SelectNetworkDeviceModal';
+  import CreateNewCustomChannelModal from '../CreateNewCustomChannelModal';
   import SelectImportSourceModal from './SelectImportSourceModal';
   import SelectDriveModal from './SelectDriveModal';
-  import CreateNewCustomChannelModal from './CreateNewCustomChannelModal.vue';
 
   export default {
     name: 'SelectTransferSourceModal',
