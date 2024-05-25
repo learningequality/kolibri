@@ -1,7 +1,5 @@
 name: Check for updates
 on:
-  schedule:
-    - cron: "0 * * * *" # run every hour
   workflow_dispatch:
 
 jobs:
