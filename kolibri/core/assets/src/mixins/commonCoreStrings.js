@@ -43,6 +43,11 @@ export const coreStrings = createTranslator('CommonCoreStrings', {
     context:
       'Used on a button to move to the next step in a process like creating an account, for example.',
   },
+  createAction: {
+    message: 'Create',
+    context:
+      'Used on a button that allows a user to create a new entity in Kolibri. For example, a teacher can confirm the creation of a new local channel.',
+  },
   declineAction: {
     message: 'Decline',
     context: 'Button text to decline selected terms (i.e. cookie usage)',

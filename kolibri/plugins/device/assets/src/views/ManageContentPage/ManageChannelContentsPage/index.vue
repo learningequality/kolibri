@@ -21,10 +21,16 @@
         </ChannelContentsSummary>
 
         <div style="text-align: right">
-          <KButton
-            :text="$tr('importMoreAction')"
-            @click="shownModal = 'IMPORT_MORE'"
-          />
+          <KButtonGroup>
+            <KButton 
+              :text="$tr('newFolderAction')"
+              @click="shownModal = 'NEW_FOLDER'"
+            />
+            <KButton
+              :text="$tr('importMoreAction')"
+              @click="shownModal = 'IMPORT_MORE'"
+            />
+          </KButtonGroup>
         </div>
 
         <transition mode="out-in">
@@ -64,6 +70,11 @@
         @submit="handleSelectImportMoreSource"
       />
 
+      <NewFolderModal
+        v-if="shownModal === 'NEW_FOLDER'"
+        @cancel="closeModal"
+      />
+
       <SelectionBottomBar
         objectType="resource"
         actionType="manage"
@@ -101,6 +112,7 @@
   import taskNotificationMixin from '../../taskNotificationMixin';
   import TaskProgress from '../TaskProgress';
   import { ContentSources, PageNames } from '../../../constants';
+  import NewFolderModal from './NewFolderModal.vue';
 
   import { fetchPageData, fetchNodeWithAncestors, startExportTask, startDeleteTask } from './api';
 
@@ -123,6 +135,7 @@
       SelectDriveModal,
       SelectionBottomBar,
       SelectTransferSourceModal,
+      NewFolderModal,
       TaskProgress,
     },
     mixins: [commonCoreStrings, taskNotificationMixin],
@@ -340,6 +353,10 @@
       appBarTitle: {
         message: `Manage '{channelName}'`,
         context: 'Refers to the title of the page where a user manages a specific channel.',
+      },
+      newFolderAction: {
+        message: 'New folder',
+        context: 'Button which user can use to add a folder to the channel.',
       },
       importMoreAction: {
         message: 'Import more',

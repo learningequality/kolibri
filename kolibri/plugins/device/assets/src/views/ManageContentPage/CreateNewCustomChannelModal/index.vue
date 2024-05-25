@@ -2,7 +2,7 @@
 
   <KModal
     :title="channel ? $tr('editChannelLabel') : $tr('createNewCustomChannelLabel')"
-    :submitText="channel ? $tr('editChannelButtonLabel') : $tr('createChannelButtonLabel')"
+    :submitText="channel ? coreString('editAction') : coreString('createAction')"
     :cancelText="coreString('cancelAction')"
     size="medium"
     @submit="handleSubmit"
@@ -48,8 +48,8 @@
     },
     data() {
       return {
-        channelName: this.channel.name || '',
-        channelDescription: this.channel.description || '',
+        channelName: this.channel ? this.channel.name : '',
+        channelDescription: this.channel ? this.channel.description : '',
       };
     },
     computed: {
@@ -62,10 +62,10 @@
         resetContentWizardState: 'RESET_STATE',
       }),
       handleSubmit() {
-        // TODO Handle submit
         if (this.channelNameInvalid) {
           return this.$refs.channelNameTextBox.focus();
         }
+        // TODO Handle submit
       },
       handleClickCancel() {
         if (this.manageMode) {
@@ -91,14 +91,6 @@
       channelDescriptionFieldLabel: {
         message: 'Description (optional)',
         context: 'The field where the user adds the description for the custom channel (labeled as optional)',
-      },
-      createChannelButtonLabel: {
-        message: 'create',
-        context: 'Label for create channel submit button.',
-      },
-      editChannelButtonLabel: {
-        message: 'edit',
-        context: 'Label for edit channel details submit button.',
       },
     }
   }
