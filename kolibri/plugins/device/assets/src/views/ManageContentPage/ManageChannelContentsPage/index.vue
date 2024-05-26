@@ -23,6 +23,7 @@
         <div style="text-align: right">
           <KButtonGroup>
             <KButton 
+              v-if="isLocalChannel"
               :text="$tr('newFolderAction')"
               @click="shownModal = 'NEW_FOLDER'"
             />
@@ -80,6 +81,7 @@
         actionType="manage"
         :resourceCounts="resourceCounts"
         :disabled="!Boolean(currentNode) || bottomBarDisabled"
+        :isLocal="isLocalChannel"
         @selectoption="handleSelectOption($event)"
       />
     </KPageContainer>
@@ -186,6 +188,12 @@
       },
       currentNode() {
         return this.nodeCache[this.currentNodeId];
+      },
+      isLocalChannel() {
+        // TODO Change this when local channels are supported
+        // final implementation may look like this:
+        // return this.channel.local_only;
+        return true;
       },
       resourceCounts() {
         // TODO decouple this workflow entirely from vuex

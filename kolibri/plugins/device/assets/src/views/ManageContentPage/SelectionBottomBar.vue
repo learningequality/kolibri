@@ -5,6 +5,7 @@
       <KButtonGroup>
         <span class="message">{{ selectedMessage }}</span>
         <KButton
+          v-if="isLocal"
           :disabled="$attrs.disabled || editButtonDisabled"
           :text="coreString('editAction')"
           :primary="false"
@@ -88,6 +89,11 @@
             value === 'import' || value === 'export' || value === 'delete' || value === 'manage'
           );
         },
+      },
+      isLocal: {
+        type: Boolean,
+        required: false,
+        default: false,
       },
     },
     computed: {
