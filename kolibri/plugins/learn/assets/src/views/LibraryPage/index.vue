@@ -82,6 +82,12 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
+          <!-- Ofline Resources -->
+          <OfflineResources
+            v-if="showOfflineResources"
+            data-test="offline-resources"
+            :injectedtr="injecttr"
+          />
 
         </div>
 
@@ -194,6 +200,7 @@
   import useChannels from './../../composables/useChannels';
   import ResumableContentGrid from './ResumableContentGrid';
   import OtherLibraries from './OtherLibraries';
+  import OfflineResources from './OfflineResources.vue';
 
   const welcomeDismissalKey = 'DEVICE_WELCOME_MODAL_DISMISSED';
 
@@ -215,6 +222,7 @@
       SearchFiltersPanel,
       LearnAppBarPage,
       OtherLibraries,
+	  OfflineResources,
       PostSetupModalGroup,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
@@ -480,6 +488,19 @@
       studioId() {
         return KolibriStudioId;
       },
+      showOfflineResources() {
+        const validUser = !this.deviceId && this.isUserLoggedIn;
+        if (!validUser) {
+          return false;
+        }
+        if (!checkCapability('check_is_metered')) {
+          return true;
+        }
+        if (this.allowDownloadOnMeteredConnection) {
+          return true;
+        }
+        return !this.usingMeteredConnection;
+      },
     },
     watch: {
       rootNodes(newNodes) {
@@ -541,6 +562,10 @@
       otherLibraries: {
         message: 'Other libraries',
         context: 'Header for viewing other remote content Library',
+      },
+      offlineResources: {
+        message: 'Offline resources',
+        context: 'Header for viewing offline content on Library',
       },
       searchingOtherLibrary: {
         message: 'Searching for libraries around you.',
