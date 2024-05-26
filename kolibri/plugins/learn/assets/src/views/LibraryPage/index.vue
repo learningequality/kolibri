@@ -605,7 +605,7 @@
       },
 	  manageAction:{
 		message: 'manage',
-        context: 'todo',
+        context: 'Button that will give access to the channels',
 	  }
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
