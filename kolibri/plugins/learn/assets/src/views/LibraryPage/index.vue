@@ -89,6 +89,21 @@
             :injectedtr="injecttr"
           />
 
+		  <KRouterLink
+			  appearance="raised-button"
+			  :text="$tr('manageAction')"
+			  :to="genChannelPageBackLink()"
+			  class="manage-button"
+		  />
+
+		  <ChannelCardGroupGrid
+            v-if="!isLocalLibraryEmpty"
+            data-test="channel-cards"
+            class="grid"
+            :contents="rootNodes"
+            :deviceId="deviceId"
+          />
+
         </div>
 
         <SearchResultsGrid
@@ -262,7 +277,7 @@
       } = useKResponsiveWindow();
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
-      const { back } = useContentLink();
+      const { back, genChannelPageBackLink } = useContentLink();
       const { baseurl, deviceName } = currentDeviceData();
       const { fetchChannels } = useChannels();
 
@@ -405,6 +420,7 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
+		genChannelPageBackLink,
       };
     },
     props: {
@@ -587,6 +603,10 @@
         message: 'Pinned',
         context: 'Sub heading for the pinned devices',
       },
+	  manageAction:{
+		message: 'manage',
+        context: 'todo',
+	  }
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
@@ -627,6 +647,11 @@
 
   .filter-button {
     margin-top: 30px;
+  }
+
+  .manage-button {
+    margin-top: -40px;
+	float: right;
   }
 
   .main-grid {

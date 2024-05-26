@@ -20,19 +20,7 @@
 	  >
 		{{ injectedtr('pinned') }}
 	  </h2>
-	  <FadeInTransitionGroup class="other-libraries-grid">
-		<LibraryItem
-		  v-for="device in fullLibrariesToDisplay"
-		  :key="device['instance_id']"
-		  data-test="pinned-resources"
-		  :device="device"
-		  :channels="deviceChannelsMap[device['instance_id']]"
-		  :channelsToDisplay="cardsToDisplay"
-		  :pinned="Boolean(userPinsMap[device['instance_id']])"
-		  @togglePin="handlePinToggle"
-		/>
-	  </FadeInTransitionGroup>
-
+	  
 	  <!-- More  -->
 
 	  <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist" class="other-libraries-grid">

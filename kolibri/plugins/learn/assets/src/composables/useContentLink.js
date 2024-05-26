@@ -2,7 +2,8 @@ import { get } from '@vueuse/core';
 import isEmpty from 'lodash/isEmpty';
 import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
-import { ExternalPagePaths, PageNames } from '../constants';
+import { ExternalPageNames, ExternalPagePaths, PageNames } from '../constants';
+
 
 function _decodeBackLinkQuery(query) {
   return query && query.prevQuery ? JSON.parse(decodeURI(query.prevQuery)) : {};
@@ -173,6 +174,19 @@ export default function useContentLink(store) {
     };
   }
 
+  function genChannelPageBackLink() {
+    if (!route) {
+      return null;
+    }
+
+    const query = _getBackLinkQuery();
+
+    return {
+      name: ExternalPageNames.MY_DOWNLOADS,
+      query,
+    };
+  }
+
   return {
     genContentLinkBackLinkCurrentPage,
     genContentLinkKeepCurrentBackLink,
@@ -181,6 +195,7 @@ export default function useContentLink(store) {
     genExternalBackURL,
     genLibraryPageBackLink,
     genExploreLibrariesPageBackLink,
+	genChannelPageBackLink,
     back,
   };
 }
