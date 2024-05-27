@@ -197,4 +197,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   updateResources: {
     message: 'Update resources',
   },
+  allSectionsEmptyWarning: {
+    message: "You don't have any questions in the quiz",
+  },
 });

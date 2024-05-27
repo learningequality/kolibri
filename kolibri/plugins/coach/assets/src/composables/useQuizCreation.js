@@ -445,20 +445,18 @@ export default function useQuizCreation() {
     );
   });
 
+  const allSectionsEmpty = computed(() => {
+    return get(allSections).every(section => section.questions.length === 0);
+  });
+
   /**
 
    */
   function deleteActiveSelectedQuestions() {
     const { section_id, questions: section_questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
-    let questions = section_questions.filter(q => !selectedIds.includes(q.id));
-    let question_count = questions.length;
-    if (question_count === 0) {
-      // They've deleted all of the questions. We don't allow `question_count` to be 0,
-      // so we'll randomly select 1 question for the section -- pass `true` to reseed the shuffle.
-      questions = selectRandomQuestionsFromResources(1, get(activeResourcePool), selectedIds);
-      question_count = 1;
-    }
+    const questions = section_questions.filter(q => !selectedIds.includes(q.id));
+    const question_count = questions.length;
     updateSection({
       section_id,
       questions,
@@ -509,6 +507,7 @@ export default function useQuizCreation() {
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
   provide('allQuestionsSelected', allQuestionsSelected);
+  provide('allSectionsEmpty', allSectionsEmpty);
   provide('selectAllIsIndeterminate', selectAllIsIndeterminate);
   provide('replacementQuestionPool', replacementQuestionPool);
   provide('selectAllQuestions', selectAllQuestions);
@@ -545,6 +544,7 @@ export default function useQuizCreation() {
     replacementQuestionPool,
     selectAllIsIndeterminate,
     selectAllLabel,
+    allSectionsEmpty,
     allQuestionsSelected,
     noQuestionsSelected,
   };
@@ -583,6 +583,7 @@ export function injectQuizCreation() {
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
   const allQuestionsSelected = inject('allQuestionsSelected');
+  const allSectionsEmpty = inject('allSectionsEmpty');
   const selectAllIsIndeterminate = inject('selectAllIsIndeterminate');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const replacementQuestionPool = inject('replacementQuestionPool');
@@ -609,6 +610,7 @@ export function injectQuizCreation() {
     toggleQuestionInSelection,
 
     // Computed
+    allSectionsEmpty,
     allQuestionsSelected,
     selectAllIsIndeterminate,
     channels,
