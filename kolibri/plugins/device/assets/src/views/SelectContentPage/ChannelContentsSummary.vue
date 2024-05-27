@@ -20,7 +20,7 @@
                 icon="unlistedchannel"
               />
             </template>
-            <TextTruncatorCss :text="channel.name" />
+            <KTextTruncator :text="channel.name" />
           </KLabeledIcon>
         </h1>
       </div>
@@ -83,15 +83,12 @@
 
   import bytesForHumans from 'kolibri.utils.bytesForHumans';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import plugin_data from 'plugin_data';
 
   export default {
     name: 'ChannelContentsSummary',
-    components: {
-      TextTruncatorCss,
-    },
+    components: {},
     mixins: [commonCoreStrings],
     setup() {
       const { windowIsSmall } = useKResponsiveWindow();

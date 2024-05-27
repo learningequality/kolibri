@@ -33,13 +33,13 @@
                 />
               </div>
               <h3 :style="{ marginTop: '4px', marginBottom: '4px' }">
-                <TextTruncatorCss :text="contentNode.title" :maxLines="1" />
+                <KTextTruncator :text="contentNode.title" :maxLines="1" />
               </h3>
               <p
                 v-if="contentNode.description"
                 style="font-size: 14px; margin-top: 4px; margin-bottom: 4px;"
               >
-                <TextTruncatorCss :text="contentNode.description" :maxLines="2" />
+                <KTextTruncator :text="contentNode.description" :maxLines="2" />
               </p>
               <div v-if="!isMobile" class="bottom-items">
                 <LearningActivityDuration
@@ -98,7 +98,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { now } from 'kolibri.utils.serverClock';
   import { ContentLevels, Categories } from 'kolibri.coreVue.vuex.constants';
@@ -114,7 +113,6 @@
     name: 'CardList',
     components: {
       CardThumbnail,
-      TextTruncatorCss,
       LearningActivityLabel,
       LearningActivityDuration,
     },

@@ -41,7 +41,7 @@
       />
       <div class="text" :style="{ color: $themeTokens.text }">
         <h3 class="title" dir="auto">
-          <TextTruncatorCss
+          <KTextTruncator
             :text="contentNode.title"
             :maxLines="1"
           />
@@ -64,7 +64,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useChannels from '../../composables/useChannels';
   import LearningActivityLabel from '../LearningActivityLabel';
@@ -75,7 +74,6 @@
     name: 'HybridLearningContentCard',
     components: {
       CardThumbnail,
-      TextTruncatorCss,
       LearningActivityLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],

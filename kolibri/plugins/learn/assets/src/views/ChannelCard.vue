@@ -21,7 +21,7 @@
         dir="auto"
         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
-        <TextTruncatorCss
+        <KTextTruncator
           :text="title"
           :maxLines="2"
           :showTooltip="true"
@@ -43,7 +43,7 @@
           span="3"
           alignment="auto"
         >
-          <TextTruncatorCss
+          <KTextTruncator
             :text="tagline"
             :maxLines="4"
             :showTooltip="false"
@@ -84,7 +84,6 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -92,7 +91,6 @@
     components: {
       ChannelThumbnail,
       CoachContentLabel,
-      TextTruncatorCss,
     },
     setup() {
       const { windowGutter } = useKResponsiveWindow();
