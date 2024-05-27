@@ -324,6 +324,8 @@
     position: relative;
     z-index: 1;
     display: table-row;
+    // Do this to mitigate issues with just using z-index on Safari.
+    transform: translateZ(1px);
   }
 
   .main-row {
