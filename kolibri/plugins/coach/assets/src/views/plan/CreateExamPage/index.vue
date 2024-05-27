@@ -26,7 +26,7 @@
         <span
           v-if="allSectionsEmpty"
           class="message"
-        > 
+        >
           {{ allSectionsEmptyWarning$() }}
         </span>
         <KButtonGroup>
