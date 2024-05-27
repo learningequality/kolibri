@@ -30,9 +30,7 @@
   export default {
     name: 'NewFolderModal',
     mixins: [commonCoreStrings],
-    props: {
-      
-    },
+    props: {},
     data() {
       return {
         folderName: '',

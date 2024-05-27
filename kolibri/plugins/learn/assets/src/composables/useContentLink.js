@@ -195,7 +195,7 @@ export default function useContentLink(store) {
     genExternalBackURL,
     genLibraryPageBackLink,
     genExploreLibrariesPageBackLink,
-	genChannelPageBackLink,
+    genChannelPageBackLink,
     back,
   };
 }

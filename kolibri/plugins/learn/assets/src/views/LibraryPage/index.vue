@@ -89,14 +89,14 @@
             :injectedtr="injecttr"
           />
 
-		  <KRouterLink
-			  appearance="raised-button"
-			  :text="$tr('manageAction')"
-			  :to="genChannelPageBackLink()"
-			  class="manage-button"
-		  />
+          <KRouterLink
+            appearance="raised-button"
+            :text="$tr('manageAction')"
+            :to="genChannelPageBackLink()"
+            class="manage-button"
+          />
 
-		  <ChannelCardGroupGrid
+          <ChannelCardGroupGrid
             v-if="!isLocalLibraryEmpty"
             data-test="channel-cards"
             class="grid"
@@ -237,7 +237,7 @@
       SearchFiltersPanel,
       LearnAppBarPage,
       OtherLibraries,
-	  OfflineResources,
+      OfflineResources,
       PostSetupModalGroup,
     },
     mixins: [commonLearnStrings, commonCoreStrings],
@@ -420,7 +420,7 @@
         rootNodesLoading,
         rootNodes,
         isUserLoggedIn,
-		genChannelPageBackLink,
+        genChannelPageBackLink,
       };
     },
     props: {
@@ -603,10 +603,10 @@
         message: 'Pinned',
         context: 'Sub heading for the pinned devices',
       },
-	  manageAction:{
-		message: 'manage',
+      manageAction:{
+        message: 'manage',
         context: 'Button that will give access to the channels',
-	  }
+      }
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
@@ -651,7 +651,7 @@
 
   .manage-button {
     margin-top: -40px;
-	float: right;
+    float: right;
   }
 
   .main-grid {
