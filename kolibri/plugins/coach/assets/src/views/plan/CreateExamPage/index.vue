@@ -23,10 +23,17 @@
       <CreateQuizSection v-if="quizInitialized" />
 
       <BottomAppBar>
+        <span
+          v-if="allSectionsEmpty"
+          class="message"
+        >
+          {{ allSectionsEmptyWarning$() }}
+        </span>
         <KButtonGroup>
           <KButton
             :text="coreString('saveAction')"
             primary
+            :disabled="allSectionsEmpty"
             @click="() => saveQuizAndRedirect()"
           />
         </KButtonGroup>
@@ -45,6 +52,7 @@
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
@@ -60,10 +68,20 @@
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
-      const { saveQuiz, initializeQuiz } = useQuizCreation();
+      const { saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
-      return { showError, saveQuiz, initializeQuiz, quizInitialized };
+
+      const { allSectionsEmptyWarning$ } = enhancedQuizManagementStrings;
+
+      return {
+        showError,
+        saveQuiz,
+        initializeQuiz,
+        quizInitialized,
+        allSectionsEmpty,
+        allSectionsEmptyWarning$,
+      };
     },
     provide() {
       return {
@@ -126,4 +144,10 @@
 </script>
 
 
-<style lang="scss" scoped></style>
+<style lang="scss" scoped>
+
+  .message {
+    margin-right: 8px;
+  }
+
+</style>

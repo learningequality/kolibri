@@ -101,32 +101,36 @@ export default function useQuizCreation() {
           resource_pool
         );
       } else {
-        // In this case, we already had resources in the section, so we need to handle the
-        // case where a resource has been removed so that we remove & replace the questions
-        const removedResourceQuestionIds = originalResourcePool.reduce(
-          (questionIds, originalResource) => {
-            if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
-              // If the resource_pool doesn't have the originalResource, we're removing it
-              questionIds = [...questionIds, ...originalResource.unique_question_ids];
+        if (question_count === 0) {
+          updates.questions = [];
+        } else {
+          // In this case, we already had resources in the section, so we need to handle the
+          // case where a resource has been removed so that we remove & replace the questions
+          const removedResourceQuestionIds = originalResourcePool.reduce(
+            (questionIds, originalResource) => {
+              if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
+                // If the resource_pool doesn't have the originalResource, we're removing it
+                questionIds = [...questionIds, ...originalResource.unique_question_ids];
+                return questionIds;
+              }
               return questionIds;
-            }
-            return questionIds;
-          },
-          []
-        );
-        if (removedResourceQuestionIds.length === 0) {
-          // If no resources were removed, we don't need to update the questions
-          return;
+            },
+            []
+          );
+          if (removedResourceQuestionIds.length === 0) {
+            // If no resources were removed, we don't need to update the questions
+            return;
+          }
+          const questionsToKeep = originalQuestions.filter(
+            q => !removedResourceQuestionIds.includes(q.id)
+          );
+          const numReplacementsNeeded =
+            (question_count || originalQuestionCount) - questionsToKeep.length;
+          updates.questions = [
+            ...questionsToKeep,
+            ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
+          ];
         }
-        const questionsToKeep = originalQuestions.filter(
-          q => !removedResourceQuestionIds.includes(q.id)
-        );
-        const numReplacementsNeeded =
-          (question_count || originalQuestionCount) - questionsToKeep.length;
-        updates.questions = [
-          ...questionsToKeep,
-          ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
-        ];
       }
     } else if (question_count !== originalQuestionCount) {
       /**
@@ -445,20 +449,18 @@ export default function useQuizCreation() {
     );
   });
 
+  const allSectionsEmpty = computed(() => {
+    return get(allSections).every(section => section.questions.length === 0);
+  });
+
   /**
 
    */
   function deleteActiveSelectedQuestions() {
     const { section_id, questions: section_questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
-    let questions = section_questions.filter(q => !selectedIds.includes(q.id));
-    let question_count = questions.length;
-    if (question_count === 0) {
-      // They've deleted all of the questions. We don't allow `question_count` to be 0,
-      // so we'll randomly select 1 question for the section -- pass `true` to reseed the shuffle.
-      questions = selectRandomQuestionsFromResources(1, get(activeResourcePool), selectedIds);
-      question_count = 1;
-    }
+    const questions = section_questions.filter(q => !selectedIds.includes(q.id));
+    const question_count = questions.length;
     updateSection({
       section_id,
       questions,
@@ -545,6 +547,7 @@ export default function useQuizCreation() {
     replacementQuestionPool,
     selectAllIsIndeterminate,
     selectAllLabel,
+    allSectionsEmpty,
     allQuestionsSelected,
     noQuestionsSelected,
   };
