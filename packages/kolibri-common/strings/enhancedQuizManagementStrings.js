@@ -207,7 +207,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   notEnoughReplacementsMessage: {
     message:
-      "You've selected { selected } questions to replace, but only has { available } questions available to replace them with.",
+      "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
