@@ -402,34 +402,24 @@
 
       const {
         // Methods
-        saveQuiz,
         updateSection,
         allQuestionsSelected,
         selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
-        replaceSelectedQuestions,
         addSection,
         removeSection,
         setActiveSection,
-        initializeQuiz,
         updateQuiz,
-        addQuestionToSelection,
-        removeQuestionFromSelection,
         selectAllQuestions,
 
         // Computed
         toggleQuestionInSelection,
-        channels,
-        quiz,
         allSections,
         activeSection,
-        inactiveSections,
-        activeQuestionsPool,
         activeResourceMap,
         activeResourcePool,
         activeQuestions,
         selectedActiveQuestions,
-        replacementQuestionPool,
       } = injectQuizCreation();
 
       // The number we use for the default section title
@@ -459,33 +449,23 @@
 
         toggleQuestionInSelection,
         selectAllQuestions,
-        saveQuiz,
         updateSection,
         allQuestionsSelected,
         selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
-        replaceSelectedQuestions,
         addSection,
         removeSection,
         setActiveSection,
-        initializeQuiz,
         updateQuiz,
-        addQuestionToSelection,
-        removeQuestionFromSelection,
         updateResources$,
 
         // Computed
-        channels,
-        quiz,
         allSections,
         activeSection,
-        inactiveSections,
         activeResourceMap,
         activeResourcePool,
-        activeQuestionsPool,
         activeQuestions,
         selectedActiveQuestions,
-        replacementQuestionPool,
       };
     },
     data() {

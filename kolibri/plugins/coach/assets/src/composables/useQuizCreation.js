@@ -487,21 +487,18 @@ export default function useQuizCreation() {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
-  provide('saveQuiz', saveQuiz);
   provide('updateSection', updateSection);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
   provide('setActiveSection', setActiveSection);
-  provide('initializeQuiz', initializeQuiz);
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('channels', channels);
   provide('replacements', replacements);
-  provide('quiz', quiz);
   provide('allSections', allSections);
   provide('activeSection', activeSection);
   provide('inactiveSections', inactiveSections);
@@ -551,33 +548,21 @@ export default function useQuizCreation() {
     allQuestionsSelected,
     noQuestionsSelected,
   };
-
-  /*
-  return {
-    // Only what is needed where we want the rest of the module to be
-    // provided
-    saveQuiz,
-    initializeQuiz,
-  };
-  */
 }
 
 export function injectQuizCreation() {
-  const saveQuiz = inject('saveQuiz');
   const updateSection = inject('updateSection');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
   const setActiveSection = inject('setActiveSection');
-  const initializeQuiz = inject('initializeQuiz');
   const updateQuiz = inject('updateQuiz');
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
   const channels = inject('channels');
   const replacements = inject('replacements');
-  const quiz = inject('quiz');
   const allSections = inject('allSections');
   const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
@@ -595,7 +580,6 @@ export function injectQuizCreation() {
 
   return {
     // Methods
-    saveQuiz,
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
@@ -604,7 +588,6 @@ export function injectQuizCreation() {
     addSection,
     removeSection,
     setActiveSection,
-    initializeQuiz,
     updateQuiz,
     clearSelectedQuestions,
     addQuestionToSelection,
@@ -616,7 +599,6 @@ export function injectQuizCreation() {
     selectAllIsIndeterminate,
     channels,
     replacements,
-    quiz,
     allSections,
     activeSection,
     inactiveSections,
