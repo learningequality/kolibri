@@ -217,7 +217,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   addMoreResourcesWithNonEmptyPool: {
     message:
-      'Please add more resources to this section, or go back and only select up to { available } questions to be replaced.',
+      'Please add more resources to this section, or go back and only select up to { available, number } { available, plural, one { question } other { questions } } to be replaced.',
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
