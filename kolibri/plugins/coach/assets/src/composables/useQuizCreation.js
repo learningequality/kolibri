@@ -507,7 +507,6 @@ export default function useQuizCreation() {
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
   provide('allQuestionsSelected', allQuestionsSelected);
-  provide('allSectionsEmpty', allSectionsEmpty);
   provide('selectAllIsIndeterminate', selectAllIsIndeterminate);
   provide('replacementQuestionPool', replacementQuestionPool);
   provide('selectAllQuestions', selectAllQuestions);
@@ -583,7 +582,6 @@ export function injectQuizCreation() {
   const activeQuestionsPool = inject('activeQuestionsPool');
   const activeQuestions = inject('activeQuestions');
   const allQuestionsSelected = inject('allQuestionsSelected');
-  const allSectionsEmpty = inject('allSectionsEmpty');
   const selectAllIsIndeterminate = inject('selectAllIsIndeterminate');
   const selectedActiveQuestions = inject('selectedActiveQuestions');
   const replacementQuestionPool = inject('replacementQuestionPool');
@@ -610,7 +608,6 @@ export function injectQuizCreation() {
     toggleQuestionInSelection,
 
     // Computed
-    allSectionsEmpty,
     allQuestionsSelected,
     selectAllIsIndeterminate,
     channels,
