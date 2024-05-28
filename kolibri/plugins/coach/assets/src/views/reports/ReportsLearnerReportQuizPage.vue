@@ -2,8 +2,6 @@
 
   <CoachImmersivePage
     :appBarTitle="exam.title"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     :route="toolbarRoute"
   >
     <LearnerQuizReport @navigate="handleNavigation" />

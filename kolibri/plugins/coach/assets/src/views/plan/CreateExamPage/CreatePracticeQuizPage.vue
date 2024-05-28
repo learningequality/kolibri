@@ -2,8 +2,6 @@
 
   <CoachImmersivePage
     :appBarTitle="$tr('createNewExamLabel')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     icon="close"
     :pageTitle="$tr('selectPracticeQuizLabel')"
     :route="toolbarRoute"

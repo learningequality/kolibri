@@ -2,8 +2,6 @@
 
   <CoachImmersivePage
     :appBarTitle="exercise.title"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     :pageTitle="exercise.title"
     :route="toolbarRoute"
   >

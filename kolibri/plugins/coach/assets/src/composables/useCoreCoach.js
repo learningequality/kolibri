@@ -12,6 +12,8 @@ export default function useCoreCoach(store) {
   const route = computed(() => store.state.route);
   const pageTitle = computed(() => formatPageTitle());
   const appBarTitle = computed(() => getAppBarTitle());
+  const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
+  const classId = computed(() => get(route).params.classId);
 
   function getAppBarTitle() {
     let facilityName;
@@ -77,6 +79,8 @@ export default function useCoreCoach(store) {
   }
 
   return {
+    classId,
+    authorized,
     pageTitle,
     appBarTitle,
   };

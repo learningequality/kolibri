@@ -55,10 +55,12 @@ export default {
       if (getters.isSuperuser) {
         return true;
       } else if (getters.isCoach || getters.isAdmin) {
-        return state.classSummary.facility_id === rootState.core.session.facility_id;
-      } else {
-        return false;
+        return (
+          rootState.route.params.facilityId === rootState.core.session.facility_id ||
+          !rootState.route.params.facilityId
+        );
       }
+      return false;
     },
   },
   actions: {

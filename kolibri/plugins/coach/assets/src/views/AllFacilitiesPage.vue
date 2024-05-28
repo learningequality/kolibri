@@ -2,8 +2,6 @@
 
   <CoachAppBarPage
     :appBarTitle="coreString('coachLabel')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     :pageTitle="coreString('allFacilitiesLabel')"
   >
     <KPageContainer>

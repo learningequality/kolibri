@@ -1,9 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="$store.getters.userIsAuthorizedForCoach"
-    authorizedRole="adminOrCoach"
-  >
+  <CoachAppBarPage>
 
     <KGrid gutter="16">
       <KGridItem>

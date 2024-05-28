@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
+  <CoachAppBarPage :showSubNav="true">
     <KPageContainer>
       <PlanHeader :activeTabId="PlanTabs.LESSONS" />
       <KTabsPanel
