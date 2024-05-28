@@ -101,32 +101,36 @@ export default function useQuizCreation() {
           resource_pool
         );
       } else {
-        // In this case, we already had resources in the section, so we need to handle the
-        // case where a resource has been removed so that we remove & replace the questions
-        const removedResourceQuestionIds = originalResourcePool.reduce(
-          (questionIds, originalResource) => {
-            if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
-              // If the resource_pool doesn't have the originalResource, we're removing it
-              questionIds = [...questionIds, ...originalResource.unique_question_ids];
+        if (question_count === 0) {
+          updates.questions = [];
+        } else {
+          // In this case, we already had resources in the section, so we need to handle the
+          // case where a resource has been removed so that we remove & replace the questions
+          const removedResourceQuestionIds = originalResourcePool.reduce(
+            (questionIds, originalResource) => {
+              if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
+                // If the resource_pool doesn't have the originalResource, we're removing it
+                questionIds = [...questionIds, ...originalResource.unique_question_ids];
+                return questionIds;
+              }
               return questionIds;
-            }
-            return questionIds;
-          },
-          []
-        );
-        if (removedResourceQuestionIds.length === 0) {
-          // If no resources were removed, we don't need to update the questions
-          return;
+            },
+            []
+          );
+          if (removedResourceQuestionIds.length === 0) {
+            // If no resources were removed, we don't need to update the questions
+            return;
+          }
+          const questionsToKeep = originalQuestions.filter(
+            q => !removedResourceQuestionIds.includes(q.id)
+          );
+          const numReplacementsNeeded =
+            (question_count || originalQuestionCount) - questionsToKeep.length;
+          updates.questions = [
+            ...questionsToKeep,
+            ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
+          ];
         }
-        const questionsToKeep = originalQuestions.filter(
-          q => !removedResourceQuestionIds.includes(q.id)
-        );
-        const numReplacementsNeeded =
-          (question_count || originalQuestionCount) - questionsToKeep.length;
-        updates.questions = [
-          ...questionsToKeep,
-          ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
-        ];
       }
     } else if (question_count !== originalQuestionCount) {
       /**
