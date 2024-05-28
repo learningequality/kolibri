@@ -70,7 +70,6 @@ class Exam(AbstractFacilityDataModel):
                   "section_id": <a uuid unique to this section>,
                   "section_title": <section title>,
                   "description": <section description>,
-                  "resource_pool": [ <contentnode_ids of pool of resources> ],
                   "question_count": <number of questions in section>,
                   "learners_see_fixed_order": <bool>,
                   "questions": [
