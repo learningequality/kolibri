@@ -4,6 +4,6 @@
   "private": true,
   "version": "0.0.1",
   "dependencies": {
-    "video.js": "^7.21.5"
+    "video.js": "^7.21.6"
   }
 }
