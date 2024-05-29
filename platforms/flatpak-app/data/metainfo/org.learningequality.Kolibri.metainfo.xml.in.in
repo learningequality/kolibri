@@ -32,12 +32,12 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.0.2" date="2024-05-24" type="stable">
+    <release version="3.0.2+next" date="2024-05-29" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
           <li>
-            Kolibri is updated to 0.16.1.
+            Kolibri is updated to 0.16.2.
           </li>
           <li>
             The Kolibri app will now sign in automatically using credentials

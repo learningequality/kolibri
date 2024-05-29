@@ -3,14 +3,13 @@
     "buildsystem": "simple",
     "build-commands": [
         "pip3 install --exists-action=i --no-index --find-links=\"file://${PWD}\" --prefix=${FLATPAK_DEST} kolibri",
-        "patch -d ${KOLIBRI_MODULE_PATH} -p2 < 0001-Don-t-let-users-that-are-used-for-os-user-have-their.patch",
         "patch -d ${KOLIBRI_MODULE_PATH}/dist/ifcfg -p3 < dist_ifcfg/0001-Remove-needless-ifcfg-warning.patch"
     ],
     "sources": [
         {
             "type": "file",
-            "url": "https://files.pythonhosted.org/packages/49/c6/1ddd5696f192b273b6d4d959c18a6ed02fac543abefad6b893868091f980/kolibri-0.16.1-py2.py3-none-any.whl",
-            "sha256": "d5c7fdd3af22ab00e9eb52b895b4ee5c3aa91ccf540a9738adc65ef94202524e",
+            "url": "https://files.pythonhosted.org/packages/72/65/d930065492ec1b33fb31a5631e0fcf2a77ac6cb0b5da570d50de86fd8e7b/kolibri-0.16.2-py2.py3-none-any.whl",
+            "sha256": "f87961553b62be71090f4d5c81027487bce55bd8210e769d625fcdd720788e1b",
             "x-checker-data": {
                 "type": "pypi",
                 "name": "kolibri",
