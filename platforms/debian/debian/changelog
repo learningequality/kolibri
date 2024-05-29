@@ -1,3 +1,10 @@
+kolibri-source (0.16.2-0ubuntu1) jammy; urgency=low
+
+  * New upstream release
+  * Rebranding colors
+
+ -- José L. Redrejo Rodríguez <jredrejo@debian.org>  Wed, 29 May 2024 17:36:00 +0200
+
 kolibri-source (0.16.1-0ubuntu3) jammy; urgency=medium
 
   * debian/compat restored, needed in Ubuntu even if it's not in Debian

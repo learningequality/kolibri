@@ -7,3 +7,4 @@ build_src/
 # Docker copies the .deb over from its container to this directory.
 # Also the bound directory for `docker-test` target.
 dist/
+.pybuild/
