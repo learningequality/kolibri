@@ -42,11 +42,12 @@ function showQuestionDetailView(params) {
     // of a combination of 'question_id:exercise_id'
     const baseExam = store.state.classSummary.examMap[quizId];
     promise = fetchExamWithContent(baseExam).then(({ exam }) => {
-      exerciseNodeId = exam.question_sources[0].questions.reduce((acc, source) => {
-        if (source.item === questionId) {
-          return source.exercise_id;
+      exam.question_sources[0].questions.forEach(source => {
+        if(source.item === questionId){
+          exerciseNodeId = source.exercise_id;
+          return;
         }
-      }, []);
+      });
       return exam;
     });
   } else {
