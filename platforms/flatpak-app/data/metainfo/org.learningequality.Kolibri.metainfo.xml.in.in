@@ -32,7 +32,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.0.2+next" date="2024-05-29" type="stable">
+    <release version="3.1" date="2024-05-29" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
