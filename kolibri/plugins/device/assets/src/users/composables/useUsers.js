@@ -1,3 +1,5 @@
+import UserType from 'kolibri.utils.UserType';
+import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { getCurrentInstance, ref } from 'kolibri.lib.vueCompositionApi';
 
 const mockUsers = [
@@ -78,19 +80,39 @@ export default function useUsers(store) {
 
   const users = ref([]);
   const loading = ref(true);
+  const showCannotRemoveUser = ref(false);
 
   async function fetchUsers() {
     loading.value = true;
     await new Promise(resolve => setTimeout(resolve, 1000));
     loading.value = false;
     users.value = mockUsers;
+    users.value.forEach(user => {
+      user.kind = UserType(user);
+    });
     store.dispatch('notLoading');
     loading.value = false;
+  }
+
+  async function removeUser(userId) {
+    const index = mockUsers.findIndex(user => user.id === userId);
+    const user = users.value[index];
+    if (
+      user.kind === UserKinds.SUPERUSER &&
+      users.value.filter(user => user.kind === UserKinds.SUPERUSER).length === 1
+    ) {
+      showCannotRemoveUser.value = true;
+      throw new Error('Cannot remove the last super admin');
+    }
+
+    users.value.splice(index, 1);
   }
 
   return {
     users,
     loading,
+    showCannotRemoveUser,
     fetchUsers,
+    removeUser,
   };
 }

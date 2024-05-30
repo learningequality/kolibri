@@ -12,45 +12,37 @@
         />
       </div>
       <KCircularLoader v-if="loading" />
-      <ul v-else class="users-list">
-        <li
-          v-for="user in users"
-          :key="user.id"
-          class="user-list-item"
-          :style="{ borderBottomColor: $themeTokens.fineLine }"
-        >
-          <div class="user-info">
-            <KIcon
-              icon="person"
-              :style="{
-                height: '24px',
-                width: '24px',
-                marginRight: '8px',
-              }"
-            />
-            <div>
-              <div>
-                {{ user.full_name }}
-              </div>
-              <div
-                :style="{
-                  fontSize: '12px',
-                  color: $themeTokens.annotation,
-                }"
-              >
-                {{ user.username }}
-              </div>
-            </div>
-          </div>
-          <div class="user-actions">
-            <KButton
-              text="Remove"
-              appearance="flat-button"
-            />
-          </div>
-        </li>
-      </ul>
+      <UsersList
+        v-else
+        :users="users"
+        @remove="userIdToRemove = $event"
+      />
     </KPageContainer>
+    <KModal
+      v-if="userIdToRemove"
+      :title="$tr('removeUserTitle')"
+      :submitText="$tr('removeUserAction')"
+      :cancelText="coreString('cancelAction')"
+      @submit="onRemoveUser(userIdToRemove)"
+      @cancel="userIdToRemove = null"
+    >
+      <p>
+        {{ $tr('removeUserDescription', { device: 'device' }) }}
+      </p>
+      <p>
+        {{ $tr('removeUserCallToAction') }}
+      </p>
+    </KModal>
+    <KModal
+      v-if="showCannotRemoveUser"
+      :title="$tr('cannotRemoveUserTitle')"
+      :submitText="coreString('closeAction')"
+      @submit="showCannotRemoveUser = false"
+    >
+      <p>
+        {{ $tr('cannotRemoveUserDescription') }}
+      </p>
+    </KModal>
   </AppBarPage>
 
 </template>
@@ -61,22 +53,54 @@
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useUsers from '../composables/useUsers';
+  import UsersList from './UsersList.vue';
 
   export default {
     name: 'UsersPage',
     components: {
+      UsersList,
       AppBarPage,
     },
     mixins: [commonCoreStrings],
     setup() {
-      const { fetchUsers, users, loading } = useUsers();
+      const { fetchUsers, removeUser, users, loading, showCannotRemoveUser } = useUsers();
 
       fetchUsers();
 
       return {
-        loading,
         users,
+        loading,
+        showCannotRemoveUser,
+        fetchUsers,
+        removeUser,
       };
+    },
+    data() {
+      return {
+        userIdToRemove: null,
+      };
+    },
+    methods: {
+      async onRemoveUser(userId) {
+        try {
+          await this.removeUser(userId);
+          this.userIdToRemove = null;
+          this.fetchUsers();
+        } catch (error) {
+          this.userIdToRemove = null;
+        }
+      },
+    },
+    $trs: {
+      removeUserTitle: 'Remove user',
+      removeUserDescription:
+        'If you remove this user from this device you will still be able to access their account and all their data from { device }.',
+      removeUserCallToAction:
+        'Please ensure that all data you would like to keep has been synced before removing this user. You will permanently lose any data that has not been synced.',
+      removeUserAction: 'Remove user',
+      cannotRemoveUserTitle: 'Cannot remove user',
+      cannotRemoveUserDescription:
+        'This user is the only super admin on this device and cannot be removed. Give or transfer super admin permissions to another user on this device if you would like to remove this user.',
     },
   };
 
@@ -89,27 +113,6 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
-  }
-
-  .users-list {
-    padding: 0;
-    list-style: none;
-
-    .user-list-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 16px;
-
-      &:not(:last-child) {
-        border-bottom: 1px solid;
-      }
-
-      .user-info {
-        display: flex;
-        align-items: center;
-      }
-    }
   }
 
 </style>
