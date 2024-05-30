@@ -17,8 +17,8 @@ from .kolibri_webview import KolibriWebView
 from .kolibri_webview import KolibriWebViewStack
 from .utils import bubble_signal
 
-DEFAULT_WIDTH = 1024
-DEFAULT_HEIGHT = 768
+DEFAULT_WIDTH = 1200
+DEFAULT_HEIGHT = 800
 
 
 class KolibriWindow(Adw.ApplicationWindow):
