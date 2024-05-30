@@ -43,24 +43,27 @@ class GioInputStreamIO(io.RawIOBase):
         raise NotImplementedError()
 
 
-def get_localized_file(file_path_template: str, file_path_fallback: str) -> Path:
-    language = get_current_language()
+def get_localized_file(file_path_template: str, fallback_language: str) -> Path:
+    ui_language = get_current_language()
 
-    if not language:
-        return Path(file_path_fallback)
+    language_options = []
 
-    file_path = Path(file_path_template.format(language))
+    if ui_language:
+        language_options += [
+            ui_language,
+            "-".join(ui_language.split("_", 1)),
+            ui_language.split("_", 1)[0],
+        ]
+
+    language_options += [fallback_language]
+
+    for language in language_options:
+        file_path = Path(file_path_template.format(language))
+        if file_path.exists():
+            break
 
     if not file_path.exists():
-        # TODO: Removing the country code like this isn't the same behaviour as
-        #       gettext. Ideally our translated asset files should either be
-        #       generated or should use the same language codes as the provided
-        #       translations.
-        language_base = language.split("_", 1)[0]
-        file_path = Path(file_path_template.format(language_base))
-
-    if not file_path.exists():
-        file_path = Path(file_path_fallback)
+        file_path = Path(file_path_template.format(fallback_language))
 
     return file_path
 

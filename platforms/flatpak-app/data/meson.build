@@ -2,7 +2,6 @@ subdir('applications')
 subdir('dbus')
 subdir('gnome-shell')
 subdir('icons')
-subdir('kolibri-gnome')
 subdir('media-icons')
 subdir('metainfo')
 

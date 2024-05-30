@@ -77,8 +77,8 @@ class KolibriContext(GObject.GObject):
         )
 
         loader_path = get_localized_file(
-            Path(KOLIBRI_APP_DATA_DIR, "assets", "_load-{}.html").as_posix(),
-            Path(KOLIBRI_APP_DATA_DIR, "assets", "_load.html"),
+            Path(KOLIBRI_APP_DATA_DIR, "loading-page", "{}", "loading.html").as_posix(),
+            "en",
         )
         self.__loader_url = loader_path.as_uri()
 
