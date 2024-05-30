@@ -126,7 +126,7 @@
       v-if="showNoEnoughResources"
       :selectedQuestions="selectedActiveQuestions"
       :availableResources="replacementQuestionPool"
-      @close="showNoEnoughResources = false"
+      @close="closeNoEnoughResourcesModal"
       @addResources="redirectToSelectResources"
     />
     <KModal
@@ -358,6 +358,10 @@
           section_id: this.activeSection.section_id,
         });
         this.$router.replace(route);
+      },
+      closeNoEnoughResourcesModal() {
+        this.showNoEnoughResources = false;
+        this.$emit('closePanel');
       },
     },
   };
