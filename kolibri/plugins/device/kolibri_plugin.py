@@ -35,6 +35,11 @@ class DeviceManagementAsset(WebpackBundleHook):
 
 
 @register_hook
+class UsersManagementAsset(WebpackBundleHook):
+    bundle_id = "users_app"
+
+
+@register_hook
 class DeviceRedirect(RoleBasedRedirectHook):
     roles = (SUPERUSER,)
     # Only do this redirect if the user is a full facility import and hence
@@ -53,3 +58,8 @@ class DeviceRedirect(RoleBasedRedirectHook):
 @register_hook
 class DeviceManagementNavItem(NavigationHook):
     bundle_id = "side_nav"
+
+
+@register_hook
+class UsersNavAction(NavigationHook):
+    bundle_id = "users_side_nav"
