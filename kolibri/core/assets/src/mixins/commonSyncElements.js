@@ -64,7 +64,7 @@ const syncStrings = createTranslator('CommonSyncStrings', {
     context: "Option description text for 'Quick start'.",
   },
   changeLater: {
-    message: 'You can change this in your learning facility settings later',
+    message: 'You can change this in your learning facility settings later.',
     context: '',
   },
   superAdminPermissionsDescription: {
