@@ -11764,10 +11764,10 @@ vue-virtual-scroller@1.1.2:
     vue-observe-visibility "^0.4.4"
     vue-resize "^0.4.5"
 
-vue2-teleport@^1.1.2:
-  version "1.1.2"
-  resolved "https://registry.yarnpkg.com/vue2-teleport/-/vue2-teleport-1.1.2.tgz#331f45ed1d875dd684d68e17d9188657ed2aa98a"
-  integrity sha512-SUA9s5dyeNyGOGeq0vzO3RxPi5ayyKm24h7FLCtuzlfrRfyyuhQ8gdwCeYx2eEhv7IWn8if7scI1NtqN+CsEUw==
+vue2-teleport@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/vue2-teleport/-/vue2-teleport-1.1.4.tgz#30c84b1005bf9c208b1c05f4b6147300c54ee846"
+  integrity sha512-mGTszyQP6k3sSSk7MBq+PZdVojHYLwg5772hl3UVpu5uaLBqWIZ5eNP6/TjkDrf1XUTTxybvpXC6inpjwO+i/Q==
 
 vue@2.6.14:
   version "2.6.14"
