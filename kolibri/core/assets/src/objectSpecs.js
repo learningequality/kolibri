@@ -197,7 +197,13 @@ export function objectWithDefaults(object, spec) {
     }
     // recurse down into sub-specs if necessary
     else if (cloned[dataKey] && options.spec) {
-      cloned[dataKey] = objectWithDefaults(cloned[dataKey], options.spec);
+      if (options.type === Array) {
+        for (let i = 0; i < cloned[dataKey].length; i++) {
+          cloned[dataKey][i] = objectWithDefaults(cloned[dataKey][i], options.spec);
+        }
+      } else {
+        cloned[dataKey] = objectWithDefaults(cloned[dataKey], options.spec);
+      }
     }
   }
   // return copy of object with defaults filled in
