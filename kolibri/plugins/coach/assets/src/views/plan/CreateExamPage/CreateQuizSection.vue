@@ -1,34 +1,6 @@
 <template>
 
-  <div style="padding-top: 2rem; scroll: none;">
-    <KGrid>
-      <KGridItem
-        :layout4="{ span: 1 }"
-        :layout8="{ span: 1 }"
-        :layout12="{ span: 1 }"
-      >
-        <KIcon
-          icon="quiz"
-          class="style-icon"
-        />
-      </KGridItem>
-
-      <KGridItem
-        :layout4="{ span: 3 }"
-        :layout8="{ span: 7 }"
-        :layout12="{ span: 11 }"
-      >
-        <KTextbox
-          ref="title"
-          :label="quizTitle$()"
-          :autofocus="true"
-          :maxlength="100"
-          @blur="e => updateQuiz({ title: e.target.value })"
-          @change="title => updateQuiz({ title })"
-        />
-      </KGridItem>
-    </KGrid>
-
+  <div>
     <p :style="addQuizSectionsStyles">
       {{ addQuizSections$() }}
     </p>
@@ -384,7 +356,6 @@
         selectAllLabel$,
         addQuizSections$,
         addSectionLabel$,
-        quizTitle$,
         quizSectionsLabel$,
         addQuestionsLabel$,
         noQuestionsInSection$,
@@ -434,7 +405,6 @@
         addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
-        quizTitle$,
         addQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
@@ -650,23 +620,6 @@
 
 
 <style lang="scss"  scoped>
-
-  .style-icon {
-    width: 2em;
-    height: 2em;
-    margin-top: 0.5em;
-    margin-left: 1em;
-  }
-
-  /deep/ .ui-textbox-label {
-    width: 100% !important;
-  }
-
-  /deep/ .textbox {
-    width: 100% !important;
-    max-width: 100%;
-    margin-left: -1em;
-  }
 
   .no-question-layout {
     width: auto;

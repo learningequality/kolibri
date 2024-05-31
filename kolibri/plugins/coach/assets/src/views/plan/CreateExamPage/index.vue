@@ -15,8 +15,16 @@
     </UiAlert>
 
     <KPageContainer
-      :style="{ maxWidth: '1000px', margin: '0 auto 2em' }"
+      :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }"
     >
+      <AssignmentDetailsModal
+        v-if="quizInitialized"
+        assignmentType="quiz"
+        :assignment="quiz"
+        :classId="classId"
+        :groups="groups"
+        @update="updateQuiz"
+      />
 
       <CreateQuizSection v-if="quizInitialized" />
 
@@ -55,6 +63,8 @@
   import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
+  import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
+  import useCoreCoach from '../../../composables/useCoreCoach';
   import CreateQuizSection from './CreateQuizSection.vue';
 
   export default {
@@ -63,18 +73,24 @@
       CoachImmersivePage,
       BottomAppBar,
       CreateQuizSection,
+      AssignmentDetailsModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
-      const { saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
+      const { classId, groups } = useCoreCoach();
+      const { quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 
       const { allSectionsEmptyWarning$ } = enhancedQuizManagementStrings;
 
       return {
+        classId,
+        groups,
         showError,
+        quiz,
         saveQuiz,
+        updateQuiz,
         initializeQuiz,
         quizInitialized,
         allSectionsEmpty,
