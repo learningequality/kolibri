@@ -72,8 +72,8 @@
                   <KSwitch
                     name="toggle-lesson-visibility"
                     label=""
-                    :checked="tableRow.is_active"
-                    :value="tableRow.is_active"
+                    :checked="tableRow.active"
+                    :value="tableRow.active"
                     @change="toggleModal(tableRow)"
                   />
                 </td>
@@ -196,9 +196,9 @@
           if (this.filter.value === 'allLessons') {
             return true;
           } else if (this.filter.value === 'visibleLessons') {
-            return lesson.is_active;
+            return lesson.active;
           } else if (this.filter.value === 'lessonsNotVisible') {
-            return !lesson.is_active;
+            return !lesson.active;
           }
         });
         const sorted = this._.orderBy(filtered, ['date_created'], ['desc']);
@@ -220,7 +220,7 @@
           const sum = this.table
             .filter(
               // only include visible lessons
-              lesson => lesson.is_active
+              lesson => lesson.active
             )
             .reduce((acc, lesson) => {
               return acc + (lesson.size || 0);
@@ -239,14 +239,14 @@
     methods: {
       ...mapActions(['fetchUserSyncStatus']),
       handleToggleVisibility(lesson) {
-        const newActiveState = !lesson.is_active;
+        const newActiveState = !lesson.active;
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
         const promise = LessonResource.saveModel({
           id: lesson.id,
           data: {
-            is_active: newActiveState,
+            active: newActiveState,
           },
           exists: true,
         });
@@ -280,7 +280,7 @@
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
-          if (lesson.is_active) {
+          if (lesson.active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {

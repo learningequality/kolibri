@@ -28,7 +28,7 @@
             {{ coachString('statusLabel') }}
           </template>
           <!--           <template #value>
-            <LessonActive :active="lesson.is_active" />
+            <LessonActive :active="lesson.active" />
           </template> -->
         </HeaderTableRow>
         <HeaderTableRow v-show="!$isPrint">

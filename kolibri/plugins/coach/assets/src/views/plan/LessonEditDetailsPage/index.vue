@@ -66,7 +66,7 @@
           description: '',
           lesson_assignments: [],
           resources: [],
-          is_active: false,
+          active: false,
         },
         // A copy of lesson.resources
         updatedResources: [],

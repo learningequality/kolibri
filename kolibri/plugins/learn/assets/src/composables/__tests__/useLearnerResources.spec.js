@@ -108,7 +108,7 @@ const TEST_CLASSES = [
         {
           id: 'class-1-active-lesson-1',
           title: 'Class 1 - Active Lesson 1',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
@@ -131,7 +131,7 @@ const TEST_CLASSES = [
         {
           id: 'class-1-active-lesson-2',
           title: 'Class 1 - Active Lesson 2',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
@@ -184,7 +184,7 @@ const TEST_CLASSES = [
         {
           id: 'class-2-active-lesson-1',
           title: 'Class 2 - Active Lesson 1',
-          is_active: true,
+          active: true,
           collection: 'class-2',
           resources: [
             {
@@ -243,7 +243,7 @@ describe(`useLearnerResources`, () => {
         {
           id: 'class-1-active-lesson-1',
           title: 'Class 1 - Active Lesson 1',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
@@ -266,7 +266,7 @@ describe(`useLearnerResources`, () => {
         {
           id: 'class-1-active-lesson-2',
           title: 'Class 1 - Active Lesson 2',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
@@ -289,7 +289,7 @@ describe(`useLearnerResources`, () => {
         {
           id: 'class-2-active-lesson-1',
           title: 'Class 2 - Active Lesson 1',
-          is_active: true,
+          active: true,
           collection: 'class-2',
           resources: [
             {
@@ -484,7 +484,7 @@ describe(`useLearnerResources`, () => {
         {
           id: 'class-1-active-lesson-1',
           title: 'Class 1 - Active Lesson 1',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
@@ -507,7 +507,7 @@ describe(`useLearnerResources`, () => {
         {
           id: 'class-1-active-lesson-2',
           title: 'Class 1 - Active Lesson 2',
-          is_active: true,
+          active: true,
           collection: 'class-1',
           resources: [
             {
