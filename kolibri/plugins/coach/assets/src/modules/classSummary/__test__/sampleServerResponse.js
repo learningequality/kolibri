@@ -78,6 +78,8 @@ export default {
         { exercise_id: '2a722a9e57575148bc55deed7550ed62', question_id: '3' },
       ],
       groups: ['c4625c3fef6b7d918e9417d92e482e6f'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', 'c4625c3fef6b7d918e9417d92e482e6f'],
+      learner_ids: [],
       data_version_model: 1,
       question_count: 3,
     },
@@ -91,6 +93,8 @@ export default {
         { exercise_id: 'eadec7f803994b6eb8f401237ec0f777', question_id: 'B' },
       ],
       groups: ['8d2e8c66c05004657d676155dd0b305d'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', '8d2e8c66c05004657d676155dd0b305d'],
+      learner_ids: [],
       data_version_model: 1,
       question_count: 2,
     },
@@ -105,6 +109,8 @@ export default {
         { exercise_id: '3a655a4b8adb5114a571dfd0c75cbc19', question_id: '12' },
       ],
       groups: ['7c20f664b6a5c43d64b0cdd3161be513'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', '7c20f664b6a5c43d64b0cdd3161be513'],
+      learner_ids: [],
       data_version_model: 1,
       question_count: 3,
     },
@@ -119,6 +125,8 @@ export default {
         { exercise_id: '9baf781e43b0514085cc205176b0ee71', question_id: 'z' },
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
       data_version_model: 1,
       question_count: 3,
     },
@@ -571,6 +579,8 @@ export default {
         '6b3b88d2dc75517aad9bd014382c9377',
       ],
       groups: ['8d2e8c66c05004657d676155dd0b305d'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', '8d2e8c66c05004657d676155dd0b305d'],
+      learner_ids: [],
     },
     {
       id: '0e92348b8f47022f4374e172dc26713c',
@@ -579,6 +589,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['0a347e0a8e104bf9978b974a3817da67', 'e1122220db255a5e98cca4f417ecd06d'],
       groups: ['c4625c3fef6b7d918e9417d92e482e6f'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', 'c4625c3fef6b7d918e9417d92e482e6f'],
+      learner_ids: [],
     },
     {
       id: '0c24f8d4aafcb1ff7f0e41634f0bec5d',
@@ -587,6 +599,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['9689c93001f455e39f3ce5ce49c9cf8c'],
       groups: ['7c20f664b6a5c43d64b0cdd3161be513'],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e', '7c20f664b6a5c43d64b0cdd3161be513'],
+      learner_ids: [],
     },
     {
       id: '8a2a49790a27e92e725549bdec975ec0',
@@ -595,6 +609,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['e851ffe2b343540f9ecaf1aca8626f48', 'b3daea92e0265408bb5cc72857968d3d'],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: '90a60b6b9272cb4a27cbf888320bf5f4',
@@ -603,6 +619,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: [],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: '7d67f35f550755d32811e21efb38e791',
@@ -616,6 +634,8 @@ export default {
         'ce3c1eaae8e55b9b9fdcc48087519ea1',
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'ce3d2b4da2b8daed1c88b4a3e7ccdea1',
@@ -628,6 +648,8 @@ export default {
         'e5fd9c8618b046cd9d1c81381ae9b1cb',
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'd66822ee6ca94ae3000624ed62d1643c',
@@ -641,6 +663,8 @@ export default {
         '2caa381c3b2549efb9b0ceff788187a3',
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: '640ccb57a8a44f0e7ff166f8b9cadca5',
@@ -649,6 +673,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: [],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'bc26589a371b5848f6169065a190b49d',
@@ -662,6 +688,8 @@ export default {
         '2c3e00f364b145a99ba894d0a0f0cff7',
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'a1dfe9924c66ed5dc97a3328cddac321',
@@ -676,6 +704,8 @@ export default {
         'b82b567cb3b0597d95dce78add12c20f',
       ],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'f239935e386819c003316c66696e7610',
@@ -684,6 +714,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['15cfc6afe5b54089bdc3a353068531c4', 'c9ccd863e811540fba77619d66cf3ff3'],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: '827e7acdafc51a6b5a666edd5b10c6c9',
@@ -692,6 +724,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: [],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'b533619fc6b6dd5a8ad0c20483941241',
@@ -700,6 +734,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['53ae8c684e875469a770d9ecbe478cba', 'c9ccd863e811540fba77619d66cf3ff3'],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
     {
       id: 'fbb582096477e51610b68687612d6a66',
@@ -708,6 +744,8 @@ export default {
       date_created: '2019-01-24 23:14:52.831000+00:00',
       node_ids: ['dce323f82b4d4d2f8b3932ce0cd2b742'],
       groups: [],
+      assignments: ['4707894249cbe44b7fd142bdb87fe90e'],
+      learner_ids: [],
     },
   ],
   adhoclearners: [

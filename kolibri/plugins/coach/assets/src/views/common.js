@@ -96,7 +96,6 @@ export default {
       'notificationModuleData',
       'getGroupNames',
       'getGroupNamesForLearner',
-      'getAdHocLearners',
       'getLearnersForGroups',
       'getLearnersForExam',
       'getLearnersForLesson',
