@@ -64,7 +64,7 @@
         lesson: {
           title: '',
           description: '',
-          lesson_assignments: [],
+          assignments: [],
           resources: [],
           active: false,
         },
@@ -140,7 +140,7 @@
         this.disabled = true;
         const data = {
           description: newDetails.description,
-          lesson_assignments: newDetails.assignments,
+          assignments: newDetails.assignments,
           title: newDetails.title,
           learner_ids: newDetails.learner_ids,
         };

@@ -58,7 +58,7 @@
                 </td>
                 <td>
                   <Recipients
-                    :groupNames="getRecipientNamesForExam(tableRow)"
+                    :groupNames="tableRow.recipientNames"
                     :hasAssignments="tableRow.assignments.length > 0"
                   />
                 </td>
@@ -207,8 +207,8 @@
           const tableRow = {
             totalLearners: learners.length,
             tally: this.getLessonStatusTally(lesson.id, learners),
-            groupNames: this.getGroupNames(lesson.groups),
-            recipientNames: this.getRecipientNamesForExam(lesson),
+            groupNames: this.getGroupNames(lesson.assignments),
+            recipientNames: this.getRecipientNamesForLesson(lesson),
             hasAssignments: learners.length > 0,
           };
           Object.assign(tableRow, lesson);

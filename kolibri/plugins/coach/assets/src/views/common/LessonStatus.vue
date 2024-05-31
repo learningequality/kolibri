@@ -148,9 +148,7 @@
     },
     computed: {
       assignments() {
-        return this.lesson.lesson_assignments
-          ? this.lesson.lesson_assignments
-          : this.lesson.assignments;
+        return this.lesson.assignments;
       },
       layout12Label() {
         return { span: this.$isPrint ? 3 : 12 };

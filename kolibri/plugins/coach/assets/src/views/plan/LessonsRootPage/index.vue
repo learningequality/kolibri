@@ -58,7 +58,7 @@
                   <Recipients
                     :groupNames="getRecipientNamesForLesson(lesson)"
                     :hasAssignments="
-                      lesson.lesson_assignments.length > 0 || lesson.learner_ids.length > 0
+                      lesson.assignments.length > 0 || lesson.learner_ids.length > 0
                     "
                   />
                 </td>
