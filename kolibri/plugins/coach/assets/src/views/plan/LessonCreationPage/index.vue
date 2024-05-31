@@ -11,13 +11,8 @@
     <KPageContainer>
       <AssignmentDetailsModal
         ref="detailsModal"
-        assignmentType="new_lesson"
-        :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-        :submitErrorMessage="coachString('saveLessonError')"
-        :initialDescription="''"
-        :initialTitle="''"
-        :initialSelectedCollectionIds="[classId]"
-        :initialAdHocLearners="[]"
+        assignmentType="lesson"
+        :assignment="{ assignments: [classId] }"
         :classId="classId"
         :groups="groups"
         :disabled="false"

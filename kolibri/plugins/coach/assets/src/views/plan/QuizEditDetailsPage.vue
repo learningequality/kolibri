@@ -56,12 +56,9 @@
       formProps() {
         return {
           assignmentType: 'quiz',
+          assignment: this.quiz,
           classId: this.$route.params.classId,
           groups: this.groups,
-          initialActive: this.quiz.active,
-          initialSelectedCollectionIds: this.quiz.assignments,
-          initialTitle: this.quiz.title,
-          submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
       previousPageRoute() {

@@ -2,18 +2,18 @@ import { mount } from '@vue/test-utils';
 import makeStore from '../makeStore';
 import AssignmentDetailsModal from '../../src/views/plan/assignments/AssignmentDetailsModal';
 
-// HACK to avoid having to mock this property's dependancies on vuex and vue router
+// HACK to avoid having to mock this property's dependencies on vuex and vue router
 AssignmentDetailsModal.computed.titleIsInvalidText = () => '';
 
 const defaultProps = {
-  initialDescription: '',
-  initialSelectedCollectionIds: [],
-  initialAdHocLearners: [],
-  initialTitle: '',
-  isInEditMode: false,
-  modalTitle: '',
-  showDescriptionField: '',
-  submitErrorMessage: '',
+  assignment: {
+    title: '',
+    description: '',
+    assignments: [],
+    learner_ids: [],
+    active: false,
+  },
+  assignmentType: 'lesson',
   classId: 'class_1',
   groups: [],
 };
@@ -61,45 +61,30 @@ describe('AssignmentDetailsModal', () => {
     expect(wrapper.emitted().continue).toBeUndefined();
   });
 
-  describe('in edit mode', () => {
-    const props = {
-      ...defaultProps,
-      isInEditMode: true,
-      initialTitle: 'Old Lesson',
-      initialDescription: 'Oldie but goodie',
+  it('if the name has changed, makes a request after clicking submit', async () => {
+    const { wrapper, actions } = makeWrapper({
+      propsData: defaultProps,
+    });
+    const expected = {
+      ...defaultProps.assignment,
+      title: 'Old Lesson V2',
     };
+    actions.inputTitle('Old Lesson V2');
+    await wrapper.vm.submitData();
+    expect(wrapper.emitted().submit[0][0]).toEqual(expected);
+  });
 
-    it('in edit mode, if the name has changed, makes a request after clicking submit', async () => {
-      const { wrapper, actions } = makeWrapper({
-        propsData: props,
-      });
-      const expected = {
-        active: false,
-        title: 'Old Lesson V2',
-        description: props.initialDescription,
-        assignments: [defaultProps.classId],
-        learner_ids: [],
-      };
-      actions.inputTitle('Old Lesson V2');
-      await wrapper.vm.submitData();
-      expect(wrapper.emitted().submit[0][0]).toEqual(expected);
+  it('if the description has changed, makes a request after clicking submit', async () => {
+    const { wrapper, actions } = makeWrapper({
+      propsData: defaultProps,
     });
-
-    it('in edit mode, if the description has changed, makes a request after clicking submit', async () => {
-      const { wrapper, actions } = makeWrapper({
-        propsData: props,
-      });
-      const expected = {
-        active: false,
-        title: props.initialTitle,
-        description: 'Its da remix',
-        assignments: [defaultProps.classId],
-        learner_ids: [],
-      };
-      actions.inputDescription('Its da remix');
-      await wrapper.vm.submitData();
-      expect(wrapper.emitted().submit[0][0]).toEqual(expected);
-    });
+    const expected = {
+      ...defaultProps.assignment,
+      description: 'Its da remix',
+    };
+    actions.inputDescription('Its da remix');
+    await wrapper.vm.submitData();
+    expect(wrapper.emitted().submit[0][0]).toEqual(expected);
   });
 
   // not tested

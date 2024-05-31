@@ -14,20 +14,17 @@
         :disabled="disabled"
         @cancel="goBackToSummaryPage"
         @submit="handleSaveChanges"
-      >
+      />
 
-        <template #resourceTable>
-          <section v-if="showResourcesTable">
-            <h2 class="resource-header">
-              {{ coreString('resourcesLabel') }}
-            </h2>
-            <ResourceListTable
-              v-show="!disabled"
-              :resources.sync="updatedResources"
-            />
-          </section>
-        </template>
-      </AssignmentDetailsForm>
+      <section v-if="showResourcesTable">
+        <h2 class="resource-header">
+          {{ coreString('resourcesLabel') }}
+        </h2>
+        <ResourceListTable
+          v-show="!disabled"
+          :resources.sync="updatedResources"
+        />
+      </section>
 
     </KPageContainer>
   </CoachImmersivePage>
@@ -78,14 +75,9 @@
       formProps() {
         return {
           assignmentType: 'lesson',
+          assignment: this.lesson,
           classId: this.$route.params.classId,
           groups: this.$store.getters['classSummary/groups'],
-          initialActive: this.lesson.is_active,
-          initialAdHocLearners: this.lesson.learner_ids,
-          initialSelectedCollectionIds: this.lesson.lesson_assignments,
-          initialTitle: this.lesson.title,
-          initialDescription: this.lesson.description,
-          submitErrorMessage: this.$tr('submitErrorMessage'),
         };
       },
       previousPageRoute() {

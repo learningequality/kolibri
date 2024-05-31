@@ -139,12 +139,8 @@
         >
           <AssignmentDetailsModal
             ref="detailsModal"
-            assignmentType="new_lesson"
-            :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-            :submitErrorMessage="coachString('saveLessonError')"
-            :initialDescription="''"
-            :initialTitle="''"
-            :initialSelectedCollectionIds="[classId]"
+            assignmentType="lesson"
+            :assignment="{ assignments: [classId] }"
             :classId="classId"
             :groups="learnerGroups"
             :disabled="detailsModalIsDisabled"
