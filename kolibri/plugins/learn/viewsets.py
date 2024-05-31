@@ -103,6 +103,7 @@ def _consolidate_lessons_data(request, lessons):
             )
             missing_resource = missing_resource or not resource["contentnode"]
         lesson["missing_resource"] = missing_resource
+        lesson["active"] = lesson.pop("is_active")
 
 
 class LearnerClassroomViewset(ReadOnlyValuesViewset):

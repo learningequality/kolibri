@@ -70,7 +70,7 @@ class LessonCreationTestCase(APITestCase):
             "title": "New Lesson",
             "description": "An awesome lesson",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [self.classroom.id],
+            "assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "resources": [],
         }
@@ -98,7 +98,7 @@ class LessonCreationTestCase(APITestCase):
             "title": "New Lesson",
             "description": "An awesome lesson",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [self.classroom.id],
+            "assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "learner_ids": [learner.id],
             "resources": [],
@@ -132,7 +132,7 @@ class LessonCreationTestCase(APITestCase):
         new_lesson = {
             "title": "Assigned To lgroup1 and lgroup2",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [lgroup1.id, lgroup2.id],
+            "assignments": [lgroup1.id, lgroup2.id],
             "collection": self.classroom.id,
             "resources": [],
         }
@@ -144,7 +144,7 @@ class LessonCreationTestCase(APITestCase):
         # Reassign Lesson to lgroup3 only
         patch_response = self.client.patch(
             reverse("kolibri:core:lesson-detail", kwargs={"pk": lesson_id}),
-            {"title": "Assigned to lgroup3", "lesson_assignments": [lgroup3.id]},
+            {"title": "Assigned to lgroup3", "assignments": [lgroup3.id]},
             format="json",
         )
         self.assertEqual(patch_response.status_code, 200)
@@ -157,7 +157,7 @@ class LessonCreationTestCase(APITestCase):
         new_lesson = {
             "title": "All Resources Available",
             "created_by": self.admin_user.id,
-            "lesson_assignments": [self.classroom.id],
+            "assignments": [self.classroom.id],
             "collection": self.classroom.id,
             "resources": [
                 {
