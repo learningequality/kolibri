@@ -24,19 +24,19 @@
   <screenshots>
     <screenshot type="default">
       <caption>Browsing content in Kolibri</caption>
-      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.1/doc/Screenshot-1.png</image>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-1.png</image>
     </screenshot>
     <screenshot>
       <caption>Exploring more content in Kolibri</caption>
-      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.1/doc/Screenshot-2.png</image>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-2.png</image>
     </screenshot>
     <screenshot>
       <caption>Watching a video from Khan Academy using Kolibri</caption>
-      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.1/doc/Screenshot-3.png</image>
+      <image type="source" width="2244" height="1644">https://raw.githubusercontent.com/learningequality/kolibri-installer-gnome/v3.3/doc/Screenshot-3.png</image>
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.2" date="2024-05-31" type="stable">
+    <release version="3.2+next" date="2024-05-31" type="development">
       <description>
         <p>Changes included in this release:</p>
         <ul>
