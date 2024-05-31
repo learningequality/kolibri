@@ -2,5 +2,7 @@
 <gresources>
   <gresource prefix="@BASE_OBJECT_PATH@">
     <file preprocess="xml-stripblanks" alias="@BASE_APPLICATION_ID@.metainfo.xml">metainfo/@BASE_APPLICATION_ID@.metainfo.xml</file>
+    <file alias="style.css">css/style.css</file>
+    <file alias="style-dark.css">css/style-dark.css</file>
   </gresource>
 </gresources>

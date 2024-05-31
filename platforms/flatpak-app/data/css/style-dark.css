@@ -1,0 +1,9 @@
+/* The colour codes here are borrowed from
+ * <https://github.com/learningequality/kolibri-design-system/blob/v4.3.0/lib/styles/colorsDefault.js#L47-L65>
+ * TODO: Include brand colours programmatically.
+ */
+
+@define-color headerbar_bg_color #E5B700; /* secondary.v_1100 */
+@define-color headerbar_fg_color #000000;
+@define-color headerbar_border_color #E5B700; /* secondary.v_1100 */
+@define-color headerbar_backdrop_color #FFCB00; /* secondary.v_1000 */
