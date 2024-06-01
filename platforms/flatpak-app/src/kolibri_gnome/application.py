@@ -40,7 +40,12 @@ class Application(Adw.Application):
     def __init__(
         self, *args, context: typing.Optional[KolibriContext] = None, **kwargs
     ):
-        super().__init__(*args, flags=Gio.ApplicationFlags.HANDLES_OPEN, **kwargs)
+        super().__init__(
+            *args,
+            flags=Gio.ApplicationFlags.HANDLES_OPEN,
+            resource_base_path=BASE_OBJECT_PATH,
+            **kwargs,
+        )
 
         resource = Gio.Resource.load(
             Path(KOLIBRI_APP_DATA_DIR, "kolibri-app.gresource").as_posix()
