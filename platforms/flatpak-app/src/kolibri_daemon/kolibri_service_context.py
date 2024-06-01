@@ -76,6 +76,9 @@ class KolibriServiceContext(object):
         self.__is_stopped_value = multiprocessing.Value(c_bool)
         self.__is_stopped_set_event = multiprocessing.Event()
 
+        self.__is_exited_value = multiprocessing.Value(c_bool)
+        self.__is_exited_set_event = multiprocessing.Event()
+
         self.__app_key_value = multiprocessing.Array(c_char, self.APP_KEY_LENGTH)
         self.__app_key_set_event = multiprocessing.Event()
 
@@ -175,6 +178,52 @@ class KolibriServiceContext(object):
     ) -> typing.Optional[bool]:
         self.__is_started_set_event.wait(timeout)
         return self.is_started
+
+    @property
+    def is_stopped(self) -> typing.Optional[bool]:
+        if self.__is_stopped_set_event.is_set():
+            return bool(self.__is_stopped_value.value)
+        else:
+            return None
+
+    @is_stopped.setter
+    def is_stopped(self, is_stopped: typing.Optional[bool]):
+        if is_stopped is None:
+            self.__is_stopped_set_event.clear()
+            self.__is_stopped_value.value = False  # type: ignore[assignment]
+        else:
+            self.__is_stopped_value.value = bool(is_stopped)  # type: ignore[assignment]
+            self.__is_stopped_set_event.set()
+        self.push_has_changes()
+
+    def await_is_stopped(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
+        self.__is_stopped_set_event.wait(timeout)
+        return self.is_stopped
+
+    @property
+    def is_exited(self) -> typing.Optional[bool]:
+        if self.__is_exited_set_event.is_set():
+            return bool(self.__is_exited_value.value)
+        else:
+            return None
+
+    @is_exited.setter
+    def is_exited(self, is_exited: typing.Optional[bool]):
+        if is_exited is None:
+            self.__is_exited_set_event.clear()
+            self.__is_exited_value.value = False  # type: ignore[assignment]
+        else:
+            self.__is_exited_value.value = bool(is_exited)  # type: ignore[assignment]
+            self.__is_exited_set_event.set()
+        self.push_has_changes()
+
+    def await_is_exited(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
+        self.__is_exited_set_event.wait(timeout)
+        return self.is_exited
 
     @property
     def start_error(self) -> KolibriServiceContext.StartError:

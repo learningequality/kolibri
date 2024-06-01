@@ -28,7 +28,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
     PROCESS_NAME: str = "kolibri-daemon-http"
 
     __command_rx: multiprocessing.connection.Connection
-    __keep_alive: bool
     __commands: dict
 
     __kolibri_bus: ProcessBus
@@ -44,7 +43,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
     ):
         super().__init__(*args, **kwargs)
         self.__command_rx = command_rx
-        self.__keep_alive = True
         self.__commands = {
             self.Command.AUTOMATIC_PROVISION: self.__automatic_provision,
             self.Command.START_KOLIBRI: self.__start_kolibri,
@@ -74,7 +72,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
         self.context.is_bus_ready = True
 
-        while self.__keep_alive:
+        while not self.context.is_exited:
             if not self.__run_next_command(timeout=5):
                 self.__shutdown()
 
@@ -130,10 +128,6 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
     def __shutdown(self):
         self.__exit_kolibri()
-        self.__keep_alive = False
-
-    def stop(self):
-        pass
 
     def __update_kolibri_context(self):
         import kolibri
@@ -186,6 +180,9 @@ class _KolibriDaemonPlugin(SimplePlugin):
         self.context.is_starting = False
         self.context.is_started = False
         self.context.is_stopped = True
+
+    def EXITED(self):
+        self.context.is_exited = True
 
 
 def _process_bus_has_transition(bus: ProcessBus, to_state: str) -> bool:
