@@ -59,6 +59,11 @@ class KolibriWebView(WebKit.WebView):
             return
 
         http_url = self.__context.get_absolute_url(kolibri_url)
+
+        if not http_url:
+            self.__deferred_load_kolibri_url = kolibri_url
+            return
+
         self.load_uri(http_url)
         self.__deferred_load_kolibri_url = None
 
