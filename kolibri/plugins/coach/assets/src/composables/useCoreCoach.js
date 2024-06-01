@@ -79,7 +79,17 @@ export default function useCoreCoach(store) {
     return strings.join(' - ');
   }
 
+  function initClassInfo() {
+    return store.dispatch('initClassInfo', get(classId));
+  }
+
+  function refreshClassSummary() {
+    return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
+  }
+
   return {
+    initClassInfo,
+    refreshClassSummary,
     classId,
     groups,
     authorized,

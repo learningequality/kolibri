@@ -5,7 +5,6 @@ export function copyExam(store, { exam }) {
   return new Promise((resolve, reject) => {
     createExam(store, exam).then(newExam => {
       store.commit('CORE_SET_PAGE_LOADING', false, { root: true });
-      store.commit('examsRoot/ADD_EXAM', newExam, { root: true });
       resolve(newExam);
     }, reject);
   });

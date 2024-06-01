@@ -5,7 +5,6 @@ import { LessonsPageNames } from '../constants/lessonsConstants';
 import examCreation from './examCreation';
 import examReport from './examReport';
 import examReportDetail from './examReportDetail';
-import examsRoot from './examsRoot';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
 import lessonSummary from './lessonSummary';
@@ -141,7 +140,6 @@ export default {
     examCreation,
     examReport,
     examReportDetail,
-    examsRoot,
     exerciseDetail,
     groups,
     lessonSummary,
