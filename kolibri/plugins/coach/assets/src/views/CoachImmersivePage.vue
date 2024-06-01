@@ -17,7 +17,6 @@
       </div>
     </ImmersivePage>
 
-    <router-view />
   </NotificationsRoot>
 
 </template>

@@ -323,11 +323,15 @@
           });
       },
       handleSelect({ value }) {
-        const nextRoute = {
+        const nextRouteName = {
           MAKE_NEW_QUIZ: PageNames.EXAM_CREATION_ROOT,
           SELECT_QUIZ: PageNames.EXAM_CREATION_PRACTICE_QUIZ,
         }[value];
-        this.$router.push(this.$router.getRoute(nextRoute));
+        const nextRoute = { name: nextRouteName, params: { ...this.$route.params } };
+        if (value === 'MAKE_NEW_QUIZ') {
+          nextRoute.params.quizId = 'new';
+        }
+        this.$router.push(nextRoute);
       },
     },
     $trs: {

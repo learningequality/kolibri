@@ -256,7 +256,7 @@
           id: quizId,
           data: {
             active: true,
-            date_activated: new Date(),
+            draft: false,
           },
           exists: true,
         });
@@ -276,7 +276,6 @@
           id: quizId,
           data: {
             archive: true,
-            date_archived: new Date(),
           },
           exists: true,
         });

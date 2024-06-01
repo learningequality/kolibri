@@ -1,9 +1,9 @@
 <template>
 
   <CoachImmersivePage
-    :appBarTitle="$tr('createNewExamLabel')"
+    :appBarTitle="title"
     icon="close"
-    :pageTitle="$tr('createNewExamLabel')"
+    :pageTitle="title"
     :route="backRoute"
   >
     <UiAlert
@@ -26,7 +26,7 @@
         @update="updateQuiz"
       />
 
-      <CreateQuizSection v-if="quizInitialized" />
+      <CreateQuizSection v-if="quizInitialized && quiz.draft" />
 
       <BottomAppBar>
         <span
@@ -47,6 +47,8 @@
 
     </KPageContainer>
 
+    <router-view v-if="quizInitialized" />
+
   </CoachImmersivePage>
 
 </template>
@@ -54,13 +56,13 @@
 
 <script>
 
+  import get from 'lodash/get';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../constants';
-  import commonCoach from '../../common';
   import CoachImmersivePage from '../../CoachImmersivePage';
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
@@ -75,7 +77,7 @@
       CreateQuizSection,
       AssignmentDetailsModal,
     },
-    mixins: [commonCoreStrings, commonCoach],
+    mixins: [commonCoreStrings],
     setup() {
       const { classId, groups } = useCoreCoach();
       const { quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
@@ -116,7 +118,25 @@
     },
     computed: {
       backRoute() {
+        const lastRoute = get(this.$route, ['query', 'last']);
+        if (lastRoute) {
+          const params = { ...this.$route.query };
+          delete params.last;
+          return {
+            name: lastRoute,
+            params,
+          };
+        }
         return { name: PageNames.EXAMS };
+      },
+      title() {
+        if (!this.quizInitialized) {
+          return '';
+        }
+        if (this.$route.params.quizId === 'new') {
+          return this.$tr('createNewExamLabel');
+        }
+        return this.quiz.title;
       },
     },
     watch: {
@@ -133,8 +153,8 @@
     mounted() {
       this.$store.dispatch('notLoading');
     },
-    created() {
-      this.initializeQuiz(this.$route.params.classId);
+    async created() {
+      await this.initializeQuiz(this.$route.params.classId, this.$route.params.quizId);
       this.quizInitialized = true;
     },
     methods: {

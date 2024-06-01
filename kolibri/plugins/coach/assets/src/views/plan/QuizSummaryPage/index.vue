@@ -12,6 +12,7 @@
           <template #dropdown>
             <QuizOptionsDropdownMenu
               optionsFor="plan"
+              :draft="exam.draft"
               @select="setCurrentAction"
             />
           </template>
@@ -72,6 +73,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
   import QuestionListPreview from '../CreateExamPage/QuestionListPreview';
@@ -110,10 +112,6 @@
     },
     computed: {
       ...mapState(['classList']),
-      // Removing the classSummary groupMap state mapping breaks things.
-      // Maybe it should live elsewhere?
-      /* eslint-disable-next-line kolibri/vue-no-unused-vuex-properties */
-      ...mapState('classSummary', ['groupMap', 'learnerMap']),
       selectedQuestions() {
         return this.quiz.question_sources.reduce((acc, section) => {
           acc = [...acc, ...section.questions];
@@ -167,7 +165,10 @@
       },
       setCurrentAction(action) {
         if (action === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('QuizEditDetailsPage'));
+          this.$router.push({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: { ...this.$route.params },
+          });
         } else {
           this.currentAction = action;
         }
@@ -193,8 +194,6 @@
               question_sources: this.quiz.question_sources,
               assignments,
               learner_ids: adHocLearnerIds,
-              date_archived: null,
-              date_activated: null,
             },
             className,
           })

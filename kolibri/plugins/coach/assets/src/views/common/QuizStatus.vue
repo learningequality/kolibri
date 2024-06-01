@@ -372,7 +372,6 @@
           id: this.$route.params.quizId,
           data: {
             archive: true,
-            date_archived: new Date(),
           },
           exists: true,
         });

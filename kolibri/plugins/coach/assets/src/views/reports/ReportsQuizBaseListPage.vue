@@ -14,6 +14,7 @@
           <template #dropdown>
             <QuizOptionsDropdownMenu
               optionsFor="report"
+              :draft="exam.draft"
               @select="handleSelectOption"
             />
           </template>
@@ -60,6 +61,7 @@
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonCoach from '../common';
   import CoachAppBarPage from '../CoachAppBarPage';
+  import { PageNames } from '../../constants';
   import { QUIZZES_TABS_ID, QuizzesTabs } from '../../constants/tabsConstants';
   import { useCoachTabs } from '../../composables/useCoachTabs';
   import QuizOptionsDropdownMenu from '../plan/QuizSummaryPage/QuizOptionsDropdownMenu';
@@ -138,7 +140,11 @@
     methods: {
       handleSelectOption(option) {
         if (option === 'EDIT_DETAILS') {
-          this.$router.push(this.$router.getRoute('QuizReportEditDetailsPage'));
+          this.$router.push({
+            name: PageNames.EXAM_CREATION_ROOT,
+            params: { ...this.$route.params },
+            query: this.defaultBackLinkQuery,
+          });
         }
         if (option === 'PREVIEW') {
           this.$router.push(

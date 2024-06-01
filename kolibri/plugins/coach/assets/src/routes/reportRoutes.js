@@ -13,7 +13,6 @@ import {
 import { generateQuestionListHandler } from '../modules/questionList/handlers';
 import { generateResourceHandler } from '../modules/resourceDetail/handlers';
 import LessonEditDetailsPage from '../views/plan/LessonEditDetailsPage';
-import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 import { classIdParamRequiredGuard } from './utils';
 
 const ACTIVITY = '/activity';
@@ -481,12 +480,6 @@ export default [
     meta: {
       titleParts: ['RESOURCE_NAME', 'LESSON_NAME', 'CLASS_NAME'],
     },
-  },
-  {
-    name: 'QuizReportEditDetailsPage',
-    path: path(CLASS, QUIZ, '/edit'),
-    component: QuizEditDetailsPage,
-    handler: defaultHandler,
   },
   {
     path: path(CLASS, QUIZ, LEARNERS),

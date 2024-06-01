@@ -106,8 +106,6 @@ export const QuizQuestion = {
  * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
  *                                                           which the questions in this section_id
  *                                                           will be drawn
- * @property {QuizQuestion[]}    question_pool              An array of QuizQuestion objects
- *                                                          derived from the resource_pool
  */
 export const QuizSection = {
   section_id: {
@@ -140,11 +138,6 @@ export const QuizSection = {
     default: () => [],
     spec: QuizExercise,
   },
-  question_pool: {
-    type: Array,
-    default: () => [],
-    spec: QuizQuestion,
-  },
 };
 
 function getRandomInt() {
@@ -166,13 +159,21 @@ export const Quiz = {
     type: Array,
     default: () => [],
   },
-  date_archived: {
-    type: String,
-    default: null,
+  draft: {
+    type: Boolean,
+    default: true,
   },
-  date_activated: {
-    type: String,
-    default: null,
+  active: {
+    type: Boolean,
+    default: false,
+  },
+  archive: {
+    type: Boolean,
+    default: false,
+  },
+  learner_ids: {
+    type: Array,
+    default: () => [],
   },
   collection: {
     type: String,

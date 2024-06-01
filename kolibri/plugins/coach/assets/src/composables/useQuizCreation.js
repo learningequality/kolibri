@@ -7,6 +7,7 @@ import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection } from './quizCreationSpecs.js';
@@ -268,12 +269,37 @@ export default function useQuizCreation() {
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
 
-  function initializeQuiz(collection) {
-    const assignments = [collection];
-    set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
-    const newSection = addSection();
-    setActiveSection(newSection.section_id);
+  async function initializeQuiz(collection, quizId = 'new') {
     _fetchChannels();
+    if (quizId === 'new') {
+      const assignments = [collection];
+      set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+    } else {
+      const exam = await ExamResource.fetchModel({ id: quizId });
+      const { exam: quiz, exercises } = await fetchExamWithContent(exam);
+      const exerciseMap = {};
+      for (const exercise of exercises) {
+        exerciseMap[exercise.id] = exercise;
+      }
+      quiz.question_sources = quiz.question_sources.map(section => {
+        const resource_pool = uniq(section.questions.map(resource => resource.exercise_id))
+          .map(exercise_id => exerciseMap[exercise_id])
+          .filter(Boolean);
+        return {
+          ...section,
+          resource_pool,
+        };
+      });
+      set(_quiz, objectWithDefaults(quiz, Quiz));
+      if (get(allSections).length === 0) {
+        const newSection = addSection();
+        setActiveSection(newSection.section_id);
+      } else {
+        setActiveSection(get(allSections)[0].section_id);
+      }
+    }
   }
 
   /**
@@ -292,11 +318,12 @@ export default function useQuizCreation() {
       return sectionToSave;
     });
 
-    const finalQuiz = get(_quiz);
+    const finalQuiz = {
+      ...get(_quiz),
+      question_sources: questionSourcesWithoutResourcePool,
+    };
 
-    finalQuiz.question_sources = questionSourcesWithoutResourcePool;
-
-    return ExamResource.saveModel({ data: finalQuiz });
+    return ExamResource.saveModel({ id: finalQuiz.id, data: finalQuiz });
   }
 
   /**
