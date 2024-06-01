@@ -462,6 +462,8 @@ class Application(Gio.Application):
         self.__kolibri_service = kolibri_service
         self.__search_handler = search_handler
 
+        GLib.timeout_add_seconds(5, self.__poll_kolibri_service_is_alive)
+
         self.__public_interface = PublicDBusInterface(self, kolibri_service)
         self.__public_interface.init()
 
@@ -500,6 +502,18 @@ class Application(Gio.Application):
         )
 
         self.__begin_await_kolibri_bus_ready_timeout()
+
+    def __poll_kolibri_service_is_alive(self) -> bool:
+        # We need to exit on our own if KolibriServiceManager's HTTP process has
+        # stopped responding.
+        # TODO: This could probably be handled better if we were using
+        #       multiprocessing.Manager to organize different processes.
+
+        if self.__kolibri_service.is_alive():
+            return GLib.SOURCE_CONTINUE
+
+        self.quit()
+        return GLib.SOURCE_REMOVE
 
     @property
     def use_session_bus(self) -> bool:

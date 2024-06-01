@@ -31,6 +31,9 @@ class KolibriServiceManager(object):
     def init(self):
         self.__http_process.start()
 
+    def is_alive(self) -> bool:
+        return self.__http_process.is_alive()
+
     def __send_command(self, command: KolibriHttpProcess.Command):
         self.__command_tx.send(command)
 
