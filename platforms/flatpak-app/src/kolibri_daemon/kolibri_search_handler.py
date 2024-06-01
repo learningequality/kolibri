@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import re
+import signal
 import typing
 from collections.abc import Mapping
 from concurrent.futures import ProcessPoolExecutor
@@ -120,6 +121,10 @@ class LocalSearchHandler(SearchHandler):
         self.__executor.shutdown()
 
     def __process_initializer(self):
+        # The process spawned by the process pool inherits the signal handler
+        # from its parent process, which is set in main.py.
+        signal.signal(signal.SIGTERM, signal.SIG_DFL)
+
         from setproctitle import setproctitle
 
         setproctitle("kolibri-daemon-search")
