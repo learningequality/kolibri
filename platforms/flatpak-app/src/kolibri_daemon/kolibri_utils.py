@@ -73,6 +73,8 @@ def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
 def kolibri_automatic_provision():
     from kolibri.core.device.utils import device_provisioned
     from kolibri.core.device.utils import provision_from_file
+    from kolibri.core.auth.models import Facility
+    from kolibri.core.device.utils import set_device_settings
 
     if device_provisioned():
         return
@@ -86,6 +88,10 @@ def kolibri_automatic_provision():
         file.flush()
         provision_from_file(file.name)
 
+    facility = Facility.get_default_facility()
+    facility.on_my_own_setup = True
+    set_device_settings(allow_learner_download_resources=True)
+
 
 def _get_automatic_provision_data() -> dict:
     facility_name = _("Kolibri on {host}").format(host=platform.node() or "localhost")
@@ -94,6 +100,7 @@ def _get_automatic_provision_data() -> dict:
         "preset": "formal",
         "facility_settings": {
             "learner_can_login_with_no_password": False,
+            "show_download_button_in_learn": True,
         },
         "device_settings": {
             # Kolibri interprets None as "the system language at setup time",
