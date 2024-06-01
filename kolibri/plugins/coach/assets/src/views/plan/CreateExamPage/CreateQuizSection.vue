@@ -382,6 +382,7 @@
         setActiveSection,
         updateQuiz,
         selectAllQuestions,
+        displaySectionTitle,
 
         // Computed
         toggleQuestionInSelection,
@@ -428,6 +429,7 @@
         setActiveSection,
         updateQuiz,
         updateResources$,
+        displaySectionTitle,
 
         // Computed
         allSections,
@@ -467,9 +469,9 @@
         };
       },
       tabs() {
-        return get(this.allSections).map(section => {
+        return get(this.allSections).map((section, index) => {
           const id = section.section_id;
-          const label = section.section_title;
+          const label = this.displaySectionTitle(section, index);
           return { id, label };
         });
       },

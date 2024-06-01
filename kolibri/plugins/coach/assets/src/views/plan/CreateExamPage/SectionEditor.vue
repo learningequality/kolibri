@@ -148,7 +148,7 @@
     >
       <transition-group>
         <Draggable
-          v-for="(section) in sectionOrderList"
+          v-for="(section, index) in sectionOrderList"
           :key="section.section_id"
           :style="draggableStyle"
         >
@@ -175,7 +175,7 @@
                   :layout4="{ span: 2 }"
                 >
                   <p class="space-content">
-                    {{ section.section_title.toUpperCase() }}
+                    {{ displaySectionTitle(section, index).toUpperCase() }}
                   </p>
                 </KGridItem>
 
@@ -313,6 +313,7 @@
         updateQuiz,
         removeSection,
         channels,
+        displaySectionTitle,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -417,6 +418,7 @@
         windowIsLarge,
         windowIsSmall,
         // i18n
+        displaySectionTitle,
         selectResourcesFromChannels$,
         sectionSettings$,
         sectionTitle$,

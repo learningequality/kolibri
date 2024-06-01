@@ -16,6 +16,14 @@ function uuidv4() {
   return v4().replace(/-/g, '');
 }
 
+const { sectionLabel$ } = enhancedQuizManagementStrings;
+
+function displaySectionTitle(section, index) {
+  return section.section_title === ''
+    ? sectionLabel$({ sectionNumber: index + 1 })
+    : section.section_title;
+}
+
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
  * object with every property just to validate it. So we use these functions to validate subsets
@@ -48,9 +56,6 @@ export default function useQuizCreation() {
 
   /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
-
-  /** @type {ref<Number>} A counter for use in naming new sections */
-  const _sectionLabelCounter = ref(1);
 
   /** @type {ref<Array>} A list of all Question objects selected for replacement */
   const replacements = ref([]);
@@ -223,9 +228,6 @@ export default function useQuizCreation() {
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
-    const { sectionLabel$ } = enhancedQuizManagementStrings;
-    newSection.section_title = `${sectionLabel$()} ${_sectionLabelCounter.value}`;
-    _sectionLabelCounter.value++;
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
     setActiveSection(newSection.section_id);
     return newSection;
@@ -555,6 +557,7 @@ export default function useQuizCreation() {
     clearSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
+    displaySectionTitle,
 
     // Computed
     channels,
@@ -620,6 +623,7 @@ export function injectQuizCreation() {
     addQuestionToSelection,
     removeQuestionFromSelection,
     toggleQuestionInSelection,
+    displaySectionTitle,
 
     // Computed
     allQuestionsSelected,
