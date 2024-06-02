@@ -69,7 +69,7 @@
       },
       atCreateNewCustomChannel() {
         return this.pageName === ContentWizardPages.CREATE_NEW_CUSTOM_CHANNEL;
-      }
+      },
     },
     mounted() {
       if (!this.pageName) {

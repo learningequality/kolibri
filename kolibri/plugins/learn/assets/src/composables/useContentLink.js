@@ -4,7 +4,6 @@ import pick from 'lodash/pick';
 import { computed, getCurrentInstance } from 'kolibri.lib.vueCompositionApi';
 import { ExternalPageNames, ExternalPagePaths, PageNames } from '../constants';
 
-
 function _decodeBackLinkQuery(query) {
   return query && query.prevQuery ? JSON.parse(decodeURI(query.prevQuery)) : {};
 }

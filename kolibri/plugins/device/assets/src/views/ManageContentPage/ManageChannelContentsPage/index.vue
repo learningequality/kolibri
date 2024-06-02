@@ -22,7 +22,7 @@
 
         <div style="text-align: right">
           <KButtonGroup>
-            <KButton 
+            <KButton
               v-if="isLocalChannel"
               :text="$tr('newFolderAction')"
               @click="shownModal = 'NEW_FOLDER'"
@@ -197,10 +197,10 @@
       },
       resourceCounts() {
         // TODO decouple this workflow entirely from vuex
-        const { 
-          transferResourceCount, 
-          transferFileSize, 
-          nodesForTransfer 
+        const {
+          transferResourceCount,
+          transferFileSize,
+          nodesForTransfer,
         } = this.$store.state.manageContent.wizard;
         return {
           count: transferResourceCount,

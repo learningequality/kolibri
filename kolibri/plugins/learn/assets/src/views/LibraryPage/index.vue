@@ -603,10 +603,10 @@
         message: 'Pinned',
         context: 'Sub heading for the pinned devices',
       },
-      manageAction:{
+      manageAction: {
         message: 'manage',
         context: 'Button that will give access to the channels',
-      }
+      },
       /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
@@ -650,8 +650,8 @@
   }
 
   .manage-button {
-    margin-top: -40px;
     float: right;
+    margin-top: -40px;
   }
 
   .main-grid {

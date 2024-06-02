@@ -27,7 +27,7 @@
           </div>
         </KFixedGridItem>
       </KFixedGrid>
-      
+
       <div class="channel-name">
         <KTooltip reference="lockicon" :refs="$refs" placement="right">
           {{ $tr('unlistedChannelTooltip') }}
@@ -149,7 +149,7 @@
     data() {
       return {
         editChannelDetails: false,
-      }
+      };
     },
     computed: {
       versionNumber() {
@@ -166,7 +166,7 @@
         // final implementation may look like this:
         // return this.channel.local_only;
         return true;
-      }
+      },
     },
     methods: {
       bytesForHumans,

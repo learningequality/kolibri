@@ -24,6 +24,7 @@
       :textArea="true"
     />
   </KModal>
+
 </template>
 
 
@@ -90,10 +91,11 @@
       },
       channelDescriptionFieldLabel: {
         message: 'Description (optional)',
-        context: 'The field where the user adds the description for the custom channel (labeled as optional)',
+        context:
+          'The field where the user adds the description for the custom channel (labeled as optional)',
       },
-    }
-  }
+    },
+  };
 
 </script>
 

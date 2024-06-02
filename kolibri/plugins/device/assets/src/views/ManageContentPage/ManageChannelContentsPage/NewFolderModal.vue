@@ -9,7 +9,7 @@
     @cancel="handleClickCancel"
   >
 
-    <KTextbox 
+    <KTextbox
       ref="folderNameTextBox"
       v-model="folderName"
       :label="$tr('folderNameFieldLabel')"
@@ -47,7 +47,6 @@
           this.$refs.folderNameTextBox.focus();
         }
         // TODO Handle submit
-
       },
       handleClickCancel() {
         this.$emit('cancel');
@@ -63,8 +62,7 @@
         context: 'The field where the user adds the name for creating a new folder.',
       },
     },
-  }
-
+  };
 
 </script>
 

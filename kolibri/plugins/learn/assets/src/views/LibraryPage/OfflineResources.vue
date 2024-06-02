@@ -20,7 +20,7 @@
     >
       {{ injectedtr('pinned') }}
     </h2>
-    
+
     <!-- More  -->
 
     <KGrid v-if="!threeLibrariesOrFewer && unpinnedDevicesExist" class="other-libraries-grid">
@@ -118,8 +118,8 @@
       // When there are three libraries or fewer, display all libraries fully.
       const fullLibrariesToDisplay = computed(() =>
         get(threeLibrariesOrFewer)
-        ? [...get(pinnedDevices), ...get(unpinnedDevices)]
-        : get(pinnedDevices)
+          ? [...get(pinnedDevices), ...get(unpinnedDevices)]
+          : get(pinnedDevices)
       );
 
       // Make this conditional, as this import does not resolve properly
@@ -149,9 +149,9 @@
       };
     },
     props: {
-      injectedtr: { 
+      injectedtr: {
         type: Function,
-        required: true
+        required: true,
       },
     },
   };
@@ -167,8 +167,8 @@
     margin: 30px 0 10px;
 
     span {
-    display: inline-flex;
-    vertical-align: bottom;
+      display: inline-flex;
+      vertical-align: bottom;
     }
   }
 

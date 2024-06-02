@@ -54,7 +54,7 @@ export const ContentSources = {
   LOCAL_DRIVE: 'local',
   KOLIBRI_STUDIO: 'network',
   PEER_KOLIBRI_SERVER: 'PEER_KOLIBRI_SERVER',
-  NEW_CUSTOM_CHANNEL: 'NEW_CUSTOM_CHANNEL', 
+  NEW_CUSTOM_CHANNEL: 'NEW_CUSTOM_CHANNEL',
 };
 
 export const pageNameToModuleMap = {

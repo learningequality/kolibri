@@ -97,7 +97,7 @@
       isChannelLocal() {
         // TODO Fix this when local_only parameter is added to database
         return true;
-      }
+      },
     },
     methods: {
       handleManageChannelAction() {
@@ -116,7 +116,7 @@
       localOnlyLabel: {
         message: 'Local only',
         context: 'Label for channels that are only available locally.',
-      }
+      },
     },
   };
 
@@ -183,8 +183,8 @@
     top: 5px;
     display: inline-block;
     margin-top: 2px;
-    margin-bottom: 2px;
     margin-right: 4px;
+    margin-bottom: 2px;
 
     .panel-sm & {
       top: 2px;
