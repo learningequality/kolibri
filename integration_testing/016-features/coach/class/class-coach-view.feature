@@ -3,13 +3,19 @@ Feature: Class coach view
 
   Background:
     Given I am signed in as a class coach
-      And there is more than one class in the facility
+      And there are several classes in the facility
+      And I am assigned to some of the classes
 
-  Scenario: Open *Coach* tab
+  Scenario: Open the *Class home* page
     When I open the sidebar
-      And click on *Coach*
-    Then I see a list of classes I am assigned to as a *Coach*
-      But I cannot see any other class in the facility
-    When I click on the class <class>
-    Then I am on *Class home* for class <class>
+      And click on *Coach > Class home*
+    Then I see the *Classes* page
+    	And I see a list of the classes to which I am assigned as a *Coach*
+      And I cannot see any other class in the facility
+    When I click on the class name of a class
+    Then I am on *Class home* page for the class
+    	And I can view all of the available information for the learners' progress and activities
+    When I click the *All classes* link
+    Then I am back at the *Classes* page
+    	And I can select a different class
     # Run the rest of the coach scenarios

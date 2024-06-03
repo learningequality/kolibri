@@ -6,9 +6,9 @@ Feature: Admin creates users
       And I am at *Facility > Users* page
 
   Scenario: Create a learner user account
-    hen I click on *New user* button
+    When I click on *New user* button
     Then I see *Create new user* page
-    When I enter user's full name
+    When I enter the user's full name
       And I enter the username
       And I enter the password
       And I re-enter the password
