@@ -73,6 +73,7 @@
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { ExamResource } from 'kolibri.resources';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -179,24 +180,21 @@
       handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
         const title = examTitle
           .trim()
-          .substring(0, 50)
+          .substring(0, 100)
           .trim();
 
-        const className = find(this.classList, { id: classroomId }).name;
         const assignments = serverAssignmentPayload(groupIds, classroomId);
 
-        this.$store
-          .dispatch('examReport/copyExam', {
-            exam: {
-              collection: classroomId,
-              title,
-              question_count: this.quiz.question_count,
-              question_sources: this.quiz.question_sources,
-              assignments,
-              learner_ids: adHocLearnerIds,
-            },
-            className,
-          })
+        const newQuiz = {
+          title,
+          draft: true,
+          collection: classroomId,
+          assignments,
+          learner_ids: adHocLearnerIds,
+          question_sources: this.quiz.question_sources,
+        };
+
+        ExamResource.saveModel({ data: newQuiz })
           .then(result => {
             this.showSnackbarNotification('quizCopied');
             // If exam was copied to the current classroom, add it to the classSummary module
@@ -218,6 +216,7 @@
           .catch(error => {
             const caughtErrors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
             if (caughtErrors) {
+              const className = find(this.classList, { id: classroomId }).name;
               this.$store.commit('CORE_CREATE_SNACKBAR', {
                 text: this.$tr('uniqueTitleError', {
                   title,

@@ -3,7 +3,6 @@ import logger from 'kolibri.lib.logging';
 import { pageNameToModuleMap, PageNames } from '../constants';
 import { LessonsPageNames } from '../constants/lessonsConstants';
 import examCreation from './examCreation';
-import examReport from './examReport';
 import examReportDetail from './examReportDetail';
 import exerciseDetail from './exerciseDetail';
 import groups from './groups';
@@ -138,7 +137,6 @@ export default {
     classSummary,
     coachNotifications,
     examCreation,
-    examReport,
     examReportDetail,
     exerciseDetail,
     groups,
