@@ -36,7 +36,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.4" date="2024-05-31" type="stable">
+    <release version="3.4+next" date="2024-05-31" type="stable">
       <description>
         <p>Changes included in this release:</p>
         <ul>
@@ -55,10 +55,6 @@
           </li>
           <li>
             Troubleshooting information has been added to the About window.
-          </li>
-          <li>
-            When running as a system service, Kolibri automatically creates a
-            default facility before starting for the first time.
           </li>
         </ul>
       </description>

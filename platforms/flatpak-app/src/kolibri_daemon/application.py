@@ -12,7 +12,6 @@ from gi.repository import KolibriDaemonDBus
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.config import DAEMON_PRIVATE_OBJECT_PATH
-from kolibri_app.globals import APP_AUTOMATIC_PROVISION
 
 from .dbus_helpers import DBusManagerProxy
 from .desktop_users import AccountsServiceManager
@@ -592,14 +591,6 @@ class Application(Gio.Application):
     def do_startup(self):
         if self.use_system_bus:
             Gio.bus_get(Gio.BusType.SYSTEM, None, self.__system_bus_on_get)
-
-        # If kolibri-daemon is running as a system service, start automatic
-        # provisioning regardless of the value of APP_AUTOMATIC_PROVISION. This
-        # works around an issue in eos-kolibri where that environment variable
-        # is unset for the Kolibri system service.
-        # FIXME: Remove the special case once the eos-kolibri issue is resolved.
-        if APP_AUTOMATIC_PROVISION or self.use_system_bus:
-            self.__kolibri_service.automatic_provision()
 
         Gio.Application.do_startup(self)
 

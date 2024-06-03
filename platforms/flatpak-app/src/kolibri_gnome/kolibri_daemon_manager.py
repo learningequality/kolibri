@@ -14,7 +14,6 @@ from gi.repository import Soup
 from kolibri_app.config import DAEMON_APPLICATION_ID
 from kolibri_app.config import DAEMON_MAIN_OBJECT_PATH
 from kolibri_app.globals import APP_AUTOMATIC_LOGIN
-from kolibri_app.globals import APP_AUTOMATIC_PROVISION
 
 from .utils import GioInputStreamIO
 
@@ -123,7 +122,6 @@ class KolibriDaemonManager(GObject.GObject):
             "base_url": self.__dbus_proxy.props.base_url,
             "kolibri_home": self.__dbus_proxy.props.kolibri_home,
             "kolbri_version": self.__dbus_proxy.props.kolibri_version,
-            "do_automatic_provision": APP_AUTOMATIC_PROVISION,
         }
 
     def kolibri_api_get(self, path: str) -> typing.Any:

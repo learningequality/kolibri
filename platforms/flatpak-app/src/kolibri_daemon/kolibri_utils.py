@@ -1,13 +1,8 @@
 from __future__ import annotations
 
 import importlib.util
-import json
 import logging
 import os
-import platform
-import tempfile
-from gettext import gettext as _
-from pathlib import Path
 
 from .content_extensions_manager import ContentExtensionsManager
 
@@ -52,6 +47,10 @@ def _init_kolibri_env():
     # workload, we can use a smaller number of threads.
     os.environ.setdefault("KOLIBRI_CHERRYPY_THREAD_POOL", "10")
 
+    # TODO: It would be nice to tell Kolibri to please use a more limited set of
+    #       facility and device settings defaults:
+    #       <https://github.com/learningequality/kolibri-installer-gnome/issues/106>
+
     content_extensions_manager = ContentExtensionsManager()
     content_extensions_manager.apply(os.environ)
 
@@ -68,52 +67,3 @@ def _enable_kolibri_plugin(plugin_name: str, optional=False) -> bool:
         enable_plugin(plugin_name)
 
     return True
-
-
-def kolibri_automatic_provision():
-    from kolibri.core.device.utils import device_provisioned
-    from kolibri.core.device.utils import provision_from_file
-    from kolibri.core.auth.models import Facility
-    from kolibri.core.device.utils import set_device_settings
-
-    if device_provisioned():
-        return
-
-    # It is better to create a TemporaryDirectory containing a file, because
-    # provision_from_file deals with file paths instead of open files, and it
-    # deletes the provided file, which confuses tempfile.NamedTemporaryFile.
-    with tempfile.TemporaryDirectory() as directory:
-        file = Path(directory, "automatic_provision.json").open("w")
-        json.dump(_get_automatic_provision_data(), file)
-        file.flush()
-        provision_from_file(file.name)
-
-    facility = Facility.get_default_facility()
-    facility.on_my_own_setup = True
-    set_device_settings(allow_learner_download_resources=True)
-
-
-def _get_automatic_provision_data() -> dict:
-    facility_name = _("Kolibri on {host}").format(host=platform.node() or "localhost")
-    return {
-        "facility_name": facility_name,
-        "preset": "formal",
-        "facility_settings": {
-            "learner_can_login_with_no_password": False,
-            "show_download_button_in_learn": True,
-        },
-        "device_settings": {
-            # Kolibri interprets None as "the system language at setup time",
-            # while an empty string causes Kolibri to always use the current
-            # browser language:
-            # <https://github.com/learningequality/kolibri/issues/11248>
-            "language_id": "",
-            "landing_page": "learn",
-            "allow_guest_access": False,
-            "allow_other_browsers_to_connect": False,
-        },
-        "superuser": {
-            "username": None,
-            "password": None,
-        },
-    }

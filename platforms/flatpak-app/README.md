@@ -176,19 +176,11 @@ build.
 
 #### Automatic provisioning
 
-The kolibri-daemon service will automatically provision Kolibri when it starts
-for the first time. This skips Kolibri's first-run setup wizard and sets up
-Kolibri with no root user. To disable this feature, start kolibri-daemon with
-the `KOLIBRI_APP_AUTOMATIC_PROVISION` environment variable set to `0` for a
-production build, or with `KOLIBRI_DEVEL_APP_AUTOMATIC_PROVISION` for a
-development build. For example, using the reference flatpak:
-
-```
-env KOLIBRI_DEVEL_APP_AUTOMATIC_PROVISION=0 flatpak run --command=/app/libexec/kolibri-app/kolibri-daemon org.learningequality.Kolibri.Devel
-```
-
-Alternatively, provide your own [automatic provisioning file](httpshttps://github.com/learningequality/kolibri/blob/release-v0.16.x/kolibri/core/device/utils.py#L335-L365)
-and start kolibri-daemon with `env KOLIBRI_AUTOMATIC_PROVISION_FILE=/path/to/automatic_provision.json`.
+With a multi-user system, it is possible that a non-privileged user could start
+the kolibri-daemon service for the first time, allowing that user to interact
+with Kolibri's first-run setup wizard. To prevent this, you can create an
+[automatic provisioning file](https://github.com/learningequality/kolibri/blob/release-v0.16.x/kolibri/core/device/utils.py#L328-L358)
+and start kolibri-daemon using `env KOLIBRI_AUTOMATIC_PROVISION_FILE=/path/to/automatic_provision.json`.
 
 #### Automatic sign in
 
