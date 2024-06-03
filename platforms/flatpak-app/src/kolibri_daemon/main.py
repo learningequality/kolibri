@@ -1,3 +1,4 @@
+import multiprocessing
 import signal
 import sys
 from functools import partial
@@ -18,6 +19,8 @@ def application_signal_handler(application, sig, frame):
 
 def main():
     setproctitle(PROCESS_NAME)
+
+    multiprocessing.set_start_method("spawn")
 
     kolibri_service = KolibriServiceManager()
     kolibri_service.init()

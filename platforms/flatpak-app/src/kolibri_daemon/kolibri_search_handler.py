@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import multiprocessing
 import re
 import signal
 import typing
@@ -114,7 +115,9 @@ class LocalSearchHandler(SearchHandler):
 
     def init(self):
         self.__executor = ProcessPoolExecutor(
-            max_workers=1, initializer=self.__process_initializer
+            max_workers=1,
+            initializer=self.__process_initializer,
+            mp_context=multiprocessing.get_context("fork"),
         )
 
     def shutdown(self):

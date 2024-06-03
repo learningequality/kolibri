@@ -42,9 +42,9 @@ class KolibriHttpProcess(KolibriServiceProcess):
         super().__init__(*args, **kwargs)
         self.__command_rx = command_rx
         self.__commands = {
-            self.Command.START_KOLIBRI: self.__start_kolibri,
-            self.Command.STOP_KOLIBRI: self.__stop_kolibri,
-            self.Command.SHUTDOWN: self.__shutdown,
+            self.Command.START_KOLIBRI: self._start_kolibri,
+            self.Command.STOP_KOLIBRI: self._stop_kolibri,
+            self.Command.SHUTDOWN: self._shutdown,
         }
 
     def run(self):
@@ -99,7 +99,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
         return fn()
 
-    def __start_kolibri(self):
+    def _start_kolibri(self):
         if _process_bus_has_transition(self.__kolibri_bus, "START"):
             self.context.is_starting = True
             self.__kolibri_bus.transition("START")
@@ -109,7 +109,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
                 f"Kolibri is unable to start because its state is '{self.__kolibri_bus.state}'"
             )
 
-    def __stop_kolibri(self):
+    def _stop_kolibri(self):
         if _process_bus_has_transition(self.__kolibri_bus, "IDLE"):
             self.__kolibri_bus.transition("IDLE")
         elif self.__kolibri_bus.state != "IDLE":
@@ -117,11 +117,11 @@ class KolibriHttpProcess(KolibriServiceProcess):
                 f"Kolibri is unable to stop because its state is '{self.__kolibri_bus.state}"
             )
 
+    def _shutdown(self):
+        self.__exit_kolibri()
+
     def __exit_kolibri(self):
         self.__kolibri_bus.transition("EXITED")
-
-    def __shutdown(self):
-        self.__exit_kolibri()
 
     def __update_kolibri_context(self):
         import kolibri
