@@ -122,6 +122,13 @@
         </KGridItem>
       </KGrid>
     </div>
+    <NotEnoughResourcesModal
+      v-if="showNoEnoughResources"
+      :selectedQuestions="selectedActiveQuestions"
+      :availableResources="replacementQuestionPool"
+      @close="closeNoEnoughResourcesModal"
+      @addResources="redirectToSelectResources"
+    />
     <KModal
       v-if="showReplacementConfirmation"
       :submitText="coreString('confirmAction')"
@@ -160,10 +167,12 @@
   import { PageNames } from '../../../constants/index';
   import AccordionItem from './AccordionItem';
   import AccordionContainer from './AccordionContainer';
+  import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
   export default {
     name: 'ReplaceQuestions',
     components: {
+      NotEnoughResourcesModal,
       AccordionContainer,
       AccordionItem,
     },
@@ -202,6 +211,10 @@
 
       const showCloseConfirmation = ref(false);
       const showReplacementConfirmation = ref(false);
+      const showNoEnoughResources = ref(false);
+
+      showNoEnoughResources.value =
+        replacementQuestionPool.value.length < selectedActiveQuestions.value.length;
 
       function handleConfirmClose() {
         replacements.value = [];
@@ -262,6 +275,7 @@
         selectAllIsChecked,
         replaceSelectedQuestions,
         activeResourceMap,
+        showNoEnoughResources,
         showCloseConfirmation,
         showReplacementConfirmation,
         confirmReplacement,
@@ -337,6 +351,18 @@
       } else {
         next();
       }
+    },
+    methods: {
+      redirectToSelectResources() {
+        const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, {
+          section_id: this.activeSection.section_id,
+        });
+        this.$router.replace(route);
+      },
+      closeNoEnoughResourcesModal() {
+        this.showNoEnoughResources = false;
+        this.$emit('closePanel');
+      },
     },
   };
 

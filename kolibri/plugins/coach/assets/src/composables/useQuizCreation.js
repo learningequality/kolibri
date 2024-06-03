@@ -117,19 +117,17 @@ export default function useQuizCreation() {
             },
             []
           );
-          if (removedResourceQuestionIds.length === 0) {
-            // If no resources were removed, we don't need to update the questions
-            return;
+          if (removedResourceQuestionIds.length !== 0) {
+            const questionsToKeep = originalQuestions.filter(
+              q => !removedResourceQuestionIds.includes(q.id)
+            );
+            const numReplacementsNeeded =
+              (question_count || originalQuestionCount) - questionsToKeep.length;
+            updates.questions = [
+              ...questionsToKeep,
+              ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
+            ];
           }
-          const questionsToKeep = originalQuestions.filter(
-            q => !removedResourceQuestionIds.includes(q.id)
-          );
-          const numReplacementsNeeded =
-            (question_count || originalQuestionCount) - questionsToKeep.length;
-          updates.questions = [
-            ...questionsToKeep,
-            ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
-          ];
         }
       }
     } else if (question_count !== originalQuestionCount) {
