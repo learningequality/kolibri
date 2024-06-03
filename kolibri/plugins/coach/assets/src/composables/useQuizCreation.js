@@ -169,14 +169,16 @@ export default function useQuizCreation() {
   }
 
   function handleReplacement() {
-    const questionsNotSelectedToBeReplaced = activeQuestions.value.filter(
-      question => !selectedActiveQuestions.value.includes(question.id)
-    );
+    const questions = activeQuestions.value.map(question => {
+      if (selectedActiveQuestions.value.includes(question.id)) {
+        return replacements.value.shift();
+      }
+      return question;
+    });
     updateSection({
       section_id: activeSection.value.section_id,
-      questions: [...questionsNotSelectedToBeReplaced, ...replacements.value],
+      questions,
     });
-    set(replacements, []);
   }
 
   /**
