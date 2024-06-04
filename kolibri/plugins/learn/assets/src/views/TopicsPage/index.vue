@@ -371,6 +371,7 @@
       const channel = ref(null);
       const contents = ref([]);
       const loading = ref(true);
+      const sidePanelIsOpen = ref(false);
 
       const _getAllDescendantChildren = topic => {
         const contentnode_id__in = [];
@@ -398,18 +399,24 @@
       };
 
       function _handleTopicRedirect(route, children, id, skipped) {
-        if (!children.some(c => !c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
-          // if there are no children which are not leaf nodes (i.e. they have children themselves)
+        if (children.every(c => c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
+          // if all children are leaf nodes (i.e. they have no children themselves)
           // then redirect to search results
-          router.replace({
-            name: PageNames.TOPICS_TOPIC_SEARCH,
-            params: { ...route.params, id },
-            query: route.query,
-          });
+          if (children.every(c => c.title == '')) {
+            router.replace({
+              name: PageNames.TOPICS_TOPIC_SEARCH,
+              params: { ...route.params, id },
+              query: route.query,
+            });
+          } else {
+            sidePanelIsOpen.value = false;
+          }
         } else if (skipped) {
           // If we have skipped down the topic tree, replace to the new top level topic
           router.replace({ name: route.name, params: { ...route.params, id }, query: route.query });
           return true;
+        } else {
+          sidePanelIsOpen.value = false;
         }
       }
 
@@ -536,6 +543,7 @@
         isUserLoggedIn,
         fetchContentNodeTreeProgress,
         loading,
+        sidePanelIsOpen,
       };
     },
     props: {
@@ -558,7 +566,6 @@
       return {
         sidePanelStyleOverrides: {},
         showMoreResources: false,
-        sidePanelIsOpen: false,
         metadataSidePanelContent: null,
         expandedTopics: {},
         subTopicLoading: null,
