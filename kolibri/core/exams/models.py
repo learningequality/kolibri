@@ -283,6 +283,13 @@ class Exam(AbstractExam, AbstractFacilityDataModel):
         if getattr(self, "active", False) is True:
             if getattr(self, "date_activated") is None:
                 self.date_activated = timezone.now()
+        # Remove any empty sections from the question sources
+        # No need to update the question count here, as sections with no questions
+        # will not have been counted in the question count.
+        if self.data_model_version == 3:
+            self.question_sources = [
+                section for section in self.question_sources if section.get("questions")
+            ]
         super(Exam, self).save(*args, **kwargs)
 
     def infer_dataset(self, *args, **kwargs):

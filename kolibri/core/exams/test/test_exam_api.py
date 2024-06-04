@@ -628,6 +628,26 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
             self.exam.learners_see_fixed_order, previous_learners_see_fixed_order
         )
 
+    def test_logged_in_admin_exam_can_create_and_publish_remove_empty_sections(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        exam["question_sources"].append(
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+        exam_id = response.data["id"]
+        exam = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam.question_sources), 1)
+
 
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
     class_object = models.DraftExam
@@ -782,3 +802,22 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         exam["archive"] = False
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)
+
+    def test_logged_in_admin_exam_can_update_and_publish_remove_empty_sections(self):
+        self.login_as_admin()
+        self.exam.question_sources = self.make_basic_sections(1) + [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            }
+        ]
+        self.exam.save()
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 200)
+        exam_id = response.data["id"]
+        exam = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam.question_sources), 1)
