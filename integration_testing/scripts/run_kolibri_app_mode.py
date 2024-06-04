@@ -12,6 +12,9 @@ from kolibri.utils.cli import initialize
 from kolibri.utils.server import KolibriProcessBus
 
 
+logger = logging.getLogger(__name__)
+
+
 class AppPlugin(SimplePlugin):
     def __init__(self, bus):
         self.bus = bus
@@ -24,10 +27,10 @@ class AppPlugin(SimplePlugin):
         start_url = "http://127.0.0.1:{port}".format(
             port=self.port
         ) + interface.get_initialize_url(auth_token="1234")
-        logging.info("Kolibri running at: {start_url}".format(start_url=start_url))
+        logger.info("Kolibri running at: {start_url}".format(start_url=start_url))
 
 
-logging.info("Initializing Kolibri and running any upgrade routines")
+logger.info("Initializing Kolibri and running any upgrade routines")
 
 # activate app mode
 enable_plugin("kolibri.plugins.app")
@@ -40,7 +43,7 @@ os.environ["KOLIBRI_UPDATE_HOOKS"] = "kolibri.core.tasks.job.log_status"
 initialize()
 
 # start kolibri server
-logging.info("Starting kolibri server.")
+logger.info("Starting kolibri server.")
 
 
 def os_user(auth_token):
