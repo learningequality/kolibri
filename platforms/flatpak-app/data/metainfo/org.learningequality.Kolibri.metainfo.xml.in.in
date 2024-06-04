@@ -5,21 +5,33 @@
   <developer id="org.learningequality">
     <name>Learning Equality</name>
   </developer>
-  <summary>Offline education technology platform</summary>
+  <summary>Offline learning platform</summary>
   <metadata_license>CC0-1.0</metadata_license>
   <project_license>MIT</project_license>
-  <url type="homepage">https://learningequality.org/kolibri/</url>
-  <url type="donation">https://learningequality.org/donate/</url>
-  <url type="help">https://kolibri.readthedocs.io/en/latest/</url>
   <url type="bugtracker">https://github.com/learningequality/kolibri/issues</url>
+  <url type="contribute">https://kolibri-dev.readthedocs.io/en/develop/contributing/ways_to_contribute.html</url>
+  <url type="donation">https://learningequality.org/donate/</url>
+  <url type="faq">https://learningequality.org/community_faq/</url>
+  <url type="help">https://kolibri.readthedocs.io</url>
+  <url type="homepage">https://learningequality.org/kolibri/</url>
   <url type="translate">https://learningequality.org/translate/</url>
+  <url type="vcs-browser">https://github.com/learningequality/kolibri</url>
   <description>
-    <p>Kolibri makes high quality education technology available in low-resource communities such as rural schools, refugee camps, orphanages, non-formal school systems, and prison systems. Running on a wide variety of hardware, it enables offline access to a rich set of content and tools to support learners, coaches, and administrators.</p>
+    <p>
+      Kolibri provides offline access to a curated and openly licensed
+      educational content library, focused on serving both learners and
+      educators.
+    </p>
+    <p>
+      Available in dozens of languages, the Kolibri Content Library includes
+      both formal educational materials, such as lessons and assessments, as
+      well as exploratory materials, such as books, games, and simulations.
+    </p>
   </description>
   <launchable type="desktop-id">@FRONTEND_APPLICATION_ID@.desktop</launchable>
   <branding>
     <color type="primary" scheme_preference="light">#fff5cc</color>
-    <color type="primary" scheme_preference="dark">#7d7968</color>
+    <color type="primary" scheme_preference="dark">#37436f</color>
   </branding>
   <screenshots>
     <screenshot type="default">
@@ -36,7 +48,7 @@
     </screenshot>
   </screenshots>
   <releases>
-    <release version="3.5+next" date="2024-06-03" type="develop">
+    <release version="3.5+next" date="2024-06-03" type="developement">
       <description>
         <p>Changes included in this release:</p>
         <ul>
