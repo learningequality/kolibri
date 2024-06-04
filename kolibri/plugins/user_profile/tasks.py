@@ -45,7 +45,10 @@ class MergeUserValidator(PeerImportSingleSyncJobValidator):
             details = e.detail if isinstance(e.detail, list) else [e.detail]
             for detail in details:
                 # If any of the errors are authentication related, then we need to create the user
-                if detail.code == error_constants.AUTHENTICATION_FAILED:
+                if (
+                    detail.code == error_constants.AUTHENTICATION_FAILED
+                    or detail.code == error_constants.INVALID_USERNAME
+                ):
                     self.create_remote_user(data)
                     job_data = super(MergeUserValidator, self).validate(data)
                     break
