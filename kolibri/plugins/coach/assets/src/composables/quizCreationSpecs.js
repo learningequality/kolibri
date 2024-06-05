@@ -65,10 +65,6 @@ export const QuizExercise = {
  *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
-  id: {
-    type: String,
-    required: true,
-  },
   exercise_id: {
     type: String,
     required: true,
@@ -84,10 +80,6 @@ export const QuizQuestion = {
   counter_in_exercise: {
     type: 'number',
     default: 0,
-  },
-  missing_resource: {
-    type: Boolean,
-    default: false,
   },
 };
 
