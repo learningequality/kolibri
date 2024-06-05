@@ -73,6 +73,7 @@ INSTALLED_APPS = [
     "kolibri.core.auth.apps.KolibriAuthConfig",
     "kolibri.core.bookmarks",
     "kolibri.core.content",
+    "kolibri.core.errorreports",
     "kolibri.core.logger",
     "kolibri.core.notifications.apps.KolibriNotificationsConfig",
     "kolibri.core.tasks.apps.KolibriTasksConfig",
@@ -161,6 +162,7 @@ if conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
         "kolibri.core.notifications.models.NotificationsRouter",
         "kolibri.core.device.models.SyncQueueRouter",
         "kolibri.core.discovery.models.NetworkLocationRouter",
+        "kolibri.core.errorreports.models.ErrorReportsRouter",
     )
 
 elif conf.OPTIONS["Database"]["DATABASE_ENGINE"] == "postgres":
