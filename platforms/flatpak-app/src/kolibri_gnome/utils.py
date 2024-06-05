@@ -92,6 +92,8 @@ def map_properties(
     for source, prop in all_properties:
         source.connect("notify::{}".format(prop), notify_cb)
 
+    notify_cb(None, None)
+
 
 def await_properties(
     all_properties: typing.List[typing.Tuple[GObject.Object, str]],
