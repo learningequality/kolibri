@@ -350,7 +350,8 @@
 
 
 <script>
-  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue'
+
+  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue';
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
