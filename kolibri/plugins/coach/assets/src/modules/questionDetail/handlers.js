@@ -42,10 +42,10 @@ function showQuestionDetailView(params) {
     // of a combination of 'question_id:exercise_id'
     const baseExam = store.state.classSummary.examMap[quizId];
     promise = fetchExamWithContent(baseExam).then(({ exam }) => {
-        const allQuestions =  exam.question_sources.reduce((acc,source)=>{
-          acc = [...acc, ...source.questions ];
-          return acc;
-        },[]);
+      const allQuestions = exam.question_sources.reduce((acc, source) => {
+        acc = [...acc, ...source.questions];
+        return acc;
+      }, []);
 
       exerciseNodeId = allQuestions.find(question => question.item === questionId).exercise_id;
       return exam;
@@ -62,10 +62,10 @@ function showQuestionDetailView(params) {
         exercise.assessmentmetadata = exercise.assessmentmetadata || {};
         let title;
         if (exam) {
-          const filteredQuestions = exam.question_sources.reduce((acc,source)=>{
+          const filteredQuestions = exam.question_sources.reduce((acc, source) => {
             acc = [...acc, ...source.questions];
             return acc;
-          },[]);
+          }, []);
 
           const question = filteredQuestions.find(question => question.item === questionId);
 
@@ -73,7 +73,6 @@ function showQuestionDetailView(params) {
             name: question.title,
             number: question.counter_in_exercise,
           });
-
         } else {
           const questionNumber = Math.max(
             1,
