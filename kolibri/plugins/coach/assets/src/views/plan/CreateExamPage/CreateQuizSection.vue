@@ -330,6 +330,13 @@
 
     </KTabsPanel>
 
+    <NotEnoughResourcesModal
+      v-if="showNotEnoughResourcesModal"
+      :selectedQuestions="selectedActiveQuestions"
+      :availableResources="replacementQuestionPool"
+      @close="showNotEnoughResourcesModal = false"
+      @addResources="redirectToSelectResources"
+    />
     <KModal
       v-if="showDeleteConfirmation"
       :title="deleteSectionLabel$()"
@@ -363,6 +370,7 @@
   import TabsWithOverflow from './TabsWithOverflow';
   import AccordionContainer from './AccordionContainer';
   import AccordionItem from './AccordionItem';
+  import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
   const logger = logging.getLogger(__filename);
 
@@ -376,6 +384,7 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
+      NotEnoughResourcesModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
@@ -491,6 +500,7 @@
     data() {
       return {
         showDeleteConfirmation: false,
+        showNotEnoughResourcesModal: false,
       };
     },
     computed: {
@@ -576,9 +586,13 @@
         this.showDeleteConfirmation = section_id;
       },
       handleReplaceSelection() {
-        const section_id = get(this.activeSection).section_id;
-        const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
-        this.$router.push(route);
+        if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
+          this.showNotEnoughResourcesModal = true;
+        } else {
+          const section_id = get(this.activeSection).section_id;
+          const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
+          this.$router.push(route);
+        }
       },
       handleActiveSectionAction(opt) {
         const section_id = this.activeSection.section_id;
@@ -662,6 +676,10 @@
             count,
           })
         );
+      },
+      redirectToSelectResources() {
+        this.showNotEnoughResourcesModal = false;
+        this.openSelectResources(this.activeSection.section_id);
       },
     },
   };
