@@ -178,6 +178,10 @@ class AbstractExam(models.Model):
                 questions.append(question)
         return questions
 
+    def save(self, *args, **kwargs):
+        self.question_count = len(self.get_questions())
+        super().save(*args, **kwargs)
+
 
 class DraftExam(AbstractExam):
 
