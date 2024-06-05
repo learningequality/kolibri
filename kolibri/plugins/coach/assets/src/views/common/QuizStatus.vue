@@ -352,16 +352,26 @@
           id: this.$route.params.quizId,
           data: {
             active: true,
-            date_activated: new Date(),
+            draft: false,
           },
           exists: true,
         });
 
         return promise
-          .then(() => {
-            this.$store.dispatch('classSummary/refreshClassSummary');
+          .then(data => {
             this.showConfirmationModal = false;
             this.$store.dispatch('createSnackbar', this.coachString('quizOpenedMessage'));
+            if (data.id !== this.$route.params.quizId) {
+              this.$router.replace({
+                name: this.$route.name,
+                params: {
+                  ...this.$route.params,
+                  quizId: data.id,
+                },
+              });
+            } else {
+              this.$store.dispatch('classSummary/refreshClassSummary');
+            }
           })
           .catch(() => {
             this.$store.dispatch('createSnackbar', this.coachString('quizFailedToOpenMessage'));

@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
 
-    <KGrid gutter="16">
+    <KGrid v-if="exam" gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
           :backlink="$router.getRoute('EXAMS')"
@@ -12,7 +12,7 @@
           <template #dropdown>
             <QuizOptionsDropdownMenu
               optionsFor="plan"
-              :draft="exam.draft"
+              :draft="exam && exam.draft"
               @select="setCurrentAction"
             />
           </template>

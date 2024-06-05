@@ -2,7 +2,7 @@
 
   <CoachAppBarPage>
 
-    <KGrid gutter="16">
+    <KGrid v-if="exam" gutter="16">
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="exam"
@@ -14,7 +14,7 @@
           <template #dropdown>
             <QuizOptionsDropdownMenu
               optionsFor="report"
-              :draft="exam.draft"
+              :draft="exam && exam.draft"
               @select="handleSelectOption"
             />
           </template>
