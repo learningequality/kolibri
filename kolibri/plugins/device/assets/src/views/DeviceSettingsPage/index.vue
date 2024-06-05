@@ -63,45 +63,49 @@
 
         <div class="fieldset">
           <label class="fieldset-label">{{ $tr('landingPageLabel') }}</label>
-          <KRadioButton
-            data-test="landingPageButton"
-            :label="$tr('learnerAppPageChoice')"
-            :buttonValue="landingPageChoices.LEARN"
-            :currentValue="landingPage"
-            @input="handleLandingPageChange"
-          />
-          <KRadioButton
-            data-test="signInPageButton"
-            :label="$tr('signInPageChoice')"
-            :buttonValue="landingPageChoices.SIGN_IN"
-            :currentValue="landingPage"
-            @input="handleLandingPageChange"
-          />
+          <KRadioButtonGroup>
+            <KRadioButton
+              data-test="landingPageButton"
+              :label="$tr('learnerAppPageChoice')"
+              :buttonValue="landingPageChoices.LEARN"
+              :currentValue="landingPage"
+              @input="handleLandingPageChange"
+            />
+            <KRadioButton
+              data-test="signInPageButton"
+              :label="$tr('signInPageChoice')"
+              :buttonValue="landingPageChoices.SIGN_IN"
+              :currentValue="landingPage"
+              @input="handleLandingPageChange"
+            />
+          </KRadioButtonGroup>
           <div class="fieldset" style="margin-left: 32px">
-            <KRadioButton
-              data-test="allowGuestAccessButton"
-              :label="$tr('allowGuestAccess')"
-              :buttonValue="SignInPageOptions.ALLOW_GUEST_ACCESS"
-              :currentValue="signInPageOption"
-              :disabled="disableSignInPageOptions"
-              @input="handleSignInPageChange"
-            />
-            <KRadioButton
-              data-test="disallowGuestAccessButton"
-              :label="$tr('disallowGuestAccess')"
-              :buttonValue="SignInPageOptions.DISALLOW_GUEST_ACCESS"
-              :currentValue="signInPageOption"
-              :disabled="disableSignInPageOptions"
-              @input="handleSignInPageChange"
-            />
-            <KRadioButton
-              data-test="lockedContentButton"
-              :label="$tr('lockedContent')"
-              :buttonValue="SignInPageOptions.LOCKED_CONTENT"
-              :currentValue="signInPageOption"
-              :disabled="disableSignInPageOptions"
-              @input="handleSignInPageChange"
-            />
+            <KRadioButtonGroup :enable="disableSignInPageOptions">
+              <KRadioButton
+                data-test="allowGuestAccessButton"
+                :label="$tr('allowGuestAccess')"
+                :buttonValue="SignInPageOptions.ALLOW_GUEST_ACCESS"
+                :currentValue="signInPageOption"
+                :disabled="disableSignInPageOptions"
+                @input="handleSignInPageChange"
+              />
+              <KRadioButton
+                data-test="disallowGuestAccessButton"
+                :label="$tr('disallowGuestAccess')"
+                :buttonValue="SignInPageOptions.DISALLOW_GUEST_ACCESS"
+                :currentValue="signInPageOption"
+                :disabled="disableSignInPageOptions"
+                @input="handleSignInPageChange"
+              />
+              <KRadioButton
+                data-test="lockedContentButton"
+                :label="$tr('lockedContent')"
+                :buttonValue="SignInPageOptions.LOCKED_CONTENT"
+                :currentValue="signInPageOption"
+                :disabled="disableSignInPageOptions"
+                @input="handleSignInPageChange"
+              />
+            </KRadioButtonGroup>
           </div>
         </div>
 
@@ -346,6 +350,7 @@
 
 
 <script>
+  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue'
 
   import { mapGetters } from 'vuex';
   import find from 'lodash/find';
@@ -394,6 +399,7 @@
       RemoveStorageLocationModal,
       ServerRestartModal,
       UiAlert,
+      KRadioButtonGroup,
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
