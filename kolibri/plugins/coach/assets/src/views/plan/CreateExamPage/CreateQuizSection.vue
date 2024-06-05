@@ -1,34 +1,6 @@
 <template>
 
-  <div style="padding-top: 2rem; scroll: none;">
-    <KGrid>
-      <KGridItem
-        :layout4="{ span: 1 }"
-        :layout8="{ span: 1 }"
-        :layout12="{ span: 1 }"
-      >
-        <KIcon
-          icon="quiz"
-          class="style-icon"
-        />
-      </KGridItem>
-
-      <KGridItem
-        :layout4="{ span: 3 }"
-        :layout8="{ span: 7 }"
-        :layout12="{ span: 11 }"
-      >
-        <KTextbox
-          ref="title"
-          :label="quizTitle$()"
-          :autofocus="true"
-          :maxlength="100"
-          @blur="e => updateQuiz({ title: e.target.value })"
-          @change="title => updateQuiz({ title })"
-        />
-      </KGridItem>
-    </KGrid>
-
+  <div>
     <p :style="addQuizSectionsStyles">
       {{ addQuizSections$() }}
     </p>
@@ -384,7 +356,6 @@
         selectAllLabel$,
         addQuizSections$,
         addSectionLabel$,
-        quizTitle$,
         quizSectionsLabel$,
         addQuestionsLabel$,
         noQuestionsInSection$,
@@ -402,34 +373,25 @@
 
       const {
         // Methods
-        saveQuiz,
         updateSection,
         allQuestionsSelected,
         selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
-        replaceSelectedQuestions,
         addSection,
         removeSection,
         setActiveSection,
-        initializeQuiz,
         updateQuiz,
-        addQuestionToSelection,
-        removeQuestionFromSelection,
         selectAllQuestions,
+        displaySectionTitle,
 
         // Computed
         toggleQuestionInSelection,
-        channels,
-        quiz,
         allSections,
         activeSection,
-        inactiveSections,
-        activeQuestionsPool,
         activeResourceMap,
         activeResourcePool,
         activeQuestions,
         selectedActiveQuestions,
-        replacementQuestionPool,
       } = injectQuizCreation();
 
       // The number we use for the default section title
@@ -444,7 +406,6 @@
         addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
-        quizTitle$,
         addQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
@@ -459,33 +420,24 @@
 
         toggleQuestionInSelection,
         selectAllQuestions,
-        saveQuiz,
         updateSection,
         allQuestionsSelected,
         selectAllIsIndeterminate,
         deleteActiveSelectedQuestions,
-        replaceSelectedQuestions,
         addSection,
         removeSection,
         setActiveSection,
-        initializeQuiz,
         updateQuiz,
-        addQuestionToSelection,
-        removeQuestionFromSelection,
         updateResources$,
+        displaySectionTitle,
 
         // Computed
-        channels,
-        quiz,
         allSections,
         activeSection,
-        inactiveSections,
         activeResourceMap,
         activeResourcePool,
-        activeQuestionsPool,
         activeQuestions,
         selectedActiveQuestions,
-        replacementQuestionPool,
       };
     },
     data() {
@@ -517,9 +469,9 @@
         };
       },
       tabs() {
-        return get(this.allSections).map(section => {
+        return get(this.allSections).map((section, index) => {
           const id = section.section_id;
-          const label = section.section_title;
+          const label = this.displaySectionTitle(section, index);
           return { id, label };
         });
       },
@@ -670,23 +622,6 @@
 
 
 <style lang="scss"  scoped>
-
-  .style-icon {
-    width: 2em;
-    height: 2em;
-    margin-top: 0.5em;
-    margin-left: 1em;
-  }
-
-  /deep/ .ui-textbox-label {
-    width: 100% !important;
-  }
-
-  /deep/ .textbox {
-    width: 100% !important;
-    max-width: 100%;
-    margin-left: -1em;
-  }
 
   .no-question-layout {
     width: auto;

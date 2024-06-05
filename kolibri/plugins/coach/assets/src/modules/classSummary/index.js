@@ -319,10 +319,10 @@ export default {
     quizTitleUnavailable(state, getters) {
       const normalize = title => title.trim().toUpperCase();
       return function finder({ title, excludeId }) {
-        return find(
-          getters.exams,
-          exam => exam.id !== excludeId && normalize(exam.title) === normalize(title)
-        );
+        return find(getters.exams, exam => {
+          // Coerce ids to same data type before comparing
+          String(exam.id) !== String(excludeId) && normalize(exam.title) === normalize(title);
+        });
       };
     },
     lessonTitleUnavailable(state, getters) {

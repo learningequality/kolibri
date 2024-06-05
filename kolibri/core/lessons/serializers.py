@@ -1,5 +1,6 @@
 from collections import OrderedDict
 
+from rest_framework.serializers import BooleanField
 from rest_framework.serializers import ListField
 from rest_framework.serializers import ModelSerializer
 from rest_framework.serializers import PrimaryKeyRelatedField
@@ -27,7 +28,7 @@ class LessonSerializer(ModelSerializer):
     created_by = PrimaryKeyRelatedField(
         read_only=False, queryset=FacilityUser.objects.all()
     )
-    lesson_assignments = ListField(
+    assignments = ListField(
         child=PrimaryKeyRelatedField(
             read_only=False, queryset=Collection.objects.all()
         ),
@@ -40,6 +41,7 @@ class LessonSerializer(ModelSerializer):
         ),
         required=False,
     )
+    active = BooleanField(source="is_active", required=False)
 
     class Meta:
         model = Lesson
@@ -48,9 +50,9 @@ class LessonSerializer(ModelSerializer):
             "title",
             "description",
             "resources",
-            "is_active",
+            "active",
             "collection",  # classroom
-            "lesson_assignments",
+            "assignments",
             "learner_ids",
             "created_by",
         )
@@ -99,13 +101,13 @@ class LessonSerializer(ModelSerializer):
             "title": "Lesson Title",
             "description": "Lesson Description",
             "resources": [...], // Array of {contentnode_id, channel_id, content_id}
-            "is_active": false,
+            "active": false,
             "collection": "df6308209356328f726a09aa9bd323b7", // classroom ID
-            "lesson_assignments": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
+            "assignments": [{"collection": "df6308209356328f726a09aa9bd323b7"}] // learnergroup IDs
             "learner_ids": ["df6308209356328f726a09aa9bd323b8"] // learner ids this lesson is directly assigned to
         }
         """
-        collections = validated_data.pop("lesson_assignments", [])
+        collections = validated_data.pop("assignments", [])
         learners = validated_data.pop("learner_ids", [])
         new_lesson = Lesson.objects.create(**validated_data)
 
@@ -125,12 +127,12 @@ class LessonSerializer(ModelSerializer):
         # Update the scalar fields
         instance.title = validated_data.get("title", instance.title)
         instance.description = validated_data.get("description", instance.description)
-        instance.is_active = validated_data.get("is_active", instance.is_active)
+        instance.is_active = validated_data.get("active", instance.is_active)
         instance.resources = validated_data.get("resources", instance.resources)
 
         # Add/delete any new/removed Assignments
-        if "lesson_assignments" in validated_data:
-            collections = validated_data.pop("lesson_assignments")
+        if "assignments" in validated_data:
+            collections = validated_data.pop("assignments")
             current_group_ids = set(
                 instance.lesson_assignments.exclude(
                     collection__kind=ADHOCLEARNERSGROUP

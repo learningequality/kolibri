@@ -40,7 +40,11 @@ class CoachToolsModule extends KolibriApp {
         PageNames.BOOK_MARKED_RESOURCES,
         pages.ReportsQuizLearnerPage.name,
       ];
-      if (!skipLoading.includes(to.name)) {
+      // If we're navigating to the same page for a quiz summary page, don't set loading
+      if (
+        !skipLoading.includes(to.name) &&
+        !(to.params.quizId && from.params.quizId && to.name === from.name)
+      ) {
         this.store.dispatch('loading');
       }
       const promises = [];

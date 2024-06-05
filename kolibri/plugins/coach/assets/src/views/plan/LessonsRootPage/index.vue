@@ -1,6 +1,6 @@
 <template>
 
-  <CoachAppBarPage :authorized="userIsAuthorized" authorizedRole="adminOrCoach" :showSubNav="true">
+  <CoachAppBarPage :showSubNav="true">
     <KPageContainer>
       <PlanHeader :activeTabId="PlanTabs.LESSONS" />
       <KTabsPanel
@@ -58,7 +58,7 @@
                   <Recipients
                     :groupNames="getRecipientNamesForLesson(lesson)"
                     :hasAssignments="
-                      lesson.lesson_assignments.length > 0 || lesson.learner_ids.length > 0
+                      lesson.assignments.length > 0 || lesson.learner_ids.length > 0
                     "
                   />
                 </td>
@@ -77,8 +77,8 @@
                         :key="`switch-${lesson.id}`"
                         name="toggle-lesson-visibility"
                         label=""
-                        :checked="lesson.is_active"
-                        :value="lesson.is_active"
+                        :checked="lesson.active"
+                        :value="lesson.active"
                         @change="toggleModal(lesson)"
                       />
                     </KTransition>
@@ -139,12 +139,8 @@
         >
           <AssignmentDetailsModal
             ref="detailsModal"
-            assignmentType="new_lesson"
-            :modalTitleErrorMessage="coachString('duplicateLessonTitleError')"
-            :submitErrorMessage="coachString('saveLessonError')"
-            :initialDescription="''"
-            :initialTitle="''"
-            :initialSelectedCollectionIds="[classId]"
+            assignmentType="lesson"
+            :assignment="{ assignments: [classId] }"
             :classId="classId"
             :groups="learnerGroups"
             :disabled="detailsModalIsDisabled"
@@ -232,7 +228,7 @@
         }));
       },
       activeLessonCounts() {
-        return countBy(this.lessons, 'is_active');
+        return countBy(this.lessons, 'active');
       },
       newLessonRoute() {
         return { name: LessonsPageNames.LESSON_CREATION_ROOT };
@@ -259,7 +255,7 @@
           const sum = this.lessons
             .filter(
               // only include visible lessons
-              lesson => lesson.is_active
+              lesson => lesson.active
             )
             .reduce((acc, lesson) => {
               return acc + (lesson.size || 0);
@@ -281,9 +277,9 @@
       showLesson(lesson) {
         switch (this.filterSelection.value) {
           case 'filterLessonVisible':
-            return lesson.is_active;
+            return lesson.active;
           case 'filterLessonNotVisible':
-            return !lesson.is_active;
+            return !lesson.active;
           default:
             return true;
         }
@@ -317,7 +313,7 @@
         });
       },
       handleToggleVisibility(lesson) {
-        const newActiveState = !lesson.is_active;
+        const newActiveState = !lesson.active;
         const snackbarMessage = newActiveState
           ? this.coachString('lessonVisibleToLearnersLabel')
           : this.coachString('lessonNotVisibleToLearnersLabel');
@@ -327,7 +323,7 @@
         return LessonResource.saveModel({
           id: lesson.id,
           data: {
-            is_active: newActiveState,
+            active: newActiveState,
           },
           exists: true,
         })
@@ -356,7 +352,7 @@
         const hideModalConfirmation = Lockr.get(LESSON_VISIBILITY_MODAL_DISMISSED);
         this.activeLesson = lesson;
         if (!hideModalConfirmation && this.learnOnlyDevicesExist) {
-          if (lesson.is_active) {
+          if (lesson.active) {
             this.showLessonIsVisibleModal = false;
             this.showLessonIsNotVisibleModal = true;
           } else {

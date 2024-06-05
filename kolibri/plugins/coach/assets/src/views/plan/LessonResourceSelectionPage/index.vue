@@ -3,8 +3,6 @@
   <component
     :is="page"
     :appBarTitle="$tr('manageResourcesAction')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     icon="close"
     :pageTitle="pageTitle"
     :route="exitButtonRoute"

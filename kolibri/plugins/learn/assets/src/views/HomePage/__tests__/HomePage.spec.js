@@ -266,8 +266,8 @@ describe(`HomePage`, () => {
       useLearnerResources.mockImplementation(() =>
         useLearnerResourcesMock({
           activeClassesLessons: [
-            { id: 'lesson-1', title: 'Lesson 1', is_active: true },
-            { id: 'lesson-2', title: 'Lesson 2', is_active: true },
+            { id: 'lesson-1', title: 'Lesson 1', active: true },
+            { id: 'lesson-2', title: 'Lesson 2', active: true },
           ],
           getClassLessonLink() {
             return { path: '/class-lesson' };

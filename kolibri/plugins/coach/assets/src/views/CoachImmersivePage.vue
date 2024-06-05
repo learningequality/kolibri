@@ -17,7 +17,6 @@
       </div>
     </ImmersivePage>
 
-    <router-view />
   </NotificationsRoot>
 
 </template>
@@ -53,9 +52,11 @@
     components: { ImmersivePage, NotificationsRoot },
     mixins: [commonCoreStrings],
     setup() {
-      const { pageTitle, appBarTitle } = useCoreCoach();
+      const { authorized, pageTitle, appBarTitle } = useCoreCoach();
 
       return {
+        authorized,
+        authorizedRole: 'adminOrCoach',
         defaultPageTitle: pageTitle,
         defaultAppBarTitle: appBarTitle,
       };
@@ -68,15 +69,6 @@
       appearanceOverrides: {
         type: Object,
         required: false,
-        default: null,
-      },
-      authorized: {
-        type: Boolean,
-        required: false,
-        default: true,
-      },
-      authorizedRole: {
-        type: String,
         default: null,
       },
       icon: {

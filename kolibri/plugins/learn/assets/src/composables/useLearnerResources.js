@@ -161,7 +161,7 @@ export default function useLearnerResources() {
     if (!classroom || !classroom.assignments || !classroom.assignments.lessons) {
       return [];
     }
-    return classroom.assignments.lessons.filter(lesson => lesson.is_active);
+    return classroom.assignments.lessons.filter(lesson => lesson.active);
   }
 
   /**

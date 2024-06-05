@@ -20,9 +20,7 @@ import ResourceSelection from '../views/plan/CreateExamPage/ResourceSelection.vu
 import ReplaceQuestions from '../views/plan/CreateExamPage/ReplaceQuestions.vue';
 import PlanQuizPreviewPage from '../views/plan/PlanQuizPreviewPage';
 import CoachExamsPage from '../views/plan/CoachExamsPage';
-import { showExamsPage } from '../modules/examsRoot/handlers';
 import QuizSummaryPage from '../views/plan/QuizSummaryPage';
-import QuizEditDetailsPage from '../views/plan/QuizEditDetailsPage';
 import PlanPracticeQuizPreviewPage from '../views/plan/CreateExamPage/PlanPracticeQuizPreviewPage';
 
 export default [
@@ -30,16 +28,13 @@ export default [
     name: PageNames.EXAMS,
     path: '/:classId/plan/quizzes',
     component: CoachExamsPage,
-    handler(toRoute) {
-      showExamsPage(store, toRoute.params.classId);
-    },
     meta: {
       titleParts: ['quizzesLabel', 'CLASS_NAME'],
     },
   },
   {
     name: PageNames.EXAM_CREATION_ROOT,
-    path: '/:classId/plan/quizzes/new',
+    path: '/:classId/plan/quizzes/:quizId/edit',
     component: CreateExamPage,
     children: [
       {
@@ -145,10 +140,5 @@ export default [
     meta: {
       titleParts: ['QUIZ_NAME', 'quizzesLabel', 'CLASS_NAME'],
     },
-  },
-  {
-    name: QuizEditDetailsPage.name,
-    path: '/:classId/plan/quizzes/:quizId/edit',
-    component: QuizEditDetailsPage,
   },
 ];

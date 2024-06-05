@@ -11,8 +11,6 @@
   <CoreBase
     :immersivePage="false"
     :appBarTitle="coreString('coachLabel')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     :showSubNav="false"
   >
 

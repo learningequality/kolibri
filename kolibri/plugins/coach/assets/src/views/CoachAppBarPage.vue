@@ -46,24 +46,18 @@
     components: { AppBarPage, NotificationsRoot },
     mixins: [commonCoreStrings],
     setup() {
-      const { pageTitle, appBarTitle } = useCoreCoach();
+      const { authorized, pageTitle, appBarTitle, classId } = useCoreCoach();
 
       return {
+        authorized,
+        authorizedRole: 'adminOrCoach',
+        classId,
         defaultPageTitle: pageTitle,
         defaultAppBarTitle: appBarTitle,
       };
     },
     props: {
       appBarTitle: {
-        type: String,
-        default: null,
-      },
-      authorized: {
-        type: Boolean,
-        required: false,
-        default: true,
-      },
-      authorizedRole: {
         type: String,
         default: null,
       },
@@ -76,7 +70,6 @@
       ...mapState({
         error: state => state.core.error,
       }),
-      ...mapState('classSummary', { classId: 'id' }),
     },
     $trs: {
       kolibriTitleMessage: {

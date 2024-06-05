@@ -5,7 +5,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Select all',
   },
   sectionLabel: {
-    message: 'Section',
+    message: 'Section { sectionNumber, number }',
   },
   createNewQuiz: {
     message: 'Create new quiz',

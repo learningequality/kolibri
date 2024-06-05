@@ -5,7 +5,7 @@
     @sort="handleDrag"
   >
     <p v-if="resources.length === 0">
-      {{ coachString('noResourcesInLessonLabel') }}
+      {{ noResourcesInLessonLabel$() }}
     </p>
     <transition-group
       v-else
@@ -89,6 +89,7 @@
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
+  import { coachStrings } from '../../common/commonCoachStrings';
 
   // This is a simplified version of ResourceListTable that is supposed to work
   // outside of the LessonSummaryPage workflow.
@@ -103,6 +104,12 @@
       CoachContentLabel,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      const { noResourcesInLessonLabel$ } = coachStrings;
+      return {
+        noResourcesInLessonLabel$,
+      };
+    },
     props: {
       // Array<{ contentnode_id, content_id, channel_id }>
       resources: {

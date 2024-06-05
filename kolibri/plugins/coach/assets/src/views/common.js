@@ -96,7 +96,6 @@ export default {
       'notificationModuleData',
       'getGroupNames',
       'getGroupNamesForLearner',
-      'getAdHocLearners',
       'getLearnersForGroups',
       'getLearnersForExam',
       'getLearnersForLesson',
@@ -112,12 +111,6 @@ export default {
       'getExamAvgScore',
     ]),
     userIsAuthorized() {
-      if (this.isSuperuser) {
-        return true;
-      }
-      if (this.$route.name === 'CoachClassListPage') {
-        return this.isCoach || this.isAdmin;
-      }
       return this.$store.getters.userIsAuthorizedForCoach;
     },
     PageNames() {

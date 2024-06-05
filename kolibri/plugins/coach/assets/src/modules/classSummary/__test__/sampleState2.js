@@ -117,6 +117,8 @@ export default {
         { exercise_id: 'node_13', question_id: '3' },
       ],
       groups: ['group_id_3'],
+      assignments: ['group_id_3'],
+      learner_ids: [],
     },
     exam_id_2: {
       id: 'exam_id_2',
@@ -127,6 +129,8 @@ export default {
         { exercise_id: 'node_26', question_id: 'B' },
       ],
       groups: ['group_id_2'],
+      assignments: ['group_id_2'],
+      learner_ids: [],
     },
     exam_id_3: {
       id: 'exam_id_3',
@@ -138,6 +142,8 @@ export default {
         { exercise_id: 'node_15', question_id: '12' },
       ],
       groups: ['group_id_4'],
+      assignments: ['group_id_4'],
+      learner_ids: [],
     },
     exam_id_4: {
       id: 'exam_id_4',
@@ -149,6 +155,8 @@ export default {
         { exercise_id: 'node_21', question_id: 'z' },
       ],
       groups: [],
+      assignments: ['class_id'],
+      learner_ids: [],
     },
   },
   examLearnerStatusMap: {
@@ -842,6 +850,8 @@ export default {
       active: true,
       node_ids: ['node_17', 'node_18', 'node_6'],
       groups: ['group_id_2'],
+      assignments: ['group_id_2'],
+      learner_ids: [],
     },
     lesson_id_2: {
       id: 'lesson_id_2',
@@ -849,6 +859,8 @@ export default {
       active: true,
       node_ids: ['node_22', 'node_11'],
       groups: ['group_id_3'],
+      assignments: ['group_id_3'],
+      learner_ids: [],
     },
     lesson_id_3: {
       id: 'lesson_id_3',
@@ -856,6 +868,8 @@ export default {
       active: true,
       node_ids: ['node_19', 'node_20'],
       groups: [],
+      assignments: ['class_id'],
+      learner_ids: [],
     },
     lesson_4: {
       id: 'lesson_4',
@@ -863,6 +877,8 @@ export default {
       active: false,
       node_ids: ['node_29', 'node_32', 'node_30', 'node_31'],
       groups: [],
+      assignments: ['class_id'],
+      learner_ids: [],
     },
     lesson_id_5: {
       id: 'lesson_id_5',
@@ -870,6 +886,8 @@ export default {
       active: true,
       node_ids: [],
       groups: ['group_id_2'],
+      assignments: ['group_id_2'],
+      learner_ids: [],
     },
   },
 };

@@ -116,7 +116,8 @@ const initWrapper = lessonMap => {
     lessonMap = {
       [LESSON_ID]: {
         groups: [],
-        assignments: [CLASSROOM],
+        assignments: [CLASSROOM.id],
+        learner_ids: [],
       },
     };
   }
@@ -169,6 +170,7 @@ const initWrapper = lessonMap => {
 
   store.state.classSummary = {
     ...store.state.classSummary,
+    id: CLASSROOM.id,
     lessonMap,
     groupMap,
     learnerMap,
@@ -226,6 +228,7 @@ describe('ReportsLessonExerciseLearnerListPage', () => {
         [LESSON_ID]: {
           groups: [],
           assignments: [],
+          learner_ids: [],
         },
       };
     });
@@ -250,7 +253,8 @@ describe('ReportsLessonExerciseLearnerListPage', () => {
       lessonMap = {
         [LESSON_ID]: {
           groups: [],
-          assignments: [CLASSROOM],
+          assignments: [CLASSROOM.id],
+          learner_ids: [],
         },
       };
     });
@@ -310,6 +314,7 @@ describe('ReportsLessonExerciseLearnerListPage', () => {
         [LESSON_ID]: {
           groups: [GROUP_2.id, GROUP_3.id],
           assignments: [GROUP_2.id, GROUP_3.id],
+          learner_ids: [],
         },
       };
     });

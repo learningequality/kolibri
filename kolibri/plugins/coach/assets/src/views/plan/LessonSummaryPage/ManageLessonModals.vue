@@ -81,7 +81,7 @@
             description: this.currentLesson.description,
             resources: this.currentLesson.resources,
             collection: selectedClassroomId,
-            lesson_assignments: selectedCollectionIds,
+            assignments: selectedCollectionIds,
             learner_ids: adHocLearnerIds,
           },
         })

@@ -1,9 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
-  >
+  <CoachAppBarPage>
 
     <KGrid v-if="!loading">
       <KGridItem>

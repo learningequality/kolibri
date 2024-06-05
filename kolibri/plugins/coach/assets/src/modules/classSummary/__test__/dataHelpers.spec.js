@@ -45,6 +45,7 @@ describe('coach summary data helpers', () => {
       expect(
         store.getters.getLearnersForExam({
           assignments: [],
+          learner_ids: [],
         })
       ).toEqual([]);
     });
@@ -53,7 +54,7 @@ describe('coach summary data helpers', () => {
       const groups = ['group_id_2', 'group_id_3'];
       const output = store.getters.getLearnersForExam({
         assignments: groups,
-        groups,
+        learner_ids: [],
       });
       output.sort();
       expect(output).toEqual([
@@ -73,6 +74,7 @@ describe('coach summary data helpers', () => {
       expect(
         store.getters.getLearnersForLesson({
           assignments: [],
+          learner_ids: [],
         })
       ).toEqual([]);
     });
@@ -81,7 +83,7 @@ describe('coach summary data helpers', () => {
       const groups = ['group_id_2', 'group_id_3'];
       const output = store.getters.getLearnersForLesson({
         assignments: groups,
-        groups,
+        learner_ids: [],
       });
       output.sort();
       expect(output).toEqual([

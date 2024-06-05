@@ -2,8 +2,6 @@
 
   <CoachImmersivePage
     :appBarTitle="$tr('appBarLabel')"
-    :authorized="userIsAuthorized"
-    authorizedRole="adminOrCoach"
     icon="back"
     :pageTitle="$tr('title')"
     :route="toolbarRoute"

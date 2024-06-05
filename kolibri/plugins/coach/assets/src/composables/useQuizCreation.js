@@ -7,12 +7,21 @@ import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection } from './quizCreationSpecs.js';
 
 function uuidv4() {
   return v4().replace(/-/g, '');
+}
+
+const { sectionLabel$ } = enhancedQuizManagementStrings;
+
+function displaySectionTitle(section, index) {
+  return section.section_title === ''
+    ? sectionLabel$({ sectionNumber: index + 1 })
+    : section.section_title;
 }
 
 /** Validators **/
@@ -47,9 +56,6 @@ export default function useQuizCreation() {
 
   /** @type {ref<Array>} A list of all channels available which have exercises */
   const _channels = ref([]);
-
-  /** @type {ref<Number>} A counter for use in naming new sections */
-  const _sectionLabelCounter = ref(1);
 
   /** @type {ref<Array>} A list of all Question objects selected for replacement */
   const replacements = ref([]);
@@ -222,9 +228,6 @@ export default function useQuizCreation() {
    * Adds a section to the quiz and returns it */
   function addSection() {
     const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
-    const { sectionLabel$ } = enhancedQuizManagementStrings;
-    newSection.section_title = `${sectionLabel$()} ${_sectionLabelCounter.value}`;
-    _sectionLabelCounter.value++;
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
     setActiveSection(newSection.section_id);
     return newSection;
@@ -268,12 +271,37 @@ export default function useQuizCreation() {
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
 
-  function initializeQuiz(collection) {
-    const assignments = [collection];
-    set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
-    const newSection = addSection();
-    setActiveSection(newSection.section_id);
+  async function initializeQuiz(collection, quizId = 'new') {
     _fetchChannels();
+    if (quizId === 'new') {
+      const assignments = [collection];
+      set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
+      const newSection = addSection();
+      setActiveSection(newSection.section_id);
+    } else {
+      const exam = await ExamResource.fetchModel({ id: quizId });
+      const { exam: quiz, exercises } = await fetchExamWithContent(exam);
+      const exerciseMap = {};
+      for (const exercise of exercises) {
+        exerciseMap[exercise.id] = exercise;
+      }
+      quiz.question_sources = quiz.question_sources.map(section => {
+        const resource_pool = uniq(section.questions.map(resource => resource.exercise_id))
+          .map(exercise_id => exerciseMap[exercise_id])
+          .filter(Boolean);
+        return {
+          ...section,
+          resource_pool,
+        };
+      });
+      set(_quiz, objectWithDefaults(quiz, Quiz));
+      if (get(allSections).length === 0) {
+        const newSection = addSection();
+        setActiveSection(newSection.section_id);
+      } else {
+        setActiveSection(get(allSections)[0].section_id);
+      }
+    }
   }
 
   /**
@@ -285,18 +313,31 @@ export default function useQuizCreation() {
       throw new Error(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
     }
 
-    // Here we update each section's `resource_pool` to only be the IDs of the resources
-    const questionSourcesWithoutResourcePool = get(allSections).map(section => {
-      const sectionToSave = { ...section };
-      delete sectionToSave.resource_pool;
-      return sectionToSave;
-    });
+    const id = get(_quiz).id;
 
-    const finalQuiz = get(_quiz);
+    const finalQuiz = {
+      title: get(_quiz).title,
+      assignments: get(_quiz).assignments,
+      learner_ids: get(_quiz).learner_ids,
+      collection: get(_quiz).collection,
+    };
 
-    finalQuiz.question_sources = questionSourcesWithoutResourcePool;
+    if (get(_quiz).draft) {
+      // Here we update each section's `resource_pool` to only be the IDs of the resources
+      const questionSourcesWithoutResourcePool = get(allSections).map(section => {
+        const sectionToSave = { ...section };
+        delete sectionToSave.resource_pool;
+        sectionToSave.questions = section.questions.map(question => {
+          const questionToSave = { ...question };
+          delete questionToSave.item;
+          return questionToSave;
+        });
+        return sectionToSave;
+      });
+      finalQuiz.question_sources = questionSourcesWithoutResourcePool;
+    }
 
-    return ExamResource.saveModel({ data: finalQuiz });
+    return ExamResource.saveModel({ id, data: finalQuiz });
   }
 
   /**
@@ -487,21 +528,18 @@ export default function useQuizCreation() {
     return !get(allQuestionsSelected) && !get(noQuestionsSelected);
   });
 
-  provide('saveQuiz', saveQuiz);
   provide('updateSection', updateSection);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
   provide('setActiveSection', setActiveSection);
-  provide('initializeQuiz', initializeQuiz);
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
   provide('channels', channels);
   provide('replacements', replacements);
-  provide('quiz', quiz);
   provide('allSections', allSections);
   provide('activeSection', activeSection);
   provide('inactiveSections', inactiveSections);
@@ -531,6 +569,7 @@ export default function useQuizCreation() {
     clearSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
+    displaySectionTitle,
 
     // Computed
     channels,
@@ -551,33 +590,21 @@ export default function useQuizCreation() {
     allQuestionsSelected,
     noQuestionsSelected,
   };
-
-  /*
-  return {
-    // Only what is needed where we want the rest of the module to be
-    // provided
-    saveQuiz,
-    initializeQuiz,
-  };
-  */
 }
 
 export function injectQuizCreation() {
-  const saveQuiz = inject('saveQuiz');
   const updateSection = inject('updateSection');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
   const setActiveSection = inject('setActiveSection');
-  const initializeQuiz = inject('initializeQuiz');
   const updateQuiz = inject('updateQuiz');
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
   const channels = inject('channels');
   const replacements = inject('replacements');
-  const quiz = inject('quiz');
   const allSections = inject('allSections');
   const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
@@ -595,7 +622,6 @@ export function injectQuizCreation() {
 
   return {
     // Methods
-    saveQuiz,
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
@@ -604,19 +630,18 @@ export function injectQuizCreation() {
     addSection,
     removeSection,
     setActiveSection,
-    initializeQuiz,
     updateQuiz,
     clearSelectedQuestions,
     addQuestionToSelection,
     removeQuestionFromSelection,
     toggleQuestionInSelection,
+    displaySectionTitle,
 
     // Computed
     allQuestionsSelected,
     selectAllIsIndeterminate,
     channels,
     replacements,
-    quiz,
     allSections,
     activeSection,
     inactiveSections,

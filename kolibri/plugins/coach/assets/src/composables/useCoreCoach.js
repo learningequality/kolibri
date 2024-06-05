@@ -12,6 +12,9 @@ export default function useCoreCoach(store) {
   const route = computed(() => store.state.route);
   const pageTitle = computed(() => formatPageTitle());
   const appBarTitle = computed(() => getAppBarTitle());
+  const authorized = computed(() => store.getters.userIsAuthorizedForCoach);
+  const classId = computed(() => get(route).params.classId);
+  const groups = computed(() => store.getters['classSummary/groups']);
 
   function getAppBarTitle() {
     let facilityName;
@@ -76,7 +79,20 @@ export default function useCoreCoach(store) {
     return strings.join(' - ');
   }
 
+  function initClassInfo() {
+    return store.dispatch('initClassInfo', get(classId));
+  }
+
+  function refreshClassSummary() {
+    return store.dispatch('classSummary/refreshClassSummary', null, { root: true });
+  }
+
   return {
+    initClassInfo,
+    refreshClassSummary,
+    classId,
+    groups,
+    authorized,
     pageTitle,
     appBarTitle,
   };

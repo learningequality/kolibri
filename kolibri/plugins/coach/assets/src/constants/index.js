@@ -62,8 +62,6 @@ export const ViewMoreButtonStates = {
 };
 
 export const pageNameToModuleMap = {
-  [PageNames.EXAMS]: 'examsRoot',
-  [PageNames.EXAM_REPORT]: 'examReport',
   [PageNames.EXAM_REPORT_DETAIL]: 'examReportDetail',
   [LessonsPageNames.PLAN_LESSONS_ROOT]: 'lessonsRoot',
   [LessonsPageNames.RESOURCE_USER_REPORT]: 'exerciseDetail',
