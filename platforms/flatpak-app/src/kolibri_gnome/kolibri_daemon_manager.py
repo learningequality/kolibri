@@ -37,6 +37,7 @@ class KolibriDaemonManager(GObject.GObject):
     __dbus_proxy_owner: typing.Optional[str] = None
 
     __soup_session: Soup.Session = None
+    __soup_cookie_jar: Soup.CookieJar = None
     __last_status: typing.Optional[str] = None
 
     is_stopped = GObject.Property(type=bool, default=False)
@@ -62,6 +63,8 @@ class KolibriDaemonManager(GObject.GObject):
         )
 
         self.__soup_session = Soup.Session.new()
+        self.__soup_cookie_jar = Soup.CookieJar.new()
+        self.__soup_session.add_feature(self.__soup_cookie_jar)
 
         self.__dbus_proxy.connect(
             "notify::g-name-owner", self.__dbus_proxy_on_notify_g_name_owner
