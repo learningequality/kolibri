@@ -2,7 +2,6 @@
 
   <KModal
     :title="notEnoughReplacementsTitle$()"
-    :submitText="addResourcesAction$()"
   >
     <p>
       {{
