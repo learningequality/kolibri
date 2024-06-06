@@ -271,7 +271,7 @@ def serialize_lessons(request, pk):
 
 
 def _map_exam(item):
-    data_model_version = item.pop("data_model_version")
+    data_model_version = item.get("data_model_version")
     if data_model_version == 3:
         item["node_ids"] = [
             question["exercise_id"]

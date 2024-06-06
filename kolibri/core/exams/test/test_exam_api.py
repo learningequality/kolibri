@@ -68,9 +68,25 @@ class BaseExamTest:
         cls.classroom = Classroom.objects.create(name="Classroom", parent=cls.facility)
         kwargs = dict(
             title="title",
-            question_count=1,
             collection=cls.classroom,
             creator=cls.admin,
+            question_sources=[
+                {
+                    "section_id": uuid.uuid4().hex,
+                    "section_title": "Test Section Title",
+                    "description": "Test descripton for Section",
+                    "questions": [
+                        {
+                            "exercise_id": uuid.uuid4().hex,
+                            "question_id": uuid.uuid4().hex,
+                            "title": "Test question Title",
+                            "counter_in_exercise": 0,
+                        }
+                    ],
+                    "question_count": 1,
+                    "learners_see_fixed_order": False,
+                }
+            ],
         )
         if cls.class_object == models.Exam:
             kwargs["active"] = True
@@ -508,14 +524,14 @@ class BaseExamTest:
     def test_exam_model_get_questions_v2_v1(self):
         self.login_as_admin()
         self.exam.data_model_version = 2
-        self.exam.question_sources.append(
+        self.exam.question_sources = [
             {
                 "exercise_id": uuid.uuid4().hex,
                 "question_id": uuid.uuid4().hex,
                 "title": "Title",
                 "counter_in_exercise": 0,
             }
-        )
+        ]
 
         self.exam.save()
         self.assertEqual(len(self.exam.get_questions()), 1)
@@ -627,6 +643,59 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         self.assertEqual(
             self.exam.learners_see_fixed_order, previous_learners_see_fixed_order
         )
+
+    def test_logged_in_admin_exam_can_create_and_publish_remove_empty_sections(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        exam["question_sources"].append(
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            }
+        )
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 201)
+        exam_id = response.data["id"]
+        exam = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam.question_sources), 1)
+
+    def test_logged_in_admin_exam_cant_create_and_publish_empty_quiz(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        exam["question_sources"] = []
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+
+    def test_logged_in_admin_exam_cant_create_and_publish_empty_sections(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        exam["draft"] = False
+        exam["question_sources"] = [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            },
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            },
+        ]
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
 
 
 class ExamDraftAPITestCase(BaseExamTest, APITestCase):
@@ -782,3 +851,38 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         exam["archive"] = False
         response = self.post_new_exam(exam)
         self.assertEqual(response.status_code, 201)
+
+    def test_logged_in_admin_exam_can_update_and_publish_remove_empty_sections(self):
+        self.login_as_admin()
+        self.exam.question_sources = self.make_basic_sections(1) + [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            }
+        ]
+        self.exam.save()
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 200)
+        exam_id = response.data["id"]
+        exam = models.Exam.objects.get(id=exam_id)
+        self.assertEqual(len(exam.question_sources), 1)
+
+    def test_logged_in_admin_exam_cant_update_and_publish_empty_quiz(self):
+        self.login_as_admin()
+        self.exam.question_sources = [
+            {
+                "section_id": uuid.uuid4().hex,
+                "section_title": "Test Section Title",
+                "description": "Test descripton for Section",
+                "question_count": 0,
+                "questions": [],
+                "learners_see_fixed_order": False,
+            }
+        ]
+        self.exam.save()
+        response = self.patch_updated_exam(self.exam.id, {"draft": False})
+        self.assertEqual(response.status_code, 400)

@@ -116,6 +116,13 @@
           @submit="handleOpenQuiz(modalQuiz.id)"
         >
           <p>{{ coachString('openQuizModalDetail') }}</p>
+          <p
+            v-if="
+              modalQuiz.data_model_version === 3 &&
+                modalQuiz.question_sources.some(s => (!s.questions || s.questions.length === 0))"
+          >
+            {{ coachString('openQuizModalEmptySections') }}
+          </p>
           <p>{{ coachString('lodQuizDetail') }}</p>
           <p>{{ coachString('fileSizeToDownload', { size: modalQuiz.size_string }) }}</p>
         </KModal>

@@ -155,10 +155,19 @@ class ExamSerializer(ModelSerializer):
                     "Cannot update question_sources on an Exam object",
                     code=error_constants.INVALID,
                 )
-            question_sources = attrs.get("question_sources") or []
-            attrs["question_count"] = sum(
-                len(source.get("questions", [])) for source in question_sources
-            )
+            if not self.instance and not attrs["draft"]:
+                if not attrs["question_sources"]:
+                    raise ValidationError(
+                        "Cannot create an Exam without any question_sources",
+                        code=error_constants.INVALID,
+                    )
+                if all(
+                    not section["questions"] for section in attrs["question_sources"]
+                ):
+                    raise ValidationError(
+                        "Cannot create an Exam without any questions",
+                        code=error_constants.INVALID,
+                    )
 
         if "learners_see_fixed_order" in attrs and is_non_draft_exam:
             raise ValidationError(
@@ -228,6 +237,11 @@ class ExamSerializer(ModelSerializer):
             elif instance_is_draft and not new_draft_value:
                 # If this is a draft, but we are updating it to be an exam, then we need to create the new exam
                 # and delete the draft
+                if not instance.question_count:
+                    raise ValidationError(
+                        "Cannot publish a draft exam with no questions",
+                        code=error_constants.INVALID,
+                    )
                 if "assignments" not in validated_data:
                     # First check if the assignments are being updated, if not, then we need to set them
                     # to a queryset of collections - this will silently ignore any assignments for collections
@@ -268,9 +282,6 @@ class ExamSerializer(ModelSerializer):
                 # as by this point instance_is_draft is False if we are publishing a draft
                 instance.question_sources = validated_data.pop(
                     "question_sources", instance.question_sources
-                )
-                instance.question_count = validated_data.pop(
-                    "question_count", instance.question_count
                 )
                 instance.learners_see_fixed_order = validated_data.pop(
                     "learners_see_fixed_order", instance.learners_see_fixed_order

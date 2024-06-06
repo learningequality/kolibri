@@ -140,6 +140,13 @@
           @submit="handleOpenQuiz(activeQuiz.id)"
         >
           <p>{{ openQuizModalDetail$() }}</p>
+          <p
+            v-if="
+              activeQuiz.data_model_version === 3 &&
+                activeQuiz.question_sources.some(s => (!s.questions || s.questions.length === 0))"
+          >
+            {{ openQuizModalEmptySections$() }}
+          </p>
           <p>{{ lodQuizDetail$() }}</p>
           <p>{{ fileSizeToDownload$({ size: activeQuiz.size_string }) }}</p>
         </KModal>
@@ -222,6 +229,7 @@
         openQuizLabel$,
         closeQuizLabel$,
         openQuizModalDetail$,
+        openQuizModalEmptySections$,
         closeQuizModalDetail$,
         lodQuizDetail$,
         fileSizeToDownload$,
@@ -260,6 +268,7 @@
         openQuizLabel$,
         closeQuizLabel$,
         openQuizModalDetail$,
+        openQuizModalEmptySections$,
         closeQuizModalDetail$,
         lodQuizDetail$,
         fileSizeToDownload$,
