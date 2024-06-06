@@ -243,6 +243,7 @@ export default function useQuizCreation() {
    * Sets the given section_id as the active section ID, however, if the ID is not found or is null
    * it will set the activeId to the first section in _quiz.question_sources */
   function setActiveSection(section_id = null) {
+    set(_selectedQuestionIds, []); // Clear the selected questions when changing sections
     set(_activeSectionId, section_id);
   }
 
