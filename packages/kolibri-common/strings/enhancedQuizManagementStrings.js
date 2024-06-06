@@ -238,6 +238,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Questions',
     context: 'Label for dropdown list of questions',
   },
+  saveAndClose: {
+    message: 'Save and close',
+  },
 });
 
 const { sectionLabel$ } = enhancedQuizManagementStrings;

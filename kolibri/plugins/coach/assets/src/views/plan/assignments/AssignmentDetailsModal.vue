@@ -210,7 +210,7 @@
               Boolean(
                 this.$store.getters['classSummary/quizTitleUnavailable']({
                   title: this.title,
-                  excludeId: null,
+                  excludeId: this.$route.params.quizId,
                 })
               ) ||
               this.showTitleError
