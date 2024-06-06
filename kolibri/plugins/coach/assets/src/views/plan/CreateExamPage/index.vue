@@ -19,6 +19,7 @@
     >
       <AssignmentDetailsModal
         v-if="quizInitialized"
+        ref="detailsModal"
         assignmentType="quiz"
         :assignment="quiz"
         :classId="classId"
@@ -57,6 +58,8 @@
 <script>
 
   import get from 'lodash/get';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -159,12 +162,20 @@
     },
     methods: {
       saveQuizAndRedirect() {
-        this.saveQuiz().then(() => {
-          this.$router.replace({
-            name: PageNames.EXAMS,
-            classId: this.$route.params.classId,
+        this.saveQuiz()
+          .then(() => {
+            this.$router.replace({
+              name: PageNames.EXAMS,
+              classId: this.$route.params.classId,
+            });
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            this.$refs.detailsModal.handleSubmitFailure();
+            if (errors.length) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            }
           });
-        });
       },
     },
     $trs: {

@@ -61,14 +61,18 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="hasCheckbox"
+        :contentHasCheckbox="c => hasCheckbox(c) && unusedQuestionsCount(c) > 0"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreResources"
-      />
+      >
+        <template #notice="{ content }">
+          <span style="position: absolute; bottom: 1em;">{{ cardNoticeContent(content) }}</span>
+        </template>
+      </ContentCardList>
 
       <div class="bottom-navigation">
         <KGrid>
@@ -146,7 +150,12 @@
       // to be added to Quiz Section.
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
-      const { updateSection, activeResourcePool, selectAllQuestions } = injectQuizCreation();
+      const {
+        updateSection,
+        activeResourcePool,
+        selectAllQuestions,
+        allQuestionsInQuiz,
+      } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
       const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
@@ -163,6 +172,7 @@
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
+        questionsUnusedInSection$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -451,6 +461,7 @@
       });
 
       return {
+        allQuestionsInQuiz,
         selectAllChecked,
         selectAllIndeterminate,
         showSelectAll,
@@ -480,6 +491,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
+        questionsUnusedInSection$,
         selectFoldersOrExercises$,
         numberOfSelectedResources$,
         numberOfResourcesSelected$,
@@ -541,6 +553,28 @@
       }
     },
     methods: {
+      unusedQuestionsCount(content) {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+            aid => `${content.id}:${aid}`
+          );
+          const questionsItemsAlreadyUsed = this.allQuestionsInQuiz
+            .map(q => q.item)
+            .filter(i => questionItems.includes(i));
+          const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
+          return questionItemsAvailable;
+        }
+        return -1;
+      },
+      cardNoticeContent(content) {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          return this.questionsUnusedInSection$({
+            count: this.unusedQuestionsCount(content),
+          });
+        } else {
+          return '';
+        }
+      },
       showTopicSizeWarningCard(content) {
         return !this.hasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
       },
@@ -598,6 +632,7 @@
         });
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
+      // The message put onto the content's card when listed
       selectionMetadata(content) {
         if (content.kind === ContentNodeKinds.TOPIC) {
           const total = content.num_exercises;
@@ -612,8 +647,9 @@
             count: numberOfresourcesSelected,
             total: total,
           });
+        } else {
+          // content is an exercise
         }
-        return '';
       },
       handleSearchTermChange(searchTerm) {
         const query = {
