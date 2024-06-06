@@ -41,7 +41,7 @@
 
 
 <style scoped>
-.item-border{
+  .item-border{
     border-bottom:1px solid #DEDEDE ;
     border-top:1px solid #DEDEDE ;
   }
