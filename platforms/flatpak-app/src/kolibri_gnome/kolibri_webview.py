@@ -97,7 +97,9 @@ class KolibriWebView(WebKit.WebView):
             action = decision.get_navigation_action()
             target_url = action.get_request().get_uri()
             if not self.__context.should_open_url(target_url):
-                self.__context.open_external_url(target_url)
+                redirect_url = self.__context.open_external_url(target_url)
+                if redirect_url:
+                    self.load_kolibri_url(redirect_url)
                 decision.ignore()
                 return True
         return False
@@ -127,7 +129,9 @@ class KolibriWebView(WebKit.WebView):
         else:
             self.load_kolibri_url(self.__context.default_url)
 
-        self.__context.open_external_url(target_url)
+        redirect_url = self.__context.open_external_url(target_url)
+        if redirect_url:
+            self.load_kolibri_url(redirect_url)
 
     def __on_load_changed(self, webview: WebKit.WebView, load_event: WebKit.LoadEvent):
         if load_event == WebKit.LoadEvent.FINISHED:

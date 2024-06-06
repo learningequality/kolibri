@@ -172,11 +172,12 @@ class BaseKolibriContext(GObject.GObject):
         """
         return url_tuple._replace(scheme="", netloc="").geturl()
 
-    def open_external_url(self, url: str):
+    def open_external_url(self, url: str) -> typing.Optional[str]:
         if self.is_url_for_kolibri_app(url):
             self.emit("open-external-url", self.url_to_x_kolibri_app(url))
         else:
             self.emit("open-external-url", url)
+        return None
 
     def get_session_status_is_error(self) -> bool:
         return self.props.session_status == KolibriContext.SESSION_STATUS_ERROR
@@ -520,6 +521,13 @@ class KolibriChannelContext(KolibriContext):
             return f"{self.__default_path}/search?{urlencode(query)}"
         else:
             return self.__default_path
+
+    def open_external_url(self, url: str) -> typing.Optional[str]:
+        if self.is_url_for_kolibri_app(url):
+            # For would-be internal URLs, redirect to the default URL.
+            return self.default_url
+        else:
+            return super().open_external_url(url)
 
     def is_url_in_scope(self, url: str) -> bool:
         # Allow the user to navigate to login and account management pages, as
