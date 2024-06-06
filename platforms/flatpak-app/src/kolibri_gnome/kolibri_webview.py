@@ -123,7 +123,7 @@ class KolibriWebView(WebKit.WebView):
         if back_item:
             webview.go_to_back_forward_list_item(back_item)
         else:
-            webview.load_uri(self.__context.default_url)
+            self.load_kolibri_url(self.__context.default_url)
 
         self.__context.open_external_url(target_url)
 
