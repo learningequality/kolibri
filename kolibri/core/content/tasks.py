@@ -539,7 +539,6 @@ def remoteimport(
         "network",
         channel_id,
         baseurl=baseurl,
-        update_progress=None,
     )
 
     if update:
