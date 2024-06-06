@@ -44,6 +44,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   sectionTitle: {
     message: 'Section title',
   },
+  sectionTitleUniqueWarning: {
+    message: 'Section titles must be unique within the quiz',
+    context: 'Informs the user that they must use a unique title for each section',
+  },
   numberOfQuestionsLabel: {
     message: 'Number of questions',
   },
@@ -227,4 +231,19 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   goBackAction: {
     message: 'Go back',
   },
+  questionsUnusedInSection: {
+    message: '{ count, number } { count, plural, one { question } other { questions }} unused',
+  },
+  questionsLabel: {
+    message: 'Questions',
+    context: 'Label for dropdown list of questions',
+  },
 });
+
+const { sectionLabel$ } = enhancedQuizManagementStrings;
+
+export function displaySectionTitle(section, index) {
+  return section.section_title === ''
+    ? sectionLabel$({ sectionNumber: index + 1 })
+    : section.section_title;
+}
