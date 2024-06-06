@@ -163,11 +163,9 @@
     },
     setup(props, { emit }) {
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
-      const { isSurvey, sections, selectedQuestionNumber } = toRefs(props);
-      // No need to do this unless "practice quiz" begins to use the same sections structure
-      // This means expand, isExpanded, and toggle cannot be referenced in any template code
-      // which only shows when isSurvey is true
-      if (isSurvey.value) {
+      const { sections, selectedQuestionNumber } = toRefs(props);
+      // If we don't have sections, we won't have accordions, so no need to continue the setup()
+      if (sections === null) {
         return {};
       }
 
@@ -280,7 +278,8 @@
     props: {
       sections: {
         type: Array,
-        required: true,
+        required: false,
+        default: null,
       },
       attemptLogs: {
         type: Array,
