@@ -146,7 +146,7 @@
 <script>
 
   import useAccordion from 'kolibri-common/components/useAccordion';
-  import { coreString } from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
@@ -163,11 +163,8 @@
     },
     setup(props, { emit }) {
       const { questionsLabel$, quizSectionsLabel$ } = enhancedQuizManagementStrings;
+      const { questionNumberLabel$ } = coreStrings;
       const { sections, selectedQuestionNumber } = toRefs(props);
-      // If we don't have sections, we won't have accordions, so no need to continue the setup()
-      if (sections === null) {
-        return {};
-      }
 
       const { expand, isExpanded, toggle } = useAccordion(sections);
 
@@ -214,9 +211,7 @@
       const questionSelectOptions = computed(() => {
         return currentSection.value.questions.map((question, index) => ({
           value: question.item,
-          label: coreString('questionNumberLabel', {
-            questionNumber: index + 1,
-          }),
+          label: questionNumberLabel$({ questionNumber: index + 1 }),
         }));
       });
 
@@ -268,7 +263,6 @@
         expand,
         isExpanded,
         toggle,
-        coreString,
         selectedSection,
         sectionSelectOptions,
         selectedQuestion,
