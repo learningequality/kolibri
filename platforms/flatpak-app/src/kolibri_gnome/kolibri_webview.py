@@ -56,7 +56,7 @@ class KolibriWebView(WebKit.WebView):
         self.connect("load-changed", self.__on_load_changed)
 
     def load_kolibri_url(self, kolibri_url: str):
-        if self.__context.session_status != KolibriContext.SESSION_STATUS_READY:
+        if not self.__context.get_session_status_is_ready():
             self.__deferred_load_kolibri_url = kolibri_url
             return
 
@@ -328,9 +328,9 @@ class KolibriWebViewStack(Gtk.Stack):
     def __context_on_notify_session_status(
         self, context: KolibriContext, pspec: GObject.ParamSpec = None
     ):
-        if context.session_status == KolibriContext.SESSION_STATUS_ERROR:
+        if context.get_session_status_is_error():
             self.show_error()
-        elif context.session_status == KolibriContext.SESSION_STATUS_READY:
+        elif context.get_session_status_is_ready():
             pass
         else:
             self.show_loading()
