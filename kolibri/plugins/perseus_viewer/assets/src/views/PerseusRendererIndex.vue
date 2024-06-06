@@ -55,12 +55,74 @@
 
   const blobImageRegex = /blob:[^)^"]+/g;
 
-  // Keep a global register of all image URLs at the module level,
-  // so that even if we have multiple instances of the PerseusRenderer
-  // instantiated at once, we can still render images from all of them.
-  // This also allows us to only monkey patch the Util functions once as
-  // well, and prevent duelling components from overriding each other.
-  const globalImageUrls = {};
+  /**
+   * Global register of all Perseus files. This object is used to keep track of all Perseus files
+   * across multiple instances of the PerseusRenderer. This allows for reuse of the same file and
+   * prevents collisions between different instances where they might try to render the same image
+   * from the same file, but with different URLs. This also allows us to only monkey patch the Util
+   * functions once, as it gives us a global register and prevents duelling components from
+   * overriding each other.
+   *
+   * @type {
+   *  Object.<string, {zipFile: ZipFile, usageCounter: number, imageUrls: Object.<string, string>}>
+   * }
+   *
+   * @property {ZipFile} zipFile - A ZipFile object for the Perseus file.
+   * @property {number} usageCounter - The number of components using this object.
+   * @property {Object.<string, string>} imageUrls - A lookup object mapping from the image filename
+   * to the URL generated for that image for display.
+   */
+  const globalPerseusFileRegistry = {};
+
+  function setUpPerseusFile(perseusFileUrl) {
+    if (globalPerseusFileRegistry[perseusFileUrl]) {
+      globalPerseusFileRegistry[perseusFileUrl].usageCounter += 1;
+    } else {
+      globalPerseusFileRegistry[perseusFileUrl] = {
+        zipFile: null,
+        usageCounter: 1,
+        imageUrls: {},
+      };
+      class JSONMapper extends Mapper {
+        getPaths() {
+          return getImagePaths(this.file.toString());
+        }
+        replacePaths(packageFiles) {
+          return replaceImageUrls(this.file.toString(), perseusFileUrl, packageFiles);
+        }
+      }
+
+      const filePathMappers = {
+        ...defaultFilePathMappers,
+        json: JSONMapper,
+      };
+      globalPerseusFileRegistry[perseusFileUrl].zipFile = new ZipFile(perseusFileUrl, {
+        filePathMappers,
+      });
+    }
+  }
+
+  function cleanUpPerseusFile(perseusFileUrl) {
+    if (globalPerseusFileRegistry[perseusFileUrl]) {
+      globalPerseusFileRegistry[perseusFileUrl].usageCounter -= 1;
+      if (globalPerseusFileRegistry[perseusFileUrl].usageCounter === 0) {
+        globalPerseusFileRegistry[perseusFileUrl].zipFile.close();
+        delete globalPerseusFileRegistry[perseusFileUrl];
+      }
+    }
+  }
+
+  function getImageUrl(key, zipFileUrl = null) {
+    if (zipFileUrl !== null && globalPerseusFileRegistry[zipFileUrl]) {
+      return globalPerseusFileRegistry[zipFileUrl].imageUrls[key];
+    }
+    for (const file in globalPerseusFileRegistry) {
+      if (globalPerseusFileRegistry[file].imageUrls[key]) {
+        return globalPerseusFileRegistry[file].imageUrls[key];
+      }
+    }
+    return;
+  }
 
   function getImagePaths(itemResponse) {
     const graphieMatches = {};
@@ -85,8 +147,9 @@
     return images.concat(svgAndJson);
   }
 
-  function replaceImageUrls(itemResponse, packageFiles = {}) {
-    Object.assign(globalImageUrls, packageFiles);
+  function replaceImageUrls(itemResponse, zipFileUrl, packageFiles = {}) {
+    const imageUrls = globalPerseusFileRegistry[zipFileUrl].imageUrls;
+    Object.assign(imageUrls, packageFiles);
     // If the file is not present in the zip file, then fill in a missing image
     // file for images, and an empty dummy json file for json
     return itemResponse.replace(allImageRegex, (match, g1, g2, image) => {
@@ -95,37 +158,34 @@
         // `web+graphie:` prefix separately from any others,
         // as they are parsed slightly differently to standard image
         // urls (Perseus adds the protocol in place of `web+graphie:`).
-        if (!globalImageUrls[image]) {
-          globalImageUrls[image] = 'data:application/json,';
+        if (!getImageUrl(image, zipFileUrl)) {
+          imageUrls[image] = 'data:application/json,';
         }
         return `web+graphie:${image}`;
       } else {
         // Replace any placeholder values for image URLs with
         // the base URL for the perseus file we are reading from
-        return globalImageUrls[image] || imageMissing;
+        return getImageUrl(image, zipFileUrl) || imageMissing;
       }
     });
   }
 
-  class JSONMapper extends Mapper {
-    getPaths() {
-      return getImagePaths(this.file.toString());
-    }
-    replacePaths(packageFiles) {
-      return replaceImageUrls(this.file.toString(), packageFiles);
-    }
+  function restoreImageUrls(itemResponse, perseusFileUrl) {
+    const imageUrls = globalPerseusFileRegistry[perseusFileUrl].imageUrls;
+    const lookup = invert(imageUrls);
+    return JSON.parse(
+      JSON.stringify(itemResponse).replace(blobImageRegex, match => {
+        // Make sure to add our prefix back in
+        return '${☣ LOCALPATH}/' + lookup[match] || '';
+      })
+    );
   }
 
-  const filePathMappers = {
-    ...defaultFilePathMappers,
-    json: JSONMapper,
-  };
-
   perseus.Util.getDataUrl = url => {
-    return globalImageUrls[url.replace(svgLabelsRegex, '') + '-data.json'];
+    return getImageUrl(url.replace(svgLabelsRegex, '') + '-data.json');
   };
   perseus.Util.getSvgUrl = url => {
-    return globalImageUrls[url.replace(svgLabelsRegex, '') + '.svg'];
+    return getImageUrl(url.replace(svgLabelsRegex, '') + '.svg');
   };
   perseus.Util.getRealImageUrl = url => {
     if (perseus.Util.isLabeledSVG(url)) {
@@ -215,13 +275,10 @@
     beforeDestroy() {
       this.$emit('stopTracking');
       this.clearItemRenderer();
-      if (this.perseusFile) {
-        this.perseusFile.close();
-      }
+      cleanUpPerseusFile(this.perseusFileUrl);
     },
     created() {
       this.itemRenderer = null;
-      this.perseusFile = null;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
       this.imageUrls = {};
@@ -358,6 +415,8 @@
       },
       renderNewItem() {
         this.renderItem();
+        // Clear any pending state reset calls
+        this.$off('itemRendererUpdated');
         this.$once('itemRendererUpdated', () => {
           // Blur any previously focused element once we have rendered a new item
           this.itemRenderer.blur();
@@ -432,11 +491,13 @@
         );
         // To prevent propagation of our locally replace blob URLs into answers,
         // we need to replace them with the original URLs.
-        return this.restoreImageUrls({ hints, question });
+        return restoreImageUrls({ hints, question }, this.perseusFileUrl);
       },
       restoreSerializedState(answerState) {
         if (answerState && answerState.question && answerState.hints) {
-          answerState = JSON.parse(replaceImageUrls(JSON.stringify(answerState)));
+          answerState = JSON.parse(
+            replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl)
+          );
           this.itemRenderer.restoreSerializedState(answerState);
           this.itemRenderer.getWidgetIds().forEach(id => {
             if (sorterWidgetRegex.test(id)) {
@@ -514,13 +575,12 @@
         // Only try to do this if itemId is defined.
         if (this.itemId && this.defaultFile && this.defaultFile.storage_url) {
           this.loading = true;
-          if (!this.perseusFile || this.perseusFileUrl !== this.defaultFile.storage_url) {
-            this.perseusFile = new ZipFile(this.defaultFile.storage_url, {
-              filePathMappers,
-            });
+          if (this.perseusFileUrl !== this.defaultFile.storage_url) {
+            cleanUpPerseusFile(this.perseusFileUrl);
+            setUpPerseusFile(this.defaultFile.storage_url);
             this.perseusFileUrl = this.defaultFile.storage_url;
           }
-          this.perseusFile
+          globalPerseusFileRegistry[this.perseusFileUrl].zipFile
             .file(`${this.itemId}.json`)
             .then(itemFile => {
               const itemResponse = itemFile.toString();
@@ -533,15 +593,6 @@
               this.$emit('itemError', reason);
             });
         }
-      },
-      restoreImageUrls(itemResponse) {
-        const lookup = invert(globalImageUrls);
-        return JSON.parse(
-          JSON.stringify(itemResponse).replace(blobImageRegex, match => {
-            // Make sure to add our prefix back in
-            return '${☣ LOCALPATH}/' + lookup[match] || '';
-          })
-        );
       },
       setItemData(itemData) {
         if (this.validateItemData(itemData)) {
