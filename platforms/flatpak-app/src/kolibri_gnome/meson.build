@@ -4,6 +4,7 @@ python_installation.install_sources(
         '__init__.py',
         'kolibri_context.py',
         'kolibri_daemon_manager.py',
+        'kolibri_setup_dialog.py',
         'kolibri_webview.py',
         'kolibri_window.py',
         'main.py',

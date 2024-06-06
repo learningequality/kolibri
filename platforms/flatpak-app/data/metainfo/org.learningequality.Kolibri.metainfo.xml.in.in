@@ -36,6 +36,17 @@
     </screenshot>
   </screenshots>
   <releases>
+    <release version="3.5+next" date="2024-06-03" type="develop">
+      <description>
+        <p>Changes included in this release:</p>
+        <ul>
+          Kolibri's first run setup wizard will appear in a dialog when Kolibri
+          is started for the first time. This will improve the experience when
+          the application is first started by opening some content on a system
+          where Kolibri content has been pre-installed.
+        </ul>
+      </description>
+    </release>
     <release version="3.5" date="2024-06-03" type="stable">
       <description>
         <p>Changes included in this release:</p>

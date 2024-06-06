@@ -32,10 +32,13 @@ from .utils import map_properties
 logger = logging.getLogger(__name__)
 
 LEARN_PATH_PREFIX = "/learn/#/"
+SETUP_PATH_PREFIX = "/setup/#/"
 
 STATIC_PATHS_RE = r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?"
 SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?"
 CONTENT_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?learn\/?"
+SETUP_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?setup\/?"
+SETUP_COMPLETE_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?redirectuser\/?"
 
 
 class BaseKolibriContext(GObject.GObject):
@@ -585,3 +588,85 @@ class KolibriChannelContext(KolibriContext):
             return match.group("node_id")
 
         return None
+
+
+class KolibriSetupContext(BaseKolibriContext):
+    """
+    A KolibriContext that causes the application to only display Kolibri's setup
+    UI, at kolibri:/en/setup. It uses another "parent" KolibriContext to provide
+    most of its functionality.
+    """
+
+    __parent: KolibriContext
+
+    __gsignals__ = {
+        "setup-complete": (GObject.SIGNAL_RUN_FIRST, None, ()),
+    }
+
+    def __init__(self, parent: KolibriContext):
+        super().__init__()
+
+        self.__parent = parent
+        self.__parent.bind_property(
+            "session-status",
+            self,
+            "session-status",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        bubble_signal(self, "download-started", self.__parent)
+        bubble_signal(self, "open-external-url", self.__parent)
+
+    @property
+    def kolibri_version(self) -> str:
+        return self.__parent.kolibri_version
+
+    @property
+    def default_url(self) -> str:
+        return f"{APP_URI_SCHEME}:{SETUP_PATH_PREFIX}"
+
+    @property
+    def webkit_web_context(self) -> WebKit.WebContext:
+        return self.__parent.webkit_web_context
+
+    def get_absolute_url(self, url: str) -> typing.Optional[str]:
+        return self.__parent.get_absolute_url(url)
+
+    def kolibri_api_get(self, *args, **kwargs) -> typing.Any:
+        return self.__parent.kolibri_api_get(*args, **kwargs)
+
+    def kolibri_api_get_async(self, *args, **kwargs):
+        return self.__parent.kolibri_api_get_async(*args, **kwargs)
+
+    def is_url_for_kolibri_app(self, url) -> bool:
+        return self.__parent.is_url_for_kolibri_app(url)
+
+    def is_url_in_scope(self, url: str) -> bool:
+        if not self.is_url_for_kolibri_app(url):
+            return False
+
+        url_tuple = urlsplit(url)
+        url_path = url_tuple.path.lstrip("/")
+
+        if re.match(SETUP_PATHS_RE, url_path):
+            return True
+
+        return False
+
+    def get_session_status_is_ready(self) -> bool:
+        return self.props.session_status >= KolibriContext.SESSION_STATUS_SETUP
+
+    def __is_url_for_setup_complete(self, url: str) -> bool:
+        url_tuple = urlsplit(url)
+        url_path = url_tuple.path.lstrip("/")
+
+        if re.match(SETUP_COMPLETE_PATHS_RE, url_path):
+            return True
+
+        return False
+
+    def open_external_url(self, url: str) -> typing.Optional[str]:
+        if self.__is_url_for_setup_complete(url):
+            self.emit("setup-complete")
+            return None
+        else:
+            return super().open_external_url(url)

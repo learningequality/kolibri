@@ -26,6 +26,7 @@ from kolibri_app.globals import XDG_CURRENT_DESKTOP
 
 from .kolibri_context import KolibriChannelContext
 from .kolibri_context import KolibriContext
+from .kolibri_setup_dialog import KolibriSetupDialog
 from .kolibri_webview import KolibriWebView
 from .kolibri_window import KolibriWindow
 
@@ -34,6 +35,7 @@ logger = logging.getLogger(__name__)
 
 class Application(Adw.Application):
     __context: KolibriContext
+    __setup_dialog: typing.Optional[KolibriSetupDialog] = None
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
 
@@ -55,6 +57,7 @@ class Application(Adw.Application):
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
         self.__context.connect("open-external-url", self.__context_on_open_external_url)
+        self.__context.connect("open-setup-wizard", self.__context_on_open_setup_wizard)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -88,6 +91,8 @@ class Application(Adw.Application):
 
     def do_startup(self):
         Adw.Application.do_startup(self)
+
+        KolibriContext.init_webkit_defaults()
 
         self.__context.init()
 
@@ -151,6 +156,11 @@ class Application(Adw.Application):
         self, target_url: typing.Optional[str] = None, **kwargs
     ) -> typing.Optional[KolibriWindow]:
         target_url = target_url or self.__context.default_url
+
+        if self.__setup_dialog:
+            self.__setup_dialog.present(self.get_active_window())
+            self.get_active_window().present()
+            return None
 
         if not self.__context.should_open_url(target_url):
             self.open_url_in_external_application(target_url)
@@ -253,6 +263,37 @@ class Application(Adw.Application):
         self, context: KolibriContext, external_url: str
     ):
         self.open_url_in_external_application(external_url)
+
+    def __context_on_open_setup_wizard(self, context: KolibriContext):
+        if self.__setup_dialog:
+            self.__setup_dialog.present(self.get_active_window())
+            return
+
+        self.__setup_dialog = KolibriSetupDialog(
+            application=self, context=self.__context, can_close=False
+        )
+        self.__setup_dialog.connect(
+            "close-attempt", self.__setup_dialog_on_close_attempt
+        )
+        self.__setup_dialog.connect("closed", self.__setup_dialog_on_closed)
+        self.__setup_dialog.connect(
+            "setup-complete", self.__setup_dialog_on_setup_complete
+        )
+        self.__setup_dialog.present(self.get_active_window())
+
+    def __setup_dialog_on_setup_complete(self, dialog: Adw.Dialog):
+        dialog.set_can_close(True)
+        dialog.force_close()
+
+    def __setup_dialog_on_close_attempt(self, dialog: Adw.Dialog):
+        dialog.force_close()
+
+    def __setup_dialog_on_closed(self, dialog: Adw.Dialog):
+        if not dialog.get_can_close():
+            self.quit()
+            return
+        self.__setup_dialog = None
+        self.__context.start_session_setup()
 
     def __window_on_open_in_browser(self, window: KolibriWindow, current_url: str):
         self.open_url_in_external_application(current_url)
