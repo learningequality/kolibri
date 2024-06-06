@@ -46,7 +46,7 @@ export function showExam(store, params, alreadyOnQuiz) {
               }, []);
 
               // Exam is drawing solely on malformed exercise data, best to quit now
-              if (allQuestions.some(question => !question.question_id)) {
+              if (allQuestions.some(question => !question.item)) {
                 store.dispatch(
                   'handleError',
                   `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(

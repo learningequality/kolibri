@@ -19,6 +19,7 @@
           :exerciseContentNodes="exerciseContentNodes"
           :navigateTo="navigateTo"
           :questions="questions"
+          :sections="exam.question_sources"
           @noCompleteTries="noCompleteTries"
         />
       </div>
