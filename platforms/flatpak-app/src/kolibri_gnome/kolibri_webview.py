@@ -33,6 +33,8 @@ class KolibriWebView(WebKit.WebView):
     def __init__(self, context: KolibriContext, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.set_size_request(400, 300)
+
         self.__context = context
 
         self.__context.connect("kolibri-ready", self.__context_on_kolibri_ready)
