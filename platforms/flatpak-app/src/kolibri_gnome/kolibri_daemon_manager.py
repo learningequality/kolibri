@@ -204,11 +204,15 @@ class KolibriDaemonManager(GObject.GObject):
         if soup_message.get_status() >= Soup.Status.BAD_REQUEST:
             # FIXME: It would be better to raise an exception, and
             # handle it in the other side to set SESSION_STATUS_ERROR.
-            logger.warning(f"Error calling Kolibri API: {soup_message.get_status()}")
             result_cb(None, soup_message=soup_message)
             return
 
-        stream = session.send_finish(result)
+        try:
+            stream = session.send_finish(result)
+        except GLib.Error as error:
+            logger.warning(f"Error adding receiving data from Kolibri API: {error}")
+            result_cb(None, soup_message=soup_message)
+            return
 
         if parse_json:
             data = _read_json_from_input_stream(stream)
