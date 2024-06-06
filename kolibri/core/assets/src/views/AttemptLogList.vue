@@ -53,7 +53,7 @@
     </KSelect>
 
     <AccordionContainer
-      v-else
+      v-else-if="sections && sections.length"
       :hideTopActions="true"
       :items="sections"
       :style="{ backgroundColor: $themeTokens.surface }"
@@ -66,7 +66,7 @@
         @focus="expand(index)"
       >
         <template #heading="{ title }">
-          <h3 class="accordion-header">
+          <h3 v-if="title" class="accordion-header">
             <KButton
               tabindex="0"
               appearance="basic-link"
@@ -138,6 +138,50 @@
         </template>
       </AccordionItem>
     </AccordionContainer>
+
+    <ul
+      v-else
+      ref="attemptList"
+      class="history-list"
+      role="listbox"
+      @keydown.home="setSelectedAttemptLog(0)"
+      @keydown.end="
+        setSelectedAttemptLog(attemptLogs.length - 1)"
+      @keydown.up.prevent="
+        setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.left.prevent="
+        setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.down.prevent="
+        setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+      @keydown.right.prevent="
+        setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+    >
+      <li
+        v-for="(question, qIndex) in attemptLogs"
+        :key="`attempt-item-${qIndex}`"
+        class="attempt-item"
+        :style="{
+          backgroundColor: isSelected(qIndex) ? $themePalette.grey.v_100 : '',
+        }"
+      >
+        <a
+          ref="attemptListOption"
+          role="option"
+          class="attempt-item-anchor"
+          :aria-selected="isSelected(qIndex).toString()"
+          :tabindex="isSelected(qIndex) ? 0 : -1"
+          @click.prevent="setSelectedAttemptLog(qIndex)"
+          @keydown.enter="setSelectedAttemptLog(qIndex)"
+          @keydown.space.prevent="setSelectedAttemptLog(qIndex)"
+        >
+          <AttemptLogItem
+            :isSurvey="isSurvey"
+            :attemptLog="attemptLogs[qIndex]"
+            displayTag="p"
+          />
+        </a>
+      </li>
+    </ul>
   </div>
 
 </template>
@@ -170,9 +214,12 @@
 
       /** Finds the section which the current attempt belongs to and expands it */
       function expandCurrentSectionIfNeeded() {
+        if (!sections.value || !sections.value.length) {
+          return;
+        }
         let qCount = 0;
-        for (let i = 0; i < sections.value.length; i++) {
-          qCount += sections.value[i].questions.length;
+        for (let i = 0; i < sections?.value?.length; i++) {
+          qCount += sections?.value[i]?.questions?.length;
           if (qCount >= selectedQuestionNumber.value) {
             if (!isExpanded(i)) {
               expand(i);
@@ -273,7 +320,7 @@
       sections: {
         type: Array,
         required: false,
-        default: null,
+        default: () => [],
       },
       attemptLogs: {
         type: Array,

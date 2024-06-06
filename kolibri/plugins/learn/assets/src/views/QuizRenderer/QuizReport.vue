@@ -17,7 +17,6 @@
     :questions="questions"
     :isSurvey="isSurvey"
     :isQuiz="!isSurvey"
-    :sections="exam.question_sources"
   >
     <template #actions>
       <KButton @click="$emit('repeat')">

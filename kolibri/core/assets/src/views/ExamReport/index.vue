@@ -258,7 +258,7 @@
       // The exam.question_sources value
       sections: {
         type: Array,
-        required: true,
+        required: false,
         default: () => [],
       },
       // An array of questions in the format:
@@ -324,6 +324,9 @@
     },
     computed: {
       questionNumberInSectionLabel() {
+        if (!this.sections) {
+          return '';
+        }
         for (let iSection = 0; iSection < this.sections.length; iSection++) {
           const section = this.sections[iSection];
           for (let iQuestion = 0; iQuestion < section.questions.length; iQuestion++) {
