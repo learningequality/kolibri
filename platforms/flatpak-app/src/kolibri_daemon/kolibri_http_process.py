@@ -35,6 +35,7 @@ class KolibriHttpProcess(KolibriServiceProcess):
         START_KOLIBRI = auto()
         STOP_KOLIBRI = auto()
         SHUTDOWN = auto()
+        UPDATE_IS_DEVICE_PROVISIONED = auto()
 
     def __init__(
         self, *args, command_rx: multiprocessing.connection.Connection, **kwargs
@@ -63,6 +64,9 @@ class KolibriHttpProcess(KolibriServiceProcess):
             port=OPTIONS["Deployment"]["HTTP_PORT"],
             zip_port=OPTIONS["Deployment"]["ZIP_CONTENT_PORT"],
         )
+        # The thread_wait plugin seems be causing a hang when kolibri-daemon is
+        # running as a systemd system service with KillMode=control-group.
+        self.__kolibri_bus.thread_wait.unsubscribe()
 
         kolibri_daemon_plugin = _KolibriDaemonPlugin(self.__kolibri_bus, self.context)
         kolibri_daemon_plugin.subscribe()
@@ -70,6 +74,8 @@ class KolibriHttpProcess(KolibriServiceProcess):
         self.context.is_bus_ready = True
 
         while not self.context.is_exited:
+            if not self.context.is_device_provisioned:
+                self.__update_is_device_provisioned()
             if not self.__run_next_command(timeout=5):
                 self.__shutdown()
 
@@ -122,6 +128,11 @@ class KolibriHttpProcess(KolibriServiceProcess):
 
     def __exit_kolibri(self):
         self.__kolibri_bus.transition("EXITED")
+
+    def __update_is_device_provisioned(self):
+        from kolibri.core.device.utils import device_provisioned
+
+        self.context.is_device_provisioned = device_provisioned()
 
     def __update_kolibri_context(self):
         import kolibri

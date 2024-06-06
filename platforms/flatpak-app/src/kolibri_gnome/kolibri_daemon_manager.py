@@ -45,6 +45,7 @@ class KolibriDaemonManager(GObject.GObject):
     has_error = GObject.Property(type=bool, default=False)
     base_url = GObject.Property(type=str, default=None)
     app_key = GObject.Property(type=str, default=None)
+    is_device_provisioned = GObject.Property(type=bool, default=False)
 
     __gsignals__ = {
         "dbus-owner-changed": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -276,6 +277,9 @@ class KolibriDaemonManager(GObject.GObject):
 
         if self.props.app_key != dbus_proxy.props.app_key:
             self.props.app_key = dbus_proxy.props.app_key
+
+        if self.props.is_device_provisioned != dbus_proxy.props.is_device_provisioned:
+            self.props.is_device_provisioned = dbus_proxy.props.is_device_provisioned
 
     def __update_from_status_text(self, status):
         self.props.is_stopped = status in ("STOPPED", "")

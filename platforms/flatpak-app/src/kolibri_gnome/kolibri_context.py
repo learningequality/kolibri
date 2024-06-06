@@ -185,6 +185,9 @@ class BaseKolibriContext(GObject.GObject):
     def get_session_status_is_error(self) -> bool:
         return self.props.session_status == KolibriContext.SESSION_STATUS_ERROR
 
+    def get_session_status_is_setup(self) -> bool:
+        return self.props.session_status == KolibriContext.SESSION_STATUS_SETUP
+
     def get_session_status_is_ready(self) -> bool:
         return self.props.session_status == KolibriContext.SESSION_STATUS_READY
 
@@ -218,13 +221,13 @@ class KolibriContext(BaseKolibriContext):
         )
 
         bubble_signal(WebKit.NetworkSession.get_default(), "download-started", self)
-        bubble_signal(self.__setup_helper, "open-setup-wizard", self)
 
         map_properties(
             [
                 (self.__kolibri_daemon, "has-error"),
-                (self.__setup_helper, "is-setup-available"),
-                (self.__setup_helper, "is-setup-complete"),
+                (self.__kolibri_daemon, "is-started"),
+                (self.__kolibri_daemon, "is-device-provisioned"),
+                (self.__setup_helper, "is-session-ready"),
             ],
             self.__update_session_status,
         )
@@ -306,17 +309,26 @@ class KolibriContext(BaseKolibriContext):
         }
 
     def __update_session_status(
-        self, has_error: bool, is_setup_available: bool, is_setup_complete: bool
+        self,
+        has_error: bool,
+        is_started: bool,
+        is_device_provisioned: bool,
+        is_session_ready: bool,
     ):
         if has_error:
-            self.props.session_status = KolibriContext.SESSION_STATUS_ERROR
-        elif is_setup_complete:
-            self.props.session_status = KolibriContext.SESSION_STATUS_READY
-            self.emit("kolibri-ready")
-        elif is_setup_available:
-            self.props.session_status = KolibriContext.SESSION_STATUS_SETUP
+            if self.props.session_status != KolibriContext.SESSION_STATUS_ERROR:
+                self.props.session_status = KolibriContext.SESSION_STATUS_ERROR
+        elif is_started and is_session_ready and is_device_provisioned:
+            if self.props.session_status != KolibriContext.SESSION_STATUS_READY:
+                self.props.session_status = KolibriContext.SESSION_STATUS_READY
+                self.emit("kolibri-ready")
+        elif is_started and is_session_ready and not is_device_provisioned:
+            if self.props.session_status != KolibriContext.SESSION_STATUS_SETUP:
+                self.props.session_status = KolibriContext.SESSION_STATUS_SETUP
+                self.emit("open-setup-wizard")
         else:
-            self.props.session_status = KolibriContext.SESSION_STATUS_STOPPED
+            if self.props.session_status != KolibriContext.SESSION_STATUS_STOPPED:
+                self.props.session_status = KolibriContext.SESSION_STATUS_STOPPED
 
 
 class _KolibriSetupHelper(GObject.GObject):
@@ -336,13 +348,7 @@ class _KolibriSetupHelper(GObject.GObject):
     auth_token = GObject.Property(type=str, default=None)
     is_auth_token_ready = GObject.Property(type=bool, default=False)
     is_cookie_manager_ready = GObject.Property(type=bool, default=False)
-    is_kolibri_device_provisioned = GObject.Property(type=bool, default=False)
-    is_setup_available = GObject.Property(type=bool, default=False)
-    is_setup_complete = GObject.Property(type=bool, default=False)
-
-    __gsignals__ = {
-        "open-setup-wizard": (GObject.SIGNAL_RUN_FIRST, None, ()),
-    }
+    is_session_ready = GObject.Property(type=bool, default=False)
 
     def __init__(
         self,
@@ -358,6 +364,12 @@ class _KolibriSetupHelper(GObject.GObject):
             "dbus-owner-changed", self.__kolibri_daemon_on_dbus_owner_changed
         )
 
+        # TODO: It would be clever to await (self.__kolibri_daemon, "is-device-provisioned")
+        #       so we don't need to call KolibriContext.start_session_setup()
+        #       from the main application. However, we need a working Kolibri
+        #       session for the setup dialog, so achieving that will require
+        #       some reworking.
+
         await_properties(
             [
                 (self.__kolibri_daemon, "is-started"),
@@ -370,24 +382,18 @@ class _KolibriSetupHelper(GObject.GObject):
         map_properties(
             [
                 (self, "is-cookie-manager-ready"),
-                (self, "is-kolibri-device-provisioned"),
             ],
-            self.__update_is_setup_complete,
+            self.__update_is_session_ready,
         )
 
     def start_session_setup(self):
         if not self.__kolibri_daemon.do_automatic_login:
             self.props.auth_token = None
             self.props.is_auth_token_ready = True
-            self.props.is_setup_available = True
-            self.props.is_kolibri_device_provisioned = True
             return
 
         self.props.auth_token = None
         self.props.is_auth_token_ready = False
-        self.props.is_setup_available = False
-        self.props.is_kolibri_device_provisioned = False
-
         self.__kolibri_daemon.get_login_token(
             self.__kolibri_daemon_on_get_login_token_ready
         )
@@ -424,10 +430,6 @@ class _KolibriSetupHelper(GObject.GObject):
     def __on_kolibri_initialize_api_ready(
         self, data: typing.Any, soup_message: Soup.Message = None
     ):
-        self.props.is_setup_available = True
-
-        self.__check_is_kolibri_device_provisioned()
-
         website_data_manager = (
             WebKit.NetworkSession.get_default().get_website_data_manager()
         )
@@ -438,28 +440,6 @@ class _KolibriSetupHelper(GObject.GObject):
             self.__on_website_data_clear_finished,
             partial(self.__copy_cookies_from_soup_message_response, soup_message),
         )
-
-    def __check_is_kolibri_device_provisioned(self):
-        if self.props.is_kolibri_device_provisioned:
-            return
-
-        self.__kolibri_daemon.kolibri_api_get_async(
-            "/api/device/deviceinfo/",
-            self.__on_kolibri_device_info_api_ready,
-            parse_json=False,
-        )
-
-    def __on_kolibri_device_info_api_ready(
-        self, data: typing.Any, soup_message: Soup.Message = None
-    ):
-        # Because the user is signed in at this point, we can trust the device
-        # has been provisioned as long as the API responds with an OK status.
-        # If this changes, we will need to add a property to kolibri-daemon.
-        self.props.is_kolibri_device_provisioned = (
-            soup_message.get_status() < Soup.Status.BAD_REQUEST
-        )
-        if not self.props.is_kolibri_device_provisioned:
-            self.emit("open-setup-wizard")
 
     def __on_website_data_clear_finished(self, website_data_manager, result, next_fn):
         try:
@@ -492,8 +472,8 @@ class _KolibriSetupHelper(GObject.GObject):
         if len(self.__cookies_to_add) == 0:
             self.props.is_cookie_manager_ready = True
 
-    def __update_is_setup_complete(self, *setup_flags):
-        self.props.is_setup_complete = all(setup_flags)
+    def __update_is_session_ready(self, *setup_flags):
+        self.props.is_session_ready = all(setup_flags)
 
 
 class KolibriChannelContext(KolibriContext):

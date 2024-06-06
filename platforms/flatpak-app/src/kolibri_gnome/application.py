@@ -57,7 +57,10 @@ class Application(Adw.Application):
         self.__context = context or KolibriContext()
         self.__context.connect("download-started", self.__context_on_download_started)
         self.__context.connect("open-external-url", self.__context_on_open_external_url)
-        self.__context.connect("open-setup-wizard", self.__context_on_open_setup_wizard)
+        self.__context.connect(
+            "notify::session-status", self.__context_on_notify_session_status
+        )
+        self.__context_on_notify_session_status(self.__context)
 
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
@@ -159,7 +162,6 @@ class Application(Adw.Application):
 
         if self.__setup_dialog:
             self.__setup_dialog.present(self.get_active_window())
-            self.get_active_window().present()
             return None
 
         if not self.__context.should_open_url(target_url):
@@ -264,26 +266,34 @@ class Application(Adw.Application):
     ):
         self.open_url_in_external_application(external_url)
 
-    def __context_on_open_setup_wizard(self, context: KolibriContext):
-        if self.__setup_dialog:
-            self.__setup_dialog.present(self.get_active_window())
-            return
+    def __context_on_notify_session_status(
+        self, _context: KolibriContext, _pspec: GObject.ParamSpec = None
+    ):
+        if self.__context.get_session_status_is_setup():
+            self.open_setup_dialog()
+        else:
+            self.close_setup_dialog()
 
-        self.__setup_dialog = KolibriSetupDialog(
-            application=self, context=self.__context, can_close=False
-        )
-        self.__setup_dialog.connect(
-            "close-attempt", self.__setup_dialog_on_close_attempt
-        )
-        self.__setup_dialog.connect("closed", self.__setup_dialog_on_closed)
-        self.__setup_dialog.connect(
-            "setup-complete", self.__setup_dialog_on_setup_complete
-        )
+    def open_setup_dialog(self):
+        if not self.__setup_dialog:
+            self.__setup_dialog = KolibriSetupDialog(
+                application=self, context=self.__context, can_close=False
+            )
+            self.__setup_dialog.connect(
+                "close-attempt", self.__setup_dialog_on_close_attempt
+            )
+            self.__setup_dialog.connect("closed", self.__setup_dialog_on_closed)
+
         self.__setup_dialog.present(self.get_active_window())
 
-    def __setup_dialog_on_setup_complete(self, dialog: Adw.Dialog):
-        dialog.set_can_close(True)
-        dialog.force_close()
+    def close_setup_dialog(self):
+        if not self.__setup_dialog:
+            return
+
+        self.__setup_dialog.set_can_close(True)
+        self.__setup_dialog.force_close()
+        # We will need a new session token.
+        self.__context.start_session_setup()
 
     def __setup_dialog_on_close_attempt(self, dialog: Adw.Dialog):
         dialog.force_close()
@@ -292,8 +302,8 @@ class Application(Adw.Application):
         if not dialog.get_can_close():
             self.quit()
             return
+
         self.__setup_dialog = None
-        self.__context.start_session_setup()
 
     def __window_on_open_in_browser(self, window: KolibriWindow, current_url: str):
         self.open_url_in_external_application(current_url)

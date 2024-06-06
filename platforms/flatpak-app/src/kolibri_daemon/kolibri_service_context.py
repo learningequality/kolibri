@@ -37,6 +37,9 @@ class KolibriServiceContext(object):
     __app_key_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __app_key_set_event: multiprocessing.synchronize.Event
 
+    __is_device_provisioned_value: multiprocessing.sharedctypes.Synchronized[c_bool]
+    __is_device_provisioned_set_event: multiprocessing.synchronize.Event
+
     __base_url_value: multiprocessing.sharedctypes.SynchronizedArray[c_char]
     __base_url_set_event: multiprocessing.synchronize.Event
 
@@ -81,6 +84,9 @@ class KolibriServiceContext(object):
 
         self.__app_key_value = multiprocessing.Array(c_char, self.APP_KEY_LENGTH)
         self.__app_key_set_event = multiprocessing.Event()
+
+        self.__is_device_provisioned_value = multiprocessing.Value(c_bool)
+        self.__is_device_provisioned_set_event = multiprocessing.Event()
 
         self.__base_url_value = multiprocessing.Array(c_char, self.BASE_URL_LENGTH)
         self.__base_url_set_event = multiprocessing.Event()
@@ -272,6 +278,29 @@ class KolibriServiceContext(object):
     ) -> typing.Optional[str]:
         self.__app_key_set_event.wait(timeout)
         return self.app_key
+
+    @property
+    def is_device_provisioned(self) -> typing.Optional[bool]:
+        if self.__is_device_provisioned_set_event.is_set():
+            return bool(self.__is_device_provisioned_value.value)
+        else:
+            return None
+
+    @is_device_provisioned.setter
+    def is_device_provisioned(self, is_device_provisioned: typing.Optional[bool]):
+        if is_device_provisioned is None:
+            self.__is_device_provisioned_set_event.clear()
+            self.__is_device_provisioned_value.value = False  # type: ignore[assignment]
+        else:
+            self.__is_device_provisioned_value.value = bool(is_device_provisioned)  # type: ignore[assignment]
+            self.__is_device_provisioned_set_event.set()
+        self.push_has_changes()
+
+    def await_is_device_provisioned(
+        self, timeout: typing.Optional[int] = None
+    ) -> typing.Optional[bool]:
+        self.__is_device_provisioned_set_event.wait(timeout)
+        return self.is_device_provisioned
 
     @property
     def base_url(self) -> typing.Optional[str]:
