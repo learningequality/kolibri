@@ -78,6 +78,7 @@ export default function selectQuestions(
           question_id: uId.split(':')[1],
           // TODO See #12127 re: replacing all `id` with `item`
           id: uId,
+          item: uId,
           title: exerciseTitles[ri],
         });
       }
