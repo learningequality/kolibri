@@ -167,13 +167,9 @@ class KolibriWebViewStack(Gtk.Stack):
     __main_webview: KolibriWebView
     __loading_webview: WebKit.WebView
 
-    __default_zoom_step: int = 2
-    __current_zoom_step: int = 2
-
     __deferred_load_kolibri_url: typing.Optional[str] = None
 
-    ZOOM_STEPS = [0.5, 0.75, 1.0, 1.25, 1.5]
-
+    zoom_level = GObject.Property(type=float, default=1.0)
     enable_developer_extras = GObject.Property(type=bool, default=False)
     show_web_inspector = GObject.Property(type=bool, default=False)
     is_main_visible = GObject.Property(type=bool, default=False)
@@ -234,16 +230,29 @@ class KolibriWebViewStack(Gtk.Stack):
         )
 
         self.bind_property(
-            "enable_developer_extras",
-            self.__loading_webview.get_settings(),
-            "enable_developer_extras",
+            "zoom-level",
+            self.__main_webview,
+            "zoom-level",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.bind_property(
+            "zoom-level",
+            self.__loading_webview,
+            "zoom-level",
             GObject.BindingFlags.SYNC_CREATE,
         )
 
         self.bind_property(
-            "enable_developer_extras",
+            "enable-developer-extras",
+            self.__loading_webview.get_settings(),
+            "enable-developer-extras",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+
+        self.bind_property(
+            "enable-developer-extras",
             self.__main_webview.get_settings(),
-            "enable_developer_extras",
+            "enable-developer-extras",
             GObject.BindingFlags.SYNC_CREATE,
         )
 
@@ -260,27 +269,8 @@ class KolibriWebViewStack(Gtk.Stack):
 
         self.show_loading()
 
-    @property
-    def max_zoom_step(self) -> int:
-        return len(self.ZOOM_STEPS) - 1
-
-    @property
-    def default_zoom_step(self) -> int:
-        return self.__default_zoom_step
-
-    @property
-    def zoom_step(self) -> int:
-        return self.__current_zoom_step
-
     def get_uri(self) -> str:
         return self.__main_webview.get_uri()
-
-    def set_zoom_step(self, zoom_step: int):
-        zoom_step = min(max(0, zoom_step), self.max_zoom_step)
-        self.__current_zoom_step = zoom_step
-        zoom_level = self.ZOOM_STEPS[zoom_step]
-        self.__main_webview.set_zoom_level(zoom_level)
-        self.__loading_webview.set_zoom_level(zoom_level)
 
     def __update_web_inspectors(self, show_web_inspector, visible_child):
         if not show_web_inspector:

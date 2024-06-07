@@ -30,7 +30,6 @@ class KolibriWindow(Adw.ApplicationWindow):
     __context: KolibriContext
 
     __webview_stack: KolibriWebViewStack
-    __header_bar: Adw.HeaderBar
 
     __present_on_main_webview_ready: bool = True
 
@@ -63,13 +62,11 @@ class KolibriWindow(Adw.ApplicationWindow):
             [
                 ("close", self.__on_close),
                 ("open-in-browser", self.__on_open_in_browser),
+                ("open-in-kolibri", self.__on_open_in_kolibri),
                 ("navigate-back", self.__on_navigate_back),
                 ("navigate-forward", self.__on_navigate_forward),
                 ("navigate-home", self.__on_navigate_home),
                 ("reload", self.__on_reload),
-                ("zoom-reset", self.__on_zoom_reset),
-                ("zoom-in", self.__on_zoom_in),
-                ("zoom-out", self.__on_zoom_out),
                 ("show-web-inspector", None, None, "false", None),
             ]
         )
@@ -79,7 +76,7 @@ class KolibriWindow(Adw.ApplicationWindow):
         if BUILD_PROFILE == "development":
             self.add_css_class("devel")
 
-        content_box = Gtk.Box(orientation=Gtk.Orientation.VERTICAL)
+        content_box = Adw.ToolbarView(top_bar_style=Adw.ToolbarStyle.RAISED)
         self.set_content(content_box)
 
         application.bind_property(
@@ -89,16 +86,16 @@ class KolibriWindow(Adw.ApplicationWindow):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
-        self.__header_bar = Adw.HeaderBar()
-        self.__header_bar.show()
-        content_box.append(self.__header_bar)
+        header_bar = Adw.HeaderBar()
+        header_bar.show()
+        content_box.add_top_bar(header_bar)
 
         menu_button = Gtk.MenuButton(
             direction=Gtk.ArrowType.NONE,
             tooltip_text=_("Main Menu"),
             primary=True,
         )
-        self.__header_bar.pack_end(menu_button)
+        header_bar.pack_end(menu_button)
 
         menu_popover = Gtk.PopoverMenu.new_from_model(
             _KolibriWindowMenu(is_confined=self.__context.is_confined)
@@ -109,7 +106,7 @@ class KolibriWindow(Adw.ApplicationWindow):
             transition_type=Gtk.RevealerTransitionType.CROSSFADE,
             transition_duration=300,
         )
-        self.__header_bar.pack_start(navigation_revealer)
+        header_bar.pack_start(navigation_revealer)
 
         navigation_box = Gtk.Box.new(Gtk.Orientation.HORIZONTAL, 0)
         navigation_box.get_style_context().add_class("linked")
@@ -127,7 +124,7 @@ class KolibriWindow(Adw.ApplicationWindow):
             transition_type=Gtk.RevealerTransitionType.CROSSFADE,
             transition_duration=300,
         )
-        self.__header_bar.pack_start(home_revealer)
+        header_bar.pack_start(home_revealer)
 
         home_button = Gtk.Button.new_from_icon_name("go-home-symbolic")
         home_button.set_action_name("win.navigate-home")
@@ -142,13 +139,17 @@ class KolibriWindow(Adw.ApplicationWindow):
             hexpand=True,
             enable_developer_extras=APP_DEVELOPER_EXTRAS,
         )
-        content_box.append(self.__webview_stack)
-
-        self.__webview_stack.show()
-        self.__header_bar.show()
+        content_box.set_content(self.__webview_stack)
 
         bubble_signal(self.__webview_stack, "open-new-window", self)
         bubble_signal(self.__webview_stack, "main-webview-blank", self, "auto-close")
+
+        application.bind_property(
+            "zoom-level",
+            self.__webview_stack,
+            "zoom-level",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
 
         # These two properties are different types (GVariant and boolean), so we
         # need to convert between them. Unfortunately, Object.bind_property_full
@@ -205,6 +206,12 @@ class KolibriWindow(Adw.ApplicationWindow):
         )
         self.__webview_stack.bind_property(
             "is_main_visible",
+            self.lookup_action("open-in-kolibri"),
+            "enabled",
+            GObject.BindingFlags.SYNC_CREATE,
+        )
+        self.__webview_stack.bind_property(
+            "is_main_visible",
             navigation_revealer,
             "reveal_child",
             GObject.BindingFlags.SYNC_CREATE,
@@ -216,8 +223,6 @@ class KolibriWindow(Adw.ApplicationWindow):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
-        self.__update_zoom_actions()
-
     @staticmethod
     def set_accels(application: Adw.Application):
         application.set_accels_for_action(
@@ -227,9 +232,6 @@ class KolibriWindow(Adw.ApplicationWindow):
             "win.navigate-forward", ["<Control>bracketright", "<Alt>rightarrow"]
         )
         application.set_accels_for_action("win.navigate-home", ["<Alt>Home"])
-        application.set_accels_for_action("win.zoom-reset", ["<Control>0"])
-        application.set_accels_for_action("win.zoom-in", ["<Control>plus"])
-        application.set_accels_for_action("win.zoom-out", ["<Control>minus"])
         application.set_accels_for_action("win.show-web-inspector", ["F12"])
         application.set_accels_for_action("win.close", ["<Control>w"])
 
@@ -252,6 +254,12 @@ class KolibriWindow(Adw.ApplicationWindow):
         if url:
             self.emit("open-in-browser", url)
 
+    def __on_open_in_kolibri(self, action, *args):
+        url = self.__webview_stack.get_uri()
+        if self.__context.is_url_for_kolibri_app(url):
+            url = self.__context.url_to_x_kolibri_app(url)
+        self.emit("open-in-browser", url)
+
     def __on_navigate_back(self, action, *args):
         self.__webview_stack.go_back()
 
@@ -264,18 +272,6 @@ class KolibriWindow(Adw.ApplicationWindow):
     def __on_reload(self, action, *args):
         self.__webview_stack.reload()
 
-    def __on_zoom_reset(self, action, *args):
-        self.__webview_stack.set_zoom_step(self.__webview_stack.default_zoom_step)
-        self.__update_zoom_actions()
-
-    def __on_zoom_in(self, action, *args):
-        self.__webview_stack.set_zoom_step(self.__webview_stack.zoom_step + 1)
-        self.__update_zoom_actions()
-
-    def __on_zoom_out(self, action, *args):
-        self.__webview_stack.set_zoom_step(self.__webview_stack.zoom_step - 1)
-        self.__update_zoom_actions()
-
     def __webview_stack_on_notify_show_web_inspector(
         self, webview_stack: KolibriWebViewStack, pspec: GObject.ParamSpec
     ):
@@ -287,15 +283,6 @@ class KolibriWindow(Adw.ApplicationWindow):
         self, action: Gio.Action, pspec: GObject.ParamSpec
     ):
         self.__webview_stack.show_web_inspector = action.get_state().get_boolean()
-
-    def __update_zoom_actions(self):
-        self.lookup_action("zoom-reset").set_enabled(
-            self.__webview_stack.zoom_step != self.__webview_stack.default_zoom_step
-        )
-        self.lookup_action("zoom-in").set_enabled(
-            self.__webview_stack.zoom_step < self.__webview_stack.max_zoom_step
-        )
-        self.lookup_action("zoom-out").set_enabled(self.__webview_stack.zoom_step > 0)
 
     def __webview_stack_on_open_new_window(
         self,
@@ -313,23 +300,25 @@ class KolibriWindow(Adw.ApplicationWindow):
 
 
 class _KolibriWindowMenu(Gio.Menu):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, is_confined=False, **kwargs):
         super().__init__(*args, **kwargs)
 
         main_section = Gio.Menu()
         main_section.append_item(Gio.MenuItem.new(_("New Window"), "app.new-window"))
-        main_section.append_item(
-            Gio.MenuItem.new(_("Open Kolibri Home Folder"), "app.open-kolibri-home")
-        )
+        # TODO: Once we have the capacity to add new strings, show this instead of "Open in Browser"
+        # main_section.append_item(Gio.MenuItem.new(_("Open in Kolibri"), "win.open-in-kolibri"))
         self.append_section(None, main_section)
 
         view_section = Gio.Menu()
         view_section.append_item(Gio.MenuItem.new(_("Reload"), "win.reload"))
-        view_section.append_item(Gio.MenuItem.new(_("Actual Size"), "win.zoom-reset"))
-        view_section.append_item(Gio.MenuItem.new(_("Zoom In"), "win.zoom-in"))
-        view_section.append_item(Gio.MenuItem.new(_("Zoom Out"), "win.zoom-out"))
+        view_section.append_item(Gio.MenuItem.new(_("Actual Size"), "app.zoom-reset"))
+        view_section.append_item(Gio.MenuItem.new(_("Zoom In"), "app.zoom-in"))
+        view_section.append_item(Gio.MenuItem.new(_("Zoom Out"), "app.zoom-out"))
         view_section.append_item(
-            Gio.MenuItem.new(_("Open in Browser"), "win.open-in-browser")
+            Gio.MenuItem.new(
+                _("Open in Browser"),
+                "win.open-in-kolibri" if is_confined else "win.open-in-browser",
+            )
         )
         self.append_section(None, view_section)
 

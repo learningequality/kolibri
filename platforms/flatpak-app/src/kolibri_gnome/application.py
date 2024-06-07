@@ -38,6 +38,11 @@ class Application(Adw.Application):
     __setup_dialog: typing.Optional[KolibriSetupDialog] = None
 
     application_name = GObject.Property(type=str, default=_("Kolibri"))
+    zoom_level = GObject.Property(type=float, default=1.0)
+
+    __zoom_steps = [0.5, 0.75, 1.0, 1.25, 1.5]
+    __default_zoom_step: int = 2
+    __current_zoom_step: int = 2
 
     def __init__(
         self, *args, context: typing.Optional[KolibriContext] = None, **kwargs
@@ -65,10 +70,12 @@ class Application(Adw.Application):
         action = Gio.SimpleAction.new("open-documentation", None)
         action.connect("activate", self.__on_open_documentation)
         self.add_action(action)
+        self.set_accels_for_action("app.open-documentation", ["F1"])
 
         action = Gio.SimpleAction.new("new-window", None)
         action.connect("activate", self.__on_new_window)
         self.add_action(action)
+        self.set_accels_for_action("app.new-window", ["<Control>n"])
 
         action = Gio.SimpleAction.new("about", None)
         action.connect("activate", self.__on_about)
@@ -77,12 +84,26 @@ class Application(Adw.Application):
         action = Gio.SimpleAction.new("quit", None)
         action.connect("activate", self.__on_quit)
         self.add_action(action)
-
-        self.set_accels_for_action("app.open-documentation", ["F1"])
-        self.set_accels_for_action("app.new-window", ["<Control>n"])
         self.set_accels_for_action("app.quit", ["<Control>q"])
 
+        action = Gio.SimpleAction.new("zoom-reset", None)
+        action.connect("activate", self.__on_zoom_reset)
+        self.add_action(action)
+        self.set_accels_for_action("app.zoom-reset", ["<Control>0"])
+
+        action = Gio.SimpleAction.new("zoom-in", None)
+        action.connect("activate", self.__on_zoom_in)
+        self.add_action(action)
+        self.set_accels_for_action("app.zoom-in", ["<Control>plus"])
+
+        action = Gio.SimpleAction.new("zoom-out", None)
+        action.connect("activate", self.__on_zoom_out)
+        self.add_action(action)
+        self.set_accels_for_action("app.zoom-out", ["<Control>minus"])
+
         KolibriWindow.set_accels(self)
+
+        self.__update_zoom_actions()
 
     @property
     def context(self):
@@ -111,6 +132,32 @@ class Application(Adw.Application):
         Adw.Application.do_shutdown(self)
 
         self.__context.shutdown()
+
+    def __on_zoom_reset(self, action, *args):
+        self.__set_zoom_step(self.__default_zoom_step)
+        self.__update_zoom_actions()
+
+    def __on_zoom_in(self, action, *args):
+        self.__set_zoom_step(self.__current_zoom_step + 1)
+        self.__update_zoom_actions()
+
+    def __on_zoom_out(self, action, *args):
+        self.__set_zoom_step(self.__current_zoom_step - 1)
+        self.__update_zoom_actions()
+
+    def __update_zoom_actions(self):
+        self.lookup_action("zoom-reset").set_enabled(
+            self.__current_zoom_step != self.__default_zoom_step
+        )
+        self.lookup_action("zoom-in").set_enabled(
+            self.__current_zoom_step < len(self.__zoom_steps) - 1
+        )
+        self.lookup_action("zoom-out").set_enabled(self.__current_zoom_step > 0)
+
+    def __set_zoom_step(self, zoom_step: int):
+        zoom_step = min(max(0, zoom_step), len(self.__zoom_steps) - 1)
+        self.__current_zoom_step = zoom_step
+        self.props.zoom_level = self.__zoom_steps[zoom_step]
 
     def __on_open_documentation(self, action, *args):
         self.open_url_in_external_application(
