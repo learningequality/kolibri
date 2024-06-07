@@ -72,6 +72,10 @@ class BaseKolibriContext(GObject.GObject):
         raise NotImplementedError()
 
     @property
+    def is_confined(self) -> bool:
+        return False
+
+    @property
     def webkit_network_session(self) -> WebKit.NetworkSession:
         raise NotImplementedError()
 
@@ -252,7 +256,7 @@ class KolibriContext(BaseKolibriContext):
         return self.__webkit_network_session
 
     @property
-    def _kolibri_daemon(self):
+    def _kolibri_daemon(self) -> KolibriDaemonManager:
         return self.__kolibri_daemon
 
     def init(self):
@@ -527,6 +531,10 @@ class KolibriChannelContext(KolibriContext):
         return f"{APP_URI_SCHEME}:{self.__default_path}"
 
     @property
+    def is_confined(self) -> bool:
+        return True
+
+    @property
     def __default_path(self) -> str:
         return f"{LEARN_PATH_PREFIX}topics/t/{self.__channel_id}"
 
@@ -623,6 +631,10 @@ class KolibriSetupContext(KolibriContext):
     @property
     def default_url(self) -> str:
         return f"{APP_URI_SCHEME}:{SETUP_PATH_PREFIX}"
+
+    @property
+    def is_confined(self) -> bool:
+        return True
 
     def is_url_in_scope(self, url: str) -> bool:
         if not self.is_url_for_kolibri_app(url):
