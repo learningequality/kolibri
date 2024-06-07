@@ -1,3 +1,6 @@
+from django.db import models
+from django.utils import timezone
+
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
 
 
@@ -36,3 +39,46 @@ class ErrorReportsRouter(object):
             return False
 
         return None
+
+
+class ErrorReports(models.Model):
+    FRONTEND = "frontend"
+    BACKEND = "backend"
+    POSSIBLE_ERRORS = [
+        (FRONTEND, "Frontend"),
+        (BACKEND, "Backend"),
+    ]
+
+    error_from = models.CharField(max_length=10, choices=POSSIBLE_ERRORS)
+    error_message = models.CharField(max_length=255)
+    traceback = models.TextField()
+    first_occurred = models.DateTimeField(default=timezone.now)
+    last_occurred = models.DateTimeField(default=timezone.now)
+    sent = models.BooleanField(default=False)
+    no_of_errors = models.IntegerField(default=1)
+
+    def __str__(self):
+        return f"{self.error_message} ({self.error_from})"
+
+    def mark_as_sent(self):
+        self.sent = True
+        self.save()
+
+    @classmethod
+    def insert_or_update_error(cls, error_from, error_message, traceback):
+        error, created = cls.objects.get_or_create(
+            error_from=error_from, error_message=error_message, traceback=traceback
+        )
+        if not created:
+            error.no_of_errors += 1
+            error.last_occurred = timezone.now()
+            error.save()
+        return error
+
+    @classmethod
+    def get_unsent_errors(cls):
+        return cls.objects.filter(sent=False)
+
+    @classmethod
+    def delete_error(cls):
+        ...
