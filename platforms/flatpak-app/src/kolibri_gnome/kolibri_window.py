@@ -252,12 +252,6 @@ class KolibriWindow(Adw.ApplicationWindow):
         if url:
             self.emit("open-in-browser", url)
 
-    def __on_open_in_kolibri(self, action, *args):
-        url = self.__webview_stack.get_uri()
-        if self.__context.is_url_for_kolibri_app(url):
-            url = self.__context.url_to_x_kolibri_app(url)
-        self.emit("open-in-browser", url)
-
     def __on_navigate_back(self, action, *args):
         self.__webview_stack.go_back()
 
@@ -319,7 +313,7 @@ class KolibriWindow(Adw.ApplicationWindow):
 
 
 class _KolibriWindowMenu(Gio.Menu):
-    def __init__(self, *args, is_confined=False, **kwargs):
+    def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
         main_section = Gio.Menu()
@@ -327,8 +321,6 @@ class _KolibriWindowMenu(Gio.Menu):
         main_section.append_item(
             Gio.MenuItem.new(_("Open Kolibri Home Folder"), "app.open-kolibri-home")
         )
-        # TODO: Once we have the capacity to add new strings, show this instead of "Open in Browser"
-        # main_section.append_item(Gio.MenuItem.new(_("Open in Kolibri"), "win.open-in-kolibri"))
         self.append_section(None, main_section)
 
         view_section = Gio.Menu()
@@ -337,10 +329,7 @@ class _KolibriWindowMenu(Gio.Menu):
         view_section.append_item(Gio.MenuItem.new(_("Zoom In"), "win.zoom-in"))
         view_section.append_item(Gio.MenuItem.new(_("Zoom Out"), "win.zoom-out"))
         view_section.append_item(
-            Gio.MenuItem.new(
-                _("Open in Browser"),
-                "win.open-in-kolibri" if is_confined else "win.open-in-browser",
-            )
+            Gio.MenuItem.new(_("Open in Browser"), "win.open-in-browser")
         )
         self.append_section(None, view_section)
 

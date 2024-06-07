@@ -70,10 +70,6 @@ class Application(Adw.Application):
         action.connect("activate", self.__on_new_window)
         self.add_action(action)
 
-        action = Gio.SimpleAction.new("open-kolibri-home", None)
-        action.connect("activate", self.__on_open_kolibri_home)
-        self.add_action(action)
-
         action = Gio.SimpleAction.new("about", None)
         action.connect("activate", self.__on_about)
         self.add_action(action)
@@ -124,24 +120,35 @@ class Application(Adw.Application):
     def __on_new_window(self, action, *args):
         self.open_kolibri_window()
 
-    def __on_open_kolibri_home(self, action, *args):
-        # TODO: It would be better to open self.__dbus_proxy.props.kolibri_home,
-        #       but the Flatpak's OpenURI portal only allows us to open files
-        #       that exist in our sandbox.
-        self.open_url_in_external_application(KOLIBRI_HOME_PATH.as_uri())
-
     def __on_about(self, action, *args):
         about_dialog = Adw.AboutDialog.new_from_appdata(
             f"{BASE_OBJECT_PATH}/{BASE_APPLICATION_ID}.metainfo.xml",
             get_release_notes_version(),
         )
+
         about_dialog.set_version(get_version(self.__context.kolibri_version))
+
         about_dialog.add_link(
             _("Community Forums"), "https://community.learningequality.org/"
         )
+        # TODO: It would be better to use the kolibri_home property from
+        #       kolibri-daemon, but the OpenURI portal only allows us to open
+        #       files which exist in our sandbox.
+        # TODO: This link should be in the Troubleshooting section, but
+        #       AdwAboutDialog doesn't allow us to do that at the moment.
+        about_dialog.add_link(_("Open Kolibri Home Folder"), KOLIBRI_HOME_PATH.as_uri())
+
         about_dialog.set_debug_info(self.__format_debug_info())
         about_dialog.set_debug_info_filename("kolibri-gnome-debug-info.json")
+
+        # Add a custom handler for active-link to support opening file URLs.
+        about_dialog.connect("activate-link", self.__about_dialog_on_activate_link)
+
         about_dialog.present(self.get_active_window())
+
+    def __about_dialog_on_activate_link(self, about_dialog: Adw.AboutDialog, url: str):
+        self.open_url_in_external_application(url)
+        return True
 
     def __format_debug_info(self):
         return json.dumps(
