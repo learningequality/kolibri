@@ -95,7 +95,9 @@ class Application(Adw.Application):
     def do_startup(self):
         Adw.Application.do_startup(self)
 
-        KolibriContext.init_webkit_defaults()
+        WebKit.WebContext.get_default().set_cache_model(
+            WebKit.CacheModel.DOCUMENT_BROWSER
+        )
 
         self.__context.init()
 
@@ -283,6 +285,7 @@ class Application(Adw.Application):
                 "close-attempt", self.__setup_dialog_on_close_attempt
             )
             self.__setup_dialog.connect("closed", self.__setup_dialog_on_closed)
+            self.__setup_dialog.init()
 
         self.__setup_dialog.present(self.get_active_window())
 
@@ -292,8 +295,6 @@ class Application(Adw.Application):
 
         self.__setup_dialog.set_can_close(True)
         self.__setup_dialog.force_close()
-        # We will need a new session token.
-        self.__context.start_session_setup()
 
     def __setup_dialog_on_close_attempt(self, dialog: Adw.Dialog):
         dialog.force_close()
@@ -303,7 +304,9 @@ class Application(Adw.Application):
             self.quit()
             return
 
-        self.__setup_dialog = None
+        if self.__setup_dialog:
+            self.__setup_dialog.shutdown()
+            self.__setup_dialog = None
 
     def __window_on_open_in_browser(self, window: KolibriWindow, current_url: str):
         self.open_url_in_external_application(current_url)

@@ -37,7 +37,6 @@ class KolibriDaemonManager(GObject.GObject):
     __dbus_proxy_owner: typing.Optional[str] = None
 
     __soup_session: Soup.Session = None
-    __soup_cookie_jar: Soup.CookieJar = None
     __last_status: typing.Optional[str] = None
 
     is_stopped = GObject.Property(type=bool, default=False)
@@ -45,7 +44,7 @@ class KolibriDaemonManager(GObject.GObject):
     has_error = GObject.Property(type=bool, default=False)
     base_url = GObject.Property(type=str, default=None)
     app_key = GObject.Property(type=str, default=None)
-    is_device_provisioned = GObject.Property(type=bool, default=False)
+    is_device_provisioned = GObject.Property(type=bool, default=True)
 
     __gsignals__ = {
         "dbus-owner-changed": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -64,8 +63,6 @@ class KolibriDaemonManager(GObject.GObject):
         )
 
         self.__soup_session = Soup.Session.new()
-        self.__soup_cookie_jar = Soup.CookieJar.new()
-        self.__soup_session.add_feature(self.__soup_cookie_jar)
 
         self.__dbus_proxy.connect(
             "notify::g-name-owner", self.__dbus_proxy_on_notify_g_name_owner
@@ -82,9 +79,19 @@ class KolibriDaemonManager(GObject.GObject):
     def kolibri_version(self) -> str:
         return self.__dbus_proxy.props.kolibri_version
 
+    def __reset_properties(self):
+        self.props.is_stopped = False
+        self.props.is_started = False
+        self.props.has_error = False
+        self.props.base_url = None
+        self.props.app_key = None
+        self.props.is_device_provisioned = True
+
     def init(self):
         if self.__did_init:
             return
+
+        self.__reset_properties()
 
         self.__dbus_proxy.init_async(
             GLib.PRIORITY_DEFAULT, None, self.__dbus_proxy_on_init
@@ -260,7 +267,7 @@ class KolibriDaemonManager(GObject.GObject):
         dbus_proxy_owner_changed = bool(self.__dbus_proxy_owner != dbus_proxy_owner)
         self.__dbus_proxy_owner = dbus_proxy_owner
 
-        if dbus_proxy_owner_changed:
+        if dbus_proxy_owner_changed and dbus_proxy_owner:
             dbus_proxy.Hold(result_handler=self.__dbus_proxy_default_result_handler)
             self.__last_status = None
             self.emit("dbus-owner-changed")
@@ -268,23 +275,32 @@ class KolibriDaemonManager(GObject.GObject):
     def __dbus_proxy_on_notify(
         self, dbus_proxy: KolibriDaemonDBus.MainProxy, param_spec: GObject.ParamSpec
     ):
-        if dbus_proxy.props.status != self.__last_status:
-            self.__update_from_status_text(dbus_proxy.props.status)
-            self.__last_status = dbus_proxy.props.status
+        if self.props.app_key != dbus_proxy.props.app_key:
+            self.props.app_key = dbus_proxy.props.app_key
 
         if self.props.base_url != dbus_proxy.props.base_url:
             self.props.base_url = dbus_proxy.props.base_url
 
-        if self.props.app_key != dbus_proxy.props.app_key:
-            self.props.app_key = dbus_proxy.props.app_key
-
         if self.props.is_device_provisioned != dbus_proxy.props.is_device_provisioned:
             self.props.is_device_provisioned = dbus_proxy.props.is_device_provisioned
 
+        if dbus_proxy.props.status != self.__last_status:
+            self.__update_from_status_text(dbus_proxy.props.status)
+            self.__last_status = dbus_proxy.props.status
+
     def __update_from_status_text(self, status):
-        self.props.is_stopped = status in ("STOPPED", "")
-        self.props.is_started = status == "STARTED"
-        self.props.has_error = status == "ERROR"
+        is_stopped = status in ("STOPPED", "")
+        is_started = status == "STARTED"
+        has_error = status == "ERROR"
+
+        if self.props.is_stopped != is_stopped:
+            self.props.is_stopped = is_stopped
+
+        if self.props.is_started != is_started:
+            self.props.is_started = is_started
+
+        if self.props.has_error != has_error:
+            self.props.has_error = has_error
 
     def __on_notify_is_stopped(
         self, kolibri_daemon: KolibriDaemonManager, pspec: GObject.ParamSpec

@@ -5,6 +5,7 @@ import typing
 from pathlib import Path
 
 from gi.repository import Gio
+from gi.repository import GLib
 from gi.repository import GObject
 from kolibri_app.globals import get_current_language
 
@@ -73,34 +74,65 @@ def bubble_signal(
     source_signal: str,
     next: GObject.Object,
     next_signal: typing.Optional[str] = None,
-):
+) -> int:
     next_signal = next_signal or source_signal
 
     def bubble_cb(_source: GObject.Object, *args, **kwargs):
         return next.emit(next_signal, *args, **kwargs)
 
-    source.connect(source_signal, bubble_cb)
+    return source.connect(source_signal, bubble_cb)
 
 
-def map_properties(
-    all_properties: typing.List[typing.Tuple[GObject.Object, str]],
-    map_cb: typing.Callable,
-):
-    def notify_cb(_source: GObject.Object, pspec: GObject.ParamSpec = None):
-        map_cb(*(source.get_property(prop) for source, prop in all_properties))
+class PropertyWatcher(object):
+    __map_cb: typing.Optional[typing.Callable]
+    __all_properties: typing.Tuple[typing.Tuple[GObject.Object, str], ...]
+    __signal_handlers: typing.Set[typing.Tuple[GObject.Object, int]]
+    __idle_notify_source: int
 
-    for source, prop in all_properties:
-        source.connect("notify::{}".format(prop), notify_cb)
+    def __init__(self, *all_properties: typing.Tuple[GObject.Object, str]):
+        self.__map_cb = None
+        self.__all_properties = all_properties
+        self.__signal_handlers = set()
+        self.__idle_notify_source = 0
+        self.__connect()
 
-    notify_cb(None, None)
+    def map(self, map_cb: typing.Callable):
+        self.__map_cb = map_cb
+        return self
 
+    def all(self, await_cb: typing.Callable):
+        def map_cb(*values):
+            if all(values):
+                await_cb(*values)
 
-def await_properties(
-    all_properties: typing.List[typing.Tuple[GObject.Object, str]],
-    await_cb: typing.Callable,
-):
-    def map_cb(*values):
-        if all(values):
-            await_cb(*values)
+        self.__map_cb = map_cb
+        return self
 
-    map_properties(all_properties, map_cb)
+    def __connect(self):
+        for source, prop in self.__all_properties:
+            handler_id = source.connect(
+                "notify::{}".format(prop), self.__notify_debounced
+            )
+            self.__signal_handlers.add((source, handler_id))
+
+    def disconnect(self):
+        for source, handler_id in self.__signal_handlers:
+            source.disconnect(handler_id)
+
+    def notify(self):
+        if callable(self.__map_cb):
+            self.__map_cb(
+                *(source.get_property(prop) for source, prop in self.__all_properties)
+            )
+        return self
+
+    def __notify_debounced(
+        self, _source: GObject.Object, pspec: GObject.ParamSpec = None
+    ):
+        if self.__idle_notify_source == 0:
+            self.__idle_notify_source = GLib.idle_add(self.__idle_notify_cb)
+
+    def __idle_notify_cb(self) -> bool:
+        self.notify()
+        self.__idle_notify_source = 0
+        return GLib.SOURCE_REMOVE

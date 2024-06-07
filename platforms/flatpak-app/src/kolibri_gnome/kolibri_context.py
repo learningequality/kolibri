@@ -3,7 +3,6 @@ from __future__ import annotations
 import logging
 import re
 import typing
-from functools import partial
 from pathlib import Path
 from urllib.parse import parse_qs
 from urllib.parse import SplitResult
@@ -16,7 +15,6 @@ from gi.repository import Soup
 from gi.repository import WebKit
 from kolibri_app.config import APP_URI_SCHEME
 from kolibri_app.config import BUILD_PROFILE
-from kolibri_app.config import FRONTEND_APPLICATION_ID
 from kolibri_app.config import KOLIBRI_APP_DATA_DIR
 from kolibri_app.config import KOLIBRI_URI_SCHEME
 from kolibri_app.config import PROJECT_VERSION
@@ -24,10 +22,9 @@ from kolibri_app.config import VCS_TAG
 from kolibri_app.utils import get_app_modules_debug_info
 
 from .kolibri_daemon_manager import KolibriDaemonManager
-from .utils import await_properties
 from .utils import bubble_signal
 from .utils import get_localized_file
-from .utils import map_properties
+from .utils import PropertyWatcher
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +32,7 @@ LEARN_PATH_PREFIX = "/learn/#/"
 SETUP_PATH_PREFIX = "/setup/#/"
 
 STATIC_PATHS_RE = r"^(app|static|downloadcontent|content\/storage|content\/static|content\/zipcontent)\/?"
-SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(user|logout|redirectuser|learn\/app)\/?"
+SYSTEM_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?(auth|user|logout|redirectuser|learn\/app)\/?"
 CONTENT_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?learn\/?"
 SETUP_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?setup\/?"
 SETUP_COMPLETE_PATHS_RE = r"^(?P<lang>[\w\-]+\/)?redirectuser\/?"
@@ -75,7 +72,7 @@ class BaseKolibriContext(GObject.GObject):
         raise NotImplementedError()
 
     @property
-    def webkit_web_context(self) -> WebKit.WebContext:
+    def webkit_network_session(self) -> WebKit.NetworkSession:
         raise NotImplementedError()
 
     def get_absolute_url(self, url: str) -> typing.Optional[str]:
@@ -202,44 +199,44 @@ class KolibriContext(BaseKolibriContext):
     determine whether Kolibri is ready to use.
     """
 
-    __webkit_web_context: WebKit.WebContext
+    __webkit_network_session: WebKit.NetworkSession
     __kolibri_daemon: KolibriDaemonManager
     __setup_helper: _KolibriSetupHelper
+
+    __is_own_kolibri_daemon: bool
+    __property_watchers: list[PropertyWatcher]
+    __download_started_handler_id: int
 
     __gsignals__ = {
         "open-setup-wizard": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
-    def __init__(self):
+    def __init__(
+        self,
+        kolibri_daemon: typing.Optional[KolibriDaemonManager] = None,
+        ephemeral: bool = False,
+        require_is_device_provisioned: bool = True,
+    ):
         super().__init__()
 
-        self.__webkit_web_context = WebKit.WebContext()
-        self.__webkit_web_context.set_cache_model(WebKit.CacheModel.DOCUMENT_BROWSER)
-        self.__kolibri_daemon = KolibriDaemonManager()
+        self.__property_watchers = []
+
+        if kolibri_daemon:
+            self.__is_own_kolibri_daemon = False
+            self.__kolibri_daemon = kolibri_daemon
+        else:
+            self.__is_own_kolibri_daemon = True
+            self.__kolibri_daemon = KolibriDaemonManager()
+
+        if ephemeral:
+            self.__webkit_network_session = WebKit.NetworkSession.new_ephemeral()
+        else:
+            self.__webkit_network_session = WebKit.NetworkSession()
+
         self.__setup_helper = _KolibriSetupHelper(
-            self.__webkit_web_context, self.__kolibri_daemon
-        )
-
-        bubble_signal(WebKit.NetworkSession.get_default(), "download-started", self)
-
-        map_properties(
-            [
-                (self.__kolibri_daemon, "has-error"),
-                (self.__kolibri_daemon, "is-started"),
-                (self.__kolibri_daemon, "is-device-provisioned"),
-                (self.__setup_helper, "is-session-ready"),
-            ],
-            self.__update_session_status,
-        )
-
-    @staticmethod
-    def init_webkit_defaults():
-        cookies_filename = Path(
-            GLib.get_user_data_dir(), FRONTEND_APPLICATION_ID, "cookies.sqlite"
-        )
-
-        WebKit.NetworkSession.get_default().get_cookie_manager().set_persistent_storage(
-            cookies_filename.as_posix(), WebKit.CookiePersistentStorage.SQLITE
+            self.__webkit_network_session,
+            self.__kolibri_daemon,
+            require_is_device_provisioned=require_is_device_provisioned,
         )
 
     @property
@@ -251,14 +248,45 @@ class KolibriContext(BaseKolibriContext):
         return f"{APP_URI_SCHEME}:/"
 
     @property
-    def webkit_web_context(self) -> WebKit.WebContext:
-        return self.__webkit_web_context
+    def webkit_network_session(self) -> WebKit.NetworkSession:
+        return self.__webkit_network_session
+
+    @property
+    def _kolibri_daemon(self):
+        return self.__kolibri_daemon
 
     def init(self):
-        self.__kolibri_daemon.init()
+        if self.__is_own_kolibri_daemon:
+            self.__kolibri_daemon.init()
+
+        self.__setup_helper.init()
+
+        self.__property_watchers.append(
+            PropertyWatcher(
+                (self.__kolibri_daemon, "has-error"),
+                (self.__kolibri_daemon, "is-started"),
+                (self.__kolibri_daemon, "is-device-provisioned"),
+                (self.__setup_helper, "is-session-ready"),
+            )
+            .map(self.__update_session_status)
+            .notify()
+        )
+
+        self.__download_started_handler_id = bubble_signal(
+            self.__webkit_network_session, "download-started", self
+        )
 
     def shutdown(self):
-        self.__kolibri_daemon.shutdown()
+        if self.__is_own_kolibri_daemon:
+            self.__kolibri_daemon.shutdown()
+
+        for watcher in self.__property_watchers:
+            watcher.disconnect()
+        self.__property_watchers = []
+        self.__setup_helper.shutdown()
+
+        self.__webkit_network_session.disconnect(self.__download_started_handler_id)
+        self.__download_started_handler_id = 0
 
     def start_session_setup(self):
         self.__setup_helper.start_session_setup()
@@ -318,11 +346,11 @@ class KolibriContext(BaseKolibriContext):
         if has_error:
             if self.props.session_status != KolibriContext.SESSION_STATUS_ERROR:
                 self.props.session_status = KolibriContext.SESSION_STATUS_ERROR
-        elif is_started and is_session_ready and is_device_provisioned:
+        elif is_started and is_session_ready:
             if self.props.session_status != KolibriContext.SESSION_STATUS_READY:
                 self.props.session_status = KolibriContext.SESSION_STATUS_READY
                 self.emit("kolibri-ready")
-        elif is_started and is_session_ready and not is_device_provisioned:
+        elif is_started and not is_device_provisioned:
             if self.props.session_status != KolibriContext.SESSION_STATUS_SETUP:
                 self.props.session_status = KolibriContext.SESSION_STATUS_SETUP
                 self.emit("open-setup-wizard")
@@ -339,9 +367,12 @@ class _KolibriSetupHelper(GObject.GObject):
     Kolibri has not been set up, it will automatically create a facility.
     """
 
-    __webkit_web_context: WebKit.WebContext
+    __webkit_network_session: WebKit.NetworkSession
     __kolibri_daemon: KolibriDaemonManager
     __cookies_to_add: set
+
+    __require_is_device_provisioned: bool
+    __property_watchers: list[PropertyWatcher]
 
     INITIALIZE_API_PATH = "/app/api/initialize"
 
@@ -352,41 +383,65 @@ class _KolibriSetupHelper(GObject.GObject):
 
     def __init__(
         self,
-        webkit_web_context: WebKit.WebContext,
+        webkit_network_session: WebKit.NetworkSession,
         kolibri_daemon: KolibriDaemonManager,
+        require_is_device_provisioned: bool = True,
     ):
         GObject.GObject.__init__(self)
 
-        self.__webkit_web_context = webkit_web_context
+        self.__require_is_device_provisioned = require_is_device_provisioned
+        self.__property_watchers = []
+
+        self.__webkit_network_session = webkit_network_session
         self.__kolibri_daemon = kolibri_daemon
 
-        self.__kolibri_daemon.connect(
-            "dbus-owner-changed", self.__kolibri_daemon_on_dbus_owner_changed
+    def init(self):
+        await_device_provisioned = (
+            [
+                (self.__kolibri_daemon, "is-device-provisioned"),
+            ]
+            if self.__require_is_device_provisioned
+            else []
         )
 
-        # TODO: It would be clever to await (self.__kolibri_daemon, "is-device-provisioned")
-        #       so we don't need to call KolibriContext.start_session_setup()
-        #       from the main application. However, we need a working Kolibri
-        #       session for the setup dialog, so achieving that will require
-        #       some reworking.
-
-        await_properties(
-            [
+        self.__property_watchers.append(
+            PropertyWatcher(
                 (self.__kolibri_daemon, "is-started"),
+                *await_device_provisioned,
+            )
+            .all(self.__update_auth_token)
+            .notify()
+        )
+
+        self.__property_watchers.append(
+            PropertyWatcher(
                 (self.__kolibri_daemon, "app-key"),
+                (self.__kolibri_daemon, "is-started"),
                 (self, "is-auth-token-ready"),
-            ],
-            self.__initialize_kolibri_session,
+                *await_device_provisioned,
+            )
+            .all(self.__initialize_kolibri_session)
+            .notify()
         )
 
-        map_properties(
-            [
+        self.__property_watchers.append(
+            PropertyWatcher(
                 (self, "is-cookie-manager-ready"),
-            ],
-            self.__update_is_session_ready,
+                *await_device_provisioned,
+            )
+            .map(self.__update_is_session_ready)
+            .notify()
         )
 
-    def start_session_setup(self):
+    def shutdown(self):
+        for watcher in self.__property_watchers:
+            watcher.disconnect()
+        self.__property_watchers = []
+
+    def __update_auth_token(self, *args):
+        # Reset the auth token cookie; it is no longer valid
+        self.props.is_cookie_manager_ready = False
+
         if not self.__kolibri_daemon.do_automatic_login:
             self.props.auth_token = None
             self.props.is_auth_token_ready = True
@@ -398,24 +453,24 @@ class _KolibriSetupHelper(GObject.GObject):
             self.__kolibri_daemon_on_get_login_token_ready
         )
 
-    def __kolibri_daemon_on_dbus_owner_changed(
-        self, kolibri_daemon: KolibriDaemonManager
-    ):
-        # Reset the auth token cookie; it is no longer valid
-        self.props.is_cookie_manager_ready = False
-
-        # And repeat the setup procedure from the start
-        self.start_session_setup()
-
     def __kolibri_daemon_on_get_login_token_ready(
         self, kolibri_daemon: KolibriDaemonManager, login_token: typing.Optional[str]
     ):
         self.props.auth_token = login_token
         self.props.is_auth_token_ready = True
 
-    def __initialize_kolibri_session(
-        self, is_started: bool, app_key: str, is_auth_token_ready: bool
-    ):
+    def __initialize_kolibri_session(self, app_key: str, *args):
+        if (
+            not self.__kolibri_daemon.do_automatic_login
+            and not self.__require_is_device_provisioned
+        ):
+            # Skip session initialize completely if automatic login and
+            # require_is_device_provisioned is False. This works around an issue
+            # where Kolibri's initial setup wizard fails to create an initial
+            # user account if an app session has been created.
+            self.props.is_cookie_manager_ready = True
+            return
+
         initialize_query = {}
         if self.props.auth_token:
             initialize_query["auth_token"] = self.props.auth_token
@@ -430,47 +485,24 @@ class _KolibriSetupHelper(GObject.GObject):
     def __on_kolibri_initialize_api_ready(
         self, data: typing.Any, soup_message: Soup.Message = None
     ):
-        website_data_manager = (
-            WebKit.NetworkSession.get_default().get_website_data_manager()
-        )
-        website_data_manager.clear(
-            WebKit.WebsiteDataTypes.COOKIES,
-            0,
-            None,
-            self.__on_website_data_clear_finished,
-            partial(self.__copy_cookies_from_soup_message_response, soup_message),
-        )
-
-    def __on_website_data_clear_finished(self, website_data_manager, result, next_fn):
-        try:
-            website_data_manager.clear_finish(result)
-        except GLib.Error as error:
-            logger.error(f"Error clearing cookies: {error}")
-            return
-
-        next_fn()
+        self.__copy_cookies_from_soup_message_response(soup_message)
 
     def __copy_cookies_from_soup_message_response(self, soup_message: Soup.Message):
-        cookie_manager = WebKit.NetworkSession.get_default().get_cookie_manager()
-        cookies = Soup.cookies_from_response(soup_message)
-        self.__cookies_to_add = set(cookies)
-        for cookie in cookies:
-            # FIXME: We should really be using cookie_manager.replace_cookies(),
-            #        but something is causing the cookies to not be added unless
-            #        we call add_cookie one at a time.
-            cookie_manager.add_cookie(
-                cookie, None, self.__on_webkit_add_cookie_ready, cookie
-            )
+        cookie_manager = self.__webkit_network_session.get_cookie_manager()
+        cookie_manager.replace_cookies(
+            Soup.cookies_from_response(soup_message),
+            None,
+            self.__on_webkit_replace_cookies_ready,
+        )
 
-    def __on_webkit_add_cookie_ready(self, cookie_manager, result, cookie):
+    def __on_webkit_replace_cookies_ready(self, cookie_manager, result):
         try:
-            cookie_manager.add_cookie_finish(result)
+            cookie_manager.replace_cookies_finish(result)
         except GLib.Error as error:
-            logger.error(f"Error adding cookie from API response: {error}")
-            return
-        self.__cookies_to_add.remove(cookie)
-        if len(self.__cookies_to_add) == 0:
-            self.props.is_cookie_manager_ready = True
+            # Continue anyway; it is better that the app at least mostly works.
+            logger.error(f"Error replacing cookies from API response: {error}")
+
+        self.props.is_cookie_manager_ready = True
 
     def __update_is_session_ready(self, *setup_flags):
         self.props.is_session_ready = all(setup_flags)
@@ -539,7 +571,7 @@ class KolibriChannelContext(KolibriContext):
     def __is_learn_fragment_in_channel(self, fragment: str) -> bool:
         fragment = fragment.lstrip("/")
 
-        if re.match(r"^(content-unavailable|search)", fragment):
+        if re.match(r"^(resources-unavailable|content-unavailable|search)", fragment):
             return True
 
         contentnode_id = self.__contentnode_id_for_learn_fragment(fragment)
@@ -570,55 +602,27 @@ class KolibriChannelContext(KolibriContext):
         return None
 
 
-class KolibriSetupContext(BaseKolibriContext):
+class KolibriSetupContext(KolibriContext):
     """
     A KolibriContext that causes the application to only display Kolibri's setup
     UI, at kolibri:/en/setup. It uses another "parent" KolibriContext to provide
     most of its functionality.
     """
 
-    __parent: KolibriContext
-
     __gsignals__ = {
         "setup-complete": (GObject.SIGNAL_RUN_FIRST, None, ()),
     }
 
     def __init__(self, parent: KolibriContext):
-        super().__init__()
-
-        self.__parent = parent
-        self.__parent.bind_property(
-            "session-status",
-            self,
-            "session-status",
-            GObject.BindingFlags.SYNC_CREATE,
+        super().__init__(
+            kolibri_daemon=parent._kolibri_daemon,
+            ephemeral=True,
+            require_is_device_provisioned=False,
         )
-        bubble_signal(self, "download-started", self.__parent)
-        bubble_signal(self, "open-external-url", self.__parent)
-
-    @property
-    def kolibri_version(self) -> str:
-        return self.__parent.kolibri_version
 
     @property
     def default_url(self) -> str:
         return f"{APP_URI_SCHEME}:{SETUP_PATH_PREFIX}"
-
-    @property
-    def webkit_web_context(self) -> WebKit.WebContext:
-        return self.__parent.webkit_web_context
-
-    def get_absolute_url(self, url: str) -> typing.Optional[str]:
-        return self.__parent.get_absolute_url(url)
-
-    def kolibri_api_get(self, *args, **kwargs) -> typing.Any:
-        return self.__parent.kolibri_api_get(*args, **kwargs)
-
-    def kolibri_api_get_async(self, *args, **kwargs):
-        return self.__parent.kolibri_api_get_async(*args, **kwargs)
-
-    def is_url_for_kolibri_app(self, url) -> bool:
-        return self.__parent.is_url_for_kolibri_app(url)
 
     def is_url_in_scope(self, url: str) -> bool:
         if not self.is_url_for_kolibri_app(url):
@@ -631,9 +635,6 @@ class KolibriSetupContext(BaseKolibriContext):
             return True
 
         return False
-
-    def get_session_status_is_ready(self) -> bool:
-        return self.props.session_status >= KolibriContext.SESSION_STATUS_SETUP
 
     def __is_url_for_setup_complete(self, url: str) -> bool:
         url_tuple = urlsplit(url)

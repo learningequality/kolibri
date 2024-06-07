@@ -7,7 +7,7 @@ from gi.repository import Gtk
 from gi.repository import WebKit
 
 from .kolibri_context import KolibriContext
-from .utils import map_properties
+from .utils import PropertyWatcher
 
 
 MOUSE_BUTTON_BACK = 8
@@ -31,7 +31,9 @@ class KolibriWebView(WebKit.WebView):
     }
 
     def __init__(self, context: KolibriContext, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+        super().__init__(
+            *args, network_session=context.webkit_network_session, **kwargs
+        )
 
         self.set_size_request(400, 300)
 
@@ -207,13 +209,11 @@ class KolibriWebViewStack(Gtk.Stack):
                 self.__context, related_view=related_webview
             )
         else:
-            self.__main_webview = KolibriWebView(
-                self.__context, web_context=self.__context.webkit_web_context
-            )
+            self.__main_webview = KolibriWebView(self.__context)
         self.add_child(self.__main_webview)
 
         self.__loading_webview = WebKit.WebView(
-            web_context=self.__context.webkit_web_context
+            network_session=WebKit.NetworkSession.new_ephemeral()
         )
         self.add_child(self.__loading_webview)
 
@@ -247,12 +247,8 @@ class KolibriWebViewStack(Gtk.Stack):
             GObject.BindingFlags.SYNC_CREATE,
         )
 
-        map_properties(
-            [
-                (self, "show-web-inspector"),
-                (self, "visible-child"),
-            ],
-            self.__update_web_inspectors,
+        PropertyWatcher((self, "show-web-inspector"), (self, "visible-child")).map(
+            self.__update_web_inspectors
         )
 
         self.__loading_webview.get_inspector().connect(

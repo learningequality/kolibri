@@ -11,6 +11,7 @@ from .utils import bubble_signal
 
 class KolibriSetupDialog(Adw.Dialog):
     __setup_context: KolibriSetupContext
+    __webview: KolibriWebView
 
     __gsignals__ = {
         "setup-complete": (GObject.SIGNAL_RUN_FIRST, None, ()),
@@ -31,6 +32,12 @@ class KolibriSetupDialog(Adw.Dialog):
 
         content_box.add_top_bar(Adw.HeaderBar())
 
-        webview = KolibriWebView(self.__setup_context, vexpand=True, hexpand=True)
-        webview.load_kolibri_url(self.__setup_context.default_url)
-        content_box.set_content(webview)
+        self.__webview = KolibriWebView(self.__setup_context)
+        content_box.set_content(self.__webview)
+
+    def init(self):
+        self.__setup_context.init()
+        self.__webview.load_kolibri_url(self.__setup_context.default_url)
+
+    def shutdown(self):
+        self.__setup_context.shutdown()
