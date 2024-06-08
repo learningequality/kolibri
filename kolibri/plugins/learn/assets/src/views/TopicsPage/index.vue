@@ -399,24 +399,19 @@
       };
 
       function _handleTopicRedirect(route, children, id, skipped) {
-        if (children.every(c => c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
-          // if all children are leaf nodes (i.e. they have no children themselves)
+        if (!children.some(c => !c.is_leaf) && route.name !== PageNames.TOPICS_TOPIC_SEARCH) {
+          // if there are no children which are not leaf nodes (i.e. they have children themselves)
+          // which is equivalent to saying that all children are leaf nodes
           // then redirect to search results
-          if (children.every(c => c.title == '')) {
-            router.replace({
-              name: PageNames.TOPICS_TOPIC_SEARCH,
-              params: { ...route.params, id },
-              query: route.query,
-            });
-          } else {
-            sidePanelIsOpen.value = false;
-          }
+          router.replace({
+            name: PageNames.TOPICS_TOPIC_SEARCH,
+            params: { ...route.params, id },
+            query: route.query,
+          });
         } else if (skipped) {
           // If we have skipped down the topic tree, replace to the new top level topic
           router.replace({ name: route.name, params: { ...route.params, id }, query: route.query });
           return true;
-        } else {
-          sidePanelIsOpen.value = false;
         }
       }
 
@@ -489,6 +484,7 @@
           set(channel, null);
           set(contents, []);
           set(isRoot, false);
+          set(sidePanelIsOpen, false);
           const shouldResolve = samePageCheckGenerator(store);
           let promise;
           if (props.deviceId) {
