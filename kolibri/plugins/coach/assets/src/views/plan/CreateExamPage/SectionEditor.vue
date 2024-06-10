@@ -251,7 +251,9 @@
       @cancel="handleCancelDelete"
       @submit="handleConfirmDelete"
     >
-      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+      {{ deleteConfirmation$(
+        { section_title: displaySectionTitle(activeSection, activeSectionIndex) }
+      ) }}
     </KModal>
   </div>
 
@@ -340,7 +342,7 @@
       }
 
       function handleConfirmDelete() {
-        const section_title = activeSection.value.section_title;
+        const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
         removeSection(showDeleteConfirmation.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,

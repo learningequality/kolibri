@@ -1,3 +1,5 @@
+import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+
 function defaultState() {
   return {
     contentNodeMap: {},
@@ -38,14 +40,16 @@ export default {
     sectionSelectOptions(state, { sections }) {
       return (
         sections.map((section, i) => ({
-          label: section.section_title,
+          label: displaySectionTitle(section, i),
           value: i,
         })) || []
       );
     },
     currentSectionOption(state, { currentSection, sectionSelectOptions }) {
       if (!currentSection) return {};
-      return sectionSelectOptions.find(opt => opt.label === currentSection.section_title);
+      return sectionSelectOptions.find(
+        (opt, i) => opt.label === displaySectionTitle(currentSection, i)
+      );
     },
   },
 };

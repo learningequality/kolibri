@@ -62,7 +62,7 @@
         v-for="(section, index) in sections"
         :id="`section-questions-${index}`"
         :key="`section-questions-${index}`"
-        :title="section.section_title"
+        :title="displaySectionTitle(section, index)"
         @focus="expand(index)"
       >
         <template #heading="{ title }">
@@ -189,9 +189,12 @@
 
 <script>
 
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import { coreStrings } from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import { computed, watch } from 'kolibri.lib.vueCompositionApi';
@@ -236,7 +239,7 @@
       const sectionSelectOptions = computed(() => {
         return sections.value.map((section, index) => ({
           value: index,
-          label: section.section_title,
+          label: displaySectionTitle(section, index),
         }));
       });
 
@@ -305,6 +308,7 @@
       return {
         handleSectionChange,
         handleQuestionChange,
+        displaySectionTitle,
         quizSectionsLabel$,
         questionsLabel$,
         expand,
