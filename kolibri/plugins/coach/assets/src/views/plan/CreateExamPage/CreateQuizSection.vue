@@ -404,7 +404,7 @@
         setActiveSection,
         updateQuiz,
         selectAllQuestions,
-
+        replacementQuestionPool,
         // Computed
         toggleQuestionInSelection,
         allSections,
@@ -479,6 +479,7 @@
         activeSection,
         activeResourceMap,
         activeResourcePool,
+        replacementQuestionPool,
         activeQuestions,
         selectedActiveQuestions,
       };
