@@ -16,7 +16,6 @@ def frontendreport(request):
     """
     test with:
     curl -X POST http://localhost:8000/api/errorreports/frontendreport/      -H "Content-Type: application/json"      -d '{
-           "error_from": "frontend",
            "error_message": "An example error occurred",
            "traceback": "Traceback (most recent call last): ..."
          }'
@@ -27,7 +26,7 @@ def frontendreport(request):
         if not settings.DEVELOPER_MODE:
             logger.error("Saving error report in the database.")
             error = ErrorReports.insert_or_update_error(
-                error_from=data["error_from"],
+                error_from=ErrorReports.FRONTEND,
                 error_message=data["error_message"],
                 traceback=data["traceback"],
             )

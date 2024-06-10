@@ -17,7 +17,6 @@ class FrontendReportTestCase(TestCase):
     def test_frontend_report_prod_mode(self):
         url = reverse("kolibri:core:frontendreport")
         data = {
-            "error_from": ErrorReports.FRONTEND,
             "error_message": "Something went wrong",
             "traceback": "Traceback information",
         }
@@ -33,7 +32,6 @@ class FrontendReportTestCase(TestCase):
     def test_frontend_report_dev_mode(self):
         url = reverse("kolibri:core:frontendreport")
         data = {
-            "error_from": ErrorReports.FRONTEND,
             "error_message": "Something went wrong",
             "traceback": "Traceback information",
         }
@@ -44,7 +42,6 @@ class FrontendReportTestCase(TestCase):
     def test_frontend_report_invalid_data(self):
         url = reverse("kolibri:core:frontendreport")
         data = {
-            "error_from": ErrorReports.FRONTEND,
             "error_message": "",
             "traceback": "Traceback information",
         }
