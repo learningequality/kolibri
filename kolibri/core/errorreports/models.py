@@ -1,7 +1,13 @@
+import logging
+
+from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
+
+
+logger = logging.getLogger(__name__)
 
 
 class ErrorReportsRouter(object):
@@ -66,14 +72,18 @@ class ErrorReports(models.Model):
 
     @classmethod
     def insert_or_update_error(cls, error_from, error_message, traceback):
-        error, created = cls.objects.get_or_create(
-            error_from=error_from, error_message=error_message, traceback=traceback
-        )
-        if not created:
-            error.no_of_errors += 1
-            error.last_occurred = timezone.now()
-            error.save()
-        return error
+        if not settings.DEVELOPER_MODE:
+            error, created = cls.objects.get_or_create(
+                error_from=error_from, error_message=error_message, traceback=traceback
+            )
+            if not created:
+                error.no_of_errors += 1
+                error.last_occurred = timezone.now()
+                error.save()
+            logger.error("ErrorReports: Database updated.")
+            return error
+        logger.error("ErrorReports: Database not updated, as DEVELOPER_MODE is True.")
+        return None
 
     @classmethod
     def get_unsent_errors(cls):

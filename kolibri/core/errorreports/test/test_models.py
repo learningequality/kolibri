@@ -1,3 +1,4 @@
+from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
 
@@ -7,7 +8,8 @@ from kolibri.core.errorreports.models import ErrorReports
 class ErrorReportsTestCase(TestCase):
     databases = "__all__"  # I am not sure about this, maybe a overkill but works
 
-    def test_insert_or_update_error(self):
+    @override_settings(DEVELOPER_MODE=False)
+    def test_insert_or_update_error_prod_mode(self):
         error_from = ErrorReports.FRONTEND
         error_message = "Test Error"
         traceback = "Test Traceback"
@@ -42,6 +44,17 @@ class ErrorReportsTestCase(TestCase):
         self.assertLess(
             timezone.now() - error.last_occurred, timezone.timedelta(seconds=1)
         )
+
+    @override_settings(DEVELOPER_MODE=True)
+    def test_insert_or_update_error_dev_mode(self):
+        error_from = ErrorReports.FRONTEND
+        error_message = "Test Error"
+        traceback = "Test Traceback"
+
+        error = ErrorReports.insert_or_update_error(
+            error_from, error_message, traceback
+        )
+        self.assertIsNone(error)
 
     def test_get_unsent_errors(self):
         ErrorReports.objects.create(
