@@ -391,6 +391,7 @@
         questionsDeletedNotification$,
         expandAll$,
         collapseAll$,
+        questionDeletionConfirmation$,
       } = enhancedQuizManagementStrings;
 
       const {
@@ -454,6 +455,7 @@
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
+        questionDeletionConfirmation$,
         replaceAction$,
         questionList$,
         sectionDeletedNotification$,

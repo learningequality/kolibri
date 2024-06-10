@@ -522,6 +522,11 @@ const coachStrings = createTranslator('CommonCoachStrings', {
     context:
       "Text shown on a modal pop-up window when the user clicks the 'Start Quiz' button. This explains what will happen when the user confirms the action of starting the quiz.",
   },
+  canNoLongerEditQuizNotice: {
+    message: 'You will no longer be able to edit the quiz.',
+    context:
+      'In the modal pop-up window when the user clicks the "Start Quiz" button, explains that they will not be able to edit the quiz after starting it.',
+  },
   openQuizModalEmptySections: {
     message: 'Any sections without questions will be removed from the quiz.',
     context:

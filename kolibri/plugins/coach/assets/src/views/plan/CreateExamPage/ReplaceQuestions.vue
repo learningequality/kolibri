@@ -12,7 +12,7 @@
     <h1 class="section-header">
       {{ replaceQuestions$() }}
     </h1>
-    <p>{{ replaceQuestionsExplaination$() }}</p>
+    <p>{{ replaceQuestionsHeading$() }}</p>
     <span
       class="divider"
       :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
@@ -193,6 +193,7 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         replaceQuestionsExplaination$,
+        replaceQuestionsHeading$,
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
@@ -322,6 +323,7 @@
         closeConfirmationTitle$,
         noUndoWarning$,
         replaceQuestionsExplaination$,
+        replaceQuestionsHeading$,
         selectMoreQuestion$,
         selectFewerQuestion$,
         collapseAll$,

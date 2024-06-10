@@ -73,7 +73,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Add questions',
   },
   selectFoldersOrExercises: {
-    message: 'Select folders or exercises from these channels',
+    message: 'Select resources from these channels',
   },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
@@ -101,6 +101,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   replaceAction: {
     message: 'Replace',
+  },
+  replaceQuestionsHeading: {
+    message: 'The new questions you select will replace the current ones.',
   },
   replaceQuestionsExplaination: {
     message: 'The new questions you selected will replace the current ones.',
@@ -220,8 +223,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context: 'Message of modal when a user tries to replace questions but the pool is empty',
   },
   addMoreResourcesWithNonEmptyPool: {
-    message:
-      'Please add more resources to this section, or go back and only select up to { available, number } { available, plural, one { question } other { questions } } to be replaced.',
+    message: 'Please add more resources to this section, or go back and select fewer questions',
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
@@ -240,6 +242,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   saveAndClose: {
     message: 'Save and close',
+  },
+  questionDeletionConfirmation: {
+    message:
+      'Are you sure you want to remove { count, number } { count, plural, one { question } other { questions }} from this section?',
   },
 });
 
