@@ -43,7 +43,7 @@
                   :layout12="{ span: 8 }"
                 >
                   <h2 class="section-title">
-                    {{ currentSection.section_title }}
+                    {{ displaySectionTitle(currentSection, currentSectionIndex) }}
                   </h2>
                   <p> {{ currentSection.description }} </p>
                 </KGridItem>
@@ -226,6 +226,7 @@
 
   import { mapGetters, mapState } from 'vuex';
   import isEqual from 'lodash/isEqual';
+  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import debounce from 'lodash/debounce';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
@@ -269,6 +270,7 @@
         windowIsSmall,
       } = useKResponsiveWindow();
       return {
+        displaySectionTitle,
         pastattempts,
         time_spent,
         initContentSession,
@@ -296,6 +298,7 @@
       ...mapGetters('examViewer', [
         'currentQuestion',
         'currentSection',
+        'currentSectionIndex',
         'sectionSelectOptions',
         'currentSectionOption',
         'currentQuestionOption',

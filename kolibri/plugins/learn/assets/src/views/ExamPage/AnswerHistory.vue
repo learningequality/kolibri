@@ -9,7 +9,7 @@
       v-for="(section, index) in sections"
       :id="`section-questions-${index}`"
       :key="`section-questions-${index}`"
-      :title="section.section_title"
+      :title="displaySectionTitle(section, index)"
       @focus="expand(index)"
     >
       <template #heading="{ title }">
@@ -97,6 +97,7 @@
 
 <script>
 
+  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import isEqual from 'lodash/isEqual';
@@ -120,6 +121,7 @@
       const { collapse, expand, isExpanded, toggle } = useAccordion(sections);
 
       return {
+        displaySectionTitle,
         collapse,
         expand,
         isExpanded,

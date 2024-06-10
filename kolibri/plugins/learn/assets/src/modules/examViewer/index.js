@@ -27,8 +27,11 @@ export default {
       if (state.questions.length === 0) return null;
       return state.questions[state.questionNumber];
     },
-    currentSection(state, { currentQuestion, sections }) {
-      return sections.find(section =>
+    currentSection(state, { sections, currentSectionIndex }) {
+      return sections[currentSectionIndex];
+    },
+    currentSectionIndex(state, { currentQuestion, sections }) {
+      return sections.findIndex(section =>
         section.questions.map(q => q.item).includes(currentQuestion.item)
       );
     },
