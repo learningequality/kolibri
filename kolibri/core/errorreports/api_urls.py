@@ -1,5 +1,5 @@
 from django.urls import re_path
 
-from .api import frontendreport
+from .api import report
 
-urlpatterns = [re_path(r"^frontendreport", frontendreport, name="frontendreport")]
+urlpatterns = [re_path(r"^report", report, name="report")]
