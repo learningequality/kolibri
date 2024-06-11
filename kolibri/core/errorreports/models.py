@@ -4,8 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
-from .constants import BACKEND
-from .constants import FRONTEND
+from .constants import POSSIBLE_ERRORS
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
 
 
@@ -48,11 +47,6 @@ class ErrorReportsRouter(object):
 
 
 class ErrorReports(models.Model):
-    POSSIBLE_ERRORS = [
-        (FRONTEND, "Frontend"),
-        (BACKEND, "Backend"),
-    ]
-
     error_from = models.CharField(max_length=10, choices=POSSIBLE_ERRORS)
     error_message = models.CharField(max_length=255)
     traceback = models.TextField()
