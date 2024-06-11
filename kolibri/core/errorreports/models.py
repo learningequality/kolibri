@@ -4,6 +4,7 @@ from django.conf import settings
 from django.db import models
 from django.utils import timezone
 
+from .constants import POSSIBLE_ERRORS
 from kolibri.deployment.default.sqlite_db_names import ERROR_REPORTS
 
 
@@ -13,8 +14,6 @@ logger = logging.getLogger(__name__)
 class ErrorReportsRouter(object):
     """
     Determine how to route database calls for the ErrorReports app.
-    ref: https://docs.djangoproject.com/en/5.0/topics/db/multi-db/
-
     """
 
     def db_for_read(self, model, **hints):
@@ -48,13 +47,6 @@ class ErrorReportsRouter(object):
 
 
 class ErrorReports(models.Model):
-    FRONTEND = "frontend"
-    BACKEND = "backend"
-    POSSIBLE_ERRORS = [
-        (FRONTEND, "Frontend"),
-        (BACKEND, "Backend"),
-    ]
-
     error_from = models.CharField(max_length=10, choices=POSSIBLE_ERRORS)
     error_message = models.CharField(max_length=255)
     traceback = models.TextField()

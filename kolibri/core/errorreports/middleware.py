@@ -3,13 +3,13 @@ import traceback
 
 from django.db import IntegrityError
 
+from .constants import BACKEND
 from .models import ErrorReports
 
 
 class ErrorReportingMiddleware:
     """
     Middleware to log exceptions to the database.
-    ref: https://docs.djangoproject.com/en/5.0/topics/http/middleware/#writing-your-own-middleware
     """
 
     def __init__(self, get_response):
@@ -27,9 +27,7 @@ class ErrorReportingMiddleware:
 
         try:
             self.logger.error("Saving error report to the database.")
-            ErrorReports.insert_or_update_error(
-                "Backend", error_message, traceback_info
-            )
+            ErrorReports.insert_or_update_error(BACKEND, error_message, traceback_info)
             self.logger.info("Error report saved to the database.")
         except IntegrityError:
             self.logger.error(
