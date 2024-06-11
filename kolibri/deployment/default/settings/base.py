@@ -58,6 +58,9 @@ SECRET_KEY = "f@ey3)y^03r9^@mou97apom*+c1m#b1!cwbm50^s4yk72xce27"
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = conf.OPTIONS["Server"]["DEBUG"]
 
+# Developer mode should be False instead of None in production mode
+DEVELOPER_MODE = False
+
 ALLOWED_HOSTS = ["*"]
 
 # Application definition
