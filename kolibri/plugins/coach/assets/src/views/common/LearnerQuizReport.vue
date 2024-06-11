@@ -13,6 +13,7 @@
       :exerciseContentNodes="exerciseContentNodes"
       :navigateTo="navigateTo"
       :questions="questions"
+      :sections="exam.question_sources"
     />
   </KPageContainer>
 

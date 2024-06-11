@@ -140,6 +140,9 @@
           @submit="handleOpenQuiz(activeQuiz.id)"
         >
           <p>{{ openQuizModalDetail$() }}</p>
+          <p v-if="activeQuiz.draft">
+            {{ canNoLongerEditQuizNotice$() }}
+          </p>
           <p
             v-if="
               activeQuiz.data_model_version === 3 &&
@@ -240,6 +243,7 @@
         newQuizAction$,
         filterQuizStatus$,
         quizClosedLabel$,
+        canNoLongerEditQuizNotice$,
       } = coachStrings;
 
       const statusSelected = ref({
@@ -275,6 +279,7 @@
         titleLabel$,
         recipientsLabel$,
         sizeLabel$,
+        canNoLongerEditQuizNotice$,
         statusLabel$,
         newQuizAction$,
         filterQuizStatus$,

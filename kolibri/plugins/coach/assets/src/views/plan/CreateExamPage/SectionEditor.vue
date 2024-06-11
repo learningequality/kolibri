@@ -15,8 +15,11 @@
         :layout4="{ span: 2 }"
       >
         <KTextbox
+          ref="sectionTitle"
           v-model="section_title"
           :label="sectionTitle$()"
+          :invalid="sectionTitleInvalid"
+          :invalidText="sectionTitleInvalidText"
           :maxlength="100"
         />
       </KGridItem>
@@ -248,7 +251,9 @@
       @cancel="handleCancelDelete"
       @submit="handleConfirmDelete"
     >
-      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+      {{ deleteConfirmation$(
+        { section_title: displaySectionTitle(activeSection, activeSectionIndex) }
+      ) }}
     </KModal>
   </div>
 
@@ -260,7 +265,10 @@
   import isEqual from 'lodash/isEqual';
   import pick from 'lodash/pick';
   import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import Draggable from 'kolibri.coreVue.components.Draggable';
@@ -283,6 +291,7 @@
       const {
         sectionSettings$,
         sectionTitle$,
+        sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
         quizResourceSelection$,
@@ -307,13 +316,13 @@
 
       const {
         activeSection,
+        activeSectionIndex,
         activeResourcePool,
         allSections,
         updateSection,
         updateQuiz,
         removeSection,
         channels,
-        displaySectionTitle,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -333,7 +342,7 @@
       }
 
       function handleConfirmDelete() {
-        const section_title = activeSection.value.section_title;
+        const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
         removeSection(showDeleteConfirmation.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
@@ -350,6 +359,23 @@
       const question_count = ref(activeSection.value.question_count);
       const description = ref(activeSection.value.description);
       const section_title = ref(activeSection.value.section_title);
+
+      const sectionTitleInvalidText = computed(() => {
+        if (section_title.value.trim() === '') {
+          // Always allow empty section titles
+          return '';
+        }
+        const titleIsUnique = allSections.value.every((section, index) => {
+          if (index === activeSectionIndex.value) {
+            // Skip the current section
+            return true;
+          }
+          return section.section_title !== section_title.value;
+        });
+        if (!titleIsUnique) {
+          return sectionTitleUniqueWarning$();
+        }
+      });
 
       const activeSectionChanged = computed(() => {
         return !isEqual(
@@ -392,6 +418,8 @@
       });
 
       return {
+        sectionTitleInvalidText,
+        sectionTitleInvalid: computed(() => Boolean(sectionTitleInvalidText.value)),
         formDataHasChanged,
         sectionOrderChanged,
         showCloseConfirmation,
@@ -486,6 +514,10 @@
         this.sectionOrderList = e.newArray;
       },
       applySettings() {
+        if (this.sectionTitleInvalid) {
+          this.$refs.sectionTitle.focus();
+          return;
+        }
         this.updateSection({
           section_id: this.activeSection.section_id,
           section_title: this.section_title,

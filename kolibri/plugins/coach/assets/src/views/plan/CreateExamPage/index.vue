@@ -19,6 +19,7 @@
     >
       <AssignmentDetailsModal
         v-if="quizInitialized"
+        ref="detailsModal"
         assignmentType="quiz"
         :assignment="quiz"
         :classId="classId"
@@ -38,6 +39,11 @@
         <KButtonGroup>
           <KButton
             :text="coreString('saveAction')"
+            :disabled="allSectionsEmpty"
+            @click="() => saveQuizAndRedirect(false)"
+          />
+          <KButton
+            :text="saveAndClose$()"
             primary
             :disabled="allSectionsEmpty"
             @click="() => saveQuizAndRedirect()"
@@ -57,6 +63,8 @@
 <script>
 
   import get from 'lodash/get';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+  import CatchErrors from 'kolibri.utils.CatchErrors';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import pickBy from 'lodash/pickBy';
   import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
@@ -84,7 +92,7 @@
       const showError = ref(false);
       const quizInitialized = ref(false);
 
-      const { allSectionsEmptyWarning$ } = enhancedQuizManagementStrings;
+      const { saveAndClose$, allSectionsEmptyWarning$ } = enhancedQuizManagementStrings;
 
       return {
         classId,
@@ -97,6 +105,7 @@
         quizInitialized,
         allSectionsEmpty,
         allSectionsEmptyWarning$,
+        saveAndClose$,
       };
     },
     provide() {
@@ -140,10 +149,6 @@
       },
     },
     watch: {
-      $route: function() {
-        // FIXME Coach shouldn't be setting loading in a beforeEach here maybe?
-        this.$store.dispatch('notLoading');
-      },
       filters(newVal) {
         this.$router.push({
           query: { ...this.$route.query, ...pickBy(newVal) },
@@ -158,13 +163,36 @@
       this.quizInitialized = true;
     },
     methods: {
-      saveQuizAndRedirect() {
-        this.saveQuiz().then(() => {
-          this.$router.replace({
-            name: PageNames.EXAMS,
-            classId: this.$route.params.classId,
+      saveQuizAndRedirect(close = true) {
+        this.saveQuiz()
+          .then(exam => {
+            if (close) {
+              this.$router.replace({
+                name: PageNames.EXAMS,
+                params: {
+                  classId: this.$route.params.classId,
+                },
+              });
+            } else {
+              if (this.$route.params.quizId === exam.id) {
+                return;
+              }
+              this.$router.replace({
+                name: PageNames.EXAM_CREATION_ROOT,
+                params: {
+                  classId: this.$route.params.classId,
+                  quizId: exam.id,
+                },
+              });
+            }
+          })
+          .catch(error => {
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            this.$refs.detailsModal.handleSubmitFailure();
+            if (errors.length) {
+              this.$refs.detailsModal.handleSubmitTitleFailure();
+            }
           });
-        });
       },
     },
     $trs: {

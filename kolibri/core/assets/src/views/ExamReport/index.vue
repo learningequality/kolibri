@@ -79,6 +79,7 @@
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
         :isSurvey="isSurvey"
+        :sections="sections"
         @select="navigateToQuestion"
       />
     </template>
@@ -93,6 +94,7 @@
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
           :isSurvey="isSurvey"
+          :sections="sections"
           @select="navigateToQuestion"
         />
         <div
@@ -101,7 +103,7 @@
           :class="windowIsSmall ? 'mobile-exercise-container' : ''"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <h3>{{ coreString('questionNumberLabel', { questionNumber: questionNumber + 1 }) }}</h3>
+          <h3>{{ questionNumberInSectionLabel }}</h3>
 
           <div v-if="!isSurvey" data-test="diff-business">
             <KCheckbox
@@ -253,6 +255,12 @@
         type: Function,
         required: true,
       },
+      // The exam.question_sources value
+      sections: {
+        type: Array,
+        required: false,
+        default: () => [],
+      },
       // An array of questions in the format:
       // {
       //   exercise_id: <exercise_id>,
@@ -315,6 +323,20 @@
       };
     },
     computed: {
+      questionNumberInSectionLabel() {
+        if (!this.sections) {
+          return '';
+        }
+        for (let iSection = 0; iSection < this.sections.length; iSection++) {
+          const section = this.sections[iSection];
+          for (let iQuestion = 0; iQuestion < section.questions.length; iQuestion++) {
+            if (section.questions[iQuestion].item === this.itemId) {
+              return this.coreString('questionNumberLabel', { questionNumber: iQuestion + 1 });
+            }
+          }
+        }
+        return '';
+      },
       attemptLogs() {
         if (this.isQuiz || this.isSurvey) {
           return this.quizAttempts();
