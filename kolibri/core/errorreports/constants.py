@@ -1,0 +1,2 @@
+FRONTEND = "frontend"
+BACKEND = "backend"
