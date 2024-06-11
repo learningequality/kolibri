@@ -61,7 +61,7 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="c => hasCheckbox(c) && unusedQuestionsCount(c) > 0"
+        :contentHasCheckbox="actuallyHasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -553,6 +553,18 @@
       }
     },
     methods: {
+      /**
+       * Uses the imported `hasCheckbox` method in addition to some locally relevant conditions
+       * to identify if the content has a checkbox.
+       * Note that `hasCheckbox` handles the topic-level logic and we're only modifying how we
+       * handle the case of exercises where we want to show the checkbox if ith as no questions
+       * available
+       */
+      actuallyHasCheckbox(content) {
+        return content.kind === ContentNodeKinds.EXERCISE
+          ? this.hasCheckbox(content) && this.unusedQuestionsCount(content) > 0
+          : this.hasCheckbox(content);
+      },
       unusedQuestionsCount(content) {
         if (content.kind === ContentNodeKinds.EXERCISE) {
           const questionItems = content.assessmentmetadata.assessment_item_ids.map(
