@@ -72,7 +72,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addQuestions: {
     message: 'Add questions',
   },
-  selectFoldersOrExercises: {
+  selectResourcesDescription: {
     message: 'Select resources from these channels',
   },
   numberOfSelectedBookmarks: {

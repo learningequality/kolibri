@@ -6,7 +6,7 @@
     </div>
     <div v-else>
       <h5 class="select-folder-style">
-        {{ selectFoldersOrExercises$() }}
+        {{ selectResourcesDescription$() }}
       </h5>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
@@ -164,7 +164,7 @@
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
-        selectFoldersOrExercises$,
+        selectResourcesDescription$,
         numberOfSelectedResources$,
         numberOfResourcesSelected$,
         changesSavedSuccessfully$,
@@ -492,7 +492,7 @@
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
-        selectFoldersOrExercises$,
+        selectResourcesDescription$,
         numberOfSelectedResources$,
         numberOfResourcesSelected$,
         windowIsSmall,
