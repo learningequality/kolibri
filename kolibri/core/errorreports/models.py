@@ -91,4 +91,4 @@ class ErrorReports(models.Model):
 
     @classmethod
     def delete_error(cls):
-        ...
+        pass
