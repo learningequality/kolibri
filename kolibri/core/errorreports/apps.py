@@ -7,4 +7,4 @@ class KolibriErrorConfig(AppConfig):
     verbose_name = "Kolibri ErrorReports"
 
     def ready(self):
-        ...
+        pass
