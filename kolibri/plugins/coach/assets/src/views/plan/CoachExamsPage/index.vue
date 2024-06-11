@@ -140,7 +140,9 @@
           @submit="handleOpenQuiz(activeQuiz.id)"
         >
           <p>{{ openQuizModalDetail$() }}</p>
-          <p>{{ canNoLongerEditQuizNotice$() }}</p>
+          <p v-if="activeQuiz.draft">
+            {{ canNoLongerEditQuizNotice$() }}
+          </p>
           <p
             v-if="
               activeQuiz.data_model_version === 3 &&
