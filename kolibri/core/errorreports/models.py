@@ -72,7 +72,7 @@ class ErrorReports(models.Model):
 
     @classmethod
     def insert_or_update_error(cls, error_from, error_message, traceback):
-        if not settings.DEVELOPER_MODE:
+        if not getattr(settings, "DEVELOPER_MODE", None):
             error, created = cls.objects.get_or_create(
                 error_from=error_from, error_message=error_message, traceback=traceback
             )
