@@ -2,6 +2,8 @@ from django.test import override_settings
 from django.test import TestCase
 from django.utils import timezone
 
+from ..constants import BACKEND
+from ..constants import FRONTEND
 from kolibri.core.errorreports.models import ErrorReports
 
 
@@ -10,7 +12,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=False)
     def test_insert_or_update_error_prod_mode(self):
-        error_from = ErrorReports.FRONTEND
+        error_from = FRONTEND
         error_message = "Test Error"
         traceback = "Test Traceback"
 
@@ -47,7 +49,7 @@ class ErrorReportsTestCase(TestCase):
 
     @override_settings(DEVELOPER_MODE=True)
     def test_insert_or_update_error_dev_mode(self):
-        error_from = ErrorReports.FRONTEND
+        error_from = FRONTEND
         error_message = "Test Error"
         traceback = "Test Traceback"
 
@@ -58,19 +60,19 @@ class ErrorReportsTestCase(TestCase):
 
     def test_get_unsent_errors(self):
         ErrorReports.objects.create(
-            error_from=ErrorReports.FRONTEND,
+            error_from=FRONTEND,
             error_message="Error 1",
             traceback="Traceback 1",
             sent=False,
         )
         ErrorReports.objects.create(
-            error_from=ErrorReports.BACKEND,
+            error_from=BACKEND,
             error_message="Error 2",
             traceback="Traceback 2",
             sent=False,
         )
         ErrorReports.objects.create(
-            error_from=ErrorReports.BACKEND,
+            error_from=BACKEND,
             error_message="Error 3",
             traceback="Traceback 3",
             sent=True,
@@ -84,7 +86,7 @@ class ErrorReportsTestCase(TestCase):
 
     def test_mark_as_sent(self):
         error = ErrorReports.objects.create(
-            error_from=ErrorReports.FRONTEND,
+            error_from=FRONTEND,
             error_message="Test Error",
             traceback="Test Traceback",
             sent=False,
