@@ -264,6 +264,7 @@
                 params: {
                   classId: this.$route.params.classId,
                   quizId: exam.id,
+                  sectionIndex: this.$route.params.sectionIndex,
                 },
               });
             }

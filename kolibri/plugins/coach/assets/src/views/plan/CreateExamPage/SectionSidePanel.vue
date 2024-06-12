@@ -33,7 +33,10 @@
       const route = computed(() => store.state.route);
 
       const routeWhenSidePanelOpened = route.value;
-      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
+      const prevRoute = ref({
+        name: PageNames.EXAM_CREATION_ROOT,
+        params: { ...route.value.params },
+      });
       const canCloseSidePanel = ref(true);
       const showSidePanel = computed(() => route.value?.name !== PageNames.EXAM_CREATION_ROOT);
 
@@ -57,7 +60,10 @@
           if (prevRoute.value.name === PageNames.EXAM_CREATION_ROOT) {
             router.back();
           } else {
-            router.push({ name: PageNames.EXAM_CREATION_ROOT });
+            router.push({
+              name: PageNames.EXAM_CREATION_ROOT,
+              params: { ...prevRoute.value.params },
+            });
           }
         } else {
           router.back();

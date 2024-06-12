@@ -239,6 +239,7 @@
         this.clearSelectedQuestions();
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
+          params: { ...this.$route.params },
         });
         this.$store.dispatch('createSnackbar', numberOfQuestionsReplaced$({ count }));
       }

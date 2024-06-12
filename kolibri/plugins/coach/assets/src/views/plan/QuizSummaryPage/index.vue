@@ -178,7 +178,7 @@
         if (action === 'EDIT_DETAILS') {
           this.$router.push({
             name: PageNames.EXAM_CREATION_ROOT,
-            params: { ...this.$route.params },
+            params: { ...this.$route.params, sectionIndex: 0 },
           });
         } else {
           this.currentAction = action;

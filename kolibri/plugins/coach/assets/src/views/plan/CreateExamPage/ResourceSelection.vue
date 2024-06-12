@@ -694,7 +694,9 @@
         this.resetWorkingResourcePool();
         this.$router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
-          sectionId: this.activeSectionIndex,
+          params: {
+            ...this.$route.params,
+          },
         });
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },

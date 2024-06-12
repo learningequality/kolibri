@@ -333,7 +333,7 @@
         return this.quizzes;
       },
       newExamRoute() {
-        return { name: PageNames.EXAM_CREATION_ROOT };
+        return { name: PageNames.EXAM_CREATION_ROOT, params: { sectionIndex: 0 } };
       },
       dropdownOptions() {
         return [

@@ -341,6 +341,9 @@
         removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            ...this.$route.params,
+          },
         });
         this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
