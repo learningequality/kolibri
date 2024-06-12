@@ -164,11 +164,6 @@
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
-      const prevRoute = ref({
-        name: PageNames.EXAM_CREATION_ROOT,
-        sectionId: activeSectionIndex.value,
-      });
-
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
       const {
@@ -523,7 +518,6 @@
         showSelectAll,
         handleSelectAll,
         toggleSelected,
-        prevRoute,
         workingPoolHasChanged,
         handleConfirmClose,
         handleCancelClose,
@@ -607,11 +601,6 @@
       bookmarks(newVal) {
         this.bookmarksCount = newVal.length;
       },
-    },
-    beforeRouteEnter(_, from, next) {
-      next(vm => {
-        vm.prevRoute = from;
-      });
     },
     beforeRouteLeave(_, __, next) {
       if (!this.showCloseConfirmation && this.workingPoolHasChanged) {
@@ -703,11 +692,9 @@
         }
 
         this.resetWorkingResourcePool();
-        const route = this.selectPracticeQuiz
-          ? { name: PageNames.EXAM_CREATION_ROOT, sectionId: this.activeSectionIndex }
-          : this.prevRoute;
         this.$router.replace({
-          ...route,
+          name: PageNames.EXAM_CREATION_ROOT,
+          sectionId: this.activeSectionIndex,
         });
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
