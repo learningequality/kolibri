@@ -253,15 +253,18 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available", label="Available")
-    has_exercise = BooleanFilter(method="filter_has_exercise", label="Has exercises")
+    contains_exercise = BooleanFilter(
+        method="filter_contains_exercise", label="Has exercises"
+    )
+    contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "has_exercise")
+        fields = ("available", "contains_exercise", "contains_quiz")
 
-    def filter_has_exercise(self, queryset, name, value):
+    def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
-            has_exercise=Exists(
+            contains_exercise=Exists(
                 models.ContentNode.objects.filter(
                     kind=content_kinds.EXERCISE,
                     available=True,
@@ -270,7 +273,20 @@ class ChannelMetadataFilter(FilterSet):
             )
         )
 
-        return queryset.filter(has_exercise=True)
+        return queryset.filter(contains_exercise=True)
+
+    def filter_contains_quiz(self, queryset, name, value):
+        queryset = queryset.annotate(
+            contains_quiz=Exists(
+                models.ContentNode.objects.filter(
+                    options__contains='"modality": "QUIZ"',
+                    available=True,
+                    channel_id=OuterRef("id"),
+                )
+            )
+        )
+
+        return queryset.filter(contains_quiz=True)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)

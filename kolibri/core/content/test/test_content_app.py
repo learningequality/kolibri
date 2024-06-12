@@ -1302,7 +1302,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(response.data[0]["available"], False)
 
-    def test_channelmetadata_has_exercises_filter(self):
+    def test_channelmetadata_contains_exercise_filter(self):
         # Has nothing else for that matter...
         no_exercise_channel = content.ContentNode.objects.create(
             pk="6a406ac66b224106aa2e93f73a94333d",
@@ -1319,7 +1319,7 @@ class ContentNodeAPITestCase(ContentNodeAPIBase, APITestCase):
         no_filter_response = self.client.get(reverse("kolibri:core:channel-list"))
         self.assertEqual(len(no_filter_response.data), 2)
         with_filter_response = self.client.get(
-            reverse("kolibri:core:channel-list"), {"has_exercise": True}
+            reverse("kolibri:core:channel-list"), {"contains_exercise": True}
         )
         self.assertEqual(len(with_filter_response.data), 1)
         self.assertEqual(with_filter_response.data[0]["name"], "testing")

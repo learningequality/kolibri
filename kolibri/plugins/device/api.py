@@ -93,7 +93,7 @@ class DeviceChannelMetadataFilter(ChannelMetadataFilter):
 
     class Meta:
         model = ChannelMetadata
-        fields = ("partial", "available", "has_exercise")
+        fields = ("partial", "available", "contains_exercise")
 
 
 class DeviceChannelMetadataViewSet(viewsets.ReadOnlyModelViewSet):
