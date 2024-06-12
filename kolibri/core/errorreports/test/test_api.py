@@ -11,7 +11,7 @@ class FrontendReportTestCase(TestCase):
     def setUp(self):
         self.client = APIClient()
 
-    def test_frontend_report_prod_mode(self):
+    def test_frontend_report(self):
         url = reverse("kolibri:core:report")
         data = {
             "error_message": "Something went wrong",

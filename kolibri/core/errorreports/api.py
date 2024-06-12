@@ -4,6 +4,7 @@ from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 
+from .constants import FRONTEND
 from .models import ErrorReports
 from .serializers import ErrorReportSerializer
 
@@ -23,7 +24,7 @@ def report(request):
     if serializer.is_valid():
         data = serializer.validated_data
         error = ErrorReports.insert_or_update_error(
-            error_from=ErrorReports.FRONTEND,
+            error_from=FRONTEND,
             error_message=data["error_message"],
             traceback=data["traceback"],
         )
