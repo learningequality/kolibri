@@ -23,14 +23,20 @@ def report(request):
     serializer = ErrorReportSerializer(data=request.data)
     if serializer.is_valid():
         data = serializer.validated_data
-        error = ErrorReports.insert_or_update_error(
-            error_from=FRONTEND,
-            error_message=data["error_message"],
-            traceback=data["traceback"],
-        )
-
-        return Response(
-            {"error_id": error.id if error else None}, status=status.HTTP_200_OK
-        )
+        try:
+            error = ErrorReports.insert_or_update_error(
+                error_from=FRONTEND,
+                error_message=data["error_message"],
+                traceback=data["traceback"],
+            )
+            return Response(
+                {"error_id": error.id if error else None}, status=status.HTTP_200_OK
+            )
+        except (AttributeError, Exception) as e:
+            logger.error("Error while saving error report: {}".format(e))
+            return Response(
+                {"error": "Error while saving error report"},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            )
     else:
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
