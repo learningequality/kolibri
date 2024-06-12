@@ -44,7 +44,7 @@
     "eslint-config-prettier": "^6.15.0",
     "eslint-config-vue": "^2.0.2",
     "eslint-plugin-import": "^2.29.1",
-    "eslint-plugin-jest": "^23.3.0",
+    "eslint-plugin-jest": "^28.6.0",
     "eslint-plugin-jest-dom": "^5.4.0",
     "eslint-plugin-kolibri": "0.16.1-dev.1",
     "eslint-plugin-vue": "^7.3.0",
