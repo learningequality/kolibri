@@ -79,7 +79,11 @@ export default function selectQuestions(
           // TODO See #12127 re: replacing all `id` with `item`
           id: uId,
           item: uId,
-          title: exerciseTitles[ri],
+          // In the V3 schema, the title is user editable, and no longer
+          // simply the title of the exercise the question came from.
+          // We set it to blank to indicate that no user generated title
+          // has been created.
+          title: '',
         });
       }
     } else if (getTotalOfQuestions(filteredQuestionIdArrays) === 0) {

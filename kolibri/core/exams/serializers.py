@@ -24,7 +24,7 @@ from kolibri.core.exams.models import ExamAssignment
 class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
     question_id = HexUUIDField(format="hex")
-    title = CharField(default="")
+    title = CharField(default="", allow_blank=True)
     counter_in_exercise = IntegerField()
 
 

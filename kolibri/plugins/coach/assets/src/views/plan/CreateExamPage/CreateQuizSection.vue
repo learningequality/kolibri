@@ -226,7 +226,9 @@
               >
                 <AccordionItem
                   :id="question.item"
-                  :title="question.title"
+                  :title="displayQuestionTitle(
+                    question, activeResourceMap[question.exercise_id].title
+                  )"
                   :aria-selected="selectedActiveQuestions.includes(
                     question.item
                   )"
@@ -265,7 +267,7 @@
                         :aria-controls="`question-panel-${question.item}`"
                         @click="toggle(index)"
                       >
-                        <span>{{ title + " " + question.counter_in_exercise }}</span>
+                        <span>{{ title }}</span>
                         <KIcon
                           style="position: absolute; right:0; top: 0.92em"
                           :icon="isExpanded(index) ?
@@ -340,6 +342,7 @@
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
+    displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
@@ -470,6 +473,7 @@
         updateQuiz,
         updateResources$,
         displaySectionTitle,
+        displayQuestionTitle,
 
         // Computed
         allSections,

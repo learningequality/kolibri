@@ -266,3 +266,11 @@ export function displaySectionTitle(section, index) {
     ? sectionLabel$({ sectionNumber: index + 1 })
     : section.section_title;
 }
+
+export function displayQuestionTitle(question, exerciseTitle) {
+  return question.title === ''
+    ? `${exerciseTitle} (${enhancedQuizManagementStrings.$formatNumber(
+        question.counter_in_exercise
+      )})`
+    : question.title;
+}

@@ -116,21 +116,21 @@ describe('exam utils', () => {
         {
           exercise_id: 'E1',
           question_id: 'Q1',
-          title: 'Question 1',
+          title: '',
           counter_in_exercise: 1,
           item: 'E1:Q1',
         },
         {
           exercise_id: 'E1',
           question_id: 'Q2',
-          title: 'Question 2',
+          title: '',
           counter_in_exercise: 2,
           item: 'E1:Q2',
         },
         {
           exercise_id: 'E2',
           question_id: 'Q1',
-          title: 'Question 1',
+          title: '',
           counter_in_exercise: 1,
           item: 'E2:Q1',
         },
@@ -169,7 +169,7 @@ describe('exam utils', () => {
       ]);
     });
   });
-  describe('convertExamQuestionSources converting from V1 to V2', () => {
+  describe('convertExamQuestionSources converting from V1 to V3', () => {
     it('returns a question_sources array with a counter_in_exercise field', async () => {
       const exam = {
         data_model_version: 1,
@@ -196,21 +196,21 @@ describe('exam utils', () => {
         {
           exercise_id: 'E1',
           question_id: 'Q1',
-          title: 'Question 1',
+          title: '',
           counter_in_exercise: 1,
           item: 'E1:Q1',
         },
         {
           exercise_id: 'E1',
           question_id: 'Q2',
-          title: 'Question 2',
+          title: '',
           counter_in_exercise: 2,
           item: 'E1:Q2',
         },
         {
           exercise_id: 'E2',
           question_id: 'Q1',
-          title: 'Question 1',
+          title: '',
           counter_in_exercise: 1,
           item: 'E2:Q1',
         },
@@ -240,14 +240,14 @@ describe('exam utils', () => {
         {
           question_id: 'Q1',
           exercise_id: 'E1',
-          title: 'Question 1',
+          title: '',
           counter_in_exercise: 4000,
           item: 'E1:Q1',
         },
         {
           question_id: 'Q1',
           exercise_id: 'E2',
-          title: 'Question 2',
+          title: '',
           counter_in_exercise: 1,
           item: 'E2:Q1',
         },
@@ -255,7 +255,7 @@ describe('exam utils', () => {
     });
   });
 
-  describe('convertExamQuestionSources converting from V0 to V2', () => {
+  describe('convertExamQuestionSources converting from V0 to V3', () => {
     it('should return 10 specific ordered questions from 3 exercises', async () => {
       const exam = {
         data_model_version: 0,
@@ -299,61 +299,61 @@ describe('exam utils', () => {
           counter_in_exercise: 16,
           question_id: 'fc60ecb9f83f505fa31e734e517e6523',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 13,
           question_id: 'd4623921a2ef5ddaa39048c0f7a6fe06',
           exercise_id: 'b186a2a3ae8e51dd867614db03eb3783',
-          title: 'Find 1 more or 1 less than a number',
+          title: '',
         },
         {
           counter_in_exercise: 6,
           question_id: '2f5fdbc49ce35310abf49971867ac94e',
           exercise_id: 'b186a2a3ae8e51dd867614db03eb3783',
-          title: 'Find 1 more or 1 less than a number',
+          title: '',
         },
         {
           counter_in_exercise: 15,
           question_id: '19421254d90d520d981bd07fd6ede9b2',
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
-          title: 'Count in order',
+          title: '',
         },
         {
           counter_in_exercise: 1,
           question_id: '1e0ce47a58465b2cb298acd3b893dce5',
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
-          title: 'Count in order',
+          title: '',
         },
         {
           counter_in_exercise: 10,
           question_id: 'd3ac055fa4ad599bbd30a00eaeb93e5e',
           exercise_id: 'b186a2a3ae8e51dd867614db03eb3783',
-          title: 'Find 1 more or 1 less than a number',
+          title: '',
         },
         {
           counter_in_exercise: 1,
           question_id: 'a5f508eb2ba05d429812dc43b577ef03',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 17,
           question_id: '8358fbbd0a285e9d99da558094eabd4c',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 2,
           question_id: '3aeb023925e35001865091de1fb4d3ae',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 3,
           question_id: 'a654dec351af5bdf937566e46b7c2fc3',
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
-          title: 'Count in order',
+          title: '',
         },
       ];
 
@@ -382,61 +382,61 @@ describe('exam utils', () => {
           counter_in_exercise: 20,
           question_id: 'fc5958e2a67d5cd2bd48962e9e1c35c3',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 3,
           question_id: 'beb5eae9491c564fb6bc5b9c1421d085',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 2,
           question_id: '3aeb023925e35001865091de1fb4d3ae',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 17,
           question_id: '8358fbbd0a285e9d99da558094eabd4c',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 6,
           question_id: '4dd2526065ee572998a06b1fdae9cb4b',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 5,
           question_id: '10e6239f9cf35b75b0cf75ca7f7e6a14',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 12,
           question_id: 'e92a277052cf56e2aaae44338fa0bfec',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 9,
           question_id: '6ef7996754de54ad92b660d06436976c',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 4,
           question_id: 'b19341ebca9a5bdb817cdc31b8d62993',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 8,
           question_id: 'e226724765085214acfb807942918fed',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
       ];
       expect(converted.question_sources[0].questions).toEqual(
@@ -474,19 +474,19 @@ describe('exam utils', () => {
           counter_in_exercise: 9,
           question_id: '6ef7996754de54ad92b660d06436976c',
           exercise_id: '69e5e6abf479581483d441b83d7d76f4',
-          title: 'Count with small numbers',
+          title: '',
         },
         {
           counter_in_exercise: 2,
           question_id: '952857e446b95c5da36226f59237ffcc',
           exercise_id: 'b9444e7d11395946b2e14edb5dc4670f',
-          title: 'Count in order',
+          title: '',
         },
         {
           counter_in_exercise: 7,
           question_id: '5a56a46b261d5ff7b3f870cf09c6952f',
           exercise_id: 'b186a2a3ae8e51dd867614db03eb3783',
-          title: 'Find 1 more or 1 less than a number',
+          title: '',
         },
       ];
       expect(converted.question_sources[0].questions).toEqual(

@@ -95,7 +95,15 @@ function annotateQuestionsWithItem(questions) {
 export function convertExamQuestionSourcesV2toV3({ question_sources, learners_see_fixed_order }) {
   // In V2, question_sources are questions so we add them
   // to the newly created section's `questions` property
-  const questions = question_sources;
+  const questions = question_sources.map(item => {
+    return {
+      ...item,
+      // Overwrite the exercise title as the question title
+      // is user editable in the V3 schema, so we set it to
+      // blank to indicate it has not been set by an editor.
+      title: '',
+    };
+  });
   return [
     {
       section_title: '',

@@ -47,7 +47,7 @@
         v-for="(question, index) in replacementQuestionPool"
         :id="`replacement-question-${question.item}`"
         :key="`replacement-question-${question.item}`"
-        :title="question.title"
+        :title="displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)"
         :aria-selected="
           replacements.length && replacements.length === selectedActiveQuestions.length
         "
@@ -70,7 +70,7 @@
               :aria-controls="`question-panel-${question.id}`"
               @click="toggle(index)"
             >
-              <span>{{ title + " " + question.counter_in_exercise }}</span>
+              <span>{{ title }}</span>
               <KIcon
                 style="position: absolute; right:1em; top: 0.625em;"
                 :icon="isExpanded(index) ?
@@ -164,6 +164,7 @@
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
+    displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
@@ -212,7 +213,6 @@
         clearSelectedQuestions,
         replaceSelectedQuestions,
         toggleQuestionInSelection,
-        updateSection,
         handleReplacement,
         replacements,
         allSections,
@@ -311,7 +311,6 @@
         handleConfirmClose,
         clearSelectedQuestions,
         toggleQuestionInSelection,
-        updateSection,
         submitReplacement,
         replacements,
         replaceQuestions$,
@@ -328,6 +327,7 @@
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
+        displayQuestionTitle,
       };
     },
     computed: {
