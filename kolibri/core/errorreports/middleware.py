@@ -29,7 +29,7 @@ class ErrorReportingMiddleware:
             self.logger.error("Saving error report to the database.")
             ErrorReports.insert_or_update_error(BACKEND, error_message, traceback_info)
             self.logger.info("Error report saved to the database.")
-        except IntegrityError:
+        except IntegrityError as e:
             self.logger.error(
-                "Error occurred while saving error report to the database."
+                "Error occurred while saving error report to the database: %s", str(e)
             )
