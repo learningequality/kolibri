@@ -63,10 +63,6 @@
         type: Boolean,
         required: true,
       },
-      questionNumberOfExercise: {
-        type: Number,
-        default: null,
-      },
       isSelected: {
         type: Boolean,
         required: true,
@@ -97,13 +93,7 @@
         if (!this.exerciseName) {
           return this.coreString('resourceNotFoundOnDevice');
         }
-        if (this.questionNumberOfExercise === undefined || this.questionNumberOfExercise === null) {
-          return this.exerciseName;
-        }
-        return this.coachString('nthExerciseName', {
-          name: this.exerciseName,
-          number: this.questionNumberOfExercise,
-        });
+        return this.exerciseName;
       },
       focusRing() {
         return this.$computedClass({ ':focus': this.$coreOutline });

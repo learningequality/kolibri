@@ -6,43 +6,16 @@
       :layout12="{ span: 5 }"
       class="list-wrapper"
     >
-      <DragContainer
-        v-if="fixedOrder && !readOnly"
-        :items="annotatedQuestions"
-        @sort="handleUserSort"
-      >
-        <transition-group tag="ol" name="list" class="question-list">
-          <Draggable
-            v-for="(question, questionIndex) in annotatedQuestions"
-            :key="listKey(question)"
-          >
-            <DragHandle>
-              <AssessmentQuestionListItem
-                :draggable="true"
-                :isSelected="isSelected(question)"
-                :exerciseName="question.title"
-                :isCoachContent="numCoachContents(question.exercise_id)"
-                :available="available(question.exercise_id)"
-                :questionNumberOfExercise="question.counterInExercise"
-                :isFirst="questionIndex === 0"
-                :isLast="questionIndex === annotatedQuestions.length - 1"
-                @select="currentQuestionIndex = questionIndex"
-                @moveDown="moveQuestionDown(questionIndex)"
-                @moveUp="moveQuestionUp(questionIndex)"
-              />
-            </DragHandle>
-          </Draggable>
-        </transition-group>
-      </DragContainer>
-      <ul v-else class="question-list">
+      <ul class="question-list">
         <AssessmentQuestionListItem
           v-for="(question, questionIndex) in annotatedQuestions"
           :key="listKey(question)"
           :draggable="false"
           :isSelected="isSelected(question)"
-          :exerciseName="question.title"
+          :exerciseName="displayQuestionTitle(
+            question, selectedExercises[question.exercise_id].title
+          )"
           :isCoachContent="numCoachContents(question.exercise_id)"
-          :questionNumberOfExercise="question.counterInExercise"
           :available="available(question.exercise_id)"
           @select="currentQuestionIndex = questionIndex"
         />
@@ -95,31 +68,26 @@
 
 <script>
 
-  import DragContainer from 'kolibri.coreVue.components.DragContainer';
-  import Draggable from 'kolibri.coreVue.components.Draggable';
-  import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { displayQuestionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AssessmentQuestionListItem from './AssessmentQuestionListItem';
 
   export default {
     name: 'QuestionListPreview',
     components: {
       AssessmentQuestionListItem,
-      Draggable,
-      DragContainer,
-      DragHandle,
     },
     mixins: [commonCoreStrings],
+    setup() {
+      return {
+        displayQuestionTitle,
+      };
+    },
     props: {
       // If set to true, question buttons will be draggable
       fixedOrder: {
         type: Boolean,
         required: true,
-      },
-      // If set to true, controls will be disabled for fixed-order mode
-      readOnly: {
-        type: Boolean,
-        default: false,
       },
       // Array of { question_id, exercise_id, title } from Exam.question_sources
       selectedQuestions: {
@@ -171,30 +139,6 @@
       },
     },
     methods: {
-      handleUserSort({ newArray, newIndex, oldIndex }) {
-        this.$store.commit('examCreation/SET_SELECTED_QUESTIONS', newArray);
-        if (this.isSelected(this.selectedQuestions[oldIndex])) {
-          // switch immediately
-          this.currentQuestionIndex = newIndex;
-        } else {
-          // wait for the bounce animation to complete before switching
-          setTimeout(() => {
-            this.currentQuestionIndex = newIndex;
-          }, 250);
-        }
-      },
-      shiftOne(oldIndex, newIndex) {
-        const newArray = [...this.selectedQuestions];
-        newArray[oldIndex] = this.selectedQuestions[newIndex];
-        newArray[newIndex] = this.selectedQuestions[oldIndex];
-        this.handleUserSort({ newArray, oldIndex, newIndex });
-      },
-      moveQuestionUp(index) {
-        this.shiftOne(index, index - 1);
-      },
-      moveQuestionDown(index) {
-        this.shiftOne(index, index + 1);
-      },
       listKey(question) {
         return question.exercise_id + question.question_id;
       },

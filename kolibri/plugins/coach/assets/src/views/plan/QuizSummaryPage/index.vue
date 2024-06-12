@@ -45,7 +45,6 @@
 
             <QuestionListPreview
               :fixedOrder="!quizIsRandomized"
-              :readOnly="true"
               :selectedQuestions="selectedQuestions"
               :selectedExercises="selectedExercises"
             />
