@@ -347,6 +347,33 @@
       const searchResults = ref([]);
       const moreSearchResults = ref(null);
 
+      function unusedQuestionsCount(content) {
+        if (content.kind === ContentNodeKinds.EXERCISE) {
+          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
+            aid => `${content.id}:${aid}`
+          );
+          const questionsItemsAlreadyUsed = allQuestionsInQuiz.value
+            .map(q => q.item)
+            .filter(i => questionItems.includes(i));
+          const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
+          return questionItemsAvailable;
+        }
+        return -1;
+      }
+      /**
+       * Uses the imported `hasCheckbox` method in addition to some locally relevant conditions
+       * to identify if the content has a checkbox.
+       * For Exercises, we make sure there are questions available in the resource
+       * For Topics, we make sure that there are questions available in the children
+       * -- Note that for topics, hasCheckbox will only be true if all children are Exercises,
+       *    so we can call this recursively without worrying about it going too deep
+       */
+      function actuallyHasCheckbox(content) {
+        return content.kind === ContentNodeKinds.EXERCISE
+          ? hasCheckbox(content) && unusedQuestionsCount(content) > 0
+          : hasCheckbox(content) && content.children.results.some(actuallyHasCheckbox);
+      }
+
       // Load up the channels
 
       if (!topicId.value) {
@@ -461,6 +488,8 @@
       });
 
       return {
+        actuallyHasCheckbox,
+        unusedQuestionsCount,
         allQuestionsInQuiz,
         selectAllChecked,
         selectAllIndeterminate,
@@ -553,31 +582,6 @@
       }
     },
     methods: {
-      /**
-       * Uses the imported `hasCheckbox` method in addition to some locally relevant conditions
-       * to identify if the content has a checkbox.
-       * Note that `hasCheckbox` handles the topic-level logic and we're only modifying how we
-       * handle the case of exercises where we want to show the checkbox if ith as no questions
-       * available
-       */
-      actuallyHasCheckbox(content) {
-        return content.kind === ContentNodeKinds.EXERCISE
-          ? this.hasCheckbox(content) && this.unusedQuestionsCount(content) > 0
-          : this.hasCheckbox(content);
-      },
-      unusedQuestionsCount(content) {
-        if (content.kind === ContentNodeKinds.EXERCISE) {
-          const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-            aid => `${content.id}:${aid}`
-          );
-          const questionsItemsAlreadyUsed = this.allQuestionsInQuiz
-            .map(q => q.item)
-            .filter(i => questionItems.includes(i));
-          const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
-          return questionItemsAvailable;
-        }
-        return -1;
-      },
       cardNoticeContent(content) {
         if (content.kind === ContentNodeKinds.EXERCISE) {
           return this.questionsUnusedInSection$({
