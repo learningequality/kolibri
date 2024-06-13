@@ -316,6 +316,10 @@ export const wizardMachine = createMachine(
         on: {
           ...importLodUsersDefinition.on,
           PREVIOUS_STATE: '#wizard.fullOrLearnOnlyDevice',
+          /** TODO Probably this two events could be refactored */
+          SET_SUPERUSER: { actions: 'setSuperuser' },
+          SET_SUPERADMIN: { actions: 'setSuperuserIfNull' },
+          IMPORT_USER: { actions: 'setSuperuserIfNull' },
           FINISH: 'finalizeSetup',
         },
       },
@@ -355,6 +359,18 @@ export const wizardMachine = createMachine(
       setSuperuser: assign({
         superuser: (_, event) => {
           return event.value;
+        },
+      }),
+      setSuperuserIfNull: assign({
+        superuser: (ctx, event) => {
+          if (!ctx.superuser) {
+            return {
+              username: event.value.username,
+              password: event.value.password,
+            };
+          } else {
+            return ctx.superuser;
+          }
         },
       }),
       setSelectedImportDeviceFacility: assign({

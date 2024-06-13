@@ -11,7 +11,6 @@ const initialContext = {
   selectedFacility: null,
   importDevice: null,
   facilitiesOnDeviceCount: null,
-  superuser: null,
   remoteUsers: [],
   lodAdmin: {},
   importedUsers: [],
@@ -65,7 +64,7 @@ export const importLodUsersDefinition = {
       meta: { route: { name: 'LOD_IMPORT_USER_AUTH' } },
       on: {
         BACK: 'selectLodSetupType',
-        CONTINUE: { target: 'lodLoading', actions: 'setLodSuperAdmin' },
+        CONTINUE: { target: 'lodLoading', actions: 'importUser' },
         CONTINUEADMIN: {
           target: 'lodImportAsAdmin',
           actions: ['setRemoteUsers', 'setLodAdmin'],
@@ -76,7 +75,6 @@ export const importLodUsersDefinition = {
     lodLoading: {
       meta: { route: { name: 'LOD_LOADING_TASK_PAGE' } },
       on: {
-        SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
         IMPORT_ANOTHER: 'lodImportUserAuth',
         // Otherwise send FINISH, which is handled at the root of this sub-machine
       },
@@ -87,7 +85,6 @@ export const importLodUsersDefinition = {
       on: {
         BACK: 'lodImportUserAuth',
         LOADING: 'lodLoading',
-        SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
       },
     },
 
@@ -95,9 +92,7 @@ export const importLodUsersDefinition = {
     lodJoinLoading: {
       meta: { route: { name: 'LOD_JOIN_LOADING_TASK_PAGE' } },
       on: {
-        SET_SUPERADMIN: { actions: 'setLodSuperAdmin' },
         IMPORT_ANOTHER: 'lodImportUserAuth',
-        // Otherwise send FINISH, which is handled at the root of this sub-machine
       },
     },
 
@@ -116,7 +111,6 @@ export const importLodUsersDefinition = {
   // Listener on the lod import state; typically this would be above `states` but
   // putting it here flows more with the above as this is the state after the final step
   on: {
-    SET_SUPERUSER: { actions: 'setSuperuser' },
     ADD_IMPORTED_USER: { actions: 'addImportedUser' },
     SET_FIRST_LOD: { actions: 'setFirstLodUser' },
     FINISH: 'finish',
@@ -137,19 +131,6 @@ export const importLodUsersDefinition = {
         return event.value.facilitiesCount;
       },
     }),
-    setLodSuperAdmin: assign({
-      // Sets the super admin to be set as the device super admin -- the first LOD user imported
-      superuser: (ctx, event) => {
-        if (!ctx.superuser) {
-          return {
-            username: event.value.username,
-            password: event.value.password,
-          };
-        } else {
-          return ctx.superuser;
-        }
-      },
-    }),
     setRemoteUsers: assign({
       remoteUsers: (_, event) => event.value.users,
     }),
@@ -163,11 +144,10 @@ export const importLodUsersDefinition = {
         };
       },
     }),
-    setSuperuser: assign({
-      superuser: (_, event) => {
-        return event.value;
-      },
-    }),
+    importUser: send((_, event) => ({
+      type: 'IMPORT_USER',
+      value: event.value,
+    })),
     addImportedUser: assign({
       importedUsers: (ctx, event) => {
         const users = ctx.importedUsers;
