@@ -234,7 +234,7 @@
             }
           })
           .catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE, 'BLANK']);
             this.$refs.detailsModal.handleSubmitFailure();
             if (errors.length) {
               this.$refs.detailsModal.handleSubmitTitleFailure();
