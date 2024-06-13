@@ -324,6 +324,8 @@
       @cancel="handleShowConfirmation"
       @submit="handleConfirmDelete"
     >
+      <!-- TODO Use `displaySectionTitle` here once #12274 is merged as that PR
+        changes how we handle section indexing, which is needed for displaySectionTitle -->
       {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
     </KModal>
 
@@ -565,6 +567,8 @@
         this.$nextTick(() => {
           this.$store.dispatch(
             'createSnackbar',
+            // TODO Use `displaySectionTitle` here once #12274 is merged as that PR
+            // changes how we handle section indexing
             this.sectionDeletedNotification$({ section_title })
           );
           this.focusActiveSectionTab();
