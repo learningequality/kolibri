@@ -82,7 +82,6 @@ class BaseExamTest:
                             "counter_in_exercise": 0,
                         }
                     ],
-                    "question_count": 1,
                     "learners_see_fixed_order": False,
                 }
             ],
@@ -110,7 +109,6 @@ class BaseExamTest:
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
-                "question_count": len(questions),
                 "learners_see_fixed_order": False,
             }
             sections.append(section)
@@ -367,24 +365,6 @@ class BaseExamTest:
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_quiz_section_with_no_question_count(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "invalid_question_sources"
-        questions = self.make_basic_questions(1)
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "questions": questions,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
     def test_quiz_section_with_no_question_succeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
@@ -394,7 +374,6 @@ class BaseExamTest:
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "learners_see_fixed_order": False,
             }
         )
@@ -611,7 +590,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }
@@ -638,14 +616,12 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             },
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             },
@@ -814,7 +790,6 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }
@@ -832,7 +807,6 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
             {
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }

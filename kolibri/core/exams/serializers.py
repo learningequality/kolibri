@@ -31,7 +31,6 @@ class QuestionSourceSerializer(Serializer):
 class QuizSectionSerializer(Serializer):
     description = CharField(required=False, allow_blank=True)
     section_title = CharField(allow_blank=True, required=False)
-    question_count = IntegerField()
     learners_see_fixed_order = BooleanField(default=False)
     questions = ListField(child=QuestionSourceSerializer(), required=False)
 
