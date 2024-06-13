@@ -18,6 +18,13 @@
           <h5 class="select-folder-style">
             {{ selectResourcesDescription$() }}
           </h5>
+          <span>
+            {{
+              maxNumberOfQuestionsPerSection$({
+                count: MAX_QUESTIONS, current: activeQuestions.length
+              })
+            }}
+          </span>
         </KGridItem>
         <KGridItem
           :layout12="{ span: 6 }"
@@ -31,6 +38,11 @@
                 v-model="questionCount"
                 type="number"
                 :label="numberOfQuestionsLabel$()"
+                :max="maxQuestions"
+                :min="1"
+                :invalid="questionCount > maxQuestions"
+                :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+                :showInvalidText="true"
               />
             </div>
             <div>
@@ -52,7 +64,7 @@
                   icon="plus"
                   aria-hidden="true"
                   class="number-btn"
-                  :disabled="questionCount >= 50"
+                  :disabled="questionCount >= maxQuestions"
                   @click="questionCount += 1"
                 />
               </div>
@@ -135,7 +147,11 @@
             :layout4="{ span: 2 }"
           >
             <span v-if="!selectPracticeQuiz">
-              {{ numberOfResourcesSelected$({ count: workingResourcePool.length }) }}
+              {{
+                questionsFromResources$({
+                  questions: workingPoolUnusedQuestions, resources: workingResourcePool.length
+                })
+              }}
             </span>
           </KGridItem>
           <KGridItem
@@ -145,9 +161,11 @@
           >
             <KButton
               style="float: right;"
-              :text="selectPracticeQuiz ? selectQuiz$() : coreString('saveChangesAction')"
+              :text="selectPracticeQuiz ? selectQuiz$() :
+                addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+              "
               :primary="true"
-              :disabled="!workingPoolHasChanged"
+              :disabled="disableSave"
               @click="saveSelectedResource"
             />
           </KGridItem>
@@ -182,6 +200,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
@@ -214,9 +233,11 @@
         addQuestionsToSectionFromResources,
         selectAllQuestions,
         allQuestionsInQuiz,
+        activeQuestions,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
-      const questionCount = ref(10);
+      const maxQuestions = computed(() => MAX_QUESTIONS - activeQuestions.value.length);
+      const questionCount = ref(Math.min(10, maxQuestions.value));
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
@@ -225,7 +246,7 @@
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectResourcesDescription$,
-        numberOfResourcesSelected$,
+        questionsFromResources$,
         changesSavedSuccessfully$,
         selectedQuestionsInformation$,
         cannotSelectSomeTopicWarning$,
@@ -235,6 +256,9 @@
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
+        maxNumberOfQuestions$,
+        maxNumberOfQuestionsPerSection$,
+        addNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -362,9 +386,9 @@
 
       function handleSelectAll(isChecked) {
         if (isChecked) {
-          this.addToWorkingResourcePool(selectableContentList());
+          addToWorkingResourcePool(selectableContentList());
         } else {
-          this.contentList.forEach(content => {
+          contentList.value.forEach(content => {
             var contentToRemove = [];
             if (content.kind === ContentNodeKinds.TOPIC) {
               contentToRemove = content.children.results;
@@ -372,7 +396,7 @@
               contentToRemove.push(content);
             }
             contentToRemove.forEach(c => {
-              this.removeFromWorkingResourcePool(c);
+              removeFromWorkingResourcePool(c);
             });
           });
         }
@@ -390,13 +414,13 @@
       function toggleSelected({ content, checked }) {
         content = content.kind === ContentNodeKinds.TOPIC ? content.children.results : [content];
         if (checked) {
-          if (this.selectPracticeQuiz) {
-            this.resetWorkingResourcePool();
+          if (selectPracticeQuiz.value) {
+            resetWorkingResourcePool();
           }
-          this.addToWorkingResourcePool(content);
+          addToWorkingResourcePool(content);
         } else {
           content.forEach(c => {
-            this.removeFromWorkingResourcePool(c);
+            removeFromWorkingResourcePool(c);
           });
         }
       }
@@ -558,10 +582,29 @@
         return workingResourcePool.value.length;
       });
 
+      const workingPoolUnusedQuestions = computed(() => {
+        return workingResourcePool.value.reduce((acc, content) => {
+          return acc + unusedQuestionsCount(content);
+        }, 0);
+      });
+
+      const disableSave = computed(() => {
+        if (selectPracticeQuiz.value) {
+          return !workingPoolHasChanged.value;
+        }
+        return (
+          !workingPoolHasChanged.value ||
+          workingPoolUnusedQuestions.value < questionCount.value ||
+          questionCount.value > maxQuestions.value ||
+          questionCount.value < 1
+        );
+      });
+
       return {
         actuallyHasCheckbox,
         unusedQuestionsCount,
         activeSectionIndex,
+        activeQuestions,
         allResourceMap,
         allQuestionsInQuiz,
         selectAllChecked,
@@ -584,7 +627,10 @@
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
         questionCount,
-        //contentList,
+        maxQuestions,
+        MAX_QUESTIONS,
+        workingPoolUnusedQuestions,
+        disableSave,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
@@ -594,7 +640,7 @@
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
         selectResourcesDescription$,
-        numberOfResourcesSelected$,
+        questionsFromResources$,
         windowIsSmall,
         bookmarks,
         channels,
@@ -610,6 +656,9 @@
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
+        maxNumberOfQuestions$,
+        maxNumberOfQuestionsPerSection$,
+        addNumberOfQuestions$,
       };
     },
     props: {
@@ -853,6 +902,7 @@
 
   .select-folder-style {
     margin-top: 0.5em;
+    margin-bottom: 0.5em;
     font-size: 18px;
   }
 

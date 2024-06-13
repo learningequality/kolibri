@@ -354,6 +354,7 @@
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
+  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import TabsWithOverflow from './TabsWithOverflow';
   import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
@@ -380,6 +381,7 @@
         addSectionLabel$,
         quizSectionsLabel$,
         addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
@@ -450,6 +452,7 @@
         quizSectionsLabel$,
         addSectionLabel$,
         addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
@@ -533,6 +536,9 @@
         };
       },
       activeSectionActions() {
+        const addQuestionsLabel = this.activeQuestions.length
+          ? this.addMoreQuestionsLabel$()
+          : this.addQuestionsLabel$();
         return [
           {
             label: this.editSectionLabel$(),
@@ -545,9 +551,10 @@
             id: 'delete',
           },
           {
-            label: this.updateResources$(),
+            label: addQuestionsLabel,
             icon: 'plus',
             id: 'plus',
+            disabled: this.activeQuestions.length >= MAX_QUESTIONS,
           },
         ];
       },
@@ -597,14 +604,14 @@
       },
       handleActiveSectionAction(opt) {
         const sectionIndex = this.activeSectionIndex;
-        switch (opt.label) {
-          case this.editSectionLabel$():
+        switch (opt.id) {
+          case 'edit':
             this.$router.push({ name: PageNames.QUIZ_SECTION_EDITOR, params: { sectionIndex } });
             break;
-          case this.deleteSectionLabel$():
+          case 'delete':
             this.showDeleteConfirmation = true;
             break;
-          case this.updateResources$():
+          case 'plus':
             this.$router.push({ name: PageNames.QUIZ_SELECT_RESOURCES, params: { sectionIndex } });
             break;
         }

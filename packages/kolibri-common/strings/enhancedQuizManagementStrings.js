@@ -38,6 +38,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addQuestionsLabel: {
     message: 'Add questions',
   },
+  addMoreQuestionsLabel: {
+    message: 'Add more questions',
+  },
   sectionSettings: {
     message: 'Section settings',
   },
@@ -69,14 +72,24 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addQuestions: {
     message: 'Add questions',
   },
+  addNumberOfQuestions: {
+    message: 'Add { count, number } { count, plural, one { question } other { questions }}',
+  },
   selectResourcesDescription: {
-    message: 'Select resources from these channels',
+    message: 'Select resources to add questions to this section',
   },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
   },
   numberOfSelectedQuestions: {
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+  },
+  maxNumberOfQuestions: {
+    message: 'Max { count, number } { count, plural, one { question } other { questions }}',
+  },
+  maxNumberOfQuestionsPerSection: {
+    message:
+      'Each section may only contain up to { count, number } { count, plural, one { question} other { questions}}, this section has { current, number }',
   },
   replaceQuestions: {
     message: 'Replace questions',
@@ -173,6 +186,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
+  numberOfQuestionsSelected: {
+    message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+  },
   numberOfResourcesSelected: {
     message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
@@ -248,6 +264,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   questionsUnusedInSection: {
     message: '{ count, number } { count, plural, one { question } other { questions }} unused',
+  },
+  questionsFromResources: {
+    message:
+      '{ questions, number } { questions, plural, one { question } other { questions }} in { resources, number } { resources, plural, one { resource } other { resources }}',
   },
   questionsLabel: {
     message: 'Questions',

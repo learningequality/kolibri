@@ -48,11 +48,15 @@ export const QuizExercise = {
   },
 };
 
+function _exercise_id_validator(value) {
+  return /^[0-9a-f]{32}$/.test(value);
+}
+
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
  *                                         from an QuizExercise.
- * @property {string} id                   A  ** unique **  identifier for this question that is
- *                                          a combination of <exercise_id>:<question_id>
+ * @property {string} item                 A  ** unique **  identifier for this question that is
+ *                                         a combination of <exercise_id>:<question_id>
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -61,9 +65,28 @@ export const QuizExercise = {
  *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
+  item: {
+    type: String,
+    required: true,
+    validator: value => {
+      const segments = value.split(':');
+      if (segments.length !== 2) {
+        return false;
+      }
+      if (segments[0] === '' || segments[1] === '') {
+        return false;
+      }
+      // The exercise_id (segment[0]) should be a 32 digit hex string
+      if (!_exercise_id_validator(segments[0])) {
+        return false;
+      }
+      return true;
+    },
+  },
   exercise_id: {
     type: String,
     required: true,
+    validator: _exercise_id_validator,
   },
   question_id: {
     type: String,
@@ -74,7 +97,7 @@ export const QuizQuestion = {
     default: '',
   },
   counter_in_exercise: {
-    type: 'number',
+    type: Number,
     default: 0,
   },
 };

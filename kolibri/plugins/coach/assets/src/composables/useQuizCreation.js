@@ -15,7 +15,8 @@ import {
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
 import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';
-import { Quiz, QuizSection } from './quizCreationSpecs.js';
+import { MAX_QUESTIONS } from '../constants/examConstants';
+import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -83,7 +84,19 @@ export default function useQuizCreation() {
       throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
     }
 
-    const { resourcePool } = updates;
+    const { questions, resourcePool } = updates;
+
+    if (questions) {
+      if (!Array.isArray(questions)) {
+        throw new TypeError('Questions must be an array');
+      }
+      if (questions.length > MAX_QUESTIONS) {
+        throw new TypeError(`Questions array must not exceed ${MAX_QUESTIONS} items`);
+      }
+      if (questions.some(q => !validateObject(q, QuizQuestion))) {
+        throw new TypeError('Questions must be valid QuizQuestion objects');
+      }
+    }
 
     if (resourcePool) {
       // Update the exercise map with the new resource pool

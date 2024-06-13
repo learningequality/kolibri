@@ -67,9 +67,9 @@
       class="section-settings-heading"
     >
       {{
-        numberOfResourcesSelected$(
+        numberOfQuestionsSelected$(
           {
-            count: activeResourcePool.length,
+            count: activeQuestions.length,
           }
         )
       }}
@@ -244,11 +244,10 @@
         sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        numberOfResourcesSelected$,
+        numberOfQuestionsSelected$,
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
-        changeResources$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,
@@ -259,7 +258,8 @@
         closeConfirmationTitle$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
-        selectResources$,
+        addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -267,6 +267,7 @@
         activeSectionIndex,
         activeSection,
         activeResourcePool,
+        activeQuestions,
         allSections,
         updateSection,
         updateQuiz,
@@ -354,10 +355,10 @@
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
       const resourceButtonLabel = computed(() => {
-        if (activeResourcePool.value.length === 0) {
-          return selectResources$();
+        if (activeQuestions.value.length === 0) {
+          return addQuestionsLabel$();
         } else {
-          return changeResources$();
+          return addMoreQuestionsLabel$();
         }
       });
 
@@ -376,6 +377,7 @@
         activeSectionIndex,
         activeSection,
         activeResourcePool,
+        activeQuestions,
         allSections,
         sectionOrderList,
         updateSection,
@@ -391,12 +393,12 @@
         windowIsSmall,
         // i18n
         displaySectionTitle,
-        selectResources$,
+        addQuestionsLabel$,
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        numberOfResourcesSelected$,
+        numberOfQuestionsSelected$,
         sectionDeletedNotification$,
         currentSection$,
         deleteSectionLabel$,
@@ -405,7 +407,7 @@
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
-        changeResources$,
+        addMoreQuestionsLabel$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,

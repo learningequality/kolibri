@@ -4,8 +4,11 @@ import { ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
+import { MAX_QUESTIONS } from '../src/constants/examConstants.js';
 
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
+
+const VALID_EXERCISE_ID = 'af26e1b4f3b94f3e8f4f3b4f3e8f4f3a';
 
 /**
  * @param num {number} - The number of questions to create
@@ -14,7 +17,15 @@ ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 function generateQuestions(num = 0) {
   const qs = [];
   for (let i = 0; i < num; i++) {
-    const question = objectWithDefaults({ question_id: i, counter_in_exercise: i }, QuizQuestion);
+    const question = objectWithDefaults(
+      {
+        question_id: String(i),
+        counter_in_exercise: i,
+        exercise_id: VALID_EXERCISE_ID,
+        item: `${VALID_EXERCISE_ID}:${i}`,
+      },
+      QuizQuestion
+    );
     qs.push(question);
   }
   return qs;
@@ -29,8 +40,8 @@ function generateExercise(numQuestions) {
   const assessmentmetadata = { assessment_item_ids: assessments.map(q => q.question_id) };
   const exercise = objectWithDefaults(
     {
-      id: 'exercise_1',
-      content_id: 'exercise_1',
+      id: VALID_EXERCISE_ID,
+      content_id: VALID_EXERCISE_ID,
       assessmentmetadata,
     },
     QuizExercise
@@ -138,7 +149,7 @@ describe('useQuizCreation', () => {
         ).toEqual(newTitle);
       });
 
-      it('Will update add the right number of `questions` from a resource pool', async () => {
+      it('addQuestionsToSectionFromResources will add the right number of `questions` from a resource pool', async () => {
         // Setup a mock exercise w/ some questions; update the activeSection with their values
         const exercise = generateExercise(20);
         addQuestionsToSectionFromResources({
@@ -172,14 +183,34 @@ describe('useQuizCreation', () => {
         expect(get(activeQuestions)).toHaveLength(20);
       });
 
-      it('Throws a TypeError if trying to update a section with a bad section shape', () => {
+      it('updateSection throws a TypeError if trying to update a section with a bad section shape', () => {
         expect(() => updateSection({ sectionIndex: null, title: 1 })).toThrow(TypeError);
+      });
+      it('addQuestionsToSectionFromResources throws a TypeError if trying to update a section with more questions than MAX_QUESTIONS', () => {
+        const exercise = generateExercise(MAX_QUESTIONS + 1);
+        expect(() =>
+          addQuestionsToSectionFromResources({
+            sectionIndex: get(activeSectionIndex),
+            resourcePool: [exercise],
+            questionCount: MAX_QUESTIONS + 1,
+          })
+        ).toThrow(TypeError);
+      });
+      it('updateSection throws a TypeError if questions is not an array', () => {
+        expect(() =>
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: 1 })
+        ).toThrow(TypeError);
+      });
+      it('updateSection throws a TypeError if questions is not an array of QuizQuestions', () => {
+        expect(() =>
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: [1, 2, 3] })
+        ).toThrow(TypeError);
       });
     });
 
     describe('Question list (de)selection', () => {
       beforeEach(() => {
-        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
+        const questions = generateQuestions(3);
         updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can add a question to the selected questions', () => {
@@ -205,7 +236,7 @@ describe('useQuizCreation', () => {
 
     describe('Question replacement', () => {
       beforeEach(() => {
-        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
+        const questions = generateQuestions(3);
         updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can give a list of questions in the exercise pool but not in the selected questions', () => {});
