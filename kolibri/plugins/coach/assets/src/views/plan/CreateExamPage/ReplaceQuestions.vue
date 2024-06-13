@@ -58,7 +58,7 @@
           >
             <KCheckbox
               class="accordion-checkbox"
-              :checked="replacements.map(r => r.id).includes(question.id)"
+              :checked="replacements.map(r => r.item).includes(question.item)"
               @change="() => toggleInReplacements(question)"
             />
             <KButton
@@ -66,8 +66,8 @@
               appearance="basic-link"
               :style="accordionStyleOverrides"
               class="accordion-header-label"
-              :aria-expanded="isExpanded(question.id)"
-              :aria-controls="`question-panel-${question.id}`"
+              :aria-expanded="isExpanded(question.item)"
+              :aria-controls="`question-panel-${question.item}`"
               @click="toggle(index)"
             >
               <span>{{ title }}</span>
@@ -250,8 +250,8 @@
 
       function toggleInReplacements(question) {
         const replacementIds = replacements.value.map(q => q.id);
-        if (replacementIds.includes(question.id)) {
-          replacements.value = replacements.value.filter(q => q.id !== question.id);
+        if (replacementIds.includes(question.item)) {
+          replacements.value = replacements.value.filter(q => q.item !== question.item);
         } else {
           replacements.value.push(question);
         }

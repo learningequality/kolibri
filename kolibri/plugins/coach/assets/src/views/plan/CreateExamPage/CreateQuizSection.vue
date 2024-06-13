@@ -279,12 +279,12 @@
                   <template #content>
                     <div
                       v-if="isExpanded(index)"
-                      :id="`question-panel-${question.id}`"
-                      :ref="`question-panel-${question.id}`"
+                      :id="`question-panel-${question.item}`"
+                      :ref="`question-panel-${question.item}`"
                       :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                     >
                       <ContentRenderer
-                        :ref="`contentRenderer-${question.id}`"
+                        :ref="`contentRenderer-${question.item}`"
                         :kind="activeResourceMap[question.exercise_id].kind"
                         :lang="activeResourceMap[question.exercise_id].lang"
                         :files="activeResourceMap[question.exercise_id].files"
