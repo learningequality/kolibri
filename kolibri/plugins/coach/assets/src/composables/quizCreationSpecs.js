@@ -180,4 +180,9 @@ export const Quiz = {
     type: Number,
     default: getRandomInt(),
   },
+  // Default to sections being shown in a fixed order
+  learners_see_fixed_order: {
+    type: Boolean,
+    default: true,
+  },
 };

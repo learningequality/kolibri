@@ -118,6 +118,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       'Please choose a different resource or decrease the number of questions to be replaced.',
   },
+  sectionOrderLabel: {
+    message: 'Section order',
+    context: 'A label for the place where the section order option is shown.',
+  },
   questionOrder: {
     message: 'Question order',
   },
@@ -130,11 +134,17 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   randomizedOptionDescription: {
     message: 'Each learner sees a different question order',
   },
+  randomizedSectionOptionDescription: {
+    message: 'Each learner sees a different section order',
+  },
   fixedLabel: {
     message: 'Fixed',
   },
   fixedOptionDescription: {
     message: 'Each learner sees the same question order',
+  },
+  fixedSectionOptionDescription: {
+    message: 'Each learner sees the same section order',
   },
   questionEditedSuccessfully: {
     message: 'Question edited successfully',

@@ -89,7 +89,7 @@
           <KRadioButton
             v-model="learners_see_fixed_order"
             :label="randomizedLabel$()"
-            :buttonValue="true"
+            :buttonValue="false"
             :description="randomizedOptionDescription$()"
           />
         </KGridItem>
@@ -101,7 +101,7 @@
           <KRadioButton
             v-model="learners_see_fixed_order"
             :label="fixedLabel$()"
-            :buttonValue="false"
+            :buttonValue="true"
             :description="fixedOptionDescription$()"
           />
         </KGridItem>
