@@ -113,6 +113,7 @@ import CatchErrors from '../utils/CatchErrors';
 import UiToolbar from '../views/KeenUiToolbar.vue';
 import shuffled from '../utils/shuffled';
 import * as appCapabilities from '../utils/appCapabilities';
+import * as importLodUsersMachine from '../machines/importLodUsersMachine';
 import * as client from './client';
 import clientFactory from './baseClient';
 
@@ -210,6 +211,9 @@ export default {
   },
   resources,
   themeConfig,
+  machines: {
+    importLodUsersMachine,
+  },
   urls,
   utils: {
     appCapabilities,
