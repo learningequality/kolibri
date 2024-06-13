@@ -234,6 +234,7 @@
         selectAllQuestions,
         allQuestionsInQuiz,
         activeQuestions,
+        addSection,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
       const maxQuestions = computed(() => MAX_QUESTIONS - activeQuestions.value.length);
@@ -605,6 +606,7 @@
         unusedQuestionsCount,
         activeSectionIndex,
         activeQuestions,
+        addSection,
         allResourceMap,
         allQuestionsInQuiz,
         selectAllChecked,
@@ -763,12 +765,21 @@
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
-          const questions = exerciseToQuestionArray(this.workingResourcePool[0]);
-          this.updateSection({
-            sectionIndex: this.activeSectionIndex,
-            questions,
-            resourcePool: this.workingResourcePool,
-          });
+          const remainder = exerciseToQuestionArray(this.workingResourcePool[0]);
+
+          let sectionIndex = this.activeSectionIndex;
+          while (remainder.length) {
+            if (sectionIndex !== this.activeSectionIndex) {
+              this.addSection();
+            }
+            const questions = remainder.splice(0, MAX_QUESTIONS);
+            this.updateSection({
+              sectionIndex,
+              questions,
+              resourcePool: this.workingResourcePool,
+            });
+            sectionIndex++;
+          }
         } else {
           this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
