@@ -194,3 +194,9 @@ export const Presets = Object.freeze({
   FORMAL: 'formal',
   NONFORMAL: 'nonformal',
 });
+
+// enum identifying the types of setup for Lod devices
+export const LodTypePresets = Object.freeze({
+  JOIN: 'JOIN',
+  IMPORT: 'IMPORT',
+});
