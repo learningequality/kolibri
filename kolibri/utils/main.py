@@ -10,6 +10,7 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import handle_default_options
+from django.db import connections
 from django.db.utils import DatabaseError
 
 import kolibri
@@ -185,6 +186,27 @@ def _copy_preseeded_db(db_name, target=None):
             )
 
 
+def sqlite_check_foreign_keys():
+    db_connection = connections["default"]
+    with db_connection.cursor() as cursor:
+        cursor.execute("PRAGMA foreign_key_check;")
+        result = cursor.fetchall()
+        if len(result) > 0:
+            logger.warning(
+                "Foreign key constraint failed. Trying to fix integrity errors..."
+            )
+            for row in result:
+                bad_table = row[0]
+                rowid = row[1]
+                # for security, only fix automatically error integrities in loggers
+                if bad_table[:6] == "logger":
+                    cursor.execute(f"DELETE FROM {bad_table} WHERE rowid = {rowid};")
+                else:
+                    logger.error(
+                        f"Foreign key constraint failed in {bad_table} table, rowid {rowid}. Please fix it manually."
+                    )
+
+
 def _upgrades_before_django_setup(updated, version):
     if version and updated:
         check_plugin_config_file_location(version)
@@ -205,6 +227,7 @@ def _upgrades_before_django_setup(updated, version):
     check_default_options_exist()
 
     if OPTIONS["Database"]["DATABASE_ENGINE"] == "sqlite":
+        sqlite_check_foreign_keys()
         # If we are using sqlite,
         # we can shortcut migrations by using the preseeded databases
         # that we bundle in the Kolibri whl file.
@@ -236,7 +259,7 @@ def _post_django_initialization():
                     process_cache.directory,
                     settings.CACHES["process_cache"]["SHARDS"],
                     settings.CACHES["process_cache"]["TIMEOUT"],
-                    **settings.CACHES["process_cache"]["OPTIONS"]
+                    **settings.CACHES["process_cache"]["OPTIONS"],
                 )
 
 
