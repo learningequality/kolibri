@@ -87,6 +87,19 @@
 
     </KPageContainer>
 
+    <KModal
+      v-if="goingTo"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
+      @cancel="goingTo = null"
+      @submit="$router.push(goingTo)"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
+
+
+
     <router-view v-if="quizInitialized" />
 
   </CoachImmersivePage>
@@ -121,14 +134,24 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const goingTo = ref(null);
       const { classId, groups } = useCoreCoach();
-      const { quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
+      const {
+        quizHasChanged,
+        quiz,
+        updateQuiz,
+        saveQuiz,
+        initializeQuiz,
+        allSectionsEmpty,
+      } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -137,10 +160,14 @@
       } = enhancedQuizManagementStrings;
 
       return {
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
         classId,
         groups,
+        goingTo,
         showError,
         quiz,
+        quizHasChanged,
         saveQuiz,
         updateQuiz,
         initializeQuiz,
@@ -201,6 +228,14 @@
           query: { ...this.$route.query, ...pickBy(newVal) },
         });
       },
+    },
+    beforeRouteLeave(to, from, next) {
+      if (this.quizHasChanged && !this.goingTo) {
+        this.goingTo = to;
+        next(false);
+      } else {
+        next();
+      }
     },
     mounted() {
       this.$store.dispatch('notLoading');

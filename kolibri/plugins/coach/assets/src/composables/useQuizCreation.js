@@ -44,6 +44,8 @@ export default function useQuizCreation() {
   // Local state
   // -----------
 
+  const quizHasChanged = ref(false);
+
   /** @type {ref<Quiz>}
    * The "source of truth" quiz object from which all reactive properties should derive
    * This will be validated and sent to the API when the user saves the quiz */
@@ -74,6 +76,7 @@ export default function useQuizCreation() {
    * @throws {TypeError} if section is not a valid QuizSection
    **/
   function updateSection({ section_id, ...updates }) {
+    set(quizHasChanged, true);
     const targetSection = get(allSections).find(section => section.section_id === section_id);
     if (!targetSection) {
       throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
@@ -300,6 +303,7 @@ export default function useQuizCreation() {
         setActiveSection(get(allSections)[0].section_id);
       }
     }
+    set(quizHasChanged, false);
   }
 
   /**
@@ -349,6 +353,7 @@ export default function useQuizCreation() {
    * @affects _quiz
    * Validates the input type and then updates _quiz with the given updates */
   function updateQuiz(updates) {
+    set(quizHasChanged, true);
     if (!validateQuiz(updates)) {
       throw new TypeError(`Updates are not a valid Quiz object: ${JSON.stringify(updates)}`);
     }
@@ -583,6 +588,7 @@ export default function useQuizCreation() {
     removeQuestionFromSelection,
 
     // Computed
+    quizHasChanged,
     channels,
     replacements,
     quiz,
