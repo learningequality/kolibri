@@ -174,9 +174,6 @@
                 },
               });
             } else {
-              if (this.$route.params.quizId === exam.id) {
-                return;
-              }
               this.$router.replace({
                 name: PageNames.EXAM_CREATION_ROOT,
                 params: {
@@ -184,6 +181,9 @@
                   quizId: exam.id,
                 },
               });
+              // Update the quiz with the new id - there won't be if this is a new quiz,
+              // this ensures the quiz is kept up-to-date since we're replacing the route
+              this.updateQuiz({ id: exam.id });
             }
           })
           .catch(error => {
