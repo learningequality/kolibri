@@ -213,7 +213,7 @@
        */
       function selectableContentList() {
         return contentList.value.reduce((newList, content) => {
-          if (content.kind === ContentNodeKinds.TOPIC && hasCheckbox(content)) {
+          if (content.kind === ContentNodeKinds.TOPIC && actuallyHasCheckbox(content)) {
             newList = [...newList, ...content.children.results];
           } else {
             newList.push(content);
@@ -286,7 +286,7 @@
       });
 
       const showSelectAll = computed(() => {
-        return contentList.value.every(content => hasCheckbox(content));
+        return contentList.value.every(content => actuallyHasCheckbox(content));
       });
 
       function handleSelectAll(isChecked) {
@@ -505,7 +505,6 @@
         contentList,
         resources,
         showCloseConfirmation,
-        hasCheckbox,
         loading,
         hasMore,
         loadingMore,
@@ -592,7 +591,7 @@
         }
       },
       showTopicSizeWarningCard(content) {
-        return !this.hasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
+        return !this.actuallyHasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
       },
       showTopicSizeWarning() {
         return this.contentList.some(this.showTopicSizeWarningCard);
