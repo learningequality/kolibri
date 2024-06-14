@@ -88,12 +88,12 @@
     </KPageContainer>
 
     <KModal
-      v-if="goingTo"
+      v-if="closeConfirmationToRoute"
       :submitText="coreString('continueAction')"
       :cancelText="coreString('cancelAction')"
       :title="closeConfirmationTitle$()"
-      @cancel="goingTo = null"
-      @submit="$router.push(goingTo)"
+      @cancel="closeConfirmationToRoute = null"
+      @submit="$router.push(closeConfirmationToRoute)"
     >
       {{ closeConfirmationMessage$() }}
     </KModal>
@@ -134,7 +134,7 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const goingTo = ref(null);
+      const closeConfirmationToRoute = ref(null);
       const { classId, groups } = useCoreCoach();
       const {
         quizHasChanged,
@@ -164,7 +164,7 @@
         closeConfirmationMessage$,
         classId,
         groups,
-        goingTo,
+        closeConfirmationToRoute,
         showError,
         quiz,
         quizHasChanged,
@@ -230,8 +230,8 @@
       },
     },
     beforeRouteLeave(to, from, next) {
-      if (this.quizHasChanged && !this.goingTo) {
-        this.goingTo = to;
+      if (this.quizHasChanged && !this.closeConfirmationToRoute) {
+        this.closeConfirmationToRoute = to;
         next(false);
       } else {
         next();
