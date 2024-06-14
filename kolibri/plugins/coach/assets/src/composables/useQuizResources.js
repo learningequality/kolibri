@@ -137,7 +137,8 @@ export default function useQuizResources({ topicId } = {}) {
       // Has children, no more to load, and no children are topics
       (node.children &&
         !node.children.more &&
-        !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC))
+        !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC) &&
+        node.children.results.length <= 12)
     );
   }
 
