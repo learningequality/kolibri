@@ -163,7 +163,7 @@
           @click="reset"
         />
         <KButton
-          v-if="!isError & hasChanges"
+          v-if="!isError && hasChanges"
           :text="$tr('import')"
           appearance="raised-button"
           primary
