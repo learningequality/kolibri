@@ -74,6 +74,7 @@
   import CatchErrors from 'kolibri.utils.CatchErrors';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ExamResource } from 'kolibri.resources';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { PageNames } from '../../../constants';
   import commonCoach from '../../common';
   import CoachAppBarPage from '../../CoachAppBarPage';
@@ -97,6 +98,16 @@
       QuizOptionsDropdownMenu,
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
+    setup() {
+      const {
+        randomizedSectionOptionDescription$,
+        fixedSectionOptionDescription$,
+      } = enhancedQuizManagementStrings;
+      return {
+        randomizedSectionOptionDescription$,
+        fixedSectionOptionDescription$,
+      };
+    },
     data() {
       return {
         quiz: {
@@ -133,8 +144,8 @@
       },
       orderDescriptionString() {
         return this.quizIsRandomized
-          ? this.coachString('orderRandomDescription')
-          : this.coachString('orderFixedDescription');
+          ? this.randomizedSectionOptionDescription$()
+          : this.fixedSectionOptionDescription$();
       },
       classId() {
         return this.$route.params.classId;
