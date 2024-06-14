@@ -324,7 +324,7 @@ export default function useQuizCreation() {
     }
 
     return ExamResource.saveModel({ id, data: finalQuiz }).then(exam => {
-      if (!get(_quiz).id) {
+      if (id !== exam.id) {
         updateQuiz({ id: exam.id });
       }
       return exam;
