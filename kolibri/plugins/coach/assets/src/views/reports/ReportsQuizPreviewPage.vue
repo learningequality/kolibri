@@ -71,7 +71,10 @@
     },
     computed: {
       selectedQuestions() {
-        return this.quiz.question_sources;
+        return this.quiz.question_sources.reduce((acc, section) => {
+          acc = [...acc, ...section.questions];
+          return acc;
+        }, []);
       },
       quizIsRandomized() {
         return !this.quiz.learners_see_fixed_order;
