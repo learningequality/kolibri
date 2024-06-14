@@ -174,7 +174,7 @@
                 },
               });
             } else {
-              if (this.$route.params.quizId === exam.id) {
+              if (String(this.$route.params.quizId) === String(exam.id)) {
                 return;
               }
               this.$router.replace({

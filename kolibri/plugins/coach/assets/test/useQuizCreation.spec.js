@@ -30,7 +30,7 @@ const {
 
 const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
 ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
-ExamResource.saveModel = jest.fn(() => Promise.resolve());
+ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 
 /**
  * @param num {number} - The number of questions to create
