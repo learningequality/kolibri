@@ -111,6 +111,7 @@ export const importLodUsersDefinition = {
   // Listener on the lod import state; typically this would be above `states` but
   // putting it here flows more with the above as this is the state after the final step
   on: {
+    RESET_IMPORT: 'selectLodSetupType',
     ADD_IMPORTED_USER: { actions: 'addImportedUser' },
     SET_FIRST_LOD: { actions: 'setFirstLodUser' },
     FINISH: 'finish',

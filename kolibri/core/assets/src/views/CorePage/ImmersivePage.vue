@@ -8,6 +8,7 @@
         :route="route"
         :icon="icon"
         :isFullscreen="primary"
+        @navIconClick="$emit('navIconClick')"
       >
         <template #actions>
           <slot name="actions"></slot>
