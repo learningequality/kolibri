@@ -8,8 +8,8 @@
       <div class="header">
         <h1>{{ coreString('usersLabel') }} </h1>
         <KButton
-          text="Import User"
-          @click="onImportUser"
+          :text="deviceString('importUserLabel')"
+          @click="showSelectDevice = true"
         />
       </div>
       <KCircularLoader v-if="loading" />
@@ -44,6 +44,12 @@
         {{ $tr('cannotRemoveUserDescription') }}
       </p>
     </KModal>
+    <SelectDeviceModalGroup
+      v-if="showSelectDevice"
+      filterLODAvailable
+      @submit="handleSelectDeviceSubmit"
+      @cancel="showSelectDevice = false"
+    />
   </AppBarPage>
 
 </template>
@@ -53,6 +59,9 @@
 
   import AppBarPage from 'kolibri.coreVue.components.AppBarPage';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import { SelectDeviceModalGroup } from 'kolibri.coreVue.componentSets.sync';
+  import commonDeviceStrings from '../../views/commonDeviceStrings';
+
   import useUsers from '../composables/useUsers';
   import UsersList from './UsersList.vue';
 
@@ -61,8 +70,9 @@
     components: {
       UsersList,
       AppBarPage,
+      SelectDeviceModalGroup,
     },
-    mixins: [commonCoreStrings],
+    mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
       const { fetchUsers, removeUser, users, loading, showCannotRemoveUser } = useUsers();
 
@@ -80,6 +90,7 @@
     data() {
       return {
         userIdToRemove: null,
+        showSelectDevice: false,
       };
     },
     methods: {
@@ -92,12 +103,13 @@
           this.userIdToRemove = null;
         }
       },
-      onImportUser() {
+
+      handleSelectDeviceSubmit(device) {
         this.importUserService.send({
           type: 'CONTINUE',
           value: {
             importOrJoin: 'IMPORT',
-            importDeviceId: '12345',
+            importDeviceId: device.id,
           },
         });
       },

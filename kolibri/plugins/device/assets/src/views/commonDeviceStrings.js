@@ -67,6 +67,10 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     message: 'Canceling',
     context: 'Refers to a task being canceled in the task manager section.',
   },
+  importUserLabel: {
+    message: 'Import user',
+    context: 'Label for the import users button and titles.',
+  },
 });
 
 /**
