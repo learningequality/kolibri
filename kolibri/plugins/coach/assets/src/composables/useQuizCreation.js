@@ -1,8 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ChannelResource, ExamResource } from 'kolibri.resources';
+import { ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
 import {
@@ -61,9 +60,6 @@ export default function useQuizCreation() {
   /** @type {ref<String[]>}
    * The QuizQuestion.id's that are currently selected for action in the active section */
   const _selectedQuestionIds = ref([]);
-
-  /** @type {ref<Array>} A list of all channels available which have exercises */
-  const _channels = ref([]);
 
   /** @type {ref<Array>} A list of all Question objects selected for replacement */
   const replacements = ref([]);
@@ -263,13 +259,11 @@ export default function useQuizCreation() {
 
   /** @affects _quiz
    * @affects activeSectionIndex
-   * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
    * @param {string} collection - The collection (aka current class ID) to associate the exam with
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
 
   async function initializeQuiz(collection, quizId = 'new') {
-    _fetchChannels();
     if (quizId === 'new') {
       const assignments = [collection];
       set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
@@ -397,27 +391,6 @@ export default function useQuizCreation() {
     }
   }
 
-  /**
-   * @affects _channels - Fetches all channels with exercises and sets them to _channels */
-  function _fetchChannels() {
-    ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
-      response => {
-        set(
-          _channels,
-          response.map(chnl => {
-            return {
-              ...chnl,
-              id: chnl.root,
-              title: chnl.name,
-              kind: ContentNodeKinds.CHANNEL,
-              is_leaf: false,
-            };
-          })
-        );
-      }
-    );
-  }
-
   // Utilities
 
   // Computed properties
@@ -468,8 +441,6 @@ export default function useQuizCreation() {
     const excludedQuestions = get(allQuestionsInQuiz).map(q => q.item);
     return get(activeQuestionsPool).filter(q => !excludedQuestions.includes(q.item));
   });
-  /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
-  const channels = computed(() => get(_channels));
 
   /** @type {ComputedRef<Array<QuizQuestion>>} A list of all questions in the quiz */
   const allQuestionsInQuiz = computed(() => {
@@ -544,7 +515,6 @@ export default function useQuizCreation() {
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
-  provide('channels', channels);
   provide('replacements', replacements);
   provide('allSections', allSections);
   provide('activeSectionIndex', activeSectionIndex);
@@ -579,7 +549,6 @@ export default function useQuizCreation() {
 
     // Computed
     quizHasChanged,
-    channels,
     replacements,
     quiz,
     allSections,
@@ -612,7 +581,6 @@ export function injectQuizCreation() {
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
-  const channels = inject('channels');
   const replacements = inject('replacements');
   const allSections = inject('allSections');
   const activeSectionIndex = inject('activeSectionIndex');
@@ -649,7 +617,6 @@ export function injectQuizCreation() {
     allQuestionsSelected,
     allQuestionsInQuiz,
     selectAllIsIndeterminate,
-    channels,
     replacements,
     allSections,
     activeSectionIndex,

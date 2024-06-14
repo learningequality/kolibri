@@ -1,6 +1,6 @@
 import Vue from 'vue';
 import { get } from '@vueuse/core';
-import { ChannelResource, ExamResource } from 'kolibri.resources';
+import { ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
@@ -18,7 +18,6 @@ const {
   saveQuiz,
 
   // Computed
-  channels,
   quiz,
   allSections,
   activeSectionIndex,
@@ -28,8 +27,6 @@ const {
   // replacementQuestionPool,
 } = useQuizCreation();
 
-const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
-ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 
 /**
@@ -84,10 +81,6 @@ describe('useQuizCreation', () => {
       expect(get(allSections)).toHaveLength(2);
       initializeQuiz();
       expect(get(allSections)).toHaveLength(1);
-    });
-
-    it('Populates the channels list', () => {
-      expect(get(channels)).toHaveLength(1);
     });
   });
 

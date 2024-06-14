@@ -54,11 +54,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   optionalDescriptionLabel: {
     message: 'Description (optional)',
   },
-  quizResourceSelection: {
-    message: 'Quiz resource selection',
-  },
-  selectResourcesFromChannels: {
-    message: 'Select resources from channels',
+  selectResources: {
+    message: 'Select resources',
   },
   sectionOrder: {
     message: 'Section order',
@@ -168,10 +165,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       'The body of a confirmation modal informing the user that they will lose their work if they leave the page',
   },
 
-  numberOfSelectedResources: {
-    message:
-      '{ count, number } { count, plural, one { resource selected } other { resources selected }} from { channels, number } { channels, plural, one { channel } other { channels }}',
-  },
   numberOfSelectedReplacements: {
     message:
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',

@@ -113,18 +113,14 @@
     <h5
       class="section-settings-heading"
     >
-      {{ quizResourceSelection$() }}
-    </h5>
-    <p>
       {{
-        numberOfSelectedResources$(
+        numberOfResourcesSelected$(
           {
             count: activeResourcePool.length,
-            channels: channels.length
           }
         )
       }}
-    </p>
+    </h5>
 
     <KRouterLink
       appearance="raised-button"
@@ -295,8 +291,7 @@
         sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
+        numberOfResourcesSelected$,
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
@@ -311,7 +306,7 @@
         closeConfirmationTitle$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
-        selectResourcesFromChannels$,
+        selectResources$,
         sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
@@ -323,7 +318,6 @@
         updateSection,
         updateQuiz,
         removeSection,
-        channels,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -412,7 +406,7 @@
 
       const resourceButtonLabel = computed(() => {
         if (activeResourcePool.value.length === 0) {
-          return selectResourcesFromChannels$();
+          return selectResources$();
         } else {
           return changeResources$();
         }
@@ -430,7 +424,6 @@
         handleCancelDelete,
         handleConfirmDelete,
         // useQuizCreation
-        channels,
         activeSectionIndex,
         activeSection,
         activeResourcePool,
@@ -450,13 +443,12 @@
         windowIsSmall,
         // i18n
         displaySectionTitle,
-        selectResourcesFromChannels$,
+        selectResources$,
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
+        numberOfResourcesSelected$,
         sectionDeletedNotification$,
         currentSection$,
         deleteSectionLabel$,
