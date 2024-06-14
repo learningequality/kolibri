@@ -25,6 +25,17 @@ function validateQuiz(quiz) {
   return validateObject(quiz, Quiz);
 }
 
+const fieldsToSave = [
+  'title',
+  'assignments',
+  'learner_ids',
+  'collection',
+  'learners_see_fixed_order',
+  'draft',
+  'active',
+  'archive',
+];
+
 /**
  * Composable function presenting primary interface for Quiz Creation
  */
@@ -299,16 +310,17 @@ export default function useQuizCreation() {
       return Promise.reject(`Quiz is not valid: ${JSON.stringify(get(_quiz))}`);
     }
 
-    const id = get(_quiz).id;
+    const quizData = get(_quiz);
 
-    const finalQuiz = {
-      title: get(_quiz).title,
-      assignments: get(_quiz).assignments,
-      learner_ids: get(_quiz).learner_ids,
-      collection: get(_quiz).collection,
-    };
+    const id = quizData.id;
 
-    if (get(_quiz).draft) {
+    const finalQuiz = {};
+
+    for (const field of fieldsToSave) {
+      finalQuiz[field] = quizData[field];
+    }
+
+    if (finalQuiz.draft) {
       // Here we update each section's `resource_pool` to only be the IDs of the resources
       const questionSourcesWithoutResourcePool = get(allSections).map(section => {
         const sectionToSave = { ...section };
