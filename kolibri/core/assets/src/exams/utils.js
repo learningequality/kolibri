@@ -110,7 +110,6 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
       description: '',
       questions,
       learners_see_fixed_order,
-      question_count: questions.length,
     },
   ];
 }

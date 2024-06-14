@@ -5,9 +5,61 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5 class="select-folder-style">
-        {{ selectPracticeQuiz ? selectPracticeQuizLabel$() : selectResourcesDescription$() }}
+
+      <h5 v-if="selectPracticeQuiz" class="select-folder-style">
+        {{ selectPracticeQuizLabel$() }}
       </h5>
+      <KGrid v-else>
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          <h5 class="select-folder-style">
+            {{ selectResourcesDescription$() }}
+          </h5>
+        </KGridItem>
+        <KGridItem
+          :layout12="{ span: 6 }"
+          :layout8="{ span: 4 }"
+          :layout4="{ span: 2 }"
+        >
+          <div class="number-question">
+            <div>
+              <KTextbox
+                ref="numQuest"
+                v-model="questionCount"
+                type="number"
+                :label="numberOfQuestionsLabel$()"
+              />
+            </div>
+            <div>
+              <div
+                :style="borderStyle"
+                class="group-button-border"
+              >
+                <KIconButton
+                  icon="minus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="questionCount === 1"
+                  @click="questionCount -= 1"
+                />
+                <span
+                  :style="dividerStyle"
+                > | </span>
+                <KIconButton
+                  icon="plus"
+                  aria-hidden="true"
+                  class="number-btn"
+                  :disabled="questionCount >= 50"
+                  @click="questionCount += 1"
+                />
+              </div>
+            </div>
+          </div>
+        </KGridItem>
+      </KGrid>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -34,7 +86,7 @@
       </div>
 
       <div
-        v-if="showTopicSizeWarning()"
+        v-if="showTopicSizeWarning"
         class="shadow"
         :style=" { padding: '1em', marginBottom: '1em', backgroundColor: $themePalette.grey.v_100 }"
       >
@@ -128,6 +180,7 @@
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
   import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
+  import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
@@ -156,13 +209,14 @@
       const searchQuery = computed(() => route.value.query.search);
       const {
         activeSectionIndex,
+        allResourceMap,
         updateSection,
-        updateSectionResourcePool,
-        activeResourcePool,
+        addQuestionsToSectionFromResources,
         selectAllQuestions,
         allQuestionsInQuiz,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
+      const questionCount = ref(10);
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
@@ -180,6 +234,7 @@
         questionsUnusedInSection$,
         selectQuiz$,
         selectPracticeQuizLabel$,
+        numberOfQuestionsLabel$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -196,7 +251,7 @@
       /**
        * @type {Ref<QuizExercise[]>} - The uncommitted version of the section's resource_pool
        */
-      const workingResourcePool = ref(activeResourcePool.value);
+      const workingResourcePool = ref([]);
 
       /**
        * @param {QuizExercise[]} resources
@@ -241,7 +296,7 @@
        * @affects workingResourcePool - Resets the workingResourcePool to the previous state
        */
       function resetWorkingResourcePool() {
-        workingResourcePool.value = activeResourcePool.value;
+        workingResourcePool.value = [];
       }
 
       /**
@@ -257,6 +312,9 @@
       }
 
       function fetchSearchResults() {
+        if (!searchQuery.value) {
+          return;
+        }
         const getParams = {
           max_results: 25,
           keywords: searchQuery.value,
@@ -391,22 +449,22 @@
       }
 
       // Load up the channels
-
-      if (!topicId.value) {
-        const channelBookmarkPromises = [
-          ContentNodeResource.fetchBookmarks({
-            params: { limit: 25, available: true, kind: ContentNodeKinds.EXERCISE },
-          }).then(data => {
-            const isPracticeQuiz = item =>
-              !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
-            bookmarks.value = data.results ? data.results.filter(isPracticeQuiz) : [];
-          }),
-        ];
-
-        if (searchQuery.value) {
-          channelBookmarkPromises.push(fetchSearchResults());
+      function handleTopicIdChange() {
+        const promises = [];
+        if (topicId.value) {
+          promises.push(fetchQuizResources());
         } else {
-          channelBookmarkPromises.push(
+          promises.push(
+            ContentNodeResource.fetchBookmarks({
+              params: { limit: 25, available: true, kind: ContentNodeKinds.EXERCISE },
+            }).then(data => {
+              const isPracticeQuiz = item =>
+                !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
+              bookmarks.value = data.results ? data.results.filter(isPracticeQuiz) : [];
+            })
+          );
+
+          promises.push(
             ChannelResource.fetchCollection({
               getParams: {
                 contains_exercise: true,
@@ -415,41 +473,44 @@
               },
             }).then(response => {
               setResources(
-                response.map(chnl => {
-                  return {
-                    ...chnl,
-                    id: chnl.root,
-                    title: chnl.name,
-                    kind: ContentNodeKinds.CHANNEL,
-                    is_leaf: false,
-                  };
+                annotateTopicsWithDescendantCounts(
+                  response.map(chnl => {
+                    return {
+                      ...chnl,
+                      id: chnl.root,
+                      title: chnl.name,
+                      kind: ContentNodeKinds.CHANNEL,
+                      is_leaf: false,
+                    };
+                  })
+                ).then(annotatedResources => {
+                  // When we don't have a topicId we're setting the value of
+                  // useQuizResources.resources to the value of the channels
+                  // (treating those channels as the topics) -- we then call
+                  // this annotateTopicsWithDescendantCounts method to ensure
+                  // that the channels are annotated with their num_assessments
+                  setResources(annotatedResources);
+                  channels.value = annotatedResources;
                 })
               );
             })
           );
         }
-
-        Promise.all(channelBookmarkPromises).then(() => {
-          // When we don't have a topicId we're setting the value of useQuizResources.resources
-          // to the value of the channels (treating those channels as the topics) -- we then
-          // call this annotateTopicsWithDescendantCounts method to ensure that the channels are
-          // annotated with their num_assessments and those without assessments are filtered out
-          annotateTopicsWithDescendantCounts(resources.value.map(c => c.id)).then(() => {
-            channels.value = resources.value;
-            _loading.value = false;
-          });
+        Promise.all(promises).then(() => {
+          _loading.value = false;
         });
+      }
+
+      // Do initial data loading on create
+      if (searchQuery.value) {
+        fetchSearchResults();
+      } else {
+        handleTopicIdChange();
       }
 
       const loading = computed(() => {
         return _loading.value || quizResourcesLoading.value;
       });
-
-      if (topicId.value) {
-        fetchQuizResources().then(() => {
-          _loading.value = false;
-        });
-      }
 
       const contentList = computed(() => {
         /*
@@ -474,17 +535,9 @@
 
       // This ought to be sure that we're updating our resources whenever the topicId changes
       // without remounting the whole component
-      watch(topicId, () => {
-        if (topicId.value) {
-          fetchQuizResources();
-        }
-      });
+      watch(topicId, handleTopicIdChange);
 
-      watch(searchQuery, () => {
-        if (searchQuery.value) {
-          fetchSearchResults();
-        }
-      });
+      watch(searchQuery, fetchSearchResults);
 
       function fetchMoreResources() {
         if (searchQuery.value) {
@@ -502,16 +555,14 @@
       }
 
       const workingPoolHasChanged = computed(() => {
-        return (
-          workingResourcePool.value.length != activeResourcePool.value.length ||
-          !isEqual(workingResourcePool.value.sort(), activeResourcePool.value.sort())
-        );
+        return workingResourcePool.value.length;
       });
 
       return {
         actuallyHasCheckbox,
         unusedQuestionsCount,
         activeSectionIndex,
+        allResourceMap,
         allQuestionsInQuiz,
         selectAllChecked,
         selectAllIndeterminate,
@@ -532,6 +583,7 @@
         fetchMoreResources,
         resetWorkingResourcePool,
         contentPresentInWorkingResourcePool,
+        questionCount,
         //contentList,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
@@ -548,16 +600,16 @@
         channels,
         viewMoreButtonState,
         updateSection,
-        updateSectionResourcePool,
+        addQuestionsToSectionFromResources,
         selectAllQuestions,
         workingResourcePool,
-        activeResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
         selectedQuestionsInformation$,
         selectQuiz$,
         selectPracticeQuizLabel$,
+        numberOfQuestionsLabel$,
       };
     },
     props: {
@@ -588,6 +640,15 @@
             topic_id: null,
           },
         };
+      },
+      showTopicSizeWarning() {
+        return this.contentList.some(this.showTopicSizeWarningCard);
+      },
+      borderStyle() {
+        return `border: 1px solid ${this.$themeTokens.fineLine}`;
+      },
+      dividerStyle() {
+        return `color : ${this.$themeTokens.fineLine}`;
       },
       /*
       selectAllIsVisible() {
@@ -627,9 +688,6 @@
           content.kind === ContentNodeKinds.TOPIC
         );
       },
-      showTopicSizeWarning() {
-        return this.contentList.some(this.showTopicSizeWarningCard);
-      },
       /** @public */
       focusFirstEl() {
         this.$refs.textbox.focus();
@@ -652,42 +710,21 @@
         return this.contentLink({ id: topic_id });
       },
       saveSelectedResource() {
-        const resource_pool = this.workingResourcePool.map(resource => {
-          // Add the unique_question_ids to the resource
-          const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
-            question_id => {
-              return `${resource.id}:${question_id}`;
-            }
-          );
-
-          return {
-            ...resource,
-            unique_question_ids,
-          };
-        });
         if (this.selectPracticeQuiz) {
           if (this.workingResourcePool.length !== 1) {
             throw new Error('Only one resource can be selected for a practice quiz');
           }
-          const quiz = this.workingResourcePool[0];
-          const questions = quiz.assessmentmetadata.assessment_item_ids.map((question_id, i) => {
-            return {
-              exercise_id: quiz.id,
-              question_id,
-              counter_in_exercise: i + 1,
-              title: '',
-              item: `${quiz.id}:${question_id}`,
-            };
-          });
+          const questions = exerciseToQuestionArray(this.workingResourcePool[0]);
           this.updateSection({
             sectionIndex: this.activeSectionIndex,
             questions,
-            resource_pool,
+            resourcePool: this.workingResourcePool,
           });
         } else {
-          this.updateSectionResourcePool({
+          this.addQuestionsToSectionFromResources({
             sectionIndex: this.activeSectionIndex,
-            resource_pool,
+            resourcePool: this.workingResourcePool,
+            questionCount: this.questionCount,
           });
         }
 
@@ -705,16 +742,19 @@
         if (this.selectPracticeQuiz || content.kind !== ContentNodeKinds.TOPIC) {
           return;
         }
-        const total = content.num_exercises;
-        const numberOfresourcesSelected = this.workingResourcePool.reduce((acc, wr) => {
-          if (wr.ancestors.map(ancestor => ancestor.id).includes(content.id)) {
-            return acc + wr.assessmentmetadata.assessment_item_ids.length;
+        const total = content.num_assessments;
+        const numberOfQuestionsSelected = this.allQuestionsInQuiz.filter(question => {
+          const questionNode = this.allResourceMap[question.exercise_id];
+          for (const ancestor of questionNode.ancestors) {
+            if (ancestor.id === content.id) {
+              return true;
+            }
           }
-          return acc;
-        }, 0);
+          return false;
+        }).length;
 
         return this.selectedQuestionsInformation$({
-          count: numberOfresourcesSelected,
+          count: numberOfQuestionsSelected,
           total: total,
         });
       },
@@ -829,6 +869,18 @@
   /deep/ .is-leaf.content-card {
     cursor: default;
     box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+  }
+
+  .number-question {
+    display: inline-flex;
+    float: right;
+  }
+
+  .group-button-border {
+    display: inline-flex;
+    align-items: center;
+    height: 3.5em;
+    border: 1px solid;
   }
 
 </style>

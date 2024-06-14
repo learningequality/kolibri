@@ -145,7 +145,6 @@ describe('exam utils', () => {
           description: '',
           questions: expectedSources.sort(),
           learners_see_fixed_order: true,
-          question_count: 3,
         },
       ]);
     });
@@ -164,7 +163,6 @@ describe('exam utils', () => {
           description: '',
           questions: expectedSources.sort(),
           learners_see_fixed_order: false,
-          question_count: 3, // There are only 3 questions in the question_sources
         },
       ]);
     });

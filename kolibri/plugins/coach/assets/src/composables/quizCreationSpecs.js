@@ -11,7 +11,7 @@
  *                                      within the `QuizSeciton.resource_pool` property.
  * @property  {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
  * @property  {string}  title           The resource title
- * @property  {string}  ancestor_id     The ID of the parent contentnode
+ * @property  {string}  parent          The ID of the parent contentnode
  * @property  {string}  content_id      The ID for the piece of content
  * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
  * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
@@ -26,7 +26,7 @@ export const QuizExercise = {
     type: String,
     default: '',
   },
-  ancestor_id: {
+  parent: {
     type: String,
     default: '',
   },
@@ -45,10 +45,6 @@ export const QuizExercise = {
   assessmentmetadata: {
     type: Object,
     default: () => ({ assessment_item_ids: [] }),
-  },
-  contentnode: {
-    type: String,
-    default: '',
   },
 };
 
@@ -89,15 +85,11 @@ export const QuizQuestion = {
  *                                                           only used on the front-end
  * @property {string}             section_title              The title of the quiz section
  * @property {string}             description                A text blob associated with the section
- * @property {number}             question_count             The number of questions in the section
  * @property {QuizQuestion[]}     questions                  The list of QuizQuestion objects in the
  *                                                           section
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
  *                                                           randomized, to the learners
- * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
- *                                                           which the questions in this section
- *                                                           will be drawn
  */
 export const QuizSection = {
   section_id: {
@@ -117,18 +109,9 @@ export const QuizSection = {
     default: () => [],
     spec: QuizQuestion,
   },
-  question_count: {
-    type: Number,
-    default: 10,
-  },
   learners_see_fixed_order: {
     type: Boolean,
     default: false,
-  },
-  resource_pool: {
-    type: Array,
-    default: () => [],
-    spec: QuizExercise,
   },
 };
 

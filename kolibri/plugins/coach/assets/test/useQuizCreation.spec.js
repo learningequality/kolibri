@@ -5,29 +5,6 @@ import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
 
-const {
-  // Methods
-  updateSection,
-  updateSectionResourcePool,
-  // replaceSelectedQuestions,
-  addSection,
-  removeSection,
-  initializeQuiz,
-  updateQuiz,
-  addQuestionToSelection,
-  removeQuestionFromSelection,
-  saveQuiz,
-
-  // Computed
-  quiz,
-  allSections,
-  activeSectionIndex,
-  activeSection,
-  activeQuestions,
-  selectedActiveQuestions,
-  // replacementQuestionPool,
-} = useQuizCreation();
-
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 
 /**
@@ -55,7 +32,6 @@ function generateExercise(numQuestions) {
       id: 'exercise_1',
       content_id: 'exercise_1',
       assessmentmetadata,
-      unique_question_ids: assessments.map(q => `exercise_1:${q.question_id}`),
     },
     QuizExercise
   );
@@ -63,12 +39,47 @@ function generateExercise(numQuestions) {
 }
 
 describe('useQuizCreation', () => {
-  describe('Quiz initialization', () => {
-    beforeAll(() => {
-      // Only need this called once in this scope
-      initializeQuiz();
-    });
+  let updateSection,
+    addQuestionsToSectionFromResources,
+    addSection,
+    removeSection,
+    initializeQuiz,
+    updateQuiz,
+    addQuestionToSelection,
+    removeQuestionFromSelection,
+    saveQuiz,
+    quiz,
+    allSections,
+    activeSectionIndex,
+    activeSection,
+    activeQuestions,
+    selectedActiveQuestions;
+  beforeEach(() => {
+    ({
+      // Methods
+      updateSection,
+      addQuestionsToSectionFromResources,
+      // replaceSelectedQuestions,
+      addSection,
+      removeSection,
+      initializeQuiz,
+      updateQuiz,
+      addQuestionToSelection,
+      removeQuestionFromSelection,
+      saveQuiz,
 
+      // Computed
+      quiz,
+      allSections,
+      activeSectionIndex,
+      activeSection,
+      activeQuestions,
+      selectedActiveQuestions,
+      // replacementQuestionPool,
+    } = useQuizCreation());
+    initializeQuiz();
+  });
+  describe('Quiz initialization', () => {
     it('Should create the first section and add it to the quiz', () => {
       expect(get(allSections)).toHaveLength(1);
     });
@@ -86,11 +97,6 @@ describe('useQuizCreation', () => {
   });
 
   describe('Quiz management', () => {
-    beforeEach(() => {
-      // Let's get a fresh quiz for each test
-      initializeQuiz();
-    });
-
     describe('Quiz CRUD', () => {
       it('Can save the quiz', () => {
         expect(() => saveQuiz()).not.toThrow();
@@ -132,35 +138,38 @@ describe('useQuizCreation', () => {
         ).toEqual(newTitle);
       });
 
-      it('Will update `questions` to match `question_count` property when it is changed', async () => {
+      it('Will update add the right number of `questions` from a resource pool', async () => {
         // Setup a mock exercise w/ some questions; update the activeSection with their values
         const exercise = generateExercise(20);
-        updateSectionResourcePool({
+        addQuestionsToSectionFromResources({
           sectionIndex: get(activeSectionIndex),
-          resource_pool: [exercise],
+          resourcePool: [exercise],
+          questionCount: 10,
         });
         await Vue.nextTick();
-        expect(get(activeQuestions)).toHaveLength(get(activeSection).question_count);
-        expect(get(activeQuestions).length).not.toEqual(0);
-        expect(get(activeSection).resource_pool).toHaveLength(1);
+        expect(get(activeQuestions).length).toEqual(10);
 
         // Now let's change the question count and see if the questions array is updated
         const newQuestionCount = 5;
-        updateSection({
+        addQuestionsToSectionFromResources({
           sectionIndex: get(activeSectionIndex),
-          question_count: newQuestionCount,
+          resourcePool: [exercise],
+          questionCount: newQuestionCount,
         });
         await Vue.nextTick();
-        // Now questions should only be as long as newQuestionCount
-        expect(get(activeQuestions)).toHaveLength(newQuestionCount);
+        // Now questions should only be as long as 10 + newQuestionCount
+        expect(get(activeQuestions)).toHaveLength(10 + newQuestionCount);
 
+        // Should max out at the number of questions in the exercise
+        // even if we try to add more.
         const newQuestionCount2 = 10;
-        updateSection({
+        addQuestionsToSectionFromResources({
           sectionIndex: get(activeSectionIndex),
-          question_count: newQuestionCount2,
+          resourcePool: [exercise],
+          questionCount: newQuestionCount2,
         });
         await Vue.nextTick();
-        expect(get(activeQuestions)).toHaveLength(newQuestionCount2);
+        expect(get(activeQuestions)).toHaveLength(20);
       });
 
       it('Throws a TypeError if trying to update a section with a bad section shape', () => {
@@ -170,7 +179,6 @@ describe('useQuizCreation', () => {
 
     describe('Question list (de)selection', () => {
       beforeEach(() => {
-        initializeQuiz();
         const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
         updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
@@ -197,7 +205,6 @@ describe('useQuizCreation', () => {
 
     describe('Question replacement', () => {
       beforeEach(() => {
-        initializeQuiz();
         const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
         updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });

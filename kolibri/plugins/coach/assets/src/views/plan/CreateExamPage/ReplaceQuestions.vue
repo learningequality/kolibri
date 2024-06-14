@@ -214,7 +214,6 @@
         replaceSelectedQuestions,
         toggleQuestionInSelection,
         handleReplacement,
-        replacements,
         allSections,
       } = injectQuizCreation();
 
@@ -227,6 +226,7 @@
 
       const showCloseConfirmation = ref(false);
       const showReplacementConfirmation = ref(false);
+      const replacements = ref([]);
 
       function handleConfirmClose() {
         replacements.value = [];
@@ -235,8 +235,8 @@
 
       function submitReplacement() {
         const count = replacements.value.length;
-        handleReplacement();
-        this.clearSelectedQuestions();
+        handleReplacement(replacements.value);
+        clearSelectedQuestions();
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
           params: { ...this.$route.params },
@@ -310,7 +310,6 @@
         confirmReplacement,
 
         handleConfirmClose,
-        clearSelectedQuestions,
         toggleQuestionInSelection,
         submitReplacement,
         replacements,

@@ -8,61 +8,14 @@
       {{ sectionSettings$() }}
     </h5>
 
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <KTextbox
-          ref="sectionTitle"
-          v-model="section_title"
-          :label="sectionTitle$()"
-          :invalid="sectionTitleInvalid"
-          :invalidText="sectionTitleInvalidText"
-          :maxlength="100"
-        />
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <div class="number-question">
-          <div>
-            <KTextbox
-              ref="numQuest"
-              v-model="question_count"
-              type="number"
-              :label="numberOfQuestionsLabel$()"
-            />
-          </div>
-          <div>
-            <div
-              :style="borderStyle"
-              class="group-button-border"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="question_count === 1"
-                @click="question_count -= 1"
-              />
-              <span
-                :style="dividerStyle"
-              > | </span>
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                @click="question_count += 1"
-              />
-            </div>
-          </div>
-        </div>
-      </KGridItem>
-    </KGrid>
+    <KTextbox
+      ref="sectionTitle"
+      v-model="section_title"
+      :label="sectionTitle$()"
+      :invalid="sectionTitleInvalid"
+      :invalidText="sectionTitleInvalidText"
+      :maxlength="100"
+    />
 
     <KTextbox
       v-model="description"
@@ -354,7 +307,6 @@
 
       /* Note that the use of snake_case here is to map directly to the API */
       const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const question_count = ref(activeSection.value.question_count);
       const description = ref(activeSection.value.description);
       const section_title = ref(activeSection.value.section_title.trim());
 
@@ -379,16 +331,10 @@
         return !isEqual(
           {
             learners_see_fixed_order: learners_see_fixed_order.value,
-            question_count: question_count.value,
             description: description.value,
             section_title: section_title.value.trim(),
           },
-          pick(activeSection.value, [
-            'learners_see_fixed_order',
-            'question_count',
-            'description',
-            'section_title',
-          ])
+          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title'])
         );
       });
 
@@ -437,7 +383,6 @@
         handleDeleteSection,
         // Form models
         learners_see_fixed_order,
-        question_count,
         description,
         section_title,
         resourceButtonLabel,
@@ -520,7 +465,6 @@
           sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
-          question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
         if (this.sectionOrderChanged) {
@@ -545,12 +489,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .number-field {
-    display: inline-block;
-    max-width: 31em;
-    margin-right: 0.5em;
-  }
 
   .section-settings-content {
     margin-bottom: 7em;
@@ -579,22 +517,6 @@
   .space-content {
     margin: 0.5em;
     font-size: 1em;
-  }
-
-  .number-input-grid-item {
-    display: inline-flex;
-  }
-
-  .group-button-border {
-    display: inline-flex;
-    align-items: center;
-    height: 3.5em;
-    border: 1px solid;
-  }
-
-  .number-question {
-    display: inline-flex;
-    float: right;
   }
 
   .section-order-style {
