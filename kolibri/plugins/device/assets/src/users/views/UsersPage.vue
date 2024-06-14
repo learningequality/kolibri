@@ -9,6 +9,7 @@
         <h1>{{ coreString('usersLabel') }} </h1>
         <KButton
           text="Import User"
+          @click="onImportUser"
         />
       </div>
       <KCircularLoader v-if="loading" />
@@ -75,6 +76,7 @@
         removeUser,
       };
     },
+    inject: ['importUserService'],
     data() {
       return {
         userIdToRemove: null,
@@ -89,6 +91,15 @@
         } catch (error) {
           this.userIdToRemove = null;
         }
+      },
+      onImportUser() {
+        this.importUserService.send({
+          type: 'CONTINUE',
+          value: {
+            importOrJoin: 'IMPORT',
+            importDeviceId: '12345',
+          },
+        });
       },
     },
     $trs: {

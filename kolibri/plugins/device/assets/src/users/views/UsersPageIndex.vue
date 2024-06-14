@@ -1,16 +1,26 @@
 <template>
+
   <div>
-    <router-view></router-view>
+    <router-view />
   </div>
+
 </template>
+
 
 <script>
 
   import { interpret } from 'xstate';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { getImportLodUsersMachine } from 'kolibri.machines.importLodUsersMachine';
 
   export default {
     name: 'UsersPageIndex',
+    metaInfo() {
+      return {
+        title: this.coreString('usersLabel'),
+      };
+    },
+    mixins: [commonCoreStrings],
     data() {
       const importLodMachine = getImportLodUsersMachine();
       return {
@@ -19,7 +29,7 @@
     },
     provide() {
       return {
-        userImportService: this.service,
+        importUserService: this.service,
       };
     },
     created() {
@@ -63,4 +73,5 @@
       this.service.stop();
     },
   };
+
 </script>
