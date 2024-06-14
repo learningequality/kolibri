@@ -72,7 +72,6 @@ class BaseExamTest:
             creator=cls.admin,
             question_sources=[
                 {
-                    "section_id": uuid.uuid4().hex,
                     "section_title": "Test Section Title",
                     "description": "Test descripton for Section",
                     "questions": [
@@ -108,7 +107,6 @@ class BaseExamTest:
         questions = self.make_basic_questions(3)
         for i in range(1, no_of_sec + 1):
             section = {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
@@ -369,43 +367,6 @@ class BaseExamTest:
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_quiz_section_with_no_section_id(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "no_section_id"
-        questions = self.make_basic_questions(1)
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "questions": questions,
-                "question_count": 0,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
-    def test_quiz_section_with_invalid_section_id(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "invalid_section_sources"
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_id": "evil ID",
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "question_count": 0,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
     def test_quiz_section_with_no_question_count(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
@@ -414,7 +375,6 @@ class BaseExamTest:
         exam["title"] = title
         exam["question_sources"].append(
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
@@ -432,7 +392,6 @@ class BaseExamTest:
         exam["title"] = title
         exam["question_sources"].append(
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,
@@ -650,7 +609,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         exam["draft"] = False
         exam["question_sources"].append(
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,
@@ -678,7 +636,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         exam["draft"] = False
         exam["question_sources"] = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,
@@ -686,7 +643,6 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
                 "learners_see_fixed_order": False,
             },
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,
@@ -856,7 +812,6 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         self.login_as_admin()
         self.exam.question_sources = self.make_basic_sections(1) + [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,
@@ -875,7 +830,6 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         self.login_as_admin()
         self.exam.question_sources = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "question_count": 0,

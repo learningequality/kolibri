@@ -96,13 +96,13 @@ export const QuizQuestion = {
  *                                                           section is shown in the same order, or
  *                                                           randomized, to the learners
  * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
- *                                                           which the questions in this section_id
+ *                                                           which the questions in this section
  *                                                           will be drawn
  */
 export const QuizSection = {
   section_id: {
     type: String,
-    required: true,
+    default: () => String(performance.now()),
   },
   section_title: {
     type: String,
@@ -178,7 +178,7 @@ export const Quiz = {
   },
   seed: {
     type: Number,
-    default: getRandomInt(),
+    default: getRandomInt,
   },
   // Default to sections being shown in a fixed order
   learners_see_fixed_order: {

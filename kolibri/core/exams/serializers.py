@@ -29,7 +29,6 @@ class QuestionSourceSerializer(Serializer):
 
 
 class QuizSectionSerializer(Serializer):
-    section_id = HexUUIDField(format="hex")
     description = CharField(required=False, allow_blank=True)
     section_title = CharField(allow_blank=True, required=False)
     question_count = IntegerField()

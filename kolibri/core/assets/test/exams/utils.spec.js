@@ -139,11 +139,8 @@ describe('exam utils', () => {
 
     it('returns an array of newly structured objects with old question sources in questions', async () => {
       const converted = await convertExamQuestionSources(exam);
-      // The section id is randomly generated so just test that it is there and is set on the object
-      expect(converted.question_sources[0].section_id).toBeTruthy();
       expect(converted.question_sources).toEqual([
         {
-          section_id: converted.question_sources[0].section_id,
           section_title: '',
           description: '',
           questions: expectedSources.sort(),
@@ -163,7 +160,6 @@ describe('exam utils', () => {
       const converted = await convertExamQuestionSources(exam);
       expect(converted.question_sources).toEqual([
         {
-          section_id: converted.question_sources[0].section_id,
           section_title: '',
           description: '',
           questions: expectedSources.sort(),

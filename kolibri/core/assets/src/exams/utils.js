@@ -1,6 +1,5 @@
 import uniq from 'lodash/uniq';
 import some from 'lodash/some';
-import { v4 as uuidv4 } from 'uuid';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
 /*
@@ -99,7 +98,6 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
   const questions = question_sources;
   return [
     {
-      section_id: uuidv4(),
       section_title: '',
       description: '',
       questions,

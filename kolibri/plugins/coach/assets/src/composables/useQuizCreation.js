@@ -1,4 +1,3 @@
-import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
@@ -6,15 +5,18 @@ import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
 import { ChannelResource, ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import {
+  computed,
+  ref,
+  provide,
+  inject,
+  getCurrentInstance,
+  watch,
+} from 'kolibri.lib.vueCompositionApi';
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
 import selectQuestions from '../utils/selectQuestions.js';
 import { Quiz, QuizSection } from './quizCreationSpecs.js';
-
-function uuidv4() {
-  return v4().replace(/-/g, '');
-}
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -40,6 +42,7 @@ const fieldsToSave = [
  * Composable function presenting primary interface for Quiz Creation
  */
 export default function useQuizCreation() {
+  const store = getCurrentInstance()?.proxy?.$store;
   // -----------
   // Local state
   // -----------
@@ -53,7 +56,7 @@ export default function useQuizCreation() {
 
   /** @type {ref<QuizSection>}
    * The section that is currently selected for editing */
-  const _activeSectionId = ref(null);
+  const activeSectionIndex = computed(() => Number(store?.state?.route?.params?.sectionIndex || 0));
 
   /** @type {ref<String[]>}
    * The QuizQuestion.id's that are currently selected for action in the active section */
@@ -72,14 +75,14 @@ export default function useQuizCreation() {
   /**
    * @param   {QuizSection} section
    * @returns {QuizSection}
-   * @affects _quiz - Updates the section with the given section_id with the given param
+   * @affects _quiz - Updates the section with the given sectionIndex with the given param
    * @throws {TypeError} if section is not a valid QuizSection
    **/
-  function updateSection({ section_id, ...updates }) {
+  function updateSection({ sectionIndex, ...updates }) {
     set(quizHasChanged, true);
-    const targetSection = get(allSections).find(section => section.section_id === section_id);
+    const targetSection = get(allSections)[sectionIndex];
     if (!targetSection) {
-      throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
     }
 
     // original variables are the original values of the properties we're updating
@@ -158,15 +161,16 @@ export default function useQuizCreation() {
       updates.questions = originalQuestions.slice(0, question_count);
     }
 
+    const _allSections = get(allSections);
+
     set(_quiz, {
       ...get(quiz),
       // Update matching QuizSections with the updates object
-      question_sources: get(allSections).map(section => {
-        if (section.section_id === section_id) {
-          return { ...section, ...updates };
-        }
-        return section;
-      }),
+      question_sources: [
+        ..._allSections.slice(0, sectionIndex),
+        { ...targetSection, ...updates },
+        ..._allSections.slice(sectionIndex + 1),
+      ],
     });
   }
 
@@ -178,7 +182,7 @@ export default function useQuizCreation() {
       return question;
     });
     updateSection({
-      section_id: activeSection.value.section_id,
+      sectionIndex: get(activeSectionIndex),
       questions,
     });
   }
@@ -227,46 +231,38 @@ export default function useQuizCreation() {
   /** @returns {QuizSection}
    * Adds a section to the quiz and returns it */
   function addSection() {
-    const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
+    const newSection = objectWithDefaults({}, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
-    setActiveSection(newSection.section_id);
     return newSection;
   }
 
   /**
    * @throws {Error} if section not found
-   * Deletes the given section by section_id */
-  function removeSection(section_id) {
-    const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
-    if (updatedSections.length === get(allSections).length) {
-      throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+   * Deletes the given section by sectionIndex */
+  function removeSection(sectionIndex) {
+    if (!get(allSections)[sectionIndex]) {
+      throw new Error(`Section with index ${sectionIndex} not found; cannot be removed.`);
     }
-    if (updatedSections.length === 0) {
-      const newSection = addSection();
-      setActiveSection(newSection.section_id);
-      updatedSections.push(newSection);
-    } else {
-      setActiveSection(get(updatedSections)[0].section_id);
-    }
+    const updatedSections = get(allSections)
+      .slice(0, sectionIndex)
+      .concat(get(allSections).slice(sectionIndex + 1));
     updateQuiz({ question_sources: updatedSections });
+    if (get(allSections).length === 0) {
+      // Always need to have at least one section
+      addSection();
+    }
   }
 
-  /**
-   * @param {string} [section_id]
-   * @affects _activeSectionId
-   * Sets the given section_id as the active section ID, however, if the ID is not found or is null
-   * it will set the activeId to the first section in _quiz.question_sources */
-  function setActiveSection(section_id = null) {
-    set(_selectedQuestionIds, []); // Clear the selected questions when changing sections
-    set(_activeSectionId, section_id);
-  }
-
+  watch(activeSectionIndex, () => {
+    // Clear the selected questions when changing sections
+    set(_selectedQuestionIds, []);
+  });
   // ------------
   // Quiz General
   // ------------
 
   /** @affects _quiz
-   * @affects _activeSectionId
+   * @affects activeSectionIndex
    * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
    * @param {string} collection - The collection (aka current class ID) to associate the exam with
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
@@ -277,8 +273,7 @@ export default function useQuizCreation() {
     if (quizId === 'new') {
       const assignments = [collection];
       set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
-      const newSection = addSection();
-      setActiveSection(newSection.section_id);
+      addSection();
     } else {
       const exam = await ExamResource.fetchModel({ id: quizId });
       const { exam: quiz, exercises } = await fetchExamWithContent(exam);
@@ -297,10 +292,7 @@ export default function useQuizCreation() {
       });
       set(_quiz, objectWithDefaults(quiz, Quiz));
       if (get(allSections).length === 0) {
-        const newSection = addSection();
-        setActiveSection(newSection.section_id);
-      } else {
-        setActiveSection(get(allSections)[0].section_id);
+        addSection();
       }
     }
     set(quizHasChanged, false);
@@ -329,6 +321,7 @@ export default function useQuizCreation() {
       const questionSourcesWithoutResourcePool = get(allSections).map(section => {
         const sectionToSave = { ...section };
         delete sectionToSave.resource_pool;
+        delete sectionToSave.section_id;
         sectionToSave.questions = section.questions.map(question => {
           const questionToSave = { ...question };
           delete questionToSave.item;
@@ -433,15 +426,12 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizSection[]>} The value of _quiz's `question_sources` */
   const allSections = computed(() => get(quiz).question_sources);
   /** @type {ComputedRef<QuizSection>} The active section */
-  const activeSection = computed(() =>
-    get(allSections).find(s => s.section_id === get(_activeSectionId))
-  );
-  const activeSectionIndex = computed(() =>
-    get(allSections).findIndex(s => isEqual(s.section_title === get(activeSection).section_title))
-  );
+  const activeSection = computed(() => get(allSections)[get(activeSectionIndex)]);
   /** @type {ComputedRef<QuizSection[]>} The inactive sections */
   const inactiveSections = computed(() =>
-    get(allSections).filter(s => s.section_id !== get(_activeSectionId))
+    get(allSections)
+      .slice(0, get(activeSectionIndex))
+      .concat(get(allSections).slice(get(activeSectionIndex) + 1))
   );
   /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
   const activeResourcePool = computed(() => get(activeSection).resource_pool);
@@ -513,12 +503,13 @@ export default function useQuizCreation() {
 
    */
   function deleteActiveSelectedQuestions() {
-    const { section_id, questions: section_questions } = get(activeSection);
+    const sectionIndex = get(activeSectionIndex);
+    const { questions: section_questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
     const questions = section_questions.filter(q => !selectedIds.includes(q.item));
     const question_count = questions.length;
     updateSection({
-      section_id,
+      sectionIndex,
       questions,
       question_count,
     });
@@ -549,7 +540,6 @@ export default function useQuizCreation() {
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
-  provide('setActiveSection', setActiveSection);
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
@@ -557,6 +547,7 @@ export default function useQuizCreation() {
   provide('channels', channels);
   provide('replacements', replacements);
   provide('allSections', allSections);
+  provide('activeSectionIndex', activeSectionIndex);
   provide('activeSection', activeSection);
   provide('activeSectionIndex', activeSectionIndex);
   provide('inactiveSections', inactiveSections);
@@ -580,7 +571,6 @@ export default function useQuizCreation() {
     replaceSelectedQuestions,
     addSection,
     removeSection,
-    setActiveSection,
     initializeQuiz,
     updateQuiz,
     clearSelectedQuestions,
@@ -618,7 +608,6 @@ export function injectQuizCreation() {
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
-  const setActiveSection = inject('setActiveSection');
   const updateQuiz = inject('updateQuiz');
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
@@ -626,8 +615,8 @@ export function injectQuizCreation() {
   const channels = inject('channels');
   const replacements = inject('replacements');
   const allSections = inject('allSections');
-  const activeSection = inject('activeSection');
   const activeSectionIndex = inject('activeSectionIndex');
+  const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
   const activeResourceMap = inject('activeResourceMap');
@@ -650,7 +639,6 @@ export function injectQuizCreation() {
     replaceSelectedQuestions,
     addSection,
     removeSection,
-    setActiveSection,
     updateQuiz,
     clearSelectedQuestions,
     addQuestionToSelection,
@@ -664,8 +652,8 @@ export function injectQuizCreation() {
     channels,
     replacements,
     allSections,
-    activeSection,
     activeSectionIndex,
+    activeSection,
     inactiveSections,
     activeResourcePool,
     activeResourceMap,

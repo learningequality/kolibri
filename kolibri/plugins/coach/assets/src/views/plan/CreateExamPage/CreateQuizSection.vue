@@ -15,9 +15,7 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :activeTabId="activeSection ?
-            activeSection.section_id :
-            '' "
+          :activeTabId="String(activeSectionIndex)"
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
           :aria-label="quizSectionsLabel$()"
@@ -77,7 +75,7 @@
     <KTabsPanel
       v-if="activeSection"
       tabsId="quizSectionTabs"
-      :activeTabId="activeSection ? activeSection.section_id : ''"
+      :activeTabId="String(activeSectionIndex)"
     >
       <KGrid v-if="!activeQuestions.length" class="questions-list-label-row">
         <KGridItem
@@ -129,7 +127,7 @@
           primary
           icon="plus"
           style="margin-top: 1em;"
-          @click="openSelectResources(activeSection.section_id)"
+          @click="openSelectResources()"
         >
           {{ addQuestionsLabel$() }}
         </KButton>
@@ -321,7 +319,7 @@
       :title="deleteSectionLabel$()"
       :submitText="coreString('deleteAction')"
       :cancelText="coreString('cancelAction')"
-      @cancel="handleShowConfirmation"
+      @cancel="showDeleteConfirmation = true"
       @submit="handleConfirmDelete"
     >
       <!-- TODO Use `displaySectionTitle` here once #12274 is merged as that PR
@@ -336,7 +334,6 @@
 
 <script>
 
-  import { get } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -404,13 +401,13 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        setActiveSection,
         updateQuiz,
         selectAllQuestions,
         replacementQuestionPool,
         // Computed
         toggleQuestionInSelection,
         allSections,
+        activeSectionIndex,
         activeSection,
         activeResourceMap,
         activeResourcePool,
@@ -429,8 +426,6 @@
         canExpandAll,
       } = useAccordion(activeQuestions);
 
-      // The number we use for the default section title
-      const sectionCreationCount = ref(1);
       const dragActive = ref(false);
 
       return {
@@ -444,7 +439,6 @@
         toggle,
 
         dragActive,
-        sectionCreationCount,
         sectionLabel$,
         expandAll$,
         collapseAll$,
@@ -473,13 +467,13 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        setActiveSection,
         updateQuiz,
         updateResources$,
         displaySectionTitle,
 
         // Computed
         allSections,
+        activeSectionIndex,
         activeSection,
         activeResourceMap,
         activeResourcePool,
@@ -518,10 +512,11 @@
         };
       },
       tabs() {
-        return get(this.allSections).map((section, index) => {
-          const id = section.section_id;
+        return this.allSections.map((section, index) => {
           const label = this.displaySectionTitle(section, index);
-          return { id, label };
+          // The active index will be coerced to a string,
+          // so make sure to cast the index to a string as well
+          return { id: String(index), label };
         });
       },
       tabStyles() {
@@ -561,9 +556,22 @@
       }
     },
     methods: {
+      setActiveSection(sectionIndex = null) {
+        if (sectionIndex === null) {
+          sectionIndex = 0;
+        }
+        if (!this.allSections[sectionIndex]) {
+          throw new Error(`Section with id ${sectionIndex} not found; cannot be set as active.`);
+        }
+        if (sectionIndex !== this.activeSectionIndex) {
+          this.$router.push({ ...this.$route, params: { ...this.$route.params, sectionIndex } });
+        }
+      },
       handleConfirmDelete() {
-        const { section_id, section_title } = this.activeSection;
-        this.removeSection(section_id);
+        const { section_title } = this.activeSection;
+        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
+        this.setActiveSection(newIndex);
+        this.removeSection(this.activeSectionIndex);
         this.$nextTick(() => {
           this.$store.dispatch(
             'createSnackbar',
@@ -573,43 +581,35 @@
           );
           this.focusActiveSectionTab();
         });
-        this.handleShowConfirmation();
-      },
-      handleShowConfirmation(section_id = null) {
-        this.showDeleteConfirmation = section_id;
+        this.showDeleteConfirmation = false;
       },
       handleReplaceSelection() {
         if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
           this.showNotEnoughResourcesModal = true;
         } else {
-          const section_id = get(this.activeSection).section_id;
-          const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
-          this.$router.push(route);
+          const sectionIndex = this.activeSectionIndex;
+          this.$router.push({ name: PageNames.QUIZ_REPLACE_QUESTIONS, params: { sectionIndex } });
         }
       },
       handleActiveSectionAction(opt) {
-        const section_id = this.activeSection.section_id;
-        const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
-        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, {
-          section_id,
-        });
+        const sectionIndex = this.activeSectionIndex;
         switch (opt.label) {
           case this.editSectionLabel$():
-            this.$router.push(editRoute);
+            this.$router.push({ name: PageNames.QUIZ_SECTION_EDITOR, params: { sectionIndex } });
             break;
           case this.deleteSectionLabel$():
-            this.handleShowConfirmation(section_id);
+            this.showDeleteConfirmation = true;
             break;
           case this.updateResources$():
-            this.$router.push(resourcesRoute);
+            this.$router.push({ name: PageNames.QUIZ_SELECT_RESOURCES, params: { sectionIndex } });
             break;
         }
       },
-      tabRefLabel(section_id) {
-        return `section-tab-${section_id}`;
+      tabRefLabel(sectionIndex) {
+        return `section-tab-${sectionIndex}`;
       },
       focusActiveSectionTab() {
-        const label = this.tabRefLabel(this.activeSection.section_id);
+        const label = this.tabRefLabel(this.activeSectionIndex);
         const tabRef = this.$refs[label];
 
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
@@ -626,8 +626,7 @@
         }
       },
       activeSectionIsHidden(overflow) {
-        const ids = overflow.map(i => i.id);
-        return ids.includes(get(this.activeSection).section_id);
+        return this.allSections.length - overflow.length <= this.activeSectionIndex;
       },
       overflowButtonStyles(overflow) {
         return {
@@ -640,7 +639,7 @@
       },
       handleQuestionOrderChange({ newArray }) {
         const payload = {
-          section_id: get(this.activeSection).section_id,
+          sectionIndex: this.activeSectionIndex,
           questions: newArray,
         };
         this.updateSection(payload);
@@ -648,17 +647,21 @@
         this.dragActive = false;
       },
       handleAddSection() {
-        const newSection = this.addSection();
-        this.setActiveSection(get(newSection).section_id);
-        this.sectionCreationCount++;
+        this.addSection();
+        this.$router.push({
+          name: PageNames.QUIZ_SECTION_EDITOR,
+          params: { sectionIndex: this.allSections.length - 1 },
+        });
       },
       handleDragStart() {
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
       },
-      openSelectResources(section_id) {
-        const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });
-        this.$router.push(route);
+      openSelectResources() {
+        this.$router.push({
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          params: { ...this.$route.params },
+        });
       },
       deleteQuestions() {
         const count = this.selectedActiveQuestions.length;
@@ -672,7 +675,7 @@
       },
       redirectToSelectResources() {
         this.showNotEnoughResourcesModal = false;
-        this.openSelectResources(this.activeSection.section_id);
+        this.openSelectResources();
       },
     },
   };

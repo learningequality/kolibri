@@ -98,9 +98,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
-
-
-    <router-view v-if="quizInitialized" />
+    <SectionSidePanel v-if="quizInitialized" />
 
   </CoachImmersivePage>
 
@@ -122,7 +120,8 @@
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
-  import CreateQuizSection from './CreateQuizSection.vue';
+  import CreateQuizSection from './CreateQuizSection';
+  import SectionSidePanel from './SectionSidePanel';
 
   export default {
     name: 'CreateExamPage',
@@ -131,6 +130,7 @@
       BottomAppBar,
       CreateQuizSection,
       AssignmentDetailsModal,
+      SectionSidePanel,
     },
     mixins: [commonCoreStrings],
     setup() {

@@ -157,7 +157,8 @@
         >
           <DragHandle>
             <div
-              :style="section.isActive ? activeSectionStyles : borderStyle "
+              :style="activeSection.section_id === section.section_id ?
+                activeSectionStyles : borderStyle"
               class="section-order-list"
             >
               <KGrid>
@@ -214,7 +215,7 @@
         >
           <KButton
             :text="deleteSectionLabel$()"
-            @click="handleDeleteSection(activeSection.section_id)"
+            @click="handleDeleteSection()"
           />
 
         </KGridItem>
@@ -315,8 +316,8 @@
       } = enhancedQuizManagementStrings;
 
       const {
-        activeSection,
         activeSectionIndex,
+        activeSection,
         activeResourcePool,
         allSections,
         updateSection,
@@ -343,15 +344,15 @@
 
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
-        removeSection(showDeleteConfirmation.value);
+        removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
         });
         this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
-      function handleDeleteSection(section_id) {
-        showDeleteConfirmation.value = section_id;
+      function handleDeleteSection() {
+        showDeleteConfirmation.value = true;
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
@@ -430,8 +431,10 @@
         handleConfirmDelete,
         // useQuizCreation
         channels,
+        activeSectionIndex,
         activeSection,
         activeResourcePool,
+        allSections,
         sectionOrderList,
         updateSection,
         updateQuiz,
@@ -519,15 +522,21 @@
           return;
         }
         this.updateSection({
-          section_id: this.activeSection.section_id,
+          sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
           question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
         if (this.sectionOrderChanged) {
+          // Apply the new sorting to the updated sections,
+          // otherwise the edits we just made will be lost
+          const sectionOrderIds = this.sectionOrderList.map(section => section.section_id);
+          const question_sources = this.allSections.sort((a, b) => {
+            return sectionOrderIds.indexOf(a.section_id) - sectionOrderIds.indexOf(b.section_id);
+          });
           this.updateQuiz({
-            question_sources: this.sectionOrderList,
+            question_sources,
           });
         }
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());

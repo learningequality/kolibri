@@ -151,6 +151,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const {
+        activeSectionIndex,
         updateSection,
         activeResourcePool,
         selectAllQuestions,
@@ -490,6 +491,7 @@
       return {
         actuallyHasCheckbox,
         unusedQuestionsCount,
+        activeSectionIndex,
         allQuestionsInQuiz,
         selectAllChecked,
         selectAllIndeterminate,
@@ -613,7 +615,7 @@
             params: {
               topic_id: content.id,
               classId: this.$route.params.classId,
-              section_id: this.$route.params.section_id,
+              sectionIndex: this.activeSectionIndex,
             },
           };
         }
@@ -624,7 +626,7 @@
       },
       saveSelectedResource() {
         this.updateSection({
-          section_id: this.$route.params.section_id,
+          sectionIndex: this.activeSectionIndex,
           resource_pool: this.workingResourcePool.map(resource => {
             // Add the unique_question_ids to the resource
             const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(

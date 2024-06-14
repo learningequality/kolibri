@@ -11,7 +11,6 @@ const {
   // replaceSelectedQuestions,
   addSection,
   removeSection,
-  setActiveSection,
   initializeQuiz,
   updateQuiz,
   addQuestionToSelection,
@@ -22,6 +21,7 @@ const {
   channels,
   quiz,
   allSections,
+  activeSectionIndex,
   activeSection,
   activeQuestions,
   selectedActiveQuestions,
@@ -122,25 +122,17 @@ describe('useQuizCreation', () => {
       it('Can remove a section from the quiz', () => {
         const addedSection = addSection();
         expect(get(allSections)).toHaveLength(2);
-        removeSection(addedSection.section_id);
+        removeSection(1);
         expect(get(allSections)).toHaveLength(1);
         expect(
           get(allSections).find(s => s.section_id === addedSection.section_id)
         ).toBeUndefined();
       });
 
-      it('Can change the activeSection', () => {
-        const addedSection = addSection();
-        addSection(); // This automatically sets the added section as active, but we won't use it
-        expect(get(activeSection).section_id).not.toEqual(addedSection.section_id);
-        setActiveSection(addedSection.section_id); // Now we set the first added section as active
-        expect(get(activeSection).section_id).toEqual(addedSection.section_id);
-      });
-
       it('Can update any section', () => {
         const addedSection = addSection();
         const newTitle = 'New Title';
-        updateSection({ section_id: addedSection.section_id, section_title: newTitle });
+        updateSection({ sectionIndex: 1, section_title: newTitle });
         expect(
           get(allSections).find(s => s.section_id === addedSection.section_id).section_title
         ).toEqual(newTitle);
@@ -150,7 +142,7 @@ describe('useQuizCreation', () => {
         // Setup a mock exercise w/ some questions; update the activeSection with their values
         const exercise = generateExercise(20);
         updateSection({
-          section_id: get(activeSection).section_id,
+          sectionIndex: get(activeSectionIndex),
           resource_pool: [exercise],
         });
         await Vue.nextTick();
@@ -161,7 +153,7 @@ describe('useQuizCreation', () => {
         // Now let's change the question count and see if the questions array is updated
         const newQuestionCount = 5;
         updateSection({
-          section_id: get(activeSection).section_id,
+          sectionIndex: get(activeSectionIndex),
           question_count: newQuestionCount,
         });
         await Vue.nextTick();
@@ -170,7 +162,7 @@ describe('useQuizCreation', () => {
 
         const newQuestionCount2 = 10;
         updateSection({
-          section_id: get(activeSection).section_id,
+          sectionIndex: get(activeSectionIndex),
           question_count: newQuestionCount2,
         });
         await Vue.nextTick();
@@ -178,7 +170,7 @@ describe('useQuizCreation', () => {
       });
 
       it('Throws a TypeError if trying to update a section with a bad section shape', () => {
-        expect(() => updateSection({ section_id: null, title: 1 })).toThrow(TypeError);
+        expect(() => updateSection({ sectionIndex: null, title: 1 })).toThrow(TypeError);
       });
     });
 
@@ -186,8 +178,7 @@ describe('useQuizCreation', () => {
       beforeEach(() => {
         initializeQuiz();
         const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
-        const { section_id } = get(activeSection);
-        updateSection({ section_id, questions });
+        updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can add a question to the selected questions', () => {
         const { question_id } = get(activeQuestions)[0];
@@ -214,8 +205,7 @@ describe('useQuizCreation', () => {
       beforeEach(() => {
         initializeQuiz();
         const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
-        const { section_id } = get(activeSection);
-        updateSection({ section_id, questions });
+        updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can give a list of questions in the exercise pool but not in the selected questions', () => {});
     });
