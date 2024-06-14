@@ -12,7 +12,6 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.cache import add_never_cache_headers
@@ -923,24 +922,6 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 )
             ).values("id", "num_assessments")
         )
-        return Response(data)
-
-    @action(detail=False)
-    def node_assessments(self, request):
-        ids = self.request.query_params.get("ids", "").split(",")
-        data = 0
-        if ids and ids[0]:
-            nodes = (
-                models.ContentNode.objects.filter_by_uuids(ids)
-                .filter(available=True)
-                .prefetch_related("assessmentmetadata")
-            )
-            data = (
-                nodes.aggregate(Sum("assessmentmetadata__number_of_assessments"))[
-                    "assessmentmetadata__number_of_assessments__sum"
-                ]
-                or 0
-            )
         return Response(data)
 
     @action(detail=True)

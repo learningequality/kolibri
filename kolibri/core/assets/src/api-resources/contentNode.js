@@ -89,9 +89,6 @@ export default new Resource({
   fetchDescendantsAssessments(ids) {
     return this.getListEndpoint('descendants_assessments', { ids });
   },
-  fetchNodeAssessments(ids) {
-    return this.getListEndpoint('node_assessments', { ids });
-  },
   fetchRecommendationsFor(id, getParams) {
     return this.fetchDetailCollection('recommendations_for', id, getParams);
   },
