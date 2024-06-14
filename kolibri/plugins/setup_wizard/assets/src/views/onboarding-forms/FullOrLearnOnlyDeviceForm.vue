@@ -79,7 +79,7 @@
       },
       learnOnlyDeviceDescription: {
         message:
-          'This device will have one or more learner accounts imported from a full device that already exists. Learner accounts will auto-sync with the full device.',
+          'This device will auto-sync its learner accounts with an existing full device and only include Kolibri features for learners, excluding those for coaches or admins.',
         context: '',
       },
     },
