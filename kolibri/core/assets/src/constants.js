@@ -195,4 +195,6 @@ export const Presets = Object.freeze({
   NONFORMAL: 'nonformal',
 });
 
+// This should be kept in sync with the value in
+// kolibri/core/exams/constants.py
 export const MAX_QUESTIONS_PER_QUIZ_SECTION = 50;

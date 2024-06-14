@@ -14,6 +14,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.exams.constants import MAX_QUESTIONS_PER_QUIZ_SECTION
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
@@ -485,6 +486,14 @@ class BaseExamTest:
         self.assertEqual(response.status_code, 201)
         exam_model_instance = self.class_object.objects.get(id=exam_id)
         self.assertEqual(exam_model_instance.question_count, question_count)
+
+    def test_exam_question_max_length(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        questions = self.make_basic_questions(MAX_QUESTIONS_PER_QUIZ_SECTION + 1)
+        exam["question_sources"][0]["questions"] = questions
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
 
 
 class ExamAPITestCase(BaseExamTest, APITestCase):
