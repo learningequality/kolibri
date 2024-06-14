@@ -51,6 +51,14 @@ export default [
         path: 'select-resources/:topic_id?',
         component: ResourceSelection,
       },
+      {
+        name: PageNames.QUIZ_SELECT_PRACTICE_QUIZ,
+        path: 'select-quiz/:topic_id?',
+        component: ResourceSelection,
+        props: {
+          selectPracticeQuiz: true,
+        },
+      },
     ],
   },
   {

@@ -19,11 +19,15 @@ const _loadingMore = ref(false);
  * @module useQuizResources
  * @param {QuizResourcesConfig} config
  */
-export default function useQuizResources({ topicId } = {}) {
+export default function useQuizResources({ topicId, practiceQuiz = false } = {}) {
   const params = {
     kind_in: [ContentNodeKinds.EXERCISE, ContentNodeKinds.TOPIC],
     include_coach_content: true,
   };
+
+  if (practiceQuiz) {
+    params.contains_quiz = true;
+  }
 
   // Initialize useFetchTree methods with the given topicId computed property and params
   const { topic, fetchTree, fetchMore, hasMore, loading: treeLoading } = useFetchTree({
@@ -135,7 +139,8 @@ export default function useQuizResources({ topicId } = {}) {
     return (
       node.kind === ContentNodeKinds.EXERCISE ||
       // Has children, no more to load, and no children are topics
-      (node.children &&
+      (!practiceQuiz &&
+        node.children &&
         !node.children.more &&
         !node.children.results.some(c => c.kind === ContentNodeKinds.TOPIC) &&
         node.children.results.length <= 12)

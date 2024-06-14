@@ -8,6 +8,7 @@ import useQuizCreation from '../src/composables/useQuizCreation.js';
 const {
   // Methods
   updateSection,
+  updateSectionResourcePool,
   // replaceSelectedQuestions,
   addSection,
   removeSection,
@@ -134,7 +135,7 @@ describe('useQuizCreation', () => {
       it('Will update `questions` to match `question_count` property when it is changed', async () => {
         // Setup a mock exercise w/ some questions; update the activeSection with their values
         const exercise = generateExercise(20);
-        updateSection({
+        updateSectionResourcePool({
           sectionIndex: get(activeSectionIndex),
           resource_pool: [exercise],
         });

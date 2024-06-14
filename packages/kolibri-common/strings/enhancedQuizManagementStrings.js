@@ -176,7 +176,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfResourcesSelected: {
     message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
-  selectedResourcesInformation: {
+  selectedQuestionsInformation: {
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
@@ -187,6 +187,16 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   selectFewerQuestion: {
     message:
       'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+  },
+  selectQuiz: {
+    message: 'Select quiz',
+    context:
+      "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+  },
+  selectPracticeQuizLabel: {
+    message: 'Select a practice quiz',
+    context:
+      "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
   },
   cannotSelectSomeTopicWarning: {
     message:

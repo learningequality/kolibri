@@ -6,7 +6,7 @@
     </div>
     <div v-else>
       <h5 class="select-folder-style">
-        {{ selectResourcesDescription$() }}
+        {{ selectPracticeQuiz ? selectPracticeQuizLabel$() : selectResourcesDescription$() }}
       </h5>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
@@ -65,6 +65,7 @@
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
+        :showRadioButtons="selectPracticeQuiz"
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreResources"
@@ -81,7 +82,9 @@
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
-            <span>{{ numberOfResourcesSelected$({ count: workingResourcePool.length }) }}</span>
+            <span v-if="!selectPracticeQuiz">
+              {{ numberOfResourcesSelected$({ count: workingResourcePool.length }) }}
+            </span>
           </KGridItem>
           <KGridItem
             :layout12="{ span: 6 }"
@@ -90,7 +93,7 @@
           >
             <KButton
               style="float: right;"
-              :text="coreString('saveChangesAction')"
+              :text="selectPracticeQuiz ? selectQuiz$() : coreString('saveChangesAction')"
               :primary="true"
               :disabled="!workingPoolHasChanged"
               @click="saveSelectedResource"
@@ -116,6 +119,7 @@
 
 <script>
 
+  import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
   import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
@@ -141,7 +145,7 @@
       ResourceSelectionBreadcrumbs,
     },
     mixins: [commonCoreStrings],
-    setup(_, context) {
+    setup(props, context) {
       const store = getCurrentInstance().proxy.$store;
       const route = computed(() => store.state.route);
       const topicId = computed(() => route.value.params.topic_id);
@@ -153,27 +157,34 @@
       const {
         activeSectionIndex,
         updateSection,
+        updateSectionResourcePool,
         activeResourcePool,
         selectAllQuestions,
         allQuestionsInQuiz,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
 
-      const prevRoute = ref({ name: PageNames.EXAM_CREATION_ROOT });
+      const prevRoute = ref({
+        name: PageNames.EXAM_CREATION_ROOT,
+        sectionId: activeSectionIndex.value,
+      });
+
+      const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
       const {
         sectionSettings$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectResourcesDescription$,
-        numberOfSelectedResources$,
         numberOfResourcesSelected$,
         changesSavedSuccessfully$,
-        selectedResourcesInformation$,
+        selectedQuestionsInformation$,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         questionsUnusedInSection$,
+        selectQuiz$,
+        selectPracticeQuizLabel$,
       } = enhancedQuizManagementStrings;
 
       // TODO let's not use text for this
@@ -256,6 +267,9 @@
           keywords: searchQuery.value,
           kind: ContentNodeKinds.EXERCISE,
         };
+        if (selectPracticeQuiz.value) {
+          getParams.contains_quiz = true;
+        }
         return ContentNodeResource.fetchCollection({ getParams }).then(response => {
           searchResults.value = response.results;
           moreSearchResults.value = response.more;
@@ -287,7 +301,10 @@
       });
 
       const showSelectAll = computed(() => {
-        return contentList.value.every(content => actuallyHasCheckbox(content));
+        return (
+          !selectPracticeQuiz.value &&
+          contentList.value.every(content => actuallyHasCheckbox(content))
+        );
       });
 
       function handleSelectAll(isChecked) {
@@ -320,6 +337,9 @@
       function toggleSelected({ content, checked }) {
         content = content.kind === ContentNodeKinds.TOPIC ? content.children.results : [content];
         if (checked) {
+          if (this.selectPracticeQuiz) {
+            this.resetWorkingResourcePool();
+          }
           this.addToWorkingResourcePool(content);
         } else {
           content.forEach(c => {
@@ -339,7 +359,7 @@
         annotateTopicsWithDescendantCounts,
         setResources,
         loadingMore,
-      } = useQuizResources({ topicId });
+      } = useQuizResources({ topicId, practiceQuiz: selectPracticeQuiz.value });
 
       const _loading = ref(true);
 
@@ -379,12 +399,13 @@
 
       if (!topicId.value) {
         const channelBookmarkPromises = [
-          ContentNodeResource.fetchBookmarks({ params: { limit: 25, available: true } }).then(
-            data => {
-              const isExercise = item => item.kind === ContentNodeKinds.EXERCISE;
-              bookmarks.value = data.results ? data.results.filter(isExercise) : [];
-            }
-          ),
+          ContentNodeResource.fetchBookmarks({
+            params: { limit: 25, available: true, kind: ContentNodeKinds.EXERCISE },
+          }).then(data => {
+            const isPracticeQuiz = item =>
+              !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
+            bookmarks.value = data.results ? data.results.filter(isPracticeQuiz) : [];
+          }),
         ];
 
         if (searchQuery.value) {
@@ -392,7 +413,11 @@
         } else {
           channelBookmarkPromises.push(
             ChannelResource.fetchCollection({
-              params: { has_exercises: true, available: true },
+              getParams: {
+                contains_exercise: true,
+                available: true,
+                contains_quiz: selectPracticeQuiz.value ? true : null,
+              },
             }).then(response => {
               setResources(
                 response.map(chnl => {
@@ -523,21 +548,29 @@
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
         selectResourcesDescription$,
-        numberOfSelectedResources$,
         numberOfResourcesSelected$,
         windowIsSmall,
         bookmarks,
         channels,
         viewMoreButtonState,
         updateSection,
+        updateSectionResourcePool,
         selectAllQuestions,
         workingResourcePool,
         activeResourcePool,
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
-        selectedResourcesInformation$,
+        selectedQuestionsInformation$,
+        selectQuiz$,
+        selectPracticeQuizLabel$,
       };
+    },
+    props: {
+      selectPracticeQuiz: {
+        type: Boolean,
+        default: false,
+      },
     },
     computed: {
       isTopicIdSet() {
@@ -549,12 +582,18 @@
         // the resourceSelection component now renderes only the
         // the exercises that are bookmarked for the Quiz selection.
         return {
-          name: PageNames.QUIZ_SELECT_RESOURCES,
+          ...this.$route,
           query: { showBookmarks: true },
         };
       },
       channelsLink() {
-        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id: null });
+        return {
+          name: this.$route.name,
+          params: {
+            ...this.$route.params,
+            topic_id: null,
+          },
+        };
       },
       /*
       selectAllIsVisible() {
@@ -593,7 +632,11 @@
         }
       },
       showTopicSizeWarningCard(content) {
-        return !this.actuallyHasCheckbox(content) && content.kind === ContentNodeKinds.TOPIC;
+        return (
+          !this.selectPracticeQuiz &&
+          !this.actuallyHasCheckbox(content) &&
+          content.kind === ContentNodeKinds.TOPIC
+        );
       },
       showTopicSizeWarning() {
         return this.contentList.some(this.showTopicSizeWarningCard);
@@ -603,70 +646,88 @@
         this.$refs.textbox.focus();
       },
       contentLink(content) {
-        /* The click handler for the content card, no-op for non-folder cards */
-        if (this.showBookmarks) {
-          // If we're showing bookmarks, we don't want to link to anything
-          const { name, params, query } = this.$route;
-          return { name, params, query };
-        } else if (!content.is_leaf) {
+        if (!content.is_leaf) {
+          const { name, params } = this.$route;
           // Link folders to their page
           return {
-            name: PageNames.QUIZ_SELECT_RESOURCES,
+            name,
             params: {
+              ...params,
               topic_id: content.id,
-              classId: this.$route.params.classId,
-              sectionIndex: this.activeSectionIndex,
             },
           };
         }
         return {}; // Or this could be how we handle leaf nodes if we wanted them to link somewhere
       },
       topicsLink(topic_id) {
-        return this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { topic_id });
+        return this.contentLink({ id: topic_id });
       },
       saveSelectedResource() {
-        this.updateSection({
-          sectionIndex: this.activeSectionIndex,
-          resource_pool: this.workingResourcePool.map(resource => {
-            // Add the unique_question_ids to the resource
-            const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
-              question_id => {
-                return `${resource.id}:${question_id}`;
-              }
-            );
+        const resource_pool = this.workingResourcePool.map(resource => {
+          // Add the unique_question_ids to the resource
+          const unique_question_ids = resource.assessmentmetadata.assessment_item_ids.map(
+            question_id => {
+              return `${resource.id}:${question_id}`;
+            }
+          );
 
-            return {
-              ...resource,
-              unique_question_ids,
-            };
-          }),
+          return {
+            ...resource,
+            unique_question_ids,
+          };
         });
+        if (this.selectPracticeQuiz) {
+          if (this.workingResourcePool.length !== 1) {
+            throw new Error('Only one resource can be selected for a practice quiz');
+          }
+          const quiz = this.workingResourcePool[0];
+          const questions = quiz.assessmentmetadata.assessment_item_ids.map((question_id, i) => {
+            return {
+              exercise_id: quiz.id,
+              question_id,
+              counter_in_exercise: i + 1,
+              title: '',
+              item: `${quiz.id}:${question_id}`,
+            };
+          });
+          this.updateSection({
+            sectionIndex: this.activeSectionIndex,
+            questions,
+            resource_pool,
+          });
+        } else {
+          this.updateSectionResourcePool({
+            sectionIndex: this.activeSectionIndex,
+            resource_pool,
+          });
+        }
 
         this.resetWorkingResourcePool();
-
+        const route = this.selectPracticeQuiz
+          ? { name: PageNames.EXAM_CREATION_ROOT, sectionId: this.activeSectionIndex }
+          : this.prevRoute;
         this.$router.replace({
-          ...this.prevRoute,
+          ...route,
         });
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
       },
       // The message put onto the content's card when listed
       selectionMetadata(content) {
-        if (content.kind === ContentNodeKinds.TOPIC) {
-          const total = content.num_exercises;
-          const numberOfresourcesSelected = this.workingResourcePool.reduce((acc, wr) => {
-            if (wr.ancestors.map(ancestor => ancestor.id).includes(content.id)) {
-              return acc + 1;
-            }
-            return acc;
-          }, 0);
-
-          return this.selectedResourcesInformation$({
-            count: numberOfresourcesSelected,
-            total: total,
-          });
-        } else {
-          // content is an exercise
+        if (this.selectPracticeQuiz || content.kind !== ContentNodeKinds.TOPIC) {
+          return;
         }
+        const total = content.num_exercises;
+        const numberOfresourcesSelected = this.workingResourcePool.reduce((acc, wr) => {
+          if (wr.ancestors.map(ancestor => ancestor.id).includes(content.id)) {
+            return acc + wr.assessmentmetadata.assessment_item_ids.length;
+          }
+          return acc;
+        }, 0);
+
+        return this.selectedQuestionsInformation$({
+          count: numberOfresourcesSelected,
+          total: total,
+        });
       },
       handleSearchTermChange(searchTerm) {
         const query = {

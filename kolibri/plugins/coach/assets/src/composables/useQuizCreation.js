@@ -88,8 +88,62 @@ export default function useQuizCreation() {
       question_count: originalQuestionCount,
     } = targetSection;
 
-    const { resource_pool, question_count } = updates;
+    const { question_count, questions } = updates;
 
+    if (questions && question_count) {
+      throw new TypeError(
+        'Cannot update both `questions` and `question_count` at the same time; use one or the other.'
+      );
+    }
+
+    if (question_count) {
+      // The question_count is so we need to update the selected resources
+      if (question_count > originalQuestionCount) {
+        updates.questions = [
+          ...originalQuestions,
+          ...selectRandomQuestionsFromResources(
+            question_count - originalQuestionCount,
+            originalResourcePool
+          ),
+        ];
+      } else if (question_count < originalQuestionCount) {
+        updates.questions = originalQuestions.slice(0, question_count);
+      }
+    }
+
+    if (questions) {
+      // The questions are being updated
+      // Set question_count to the length of the questions array
+      updates.question_count = questions.length;
+    }
+
+    const _allSections = get(allSections);
+
+    set(_quiz, {
+      ...get(quiz),
+      // Update matching QuizSections with the updates object
+      question_sources: [
+        ..._allSections.slice(0, sectionIndex),
+        { ...targetSection, ...updates },
+        ..._allSections.slice(sectionIndex + 1),
+      ],
+    });
+  }
+
+  function updateSectionResourcePool({ sectionIndex, resource_pool }) {
+    const targetSection = get(allSections)[sectionIndex];
+    if (!targetSection) {
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
+    }
+
+    // original variables are the original values of the properties we're updating
+    const {
+      resource_pool: originalResourcePool,
+      questions: originalQuestions,
+      question_count: originalQuestionCount,
+    } = targetSection;
+
+    const updates = { resource_pool };
     if (resource_pool?.length === 0) {
       // The user has removed all resources from the section, so we can clear all questions too
       updates.questions = [];
@@ -109,65 +163,36 @@ export default function useQuizCreation() {
         // if there weren't resources in the originalResourcePool before.
         // ***
         updates.questions = selectRandomQuestionsFromResources(
-          question_count || originalQuestionCount || 0,
+          originalQuestionCount || 0,
           resource_pool
         );
       } else {
-        // We're updating the resource_pool of a section that already had resources
-        if (question_count === 0) {
-          updates.questions = [];
-        } else {
-          // In this case, we already had resources in the section, so we need to handle the
-          // case where a resource has been removed so that we remove & replace the questions
-          const removedResourceQuestionIds = originalResourcePool.reduce(
-            (questionIds, originalResource) => {
-              if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
-                // If the resource_pool doesn't have the originalResource, we're removing it
-                questionIds = [...questionIds, ...originalResource.unique_question_ids];
-                return questionIds;
-              }
+        // In this case, we already had resources in the section, so we need to handle the
+        // case where a resource has been removed so that we remove & replace the questions
+        const removedResourceQuestionIds = originalResourcePool.reduce(
+          (questionIds, originalResource) => {
+            if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
+              // If the resource_pool doesn't have the originalResource, we're removing it
+              questionIds = [...questionIds, ...originalResource.unique_question_ids];
               return questionIds;
-            },
-            []
+            }
+            return questionIds;
+          },
+          []
+        );
+        if (removedResourceQuestionIds.length !== 0) {
+          const questionsToKeep = originalQuestions.filter(
+            q => !removedResourceQuestionIds.includes(q.item)
           );
-          if (removedResourceQuestionIds.length !== 0) {
-            const questionsToKeep = originalQuestions.filter(
-              q => !removedResourceQuestionIds.includes(q.item)
-            );
-            const numReplacementsNeeded =
-              (question_count || originalQuestionCount) - questionsToKeep.length;
-            updates.questions = [
-              ...questionsToKeep,
-              ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
-            ];
-          }
+          const numReplacementsNeeded = originalQuestionCount - questionsToKeep.length;
+          updates.questions = [
+            ...questionsToKeep,
+            ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
+          ];
         }
       }
     }
-    // The resource pool isn't being updated but the question_count is so we need to update them
-    if (question_count > originalQuestionCount) {
-      updates.questions = [
-        ...originalQuestions,
-        ...selectRandomQuestionsFromResources(
-          question_count - originalQuestionCount,
-          originalResourcePool
-        ),
-      ];
-    } else if (question_count < originalQuestionCount) {
-      updates.questions = originalQuestions.slice(0, question_count);
-    }
-
-    const _allSections = get(allSections);
-
-    set(_quiz, {
-      ...get(quiz),
-      // Update matching QuizSections with the updates object
-      question_sources: [
-        ..._allSections.slice(0, sectionIndex),
-        { ...targetSection, ...updates },
-        ..._allSections.slice(sectionIndex + 1),
-      ],
-    });
+    updateSection({ sectionIndex, ...updates });
   }
 
   function handleReplacement() {
@@ -507,6 +532,7 @@ export default function useQuizCreation() {
 
   provide('allQuestionsInQuiz', allQuestionsInQuiz);
   provide('updateSection', updateSection);
+  provide('updateSectionResourcePool', updateSectionResourcePool);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
@@ -537,6 +563,7 @@ export default function useQuizCreation() {
     // Methods
     saveQuiz,
     updateSection,
+    updateSectionResourcePool,
     handleReplacement,
     replaceSelectedQuestions,
     addSection,
@@ -573,6 +600,7 @@ export default function useQuizCreation() {
 export function injectQuizCreation() {
   const allQuestionsInQuiz = inject('allQuestionsInQuiz');
   const updateSection = inject('updateSection');
+  const updateSectionResourcePool = inject('updateSectionResourcePool');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
@@ -603,6 +631,7 @@ export function injectQuizCreation() {
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
+    updateSectionResourcePool,
     handleReplacement,
     replaceSelectedQuestions,
     addSection,
