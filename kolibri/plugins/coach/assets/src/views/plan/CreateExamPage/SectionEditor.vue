@@ -358,7 +358,7 @@
       const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
       const question_count = ref(activeSection.value.question_count);
       const description = ref(activeSection.value.description);
-      const section_title = ref(activeSection.value.section_title);
+      const section_title = ref(activeSection.value.section_title.trim());
 
       const sectionTitleInvalidText = computed(() => {
         if (section_title.value.trim() === '') {
@@ -370,7 +370,7 @@
             // Skip the current section
             return true;
           }
-          return section.section_title !== section_title.value;
+          return section.section_title.trim() !== section_title.value.trim();
         });
         if (!titleIsUnique) {
           return sectionTitleUniqueWarning$();
@@ -383,7 +383,7 @@
             learners_see_fixed_order: learners_see_fixed_order.value,
             question_count: question_count.value,
             description: description.value,
-            section_title: section_title.value,
+            section_title: section_title.value.trim(),
           },
           pick(activeSection.value, [
             'learners_see_fixed_order',

@@ -302,7 +302,6 @@
           });
         } else {
           this.formIsSubmitted = false;
-          this.$refs.titleField.focus();
         }
       },
       /**
@@ -318,6 +317,9 @@
       handleSubmitTitleFailure() {
         this.formIsSubmitted = false;
         this.showTitleError = true;
+        this.$refs.titleField.focus();
+        // Scroll to the title field in case focus() didn't do that immediately
+        this.window.scrollTo({ top: 0, behavior: 'smooth' });
       },
     },
   };

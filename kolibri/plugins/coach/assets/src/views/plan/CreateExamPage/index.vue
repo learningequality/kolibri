@@ -87,6 +87,19 @@
 
     </KPageContainer>
 
+    <KModal
+      v-if="closeConfirmationToRoute"
+      :submitText="coreString('continueAction')"
+      :cancelText="coreString('cancelAction')"
+      :title="closeConfirmationTitle$()"
+      @cancel="closeConfirmationToRoute = null"
+      @submit="$router.push(closeConfirmationToRoute)"
+    >
+      {{ closeConfirmationMessage$() }}
+    </KModal>
+
+
+
     <router-view v-if="quizInitialized" />
 
   </CoachImmersivePage>
@@ -121,14 +134,24 @@
     },
     mixins: [commonCoreStrings],
     setup() {
+      const closeConfirmationToRoute = ref(null);
       const { classId, groups } = useCoreCoach();
-      const { quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } = useQuizCreation();
+      const {
+        quizHasChanged,
+        quiz,
+        updateQuiz,
+        saveQuiz,
+        initializeQuiz,
+        allSectionsEmpty,
+      } = useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 
       const {
         saveAndClose$,
         allSectionsEmptyWarning$,
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
         sectionOrderLabel$,
         randomizedLabel$,
         fixedLabel$,
@@ -137,10 +160,14 @@
       } = enhancedQuizManagementStrings;
 
       return {
+        closeConfirmationTitle$,
+        closeConfirmationMessage$,
         classId,
         groups,
+        closeConfirmationToRoute,
         showError,
         quiz,
+        quizHasChanged,
         saveQuiz,
         updateQuiz,
         initializeQuiz,
@@ -202,6 +229,14 @@
         });
       },
     },
+    beforeRouteLeave(to, from, next) {
+      if (this.quizHasChanged && !this.closeConfirmationToRoute) {
+        this.closeConfirmationToRoute = to;
+        next(false);
+      } else {
+        next();
+      }
+    },
     mounted() {
       this.$store.dispatch('notLoading');
     },
@@ -234,7 +269,7 @@
             }
           })
           .catch(error => {
-            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE]);
+            const errors = CatchErrors(error, [ERROR_CONSTANTS.UNIQUE, 'BLANK']);
             this.$refs.detailsModal.handleSubmitFailure();
             if (errors.length) {
               this.$refs.detailsModal.handleSubmitTitleFailure();
