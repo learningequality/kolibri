@@ -162,7 +162,7 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          {{ $tr('questionOrderLabel') }}
+          {{ sectionOrderLabel$() }}
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -265,6 +265,7 @@
   import Lockr from 'lockr';
   import { QUIZ_REPORT_VISIBILITY_MODAL_DISMISSED } from 'kolibri.coreVue.vuex.constants';
   import { mapActions } from 'vuex';
+  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { coachStringsMixin } from './commonCoachStrings';
   import Score from './Score';
   import Recipients from './Recipients';
@@ -275,6 +276,10 @@
     name: 'QuizStatus',
     components: { Score, Recipients, ElapsedTime, StatusElapsedTime, AverageScoreTooltip },
     mixins: [coachStringsMixin, commonCoreStrings],
+    setup() {
+      const { sectionOrderLabel$ } = enhancedQuizManagementStrings;
+      return { sectionOrderLabel$ };
+    },
     props: {
       className: {
         type: String,
@@ -453,10 +458,6 @@
         message: 'Report visible to learners',
         context:
           'The label for a switch that will toggle whether or not learners can view their quiz report.',
-      },
-      questionOrderLabel: {
-        message: 'Question order',
-        context: 'A label for the place where the question order is shown.',
       },
     },
   };

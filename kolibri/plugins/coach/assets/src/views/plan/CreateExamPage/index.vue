@@ -27,6 +27,40 @@
         @update="updateQuiz"
       />
 
+      <div v-if="quizInitialized">
+        <h5 class="section-order-header">
+          {{ sectionOrderLabel$() }}
+        </h5>
+        <KGrid>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              :currentValue="quiz.learners_see_fixed_order"
+              :label="randomizedLabel$()"
+              :buttonValue="false"
+              :description="randomizedSectionOptionDescription$()"
+              @input="value => updateQuiz({ learners_see_fixed_order: value })"
+            />
+          </KGridItem>
+          <KGridItem
+            :layout12="{ span: 6 }"
+            :layout8="{ span: 4 }"
+            :layout4="{ span: 2 }"
+          >
+            <KRadioButton
+              :currentValue="quiz.learners_see_fixed_order"
+              :label="fixedLabel$()"
+              :buttonValue="true"
+              :description="fixedSectionOptionDescription$()"
+              @input="value => updateQuiz({ learners_see_fixed_order: value })"
+            />
+          </KGridItem>
+        </KGrid>
+      </div>
+
       <CreateQuizSection v-if="quizInitialized && quiz.draft" />
 
       <BottomAppBar>
@@ -92,7 +126,15 @@
       const showError = ref(false);
       const quizInitialized = ref(false);
 
-      const { saveAndClose$, allSectionsEmptyWarning$ } = enhancedQuizManagementStrings;
+      const {
+        saveAndClose$,
+        allSectionsEmptyWarning$,
+        sectionOrderLabel$,
+        randomizedLabel$,
+        fixedLabel$,
+        randomizedSectionOptionDescription$,
+        fixedSectionOptionDescription$,
+      } = enhancedQuizManagementStrings;
 
       return {
         classId,
@@ -106,6 +148,11 @@
         allSectionsEmpty,
         allSectionsEmptyWarning$,
         saveAndClose$,
+        sectionOrderLabel$,
+        randomizedLabel$,
+        fixedLabel$,
+        randomizedSectionOptionDescription$,
+        fixedSectionOptionDescription$,
       };
     },
     provide() {
@@ -210,6 +257,11 @@
 
   .message {
     margin-right: 8px;
+  }
+
+  .section-order-header {
+    margin-top: 0;
+    margin-bottom: 0.5em;
   }
 
 </style>
