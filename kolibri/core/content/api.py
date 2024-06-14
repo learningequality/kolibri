@@ -378,16 +378,6 @@ class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
     pass
 
 
-class IdFilter(FilterSet):
-    ids = CharFilter(method="filter_ids")
-
-    def filter_ids(self, queryset, name, value):
-        return queryset.filter_by_uuids(value.split(","))
-
-    class Meta:
-        fields = ["ids"]
-
-
 MODALITIES = set(["QUIZ"])
 
 
@@ -428,7 +418,8 @@ contentnode_filter_fields = [
 ]
 
 
-class ContentNodeFilter(IdFilter):
+class ContentNodeFilter(FilterSet):
+    ids = UUIDInFilter(method="filter_ids")
     kind = ChoiceFilter(
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Resource")),)),
@@ -458,6 +449,9 @@ class ContentNodeFilter(IdFilter):
     class Meta:
         model = models.ContentNode
         fields = contentnode_filter_fields
+
+    def filter_ids(self, queryset, name, value):
+        return queryset.filter_by_uuids(value)
 
     def filter_by_authors(self, queryset, name, value):
         """
@@ -878,9 +872,8 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = self.request.query_params.get("ids", None)
         if not ids:
             return Response([])
-        ids = ids.split(",")
         kind = self.request.query_params.get("descendant_kind", None)
-        nodes = models.ContentNode.objects.filter_by_uuids(ids).filter(available=True)
+        nodes = self.filter_queryset(self.get_queryset())
         data = []
         for node in nodes:
 
@@ -902,10 +895,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = self.request.query_params.get("ids", None)
         if not ids:
             return Response([])
-        ids = ids.split(",")
-        queryset = models.ContentNode.objects.filter_by_uuids(ids).filter(
-            available=True
-        )
+        queryset = self.filter_queryset(self.get_queryset())
         data = list(
             queryset.annotate(
                 num_assessments=SQSum(
