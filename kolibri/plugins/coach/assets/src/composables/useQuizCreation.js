@@ -1,6 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
@@ -15,7 +16,6 @@ import {
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
 import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';
-import { MAX_QUESTIONS } from '../constants/examConstants';
 import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
@@ -90,8 +90,10 @@ export default function useQuizCreation() {
       if (!Array.isArray(questions)) {
         throw new TypeError('Questions must be an array');
       }
-      if (questions.length > MAX_QUESTIONS) {
-        throw new TypeError(`Questions array must not exceed ${MAX_QUESTIONS} items`);
+      if (questions.length > MAX_QUESTIONS_PER_QUIZ_SECTION) {
+        throw new TypeError(
+          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`
+        );
       }
       if (questions.some(q => !validateObject(q, QuizQuestion))) {
         throw new TypeError('Questions must be valid QuizQuestion objects');

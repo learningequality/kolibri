@@ -194,3 +194,5 @@ export const Presets = Object.freeze({
   FORMAL: 'formal',
   NONFORMAL: 'nonformal',
 });
+
+export const MAX_QUESTIONS_PER_QUIZ_SECTION = 50;

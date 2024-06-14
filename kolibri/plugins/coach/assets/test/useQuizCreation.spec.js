@@ -2,9 +2,9 @@ import Vue from 'vue';
 import { get } from '@vueuse/core';
 import { ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
-import { MAX_QUESTIONS } from '../src/constants/examConstants.js';
 
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 
@@ -186,13 +186,13 @@ describe('useQuizCreation', () => {
       it('updateSection throws a TypeError if trying to update a section with a bad section shape', () => {
         expect(() => updateSection({ sectionIndex: null, title: 1 })).toThrow(TypeError);
       });
-      it('addQuestionsToSectionFromResources throws a TypeError if trying to update a section with more questions than MAX_QUESTIONS', () => {
-        const exercise = generateExercise(MAX_QUESTIONS + 1);
+      it('addQuestionsToSectionFromResources throws a TypeError if trying to update a section with more questions than MAX_QUESTIONS_PER_QUIZ_SECTION', () => {
+        const exercise = generateExercise(MAX_QUESTIONS_PER_QUIZ_SECTION + 1);
         expect(() =>
           addQuestionsToSectionFromResources({
             sectionIndex: get(activeSectionIndex),
             resourcePool: [exercise],
-            questionCount: MAX_QUESTIONS + 1,
+            questionCount: MAX_QUESTIONS_PER_QUIZ_SECTION + 1,
           })
         ).toThrow(TypeError);
       });

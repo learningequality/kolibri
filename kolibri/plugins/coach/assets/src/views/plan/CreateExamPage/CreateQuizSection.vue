@@ -348,13 +348,13 @@
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
-  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import TabsWithOverflow from './TabsWithOverflow';
   import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
@@ -554,7 +554,7 @@
             label: addQuestionsLabel,
             icon: 'plus',
             id: 'plus',
-            disabled: this.activeQuestions.length >= MAX_QUESTIONS,
+            disabled: this.activeQuestions.length >= MAX_QUESTIONS_PER_QUIZ_SECTION,
           },
         ];
       },

@@ -21,7 +21,7 @@
           <span>
             {{
               maxNumberOfQuestionsPerSection$({
-                count: MAX_QUESTIONS, current: activeQuestions.length
+                count: MAX_QUESTIONS_PER_QUIZ_SECTION, current: activeQuestions.length
               })
             }}
           </span>
@@ -196,11 +196,10 @@
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
-  import { MAX_QUESTIONS } from '../../../constants/examConstants';
   import BookmarkIcon from '../LessonResourceSelectionPage/LessonContentCard/BookmarkIcon.vue';
   import useQuizResources from '../../../composables/useQuizResources';
   import { injectQuizCreation } from '../../../composables/useQuizCreation';
@@ -237,7 +236,9 @@
         addSection,
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
-      const maxQuestions = computed(() => MAX_QUESTIONS - activeQuestions.value.length);
+      const maxQuestions = computed(
+        () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length
+      );
       const questionCount = ref(Math.min(10, maxQuestions.value));
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
@@ -630,7 +631,7 @@
         contentPresentInWorkingResourcePool,
         questionCount,
         maxQuestions,
-        MAX_QUESTIONS,
+        MAX_QUESTIONS_PER_QUIZ_SECTION,
         workingPoolUnusedQuestions,
         disableSave,
         cannotSelectSomeTopicWarning$,
@@ -772,7 +773,7 @@
             if (sectionIndex !== this.activeSectionIndex) {
               this.addSection();
             }
-            const questions = remainder.splice(0, MAX_QUESTIONS);
+            const questions = remainder.splice(0, MAX_QUESTIONS_PER_QUIZ_SECTION);
             this.updateSection({
               sectionIndex,
               questions,

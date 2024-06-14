@@ -1,5 +1,6 @@
 import map from 'lodash/map';
 import { ContentNodeResource } from 'kolibri.resources';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { convertExamQuestionSources } from '../../src/exams/utils';
 
 // map of content IDs to lists of question IDs
@@ -250,6 +251,27 @@ describe('exam utils', () => {
           item: 'E2:Q1',
         },
       ]);
+    });
+    it('renames creates multiple sections if the questions are longer than MAX_QUESTIONS_PER_QUIZ_SECTION', async () => {
+      const question_sources = [];
+      for (let i = 0; i < MAX_QUESTIONS_PER_QUIZ_SECTION + 1; i++) {
+        question_sources.push({
+          exercise_id: 'E1',
+          question_id: `Q${i}`,
+          title: `Question ${i + 1}`,
+          counter_in_exercise: i + 1,
+        });
+      }
+      const exam = {
+        data_model_version: 1,
+        question_sources,
+      };
+      const converted = await convertExamQuestionSources(exam);
+      expect(converted.question_sources.length).toEqual(2);
+      expect(converted.question_sources[0].questions.length).toEqual(
+        MAX_QUESTIONS_PER_QUIZ_SECTION
+      );
+      expect(converted.question_sources[1].questions.length).toEqual(1);
     });
   });
 

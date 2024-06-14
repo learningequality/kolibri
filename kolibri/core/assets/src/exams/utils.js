@@ -1,5 +1,6 @@
 import uniq from 'lodash/uniq';
 import some from 'lodash/some';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { ExamResource, ContentNodeResource } from 'kolibri.resources';
 
 /*
@@ -104,14 +105,17 @@ export function convertExamQuestionSourcesV2toV3({ question_sources, learners_se
       title: '',
     };
   });
-  return [
-    {
+  const sections = [];
+
+  while (questions.length > 0) {
+    sections.push({
       section_title: '',
       description: '',
-      questions,
+      questions: questions.splice(0, MAX_QUESTIONS_PER_QUIZ_SECTION),
       learners_see_fixed_order,
-    },
-  ];
+    });
+  }
+  return sections;
 }
 
 /**
