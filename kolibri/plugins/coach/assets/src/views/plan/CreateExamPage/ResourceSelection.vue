@@ -730,7 +730,7 @@
     },
     methods: {
       cardNoticeContent(content) {
-        if (content.kind === ContentNodeKinds.EXERCISE) {
+        if (!this.selectPracticeQuiz && content.kind === ContentNodeKinds.EXERCISE) {
           return this.questionsUnusedInSection$({
             count: this.unusedQuestionsCount(content),
           });

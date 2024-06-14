@@ -67,6 +67,13 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
                   // return null so we can easily filter after
                   return null;
                 }
+                if (node.kind === ContentNodeKinds.TOPIC && !node.children) {
+                  // If the topic has no children, we can assume it has no assessments
+                  // Only do this check for topics, because CHANNEL kinds are normally
+                  // ChannelMetadata objects masquerading as ContentNode objects
+                  // and so don't have children
+                  return null;
+                }
                 node.num_assessments = topicsWithAssessmentCountsMap[node.id];
               }
               return node;
