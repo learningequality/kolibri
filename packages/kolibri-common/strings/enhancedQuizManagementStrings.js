@@ -216,7 +216,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   cannotSelectSomeTopicWarning: {
     message:
-      'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
+      'You can only select folders with { count, number } or less exercises and no subfolders to avoid oversized quizzes.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
