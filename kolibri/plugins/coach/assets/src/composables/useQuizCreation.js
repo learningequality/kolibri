@@ -323,7 +323,12 @@ export default function useQuizCreation() {
       finalQuiz.question_sources = questionSourcesWithoutResourcePool;
     }
 
-    return ExamResource.saveModel({ id, data: finalQuiz });
+    return ExamResource.saveModel({ id, data: finalQuiz }).then(exam => {
+      if (!get(_quiz).id) {
+        updateQuiz({ id: exam.id });
+      }
+      return exam;
+    });
   }
 
   /**
