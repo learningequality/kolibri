@@ -270,6 +270,8 @@ export default function useQuizCreation() {
       if (id !== exam.id) {
         updateQuiz({ id: exam.id });
       }
+      // Update quizHasChanged to false once we have saved the quiz
+      set(quizHasChanged, false);
       return exam;
     });
   }
