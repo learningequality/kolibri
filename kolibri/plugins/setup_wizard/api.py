@@ -72,6 +72,7 @@ class FacilityImportViewSet(ViewSet):
     and create a superuser
     """
 
+    # TODO Alex - Should handle permissions issues
     permission_classes = (HasPermissionDuringSetup,)
 
     @decorators.action(methods=["get"], detail=False)

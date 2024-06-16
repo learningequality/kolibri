@@ -4,12 +4,12 @@
     :appBarTitle="deviceString('importUserLabel')"
     :primary="false"
     :loading="loading"
-    @navIconClick="handleExit"
+    @navIconClick="importUserService.send('RESET_IMPORT')"
   >
     <KPageContainer class="device-container">
       <div v-if="!loading">
         <h1>
-          {{ header }}
+          {{ getCommonSyncString('selectFacilityTitle') }}
         </h1>
         <!-- TODO: Show "you cannot import from this facility" message -->
         <RadioButtonGroup
@@ -83,9 +83,6 @@
       };
     },
     computed: {
-      header() {
-        return this.getCommonSyncString('selectFacilityTitle');
-      },
       importDeviceId() {
         return this.importUserService.state.context.importDeviceId;
       },
@@ -126,9 +123,6 @@
             facilitiesCount: this.facilities.length,
           },
         });
-      },
-      handleExit() {
-        this.importUserService.send('RESET_IMPORT');
       },
     },
     $trs: {
