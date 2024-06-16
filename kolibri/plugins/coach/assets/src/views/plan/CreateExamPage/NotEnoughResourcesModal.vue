@@ -3,23 +3,24 @@
   <KModal
     :title="notEnoughReplacementsTitle$()"
   >
-    <p>
+    <p v-if="availableQuestions.length">
       {{
         notEnoughReplacementsMessage$({
           selected: selectedQuestions.length,
-          available: availableResources.length,
-        })
-      }}
-    </p>
-    <p v-if="availableResources.length">
-      {{
-        addMoreResourcesWithNonEmptyPool$({
-          available: availableResources.length,
+          available: availableQuestions.length,
         })
       }}
     </p>
     <p v-else>
-      {{ addMoreResourcesWithEmptyPool$() }}
+      {{ noReplacementsMessage$() }}
+    </p>
+    <p v-if="availableQuestions.length">
+      {{
+        addMoreQuestionsWithNonEmptyPool$()
+      }}
+    </p>
+    <p v-else>
+      {{ addMoreQuestionsWithEmptyPool$() }}
     </p>
     <template #actions>
       <KButtonGroup>
@@ -32,7 +33,7 @@
           primary
           @click="() => $emit('addResources')"
         >
-          {{ addResourcesAction$() }}
+          {{ addQuestions$() }}
         </KButton>
       </KButtonGroup>
     </template>
@@ -50,19 +51,21 @@
     setup() {
       const {
         goBackAction$,
-        addResourcesAction$,
+        addQuestions$,
         notEnoughReplacementsTitle$,
         notEnoughReplacementsMessage$,
-        addMoreResourcesWithEmptyPool$,
-        addMoreResourcesWithNonEmptyPool$,
+        addMoreQuestionsWithEmptyPool$,
+        addMoreQuestionsWithNonEmptyPool$,
+        noReplacementsMessage$,
       } = enhancedQuizManagementStrings;
       return {
         goBackAction$,
-        addResourcesAction$,
+        addQuestions$,
         notEnoughReplacementsTitle$,
         notEnoughReplacementsMessage$,
-        addMoreResourcesWithEmptyPool$,
-        addMoreResourcesWithNonEmptyPool$,
+        addMoreQuestionsWithEmptyPool$,
+        addMoreQuestionsWithNonEmptyPool$,
+        noReplacementsMessage$,
       };
     },
     props: {
@@ -70,7 +73,7 @@
         type: Array,
         required: true,
       },
-      availableResources: {
+      availableQuestions: {
         type: Array,
         required: true,
       },

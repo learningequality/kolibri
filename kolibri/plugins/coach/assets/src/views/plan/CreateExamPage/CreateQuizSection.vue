@@ -312,7 +312,7 @@
     <NotEnoughResourcesModal
       v-if="showNotEnoughResourcesModal"
       :selectedQuestions="selectedActiveQuestions"
-      :availableResources="replacementQuestionPool"
+      :availableQuestions="replacementQuestionPool"
       @close="showNotEnoughResourcesModal = false"
       @addResources="redirectToSelectResources"
     />
@@ -567,6 +567,13 @@
       }
     },
     methods: {
+      getCurrentRouteParams() {
+        return {
+          classId: this.$route.params.classId,
+          quizId: this.$route.params.quizId,
+          sectionIndex: this.$route.params.sectionIndex,
+        };
+      },
       setActiveSection(sectionIndex = null) {
         if (sectionIndex === null) {
           sectionIndex = 0;
@@ -575,7 +582,10 @@
           throw new Error(`Section with id ${sectionIndex} not found; cannot be set as active.`);
         }
         if (sectionIndex !== this.activeSectionIndex) {
-          this.$router.push({ ...this.$route, params: { ...this.$route.params, sectionIndex } });
+          this.$router.push({
+            ...this.$route,
+            params: { ...this.getCurrentRouteParams(), sectionIndex },
+          });
         }
       },
       handleConfirmDelete() {
@@ -598,21 +608,28 @@
         if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
           this.showNotEnoughResourcesModal = true;
         } else {
-          const sectionIndex = this.activeSectionIndex;
-          this.$router.push({ name: PageNames.QUIZ_REPLACE_QUESTIONS, params: { sectionIndex } });
+          this.$router.push({
+            name: PageNames.QUIZ_REPLACE_QUESTIONS,
+            params: this.getCurrentRouteParams(),
+          });
         }
       },
       handleActiveSectionAction(opt) {
-        const sectionIndex = this.activeSectionIndex;
         switch (opt.id) {
           case 'edit':
-            this.$router.push({ name: PageNames.QUIZ_SECTION_EDITOR, params: { sectionIndex } });
+            this.$router.push({
+              name: PageNames.QUIZ_SECTION_EDITOR,
+              params: this.getCurrentRouteParams(),
+            });
             break;
           case 'delete':
             this.showDeleteConfirmation = true;
             break;
           case 'plus':
-            this.$router.push({ name: PageNames.QUIZ_SELECT_RESOURCES, params: { sectionIndex } });
+            this.$router.push({
+              name: PageNames.QUIZ_SELECT_RESOURCES,
+              params: this.getCurrentRouteParams(),
+            });
             break;
         }
       },
@@ -671,7 +688,7 @@
       openSelectResources() {
         this.$router.push({
           name: PageNames.QUIZ_SELECT_RESOURCES,
-          params: { ...this.$route.params },
+          params: this.getCurrentRouteParams(),
         });
       },
       deleteQuestions() {

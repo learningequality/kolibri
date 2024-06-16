@@ -142,7 +142,11 @@
         if (option === 'EDIT_DETAILS') {
           this.$router.push({
             name: PageNames.EXAM_CREATION_ROOT,
-            params: { ...this.$route.params },
+            params: {
+              classId: this.$route.params.classId,
+              quizId: this.$route.params.quizId,
+              sectionIndex: 0,
+            },
             query: this.defaultBackLinkQuery,
           });
         }

@@ -241,18 +241,23 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'Title of modal when a user tries to replace more questions than are available in the pool',
   },
+  noReplacementsMessage: {
+    message:
+      'There are no more similar questions available to replace the selected questions with.',
+  },
   notEnoughReplacementsMessage: {
     message:
       "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
-  addMoreResourcesWithEmptyPool: {
-    message: 'Please add more resources to this section.',
+  addMoreQuestionsWithEmptyPool: {
+    message: 'You can add more questions, or delete existing questions.',
     context: 'Message of modal when a user tries to replace questions but the pool is empty',
   },
-  addMoreResourcesWithNonEmptyPool: {
-    message: 'Please add more resources to this section, or go back and select fewer questions',
+  addMoreQuestionsWithNonEmptyPool: {
+    message:
+      'You can add more questions, delete existing questions, or go back and select fewer questions',
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
