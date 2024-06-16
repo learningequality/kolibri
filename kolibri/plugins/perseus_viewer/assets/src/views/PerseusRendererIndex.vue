@@ -92,7 +92,7 @@
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
   import { defer } from 'underscore';
-  import { createElement, createFactory, Component } from 'react';
+  import { createFactory } from 'react';
   import { render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
   // Import this here so that our string translation machinery
@@ -184,13 +184,6 @@
     ...defaultFilePathMappers,
     json: JSONMapper,
   };
-  // Apparently there are reasons that this is needed, but not in our case,
-  // so this can be a simple pass through component that just renders the children.
-  class KatexProvider extends Component {
-    render() {
-      return createElement('div', null, this.props.children);
-    }
-  }
 
   perseus.Util.getDataUrl = url => {
     return globalImageUrls[url.replace(svgLabelsRegex, '') + '-data.json'];
@@ -274,16 +267,16 @@
             toolTipFormats: true,
           },
           apiOptions: {
+            isArticle: false,
             // Pass in callbacks for widget interaction and focus change.
             // Here we dismiss answer error message on interaction and focus change.
             interactionCallback: this.interactionCallback,
+            trackInteraction: this.interactionCallback,
             onFocusChange: this.dismissMessage,
+            onInputError: logging.error,
             isMobile: this.isMobile,
             customKeypad: this.usesTouch,
             readOnly: !this.interactive,
-            styling: {
-              primaryProductColor: this.$themeBrand.primary.v_300,
-            },
             hintProgressColor: this.$themeTokens.text,
           },
         };
@@ -338,17 +331,6 @@
         JIPT: {
           useJIPT: false,
         },
-        // A function that returns a promise that resolves to the KaTeX object.
-        getKaTeX: () => import('katex').then(katex => katex.default),
-        // This is required, so just pass it logging.error
-        logKaTeXError: logging.error,
-        // Return the KaTeX contrib module for rendering accessibility strings
-        getRenderA11yString: () =>
-          import('katex/dist/contrib/render-a11y-string').then(
-            renderA11yString => renderA11yString.default
-          ),
-        // This is where we dependency inject our dummy component
-        KatexProvider,
         // This is the component that actually renders TeX either with KaTeX or Mathjax.
         TeX,
         isDevServer: process.env.NODE_ENV !== 'production',
@@ -361,6 +343,8 @@
         // We already preprocess all URLs
         // we may need to enhance this if we find one of the uses of it is breaking.
         staticUrl: url => url,
+        // Pass our logging object to capture Log messages from Perseus
+        Log: logging,
       });
       const initPromise = perseus.init({ skipMathJax: true });
       // Try to load the appropriate directional CSS for the particular content
