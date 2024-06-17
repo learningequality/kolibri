@@ -16,6 +16,7 @@ import heartbeat from 'kolibri.heartbeat';
 import ContentRenderer from '../views/ContentRenderer';
 import initializeTheme from '../styles/initializeTheme';
 import { i18nSetup } from '../utils/i18n';
+import report from '../utils/reportError';
 import setupPluginMediator from './pluginMediator';
 import apiSpec from './apiSpec';
 
@@ -70,6 +71,27 @@ Vue.component('ContentRenderer', ContentRenderer);
 heartbeat.startPolling();
 
 i18nSetup().then(coreApp.ready);
+
+// these shall be responsibe for catching runtime errors
+
+//for errors from Vue components
+
+Vue.config.errorHandler = function(err, vm, info) {
+  console.error('Unexpected Error: ', err.message, err.stack, vm, info); // eslint-disable-line no-console
+  report(err);
+};
+
+window.addEventListener('error', e => {
+  const { message, filename, lineno, colno, error } = e;
+  console.error('Unexpected Error: ', message); // eslint-disable-line no-console
+  report(error);
+});
+
+window.addEventListener('unhandledrejection', event => {
+  event.preventDefault();
+  console.error('Unhandled Rejection:', event.reason); // eslint-disable-line no-console
+  report(event.reason);
+});
 
 // This is exported by webpack as the kolibriCoreAppGlobal object, due to the 'output.library' flag
 // which exports the coreApp at the bottom of this file as a named global variable:
