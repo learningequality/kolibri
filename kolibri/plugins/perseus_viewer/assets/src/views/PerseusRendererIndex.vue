@@ -23,6 +23,7 @@
 
 <script>
 
+  import { StyleSheet } from 'aphrodite';
   import invert from 'lodash/invert';
   import get from 'lodash/get';
   import ZipFile from 'kolibri-zip';
@@ -33,7 +34,12 @@
   import { createElement as e } from 'react';
   import { render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
-  import { MathInputI18nContextProvider } from '@khanacademy/math-input';
+  import {
+    MathInputI18nContextProvider,
+    StatefulKeypadContextProvider,
+    KeypadContext,
+    MobileKeypad,
+  } from '@khanacademy/math-input';
   import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
   import perseusTranslator from '../translator';
   import { wrapPerseusMessages } from '../translationUtils';
@@ -42,6 +48,12 @@
   import TeX from './Tex';
 
   const translator = wrapPerseusMessages(perseusTranslator);
+
+  const keypadStyle = StyleSheet.create({
+    keypadContainer: {
+      position: 'relative',
+    },
+  });
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
 
@@ -395,11 +407,36 @@
         };
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
-        const rendererElement = e(perseus.ServerItemRenderer, itemRenderData);
+        const keypadContextConsumerElement = e(
+          KeypadContext.Consumer,
+          { key: 'keypadContextConsumer' },
+          ({ keypadElement }) =>
+            e(perseus.ServerItemRenderer, {
+              ...itemRenderData,
+              keypadElement: keypadElement,
+            })
+        );
+        const keypadWithContextElement = e(
+          KeypadContext.Consumer,
+          { key: 'keypadWithContext ' },
+          ({ setKeypadElement }) =>
+            e('div', {
+              className: 'keypad-container',
+              children: e(MobileKeypad, {
+                style: keypadStyle.keypadContainer,
+                onElementMounted: setKeypadElement,
+                onDismiss: () => {},
+                onAnalyticsEvent: async () => {},
+              }),
+            })
+        );
+        const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
+          children: [keypadContextConsumerElement, keypadWithContextElement],
+        });
         const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
           locale: this.lang,
           strings: translator,
-          children: rendererElement,
+          children: statefulKeypadContextProviderElement,
         });
         const mathInputStringsElement = e(MathInputI18nContextProvider, {
           locale: this.lang,
@@ -647,6 +684,7 @@
 
   @import '~katex/dist/katex.css';
   @import '~../../dist/index.css';
+  @import '~../../dist/math-input.css';
 
   /deep/ .perseus-hint-renderer {
     padding-left: 16px;
@@ -682,7 +720,10 @@
      help force Perseus exercises to render within the allotted space. */
 
   .framework-perseus {
-    padding-bottom: 104px;
+    position: relative; /* Make it a positioning context */
+    display: flex;
+    flex-direction: column;
+    height: 100%; /* Take up all available vertical space */
 
     // Orderer widget wrapper. Stops it from going off screen right
     /deep/ .orderer {
@@ -711,7 +752,11 @@
   }
 
   .perseus {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
     padding: 24px;
+    overflow: auto; /* Allow scrolling if needed */
     background: white;
   }
 
@@ -755,6 +800,7 @@
   .perseus-root {
     position: relative;
     z-index: 0;
+    height: 100%;
 
     div,
     span,
@@ -898,6 +944,8 @@
   }
 
   .keypad-container {
+    flex-shrink: 0; /* Prevent the keypad from shrinking */
+    justify-content: center; /* Center the keypad horizontally */
     direction: ltr;
   }
 
