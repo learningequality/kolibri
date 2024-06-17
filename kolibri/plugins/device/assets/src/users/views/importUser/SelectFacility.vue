@@ -38,14 +38,14 @@
         />
       </div>
       <KCircularLoader v-else />
+      <BottomAppBar>
+        <KButton
+          :text="coreString('continueAction')"
+          :primary="true"
+          @click="handleContinue"
+        />
+      </BottomAppBar>
     </KPageContainer>
-    <BottomAppBar>
-      <KButton
-        :text="coreString('continueAction')"
-        :primary="true"
-        @click="handleContinue"
-      />
-    </BottomAppBar>
   </ImmersivePage>
 
 </template>

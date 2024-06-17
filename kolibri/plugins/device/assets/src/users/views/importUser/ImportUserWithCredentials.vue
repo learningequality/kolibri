@@ -4,8 +4,6 @@
     :primary="false"
     :appBarTitle="deviceString('importUserLabel')"
     :loading="loadingNewAddress"
-    :disabled="formSubmitted || importUserService.state.context.importedUsers.length > 0"
-    @continue="handleSubmit"
     @navIconClick="importUserService.send('RESET_IMPORT')"
   >
     <KPageContainer class="device-container">
@@ -86,8 +84,15 @@
           />
         </KModal>
       </div>
+      <BottomAppBar>
+        <KButton
+          :text="coreString('continueAction')"
+          :primary="true"
+          :disabled="formSubmitted || !!invalidText"
+          @click="handleSubmit"
+        />
+      </BottomAppBar>
     </KPageContainer>
-
   </ImmersivePage>
 
 </template>
@@ -97,6 +102,7 @@
 
   import get from 'lodash/get';
   import { currentLanguage } from 'kolibri.utils.i18n';
+  import BottomAppBar from 'kolibri.coreVue.components.BottomAppBar';
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
@@ -111,8 +117,9 @@
   export default {
     name: 'ImportUserWithCredentials',
     components: {
-      PasswordTextbox,
+      BottomAppBar,
       ImmersivePage,
+      PasswordTextbox,
     },
     mixins: [commonSyncElements, commonCoreStrings, commonProfileStrings, commonDeviceStrings],
     data() {
@@ -141,9 +148,6 @@
       },
       facility() {
         return this.facilities.find(f => f.id === this.selectedFacilityId);
-      },
-      users() {
-        return this.importUserService.state.context.importedUsers || [];
       },
       modalMessage() {
         const importedUserIsAdmin = this.roles && this.roles.includes('admin');
@@ -221,90 +225,60 @@
           this.$refs.adminUsernameTextbox.focus();
         });
       },
-      handleSubmit() {
-        if (this.importUserService.state.context.importedUsers.length === 0) {
-          this.shouldValidate = true;
-          if (this.invalidText) {
-            this.$refs.usernameTextbox.focus();
-            return;
-          }
+      async handleSubmit() {
+        this.shouldValidate = true;
+        if (this.invalidText) {
+          this.$refs.usernameTextbox.focus();
+          return;
         }
         this.formSubmitted = true;
         const task_name = 'kolibri.core.auth.tasks.peeruserimport';
-        const password = this.password === '' ? DemographicConstants.NOT_SPECIFIED : this.password;
+        const password = this.password || DemographicConstants.NOT_SPECIFIED;
         const params = {
           type: task_name,
           username: this.username,
-          password: password,
+          password,
           facility: this.facility.id,
           facility_name: this.facility.name,
           device_id: this.deviceId,
           using_admin: false,
           force_non_learner_import: this.forceNonLearnerImport,
         };
-
-        if (!params.username && params.password === DemographicConstants.NOT_SPECIFIED) {
+        try {
+          await TaskResource.startTask(params);
+          this.importUserService.send({
+            type: 'RESET_IMPORT',
+          });
+        } catch (error) {
           this.formSubmitted = false;
-          // Here, the user has already imported a user so does not need to enter anything
-          // in the form in order to continue
-          if (this.importUserService.state.context.importedUsers.length > 0) {
-            return this.importUserService.send('FINISH');
+          const errorsCaught = CatchErrors(error, [
+            ERROR_CONSTANTS.INVALID_CREDENTIALS,
+            ERROR_CONSTANTS.MISSING_PASSWORD,
+            ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
+            ERROR_CONSTANTS.AUTHENTICATION_FAILED,
+            ERROR_CONSTANTS.INVALID_USERNAME,
+          ]);
+
+          const errorData = error.response.data;
+
+          if (errorsCaught) {
+            this.error = true;
+          } else if (
+            Array.isArray(errorData) &&
+            errorData.find(
+              e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS
+            )
+          ) {
+            const error_info = errorData.reduce((info, err) => {
+              const { field, message } = err.metadata;
+              info[field] = message;
+              return info;
+            }, {});
+            this.full_name = error_info['full_name'];
+            this.roles = error_info['roles'];
+            this.deviceLimitations = true;
           }
         }
-
-        TaskResource.startTask(params)
-          .then(task => {
-            let user = {};
-            if (!this.users.length) {
-              // If this is the first imported Learn Only Device user, it will be the superuser
-              // we create upon provisioning so we'll set them as the superuser
-              user = { username: params.username, password: params.password };
-            }
-            task['device_id'] = this.deviceId;
-            task['facility_name'] = this.facility.name;
-
-            if (!this.importUserService.state.context.firstImportedLodUser) {
-              this.importUserService.send({
-                type: 'SET_FIRST_LOD',
-                value: { username: task.extra_metadata.username, password },
-              });
-            }
-
-            this.importUserService.send({
-              type: 'CONTINUE',
-              value: { ...task, ...user },
-            });
-          })
-          .catch(error => {
-            this.formSubmitted = false;
-            const errorsCaught = CatchErrors(error, [
-              ERROR_CONSTANTS.INVALID_CREDENTIALS,
-              ERROR_CONSTANTS.MISSING_PASSWORD,
-              ERROR_CONSTANTS.PASSWORD_NOT_SPECIFIED,
-              ERROR_CONSTANTS.AUTHENTICATION_FAILED,
-              ERROR_CONSTANTS.INVALID_USERNAME,
-            ]);
-
-            const errorData = error.response.data;
-
-            if (errorsCaught) {
-              this.error = true;
-            } else if (
-              Array.isArray(errorData) &&
-              errorData.find(
-                e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS
-              )
-            ) {
-              const error_info = errorData.reduce((info, err) => {
-                const { field, message } = err.metadata;
-                info[field] = message;
-                return info;
-              }, {});
-              this.full_name = error_info['full_name'];
-              this.roles = error_info['roles'];
-              this.deviceLimitations = true;
-            }
-          });
       },
       importUser() {
         this.forceNonLearnerImport = true;
