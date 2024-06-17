@@ -257,6 +257,7 @@
     },
     watch: {
       title() {
+        this.title = this.title.trim();
         this.$emit('update', { title: this.title });
       },
       description() {
