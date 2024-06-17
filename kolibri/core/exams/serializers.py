@@ -16,6 +16,7 @@ from kolibri.core.auth.models import Collection
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import Membership
 from kolibri.core.auth.utils.users import create_adhoc_group_for_learners
+from kolibri.core.exams.constants import MAX_QUESTIONS_PER_QUIZ_SECTION
 from kolibri.core.exams.models import DraftExam
 from kolibri.core.exams.models import Exam
 from kolibri.core.exams.models import ExamAssignment
@@ -24,17 +25,19 @@ from kolibri.core.exams.models import ExamAssignment
 class QuestionSourceSerializer(Serializer):
     exercise_id = HexUUIDField(format="hex")
     question_id = HexUUIDField(format="hex")
-    title = CharField(default="")
+    title = CharField(default="", allow_blank=True)
     counter_in_exercise = IntegerField()
 
 
 class QuizSectionSerializer(Serializer):
-    section_id = HexUUIDField(format="hex")
     description = CharField(required=False, allow_blank=True)
     section_title = CharField(allow_blank=True, required=False)
-    question_count = IntegerField()
     learners_see_fixed_order = BooleanField(default=False)
-    questions = ListField(child=QuestionSourceSerializer(), required=False)
+    questions = ListField(
+        child=QuestionSourceSerializer(),
+        required=False,
+        max_length=MAX_QUESTIONS_PER_QUIZ_SECTION,
+    )
 
 
 class ExamSerializer(ModelSerializer):

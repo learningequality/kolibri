@@ -38,6 +38,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addQuestionsLabel: {
     message: 'Add questions',
   },
+  addMoreQuestionsLabel: {
+    message: 'Add more questions',
+  },
   sectionSettings: {
     message: 'Section settings',
   },
@@ -54,11 +57,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   optionalDescriptionLabel: {
     message: 'Description (optional)',
   },
-  quizResourceSelection: {
-    message: 'Quiz resource selection',
-  },
-  selectResourcesFromChannels: {
-    message: 'Select resources from channels',
+  selectResources: {
+    message: 'Select resources',
   },
   sectionOrder: {
     message: 'Section order',
@@ -72,14 +72,24 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   addQuestions: {
     message: 'Add questions',
   },
+  addNumberOfQuestions: {
+    message: 'Add { count, number } { count, plural, one { question } other { questions }}',
+  },
   selectResourcesDescription: {
-    message: 'Select resources from these channels',
+    message: 'Select resources to add questions to this section',
   },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
   },
   numberOfSelectedQuestions: {
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+  },
+  maxNumberOfQuestions: {
+    message: 'Max { count, number } { count, plural, one { question } other { questions }}',
+  },
+  maxNumberOfQuestionsPerSection: {
+    message:
+      'Each section may only contain up to { count, number } { count, plural, one { question} other { questions}}, this section has { current, number }',
   },
   replaceQuestions: {
     message: 'Replace questions',
@@ -168,10 +178,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       'The body of a confirmation modal informing the user that they will lose their work if they leave the page',
   },
 
-  numberOfSelectedResources: {
-    message:
-      '{ count, number } { count, plural, one { resource selected } other { resources selected }} from { channels, number } { channels, plural, one { channel } other { channels }}',
-  },
   numberOfSelectedReplacements: {
     message:
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',
@@ -180,10 +186,13 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
+  numberOfQuestionsSelected: {
+    message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+  },
   numberOfResourcesSelected: {
     message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
   },
-  selectedResourcesInformation: {
+  selectedQuestionsInformation: {
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
@@ -195,9 +204,19 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
   },
+  selectQuiz: {
+    message: 'Select quiz',
+    context:
+      "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+  },
+  selectPracticeQuizLabel: {
+    message: 'Select a practice quiz',
+    context:
+      "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
+  },
   cannotSelectSomeTopicWarning: {
     message:
-      'You can only select folders with 12 or less exercises and no subfolders to avoid oversized quizzes.',
+      'You can only select folders with { count, number } or less exercises and no subfolders to avoid oversized quizzes.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
@@ -222,18 +241,23 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context:
       'Title of modal when a user tries to replace more questions than are available in the pool',
   },
+  noReplacementsMessage: {
+    message:
+      'There are no more similar questions available to replace the selected questions with.',
+  },
   notEnoughReplacementsMessage: {
     message:
       "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
-  addMoreResourcesWithEmptyPool: {
-    message: 'Please add more resources to this section.',
+  addMoreQuestionsWithEmptyPool: {
+    message: 'You can add more questions, or delete existing questions.',
     context: 'Message of modal when a user tries to replace questions but the pool is empty',
   },
-  addMoreResourcesWithNonEmptyPool: {
-    message: 'Please add more resources to this section, or go back and select fewer questions',
+  addMoreQuestionsWithNonEmptyPool: {
+    message:
+      'You can add more questions, delete existing questions, or go back and select fewer questions',
     context:
       'Message of modal when a user tries to replace more questions than are available in the pool',
   },
@@ -245,6 +269,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   questionsUnusedInSection: {
     message: '{ count, number } { count, plural, one { question } other { questions }} unused',
+  },
+  questionsFromResources: {
+    message:
+      '{ questions, number } { questions, plural, one { question } other { questions }} in { resources, number } { resources, plural, one { resource } other { resources }}',
   },
   questionsLabel: {
     message: 'Questions',
@@ -265,4 +293,12 @@ export function displaySectionTitle(section, index) {
   return section.section_title === ''
     ? sectionLabel$({ sectionNumber: index + 1 })
     : section.section_title;
+}
+
+export function displayQuestionTitle(question, exerciseTitle) {
+  return question.title === ''
+    ? `${exerciseTitle} (${enhancedQuizManagementStrings.$formatNumber(
+        question.counter_in_exercise
+      )})`
+    : question.title;
 }

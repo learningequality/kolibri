@@ -11,7 +11,7 @@
  *                                      within the `QuizSeciton.resource_pool` property.
  * @property  {string}  id              Unique ID for this exercise (aka, `exercise_id` elsewhere)
  * @property  {string}  title           The resource title
- * @property  {string}  ancestor_id     The ID of the parent contentnode
+ * @property  {string}  parent          The ID of the parent contentnode
  * @property  {string}  content_id      The ID for the piece of content
  * @property  {bool}    is_leaf         Whether or not this is a leaf node (i.e. an exercise)
  * @property  {string}  kind            Exercise or Topic in our case - see: `ContentNodeKinds`
@@ -26,7 +26,7 @@ export const QuizExercise = {
     type: String,
     default: '',
   },
-  ancestor_id: {
+  parent: {
     type: String,
     default: '',
   },
@@ -46,17 +46,17 @@ export const QuizExercise = {
     type: Object,
     default: () => ({ assessment_item_ids: [] }),
   },
-  contentnode: {
-    type: String,
-    default: '',
-  },
 };
+
+function _exercise_id_validator(value) {
+  return /^[0-9a-f]{32}$/.test(value);
+}
 
 /**
  * @typedef  {Object} QuizQuestion         A particular question in a Quiz - aka an assessment item
  *                                         from an QuizExercise.
- * @property {string} id                   A  ** unique **  identifier for this question that is
- *                                          a combination of <exercise_id>:<question_id>
+ * @property {string} item                 A  ** unique **  identifier for this question that is
+ *                                         a combination of <exercise_id>:<question_id>
  * @property {string} exercise_id          The ID of the resource from which the question originates
  * @property {string} question_id          A *unique* identifier of this particular question within
  *                                         the quiz -- same as the `assessment_item_id`
@@ -65,9 +65,28 @@ export const QuizExercise = {
  *                                         same exercise title to differentiate them
  */
 export const QuizQuestion = {
+  item: {
+    type: String,
+    required: true,
+    validator: value => {
+      const segments = value.split(':');
+      if (segments.length !== 2) {
+        return false;
+      }
+      if (segments[0] === '' || segments[1] === '') {
+        return false;
+      }
+      // The exercise_id (segment[0]) should be a 32 digit hex string
+      if (!_exercise_id_validator(segments[0])) {
+        return false;
+      }
+      return true;
+    },
+  },
   exercise_id: {
     type: String,
     required: true,
+    validator: _exercise_id_validator,
   },
   question_id: {
     type: String,
@@ -78,7 +97,7 @@ export const QuizQuestion = {
     default: '',
   },
   counter_in_exercise: {
-    type: 'number',
+    type: Number,
     default: 0,
   },
 };
@@ -89,20 +108,16 @@ export const QuizQuestion = {
  *                                                           only used on the front-end
  * @property {string}             section_title              The title of the quiz section
  * @property {string}             description                A text blob associated with the section
- * @property {number}             question_count             The number of questions in the section
  * @property {QuizQuestion[]}     questions                  The list of QuizQuestion objects in the
  *                                                           section
  * @property {boolean}            learners_see_fixed_order   A bool flag indicating whether this
  *                                                           section is shown in the same order, or
  *                                                           randomized, to the learners
- * @property {QuizExercise[]}     resource_pool              An array of QuizExercise objects from
- *                                                           which the questions in this section_id
- *                                                           will be drawn
  */
 export const QuizSection = {
   section_id: {
     type: String,
-    required: true,
+    default: () => String(performance.now()),
   },
   section_title: {
     type: String,
@@ -117,18 +132,9 @@ export const QuizSection = {
     default: () => [],
     spec: QuizQuestion,
   },
-  question_count: {
-    type: Number,
-    default: 10,
-  },
   learners_see_fixed_order: {
     type: Boolean,
     default: false,
-  },
-  resource_pool: {
-    type: Array,
-    default: () => [],
-    spec: QuizExercise,
   },
 };
 
@@ -178,7 +184,7 @@ export const Quiz = {
   },
   seed: {
     type: Number,
-    default: getRandomInt(),
+    default: getRandomInt,
   },
   // Default to sections being shown in a fixed order
   learners_see_fixed_order: {

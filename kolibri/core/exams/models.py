@@ -23,13 +23,13 @@ def exam_assignment_lookup(question_sources):
     :return: a tuple of contentnode_id and metadata
     """
     for question_source in question_sources:
-        if "section_id" in question_source:
+        if "exercise_id" in question_source:
+            yield (question_source["exercise_id"], None)
+        else:
             questions = question_source.get("questions")
             if questions is not None:
                 for question in question_source["questions"]:
                     yield (question["exercise_id"], None)
-        else:
-            yield (question_source["exercise_id"], None)
 
 
 class AbstractExam(models.Model):
@@ -57,7 +57,6 @@ class AbstractExam(models.Model):
         [
             # Section 1
             {
-                  "section_id": <a uuid unique to this section>,
                   "section_title": <section title>,
                   "description": <section description>,
                   "question_count": <number of questions in section>,

@@ -8,61 +8,14 @@
       {{ sectionSettings$() }}
     </h5>
 
-    <KGrid>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <KTextbox
-          ref="sectionTitle"
-          v-model="section_title"
-          :label="sectionTitle$()"
-          :invalid="sectionTitleInvalid"
-          :invalidText="sectionTitleInvalidText"
-          :maxlength="100"
-        />
-      </KGridItem>
-      <KGridItem
-        :layout12="{ span: 6 }"
-        :layout8="{ span: 4 }"
-        :layout4="{ span: 2 }"
-      >
-        <div class="number-question">
-          <div>
-            <KTextbox
-              ref="numQuest"
-              v-model="question_count"
-              type="number"
-              :label="numberOfQuestionsLabel$()"
-            />
-          </div>
-          <div>
-            <div
-              :style="borderStyle"
-              class="group-button-border"
-            >
-              <KIconButton
-                icon="minus"
-                aria-hidden="true"
-                class="number-btn"
-                :disabled="question_count === 1"
-                @click="question_count -= 1"
-              />
-              <span
-                :style="dividerStyle"
-              > | </span>
-              <KIconButton
-                icon="plus"
-                aria-hidden="true"
-                class="number-btn"
-                @click="question_count += 1"
-              />
-            </div>
-          </div>
-        </div>
-      </KGridItem>
-    </KGrid>
+    <KTextbox
+      ref="sectionTitle"
+      v-model="section_title"
+      :label="sectionTitle$()"
+      :invalid="sectionTitleInvalid"
+      :invalidText="sectionTitleInvalidText"
+      :maxlength="100"
+    />
 
     <KTextbox
       v-model="description"
@@ -113,18 +66,14 @@
     <h5
       class="section-settings-heading"
     >
-      {{ quizResourceSelection$() }}
-    </h5>
-    <p>
       {{
-        numberOfSelectedResources$(
+        numberOfQuestionsSelected$(
           {
-            count: activeResourcePool.length,
-            channels: channels.length
+            count: activeQuestions.length,
           }
         )
       }}
-    </p>
+    </h5>
 
     <KRouterLink
       appearance="raised-button"
@@ -157,7 +106,8 @@
         >
           <DragHandle>
             <div
-              :style="section.isActive ? activeSectionStyles : borderStyle "
+              :style="activeSection.section_id === section.section_id ?
+                activeSectionStyles : borderStyle"
               class="section-order-list"
             >
               <KGrid>
@@ -214,7 +164,7 @@
         >
           <KButton
             :text="deleteSectionLabel$()"
-            @click="handleDeleteSection(activeSection.section_id)"
+            @click="handleDeleteSection()"
           />
 
         </KGridItem>
@@ -294,12 +244,10 @@
         sectionTitleUniqueWarning$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
+        numberOfQuestionsSelected$,
         currentSection$,
         deleteSectionLabel$,
         applySettings$,
-        changeResources$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,
@@ -310,19 +258,20 @@
         closeConfirmationTitle$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
-        selectResourcesFromChannels$,
+        addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         sectionDeletedNotification$,
       } = enhancedQuizManagementStrings;
 
       const {
-        activeSection,
         activeSectionIndex,
+        activeSection,
         activeResourcePool,
+        activeQuestions,
         allSections,
         updateSection,
         updateQuiz,
         removeSection,
-        channels,
       } = injectQuizCreation();
 
       const showCloseConfirmation = ref(false);
@@ -343,20 +292,22 @@
 
       function handleConfirmDelete() {
         const section_title = displaySectionTitle(activeSection.value, activeSectionIndex.value);
-        removeSection(showDeleteConfirmation.value);
+        removeSection(activeSectionIndex.value);
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            ...this.$route.params,
+          },
         });
         this.$store.dispatch('createSnackbar', sectionDeletedNotification$({ section_title }));
       }
 
-      function handleDeleteSection(section_id) {
-        showDeleteConfirmation.value = section_id;
+      function handleDeleteSection() {
+        showDeleteConfirmation.value = true;
       }
 
       /* Note that the use of snake_case here is to map directly to the API */
       const learners_see_fixed_order = ref(activeSection.value.learners_see_fixed_order);
-      const question_count = ref(activeSection.value.question_count);
       const description = ref(activeSection.value.description);
       const section_title = ref(activeSection.value.section_title.trim());
 
@@ -381,16 +332,10 @@
         return !isEqual(
           {
             learners_see_fixed_order: learners_see_fixed_order.value,
-            question_count: question_count.value,
             description: description.value,
             section_title: section_title.value.trim(),
           },
-          pick(activeSection.value, [
-            'learners_see_fixed_order',
-            'question_count',
-            'description',
-            'section_title',
-          ])
+          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title'])
         );
       });
 
@@ -410,10 +355,10 @@
       const { windowIsLarge, windowIsSmall } = useKResponsiveWindow();
 
       const resourceButtonLabel = computed(() => {
-        if (activeResourcePool.value.length === 0) {
-          return selectResourcesFromChannels$();
+        if (activeQuestions.value.length === 0) {
+          return addQuestionsLabel$();
         } else {
-          return changeResources$();
+          return addMoreQuestionsLabel$();
         }
       });
 
@@ -429,16 +374,17 @@
         handleCancelDelete,
         handleConfirmDelete,
         // useQuizCreation
-        channels,
+        activeSectionIndex,
         activeSection,
         activeResourcePool,
+        activeQuestions,
+        allSections,
         sectionOrderList,
         updateSection,
         updateQuiz,
         handleDeleteSection,
         // Form models
         learners_see_fixed_order,
-        question_count,
         description,
         section_title,
         resourceButtonLabel,
@@ -447,13 +393,12 @@
         windowIsSmall,
         // i18n
         displaySectionTitle,
-        selectResourcesFromChannels$,
+        addQuestionsLabel$,
         sectionSettings$,
         sectionTitle$,
         numberOfQuestionsLabel$,
         optionalDescriptionLabel$,
-        quizResourceSelection$,
-        numberOfSelectedResources$,
+        numberOfQuestionsSelected$,
         sectionDeletedNotification$,
         currentSection$,
         deleteSectionLabel$,
@@ -462,7 +407,7 @@
         closeConfirmationTitle$,
         closeConfirmationMessage$,
         deleteConfirmation$,
-        changeResources$,
+        addMoreQuestionsLabel$,
         sectionOrder$,
         questionOrder$,
         randomizedLabel$,
@@ -519,15 +464,20 @@
           return;
         }
         this.updateSection({
-          section_id: this.activeSection.section_id,
+          sectionIndex: this.activeSectionIndex,
           section_title: this.section_title,
           description: this.description,
-          question_count: this.question_count,
           learners_see_fixed_order: this.learners_see_fixed_order,
         });
         if (this.sectionOrderChanged) {
+          // Apply the new sorting to the updated sections,
+          // otherwise the edits we just made will be lost
+          const sectionOrderIds = this.sectionOrderList.map(section => section.section_id);
+          const question_sources = this.allSections.sort((a, b) => {
+            return sectionOrderIds.indexOf(a.section_id) - sectionOrderIds.indexOf(b.section_id);
+          });
           this.updateQuiz({
-            question_sources: this.sectionOrderList,
+            question_sources,
           });
         }
         this.$store.dispatch('createSnackbar', this.changesSavedSuccessfully$());
@@ -541,12 +491,6 @@
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
-
-  .number-field {
-    display: inline-block;
-    max-width: 31em;
-    margin-right: 0.5em;
-  }
 
   .section-settings-content {
     margin-bottom: 7em;
@@ -575,22 +519,6 @@
   .space-content {
     margin: 0.5em;
     font-size: 1em;
-  }
-
-  .number-input-grid-item {
-    display: inline-flex;
-  }
-
-  .group-button-border {
-    display: inline-flex;
-    align-items: center;
-    height: 3.5em;
-    border: 1px solid;
-  }
-
-  .number-question {
-    display: inline-flex;
-    float: right;
   }
 
   .section-order-style {

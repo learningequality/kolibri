@@ -1,20 +1,22 @@
-import { v4 } from 'uuid';
 import isEqual from 'lodash/isEqual';
 import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
 import uniq from 'lodash/uniq';
-import { ContentNodeKinds } from 'kolibri.coreVue.vuex.constants';
-import { ChannelResource, ExamResource } from 'kolibri.resources';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+import { ExamResource } from 'kolibri.resources';
 import { validateObject, objectWithDefaults } from 'kolibri.utils.objectSpecs';
 import { get, set } from '@vueuse/core';
-import { computed, ref, provide, inject } from 'kolibri.lib.vueCompositionApi';
+import {
+  computed,
+  ref,
+  provide,
+  inject,
+  getCurrentInstance,
+  watch,
+} from 'kolibri.lib.vueCompositionApi';
 import { fetchExamWithContent } from 'kolibri.utils.exams';
 // TODO: Probably move this to this file's local dir
-import selectQuestions from '../utils/selectQuestions.js';
-import { Quiz, QuizSection } from './quizCreationSpecs.js';
-
-function uuidv4() {
-  return v4().replace(/-/g, '');
-}
+import selectQuestions, { getExerciseQuestionsMap } from '../utils/selectQuestions.js';
+import { Quiz, QuizSection, QuizQuestion } from './quizCreationSpecs.js';
 
 /** Validators **/
 /* objectSpecs expects every property to be available -- but we don't want to have to make an
@@ -40,6 +42,7 @@ const fieldsToSave = [
  * Composable function presenting primary interface for Quiz Creation
  */
 export default function useQuizCreation() {
+  const store = getCurrentInstance()?.proxy?.$store;
   // -----------
   // Local state
   // -----------
@@ -53,17 +56,16 @@ export default function useQuizCreation() {
 
   /** @type {ref<QuizSection>}
    * The section that is currently selected for editing */
-  const _activeSectionId = ref(null);
+  const activeSectionIndex = computed(() => Number(store?.state?.route?.params?.sectionIndex || 0));
 
   /** @type {ref<String[]>}
-   * The QuizQuestion.id's that are currently selected for action in the active section */
+   * The QuizQuestion.items that are currently selected for action in the active section */
   const _selectedQuestionIds = ref([]);
 
-  /** @type {ref<Array>} A list of all channels available which have exercises */
-  const _channels = ref([]);
-
-  /** @type {ref<Array>} A list of all Question objects selected for replacement */
-  const replacements = ref([]);
+  // An internal map for exercises
+  // used to cache state for exercises so we can avoid fetching them multiple times
+  // and have them available for quick access in active section resource pools and the like.
+  const _exerciseMap = {};
 
   // ------------------
   // Section Management
@@ -72,144 +74,93 @@ export default function useQuizCreation() {
   /**
    * @param   {QuizSection} section
    * @returns {QuizSection}
-   * @affects _quiz - Updates the section with the given section_id with the given param
+   * @affects _quiz - Updates the section with the given sectionIndex with the given param
    * @throws {TypeError} if section is not a valid QuizSection
    **/
-  function updateSection({ section_id, ...updates }) {
+  function updateSection({ sectionIndex, ...updates }) {
     set(quizHasChanged, true);
-    const targetSection = get(allSections).find(section => section.section_id === section_id);
+    const targetSection = get(allSections)[sectionIndex];
     if (!targetSection) {
-      throw new TypeError(`Section with id ${section_id} not found; cannot be updated.`);
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
     }
 
-    // original variables are the original values of the properties we're updating
-    const {
-      resource_pool: originalResourcePool,
-      questions: originalQuestions,
-      question_count: originalQuestionCount,
-    } = targetSection;
+    const { questions, resourcePool } = updates;
 
-    const { resource_pool, question_count } = updates;
-
-    if (resource_pool?.length === 0) {
-      // The user has removed all resources from the section, so we can clear all questions too
-      updates.questions = [];
-    }
-
-    if (resource_pool?.length > 0) {
-      // The resource_pool is being updated
-      if (originalResourcePool.length === 0) {
-        // We're adding resources to a section which didn't previously have any
-
-        // TODO This code could be broken out into a separate functions
-
-        // ***
-        // Note that we're basically assuming that `questions*` properties aren't being updated --
-        // meaning we expect that we can only update one or the other of `resource_pool` and
-        // `questions*` at a time. We can safely assume this because there can't be questions
-        // if there weren't resources in the originalResourcePool before.
-        // ***
-        updates.questions = selectRandomQuestionsFromResources(
-          question_count || originalQuestionCount || 0,
-          resource_pool
+    if (questions) {
+      if (!Array.isArray(questions)) {
+        throw new TypeError('Questions must be an array');
+      }
+      if (questions.length > MAX_QUESTIONS_PER_QUIZ_SECTION) {
+        throw new TypeError(
+          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`
         );
-      } else {
-        // We're updating the resource_pool of a section that already had resources
-        if (question_count === 0) {
-          updates.questions = [];
-        } else {
-          // In this case, we already had resources in the section, so we need to handle the
-          // case where a resource has been removed so that we remove & replace the questions
-          const removedResourceQuestionIds = originalResourcePool.reduce(
-            (questionIds, originalResource) => {
-              if (!resource_pool.map(r => r.id).includes(originalResource.id)) {
-                // If the resource_pool doesn't have the originalResource, we're removing it
-                questionIds = [...questionIds, ...originalResource.unique_question_ids];
-                return questionIds;
-              }
-              return questionIds;
-            },
-            []
-          );
-          if (removedResourceQuestionIds.length !== 0) {
-            const questionsToKeep = originalQuestions.filter(
-              q => !removedResourceQuestionIds.includes(q.item)
-            );
-            const numReplacementsNeeded =
-              (question_count || originalQuestionCount) - questionsToKeep.length;
-            updates.questions = [
-              ...questionsToKeep,
-              ...selectRandomQuestionsFromResources(numReplacementsNeeded, resource_pool),
-            ];
-          }
-        }
+      }
+      if (questions.some(q => !validateObject(q, QuizQuestion))) {
+        throw new TypeError('Questions must be valid QuizQuestion objects');
       }
     }
-    // The resource pool isn't being updated but the question_count is so we need to update them
-    if (question_count > originalQuestionCount) {
-      updates.questions = [
-        ...originalQuestions,
-        ...selectRandomQuestionsFromResources(
-          question_count - originalQuestionCount,
-          originalResourcePool
-        ),
-      ];
-    } else if (question_count < originalQuestionCount) {
-      updates.questions = originalQuestions.slice(0, question_count);
+
+    if (resourcePool) {
+      // Update the exercise map with the new resource pool
+      // Add these resources to our cache
+      for (const exercise of resourcePool) {
+        _exerciseMap[exercise.id] = exercise;
+      }
+      delete updates.resourcePool;
     }
+
+    const _allSections = get(allSections);
 
     set(_quiz, {
       ...get(quiz),
       // Update matching QuizSections with the updates object
-      question_sources: get(allSections).map(section => {
-        if (section.section_id === section_id) {
-          return { ...section, ...updates };
-        }
-        return section;
-      }),
+      question_sources: [
+        ..._allSections.slice(0, sectionIndex),
+        { ...targetSection, ...updates },
+        ..._allSections.slice(sectionIndex + 1),
+      ],
     });
   }
 
-  function handleReplacement() {
+  function addQuestionsToSectionFromResources({ sectionIndex, resourcePool, questionCount }) {
+    const targetSection = get(allSections)[sectionIndex];
+    if (!targetSection) {
+      throw new TypeError(`Section with id ${sectionIndex} not found; cannot be updated.`);
+    }
+
+    if (!resourcePool || resourcePool.length === 0) {
+      throw new TypeError('Resource pool must be a non-empty array of resources');
+    }
+
+    if (!questionCount || questionCount < 1) {
+      throw new TypeError('Question count must be a positive integer');
+    }
+
+    const newQuestions = selectQuestions(
+      questionCount,
+      resourcePool,
+      // Seed the random number generator with a random number
+      Math.floor(Math.random() * 1000),
+      // Exclude the questions that are already in the entire quiz
+      get(allQuestionsInQuiz).map(q => q.item)
+    );
+
+    const questions = [...targetSection.questions, ...newQuestions];
+
+    updateSection({ sectionIndex, questions, resourcePool });
+  }
+
+  function handleReplacement(replacements) {
     const questions = activeQuestions.value.map(question => {
-      if (selectedActiveQuestions.value.includes(question.id)) {
-        return replacements.value.shift();
+      if (selectedActiveQuestions.value.includes(question.item)) {
+        return replacements.shift();
       }
       return question;
     });
     updateSection({
-      section_id: activeSection.value.section_id,
+      sectionIndex: get(activeSectionIndex),
       questions,
     });
-  }
-
-  /**
-   * @description Selects random questions from the active section's `resource_pool` - no side
-   * effects
-   * @param {Number} numQuestions
-   * @param {QuizExercise[]} pool The resource pool to select questions from, will default to
-   *  the activeResourcePool's value if not provided. This is useful if you need to select questions
-   *  from a resource pool that hasn't been committed to the section yet.
-   * @param {String[]} excludedIds A list of IDs to exclude from random selection
-   * @returns {QuizQuestion[]}
-   */
-  function selectRandomQuestionsFromResources(numQuestions, pool = [], excludedIds = []) {
-    pool = pool.length ? pool : get(activeResourcePool);
-    const exerciseIds = pool.map(r => r.id);
-    const exerciseTitles = pool.map(r => r.title);
-    const questionIdArrays = pool.map(r => r.unique_question_ids);
-    return selectQuestions(
-      numQuestions,
-      exerciseIds,
-      exerciseTitles,
-      questionIdArrays,
-      Math.floor(Math.random() * 1000),
-      [
-        ...excludedIds,
-        // Always exclude the questions that are already in the entire quiz
-        ...get(allQuestionsInQuiz).map(q => q.item),
-      ]
-    );
   }
 
   /**
@@ -227,80 +178,57 @@ export default function useQuizCreation() {
   /** @returns {QuizSection}
    * Adds a section to the quiz and returns it */
   function addSection() {
-    const newSection = objectWithDefaults({ section_id: uuidv4() }, QuizSection);
+    const newSection = objectWithDefaults({}, QuizSection);
     updateQuiz({ question_sources: [...get(quiz).question_sources, newSection] });
-    setActiveSection(newSection.section_id);
     return newSection;
   }
 
   /**
    * @throws {Error} if section not found
-   * Deletes the given section by section_id */
-  function removeSection(section_id) {
-    const updatedSections = get(allSections).filter(section => section.section_id !== section_id);
-    if (updatedSections.length === get(allSections).length) {
-      throw new Error(`Section with id ${section_id} not found; cannot be removed.`);
+   * Deletes the given section by sectionIndex */
+  function removeSection(sectionIndex) {
+    if (!get(allSections)[sectionIndex]) {
+      throw new Error(`Section with index ${sectionIndex} not found; cannot be removed.`);
     }
-    if (updatedSections.length === 0) {
-      const newSection = addSection();
-      setActiveSection(newSection.section_id);
-      updatedSections.push(newSection);
-    } else {
-      setActiveSection(get(updatedSections)[0].section_id);
-    }
+    const updatedSections = get(allSections)
+      .slice(0, sectionIndex)
+      .concat(get(allSections).slice(sectionIndex + 1));
     updateQuiz({ question_sources: updatedSections });
+    if (get(allSections).length === 0) {
+      // Always need to have at least one section
+      addSection();
+    }
   }
 
-  /**
-   * @param {string} [section_id]
-   * @affects _activeSectionId
-   * Sets the given section_id as the active section ID, however, if the ID is not found or is null
-   * it will set the activeId to the first section in _quiz.question_sources */
-  function setActiveSection(section_id = null) {
-    set(_selectedQuestionIds, []); // Clear the selected questions when changing sections
-    set(_activeSectionId, section_id);
-  }
-
+  watch(activeSectionIndex, () => {
+    // Clear the selected questions when changing sections
+    set(_selectedQuestionIds, []);
+  });
   // ------------
   // Quiz General
   // ------------
 
   /** @affects _quiz
-   * @affects _activeSectionId
-   * @affects _channels - Calls _fetchChannels to bootstrap the list of needed channels
+   * @affects activeSectionIndex
    * @param {string} collection - The collection (aka current class ID) to associate the exam with
    * Adds a new section to the quiz and sets the activeSectionID to it, preparing the module for
    * use */
 
   async function initializeQuiz(collection, quizId = 'new') {
-    _fetchChannels();
     if (quizId === 'new') {
       const assignments = [collection];
       set(_quiz, objectWithDefaults({ collection, assignments }, Quiz));
-      const newSection = addSection();
-      setActiveSection(newSection.section_id);
+      addSection();
     } else {
       const exam = await ExamResource.fetchModel({ id: quizId });
       const { exam: quiz, exercises } = await fetchExamWithContent(exam);
-      const exerciseMap = {};
+      // Put the exercises into the local cache
       for (const exercise of exercises) {
-        exerciseMap[exercise.id] = exercise;
+        _exerciseMap[exercise.id] = exercise;
       }
-      quiz.question_sources = quiz.question_sources.map(section => {
-        const resource_pool = uniq(section.questions.map(resource => resource.exercise_id))
-          .map(exercise_id => exerciseMap[exercise_id])
-          .filter(Boolean);
-        return {
-          ...section,
-          resource_pool,
-        };
-      });
       set(_quiz, objectWithDefaults(quiz, Quiz));
       if (get(allSections).length === 0) {
-        const newSection = addSection();
-        setActiveSection(newSection.section_id);
-      } else {
-        setActiveSection(get(allSections)[0].section_id);
+        addSection();
       }
     }
     set(quizHasChanged, false);
@@ -325,10 +253,9 @@ export default function useQuizCreation() {
     }
 
     if (finalQuiz.draft) {
-      // Here we update each section's `resource_pool` to only be the IDs of the resources
       const questionSourcesWithoutResourcePool = get(allSections).map(section => {
         const sectionToSave = { ...section };
-        delete sectionToSave.resource_pool;
+        delete sectionToSave.section_id;
         sectionToSave.questions = section.questions.map(question => {
           const questionToSave = { ...question };
           delete questionToSave.item;
@@ -343,6 +270,8 @@ export default function useQuizCreation() {
       if (id !== exam.id) {
         updateQuiz({ id: exam.id });
       }
+      // Update quizHasChanged to false once we have saved the quiz
+      set(quizHasChanged, false);
       return exam;
     });
   }
@@ -404,27 +333,6 @@ export default function useQuizCreation() {
     }
   }
 
-  /**
-   * @affects _channels - Fetches all channels with exercises and sets them to _channels */
-  function _fetchChannels() {
-    ChannelResource.fetchCollection({ params: { has_exercises: true, available: true } }).then(
-      response => {
-        set(
-          _channels,
-          response.map(chnl => {
-            return {
-              ...chnl,
-              id: chnl.root,
-              title: chnl.name,
-              kind: ContentNodeKinds.CHANNEL,
-              is_leaf: false,
-            };
-          })
-        );
-      }
-    );
-  }
-
   // Utilities
 
   // Computed properties
@@ -433,53 +341,47 @@ export default function useQuizCreation() {
   /** @type {ComputedRef<QuizSection[]>} The value of _quiz's `question_sources` */
   const allSections = computed(() => get(quiz).question_sources);
   /** @type {ComputedRef<QuizSection>} The active section */
-  const activeSection = computed(() =>
-    get(allSections).find(s => s.section_id === get(_activeSectionId))
-  );
-  const activeSectionIndex = computed(() =>
-    get(allSections).findIndex(s => isEqual(s.section_title === get(activeSection).section_title))
-  );
+  const activeSection = computed(() => get(allSections)[get(activeSectionIndex)]);
   /** @type {ComputedRef<QuizSection[]>} The inactive sections */
   const inactiveSections = computed(() =>
-    get(allSections).filter(s => s.section_id !== get(_activeSectionId))
+    get(allSections)
+      .slice(0, get(activeSectionIndex))
+      .concat(get(allSections).slice(get(activeSectionIndex) + 1))
   );
-  /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
-  const activeResourcePool = computed(() => get(activeSection).resource_pool);
-  /** @type {ComputedRef<QuizExercise[]>}   The active section's `resource_pool` */
-  const activeResourceMap = computed(() =>
-    get(activeResourcePool).reduce((acc, resource) => {
-      acc[resource.id] = resource;
-      return acc;
-    }, {})
-  );
-  /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `resource_pool`
-   *                                      exercises */
-  const activeQuestionsPool = computed(() => {
-    const pool = get(activeResourcePool);
-    const exerciseIds = pool.map(r => r.exercise_id);
-    const exerciseTitles = pool.map(r => r.title);
-    const questionIdArrays = pool.map(r => r.unique_question_ids);
-    return selectQuestions(
-      pool.reduce((acc, r) => acc + r.assessmentmetadata.assessment_item_ids.length, 0),
-      exerciseIds,
-      exerciseTitles,
-      questionIdArrays,
-      get(_quiz).seed
-    );
+  /** @type {ComputedRef<Object.<string, QuizExercise>>}
+   * A map of exercise id to exercise for the currently active section */
+  const activeResourceMap = computed(() => {
+    const map = {};
+    for (const question of get(activeSection).questions) {
+      if (!map[question.exercise_id]) {
+        map[question.exercise_id] = _exerciseMap[question.exercise_id];
+      }
+    }
+    return map;
   });
+
+  const allResourceMap = computed(() => {
+    // Check the quiz value, so that our computed property is reactive to changes in the quiz
+    // as the _exerciseMap is not reactive, but is only updated when the quiz is updated
+    return _quiz.value && _exerciseMap;
+  });
+
+  /** @type {ComputedRef<QuizExercise[]>}   The active section's exercises */
+  const activeResourcePool = computed(() => Object.values(get(activeResourceMap)));
+
   /** @type {ComputedRef<QuizQuestion[]>} All questions in the active section's `questions` property
    *                                      those which are currently set to be used in the section */
   const activeQuestions = computed(() => get(activeSection).questions);
-  /** @type {ComputedRef<String[]>} All QuizQuestion.ids the user selected for the active section */
+  /** @type {ComputedRef<String[]>}
+   * All QuizQuestion.items the user selected for the active section */
   const selectedActiveQuestions = computed(() => get(_selectedQuestionIds));
-  /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's `resource_pool` that
+  /** @type {ComputedRef<QuizQuestion[]>} Questions in the active section's exercises that
    *                                         are not in `questions` */
   const replacementQuestionPool = computed(() => {
     const excludedQuestions = get(allQuestionsInQuiz).map(q => q.item);
-    return get(activeQuestionsPool).filter(q => !excludedQuestions.includes(q.item));
+    const questionsMap = getExerciseQuestionsMap(get(activeResourcePool), excludedQuestions);
+    return Object.values(questionsMap).reduce((acc, questions) => [...acc, ...questions], []);
   });
-  /** @type {ComputedRef<Array>} A list of all channels available which have exercises */
-  const channels = computed(() => get(_channels));
 
   /** @type {ComputedRef<Array<QuizQuestion>>} A list of all questions in the quiz */
   const allQuestionsInQuiz = computed(() => {
@@ -513,14 +415,13 @@ export default function useQuizCreation() {
 
    */
   function deleteActiveSelectedQuestions() {
-    const { section_id, questions: section_questions } = get(activeSection);
+    const sectionIndex = get(activeSectionIndex);
+    const { questions: section_questions } = get(activeSection);
     const selectedIds = get(selectedActiveQuestions);
     const questions = section_questions.filter(q => !selectedIds.includes(q.item));
-    const question_count = questions.length;
     updateSection({
-      section_id,
+      sectionIndex,
       questions,
-      question_count,
     });
     set(_selectedQuestionIds, []);
   }
@@ -545,24 +446,23 @@ export default function useQuizCreation() {
 
   provide('allQuestionsInQuiz', allQuestionsInQuiz);
   provide('updateSection', updateSection);
+  provide('addQuestionsToSectionFromResources', addQuestionsToSectionFromResources);
   provide('handleReplacement', handleReplacement);
   provide('replaceSelectedQuestions', replaceSelectedQuestions);
   provide('addSection', addSection);
   provide('removeSection', removeSection);
-  provide('setActiveSection', setActiveSection);
   provide('updateQuiz', updateQuiz);
   provide('addQuestionToSelection', addQuestionToSelection);
   provide('removeQuestionFromSelection', removeQuestionFromSelection);
   provide('clearSelectedQuestions', clearSelectedQuestions);
-  provide('channels', channels);
-  provide('replacements', replacements);
   provide('allSections', allSections);
+  provide('activeSectionIndex', activeSectionIndex);
   provide('activeSection', activeSection);
   provide('activeSectionIndex', activeSectionIndex);
   provide('inactiveSections', inactiveSections);
   provide('activeResourcePool', activeResourcePool);
   provide('activeResourceMap', activeResourceMap);
-  provide('activeQuestionsPool', activeQuestionsPool);
+  provide('allResourceMap', allResourceMap);
   provide('activeQuestions', activeQuestions);
   provide('selectedActiveQuestions', selectedActiveQuestions);
   provide('allQuestionsSelected', allQuestionsSelected);
@@ -576,11 +476,11 @@ export default function useQuizCreation() {
     // Methods
     saveQuiz,
     updateSection,
+    addQuestionsToSectionFromResources,
     handleReplacement,
     replaceSelectedQuestions,
     addSection,
     removeSection,
-    setActiveSection,
     initializeQuiz,
     updateQuiz,
     clearSelectedQuestions,
@@ -589,8 +489,6 @@ export default function useQuizCreation() {
 
     // Computed
     quizHasChanged,
-    channels,
-    replacements,
     quiz,
     allSections,
     activeSectionIndex,
@@ -598,7 +496,6 @@ export default function useQuizCreation() {
     inactiveSections,
     activeResourcePool,
     activeResourceMap,
-    activeQuestionsPool,
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,
@@ -614,24 +511,22 @@ export default function useQuizCreation() {
 export function injectQuizCreation() {
   const allQuestionsInQuiz = inject('allQuestionsInQuiz');
   const updateSection = inject('updateSection');
+  const addQuestionsToSectionFromResources = inject('addQuestionsToSectionFromResources');
   const handleReplacement = inject('handleReplacement');
   const replaceSelectedQuestions = inject('replaceSelectedQuestions');
   const addSection = inject('addSection');
   const removeSection = inject('removeSection');
-  const setActiveSection = inject('setActiveSection');
   const updateQuiz = inject('updateQuiz');
   const addQuestionToSelection = inject('addQuestionToSelection');
   const removeQuestionFromSelection = inject('removeQuestionFromSelection');
   const clearSelectedQuestions = inject('clearSelectedQuestions');
-  const channels = inject('channels');
-  const replacements = inject('replacements');
   const allSections = inject('allSections');
-  const activeSection = inject('activeSection');
   const activeSectionIndex = inject('activeSectionIndex');
+  const activeSection = inject('activeSection');
   const inactiveSections = inject('inactiveSections');
   const activeResourcePool = inject('activeResourcePool');
   const activeResourceMap = inject('activeResourceMap');
-  const activeQuestionsPool = inject('activeQuestionsPool');
+  const allResourceMap = inject('allResourceMap');
   const activeQuestions = inject('activeQuestions');
   const allQuestionsSelected = inject('allQuestionsSelected');
   const selectAllIsIndeterminate = inject('selectAllIsIndeterminate');
@@ -646,11 +541,11 @@ export function injectQuizCreation() {
     deleteActiveSelectedQuestions,
     selectAllQuestions,
     updateSection,
+    addQuestionsToSectionFromResources,
     handleReplacement,
     replaceSelectedQuestions,
     addSection,
     removeSection,
-    setActiveSection,
     updateQuiz,
     clearSelectedQuestions,
     addQuestionToSelection,
@@ -661,15 +556,13 @@ export function injectQuizCreation() {
     allQuestionsSelected,
     allQuestionsInQuiz,
     selectAllIsIndeterminate,
-    channels,
-    replacements,
     allSections,
-    activeSection,
     activeSectionIndex,
+    activeSection,
     inactiveSections,
     activeResourcePool,
     activeResourceMap,
-    activeQuestionsPool,
+    allResourceMap,
     activeQuestions,
     selectedActiveQuestions,
     replacementQuestionPool,

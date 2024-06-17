@@ -12,7 +12,6 @@ from django.db.models import Exists
 from django.db.models import OuterRef
 from django.db.models import Q
 from django.db.models import Subquery
-from django.db.models import Sum
 from django.db.models.aggregates import Count
 from django.http import Http404
 from django.utils.cache import add_never_cache_headers
@@ -253,15 +252,18 @@ class RemoteViewSet(ReadOnlyValuesViewset, RemoteMixin):
 
 class ChannelMetadataFilter(FilterSet):
     available = BooleanFilter(method="filter_available", label="Available")
-    has_exercise = BooleanFilter(method="filter_has_exercise", label="Has exercises")
+    contains_exercise = BooleanFilter(
+        method="filter_contains_exercise", label="Has exercises"
+    )
+    contains_quiz = BooleanFilter(method="filter_contains_quiz", label="Has quizzes")
 
     class Meta:
         model = models.ChannelMetadata
-        fields = ("available", "has_exercise")
+        fields = ("available", "contains_exercise", "contains_quiz")
 
-    def filter_has_exercise(self, queryset, name, value):
+    def filter_contains_exercise(self, queryset, name, value):
         queryset = queryset.annotate(
-            has_exercise=Exists(
+            contains_exercise=Exists(
                 models.ContentNode.objects.filter(
                     kind=content_kinds.EXERCISE,
                     available=True,
@@ -270,7 +272,20 @@ class ChannelMetadataFilter(FilterSet):
             )
         )
 
-        return queryset.filter(has_exercise=True)
+        return queryset.filter(contains_exercise=True)
+
+    def filter_contains_quiz(self, queryset, name, value):
+        queryset = queryset.annotate(
+            contains_quiz=Exists(
+                models.ContentNode.objects.filter(
+                    options__contains='"modality": "QUIZ"',
+                    available=True,
+                    channel_id=OuterRef("id"),
+                )
+            )
+        )
+
+        return queryset.filter(contains_quiz=True)
 
     def filter_available(self, queryset, name, value):
         return queryset.filter(root__available=value)
@@ -363,16 +378,6 @@ class ChannelMetadataViewSet(BaseChannelMetadataMixin, RemoteViewSet):
     pass
 
 
-class IdFilter(FilterSet):
-    ids = CharFilter(method="filter_ids")
-
-    def filter_ids(self, queryset, name, value):
-        return queryset.filter_by_uuids(value.split(","))
-
-    class Meta:
-        fields = ["ids"]
-
-
 MODALITIES = set(["QUIZ"])
 
 
@@ -413,7 +418,8 @@ contentnode_filter_fields = [
 ]
 
 
-class ContentNodeFilter(IdFilter):
+class ContentNodeFilter(FilterSet):
+    ids = UUIDInFilter(method="filter_ids")
     kind = ChoiceFilter(
         method="filter_kind",
         choices=(content_kinds.choices + (("content", _("Resource")),)),
@@ -443,6 +449,9 @@ class ContentNodeFilter(IdFilter):
     class Meta:
         model = models.ContentNode
         fields = contentnode_filter_fields
+
+    def filter_ids(self, queryset, name, value):
+        return queryset.filter_by_uuids(value)
 
     def filter_by_authors(self, queryset, name, value):
         """
@@ -863,9 +872,8 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = self.request.query_params.get("ids", None)
         if not ids:
             return Response([])
-        ids = ids.split(",")
         kind = self.request.query_params.get("descendant_kind", None)
-        nodes = models.ContentNode.objects.filter_by_uuids(ids).filter(available=True)
+        nodes = self.filter_queryset(self.get_queryset())
         data = []
         for node in nodes:
 
@@ -887,10 +895,7 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
         ids = self.request.query_params.get("ids", None)
         if not ids:
             return Response([])
-        ids = ids.split(",")
-        queryset = models.ContentNode.objects.filter_by_uuids(ids).filter(
-            available=True
-        )
+        queryset = self.filter_queryset(self.get_queryset())
         data = list(
             queryset.annotate(
                 num_assessments=SQSum(
@@ -907,24 +912,6 @@ class ContentNodeViewset(InternalContentNodeMixin, RemoteMixin, ReadOnlyValuesVi
                 )
             ).values("id", "num_assessments")
         )
-        return Response(data)
-
-    @action(detail=False)
-    def node_assessments(self, request):
-        ids = self.request.query_params.get("ids", "").split(",")
-        data = 0
-        if ids and ids[0]:
-            nodes = (
-                models.ContentNode.objects.filter_by_uuids(ids)
-                .filter(available=True)
-                .prefetch_related("assessmentmetadata")
-            )
-            data = (
-                nodes.aggregate(Sum("assessmentmetadata__number_of_assessments"))[
-                    "assessmentmetadata__number_of_assessments__sum"
-                ]
-                or 0
-            )
         return Response(data)
 
     @action(detail=True)

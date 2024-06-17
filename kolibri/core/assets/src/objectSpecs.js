@@ -186,8 +186,7 @@ export function objectWithDefaults(object, spec) {
     // set defaults if necessary
     if (isUndefined(cloned[dataKey]) && !isUndefined(options.default)) {
       // arrays and objects need to use a function to return defaults
-      const needsFunction = options.type === Array || options.type === Object;
-      if (needsFunction && options.default !== null) {
+      if (options.default instanceof Function) {
         cloned[dataKey] = options.default();
       }
       // all other types can be assigned directly

@@ -47,7 +47,7 @@
         v-for="(question, index) in replacementQuestionPool"
         :id="`replacement-question-${question.item}`"
         :key="`replacement-question-${question.item}`"
-        :title="question.title"
+        :title="displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)"
         :aria-selected="
           replacements.length && replacements.length === selectedActiveQuestions.length
         "
@@ -58,7 +58,7 @@
           >
             <KCheckbox
               class="accordion-checkbox"
-              :checked="replacements.map(r => r.id).includes(question.id)"
+              :checked="replacements.map(r => r.item).includes(question.item)"
               @change="() => toggleInReplacements(question)"
             />
             <KButton
@@ -66,11 +66,11 @@
               appearance="basic-link"
               :style="accordionStyleOverrides"
               class="accordion-header-label"
-              :aria-expanded="isExpanded(question.id)"
-              :aria-controls="`question-panel-${question.id}`"
+              :aria-expanded="isExpanded(question.item)"
+              :aria-controls="`question-panel-${question.item}`"
               @click="toggle(index)"
             >
-              <span>{{ title + " " + question.counter_in_exercise }}</span>
+              <span>{{ title }}</span>
               <KIcon
                 style="position: absolute; right:1em; top: 0.625em;"
                 :icon="isExpanded(index) ?
@@ -164,6 +164,7 @@
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
+    displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { getCurrentInstance, computed, ref } from 'kolibri.lib.vueCompositionApi';
   import { get } from '@vueuse/core';
@@ -212,9 +213,7 @@
         clearSelectedQuestions,
         replaceSelectedQuestions,
         toggleQuestionInSelection,
-        updateSection,
         handleReplacement,
-        replacements,
         allSections,
       } = injectQuizCreation();
 
@@ -227,6 +226,7 @@
 
       const showCloseConfirmation = ref(false);
       const showReplacementConfirmation = ref(false);
+      const replacements = ref([]);
 
       function handleConfirmClose() {
         replacements.value = [];
@@ -235,10 +235,15 @@
 
       function submitReplacement() {
         const count = replacements.value.length;
-        handleReplacement();
-        this.clearSelectedQuestions();
+        handleReplacement(replacements.value);
+        clearSelectedQuestions();
         router.replace({
           name: PageNames.EXAM_CREATION_ROOT,
+          params: {
+            classId: this.$route.params.classId,
+            quizId: this.$route.params.quizId,
+            sectionIndex: this.$route.params.sectionIndex,
+          },
         });
         this.$store.dispatch('createSnackbar', numberOfQuestionsReplaced$({ count }));
       }
@@ -249,8 +254,8 @@
 
       function toggleInReplacements(question) {
         const replacementIds = replacements.value.map(q => q.id);
-        if (replacementIds.includes(question.id)) {
-          replacements.value = replacements.value.filter(q => q.id !== question.id);
+        if (replacementIds.includes(question.item)) {
+          replacements.value = replacements.value.filter(q => q.item !== question.item);
         } else {
           replacements.value.push(question);
         }
@@ -309,9 +314,7 @@
         confirmReplacement,
 
         handleConfirmClose,
-        clearSelectedQuestions,
         toggleQuestionInSelection,
-        updateSection,
         submitReplacement,
         replacements,
         replaceQuestions$,
@@ -328,6 +331,7 @@
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
+        displayQuestionTitle,
       };
     },
     computed: {
