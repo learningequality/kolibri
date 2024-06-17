@@ -1,8 +1,8 @@
 import logging.config
 import os
 import shutil
+import sqlite3
 import sys
-from sqlite3 import DatabaseError as SQLite3DatabaseError
 
 import django
 from diskcache.fanout import FanoutCache
@@ -10,7 +10,6 @@ from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.management import call_command
 from django.core.management.base import handle_default_options
-from django.db import connections
 from django.db.utils import DatabaseError
 
 import kolibri
@@ -150,7 +149,7 @@ def _setup_django():
     try:
         django.setup()
 
-    except (DatabaseError, SQLite3DatabaseError) as e:
+    except (DatabaseError, sqlite3.DatabaseError) as e:
         if "malformed" in str(e):
             logger.error(
                 "Your database appears to be corrupted. If you encounter this,"
@@ -187,24 +186,37 @@ def _copy_preseeded_db(db_name, target=None):
 
 
 def sqlite_check_foreign_keys():
-    db_connection = connections["default"]
-    with db_connection.cursor() as cursor:
-        cursor.execute("PRAGMA foreign_key_check;")
-        result = cursor.fetchall()
-        if len(result) > 0:
-            logger.warning(
-                "Foreign key constraint failed. Trying to fix integrity errors..."
-            )
-            for row in result:
-                bad_table = row[0]
-                rowid = row[1]
-                # for security, only fix automatically error integrities in loggers
-                if bad_table[:6] == "logger":
-                    cursor.execute(f"DELETE FROM {bad_table} WHERE rowid = {rowid};")
-                else:
-                    logger.error(
-                        f"Foreign key constraint failed in {bad_table} table, rowid {rowid}. Please fix it manually."
-                    )
+    DATABASE_NAMES = [
+        os.path.join(KOLIBRI_HOME, OPTIONS["Database"]["DATABASE_NAME"] or "db.sqlite3")
+    ]
+    DATABASE_NAMES += [
+        os.path.join(KOLIBRI_HOME, "{}.sqlite3".format(db))
+        for db in ADDITIONAL_SQLITE_DATABASES
+    ]
+
+    for name in DATABASE_NAMES:
+        db_connection = sqlite3.connect(name)
+        with sqlite3.connect(name) as db_connection:
+            cursor = db_connection.cursor()
+            cursor.execute("PRAGMA foreign_key_check;")
+            result = cursor.fetchall()
+            if len(result) > 0:
+                logger.warning(
+                    "Foreign key constraint failed. Trying to fix integrity errors..."
+                )
+                for row in result:
+                    bad_table = row[0]
+                    rowid = row[1]
+                    # for security, in the default database,
+                    # only fix automatically integrity errors in loggers
+                    if bad_table[:6] == "logger" or name != DATABASE_NAMES[0]:
+                        cursor.execute(
+                            f"DELETE FROM {bad_table} WHERE rowid = {rowid};"
+                        )
+                    else:
+                        logger.error(
+                            f"Foreign key constraint failed in {bad_table} table, rowid {rowid}. Please fix it manually."
+                        )
 
 
 def _upgrades_before_django_setup(updated, version):
@@ -252,7 +264,7 @@ def _post_django_initialization():
         if "DatabaseCache" not in CACHES["process_cache"]["BACKEND"]:
             try:
                 process_cache.cull()
-            except SQLite3DatabaseError:
+            except sqlite3.DatabaseError:
                 shutil.rmtree(process_cache.directory, ignore_errors=True)
                 os.mkdir(process_cache.directory)
                 process_cache._cache = FanoutCache(
