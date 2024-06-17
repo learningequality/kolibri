@@ -77,6 +77,7 @@ class StaticNetworkLocationViewSet(NetworkLocationViewSet):
 
 class NetworkLocationFacilitiesView(BaseValuesViewset):
     queryset = NetworkLocation.objects.all()
+    values = ()
     permission_classes = [NetworkLocationPermissions | NotProvisionedHasPermission]
 
     def retrieve(self, request, pk=None):
