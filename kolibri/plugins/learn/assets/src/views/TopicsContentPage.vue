@@ -241,6 +241,7 @@
         downloadRequestMap,
         downloadRequestsTranslator,
         pollUserDownloadRequests,
+        showCompletedDownloadSnackbar,
         loading: downloadRequestLoading,
       } = useDownloadRequests();
       const deviceFormTranslator = crossComponentTranslator(AddDeviceForm);
@@ -337,6 +338,7 @@
         isAdmin,
         isSuperuser,
         currentUserId,
+        showCompletedDownloadSnackbar,
       };
     },
     props: {
@@ -502,6 +504,11 @@
           this.stopMainScroll(true);
         } else {
           this.stopMainScroll(false);
+        }
+      },
+      isDownloading(newVal) {
+        if (newVal === false && this.isDownloaded) {
+          this.showCompletedDownloadSnackbar();
         }
       },
     },
