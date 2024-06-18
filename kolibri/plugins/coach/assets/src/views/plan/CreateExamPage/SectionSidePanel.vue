@@ -13,7 +13,6 @@
       <KIconButton
         v-if="canGoBack"
         icon="back"
-        class="back-icon"
         :style="backButtonStyles"
         @click="$router.go(-1)"
       />
@@ -103,15 +102,3 @@
   };
 
 </script>
-
-
-<style scoped>
-
-   /* This duplicates the icon positioning in SidePanelModal */
-  .back-icon {
-    position: absolute;
-    top: 50%!important;
-    transform: translateY(-50%)!important;
-    left: 1em;
-  }
-</style>
