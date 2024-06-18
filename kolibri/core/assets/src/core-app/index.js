@@ -16,7 +16,7 @@ import heartbeat from 'kolibri.heartbeat';
 import ContentRenderer from '../views/ContentRenderer';
 import initializeTheme from '../styles/initializeTheme';
 import { i18nSetup } from '../utils/i18n';
-import report from '../utils/reportError';
+import { ErrorReportResource } from '../api-resources';
 import setupPluginMediator from './pluginMediator';
 import apiSpec from './apiSpec';
 
@@ -73,24 +73,20 @@ heartbeat.startPolling();
 i18nSetup().then(coreApp.ready);
 
 // these shall be responsibe for catching runtime errors
-
-//for errors from Vue components
-
-Vue.config.errorHandler = function(err, vm, info) {
-  console.error('Unexpected Error: ', err.message, err.stack, vm, info); // eslint-disable-line no-console
-  report(err);
+Vue.config.errorHandler = function(err) {
+  logging.error(`Unexpected Error: ${err}`);
+  ErrorReportResource.report(err);
 };
 
 window.addEventListener('error', e => {
-  const { message, filename, lineno, colno, error } = e;
-  console.error('Unexpected Error: ', message); // eslint-disable-line no-console
-  report(error);
+  logging.error(`Unexpected Error: ${e.error}`);
+  ErrorReportResource.report(e.error);
 });
 
 window.addEventListener('unhandledrejection', event => {
   event.preventDefault();
-  console.error('Unhandled Rejection:', event.reason); // eslint-disable-line no-console
-  report(event.reason);
+  logging.error(`Unhandled Rejection: ${event.reason}`);
+  ErrorReportResource.report(event.reason);
 });
 
 // This is exported by webpack as the kolibriCoreAppGlobal object, due to the 'output.library' flag
