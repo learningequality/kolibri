@@ -14,6 +14,7 @@ const initialContext = {
   remoteUsers: [],
   lodAdmin: {},
   importedUsers: [],
+  usersBeingImported: [],
   firstImportedLodUser: null,
 };
 
@@ -115,6 +116,8 @@ export const importLodUsersDefinition = {
     RESET_IMPORT: '#selectLodSetupType',
     ADD_IMPORTED_USER: { actions: 'addImportedUser' },
     SET_FIRST_LOD: { actions: 'setFirstLodUser' },
+    ADD_USER_BEING_IMPORTED: { actions: 'addUserBeingImported' },
+    REMOVE_USER_BEING_IMPORTED: { actions: 'removeUserBeingImported' },
     FINISH: 'finish',
   },
   actions: {
@@ -159,6 +162,18 @@ export const importLodUsersDefinition = {
     }),
     setFirstLodUser: assign({
       firstImportedLodUser: (_, event) => event.value,
+    }),
+    addUserBeingImported: assign({
+      usersBeingImported: (ctx, event) => {
+        const users = ctx.usersBeingImported;
+        users.push(event.value);
+        return uniq(users);
+      },
+    }),
+    removeUserBeingImported: assign({
+      usersBeingImported: (ctx, event) => {
+        return ctx.usersBeingImported.filter(u => u.id !== event.value);
+      },
     }),
   },
 };

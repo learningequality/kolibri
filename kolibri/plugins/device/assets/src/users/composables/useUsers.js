@@ -1,12 +1,12 @@
 import UserType from 'kolibri.utils.UserType';
 import { UserKinds } from 'kolibri.coreVue.vuex.constants';
-import { getCurrentInstance, ref, inject } from 'kolibri.lib.vueCompositionApi';
-import { FacilityUserResource } from 'kolibri.resources';
+import { getCurrentInstance, ref, inject, onMounted } from 'kolibri.lib.vueCompositionApi';
+import { TaskResource, FacilityUserResource } from 'kolibri.resources';
+import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
 
-export default function useUsers(store) {
-  store = store || getCurrentInstance().proxy.$store;
-  const service = inject('importUserService');
-  service;
+export default function useUsers() {
+  const store = getCurrentInstance().proxy.$store;
+  const importUserService = inject('importUserService');
   const users = ref([]);
   const loading = ref(true);
   const showCannotRemoveUser = ref(false);
@@ -15,7 +15,10 @@ export default function useUsers(store) {
     loading.value = true;
     const response = await FacilityUserResource.fetchCollection();
     users.value = response;
-    loading.value = false;
+
+    const { usersBeingImported = [] } = importUserService.state.context;
+    users.value.push(...usersBeingImported.map(user => ({ ...user, isImporting: true })));
+
     users.value.forEach(user => {
       user.kind = UserType(user);
     });
@@ -36,6 +39,43 @@ export default function useUsers(store) {
 
     await FacilityUserResource.deleteModel({ id: userId });
   }
+
+  const pollImportTask = async () => {
+    const { usersBeingImported = [] } = importUserService.state.context;
+    if (usersBeingImported.length === 0) {
+      // Stop polling
+      return;
+    }
+    const tasks = await TaskResource.list({ queue: 'soud_sync' });
+    if (tasks.length) {
+      tasks.forEach(task => {
+        if (task.status === TaskStatuses.COMPLETED) {
+          // Remove completed user id from 'being imported'
+          const taskUserId = task.extra_metadata.user_id;
+          if (usersBeingImported.find(({ id }) => id === taskUserId)) {
+            importUserService.send({
+              type: 'REMOVE_USER_BEING_IMPORTED',
+              value: taskUserId,
+            });
+            // Modify the user in the list to remove the 'isImporting' flag
+            users.value = users.value.map(user => {
+              if (user.id === taskUserId) {
+                return { ...user, isImporting: false };
+              }
+              return user;
+            });
+          }
+        }
+      });
+    }
+    setTimeout(() => {
+      pollImportTask();
+    }, 2000);
+  };
+
+  onMounted(() => {
+    pollImportTask();
+  });
 
   return {
     users,

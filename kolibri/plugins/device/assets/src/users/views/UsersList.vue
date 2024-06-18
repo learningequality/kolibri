@@ -39,9 +39,15 @@
       </div>
       <div class="user-actions">
         <KButton
+          v-if="!user.isImporting"
           text="Remove"
           appearance="flat-button"
           @click="$emit('remove', user.id)"
+        />
+        <KCircularLoader
+          v-else
+          :size="24"
+          style="margin: 4px auto 0;"
         />
       </div>
     </li>
