@@ -16,8 +16,15 @@
       <UsersList
         v-else
         :users="users"
-        @remove="userIdToRemove = $event"
-      />
+      >
+        <template #action="{ user }">
+          <KButton
+            :text="coreString('removeAction')"
+            appearance="flat-button"
+            @click="userIdToRemove = user.id"
+          />
+        </template>
+      </UsersList>
     </KPageContainer>
     <KModal
       v-if="userIdToRemove"

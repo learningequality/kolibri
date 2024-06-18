@@ -73,7 +73,6 @@ class FacilityImportViewSet(ViewSet):
     """
 
     # TODO Alex - Should handle permissions issues
-    permission_classes = (HasPermissionDuringSetup,)
 
     @decorators.action(methods=["get"], detail=False)
     def facilityadmins(self, request):

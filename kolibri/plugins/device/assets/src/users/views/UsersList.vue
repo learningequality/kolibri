@@ -1,57 +1,65 @@
 <template>
 
-  <ul class="users-list">
-    <li
-      v-for="user in users"
-      :key="user.id"
-      class="user-list-item"
-      :style="{ borderBottomColor: $themeTokens.fineLine }"
-    >
-      <div class="user-info">
-        <KIcon
-          icon="person"
-          :style="{
-            height: '24px',
-            width: '24px',
-            marginRight: '16px',
-          }"
-        />
-        <div>
+  <div>
+    <FilterTextbox
+      v-if="isSearchable"
+      v-model="searchQuery"
+      placeholder="Search for a user"
+      :style="{ marginBottom: '16px', marginLeft: 'auto', display: 'block' }"
+    />
+    <ul class="users-list">
+      <li
+        v-for="user in filteredUsers"
+        :key="user.id"
+        class="user-list-item"
+        :style="{ borderBottomColor: $themeTokens.fineLine }"
+      >
+        <div class="user-info">
+          <KIcon
+            icon="person"
+            :style="{
+              height: '24px',
+              width: '24px',
+              marginRight: '16px',
+            }"
+          />
           <div>
-            {{ user.full_name }}
-          </div>
-          <div
-            class="mt-4"
-            :style="annotationStyle"
-          >
-            {{ user.username }}
-          </div>
-          <div v-if="isSuperuser(user)">
-            <KIcon
-              icon="superadmin"
-              :style="{
-                marginRight: '4px',
-              }"
-            />
-            <span :style="annotationStyle"> Super admin</span>
+            <div>
+              {{ user.full_name }}
+            </div>
+            <div
+              class="mt-4"
+              :style="annotationStyle"
+            >
+              {{ user.username }}
+            </div>
+            <div v-if="isSuperuser(user)">
+              <KIcon
+                icon="superadmin"
+                :style="{
+                  marginRight: '4px',
+                }"
+              />
+              <span :style="annotationStyle"> Super admin</span>
+            </div>
           </div>
         </div>
-      </div>
-      <div class="user-actions">
-        <KButton
-          v-if="!user.isImporting"
-          text="Remove"
-          appearance="flat-button"
-          @click="$emit('remove', user.id)"
-        />
+        <slot
+          v-if="!user.isImporting && !user.isImported"
+          name="action"
+          v-bind="{ user }"
+        ></slot>
         <KCircularLoader
-          v-else
+          v-else-if="user.isImporting"
           :size="24"
           style="margin: 4px auto 0;"
         />
-      </div>
-    </li>
-  </ul>
+        <p v-else class="imported">
+          Imported
+        </p>
+      </li>
+    </ul>
+  </div>
 
 </template>
 
@@ -59,14 +67,27 @@
 <script>
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
+  import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
 
   export default {
     name: 'UsersList',
+    components: {
+      FilterTextbox,
+    },
     props: {
       users: {
         type: Array,
         default: () => [],
       },
+      isSearchable: {
+        type: Boolean,
+        default: false,
+      },
+    },
+    data() {
+      return {
+        searchQuery: '',
+      };
     },
     computed: {
       annotationStyle() {
@@ -74,6 +95,14 @@
           fontSize: '12px',
           color: this.$themeTokens.annotation,
         };
+      },
+      filteredUsers() {
+        return this.users.filter(user => {
+          return (
+            user.username.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+            user.full_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+          );
+        });
       },
     },
     methods: {

@@ -248,15 +248,15 @@
           const response = await TaskResource.startTask(params);
           const { user_id: userId, username } = response.extra_metadata;
           this.importUserService.send({
-            type: 'RESET_IMPORT',
-          });
-          this.importUserService.send({
             type: 'ADD_USER_BEING_IMPORTED',
             value: {
               id: userId,
               full_name: username,
               username,
             },
+          });
+          this.importUserService.send({
+            type: 'RESET_IMPORT',
           });
         } catch (error) {
           this.formSubmitted = false;
