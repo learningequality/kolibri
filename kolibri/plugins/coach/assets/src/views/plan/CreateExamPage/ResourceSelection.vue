@@ -1,6 +1,6 @@
 <template>
 
-  <div class="select-resource">
+  <div ref="selectResource" class="select-resource">
     <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
@@ -194,6 +194,7 @@
 
 <script>
 
+  import { onClickOutside } from '@vueuse/core';
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
@@ -600,6 +601,10 @@
       function handleConfirmClose() {
         context.emit('closePanel');
       }
+
+      onClickOutside(context.refs.selectResource, () => {
+        context.emit('closePanel');
+      });
 
       const workingPoolHasChanged = computed(() => {
         return workingResourcePool.value.length;
