@@ -9,7 +9,7 @@
     <KFixedGrid numCols="4" class="wrapper">
       <KFixedGridItem span="3">
         <h3 class="title">
-          <TextTruncatorCss
+          <KTextTruncator
             :text="name"
           />
         </h3>
@@ -37,7 +37,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoach from '../../common';
   import ProgressSummaryBar from '../../common/status/ProgressSummaryBar';
 
@@ -45,7 +44,6 @@
     name: 'ItemProgressDisplay',
     components: {
       ProgressSummaryBar,
-      TextTruncatorCss,
     },
     mixins: [commonCoach],
     props: {

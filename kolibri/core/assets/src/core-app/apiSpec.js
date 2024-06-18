@@ -102,7 +102,6 @@ import * as contentNode from '../utils/contentNodeUtils';
 import InteractionList from '../views/InteractionList';
 import ExamReport from '../views/ExamReport';
 import SlotTruncator from '../views/SlotTruncator';
-import TextTruncatorCss from '../views/TextTruncatorCss';
 import TimeDuration from '../views/TimeDuration';
 import SuggestedTime from '../views/SuggestedTime';
 
@@ -163,7 +162,6 @@ export default {
       InteractionList,
       ExamReport,
       SlotTruncator,
-      TextTruncatorCss,
       TimeDuration,
       MultiPaneLayout,
       CoreFullscreen,

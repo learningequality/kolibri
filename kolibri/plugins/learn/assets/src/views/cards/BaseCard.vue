@@ -28,7 +28,7 @@
       </div>
 
       <h3 class="title">
-        <TextTruncatorCss
+        <KTextTruncator
           dir="auto"
           :text="title"
           :maxLines="1"
@@ -62,7 +62,6 @@
 
 <script>
 
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import CardLink from './CardLink.vue';
 
   /**
@@ -75,7 +74,6 @@
   export default {
     name: 'BaseCard',
     components: {
-      TextTruncatorCss,
       CardLink,
     },
     props: {

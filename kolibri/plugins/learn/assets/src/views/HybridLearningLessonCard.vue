@@ -18,7 +18,7 @@
         />
       </div>
       <h3 class="title">
-        <TextTruncatorCss
+        <KTextTruncator
           :text="content.title"
           :maxLines="1"
           :style="{ color: $themeTokens.text }"
@@ -41,7 +41,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import ProgressBar from './ProgressBar';
   import LearningActivityLabel from './LearningActivityLabel';
@@ -52,7 +51,6 @@
     name: 'HybridLearningLessonCard',
     components: {
       CardThumbnail,
-      TextTruncatorCss,
       LearningActivityLabel,
       ProgressBar,
     },

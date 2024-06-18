@@ -14,12 +14,12 @@
             :shaded="true"
           />
         </template>
-        <TextTruncatorCss
+        <KTextTruncator
           v-if="windowBreakpoint <= 3"
           :text="resourceTitle | truncateText(50)"
           :maxLines="1"
         />
-        <TextTruncatorCss
+        <KTextTruncator
           v-else
           :text="resourceTitle | truncateText(70)"
           :maxLines="1"
@@ -176,7 +176,6 @@
   import CoreMenuOption from 'kolibri.coreVue.components.CoreMenuOption';
   import ProgressIcon from 'kolibri.coreVue.components.ProgressIcon';
   import UiToolbar from 'kolibri.coreVue.components.UiToolbar';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import { validateLearningActivity } from 'kolibri.utils.validators';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import TimeDuration from 'kolibri.coreVue.components.TimeDuration';
@@ -192,7 +191,6 @@
       CoachContentLabel,
       CoreMenu,
       CoreMenuOption,
-      TextTruncatorCss,
       LearningActivityIcon,
       ProgressIcon,
       UiToolbar,

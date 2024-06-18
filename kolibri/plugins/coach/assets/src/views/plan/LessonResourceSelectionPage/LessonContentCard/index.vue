@@ -39,7 +39,7 @@
           {{ message }}
         </div>
       </div>
-      <TextTruncatorCss
+      <KTextTruncator
         v-if="!windowIsSmall"
         :text="description"
         :maxLines="3"
@@ -66,7 +66,6 @@
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
   import ContentIcon from 'kolibri.coreVue.components.ContentIcon';
   import { validateLinkObject, validateContentNodeKind } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import CardThumbnail from './CardThumbnail';
 
   export default {
@@ -74,7 +73,6 @@
     components: {
       CardThumbnail,
       ContentIcon,
-      TextTruncatorCss,
       CoachContentLabel,
     },
     setup() {

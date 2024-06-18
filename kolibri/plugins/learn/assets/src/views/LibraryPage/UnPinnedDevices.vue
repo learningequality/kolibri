@@ -22,7 +22,7 @@
             v-if="!viewAll"
             class="device-details"
           >
-            <TextTruncatorCss
+            <KTextTruncator
               :text="deviceName"
               :maxLines="2"
               class="name"
@@ -39,7 +39,7 @@
             v-if="viewAll"
             class="name view-all"
           >
-            <TextTruncatorCss
+            <KTextTruncator
               :text="coreString('viewAll')"
               :maxLines="1"
             />
@@ -54,15 +54,12 @@
 
 <script>
 
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UnPinnedDevices',
-    components: {
-      TextTruncatorCss,
-    },
+    components: {},
     mixins: [commonCoreStrings],
     setup() {
       const { windowGutter } = useKResponsiveWindow();
