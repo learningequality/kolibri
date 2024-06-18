@@ -186,7 +186,7 @@
               position: 'absolute',
               top: '50%',
               transform: 'translateY(-50%)',
-              right: '24px',
+              right: '1em',
               'z-index': '24',
             };
           }
@@ -196,7 +196,7 @@
             position: 'absolute',
             top: '50%',
             transform: 'translateY(-50%)',
-            left: '16px',
+            left: '1em',
             'z-index': '24',
           };
         } else {
