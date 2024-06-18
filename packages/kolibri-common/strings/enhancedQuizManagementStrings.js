@@ -18,7 +18,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Quiz title',
   },
   addQuizSections: {
-    message: 'Add one or more sections to the quiz, according to your needs',
+    message: 'Add one or more sections, according to your needs',
   },
   addSectionLabel: {
     message: 'Add section',
@@ -48,7 +48,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Section title',
   },
   sectionTitleUniqueWarning: {
-    message: 'Section titles must be unique within the quiz',
+    message: 'Section title already used',
     context: 'Informs the user that they must use a unique title for each section',
   },
   numberOfQuestionsLabel: {
@@ -76,7 +76,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Add { count, number } { count, plural, one { question } other { questions }}',
   },
   selectResourcesDescription: {
-    message: 'Select resources to add questions to this section',
+    message: "Add questions to '{ sectionTitle }'",
   },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
@@ -85,20 +85,17 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
   },
   maxNumberOfQuestions: {
-    message: 'Max { count, number } { count, plural, one { question } other { questions }}',
+    message: 'Maximum number of questions is 50',
   },
   maxNumberOfQuestionsPerSection: {
     message:
       'Each section may only contain up to { count, number } { count, plural, one { question} other { questions}}, this section has { current, number }',
   },
   replaceQuestions: {
-    message: 'Replace questions',
+    message: 'Replace questions in { sectionTitle }',
   },
   changeResources: {
     message: 'Change resources',
-  },
-  questionList: {
-    message: 'Question list',
   },
   addAnswer: {
     message: 'Add answer',
@@ -163,7 +160,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Review selected resources',
   },
   deleteConfirmation: {
-    message: "Are you sure you want to delete section '{section_title}'?",
+    message: "Are you sure you want to delete '{section_title}'?",
     context:
       'A warning message that appears when the user tries to leave the page without saving their work',
   },
@@ -187,7 +184,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
   numberOfQuestionsSelected: {
-    message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+    message: 'Current number of questions in this section: {count, number}',
   },
   numberOfResourcesSelected: {
     message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
@@ -196,13 +193,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
-  selectMoreQuestion: {
+  selectQuestionsToContinue: {
     message:
-      'Select { count } more { count, plural , one { question } other { questions }} to continue',
-  },
-  selectFewerQuestion: {
-    message:
-      'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+      'Select { count } { count, plural , one { question } other { questions }} to continue',
   },
   selectQuiz: {
     message: 'Select quiz',
@@ -216,14 +209,14 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   cannotSelectSomeTopicWarning: {
     message:
-      'You can only select folders with { count, number } or less exercises and no subfolders to avoid oversized quizzes.',
+      'You can only select folders with 12 or fewer exercises.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
     context: 'A snackbar message that appears when the user saves their changes',
   },
   sectionDeletedNotification: {
-    message: "Section '{ section_title }' deleted",
+    message: "'{ section_title }' deleted",
     context: 'A snackbar message that appears when the user deletes a section',
   },
   questionsDeletedNotification: {
@@ -239,27 +232,27 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   notEnoughReplacementsTitle: {
     message: 'Not enough replacements available',
     context:
-      'Title of modal when a user tries to replace more questions than are available in the pool',
+      'Title of modal when a user tries to replace more questions than are available',
   },
-  noReplacementsMessage: {
-    message:
-      'There are no more similar questions available to replace the selected questions with.',
+  // noReplacementsMessage: {
+  //   message:
+  //     'There are no more similar questions available to replace the selected questions with.',
+  // },
+  // notEnoughReplacementsMessage: {
+  //   message:
+  //     "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
+  //   context:
+  //     'Message of modal when a user tries to replace more questions than are available in the pool',
+  // },
+  goBackAndUnselect: {
+    message: 'You can go back and unselect some questions to be able to perform the replacement.',
+    context: 'Message of modal when a user tries to replace questions but cannot do so',
   },
-  notEnoughReplacementsMessage: {
+  addMoreQuestions: {
     message:
-      "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
+      'You can add more exercises to increase the number of questions available. If you choose to add exercises, you will need to restart the replacement process.',
     context:
-      'Message of modal when a user tries to replace more questions than are available in the pool',
-  },
-  addMoreQuestionsWithEmptyPool: {
-    message: 'You can add more questions, or delete existing questions.',
-    context: 'Message of modal when a user tries to replace questions but the pool is empty',
-  },
-  addMoreQuestionsWithNonEmptyPool: {
-    message:
-      'You can add more questions, delete existing questions, or go back and select fewer questions',
-    context:
-      'Message of modal when a user tries to replace more questions than are available in the pool',
+      'Message of modal when a user tries to replace more questions than are available',
   },
   addResourcesAction: {
     message: 'Add resources',
@@ -276,7 +269,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   questionsLabel: {
     message: 'Questions',
-    context: 'Label for dropdown list of questions',
+    context: 'Label for a list of questions',
   },
   saveAndClose: {
     message: 'Save and close',
