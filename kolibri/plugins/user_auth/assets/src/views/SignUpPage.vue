@@ -332,6 +332,11 @@
         context:
           'Link to open the Kolibri usage and privacy modal. It will be displayed alongside the text describing collection of demographic user information.',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      SignInOrCreateAccount: {
+        message: 'Sign in as {username} or start over and create a new account.',
+        context: 'Message prompting user to sign in with existing username or create new account.',
+      },
     },
   };
 
