@@ -29,7 +29,6 @@
   import ZipFile from 'kolibri-zip';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
-  import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
   import { defer } from 'underscore';
   import { createElement as e } from 'react';
   import { render, unmountComponentAtNode } from 'react-dom';
@@ -258,9 +257,6 @@
       isMobile() {
         return this.windowBreakpoint < 3;
       },
-      usesTouch() {
-        return isTouchDevice && !isMouseUsed;
-      },
       /* eslint-disable kolibri/vue-no-unused-properties */
       availableHints() {
         /* eslint-enable */
@@ -388,7 +384,7 @@
             onFocusChange: this.dismissMessage,
             onInputError: logging.error,
             isMobile: this.isMobile,
-            customKeypad: this.usesTouch,
+            customKeypad: true,
             readOnly: !this.interactive,
             hintProgressColor: this.$themeTokens.primary,
           },
