@@ -1,6 +1,6 @@
 <template>
 
-  <div ref="selectResource" class="select-resource">
+  <div class="select-resource">
     <div v-if="loading && !loadingMore">
       <KCircularLoader />
     </div>
