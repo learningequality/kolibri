@@ -306,14 +306,6 @@
       </div>
 
     </KTabsPanel>
-
-    <NotEnoughResourcesModal
-      v-if="showNotEnoughResourcesModal"
-      :selectedQuestions="selectedActiveQuestions"
-      :availableQuestions="replacementQuestionPool"
-      @close="showNotEnoughResourcesModal = false"
-      @addResources="redirectToSelectResources"
-    />
     <KModal
       v-if="showDeleteConfirmation"
       :title="deleteSectionLabel$()"

@@ -232,34 +232,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   allSectionsEmptyWarning: {
     message: "You don't have any questions in the quiz",
   },
-  notEnoughReplacementsTitle: {
-    message: 'Not enough replacements available',
-    context:
-      'Title of modal when a user tries to replace more questions than are available',
-  },
-  // noReplacementsMessage: {
-  //   message:
-  //     'There are no more similar questions available to replace the selected questions with.',
-  // },
-  // notEnoughReplacementsMessage: {
-  //   message:
-  //     "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
-  //   context:
-  //     'Message of modal when a user tries to replace more questions than are available in the pool',
-  // },
-  goBackAndUnselect: {
-    message: 'You can go back and unselect some questions to be able to perform the replacement.',
-    context: 'Message of modal when a user tries to replace questions but cannot do so',
-  },
-  addMoreQuestions: {
-    message:
-      'You can add more exercises to increase the number of questions available. If you choose to add exercises, you will need to restart the replacement process.',
-    context:
-      'Message of modal when a user tries to replace more questions than are available',
-  },
-  addResourcesAction: {
-    message: 'Add exercises',
-  },
   goBackAction: {
     message: 'Go back',
   },
