@@ -17,9 +17,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   quizTitle: {
     message: 'Quiz title',
   },
-  addQuizSections: {
-    message: 'Add one or more sections, according to your needs',
-  },
   addSectionLabel: {
     message: 'Add section',
   },
@@ -184,6 +181,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfSelectedReplacements: {
     message:
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',
+  },
+  numberOfReplacementsAvailable: {
+    message: '{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}',
   },
   numberOfQuestionsReplaced: {
     message:

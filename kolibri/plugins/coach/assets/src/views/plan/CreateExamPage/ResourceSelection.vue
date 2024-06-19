@@ -116,7 +116,7 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="folderDoesNotHaveTooManyQuestions"
+        :contentHasCheckbox="folderDoesNotHaveTooManyQuestions || hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -475,7 +475,7 @@
        *    so we can call this recursively without worrying about it going too deep
        */
       function folderDoesNotHaveTooManyQuestions(content) {
-        return content.num_assessments < 500;
+        return content.kind == ContentNodeKinds.EXERCISE|| content.num_assessments < 500;
       }
 
       // Load up the channels

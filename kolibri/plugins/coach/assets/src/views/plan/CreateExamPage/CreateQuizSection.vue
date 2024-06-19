@@ -1,9 +1,6 @@
 <template>
 
   <div>
-    <p :style="addQuizSectionsStyles">
-      {{ addQuizSections$() }}
-    </p>
 
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
@@ -142,8 +139,9 @@
             :layout4="{ span: 2 }"
           >
             <h2 :style="{ color: $themeTokens.annotation }">
-              {{ questionList$() }}
+              {{ questionsLabel$() }}
             </h2>
+            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem'}">{{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}</p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -195,7 +193,7 @@
             <KIconButton
               icon="refresh"
               :tooltip="replaceAction$()"
-              :disabled="selectedActiveQuestions.length === 0"
+              :disabled="!canReplaceQuestions"
               @click="handleReplaceSelection()"
             />
             <KIconButton
@@ -377,7 +375,6 @@
       const {
         sectionLabel$,
         selectAllLabel$,
-        addQuizSections$,
         addSectionLabel$,
         quizSectionsLabel$,
         addQuestionsLabel$,
@@ -387,7 +384,8 @@
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         updateResources$,
@@ -448,7 +446,6 @@
         expandAll$,
         collapseAll$,
         selectAllLabel$,
-        addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
         addQuestionsLabel$,
@@ -459,7 +456,8 @@
         deleteSectionLabel$,
         questionDeletionConfirmation$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
@@ -504,12 +502,8 @@
           userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
-      addQuizSectionsStyles() {
-        return {
-          margin: '0 0 1rem 0',
-          padding: '0 0 1rem 0',
-          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
-        };
+      canReplaceQuestions() {
+        return this.selectedActiveQuestions.length > 0 &&  this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
       },
       tabsWrapperStyles() {
         return {
