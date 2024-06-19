@@ -33,7 +33,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'There are no questions in this section',
   },
   addQuizSectionQuestionsInstructions: {
-    message: 'To add questions, select resources from the available channels',
+    message: 'To add questions, select exercise from the available channels',
   },
   addQuestionsLabel: {
     message: 'Add questions',
@@ -54,11 +54,17 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfQuestionsLabel: {
     message: 'Number of questions',
   },
+  numberOfQuestionsToAdd: {
+    message: 'Number of questions to add',
+  },
+  tooManyQuestions: {
+    message: 'You cannot select more than { count, number } questions',
+  },
   optionalDescriptionLabel: {
     message: 'Description (optional)',
   },
   selectResources: {
-    message: 'Select resources',
+    message: 'Select exercises',
   },
   sectionOrder: {
     message: 'Section order',
@@ -95,7 +101,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Replace questions in { sectionTitle }',
   },
   changeResources: {
-    message: 'Change resources',
+    message: 'Change exercises',
   },
   addAnswer: {
     message: 'Add answer',
@@ -157,7 +163,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Question edited successfully',
   },
   reviewSelectedResources: {
-    message: 'Review selected resources',
+    message: 'Review selected exercises',
   },
   deleteConfirmation: {
     message: "Are you sure you want to delete '{section_title}'?",
@@ -186,9 +192,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfQuestionsSelected: {
     message: 'Current number of questions in this section: {count, number}',
   },
-  numberOfResourcesSelected: {
-    message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
-  },
   selectedQuestionsInformation: {
     message:
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
@@ -209,7 +212,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   cannotSelectSomeTopicWarning: {
     message:
-      'You can only select folders with 12 or fewer exercises.',
+      'You can only select entire folders when they have { count, number } questions or fewer.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
@@ -224,7 +227,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     context: 'A snackbar message that appears when the user deletes questions',
   },
   updateResources: {
-    message: 'Update resources',
+    message: 'Update exercises',
   },
   allSectionsEmptyWarning: {
     message: "You don't have any questions in the quiz",
@@ -255,7 +258,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       'Message of modal when a user tries to replace more questions than are available',
   },
   addResourcesAction: {
-    message: 'Add resources',
+    message: 'Add exercises',
   },
   goBackAction: {
     message: 'Go back',
@@ -265,7 +268,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   questionsFromResources: {
     message:
-      '{ questions, number } { questions, plural, one { question } other { questions }} in { resources, number } { resources, plural, one { resource } other { resources }}',
+      '{ questions, number } { questions, plural, one { question } other { questions }} in { exercises, number } { exercises, plural, one { exercise } other { exercises }}',
   },
   questionsLabel: {
     message: 'Questions',
