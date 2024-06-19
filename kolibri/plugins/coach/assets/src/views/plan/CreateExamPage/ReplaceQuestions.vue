@@ -198,7 +198,7 @@
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
@@ -327,7 +327,7 @@
         noUndoWarning$,
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
@@ -362,7 +362,7 @@
             total: this.selectedActiveQuestions.length,
           });
         } else if (unreplacedCount > 0) {
-          return this.selectMoreQuestion$({
+          return this.selectQuestionsToContinue$({
             count: unreplacedCount,
           });
         } else {
