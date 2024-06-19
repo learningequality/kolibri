@@ -79,7 +79,7 @@
       },
       learnOnlyDeviceDescription: {
         message:
-          'This device will auto-sync its learner accounts with an existing full device and only include Kolibri features for learners, excluding those for coaches or admins.',
+          'This device will only have the features used by learners, and it will auto-sync with the full device.',
         context: '',
       },
     },
