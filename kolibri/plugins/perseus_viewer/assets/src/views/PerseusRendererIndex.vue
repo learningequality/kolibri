@@ -580,7 +580,15 @@
         }
         return null;
       },
-      answerGiven() {
+      answerGiven(e) {
+        if (e) {
+          // This is a hack to prevent enter keydown event from propagating when the mobile keypad
+          // is open and the user is dismissing the keypad with the enter key. The only reliable
+          // marker for this is the ariaLabel of the button that is clicked.
+          if (e.target.tagName === 'BUTTON' && e.target.ariaLabel === translator.dismiss) {
+            return;
+          }
+        }
         const answer = this.checkAnswer();
         if (answer) {
           this.$emit('answerGiven', answer);
