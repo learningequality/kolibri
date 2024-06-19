@@ -42,6 +42,14 @@
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
+      <KRouterLink
+        v-if="usernameNotUnique"
+        :text="$tr('SignInInstead')"
+        :to="SignInRoute"
+        appearance="basic-link"
+        class="link"
+      />
+
       <PasswordTextbox
         ref="passwordTextbox"
         :value.sync="password"
@@ -83,6 +91,7 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
   export default {
@@ -191,6 +200,12 @@
           return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
         }
       },
+      usernameNotUnique() {
+        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+      },
+      SignInRoute() {
+        return { name: 'LOD_IMPORT_USER_AUTH' };
+      },
     },
     watch: {
       selectedUser(user) {
@@ -286,12 +301,10 @@
         context:
           'The learner is creating their account for an existing facility and is told what that is',
       },
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      signInInstead: {
+      SignInInstead: {
         message: 'Sign in instead?',
         context: 'Text prompting user to sign in with existing username.',
       },
-      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
@@ -320,6 +333,10 @@
 
   .select {
     margin: 18px 0 36px;
+  }
+
+  .link {
+    padding-bottom: 15px;
   }
 
 </style>
