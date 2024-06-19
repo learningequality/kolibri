@@ -10,6 +10,12 @@ var {
     font-style: normal;
 }
 
+.hint.last-hint {
+    .paragraph {
+        font-weight: bold;
+    }
+}
+
 .hint_blue {
     color: #6495ed;
 }
@@ -30,10 +36,6 @@ var {
 }
 .hint_purple {
     color: #9d38bd;
-}
-
-.last-hint {
-    font-weight: bold;
 }
 
 div.subhint {
@@ -128,8 +130,6 @@ div.definition {
 
 #problemarea {
     font-size: 14px;
-    width: 70%;
-    min-height: 378px;
     position: relative;
     float: left;
     padding-bottom: 38px;
@@ -150,7 +150,10 @@ div.definition {
     margin: 10px 0;
 }
 #debug var {
-    font: 14px Menlo, Courier, monospace;
+    font:
+        14px Menlo,
+        Courier,
+        monospace;
     word-wrap: break-word;
 }
 
@@ -329,7 +332,11 @@ body.debug .graphie {
 }
 
 #answer_area .calculator .history {
-    font: 14px/1.5 Menlo, Monaco, Courier, monospace;
+    font:
+        14px/1.5 Menlo,
+        Monaco,
+        Courier,
+        monospace;
     margin: 0 0 10px;
     width: 183px;
 
@@ -383,7 +390,11 @@ body.debug .graphie {
 
 #answer_area .calculator .history .status a {
     position: absolute;
-    font: 10px/1.5 Menlo, Monaco, Courier, monospace;
+    font:
+        10px/1.5 Menlo,
+        Monaco,
+        Courier,
+        monospace;
     color: #999;
     text-decoration: none;
     line-height: 9px;
@@ -673,30 +684,6 @@ div.timeline-total {
     cursor: pointer;
     float: left;
     width: 100px;
-}
-
-#previous-step {
-    margin: 5px;
-    cursor: pointer;
-    float: left;
-    width: 100px;
-}
-
-#next-step {
-    margin: 5px;
-    cursor: pointer;
-    float: right;
-    width: 80px;
-}
-
-#previous-step span {
-    background: url(images/previous-step.png) no-repeat 0 50% transparent;
-    padding: 4px 0 4px 25px;
-}
-
-#next-step span {
-    background: url(images/next-step.png) no-repeat 100% 50% transparent;
-    padding: 4px 25px 4px 0;
 }
 
 #next-problem {
@@ -1514,6 +1501,18 @@ body.mobile ul.inequalities-one-line-radios > li {
   clear: both;
 }
 /* Fall back colors? Eg educator, talks & interviews */
+.framework-perseus code {
+  font-family: Courier, monospace;
+}
+.framework-perseus pre {
+  background-color: #f0f1f2;
+  border-radius: 4px;
+  color: #21242c;
+  font-size: 18px;
+  padding: 16px;
+  white-space: pre;
+  overflow: auto;
+}
 .framework-perseus.perseus-article:not(.perseus-mobile) .perseus-widget-container:not(.perseus-widget__definition) {
   font-size: 14px;
   line-height: 19.6px;
@@ -1658,17 +1657,7 @@ body.mobile ul.inequalities-one-line-radios > li {
   line-height: 1.5;
   margin: 0;
 }
-.framework-perseus.perseus-article:not(.perseus-mobile) code {
-  font-family: Courier, monospace;
-}
 .framework-perseus.perseus-article:not(.perseus-mobile) pre {
-  background-color: #f0f1f2;
-  border-radius: 4px;
-  color: #21242c;
-  font-size: 18px;
-  padding: 16px;
-  white-space: pre;
-  overflow: auto;
   margin: 0 -16px 32px -16px;
 }
 .framework-perseus:not(.perseus-article):not(.perseus-mobile) .perseus-radio-option-content .perseus-renderer > .paragraph {
@@ -1740,11 +1729,11 @@ body.mobile ul.inequalities-one-line-radios > li {
 .framework-perseus.perseus-mobile .clearfix > .perseus-renderer {
   margin-bottom: 32px;
 }
-.framework-perseus.perseus-mobile .perseus-renderer > .paragraph ul:not(.perseus-widget-radio) {
+.framework-perseus.perseus-mobile .perseus-renderer > .paragraph ul:not(.perseus-widget-radio, .indicatorContainer) {
   margin: 0 0 0 1em;
   padding: 0;
 }
-.framework-perseus.perseus-mobile .perseus-renderer > .paragraph ul:not(.perseus-widget-radio) > li {
+.framework-perseus.perseus-mobile .perseus-renderer > .paragraph ul:not(.perseus-widget-radio, .indicatorContainer) > li {
   padding-left: 10px;
   margin-bottom: 24px;
 }
@@ -1875,8 +1864,7 @@ body.mobile ul.inequalities-one-line-radios > li {
   .framework-perseus.perseus-mobile .perseus-image-caption.has-title .paragraph .paragraph strong:first-child {
     color: #3b3e40;
   }
-  .framework-perseus.perseus-mobile .katex,
-  .framework-perseus.perseus-mobile mjx-container {
+  .framework-perseus.perseus-mobile :is(.katex, mjx-container):not(.mafs-graph *) {
     font-size: 21px;
     line-height: 1.2;
     color: #21242c;
@@ -2018,8 +2006,7 @@ body.mobile ul.inequalities-one-line-radios > li {
   .framework-perseus.perseus-mobile .perseus-image-caption.has-title .paragraph .paragraph strong:first-child {
     color: #3b3e40;
   }
-  .framework-perseus.perseus-mobile .katex,
-  .framework-perseus.perseus-mobile mjx-container {
+  .framework-perseus.perseus-mobile :is(.katex, mjx-container):not(.mafs-graph *) {
     font-size: 23px;
     line-height: 1.3;
     color: #21242c;
@@ -2161,8 +2148,7 @@ body.mobile ul.inequalities-one-line-radios > li {
   .framework-perseus.perseus-mobile .perseus-image-caption.has-title .paragraph .paragraph strong:first-child {
     color: #3b3e40;
   }
-  .framework-perseus.perseus-mobile .katex,
-  .framework-perseus.perseus-mobile mjx-container {
+  .framework-perseus.perseus-mobile :is(.katex, mjx-container):not(.mafs-graph *) {
     font-size: 25px;
     line-height: 1.2;
     color: #21242c;
@@ -2364,11 +2350,6 @@ img.zoom-img {
 .framework-perseus.perseus-mobile .perseus-input-right-align .keypad-input {
   text-align: right;
 }
-.framework-perseus #problemarea input,
-.framework-perseus #problemarea button {
-  position: relative;
-  z-index: 3;
-}
 .framework-perseus div.paragraph {
   font-family: "Lato", sans-serif;
   font-weight: 400;
@@ -2390,11 +2371,9 @@ img.zoom-img {
 }
 .framework-perseus .perseus-renderer > .paragraph > ul:not(.perseus-widget-radio),
 .framework-perseus .perseus-renderer > .paragraph > ol {
-  margin: -11px 0px 22px 0px;
+  margin: 0px 0px 22px 0px;
 }
-.framework-perseus .paragraph ul:not(.perseus-widget-radio) {
-  font-size: 14px;
-  line-height: 19.6px;
+.framework-perseus .paragraph ul:not(.perseus-widget-radio, .indicatorContainer) {
   padding-left: 35px;
   list-style-type: disc;
 }
@@ -2488,7 +2467,10 @@ img.zoom-img {
   padding-top: 5px;
 }
 .framework-perseus .svg-image {
-  display: inline-block;
+  display: block;
+  margin: 0 auto;
+  margin-inline-start: auto;
+  margin-inline-end: auto;
 }
 .framework-perseus .unresponsive-svg-image,
 .framework-perseus .perseus-rendered-radio .unresponsive-svg-image {
@@ -2537,7 +2519,7 @@ img.zoom-img {
   padding-bottom: 2px;
 }
 .framework-perseus:not(.perseus-mobile) table tr:nth-child(odd) td {
-  background-color: #ededed;
+  background-color: #f7f8fa;
 }
 .framework-perseus:not(.perseus-mobile) .perseus-titled-table {
   display: inline-block;
@@ -2613,6 +2595,7 @@ img.zoom-img {
 }
 /* Widget CSS */
 .perseus-graph-padding {
+  box-sizing: content-box;
   padding: 25px 25px 0 0;
 }
 .categorizer-container {
@@ -2666,9 +2649,6 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
   padding: 5px;
   width: 210px;
 }
-.perseus-widget-expression.show-error-tooltip .perseus-math-input.mq-editable-field.mq-math-mode > .mq-root-block {
-  padding-right: 25px;
-}
 .perseus-widget-expression .perseus-formats-tooltip {
   width: 190px;
 }
@@ -2686,72 +2666,8 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
 #answer_area .perseus-widget-expression .error-tooltip .tooltipContainer > div:first-child {
   visibility: hidden !important;
 }
-.perseus-widget-expression-old,
-.perseus-widget-expression-old > .output,
-.perseus-widget-expression-old > .output > .tex,
-.perseus-widget-expression-old > .output > .placeholder {
-  display: block;
-}
-.perseus-widget-expression-old input,
-#answer_area .perseus-widget-expression-old input {
-  direction: ltr;
-  border: 1px solid #a4a4a4;
-  border-radius: 5px;
-  box-sizing: border-box;
-  font-size: 14px;
-  margin-bottom: 5px;
-  max-width: 240px;
-  padding: 6px;
-  width: 100%;
-}
-.perseus-widget-expression-old > .output {
-  background: #f2f2f2;
-  border-radius: 5px;
-  padding: 10px;
-  margin: 10px 0;
-}
-#answer_area .perseus-widget-expression-old > .output {
-  background: #f7f7f7;
-}
-.perseus-widget-expression-old > .output > .tex {
-  overflow-x: auto;
-  padding: 5px;
-}
-.perseus-widget-expression-old > .output > .placeholder {
-  position: relative;
-  height: 40px;
-  overflow-y: hidden;
-}
-.perseus-widget-expression-old > .output > .placeholder > .error {
-  border-radius: 10px;
-  background: #f7f7f7;
-  border: 1px solid #ddd;
-  box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
-  color: #000;
-  display: none;
-  font-weight: normal;
-  min-height: 22px;
-  width: 168px;
-  position: absolute;
-  top: 0px;
-  left: 40px;
-  margin: auto;
-}
-.perseus-widget-expression-old > .output > .placeholder > .error > .buddy {
-  background-image: url(images/perseus/error-buddy.png);
-  background-size: 100%;
-  height: 36px;
-  width: 40px;
-  position: absolute;
-  top: -3px;
-  left: -42px;
-}
-.perseus-widget-expression-old > .output > .placeholder > .error > .message {
-  font: 12px inherit;
-  line-height: 1.4em;
-  margin: 0px 4px;
-}
 .perseus-widget-grapher {
+  box-sizing: content-box;
   padding: 25px 25px 0 0;
 }
 .perseus-widget-grapher > .graphie-container {
@@ -2795,9 +2711,6 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
   top: calc(50% - 7px);
   margin-left: -20px;
 }
-.perseus-image-widget {
-  margin: 0;
-}
 .perseus-image-widget .perseus-image-title {
   text-align: center;
 }
@@ -2805,7 +2718,6 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
   color: rgba(33, 36, 44, 0.7);
   padding-left: 16px;
   position: relative;
-  top: -12px;
 }
 .perseus-image-widget .perseus-image-caption::before {
   content: "";
@@ -2838,7 +2750,18 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
 .perseus-image-editor .graph-settings {
   margin-top: 5px;
 }
+.perseus-image-widget {
+  margin-inline-start: auto;
+  margin-inline-end: auto;
+}
+.perseus-hint-renderer .perseus-image-widget {
+  margin-inline-start: 0;
+}
+.perseus-hint-renderer .svg-image {
+  margin-inline-start: 0;
+}
 .perseus-widget-interactive-graph {
+  box-sizing: content-box;
   padding: 25px 25px 0 0;
 }
 .perseus-widget-interactive-graph > .graphie-container {
@@ -2890,6 +2813,14 @@ body.mobile .categorizer-container td.category input[type="radio"] + span:active
 }
 .framework-perseus .perseus-label-image-widget-instructions div.paragraph {
   margin: 0;
+}
+@media (max-width: 767px) {
+  [id*="perseus-label-image-widget-answer-pill"] > div.perseus-renderer-responsive {
+    all: revert;
+  }
+  .framework-perseus.perseus-mobile [id*="perseus-label-image-widget-answer-pill"] mjx-container {
+    all: revert;
+  }
 }
 .framework-perseus:not(.perseus-article).perseus-mobile .perseus-label-image-widget-instructions {
   color: initial;
@@ -3121,7 +3052,7 @@ body.mobile .perseus-matrix .math-output {
 }
 .framework-perseus.perseus-article .perseus-renderer .perseus-widget-passage-container .perseus-widget-passage div.paragraph,
 .perseus-widget-passage-container .perseus-widget-passage div.paragraph {
-  font-family: "minion-pro", KaTeX_Main, Times, "Times New Roman", serif;
+  font-family: KaTeX_Main, Times, "Times New Roman", serif;
 }
 .framework-perseus.perseus-article .perseus-renderer .perseus-widget-passage-container .perseus-widget-passage .passage-title div.paragraph,
 .perseus-widget-passage-container .perseus-widget-passage .passage-title div.paragraph {
@@ -3272,43 +3203,15 @@ body.sat-section .perseus-widget-passage {
 .perseus-widget-radio li table {
   border: 1px solid #ccc;
 }
+.perseus-widget-radio .perseus-radio-option {
+  /* Radio options with images that are set apart should be on their own line */
+}
+.perseus-widget-radio .perseus-radio-option .paragraph + .paragraph:has(img:only-child),
+.perseus-widget-radio .perseus-radio-option .paragraph:has(img:only-child):has(+ .paragraph) {
+  display: block;
+}
 .perseus-widget-radio-fieldset .instructions {
   font-family: "Lato", sans-serif;
-}
-.reaction {
-  display: table-row;
-}
-.reaction-aligned {
-  display: table-cell;
-  vertical-align: middle;
-}
-.molecule-container {
-  display: table-cell;
-  vertical-align: middle;
-  margin: 20px;
-}
-.molecule-canvas {
-  display: table-cell;
-  vertical-align: middle;
-}
-.arrow-container {
-  display: table-cell;
-  vertical-align: middle;
-}
-.above-text {
-  font-size: 0.8em;
-  margin-bottom: -1em;
-  min-height: 1.8em;
-  text-align: center;
-}
-.below-text {
-  font-size: 0.8em;
-  margin-top: -1.6em;
-  min-height: 1.8em;
-  text-align: center;
-}
-.framework-perseus .perseus-sequence {
-  width: 100%;
 }
 .draggy-boxy-thing .draggable-box,
 .draggy-boxy-thing .cards-area {
@@ -3431,30 +3334,6 @@ body.sat-section .perseus-widget-passage {
 body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown td {
   padding: 5px;
 }
-.perseus-widget-transformer .highlighted-tool-button {
-  text-shadow: 1px 1px rgba(0, 0, 0, 0.25);
-}
-.perseus-widget-transformer > .graphie-container {
-  margin-bottom: 10px;
-  position: relative;
-  overflow: hidden;
-}
-.perseus-widget-transformer > .graphie-container > img,
-.perseus-widget-transformer > .graphie-container > .unresponsive-svg-image {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-}
-.perseus-widget-transformer .transformer-undo-button {
-  float: right;
-}
-.perseus-widget-transformer .perseus-transformation-list {
-  margin-top: 10px;
-  margin-bottom: 10px;
-}
-.perseus-widget-transformer .perseus-transformation-list input {
-  width: 40px;
-}
 .old-unit-input input,
 .unit-editor-canonical {
   border: 1px solid #a4a4a4;
@@ -3562,11 +3441,13 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   list-style-type: none;
 }
 .perseus-math-input.mq-editable-field.mq-math-mode {
-  background: #fff;
+  background-color: transparent;
   font-size: 18px;
   min-width: 100px;
-  border-color: #a4a4a4;
-  border-radius: 5px;
+  border: unset;
+}
+.perseus-math-input.mq-editable-field.mq-math-mode.mq-focused {
+  box-shadow: unset;
 }
 .perseus-math-input.mq-editable-field.mq-math-mode > .mq-root-block {
   padding: 4px;
@@ -3654,47 +3535,8 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
     font-size: 18px;
   }
 }
-/**
- * Styles for managing the popover animations.
- *
- * Ideally, we'd be generating these styles with Aphrodite (along with
- * CSSTransitionGroup's support for custom classnames), but the generated
- * styles have issues on mobile Safari.
- *   See: https://github.com/Khan/aphrodite/issues/68.
- *
- * If the animation durations change, the corresponding values in
- * echo-manager.js must change as well.
- */
-.echo-slide-and-fade-enter {
-  opacity: 1 !important;
-  transform: translate3d(0, 0, 0) !important;
-}
-.echo-slide-and-fade-enter.echo-slide-and-fade-enter-active {
-  opacity: 0 !important;
-  transform: translate3d(0, -33%, 0) !important;
-  /**
-         * TODO(charlie): These times are intentionally different, which means
-         * that the animation really "ends" after 400ms
-         * cubic-bezier(1, 0, 0.9, 1) (since the opacity goes to 0), even though
-         * the transform doesn't complete. There's probably a way to achieve the
-         * same effect by manipulating the transform's Bezier curve and total
-         * displacement.
-         */
-  transition: transform 800ms cubic-bezier(0, 1, 0.25, 1), opacity 400ms cubic-bezier(1, 0, 0.9, 1) !important;
-}
-.echo-fade-only-enter {
-  opacity: 1 !important;
-}
-.echo-fade-only-enter.echo-fade-only-enter-active {
-  opacity: 0 !important;
-  transition: opacity 300ms cubic-bezier(0.25, 0, 0.75, 1) !important;
-}
-.echo-long-fade-only-enter {
-  opacity: 1 !important;
-}
-.echo-long-fade-only-enter.echo-long-fade-only-enter-active {
-  opacity: 0 !important;
-  transition: opacity 400ms cubic-bezier(0.75, 0, 0.75, 1) !important;
+.perseus-widget-editor-content .locked-figure-accordion h2 {
+  padding-top: 0;
 }
 .keypad-input {
   outline: none !important;
@@ -3777,42 +3619,44 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   display: inline-block !important;
 }
 /**
- * Styles for managing the popover animations.
- *
- * Ideally, we'd be generating these styles with Aphrodite (along with
- * CSSTransitionGroup's support for custom classnames), but the generated
- * styles have issues on mobile Safari.
- *   See: https://github.com/Khan/aphrodite/issues/68.
- *
- * If the animation durations change, the corresponding values in
- * popover-manager.js must change as well.
- */
-.popover-enter {
-  opacity: 0 !important;
-}
-.popover-enter.popover-enter-active {
-  opacity: 1 !important;
-  transition: opacity 200ms ease-out !important;
-}
-/*
- * MathQuill v0.10.1               http://mathquill.com
- * by Han, Jeanine, and Mary  maintainers@mathquill.com
+ * @license
+ * MathQuill v0.10.1, by Han, Jeanine, and Mary
+ * http://mathquill.com | maintainers@mathquill.com
  *
  * This Source Code Form is subject to the terms of the
  * Mozilla Public License, v. 2.0. If a copy of the MPL
  * was not distributed with this file, You can obtain
  * one at http://mozilla.org/MPL/2.0/.
  */
+
+.mq-aria-alert {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 0px;
+  height: 0px;
+  text-align: left;
+  overflow: hidden;
+}
+.mq-mathspeak {
+  position: absolute;
+  left: -1000px;
+  top: -1000px;
+  width: 0px;
+  height: 0px;
+  text-align: left;
+  overflow: hidden;
+}
 @font-face {
   font-family: Symbola;
-  src: local("Symbola Regular"), local("Symbola"), url(fonts/Symbola.woff) format("woff");
+  src: local('Symbola Regular'), local('Symbola'), url(fonts/Symbola.woff) format('woff');
 }
 .mq-editable-field {
   display: -moz-inline-box;
   display: inline-block;
 }
 .mq-editable-field .mq-cursor {
-  border-left: 1px solid black;
+  border-left: 1px solid currentColor;
   margin-left: -1px;
   position: relative;
   z-index: 1;
@@ -3832,15 +3676,14 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   -webkit-box-shadow: #8bd 0 0 1px 2px, inset #6ae 0 0 2px 0;
   -moz-box-shadow: #8bd 0 0 1px 2px, inset #6ae 0 0 2px 0;
   box-shadow: #8bd 0 0 1px 2px, inset #6ae 0 0 2px 0;
-  border-color: #709AC0;
-  border-radius: 1px;
+  border-color: #709ac0;
 }
 .mq-math-mode .mq-editable-field {
   margin: 1px;
 }
 .mq-editable-field .mq-latex-command-input {
   color: inherit;
-  font-family: "Courier New", monospace;
+  font-family: 'Courier New', monospace;
   border: 1px solid gray;
   padding-right: 1px;
   margin-right: 1px;
@@ -3883,6 +3726,46 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   overflow: hidden;
   vertical-align: middle;
 }
+.mq-root-block .mq-digit,
+.mq-math-mode .mq-root-block .mq-digit {
+  margin-left: 0.009em;
+  margin-right: 0.009em;
+}
+.mq-root-block .mq-group-start,
+.mq-math-mode .mq-root-block .mq-group-start {
+  margin-left: 0.11em;
+  margin-right: -0.01em;
+}
+.mq-root-block .mq-group-other,
+.mq-math-mode .mq-root-block .mq-group-other {
+  margin-left: -0.01em;
+  margin-right: -0.01em;
+}
+.mq-root-block .mq-group-leading-1,
+.mq-math-mode .mq-root-block .mq-group-leading-1,
+.mq-root-block .mq-group-leading-2,
+.mq-math-mode .mq-root-block .mq-group-leading-2 {
+  margin-left: 0;
+  margin-right: -0.01em;
+}
+.mq-root-block .mq-group-leading-3,
+.mq-math-mode .mq-root-block .mq-group-leading-3 {
+  margin-left: 0.036em;
+  margin-right: -0.01em;
+}
+.mq-root-block.mq-suppress-grouping .mq-group-start,
+.mq-math-mode .mq-root-block.mq-suppress-grouping .mq-group-start,
+.mq-root-block.mq-suppress-grouping .mq-group-other,
+.mq-math-mode .mq-root-block.mq-suppress-grouping .mq-group-other,
+.mq-root-block.mq-suppress-grouping .mq-group-leading-1,
+.mq-math-mode .mq-root-block.mq-suppress-grouping .mq-group-leading-1,
+.mq-root-block.mq-suppress-grouping .mq-group-leading-2,
+.mq-math-mode .mq-root-block.mq-suppress-grouping .mq-group-leading-2,
+.mq-root-block.mq-suppress-grouping .mq-group-leading-3,
+.mq-math-mode .mq-root-block.mq-suppress-grouping .mq-group-leading-3 {
+  margin-left: 0.009em;
+  margin-right: 0.009em;
+}
 .mq-math-mode {
   font-variant: normal;
   font-weight: normal;
@@ -3900,8 +3783,16 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
 .mq-math-mode var,
 .mq-math-mode .mq-text-mode,
 .mq-math-mode .mq-nonSymbola {
-  font-family: "Times New Roman", Symbola, serif;
-  line-height: .9;
+  font-family: 'Times New Roman', Symbola, serif;
+  line-height: 0.9;
+}
+.mq-math-mode svg {
+  fill: currentColor;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
 .mq-math-mode * {
   font-size: inherit;
@@ -3915,9 +3806,12 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   box-sizing: border-box;
 }
 .mq-math-mode .mq-empty {
-  background: #ccc;
+  background: rgba(0, 0, 0, 0.2);
 }
 .mq-math-mode .mq-empty.mq-root-block {
+  background: transparent;
+}
+.mq-math-mode .mq-empty.mq-quiet-delimiter {
   background: transparent;
 }
 .mq-math-mode.mq-empty {
@@ -3925,15 +3819,16 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
 }
 .mq-math-mode .mq-text-mode {
   display: inline-block;
+  white-space: pre;
 }
 .mq-math-mode .mq-text-mode.mq-hasCursor {
-  box-shadow: inset darkgray 0 .1em .2em;
-  padding: 0 .1em;
+  box-shadow: inset darkgray 0 0.1em 0.2em;
+  padding: 0 0.1em;
   margin: 0 -0.1em;
   min-width: 1ex;
 }
 .mq-math-mode .mq-font {
-  font: 1em "Times New Roman", Symbola, serif;
+  font: 1em 'Times New Roman', Symbola, serif;
 }
 .mq-math-mode .mq-font * {
   font-family: inherit;
@@ -3958,6 +3853,26 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
 .mq-math-mode big {
   font-size: 200%;
 }
+.mq-math-mode .mq-int > big {
+  display: inline-block;
+  -webkit-transform: scaleX(0.7);
+  -moz-transform: scaleX(0.7);
+  -ms-transform: scaleX(0.7);
+  -o-transform: scaleX(0.7);
+  transform: scaleX(0.7);
+  vertical-align: -0.16em;
+}
+.mq-math-mode .mq-int > .mq-supsub {
+  font-size: 80%;
+  vertical-align: -1.1em;
+  padding-right: 0.2em;
+}
+.mq-math-mode .mq-int > .mq-supsub > .mq-sup > .mq-sup-inner {
+  vertical-align: 1.3em;
+}
+.mq-math-mode .mq-int > .mq-supsub > .mq-sub {
+  margin-left: -0.35em;
+}
 .mq-math-mode .mq-roman {
   font-style: normal;
 }
@@ -3968,11 +3883,11 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   font-family: monospace, Symbola, serif;
 }
 .mq-math-mode .mq-overline {
-  border-top: 1px solid black;
+  border-top: 1px solid;
   margin-top: 1px;
 }
 .mq-math-mode .mq-underline {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid;
   margin-bottom: 1px;
 }
 .mq-math-mode .mq-binary-operator {
@@ -3985,14 +3900,10 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   font-size: 90%;
   vertical-align: -0.5em;
 }
-.mq-math-mode .mq-supsub.mq-limit {
-  font-size: 80%;
-  vertical-align: -0.4em;
-}
 .mq-math-mode .mq-supsub.mq-sup-only {
-  vertical-align: .5em;
+  vertical-align: 0.5em;
 }
-.mq-math-mode .mq-supsub.mq-sup-only .mq-sup {
+.mq-math-mode .mq-supsub.mq-sup-only > .mq-sup {
   display: inline-block;
   vertical-align: text-bottom;
 }
@@ -4003,11 +3914,8 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   display: block;
   float: left;
 }
-.mq-math-mode .mq-supsub.mq-limit .mq-sub {
-  margin-left: -0.25em;
-}
 .mq-math-mode .mq-supsub .mq-binary-operator {
-  padding: 0 .1em;
+  padding: 0 0.1em;
 }
 .mq-math-mode .mq-supsub .mq-fraction {
   font-size: 70%;
@@ -4016,24 +3924,30 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   font-size: 80%;
   vertical-align: 0.8em;
   margin-right: -0.6em;
-  margin-left: .2em;
-  min-width: .5em;
+  margin-left: 0.2em;
+  min-width: 0.5em;
 }
-.mq-math-mode .mq-paren {
-  padding: 0 .1em;
-  vertical-align: top;
-  -webkit-transform-origin: center .06em;
-  -moz-transform-origin: center .06em;
-  -ms-transform-origin: center .06em;
-  -o-transform-origin: center .06em;
-  transform-origin: center .06em;
+.mq-math-mode .mq-ghost svg {
+  opacity: 0.2;
 }
-.mq-math-mode .mq-paren.mq-ghost {
-  color: silver;
+.mq-math-mode .mq-bracket-middle {
+  margin-top: 0.1em;
+  margin-bottom: 0.1em;
 }
-.mq-math-mode .mq-paren + span {
-  margin-top: .1em;
-  margin-bottom: .1em;
+.mq-math-mode .mq-bracket-l,
+.mq-math-mode .mq-bracket-r {
+  position: absolute;
+  top: 0;
+  bottom: 2px;
+}
+.mq-math-mode .mq-bracket-l {
+  left: 0;
+}
+.mq-math-mode .mq-bracket-r {
+  right: 0;
+}
+.mq-math-mode .mq-bracket-container {
+  position: relative;
 }
 .mq-math-mode .mq-array {
   vertical-align: middle;
@@ -4043,22 +3957,22 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   display: block;
 }
 .mq-math-mode .mq-operator-name {
-  font-family: Symbola, "Times New Roman", serif;
-  line-height: .9;
+  font-family: Symbola, 'Times New Roman', serif;
+  line-height: 0.9;
   font-style: normal;
 }
 .mq-math-mode var.mq-operator-name.mq-first {
-  padding-left: .2em;
+  padding-left: 0.2em;
 }
 .mq-math-mode var.mq-operator-name.mq-last,
 .mq-math-mode .mq-supsub.mq-after-operator-name {
-  padding-right: .2em;
+  padding-right: 0.2em;
 }
 .mq-math-mode .mq-fraction {
   font-size: 90%;
   text-align: center;
   vertical-align: -0.4em;
-  padding: 0 .2em;
+  padding: 0 0.2em;
 }
 .mq-math-mode .mq-fraction,
 .mq-math-mode .mq-large-operator,
@@ -4072,7 +3986,8 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   display: inline-block;
 }
 .mq-math-mode .mq-numerator,
-.mq-math-mode .mq-denominator {
+.mq-math-mode .mq-denominator,
+.mq-math-mode .mq-dot-recurring {
   display: block;
 }
 .mq-math-mode .mq-numerator {
@@ -4084,38 +3999,53 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   width: 100%;
   padding: 0.1em;
 }
+.mq-math-mode .mq-dot-recurring {
+  text-align: center;
+  height: 0.3em;
+}
 .mq-math-mode .mq-sqrt-prefix {
-  padding-top: 0;
+  position: absolute;
+  top: 1px;
+  bottom: 0.15em;
+  width: 0.95em;
+}
+.mq-math-mode .mq-sqrt-container {
   position: relative;
-  top: 0.1em;
-  vertical-align: top;
-  -webkit-transform-origin: top;
-  -moz-transform-origin: top;
-  -ms-transform-origin: top;
-  -o-transform-origin: top;
-  transform-origin: top;
 }
 .mq-math-mode .mq-sqrt-stem {
   border-top: 1px solid;
   margin-top: 1px;
-  padding-left: .15em;
-  padding-right: .2em;
-  margin-right: .1em;
+  margin-left: 0.9em;
+  padding-left: 0.15em;
+  padding-right: 0.2em;
+  margin-right: 0.1em;
   padding-top: 1px;
 }
-.mq-math-mode .mq-vector-prefix {
+.mq-math-mode .mq-diacritic-above {
   display: block;
   text-align: center;
-  line-height: .25em;
-  margin-bottom: -0.1em;
-  font-size: 0.75em;
+  line-height: 0.4em;
 }
-.mq-math-mode .mq-vector-stem {
+.mq-math-mode .mq-diacritic-stem {
+  display: block;
+  text-align: center;
+}
+.mq-math-mode .mq-hat-prefix {
+  display: block;
+  text-align: center;
+  line-height: 0.95em;
+  margin-bottom: -0.7em;
+  transform: scaleX(1.5);
+  -moz-transform: scaleX(1.5);
+  -o-transform: scaleX(1.5);
+  -webkit-transform: scaleX(1.5);
+}
+.mq-math-mode .mq-hat-stem {
   display: block;
 }
 .mq-math-mode .mq-large-operator {
   vertical-align: -0.2em;
-  padding: .2em;
+  padding: 0.2em;
   text-align: center;
 }
 .mq-math-mode .mq-large-operator .mq-from,
@@ -4135,29 +4065,51 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
 .mq-math-mode,
 .mq-math-mode .mq-editable-field {
   cursor: text;
-  font-family: Symbola, "Times New Roman", serif;
+  font-family: Symbola, 'Times New Roman', serif;
+}
+.mq-math-mode .mq-overarc {
+  border-top: 1px solid black;
+  -webkit-border-top-right-radius: 50% 0.3em;
+  -moz-border-radius-topright: 50% 0.3em;
+  border-top-right-radius: 50% 0.3em;
+  -webkit-border-top-left-radius: 50% 0.3em;
+  -moz-border-radius-topleft: 50% 0.3em;
+  border-top-left-radius: 50% 0.3em;
+  margin-top: 1px;
+  padding-top: 0.15em;
 }
 .mq-math-mode .mq-overarrow {
+  min-width: 0.5em;
   border-top: 1px solid black;
   margin-top: 1px;
   padding-top: 0.2em;
-}
-.mq-math-mode .mq-overarrow:before {
-  display: block;
+  text-align: center;
   position: relative;
-  top: -0.34em;
-  font-size: 0.5em;
-  line-height: 0em;
-  content: '\27A4';
-  text-align: right;
 }
-.mq-math-mode .mq-overarrow.mq-arrow-left:before {
+.mq-math-mode .mq-overarrow:after {
+  position: absolute;
+  right: -0.1em;
+  top: -0.48em;
+  font-size: 0.5em;
+  content: '\27A4';
+}
+.mq-math-mode .mq-overarrow.mq-arrow-left:after {
+  content: '';
+  display: none;
+}
+.mq-math-mode .mq-overarrow.mq-arrow-left:before,
+.mq-math-mode .mq-overarrow.mq-arrow-leftright:before {
+  position: absolute;
+  top: -0.48em;
+  left: -0.1em;
+  font-size: 0.5em;
+  content: '\27A4';
   -moz-transform: scaleX(-1);
   -o-transform: scaleX(-1);
   -webkit-transform: scaleX(-1);
   transform: scaleX(-1);
   filter: FlipH;
-  -ms-filter: "FlipH";
+  -ms-filter: 'FlipH';
 }
 .mq-math-mode .mq-selection,
 .mq-editable-field .mq-selection,
@@ -4165,34 +4117,21 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
 .mq-editable-field .mq-selection .mq-non-leaf,
 .mq-math-mode .mq-selection .mq-scaled,
 .mq-editable-field .mq-selection .mq-scaled {
-  background: #B4D5FE !important;
-  background: Highlight !important;
-  color: HighlightText;
-  border-color: HighlightText;
-}
-.mq-math-mode .mq-selection .mq-matrixed,
-.mq-editable-field .mq-selection .mq-matrixed {
-  background: #39F !important;
-}
-.mq-math-mode .mq-selection .mq-matrixed-container,
-.mq-editable-field .mq-selection .mq-matrixed-container {
-  filter: progid:DXImageTransform.Microsoft.Chroma(color='#3399FF') !important;
+  background: #b4d5fe !important;
 }
 .mq-math-mode .mq-selection.mq-blur,
 .mq-editable-field .mq-selection.mq-blur,
 .mq-math-mode .mq-selection.mq-blur .mq-non-leaf,
 .mq-editable-field .mq-selection.mq-blur .mq-non-leaf,
 .mq-math-mode .mq-selection.mq-blur .mq-scaled,
-.mq-editable-field .mq-selection.mq-blur .mq-scaled,
-.mq-math-mode .mq-selection.mq-blur .mq-matrixed,
-.mq-editable-field .mq-selection.mq-blur .mq-matrixed {
-  background: #D4D4D4 !important;
+.mq-editable-field .mq-selection.mq-blur .mq-scaled {
+  background: #d4d4d4 !important;
   color: black;
   border-color: black;
 }
-.mq-math-mode .mq-selection.mq-blur .mq-matrixed-container,
-.mq-editable-field .mq-selection.mq-blur .mq-matrixed-container {
-  filter: progid:DXImageTransform.Microsoft.Chroma(color='#D4D4D4') !important;
+html body .mq-math-mode .mq-selection .mq-nthroot-container *,
+html body .mq-editable-field .mq-selection .mq-nthroot-container * {
+  background: transparent !important;
 }
 .mq-editable-field .mq-textarea,
 .mq-math-mode .mq-textarea {
@@ -4202,9 +4141,7 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   user-select: text;
 }
 .mq-editable-field .mq-textarea *,
-.mq-math-mode .mq-textarea *,
-.mq-editable-field .mq-selectable,
-.mq-math-mode .mq-selectable {
+.mq-math-mode .mq-textarea * {
   -webkit-user-select: text;
   -moz-user-select: text;
   user-select: text;
@@ -4218,20 +4155,393 @@ body.mobile .framework-perseus table.perseus-widget-table-of-values.non-markdown
   resize: none;
   width: 1px;
   height: 1px;
-}
-.mq-math-mode .mq-matrixed {
-  background: white;
-  display: -moz-inline-box;
-  display: inline-block;
-}
-.mq-math-mode .mq-matrixed-container {
-  filter: progid:DXImageTransform.Microsoft.Chroma(color='white');
-  margin-top: -0.1em;
+  box-sizing: content-box;
 }
 
-.tabbar_item {
-  background-color: red;
+
+.MafsView {
+  display: block;
+  background: var(--mafs-bg);
+  overflow: hidden;
+  -webkit-user-select: none;
+  user-select: none;
+  font-family: inherit;
+  font-variant-numeric: tabular-nums;
+  touch-action: none;
+  outline: 0;
+
+  --mafs-bg: black;
+  --mafs-fg: white;
+
+  --mafs-origin-color: var(--mafs-fg);
+  --mafs-line-color: #555;
+  --mafs-line-stroke-dash-style: 4, 3;
+  --grid-line-subdivision-color: #222;
+
+  --mafs-red: #f11d0e;
+  --mafs-orange: #f14e0e;
+  --mafs-yellow: #ffe44a;
+  --mafs-green: #15e272;
+  --mafs-blue: #58a6ff;
+  --mafs-indigo: #7c58ff;
+  --mafs-violet: #ae58ff;
+  --mafs-pink: #ee00ab;
 }
-.tabbar_item:focus {
-  background-color: green;
+
+.MafsView text {
+  fill: var(--mafs-fg);
+  cursor: default;
+}
+
+.MafsView path {
+  stroke: var(--mafs-fg);
+}
+
+.MafsView:focus-visible {
+  border-radius: 5px;
+  outline: 3px solid #58a6ff;
+}
+
+@supports not selector(:focus-visible) {
+  .MafsView:focus {
+    border-radius: 5px;
+    outline: 3px solid #58a6ff;
+  }
+}
+
+.mafs-shadow {
+  paint-order: stroke;
+  stroke-width: 3px;
+  stroke: var(--mafs-bg);
+  stroke-opacity: 0.75;
+  stroke-linejoin: round;
+}
+
+.mafs-movable-point {
+  cursor: grab;
+  touch-action: none;
+}
+
+.mafs-movable-point-dragging {
+  cursor: grabbing;
+}
+
+.mafs-movable-point:focus {
+  outline: 0;
+}
+
+.mafs-movable-point * {
+  fill: none;
+  stroke: none;
+}
+
+.mafs-movable-point-hitbox {
+  fill: transparent;
+}
+
+.mafs-movable-point-focus {
+  stroke: var(--movable-point-color);
+  stroke-width: 2;
+  stroke-opacity: 0;
+  fill: none;
+  transition: stroke-opacity 0.2s ease;
+}
+
+.mafs-movable-point-ring {
+  fill: var(--movable-point-color);
+  fill-opacity: 0.25;
+  stroke: none;
+  transition: r 0.2s ease;
+}
+
+.mafs-movable-point-point {
+  fill: var(--movable-point-color);
+  transition: r 0.2s ease;
+}
+
+/* Hover */
+
+.mafs-movable-point:hover .mafs-movable-point-point,
+.mafs-movable-point:focus-visible .mafs-movable-point-point {
+  r: calc(var(--movable-point-ring-size) - 2px);
+}
+
+.mafs-movable-point:hover .mafs-movable-point-ring,
+.mafs-movable-point:focus-visible .mafs-movable-point-ring {
+  r: calc(var(--movable-point-ring-size) + 3px);
+}
+
+.mafs-movable-point.mafs-movable-point-dragging .mafs-movable-point-ring {
+  r: var(--movable-point-ring-size);
+}
+
+/* Focus */
+
+.mafs-movable-point:focus-visible .mafs-movable-point-focus {
+  stroke-opacity: 1;
+}
+
+/**
+ * Overrides of mafs theme-- we will want to move this into JS land
+ * to take advantage of WB tokens
+ */
+.MafsView {
+    --mafs-bg: transparent;
+    --mafs-fg: rgb(33, 36, 44); /* WB color.offBlack */
+
+    /* Grid lines */
+    --mafs-line-color: rgba(33, 36, 44, 0.16); /* WB color.offBlack16*/
+
+    /* Axis lines */
+    --mafs-axis-stroke-width: 2px;
+
+    --mafs-blue: #1865f2; /* WB color.blue */
+    --mafs-red: #d92916; /* WB color.red */
+    --mafs-green: #00a60e; /* WB color.green */
+    --mafs-violet: #9059ff; /* WB color.purple */
+    --mafs-yellow: #ffb100; /* WB color.gold */
+
+    /* overridden on a per-point basis */
+    --movable-point-color: var(--mafs-blue);
+    --movable-point-center-radius: 6px;
+    --movable-point-ring-radius: calc(2px + var(--movable-point-center-radius));
+    --movable-point-halo-radius: calc(3px + var(--movable-point-ring-radius));
+    --movable-point-hover-expansion: 2px;
+    --movable-point-focus-ring-offset: 2px;
+
+    --movable-line-stroke-color: var(--mafs-blue);
+    --movable-line-stroke-weight: 2px;
+    --movable-line-stroke-weight-active: 4px;
+}
+
+.MafsView > svg {
+    /* Chrome/Safari bugfix for LEMS-1906 */
+    display: block;
+}
+
+.MafsView .movable-line:hover,
+.movable-dragging {
+    --movable-line-stroke-weight: var(--movable-line-stroke-weight-active);
+}
+
+.MafsView .movable-line:focus,
+.movable-polygon:focus {
+    outline: none;
+}
+
+.MafsView
+    .movable-line
+    :is(.movable-line-focus-outline, .movable-line-focus-outline-gap) {
+    stroke: transparent;
+}
+
+.MafsView .movable-line:focus-visible .movable-line-focus-outline {
+    stroke: var(--mafs-blue);
+    stroke-width: 10px;
+}
+
+.MafsView .movable-line:focus-visible .movable-line-focus-outline-gap {
+    stroke: white;
+    stroke-width: 6px;
+}
+
+.MafsView .movable-point {
+    cursor: grab;
+    touch-action: none;
+    outline: none;
+}
+
+.MafsView .movable-point.movable-point--dragging {
+    cursor: grabbing;
+}
+
+.MafsView .movable-point.movable-point--dragging .movable-point-halo {
+    opacity: 0;
+}
+
+.MafsView .movable-point-hitbox {
+    fill: transparent;
+}
+
+.MafsView
+    :is(
+        .movable-point-center,
+        .movable-point-ring,
+        .movable-point-halo,
+        .movable-point-focus-outline
+    ) {
+    transition:
+        r 0.15s ease-out,
+        opacity 0.15s ease-out;
+}
+
+.MafsView .movable-point-center {
+    r: var(--movable-point-center-radius);
+}
+
+.MafsView .movable-point-halo {
+    r: var(--movable-point-halo-radius);
+    fill: var(--movable-point-color);
+    opacity: 0.25;
+    filter: drop-shadow(0 5px 5px #0008);
+}
+
+.MafsView .movable-point-ring {
+    r: var(--movable-point-ring-radius);
+    fill: #fff;
+}
+
+.MafsView .movable-point:hover .movable-point-center {
+    r: calc(
+        var(--movable-point-hover-expansion) +
+            var(--movable-point-center-radius)
+    );
+}
+
+.MafsView .movable-point:hover .movable-point-ring {
+    r: calc(
+        var(--movable-point-hover-expansion) + var(--movable-point-ring-radius)
+    );
+}
+
+.MafsView .movable-point:hover .movable-point-halo {
+    r: calc(
+        var(--movable-point-hover-expansion) + var(--movable-point-halo-radius)
+    );
+}
+
+.MafsView .movable-point .movable-point-focus-outline {
+    visibility: hidden;
+    r: calc(
+        var(--movable-point-halo-radius) +
+            var(--movable-point-focus-ring-offset)
+    );
+    stroke-width: 2px;
+    fill: none;
+    stroke: var(--mafs-blue);
+}
+
+.MafsView .movable-point:hover .movable-point-focus-outline {
+    r: calc(
+        var(--movable-point-hover-expansion) + var(--movable-point-halo-radius) +
+            var(--movable-point-focus-ring-offset)
+    );
+}
+
+.MafsView
+    .movable-point:is(:focus-visible, .movable-point--focus)
+    .movable-point-focus-outline {
+    visibility: visible;
+}
+
+.MafsView .movable-circle {
+    cursor: grab;
+}
+
+.MafsView .movable-circle .circle {
+    stroke: var(--mafs-blue);
+    stroke-width: 2px;
+    fill: transparent;
+}
+
+.MafsView .movable-circle:hover .circle {
+    fill: var(--mafs-blue);
+    fill-opacity: 0.16;
+}
+
+.MafsView .movable-circle.movable-circle--dragging {
+    cursor: grabbing;
+    outline: none;
+}
+
+.MafsView .movable-circle .focus-ring {
+    visibility: hidden; /* overridden when the circle is focused */
+    stroke: var(--mafs-blue);
+    stroke-width: 2px;
+    fill: transparent;
+}
+
+.MafsView .movable-circle:focus {
+    outline: none;
+}
+
+.MafsView .movable-circle:focus-visible .focus-ring {
+    visibility: visible;
+}
+
+.MafsView .movable-circle .movable-circle-handle {
+    fill: var(--mafs-blue); /* WB fadedOffBlack64 */
+    stroke: #fff;
+    stroke-width: 2px;
+}
+
+.MafsView .movable-circle .movable-circle-handle-dot {
+    fill: #fff;
+    r: 1.25px;
+}
+
+@font-face {
+    font-family: Mafs-MJXTEX;
+    src: url("fonts/MathJax_Main-Regular.woff")
+        format("woff");
+}
+
+.MafsView pattern g {
+    stroke: #909296;
+}
+.axis-tick-labels {
+    font-size: 14px;
+    font-family: "Mafs-MJXTEX";
+    line-height: 1.5em;
+    /* Prevent labels from being selected, and from interfering with click and
+     * drag interactions on the graph. */
+    user-select: none;
+    pointer-events: none;
+    /* Prevent labels from covering up interaction points. */
+    z-index: -1;
+}
+
+.y-axis-tick-labels {
+    width: 1.75em;
+    display: flex;
+    flex-flow: column;
+    transform: translateX(calc(-100% - 0.5em));
+    position: absolute;
+    text-align: right;
+}
+.y-axis-right-of-grid {
+    transform: translateX(calc(50% + 0.5em));
+}
+.x-axis-tick-labels {
+    display: flex;
+    flex-flow: row;
+    flex-direction: row-reverse;
+    position: absolute;
+    transform: translateY(calc(50% - 0.25em));
+}
+.x-axis-top-of-grid {
+    transform: translateY(calc(-100% + 0.25em));
+}
+
+.x-axis-tick-labels span,
+.y-axis-tick-labels span {
+    /* The negative sign is rendered as a pseudo-element to
+        ensure that we are positioning all labels correctly */
+    &::before {
+        content: attr(data-content);
+        position: absolute;
+        /* We're translating the symbol up by 1px to ensure it's legible around gridlines. */
+        transform: translate(-100%, -1px);
+        font-weight: 600; /* This helps get the symbol to render crisply */
+    }
+}
+
+.y-axis-tick-labels span {
+    display: inline-block;
+    height: var(--y-axis-label-height, 20px);
+}
+
+.x-axis-tick-labels span {
+    text-align: center;
+    width: var(--x-axis-label-width, 20px);
 }

@@ -6,78 +6,14 @@
     :class="{ 'perseus-mobile': isMobile }"
   >
     <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
-      <div id="perseus" ref="perseus" class="perseus">
+      <div ref="perseus" class="perseus">
         <div class="loader-container">
           <KLinearLoader
-            v-show="loading"
             :delay="false"
             type="indeterminate"
           />
         </div>
-        <KGrid>
-          <!-- Layout notes
-            - Layout12 span8 -> ~66% width on windowIsLarge
-            - No other layout definitions means span will be 100%
-            - If we're not allowingHints, then it should be 100% because
-              they're the reason we'd go smaller at all
-          -->
-          <KGridItem :layout12="{ span: allowHints && interactive ? 6 : 12 }">
-            <div
-              id="problem-area"
-              class="problem-area"
-              :dir="contentDirection"
-            >
-              <div id="workarea" style="margin-left: 0px; margin-right: 0px;"></div>
-            </div>
-          </KGridItem>
-
-          <!--
-              - Hide when not allowing hints
-              - It is a v-show because seems without the proper anchors in place
-                it will fail to properly mount the react component
-          -->
-          <KGridItem v-show="interactive && allowHints" :layout12="{ span: 6 }">
-            <div v-if="hinted" id="hintlabel" class="hintlabel" :dir="contentDirection">
-              {{ $tr("hintLabel") }}
-            </div>
-            <div id="hintsarea" class="hintsarea" :dir="contentDirection"></div>
-          </KGridItem>
-        </KGrid>
       </div>
-
-      <transition name="expand">
-        <div v-show="message" id="message" :dir="contentDirection">
-          {{ message }}
-        </div>
-      </transition>
-
-      <div id="answer-area-wrap" :dir="contentDirection">
-        <div id="answer-area">
-          <div class="info-box">
-            <div id="solutionarea" class="solutionarea"></div>
-          </div>
-        </div>
-      </div>
-
-      <KButton
-        v-if="scratchpad"
-        id="scratchpad-show"
-        :primary="false"
-        :raised="false"
-        :text="$tr('showScratch')"
-      />
-      <KButton
-        v-else
-        id="scratchpad-not-available"
-        :primary="false"
-        :raised="false"
-        disabled
-        :text="$tr('notAvailable')"
-      />
-
-      <!-- Need a DOM mount point for ReactDOM to attach to,
-        but Perseus renders weirdly so doesn't use this -->
-      <div id="perseus-container" ref="perseusContainer" :dir="contentDirection"></div>
     </div>
   </div>
 
@@ -87,25 +23,24 @@
 <script>
 
   import invert from 'lodash/invert';
+  import get from 'lodash/get';
   import ZipFile from 'kolibri-zip';
   import { Mapper, defaultFilePathMappers } from 'kolibri-zip/src/fileUtils';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { isTouchDevice, isMouseUsed } from 'kolibri.utils.browserInfo';
   import { defer } from 'underscore';
-  import { createFactory } from 'react';
+  import { createElement as e } from 'react';
   import { render, unmountComponentAtNode } from 'react-dom';
   import * as perseus from '@khanacademy/perseus';
-  // Import this here so that our string translation machinery
-  // is aware of the dependency, as otherwise the functions in here are only
-  // referenced via WebpackProvidePlugin
-  import '../i18n';
+  import { MathInputI18nContextProvider } from '@khanacademy/math-input';
+  import { RenderStateRoot } from '@khanacademy/wonder-blocks-core';
+  import perseusTranslator from '../translator';
+  import { wrapPerseusMessages } from '../translationUtils';
   import widgetSolver from '../widgetSolver';
   import imageMissing from './image_missing.svg';
   import TeX from './Tex';
 
-  // A handy convenience mapping to what is essentially a constructor for Item Renderer
-  // components.
-  const itemRendererFactory = createFactory(perseus.ItemRenderer);
+  const translator = wrapPerseusMessages(perseusTranslator);
 
   const logging = require('kolibri.lib.logging').getLogger(__filename);
 
@@ -149,7 +84,7 @@
     return images.concat(svgAndJson);
   }
 
-  function replaceImageUrls(itemResponse, packageFiles) {
+  function replaceImageUrls(itemResponse, packageFiles = {}) {
     Object.assign(globalImageUrls, packageFiles);
     // If the file is not present in the zip file, then fill in a missing image
     // file for images, and an empty dummy json file for json
@@ -166,7 +101,7 @@
       } else {
         // Replace any placeholder values for image URLs with
         // the base URL for the perseus file we are reading from
-        return packageFiles[image] || imageMissing;
+        return globalImageUrls[image] || imageMissing;
       }
     });
   }
@@ -235,16 +170,16 @@
       };
     },
     data: () => ({
-      // Is the perseus item renderer loading?
+      // Is the perseus item loading?
       loading: true,
+      itemRendererUpdating: false,
       // state about the answer
       message: null,
       // default item data
       item: {},
-      itemRenderer: null,
-      scratchpad: false,
       // Store a copy of the blank state of a question to clear set answers later
       blankState: null,
+      hintsVisible: 0,
     }),
     computed: {
       isMobile() {
@@ -253,44 +188,13 @@
       usesTouch() {
         return isTouchDevice && !isMouseUsed;
       },
-      itemRenderData() {
-        return {
-          // A property to return data formatted in the form expected by the Item Renderer
-          // constructor function.
-          initialHintsVisible: 0,
-          item: this.item,
-          workAreaSelector: '#workarea',
-          problemAreaSelector: '#problem-area',
-          problemNum: Math.floor(Math.random() * 1000),
-          enabledFeatures: {
-            highlight: true,
-            toolTipFormats: true,
-          },
-          apiOptions: {
-            isArticle: false,
-            // Pass in callbacks for widget interaction and focus change.
-            // Here we dismiss answer error message on interaction and focus change.
-            interactionCallback: this.interactionCallback,
-            trackInteraction: this.interactionCallback,
-            onFocusChange: this.dismissMessage,
-            onInputError: logging.error,
-            isMobile: this.isMobile,
-            customKeypad: this.usesTouch,
-            readOnly: !this.interactive,
-            hintProgressColor: this.$themeTokens.text,
-          },
-        };
-      },
-      hinted() {
-        return this.itemRenderer ? this.itemRenderer.state.hintsVisible > 0 : false;
-      },
       /* eslint-disable kolibri/vue-no-unused-properties */
       availableHints() {
         /* eslint-enable */
-        return (this.itemRenderer && this.totalHints - this.itemRenderer.state.hintsVisible) || 0;
+        return this.totalHints - this.hintsVisible;
       },
       totalHints() {
-        return this.itemRenderer ? this.itemRenderer.getNumHints() : 0;
+        return get(this.item, 'hints.length', 0);
       },
     },
     watch: {
@@ -299,9 +203,6 @@
       },
       itemData(newItemData) {
         this.setItemData(newItemData);
-      },
-      loading() {
-        this.setAnswer();
       },
       answerState(newState) {
         this.resetState(newState);
@@ -318,6 +219,7 @@
       }
     },
     created() {
+      this.itemRenderer = null;
       this.perseusFile = null;
       // This is a local object for tracking image URLs
       // we use this to clean up image URLs just for this component
@@ -399,45 +301,90 @@
         /* eslint-enable no-mixed-operators */
       },
       renderItem() {
-        // Reset the state tracking variables.
-        this.loading = true;
-        // Don't store blank state for another item.
-        this.blankState = null;
-
-        // Clear any currently displayed messages when we render an item.
-        this.dismissMessage();
-
-        // Clear the perseus container to ensure no residual DOM elements remain.
-        // This is necessary due to an issue with the math-input component that
-        // perseus uses, that seems to fail to clear the MathQuill renderered
-        // content inside it. If this gets fixed, we can remove this and defer
-        // to simply updating.
-        try {
-          unmountComponentAtNode(this.$refs.perseusContainer);
-          this.$set(this, 'itemRenderer', null);
-        } catch (e) {
-          logging.debug('Error during unmounting of item renderer', e);
-        }
-
+        this.itemRendererUpdating = true;
+        // Data formatted in the form expected by the Server Item Renderer
+        const itemRenderData = {
+          hintsVisible: this.hintsVisible,
+          item: this.item,
+          problemNum: Math.floor(Math.random() * 1000),
+          reviewMode: this.showCorrectAnswer,
+          showSolutions: this.showCorrectAnswer ? 'all' : 'none',
+          apiOptions: {
+            isArticle: false,
+            // Pass in callbacks for widget interaction and focus change.
+            // Here we dismiss answer error message on interaction and focus change.
+            interactionCallback: this.interactionCallback,
+            trackInteraction: this.interactionCallback,
+            onFocusChange: this.dismissMessage,
+            onInputError: logging.error,
+            isMobile: this.isMobile,
+            customKeypad: this.usesTouch,
+            readOnly: !this.interactive,
+            hintProgressColor: this.$themeTokens.primary,
+          },
+          ref: itemRenderer => {
+            this.itemRenderer = itemRenderer;
+            if (itemRenderer) {
+              this.$emit('itemRendererUpdated');
+              this.itemRendererUpdating = false;
+            }
+          },
+          dependencies: {
+            analytics: {
+              onAnalyticsEvent: async () => {},
+            },
+          },
+        };
         // Create react component with current item data.
         // If the component already existed, this will perform an update.
-        this.$set(
-          this,
-          'itemRenderer',
-          render(
-            itemRendererFactory(this.itemRenderData, null),
-            this.$refs.perseusContainer,
-            () => {
-              this.loading = false;
-            }
-          )
-        );
+        const rendererElement = e(perseus.ServerItemRenderer, itemRenderData);
+        const perseusStringsElement = e(perseus.PerseusI18nContextProvider, {
+          locale: this.lang,
+          strings: translator,
+          children: rendererElement,
+        });
+        const mathInputStringsElement = e(MathInputI18nContextProvider, {
+          locale: this.lang,
+          strings: translator,
+          children: perseusStringsElement,
+        });
+        const dependencyContextElement = e(perseus.Dependencies.DependenciesContext.Provider, {
+          analytics: { onAnalyticsEvent: async () => {} },
+          children: mathInputStringsElement,
+        });
+        const renderStateRootElement = e(RenderStateRoot, { children: dependencyContextElement });
+        render(renderStateRootElement, this.$refs.perseus);
       },
-      resetState(val) {
+      renderNewItem() {
+        this.renderItem();
+        this.$once('itemRendererUpdated', () => {
+          // Blur any previously focused element once we have rendered a new item
+          this.itemRenderer.blur();
+          // Wait for the itemRenderer to be updated before setting the answer
+          // This is necessary because the itemRenderer may not be available immediately
+          // or may be in the process of updating, and contain stale state from the previous item.
+          // The first thing we do in setAnswer is read the blank state from the itemRenderer,
+          // so we need to ensure that the itemRenderer is available and up to date first.
+          this.setAnswer();
+        });
+      },
+      _resetState(val) {
         if (!val) {
           this.restoreSerializedState(this.blankState);
         }
         this.setAnswer();
+      },
+      resetState(val) {
+        // Because resetState is called in response to watching props, we need to ensure
+        // that the itemRenderer is available and not in the process of updating before
+        // we try to reset the state.
+        if (this.itemRenderer && !this.itemRendererUpdating && !this.loading) {
+          this._resetState(val);
+        } else {
+          this.$once('itemRendererUpdated', () => {
+            this._resetState(val);
+          });
+        }
       },
       clearItemRenderer() {
         // Clean up any existing itemRenderer to avoid leak memory
@@ -446,8 +393,8 @@
         // to ensure clean up without worrying about whether React has already cleaned up this
         // component.
         try {
-          unmountComponentAtNode(this.$refs.perseusContainer);
-          this.$set(this, 'itemRenderer', null);
+          unmountComponentAtNode(this.$refs.perseus);
+          this.itemRenderer = null;
         } catch (e) {
           logging.debug('Error during unmounting of item renderer', e);
         }
@@ -487,39 +434,30 @@
         return this.restoreImageUrls({ hints, question });
       },
       restoreSerializedState(answerState) {
-        answerState = JSON.parse(replaceImageUrls(JSON.stringify(answerState)));
-        this.itemRenderer.restoreSerializedState(answerState);
-        this.itemRenderer.getWidgetIds().forEach(id => {
-          if (sorterWidgetRegex.test(id)) {
-            if (answerState.question[id]) {
-              const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
-                .refs.sortable;
-              const newProps = Object.assign({}, sortableComponent.props, {
-                options: answerState.question[id].options,
-              });
-              sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
+        if (answerState && answerState.question && answerState.hints) {
+          answerState = JSON.parse(replaceImageUrls(JSON.stringify(answerState)));
+          this.itemRenderer.restoreSerializedState(answerState);
+          this.itemRenderer.getWidgetIds().forEach(id => {
+            if (sorterWidgetRegex.test(id)) {
+              if (answerState.question[id]) {
+                const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
+                  .refs.sortable;
+                const newProps = Object.assign({}, sortableComponent.props, {
+                  options: answerState.question[id].options,
+                });
+                sortableComponent.setState({ items: sortableComponent.itemsFromProps(newProps) });
+              }
             }
-          }
-        });
+          });
+        }
       },
       setAnswer() {
         this.blankState = this.getSerializedState();
         // If a passed in answerState is an object with the right keys, restore.
-        if (
-          this.itemRenderer &&
-          this.answerState &&
-          this.answerState.question &&
-          this.answerState.hints &&
-          !this.loading
-        ) {
+        if (this.answerState && this.answerState.question && this.answerState.hints) {
           this.restoreSerializedState(this.answerState);
-        } else if (this.showCorrectAnswer && !this.loading) {
+        } else if (this.showCorrectAnswer) {
           this.setCorrectAnswer();
-        } else if (this.itemRenderer && !this.loading) {
-          // Not setting an answer state, but need to hide any hints.
-          this.itemRenderer.setState({
-            hintsVisible: 0,
-          });
         }
       },
       /*
@@ -528,19 +466,22 @@
       checkAnswer() {
         if (this.itemRenderer && !this.loading) {
           const check = this.itemRenderer.scoreInput();
-          this.empty = check.empty;
           if (check.message && check.empty) {
             this.message = check.message;
-          } else if (!check.empty) {
-            const answerState = this.getSerializedState();
-            // We cannot reliably get simplified answers from Perseus, so don't try.
-            const simpleAnswer = '';
-            return {
-              correct: check.correct,
-              answerState,
-              simpleAnswer,
-            };
           }
+          // Even if the answer is 'empty' according to perseus, it can contain
+          // meaningful state - so we should still return it.
+          // The most salient example of this is multi-select multiple choice
+          // where if insufficient responses have been given, this is counted
+          // as 'empty'.
+          const answerState = this.getSerializedState();
+          // We cannot reliably get simplified answers from Perseus, so don't try.
+          const simpleAnswer = '';
+          return {
+            correct: check.correct,
+            answerState,
+            simpleAnswer,
+          };
         }
         return null;
       },
@@ -548,11 +489,9 @@
        * @public
        */
       takeHint() {
-        if (
-          this.itemRenderer &&
-          this.itemRenderer.state.hintsVisible < this.itemRenderer.getNumHints()
-        ) {
-          this.itemRenderer.showHint();
+        if (this.itemRenderer && this.hintsVisible < this.totalHints) {
+          this.hintsVisible += 1;
+          this.renderItem();
           this.$emit('hintTaken', { answerState: this.getSerializedState() });
         }
       },
@@ -579,6 +518,7 @@
             .then(itemFile => {
               const itemResponse = itemFile.toString();
               this.setItemData(JSON.parse(itemResponse));
+              this.loading = false;
             })
             .catch(reason => {
               logging.debug('There was an error loading the assessment item data: ', reason);
@@ -599,11 +539,19 @@
       setItemData(itemData) {
         if (this.validateItemData(itemData)) {
           this.item = itemData;
+          // Don't store blank state for another item.
+          this.blankState = null;
+
+          // Clear any currently displayed hints when we render an item.
+          this.hintsVisible = 0;
+
+          // Clear any currently displayed messages when we render an item.
+          this.dismissMessage();
           if (this.$el) {
             // Don't try to render if our component is not mounted yet.
-            this.renderItem();
+            this.renderNewItem();
           } else {
-            this.$once('mounted', this.renderItem);
+            this.$once('mounted', this.renderNewItem);
           }
         } else {
           logging.warn('Loaded item was malformed', itemData);
@@ -632,23 +580,6 @@
         }
       },
     },
-
-    $trs: {
-      showScratch: {
-        message: 'Show scratchpad',
-        context:
-          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question.',
-      },
-      notAvailable: {
-        message: 'The scratchpad is not available',
-        context:
-          'The scratchpad refers to the interactive area in an exercise where the learner responds to a question. On some devices the scratchpad may not be available. If this is the case, this message is displayed to the learner.',
-      },
-      hintLabel: {
-        message: 'Hint:',
-        context: 'A hint is a suggestion to help learners solve a problem.',
-      },
-    },
   };
 
 </script>
@@ -668,32 +599,9 @@
     margin-left: 16px;
   }
 
-  .solutionarea {
-    max-width: 100%;
-    padding: 0 !important;
-    margin: 0 !important;
-    border-bottom-style: none !important;
-  }
-
-  .hintlabel {
-    margin-left: 16px;
-  }
-
-  .hintsarea {
-    padding-right: 16px;
-  }
-
-  .info-icon {
-    margin: 0 8px;
-  }
-
   .loader-container {
     width: 100%;
     height: 4px;
-  }
-
-  .problem-area {
-    padding: 0 16px;
   }
 
   .perseus-mobile {
@@ -747,6 +655,27 @@
   .perseus {
     padding: 24px;
     background: white;
+  }
+
+  /deep/ .perseus > div {
+    box-sizing: border-box;
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px; /* Optional: space between the grid items */
+  }
+
+  @media (max-width: 600px) {
+    /deep/ .perseus > div {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  /deep/ .perseus {
+    /* Override Perseus' responsive SVG image display which forces full width */
+    .paragraph > .svg-image {
+      display: inline-block;
+      vertical-align: middle;
+    }
   }
 
   /deep/ .perseus-renderer {
