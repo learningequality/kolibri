@@ -346,7 +346,6 @@
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import TabsWithOverflow from './TabsWithOverflow';
-  import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
   const logger = logging.getLogger(__filename);
 
@@ -360,7 +359,6 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
-      NotEnoughResourcesModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
