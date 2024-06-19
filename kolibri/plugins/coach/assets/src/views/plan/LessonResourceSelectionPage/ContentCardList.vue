@@ -172,7 +172,6 @@
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },
       needCheckboxes() {
-        console.log(this.contentHasCheckbox);
         return this.contentList.some(c => this.contentHasCheckbox(c));
       },
     },
