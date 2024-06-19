@@ -16,7 +16,7 @@ const translator = createTranslator('PerseusInternalMessages', {
   'an *exact* decimal, like $0.75$': 'an *exact* decimal, like $0.75$',
   'a percent, like $12.34%$': 'a percent, like $12.34\\\\%$',
   'a multiple of pi, like $12 text{pi}$ or $2/3 text{pi}$':
-    'a multiple of pi, like $12\\\\ \\\\text{pi}$ or $2/3\\\\ \\\\text{pi}$',
+    'a multiple of pi, like $12\\\\ \\\\text[pi]$ or $2/3\\\\ \\\\text[pi]$',
   '**Your answer should be** ': '**Your answer should be** ',
   'Your answer:': 'Your answer:',
   '0 solutions': '0 solutions',
@@ -130,7 +130,7 @@ const translator = createTranslator('PerseusInternalMessages', {
   'Your answer is almost correct, but it needs to be simplified.':
     'Your answer is almost correct, but it needs to be simplified.',
   'Your answer is close, but you may have approximated pi. Enter your answer as a multiple of pi, like <code>12 text{pi}</code> or <code>2/3 text{pi}</code>':
-    'Your answer is close, but you may have approximated pi. Enter your answer as a multiple of pi, like <code>12\\\\ \\\\text{pi}</code> or <code>2/3\\\\ \\\\text{pi}</code>',
+    'Your answer is close, but you may have approximated pi. Enter your answer as a multiple of pi, like <code>12\\\\ \\\\text[pi]</code> or <code>2/3\\\\ \\\\text[pi]</code>',
   'We could not understand your answer. Please check your answer for extra text or symbols.':
     'We could not understand your answer. Please check your answer for extra text or symbols.',
   False: 'False',

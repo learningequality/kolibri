@@ -15,8 +15,13 @@ function removeBackslashesFromKeys(object) {
   });
 }
 
+const piRegex = /text\{pi\}/g;
+const piTextPlaceholder = 'text[pi]';
+
 module.exports = {
   escapeBackslashesInString,
   removeBackslashesInString,
   removeBackslashesFromKeys,
+  piTextPlaceholder,
+  piRegex,
 };
