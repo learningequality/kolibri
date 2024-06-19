@@ -1,16 +1,9 @@
-import requests
 from django.contrib.auth import login
-from django.core.exceptions import ValidationError as DjangoValidationError
-from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from .utils import TokenGenerator
 from kolibri.core.auth.models import FacilityUser
-from kolibri.core.discovery.utils.network.client import NetworkClient
-from kolibri.core.discovery.utils.network.errors import NetworkLocationResponseFailure
-from kolibri.core.utils.urls import reverse_path
-from kolibri.utils.urls import validator
 
 
 class OnMyOwnSetupViewset(APIView):
@@ -27,60 +20,6 @@ class OnMyOwnSetupViewset(APIView):
                 "on_my_own_setup": user_facility.on_my_own_setup,
             }
         )
-
-
-class RemoteFacilityUserViewset(APIView):
-    def get(self, request):
-        baseurl = request.query_params.get("baseurl", "")
-        try:
-            validator(baseurl)
-        except DjangoValidationError as e:
-            raise ValidationError(detail=str(e))
-        username = request.query_params.get("username", None)
-        facility = request.query_params.get("facility", None)
-        if username is None or facility is None:
-            raise ValidationError(detail="Both username and facility are required")
-        client = NetworkClient.build_for_address(baseurl)
-        url = reverse_path("kolibri:core:publicsearchuser-list")
-        try:
-            response = client.get(
-                url, params={"facility": facility, "search": username}
-            )
-            return Response(response.json())
-        except NetworkLocationResponseFailure:
-            return Response({})
-        except Exception as e:
-            raise ValidationError(detail=str(e))
-
-
-class RemoteFacilityUserAuthenticatedViewset(APIView):
-    def post(self, request, *args, **kwargs):
-        baseurl = request.data.get("baseurl", "")
-        try:
-            validator(baseurl)
-        except DjangoValidationError as e:
-            raise ValidationError(detail=str(e))
-        username = request.data.get("username", None)
-        facility = request.data.get("facility", None)
-        password = request.data.get("password", None)
-        if username is None or facility is None:
-            raise ValidationError(detail="Both username and facility are required")
-        client = NetworkClient.build_for_address(baseurl)
-        url = reverse_path("kolibri:core:publicuser-list")
-        params = {"facility": facility, "search": username}
-
-        # adding facility so auth works when learners can login without password:
-        username = "username={}&facility={}".format(username, facility)
-
-        auth = requests.auth.HTTPBasicAuth(username, password)
-        try:
-            response = client.get(url, params=params, verify=False, auth=auth)
-            return Response(response.json())
-        except NetworkLocationResponseFailure as e:
-            response = e.response
-            return Response({"error": response.json()["detail"]})
-        except Exception as e:
-            raise ValidationError(detail=str(e))
 
 
 class LoginMergedUserViewset(APIView):
