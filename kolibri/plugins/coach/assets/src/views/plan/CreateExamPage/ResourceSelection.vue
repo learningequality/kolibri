@@ -9,69 +9,55 @@
       <h5 v-if="selectPracticeQuiz" class="select-folder-style">
         {{ selectPracticeQuizLabel$() }}
       </h5>
-      <KGrid v-else>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <h5 class="select-folder-style">
-            {{ selectResourcesDescription$() }}
-          </h5>
-          <span>
-            {{
-              maxNumberOfQuestionsPerSection$({
-                count: MAX_QUESTIONS_PER_QUIZ_SECTION, current: activeQuestions.length
-              })
-            }}
-          </span>
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <div class="number-question">
-            <div>
-              <KTextbox
-                ref="numQuest"
-                v-model="questionCount"
-                type="number"
-                :label="numberOfQuestionsLabel$()"
-                :max="maxQuestions"
-                :min="1"
-                :invalid="questionCount > maxQuestions"
-                :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
-                :showInvalidText="true"
-              />
-            </div>
-            <div>
-              <div
-                :style="borderStyle"
-                class="group-button-border"
-              >
-                <KIconButton
-                  icon="minus"
-                  aria-hidden="true"
-                  class="number-btn"
-                  :disabled="questionCount === 1"
-                  @click="questionCount -= 1"
-                />
-                <span
-                  :style="dividerStyle"
-                > | </span>
-                <KIconButton
-                  icon="plus"
-                  aria-hidden="true"
-                  class="number-btn"
-                  :disabled="questionCount >= maxQuestions"
-                  @click="questionCount += 1"
-                />
-              </div>
-            </div>
+      <h5 class="select-folder-style">
+        {{ selectResourcesDescription$({ sectionTitle: displaySectionTitle(activeSection, activeSectionIndex) }) }}
+      </h5>
+      <p>{{ numberOfQuestionsSelected$({ count: activeQuestions.length}) }}
+      <span
+        class="divider"
+        :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+      >
+      </span>
+      <p>{{ numberOfQuestionsToAdd$() }}</p>
+      <div class="number-question">
+        <div>
+          <KTextbox
+            ref="numQuest"
+            v-model="questionCount"
+            type="number"
+            :label="numberOfQuestionsLabel$()"
+            :max="maxQuestions"
+            :min="1"
+            :invalid="questionCount > maxQuestions"
+            :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+            :showInvalidText="true"
+          />
+        </div>
+        <div>
+          <div
+            :style="borderStyle"
+            class="group-button-border"
+          >
+            <KIconButton
+              icon="minus"
+              aria-hidden="true"
+              class="number-btn"
+              :disabled="questionCount === 1"
+              @click="questionCount -= 1"
+            />
+            <span
+              :style="dividerStyle"
+            > | </span>
+            <KIconButton
+              icon="plus"
+              aria-hidden="true"
+              class="number-btn"
+              :disabled="questionCount >= maxQuestions"
+              @click="questionCount += 1"
+            />
           </div>
-        </KGridItem>
-      </KGrid>
+        </div>
+      </div>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
@@ -97,19 +83,6 @@
         </div>
       </div>
 
-      <div
-        v-if="showTopicSizeWarning"
-        class="shadow"
-        :style=" {
-          padding: '1em',
-          marginTop: '1em',
-          marginBottom: '1em',
-          backgroundColor: $themePalette.grey.v_100,
-        }"
-      >
-        {{ cannotSelectSomeTopicWarning$({ count: 12 }) }}
-      </div>
-
       <ResourceSelectionBreadcrumbs
         v-if="isTopicIdSet"
         :ancestors="[...topic.ancestors, topic]"
@@ -123,6 +96,19 @@
         @searchterm="handleSearchTermChange"
       />
 
+      <div
+        v-if="showNumberOfQuestionsWarning"
+        class="shadow"
+        :style=" {
+          padding: '1em',
+          marginTop: '2em',
+          marginBottom: '2em',
+          backgroundColor: $themePalette.grey.v_100,
+        }"
+      >
+        {{ cannotSelectSomeTopicWarning$({ count: 500 }) }}
+      </div>
+
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="showSelectAll"
@@ -130,7 +116,7 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="actuallyHasCheckbox"
+        :contentHasCheckbox="folderDoesNotHaveTooManyQuestions"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -147,20 +133,29 @@
       <div class="bottom-navigation">
         <KGrid>
           <KGridItem
-            :layout12="{ span: 6 }"
+            :layout12="{ span: 8 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
             <span v-if="!selectPracticeQuiz">
-              {{
-                questionsFromResources$({
-                  questions: workingPoolUnusedQuestions, resources: workingResourcePool.length
-                })
-              }}
+              <span v-if="workingPoolUnusedQuestions > maxSectionQuestionOptions">
+                {{
+                  tooManyQuestions$({
+                    count: maxSectionQuestionOptions
+                  })
+                }}
+              </span>
+              <span v-else>
+                {{
+                  questionsFromResources$({
+                    questions: workingPoolUnusedQuestions, exercises: workingResourcePool.length
+                  })
+                }}
+              </span>
             </span>
           </KGridItem>
           <KGridItem
-            :layout12="{ span: 6 }"
+            :layout12="{ span: 4 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
@@ -197,11 +192,11 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import { displaySectionTitle, enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION, MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
@@ -231,6 +226,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const {
+        activeSection,
         activeSectionIndex,
         allResourceMap,
         updateSection,
@@ -244,6 +240,8 @@
       const maxQuestions = computed(
         () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length
       );
+      const maxSectionQuestionOptions = computed(() => MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION);
+
       const questionCount = ref(Math.min(10, maxQuestions.value));
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
@@ -260,6 +258,9 @@
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         questionsUnusedInSection$,
+        numberOfQuestionsSelected$,
+        numberOfQuestionsToAdd$,
+        tooManyQuestions$, 
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
@@ -306,7 +307,7 @@
        */
       function selectableContentList() {
         return contentList.value.reduce((newList, content) => {
-          if (content.kind === ContentNodeKinds.TOPIC && actuallyHasCheckbox(content)) {
+          if (content.kind === ContentNodeKinds.TOPIC && folderDoesNotHaveTooManyQuestions(content)) {
             newList = [...newList, ...content.children.results];
           } else {
             newList.push(content);
@@ -387,7 +388,7 @@
       const showSelectAll = computed(() => {
         return (
           !selectPracticeQuiz.value &&
-          contentList.value.every(content => actuallyHasCheckbox(content))
+          contentList.value.every(content => folderDoesNotHaveTooManyQuestions(content))
         );
       });
 
@@ -473,10 +474,8 @@
        * -- Note that for topics, hasCheckbox will only be true if all children are Exercises,
        *    so we can call this recursively without worrying about it going too deep
        */
-      function actuallyHasCheckbox(content) {
-        return content.kind === ContentNodeKinds.EXERCISE
-          ? hasCheckbox(content) && unusedQuestionsCount(content) > 0
-          : hasCheckbox(content) && content.children.results.some(actuallyHasCheckbox);
+      function folderDoesNotHaveTooManyQuestions(content) {
+        return content.num_assessments < 500;
       }
 
       // Load up the channels
@@ -602,14 +601,16 @@
         return (
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
-          questionCount.value > maxQuestions.value ||
-          questionCount.value < 1
+          questionCount.value < 1 || 
+          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
         );
       });
 
       return {
-        actuallyHasCheckbox,
+        folderDoesNotHaveTooManyQuestions,
+        displaySectionTitle,
         unusedQuestionsCount,
+        activeSection,
         activeSectionIndex,
         activeQuestions,
         addSection,
@@ -636,6 +637,7 @@
         contentPresentInWorkingResourcePool,
         questionCount,
         maxQuestions,
+        maxSectionQuestionOptions,
         MAX_QUESTIONS_PER_QUIZ_SECTION,
         workingPoolUnusedQuestions,
         disableSave,
@@ -644,6 +646,8 @@
         closeConfirmationTitle$,
         changesSavedSuccessfully$,
         sectionSettings$,
+        numberOfQuestionsSelected$,
+        tooManyQuestions$,
         selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
@@ -662,6 +666,7 @@
         showBookmarks,
         selectedQuestionsInformation$,
         selectQuiz$,
+        numberOfQuestionsToAdd$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
         maxNumberOfQuestions$,
@@ -698,8 +703,8 @@
           },
         };
       },
-      showTopicSizeWarning() {
-        return this.contentList.some(this.showTopicSizeWarningCard);
+      showNumberOfQuestionsWarning() {
+        return this.contentList.some(this.showNumberOfQuestionsWarningCard);
       },
       borderStyle() {
         return `border: 1px solid ${this.$themeTokens.fineLine}`;
@@ -738,11 +743,10 @@
           return '';
         }
       },
-      showTopicSizeWarningCard(content) {
+      showNumberOfQuestionsWarningCard(content) {
         return (
           !this.selectPracticeQuiz &&
-          !this.actuallyHasCheckbox(content) &&
-          content.kind === ContentNodeKinds.TOPIC
+          content.num_assessments > 500
         );
       },
       /** @public */
@@ -940,7 +944,6 @@
 
   .number-question {
     display: inline-flex;
-    float: right;
   }
 
   .group-button-border {
@@ -948,6 +951,14 @@
     align-items: center;
     height: 3.5em;
     border: 1px solid;
+  }
+
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 24px 0;
+    overflow-y: hidden;
   }
 
 </style>

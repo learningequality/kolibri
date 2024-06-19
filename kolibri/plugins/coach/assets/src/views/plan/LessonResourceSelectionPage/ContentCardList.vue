@@ -41,7 +41,7 @@
           class="content-card"
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
-          :class="{ 'with-checkbox': needCheckboxes, 'is-leaf': content.is_leaf }"
+          :class="{ 'with-checkbox': needCheckboxes }"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
@@ -172,6 +172,7 @@
         return this.viewMoreButtonState === this.ViewMoreButtonStates.HAS_MORE;
       },
       needCheckboxes() {
+        console.log(this.contentHasCheckbox);
         return this.contentList.some(c => this.contentHasCheckbox(c));
       },
     },
