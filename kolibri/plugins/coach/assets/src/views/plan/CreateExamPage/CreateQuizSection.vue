@@ -683,10 +683,6 @@
           })
         );
       },
-      redirectToSelectResources() {
-        this.showNotEnoughResourcesModal = false;
-        this.openSelectResources();
-      },
     },
   };
 
