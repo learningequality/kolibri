@@ -211,6 +211,7 @@
       const {
         // Computed
         activeSection,
+        activeSectionIndex,
         selectedActiveQuestions,
         activeResourceMap,
         replacementQuestionPool,
@@ -305,6 +306,7 @@
 
         toggleInReplacements,
         activeSection,
+        activeSectionIndex,
         activeSectionTitle,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
@@ -336,6 +338,7 @@
         collapseAll$,
         expandAll$,
         displayQuestionTitle,
+        displaySectionTitle,
       };
     },
     computed: {
