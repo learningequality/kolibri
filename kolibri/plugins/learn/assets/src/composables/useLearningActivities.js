@@ -140,7 +140,7 @@ export default function useLearningActivities(contentNode) {
     const assessmentmetadata_mastery_model = lodashGet(
       contentNode,
       ['assessmentmetadata', 'mastery_model'],
-      false
+      false,
     );
 
     if (assessmentmetadata_mastery_model) {

@@ -2,7 +2,7 @@
 
   <KIcon
     icon="bookmark"
-    style="top: 50px;left: 75px; width: 34px; height: 34px;"
+    style="top: 50px; left: 75px; width: 34px; height: 34px"
   />
 
 </template>

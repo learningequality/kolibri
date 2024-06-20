@@ -5,12 +5,11 @@
       class="card-main-wrapper"
       :style="cardStyle"
     >
-
       <KRouterLink
         v-if="device !== null"
         :text="deviceName"
         :to="routeTo"
-        style="text-decoration:none;width:100%;"
+        style="width: 100%; text-decoration: none"
       >
         <div class="card-main-body">
           <KIcon

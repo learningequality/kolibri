@@ -25,7 +25,7 @@ const EXERCISES = [
 function countQuestions(exerciseId, questionList) {
   return questionList.reduce(
     (acc, question) => (question.exercise_id === exerciseId ? acc + 1 : acc),
-    0
+    0,
   );
 }
 

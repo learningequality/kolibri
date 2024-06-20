@@ -152,9 +152,8 @@ export default function useDevices(store) {
           });
         promises.push(promise);
       } else {
-        newDeviceChannelsMap[currentDevice.instance_id] = get(deviceChannelsMap)[
-          currentDevice.instance_id
-        ];
+        newDeviceChannelsMap[currentDevice.instance_id] =
+          get(deviceChannelsMap)[currentDevice.instance_id];
       }
     }
     set(deviceChannelsMap, newDeviceChannelsMap);

@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <p>
       <BackLink
         :to="classRoute('ReportsGroupReportPage')"
@@ -9,7 +8,10 @@
       />
     </p>
     <h1>
-      <KLabeledIcon icon="quiz" :label="exam.title" />
+      <KLabeledIcon
+        icon="quiz"
+        :label="exam.title"
+      />
     </h1>
 
     <HeaderTable>
@@ -49,7 +51,6 @@
         :to="classRoute('ReportsGroupReportQuizQuestionListPage')"
       />
     </HeaderTabs>
-
   </div>
 
 </template>

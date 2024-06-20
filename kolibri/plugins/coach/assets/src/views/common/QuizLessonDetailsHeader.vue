@@ -1,8 +1,6 @@
 <template>
 
-  <KPageContainer
-    style="padding-top: 24px;"
-  >
+  <KPageContainer style="padding-top: 24px">
     <BackLink
       :to="backlink"
       :text="backlinkLabel"
@@ -21,7 +19,11 @@
               :label="resource.title"
             />
           </h1>
-          <StatusElapsedTime v-show="!$isPrint" :date="createdDate" actionType="created" />
+          <StatusElapsedTime
+            v-show="!$isPrint"
+            :date="createdDate"
+            actionType="created"
+          />
         </div>
       </template>
       <template #options>
@@ -31,7 +33,6 @@
       </template>
     </HeaderWithOptions>
     <MissingResourceAlert v-if="resource.missing_resource" />
-
   </KPageContainer>
 
 </template>

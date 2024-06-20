@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <template v-if="sessionReady">
       <ContentRenderer
         v-if="!content.assessmentmetadata"
@@ -277,7 +276,7 @@
         return ContentNodeResource.fetchModel({ id })
           .then(contentNode => {
             router.push(
-              this.genContentLinkKeepCurrentBackLink(contentNode.id, contentNode.is_leaf)
+              this.genContentLinkKeepCurrentBackLink(contentNode.id, contentNode.is_leaf),
             );
           })
           .catch(error => {

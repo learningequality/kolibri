@@ -25,7 +25,6 @@
           :resources.sync="updatedResources"
         />
       </section>
-
     </KPageContainer>
   </CoachImmersivePage>
 
@@ -94,7 +93,7 @@
     created() {
       const initClassInfoPromise = this.$store.dispatch(
         'initClassInfo',
-        this.$route.params.classId
+        this.$route.params.classId,
       );
       const getFacilitiesPromise =
         this.$store.getters.isSuperuser && this.$store.state.core.facilities.length === 0
@@ -105,7 +104,7 @@
         .then(() =>
           LessonResource.fetchModel({
             id: this.$route.params.lessonId,
-          })
+          }),
         )
         .then(lesson => this.setData(lesson))
         .catch(error => this.setError(error))

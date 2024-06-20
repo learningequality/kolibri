@@ -19,7 +19,6 @@
       @submit="nextState"
       @cancel="emitCancel"
     />
-
   </div>
 
 </template>

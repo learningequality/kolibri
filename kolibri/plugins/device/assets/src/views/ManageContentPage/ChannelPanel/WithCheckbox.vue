@@ -24,11 +24,13 @@
     </ChannelDetails>
 
     <div class="col-3">
-      <p v-if="selectedMessage" class="selected">
+      <p
+        v-if="selectedMessage"
+        class="selected"
+      >
         {{ selectedMessage }}
       </p>
     </div>
-
   </div>
 
 </template>

@@ -78,7 +78,7 @@ describe('useFetchTree', () => {
       'exposes no properties prefixed with _',
       property => {
         expect(property[0]).not.toBe('_');
-      }
+      },
     );
   });
 });

@@ -12,9 +12,9 @@
           :key="listKey(question)"
           :draggable="false"
           :isSelected="isSelected(question)"
-          :exerciseName="displayQuestionTitle(
-            question, selectedExercises[question.exercise_id].title
-          )"
+          :exerciseName="
+            displayQuestionTitle(question, selectedExercises[question.exercise_id].title)
+          "
           :isCoachContent="numCoachContents(question.exercise_id)"
           :available="available(question.exercise_id)"
           @select="currentQuestionIndex = questionIndex"
@@ -22,13 +22,21 @@
       </ul>
 
       <transition name="fade-numbers">
-        <ol v-if="fixedOrder" class="list-labels" aria-hidden>
+        <ol
+          v-if="fixedOrder"
+          class="list-labels"
+          aria-hidden
+        >
           <li
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
           ></li>
         </ol>
-        <ul v-else class="list-labels" aria-hidden>
+        <ul
+          v-else
+          class="list-labels"
+          aria-hidden
+        >
           <li
             v-for="(question, questionIndex) in selectedQuestions"
             :key="questionIndex"
@@ -40,7 +48,10 @@
       :layout8="{ span: 4 }"
       :layout12="{ span: 7 }"
     >
-      <h3 v-if="content && content.available" class="question-title">
+      <h3
+        v-if="content && content.available"
+        class="question-title"
+      >
         {{ currentQuestion.title }}
       </h3>
       <ContentRenderer
@@ -57,7 +68,10 @@
         :interactive="false"
       />
       <p v-else>
-        <KIcon icon="warning" :style=" { fill: $themePalette.yellow.v_1100 }" />
+        <KIcon
+          icon="warning"
+          :style="{ fill: $themePalette.yellow.v_1100 }"
+        />
         {{ resourceMissingText }}
       </p>
     </KGridItem>

@@ -28,7 +28,13 @@ export default function useQuizResources({ topicId, practiceQuiz = false } = {})
   }
 
   // Initialize useFetchTree methods with the given topicId computed property and params
-  const { topic, fetchTree, fetchMore, hasMore, loading: treeLoading } = useFetchTree({
+  const {
+    topic,
+    fetchTree,
+    fetchMore,
+    hasMore,
+    loading: treeLoading,
+  } = useFetchTree({
     topicId,
     params,
   });

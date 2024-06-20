@@ -42,5 +42,5 @@ fs.writeFileSync(
   JSON.stringify(languageInfo, undefined, 2),
   {
     encoding: 'utf-8',
-  }
+  },
 );

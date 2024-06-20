@@ -54,7 +54,7 @@ const loadMathJax = callback => {
 
 const doProcess = () => {
   loadMathJax(() => {
-    MathJax.Hub.Queue(function() {
+    MathJax.Hub.Queue(function () {
       const oldElementScripts = MathJax.Hub.elementScripts;
       MathJax.Hub.elementScripts = () => pendingScripts;
 
@@ -101,7 +101,7 @@ const TeX = createReactClass({
 
   mixins: [PureRenderMixin],
 
-  getDefaultProps: function() {
+  getDefaultProps: function () {
     return {
       katexOptions: {
         // There was a breaking change in the behavior of \color{}
@@ -113,21 +113,21 @@ const TeX = createReactClass({
         colorIsTextColor: true,
       },
       // Called after math is rendered or re-rendered
-      onRender: function() {},
+      onRender: function () {},
       onClick: null,
     };
   },
 
   // TODO(joshuan): Once we are using React 16.3+,
   // migrate to getDerivedStateFromProps
-  getInitialState: function() {
+  getInitialState: function () {
     return {
       mounted: false,
       katexHtml: this.getKatexHtml(this.props),
     };
   },
 
-  componentDidMount: function() {
+  componentDidMount: function () {
     this._root = findDOMNode(this);
 
     this.setState({
@@ -149,7 +149,7 @@ const TeX = createReactClass({
 
   // TODO(joshuan): If you are updating to React 16.3+, migrate to
   // getDerivedStateFromProps
-  componentWillReceiveProps: function(nextProps) {
+  componentWillReceiveProps: function (nextProps) {
     if (
       nextProps.children !== this.props.children ||
       JSON.stringify(nextProps.katexOptions) !== JSON.stringify(this.props.katexOptions)
@@ -160,7 +160,7 @@ const TeX = createReactClass({
     }
   },
 
-  componentDidUpdate: function(prevProps) {
+  componentDidUpdate: function (prevProps) {
     if (this.props.children !== prevProps.children) {
       this.maybeUnprocess();
 
@@ -203,7 +203,7 @@ const TeX = createReactClass({
     }
   },
 
-  componentWillUnmount: function() {
+  componentWillUnmount: function () {
     this.maybeUnprocess();
 
     if (this.script) {
@@ -247,7 +247,7 @@ const TeX = createReactClass({
     }
   },
 
-  process: function(callback) {
+  process: function (callback) {
     this.hasProcessed = false;
     process(this.script, () => {
       this.hasProcessed = true;
@@ -255,7 +255,7 @@ const TeX = createReactClass({
     });
   },
 
-  maybeUnprocess: function() {
+  maybeUnprocess: function () {
     // Sometimes, we end up rendering this component with some MathJax-only
     // math before very quickly switching over to some other math, before
     // MathJax has had a time to render. We want to remove the previously
@@ -266,7 +266,7 @@ const TeX = createReactClass({
     }
   },
 
-  setScriptText: function(text) {
+  setScriptText: function (text) {
     if (!this.script) {
       this.script = document.createElement('script');
       this.script.type = 'math/tex';
@@ -280,7 +280,7 @@ const TeX = createReactClass({
     }
   },
 
-  render: function() {
+  render: function () {
     const { katexHtml } = this.state;
 
     // If we successfully parsed with KaTeX, then try parse the
@@ -325,7 +325,7 @@ const TeX = createReactClass({
         dangerouslySetInnerHTML: katexA11yHtml,
         id: describedById,
         style: srOnly,
-      })
+      }),
     );
   },
 });

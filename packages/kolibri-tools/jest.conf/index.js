@@ -4,10 +4,8 @@ const babelConfig = require('./babel.config');
 
 const moduleNameMapper = {
   '^testUtils$': path.resolve(__dirname, './testUtils'),
-  '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css)$': path.resolve(
-    __dirname,
-    './fileMock.js'
-  ),
+  '\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga|css)$':
+    path.resolve(__dirname, './fileMock.js'),
 };
 
 Object.keys(apiSpecAliases).forEach(key => {

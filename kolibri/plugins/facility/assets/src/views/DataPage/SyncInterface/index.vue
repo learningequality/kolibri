@@ -1,9 +1,6 @@
 <template>
 
-  <KPageContainer
-    :style="containerStyle"
-  >
-
+  <KPageContainer :style="containerStyle">
     <h1>{{ $tr('syncData') }}</h1>
     <p>
       <KButton
@@ -60,12 +57,12 @@
                 >
                   <template #options>
                     <CoreMenuOption
-                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :style="{ cursor: 'pointer', textAlign: 'left' }"
                       :label="coreString('manageSyncAction')"
                       @select="manageSyncAction()"
                     />
                     <CoreMenuOption
-                      :style="{ 'cursor': 'pointer', textAlign: 'left' }"
+                      :style="{ cursor: 'pointer', textAlign: 'left' }"
                       :label="$tr('register')"
                       @select="handleRegister()"
                     />
@@ -105,7 +102,6 @@
       @syncKDP="handleKDPSync"
       @syncPeer="handlePeerSync"
     />
-
   </KPageContainer>
 
 </template>
@@ -218,7 +214,7 @@
         FacilityResource.fetchModel({ id: this.$store.getters.activeFacilityId, force: true }).then(
           facility => {
             this.facility = { ...facility };
-          }
+          },
         );
       },
       closeModal() {

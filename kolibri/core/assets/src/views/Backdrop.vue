@@ -1,6 +1,9 @@
 <template>
 
-  <transition name="backdrop" appear>
+  <transition
+    name="backdrop"
+    appear
+  >
     <div
       class="backdrop"
       :class="{ 'has-transitions': transitions }"

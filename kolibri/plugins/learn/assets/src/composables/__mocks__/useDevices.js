@@ -62,5 +62,5 @@ export const currentDeviceData = jest.fn(() => DEVICE_DATA_DEFAULTS);
 export default jest.fn(() => useDevicesMock());
 
 export const setCurrentDevice = jest.fn(id =>
-  Promise.resolve({ id, device_name: 'test-device', baseurl: 'http://test-device' })
+  Promise.resolve({ id, device_name: 'test-device', baseurl: 'http://test-device' }),
 );

@@ -1,8 +1,6 @@
 <template>
 
-  <OnboardingForm
-    :header="$tr('gettingStartedHeader')"
-  >
+  <OnboardingForm :header="$tr('gettingStartedHeader')">
     <p class="p1">
       {{ $tr('descriptionParagraph1') }}
     </p>

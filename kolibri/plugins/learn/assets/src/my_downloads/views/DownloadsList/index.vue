@@ -1,7 +1,6 @@
 <template>
 
   <form>
-
     <PaginatedListContainerWithBackend
       v-model="currentPage"
       :itemsPerPage="itemsPerPage"
@@ -52,7 +51,10 @@
                     :style="nonCompleteStatus(download) ? { color: $themeTokens.annotation } : {}"
                   />
                 </KCheckbox>
-                <div v-if="!windowIsLarge" class="small-screen-status">
+                <div
+                  v-if="!windowIsLarge"
+                  class="small-screen-status"
+                >
                   <p>
                     {{ formattedResourceSize(download) }} &nbsp;&nbsp;
                     {{ formatDownloadRequestedDate(download) }}
@@ -63,7 +65,10 @@
                     :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
                     class="icon"
                   />
-                  <div v-if="download.status === 'IN_PROGRESS'" class="inline-loader">
+                  <div
+                    v-if="download.status === 'IN_PROGRESS'"
+                    class="inline-loader"
+                  >
                     <KCircularLoader
                       :size="20"
                       :disableDefaultTransition="true"
@@ -86,7 +91,10 @@
                   :color="download.status === 'PENDING' ? $themeTokens.annotation : null"
                   class="icon"
                 />
-                <div v-if="download.status === 'IN_PROGRESS'" class="inline-loader">
+                <div
+                  v-if="download.status === 'IN_PROGRESS'"
+                  class="inline-loader"
+                >
                   <KCircularLoader
                     :size="20"
                     :disableDefaultTransition="true"
@@ -281,13 +289,13 @@
         return (
           this.areAnySelected &&
           this.paginatedDownloads.every(download =>
-            Boolean(this.selectedDownloadsMap[download.contentnode_id])
+            Boolean(this.selectedDownloadsMap[download.contentnode_id]),
           )
         );
       },
       areAnySelected() {
         return this.paginatedDownloads.some(download =>
-          Boolean(this.selectedDownloadsMap[download.contentnode_id])
+          Boolean(this.selectedDownloadsMap[download.contentnode_id]),
         );
       },
       areAnyAvailable() {
@@ -297,7 +305,7 @@
         return bytesForHumans(
           Object.keys(this.selectedDownloadsMap).reduce((acc, contentnode_id) => {
             return acc + (this.downloadRequestMap[contentnode_id]?.metadata?.file_size || 0);
-          }, 0)
+          }, 0),
         );
       },
     },

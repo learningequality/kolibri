@@ -7,11 +7,17 @@
       :layout12="{ span: 11 }"
     >
       <h1>
-        <KLabeledIcon :icon="contentType" :label="title" />
+        <KLabeledIcon
+          :icon="contentType"
+          :label="title"
+        />
       </h1>
     </KGridItem>
     <KGridItem :layout="{ span: 1, alignment: 'right' }">
-      <ProgressIcon class="progress-icon" :progress="progress" />
+      <ProgressIcon
+        class="progress-icon"
+        :progress="progress"
+      />
     </KGridItem>
   </KGrid>
 

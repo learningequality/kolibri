@@ -9,7 +9,10 @@
       :content="content"
       @repeat="repeat"
     />
-    <KGrid v-else :gridStyle="gridStyle">
+    <KGrid
+      v-else
+      :gridStyle="gridStyle"
+    >
       <!-- this.$refs.questionListWrapper is referenced inside AnswerHistory for scrolling -->
       <KGridItem
         v-if="windowIsLarge"
@@ -22,14 +25,17 @@
             <AnswerHistory
               :pastattempts="pastattempts"
               :questionNumber="questionNumber"
-              :wrapperComponentRefs="this.$refs"
+              :wrapperComponentRefs="$refs"
               :questions="itemIdArray"
               @goToQuestion="goToQuestion"
             />
           </KPageContainer>
         </div>
       </KGridItem>
-      <KGridItem :layout12="{ span: 8 }" class="column-pane">
+      <KGridItem
+        :layout12="{ span: 8 }"
+        class="column-pane"
+      >
         <div :class="{ 'column-contents-wrapper': !windowIsSmall }">
           <KPageContainer>
             <h1>
@@ -56,12 +62,19 @@
               @updateContentState="updateContentState"
               @error="err => $emit('error', err)"
             />
-            <UiAlert v-else :dismissible="false" type="error">
+            <UiAlert
+              v-else
+              :dismissible="false"
+              type="error"
+            >
               {{ $tr('noItemId') }}
             </UiAlert>
           </KPageContainer>
 
-          <BottomAppBar :dir="bottomBarLayoutDirection" :maxWidth="null">
+          <BottomAppBar
+            :dir="bottomBarLayoutDirection"
+            :maxWidth="null"
+          >
             <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
               <KButton
                 :disabled="questionNumber === questionsTotal - 1"
@@ -73,7 +86,11 @@
               >
                 <span v-if="displayNavigationButtonLabel">{{ $tr('nextQuestion') }}</span>
                 <template #iconAfter>
-                  <KIcon icon="forward" color="white" :style="navigationIconStyleNext" />
+                  <KIcon
+                    icon="forward"
+                    color="white"
+                    :style="navigationIconStyleNext"
+                  />
                 </template>
               </KButton>
               <KButton
@@ -86,7 +103,11 @@
                 @click="goToQuestion(questionNumber - 1)"
               >
                 <template #icon>
-                  <KIcon icon="back" color="white" :style="navigationIconStylePrevious" />
+                  <KIcon
+                    icon="back"
+                    color="white"
+                    :style="navigationIconStylePrevious"
+                  />
                 </template>
                 <span v-if="displayNavigationButtonLabel">{{ $tr('previousQuestion') }}</span>
               </KButton>
@@ -108,14 +129,13 @@
                 @click="toggleModal"
               />
             </div>
-
           </BottomAppBar>
 
           <!-- below prev/next buttons in tab and DOM order, in page -->
           <KPageContainer v-if="!windowIsLarge">
             <div
               class="bottom-block"
-              :class="{ windowIsSmall }"
+              :class="{ 'window-is-small': windowIsSmall }"
             >
               <div class="answered">
                 {{ answeredText }}
@@ -132,7 +152,6 @@
       </KGridItem>
     </KGrid>
 
-
     <KModal
       v-if="submitModalOpen"
       :title="isSurvey ? $tr('submitSurvey') : $tr('submitExam')"
@@ -143,7 +162,7 @@
     >
       <p>{{ $tr('areYouSure') }}</p>
       <p v-if="questionsUnanswered">
-        {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
       </p>
     </KModal>
   </div>
@@ -293,7 +312,7 @@
               map[attempt.item] = true;
             }
             return map;
-          }, {})
+          }, {}),
         ).length;
       },
       questionsUnanswered() {
@@ -382,8 +401,8 @@
             0.001,
             Math.min(
               this.pastattempts.length / this.content.assessmentmetadata.assessment_item_ids.length,
-              0.99
-            )
+              0.99,
+            ),
           );
         }
         return this.updateContentSession(data).then(() => {
@@ -428,7 +447,7 @@
         // Flush any existing save event to ensure
         // that the subit modal contains the latest state
         Promise.resolve(
-          this.submitModalOpen || this.debouncedSetAndSaveCurrentExamAttemptLog.flush()
+          this.submitModalOpen || this.debouncedSetAndSaveCurrentExamAttemptLog.flush(),
         ).then(() => {
           this.submitModalOpen = !this.submitModalOpen;
         });
@@ -532,7 +551,7 @@
     margin-top: 8px;
   }
 
-  .bottom-block.windowIsSmall {
+  .bottom-block.window-is-small {
     text-align: center;
   }
 

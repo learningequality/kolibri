@@ -18,8 +18,9 @@
           v-if="!available"
           ref="missing"
           icon="warning"
-          :style=" {
-            fill: $themePalette.yellow.v_1100, float: isRtl ? 'left' : 'right'
+          :style="{
+            fill: $themePalette.yellow.v_1100,
+            float: isRtl ? 'left' : 'right',
           }"
         />
       </span>
@@ -29,7 +30,10 @@
         :isTopic="false"
       />
     </a>
-    <div v-if="draggable" class="handle">
+    <div
+      v-if="draggable"
+      class="handle"
+    >
       <DragSortWidget
         :isFirst="isFirst"
         :isLast="isLast"

@@ -4,9 +4,16 @@
     <template v-if="backdrop">
       <Backdrop class="snackbar-backdrop" />
       <!-- Prevent focus from leaving the this container -->
-      <div tabindex="0" @focus="trapFocus"></div>
+      <div
+        tabindex="0"
+        @focus="trapFocus"
+      ></div>
     </template>
-    <transition name="snackbar" @leave-to="clearSnackbar" @enter="handleOnEnter">
+    <transition
+      name="snackbar"
+      @leave-to="clearSnackbar"
+      @enter="handleOnEnter"
+    >
       <UiSnackbar
         v-show="isVisible"
         id="coresnackbar"
@@ -19,7 +26,10 @@
         @action-click="handleActionClick"
       >
         <template #inner-focus-trap>
-          <div tabindex="0" @focus="trapFocus"></div>
+          <div
+            tabindex="0"
+            @focus="trapFocus"
+          ></div>
         </template>
       </UiSnackbar>
     </transition>

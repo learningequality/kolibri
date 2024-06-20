@@ -7,7 +7,7 @@
       :progressFilter.sync="progressFilter"
       :enabledFilters="enabledFilters"
     />
-    <br>
+    <br >
 
     <div class="notifications">
       <p v-if="!loading && notifications.length === 0">

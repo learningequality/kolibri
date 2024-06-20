@@ -15,13 +15,16 @@
       :activeClass="activeTabClasses"
       :style="{
         color: $themeTokens.annotation,
-        marginLeft: (width > 234) ? '12px' : '0',
-        marginRight: (width > 234) ? '12px' : '0',
+        marginLeft: width > 234 ? '12px' : '0',
+        marginRight: width > 234 ? '12px' : '0',
       }"
       :replace="true"
       :class="defaultTabStyles"
     >
-      <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
+      <div
+        class="inner"
+        :style="{ borderColor: $themeTokens.primary }"
+      >
         {{ coreString('folders') }}
       </div>
     </router-link>
@@ -39,7 +42,10 @@
       :replace="true"
       :class="defaultTabStyles"
     >
-      <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
+      <div
+        class="inner"
+        :style="{ borderColor: $themeTokens.primary }"
+      >
         {{ coreString('searchLabel') }}
       </div>
     </router-link>

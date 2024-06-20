@@ -60,6 +60,6 @@ function showExerciseDetailView({
     },
     error => {
       store.dispatch('handleCoachPageError', error);
-    }
+    },
   );
 }

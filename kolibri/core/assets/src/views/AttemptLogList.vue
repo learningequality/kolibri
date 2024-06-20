@@ -19,10 +19,12 @@
         @change="handleSectionChange($event.value)"
       />
 
-      <h2 v-else-if="selectedSection.label" class="section-select">
+      <h2
+        v-else-if="selectedSection.label"
+        class="section-select"
+      >
         {{ selectedSection.label }}
       </h2>
-
     </div>
 
     <KSelect
@@ -66,7 +68,10 @@
         @focus="expand(index)"
       >
         <template #heading="{ title }">
-          <h3 v-if="title" class="accordion-header">
+          <h3
+            v-if="title"
+            class="accordion-header"
+          >
             <KButton
               tabindex="0"
               appearance="basic-link"
@@ -79,8 +84,7 @@
               <span>{{ title }}</span>
               <KIcon
                 class="chevron-icon"
-                :icon="(isExpanded(index)) ?
-                  'chevronUp' : 'chevronRight'"
+                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
               />
             </KButton>
           </h3>
@@ -97,16 +101,13 @@
               class="history-list"
               role="listbox"
               @keydown.home="setSelectedAttemptLog(0)"
-              @keydown.end="
-                setSelectedAttemptLog(attemptLogs.length - 1)"
-              @keydown.up.prevent="
-                setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+              @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
+              @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
               @keydown.left.prevent="
-                setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-              @keydown.down.prevent="
-                setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-              @keydown.right.prevent="
-                setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+                setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))
+              "
+              @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+              @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
             >
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -145,16 +146,11 @@
       class="history-list"
       role="listbox"
       @keydown.home="setSelectedAttemptLog(0)"
-      @keydown.end="
-        setSelectedAttemptLog(attemptLogs.length - 1)"
-      @keydown.up.prevent="
-        setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.left.prevent="
-        setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
-      @keydown.down.prevent="
-        setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
-      @keydown.right.prevent="
-        setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+      @keydown.end="setSelectedAttemptLog(attemptLogs.length - 1)"
+      @keydown.up.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.left.prevent="setSelectedAttemptLog(previousQuestion(selectedQuestionNumber))"
+      @keydown.down.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
+      @keydown.right.prevent="setSelectedAttemptLog(nextQuestion(selectedQuestionNumber))"
     >
       <li
         v-for="(question, qIndex) in attemptLogs"

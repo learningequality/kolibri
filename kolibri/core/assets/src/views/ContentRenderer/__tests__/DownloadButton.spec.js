@@ -30,7 +30,7 @@ const renderComponent = props => {
     useUserMock({
       isAppContext: false,
       ...useUserMockProps,
-    })
+    }),
   );
 
   return render(DownloadButton, {

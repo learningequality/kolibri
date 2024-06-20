@@ -4,7 +4,6 @@
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
-
     <KCircularLoader v-if="loading || !currentQuestion" />
 
     <div v-else>
@@ -17,8 +16,7 @@
           class="column-pane"
         >
           <div class="column-contents-wrapper">
-
-            <KPageContainer style="padding:0;">
+            <KPageContainer style="padding: 0">
               <AnswerHistory
                 :pastattempts="pastattempts"
                 :sections="sections"
@@ -30,30 +28,27 @@
                 @goToQuestion="goToQuestion"
               />
             </KPageContainer>
-
           </div>
         </KGridItem>
 
-        <KGridItem :layout12="{ span: 8 }" class="column-pane">
+        <KGridItem
+          :layout12="{ span: 8 }"
+          class="column-pane"
+        >
           <main :class="{ 'column-contents-wrapper': !windowIsSmall }">
-
-            <KPageContainer dir="auto" style="overflow-x: visible;">
+            <KPageContainer
+              dir="auto"
+              style="overflow-x: visible"
+            >
               <KGrid v-if="windowIsLarge">
-                <KGridItem
-                  :layout12="{ span: 8 }"
-                >
+                <KGridItem :layout12="{ span: 8 }">
                   <h2 class="section-title">
                     {{ displaySectionTitle(currentSection, currentSectionIndex) }}
                   </h2>
-                  <p> {{ currentSection.description }} </p>
+                  <p>{{ currentSection.description }}</p>
                 </KGridItem>
-                <KGridItem
-                  :layout12="{ span: 4 }"
-                >
-                  <div
-                    :style="
-                      { margin: '2em auto 0', textAlign: 'center', width: '100%' }"
-                  >
+                <KGridItem :layout12="{ span: 4 }">
+                  <div :style="{ margin: '2em auto 0', textAlign: 'center', width: '100%' }">
                     <div>{{ coreString('timeSpentLabel') }}:</div>
                     <TimeDuration
                       class="timer"
@@ -64,8 +59,11 @@
                   </div>
                 </KGridItem>
               </KGrid>
-              <div v-else style="overflow-x: visible">
-                <div v-if="(windowIsSmall || windowIsMedium)">
+              <div
+                v-else
+                style="overflow-x: visible"
+              >
+                <div v-if="windowIsSmall || windowIsMedium">
                   <KSelect
                     v-if="sectionSelectOptions.length > 1"
                     :value="currentSectionOption"
@@ -79,14 +77,11 @@
                     {{ currentSectionOption.label }}
                   </h2>
                 </div>
-                <p> {{ currentSection.description }} </p>
+                <p>{{ currentSection.description }}</p>
                 <p v-if="content && content.duration">
                   {{ learnString('suggestedTime') }}
                 </p>
-                <div
-                  :style="
-                    { margin: '0 auto', textAlign: 'center', width: '100%' }"
-                >
+                <div :style="{ margin: '0 auto', textAlign: 'center', width: '100%' }">
                   <span>{{ coreString('timeSpentLabel') }}:</span>
                   <TimeDuration
                     class="timer"
@@ -100,18 +95,20 @@
                   class="timer"
                   :seconds="content.duration"
                 />
-
               </div>
             </KPageContainer>
-            <KPageContainer style="overflow-x: visible;">
+            <KPageContainer style="overflow-x: visible">
               <KSelect
-                v-if="(windowIsSmall || windowIsMedium)"
-                style="margin-top: 1em;"
+                v-if="windowIsSmall || windowIsMedium"
+                style="margin-top: 1em"
                 :value="currentQuestionOption"
                 :options="questionSelectOptions"
                 @select="handleQuestionOptionChange"
               />
-              <h2 v-else class="number-of-questions">
+              <h2
+                v-else
+                class="number-of-questions"
+              >
                 {{ $tr('question', { num: questionNumber + 1, total: exam.question_count }) }}
               </h2>
               <ContentRenderer
@@ -127,13 +124,15 @@
                 :answerState="currentAttempt.answer"
                 @interaction="saveAnswer"
               />
-              <ResourceSyncingUiAlert v-else :multiple="false" />
+              <ResourceSyncingUiAlert
+                v-else
+                :multiple="false"
+              />
             </KPageContainer>
           </main>
         </KGridItem>
       </KGrid>
       <BottomAppBar :maxWidth="null">
-
         <component :is="windowIsSmall ? 'div' : 'KButtonGroup'">
           <KButton
             :disabled="questionNumber === 0"
@@ -178,7 +177,10 @@
           :dir="layoutDirReset"
           class="left-align"
         >
-          <div v-if="!missingResources" class="answered">
+          <div
+            v-if="!missingResources"
+            class="answered"
+          >
             {{ answeredText }}
           </div>
           <KButton
@@ -195,14 +197,15 @@
             appearance="flat-button"
             @click="toggleModal"
           />
-          <div v-if="missingResources" class="nosubmit">
+          <div
+            v-if="missingResources"
+            class="nosubmit"
+          >
             {{ $tr('unableToSubmit') }}
           </div>
         </div>
       </BottomAppBar>
     </div>
-
-
 
     <KModal
       v-if="submitModalOpen"
@@ -213,7 +216,7 @@
       @cancel="toggleModal"
     >
       <p v-if="questionsUnanswered">
-        {{ $tr('unanswered', { numLeft: questionsUnanswered } ) }}
+        {{ $tr('unanswered', { numLeft: questionsUnanswered }) }}
       </p>
       <p>{{ $tr('areYouSure') }}</p>
     </KModal>
@@ -263,12 +266,8 @@
         startTrackingProgress,
         stopTrackingProgress,
       } = useProgressTracking();
-      const {
-        windowBreakpoint,
-        windowIsMedium,
-        windowIsLarge,
-        windowIsSmall,
-      } = useKResponsiveWindow();
+      const { windowBreakpoint, windowIsMedium, windowIsLarge, windowIsSmall } =
+        useKResponsiveWindow();
       return {
         displaySectionTitle,
         pastattempts,
@@ -322,7 +321,7 @@
       },
       currentSection() {
         return this.sections.find(section =>
-          section.questions.map(q => q.item).includes(this.currentQuestion.item)
+          section.questions.map(q => q.item).includes(this.currentQuestion.item),
         );
       },
       sections() {
@@ -419,7 +418,7 @@
               map[attempt.item] = true;
             }
             return map;
-          }, {})
+          }, {}),
         ).length;
       },
       questionsUnanswered() {

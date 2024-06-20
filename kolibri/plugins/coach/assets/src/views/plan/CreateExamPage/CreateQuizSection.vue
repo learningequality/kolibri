@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
         :layout4="{ span: 2 }"
@@ -22,7 +21,7 @@
             <span
               :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
-              style="display: inline-block;"
+              style="display: inline-block"
               :appearanceOverrides="tabStyles"
             >
               {{ tab.label }}
@@ -52,7 +51,7 @@
       </KGridItem>
 
       <KGridItem
-        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right;"
+        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right"
         :layout4="{ span: 2 }"
         :layout8="{ span: 3 }"
         :layout12="{ span: 2 }"
@@ -60,13 +59,12 @@
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="height: 3rem; position: relative; right: 0; padding: 0;"
+          style="position: relative; right: 0; height: 3rem; padding: 0"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
         </KButton>
       </KGridItem>
-
     </KGrid>
 
     <KTabsPanel
@@ -74,10 +72,13 @@
       tabsId="quizSectionTabs"
       :activeTabId="String(activeSectionIndex)"
     >
-      <KGrid v-if="!activeQuestions.length" class="questions-list-label-row">
+      <KGrid
+        v-if="!activeQuestions.length"
+        class="questions-list-label-row"
+      >
         <KGridItem
           class="right-side-heading"
-          style="padding: 0.7em 0.75em;"
+          style="padding: 0.7em 0.75em"
         >
           <KButton
             ref="addQuestionsButton"
@@ -101,7 +102,7 @@
       <!-- TODO This should be a separate component like "empty section container" or something -->
       <div
         v-if="!activeQuestions.length"
-        style="text-align: center; padding: 0 0 1em 0; max-width: 350px; margin: 0 auto;"
+        style="max-width: 350px; padding: 0 0 1em; margin: 0 auto; text-align: center"
       >
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div
@@ -114,7 +115,7 @@
           >?</span>
         </div>
 
-        <p style="margin-top: 1em; font-weight: bold;">
+        <p style="margin-top: 1em; font-weight: bold">
           {{ noQuestionsInSection$() }}
         </p>
 
@@ -123,7 +124,7 @@
         <KButton
           primary
           icon="plus"
-          style="margin-top: 1em;"
+          style="margin-top: 1em"
           @click="openSelectResources()"
         >
           {{ addQuestionsLabel$() }}
@@ -226,17 +227,13 @@
               >
                 <AccordionItem
                   :id="question.item"
-                  :title="displayQuestionTitle(
-                    question, activeResourceMap[question.exercise_id].title
-                  )"
-                  :aria-selected="selectedActiveQuestions.includes(
-                    question.item
-                  )"
+                  :title="
+                    displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)
+                  "
+                  :aria-selected="selectedActiveQuestions.includes(question.item)"
                 >
                   <template #heading="{ title }">
-                    <h3
-                      class="accordion-header"
-                    >
+                    <h3 class="accordion-header">
                       <DragHandle>
                         <div>
                           <DragSortWidget
@@ -253,9 +250,7 @@
                       </DragHandle>
                       <KCheckbox
                         style="padding-left: 0.5em"
-                        :checked="selectedActiveQuestions.includes(
-                          question.item
-                        )"
+                        :checked="selectedActiveQuestions.includes(question.item)"
                         @change="() => toggleQuestionInSelection(question.item)"
                       />
                       <KButton
@@ -269,9 +264,8 @@
                       >
                         <span>{{ title }}</span>
                         <KIcon
-                          style="position: absolute; right:0; top: 0.92em"
-                          :icon="isExpanded(index) ?
-                            'chevronUp' : 'chevronRight'"
+                          style="position: absolute; top: 0.92em; right: 0"
+                          :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
                         />
                       </KButton>
                     </h3>
@@ -306,7 +300,6 @@
           </DragContainer>
         </AccordionContainer>
       </div>
-
     </KTabsPanel>
     <KModal
       v-if="showDeleteConfirmation"
@@ -320,7 +313,6 @@
         changes how we handle section indexing, which is needed for displaySectionTitle -->
       {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
     </KModal>
-
   </div>
 
 </template>
@@ -585,7 +577,7 @@
             'createSnackbar',
             // TODO Use `displaySectionTitle` here once #12274 is merged as that PR
             // changes how we handle section indexing
-            this.sectionDeletedNotification$({ section_title })
+            this.sectionDeletedNotification$({ section_title }),
           );
           this.focusActiveSectionTab();
         });
@@ -636,7 +628,7 @@
             'Tried to focus active tab id: ',
             label,
             ' - but the tab is not in the refs: ',
-            this.$refs
+            this.$refs,
           );
         }
       },
@@ -685,7 +677,7 @@
           'createSnackbar',
           this.questionsDeletedNotification$({
             count,
-          })
+          }),
         );
       },
     },
@@ -694,7 +686,7 @@
 </script>
 
 
-<style lang="scss"  scoped>
+<style lang="scss" scoped>
 
   .no-question-layout {
     width: auto;

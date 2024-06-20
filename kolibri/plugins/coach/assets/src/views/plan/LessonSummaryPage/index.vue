@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KGrid v-if="!loading">
       <KGridItem>
         <QuizLessonDetailsHeader
@@ -63,9 +62,7 @@
                 @cancel="currentAction = ''"
               />
             </div>
-
           </div>
-
         </KPageContainer>
       </KGridItem>
     </KGrid>

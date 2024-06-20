@@ -3,7 +3,10 @@
   <KPageContainer :topMargin="$isPrint ? 0 : 16">
     <KGrid gutter="16">
       <!-- Quiz Open button -->
-      <div v-if="!exam.active && !exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="!exam.active && !exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -20,7 +23,10 @@
       </div>
 
       <!-- Quiz Close button & time since opened -->
-      <div v-if="exam.active && !exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.active && !exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           :layout4="{ span: 4 }"
           :layout8="{ span: 4 }"
@@ -41,13 +47,16 @@
           <StatusElapsedTime
             :date="examDateOpened"
             actionType="opened"
-            style="display: block; margin-top: 8px;"
+            style="display: block; margin-top: 8px"
           />
         </KGridItem>
       </div>
 
       <!-- Quiz Closed label & time since closed -->
-      <div v-if="exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -61,10 +70,16 @@
           :layout8="{ span: 4 }"
           :layout12="{ span: 12 }"
         >
-          <ElapsedTime :date="examDateArchived" style="margin-top: 8px;" />
+          <ElapsedTime
+            :date="examDateArchived"
+            style="margin-top: 8px"
+          />
         </KGridItem>
       </div>
-      <div v-if="exam.archive && !$isPrint" class="status-item">
+      <div
+        v-if="exam.archive && !$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -81,7 +96,7 @@
           <KSwitch
             name="toggle-quiz-visibility"
             label=""
-            style="display:inline;"
+            style="display: inline"
             :checked="exam.active"
             :value="exam.active"
             @change="handleToggleVisibility"
@@ -90,7 +105,10 @@
       </div>
 
       <!-- Class name  -->
-      <div v-show="$isPrint" class="status-item">
+      <div
+        v-show="$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -143,7 +161,10 @@
           :layout12="layout12Label"
         >
           <span>{{ coachString('avgScoreLabel') }}</span>
-          <AverageScoreTooltip v-show="!$isPrint" class="avg-score-info" />
+          <AverageScoreTooltip
+            v-show="!$isPrint"
+            class="avg-score-info"
+          />
         </KGridItem>
         <KGridItem
           :layout4="{ span: 4 }"
@@ -155,7 +176,10 @@
       </div>
 
       <!-- Question Order -->
-      <div v-if="!$isPrint" class="status-item">
+      <div
+        v-if="!$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -174,7 +198,10 @@
       </div>
 
       <!-- quiz size -->
-      <div v-if="!$isPrint" class="status-item">
+      <div
+        v-if="!$isPrint"
+        class="status-item"
+      >
         <KGridItem
           class="status-label"
           :layout4="{ span: 4 }"
@@ -191,8 +218,6 @@
           <p>{{ exam.size_string ? exam.size_string : '--' }}</p>
         </KGridItem>
       </div>
-
-
     </KGrid>
 
     <KModal
@@ -251,7 +276,6 @@
         @change="dontShowAgainChecked = $event"
       />
     </KModal>
-
   </KPageContainer>
 
 </template>

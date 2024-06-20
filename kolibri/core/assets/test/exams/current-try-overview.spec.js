@@ -66,7 +66,7 @@ function defaultPropsWith(propOverrides = {}, tryOverrides = {}) {
     {},
     defaultProps,
     { currentTry: Object.assign({}, defaultTry, tryOverrides) },
-    propOverrides
+    propOverrides,
   );
 }
 
@@ -126,7 +126,7 @@ describe('ExamReport/CurrentTryOverview', () => {
       // We know it is null due to the test suite describing 'is null when ... is "quiz"' - which
       // is what wrapperWithoutMasteryModel has it's currentTry.mastery_criterion set to
       expect(
-        wrapperWithoutMasteryModel.find('[data-test="try-mastery-model"]').element
+        wrapperWithoutMasteryModel.find('[data-test="try-mastery-model"]').element,
       ).toBeFalsy();
     });
 
@@ -159,7 +159,7 @@ describe('ExamReport/CurrentTryOverview', () => {
           return wrapper.vm.$nextTick().then(() => {
             expect(wrapper.vm.score).toEqual(n / defaultProps.totalQuestions);
           });
-        }
+        },
       );
     });
 
@@ -198,7 +198,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         async n => {
           await wrapper.setProps({ currentTry: { ...defaultTry, correct: n } });
           expect(wrapper.find('[data-test="try-score"]').toHaveTextContent(`${n}%`));
-        }
+        },
       );
     });
   });
@@ -244,7 +244,7 @@ describe('ExamReport/CurrentTryOverview', () => {
             expect(wrapper.vm.questionsCorrectAnnotation).toEqual(
               translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
                 value: betterDiff.correct,
-              })
+              }),
             );
           });
         });
@@ -283,7 +283,7 @@ describe('ExamReport/CurrentTryOverview', () => {
         expect(wrapper.find('[data-test="try-questions-correct"]').element).toHaveTextContent(
           translator.$tr('practiceQuizReportImprovedLabelSecondPerson', {
             value: betterDiff.correct,
-          })
+          }),
         );
       });
     });
@@ -362,7 +362,7 @@ describe('ExamReport/CurrentTryOverview', () => {
           expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
             translator.$tr('practiceQuizReportFasterTimeLabel', {
               value: Math.abs(wrapper.vm.diffTimeSpent),
-            })
+            }),
           );
         });
       });
@@ -375,7 +375,9 @@ describe('ExamReport/CurrentTryOverview', () => {
             propsData: defaultPropsWith({}, { diff: worseDiff }),
           });
           expect(wrapper.find('[data-test="try-time-spent"]').element).toHaveTextContent(
-            translator.$tr('practiceQuizReportSlowerTimeLabel', { value: wrapper.vm.diffTimeSpent })
+            translator.$tr('practiceQuizReportSlowerTimeLabel', {
+              value: wrapper.vm.diffTimeSpent,
+            }),
           );
         });
       });

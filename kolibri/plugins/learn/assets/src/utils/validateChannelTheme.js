@@ -48,7 +48,7 @@ export function validateChannelTheme(theme) {
   if (updatedTheme.textColor && updatedTheme.appBarColor) {
     if (!tinycolor.isReadable(updatedTheme.textColor, updatedTheme.appBarColor)) {
       logger.warn(
-        `'textColor' and 'appBarColor' do not provide enough contrast and do not pass WCAG Level AA guidelines`
+        `'textColor' and 'appBarColor' do not provide enough contrast and do not pass WCAG Level AA guidelines`,
       );
     }
   }

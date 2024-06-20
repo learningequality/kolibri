@@ -4,7 +4,6 @@
     ref="mainWrapper"
     class="main-wrapper"
   >
-
     <SkipNavigationLink />
     <LearningActivityBar
       ref="activityBar"
@@ -64,7 +63,7 @@
         :content="content"
         :lessonId="lessonId"
         :style="{
-          backgroundColor: ( content.assessmentmetadata ? '' : $themeTokens.textInverted )
+          backgroundColor: content.assessmentmetadata ? '' : $themeTokens.textInverted,
         }"
         :allowMarkComplete="allowMarkComplete"
         @mounted="contentPageMounted = true"
@@ -91,14 +90,18 @@
           v-for="activity in sidePanelContent.learning_activities"
           :key="activity"
           class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
+          :class="
+            $computedClass({
+              '::after': {
+                content: '',
+                flex: 'auto',
+              },
+            })
+          "
         >
           <LearningActivityChip
             class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
+            style="margin-bottom: 8px; margin-left: 8px"
             :kind="activity"
           />
         </div>
@@ -120,7 +123,7 @@
       @shouldFocusFirstEl="findFirstEl()"
     >
       <template #header>
-        <h2 style="margin: 0;">
+        <h2 style="margin: 0">
           {{ viewResourcesTitle }}
         </h2>
       </template>
@@ -227,11 +230,8 @@
       const store = currentInstance.$store;
       const router = currentInstance.$router;
       const { canDownloadExternally, canAddDownloads } = useCoreLearn();
-      const {
-        fetchContentNodeProgress,
-        fetchContentNodeTreeProgress,
-        contentNodeProgressMap,
-      } = useContentNodeProgress();
+      const { fetchContentNodeProgress, fetchContentNodeTreeProgress, contentNodeProgressMap } =
+        useContentNodeProgress();
       const { channelsMap, fetchChannels } = useChannels();
       const { fetchLesson } = useLearnerResources();
       const { back, genExternalBackURL } = useContentLink();
@@ -274,7 +274,7 @@
             shouldResolve()
               ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
               : null;
-          }
+          },
         );
       }
 
@@ -418,7 +418,7 @@
         return lodashGet(
           this,
           ['content', 'options', 'completion_criteria', 'learner_managed'],
-          false
+          false,
         );
       },
       lessonContext() {
@@ -615,7 +615,7 @@
           let nextFolders;
           if (fetchGrandparent) {
             const parentIndex = ancestor.children.results.findIndex(
-              c => c.id === this.content.parent
+              c => c.id === this.content.parent,
             );
             parent = ancestor.children.results[parentIndex];
             nextFolders = ancestor.children.results.slice(parentIndex + 1);

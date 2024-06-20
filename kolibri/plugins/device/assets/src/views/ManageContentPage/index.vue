@@ -9,7 +9,6 @@
     </transition>
 
     <KPageContainer class="device-container">
-
       <div>
         <HeaderWithOptions :headerText="coreString('channelsLabel')">
           <template #options>
@@ -32,7 +31,7 @@
               </KButton>
               <KButton
                 :text="$tr('import')"
-                style="margin-top: 16px; margin-bottom: -16px;"
+                style="margin-top: 16px; margin-bottom: -16px"
                 :primary="true"
                 @click="startImportWorkflow()"
               />
@@ -74,11 +73,8 @@
           @submit="handleDeleteChannel"
           @cancel="deleteChannelId = null"
         />
-
       </div>
-
     </KPageContainer>
-
   </DeviceAppBarPage>
 
 </template>

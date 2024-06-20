@@ -123,7 +123,7 @@ describe(`HomePage`, () => {
     useChannels.mockImplementation(() =>
       useChannelsMock({
         fetchChannels: jest.fn(() => Promise.resolve([{ id: 'channel-1', name: 'Channel 1' }])),
-      })
+      }),
     );
   });
 
@@ -140,7 +140,7 @@ describe(`HomePage`, () => {
 
     it(`the section is not displayed for a signed in user who has no classes and can access unassigned content`, () => {
       useDeviceSettings.mockImplementation(() =>
-        useDeviceSettingsMock({ canAccessUnassignedContent: true })
+        useDeviceSettingsMock({ canAccessUnassignedContent: true }),
       );
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
@@ -149,7 +149,7 @@ describe(`HomePage`, () => {
 
     it(`the section is displayed for a signed in user with no classes who cannot access unassigned content`, () => {
       useDeviceSettings.mockImplementation(() =>
-        useDeviceSettingsMock({ canAccessUnassignedContent: false })
+        useDeviceSettingsMock({ canAccessUnassignedContent: false }),
       );
       useUser.mockImplementation(() => useUserMock({ isUserLoggedIn: true }));
       const wrapper = makeWrapper();
@@ -164,7 +164,7 @@ describe(`HomePage`, () => {
             { id: 'class-1', name: 'Class 1' },
             { id: 'class-2', name: 'Class 2' },
           ],
-        })
+        }),
       );
       const wrapper = makeWrapper();
       const links = getClassesSection(wrapper).findAll('[data-test="classLink"]');
@@ -215,7 +215,7 @@ describe(`HomePage`, () => {
             getClassQuizLink() {
               return { path: '/class-quiz' };
             },
-          })
+          }),
         );
       });
 
@@ -232,10 +232,10 @@ describe(`HomePage`, () => {
       it(`non-classes resources in progress  are not displayed`, () => {
         const wrapper = makeWrapper();
         expect(getContinueLearningFromClassesSection(wrapper).text()).not.toContain(
-          'Non-class resource 1'
+          'Non-class resource 1',
         );
         expect(getContinueLearningFromClassesSection(wrapper).text()).not.toContain(
-          'Non-class resource 2'
+          'Non-class resource 2',
         );
       });
 
@@ -272,7 +272,7 @@ describe(`HomePage`, () => {
           getClassLessonLink() {
             return { path: '/class-lesson' };
           },
-        })
+        }),
       );
       const wrapper = makeWrapper();
       expect(getRecentLessonsSection(wrapper).exists()).toBe(true);
@@ -307,7 +307,7 @@ describe(`HomePage`, () => {
           getClassQuizLink() {
             return { path: '/class-quiz' };
           },
-        })
+        }),
       );
       const wrapper = makeWrapper();
       expect(getRecentQuizzesSection(wrapper).exists()).toBe(true);
@@ -343,7 +343,7 @@ describe(`HomePage`, () => {
               { id: 'non-class-resource-1', title: 'Non-class resource 1', is_leaf: true },
               { id: 'non-class-resource-2', title: 'Non-class resource 2', is_leaf: true },
             ],
-          })
+          }),
         );
       });
 
@@ -357,7 +357,7 @@ describe(`HomePage`, () => {
           useDeviceSettings.mockImplementation(() =>
             useDeviceSettingsMock({
               canAccessUnassignedContent: true,
-            })
+            }),
           );
         });
 
@@ -386,7 +386,7 @@ describe(`HomePage`, () => {
           useChannelsMock({
             localChannelsCache: channels,
             fetchChannels: jest.fn(() => Promise.resolve(channels)),
-          })
+          }),
         );
       });
 
@@ -404,7 +404,7 @@ describe(`HomePage`, () => {
         useLearnerResources.mockImplementation(() =>
           useLearnerResourcesMock({
             learnerFinishedAllClasses: true,
-          })
+          }),
         );
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(false);
@@ -417,12 +417,12 @@ describe(`HomePage`, () => {
         useLearnerResources.mockImplementation(() =>
           useLearnerResourcesMock({
             learnerFinishedAllClasses: true,
-          })
+          }),
         );
         useDeviceSettings.mockImplementation(() =>
           useDeviceSettingsMock({
             canAccessUnassignedContent: true,
-          })
+          }),
         );
         const wrapper = makeWrapper();
         expect(getExploreChannelsSection(wrapper).exists()).toBe(true);

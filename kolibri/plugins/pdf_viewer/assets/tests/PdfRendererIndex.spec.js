@@ -58,7 +58,7 @@ describe('PdfRendererIndex', () => {
 
       expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
       expect(context.$emit.mock.calls[0][1]).toEqual(
-        Object.keys(context.savedVisitedPages).length / context.totalPages
+        Object.keys(context.savedVisitedPages).length / context.totalPages,
       );
       expect(context.$emit.mock.calls[0][1]).not.toBe(context.durationBasedProgress);
     });
@@ -70,7 +70,7 @@ describe('PdfRendererIndex', () => {
       expect(context.$emit.mock.calls[0][0]).toBe('updateProgress');
       expect(context.$emit.mock.calls[0][1]).toBe(0.1);
       expect(context.$emit.mock.calls[0][1]).not.toEqual(
-        Object.keys(context.savedVisitedPages).length / context.totalPages
+        Object.keys(context.savedVisitedPages).length / context.totalPages,
       );
     });
   });

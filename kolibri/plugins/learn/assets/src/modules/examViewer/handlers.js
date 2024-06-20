@@ -55,8 +55,8 @@ export function showExam(store, params, alreadyOnQuiz) {
                 store.dispatch(
                   'handleError',
                   `This quiz cannot be displayed:\nQuestion sources: ${JSON.stringify(
-                    allQuestions
-                  )}\nExam: ${JSON.stringify(exam)}`
+                    allQuestions,
+                  )}\nExam: ${JSON.stringify(exam)}`,
                 );
                 return;
               }
@@ -64,7 +64,7 @@ export function showExam(store, params, alreadyOnQuiz) {
               else if (questionNumber >= allQuestions.length) {
                 store.dispatch(
                   'handleError',
-                  `Question number ${questionNumber} is not valid for this quiz`
+                  `Question number ${questionNumber} is not valid for this quiz`,
                 );
                 return;
               }
@@ -100,7 +100,7 @@ export function showExam(store, params, alreadyOnQuiz) {
         shouldResolve()
           ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
           : null;
-      }
+      },
     );
   }
 }

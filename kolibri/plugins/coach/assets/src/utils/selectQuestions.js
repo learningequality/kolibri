@@ -34,7 +34,7 @@ export function getExerciseQuestionsMap(exercises, excludedQuestionIds = []) {
     allQuestionsByExercise[exercise.id] = exerciseToQuestionArray(exercise);
     if (excludedQuestionIds.length) {
       allQuestionsByExercise[exercise.id] = allQuestionsByExercise[exercise.id].filter(
-        question => !excludedQuestionIdMap[question.item]
+        question => !excludedQuestionIdMap[question.item],
       );
     }
   }

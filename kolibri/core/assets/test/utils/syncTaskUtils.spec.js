@@ -114,7 +114,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
       expect(syncFacilityTaskDisplayInfo(task)).toMatchObject({
         statusMsg: msg,
       });
-    }
+    },
   );
 
   it('if task is FINISHED, it has a bytesTransferredMsg', () => {
@@ -155,7 +155,7 @@ describe('syncTaskUtils.syncFacilityTaskDisplayInfo', () => {
         canRetry: status === 'FAILED',
         isRunning,
       });
-    }
+    },
   );
 });
 
@@ -221,6 +221,6 @@ describe('syncTaskUtils.removeFacilityTaskDisplayInfo', () => {
         canCancel,
         canRetry,
       });
-    }
+    },
   );
 });

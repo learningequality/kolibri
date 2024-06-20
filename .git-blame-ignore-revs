@@ -1,0 +1,8 @@
+# Run this command to always ignore formatting commits in `git blame`
+# git config blame.ignoreRevsFile .git-blame-ignore-revs
+
+# Applied black to the codebase
+7dadc107cebd3ab4597f1aa4f159940872466dec
+
+# Reformatted all frontend code using prettier v3
+42efde27bac137734f05057278c4827168d119f2

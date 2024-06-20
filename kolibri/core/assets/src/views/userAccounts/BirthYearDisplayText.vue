@@ -1,9 +1,6 @@
 <template>
 
-  <KOptionalText
-    :text="
-      birthYearDate ? $formatDate(birthYearDate, { year: 'numeric' }) : ''"
-  />
+  <KOptionalText :text="birthYearDate ? $formatDate(birthYearDate, { year: 'numeric' }) : ''" />
 
 </template>
 

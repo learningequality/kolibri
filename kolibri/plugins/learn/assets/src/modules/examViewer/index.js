@@ -34,7 +34,7 @@ export default {
     },
     currentSectionIndex(state, { currentQuestion, sections }) {
       return sections.findIndex(section =>
-        section.questions.map(q => q.item).includes(currentQuestion.item)
+        section.questions.map(q => q.item).includes(currentQuestion.item),
       );
     },
     sectionSelectOptions(state, { sections }) {
@@ -48,7 +48,7 @@ export default {
     currentSectionOption(state, { currentSection, sectionSelectOptions }) {
       if (!currentSection) return {};
       return sectionSelectOptions.find(
-        (opt, i) => opt.label === displaySectionTitle(currentSection, i)
+        (opt, i) => opt.label === displaySectionTitle(currentSection, i),
       );
     },
   },

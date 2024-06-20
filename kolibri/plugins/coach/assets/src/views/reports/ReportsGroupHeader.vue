@@ -8,7 +8,10 @@
       />
     </p>
     <h1>
-      <KLabeledIcon icon="group" :label="group.name" />
+      <KLabeledIcon
+        icon="group"
+        :label="group.name"
+      />
     </h1>
 
     <HeaderTabs

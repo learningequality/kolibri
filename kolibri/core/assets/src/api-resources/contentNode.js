@@ -139,7 +139,7 @@ export default new Resource({
       if (data[this.idKey]) {
         this.cache[data[this.idKey]] = Object.assign(
           this.cache[data[this.idKey]] || {},
-          cloneDeep(data)
+          cloneDeep(data),
         );
         if (data.children) {
           this.cacheData(data.children);

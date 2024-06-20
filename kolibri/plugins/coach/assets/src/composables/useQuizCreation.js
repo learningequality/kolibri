@@ -92,7 +92,7 @@ export default function useQuizCreation() {
       }
       if (questions.length > MAX_QUESTIONS_PER_QUIZ_SECTION) {
         throw new TypeError(
-          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`
+          `Questions array must not exceed ${MAX_QUESTIONS_PER_QUIZ_SECTION} items`,
         );
       }
       if (questions.some(q => !validateObject(q, QuizQuestion))) {
@@ -142,7 +142,7 @@ export default function useQuizCreation() {
       // Seed the random number generator with a random number
       Math.floor(Math.random() * 1000),
       // Exclude the questions that are already in the entire quiz
-      get(allQuestionsInQuiz).map(q => q.item)
+      get(allQuestionsInQuiz).map(q => q.item),
     );
 
     const questions = [...targetSection.questions, ...newQuestions];
@@ -306,7 +306,7 @@ export default function useQuizCreation() {
   function removeQuestionFromSelection(id) {
     set(
       _selectedQuestionIds,
-      get(_selectedQuestionIds).filter(_id => id !== _id)
+      get(_selectedQuestionIds).filter(_id => id !== _id),
     );
   }
 
@@ -328,7 +328,7 @@ export default function useQuizCreation() {
     } else {
       set(
         _selectedQuestionIds,
-        get(activeQuestions).map(q => q.item)
+        get(activeQuestions).map(q => q.item),
       );
     }
   }
@@ -346,7 +346,7 @@ export default function useQuizCreation() {
   const inactiveSections = computed(() =>
     get(allSections)
       .slice(0, get(activeSectionIndex))
-      .concat(get(allSections).slice(get(activeSectionIndex) + 1))
+      .concat(get(allSections).slice(get(activeSectionIndex) + 1)),
   );
   /** @type {ComputedRef<Object.<string, QuizExercise>>}
    * A map of exercise id to exercise for the currently active section */
@@ -402,8 +402,8 @@ export default function useQuizCreation() {
           get(selectedActiveQuestions).sort(),
           get(activeQuestions)
             .map(q => q.item)
-            .sort()
-        )
+            .sort(),
+        ),
     );
   });
 

@@ -72,7 +72,7 @@
         req.open('GET', file.url, true);
         req.responseType = 'blob';
 
-        req.onload = function() {
+        req.onload = function () {
           const blob = req.response;
           const blobUrl = window.URL.createObjectURL(blob);
           try {

@@ -4,8 +4,17 @@
     <div v-if="viewAll">
       <slot></slot>
     </div>
-    <div v-else ref="content" :style="{ maxHeight: `${maxHeight}px` }" class="truncated">
-      <div v-if="slotIsTruncated" :style="{ height: `${maxHeight}px` }" class="overlay"></div>
+    <div
+      v-else
+      ref="content"
+      :style="{ maxHeight: `${maxHeight}px` }"
+      class="truncated"
+    >
+      <div
+        v-if="slotIsTruncated"
+        :style="{ height: `${maxHeight}px` }"
+        class="overlay"
+      ></div>
       <slot></slot>
     </div>
     <div

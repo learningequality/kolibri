@@ -6,8 +6,14 @@
     :class="{ 'perseus-mobile': isMobile }"
     @keydown.enter="answerGiven"
   >
-    <div class="framework-perseus" :style="{ margin: isMobile ? '0' : '0 24px' }">
-      <div ref="perseus" class="perseus">
+    <div
+      class="framework-perseus"
+      :style="{ margin: isMobile ? '0' : '0 24px' }"
+    >
+      <div
+        ref="perseus"
+        class="perseus"
+      >
         <div class="loader-container">
           <KLinearLoader
             :delay="false"
@@ -153,7 +159,7 @@
     const images = Object.keys(imageMatches);
     const svgAndJson = graphieImages.reduce(
       (acc, image) => [...acc, `${image}.svg`, `${image}-data.json`],
-      []
+      [],
     );
     return images.concat(svgAndJson);
   }
@@ -188,7 +194,7 @@
       JSON.stringify(itemResponse).replace(blobImageRegex, match => {
         // Make sure to add our prefix back in
         return '${☣ LOCALPATH}/' + lookup[match] || '';
-      })
+      }),
     );
   }
 
@@ -208,7 +214,7 @@
   perseus.Util.getImageSize = (url, callback) => {
     const img = new Image();
 
-    img.onload = function() {
+    img.onload = function () {
       // Vendored from perseus to override image handling
       if (img.width === 0 && img.height === 0) {
         var _document$body;
@@ -217,7 +223,7 @@
           ? void 0
           : _document$body.appendChild(img);
 
-        defer(function() {
+        defer(function () {
           var _document$body2;
 
           callback(img.clientWidth, img.clientHeight);
@@ -351,14 +357,14 @@
                 (Object.prototype.hasOwnProperty.call(obj.answerArea, key) &&
                   typeof obj.answerArea[key] !== 'boolean')
               ),
-            true
+            true,
           ) &&
           // Check that the 'hints' property is an Array.
           Array.isArray(obj.hints) &&
           obj.hints.reduce(
             // Check that each hint in the hints array is an object (and not null)
             (prev, item) => item && typeof item === 'object',
-            true
+            true,
           ) &&
           // Check that the question property is an object (and not null)
           obj.question &&
@@ -410,7 +416,7 @@
             e(perseus.ServerItemRenderer, {
               ...itemRenderData,
               keypadElement: keypadElement,
-            })
+            }),
         );
         const keypadWithContextElement = e(
           KeypadContext.Consumer,
@@ -424,7 +430,7 @@
                 onDismiss: () => {},
                 onAnalyticsEvent: async () => {},
               }),
-            })
+            }),
         );
         const statefulKeypadContextProviderElement = e(StatefulKeypadContextProvider, {
           children: [keypadContextConsumerElement, keypadWithContextElement],
@@ -500,8 +506,8 @@
         this.itemRenderer.getWidgetIds().forEach(id => {
           if (sorterWidgetRegex.test(id)) {
             if (questionState[id]) {
-              const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
-                .refs.sortable;
+              const sortableComponent =
+                this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
               questionState[id].options = sortableComponent.getOptions();
             }
           }
@@ -516,11 +522,11 @@
         let hints = [];
         if (this.itemRenderer.hintsRenderer) {
           hints = Object.keys(this.itemRenderer.hintsRenderer.refs || {}).map(key =>
-            this.itemRenderer.hintsRenderer.refs[key].getSerializedState()
+            this.itemRenderer.hintsRenderer.refs[key].getSerializedState(),
           );
         }
         const question = this.addSorterState(
-          this.itemRenderer.questionRenderer.getSerializedState()
+          this.itemRenderer.questionRenderer.getSerializedState(),
         );
         // To prevent propagation of our locally replace blob URLs into answers,
         // we need to replace them with the original URLs.
@@ -529,14 +535,14 @@
       restoreSerializedState(answerState) {
         if (answerState && answerState.question && answerState.hints) {
           answerState = JSON.parse(
-            replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl)
+            replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl),
           );
           this.itemRenderer.restoreSerializedState(answerState);
           this.itemRenderer.getWidgetIds().forEach(id => {
             if (sorterWidgetRegex.test(id)) {
               if (answerState.question[id]) {
-                const sortableComponent = this.itemRenderer.questionRenderer.getWidgetInstance(id)
-                  .refs.sortable;
+                const sortableComponent =
+                  this.itemRenderer.questionRenderer.getWidgetInstance(id).refs.sortable;
                 const newProps = Object.assign({}, sortableComponent.props, {
                   options: answerState.question[id].options,
                 });

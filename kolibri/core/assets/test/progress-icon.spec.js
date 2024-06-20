@@ -3,12 +3,7 @@ import UiIcon from 'kolibri-design-system/lib/keen/UiIcon';
 import ProgressIcon from '../src/views/ProgressIcon';
 
 function testIcon(wrapper, expectedText) {
-  expect(
-    wrapper
-      .findComponent({ name: 'KTooltip' })
-      .text()
-      .trim()
-  ).toEqual(expectedText);
+  expect(wrapper.findComponent({ name: 'KTooltip' }).text().trim()).toEqual(expectedText);
 }
 
 describe('ProgressIcon Component', () => {

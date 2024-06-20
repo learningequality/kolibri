@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <ReportsHeader
         :activeTabId="ReportsTabs.LEARNERS"
@@ -93,12 +92,12 @@
           const groupNames = this.getGroupNames(
             this._.map(
               this.groups.filter(group => group.member_ids.includes(learner.id)),
-              'id'
-            )
+              'id',
+            ),
           );
           const examStatuses = this.examStatuses.filter(status => learner.id === status.learner_id);
           const contentStatuses = this.contentStatuses.filter(
-            status => learner.id === status.learner_id
+            status => learner.id === status.learner_id,
           );
           const augmentedObj = {
             groups: groupNames,
@@ -133,7 +132,7 @@
         const statuses = contentStatuses.filter(
           status =>
             this.contentIdIsForExercise(status.content_id) &&
-            status.status === this.STATUSES.completed
+            status.status === this.STATUSES.completed,
         );
         return statuses.length;
       },
@@ -141,7 +140,7 @@
         const statuses = contentStatuses.filter(
           status =>
             !this.contentIdIsForExercise(status.content_id) &&
-            status.status !== this.STATUSES.notStarted
+            status.status !== this.STATUSES.notStarted,
         );
         return statuses.length;
       },

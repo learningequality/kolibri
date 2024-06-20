@@ -88,12 +88,7 @@ describe(`ExploreChannels`, () => {
       const links = getChannelsLinks(wrapper);
       expect(links.length).toBe(3);
       TEST_CHANNELS.slice(0, 3).forEach((testChannel, idx) => {
-        expect(
-          links
-            .at(idx)
-            .find('.title')
-            .text()
-        ).toBe(testChannel.name);
+        expect(links.at(idx).find('.title').text()).toBe(testChannel.name);
       });
     });
 
@@ -117,9 +112,7 @@ describe(`ExploreChannels`, () => {
   it(`clicking a channel navigates to the channel page`, () => {
     const wrapper = makeWrapper({ channels: TEST_CHANNELS });
     expect(wrapper.vm.$route.path).toBe('/');
-    getChannelsLinks(wrapper)
-      .at(0)
-      .trigger('click');
+    getChannelsLinks(wrapper).at(0).trigger('click');
     expect(wrapper.vm.$route.name).toBe(PageNames.TOPICS_TOPIC);
     expect(wrapper.vm.$route.params).toEqual({ id: 'root-1' });
   });

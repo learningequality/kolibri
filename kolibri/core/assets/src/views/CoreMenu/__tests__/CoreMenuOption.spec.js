@@ -35,7 +35,7 @@ describe('CoreMenuOption', () => {
         expect(screen.getByRole('menuitem')).toBeInTheDocument();
         expect(screen.getByTestId('icon-chevronDown')).toBeInTheDocument();
         sampleSubRoutes.forEach(subRoute =>
-          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument()
+          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument(),
         );
       });
 
@@ -46,7 +46,7 @@ describe('CoreMenuOption', () => {
         // Clicking should show the subroutes
         await userEvent.click(menuItem);
         sampleSubRoutes.forEach(subRoute =>
-          expect(screen.getByText(subRoute.label)).toBeInTheDocument()
+          expect(screen.getByText(subRoute.label)).toBeInTheDocument(),
         );
         expect(screen.getByTestId('icon-chevronUp')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronDown')).not.toBeInTheDocument();
@@ -62,7 +62,7 @@ describe('CoreMenuOption', () => {
         // Clicking again should hide the subroutes
         await userEvent.click(menuItem);
         sampleSubRoutes.forEach(subRoute =>
-          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument()
+          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument(),
         );
         expect(screen.getByTestId('icon-chevronDown')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronUp')).not.toBeInTheDocument();
@@ -74,7 +74,7 @@ describe('CoreMenuOption', () => {
 
         await fireEvent.keyDown(screen.getByRole('menuitem'), { key: 'Enter' });
         sampleSubRoutes.forEach(subRoute =>
-          expect(screen.getByText(subRoute.label)).toBeInTheDocument()
+          expect(screen.getByText(subRoute.label)).toBeInTheDocument(),
         );
         expect(screen.getByTestId('icon-chevronUp')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronDown')).not.toBeInTheDocument();
@@ -90,7 +90,7 @@ describe('CoreMenuOption', () => {
         // Pressing Enter again should hide the subroutes
         await fireEvent.keyDown(menuItem, { key: 'Enter' });
         sampleSubRoutes.forEach(subRoute =>
-          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument()
+          expect(screen.queryByText(subRoute.label)).not.toBeInTheDocument(),
         );
         expect(screen.getByTestId('icon-chevronDown')).toBeInTheDocument();
         expect(screen.queryByTestId('icon-chevronUp')).not.toBeInTheDocument();

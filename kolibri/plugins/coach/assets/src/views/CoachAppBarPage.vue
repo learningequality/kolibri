@@ -4,7 +4,10 @@
     :authorized="authorized"
     :authorizedRole="authorizedRole"
   >
-    <AppBarPage :title="appBarTitle || defaultAppBarTitle" :showNavigation="Boolean(classId)">
+    <AppBarPage
+      :title="appBarTitle || defaultAppBarTitle"
+      :showNavigation="Boolean(classId)"
+    >
       <div class="coach-main">
         <slot></slot>
       </div>

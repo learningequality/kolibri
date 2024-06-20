@@ -13,7 +13,6 @@
         :noActivityString="$tr('noActivityLabel')"
         embeddedPageName="HomeActivityPage"
       />
-
     </KPageContainer>
   </CoachAppBarPage>
 

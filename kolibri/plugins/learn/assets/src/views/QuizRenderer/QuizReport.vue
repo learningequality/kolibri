@@ -67,12 +67,12 @@
       questions() {
         return this.content
           ? this.content.assessmentmetadata.assessment_item_ids.map((id, index) => ({
-              item: id,
-              question_id: id,
-              exercise_id: this.content.id,
-              counter_in_exercise: index,
-              title: this.content.title,
-            }))
+            item: id,
+            question_id: id,
+            exercise_id: this.content.id,
+            counter_in_exercise: index,
+            title: this.content.title,
+          }))
           : [];
       },
       isSurvey() {

@@ -14,9 +14,7 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <KPageContainer
-      :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }"
-    >
+    <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
       <AssignmentDetailsModal
         v-if="quizInitialized"
         ref="detailsModal"
@@ -84,7 +82,6 @@
           />
         </KButtonGroup>
       </BottomAppBar>
-
     </KPageContainer>
 
     <KModal
@@ -99,7 +96,6 @@
     </KModal>
 
     <SectionSidePanel v-if="quizInitialized" />
-
   </CoachImmersivePage>
 
 </template>
@@ -136,14 +132,8 @@
     setup() {
       const closeConfirmationToRoute = ref(null);
       const { classId, groups } = useCoreCoach();
-      const {
-        quizHasChanged,
-        quiz,
-        updateQuiz,
-        saveQuiz,
-        initializeQuiz,
-        allSectionsEmpty,
-      } = useQuizCreation();
+      const { quizHasChanged, quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } =
+        useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 

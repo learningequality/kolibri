@@ -6,7 +6,6 @@ As such, it provides display of current mastery progress, and manages all master
 oriented data synchronization.
 -->
 
-
 <template v-if="ready">
 
   <div>
@@ -15,7 +14,7 @@ oriented data synchronization.
         <div
           v-if="totalHints > 0"
           class="hint-btn-container"
-          :class="{ 'rtl': isRtl }"
+          :class="{ rtl: isRtl }"
         >
           <KButton
             v-if="availableHints > 0"
@@ -43,7 +42,11 @@ oriented data synchronization.
       </template>
     </LessonMasteryBar>
     <div class="content-attempts-wrapper">
-      <UiAlert v-if="itemError" :dismissible="false" type="error">
+      <UiAlert
+        v-if="itemError"
+        :dismissible="false"
+        type="error"
+      >
         {{ $tr('itemError') }}
         <KButton
           appearance="basic-link"
@@ -51,7 +54,10 @@ oriented data synchronization.
           @click="nextQuestion"
         />
       </UiAlert>
-      <div class="content-wrapper" :style="{ backgroundColor: this.$themePalette.grey.v_50 }">
+      <div
+        class="content-wrapper"
+        :style="{ backgroundColor: $themePalette.grey.v_50 }"
+      >
         <ContentRenderer
           ref="contentRenderer"
           :kind="kind"
@@ -78,15 +84,22 @@ oriented data synchronization.
 
       <BottomAppBar
         class="attempts-container"
-        :class="{ 'mobile': windowIsSmall }"
+        :class="{ mobile: windowIsSmall }"
       >
-        <div class="overall-status" :style="{ color: $themeTokens.text }">
+        <div
+          class="overall-status"
+          :style="{ color: $themeTokens.text }"
+        >
           <KIcon
             icon="mastered"
             :color="success ? $themeTokens.mastered : $themePalette.grey.v_200"
           />
           <div class="overall-status-text">
-            <span v-if="success" class="completed" :style="{ color: $themeTokens.annotation }">
+            <span
+              v-if="success"
+              class="completed"
+              :style="{ color: $themeTokens.annotation }"
+            >
               {{ coreString('completedLabel') }}
             </span>
             <span>
@@ -131,7 +144,6 @@ oriented data synchronization.
         </div>
       </BottomAppBar>
     </div>
-
   </div>
 
 </template>
@@ -298,7 +310,7 @@ oriented data synchronization.
       mOfNMasteryModel() {
         return MasteryModelGenerators[this.masteryModel.type](
           this.assessmentIds,
-          this.masteryModel
+          this.masteryModel,
         );
       },
       totalCorrectRequiredM() {
@@ -367,12 +379,12 @@ oriented data synchronization.
             calculatedMastery = Math.min(
               pastAttempts.slice(0, this.attemptsWindowN).reduce((a, b) => a + b.correct, 0) /
                 this.totalCorrectRequiredM,
-              1
+              1,
             );
           } else {
             calculatedMastery = Math.min(
               pastAttempts.reduce((a, b) => a + b.correct, 0) / this.totalCorrectRequiredM,
-              1
+              1,
             );
           }
           // If there are any attempts at all, set some progress on the exercise

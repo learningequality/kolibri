@@ -39,7 +39,7 @@ export function showLearnerClassEnrollmentPage(store, toRoute, fromRoute) {
     },
     error => {
       shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
-    }
+    },
   );
 }
 
@@ -82,6 +82,6 @@ export function showCoachClassAssignmentPage(store, toRoute, fromRoute) {
     error => {
       store.dispatch('notLoading');
       shouldResolve() ? store.dispatch('handleApiError', { error, reloadOnReconnect: true }) : null;
-    }
+    },
   );
 }

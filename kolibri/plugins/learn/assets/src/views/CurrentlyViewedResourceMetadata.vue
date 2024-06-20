@@ -1,7 +1,9 @@
 <template>
 
-  <section v-if="content" class="metadata">
-
+  <section
+    v-if="content"
+    class="metadata"
+  >
     <div class="section">
       <span
         v-if="forBeginners"
@@ -17,7 +19,11 @@
       <ContentNodeThumbnail :contentNode="content" />
     </div>
 
-    <div v-if="content.title" class="section title" data-test="content-title">
+    <div
+      v-if="content.title"
+      class="section title"
+      data-test="content-title"
+    >
       {{ content.title }}
     </div>
 
@@ -40,10 +46,12 @@
       @click="toggleShowMoreOrLess"
     />
 
-    <div v-if="content.duration" class="section" data-test="estimated-time">
-      <span class="label">
-        {{ learnString('estimatedTime') }}:
-      </span>
+    <div
+      v-if="content.duration"
+      class="section"
+      data-test="estimated-time"
+    >
+      <span class="label"> {{ learnString('estimatedTime') }}: </span>
       <span>
         <TimeDuration :seconds="content.duration" />
       </span>
@@ -54,45 +62,51 @@
       class="section"
       data-test="grade-levels"
     >
-      <span class="label">
-        {{ coreString('levelLabel') }}:
-      </span>
+      <span class="label"> {{ coreString('levelLabel') }}: </span>
       <span>
         {{ levels(content.grade_levels) }}
       </span>
     </div>
 
-    <div v-if="content.lang" class="section" data-test="lang">
-      <span class="label">
-        {{ coreString('languageLabel') }}:
-      </span>
+    <div
+      v-if="content.lang"
+      class="section"
+      data-test="lang"
+    >
+      <span class="label"> {{ coreString('languageLabel') }}: </span>
       <span>
         {{ content.lang.lang_name }}
       </span>
     </div>
 
-    <div v-if="content.author" class="section" data-test="author">
-      <span class="label">
-        {{ learnString('author') }}:
-      </span>
+    <div
+      v-if="content.author"
+      class="section"
+      data-test="author"
+    >
+      <span class="label"> {{ learnString('author') }}: </span>
       <span>
         {{ content.author }}
       </span>
     </div>
 
-    <div v-if="content.license_owner" class="section" data-test="license-owner">
-      <span class="label">
-        {{ learnString('copyrightHolder') }}:
-      </span>
+    <div
+      v-if="content.license_owner"
+      class="section"
+      data-test="license-owner"
+    >
+      <span class="label"> {{ learnString('copyrightHolder') }}: </span>
       <span>
         {{ content.license_owner }}
       </span>
     </div>
 
-    <div v-if="licenseDescription" class="section" data-test="license-desc">
-      <span class="label">
-        {{ learnString('license') }}:
-      </span>
+    <div
+      v-if="licenseDescription"
+      class="section"
+      data-test="license-desc"
+    >
+      <span class="label"> {{ learnString('license') }}: </span>
       <span>
         {{ licenseShortName || '' }}
         <KIconButton
@@ -103,7 +117,10 @@
           class="license-toggle"
           @click="licenseDescriptionIsVisible = !licenseDescriptionIsVisible"
         />
-        <div v-if="licenseDescriptionIsVisible" class="license-details">
+        <div
+          v-if="licenseDescriptionIsVisible"
+          class="license-details"
+        >
           <p class="license-details-name">
             {{ licenseLongName }}
           </p>
@@ -119,7 +136,6 @@
       class="download-button"
       data-test="download-button"
     />
-
   </section>
 
 </template>
@@ -183,7 +199,7 @@
       licenseDescription() {
         return licenseDescriptionForConsumer(
           get(this, 'content.license_name', null),
-          get(this, 'content.license_description', null)
+          get(this, 'content.license_description', null),
         );
       },
       chipStyle() {

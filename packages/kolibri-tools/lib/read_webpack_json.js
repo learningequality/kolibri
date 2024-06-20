@@ -57,7 +57,7 @@ function readPythonPlugins({ pluginFile, plugins, pluginPath }) {
   return [];
 }
 
-module.exports = function({ pluginFile, plugins, pluginPath }) {
+module.exports = function ({ pluginFile, plugins, pluginPath }) {
   const parsedResult = readPythonPlugins({ pluginFile, plugins, pluginPath });
   const output = [];
   parsedResult.forEach(pythonData => {

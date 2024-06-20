@@ -37,7 +37,7 @@ export function getCSSPaths(fileContents) {
 }
 
 export function replaceCSSPaths(fileContents, packageFiles) {
-  return fileContents.replace(cssPathRegex, function(match, p1, p2, p3, p4) {
+  return fileContents.replace(cssPathRegex, function (match, p1, p2, p3, p4) {
     try {
       // Look to see if there is a URL in our packageFiles mapping that
       // that has this as the source path.
@@ -82,8 +82,8 @@ export function getDOMPaths(fileContents, mimeType) {
       attributes
         .map(a => element.getAttribute(a))
         .filter(Boolean)
-        .map(url => url.replace(queryParamRegex, '$1'))
-    )
+        .map(url => url.replace(queryParamRegex, '$1')),
+    ),
   );
 }
 

@@ -1,7 +1,10 @@
 <template>
 
   <div class="language-switcher-wrapper">
-    <LanguageSwitcherList center class="list" />
+    <LanguageSwitcherList
+      center
+      class="list"
+    />
   </div>
 
 </template>

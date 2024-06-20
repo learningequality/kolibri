@@ -7,12 +7,11 @@
   >
     <KPageContainer class="device-container">
       <div v-if="!loadingChannel">
-
         <section>
           <h1>
             {{ versionAvailableText }}
           </h1>
-          <p> {{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
+          <p>{{ $tr('youAreCurrentlyOnVersion', { currentVersion }) }}</p>
           <p v-if="channelIsIncomplete">
             {{ $tr('channelIsIncomplete', { available, total }) }}
           </p>
@@ -21,10 +20,12 @@
         <section>
           <p>
             <strong>
-              {{ $tr('versionChangesHeader', {
-                oldVersion: currentVersion,
-                newVersion: nextVersion
-              }) }}
+              {{
+                $tr('versionChangesHeader', {
+                  oldVersion: currentVersion,
+                  newVersion: nextVersion,
+                })
+              }}
             </strong>
           </p>
           <table v-if="!loadingChannel && !loadingTask">
@@ -71,7 +72,6 @@
             :indeterminate="true"
             :delay="false"
           />
-
         </section>
 
         <dl>

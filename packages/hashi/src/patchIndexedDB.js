@@ -1,4 +1,4 @@
-export default function(namespace, window) {
+export default function (namespace, window) {
   const nameSpacePrefix = `${namespace}-`;
   const originalIndexDB = window.indexedDB;
   const Shim = {

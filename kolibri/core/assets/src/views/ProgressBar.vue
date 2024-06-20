@@ -1,7 +1,10 @@
 <template>
 
   <div class="wrapper">
-    <div id="progress-bar-label" class="visuallyhidden">
+    <div
+      id="progress-bar-label"
+      class="visuallyhidden"
+    >
       {{ coreString('progressLabel') }}
     </div>
     <div
@@ -17,12 +20,14 @@
         class="progress-bar-complete"
         :style="{
           width: percent + '%',
-          backgroundColor: color || $themeTokens.primary
+          backgroundColor: color || $themeTokens.primary,
         }"
-      >
-      </div>
+      ></div>
     </div>
-    <div v-if="showPercentage" class="progress-bar-text">
+    <div
+      v-if="showPercentage"
+      class="progress-bar-text"
+    >
       {{ $formatNumber(progress, { style: 'percent' }) }}
     </div>
   </div>

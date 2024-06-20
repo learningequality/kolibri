@@ -10,7 +10,6 @@
       or a function returning a number (Line 264, Original 198)
  -->
 
-
 <template>
 
   <div
@@ -28,9 +27,7 @@
       ref="before"
       class="vue-recycle-scroller-slot"
     >
-      <slot
-        name="before"
-      ></slot>
+      <slot name="before"></slot>
     </div>
 
     <component
@@ -44,25 +41,40 @@
         :is="itemTag"
         v-for="view of pool"
         :key="view.nr.id"
-        :style="ready ? {
-          transform: `translate${direction === 'vertical' ? 'Y' : 'X'}(${view.position}px) `
-            + `translate${direction === 'vertical' ? 'X' : 'Y'}(${view.offset}px)`,
-          width: gridItems ? `${direction === 'vertical' ? itemSecondarySize ||
-            itemSize : itemSize}px` : undefined,
-          height: gridItems ? `${direction === 'horizontal' ? itemSecondarySize ||
-            itemSize : itemSize}px` : undefined,
-        } : null"
+        :style="
+          ready
+            ? {
+              transform:
+                `translate${direction === 'vertical' ? 'Y' : 'X'}(${view.position}px) ` +
+                `translate${direction === 'vertical' ? 'X' : 'Y'}(${view.offset}px)`,
+              width: gridItems
+                ? `${direction === 'vertical' ? itemSecondarySize || itemSize : itemSize}px`
+                : undefined,
+              height: gridItems
+                ? `${direction === 'horizontal' ? itemSecondarySize || itemSize : itemSize}px`
+                : undefined,
+            }
+            : null
+        "
         class="vue-recycle-scroller-item-view"
         :class="[
           itemClass,
           {
-            hover: !skipHover && hoverKey === view.nr.key
+            hover: !skipHover && hoverKey === view.nr.key,
           },
         ]"
-        v-on="skipHover ? {} : {
-          mouseenter: () => { hoverKey = view.nr.key },
-          mouseleave: () => { hoverKey = null },
-        }"
+        v-on="
+          skipHover
+            ? {}
+            : {
+              mouseenter: () => {
+                hoverKey = view.nr.key;
+              },
+              mouseleave: () => {
+                hoverKey = null;
+              },
+            }
+        "
       >
         <slot
           :item="view.item"
@@ -71,9 +83,7 @@
         ></slot>
       </component>
 
-      <slot
-        name="empty"
-      ></slot>
+      <slot name="empty"></slot>
     </component>
 
     <div
@@ -81,9 +91,7 @@
       ref="after"
       class="vue-recycle-scroller-slot"
     >
-      <slot
-        name="after"
-      ></slot>
+      <slot name="after"></slot>
     </div>
 
     <ResizeObserver @notify="handleResize" />
@@ -548,7 +556,7 @@
             endIndex = Math.ceil((scroll.end / itemSize) * gridItems);
             visibleStartIndex = Math.max(
               0,
-              Math.floor(((scroll.start - beforeSize) / itemSize) * gridItems)
+              Math.floor(((scroll.start - beforeSize) / itemSize) * gridItems),
             );
             visibleEndIndex = Math.floor(((scroll.end - beforeSize) / itemSize) * gridItems);
 
@@ -752,9 +760,9 @@
           this.handleScroll,
           supportsPassive
             ? {
-                passive: true,
-              }
-            : false
+              passive: true,
+            }
+            : false,
         );
         this.listenerTarget.addEventListener('resize', this.handleResize);
       },
@@ -816,10 +824,10 @@
           logging.debug(
             "It seems the scroller element isn't scrolling, so it tries to render all the items at once.",
             'Scroller:',
-            this.$el
+            this.$el,
           );
           logging.debug(
-            "Make sure the scroller has a fixed height (or width) and 'overflow-y' (or 'overflow-x') set to 'auto' so it can scroll correctly and only render the items visible in the scroll viewport."
+            "Make sure the scroller has a fixed height (or width) and 'overflow-y' (or 'overflow-x') set to 'auto' so it can scroll correctly and only render the items visible in the scroll viewport.",
           );
         });
         throw new Error('Rendered items limit reached');
@@ -835,6 +843,7 @@
 
 
 <style>
+
   .vue-recycle-scroller {
     position: relative;
   }
@@ -856,10 +865,10 @@
   }
 
   .vue-recycle-scroller-item-wrapper {
-    flex: 1;
-    box-sizing: border-box;
-    overflow: hidden;
     position: relative;
+    box-sizing: border-box;
+    flex: 1;
+    overflow: hidden;
   }
 
   .vue-recycle-scroller.ready .vue-recycle-scroller-item-view {
@@ -884,4 +893,5 @@
   .vue-recycle-scroller.ready.direction-horizontal .vue-recycle-scroller-item-view {
     height: 100%;
   }
+
 </style>

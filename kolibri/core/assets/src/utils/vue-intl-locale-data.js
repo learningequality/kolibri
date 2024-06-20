@@ -8,7 +8,7 @@
  *
  * vue-intl and intl npm packages must both be installed for this module to function.
  */
-module.exports = function() {
+module.exports = function () {
   const data = [];
   data.push(require('vue-intl/locale-data/ar.js'));
   data.push(require('vue-intl/locale-data/bg.js'));

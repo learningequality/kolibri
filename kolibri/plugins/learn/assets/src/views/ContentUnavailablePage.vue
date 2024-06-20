@@ -1,11 +1,13 @@
 <template>
 
-  <LearnAppBarPage
-    :appBarTitle="learnString('learnLabel')"
-  >
+  <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
     <h1>{{ $tr('header') }}</h1>
     <p>
-      <KExternalLink v-if="deviceContentUrl" :text="$tr('adminLink')" :href="deviceContentUrl" />
+      <KExternalLink
+        v-if="deviceContentUrl"
+        :text="$tr('adminLink')"
+        :href="deviceContentUrl"
+      />
     </p>
     <p v-if="showLearnerText">
       {{ $tr('learnerText') }}

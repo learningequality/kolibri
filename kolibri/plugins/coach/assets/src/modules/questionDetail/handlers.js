@@ -65,7 +65,7 @@ function showQuestionDetailView(params) {
         } else {
           const questionNumber = Math.max(
             1,
-            exercise.assessmentmetadata.assessment_item_ids.indexOf(questionId)
+            exercise.assessmentmetadata.assessment_item_ids.indexOf(questionId),
           );
           title = coachStrings.$tr('nthExerciseName', {
             name: exercise.title,

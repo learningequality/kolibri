@@ -131,7 +131,7 @@ function _lessonStatusForLearner(state, lessonId, learnerId) {
       status: get(
         state.contentLearnerStatusMap,
         [content_id, learnerId, 'status'],
-        STATUSES.notStarted
+        STATUSES.notStarted,
       ),
     };
   });
@@ -241,7 +241,7 @@ export default {
      */
     examStatuses(state) {
       return flatten(
-        Object.values(state.examLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+        Object.values(state.examLearnerStatusMap).map(learnerMap => Object.values(learnerMap)),
       );
     },
     /*
@@ -259,7 +259,7 @@ export default {
      */
     contentStatuses(state) {
       return flatten(
-        Object.values(state.contentLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+        Object.values(state.contentLearnerStatusMap).map(learnerMap => Object.values(learnerMap)),
       );
     },
     /*
@@ -277,7 +277,7 @@ export default {
      */
     lessonStatuses(state, getters) {
       return flatten(
-        Object.values(getters.lessonLearnerStatusMap).map(learnerMap => Object.values(learnerMap))
+        Object.values(getters.lessonLearnerStatusMap).map(learnerMap => Object.values(learnerMap)),
       );
     },
     /*
@@ -300,7 +300,7 @@ export default {
             const last_activity = get(
               state.contentLearnerStatusMap,
               [content_id, learner.id, 'last_activity'],
-              null
+              null,
             );
             if (last_activity > last) {
               last = last_activity;
@@ -332,7 +332,7 @@ export default {
       return function finder({ title, excludeId }) {
         return find(
           getters.lessons,
-          lesson => lesson.id !== excludeId && normalize(lesson.title) === normalize(title)
+          lesson => lesson.id !== excludeId && normalize(lesson.title) === normalize(title),
         );
       };
     },

@@ -31,15 +31,13 @@
             <span>{{ title }}</span>
             <KIcon
               class="chevron-icon"
-              :icon="(isExpanded(index)) ?
-                'chevronUp' : 'chevronRight'"
+              :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
             />
           </KButton>
         </h3>
       </template>
 
       <template #content>
-
         <div
           v-if="isExpanded(index)"
           class="spacing-items"
@@ -53,7 +51,10 @@
           >
           </span>
 
-          <div :aria-label="jumpToQuestion$()" role="navigation">
+          <div
+            :aria-label="jumpToQuestion$()"
+            role="navigation"
+          >
             <ul class="history-list">
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -78,7 +79,8 @@
                     class="dot"
                     :icon="isAnswered(question) ? 'unpublishedResource' : 'unpublishedChange'"
                     :color="
-                      isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+                      isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled
+                    "
                   />
                   <div class="text">
                     {{ questionText(qIndex + 1) }}
@@ -165,7 +167,7 @@
     computed: {
       currentSection() {
         return this.sections.find(section =>
-          section.questions.map(q => q.item).includes(this.questionItem)
+          section.questions.map(q => q.item).includes(this.questionItem),
         );
       },
       sectionCompletionMap() {
@@ -219,8 +221,8 @@
       // Expand the section that contains the current question
       this.expand(
         this.sections.findIndex(section =>
-          section.questions.map(q => q.item).includes(this.currentQuestion.item)
-        )
+          section.questions.map(q => q.item).includes(this.currentQuestion.item),
+        ),
       );
     },
     methods: {

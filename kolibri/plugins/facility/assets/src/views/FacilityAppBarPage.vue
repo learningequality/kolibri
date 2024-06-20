@@ -1,11 +1,9 @@
 <template>
 
   <AppBarPage :title="title">
-
-    <div style="max-width: 1000px; margin: 0 auto;">
+    <div style="max-width: 1000px; margin: 0 auto">
       <slot></slot>
     </div>
-
   </AppBarPage>
 
 </template>
@@ -37,8 +35,8 @@
           this.appBarTitle ||
           (this.userIsMultiFacilityAdmin && this.currentFacilityName
             ? this.$tr('facilityLabelWithName', {
-                facilityName: this.currentFacilityName,
-              })
+              facilityName: this.currentFacilityName,
+            })
             : this.coreString('facilityLabel'))
         );
       },

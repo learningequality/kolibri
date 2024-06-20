@@ -11,7 +11,10 @@
         :color="$themeTokens.coachContent"
       />
     </template>
-    <span v-if="isTopic" class="counter">
+    <span
+      v-if="isTopic"
+      class="counter"
+    >
       {{ $formatNumber(value) }}
     </span>
 

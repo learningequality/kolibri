@@ -20,7 +20,7 @@ const ecmaVersion = 2023;
 
 // Find the API specification file relative to this file.
 const specFilePath = path.resolve(
-  path.join(__dirname, '../../../kolibri/core/assets/src/core-app/apiSpec.js')
+  path.join(__dirname, '../../../kolibri/core/assets/src/core-app/apiSpec.js'),
 );
 
 function specModule(filePath) {
@@ -42,14 +42,14 @@ function specModule(filePath) {
 
   const pathLookup = {};
 
-  apiSpecTree.body.forEach(function(dec) {
+  apiSpecTree.body.forEach(function (dec) {
     if (dec.type === espree.Syntax.ImportDeclaration) {
       pathLookup[dec.specifiers[0].local.name] = newPath(dec.source.value);
     }
   });
 
   const properties = apiSpecTree.body.find(
-    dec => dec.type === espree.Syntax.ExportDefaultDeclaration
+    dec => dec.type === espree.Syntax.ExportDefaultDeclaration,
   ).declaration.properties;
 
   function recurseProperties(props) {
@@ -120,7 +120,7 @@ const baseAliasSourcePaths = {
   kolibri_app: path.resolve(__dirname, '../../../kolibri/core/assets/src/kolibri_app'),
   content_renderer_module: path.resolve(
     __dirname,
-    '../../../kolibri/core/assets/src/content_renderer_module'
+    '../../../kolibri/core/assets/src/content_renderer_module',
   ),
   plugin_data: path.resolve(__dirname, '../../../kolibri/core/assets/src/utils/plugin_data_src'),
   // To clean up - once we allow for core API elements to be defined as either bundled or not bundled
@@ -157,7 +157,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
     const sourceTree = espree.parse(sourceContents, { sourceType: 'module', ecmaVersion });
     const importNodes = esquery.query(
       sourceTree,
-      '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]'
+      '[type=/(ImportDeclaration|ExportNamedDeclaration|ExportAllDeclaration)/]',
     );
     importNodes.forEach(node => {
       if (node.source) {
@@ -239,10 +239,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
       // Possible that the resolved file is actually an index file inside a folder
       // Check for that case.
       if (path.basename(sourceFile).startsWith('index')) {
-        extraPath = path
-          .dirname(sourceFile)
-          .split(path.sep)
-          .slice(-1)[0];
+        extraPath = path.dirname(sourceFile).split(path.sep).slice(-1)[0];
       }
       // Create the destination file name based on the source file name base name, copy it exactly.
       const destinationFile = path.join(
@@ -251,7 +248,7 @@ function recurseAndCopySpecObject(specObj, targetPath) {
         prefix +
           (destinationFileBase
             ? destinationFileBase + path.extname(sourceFile)
-            : path.basename(sourceFile))
+            : path.basename(sourceFile)),
       );
       // Copy from the source to the destination.
       const sourceContents = fs.readFileSync(sourceFile, { encoding: 'utf-8' });
@@ -284,9 +281,8 @@ function recurseAndCopySpecObject(specObj, targetPath) {
       // Return a relative path to the copied file
       return './' + prefix + path.basename(sourceFile);
     } else {
-      const exportSourcePath = (sourcePath.startsWith('~')
-        ? sourcePath.slice(1)
-        : sourcePath
+      const exportSourcePath = (
+        sourcePath.startsWith('~') ? sourcePath.slice(1) : sourcePath
       ).split('/')[0];
       if (!knownAliases[exportSourcePath] && !externalDependencies[exportSourcePath]) {
         externalDependencies[exportSourcePath] = true;
@@ -326,7 +322,7 @@ const __builder = {
      */
     if (!fs.existsSync(specFilePath)) {
       throw new ReferenceError(
-        'Attempting to build the API Spec from outside the Kolibri source repo'
+        'Attempting to build the API Spec from outside the Kolibri source repo',
       );
     }
   },
@@ -345,11 +341,11 @@ const __builder = {
         if (lastKey) {
           spec[lastKey] = {};
         }
-        Object.keys(obj).forEach(function(key) {
+        Object.keys(obj).forEach(function (key) {
           recurseObjectKeysAndMapToExportedSpec(
             obj[key],
             pathArray.concat(key),
-            spec[lastKey] || spec
+            spec[lastKey] || spec,
           );
         });
       } else {
@@ -397,7 +393,7 @@ function coreExternals() {
   };
   function recurseObjectKeysAndExternalize(obj, pathArray) {
     if (typeof obj === 'object') {
-      Object.keys(obj).forEach(function(key) {
+      Object.keys(obj).forEach(function (key) {
         recurseObjectKeysAndExternalize(obj[key], pathArray.concat(key));
       });
     } else {
@@ -419,7 +415,7 @@ function coreAliases() {
   const aliasesObj = Object.assign({}, baseAliases);
   function recurseObjectKeysAndAlias(obj, pathArray) {
     if (typeof obj === 'object') {
-      Object.keys(obj).forEach(function(key) {
+      Object.keys(obj).forEach(function (key) {
         recurseObjectKeysAndAlias(obj[key], pathArray.concat(key));
       });
     } else {
@@ -430,7 +426,7 @@ function coreAliases() {
       if (obj.startsWith('.')) {
         // Map from the requireName to a resolved path (relative to the apiSpecFile) to the module in question.
         aliasesObj[requireName(pathArray)] = path.resolve(
-          path.join(path.dirname(specFilePath), obj)
+          path.join(path.dirname(specFilePath), obj),
         );
       } else if (!obj.startsWith('.')) {
         aliasesObj[requireName(pathArray)] = obj;

@@ -42,7 +42,7 @@ export function useLessons() {
       error => {
         store.dispatch('handleApiError', { error, reloadOnReconnect: true });
         setLessonsLoading(false);
-      }
+      },
     );
   }
 

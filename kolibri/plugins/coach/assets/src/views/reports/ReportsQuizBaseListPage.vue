@@ -1,13 +1,16 @@
 <template>
 
   <CoachAppBarPage>
-
-    <KGrid v-if="exam" gutter="16">
+    <KGrid
+      v-if="exam"
+      gutter="16"
+    >
       <KGridItem>
         <QuizLessonDetailsHeader
           examOrLesson="exam"
           :backlink="
-            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')"
+            group ? classRoute('ReportsGroupReportPage') : classRoute('ReportsQuizListPage')
+          "
           :backlinkLabel="group ? group.name : coachString('allQuizzesLabel')"
           optionsFor="report"
         >
@@ -152,7 +155,7 @@
         }
         if (option === 'PREVIEW') {
           this.$router.push(
-            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery)
+            this.$router.getRoute('ReportsQuizPreviewPage', {}, this.defaultBackLinkQuery),
           );
         }
         if (option === 'PRINT_REPORT') {

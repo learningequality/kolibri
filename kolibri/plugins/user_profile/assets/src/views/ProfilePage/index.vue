@@ -2,7 +2,6 @@
 
   <NotificationsRoot>
     <AppBarPage :title="coreString('profileLabel')">
-
       <KPageContainer>
         <KGrid>
           <KGridItem
@@ -25,7 +24,6 @@
               />
             </h1>
           </KGridItem>
-
         </KGrid>
 
         <table>
@@ -72,17 +70,18 @@
                 </template>
                 {{ permissionTypeText }}
               </KLabeledIcon>
-              <p>
-                {{ $tr('youCan') }}
-                <ul class="permissions-list">
-                  <li v-if="isSuperuser">
-                    {{ $tr('manageDevicePermissions') }}
-                  </li>
-                  <li v-for="(value, key) in userPermissions" :key="key">
-                    {{ getPermissionString(key) }}
-                  </li>
-                </ul>
-              </p>
+              <p>{{ $tr('youCan') }}</p>
+              <ul class="permissions-list">
+                <li v-if="isSuperuser">
+                  {{ $tr('manageDevicePermissions') }}
+                </li>
+                <li
+                  v-for="(value, key) in userPermissions"
+                  :key="key"
+                >
+                  {{ getPermissionString(key) }}
+                </li>
+              </ul>
             </td>
           </tr>
 
@@ -125,9 +124,11 @@
 
         <KGrid
           v-if="onMyOwnSetup"
-          :style="{ marginTop: '34px',
-                    paddingTop: '10px',
-                    borderTop: `1px solid ${$themeTokens.fineLine}` }"
+          :style="{
+            marginTop: '34px',
+            paddingTop: '10px',
+            borderTop: `1px solid ${$themeTokens.fineLine}`,
+          }"
         >
           <KGridItem
             :layout8="{ span: 4 }"
@@ -159,7 +160,6 @@
           </KGridItem>
         </KGrid>
 
-
         <ChangeUserPasswordModal
           v-if="!isLearnerOnlyImport && showPasswordModal"
           @cancel="showPasswordModal = false"
@@ -175,9 +175,6 @@
           <p>{{ $tr('learnModalLine1') }}</p>
           <p>{{ $tr('learnModalLine2') }}</p>
         </KModal>
-
-
-
       </KPageContainer>
     </AppBarPage>
   </NotificationsRoot>

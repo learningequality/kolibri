@@ -9,7 +9,10 @@
         class="page-status"
         :style="{ backgroundColor: $themeTokens.surface }"
       >
-        <KGridItem v-if="windowIsSmall" :layout4="{ span: 4, alignment: 'right' }">
+        <KGridItem
+          v-if="windowIsSmall"
+          :layout4="{ span: 4, alignment: 'right' }"
+        >
           <slot name="actions"></slot>
         </KGridItem>
         <KGridItem
@@ -18,10 +21,19 @@
           :layout4="{ span: 4, alignment: 'left' }"
         >
           <div>
-            <h1 v-if="userId" class="title">
-              <KLabeledIcon icon="person" :label="userName" />
+            <h1
+              v-if="userId"
+              class="title"
+            >
+              <KLabeledIcon
+                icon="person"
+                :label="userName"
+              />
             </h1>
-            <KLabeledIcon :icon="titleIcon" :label="title" />
+            <KLabeledIcon
+              :icon="titleIcon"
+              :label="title"
+            />
           </div>
           <!-- only show the current try if the user has only one try or if its a survey -->
           <TriesOverview
@@ -50,7 +62,10 @@
       </KGrid>
     </template>
 
-    <template v-if="!loading" #subheader>
+    <template
+      v-if="!loading"
+      #subheader
+    >
       <KSelect
         v-if="pastTries.length > 1"
         :value="pastTriesOptions[tryIndex]"
@@ -84,8 +99,14 @@
       />
     </template>
 
-    <template v-if="currentTry && currentTry.attemptlogs.length" #main>
-      <KCircularLoader v-if="loading" class="loader" />
+    <template
+      v-if="currentTry && currentTry.attemptlogs.length"
+      #main
+    >
+      <KCircularLoader
+        v-if="loading"
+        class="loader"
+      />
       <template v-else-if="itemId">
         <AttemptLogList
           v-if="windowIsSmall"
@@ -105,13 +126,19 @@
         >
           <h3>{{ questionNumberInSectionLabel }}</h3>
 
-          <div v-if="!isSurvey" data-test="diff-business">
+          <div
+            v-if="!isSurvey"
+            data-test="diff-business"
+          >
             <KCheckbox
               :label="coreString('showCorrectAnswerLabel')"
               :checked="showCorrectAnswer"
               @change="toggleShowCorrectAnswer"
             />
-            <div v-if="currentAttemptDiff" style="padding-bottom: 15px;">
+            <div
+              v-if="currentAttemptDiff"
+              style="padding-bottom: 15px"
+            >
               <AttemptIconDiff
                 :correct="currentAttempt.correct"
                 :diff="currentAttemptDiff.correct"
@@ -142,7 +169,10 @@
             :showCorrectAnswer="showCorrectAnswer"
           />
         </div>
-        <MissingResourceAlert v-else :multiple="false" />
+        <MissingResourceAlert
+          v-else
+          :multiple="false"
+        />
       </template>
 
       <p v-else>
@@ -395,10 +425,10 @@
         // filter out interactions without answers but keep hints and errors
         return this.currentAttempt
           ? this.currentAttempt.interaction_history.filter(interaction =>
-              Boolean(
-                interaction.answer || interaction.type === 'hint' || interaction.type === 'error'
-              )
-            ) || []
+            Boolean(
+              interaction.answer || interaction.type === 'hint' || interaction.type === 'error',
+            ),
+          ) || []
           : [];
       },
       currentInteraction() {
@@ -482,13 +512,13 @@
         MasteryLogResource.fetchCollection({ getParams: this.getParams(), force: true }).then(
           pastTries => {
             this.pastTries = pastTries;
-          }
+          },
         );
       },
       quizAttempts() {
         const mostRecentAttempts = sortBy(
           this.currentTry ? this.currentTry.attemptlogs : [],
-          'end_timestamp'
+          'end_timestamp',
         ).reverse();
         return sortBy(
           this.questions.map((question, index) => {
@@ -513,7 +543,7 @@
               missing_resource,
             };
           }),
-          'questionNumber'
+          'questionNumber',
         );
       },
       masteryAttempts() {

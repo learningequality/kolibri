@@ -1,8 +1,7 @@
 <template>
 
   <KPageContainer>
-
-    <h1> {{ $tr('sectionTitle') }}</h1>
+    <h1>{{ $tr('sectionTitle') }}</h1>
     <p>
       {{ $tr('sectionDescription') }}
     </p>
@@ -18,24 +17,24 @@
         @click="showInfoModal = true"
       />
     </p>
-    <p style="margin-top: 24px; display:flex; flex-direction: column">
+    <p style="display: flex; flex-direction: column; margin-top: 24px">
       <KRouterLink
         :text="$tr('import')"
         appearance="raised-button"
-        style="width: max-content; margin: 0 16px 20px 0;"
+        style="width: max-content; margin: 0 16px 20px 0"
         :to="$store.getters.facilityPageLinks.ImportCsvPage"
       />
       <KButton
         :text="$tr('downloadCSV')"
         appearance="raised-button"
-        style="width: max-content; margin: 0 16px 20px 0;"
+        style="width: max-content; margin: 0 16px 20px 0"
         :disabled="!exported"
         @click="downloadCsv"
       />
       <KButton
         appearance="basic-link"
         :text="exported ? $tr('regenerateCSV') : $tr('generateCSV')"
-        style="margin: 0px 8px 10px 0px"
+        style="margin: 0 8px 10px 0"
         @click="exportCsv"
       />
       <DataPageTaskProgress v-if="isExporting">
@@ -43,12 +42,10 @@
       </DataPageTaskProgress>
     </p>
 
-
     <CsvInfoModal
       v-if="showInfoModal"
       @cancel="showInfoModal = false"
     />
-
   </KPageContainer>
 
 </template>
@@ -89,9 +86,9 @@
         window.open(
           urls['kolibri:kolibri.plugins.facility:download_csv_file'](
             'user',
-            this.$store.getters.activeFacilityId
+            this.$store.getters.activeFacilityId,
           ),
-          '_blank'
+          '_blank',
         );
       },
     },

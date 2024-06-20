@@ -1,21 +1,19 @@
 <template>
 
   <FacilityAppBarPage>
-
     <KPageContainer v-if="canUploadDownloadFiles">
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'DataPage' }
+            params: { subtopicName: 'DataPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
         />
       </p>
       <KGrid gutter="24">
-
         <KGridItem>
           <h1>{{ $tr('pageHeading') }}</h1>
         </KGridItem>
@@ -38,8 +36,14 @@
               @click="showLearnMoreSessionModal = true"
             />
           </p>
-          <p class="generated-time" :style="{ color: $themeTokens.annotation }">
-            <GeneratedElapsedTime v-if="sessionDateCreated" :date="sessionDateCreated" />
+          <p
+            class="generated-time"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            <GeneratedElapsedTime
+              v-if="sessionDateCreated"
+              :date="sessionDateCreated"
+            />
           </p>
         </KGridItem>
 
@@ -89,8 +93,14 @@
               @click="showLearnMoreSummaryModal = true"
             />
           </p>
-          <p class="generated-time" :style="{ color: $themeTokens.annotation }">
-            <GeneratedElapsedTime v-if="summaryDateCreated" :date="summaryDateCreated" />
+          <p
+            class="generated-time"
+            :style="{ color: $themeTokens.annotation }"
+          >
+            <GeneratedElapsedTime
+              v-if="summaryDateCreated"
+              :date="summaryDateCreated"
+            />
           </p>
         </KGridItem>
 
@@ -117,7 +127,6 @@
             @click="summaryDateRangeModal = true"
           />
         </KGridItem>
-
       </KGrid>
     </KPageContainer>
 
@@ -319,7 +328,7 @@
         const end_date = dates['end'];
         this.dateRange = {
           start: new Date(
-            start_date.getTime() - start_date.getTimezoneOffset() * 60000
+            start_date.getTime() - start_date.getTimezoneOffset() * 60000,
           ).toISOString(),
           end: new Date(end_date.getTime() - end_date.getTimezoneOffset() * 60000).toISOString(),
         };
@@ -340,18 +349,18 @@
         window.open(
           urls['kolibri:kolibri.plugins.facility:download_csv_file'](
             'session',
-            this.activeFacilityId
+            this.activeFacilityId,
           ),
-          '_blank'
+          '_blank',
         );
       },
       downloadSummaryLog() {
         window.open(
           urls['kolibri:kolibri.plugins.facility:download_csv_file'](
             'summary',
-            this.activeFacilityId
+            this.activeFacilityId,
           ),
-          '_blank'
+          '_blank',
         );
       },
     },

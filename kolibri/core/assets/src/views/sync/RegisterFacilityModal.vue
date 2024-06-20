@@ -1,8 +1,6 @@
 <template>
 
-  <KModal
-    :title="registerFacility.$tr('registerFacility')"
-  >
+  <KModal :title="registerFacility.$tr('registerFacility')">
     <p>{{ $tr('enterToken') }}</p>
     <KTextbox
       v-model="token"
@@ -34,7 +32,6 @@
         :disabled="submitting || !token"
         @click="validateToken"
       />
-
     </template>
   </KModal>
 

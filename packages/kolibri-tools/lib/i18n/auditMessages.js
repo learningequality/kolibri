@@ -27,12 +27,12 @@ function writeAuditToCSV(audit, outputFile) {
         ...a,
         messageIds: a.messageIds.join(', '),
         namespaces: a.namespaces.join(', '),
-      }))
+      })),
     )
     .then(() => logging.log(`Audit CSV written to ${outputFile}`));
 }
 
-module.exports = function(pathInfo, ignore, dittoFilePaths, outputFile, verbose) {
+module.exports = function (pathInfo, ignore, dittoFilePaths, outputFile, verbose) {
   // An object for storing our messages.
   const extractedMessages = {};
   forEachPathInfo(pathInfo, pathData => {
@@ -43,7 +43,7 @@ module.exports = function(pathInfo, ignore, dittoFilePaths, outputFile, verbose)
         const nameSpaceMessages = extractedMessages[otherNamespace];
         if (checkForDuplicateIds(nameSpaceMessages, filePathMessages)) {
           logging.error(
-            `Duplicate message ids across namespaces ${namespace} and ${otherNamespace}`
+            `Duplicate message ids across namespaces ${namespace} and ${otherNamespace}`,
           );
         }
       }

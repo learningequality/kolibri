@@ -29,7 +29,7 @@ export default function useDevices(apiParams = {}) {
       const _devices = await fetchDevices(apiParams);
       set(
         devices,
-        _devices.map(d => reactive(d))
+        _devices.map(d => reactive(d)),
       );
 
       set(hasFetched, true);
@@ -112,7 +112,7 @@ export function useDevicesWithFilter(apiParams, filterFunctionOrFunctions) {
           logging.error(e);
           failed = true;
         }
-      })
+      }),
     );
 
     set(filteringFailed, failed);

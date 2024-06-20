@@ -23,7 +23,6 @@
     <p v-else>
       {{ $tr('noQuizzesMessage') }}
     </p>
-
   </div>
 
 </template>

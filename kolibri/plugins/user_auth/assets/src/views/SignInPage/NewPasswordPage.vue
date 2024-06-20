@@ -4,7 +4,7 @@
     <div style="text-align: left">
       <KButton
         appearance="basic-link"
-        style="margin-bottom: 16px;"
+        style="margin-bottom: 16px"
         data-test="goback"
         @click="goBack"
       >
@@ -23,7 +23,7 @@
         </template>
       </KButton>
 
-      <p>{{ $tr("needToMakeNewPasswordLabel", { user: username }) }}</p>
+      <p>{{ $tr('needToMakeNewPasswordLabel', { user: username }) }}</p>
 
       <PasswordTextbox
         ref="createPassword"
@@ -38,7 +38,7 @@
         appearance="raised-button"
         :primary="true"
         :text="coreString('continueAction')"
-        style="width: 100%; margin: 24px auto 0; display:block;"
+        style="display: block; width: 100%; margin: 24px auto 0"
         :disabled="busy"
         data-test="submit"
         @click="updatePassword"

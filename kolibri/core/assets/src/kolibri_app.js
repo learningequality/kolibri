@@ -96,8 +96,8 @@ export default class KolibriApp extends KolibriModule {
           store: store,
           router: router.initRoutes(this.routes),
         },
-        this.RootVue
-      )
+        this.RootVue,
+      ),
     );
   }
 

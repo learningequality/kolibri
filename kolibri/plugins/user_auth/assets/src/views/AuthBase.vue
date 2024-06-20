@@ -20,7 +20,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -30,7 +30,11 @@
             <p>{{ $tr('restrictedAccessDescription') }}</p>
           </div>
           <!-- remote access enabled -->
-          <div v-else class="box" :style="{ backgroundColor: $themeTokens.surface }">
+          <div
+            v-else
+            class="box"
+            :style="{ backgroundColor: $themeTokens.surface }"
+          >
             <CoreLogo
               v-if="themeConfig.signIn.topLogo"
               class="logo"
@@ -41,7 +45,7 @@
             <h1
               v-if="themeConfig.signIn.showTitle"
               class="kolibri-title"
-              :style="[ { color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
+              :style="[{ color: $themeTokens.primary }, themeConfig.signIn.titleStyle]"
             >
               {{ logoText }}
             </h1>
@@ -68,22 +72,32 @@
 
             <slot></slot>
 
-            <p v-if="!hideCreateAccount && canSignUp" class="create">
+            <p
+              v-if="!hideCreateAccount && canSignUp"
+              class="create"
+            >
               <KRouterLink
                 :text="userString('createAccountAction')"
                 :to="signUpPage"
                 :primary="false"
                 appearance="raised-button"
                 :disabled="busy"
-                style="width: 100%;"
+                style="width: 100%"
                 data-test="createUser"
               />
             </p>
 
             <div>
-              <component :is="component" v-for="component in loginOptions" :key="component.name" />
+              <component
+                :is="component"
+                v-for="component in loginOptions"
+                :key="component.name"
+              />
             </div>
-            <p v-if="showGuestAccess" class="guest small-text">
+            <p
+              v-if="showGuestAccess"
+              class="guest small-text"
+            >
               <KExternalLink
                 :text="$tr('accessAsGuest')"
                 :href="guestURL"
@@ -92,11 +106,18 @@
               />
             </p>
           </div>
-          <div class="background" :style="backgroundImageStyle" aria-hidden="true"></div>
+          <div
+            class="background"
+            :style="backgroundImageStyle"
+            aria-hidden="true"
+          ></div>
         </div>
       </div>
       <div class="table-row">
-        <div class="footer-cell table-cell" :style="{ backgroundColor: $themeTokens.surface }">
+        <div
+          class="footer-cell table-cell"
+          :style="{ backgroundColor: $themeTokens.surface }"
+        >
           <LanguageSwitcherFooter />
           <div class="small-text">
             <span class="version-string">
@@ -115,9 +136,11 @@
             <template v-if="themeConfig.signIn.backgroundImgCredit">
               <span> • </span>
               <span>
-                {{ $tr('photoCreditLabel', {
-                  photoCredit: themeConfig.signIn.backgroundImgCredit
-                }) }}
+                {{
+                  $tr('photoCreditLabel', {
+                    photoCredit: themeConfig.signIn.backgroundImgCredit,
+                  })
+                }}
               </span>
             </template>
           </div>
