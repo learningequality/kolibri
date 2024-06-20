@@ -33,18 +33,6 @@
               class="language-name"
             />
           </KRadioButtonGroup>
-          <KRadioButtonGroup>
-            <KRadioButton
-              v-for="language in languageCol"
-              :key="language.id"
-              ref="languageItem"
-              v-model="selectedLanguage"
-              :buttonValue="language.id"
-              :label="language.lang_name"
-              :title="language.english_name"
-              class="language-name"
-            />
-          </KRadioButtonGroup>
         </KGridItem>
       </KGrid>
 
@@ -66,7 +54,6 @@
 
   export default {
     name: 'LanguageSwitcherModal',
-    components: { FocusTrap, KRadioButtonGroup },
     components: { FocusTrap, KRadioButtonGroup },
     mixins: [commonCoreStrings, languageSwitcherMixin],
     setup() {
