@@ -402,7 +402,8 @@
       // once this is done, reinstate the $tr('lodSubHeader') in the template
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       lodSubHeader: {
-        message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
+        message:
+          'Select a device with Kolibri version 0.15 or greater to import learner user accounts',
         context:
           "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
       },
