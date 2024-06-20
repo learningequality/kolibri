@@ -42,7 +42,7 @@ oriented data synchronization.
         </div>
       </template>
     </LessonMasteryBar>
-    <div>
+    <div class="content-attempts-wrapper">
       <UiAlert v-if="itemError" :dismissible="false" type="error">
         {{ $tr('itemError') }}
         <KButton
@@ -545,6 +545,18 @@ oriented data synchronization.
 <style lang="scss" scoped>
 
   @import '~kolibri-design-system/lib/styles/definitions';
+
+  .content-attempts-wrapper {
+    // Make the wrapper for the content and attempts the full height of the parent
+    // minus the height of the mastery bar above: 56px.
+    height: calc(100% - 56px);
+  }
+
+  .content-wrapper {
+    // Make the content wrapper the full height of the parent content attempts wrapper
+    // minus the height of the attempts container below: 111px.
+    height: calc(100% - 111px);
+  }
 
   .attempts-container {
     height: 111px;

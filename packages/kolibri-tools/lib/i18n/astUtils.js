@@ -110,6 +110,10 @@ function stringFromAnyLiteral(node) {
     return node.type === 'TemplateLiteral'
       ? get(node, 'quasis[0].value.raw')
       : get(node, 'value', null);
+  } else if (node.type === 'BinaryExpression') {
+    const left = stringFromAnyLiteral(node.left);
+    const right = stringFromAnyLiteral(node.right);
+    return left + right;
   } else {
     logging.error(
       'Tried to get string value from a node that is not a Literal, TemplateLiteral or a StringLiteral',
@@ -164,8 +168,10 @@ function getObjectifiedValue(nodePropertyValue) {
     // we should let the user know and just bail for now until it gets worked out
     throw new ReferenceError(
       'Trying to get the message from an object in $trs but did not find a `message` key.\n\n' +
-        'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
-        nodePropertyValue.properties[0].value.value
+      'The above error is unrecoverable (✖╭╮✖). This indicates a bug that needs fixing. Sorry.' +
+      nodePropertyValue.properties
+        ? nodePropertyValue.properties[0].value.value
+        : nodePropertyValue.value
     );
   }
   return { message, context: `${CONTEXT_LINE}${context}` };
