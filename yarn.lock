@@ -7723,10 +7723,10 @@ knuth-shuffle-seeded@^1.0.6:
   dependencies:
     seed-random "~2.2.0"
 
-kolibri-constants@0.2.5:
-  version "0.2.5"
-  resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.5.tgz#2b9df4c477119d0ade2d66bf8aef8a4172f0418f"
-  integrity sha512-ZoFZ83xgteZhFZtYjiOmITcZeSF+X42i12TOo87zmcdA78jj0dZbPYB+ttO855UxoKY8h4HHeDVZIUkE5TGa5g==
+kolibri-constants@0.2.6:
+  version "0.2.6"
+  resolved "https://registry.yarnpkg.com/kolibri-constants/-/kolibri-constants-0.2.6.tgz#d13762862505a3a6ec58a104870b21da96778656"
+  integrity sha512-gQaY2wFNFrsB+9+xQNeEcLHixNuZEK+GHyKKr78s/hg8gFU3YVsnhlYp0u+du4XeVwewpyN1ajGb4UrrdF8rTA==
 
 kolibri-design-system@4.3.1:
   version "4.3.1"
