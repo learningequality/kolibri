@@ -10,7 +10,7 @@
     >
     </span>
     <h1 class="section-header">
-      {{ replaceQuestions$() }}
+      {{ replaceQuestions$({sectionTitle: displaySectionTitle(activeSection, activeSectionIndex)}) }}
     </h1>
     <p>{{ replaceQuestionsHeading$() }}</p>
     <span
@@ -135,7 +135,7 @@
       v-if="showReplacementConfirmation"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
-      :title="replaceQuestions$()"
+      :title="replaceQuestions$({sectionTitle: displaySectionTitle(activeSection, activeSectionIndex)})"
       @cancel="showReplacementConfirmation = false"
       @submit="submitReplacement"
     >
