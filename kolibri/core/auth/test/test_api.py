@@ -1083,6 +1083,7 @@ class UserRetrieveTestCase(APITestCase):
                     "id_number": self.user.id_number,
                     "gender": self.user.gender,
                     "birth_year": self.user.birth_year,
+                    "date_joined": self.user.date_joined,
                     "is_superuser": False,
                     "roles": [],
                     "extra_demographics": None,
@@ -1094,6 +1095,7 @@ class UserRetrieveTestCase(APITestCase):
                     "facility": self.superuser.facility_id,
                     "id_number": self.superuser.id_number,
                     "gender": self.superuser.gender,
+                    "date_joined": self.superuser.date_joined,
                     "birth_year": self.superuser.birth_year,
                     "is_superuser": True,
                     "roles": [
@@ -1127,6 +1129,7 @@ class UserRetrieveTestCase(APITestCase):
                     "id_number": self.user.id_number,
                     "gender": self.user.gender,
                     "birth_year": self.user.birth_year,
+                    "date_joined": self.user.date_joined,
                     "is_superuser": False,
                     "roles": [],
                     "extra_demographics": None,
