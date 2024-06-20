@@ -287,6 +287,12 @@
         context:
           'The learner is creating their account for an existing facility and is told what that is',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      signInInstead: {
+        message: 'Sign in instead?',
+        context: 'Text prompting user to sign in with existing username.',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
     },
   };
 
