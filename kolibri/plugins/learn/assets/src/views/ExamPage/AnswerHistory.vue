@@ -53,7 +53,7 @@
           >
           </span>
 
-          <div :aria-label="$tr('jumpToQuestion')" role="navigation">
+          <div :aria-label="jumpToQuestion$()" role="navigation">
             <ul class="history-list">
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -97,7 +97,10 @@
 
 <script>
 
-  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    enhancedQuizManagementStrings,
+    displaySectionTitle,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import isEqual from 'lodash/isEqual';
@@ -120,12 +123,15 @@
 
       const { collapse, expand, isExpanded, toggle } = useAccordion(sections);
 
+      const { jumpToQuestion$ } = enhancedQuizManagementStrings;
+
       return {
         displaySectionTitle,
         collapse,
         expand,
         isExpanded,
         toggle,
+        jumpToQuestion$,
       };
     },
     props: {
@@ -269,11 +275,6 @@
         message: 'Question { num, number, integer}',
         context:
           "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
-      },
-      jumpToQuestion: {
-        message: 'Jump to question',
-        context:
-          'A label for the section of the page that contains all questions as clickable links',
       },
     },
   };

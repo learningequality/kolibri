@@ -278,6 +278,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Questions',
     context: 'Label for dropdown list of questions',
   },
+  jumpToQuestion: {
+    message: 'Jump to question',
+    context: 'A label for the section of the page that contains all questions as clickable links',
+  },
   saveAndClose: {
     message: 'Save and close',
   },
