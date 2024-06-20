@@ -33,6 +33,18 @@
               class="language-name"
             />
           </KRadioButtonGroup>
+          <KRadioButtonGroup>
+            <KRadioButton
+              v-for="language in languageCol"
+              :key="language.id"
+              ref="languageItem"
+              v-model="selectedLanguage"
+              :buttonValue="language.id"
+              :label="language.lang_name"
+              :title="language.english_name"
+              class="language-name"
+            />
+          </KRadioButtonGroup>
         </KGridItem>
       </KGrid>
 
@@ -44,8 +56,7 @@
 
 
 <script>
-
-  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue';
+  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue'
   import { currentLanguage } from 'kolibri.utils.i18n';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -54,6 +65,7 @@
 
   export default {
     name: 'LanguageSwitcherModal',
+    components: { FocusTrap, KRadioButtonGroup },
     components: { FocusTrap, KRadioButtonGroup },
     mixins: [commonCoreStrings, languageSwitcherMixin],
     setup() {

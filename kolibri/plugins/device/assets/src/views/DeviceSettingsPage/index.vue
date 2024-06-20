@@ -350,6 +350,7 @@
 
 
 <script>
+  import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue'
 
   import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue';
 
