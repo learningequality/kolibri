@@ -5,14 +5,16 @@
       <KCircularLoader />
     </div>
     <div v-else>
-
       <h5 v-if="selectPracticeQuiz" class="select-folder-style">
         {{ selectPracticeQuizLabel$() }}
       </h5>
-      <h5 class="select-folder-style">
-        {{ selectResourcesDescription$({ sectionTitle: displaySectionTitle(activeSection, activeSectionIndex) }) }}
-      </h5>
-      <p>{{ numberOfQuestionsSelected$({ count: activeQuestions.length}) }}
+      <div v-else>
+        <h5 class="select-folder-style">
+        {{ selectResourcesDescription$({ 
+          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex) 
+        }) }}
+        </h5>
+        <p>{{ numberOfQuestionsSelected$({ count: activeQuestions.length}) }}
       <span
         class="divider"
         :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
@@ -56,6 +58,7 @@
               @click="questionCount += 1"
             />
           </div>
+        </div>
         </div>
       </div>
 
@@ -307,7 +310,9 @@
        */
       function selectableContentList() {
         return contentList.value.reduce((newList, content) => {
-          if (content.kind === ContentNodeKinds.TOPIC && folderDoesNotHaveTooManyQuestions(content)) {
+          if (content.kind === ContentNodeKinds.TOPIC 
+          && folderDoesNotHaveTooManyQuestions(content)) 
+          {
             newList = [...newList, ...content.children.results];
           } else {
             newList.push(content);
@@ -466,16 +471,8 @@
         }
         return -1;
       }
-      /**
-       * Uses the imported `hasCheckbox` method in addition to some locally relevant conditions
-       * to identify if the content has a checkbox.
-       * For Exercises, we make sure there are questions available in the resource
-       * For Topics, we make sure that there are questions available in the children
-       * -- Note that for topics, hasCheckbox will only be true if all children are Exercises,
-       *    so we can call this recursively without worrying about it going too deep
-       */
       function folderDoesNotHaveTooManyQuestions(content) {
-        return content.kind == ContentNodeKinds.EXERCISE|| content.num_assessments < 500;
+        return content.kind == ContentNodeKinds.EXERCISE || content.num_assessments < 500;
       }
 
       // Load up the channels
