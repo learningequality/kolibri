@@ -7,7 +7,7 @@ jobs:
     runs-on: ubuntu-latest
     name: Label the PR size
     steps:
-      - uses: learningequality/pr-labeler@0da0f2aedfe5cb64819beb865015a57e19fbecf6
+      - uses: learningequality/pr-labeler@4fa65192c29ab023b135421c19bb4aa63f39df27
         with:
           xs_max_size: '10'
           s_max_size: '100'
