@@ -75,7 +75,7 @@ describe('Error Report', () => {
 
     const expectedData = {
       error_message: 'Unhandled rejection',
-      traceback: 'My stack trace', // This will be 'undefined' because 'reason.stack' is not set in this mock scenario
+      traceback: 'My stack trace',
     };
 
     Resource.client = jest.fn();
