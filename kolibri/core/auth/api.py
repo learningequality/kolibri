@@ -452,6 +452,7 @@ class FacilityUserViewSet(ValuesViewset):
             ordering_param = self.request.query_params.get(
                 "ordering", self.order_by_field
             )
+            reverse = False
             if ordering_param.startswith("-"):
                 self.order_by_field = ordering_param[1:]
                 reverse = True
