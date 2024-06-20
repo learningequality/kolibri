@@ -435,6 +435,8 @@ class FacilityUserViewSet(ValuesViewset):
     def consolidate(self, items, queryset):
         output = []
         items = sorted(items, key=lambda x: x["id"])
+        ordering_param = self.request.query_params.get("ordering", self.order_by_field)
+        reverse = False
         for key, group in groupby(items, lambda x: x["id"]):
             roles = []
             for item in group:
@@ -449,16 +451,11 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
-            ordering_param = self.request.query_params.get(
-                "ordering", self.order_by_field
-            )
-            reverse = False
             if ordering_param.startswith("-"):
                 self.order_by_field = ordering_param[1:]
                 reverse = True
             else:
                 self.order_by_field = ordering_param
-                reverse = False
         output = sorted(output, key=lambda x: x[self.order_by_field], reverse=reverse)
         return output
 
