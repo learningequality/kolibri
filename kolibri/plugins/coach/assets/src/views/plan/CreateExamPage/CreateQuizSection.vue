@@ -1,9 +1,6 @@
 <template>
 
   <div>
-    <p :style="addQuizSectionsStyles">
-      {{ addQuizSections$() }}
-    </p>
 
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
@@ -142,8 +139,11 @@
             :layout4="{ span: 2 }"
           >
             <h2 :style="{ color: $themeTokens.annotation }">
-              {{ questionList$() }}
+              {{ questionsLabel$() }}
             </h2>
+            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
+              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
+            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -195,7 +195,7 @@
             <KIconButton
               icon="refresh"
               :tooltip="replaceAction$()"
-              :disabled="selectedActiveQuestions.length === 0"
+              :disabled="!canReplaceQuestions"
               @click="handleReplaceSelection()"
             />
             <KIconButton
@@ -308,14 +308,6 @@
       </div>
 
     </KTabsPanel>
-
-    <NotEnoughResourcesModal
-      v-if="showNotEnoughResourcesModal"
-      :selectedQuestions="selectedActiveQuestions"
-      :availableQuestions="replacementQuestionPool"
-      @close="showNotEnoughResourcesModal = false"
-      @addResources="redirectToSelectResources"
-    />
     <KModal
       v-if="showDeleteConfirmation"
       :title="deleteSectionLabel$()"
@@ -356,7 +348,6 @@
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import TabsWithOverflow from './TabsWithOverflow';
-  import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
   const logger = logging.getLogger(__filename);
 
@@ -370,14 +361,12 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
-      NotEnoughResourcesModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
       const {
         sectionLabel$,
         selectAllLabel$,
-        addQuizSections$,
         addSectionLabel$,
         quizSectionsLabel$,
         addQuestionsLabel$,
@@ -387,10 +376,10 @@
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        updateResources$,
         changesSavedSuccessfully$,
         questionsDeletedNotification$,
         expandAll$,
@@ -448,7 +437,6 @@
         expandAll$,
         collapseAll$,
         selectAllLabel$,
-        addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
         addQuestionsLabel$,
@@ -459,7 +447,8 @@
         deleteSectionLabel$,
         questionDeletionConfirmation$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
@@ -474,7 +463,6 @@
         addSection,
         removeSection,
         updateQuiz,
-        updateResources$,
         displaySectionTitle,
         displayQuestionTitle,
 
@@ -504,12 +492,11 @@
           userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
-      addQuizSectionsStyles() {
-        return {
-          margin: '0 0 1rem 0',
-          padding: '0 0 1rem 0',
-          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
-        };
+      canReplaceQuestions() {
+        return (
+          this.selectedActiveQuestions.length > 0 &&
+          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
+        );
       },
       tabsWrapperStyles() {
         return {
@@ -700,10 +687,6 @@
             count,
           })
         );
-      },
-      redirectToSelectResources() {
-        this.showNotEnoughResourcesModal = false;
-        this.openSelectResources();
       },
     },
   };

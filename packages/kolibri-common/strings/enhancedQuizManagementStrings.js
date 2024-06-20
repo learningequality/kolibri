@@ -7,18 +7,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   sectionLabel: {
     message: 'Section { sectionNumber, number }',
   },
-  createNewQuiz: {
-    message: 'Create new quiz',
-  },
   quizSectionsLabel: {
     message: 'Quiz sections',
     context: 'Used as an aria-label for screen readers to describe the purpose of the list of tabs',
-  },
-  quizTitle: {
-    message: 'Quiz title',
-  },
-  addQuizSections: {
-    message: 'Add one or more sections to the quiz, according to your needs',
   },
   addSectionLabel: {
     message: 'Add section',
@@ -48,17 +39,20 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'Section title',
   },
   sectionTitleUniqueWarning: {
-    message: 'Section titles must be unique within the quiz',
+    message: 'Section title already used',
     context: 'Informs the user that they must use a unique title for each section',
   },
   numberOfQuestionsLabel: {
     message: 'Number of questions',
   },
+  numberOfQuestionsToAdd: {
+    message: 'Number of questions to add',
+  },
+  tooManyQuestions: {
+    message: 'You cannot select more than { count, number } questions',
+  },
   optionalDescriptionLabel: {
     message: 'Description (optional)',
-  },
-  selectResources: {
-    message: 'Select resources',
   },
   sectionOrder: {
     message: 'Section order',
@@ -69,14 +63,11 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   applySettings: {
     message: 'Apply settings',
   },
-  addQuestions: {
-    message: 'Add questions',
-  },
   addNumberOfQuestions: {
     message: 'Add { count, number } { count, plural, one { question } other { questions }}',
   },
   selectResourcesDescription: {
-    message: 'Select resources to add questions to this section',
+    message: "Add questions to '{ sectionTitle }'",
   },
   numberOfSelectedBookmarks: {
     message: '{ count, number } { count, plural, one { bookmark } other { bookmarks }}',
@@ -85,23 +76,10 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
   },
   maxNumberOfQuestions: {
-    message: 'Max { count, number } { count, plural, one { question } other { questions }}',
-  },
-  maxNumberOfQuestionsPerSection: {
-    message:
-      'Each section may only contain up to { count, number } { count, plural, one { question} other { questions}}, this section has { current, number }',
+    message: 'Maximum number of questions is { count, number }',
   },
   replaceQuestions: {
-    message: 'Replace questions',
-  },
-  changeResources: {
-    message: 'Change resources',
-  },
-  questionList: {
-    message: 'Question list',
-  },
-  addAnswer: {
-    message: 'Add answer',
+    message: 'Replace questions in { sectionTitle }',
   },
   collapseAll: {
     message: 'Collapse all',
@@ -112,6 +90,13 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   replaceAction: {
     message: 'Replace',
   },
+  noLearnersEnrolled: {
+    message: 'No learners enrolled in { className }',
+  },
+  noResourcesAvailable: {
+    message:
+      'There are no resources on your device yet. Ask an administrator to add resources to your device.',
+  },
   replaceQuestionsHeading: {
     message: 'The new questions you select will replace the current ones.',
   },
@@ -120,13 +105,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   noUndoWarning: {
     message: "You can't undo or cancel this.",
-  },
-  resourceMismatchWarning: {
-    message: 'The resource you chose does not match the number of questions you want to replace.',
-  },
-  resourceMismatchDirection: {
-    message:
-      'Please choose a different resource or decrease the number of questions to be replaced.',
   },
   sectionOrderLabel: {
     message: 'Section order',
@@ -137,9 +115,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   randomizedLabel: {
     message: 'Randomized',
-  },
-  selectFromBookmarks: {
-    message: 'Select from bookmarks',
   },
   randomizedOptionDescription: {
     message: 'Each learner sees a different question order',
@@ -156,14 +131,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   fixedSectionOptionDescription: {
     message: 'Each learner sees the same section order',
   },
-  questionEditedSuccessfully: {
-    message: 'Question edited successfully',
-  },
-  reviewSelectedResources: {
-    message: 'Review selected resources',
-  },
   deleteConfirmation: {
-    message: "Are you sure you want to delete section '{section_title}'?",
+    message: "Are you sure you want to delete '{section_title}'?",
     context:
       'A warning message that appears when the user tries to leave the page without saving their work',
   },
@@ -182,27 +151,19 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message:
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',
   },
+  numberOfReplacementsAvailable: {
+    message:
+      '{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}',
+  },
   numberOfQuestionsReplaced: {
     message:
       '{ count, number } { count, plural, one { question successfully replaced } other { questions successfully replaced }} ',
   },
   numberOfQuestionsSelected: {
-    message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
+    message: 'Current number of questions in this section: {count, number}',
   },
-  numberOfResourcesSelected: {
-    message: '{count, number} {count, plural, one {resource selected} other {resources selected}}',
-  },
-  selectedQuestionsInformation: {
-    message:
-      '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
-  },
-  selectMoreQuestion: {
-    message:
-      'Select { count } more { count, plural , one { question } other { questions }} to continue',
-  },
-  selectFewerQuestion: {
-    message:
-      'Select { count } fewer { count, plural ,one { question } other { questions }} to continue',
+  selectQuestionsToContinue: {
+    message: 'Select { count } { count, plural , one { question } other { questions }} to continue',
   },
   selectQuiz: {
     message: 'Select quiz',
@@ -215,68 +176,33 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
   },
   cannotSelectSomeTopicWarning: {
-    message:
-      'You can only select folders with { count, number } or less exercises and no subfolders to avoid oversized quizzes.',
+    message: 'You can only select a total of { count, number } questions or fewer.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
     context: 'A snackbar message that appears when the user saves their changes',
   },
   sectionDeletedNotification: {
-    message: "Section '{ section_title }' deleted",
+    message: "'{ section_title }' deleted",
     context: 'A snackbar message that appears when the user deletes a section',
   },
   questionsDeletedNotification: {
     message: '{ count, number } { count, plural, one { question } other { questions }} deleted',
     context: 'A snackbar message that appears when the user deletes questions',
   },
-  updateResources: {
-    message: 'Update resources',
-  },
   allSectionsEmptyWarning: {
     message: "You don't have any questions in the quiz",
-  },
-  notEnoughReplacementsTitle: {
-    message: 'Not enough replacements available',
-    context:
-      'Title of modal when a user tries to replace more questions than are available in the pool',
-  },
-  noReplacementsMessage: {
-    message:
-      'There are no more similar questions available to replace the selected questions with.',
-  },
-  notEnoughReplacementsMessage: {
-    message:
-      "You've selected { selected, number } { selected, plural, one { question } other { questions } } to replace, but {available, plural, =0 { don't have questions } one { only have 1 question } other { only have { available } questions } } available to replace them with.",
-    context:
-      'Message of modal when a user tries to replace more questions than are available in the pool',
-  },
-  addMoreQuestionsWithEmptyPool: {
-    message: 'You can add more questions, or delete existing questions.',
-    context: 'Message of modal when a user tries to replace questions but the pool is empty',
-  },
-  addMoreQuestionsWithNonEmptyPool: {
-    message:
-      'You can add more questions, delete existing questions, or go back and select fewer questions',
-    context:
-      'Message of modal when a user tries to replace more questions than are available in the pool',
-  },
-  addResourcesAction: {
-    message: 'Add resources',
-  },
-  goBackAction: {
-    message: 'Go back',
   },
   questionsUnusedInSection: {
     message: '{ count, number } { count, plural, one { question } other { questions }} unused',
   },
   questionsFromResources: {
     message:
-      '{ questions, number } { questions, plural, one { question } other { questions }} in { resources, number } { resources, plural, one { resource } other { resources }}',
+      '{ questions, number } { questions, plural, one { question } other { questions }} selected',
   },
   questionsLabel: {
     message: 'Questions',
-    context: 'Label for dropdown list of questions',
+    context: 'Label for a list of questions',
   },
   jumpToQuestion: {
     message: 'Jump to question',
@@ -284,10 +210,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   saveAndClose: {
     message: 'Save and close',
-  },
-  questionDeletionConfirmation: {
-    message:
-      'Are you sure you want to remove { count, number } { count, plural, one { question } other { questions }} from this section?',
   },
 });
 

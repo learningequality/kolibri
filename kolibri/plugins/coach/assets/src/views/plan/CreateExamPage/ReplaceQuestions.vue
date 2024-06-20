@@ -1,16 +1,10 @@
 <template>
 
   <div class="wrapper">
-    <h1 class="section-header" :style="{ color: `${$themeTokens.annotation}` }">
-      {{ activeSectionTitle }}
-    </h1>
-    <span
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
     <h1 class="section-header">
-      {{ replaceQuestions$() }}
+      {{ replaceQuestions$({
+        sectionTitle: displaySectionTitle(activeSection, activeSectionIndex
+        ) }) }}
     </h1>
     <p>{{ replaceQuestionsHeading$() }}</p>
     <span
@@ -135,7 +129,9 @@
       v-if="showReplacementConfirmation"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
-      :title="replaceQuestions$()"
+      :title="replaceQuestions$({
+        sectionTitle: displaySectionTitle(activeSection, activeSectionIndex)
+      })"
       @cancel="showReplacementConfirmation = false"
       @submit="submitReplacement"
     >
@@ -198,7 +194,7 @@
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
@@ -207,6 +203,7 @@
       const {
         // Computed
         activeSection,
+        activeSectionIndex,
         selectedActiveQuestions,
         activeResourceMap,
         replacementQuestionPool,
@@ -301,6 +298,7 @@
 
         toggleInReplacements,
         activeSection,
+        activeSectionIndex,
         activeSectionTitle,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
@@ -327,11 +325,12 @@
         noUndoWarning$,
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
         displayQuestionTitle,
+        displaySectionTitle,
       };
     },
     computed: {
@@ -361,13 +360,9 @@
             count: this.replacements.length,
             total: this.selectedActiveQuestions.length,
           });
-        } else if (unreplacedCount > 0) {
-          return this.selectMoreQuestion$({
-            count: unreplacedCount,
-          });
         } else {
-          return this.selectFewerQuestion$({
-            count: Math.abs(unreplacedCount),
+          return this.selectQuestionsToContinue$({
+            count: this.selectedActiveQuestions.length,
           });
         }
       },
