@@ -88,7 +88,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
   },
   maxNumberOfQuestions: {
-    message: 'Maximum number of questions is 50',
+    message: 'Max number of questions is { count, number }'
   },
   maxNumberOfQuestionsPerSection: {
     message:
