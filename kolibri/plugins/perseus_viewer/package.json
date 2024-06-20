@@ -28,7 +28,7 @@
     "@khanacademy/wonder-blocks-typography": "2.1.11",
     "@khanacademy/wonder-blocks-timing": "^5.0.0",
     "@khanacademy/wonder-stuff-core": "^1.5.2",
-    "@phosphor-icons/core": "^2.0.2",
+    "@phosphor-icons/core": "^2.1.1",
     "@popperjs/core": "^2.10.1",
     "aphrodite": "https://github.com/learningequality/aphrodite/",
     "classnames": "^1.1.4",
