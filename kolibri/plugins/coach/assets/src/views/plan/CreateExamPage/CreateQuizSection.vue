@@ -378,7 +378,6 @@
         numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        updateResources$,
         changesSavedSuccessfully$,
         questionsDeletedNotification$,
         expandAll$,
@@ -462,7 +461,6 @@
         addSection,
         removeSection,
         updateQuiz,
-        updateResources$,
         displaySectionTitle,
         displayQuestionTitle,
 

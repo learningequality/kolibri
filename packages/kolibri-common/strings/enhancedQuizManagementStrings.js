@@ -7,15 +7,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   sectionLabel: {
     message: 'Section { sectionNumber, number }',
   },
-  createNewQuiz: {
-    message: 'Create new quiz',
-  },
   quizSectionsLabel: {
     message: 'Quiz sections',
     context: 'Used as an aria-label for screen readers to describe the purpose of the list of tabs',
-  },
-  quizTitle: {
-    message: 'Quiz title',
   },
   addSectionLabel: {
     message: 'Add section',
@@ -60,9 +54,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   optionalDescriptionLabel: {
     message: 'Description (optional)',
   },
-  selectResources: {
-    message: 'Select exercises',
-  },
   sectionOrder: {
     message: 'Section order',
   },
@@ -71,9 +62,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   applySettings: {
     message: 'Apply settings',
-  },
-  addQuestions: {
-    message: 'Add questions',
   },
   addNumberOfQuestions: {
     message: 'Add { count, number } { count, plural, one { question } other { questions }}',
@@ -87,21 +75,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfSelectedQuestions: {
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
   },
-  maxNumberOfQuestions: {
-    message: 'Max number of questions is { count, number }'
-  },
-  maxNumberOfQuestionsPerSection: {
-    message:
-      'Each section may only contain up to { count, number } { count, plural, one { question} other { questions}}, this section has { current, number }',
-  },
   replaceQuestions: {
     message: 'Replace questions in { sectionTitle }',
-  },
-  changeResources: {
-    message: 'Change exercises',
-  },
-  addAnswer: {
-    message: 'Add answer',
   },
   collapseAll: {
     message: 'Collapse all',
@@ -121,13 +96,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   noUndoWarning: {
     message: "You can't undo or cancel this.",
   },
-  resourceMismatchWarning: {
-    message: 'The resource you chose does not match the number of questions you want to replace.',
-  },
-  resourceMismatchDirection: {
-    message:
-      'Please choose a different resource or decrease the number of questions to be replaced.',
-  },
   sectionOrderLabel: {
     message: 'Section order',
     context: 'A label for the place where the section order option is shown.',
@@ -137,9 +105,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   randomizedLabel: {
     message: 'Randomized',
-  },
-  selectFromBookmarks: {
-    message: 'Select from bookmarks',
   },
   randomizedOptionDescription: {
     message: 'Each learner sees a different question order',
@@ -155,12 +120,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   fixedSectionOptionDescription: {
     message: 'Each learner sees the same section order',
-  },
-  questionEditedSuccessfully: {
-    message: 'Question edited successfully',
-  },
-  reviewSelectedResources: {
-    message: 'Review selected exercises',
   },
   deleteConfirmation: {
     message: "Are you sure you want to delete '{section_title}'?",
@@ -226,14 +185,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: '{ count, number } { count, plural, one { question } other { questions }} deleted',
     context: 'A snackbar message that appears when the user deletes questions',
   },
-  updateResources: {
-    message: 'Update exercises',
-  },
   allSectionsEmptyWarning: {
     message: "You don't have any questions in the quiz",
-  },
-  goBackAction: {
-    message: 'Go back',
   },
   questionsUnusedInSection: {
     message: '{ count, number } { count, plural, one { question } other { questions }} unused',
@@ -248,10 +201,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   saveAndClose: {
     message: 'Save and close',
-  },
-  questionDeletionConfirmation: {
-    message:
-      'Are you sure you want to remove { count, number } { count, plural, one { question } other { questions }} from this section?',
   },
 });
 

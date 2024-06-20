@@ -64,7 +64,7 @@
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
 
-        <p>{{ selectFromBookmarks$() }}</p>
+        <p>{{ coreString('selectFromBookmarks') }}</p>
 
         <div>
           <KRouterLink
@@ -251,7 +251,6 @@
 
       const {
         sectionSettings$,
-        selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectResourcesDescription$,
         questionsFromResources$,
@@ -267,8 +266,6 @@
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
-        maxNumberOfQuestions$,
-        maxNumberOfQuestionsPerSection$,
         addNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
@@ -645,7 +642,6 @@
         sectionSettings$,
         numberOfQuestionsSelected$,
         tooManyQuestions$,
-        selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
         selectResourcesDescription$,
@@ -666,8 +662,6 @@
         numberOfQuestionsToAdd$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
-        maxNumberOfQuestions$,
-        maxNumberOfQuestionsPerSection$,
         addNumberOfQuestions$,
       };
     },
