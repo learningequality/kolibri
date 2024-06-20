@@ -75,6 +75,9 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfSelectedQuestions: {
     message: '{count, number} {count, plural, one {question selected} other {questions selected}}',
   },
+  maxNumberOfQuestions: {
+    message: 'Maximum number of questions is { count, number }',
+  },
   replaceQuestions: {
     message: 'Replace questions in { sectionTitle }',
   },
@@ -171,7 +174,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   cannotSelectSomeTopicWarning: {
     message:
-      'You can only select entire folders when they have { count, number } questions or fewer.',
+      'You can only select a total of { count, number } questions or fewer.'
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
