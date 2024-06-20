@@ -1134,5 +1134,4 @@ class RemoteFacilityUserAuthenticatedViewset(views.APIView):
         admin_roles = (user_kinds.ADMIN, user_kinds.SUPERUSER)
         if not any(role in roles for role in admin_roles):
             raise PermissionDenied()
-        # students = [u for u in facility_info["users"] if not u["roles"]]
         return Response(facility_info["users"])
