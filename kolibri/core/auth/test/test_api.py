@@ -1170,6 +1170,91 @@ class UserRetrieveTestCase(APITestCase):
         self.assertEqual(response.status_code, 404)
 
 
+class FacilityUserOrderingTestCase(APITestCase):
+    @classmethod
+    def setUpTestData(cls):
+        provision_device()
+        cls.facility = FacilityFactory.create()
+        cls.superuser = create_superuser(cls.facility)
+        cls.facility.add_admin(cls.superuser)
+        cls.user1 = FacilityUserFactory.create(facility=cls.facility, username="mario")
+        cls.user2 = FacilityUserFactory.create(facility=cls.facility, username="luigi")
+        cls.user3 = FacilityUserFactory.create(facility=cls.facility, username="batman")
+
+    def setUp(self):
+        self.client.login(
+            username=self.superuser.username,
+            password=DUMMY_PASSWORD,
+            facility=self.facility,
+        )
+
+    def _sort_by_field(self, data, field, reverse=False):
+        return sorted(data, key=lambda x: x[field], reverse=reverse)
+
+    def test_default_ordering(self):
+        response = self.client.get(reverse("kolibri:core:facilityuser-list"))
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        self.assertEqual(data[0]["username"], "batman")
+        sorted_data = self._sort_by_field(data, "username")
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_username(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=username"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        sorted_data = self._sort_by_field(data, "username")
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_username_desc(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=-username"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        self.assertEqual(data[0]["username"], "superuser")
+        sorted_data = self._sort_by_field(data, "username", reverse=True)
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_date_joined(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=date_joined"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        sorted_data = self._sort_by_field(data, "date_joined")
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_date_joined_desc(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=-date_joined"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        sorted_data = self._sort_by_field(data, "date_joined", reverse=True)
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_full_name(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=full_name"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        sorted_data = self._sort_by_field(data, "full_name")
+        self.assertEqual(data, sorted_data)
+
+    def test_ordering_by_full_name_desc(self):
+        response = self.client.get(
+            reverse("kolibri:core:facilityuser-list") + "?ordering=-full_name"
+        )
+        self.assertEqual(response.status_code, 200)
+        data = response.data
+        sorted_data = self._sort_by_field(data, "full_name", reverse=True)
+        self.assertEqual(data, sorted_data)
+
+
 class FacilityUserFilterTestCase(APITestCase):
     @classmethod
     def setUpTestData(cls):

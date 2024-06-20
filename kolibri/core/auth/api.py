@@ -72,6 +72,7 @@ from .serializers import RoleSerializer
 from kolibri.core import error_constants
 from kolibri.core.api import ReadOnlyValuesViewset
 from kolibri.core.api import ValuesViewset
+from kolibri.core.api import ValuesViewsetOrderingFilter
 from kolibri.core.auth.constants.demographics import NOT_SPECIFIED
 from kolibri.core.auth.permissions.general import _user_is_admin_for_own_facility
 from kolibri.core.auth.permissions.general import DenyAll
@@ -89,7 +90,6 @@ from kolibri.core.query import SQCount
 from kolibri.core.serializers import HexOnlyUUIDField
 from kolibri.core.utils.pagination import ValuesViewsetPageNumberPagination
 from kolibri.plugins.app.utils import interface
-
 
 logger = logging.getLogger(__name__)
 
@@ -394,6 +394,7 @@ class FacilityUserViewSet(ValuesViewset):
         KolibriAuthPermissionsFilter,
         DjangoFilterBackend,
         filters.SearchFilter,
+        ValuesViewsetOrderingFilter,
     )
     order_by_field = "username"
 
@@ -415,6 +416,16 @@ class FacilityUserViewSet(ValuesViewset):
         "gender",
         "birth_year",
         "extra_demographics",
+        "date_joined",
+    )
+
+    ordering_fields = (
+        "id",
+        "username",
+        "full_name",
+        "gender",
+        "birth_year",
+        "date_joined",
     )
 
     field_map = {
@@ -438,7 +449,16 @@ class FacilityUserViewSet(ValuesViewset):
                     roles.append(role)
             item["roles"] = roles
             output.append(item)
-        output = sorted(output, key=lambda x: x[self.order_by_field])
+            ordering_param = self.request.query_params.get(
+                "ordering", self.order_by_field
+            )
+            if ordering_param.startswith("-"):
+                self.order_by_field = ordering_param[1:]
+                reverse = True
+            else:
+                self.order_by_field = ordering_param
+                reverse = False
+        output = sorted(output, key=lambda x: x[self.order_by_field], reverse=reverse)
         return output
 
     def perform_update(self, serializer):
