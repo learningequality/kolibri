@@ -368,13 +368,9 @@
             count: this.replacements.length,
             total: this.selectedActiveQuestions.length,
           });
-        } else if (unreplacedCount > 0) {
-          return this.selectQuestionsToContinue$({
-            count: unreplacedCount,
-          });
         } else {
-          return this.selectFewerQuestion$({
-            count: Math.abs(unreplacedCount),
+          return this.selectQuestionsToContinue$({
+            count: this.selectedActiveQuestions.length,
           });
         }
       },
