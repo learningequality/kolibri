@@ -148,7 +148,7 @@
               <span v-else>
                 {{
                   questionsFromResources$({
-                    questions: workingPoolUnusedQuestions, exercises: workingResourcePool.length
+                    questions: workingPoolUnusedQuestions
                   })
                 }}
               </span>
