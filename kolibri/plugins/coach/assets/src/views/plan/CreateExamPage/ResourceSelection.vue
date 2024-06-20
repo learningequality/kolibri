@@ -10,55 +10,56 @@
       </h5>
       <div v-else>
         <h5 class="select-folder-style">
-        {{ selectResourcesDescription$({ 
-          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex) 
-        }) }}
+          {{ selectResourcesDescription$({
+            sectionTitle: displaySectionTitle(activeSection, activeSectionIndex)
+          }) }}
         </h5>
-        <p>{{ numberOfQuestionsSelected$({ count: activeQuestions.length}) }}
-      <span
-        class="divider"
-        :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-      >
-      </span>
-      <p>{{ numberOfQuestionsToAdd$() }}</p>
-      <div class="number-question">
-        <div>
-          <KTextbox
-            ref="numQuest"
-            v-model="questionCount"
-            type="number"
-            :label="numberOfQuestionsLabel$()"
-            :max="maxQuestions"
-            :min="1"
-            :invalid="questionCount > maxQuestions"
-            :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
-            :showInvalidText="true"
-          />
-        </div>
-        <div>
-          <div
-            :style="borderStyle"
-            class="group-button-border"
+        <p>
+          {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
+          <span
+            class="divider"
+            :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
           >
-            <KIconButton
-              icon="minus"
-              aria-hidden="true"
-              class="number-btn"
-              :disabled="questionCount === 1"
-              @click="questionCount -= 1"
-            />
-            <span
-              :style="dividerStyle"
-            > | </span>
-            <KIconButton
-              icon="plus"
-              aria-hidden="true"
-              class="number-btn"
-              :disabled="questionCount >= maxQuestions"
-              @click="questionCount += 1"
+          </span>
+        </p><p>{{ numberOfQuestionsToAdd$() }}</p>
+        <div class="number-question">
+          <div>
+            <KTextbox
+              ref="numQuest"
+              v-model="questionCount"
+              type="number"
+              :label="numberOfQuestionsLabel$()"
+              :max="maxQuestions"
+              :min="1"
+              :invalid="questionCount > maxQuestions"
+              :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+              :showInvalidText="true"
             />
           </div>
-        </div>
+          <div>
+            <div
+              :style="borderStyle"
+              class="group-button-border"
+            >
+              <KIconButton
+                icon="minus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="questionCount === 1"
+                @click="questionCount -= 1"
+              />
+              <span
+                :style="dividerStyle"
+              > | </span>
+              <KIconButton
+                icon="plus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="questionCount >= maxQuestions"
+                @click="questionCount += 1"
+              />
+            </div>
+          </div>
         </div>
       </div>
 
@@ -195,11 +196,18 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import { displaySectionTitle, enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION, MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import {
+    ContentNodeKinds,
+    MAX_QUESTIONS_PER_QUIZ_SECTION,
+    MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION,
+  } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
@@ -263,7 +271,7 @@
         numberOfQuestionsSelected$,
         numberOfQuestionsToAdd$,
         maxNumberOfQuestions$,
-        tooManyQuestions$, 
+        tooManyQuestions$,
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
@@ -308,9 +316,10 @@
        */
       function selectableContentList() {
         return contentList.value.reduce((newList, content) => {
-          if (content.kind === ContentNodeKinds.TOPIC 
-          && folderDoesNotHaveTooManyQuestions(content)) 
-          {
+          if (
+            content.kind === ContentNodeKinds.TOPIC &&
+            folderDoesNotHaveTooManyQuestions(content)
+          ) {
             newList = [...newList, ...content.children.results];
           } else {
             newList.push(content);
@@ -596,7 +605,7 @@
         return (
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
-          questionCount.value < 1 || 
+          questionCount.value < 1 ||
           workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
         );
       });
@@ -604,6 +613,7 @@
       return {
         folderDoesNotHaveTooManyQuestions,
         displaySectionTitle,
+        hasCheckbox,
         unusedQuestionsCount,
         activeSection,
         activeSectionIndex,
@@ -737,10 +747,7 @@
         }
       },
       showNumberOfQuestionsWarningCard(content) {
-        return (
-          !this.selectPracticeQuiz &&
-          content.num_assessments > 500
-        );
+        return !this.selectPracticeQuiz && content.num_assessments > 500;
       },
       /** @public */
       focusFirstEl() {
