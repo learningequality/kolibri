@@ -141,7 +141,9 @@
             <h2 :style="{ color: $themeTokens.annotation }">
               {{ questionsLabel$() }}
             </h2>
-            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem'}">{{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}</p>
+            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
+              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
+            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -491,7 +493,10 @@
         };
       },
       canReplaceQuestions() {
-        return this.selectedActiveQuestions.length > 0 &&  this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
+        return (
+          this.selectedActiveQuestions.length > 0 &&
+          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
+        );
       },
       tabsWrapperStyles() {
         return {
