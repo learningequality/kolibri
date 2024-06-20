@@ -1,14 +1,6 @@
 <template>
 
   <div class="wrapper">
-    <h1 class="section-header" :style="{ color: `${$themeTokens.annotation}` }">
-      {{ activeSectionTitle }}
-    </h1>
-    <span
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
     <h1 class="section-header">
       {{ replaceQuestions$({
         sectionTitle: displaySectionTitle(activeSection, activeSectionIndex
