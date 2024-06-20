@@ -137,6 +137,10 @@
     &::-ms-clear {
       display: none;
     }
+    // removes the webkit browsers clear button
+    &::-webkit-search-cancel-button {
+      display: none;
+    }
   }
 
   .buttons-wrapper {
