@@ -24,7 +24,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
     message: 'There are no questions in this section',
   },
   addQuizSectionQuestionsInstructions: {
-    message: 'To add questions, select exercise from the available channels',
+    message: 'To add questions, select resources from the available channels',
   },
   addQuestionsLabel: {
     message: 'Add questions',
@@ -145,7 +145,8 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       '{ count, number } of { total, number } {total, plural, one {replacement selected} other {replacements selected}}',
   },
   numberOfReplacementsAvailable: {
-    message: '{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}',
+    message:
+      '{count, number, integer} {count, plural, one {replacement question available} other {replacement questions available}}',
   },
   numberOfQuestionsReplaced: {
     message:
@@ -159,8 +160,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
   },
   selectQuestionsToContinue: {
-    message:
-      'Select { count } { count, plural , one { question } other { questions }} to continue',
+    message: 'Select { count } { count, plural , one { question } other { questions }} to continue',
   },
   selectQuiz: {
     message: 'Select quiz',
@@ -173,8 +173,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
       "Practice quizzes are pre-made quizzes, that don't require the curation work on the part of the coach. Selecting a practice quiz refers to importing a ready-to-use quiz.",
   },
   cannotSelectSomeTopicWarning: {
-    message:
-      'You can only select a total of { count, number } questions or fewer.'
+    message: 'You can only select a total of { count, number } questions or fewer.',
   },
   changesSavedSuccessfully: {
     message: 'Changes saved successfully',
@@ -196,7 +195,7 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   },
   questionsFromResources: {
     message:
-      '{ questions, number } { questions, plural, one { question } other { questions }} in { exercises, number } { exercises, plural, one { exercise } other { exercises }}',
+      '{ questions, number } { questions, plural, one { question } other { questions }} selected',
   },
   questionsLabel: {
     message: 'Questions',
