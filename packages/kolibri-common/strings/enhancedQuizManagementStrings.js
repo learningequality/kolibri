@@ -155,10 +155,6 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   numberOfQuestionsSelected: {
     message: 'Current number of questions in this section: {count, number}',
   },
-  selectedQuestionsInformation: {
-    message:
-      '{count, number, integer} of {total, number, integer} {total, plural, one {question selected} other {questions selected}}',
-  },
   selectQuestionsToContinue: {
     message: 'Select { count } { count, plural , one { question } other { questions }} to continue',
   },

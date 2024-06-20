@@ -128,11 +128,7 @@
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreResources"
-      >
-        <template #notice="{ content }">
-          <span style="position: absolute; bottom: 1em;">{{ cardNoticeContent(content) }}</span>
-        </template>
-      </ContentCardList>
+      />
 
       <div class="bottom-navigation">
         <KGrid>
@@ -263,7 +259,6 @@
         selectResourcesDescription$,
         questionsFromResources$,
         changesSavedSuccessfully$,
-        selectedQuestionsInformation$,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
@@ -476,6 +471,19 @@
           const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
           return questionItemsAvailable;
         }
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          const total = content.num_assessments;
+          const numberOfQuestionsSelected = allQuestionsInQuiz.value.filter(question => {
+            const questionNode = allResourceMap.value[question.exercise_id];
+            for (const ancestor of questionNode.ancestors) {
+              if (ancestor.id === content.id) {
+                return true;
+              }
+            }
+            return false;
+          }).length;
+          return total - numberOfQuestionsSelected;
+        }
         return -1;
       }
       function folderDoesNotHaveTooManyQuestions(content) {
@@ -669,7 +677,6 @@
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
-        selectedQuestionsInformation$,
         selectQuiz$,
         numberOfQuestionsToAdd$,
         selectPracticeQuizLabel$,
@@ -737,15 +744,6 @@
       }
     },
     methods: {
-      cardNoticeContent(content) {
-        if (!this.selectPracticeQuiz && content.kind === ContentNodeKinds.EXERCISE) {
-          return this.questionsUnusedInSection$({
-            count: this.unusedQuestionsCount(content),
-          });
-        } else {
-          return '';
-        }
-      },
       showNumberOfQuestionsWarningCard(content) {
         return !this.selectPracticeQuiz && content.num_assessments > 500;
       },
@@ -809,23 +807,20 @@
       },
       // The message put onto the content's card when listed
       selectionMetadata(content) {
-        if (this.selectPracticeQuiz || content.kind !== ContentNodeKinds.TOPIC) {
+        if (this.selectPracticeQuiz) {
           return;
         }
-        const total = content.num_assessments;
-        const numberOfQuestionsSelected = this.allQuestionsInQuiz.filter(question => {
-          const questionNode = this.allResourceMap[question.exercise_id];
-          for (const ancestor of questionNode.ancestors) {
-            if (ancestor.id === content.id) {
-              return true;
-            }
-          }
-          return false;
-        }).length;
 
-        return this.selectedQuestionsInformation$({
-          count: numberOfQuestionsSelected,
-          total: total,
+        const count = this.unusedQuestionsCount(content);
+
+        if (count === -1) {
+          // If for some reason we're getting a content type that we don't know how to handle
+          // we'll just return nothing to avoid displaying a nonsensical message
+          return;
+        }
+
+        return this.questionsUnusedInSection$({
+          count,
         });
       },
       handleSearchTermChange(searchTerm) {
