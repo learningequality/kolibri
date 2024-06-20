@@ -8,7 +8,7 @@ For design conventions, see the `Kolibri Design System <http://kolibribeta.learn
 Linting and auto formatting
 ---------------------------
 
-Many of our conventions are enforced through various linters including `ESLint <https://eslint.org/>`__, `ESLint Vue plugin <https://github.com/vuejs/eslint-plugin-vue>`__, `stylelint <https://stylelint.io/>`__, and `HTMLHint <https://htmlhint.io/>`__. The enforced rules are located in the ``.eslintrc.js``, ``.stylelintrc.js``, and ``.htmlhintrc`` files located at the root of the project.
+Many of our conventions are enforced through various linters including `ESLint <https://eslint.org/>`__, `ESLint Vue plugin <https://github.com/vuejs/eslint-plugin-vue>`__, `stylelint <https://stylelint.io/>`__, and `HTMLHint <https://htmlhint.io/>`__. The enforced rules are located in the ``eslint.config.js``, ``.stylelintrc.js``, and files located at the root of the project.
 
 Also available are options and tools that enable auto-formatting of ``.vue``, ``.js``, ``.scss``, and ``.py`` files to conform to code conventions. To facilitate this, we use `Black <https://github.com/ambv/black>`__ to auto-format ``.py`` files, and  `Prettier <https://prettier.io/>`__ to auto-format the others. Auto-formatting runs by default while running the dev server, otherwise be sure to run the dev server with ``-warn`` as described in :doc:`/getting_started` to prevent it from auto-formatting.
 
