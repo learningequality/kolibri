@@ -23,7 +23,7 @@ export function addOrUpdateUserPermissions(store, payload) {
             permissions: permissionsModel,
           });
           return userModel;
-        }
+        },
       );
     })
     .catch(error => store.dispatch('handleApiError', { error }, { root: true }));

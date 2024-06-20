@@ -49,7 +49,7 @@ const connectToTargetKolibri = (context, event) => {
 const getUserWPasswordInfo = context => {
   const facility = context.targetFacility;
   return remoteFacilityUserData(facility.url, facility.id, context.username, null).then(
-    user => user
+    user => user,
   );
 };
 

@@ -34,7 +34,6 @@
       v-model="facilityName"
       class="textbox"
     />
-
   </OnboardingStepBase>
 
 </template>

@@ -2,10 +2,17 @@
 
   <div>
     <h1>{{ profileString('mergeAccounts') }}</h1>
-    <p class="fullname" data-test="fullName">
+    <p
+      class="fullname"
+      data-test="fullName"
+    >
       {{ fullName }}
     </p>
-    <p class="username" data-test="username" :style="{ color: $themeTokens.annotation }">
+    <p
+      class="username"
+      data-test="username"
+      :style="{ color: $themeTokens.annotation }"
+    >
       {{ username }}
     </p>
     {{ $tr('mergeAccountUserInfo') }}
@@ -42,7 +49,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>
@@ -95,7 +101,7 @@
                 value: { username: formData.value.username.trim(), password: '' },
               });
             }
-          }
+          },
         );
       }
 

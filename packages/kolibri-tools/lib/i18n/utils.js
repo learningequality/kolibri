@@ -18,7 +18,7 @@ function checkForDuplicateIds(obj1, obj2) {
     const message2 = obj2[potentialDuplicate].message;
     if (message1 !== message1) {
       logging.error(
-        `${potentialDuplicate} messageId is repeated with different strings '${message1}' and '${message2}'`
+        `${potentialDuplicate} messageId is repeated with different strings '${message1}' and '${message2}'`,
       );
       actualDuplicates.push(potentialDuplicate);
     }

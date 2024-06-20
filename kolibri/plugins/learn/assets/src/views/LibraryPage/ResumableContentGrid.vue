@@ -2,7 +2,7 @@
 
   <div v-if="(resumableContentNodes || []).length">
     <div
-      v-if="!(windowIsSmall)"
+      v-if="!windowIsSmall"
       class="toggle-view-buttons"
       data-test="toggle-view-buttons"
     >
@@ -33,7 +33,7 @@
         class="resumable-content-card-grid"
         :currentCardViewStyle="currentCardViewStyle"
         :gridType="gridType"
-        @openCopiesModal="copies => displayedCopies = copies"
+        @openCopiesModal="copies => (displayedCopies = copies)"
         @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
       />
     </div>
@@ -85,11 +85,8 @@
     },
     mixins: [commonCoreStrings],
     setup() {
-      const {
-        resumableContentNodes,
-        moreResumableContentNodes,
-        fetchMoreResumableContentNodes,
-      } = useLearnerResources();
+      const { resumableContentNodes, moreResumableContentNodes, fetchMoreResumableContentNodes } =
+        useLearnerResources();
 
       var sidePanelContent = ref(null);
       const toggleInfoPanel = content => (sidePanelContent.value = content);

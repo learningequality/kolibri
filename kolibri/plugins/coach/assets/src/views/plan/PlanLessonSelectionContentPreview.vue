@@ -17,7 +17,6 @@
         @removeResource="handleRemoveResource"
       />
     </KPageContainer>
-
   </CoachImmersivePage>
 
 </template>
@@ -92,7 +91,7 @@
         }
         if (this.workingResources && this.currentContentNode && this.currentContentNode.id) {
           return this.workingResources.some(
-            resource => resource.contentnode_id === this.currentContentNode.id
+            resource => resource.contentnode_id === this.currentContentNode.id,
           );
         }
         return false;

@@ -211,11 +211,11 @@ const shortNameTranslator = createTranslator('ShortLicenseNames', licenseShortNa
 const longNameTranslator = createTranslator('LongLicenseNames', licenseLongNameStrings);
 const creatorDescriptionTranslator = createTranslator(
   'LicenseDescriptionsForCreators',
-  licenseDescriptionCreatorStrings
+  licenseDescriptionCreatorStrings,
 );
 const consumerDescriptionTranslator = createTranslator(
   'LicenseDescriptionsForConsumers',
-  licenseDescriptionConsumerStrings
+  licenseDescriptionConsumerStrings,
 );
 
 // Translated short-form license names

@@ -154,7 +154,7 @@ class TextLayerBuilder {
       // Original line: 118
       err => {
         logging.error('Error rendering text layer: ', err);
-      }
+      },
     );
   }
 

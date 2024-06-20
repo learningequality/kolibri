@@ -1,7 +1,10 @@
 <template>
 
-  <router-link :to="link" class="content-card" :style="{ backgroundColor: $themeTokens.surface }">
-
+  <router-link
+    :to="link"
+    class="content-card"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
     <CardThumbnail
       class="thumbnail"
       :thumbnail="thumbnail"
@@ -9,7 +12,10 @@
       :isMobile="windowIsSmall"
     />
 
-    <div :class="windowIsSmall ? 'mobile-text' : 'text'" :style="{ color: $themeTokens.text }">
+    <div
+      :class="windowIsSmall ? 'mobile-text' : 'text'"
+      :style="{ color: $themeTokens.text }"
+    >
       <div
         :class="{ 'title-message-wrapper': Boolean(!windowIsSmall) }"
         :style="{ color: $themeTokens.text }"
@@ -35,7 +41,11 @@
             </template>
           </KLabeledIcon>
         </h3>
-        <div v-if="message" class="message" :style="{ color: $themeTokens.text }">
+        <div
+          v-if="message"
+          class="message"
+          :style="{ color: $themeTokens.text }"
+        >
           {{ message }}
         </div>
       </div>
@@ -54,7 +64,6 @@
       </div>
       <slot name="notice"></slot>
     </div>
-
   </router-link>
 
 </template>

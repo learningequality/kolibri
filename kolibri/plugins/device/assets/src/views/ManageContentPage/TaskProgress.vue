@@ -11,7 +11,6 @@
           :delay="true"
         />
       </div>
-
     </div>
   </transition>
 

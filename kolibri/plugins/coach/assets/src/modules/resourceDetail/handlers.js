@@ -34,6 +34,6 @@ export function showResourceView({ resourceId, exerciseId } = {}) {
     },
     error => {
       store.dispatch('handleCoachPageError', error);
-    }
+    },
   );
 }

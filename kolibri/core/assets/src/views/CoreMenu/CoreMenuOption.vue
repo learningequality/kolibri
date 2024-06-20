@@ -13,9 +13,19 @@
         @keydown.enter="visibleSubMenu = !visibleSubMenu"
       >
         <slot>
-          <KLabeledIcon :iconAfter="iconAfter" :data-testid="`icon-${iconAfter}`">
-            <template v-if="icon" #icon>
-              <KIcon :icon="icon" :color="optionIconColor" :data-testid="`icon-${icon}`" />
+          <KLabeledIcon
+            :iconAfter="iconAfter"
+            :data-testid="`icon-${iconAfter}`"
+          >
+            <template
+              v-if="icon"
+              #icon
+            >
+              <KIcon
+                :icon="icon"
+                :color="optionIconColor"
+                :data-testid="`icon-${icon}`"
+              />
             </template>
             <div v-if="label">{{ label }}</div>
           </KLabeledIcon>
@@ -36,8 +46,15 @@
       >
         <slot>
           <KLabeledIcon>
-            <template v-if="icon" #icon>
-              <KIcon :icon="icon" :color="optionIconColor" :data-testid="`icon-${icon}`" />
+            <template
+              v-if="icon"
+              #icon
+            >
+              <KIcon
+                :icon="icon"
+                :color="optionIconColor"
+                :data-testid="`icon-${icon}`"
+              />
             </template>
             <div v-if="label">{{ label }}</div>
           </KLabeledIcon>
@@ -47,7 +64,10 @@
     </li>
 
     <div v-if="visibleSubMenu">
-      <div v-for="subRoute in subRoutes" :key="subRoute.label">
+      <div
+        v-for="subRoute in subRoutes"
+        :key="subRoute.label"
+      >
         <div class="link-container">
           <router-link
             v-if="linkActive"
@@ -58,7 +78,7 @@
               class="link"
               :href="href"
               :class="isActive ? subRouteActiveClass : subRouteInactiveClass"
-              @click="e => isActive ? toggleMenu() : toggleMenu() && navigate(e)"
+              @click="e => (isActive ? toggleMenu() : toggleMenu() && navigate(e))"
             >
               {{ subRoute.label }}
             </a>
@@ -74,7 +94,6 @@
         </div>
       </div>
     </div>
-
   </div>
 
 </template>

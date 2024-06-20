@@ -6,7 +6,6 @@
     :style="cardStyle"
     :class="$computedClass({ ':focus': $coreOutline })"
   >
-
     <div
       v-if="explore"
       class="explore"
@@ -31,7 +30,7 @@
       <KFixedGrid
         numCols="4"
         gutter="16"
-        style="margin: 0 16px;"
+        style="margin: 0 16px"
       >
         <KFixedGridItem span="1">
           <ChannelThumbnail
@@ -72,7 +71,6 @@
         <KIcon icon="wifi" />
       </div>
     </div>
-
   </router-link>
 
 </template>

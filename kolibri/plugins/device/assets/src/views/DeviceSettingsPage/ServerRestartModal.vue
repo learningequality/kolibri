@@ -7,7 +7,10 @@
     @submit="handleSubmit"
     @cancel="$emit('cancel')"
   >
-    <p v-if="changedSetting === 'add'" class="description">
+    <p
+      v-if="changedSetting === 'add'"
+      class="description"
+    >
       {{ $tr('selectedPath', { path: path.path }) }}
     </p>
     <p class="description">

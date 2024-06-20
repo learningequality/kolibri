@@ -1,6 +1,10 @@
 <template>
 
-  <div v-if="bannerOpened" class="banner" :style="{ background: $themeTokens.surface }">
+  <div
+    v-if="bannerOpened"
+    class="banner"
+    :style="{ background: $themeTokens.surface }"
+  >
     <div class="banner-inner">
       <h1 style="display: none">
         {{ $tr('bannerHeading') }}
@@ -14,7 +18,10 @@
         </KGridItem>
 
         <!-- Grid Buttons -->
-        <KGridItem class="button-grid-item" :layout12="{ span: 12 }">
+        <KGridItem
+          class="button-grid-item"
+          :layout12="{ span: 12 }"
+        >
           <div class="button-layout">
             <KButton
               :text="coreString('closeAction')"

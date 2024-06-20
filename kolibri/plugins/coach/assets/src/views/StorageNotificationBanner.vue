@@ -1,10 +1,13 @@
 <template>
 
-  <div class="alert" :style="{ backgroundColor: $themePalette.red.v_200, display: displayBanner }">
+  <div
+    class="alert"
+    :style="{ backgroundColor: $themePalette.red.v_200, display: displayBanner }"
+  >
     <h1 style="display: none">
       {{ $tr('insufficientStorageHeader') }}
     </h1>
-    <div style="display:flex">
+    <div style="display: flex">
       <div>
         <KIcon
           icon="error"
@@ -30,9 +33,7 @@
           @click="closeAlert"
         />
       </div>
-
     </div>
-
   </div>
 
 </template>
@@ -47,7 +48,7 @@
   export default {
     name: 'StorageNotificationBanner',
     components: {},
-    data: function() {
+    data: function () {
       return {
         displayBanner: 'auto',
         notificationDismissal: {},
@@ -96,17 +97,21 @@
 
 
 <style scoped>
-.alert {
-  padding: 10px;
-  margin-bottom: 15px;
-}
-.icon {
-  height: 24px;
-  width: 24px;
-  margin-top: 3px;
-}
-.error-message {
-  font-size:14px;
-  margin: 7px 7px 0px 10px;
-}
+
+  .alert {
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+    margin-top: 3px;
+  }
+
+  .error-message {
+    margin: 7px 7px 0 10px;
+    font-size: 14px;
+  }
+
 </style>

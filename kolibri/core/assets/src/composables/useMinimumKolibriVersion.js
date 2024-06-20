@@ -19,7 +19,7 @@ const logging = logger.getLogger(__filename);
 export default function useMinimumKolibriVersion(
   majorVersion = 0,
   minorVersion = 15,
-  revisionVersion = null
+  revisionVersion = null,
 ) {
   const isMinimumKolibriVersion = useMemoize(version => {
     if (!version) {

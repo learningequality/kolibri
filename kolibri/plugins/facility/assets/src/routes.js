@@ -173,7 +173,7 @@ export default [
           name: PageNames.DATA_EXPORT_PAGE,
           params: { facility_id: route.params.facility_id },
         },
-        editSyncRoute: function(deviceId) {
+        editSyncRoute: function (deviceId) {
           return {
             name: SyncPageNames.EDIT_SYNC_SCHEDULE,
             params: {

@@ -2,7 +2,11 @@
 
   <span class="placeholder-wrapper">
     <slot v-if="ready"></slot>
-    <span v-else class="placeholder" :style="placeholderStyle"></span>
+    <span
+      v-else
+      class="placeholder"
+      :style="placeholderStyle"
+    ></span>
   </span>
 
 </template>

@@ -24,7 +24,7 @@ function generateQuestions(num = 0) {
         exercise_id: VALID_EXERCISE_ID,
         item: `${VALID_EXERCISE_ID}:${i}`,
       },
-      QuizQuestion
+      QuizQuestion,
     );
     qs.push(question);
   }
@@ -44,7 +44,7 @@ function generateExercise(numQuestions) {
       content_id: VALID_EXERCISE_ID,
       assessmentmetadata,
     },
-    QuizExercise
+    QuizExercise,
   );
   return exercise;
 }
@@ -136,7 +136,7 @@ describe('useQuizCreation', () => {
         removeSection(1);
         expect(get(allSections)).toHaveLength(1);
         expect(
-          get(allSections).find(s => s.section_id === addedSection.section_id)
+          get(allSections).find(s => s.section_id === addedSection.section_id),
         ).toBeUndefined();
       });
 
@@ -145,7 +145,7 @@ describe('useQuizCreation', () => {
         const newTitle = 'New Title';
         updateSection({ sectionIndex: 1, section_title: newTitle });
         expect(
-          get(allSections).find(s => s.section_id === addedSection.section_id).section_title
+          get(allSections).find(s => s.section_id === addedSection.section_id).section_title,
         ).toEqual(newTitle);
       });
 
@@ -193,17 +193,17 @@ describe('useQuizCreation', () => {
             sectionIndex: get(activeSectionIndex),
             resourcePool: [exercise],
             questionCount: MAX_QUESTIONS_PER_QUIZ_SECTION + 1,
-          })
+          }),
         ).toThrow(TypeError);
       });
       it('updateSection throws a TypeError if questions is not an array', () => {
         expect(() =>
-          updateSection({ sectionIndex: get(activeSectionIndex), questions: 1 })
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: 1 }),
         ).toThrow(TypeError);
       });
       it('updateSection throws a TypeError if questions is not an array of QuizQuestions', () => {
         expect(() =>
-          updateSection({ sectionIndex: get(activeSectionIndex), questions: [1, 2, 3] })
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: [1, 2, 3] }),
         ).toThrow(TypeError);
       });
     });

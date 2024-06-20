@@ -163,7 +163,7 @@ module.exports = {
             prev = element;
           }
         },
-      }
+      },
     );
   },
 };

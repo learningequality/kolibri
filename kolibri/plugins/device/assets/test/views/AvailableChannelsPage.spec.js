@@ -80,7 +80,7 @@ describe('availableChannelsPage', () => {
   it('in LOCALIMPORT mode, the back link text and title are correct', () => {
     setTransferType('localimport');
     const selectedDrive = store.state.manageContent.wizard.driveList.find(
-      ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c0'
+      ({ id }) => id === 'f9e29616935fbff37913ed46bf20e2c0',
     );
     store.state.manageContent.wizard.selectedDrive = selectedDrive;
     const wrapper = makeWrapper({ store });

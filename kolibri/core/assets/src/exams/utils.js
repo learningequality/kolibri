@@ -41,9 +41,9 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
           exercise_id: val.exercise_id,
           title: val.title,
           questionNumber,
-        }))
+        })),
       ),
-    []
+    [],
   );
   const shuffledExamQuestions = seededShuffle(examQuestions, seed);
   const shuffledExerciseQuestions = {};
@@ -56,7 +56,7 @@ function convertExamQuestionSourcesV0V2(questionSources, seed, questionIds) {
     title: question.title,
     counter_in_exercise:
       questionIds[question.exercise_id].findIndex(
-        id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber]
+        id => id === shuffledExerciseQuestions[question.exercise_id][question.questionNumber],
       ) + 1,
   }));
 }
@@ -151,7 +151,7 @@ export async function convertExamQuestionSources(exam) {
     exam.question_sources = convertExamQuestionSourcesV0V2(
       exam.question_sources,
       exam.seed,
-      questionIds
+      questionIds,
     );
     // v1 -> v2 only updates the `counter_in_exercise` field if it's in camelCase
     // so we can set the data_model_version to 2 here to skip that code
@@ -187,7 +187,7 @@ export async function fetchExamWithContent(exam) {
       exam.question_sources.reduce((acc, section) => {
         acc = [...acc, ...section.questions.map(item => item.exercise_id)];
         return acc;
-      }, [])
+      }, []),
     );
 
     return ContentNodeResource.fetchCollection({

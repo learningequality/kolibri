@@ -11,15 +11,16 @@
     >
       <KButton
         appearance="flat-button"
-        :appearanceOverrides="isKeyActive(key)
-          ? { ...activityStyles, ...activityActiveStyles }
-          : activityStyles"
-        :disabled="availableActivities &&
-          !availableActivities[key] &&
-          !isKeyActive(key)"
+        :appearanceOverrides="
+          isKeyActive(key) ? { ...activityStyles, ...activityActiveStyles } : activityStyles
+        "
+        :disabled="availableActivities && !availableActivities[key] && !isKeyActive(key)"
         @click="$emit('input', key)"
       >
-        <KIcon :icon="activityIcon(activity)" class="activity-icon" />
+        <KIcon
+          :icon="activityIcon(activity)"
+          class="activity-icon"
+        />
         <p class="activity-button-text">
           {{ coreString(camelCase(activity)) }}
         </p>
@@ -82,7 +83,7 @@
       },
       activeKeys() {
         return Object.keys(
-          (this.activeSearchTerms && this.activeSearchTerms.learning_activities) || {}
+          (this.activeSearchTerms && this.activeSearchTerms.learning_activities) || {},
         );
       },
     },
@@ -112,7 +113,7 @@
 </script>
 
 
-<style  lang="scss" scoped>
+<style lang="scss" scoped>
 
   .activity-icon {
     width: 34px;

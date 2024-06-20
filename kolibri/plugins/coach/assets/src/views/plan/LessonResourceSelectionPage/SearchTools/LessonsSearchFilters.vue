@@ -7,7 +7,10 @@
 
     <div>
       <div class="ib">
-        <KIcon class="icon" icon="filterList" />
+        <KIcon
+          class="icon"
+          icon="filterList"
+        />
         <KSelect
           :label="$tr('contentKindFilterLabel')"
           :options="contentKindFilterOptions"
@@ -20,7 +23,10 @@
       </div>
 
       <div class="ib">
-        <KIcon class="icon" icon="channel" />
+        <KIcon
+          class="icon"
+          icon="channel"
+        />
         <KSelect
           :label="$tr('channelFilterLabel')"
           :options="channelFilterOptions"
@@ -36,7 +42,10 @@
         v-if="coachContentInResults"
         class="ib"
       >
-        <KIcon class="icon" icon="coachContent" />
+        <KIcon
+          class="icon"
+          icon="coachContent"
+        />
         <KSelect
           :label="$tr('coachResourcesLabel')"
           :options="roleFilterOptions"

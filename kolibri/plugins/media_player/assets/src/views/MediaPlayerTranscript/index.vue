@@ -9,7 +9,10 @@
     @mouseenter="hovering = true"
     @mouseleave="hovering = false"
   >
-    <div v-show="!cues.length" class="fill-space loading-space">
+    <div
+      v-show="!cues.length"
+      class="fill-space loading-space"
+    >
       <KCircularLoader
         class="loader"
         :delay="true"
@@ -93,14 +96,14 @@
           this.cueReduce((offsetTop, cue) => {
             return Math.min(offsetTop, cue.offsetTop());
           }),
-          this.$el.scrollHeight
+          this.$el.scrollHeight,
         );
 
         const offsetBottom = newActiveCueIds.reduce(
           this.cueReduce((offsetBottom, cue) => {
             return Math.max(offsetBottom, cue.offsetTop() + cue.height());
           }),
-          0
+          0,
         );
 
         const duration = newActiveCueIds.reduce(
@@ -108,7 +111,7 @@
             // Multiply duration by 1000 to get milliseconds
             return duration + cue.duration() * 1000;
           }),
-          0
+          0,
         );
 
         this.scrollTo(offsetTop, offsetBottom, duration);

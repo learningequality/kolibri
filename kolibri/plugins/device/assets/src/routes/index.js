@@ -86,7 +86,7 @@ const routes = [
       return {
         goBackRoute: { name: PageNames.FACILITIES_PAGE },
         facilityId,
-        editSyncRoute: function(deviceId) {
+        editSyncRoute: function (deviceId) {
           return {
             name: PageNames.EDIT_SYNC_SCHEDULE,
             params: {

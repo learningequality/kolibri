@@ -2,7 +2,7 @@
 
   <KIcon
     icon="language"
-    style="top:0; width: 24px; height: 24px;"
+    style="top: 0; width: 24px; height: 24px"
     :color="$themeTokens.textInverted"
   />
 

@@ -7,9 +7,9 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 function Plugin() {}
 
-Plugin.prototype.apply = function(compiler) {
+Plugin.prototype.apply = function (compiler) {
   if (compiler.hooks) {
-    compiler.hooks.compilation.tap('H5PHashWriterPlugin', function(compilation) {
+    compiler.hooks.compilation.tap('H5PHashWriterPlugin', function (compilation) {
       if (compilation.errors.length > 0) {
         return;
       }

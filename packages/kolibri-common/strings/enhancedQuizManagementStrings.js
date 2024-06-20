@@ -224,7 +224,7 @@ export function displaySectionTitle(section, index) {
 export function displayQuestionTitle(question, exerciseTitle) {
   return question.title === ''
     ? `${exerciseTitle} (${enhancedQuizManagementStrings.$formatNumber(
-        question.counter_in_exercise
+        question.counter_in_exercise,
       )})`
     : question.title;
 }

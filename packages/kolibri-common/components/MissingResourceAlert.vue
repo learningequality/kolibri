@@ -12,12 +12,14 @@
       </span>
       <span v-else>
         <span>
-          {{ coreString(
-            multiple ? 'someResourcesMissingOrNotSupported' :
-            'resourceNotFoundOnDevice'
-          ) }}
-        &nbsp;
-          <KButton appearance="basic-link" @click="open = true">
+          {{
+            coreString(multiple ? 'someResourcesMissingOrNotSupported' : 'resourceNotFoundOnDevice')
+          }}
+          &nbsp;
+          <KButton
+            appearance="basic-link"
+            @click="open = true"
+          >
             {{ $tr('learnMore') }}
           </KButton>
         </span>
@@ -32,7 +34,6 @@
       <p>{{ $tr('resourcesUnavailableP1') }}</p>
       <p>{{ $tr('resourcesUnavailableP2') }}</p>
     </KModal>
-
   </div>
 
 </template>

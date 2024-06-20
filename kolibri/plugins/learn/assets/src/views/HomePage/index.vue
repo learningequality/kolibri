@@ -1,7 +1,11 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div v-if="!loading" id="main" role="main">
+    <div
+      v-if="!loading"
+      id="main"
+      role="main"
+    >
       <ResourceSyncingUiAlert
         v-if="missingResources"
         @syncComplete="hydrateHomePage"
@@ -17,9 +21,9 @@
         v-if="continueLearning"
         class="section"
         :fromClasses="continueLearningFromClasses"
-        :data-test="continueLearningFromClasses ?
-          'continueLearningFromClasses' :
-          'continueLearningOnYourOwn'"
+        :data-test="
+          continueLearningFromClasses ? 'continueLearningFromClasses' : 'continueLearningOnYourOwn'
+        "
       />
       <AssignedLessonsCards
         v-if="hasActiveClassesLessons"
@@ -42,13 +46,15 @@
         :channels="channels"
         class="section"
         data-test="exploreChannels"
-        :short="Boolean(displayClasses ||
-          continueLearning ||
-          hasActiveClassesLessons ||
-          hasActiveClassesQuizzes)
+        :short="
+          Boolean(
+            displayClasses ||
+              continueLearning ||
+              hasActiveClassesLessons ||
+              hasActiveClassesQuizzes,
+          )
         "
       />
-
     </div>
   </LearnAppBarPage>
 
@@ -118,27 +124,27 @@
       const continueLearningFromClasses = computed(
         () =>
           (get(isUserLoggedIn) && get(resumableClassesQuizzes).length > 0) ||
-          get(resumableClassesResources).length > 0
+          get(resumableClassesResources).length > 0,
       );
       const continueLearningOnYourOwn = computed(
         () =>
           get(isUserLoggedIn) &&
           get(learnerFinishedAllClasses) &&
           get(canAccessUnassignedContent) &&
-          get(resumableContentNodes).length > 0
+          get(resumableContentNodes).length > 0,
       );
 
       const continueLearning = computed(
-        () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn)
+        () => get(continueLearningFromClasses) || get(continueLearningOnYourOwn),
       );
 
       const hasActiveClassesLessons = computed(
         () =>
-          get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0
+          get(isUserLoggedIn) && get(activeClassesLessons) && get(activeClassesLessons).length > 0,
       );
       const hasActiveClassesQuizzes = computed(
         () =>
-          get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0
+          get(isUserLoggedIn) && get(activeClassesQuizzes) && get(activeClassesQuizzes).length > 0,
       );
       const hasChannels = computed(() => {
         return get(localChannelsCache).length > 0;
@@ -168,12 +174,12 @@
             setClasses(response.data.classrooms);
             setResumableContentNodes(
               response.data.resumable_resources.results || [],
-              response.data.resumable_resources.more || null
+              response.data.resumable_resources.more || null,
             );
             for (const progress of response.data.resumable_resources_progress) {
               setContentNodeProgress(progress);
             }
-          }
+          },
         );
       }
 

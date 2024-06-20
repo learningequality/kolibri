@@ -5,7 +5,7 @@
     :pageTitle="coreString('allFacilitiesLabel')"
   >
     <KPageContainer>
-      <h1>{{ coreString('facilitiesLabel') }} </h1>
+      <h1>{{ coreString('facilitiesLabel') }}</h1>
       <CoreTable>
         <template #headers>
           <th>{{ coreString('nameLabel') }}</th>

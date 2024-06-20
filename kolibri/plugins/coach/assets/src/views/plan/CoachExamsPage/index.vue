@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <PlanHeader :activeTabId="PlanTabs.QUIZZES" />
       <KTabsPanel
@@ -88,21 +87,26 @@
                     v-if="!exam.active && !exam.archive"
                     :text="openQuizLabel$()"
                     appearance="flat-button"
-                    @click="showOpenConfirmationModal = true; activeQuiz = exam"
+                    @click="
+                      showOpenConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Close quiz button -->
                   <KButton
                     v-if="exam.active && !exam.archive"
                     :text="closeQuizLabel$()"
                     appearance="flat-button"
-                    @click="showCloseConfirmationModal = true; activeQuiz = exam;"
+                    @click="
+                      showCloseConfirmationModal = true;
+                      activeQuiz = exam;
+                    "
                   />
                   <!-- Closed quiz label -->
                   <div v-if="exam.archive">
                     {{ quizClosedLabel$() }}
                   </div>
                 </td>
-
               </tr>
             </transition-group>
           </template>
@@ -111,22 +115,13 @@
         <p v-if="!quizzes.length">
           {{ $tr('noExams') }}
         </p>
-        <p
-          v-else-if="statusSelected.value === filterQuizStarted$() &&
-            !startedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizStarted$() && !startedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === filterQuizNotStarted$() &&
-            !notStartedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizNotStarted$() && !notStartedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
-        <p
-          v-else-if=" statusSelected.value === filterQuizEnded$() &&
-            !endedExams.length"
-        >
+        <p v-else-if="statusSelected.value === filterQuizEnded$() && !endedExams.length">
           {{ coreString('noResultsLabel') }}
         </p>
 
@@ -146,7 +141,8 @@
           <p
             v-if="
               activeQuiz.data_model_version === 3 &&
-                activeQuiz.question_sources.some(s => (!s.questions || s.questions.length === 0))"
+                activeQuiz.question_sources.some(s => !s.questions || s.questions.length === 0)
+            "
           >
             {{ openQuizModalEmptySections$() }}
           </p>

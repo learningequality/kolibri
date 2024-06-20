@@ -6,6 +6,6 @@ export default (widget, rubric) => {
       values,
     },
     null, // cb
-    false // silent
+    false, // silent
   );
 };

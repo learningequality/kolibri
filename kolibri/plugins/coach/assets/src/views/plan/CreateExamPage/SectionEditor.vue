@@ -25,12 +25,10 @@
       class="description-ktextbox-style"
     />
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
     <div>
-      <h5
-        class="section-settings-heading"
-      >
+      <h5 class="section-settings-heading">
         {{ questionOrder$() }}
       </h5>
       <KGrid>
@@ -61,37 +59,30 @@
       </KGrid>
     </div>
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
-    <h5
-      class="section-settings-heading"
-    >
+    <h5 class="section-settings-heading">
       {{
-        numberOfQuestionsSelected$(
-          {
-            count: activeQuestions.length,
-          }
-        )
+        numberOfQuestionsSelected$({
+          count: activeQuestions.length,
+        })
       }}
     </h5>
 
     <KRouterLink
       appearance="raised-button"
       :to="selectResourcesRoute"
-      style="margin-bottom: 1em;"
+      style="margin-bottom: 1em"
       iconAfter="forward"
     >
       {{ resourceButtonLabel }}
     </KRouterLink>
 
-    <hr :style="dividerStyle">
+    <hr :style="dividerStyle" >
 
-    <h5
-      class="section-order-style section-settings-heading"
-    >
+    <h5 class="section-order-style section-settings-heading">
       {{ sectionOrder$() }}
     </h5>
-
 
     <DragContainer
       v-if="sectionOrderList.length > 0"
@@ -106,8 +97,9 @@
         >
           <DragHandle>
             <div
-              :style="activeSection.section_id === section.section_id ?
-                activeSectionStyles : borderStyle"
+              :style="
+                activeSection.section_id === section.section_id ? activeSectionStyles : borderStyle
+              "
               class="section-order-list"
             >
               <KGrid>
@@ -166,10 +158,9 @@
             :text="deleteSectionLabel$()"
             @click="handleDeleteSection()"
           />
-
         </KGridItem>
         <KGridItem
-          style="text-align: right;"
+          style="text-align: right"
           :layout12="{ span: 6 }"
           :layout8="{ span: 4 }"
           :layout4="{ span: 2 }"
@@ -179,7 +170,6 @@
             :text="applySettings$()"
             @click="applySettings"
           />
-
         </KGridItem>
       </KGrid>
     </div>
@@ -201,9 +191,11 @@
       @cancel="handleCancelDelete"
       @submit="handleConfirmDelete"
     >
-      {{ deleteConfirmation$(
-        { section_title: displaySectionTitle(activeSection, activeSectionIndex) }
-      ) }}
+      {{
+        deleteConfirmation$({
+          section_title: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </KModal>
   </div>
 
@@ -335,7 +327,7 @@
             description: description.value,
             section_title: section_title.value.trim(),
           },
-          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title'])
+          pick(activeSection.value, ['learners_see_fixed_order', 'description', 'section_title']),
         );
       });
 
@@ -344,7 +336,7 @@
       const sectionOrderChanged = computed(() => {
         return !isEqual(
           allSections.value.map(section => section.section_id),
-          sectionOrderList.value.map(section => section.section_id)
+          sectionOrderList.value.map(section => section.section_id),
         );
       });
 

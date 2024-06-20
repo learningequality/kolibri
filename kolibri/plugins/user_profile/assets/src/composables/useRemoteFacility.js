@@ -22,7 +22,7 @@ function remoteFacilityUserData(baseurl, facility_id, username, password, userAd
   });
 }
 
-const remoteFacilityUsers = function(baseurl, facility_id, username) {
+const remoteFacilityUsers = function (baseurl, facility_id, username) {
   const params = {
     baseurl: baseurl,
     facility: facility_id,

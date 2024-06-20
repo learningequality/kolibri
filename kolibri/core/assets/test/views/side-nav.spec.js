@@ -108,7 +108,7 @@ describe('side nav component', () => {
                 role: otherKind,
               },
             ],
-          })
+          }),
         );
         setUserKind(kind);
         const wrapper = createWrapper();
@@ -117,7 +117,7 @@ describe('side nav component', () => {
         } else {
           expect(wrapper.text()).not.toContain(label);
         }
-      }
+      },
     );
   });
 
@@ -148,7 +148,7 @@ describe('side nav component', () => {
               role: otherKind,
             },
           ],
-        })
+        }),
       );
       setUserKind(UserKinds.SUPERUSER);
       const wrapper = createWrapper();
@@ -168,7 +168,7 @@ describe('side nav component', () => {
             setUserKind(kind, true);
             const wrapper = createWrapper();
             expect(wrapper.findComponent(SyncStatusDisplay).exists()).toBe(true);
-          }
+          },
         );
         it('does not show the SyncStatusDisplay to guest users', async () => {
           setUserKind(UserKinds.ANONYMOUS);

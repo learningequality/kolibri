@@ -108,7 +108,7 @@ function toCSV(csvPath, namespace, messages) {
   return csvWriter.writeRecords(sortBy(csvData, 'identifier'));
 }
 
-module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
+module.exports = function (pathInfo, ignore, localeDataFolder, verbose) {
   // An object for storing our messages.
   const extractedMessages = {};
   forEachPathInfo(pathInfo, pathData => {
@@ -119,7 +119,7 @@ module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
         const nameSpaceMessages = extractedMessages[otherNamespace];
         if (checkForDuplicateIds(nameSpaceMessages, filePathMessages)) {
           logging.error(
-            `Duplicate message ids across namespaces ${namespace} and ${otherNamespace}`
+            `Duplicate message ids across namespaces ${namespace} and ${otherNamespace}`,
           );
         }
       }
@@ -134,12 +134,12 @@ module.exports = function(pathInfo, ignore, localeDataFolder, verbose) {
     return toCSV(csvPath, namespace, extractedMessages[namespace]);
   });
   Promise.all(PromisesToWriteCSVs).then(() =>
-    logging.info('Messages successfully written to CSV files.')
+    logging.info('Messages successfully written to CSV files.'),
   );
 
   let messageCount = 0;
   Object.keys(extractedMessages).forEach(
-    ns => (messageCount += Object.keys(extractedMessages[ns]).length)
+    ns => (messageCount += Object.keys(extractedMessages[ns]).length),
   );
 
   logging.info(`Successfully extracted ${messageCount} messages!`);

@@ -38,7 +38,10 @@
           :ariaLabel="coreString('clearAction')"
           @click="clearSearchTerm"
         />
-        <div class="submit-button-wrapper" :style="{ backgroundColor: $themeTokens.primary }">
+        <div
+          class="submit-button-wrapper"
+          :style="{ backgroundColor: $themeTokens.primary }"
+        >
           <KIconButton
             icon="search"
             :color="$themeTokens.textInverted"
@@ -51,7 +54,6 @@
         </div>
       </div>
     </div>
-
   </form>
 
 </template>

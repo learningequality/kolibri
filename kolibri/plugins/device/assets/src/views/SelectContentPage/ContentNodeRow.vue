@@ -23,7 +23,10 @@
           :text="node.title"
           :to="getLinkObject(node)"
         />
-        <span v-else dir="auto">
+        <span
+          v-else
+          dir="auto"
+        >
           {{ node.title }}
         </span>
         <CoachContentLabel
@@ -32,7 +35,6 @@
           :isTopic="isTopic"
         />
       </KLabeledIcon>
-
     </td>
 
     <td class="message">

@@ -2,9 +2,15 @@
 
   <div>
     <h1>{{ $tr('documentTitle') }}</h1>
-    <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+    <div
+      class="task-panel"
+      :class="{ 'task-panel-sm': windowIsSmall }"
+    >
       <div class="icon">
-        <transition v-if="!taskError" mode="out-in">
+        <transition
+          v-if="!taskError"
+          mode="out-in"
+        >
           <KIcon
             v-if="taskCompleted"
             icon="check"
@@ -16,23 +22,33 @@
             :size="24"
             :stroke="5"
           />
-
-
         </transition>
       </div>
 
       <div class="details">
-        <p class="details-status" :style="{ color: $themeTokens.annotation }">
+        <p
+          class="details-status"
+          :style="{ color: $themeTokens.annotation }"
+        >
           {{ taskInfo() }}
         </p>
 
-        <div v-if="taskCompleted" data-test="completedMessage">
+        <div
+          v-if="taskCompleted"
+          data-test="completedMessage"
+        >
           {{ successfullyJoined }}
         </div>
-        <div v-if="taskError" data-test="errorMessage">
+        <div
+          v-if="taskError"
+          data-test="errorMessage"
+        >
           {{ errorMessage }}
         </div>
-        <div v-else class="details-progress-bar">
+        <div
+          v-else
+          class="details-progress-bar"
+        >
           <KLinearLoader
             class="k-linear-loader"
             type="determinate"
@@ -67,7 +83,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>
@@ -105,7 +120,7 @@
       let isPolling = true;
       let isTaskRequested = false;
       const taskCompleted = computed(() =>
-        task.value === null ? false : task.value.status === TaskStatuses.COMPLETED
+        task.value === null ? false : task.value.status === TaskStatuses.COMPLETED,
       );
       const percentage = computed(() => (task.value ? task.value.percentage : 0));
       onMounted(() => {
@@ -149,7 +164,7 @@
           TaskResource.fetchCollection()
             .then(allTasks => {
               const tasks = allTasks.filter(
-                t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser'
+                t => t.type === 'kolibri.plugins.user_profile.tasks.mergeuser',
               );
               if (tasks.length > 0) {
                 updateMachineContext(tasks[0]);

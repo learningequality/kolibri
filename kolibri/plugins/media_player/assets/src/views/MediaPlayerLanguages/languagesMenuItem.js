@@ -29,8 +29,8 @@ class LanguagesMenuItem extends mixin(languagesMenuItem) {
             value: this.getTrack().language,
           },
         },
-        options
-      )
+        options,
+      ),
     );
   }
 

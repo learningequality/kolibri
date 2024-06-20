@@ -37,9 +37,12 @@
             <KCircularLoader
               v-else-if="isImporting(userRow.user)"
               :size="24"
-              style="margin: 4px auto 0;"
+              style="margin: 4px auto 0"
             />
-            <p v-else class="imported">
+            <p
+              v-else
+              class="imported"
+            >
               {{ $tr('imported') }}
             </p>
           </template>
@@ -153,7 +156,7 @@
                 // Remove completed user id from 'being imported'
                 const taskUserId = task.extra_metadata.user_id;
                 this.learnersBeingImported = this.learnersBeingImported.filter(
-                  id => id != taskUserId
+                  id => id != taskUserId,
                 );
 
                 // Update the wizard context to know this user has been imported - only if they

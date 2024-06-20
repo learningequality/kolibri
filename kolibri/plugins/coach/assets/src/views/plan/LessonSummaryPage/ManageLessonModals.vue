@@ -49,7 +49,7 @@
       currentAction: {
         type: String,
         required: true,
-        validator: function(value) {
+        validator: function (value) {
           return ['', 'COPY', 'DELETE'].includes(value.toUpperCase());
         },
       },
@@ -71,7 +71,7 @@
       handleSubmitCopy(selectedClassroomId, selectedCollectionIds, adHocLearnerIds) {
         const title = this.$tr('copyOfLesson', { lessonTitle: this.currentLesson.title }).substring(
           0,
-          50
+          50,
         );
         const classroomName = find(this.classList, { id: selectedClassroomId }).name;
 
@@ -119,7 +119,7 @@
               this.$router.getRoute('PLAN_LESSONS_ROOT', { classId: this.classId }),
               () => {
                 this.showSnackbarNotification('lessonDeleted');
-              }
+              },
             );
           })
           .catch(error => {

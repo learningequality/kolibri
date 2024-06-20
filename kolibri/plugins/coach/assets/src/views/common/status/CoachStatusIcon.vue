@@ -1,6 +1,9 @@
 <template>
 
-  <KIcon :icon="iconType" :color="color" />
+  <KIcon
+    :icon="iconType"
+    :color="color"
+  />
 
 </template>
 

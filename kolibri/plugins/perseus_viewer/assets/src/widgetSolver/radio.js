@@ -12,6 +12,6 @@ export default widget => {
       choiceStates: newStates,
     },
     null, // cb
-    false // silent
+    false, // silent
   );
 };

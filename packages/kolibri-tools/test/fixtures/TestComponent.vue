@@ -13,7 +13,6 @@
     :appBarTitle="coreString('coachLabel')"
     :showSubNav="false"
   >
-
     <template #sub-nav>
       <TopNavbar />
     </template>
@@ -40,8 +39,14 @@
           <th>{{ coachString('learnersLabel') }}</th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
-            <tr v-for="classObj in classList" :key="classObj.id">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
+            <tr
+              v-for="classObj in classList"
+              :key="classObj.id"
+            >
               <td>
                 <KRouterLink
                   :text="classObj.name"
@@ -60,7 +65,6 @@
         </template>
       </CoreTable>
     </KPageContainer>
-
   </CoreBase>
 
 </template>
@@ -121,5 +125,4 @@
       noClassesInFacility: 'There are no classes yet',
     },
   };
-
 </script>

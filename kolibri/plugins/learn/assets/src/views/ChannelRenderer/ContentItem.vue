@@ -17,7 +17,6 @@
       />
     </template>
     <KCircularLoader v-else />
-
   </div>
 
 </template>

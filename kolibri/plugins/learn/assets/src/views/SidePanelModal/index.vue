@@ -17,7 +17,6 @@
           :style="sidePanelStyles"
           :aria-label="ariaLabel"
         >
-
           <!-- Fixed header -->
           <div
             v-show="$slots.header"
@@ -26,8 +25,7 @@
             :style="fixedHeaderStyles"
           >
             <div class="header-content">
-              <slot name="header">
-              </slot>
+              <slot name="header"> </slot>
             </div>
           </div>
 
@@ -42,10 +40,12 @@
           />
 
           <!-- Default slot for inserting content which will scroll on overflow -->
-          <div class="side-panel-content" :style="contentStyles">
+          <div
+            class="side-panel-content"
+            :style="contentStyles"
+          >
             <slot></slot>
           </div>
-
         </section>
       </FocusTrap>
     </transition>

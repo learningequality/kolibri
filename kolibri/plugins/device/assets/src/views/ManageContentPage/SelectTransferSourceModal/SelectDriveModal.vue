@@ -113,7 +113,7 @@
       },
       enabledDrives() {
         return this.driveList.filter(drive =>
-          this.driveCanBeUsedForTransfer({ drive, transferType: this.transferType })
+          this.driveCanBeUsedForTransfer({ drive, transferType: this.transferType }),
         );
       },
       driveListMode() {

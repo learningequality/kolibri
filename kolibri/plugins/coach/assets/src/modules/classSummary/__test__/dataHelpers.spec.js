@@ -22,7 +22,7 @@ describe('coach summary data helpers', () => {
   describe('getLearnersForGroups', () => {
     it('returns everyone in the class when empty', () => {
       expect(store.getters.getLearnersForGroups([])).toEqual(
-        store.getters.learners.map(learner => learner.id)
+        store.getters.learners.map(learner => learner.id),
       );
     });
     it('returns the learner IDs of everyone in the groups with no duplicates', () => {
@@ -46,7 +46,7 @@ describe('coach summary data helpers', () => {
         store.getters.getLearnersForExam({
           assignments: [],
           learner_ids: [],
-        })
+        }),
       ).toEqual([]);
     });
 
@@ -75,7 +75,7 @@ describe('coach summary data helpers', () => {
         store.getters.getLearnersForLesson({
           assignments: [],
           learner_ids: [],
-        })
+        }),
       ).toEqual([]);
     });
 

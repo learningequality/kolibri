@@ -1,16 +1,15 @@
 <template>
 
   <div>
-
     <section>
       <HeaderWithOptions>
         <template #header>
           <p>
             <BackLink
               :to="
-                group ?
-                  classRoute('ReportsGroupReportLessonPage', {}) :
-                  classRoute('ReportsLessonReportPage')
+                group
+                  ? classRoute('ReportsGroupReportLessonPage', {})
+                  : classRoute('ReportsLessonReportPage')
               "
               :text="coachString('backToLessonLabel', { lesson: lesson.title })"
             />
@@ -23,15 +22,28 @@
           />
         </template>
       </HeaderWithOptions>
-      <MissingResourceAlert v-if="resourceMissing" :multiple="false" />
+      <MissingResourceAlert
+        v-if="resourceMissing"
+        :multiple="false"
+      />
       <h1>
-        <KLabeledIcon :icon="resource.kind" :label="resource.title" />
+        <KLabeledIcon
+          :icon="resource.kind"
+          :label="resource.title"
+        />
       </h1>
     </section>
 
-    <SlotTruncator v-if="description" :maxHeight="96" :showViewMore="true">
+    <SlotTruncator
+      v-if="description"
+      :maxHeight="96"
+      :showViewMore="true"
+    >
       <!-- eslint-disable-next-line vue/no-v-html -->
-      <p dir="auto" v-html="description"></p>
+      <p
+        dir="auto"
+        v-html="description"
+      ></p>
     </SlotTruncator>
 
     <HeaderTable>
@@ -49,14 +61,10 @@
         :keyText="coreString('masteryModelLabel')"
       >
         <template #value>
-          <MasteryModel
-            :masteryModel="resource.assessmentmetadata.mastery_model"
-          />
+          <MasteryModel :masteryModel="resource.assessmentmetadata.mastery_model" />
         </template>
       </HeaderTableRow>
-      <HeaderTableRow
-        :keyText="coreString('suggestedTime')"
-      >
+      <HeaderTableRow :keyText="coreString('suggestedTime')">
         <template #value>
           {{ resource.duration || 'Not available' }}
         </template>
@@ -100,24 +108,27 @@
       </HeaderTableRow>
     </HeaderTable>
 
-    <HeaderTabs v-if="resource.assessmentmetadata" :enablePrint="true">
+    <HeaderTabs
+      v-if="resource.assessmentmetadata"
+      :enablePrint="true"
+    >
       <HeaderTab
         :text="coachString('reportLabel')"
         :to="
-          group ?
-            classRoute('ReportsGroupReportLessonExerciseLearnerListPage') :
-            classRoute('ReportsLessonExerciseLearnerListPage')
+          group
+            ? classRoute('ReportsGroupReportLessonExerciseLearnerListPage')
+            : classRoute('ReportsLessonExerciseLearnerListPage')
         "
       />
       <HeaderTab
         :text="coachString('difficultQuestionsLabel')"
-        :to="group ?
-          classRoute('ReportsGroupReportLessonExerciseQuestionListPage') :
-          classRoute('ReportsLessonExerciseQuestionListPage')
+        :to="
+          group
+            ? classRoute('ReportsGroupReportLessonExerciseQuestionListPage')
+            : classRoute('ReportsLessonExerciseQuestionListPage')
         "
       />
     </HeaderTabs>
-
   </div>
 
 </template>
@@ -178,7 +189,7 @@
       licenseDescription() {
         return licenseDescriptionForConsumer(
           this.resource.license_name,
-          this.resource.license_description
+          this.resource.license_description,
         );
       },
       resourceMissing() {

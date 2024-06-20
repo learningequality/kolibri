@@ -1,10 +1,7 @@
 <template>
 
   <CoachAppBarPage>
-
-    <KPageContainer>
-      Resource manager
-    </KPageContainer>
+    <KPageContainer> Resource manager </KPageContainer>
   </CoachAppBarPage>
 
 </template>

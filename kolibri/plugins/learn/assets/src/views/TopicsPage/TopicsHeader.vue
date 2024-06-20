@@ -26,7 +26,10 @@
         :layout8="{ span: 8, alignment: 'auto' }"
         :layout12="{ span: 12, alignment: 'auto' }"
       >
-        <h1 class="title" data-test="header-title">
+        <h1
+          class="title"
+          data-test="header-title"
+        >
           <KTextTruncator
             :text="title"
             :maxLines="1"

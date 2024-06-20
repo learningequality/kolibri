@@ -6,13 +6,15 @@
     :style="{ 'background-color': windowIsSmall ? $themeTokens.surface : '' }"
     @keyup.enter="handleEnterKey"
   >
-
     <div class="logo-lang-container">
       <!--
         Small Screen: Back button (if not hidden by prop)
         Med-Lg Screen: Logo
         -->
-      <div v-if="!windowIsSmall" class="logo-wrapper">
+      <div
+        v-if="!windowIsSmall"
+        class="logo-wrapper"
+      >
         <CoreLogo class="logo-image" />
         <span class="logo-text">{{ coreString('kolibriLabel') }}</span>
       </div>
@@ -41,8 +43,10 @@
       :topMargin="16"
       :noPadding="true"
     >
-
-      <div v-if="coreError" style="padding: 16px;">
+      <div
+        v-if="coreError"
+        style="padding: 16px"
+      >
         <AppError :hideParagraphs="true">
           <h2>{{ coreError }}</h2>
           <template #buttons>
@@ -54,12 +58,15 @@
           </template>
         </AppError>
       </div>
-      <div v-else class="content">
+      <div
+        v-else
+        class="content"
+      >
         <!-- Optional back arrow to show at the top for longer content views -->
         <KIconButton
           v-if="showBackArrow"
           icon="back"
-          style="margin-left: -12px;"
+          style="margin-left: -12px"
           @click="wizardService.send(eventOnGoBack)"
         />
 
@@ -67,7 +74,10 @@
           {{ title }}
         </h1>
 
-        <p v-if="description" class="description">
+        <p
+          v-if="description"
+          class="description"
+        >
           {{ description }}
         </p>
         <slot></slot>
@@ -78,19 +88,24 @@
         v-if="!coreError"
         class="footer"
         :style="{
-          borderTop: `1px solid ${windowIsSmall ? $themeTokens.surface : $themeTokens.fineLine}`
+          borderTop: `1px solid ${windowIsSmall ? $themeTokens.surface : $themeTokens.fineLine}`,
         }"
       >
         <!-- No room for slot on small screens.
              On med+ screens, to be used to show short strings of text eg, "Step 1 / 4" -->
-        <div v-if="!windowIsSmall" class="footer-section">
+        <div
+          v-if="!windowIsSmall"
+          class="footer-section"
+        >
           <slot name="footer"></slot>
           {{ footerMessage }}
         </div>
 
-
         <!-- Footer for medium+ screens -->
-        <KButtonGroup v-if="!windowIsSmall" class="footer-actions footer-section">
+        <KButtonGroup
+          v-if="!windowIsSmall"
+          class="footer-actions footer-section"
+        >
           <!-- Allow direct override of the buttons in the footer -->
           <slot name="buttons"></slot>
           <!-- Default buttons, hidden when the slot is used -->
@@ -112,7 +127,10 @@
         </KButtonGroup>
 
         <!-- Simpler to do a big button for the small screen separately -->
-        <div v-if="windowIsSmall" class="mobile-footer">
+        <div
+          v-if="windowIsSmall"
+          class="mobile-footer"
+        >
           <!-- Allow direct override of the buttons in the footer -->
           <slot name="buttons"></slot>
           <KButton
@@ -132,7 +150,6 @@
       class="ta-l"
       @cancel="showLanguageModal = false"
     />
-
   </div>
 
 </template>

@@ -13,7 +13,10 @@
         <KFixedGridItem span="1">
           <slot name="topLeft"></slot>
         </KFixedGridItem>
-        <KFixedGridItem span="1" alignment="right">
+        <KFixedGridItem
+          span="1"
+          alignment="right"
+        >
           <slot name="topRight"></slot>
         </KFixedGridItem>
       </KFixedGrid>

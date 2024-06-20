@@ -15,7 +15,7 @@ describe('AttemptLogItem', () => {
           propsData: { isSurvey: true, attemptLog },
         });
         expect(wrapper.find('[data-test="question-attempt-icons"]').element).toBeFalsy();
-      }
+      },
     );
   });
 

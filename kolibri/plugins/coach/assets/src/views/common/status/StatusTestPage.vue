@@ -1,7 +1,9 @@
 <template>
 
-  <div class="overview" :style="{ backgroundColor: $themeTokens.surface }">
-
+  <div
+    class="overview"
+    :style="{ backgroundColor: $themeTokens.surface }"
+  >
     <div class="moving">
       <ProgressSummaryBar
         :showErrorBar="true"
@@ -42,42 +44,69 @@
             :style="thinBorderStyle"
           >
             <table>
-              <tr><td>not started</td><td> {{ tally.notStarted }}</td></tr>
-              <tr><td>started</td><td> {{ tally.started }}</td></tr>
-              <tr><td>completed</td><td> {{ tally.completed }}</td></tr>
-              <tr><td>help needed</td><td> {{ tally.helpNeeded }}</td></tr>
+              <tr>
+                <td>not started</td>
+                <td>{{ tally.notStarted }}</td>
+              </tr>
+              <tr>
+                <td>started</td>
+                <td>{{ tally.started }}</td>
+              </tr>
+              <tr>
+                <td>completed</td>
+                <td>{{ tally.completed }}</td>
+              </tr>
+              <tr>
+                <td>help needed</td>
+                <td>{{ tally.helpNeeded }}</td>
+              </tr>
             </table>
           </td>
           <td
             rowspan="2"
             :style="[
               { position: 'relative', width: '200px', textAlign: 'center' },
-              thinBorderStyle
+              thinBorderStyle,
             ]"
           >
             <div class="bar">
-              <ProgressSummaryBar :showErrorBar="true" :tally="tally" />
+              <ProgressSummaryBar
+                :showErrorBar="true"
+                :tally="tally"
+              />
             </div>
           </td>
-          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">
-            long
+          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">long</td>
+          <td :style="thinBorderStyle">
+            <StatusSummary
+              :tally="tally"
+              :verbose="true"
+              :ratio="true"
+            />
           </td>
           <td :style="thinBorderStyle">
-            <StatusSummary :tally="tally" :verbose="true" :ratio="true" />
-          </td>
-          <td :style="thinBorderStyle">
-            <StatusSummary :tally="tally" :verbose="true" :ratio="false" />
+            <StatusSummary
+              :tally="tally"
+              :verbose="true"
+              :ratio="false"
+            />
           </td>
         </tr>
         <tr>
-          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">
-            short
+          <td :style="[{ textAlign: 'center' }, thinBorderStyle]">short</td>
+          <td :style="thinBorderStyle">
+            <StatusSummary
+              :tally="tally"
+              :verbose="false"
+              :ratio="true"
+            />
           </td>
           <td :style="thinBorderStyle">
-            <StatusSummary :tally="tally" :verbose="false" :ratio="true" />
-          </td>
-          <td :style="thinBorderStyle">
-            <StatusSummary :tally="tally" :verbose="false" :ratio="false" />
+            <StatusSummary
+              :tally="tally"
+              :verbose="false"
+              :ratio="false"
+            />
           </td>
         </tr>
       </tbody>

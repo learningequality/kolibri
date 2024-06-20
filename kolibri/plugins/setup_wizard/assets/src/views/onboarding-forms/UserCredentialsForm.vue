@@ -56,7 +56,6 @@
       <!-- NOTE: Demographic info forms were removed in PR #6053 -->
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
-
     </form>
 
     <slot name="footer">

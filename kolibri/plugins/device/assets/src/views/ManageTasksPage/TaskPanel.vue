@@ -1,6 +1,9 @@
 <template>
 
-  <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+  <div
+    class="task-panel"
+    :class="{ 'task-panel-sm': windowIsSmall }"
+  >
     <div class="icon">
       <transition mode="out-in">
         <KIcon
@@ -27,13 +30,19 @@
     </div>
 
     <div class="details">
-      <p class="details-status" :style="{ color: $themeTokens.annotation }">
+      <p
+        class="details-status"
+        :style="{ color: $themeTokens.annotation }"
+      >
         {{ statusText }}
       </p>
       <h2 class="details-description">
         {{ descriptionText }}
       </h2>
-      <div v-if="taskIsRunning || taskIsCanceling" class="details-progress-bar">
+      <div
+        v-if="taskIsRunning || taskIsCanceling"
+        class="details-progress-bar"
+      >
         <template v-if="taskIsRunning">
           <KLinearLoader
             class="k-linear-loader"
@@ -42,7 +51,10 @@
             :progress="task.percentage * 100"
             :style="{ backgroundColor: $themeTokens.fineLine }"
           />
-          <span v-if="taskPercentage" class="details-percentage">
+          <span
+            v-if="taskPercentage"
+            class="details-percentage"
+          >
             {{ $formatNumber(taskPercentage, { style: 'percent' }) }}
           </span>
         </template>
@@ -56,21 +68,33 @@
         </template>
       </div>
       <template v-if="!taskIsCompleted">
-        <p v-if="sizeText" class="details-size">
+        <p
+          v-if="sizeText"
+          class="details-size"
+        >
           {{ sizeText }}
         </p>
       </template>
       <template v-else>
-        <p v-if="finishedSizeText" class="details-size">
+        <p
+          v-if="finishedSizeText"
+          class="details-size"
+        >
           {{ finishedSizeText }}
         </p>
       </template>
-      <p class="details-startedby" :style="{ color: $themeTokens.annotation }">
+      <p
+        class="details-startedby"
+        :style="{ color: $themeTokens.annotation }"
+      >
         {{ startedByText }}
       </p>
     </div>
 
-    <div class="buttons" :class="{ 'button-lift': taskIsRunning }">
+    <div
+      class="buttons"
+      :class="{ 'button-lift': taskIsRunning }"
+    >
       <KButton
         v-if="taskIsCancellable || taskIsClearable"
         :disabled="taskIsCanceling"
@@ -211,12 +235,8 @@
         return '';
       },
       finishedSizeText() {
-        const {
-          transferred_file_size,
-          transferred_resources,
-          file_size,
-          total_resources,
-        } = this.task.extra_metadata;
+        const { transferred_file_size, transferred_resources, file_size, total_resources } =
+          this.task.extra_metadata;
         // Special case for canceled exports
         if (
           (this.task.type === TaskTypes.DISKEXPORT ||

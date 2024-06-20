@@ -17,7 +17,7 @@ function makeWrapper({ propsData = {}, getters = {} }) {
 jest.mock('kolibri.urls');
 jest.mock('kolibri-design-system/lib/composables/useKResponsiveWindow');
 
-describe('FacilityAppBarPage', function() {
+describe('FacilityAppBarPage', function () {
   beforeAll(() => {
     useKResponsiveWindow.mockImplementation(() => ({
       windowIsSmall: false,

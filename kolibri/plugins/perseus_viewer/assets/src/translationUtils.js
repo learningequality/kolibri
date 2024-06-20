@@ -35,7 +35,7 @@ class PerseusMessageWrapper {
 function wrapPerseusMessages(translatorObject) {
   if (window.Proxy) {
     return new Proxy(translatorObject, {
-      get: function(target, prop) {
+      get: function (target, prop) {
         return _getTranslatedStringOrFunction(target, prop);
       },
     });

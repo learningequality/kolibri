@@ -159,7 +159,7 @@ export default class Cookie extends BaseShim {
               // Don't worry about how far in the future, as, at a minimum, this
               // cookie should persist across this session.
               store.expires = new Date(
-                this.__now().getTime() + (expirationDate.getTime() - Date.now())
+                this.__now().getTime() + (expirationDate.getTime() - Date.now()),
               );
             }
           }

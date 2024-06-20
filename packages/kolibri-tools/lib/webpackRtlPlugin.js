@@ -44,7 +44,7 @@ class WebpackRTLPlugin {
               const rtlSource = rtlcss.process(
                 baseSource,
                 this.options.options,
-                this.options.plugins
+                this.options.plugins,
               );
 
               const newFilename = `${path.basename(asset, '.css')}.rtl`;
@@ -53,7 +53,7 @@ class WebpackRTLPlugin {
               compilation.emitAsset(filename, new webpack.sources.RawSource(rtlSource));
             }
           }
-        }
+        },
       );
     });
   }

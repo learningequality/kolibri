@@ -7,17 +7,21 @@
     :class="windowIsLarge ? 'side-panel' : ''"
     :aria-label="learnString('filterAndSearchLabel')"
     :ariaLabel="learnString('filterAndSearchLabel')"
-    :style="windowIsLarge ? {
-      color: $themeTokens.text,
-      backgroundColor: $themeTokens.surface,
-      width: width,
-    } : {}"
+    :style="
+      windowIsLarge
+        ? {
+          color: $themeTokens.text,
+          backgroundColor: $themeTokens.surface,
+          width: width,
+        }
+        : {}
+    "
     @closePanel="$emit('close')"
     @shouldFocusFirstEl="focusFirstEl()"
   >
     <div :class="windowIsLarge ? '' : 'drawer-panel'">
       <div
-        v-for="t in (topics || [])"
+        v-for="t in topics || []"
         :key="t.id"
       >
         <KRouterLink

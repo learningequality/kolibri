@@ -1,11 +1,17 @@
 <template>
 
-  <ReportsQuizBaseListPage :activeTabId="QuizzesTabs.REPORT" @export="exportCSV">
+  <ReportsQuizBaseListPage
+    :activeTabId="QuizzesTabs.REPORT"
+    @export="exportCSV"
+  >
     <KTabsPanel
       :tabsId="QUIZZES_TABS_ID"
       :activeTabId="QuizzesTabs.REPORT"
     >
-      <ReportsLearnersTable :entries="table" :questionCount="exam.question_count" />
+      <ReportsLearnersTable
+        :entries="table"
+        :questionCount="exam.question_count"
+      />
     </KTabsPanel>
   </ReportsQuizBaseListPage>
 

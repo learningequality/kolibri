@@ -3,7 +3,7 @@
   <div
     class="attempt-box"
     :style="{
-      border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled }`,
+      border: `2px solid ${selected ? $themeTokens.text : $themeTokens.textDisabled}`,
       cursor: selected ? 'auto' : 'pointer',
     }"
     data-testid="attemptBox"
@@ -28,14 +28,14 @@
       v-else-if="isHint"
       class="svg-item"
       icon="hint"
-      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation }]"
       data-testid="hintIcon"
     />
     <KIcon
       v-else-if="isError"
       class="svg-item"
       icon="helpNeeded"
-      :style="[svgItemBorder, { fill: $themeTokens.annotation } ]"
+      :style="[svgItemBorder, { fill: $themeTokens.annotation }]"
       data-testid="helpNeededIcon"
     />
   </div>
@@ -51,7 +51,7 @@
       interaction: {
         type: Object,
         required: true,
-        validator: function(value) {
+        validator: function (value) {
           // The object must have a 'type' property
           if (!value['type']) {
             return false;

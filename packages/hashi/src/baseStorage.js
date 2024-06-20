@@ -64,7 +64,7 @@ export default class BaseStorage extends BaseShim {
         this.shim,
         ...Object.entries(this.data)
           .filter(entry => !internalKeys.includes(entry[0]))
-          .map(entry => ({ [entry[0]]: entry[1] }))
+          .map(entry => ({ [entry[0]]: entry[1] })),
       );
       // Now remove any keys on the shim that shouldn't be there now.
       const shimProps = Object.keys(this.shim);

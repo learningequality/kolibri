@@ -86,13 +86,13 @@ export class Model {
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
-              }
+              },
             );
           }
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -164,13 +164,13 @@ export class Model {
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
-              }
+              },
             );
           }
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -214,13 +214,13 @@ export class Model {
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
-              }
+              },
             );
           }
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -340,13 +340,13 @@ export class Collection {
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
-              }
+              },
             );
           }
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -399,12 +399,12 @@ export class Collection {
               reject(response);
               // Clean up the reference to this promise
               this.promises.splice(this.promises.indexOf(promise), 1);
-            }
+            },
           );
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -450,13 +450,13 @@ export class Collection {
                 reject(response);
                 // Clean up the reference to this promise
                 this.promises.splice(this.promises.indexOf(promise), 1);
-              }
+              },
             );
           }
         },
         reason => {
           reject(reason);
-        }
+        },
       );
     });
     this.promises.push(promise);
@@ -602,8 +602,8 @@ export class Resource {
           .sort()
           .map(paramKey => ({
             [paramKey]: paramKey === this.idKey ? String(allParams[paramKey]) : allParams[paramKey],
-          }))
-      )
+          })),
+      ),
     );
   }
 
@@ -926,7 +926,7 @@ export class Resource {
 
   create(params = {}, multipart = false) {
     return this.accessListEndpoint('post', 'list', params, multipart).then(
-      response => response.data
+      response => response.data,
     );
   }
 
@@ -1038,7 +1038,7 @@ export class Resource {
       `%cRequest error: ${err.response.statusText}, ${
         err.response.status
       } for ${err.config.method.toUpperCase()} to ${err.config.url} - open for more info`,
-      'color: red'
+      'color: red',
     );
     console.log(`Error occured for ${this.name} resource on page ${window.location.href}`);
     if (store?.state?.route) {

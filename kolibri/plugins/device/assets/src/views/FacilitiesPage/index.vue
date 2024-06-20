@@ -1,7 +1,6 @@
 <template>
 
   <DeviceAppBarPage :title="pageTitle">
-
     <KPageContainer class="device-container">
       <HeaderWithOptions :headerText="coreString('facilitiesLabel')">
         <template #options>
@@ -10,14 +9,14 @@
             <KButton
               v-if="isAnyFacilityRegistered"
               :text="$tr('syncAllAction')"
-              style="margin-top: 16px; margin-bottom: -16px;"
+              style="margin-top: 16px; margin-bottom: -16px"
               @click="showSyncAllModal = true"
             />
             <KButton
               hasDropdown
               :text="$tr('createFacilityLabel')"
               primary
-              style="margin-top: 16px; margin-bottom: -16px;"
+              style="margin-top: 16px; margin-bottom: -16px"
             >
               <template #menu>
                 <KDropdownMenu
@@ -60,9 +59,9 @@
                 </td>
               </tr>
               <tr :key="idx + facilities.length">
-                <td style="padding: 0 0 16px 0;">
+                <td style="padding: 0 0 16px">
                   <!-- Gives most space possible to buttons and aligns them with text -->
-                  <KButtonGroup style="margin-left: -16px; margin-right: -16px; max-width: 100%">
+                  <KButtonGroup style="max-width: 100%; margin-right: -16px; margin-left: -16px">
                     <KButton
                       :text="coreString('syncAction')"
                       :disabled="facilityIsSyncing(facility)"
@@ -407,7 +406,7 @@
           'createSnackbar',
           this.$tr('facilityRemovedSnackbar', {
             facilityName,
-          })
+          }),
         );
       },
       handleRemoveSuccess(taskId) {

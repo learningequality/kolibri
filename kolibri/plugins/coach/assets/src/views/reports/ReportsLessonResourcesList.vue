@@ -7,8 +7,14 @@
       <th>{{ coachString('avgTimeSpentLabel') }}</th>
     </template>
     <template #tbody>
-      <transition-group tag="tbody" name="list">
-        <tr v-for="tableRow in entries" :key="tableRow.node_id">
+      <transition-group
+        tag="tbody"
+        name="list"
+      >
+        <tr
+          v-for="tableRow in entries"
+          :key="tableRow.node_id"
+        >
           <td>
             <KLabeledIcon :icon="tableRow.kind">
               <KRouterLink
@@ -30,7 +36,10 @@
             <KEmptyPlaceholder v-else />
           </td>
           <td>
-            <TimeDuration v-if="tableRow.tally" :seconds="tableRow.avgTimeSpent" />
+            <TimeDuration
+              v-if="tableRow.tally"
+              :seconds="tableRow.avgTimeSpent"
+            />
             <KEmptyPlaceholder v-else />
           </td>
         </tr>

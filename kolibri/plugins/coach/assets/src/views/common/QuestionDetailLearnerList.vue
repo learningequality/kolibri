@@ -5,7 +5,10 @@
       {{ coreString('learnersLabel') }}
     </h3>
 
-    <ul ref="learnerList" class="history-list">
+    <ul
+      ref="learnerList"
+      class="history-list"
+    >
       <template v-for="(learner, index) in learners">
         <li
           :key="index"
@@ -20,7 +23,7 @@
             <KIcon
               v-if="learner.noattempt"
               class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
+              :style="{ fill: $themeTokens.annotation }"
               icon="cancel"
             />
             <KIcon
@@ -32,7 +35,7 @@
             <KIcon
               v-else-if="learner.hinted"
               class="item svg-item"
-              :style=" { fill: $themeTokens.annotation }"
+              :style="{ fill: $themeTokens.annotation }"
               icon="hint"
             />
             <h3 class="item">

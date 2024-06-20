@@ -81,7 +81,7 @@ module.exports = {
           fix(fixer) {
             return fixer.replaceTextRange(
               [startTag.range[1], startTag.range[1] + beforeText.length],
-              '\n'.repeat(emptyLines + 1)
+              '\n'.repeat(emptyLines + 1),
             );
           },
         });
@@ -109,7 +109,7 @@ module.exports = {
           fix(fixer) {
             return fixer.replaceTextRange(
               [endTag.range[0] - afterText.length, endTag.range[0]],
-              '\n'.repeat(emptyLines + 1)
+              '\n'.repeat(emptyLines + 1),
             );
           },
         });
@@ -159,7 +159,7 @@ module.exports = {
             }
           }
         },
-      }
+      },
     );
   },
 };

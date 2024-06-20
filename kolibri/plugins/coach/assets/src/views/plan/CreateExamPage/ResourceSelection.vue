@@ -5,14 +5,19 @@
       <KCircularLoader />
     </div>
     <div v-else>
-      <h5 v-if="selectPracticeQuiz" class="select-folder-style">
+      <h5
+        v-if="selectPracticeQuiz"
+        class="select-folder-style"
+      >
         {{ selectPracticeQuizLabel$() }}
       </h5>
       <div v-else>
         <h5 class="select-folder-style">
-          {{ selectResourcesDescription$({
-            sectionTitle: displaySectionTitle(activeSection, activeSectionIndex)
-          }) }}
+          {{
+            selectResourcesDescription$({
+              sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+            })
+          }}
         </h5>
         <p>
           {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
@@ -21,7 +26,8 @@
             :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
           >
           </span>
-        </p><p>{{ numberOfQuestionsToAdd$() }}</p>
+        </p>
+        <p>{{ numberOfQuestionsToAdd$() }}</p>
         <div class="number-question">
           <div>
             <KTextbox
@@ -48,9 +54,7 @@
                 :disabled="questionCount === 1"
                 @click="questionCount -= 1"
               />
-              <span
-                :style="dividerStyle"
-              > | </span>
+              <span :style="dividerStyle"> | </span>
               <KIconButton
                 icon="plus"
                 aria-hidden="true"
@@ -64,7 +68,6 @@
       </div>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
-
         <p>{{ coreString('selectFromBookmarks') }}</p>
 
         <div>
@@ -72,7 +75,7 @@
             :appearanceOverrides="{
               width: '100%',
               textDecoration: 'none',
-              color: $themeTokens.text
+              color: $themeTokens.text,
             }"
             :to="getBookmarksLink"
           >
@@ -103,7 +106,7 @@
       <div
         v-if="showNumberOfQuestionsWarning"
         class="shadow"
-        :style=" {
+        :style="{
           padding: '1em',
           marginTop: '2em',
           marginBottom: '2em',
@@ -141,14 +144,14 @@
               <span v-if="workingPoolUnusedQuestions > maxSectionQuestionOptions">
                 {{
                   tooManyQuestions$({
-                    count: maxSectionQuestionOptions
+                    count: maxSectionQuestionOptions,
                   })
                 }}
               </span>
               <span v-else>
                 {{
                   questionsFromResources$({
-                    questions: workingPoolUnusedQuestions
+                    questions: workingPoolUnusedQuestions,
                   })
                 }}
               </span>
@@ -160,9 +163,11 @@
             :layout4="{ span: 2 }"
           >
             <KButton
-              style="float: right;"
-              :text="selectPracticeQuiz ? selectQuiz$() :
-                addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+              style="float: right"
+              :text="
+                selectPracticeQuiz
+                  ? selectQuiz$()
+                  : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
               "
               :primary="true"
               :disabled="disableSave"
@@ -245,7 +250,7 @@
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
       const maxQuestions = computed(
-        () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length
+        () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length,
       );
       const maxSectionQuestionOptions = computed(() => MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION);
 
@@ -300,7 +305,7 @@
             ...workingResourcePool.value,
             ...resources.filter(r => r.kind === ContentNodeKinds.EXERCISE),
           ],
-          isEqual
+          isEqual,
         );
       }
 
@@ -463,7 +468,7 @@
       function unusedQuestionsCount(content) {
         if (content.kind === ContentNodeKinds.EXERCISE) {
           const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-            aid => `${content.id}:${aid}`
+            aid => `${content.id}:${aid}`,
           );
           const questionsItemsAlreadyUsed = allQuestionsInQuiz.value
             .map(q => q.item)
@@ -503,7 +508,7 @@
               const isPracticeQuiz = item =>
                 !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
               bookmarks.value = data.results ? data.results.filter(isPracticeQuiz) : [];
-            })
+            }),
           );
 
           promises.push(
@@ -524,7 +529,7 @@
                       kind: ContentNodeKinds.CHANNEL,
                       is_leaf: false,
                     };
-                  })
+                  }),
                 ).then(annotatedResources => {
                   // When we don't have a topicId we're setting the value of
                   // useQuizResources.resources to the value of the channels
@@ -533,9 +538,9 @@
                   // that the channels are annotated with their num_assessments
                   setResources(annotatedResources);
                   channels.value = annotatedResources;
-                })
+                }),
               );
-            })
+            }),
           );
         }
         Promise.all(promises).then(() => {
@@ -861,7 +866,10 @@
     min-height: 141px;
     margin-bottom: 24px;
     border-radius: 2px;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
     transition: box-shadow 0.25s ease;
   }
 
@@ -893,7 +901,10 @@
   }
 
   .bookmark-container:hover {
-    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+    box-shadow:
+      0 5px 5px -3px #a1a1a1,
+      0 8px 10px 1px #d1d1d1,
+      0 3px 14px 2px #d4d4d4;
   }
 
   .text {
@@ -927,14 +938,19 @@
   }
 
   .shadow {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.2),
+      0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
 
   // Force the leaf nodes not to look like a link
   /deep/ .is-leaf.content-card {
     cursor: default;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
   }
 
   .number-question {

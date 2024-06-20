@@ -12,8 +12,6 @@
       />
     </transition>
 
-
-
     <router-view />
   </NotificationsRoot>
 

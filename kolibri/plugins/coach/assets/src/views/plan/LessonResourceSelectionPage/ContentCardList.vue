@@ -52,7 +52,10 @@
           :isLeaf="content.is_leaf"
         >
           <template #notice>
-            <slot name="notice" :content="content"></slot>
+            <slot
+              name="notice"
+              :content="content"
+            ></slot>
           </template>
         </LessonContentCard>
       </li>
@@ -66,7 +69,7 @@
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="viewMoreButtonState === ViewMoreButtonStates.LOADING & loadingMoreState"
+        v-if="(viewMoreButtonState === ViewMoreButtonStates.LOADING) & loadingMoreState"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->

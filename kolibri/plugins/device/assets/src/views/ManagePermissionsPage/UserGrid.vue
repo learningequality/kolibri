@@ -1,8 +1,10 @@
 <template>
 
   <div>
-
-    <CoreTable :emptyMessage="emptyMessage" :dataLoading="dataLoading">
+    <CoreTable
+      :emptyMessage="emptyMessage"
+      :dataLoading="dataLoading"
+    >
       <template #headers>
         <th>{{ coreString('fullNameLabel') }}</th>
         <th>{{ coreString('usernameLabel') }}</th>
@@ -14,7 +16,10 @@
 
       <template #tbody>
         <tbody>
-          <tr v-for="user in facilityUsers" :key="user.id">
+          <tr
+            v-for="user in facilityUsers"
+            :key="user.id"
+          >
             <td>
               <KLabeledIcon :label="fullNameLabel(user)">
                 <template #icon>
@@ -26,12 +31,18 @@
               </KLabeledIcon>
             </td>
             <td>
-              <span dir="auto" class="maxwidth">
+              <span
+                dir="auto"
+                class="maxwidth"
+              >
                 {{ user.username }}
               </span>
             </td>
             <td v-if="hasMultipleFacilities">
-              <span dir="auto" class="maxwidth">
+              <span
+                dir="auto"
+                class="maxwidth"
+              >
                 {{ memoizedFacilityName(user.facility) }}
               </span>
             </td>
@@ -39,7 +50,7 @@
               <KButton
                 appearance="flat-button"
                 :text="permissionsButtonText(user)"
-                style="margin: 6px;"
+                style="margin: 6px"
                 @click="goToUserPermissionsPage(user.id)"
               />
             </td>
@@ -47,7 +58,6 @@
         </tbody>
       </template>
     </CoreTable>
-
   </div>
 
 </template>

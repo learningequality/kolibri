@@ -54,10 +54,7 @@ function formatMessage(message) {
   }
 
   // Reassemble & Strip internal tracing, except `webpack:` -- (create-react-app/pull/1050)
-  return lines
-    .join('\n')
-    .replace(stackRegex, '')
-    .trim();
+  return lines.join('\n').replace(stackRegex, '').trim();
 }
 
 const format = stats => {

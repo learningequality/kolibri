@@ -7,7 +7,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'UserPage' }
+            params: { subtopicName: 'UserPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -54,7 +54,10 @@
         </template>
 
         <template #filter>
-          <FilterTextbox v-model="search" :placeholder="$tr('searchText')" />
+          <FilterTextbox
+            v-model="search"
+            :placeholder="$tr('searchText')"
+          />
         </template>
 
         <template>

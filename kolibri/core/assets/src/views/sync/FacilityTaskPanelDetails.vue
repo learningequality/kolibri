@@ -1,6 +1,9 @@
 <template>
 
-  <div class="task-panel" :class="{ 'task-panel-sm': windowIsSmall }">
+  <div
+    class="task-panel"
+    :class="{ 'task-panel-sm': windowIsSmall }"
+  >
     <div class="icon">
       <transition mode="out-in">
         <KCircularLoader
@@ -27,19 +30,31 @@
     </div>
 
     <div class="details">
-      <p class="details-status" :style="{ color: $themeTokens.annotation }">
+      <p
+        class="details-status"
+        :style="{ color: $themeTokens.annotation }"
+      >
         {{ statusMsg }}
       </p>
 
-      <h2 v-if="headingMsg" class="details-description">
+      <h2
+        v-if="headingMsg"
+        class="details-description"
+      >
         {{ headingMsg }}
       </h2>
 
-      <p v-if="underHeadingMsg" class="fs0">
+      <p
+        v-if="underHeadingMsg"
+        class="fs0"
+      >
         {{ underHeadingMsg }}
       </p>
 
-      <div v-if="loaderType && !statusHidesLoader" class="details-progress-bar">
+      <div
+        v-if="loaderType && !statusHidesLoader"
+        class="details-progress-bar"
+      >
         <template v-if="loaderType === 'determinate'">
           <KLinearLoader
             class="k-linear-loader"
@@ -48,7 +63,10 @@
             :progress="task.percentage * 100"
             :style="{ backgroundColor: $themeTokens.fineLine }"
           />
-          <span v-if="taskPercentage" class="details-percentage">
+          <span
+            v-if="taskPercentage"
+            class="details-percentage"
+          >
             {{ $formatNumber(taskPercentage, { style: 'percent' }) }}
           </span>
         </template>
@@ -63,11 +81,18 @@
         </template>
       </div>
 
-      <p v-if="underProgressMsg" class="fs0">
+      <p
+        v-if="underProgressMsg"
+        class="fs0"
+      >
         {{ underProgressMsg }}
       </p>
 
-      <p v-if="startedByMsg" class="fs0" :style="{ color: $themeTokens.annotation }">
+      <p
+        v-if="startedByMsg"
+        class="fs0"
+        :style="{ color: $themeTokens.annotation }"
+      >
         {{ startedByMsg }}
       </p>
     </div>

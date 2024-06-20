@@ -73,7 +73,7 @@ describe('Table of Contents Side Bar', () => {
     });
     const allSectionButtons = wrapper.findAllComponents({ name: 'KButton' });
     const allSectionButtonsWithCustomClass = allSectionButtons.filter(button =>
-      button.classes().includes('toc-list-item-button-current')
+      button.classes().includes('toc-list-item-button-current'),
     );
     expect(allSectionButtonsWithCustomClass.length).toEqual(1);
   });

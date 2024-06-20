@@ -62,7 +62,6 @@
             />
           </KGridItem>
         </KGrid>
-
       </fieldset>
 
       <fieldset>
@@ -84,10 +83,9 @@
           :classId="classId"
           :disabled="disabled || formIsSubmitted"
           :initialAdHocLearners="adHocLearners"
-          @updateLearners="learners => adHocLearners = learners"
+          @updateLearners="learners => (adHocLearners = learners)"
         />
       </fieldset>
-
     </form>
 
     <BottomAppBar v-if="!assignmentIsQuiz">
@@ -211,7 +209,7 @@
                 this.$store.getters['classSummary/quizTitleUnavailable']({
                   title: this.title,
                   excludeId: this.$route.params.quizId,
-                })
+                }),
               ) ||
               this.showTitleError
             ) {

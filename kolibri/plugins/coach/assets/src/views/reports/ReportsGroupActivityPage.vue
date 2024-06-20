@@ -1,9 +1,7 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
-
       <ReportsGroupHeader
         :activeTabId="ReportsGroupTabs.ACTIVITY"
         :enablePrint="true"
@@ -17,7 +15,6 @@
           :noActivityString="coachString('activityListEmptyState')"
         />
       </KTabsPanel>
-
     </KPageContainer>
   </CoachAppBarPage>
 

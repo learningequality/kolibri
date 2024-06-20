@@ -127,7 +127,7 @@ export default class H5PRunner {
     // A fallback URL to the zipcontent endpoint for this H5P file
     this.zipcontentUrl = new URL(
       `../../zipcontent/${this.filepath.substring(this.filepath.lastIndexOf('/') + 1)}`,
-      window.location
+      window.location,
     ).href;
     // Callback to call when H5P has finished loading
     this.loaded = loaded;
@@ -224,7 +224,7 @@ export default class H5PRunner {
     const H5P = contentWindow.H5P;
     const originalGetPath = H5P.getPath;
     const self = this;
-    H5P.getPath = function(path, contentId) {
+    H5P.getPath = function (path, contentId) {
       // Handle files that have a #tmp suffix
       // these are meant to only be used during editing,
       // but it seems possible for these to be exported by H5P editors
@@ -236,12 +236,12 @@ export default class H5PRunner {
       }
       return originalGetPath(path, contentId);
     };
-    H5P.getContentPath = function() {
+    H5P.getContentPath = function () {
       return self.zipcontentUrl + '/content';
     };
     // Shim the user data handling functions so that we return data from our
     // internal data storage for the H5P component.
-    H5P.getUserData = function(contentId, dataId, done, subContentId = 0) {
+    H5P.getUserData = function (contentId, dataId, done, subContentId = 0) {
       const data = get(self.data, [subContentId, dataId]);
       if (data === 'RESET') {
         return done(undefined, null);
@@ -249,11 +249,11 @@ export default class H5PRunner {
       return done(undefined, data);
     };
     // Store data from H5P into our own internal data storage
-    H5P.setUserData = function(
+    H5P.setUserData = function (
       contentId,
       dataId,
       data,
-      { subContentId = 0, errorCallback = null } = {}
+      { subContentId = 0, errorCallback = null } = {},
     ) {
       try {
         data = JSON.stringify(data);
@@ -267,7 +267,7 @@ export default class H5PRunner {
       self.stateUpdated();
     };
     // Delete data from H5P in our internal data storage.
-    H5P.deleteUserData = function(contentId, dataId, subContentId = 0) {
+    H5P.deleteUserData = function (contentId, dataId, subContentId = 0) {
       unset(self.data, [subContentId, dataId]);
       self.stateUpdated();
     };
@@ -281,9 +281,9 @@ export default class H5PRunner {
     // for our blob URLs - if not, this needs to be updated to do
     // a lookup inside our currently parsed packages for the URL.
     const originalContentType = H5P.ContentType;
-    H5P.ContentType = function(isRoot) {
+    H5P.ContentType = function (isRoot) {
       const ct = originalContentType(isRoot);
-      ct.prototype.getLibraryFilePath = function(filePath) {
+      ct.prototype.getLibraryFilePath = function (filePath) {
         const url = self.packageFiles[this.libraryInfo.versionedNameNoSpaces + '/'][filePath];
         // Some H5P libraries use this with a blank filePath argument to get a file path they can
         // append to for retrieving files - which is monumentally stupid, but what can you do?
@@ -299,7 +299,7 @@ export default class H5PRunner {
     };
     // Monkey patch setActor to allow us to inject our own
     // XAPI actor definition
-    H5P.XAPIEvent.prototype.setActor = function() {
+    H5P.XAPIEvent.prototype.setActor = function () {
       if (contentWindow.xAPI) {
         contentWindow.xAPI.prepareStatement(this.data.statement);
       }
@@ -308,7 +308,7 @@ export default class H5PRunner {
     for (const debouncedVerb of debounceVerbs) {
       const verb = XAPIVerbMap[debouncedVerb];
       debouncedHandlers[verb] = debounce(
-        function(statement) {
+        function (statement) {
           contentWindow.xAPI.sendStatement(statement, true).catch(err => {
             // eslint-disable-next-line no-console
             console.error('Statement: ', statement, 'gave the following error: ', err);
@@ -317,11 +317,11 @@ export default class H5PRunner {
         debounceDelay * 1000,
         // Invoke on the leading as well as the trailing edge
         // so that we alert immediately on an event.
-        { leading: true, maxWait: maxDelay * 1000 }
+        { leading: true, maxWait: maxDelay * 1000 },
       );
     }
     // Add event listener to allow us to capture xAPI events
-    H5P.externalDispatcher.on('xAPI', function(event) {
+    H5P.externalDispatcher.on('xAPI', function (event) {
       if (contentWindow.xAPI) {
         const statement = event.data.statement;
         if (
@@ -510,9 +510,9 @@ export default class H5PRunner {
             depPackagePath + 'library.json',
             false,
             visitedPaths,
-            depPackagePath
+            depPackagePath,
           ).then(() => depPackagePath);
-        })
+        }),
       ).then(dependencies => {
         if (packagePath) {
           // If this specification is a package (i.e. not the root)
@@ -544,7 +544,7 @@ export default class H5PRunner {
       }, wholeJS);
     }, '');
     this.javascriptURL = URL.createObjectURL(
-      new Blob([concatenatedJS], { type: 'text/javascript' })
+      new Blob([concatenatedJS], { type: 'text/javascript' }),
     );
   }
 

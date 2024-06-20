@@ -5,7 +5,10 @@
     :route="backRoute"
     :loading="isPageLoading"
   >
-    <KPageContainer v-if="!isPageLoading" class="device-container">
+    <KPageContainer
+      v-if="!isPageLoading"
+      class="device-container"
+    >
       <h1 v-if="user === null">
         {{ $tr('userDoesNotExist') }}
       </h1>
@@ -13,7 +16,10 @@
       <template v-else>
         <div class="section user-info">
           <h1 dir="auto">
-            <KLabeledIcon icon="person" :label="isCurrentUser ? $tr('you') : user.full_name" />
+            <KLabeledIcon
+              icon="person"
+              :label="isCurrentUser ? $tr('you') : user.full_name"
+            />
           </h1>
 
           <table>
@@ -42,7 +48,6 @@
               </td>
             </tr>
           </table>
-
         </div>
 
         <div class="section superuser">
@@ -63,7 +68,7 @@
           <ul
             class="checkbox-description"
             :style="{
-              color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation
+              color: superuserDisabled ? $themeTokens.textDisabled : $themeTokens.annotation,
             }"
           >
             <li>{{ $tr('superAdminExplanation1') }}</li>

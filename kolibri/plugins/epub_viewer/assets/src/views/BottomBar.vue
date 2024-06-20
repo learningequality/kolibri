@@ -1,6 +1,9 @@
 <template>
 
-  <div class="bottom-bar" :style="{ backgroundColor: $themePalette.grey.v_200 }">
+  <div
+    class="bottom-bar"
+    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+  >
     <div class="bottom-bar-heading">
       <h3 v-if="heading">
         {{ heading }}

@@ -32,7 +32,7 @@ describe('the kolibri hashi shim', () => {
       nameSpace: 'hashi',
     };
     response = { node: { id: 'abc123' } };
-    beforeEach(function() {
+    beforeEach(function () {
       mockMediatorPromise = jest
         .spyOn(kolibri.mediator, 'sendMessageAwaitReply')
         .mockResolvedValue(response);
@@ -55,7 +55,7 @@ describe('the kolibri hashi shim', () => {
   describe('getContentByFilter method', () => {
     const options = { page: 1, pageSize: 50, parent: 'self' };
     response = { page: 1, pageSize: 50, results: [{ id: 'abc123' }, { id: 'def456' }] };
-    beforeEach(function() {
+    beforeEach(function () {
       mockMessage = {
         data: { dataType: 'Collection', options: options },
         event: 'datarequested',
@@ -83,7 +83,7 @@ describe('the kolibri hashi shim', () => {
   describe('getContentById method', () => {
     response = { node: { id: 'abc123' } };
     id = 'abc123';
-    beforeEach(function() {
+    beforeEach(function () {
       mockMessage = {
         data: { dataType: 'Model', id: 'abc123' },
         event: 'datarequested',
@@ -114,7 +114,7 @@ describe('the kolibri hashi shim', () => {
 
   describe('getContext method', () => {
     response = { node_id: 'abc', context: { test: 'test' } };
-    beforeEach(function() {
+    beforeEach(function () {
       mockMessage = {
         data: {},
         event: 'context',
@@ -167,7 +167,7 @@ describe('the kolibri hashi shim', () => {
   });
 
   describe('searchContent method', () => {
-    beforeEach(function() {
+    beforeEach(function () {
       mockMessage = {
         data: {},
         event: 'context',

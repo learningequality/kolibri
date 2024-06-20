@@ -51,9 +51,16 @@
             </template>
           </KGridItem>
         </KGrid>
-        <SlotTruncator v-if="description" :maxHeight="96" :showViewMore="true">
+        <SlotTruncator
+          v-if="description"
+          :maxHeight="96"
+          :showViewMore="true"
+        >
           <!-- eslint-disable-next-line vue/no-v-html -->
-          <p dir="auto" v-html="description"></p>
+          <p
+            dir="auto"
+            v-html="description"
+          ></p>
         </SlotTruncator>
         <template>
           <HeaderTable>
@@ -77,9 +84,7 @@
                 />
               </template>
             </HeaderTableRow>
-            <HeaderTableRow
-              :keyText="coreString('suggestedTime')"
-            >
+            <HeaderTableRow :keyText="coreString('suggestedTime')">
               <template #value>
                 {{ currentContentNode.duration || 'Not available' }}
               </template>
@@ -121,7 +126,6 @@
     </template>
 
     <template #main>
-
       <ContentArea
         class="content-area"
         :header="questionLabel(selectedQuestionIndex)"
@@ -129,7 +133,6 @@
         :content="content"
         :isExercise="isExercise"
       />
-
     </template>
   </MultiPaneLayout>
 
@@ -233,7 +236,7 @@
       licenseDescription() {
         return licenseDescriptionForConsumer(
           this.content.license_name,
-          this.content.license_description
+          this.content.license_description,
         );
       },
     },

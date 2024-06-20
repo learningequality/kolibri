@@ -51,7 +51,7 @@ describe(`ChangeFacility/MergeAccountDialog/ConfirmAccountDetails`, () => {
       username: 'TestLocalUser',
     });
     expect(wrapper.text()).toContain(
-      "Your account will be merged into this account in 'Test Facility'"
+      "Your account will be merged into this account in 'Test Facility'",
     );
     expect(wrapper.find('[data-test="fullname"]').text()).toEqual('Test Full Name');
     expect(wrapper.find('[data-test="username"]').text()).toEqual('remote_username');

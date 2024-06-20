@@ -5,7 +5,10 @@
     <template v-if="isError">
       <p>{{ $tr('importError') }}</p>
       <ul>
-        <li v-for="(message, index) in overall_error" :key="index">
+        <li
+          v-for="(message, index) in overall_error"
+          :key="index"
+        >
           {{ message }}
         </li>
       </ul>
@@ -129,7 +132,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(obj, index) in per_line_errors" :key="index">
+            <tr
+              v-for="(obj, index) in per_line_errors"
+              :key="index"
+            >
               <td>{{ obj.row }}</td>
               <td>{{ obj.field }}</td>
               <td>{{ obj.value }}</td>
@@ -138,11 +144,14 @@
           </tbody>
         </table>
       </template>
-
     </template>
 
     <template v-if="isFinished && !isError">
-      <UiAlert :dismissible="false" type="success" style="margin-top: 16px;">
+      <UiAlert
+        :dismissible="false"
+        type="success"
+        style="margin-top: 16px"
+      >
         {{ $tr('success') }}
       </UiAlert>
       <p>
@@ -159,7 +168,7 @@
         <KButton
           :text="$tr('back')"
           appearance="raised-button"
-          style="margin-left: 0;"
+          style="margin-left: 0"
           @click="reset"
         />
         <KButton
@@ -171,7 +180,6 @@
         />
       </KButtonGroup>
     </p>
-
   </div>
   <!-- eslint-enable max-len -->
 

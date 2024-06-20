@@ -47,10 +47,8 @@
     },
     mixins: [commonCoach],
     setup() {
-      const {
-        randomizedSectionOptionDescription$,
-        fixedSectionOptionDescription$,
-      } = enhancedQuizManagementStrings;
+      const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
+        enhancedQuizManagementStrings;
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
