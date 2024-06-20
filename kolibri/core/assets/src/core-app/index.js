@@ -17,8 +17,13 @@ import ContentRenderer from '../views/ContentRenderer';
 import initializeTheme from '../styles/initializeTheme';
 import { i18nSetup } from '../utils/i18n';
 import { ErrorReportResource } from '../api-resources';
-import setupPluginMediator from './pluginMediator';
+import {
+  VueErrorReport,
+  JavascriptErrorReport,
+  UnhandledRejectionErrorReport,
+} from '../utils/errorReportUtils';
 import apiSpec from './apiSpec';
+import setupPluginMediator from './pluginMediator';
 
 // Do this before any async imports to ensure that public paths
 // are set correctly
@@ -75,18 +80,21 @@ i18nSetup().then(coreApp.ready);
 // these shall be responsibe for catching runtime errors
 Vue.config.errorHandler = function(err) {
   logging.error(`Unexpected Error: ${err}`);
-  ErrorReportResource.report(err);
+  const error = new VueErrorReport(err);
+  ErrorReportResource.report(error);
 };
 
 window.addEventListener('error', e => {
   logging.error(`Unexpected Error: ${e.error}`);
-  ErrorReportResource.report(e.error);
+  const error = new JavascriptErrorReport(e);
+  ErrorReportResource.report(error);
 });
 
 window.addEventListener('unhandledrejection', event => {
   event.preventDefault();
   logging.error(`Unhandled Rejection: ${event.reason}`);
-  ErrorReportResource.report(event.reason);
+  const error = new UnhandledRejectionErrorReport(event);
+  ErrorReportResource.report(error);
 });
 
 // This is exported by webpack as the kolibriCoreAppGlobal object, due to the 'output.library' flag
