@@ -44,6 +44,7 @@
 
 
 <script>
+
   import KRadioButtonGroup from 'kolibri-design-system/lib/KRadioButtonGroup.vue';
 
   import { currentLanguage } from 'kolibri.utils.i18n';
