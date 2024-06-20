@@ -90,6 +90,13 @@ export const enhancedQuizManagementStrings = createTranslator('EnhancedQuizManag
   replaceAction: {
     message: 'Replace',
   },
+  noLearnersEnrolled: {
+    message: 'No learners enrolled in { className }',
+  },
+  noResourcesAvailable: {
+    message:
+      'There are no resources on your device yet. Ask an administrator to add resources to your device.',
+  },
   replaceQuestionsHeading: {
     message: 'The new questions you select will replace the current ones.',
   },
