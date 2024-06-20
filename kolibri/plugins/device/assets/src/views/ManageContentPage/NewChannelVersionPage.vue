@@ -338,6 +338,12 @@
         context:
           'Label associated with the number of resources that would be deleted if the channel is updated',
       },
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      resourceOrFolderMetadata: {
+        message: 'Resource and folder information has changed',
+        context: 'Indicates that the metadata for a resource or folder has changed',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
       resourcesToBeDeletedTooltip: {
         message:
           'When you update this channel, some resources will be deleted. This may affect lessons or quizzes that are using the deleted resources',
