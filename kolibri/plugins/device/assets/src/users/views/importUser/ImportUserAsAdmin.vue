@@ -15,6 +15,7 @@
           <KButton
             :text="coreString('importAction')"
             appearance="flat-button"
+            :disabled="taskLoading"
             @click="startImport(user)"
           />
         </template>
@@ -41,6 +42,11 @@
       ImmersivePage,
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
+    data: () => {
+      return {
+        taskLoading: false,
+      };
+    },
     computed: {
       remoteUsers() {
         return this.importUserService.state.context.remoteUsers;
@@ -64,13 +70,16 @@
           user_id: learner.id,
           using_admin: true,
         };
-        await TaskResource.startTask(params);
+        this.taskLoading = true;
+        const result = await TaskResource.startTask(params);
+        this.taskLoading = false;
         this.importUserService.send({
           type: 'ADD_USER_BEING_IMPORTED',
           value: {
             id: learner.id,
             full_name: learner.full_name,
             username: learner.username,
+            taskId: result.id,
           },
         });
         this.importUserService.send({

@@ -105,7 +105,7 @@
         try {
           await this.removeUser(userId);
           this.userIdToRemove = null;
-          this.fetchUsers();
+          await this.fetchUsers();
         } catch (error) {
           this.userIdToRemove = null;
         }

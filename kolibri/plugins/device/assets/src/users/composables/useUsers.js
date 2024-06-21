@@ -6,17 +6,19 @@ import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
 
 export default function useUsers() {
   const store = getCurrentInstance().proxy.$store;
-  const importUserService = inject('importUserService');
+  const importUserService = inject('importUserService') || {};
   const users = ref([]);
   const loading = ref(true);
   const showCannotRemoveUser = ref(false);
 
   async function fetchUsers() {
     loading.value = true;
-    const response = await FacilityUserResource.fetchCollection();
+    const response = await FacilityUserResource.fetchCollection({
+      force: true,
+    });
     users.value = response;
 
-    const { usersBeingImported = [] } = importUserService.state.context;
+    const { context: { usersBeingImported = [] } = {} } = importUserService.state || {};
     users.value.push(...usersBeingImported.map(user => ({ ...user, isImporting: true })));
 
     users.value.forEach(user => {
@@ -41,35 +43,43 @@ export default function useUsers() {
   }
 
   const pollImportTask = async () => {
-    const { usersBeingImported = [] } = importUserService.state.context;
+    const { context: { usersBeingImported = [] } = {} } = importUserService.state || {};
     if (usersBeingImported.length === 0) {
       // Stop polling
       return;
     }
+
     const tasks = await TaskResource.list({ queue: 'soud_sync' });
-    if (tasks.length) {
-      tasks.forEach(task => {
-        if (task.status === TaskStatuses.COMPLETED) {
-          // Remove completed user id from 'being imported'
-          const taskUserId = task.extra_metadata.user_id;
-          if (usersBeingImported.find(({ id }) => id === taskUserId)) {
-            importUserService.send({
-              type: 'REMOVE_USER_BEING_IMPORTED',
-              value: taskUserId,
-            });
-            // Modify the user in the list to remove the 'isImporting' flag
-            users.value = users.value.map(user => {
-              if (user.id === taskUserId) {
-                return { ...user, isImporting: false };
-              }
-              return user;
-            });
-            TaskResource.clear(task.id);
+    const tasksMap = {};
+    tasks.forEach(task => {
+      tasksMap[task.extra_metadata.user_id] = task;
+    });
+
+    usersBeingImported.forEach(user => {
+      const task = tasksMap[user.id];
+      if (!task) {
+        return;
+      }
+      if (task.status === TaskStatuses.COMPLETED) {
+        users.value = users.value.map(u => {
+          if (u.id === user.id) {
+            return { ...u, isImporting: false };
           }
-        }
-        // Todo, do something when it fails
-      });
-    }
+          return u;
+        });
+      }
+      if (task.status === TaskStatuses.FAILED) {
+        users.value = users.value.filter(u => u.id !== user.id);
+        store.dispatch('createSnackbar', 'No se pudo importar el usuario');
+      }
+      if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
+        importUserService.send({
+          type: 'REMOVE_USER_BEING_IMPORTED',
+          value: user.id,
+        });
+        TaskResource.clear(task.id);
+      }
+    });
     setTimeout(() => {
       pollImportTask();
     }, 2000);
