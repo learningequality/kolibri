@@ -498,6 +498,25 @@ class UsernameAvailableView(views.APIView):
             return Response(True, status=status.HTTP_200_OK)
 
 
+class DeleteImportedUserView(views.APIView):
+    def post(self, request):
+        """
+        Given a user ID, delete the user from the current facility, and remove
+        certificates and corresponding morango records.
+        """
+        user_id = request.data.get("user_id", "")
+        try:
+            user = FacilityUser.objects.get(id=user_id)
+            if not request.user.can_delete(user):
+                raise PermissionDenied()
+
+            user.delete_imported_user()
+
+            return Response({"user_id": user_id})
+        except (Exception, FacilityUser.DoesNotExist):
+            raise Http404("User does not exist")
+
+
 class FacilityUsernameViewSet(ReadOnlyValuesViewset):
     filter_backends = (DjangoFilterBackend, filters.SearchFilter)
     filter_fields = ("facility",)

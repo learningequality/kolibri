@@ -52,7 +52,7 @@
         <KCircularLoader
           v-else-if="user.isImporting"
           :size="24"
-          style="margin: 4px auto 0;"
+          style="margin-right: 0;"
         />
         <p v-else class="imported">
           Imported

@@ -2,6 +2,7 @@ from django.urls import re_path
 from rest_framework import routers
 
 from .api import ClassroomViewSet
+from .api import DeleteImportedUserView
 from .api import FacilityDatasetViewSet
 from .api import FacilityUsernameViewSet
 from .api import FacilityUserViewSet
@@ -66,6 +67,11 @@ urlpatterns = (
             r"^remotefacilityauthenticateduserinfo$",
             RemoteFacilityUserAuthenticatedViewset.as_view(),
             name="remotefacilityauthenticateduserinfo",
+        ),
+        re_path(
+            r"^deleteimporteduser$",
+            DeleteImportedUserView.as_view(),
+            name="deleteimporteduser",
         ),
     ]
 )

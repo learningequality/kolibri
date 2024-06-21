@@ -33,6 +33,8 @@ from django.db.models.query import Q
 from django.db.utils import IntegrityError
 from django.utils.functional import cached_property
 from morango.models import Certificate
+from morango.models import DatabaseMaxCounter
+from morango.models import Store
 from morango.models import SyncableModel
 from morango.models import SyncableModelManager
 from mptt.models import TreeForeignKey
@@ -922,6 +924,25 @@ class FacilityUser(AbstractBaseUser, KolibriBaseUserMixin, AbstractFacilityDataM
         if coll.kind == collection_kinds.FACILITY:
             return self.facility_id == coll.id
         return Membership.objects.filter(user=self, collection=coll).exists()
+
+    def delete_imported_user(self):
+        from kolibri.core.auth.utils.delete import DisablePostDeleteSignal
+
+        with DisablePostDeleteSignal(), transaction.atomic():
+            Certificate.objects.filter(
+                scope_definition_id=ScopeDefinitions.SINGLE_USER,
+                scope_params__contains=self.id,
+            ).delete()
+
+            partition_filters = [
+                f"{self.dataset_id}:user-ro:{self.id}",
+                f"{self.dataset_id}:user-rw:{self.id}",
+            ]
+
+            Store.objects.filter(partition__in=partition_filters).delete()
+            DatabaseMaxCounter.objects.filter(partition__in=partition_filters).delete()
+
+            self.delete()
 
     def has_role_for_user(self, kinds, user):
         kinds = validate_role_kinds(kinds)

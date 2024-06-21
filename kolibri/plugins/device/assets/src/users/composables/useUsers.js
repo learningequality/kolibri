@@ -26,7 +26,7 @@ export default function useUsers() {
     loading.value = false;
   }
 
-  async function removeUser(userId) {
+  function removeUser(userId) {
     const user = users.value.find(user => user.id === userId);
     if (!user) return;
     if (
@@ -37,7 +37,7 @@ export default function useUsers() {
       throw new Error('Cannot remove the last super admin');
     }
 
-    await FacilityUserResource.deleteModel({ id: userId });
+    return FacilityUserResource.removeImportedUser(userId);
   }
 
   const pollImportTask = async () => {
@@ -64,8 +64,10 @@ export default function useUsers() {
               }
               return user;
             });
+            TaskResource.clear(task.id);
           }
         }
+        // Todo, do something when it fails
       });
     }
     setTimeout(() => {
