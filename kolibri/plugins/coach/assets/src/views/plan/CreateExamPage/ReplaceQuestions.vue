@@ -251,7 +251,7 @@
       }
 
       function toggleInReplacements(question) {
-        const replacementIds = replacements.value.map(q => q.id);
+        const replacementIds = replacements.value.map(q => q.item);
         if (replacementIds.includes(question.item)) {
           replacements.value = replacements.value.filter(q => q.item !== question.item);
         } else {
