@@ -457,7 +457,7 @@
           "Notification that appears after a facility has been deleted. For example, \"Removed 'Zuk Village' from this device'.",
       },
       createFacilityLabel: {
-        message: 'ADD FACILITY',
+        message: 'Add facility',
         context: 'Label for a button used to create new facility.',
       },
       importFacilityLabel: {
