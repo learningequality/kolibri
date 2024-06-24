@@ -205,6 +205,7 @@
               baseurl: data.device_address,
             };
             this.loadingNewAddress = false;
+            this.$store.dispatch('notLoading');
           })
           .catch(error => {
             // TODO handle disconnected peers error more gracefully

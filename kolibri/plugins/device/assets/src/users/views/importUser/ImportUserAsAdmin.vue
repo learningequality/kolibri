@@ -3,13 +3,16 @@
   <ImmersivePage
     :primary="false"
     :appBarTitle="deviceString('importUserLabel')"
+    :loading="usersLoading || taskLoading"
     @navIconClick="importUserService.send('RESET_IMPORT')"
   >
     <KPageContainer class="device-container">
       <h1> {{ $tr("selectAUser") }}</h1>
+      <KCircularLoader v-if="usersLoading" />
       <UsersList
+        v-else
         isSearchable
-        :users="remoteUsers"
+        :users="usersList"
       >
         <template #action="{ user }">
           <KButton
@@ -33,6 +36,7 @@
   import { TaskResource } from 'kolibri.resources';
   import commonDeviceStrings from '../../../views/commonDeviceStrings';
   import UsersList from '../UsersList.vue';
+  import useUsers from '../../composables/useUsers';
 
   export default {
     name: 'ImportUserAsAdmin',
@@ -42,6 +46,18 @@
       ImmersivePage,
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
+    setup() {
+      const { users, loading, startPollingTasks, fetchUsers, usersBeingImportedRef } = useUsers();
+
+      fetchUsers();
+
+      return {
+        localUsers: users,
+        usersLoading: loading,
+        usersBeingImportedRef,
+        startPollingTasks,
+      };
+    },
     data: () => {
       return {
         taskLoading: false,
@@ -56,6 +72,15 @@
       },
       deviceId() {
         return this.importUserService.state.context.importDeviceId;
+      },
+      usersList() {
+        return this.remoteUsers.map(user => ({
+          ...user,
+          isImported: this.localUsers.some(localUser => localUser.id === user.id),
+          isImporting: this.usersBeingImportedRef.some(
+            importingUser => importingUser.id === user.id
+          ),
+        }));
       },
     },
     methods: {
@@ -85,6 +110,7 @@
         this.importUserService.send({
           type: 'RESET_IMPORT',
         });
+        this.startPollingTasks();
       },
     },
     $trs: {

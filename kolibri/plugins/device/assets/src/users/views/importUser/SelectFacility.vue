@@ -108,6 +108,7 @@
           this.handleContinue(); // If we only have one, just move along
         } else {
           this.loading = false;
+          this.$store.dispatch('notLoading');
           this.loadingNewAddress = false;
         }
       },

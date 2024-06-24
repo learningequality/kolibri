@@ -54,7 +54,11 @@
           :size="24"
           style="margin-right: 0;"
         />
-        <p v-else class="imported">
+        <p
+          v-else
+          class="imported"
+          :style="{ color: $themeTokens.annotation }"
+        >
           Imported
         </p>
       </li>
@@ -140,6 +144,13 @@
 
   .mt-4 {
     margin-top: 4px;
+  }
+
+  .imported {
+    padding-top: 4px;
+    padding-right: 16px;
+    padding-bottom: 4px;
+    margin: 0;
   }
 
 </style>

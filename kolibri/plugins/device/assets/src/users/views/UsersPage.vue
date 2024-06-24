@@ -15,7 +15,7 @@
       <KCircularLoader v-if="loading" />
       <UsersList
         v-else
-        :users="users"
+        :users="usersList"
       >
         <template #action="{ user }">
           <KButton
@@ -81,13 +81,21 @@
     },
     mixins: [commonCoreStrings, commonDeviceStrings],
     setup() {
-      const { fetchUsers, removeUser, users, loading, showCannotRemoveUser } = useUsers();
+      const {
+        fetchUsers,
+        removeUser,
+        usersBeingImportedRef,
+        users,
+        loading,
+        showCannotRemoveUser,
+      } = useUsers();
 
       fetchUsers();
 
       return {
         users,
         loading,
+        usersBeingImportedRef,
         showCannotRemoveUser,
         fetchUsers,
         removeUser,
@@ -99,6 +107,17 @@
         userIdToRemove: null,
         showSelectDevice: false,
       };
+    },
+    computed: {
+      usersList() {
+        return [
+          ...this.users,
+          ...this.usersBeingImportedRef.map(user => ({
+            ...user,
+            isImporting: true,
+          })),
+        ];
+      },
     },
     methods: {
       async onRemoveUser(userId) {

@@ -4,6 +4,9 @@ import { getCurrentInstance, ref, inject, onMounted } from 'kolibri.lib.vueCompo
 import { TaskResource, FacilityUserResource } from 'kolibri.resources';
 import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
 
+const isPooling = ref(false);
+const usersBeingImportedRef = ref([]);
+
 export default function useUsers() {
   const store = getCurrentInstance().proxy.$store;
   const importUserService = inject('importUserService') || {};
@@ -17,10 +20,6 @@ export default function useUsers() {
       force: true,
     });
     users.value = response;
-
-    const { context: { usersBeingImported = [] } = {} } = importUserService.state || {};
-    users.value.push(...usersBeingImported.map(user => ({ ...user, isImporting: true })));
-
     users.value.forEach(user => {
       user.kind = UserType(user);
     });
@@ -42,13 +41,28 @@ export default function useUsers() {
     return FacilityUserResource.removeImportedUser(userId);
   }
 
-  const pollImportTask = async () => {
+  const getUsersBeingImported = () => {
     const { context: { usersBeingImported = [] } = {} } = importUserService.state || {};
+    return usersBeingImported;
+  };
+
+  const startPollingTasks = () => {
+    if (isPooling.value) {
+      // Already polling
+      return;
+    }
+    pollImportTask();
+  };
+
+  const pollImportTask = async () => {
+    const usersBeingImported = getUsersBeingImported();
+    usersBeingImportedRef.value = usersBeingImported;
     if (usersBeingImported.length === 0) {
-      // Stop polling
+      isPooling.value = false;
       return;
     }
 
+    isPooling.value = true;
     const tasks = await TaskResource.list({ queue: 'soud_sync' });
     const tasksMap = {};
     tasks.forEach(task => {
@@ -60,16 +74,7 @@ export default function useUsers() {
       if (!task) {
         return;
       }
-      if (task.status === TaskStatuses.COMPLETED) {
-        users.value = users.value.map(u => {
-          if (u.id === user.id) {
-            return { ...u, isImporting: false };
-          }
-          return u;
-        });
-      }
       if (task.status === TaskStatuses.FAILED) {
-        users.value = users.value.filter(u => u.id !== user.id);
         store.dispatch('createSnackbar', 'No se pudo importar el usuario');
       }
       if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
@@ -77,6 +82,8 @@ export default function useUsers() {
           type: 'REMOVE_USER_BEING_IMPORTED',
           value: user.id,
         });
+        usersBeingImportedRef.value = getUsersBeingImported();
+        fetchUsers();
         TaskResource.clear(task.id);
       }
     });
@@ -86,13 +93,15 @@ export default function useUsers() {
   };
 
   onMounted(() => {
-    pollImportTask();
+    startPollingTasks();
   });
 
   return {
     users,
     loading,
     showCannotRemoveUser,
+    usersBeingImportedRef,
+    startPollingTasks,
     fetchUsers,
     removeUser,
   };
