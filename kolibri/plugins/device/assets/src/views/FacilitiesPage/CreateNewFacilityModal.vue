@@ -110,7 +110,7 @@
         context: 'Title for create facility modal',
       },
       createFacilityButtonLabel: {
-        message: 'create facility',
+        message: 'Create facility',
         context: 'Label for create facility submit button.',
       },
     },
