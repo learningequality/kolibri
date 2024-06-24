@@ -1,12 +1,10 @@
 <template>
 
   <ImmersivePage
-    :route="this.$store.getters.facilityPageLinks.DataPage"
+    :route="$store.getters.facilityPageLinks.DataPage"
     :appBarTitle="$tr('toolbarHeader')"
   >
-
     <KPageContainer>
-
       <h1>{{ $tr('pageHeader') }}</h1>
 
       <Init
@@ -19,11 +17,8 @@
         @done="done"
       />
       <template v-else-if="showLoaderState">
-        <div class="loader-wrapper">
-          <KCircularLoader class="loader" /> {{ $tr('loading') }}
-        </div>
+        <div class="loader-wrapper"><KCircularLoader class="loader" /> {{ $tr('loading') }}</div>
       </template>
-
     </KPageContainer>
   </ImmersivePage>
 

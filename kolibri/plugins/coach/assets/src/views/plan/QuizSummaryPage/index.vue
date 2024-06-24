@@ -1,8 +1,10 @@
 <template>
 
   <CoachAppBarPage>
-
-    <KGrid v-if="exam" gutter="16">
+    <KGrid
+      v-if="exam"
+      gutter="16"
+    >
       <KGridItem>
         <QuizLessonDetailsHeader
           :backlink="$router.getRoute('EXAMS')"
@@ -98,10 +100,8 @@
     },
     mixins: [commonCoach, coachStringsMixin, commonCoreStrings],
     setup() {
-      const {
-        randomizedSectionOptionDescription$,
-        fixedSectionOptionDescription$,
-      } = enhancedQuizManagementStrings;
+      const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
+        enhancedQuizManagementStrings;
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,
@@ -188,10 +188,7 @@
         this.currentAction = '';
       },
       handleSubmitCopy({ classroomId, groupIds, adHocLearnerIds, examTitle }) {
-        const title = examTitle
-          .trim()
-          .substring(0, 100)
-          .trim();
+        const title = examTitle.trim().substring(0, 100).trim();
 
         const assignments = serverAssignmentPayload(groupIds, classroomId);
 

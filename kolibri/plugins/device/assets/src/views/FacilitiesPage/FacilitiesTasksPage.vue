@@ -5,9 +5,7 @@
     :route="backRoute"
   >
     <KPageContainer class="device-container">
-      <HeaderWithOptions
-        :headerText="coreString('tasksLabel')"
-      >
+      <HeaderWithOptions :headerText="coreString('tasksLabel')">
         <template #options>
           <KButton
             v-if="someClearableTasks"

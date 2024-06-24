@@ -1,7 +1,6 @@
 <template>
 
   <div class="signup-page">
-
     <KPageContainer class="narrow-container">
       <form
         ref="form"
@@ -97,10 +96,12 @@
       </form>
     </KPageContainer>
 
-    <div v-if="atFirstStep" class="footer">
+    <div
+      v-if="atFirstStep"
+      class="footer"
+    >
       <LanguageSwitcherFooter />
     </div>
-
   </div>
 
 </template>

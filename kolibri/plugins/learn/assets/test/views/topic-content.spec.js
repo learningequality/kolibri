@@ -82,25 +82,25 @@ async function makeWrapper({
 
 function assertBookmarkButtonIsDisplayed(wrapper) {
   expect(
-    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark'),
   ).toBeTruthy();
 }
 
 function assertBookmarkButtonIsNotDisplayed(wrapper) {
   expect(
-    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark')
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showbookmark'),
   ).toBeFalsy();
 }
 
 function assertDownloadButtonIsDisplayed(wrapper) {
   expect(
-    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton'),
   ).toBeTruthy();
 }
 
 function assertDownloadButtonIsNotDisplayed(wrapper) {
   expect(
-    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton')
+    wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('showdownloadbutton'),
   ).toBeFalsy();
 }
 
@@ -117,7 +117,7 @@ describe('TopicsContentPage', () => {
             thumbnail: 'test thumbnail',
           },
         },
-      })
+      }),
     );
   });
   afterEach(() => {
@@ -198,7 +198,7 @@ describe('TopicsContentPage', () => {
                   status: 'COMPLETED',
                 },
               },
-            })
+            }),
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
         });
@@ -223,12 +223,12 @@ describe('TopicsContentPage', () => {
                   status: 'PENDING',
                 },
               },
-            })
+            }),
           );
           useCoreLearn.mockImplementation(() =>
             useCoreLearnMock({
               canAddDownloads: () => true,
-            })
+            }),
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
         });
@@ -240,7 +240,7 @@ describe('TopicsContentPage', () => {
         it(`instructs 'LearningActivityBar' to show the download button as disabled`, () => {
           assertDownloadButtonIsDisplayed(wrapper);
           expect(
-            wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('isdownloading')
+            wrapper.findComponent({ name: 'LearningActivityBar' }).attributes('isdownloading'),
           ).toBeTruthy();
         });
       });
@@ -265,7 +265,7 @@ describe('TopicsContentPage', () => {
             useDownloadRequestsMock({
               downloadRequestMap: {},
               addDownloadRequest,
-            })
+            }),
           );
           wrapper = await makeAuthWrapperWithRemoteContent();
           wrapper.findComponent({ name: 'LearningActivityBar' }).vm.$emit('download');

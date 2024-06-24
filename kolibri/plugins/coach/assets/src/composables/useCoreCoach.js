@@ -67,7 +67,7 @@ export default function useCoreCoach(store) {
         }
       } catch (err) {
         logging.error(
-          "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured."
+          "Failed to obtain page title. Ensure that this route's meta.titleParts are corrrectly configured.",
         );
         return '';
       }

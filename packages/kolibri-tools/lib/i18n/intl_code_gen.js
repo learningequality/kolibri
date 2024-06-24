@@ -1,10 +1,10 @@
 const path = require('path');
 const logger = require('../logging');
-const { writeSourceToFile } = require('./utils');
+const writeSourceToFile = require('./writeSourceToFile');
 
 const logging = logger.getLogger('Kolibri Intl Data');
 
-module.exports = function(outputDir, languageInfoPath) {
+module.exports = function (outputDir, languageInfoPath) {
   const languageInfo = require(languageInfoPath);
 
   const commonHeader = `
@@ -43,7 +43,7 @@ module.exports = function(outputDir, languageInfoPath) {
           require.resolve(module_path);
         } catch (e) {
           logging.error(
-            `${vue_intl_code} not available from vue-intl locale data and no kolibri-tools locale data found`
+            `${vue_intl_code} not available from vue-intl locale data and no kolibri-tools locale data found`,
           );
           throw new Error('No vue-intl locale data');
         }
@@ -117,7 +117,7 @@ module.exports = function(outputDir, languageInfoPath) {
           require.resolve(module_path);
         } catch (e) {
           logging.error(
-            `${language.intl_code} not available from intl locale data and no kolibri-tools locale data found`
+            `${language.intl_code} not available from intl locale data and no kolibri-tools locale data found`,
           );
           throw new Error('No intl locale data');
         }

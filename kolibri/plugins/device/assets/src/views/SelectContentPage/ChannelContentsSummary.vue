@@ -8,7 +8,11 @@
         :src="channel.thumbnail"
       >
       <div class="channel-name">
-        <KTooltip reference="lockicon" :refs="$refs" placement="right">
+        <KTooltip
+          reference="lockicon"
+          :refs="$refs"
+          placement="right"
+        >
           {{ $tr('unlistedChannelTooltip') }}
         </KTooltip>
         <h1>

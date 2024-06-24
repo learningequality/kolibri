@@ -269,7 +269,7 @@ describe('exam utils', () => {
       const converted = await convertExamQuestionSources(exam);
       expect(converted.question_sources.length).toEqual(2);
       expect(converted.question_sources[0].questions.length).toEqual(
-        MAX_QUESTIONS_PER_QUIZ_SECTION
+        MAX_QUESTIONS_PER_QUIZ_SECTION,
       );
       expect(converted.question_sources[1].questions.length).toEqual(1);
     });
@@ -381,7 +381,7 @@ describe('exam utils', () => {
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
-        })
+        }),
       );
     });
     it('should return 10 specific ordered questions from 1 exercise', async () => {
@@ -463,7 +463,7 @@ describe('exam utils', () => {
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
-        })
+        }),
       );
     });
     it('should return 3 specific ordered questions from 3 exercises', async () => {
@@ -513,7 +513,7 @@ describe('exam utils', () => {
         expectedOutput.map(q => {
           q.item = `${q.exercise_id}:${q.question_id}`;
           return q;
-        })
+        }),
       );
     });
   });

@@ -15,7 +15,7 @@ window.H5P = {
   jQuery,
   // H5P complains if this is undefined, but because of our monkey patching
   // this is never used.
-  OfflineRequestQueue: function() {},
+  OfflineRequestQueue: function () {},
   externalEmbed: true,
   preventInit: true,
 };
@@ -24,7 +24,7 @@ window.$ = window.jQuery = jQuery;
 
 window.H5P.jQuery.fn.__originalLoad = window.H5P.jQuery.load;
 
-window.H5P.jQuery.fn.load = function(url) {
+window.H5P.jQuery.fn.load = function (url) {
   /**
    * NOTE:
    * This is needed in order to support old libraries that uses the .load() function

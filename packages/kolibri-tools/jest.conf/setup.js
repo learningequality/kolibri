@@ -38,7 +38,7 @@ logging.setLevel('silent');
 // Register Vue plugins and components
 Vue.use(Vuex);
 Vue.mixin({
-  beforeCreate: function() {
+  beforeCreate: function () {
     // This fix some problems between the VueRouter plugin, and Vue-testing-library.
     this.$options.router = this.$options.router || undefined;
   },
@@ -73,7 +73,7 @@ const scheduler = typeof setImmediate === 'function' ? setImmediate : setTimeout
 
 // Copied from https://github.com/kentor/flush-promises/blob/f33ac564190c784019f1f689dd544187f4b77eb2/index.js
 global.flushPromises = function flushPromises() {
-  return new Promise(function(resolve) {
+  return new Promise(function (resolve) {
     scheduler(resolve);
   });
 };

@@ -5,7 +5,7 @@ const { getAllMessagesFromEntryFiles, getAllMessagesFromFilePath } = require('./
 
 const logging = logger.getLogger('Kolibri Intl Data');
 
-module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose) {
+module.exports = function (pathInfo, ignore, langInfo, localeDataFolder, verbose) {
   const languageInfo = require(langInfo);
   // A map per webpack bundle designating which messages
   // are needed for full translation. Will be a map from:
@@ -19,7 +19,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
         pathData.entry,
         moduleFilePath,
         ignore,
-        verbose
+        verbose,
       );
     } else {
       requiredMessages[name] = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);
@@ -44,7 +44,7 @@ module.exports = function(pathInfo, ignore, langInfo, localeDataFolder, verbose)
     }
     const untranslatedWordCount = Object.values(missingMessages).reduce(
       (acc, message) => acc + message.split(' ').length,
-      0
+      0,
     );
     table.push([crowdinCode, intlCode, Object.keys(missingMessages).length, untranslatedWordCount]);
   }

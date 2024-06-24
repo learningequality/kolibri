@@ -23,6 +23,6 @@ export default (widget, rubric) => {
   widget.props.onChange(
     newProps,
     null, // cb
-    false // silent
+    false, // silent
   );
 };

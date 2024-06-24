@@ -3,14 +3,13 @@
   <div :style="{ maxWidth: '1700px' }">
     <transition name="delay-entry">
       <PostSetupModalGroup
-        v-if="!(rootNodesLoading || searchLoading)
-          && welcomeModalVisible"
+        v-if="!(rootNodesLoading || searchLoading) && welcomeModalVisible"
         isOnMyOwnUser
         @cancel="hideWelcomeModal"
       />
       <MeteredConnectionNotificationModal
         v-else-if="usingMeteredConnection"
-        @update="(value) => allowDownloadOnMeteredConnection = value"
+        @update="value => (allowDownloadOnMeteredConnection = value)"
       />
     </transition>
     <LearnAppBarPage
@@ -73,8 +72,8 @@
             v-if="!deviceId"
             data-test="resumable-content"
             :currentCardViewStyle="currentCardViewStyle"
-            @setCardStyle="style => currentCardViewStyle = style"
-            @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+            @setCardStyle="style => (currentCardViewStyle = style)"
+            @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
           />
           <!-- Other Libraries -->
           <OtherLibraries
@@ -82,7 +81,6 @@
             data-test="other-libraries"
             :injectedtr="injecttr"
           />
-
         </div>
 
         <SearchResultsGrid
@@ -98,8 +96,8 @@
           :searchTerms="searchTerms"
           :searchLoading="searchLoading"
           :more="more"
-          @setCardStyle="style => currentCardViewStyle = style"
-          @setSidePanelMetadataContent="content => metadataSidePanelContent = content"
+          @setCardStyle="style => (currentCardViewStyle = style)"
+          @setSidePanelMetadataContent="content => (metadataSidePanelContent = content)"
         />
       </main>
 
@@ -131,14 +129,18 @@
             v-for="activity in metadataSidePanelContent.learning_activities"
             :key="activity"
             class="side-panel-chips"
-            :class="$computedClass({ '::after': {
-              content: '',
-              flex: 'auto'
-            } })"
+            :class="
+              $computedClass({
+                '::after': {
+                  content: '',
+                  flex: 'auto',
+                },
+              })
+            "
           >
             <LearningActivityChip
               class="chip"
-              style="margin-left: 8px; margin-bottom: 8px;"
+              style="margin-bottom: 8px; margin-left: 8px"
               :kind="activity"
             />
           </div>
@@ -246,12 +248,8 @@
         fetchMoreResumableContentNodes,
       } = useLearnerResources();
 
-      const {
-        windowBreakpoint,
-        windowIsLarge,
-        windowIsMedium,
-        windowIsSmall,
-      } = useKResponsiveWindow();
+      const { windowBreakpoint, windowIsLarge, windowIsMedium, windowIsSmall } =
+        useKResponsiveWindow();
       const { canAddDownloads, canDownloadExternally } = useCoreLearn();
       const { currentCardViewStyle } = useCardViewStyle();
       const { back } = useContentLink();
@@ -298,7 +296,7 @@
                       return node;
                     }
                   })
-                  .filter(Boolean)
+                  .filter(Boolean),
               );
 
               store.commit('CORE_SET_PAGE_LOADING', false);
@@ -312,7 +310,7 @@
               ? store.dispatch('handleApiError', { error, reloadOnReconnect: true })
               : null;
             set(rootNodesLoading, false);
-          }
+          },
         );
       }
 
@@ -405,7 +403,7 @@
         default: null,
       },
     },
-    data: function() {
+    data: function () {
       return {
         isLocalLibraryEmpty: false,
         metadataSidePanelContent: null,

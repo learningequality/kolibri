@@ -10,6 +10,6 @@ export default (widget, rubric) => {
     () => {
       widget.resetGraphie();
     },
-    false // silent
+    false, // silent
   );
 };

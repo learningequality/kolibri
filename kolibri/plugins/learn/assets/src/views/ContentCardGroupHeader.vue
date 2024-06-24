@@ -1,19 +1,25 @@
 <template>
 
   <div>
-
     <div class="card-group-details">
-
-      <h2 v-if="header" class="card-group-details-header" :style="{ color: $themeTokens.text }">
+      <h2
+        v-if="header"
+        class="card-group-details-header"
+        :style="{ color: $themeTokens.text }"
+      >
         {{ header }}
       </h2>
 
-      <span v-if="showViewMore" class="card-group-details-view-more">
-        <KRouterLink :text="coreString('viewMoreAction')" :to="viewMorePageLink" />
+      <span
+        v-if="showViewMore"
+        class="card-group-details-view-more"
+      >
+        <KRouterLink
+          :text="coreString('viewMoreAction')"
+          :to="viewMorePageLink"
+        />
       </span>
-
     </div>
-
   </div>
 
 </template>

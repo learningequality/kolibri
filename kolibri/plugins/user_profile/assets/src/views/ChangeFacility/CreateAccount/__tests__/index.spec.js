@@ -37,19 +37,11 @@ const getPasswordTextbox = wrapper => wrapper.find('[data-test="passwordTextbox"
 const clickBackButton = wrapper => getBackButton(wrapper).trigger('click');
 const clickContinueButton = wrapper => getContinueButton(wrapper).trigger('click');
 const setUsernameTextboxValue = (wrapper, value) => {
-  getUsernameTextbox(wrapper)
-    .find('input')
-    .setValue(value);
+  getUsernameTextbox(wrapper).find('input').setValue(value);
 };
 const setPasswordTextboxValue = (wrapper, value) => {
-  getPasswordTextbox(wrapper)
-    .findComponent({ ref: 'password' })
-    .find('input')
-    .setValue(value);
-  getPasswordTextbox(wrapper)
-    .findComponent({ ref: 'confirm' })
-    .find('input')
-    .setValue(value);
+  getPasswordTextbox(wrapper).findComponent({ ref: 'password' }).find('input').setValue(value);
+  getPasswordTextbox(wrapper).findComponent({ ref: 'confirm' }).find('input').setValue(value);
 };
 
 describe(`ChangeFacility/CreateAccount`, () => {
@@ -69,7 +61,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
       fullName: 'Test User',
     });
     expect(wrapper.text()).toContain(
-      "New account for 'Test User' in 'Test Facility' learning facility"
+      "New account for 'Test User' in 'Test Facility' learning facility",
     );
   });
 
@@ -112,7 +104,7 @@ describe(`ChangeFacility/CreateAccount`, () => {
   it(`shows the message for users to remember their account information`, () => {
     const wrapper = makeWrapper();
     expect(wrapper.text()).toContain(
-      'Important: please remember this account information. Write it down if needed.'
+      'Important: please remember this account information. Write it down if needed.',
     );
   });
 

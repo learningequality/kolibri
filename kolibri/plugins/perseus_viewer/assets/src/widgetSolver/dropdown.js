@@ -5,6 +5,6 @@ export default (widget, rubric) => {
       selected: rubric.choices.indexOf(correct) + 1,
     },
     null,
-    false
+    false,
   );
 };

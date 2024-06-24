@@ -1,7 +1,10 @@
 <template>
 
   <KPageContainer :topMargin="0">
-    <MissingResourceAlert v-if="!exercise.available" :multiple="false" />
+    <MissingResourceAlert
+      v-if="!exercise.available"
+      :multiple="false"
+    />
     <ExamReport
       :contentId="exercise.content_id"
       :title="exercise.title"
@@ -53,12 +56,12 @@
       questions() {
         return this.exercise
           ? this.exercise.assessmentmetadata.assessment_item_ids.map((id, index) => ({
-              item: id,
-              question_id: id,
-              exercise_id: this.exercise.id,
-              counter_in_exercise: index,
-              title: this.exercise.title,
-            }))
+            item: id,
+            question_id: id,
+            exercise_id: this.exercise.id,
+            counter_in_exercise: index,
+            title: this.exercise.title,
+          }))
           : [];
       },
     },

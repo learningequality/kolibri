@@ -18,7 +18,7 @@ export function cancelTask(store, taskId) {
       () => {
         cancelWatch();
         TaskResource.clear(taskId).then(resolve);
-      }
+      },
     );
     TaskResource.cancel(taskId);
   });

@@ -16,7 +16,7 @@
         <KIcon
           icon="chevronRight"
           class="dropdown-icon"
-          :class="{ 'expanded': expanded }"
+          :class="{ expanded: expanded }"
         />
       </span>
       <span
@@ -31,7 +31,10 @@
         {{ item.title }}
       </span>
     </div>
-    <ul v-if="expanded" class="bookmark-children">
+    <ul
+      v-if="expanded"
+      class="bookmark-children"
+    >
       <BookmarkItem
         v-for="(child, index) in item.items"
         :key="index"

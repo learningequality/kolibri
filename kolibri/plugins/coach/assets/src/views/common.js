@@ -189,7 +189,7 @@ export default {
             },
             {
               groups: 'true',
-            }
+            },
           );
         case LastPages.EXERCISE_QUESTION_LIST:
           return this.classRoute('ReportsLessonExerciseQuestionListPage', {
@@ -207,7 +207,7 @@ export default {
             },
             {
               groups: 'true',
-            }
+            },
           );
         default:
           if (lastPage) {

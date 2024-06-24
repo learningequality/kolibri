@@ -121,7 +121,7 @@ export function syncFacilityTaskDisplayInfo(task) {
   } else if (task.extra_metadata.device_name) {
     deviceNameMsg = formatNameWithId(
       task.extra_metadata.device_name,
-      task.extra_metadata.device_id
+      task.extra_metadata.device_id,
     );
   }
   const syncStep = syncTaskStatusToStepMap[task.extra_metadata.sync_state];
@@ -177,7 +177,7 @@ export const removeStatusToDescriptionMap = {
 export function removeFacilityTaskDisplayInfo(task) {
   const facilityName = formatNameWithId(
     task.extra_metadata.facility_name,
-    task.extra_metadata.facility
+    task.extra_metadata.facility,
   );
   const statusDescription =
     removeStatusToDescriptionMap[task.status]() || getTaskString('taskUnknownStatus');

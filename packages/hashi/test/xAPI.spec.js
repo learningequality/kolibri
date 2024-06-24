@@ -262,7 +262,7 @@ describe('xAPI data validation', () => {
               correctResponsesPattern: [resp],
             });
             expect(warnMock).not.toHaveBeenCalled();
-          }
+          },
         );
         test('should give a warning if middle is a correct response', () => {
           ActivityDefinition.clean({
@@ -279,7 +279,7 @@ describe('xAPI data validation', () => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'choice', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
-          }
+          },
         );
         test('should give a warning if correct response is not in choices', () => {
           ActivityDefinition.clean({
@@ -316,7 +316,7 @@ describe('xAPI data validation', () => {
                 [option]: [{ id: 'test' }],
               });
             }).toThrowError(xAPIValidationError);
-          }
+          },
         );
         test('should give a warning if correct response is not in choices', () => {
           ActivityDefinition.clean({
@@ -350,7 +350,7 @@ describe('xAPI data validation', () => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'matching', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
-          }
+          },
         );
         test('should give a warning if correct response is not in source', () => {
           ActivityDefinition.clean({
@@ -417,7 +417,7 @@ describe('xAPI data validation', () => {
                 [option]: [{ id: 'test' }],
               });
             }).toThrowError(xAPIValidationError);
-          }
+          },
         );
         test('should give a warning if correct response is not in steps', () => {
           ActivityDefinition.clean({
@@ -461,7 +461,7 @@ describe('xAPI data validation', () => {
             expect(() => {
               ActivityDefinition.clean({ interactionType: 'likert', [option]: [{ id: 'test' }] });
             }).toThrowError(xAPIValidationError);
-          }
+          },
         );
         test('should give a warning if one of the correct responses is not in scale', () => {
           ActivityDefinition.clean({
@@ -835,7 +835,7 @@ describe('xAPI data validation', () => {
             parent: { id: 'http://example.adlnet.gov/xapi/example/test1' },
             grouping: { id: 'http://example.adlnet.gov/xapi/example/Algebra1' },
           },
-        })
+        }),
       ).toEqual(context);
     });
   });
@@ -932,7 +932,7 @@ describe('xAPI data validation', () => {
           version: '1.0.0',
           ...statement,
         });
-      }
+      },
     );
     it('should add defaults to the statement', () => {
       const statement = {

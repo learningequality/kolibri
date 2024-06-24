@@ -1567,8 +1567,8 @@ const MetadataLookup = invert(
     METADATA.ContentLevels,
     METADATA.ContentNodeResourceType,
     METADATA.LearningActivities,
-    METADATA.ResourcesNeededTypes
-  )
+    METADATA.ResourcesNeededTypes,
+  ),
 );
 
 /**

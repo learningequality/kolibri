@@ -7,11 +7,14 @@
       :style="{ color: $themeTokens.primary }"
       :iconAriaLabel="iconAriaLabel"
     >
-      <KIcon icon="info" :style="{ fill: $themeTokens.primary }" />
+      <KIcon
+        icon="info"
+        :style="{ fill: $themeTokens.primary }"
+      />
     </UiIcon>
     <KTooltip
       reference="icon"
-      :class="{ 'ltr': !isRtl }"
+      :class="{ ltr: !isRtl }"
       :refs="$refs"
       :placement="tooltipPlacement"
     >

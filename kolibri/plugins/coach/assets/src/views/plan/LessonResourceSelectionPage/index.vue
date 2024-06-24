@@ -33,7 +33,8 @@
             :appearanceOverrides="{
               width: '100%',
               textDecoration: 'none',
-              color: $themeTokens.text }"
+              color: $themeTokens.text,
+            }"
             :to="getBookmarksLink()"
           >
             <div :class="windowIsSmall ? 'mobile-bookmark-container' : 'bookmark-container'">
@@ -270,7 +271,7 @@
         // Content in the topic that can be added if 'Select All' is clicked
         const list = this.contentList ? this.contentList : this.bookmarksList;
         return list.filter(
-          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content)
+          content => !this.contentIsDirectoryKind(content) && !this.contentIsInLesson(content),
         );
       },
       channelsLink() {
@@ -435,7 +436,7 @@
         return this.$router.getRoute(
           LessonsPageNames.LESSON_SELECTION_BOOKMARKS,
           { topicId },
-          this.$route.query
+          this.$route.query,
         );
       },
       bookmarkLink(content) {
@@ -595,7 +596,10 @@
     min-height: 141px;
     margin-bottom: 24px;
     border-radius: 2px;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
     transition: box-shadow 0.25s ease;
   }
 
@@ -627,7 +631,10 @@
   }
 
   .bookmark-container:hover {
-    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+    box-shadow:
+      0 5px 5px -3px #a1a1a1,
+      0 8px 10px 1px #d1d1d1,
+      0 3px 14px 2px #d4d4d4;
   }
 
   .text {

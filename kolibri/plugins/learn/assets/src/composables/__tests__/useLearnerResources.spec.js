@@ -568,7 +568,7 @@ describe(`useLearnerResources`, () => {
             started: true,
             closed: true,
           },
-        })
+        }),
       ).toEqual({
         name: ClassesPageNames.EXAM_REPORT_VIEWER,
         params: {
@@ -590,7 +590,7 @@ describe(`useLearnerResources`, () => {
             started: true,
             closed: false,
           },
-        })
+        }),
       ).toEqual({
         name: ClassesPageNames.EXAM_VIEWER,
         params: {
@@ -608,7 +608,7 @@ describe(`useLearnerResources`, () => {
         getClassLessonLink({
           id: 'class-1-active-lesson-1',
           collection: 'class-1',
-        })
+        }),
       ).toEqual({
         name: ClassesPageNames.LESSON_PLAYLIST,
         params: {

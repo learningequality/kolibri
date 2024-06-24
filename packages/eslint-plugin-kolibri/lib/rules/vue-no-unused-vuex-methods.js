@@ -42,7 +42,7 @@ const create = context => {
     */
     {
       'CallExpression[callee.name=mapMutations][arguments] ObjectExpression Property[key.name]'(
-        node
+        node,
       ) {
         unusedVuexProperties.push({
           kind: VUEX_MUTATION,
@@ -80,7 +80,7 @@ const create = context => {
     */
     {
       'CallExpression[callee.name=mapActions][arguments] ObjectExpression Property[key.name]'(
-        node
+        node,
       ) {
         unusedVuexProperties.push({
           kind: VUEX_ACTION,
@@ -126,7 +126,7 @@ const create = context => {
       if (!hasTemplate && unusedVuexProperties.length) {
         utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -144,13 +144,13 @@ const create = context => {
       if (unusedVuexProperties.length) {
         utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

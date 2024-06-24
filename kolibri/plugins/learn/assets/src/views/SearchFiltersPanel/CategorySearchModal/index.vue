@@ -1,7 +1,10 @@
 <template>
 
   <div>
-    <Teleport v-if="windowIsLarge" to="body">
+    <Teleport
+      v-if="windowIsLarge"
+      to="body"
+    >
       <KModal
         :title="$tr('title')"
         :cancelText="coreString('closeAction')"
@@ -23,8 +26,6 @@
         v-on="$listeners"
       />
     </div>
-
-
   </div>
 
 </template>

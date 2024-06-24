@@ -35,9 +35,12 @@
         {{ coreString('questionsCorrectLabel') }}
       </th>
       <td>
-        {{ coreString('questionsCorrectValue', {
-          correct: maxQuestionsCorrect, total: totalQuestions
-        }) }}
+        {{
+          coreString('questionsCorrectValue', {
+            correct: maxQuestionsCorrect,
+            total: totalQuestions,
+          })
+        }}
       </td>
     </tr>
     <tr v-if="bestTimeSpent !== null">
@@ -46,7 +49,7 @@
       </th>
       <td>
         <TimeDuration :seconds="bestTimeSpent" />
-        <br>
+        <br >
         <span
           v-if="suggestedTimeAnnotation"
           class="try-annotation"

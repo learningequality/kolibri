@@ -5,7 +5,6 @@
     :allLinkRoute="$router.getRoute('HomeActivityPage')"
     :showAllLink="notifications.length > 0"
   >
-
     <template #title>
       <KLabeledIcon :label="$tr('classActivityLabel')" />
     </template>

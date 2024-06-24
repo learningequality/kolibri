@@ -22,7 +22,10 @@
         :disabled="formDisabled"
       />
 
-      <label class="select-button-label" for="select-address-button">
+      <label
+        class="select-button-label"
+        for="select-address-button"
+      >
         {{ $tr('selectDifferentDeviceLabel') }}
       </label>
       <KButton

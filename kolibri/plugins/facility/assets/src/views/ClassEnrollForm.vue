@@ -1,7 +1,6 @@
 <template>
 
   <form>
-
     <PaginatedListContainerWithBackend
       v-model="currentPage"
       :items="facilityUsers"
@@ -10,7 +9,10 @@
       :numFilteredItems="totalLearners"
     >
       <template #filter>
-        <FilterTextbox v-model="search" :placeholder="coreString('searchForUser')" />
+        <FilterTextbox
+          v-model="search"
+          :placeholder="coreString('searchForUser')"
+        />
       </template>
       <template>
         <UserTable
@@ -28,7 +30,6 @@
       :type="pageType"
       @click-confirm="$emit('submit', selectedUsers)"
     />
-
   </form>
 
 </template>

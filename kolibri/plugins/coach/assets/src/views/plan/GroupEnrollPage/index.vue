@@ -36,13 +36,15 @@
 
         <nav class="pagination-nav">
           <span class="pagination-label">
-            {{ $tr('pagination', {
-              visibleStartRange,
-              visibleEndRange,
-              numFilteredUsers
-            }) }}
+            {{
+              $tr('pagination', {
+                visibleStartRange,
+                visibleEndRange,
+                numFilteredUsers,
+              })
+            }}
           </span>
-          <KButtonGroup style="margin-top: 8px;">
+          <KButtonGroup style="margin-top: 8px">
             <KIconButton
               icon="chevronLeft"
               :ariaLabel="$tr('previousResults')"

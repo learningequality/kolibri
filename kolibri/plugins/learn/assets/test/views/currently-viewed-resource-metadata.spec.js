@@ -129,8 +129,8 @@ describe('CurrentlyViewedResourceMetadata', () => {
             license_name: null,
             license_owner: null,
           },
-          { propsData: { canDownloadExternally: false } }
-        ))
+          { propsData: { canDownloadExternally: false } },
+        )),
     );
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {

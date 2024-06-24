@@ -40,12 +40,19 @@
             :to="route"
             class="link"
           />
-          <span v-else class="link">
+          <span
+            v-else
+            class="link"
+          >
             {{ linkText }}
           </span>
         </div>
       </KFixedGridItem>
-      <KFixedGridItem v-if="showTime" :span="1" alignment="right">
+      <KFixedGridItem
+        v-if="showTime"
+        :span="1"
+        alignment="right"
+      >
         <ElapsedTime :date="date" />
       </KFixedGridItem>
     </KFixedGrid>

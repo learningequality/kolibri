@@ -39,7 +39,7 @@
     </CardGrid>
     <KButton
       v-if="moreResumableContentNodes"
-      style="margin-top: 16px;"
+      style="margin-top: 16px"
       appearance="basic-link"
       @click="fetchMoreResumableContentNodes"
     >

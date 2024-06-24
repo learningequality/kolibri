@@ -47,7 +47,7 @@ export function driveCanBeUsedForTransfer(state, getters, rootState, rootGetters
       // where its version is >= to the installed version
       const channelOnDrive = find(drive.metadata.channels, { id: transferredChannel.id });
       const channelOnServer = rootGetters['manageContent/channelIsInstalled'](
-        transferredChannel.id
+        transferredChannel.id,
       );
       return channelOnDrive && channelOnDrive.version >= channelOnServer.version;
     }

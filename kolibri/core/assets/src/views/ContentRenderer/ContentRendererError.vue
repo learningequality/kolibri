@@ -1,8 +1,12 @@
 <template>
 
   <div class="container">
-    <UiAlert :dismissible="false" class="alert" type="error">
-      <span>{{ $tr('rendererNotAvailable') }}</span><br>
+    <UiAlert
+      :dismissible="false"
+      class="alert"
+      type="error"
+    >
+      <span>{{ $tr('rendererNotAvailable') }}</span><br >
       <KButton
         v-if="error && error.message"
         appearance="basic-link"
@@ -70,10 +74,11 @@
 
 
 <style scoped>
+
   .container {
-    background: rgba(0, 0, 0, 0.7);
-    height: 100%;
     width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
   }
 
   .download-button {
@@ -81,9 +86,10 @@
   }
 
   .alert {
+    width: calc(100% - 16px);
     margin: 8px;
     text-align: left;
-    width: calc(100% - 16px);
     background: white;
   }
+
 </style>

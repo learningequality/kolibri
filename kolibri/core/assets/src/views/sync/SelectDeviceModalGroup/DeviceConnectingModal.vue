@@ -20,7 +20,11 @@
       :label="loadingLabel"
     >
       <template #icon>
-        <KCircularLoader :size="16" :stroke="6" class="loader" />
+        <KCircularLoader
+          :size="16"
+          :stroke="6"
+          class="loader"
+        />
       </template>
     </KLabeledIcon>
   </KModal>

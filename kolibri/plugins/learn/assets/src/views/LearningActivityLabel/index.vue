@@ -3,7 +3,7 @@
   <div v-if="contentNode">
     <span
       class="learning-activity"
-      :class="[ condensed || labelAfter ? 'reversed' : '' ]"
+      :class="[condensed || labelAfter ? 'reversed' : '']"
     >
       <span
         class="label"
@@ -25,7 +25,7 @@
       v-if="!hideDuration"
       :contentNode="contentNode"
       class="duration"
-      :class="[ condensed ? 'condensed' : '' ]"
+      :class="[condensed ? 'condensed' : '']"
     />
   </div>
 
@@ -52,7 +52,7 @@
     },
     setup(props) {
       const { hasSingleActivity, firstActivity, getLearningActivityLabel } = useLearningActivities(
-        props.contentNode
+        props.contentNode,
       );
 
       const label = computed(() => {

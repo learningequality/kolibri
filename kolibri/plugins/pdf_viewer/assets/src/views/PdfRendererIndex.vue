@@ -5,7 +5,7 @@
     class="pdf-renderer"
     :class="{
       'pdf-controls-open': showControls,
-      'pdf-full-screen': isInFullscreen
+      'pdf-full-screen': isInFullscreen,
     }"
     :style="{ backgroundColor: $themeTokens.text }"
     @changeFullscreen="isInFullscreen = $event"
@@ -22,7 +22,7 @@
       <transition name="slide">
         <div
           class="fullscreen-header pdf-controls-container"
-          :style="{ backgroundColor: this.$themePalette.grey.v_100 }"
+          :style="{ backgroundColor: $themePalette.grey.v_100 }"
         >
           <div>
             <KIconButton
@@ -62,7 +62,10 @@
           </div>
         </div>
       </transition>
-      <KGrid class="full-height-container" gutter="0">
+      <KGrid
+        class="full-height-container"
+        gutter="0"
+      >
         <KGridItem
           v-if="showSideBar"
           class="full-height-container"
@@ -451,7 +454,7 @@
       zoomOut() {
         this.setScale(Math.max(scaleIncrement / 2, this.scale - scaleIncrement));
       },
-      setScale: throttle(function(scaleValue) {
+      setScale: throttle(function (scaleValue) {
         this.scale = scaleValue;
         localStorage.setItem('pdf_scale', scaleValue);
       }, 500),
@@ -493,7 +496,7 @@
           // update progress using number of pages seen out of available pages
           this.$emit(
             'updateProgress',
-            Object.keys(this.savedVisitedPages).length / this.totalPages
+            Object.keys(this.savedVisitedPages).length / this.totalPages,
           );
         }
       },
@@ -554,7 +557,7 @@
                 this.showSideBar = false;
               }
             });
-          }
+          },
         );
       },
       focusDestPage(dest, event) {
@@ -590,7 +593,7 @@
                 this.showSideBar = false;
               }
             });
-          }
+          },
         );
       },
       /**

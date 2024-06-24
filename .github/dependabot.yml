@@ -15,6 +15,9 @@ updates:
       babel:
         patterns:
           - "@babel/*"
+      khanacademy:
+        patterns:
+          - "@khanacademy/*"
 
   # Maintain dependencies for Github Actions
   - package-ecosystem: "github-actions"

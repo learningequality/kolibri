@@ -8,12 +8,16 @@
     :closeButtonIconType="closeButtonIcon"
     :aria-label="learnString('filterAndSearchLabel')"
     :ariaLabel="learnString('filterAndSearchLabel')"
-    :style="windowIsLarge ? {
-      color: $themeTokens.text,
-      backgroundColor: $themeTokens.surface,
-      width: width,
-    } : {}"
-    @closePanel="currentCategory ? currentCategory = null : $emit('close')"
+    :style="
+      windowIsLarge
+        ? {
+          color: $themeTokens.text,
+          backgroundColor: $themeTokens.surface,
+          width: width,
+        }
+        : {}
+    "
+    @closePanel="currentCategory ? (currentCategory = null) : $emit('close')"
     @shouldFocusFirstEl="focusFirstEl()"
   >
     <div
@@ -45,12 +49,16 @@
           <KButton
             :text="coreString(category.value)"
             appearance="flat-button"
-            :appearanceOverrides="isCategoryActive(category.value)
-              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-              : categoryListItemStyles"
-            :disabled="availableRootCategories &&
-              !availableRootCategories[category.value] &&
-              !isCategoryActive(category.value)"
+            :appearanceOverrides="
+              isCategoryActive(category.value)
+                ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                : categoryListItemStyles
+            "
+            :disabled="
+              availableRootCategories &&
+                !availableRootCategories[category.value] &&
+                !isCategoryActive(category.value)
+            "
             :iconAfter="hasNestedCategories(key) ? 'chevronRight' : null"
             @click="handleCategory(key)"
           />
@@ -62,9 +70,11 @@
           <KButton
             :text="coreString('uncategorized')"
             appearance="flat-button"
-            :appearanceOverrides="isCategoryActive('no_categories')
-              ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
-              : categoryListItemStyles"
+            :appearanceOverrides="
+              isCategoryActive('no_categories')
+                ? { ...categoryListItemStyles, ...categoryListItemActiveStyles }
+                : categoryListItemStyles
+            "
             @click="noCategories"
           />
         </div>

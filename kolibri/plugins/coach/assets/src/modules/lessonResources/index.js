@@ -60,16 +60,16 @@ export default {
       // Append the new results
       state.searchResults.results = unionBy(
         [...state.searchResults.results, ...searchResults.results],
-        'id'
+        'id',
       );
       // Append the filters
       state.searchResults.channel_ids = union(
         state.searchResults.channel_ids,
-        searchResults.channel_ids
+        searchResults.channel_ids,
       );
       state.searchResults.content_kinds = union(
         state.searchResults.content_kinds,
-        searchResults.content_kinds
+        searchResults.content_kinds,
       );
       // NOTE: Don't update total_results. Must keep the value set initially
       // for remainingSearchResults to work properly

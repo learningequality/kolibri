@@ -7,8 +7,14 @@
     :appBarTitle="$tr('editProfileHeader')"
     :route="profileRoute"
   >
-    <KPageContainer class="narrow-container" :topMargin="100">
-      <form class="form" @submit.prevent="handleSubmit">
+    <KPageContainer
+      class="narrow-container"
+      :topMargin="100"
+    >
+      <form
+        class="form"
+        @submit.prevent="handleSubmit"
+      >
         <h1>{{ $tr('editProfileHeader') }}</h1>
 
         <FullNameTextbox
@@ -46,7 +52,6 @@
             :text="coreString('saveAction')"
             :disabled="formDisabled"
             type="submit"
-
             primary
           />
           <KButton
@@ -59,8 +64,7 @@
         </KButtonGroup>
       </form>
     </KPageContainer>
-
-  </Immersivepage>
+  </ImmersivePage>
 
 </template>
 
@@ -163,7 +167,7 @@
             this.fullName = facilityUser.full_name;
             this.username = facilityUser.username;
             this.userCopy = { ...facilityUser };
-          }
+          },
         );
       },
       getUpdates() {
@@ -176,7 +180,7 @@
           },
           (value, key) => {
             return value !== this.userCopy[key];
-          }
+          },
         );
       },
       handleCancel() {

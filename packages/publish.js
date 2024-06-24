@@ -7,7 +7,7 @@ const versionTools = require('./kolibri-tools/lib/version');
  */
 
 const version = versionTools.setVersion(
-  path.resolve(__dirname, 'kolibri-core-for-export/package.json')
+  path.resolve(__dirname, 'kolibri-core-for-export/package.json'),
 );
 
 /*
@@ -28,7 +28,7 @@ versionTools.setVersion(path.resolve(__dirname, 'eslint-plugin-kolibri/package.j
 
 versionTools.setVersion(
   path.resolve(__dirname, 'browserslist-config-kolibri/package.json'),
-  version
+  version,
 );
 
 /*
@@ -39,18 +39,18 @@ versionTools.setVersion(
 versionTools.setDependencyVersion(
   'kolibri',
   path.resolve(__dirname, 'kolibri-tools/package.json'),
-  version
+  version,
 );
 versionTools.setDependencyVersion(
   'eslint-plugin-kolibri',
   path.resolve(__dirname, 'kolibri-tools/package.json'),
-  version
+  version,
 );
 
 versionTools.setDependencyVersion(
   'browserslist-config-kolibri',
   path.resolve(__dirname, 'kolibri-tools/package.json'),
-  version
+  version,
 );
 
 /*
@@ -59,7 +59,7 @@ versionTools.setDependencyVersion(
 versionTools.setDependencyVersion(
   'browserslist-config-kolibri',
   path.resolve(__dirname, 'hashi/package.json'),
-  version
+  version,
 );
 
 // If the version is a prerelease use the 'next' tag to prevent auto upgrades, otherwise use latest.
@@ -76,7 +76,7 @@ function publishCommand(workspace) {
 }
 
 ['browserslist-config-kolibri', 'eslint-plugin-kolibri', 'kolibri', 'kolibri-tools'].forEach(
-  publishCommand
+  publishCommand,
 );
 
 process.chdir(currentCwd);

@@ -17,13 +17,13 @@
         v-if="isInFullscreen"
         icon="fullscreen_exit"
         :color="$themeTokens.textInverted"
-        style="top:0; width: 24px; height: 24px;"
+        style="top: 0; width: 24px; height: 24px"
       />
       <KIcon
         v-else
         icon="fullscreen"
         :color="$themeTokens.textInverted"
-        style="top:0; width: 24px; height: 24px;"
+        style="top: 0; width: 24px; height: 24px"
       />
     </UiIconButton>
     <Hooper
@@ -32,11 +32,15 @@
       @slide="handleSlide"
       @loaded="initializeHooper"
     >
-      <Slide v-for="(slide, index) in slides" :key="slide.id + index" :index="index">
+      <Slide
+        v-for="(slide, index) in slides"
+        :key="slide.id + index"
+        :index="index"
+      >
         <div
           class="slideshow-slide-image-wrapper"
           :style="{
-            height: `calc(100% - ${captionHeight}px)`
+            height: `calc(100% - ${captionHeight}px)`,
           }"
         >
           <img
@@ -45,7 +49,10 @@
             class="slideshow-slide-image"
           >
         </div>
-        <div :id="slideTextId(slide.id)" class="visuallyhidden">
+        <div
+          :id="slideTextId(slide.id)"
+          class="visuallyhidden"
+        >
           {{ slide.descriptive_text || slide.caption }}
         </div>
         <div
@@ -132,11 +139,11 @@
           this.visitedSlides = value;
         },
       },
-      slideshowImages: function() {
+      slideshowImages: function () {
         const files = this.files;
         return files.filter(file => file.preset != 'slideshow_manifest');
       },
-      captionHeight: function() {
+      captionHeight: function () {
         return (
           30 +
           (this.currentSlide && this.$refs[this.currentSlide.id]
@@ -144,7 +151,7 @@
             : 0)
         );
       },
-      contentHeight: function() {
+      contentHeight: function () {
         return window.innerHeight * 0.7 + 'px';
       },
       /* eslint-disable kolibri/vue-no-unused-properties */
@@ -227,7 +234,7 @@
             };
           }),
           ['sort_order'],
-          ['asc']
+          ['asc'],
         );
         this.currentSlideIndex = this.highestViewedSlideIndex;
       },
@@ -281,7 +288,7 @@
         this.setHooperListWidth();
         // Do this on nextTick to avoid sliding into position without proper resizing occurring.
         this.$nextTick(() =>
-          this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex)
+          this.$refs.slider.slideTo(this.extraFields.contentState.lastViewedSlideIndex),
         );
       },
       updateContentState() {
@@ -310,7 +317,7 @@
           // update progress using number of slides seen out of available slides
           this.$emit(
             'updateProgress',
-            Object.keys(this.savedVisitedSlides).length / this.slides.length
+            Object.keys(this.savedVisitedSlides).length / this.slides.length,
           );
         }
       },

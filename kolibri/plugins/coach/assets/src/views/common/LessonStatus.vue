@@ -3,8 +3,14 @@
   <KPageContainer :topMargin="$isPrint ? 0 : 24">
     <KGrid gutter="16">
       <!-- Class name, for print only -->
-      <div v-if="$isPrint" class="status-item">
-        <KGridItem class="status-label" :layout12="layout12Label">
+      <div
+        v-if="$isPrint"
+        class="status-item"
+      >
+        <KGridItem
+          class="status-label"
+          :layout12="layout12Label"
+        >
           {{ coachString('classLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
@@ -13,8 +19,14 @@
       </div>
 
       <!-- Visibility status/switch -->
-      <div v-show="!$isPrint" class="status-item visibility-item">
-        <KGridItem class="status-label" :layout12="{ span: 8 }">
+      <div
+        v-show="!$isPrint"
+        class="status-item visibility-item"
+      >
+        <KGridItem
+          class="status-label"
+          :layout12="{ span: 8 }"
+        >
           {{ coachString('lessonVisibleLabel') }}
         </KGridItem>
         <KGridItem :layout12="{ span: 4 }">
@@ -30,7 +42,10 @@
 
       <!-- Recipients -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout12="layout12Label">
+        <KGridItem
+          class="status-label"
+          :layout12="layout12Label"
+        >
           {{ coachString('recipientsLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
@@ -45,7 +60,10 @@
 
       <!-- Description -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout12="layout12Label">
+        <KGridItem
+          class="status-label"
+          :layout12="layout12Label"
+        >
           {{ coachString('descriptionLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">
@@ -59,7 +77,10 @@
 
       <!-- Lesson Sizes -->
       <div class="status-item">
-        <KGridItem class="status-label" :layout12="layout12Label">
+        <KGridItem
+          class="status-label"
+          :layout12="layout12Label"
+        >
           {{ coachString('sizeLabel') }}
         </KGridItem>
         <KGridItem :layout12="layout12Value">

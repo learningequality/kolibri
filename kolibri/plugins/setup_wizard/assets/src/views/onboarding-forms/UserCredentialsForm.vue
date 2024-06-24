@@ -64,7 +64,6 @@
       <!-- NOTE: Demographic info forms were removed in PR #6053 -->
 
       <PrivacyLinkAndModal v-if="!hidePrivacyLink" />
-
     </form>
 
     <slot name="footer">
@@ -302,10 +301,19 @@
         context:
           'The learner is creating their account for an existing facility and is told what that is',
       },
+<<<<<<< username-exists-string
       SignInInstead: {
         message: 'Sign in instead?',
         context: 'Text prompting user to sign in with existing username.',
       },
+=======
+      /* eslint-disable kolibri/vue-no-unused-translations */
+      signInInstead: {
+        message: 'Sign in instead?',
+        context: 'Text prompting user to sign in with existing username.',
+      },
+      /* eslint-enable kolibri/vue-no-unused-translations */
+>>>>>>> develop
     },
   };
 

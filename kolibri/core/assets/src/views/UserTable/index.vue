@@ -5,7 +5,7 @@
   visually the same top margin no matter if `selectable` or no
   (important for consistency, e.g. when it is rendered below other
   components like user search box) -->
-  <div :style="[showSelectAllCheckbox ? { marginTop: '-44px' } : {} ]">
+  <div :style="[showSelectAllCheckbox ? { marginTop: '-44px' } : {}]">
     <KCheckbox
       v-if="showSelectAllCheckbox"
       :label="$tr('selectAllLabel')"
@@ -13,14 +13,23 @@
       :checked="allAreSelected"
       :disabled="disabled || !users || users.length === 0"
       class="select-all"
-      :style="{ color: this.$themeTokens.annotation }"
+      :style="{ color: $themeTokens.annotation }"
       data-test="selectAllCheckbox"
       @change="selectAll($event)"
     />
-    <CoreTable :emptyMessage="emptyMessage" :dataLoading="dataLoading">
+    <CoreTable
+      :emptyMessage="emptyMessage"
+      :dataLoading="dataLoading"
+    >
       <template #headers>
-        <th data-test="fullNameHeader" :style="{ minWidth: '32px' }">
-          <span v-if="selectable" class="visuallyhidden">
+        <th
+          data-test="fullNameHeader"
+          :style="{ minWidth: '32px' }"
+        >
+          <span
+            v-if="selectable"
+            class="visuallyhidden"
+          >
             {{ $tr('selectUserBy') }}
           </span>
           <span :class="{ visuallyhidden: showSelectAllCheckbox }">
@@ -28,7 +37,10 @@
           </span>
         </th>
         <th>
-          <span class="visuallyhidden" data-test="roleHeader">
+          <span
+            class="visuallyhidden"
+            data-test="roleHeader"
+          >
             {{ $tr('role') }}
           </span>
         </th>
@@ -54,7 +66,10 @@
             {{ coreString('birthYearLabel') }}
           </th>
         </template>
-        <th v-if="$scopedSlots.action" class="user-action-button">
+        <th
+          v-if="$scopedSlots.action"
+          class="user-action-button"
+        >
           <span class="visuallyhidden">
             {{ coreString('userActionsColumnHeader') }}
           </span>
@@ -147,19 +162,23 @@
                 />
               </template>
             </td>
-            <td class="visuallyhidden" data-test="userRoleLabel">
+            <td
+              class="visuallyhidden"
+              data-test="userRoleLabel"
+            >
               {{ typeDisplayMap[user.kind] }}
             </td>
-            <td data-test="username" :style="{ color: $themeTokens.text }">
+            <td
+              data-test="username"
+              :style="{ color: $themeTokens.text }"
+            >
               <span dir="auto">
                 {{ user.username }}
               </span>
             </td>
             <template v-if="showDemographicInfo">
               <td class="id-col">
-                <KOptionalText
-                  :text="user.id_number ? user.id_number : ''"
-                />
+                <KOptionalText :text="user.id_number ? user.id_number : ''" />
               </td>
               <td>
                 <GenderDisplayText :gender="user.gender" />
@@ -169,16 +188,24 @@
               </td>
             </template>
             <td v-if="$scopedSlots.info">
-              <slot name="info" :user="user"></slot>
+              <slot
+                name="info"
+                :user="user"
+              ></slot>
             </td>
-            <td v-if="$scopedSlots.action" class="core-table-button-col">
-              <slot name="action" :user="user"></slot>
+            <td
+              v-if="$scopedSlots.action"
+              class="core-table-button-col"
+            >
+              <slot
+                name="action"
+                :user="user"
+              ></slot>
             </td>
           </tr>
         </tbody>
       </template>
     </CoreTable>
-
   </div>
 
 </template>
@@ -296,7 +323,7 @@
         if (checked) {
           return this.$emit(
             'input',
-            this.value.concat(currentUsers.filter(item => this.value.indexOf(item) < 0))
+            this.value.concat(currentUsers.filter(item => this.value.indexOf(item) < 0)),
           );
         }
         return this.$emit('input', difference(this.value, currentUsers));
@@ -312,7 +339,7 @@
         }
         return this.$emit(
           'input',
-          selected.filter(selectedId => selectedId !== id)
+          selected.filter(selectedId => selectedId !== id),
         );
       },
     },

@@ -1,16 +1,12 @@
 <template>
 
   <div class="wrapper">
-    <h1 class="section-header" :style="{ color: `${$themeTokens.annotation}` }">
-      {{ activeSectionTitle }}
-    </h1>
-    <span
-      class="divider"
-      :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
-    >
-    </span>
     <h1 class="section-header">
-      {{ replaceQuestions$() }}
+      {{
+        replaceQuestions$({
+          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </h1>
     <p>{{ replaceQuestionsHeading$() }}</p>
     <span
@@ -53,9 +49,7 @@
         "
       >
         <template #heading="{ title }">
-          <h3
-            class="accordion-header"
-          >
+          <h3 class="accordion-header">
             <KCheckbox
               class="accordion-checkbox"
               :checked="replacements.map(r => r.item).includes(question.item)"
@@ -72,9 +66,8 @@
             >
               <span>{{ title }}</span>
               <KIcon
-                style="position: absolute; right:1em; top: 0.625em;"
-                :icon="isExpanded(index) ?
-                  'chevronUp' : 'chevronRight'"
+                style="position: absolute; top: 0.625em; right: 1em"
+                :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
               />
             </KButton>
           </h3>
@@ -109,7 +102,7 @@
     <div class="bottom-navigation">
       <KGrid>
         <KGridItem
-          style="text-align: left;"
+          style="text-align: left"
           :layout12="{ span: 8 }"
           :layout8="{ span: 6 }"
           :layout4="{ span: 3 }"
@@ -117,7 +110,7 @@
           {{ replaceSelectedQuestionsString }}
         </KGridItem>
         <KGridItem
-          style="text-align: right;"
+          style="text-align: right"
           :layout12="{ span: 4 }"
           :layout8="{ span: 2 }"
           :layout4="{ span: 1 }"
@@ -135,12 +128,16 @@
       v-if="showReplacementConfirmation"
       :submitText="coreString('confirmAction')"
       :cancelText="coreString('cancelAction')"
-      :title="replaceQuestions$()"
+      :title="
+        replaceQuestions$({
+          sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      "
       @cancel="showReplacementConfirmation = false"
       @submit="submitReplacement"
     >
-      <div> {{ replaceQuestionsExplaination$() }} </div>
-      <div style="font-weight: bold;">
+      <div>{{ replaceQuestionsExplaination$() }}</div>
+      <div style="font-weight: bold">
         {{ noUndoWarning$() }}
       </div>
     </KModal>
@@ -198,7 +195,7 @@
         numberOfSelectedReplacements$,
         numberOfQuestionsReplaced$,
         noUndoWarning$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
@@ -207,6 +204,7 @@
       const {
         // Computed
         activeSection,
+        activeSectionIndex,
         selectedActiveQuestions,
         activeResourceMap,
         replacementQuestionPool,
@@ -219,7 +217,7 @@
 
       const activeSectionTitle = computed(() => {
         const activeSectionIndex = allSections.value.findIndex(section =>
-          isEqual(JSON.stringify(section), JSON.stringify(activeSection.value))
+          isEqual(JSON.stringify(section), JSON.stringify(activeSection.value)),
         );
         return displaySectionTitle(activeSection.value, activeSectionIndex);
       });
@@ -282,14 +280,8 @@
         }
       }
 
-      const {
-        toggle,
-        isExpanded,
-        collapseAll,
-        expandAll,
-        canCollapseAll,
-        canExpandAll,
-      } = useAccordion(replacementQuestionPool);
+      const { toggle, isExpanded, collapseAll, expandAll, canCollapseAll, canExpandAll } =
+        useAccordion(replacementQuestionPool);
 
       return {
         toggle,
@@ -301,6 +293,7 @@
 
         toggleInReplacements,
         activeSection,
+        activeSectionIndex,
         activeSectionTitle,
         selectAllReplacementQuestions,
         selectedActiveQuestions,
@@ -327,11 +320,12 @@
         noUndoWarning$,
         replaceQuestionsExplaination$,
         replaceQuestionsHeading$,
-        selectMoreQuestion$,
+        selectQuestionsToContinue$,
         selectFewerQuestion$,
         collapseAll$,
         expandAll$,
         displayQuestionTitle,
+        displaySectionTitle,
       };
     },
     computed: {
@@ -361,13 +355,9 @@
             count: this.replacements.length,
             total: this.selectedActiveQuestions.length,
           });
-        } else if (unreplacedCount > 0) {
-          return this.selectMoreQuestion$({
-            count: unreplacedCount,
-          });
         } else {
-          return this.selectFewerQuestion$({
-            count: Math.abs(unreplacedCount),
+          return this.selectQuestionsToContinue$({
+            count: this.selectedActiveQuestions.length,
           });
         }
       },

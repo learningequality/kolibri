@@ -4,7 +4,7 @@
     class="base-toolbar"
     :style="{
       color: $themeTokens.text,
-      backgroundColor: $themeTokens.surface
+      backgroundColor: $themeTokens.surface,
     }"
   >
     <slot></slot>
@@ -39,7 +39,9 @@
     padding-right: 24px;
     padding-left: 24px;
     font-size: 1.125rem;
-    box-shadow: 0 0 2px rgba(0, 0, 0, 0.12), 0 2px 2px rgba(0, 0, 0, 0.2);
+    box-shadow:
+      0 0 2px rgba(0, 0, 0, 0.12),
+      0 2px 2px rgba(0, 0, 0, 0.2);
   }
 
 </style>

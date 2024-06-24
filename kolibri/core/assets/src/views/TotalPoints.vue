@@ -1,7 +1,14 @@
 <template>
 
-  <div v-if="isUserLoggedIn" ref="icon" class="points-wrapper">
-    <div class="icon-wrapper" :style="{ backgroundColor: $themeTokens.surface }">
+  <div
+    v-if="isUserLoggedIn"
+    ref="icon"
+    class="points-wrapper"
+  >
+    <div
+      class="icon-wrapper"
+      :style="{ backgroundColor: $themeTokens.surface }"
+    >
       <KIcon
         icon="pointsActive"
         :color="$themeTokens.primary"

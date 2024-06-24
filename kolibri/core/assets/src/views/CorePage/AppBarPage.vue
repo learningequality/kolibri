@@ -44,7 +44,6 @@
         @shouldFocusFirstEl="findFirstEl()"
       />
     </transition>
-
   </div>
 
 </template>
@@ -121,16 +120,16 @@
         return this.appearanceOverrides
           ? this.appearanceOverrides
           : {
-              width: '100%',
-              maxWidth: '1064px',
-              margin: 'auto',
-              backgroundColor: this.$themePalette.grey.v_50,
-              paddingLeft: this.paddingLeftRight,
-              paddingRight: this.paddingLeftRight,
-              paddingTop: this.appBarHeight + this.paddingTop + 'px',
-              paddingBottom: '72px',
-              marginTop: 0,
-            };
+            width: '100%',
+            maxWidth: '1064px',
+            margin: 'auto',
+            backgroundColor: this.$themePalette.grey.v_50,
+            paddingLeft: this.paddingLeftRight,
+            paddingRight: this.paddingLeftRight,
+            paddingTop: this.appBarHeight + this.paddingTop + 'px',
+            paddingBottom: '72px',
+            marginTop: 0,
+          };
       },
       paddingTop() {
         return this.isAppContext ? 0 : 4;

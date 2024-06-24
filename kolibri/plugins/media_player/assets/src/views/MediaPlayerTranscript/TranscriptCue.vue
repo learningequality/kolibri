@@ -3,11 +3,7 @@
   <a
     role="button"
     tabindex="0"
-    :class="[
-      'transcript-cue',
-      { active },
-      $computedClass(style)
-    ]"
+    :class="['transcript-cue', { active }, $computedClass(style)]"
     :title="$tr('title', { startTime })"
     :aria-current="active.toString()"
     @click="triggerSeekEvent"
@@ -71,9 +67,9 @@
       style() {
         const activeStyles = this.active
           ? {
-              backgroundColor: this.$themePalette.grey.v_400,
-              borderLeftColor: this.$themeTokens.watch,
-            }
+            backgroundColor: this.$themePalette.grey.v_400,
+            borderLeftColor: this.$themeTokens.watch,
+          }
           : {};
 
         return Object.assign(activeStyles, {

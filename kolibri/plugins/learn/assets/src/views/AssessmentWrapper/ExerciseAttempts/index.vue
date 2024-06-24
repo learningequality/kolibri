@@ -16,8 +16,7 @@
       :key="`placeholder-${i}`"
       class="placeholder"
       :style="{ borderBottom: `2px solid ${$themeTokens.annotation}` }"
-    >
-    </div>
+    ></div>
   </div>
 
 </template>

@@ -4,12 +4,13 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="[$computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <div class="header-bar" :style="headerStyles">
+      <div
+        class="header-bar"
+        :style="headerStyles"
+      >
         <div v-if="!contentNode.is_leaf">
           <KIcon
             icon="topic"
@@ -39,8 +40,14 @@
         class="thumbnail"
         :contentNode="contentNode"
       />
-      <div class="text" :style="{ color: $themeTokens.text }">
-        <h3 class="title" dir="auto">
+      <div
+        class="text"
+        :style="{ color: $themeTokens.text }"
+      >
+        <h3
+          class="title"
+          dir="auto"
+        >
           <KTextTruncator
             :text="contentNode.title"
             :maxLines="1"

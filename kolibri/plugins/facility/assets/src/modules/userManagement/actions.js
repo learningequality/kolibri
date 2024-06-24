@@ -52,7 +52,7 @@ export function updateFacilityUserDetails(store, { userId, updates }) {
       if (roleUpdates) {
         return updateFacilityLevelRoles(user, roleUpdates.kind);
       }
-    }
+    },
   );
 }
 

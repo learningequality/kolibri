@@ -1,9 +1,6 @@
 <template>
 
-  <KOptionalText
-    :text="
-      (isSpecified && displayText) ? displayText : ''"
-  />
+  <KOptionalText :text="isSpecified && displayText ? displayText : ''" />
 
 </template>
 

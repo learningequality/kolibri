@@ -10,7 +10,7 @@
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'FacilityConfigPage' }
+            params: { subtopicName: 'FacilityConfigPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -32,7 +32,10 @@
         <div class="mb">
           <h2>{{ coreString('facilityLabel') }}</h2>
           <p class="current-facility-name">
-            <KCircularLoader v-if="getFacilityDataLoading" class="facility-loader" />
+            <KCircularLoader
+              v-if="getFacilityDataLoading"
+              class="facility-loader"
+            />
             <span v-else>
               {{ coreString('facilityNameWithId', { facilityName: facilityName, id: lastPartId }) }}
               <KButton
@@ -43,7 +46,6 @@
                 @click="showEditFacilityModal = true"
               />
             </span>
-
           </p>
         </div>
 
@@ -74,8 +76,10 @@
                   :key="setting + 'learner_can_edit_password'"
                   :disabled="enableChangePassword"
                   :label="$tr('learnerCanEditPassword')"
-                  :checked="!settings['learner_can_login_with_no_password']
-                    && settings['learner_can_edit_password']"
+                  :checked="
+                    !settings['learner_can_login_with_no_password'] &&
+                      settings['learner_can_edit_password']
+                  "
                   class="checkbox-password"
                   @change="toggleSetting('learner_can_edit_password')"
                 />
@@ -83,9 +87,7 @@
             </template>
           </div>
 
-          <div>
-
-          </div>
+          <div></div>
         </div>
 
         <div class="">
@@ -120,7 +122,7 @@
           :style="{
             marginTop: '32px',
             borderTop: '1px solid',
-            borderTopColor: $themeTokens.fineLine
+            borderTopColor: $themeTokens.fineLine,
           }"
         >
           <KButtonGroup :style="{ marginTop: '24px', marginLeft: '-8px' }">
@@ -179,13 +181,12 @@
         @submit="handleRemovePinModal = false"
         @cancel="handleRemovePinModal = false"
       />
-
     </KPageContainer>
 
     <BottomAppBar data-test="bottom-bar">
       <KButtonGroup
         v-if="!isAppContext"
-        style="margin-top: 8px;"
+        style="margin-top: 8px"
       >
         <KGrid>
           <KGridItem

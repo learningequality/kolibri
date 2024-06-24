@@ -5,84 +5,77 @@
       <KCircularLoader />
     </div>
     <div v-else>
-
-      <h5 v-if="selectPracticeQuiz" class="select-folder-style">
+      <h5
+        v-if="selectPracticeQuiz"
+        class="select-folder-style"
+      >
         {{ selectPracticeQuizLabel$() }}
       </h5>
-      <KGrid v-else>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <h5 class="select-folder-style">
-            {{ selectResourcesDescription$() }}
-          </h5>
-          <span>
-            {{
-              maxNumberOfQuestionsPerSection$({
-                count: MAX_QUESTIONS_PER_QUIZ_SECTION, current: activeQuestions.length
-              })
-            }}
+      <div v-else>
+        <h5 class="select-folder-style">
+          {{
+            selectResourcesDescription$({
+              sectionTitle: displaySectionTitle(activeSection, activeSectionIndex),
+            })
+          }}
+        </h5>
+        <p>
+          {{ numberOfQuestionsSelected$({ count: activeQuestions.length }) }}
+          <span
+            class="divider"
+            :style="{ borderTop: `solid 1px ${$themeTokens.fineLine}` }"
+          >
           </span>
-        </KGridItem>
-        <KGridItem
-          :layout12="{ span: 6 }"
-          :layout8="{ span: 4 }"
-          :layout4="{ span: 2 }"
-        >
-          <div class="number-question">
-            <div>
-              <KTextbox
-                ref="numQuest"
-                v-model="questionCount"
-                type="number"
-                :label="numberOfQuestionsLabel$()"
-                :max="maxQuestions"
-                :min="1"
-                :invalid="questionCount > maxQuestions"
-                :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
-                :showInvalidText="true"
+        </p>
+        <p>{{ numberOfQuestionsToAdd$() }}</p>
+        <div class="number-question">
+          <div>
+            <KTextbox
+              ref="numQuest"
+              v-model="questionCount"
+              type="number"
+              :label="numberOfQuestionsLabel$()"
+              :max="maxQuestions"
+              :min="1"
+              :invalid="questionCount > maxQuestions"
+              :invalidText="maxNumberOfQuestions$({ count: maxQuestions })"
+              :showInvalidText="true"
+            />
+          </div>
+          <div>
+            <div
+              :style="borderStyle"
+              class="group-button-border"
+            >
+              <KIconButton
+                icon="minus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="questionCount === 1"
+                @click="questionCount -= 1"
+              />
+              <span :style="dividerStyle"> | </span>
+              <KIconButton
+                icon="plus"
+                aria-hidden="true"
+                class="number-btn"
+                :disabled="questionCount >= maxQuestions"
+                @click="questionCount += 1"
               />
             </div>
-            <div>
-              <div
-                :style="borderStyle"
-                class="group-button-border"
-              >
-                <KIconButton
-                  icon="minus"
-                  aria-hidden="true"
-                  class="number-btn"
-                  :disabled="questionCount === 1"
-                  @click="questionCount -= 1"
-                />
-                <span
-                  :style="dividerStyle"
-                > | </span>
-                <KIconButton
-                  icon="plus"
-                  aria-hidden="true"
-                  class="number-btn"
-                  :disabled="questionCount >= maxQuestions"
-                  @click="questionCount += 1"
-                />
-              </div>
-            </div>
           </div>
-        </KGridItem>
-      </KGrid>
+        </div>
+      </div>
 
       <div v-if="!isTopicIdSet && bookmarks.length && !showBookmarks">
-
-        <p>{{ selectFromBookmarks$() }}</p>
+        <p>{{ coreString('selectFromBookmarks') }}</p>
 
         <div>
           <KRouterLink
             :appearanceOverrides="{
               width: '100%',
               textDecoration: 'none',
-              color: $themeTokens.text
+              color: $themeTokens.text,
             }"
             :to="getBookmarksLink"
           >
@@ -95,19 +88,6 @@
             </div>
           </KRouterLink>
         </div>
-      </div>
-
-      <div
-        v-if="showTopicSizeWarning"
-        class="shadow"
-        :style=" {
-          padding: '1em',
-          marginTop: '1em',
-          marginBottom: '1em',
-          backgroundColor: $themePalette.grey.v_100,
-        }"
-      >
-        {{ cannotSelectSomeTopicWarning$({ count: 12 }) }}
       </div>
 
       <ResourceSelectionBreadcrumbs
@@ -123,6 +103,19 @@
         @searchterm="handleSearchTermChange"
       />
 
+      <div
+        v-if="showNumberOfQuestionsWarning"
+        class="shadow"
+        :style="{
+          padding: '1em',
+          marginTop: '2em',
+          marginBottom: '2em',
+          backgroundColor: $themePalette.grey.v_100,
+        }"
+      >
+        {{ cannotSelectSomeTopicWarning$({ count: 500 }) }}
+      </div>
+
       <ContentCardList
         :contentList="contentList"
         :showSelectAll="showSelectAll"
@@ -130,7 +123,7 @@
         :selectAllChecked="selectAllChecked"
         :selectAllIndeterminate="selectAllIndeterminate"
         :contentIsChecked="contentPresentInWorkingResourcePool"
-        :contentHasCheckbox="actuallyHasCheckbox"
+        :contentHasCheckbox="folderDoesNotHaveTooManyQuestions || hasCheckbox"
         :contentCardMessage="selectionMetadata"
         :contentCardLink="contentLink"
         :loadingMoreState="loadingMore"
@@ -138,36 +131,43 @@
         @changeselectall="handleSelectAll"
         @change_content_card="toggleSelected"
         @moreresults="fetchMoreResources"
-      >
-        <template #notice="{ content }">
-          <span style="position: absolute; bottom: 1em;">{{ cardNoticeContent(content) }}</span>
-        </template>
-      </ContentCardList>
+      />
 
       <div class="bottom-navigation">
         <KGrid>
           <KGridItem
-            :layout12="{ span: 6 }"
+            :layout12="{ span: 8 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
             <span v-if="!selectPracticeQuiz">
-              {{
-                questionsFromResources$({
-                  questions: workingPoolUnusedQuestions, resources: workingResourcePool.length
-                })
-              }}
+              <span v-if="workingPoolUnusedQuestions > maxSectionQuestionOptions">
+                {{
+                  tooManyQuestions$({
+                    count: maxSectionQuestionOptions,
+                  })
+                }}
+              </span>
+              <span v-else>
+                {{
+                  questionsFromResources$({
+                    questions: workingPoolUnusedQuestions,
+                  })
+                }}
+              </span>
             </span>
           </KGridItem>
           <KGridItem
-            :layout12="{ span: 6 }"
+            :layout12="{ span: 4 }"
             :layout8="{ span: 4 }"
             :layout4="{ span: 2 }"
           >
             <KButton
-              style="float: right;"
-              :text="selectPracticeQuiz ? selectQuiz$() :
-                addNumberOfQuestions$({ count: Math.max(1, questionCount) })
+              style="float: right"
+              :text="
+                selectPracticeQuiz
+                  ? selectQuiz$()
+                  : addNumberOfQuestions$({ count: Math.max(1, questionCount) })
               "
               :primary="true"
               :disabled="disableSave"
@@ -197,11 +197,18 @@
   import get from 'lodash/get';
   import uniqWith from 'lodash/uniqWith';
   import isEqual from 'lodash/isEqual';
-  import { enhancedQuizManagementStrings } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    displaySectionTitle,
+    enhancedQuizManagementStrings,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import { computed, ref, getCurrentInstance, watch } from 'kolibri.lib.vueCompositionApi';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { ContentNodeResource, ChannelResource } from 'kolibri.resources';
-  import { ContentNodeKinds, MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
+  import {
+    ContentNodeKinds,
+    MAX_QUESTIONS_PER_QUIZ_SECTION,
+    MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION,
+  } from 'kolibri.coreVue.vuex.constants';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import { exerciseToQuestionArray } from '../../../utils/selectQuestions';
   import { PageNames, ViewMoreButtonStates } from '../../../constants/index';
@@ -231,6 +238,7 @@
       const showBookmarks = computed(() => route.value.query.showBookmarks);
       const searchQuery = computed(() => route.value.query.search);
       const {
+        activeSection,
         activeSectionIndex,
         allResourceMap,
         updateSection,
@@ -242,29 +250,31 @@
       } = injectQuizCreation();
       const showCloseConfirmation = ref(false);
       const maxQuestions = computed(
-        () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length
+        () => MAX_QUESTIONS_PER_QUIZ_SECTION - activeQuestions.value.length,
       );
+      const maxSectionQuestionOptions = computed(() => MAX_QUESTION_OPTIONS_PER_QUIZ_SECTION);
+
       const questionCount = ref(Math.min(10, maxQuestions.value));
 
       const selectPracticeQuiz = computed(() => props.selectPracticeQuiz);
 
       const {
         sectionSettings$,
-        selectFromBookmarks$,
         numberOfSelectedBookmarks$,
         selectResourcesDescription$,
         questionsFromResources$,
         changesSavedSuccessfully$,
-        selectedQuestionsInformation$,
         cannotSelectSomeTopicWarning$,
         closeConfirmationMessage$,
         closeConfirmationTitle$,
         questionsUnusedInSection$,
+        numberOfQuestionsSelected$,
+        numberOfQuestionsToAdd$,
+        maxNumberOfQuestions$,
+        tooManyQuestions$,
         selectQuiz$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
-        maxNumberOfQuestions$,
-        maxNumberOfQuestionsPerSection$,
         addNumberOfQuestions$,
       } = enhancedQuizManagementStrings;
 
@@ -295,7 +305,7 @@
             ...workingResourcePool.value,
             ...resources.filter(r => r.kind === ContentNodeKinds.EXERCISE),
           ],
-          isEqual
+          isEqual,
         );
       }
 
@@ -306,7 +316,10 @@
        */
       function selectableContentList() {
         return contentList.value.reduce((newList, content) => {
-          if (content.kind === ContentNodeKinds.TOPIC && actuallyHasCheckbox(content)) {
+          if (
+            content.kind === ContentNodeKinds.TOPIC &&
+            folderDoesNotHaveTooManyQuestions(content)
+          ) {
             newList = [...newList, ...content.children.results];
           } else {
             newList.push(content);
@@ -387,7 +400,7 @@
       const showSelectAll = computed(() => {
         return (
           !selectPracticeQuiz.value &&
-          contentList.value.every(content => actuallyHasCheckbox(content))
+          contentList.value.every(content => folderDoesNotHaveTooManyQuestions(content))
         );
       });
 
@@ -455,7 +468,7 @@
       function unusedQuestionsCount(content) {
         if (content.kind === ContentNodeKinds.EXERCISE) {
           const questionItems = content.assessmentmetadata.assessment_item_ids.map(
-            aid => `${content.id}:${aid}`
+            aid => `${content.id}:${aid}`,
           );
           const questionsItemsAlreadyUsed = allQuestionsInQuiz.value
             .map(q => q.item)
@@ -463,20 +476,23 @@
           const questionItemsAvailable = questionItems.length - questionsItemsAlreadyUsed.length;
           return questionItemsAvailable;
         }
+        if (content.kind === ContentNodeKinds.TOPIC || content.kind === ContentNodeKinds.CHANNEL) {
+          const total = content.num_assessments;
+          const numberOfQuestionsSelected = allQuestionsInQuiz.value.filter(question => {
+            const questionNode = allResourceMap.value[question.exercise_id];
+            for (const ancestor of questionNode.ancestors) {
+              if (ancestor.id === content.id) {
+                return true;
+              }
+            }
+            return false;
+          }).length;
+          return total - numberOfQuestionsSelected;
+        }
         return -1;
       }
-      /**
-       * Uses the imported `hasCheckbox` method in addition to some locally relevant conditions
-       * to identify if the content has a checkbox.
-       * For Exercises, we make sure there are questions available in the resource
-       * For Topics, we make sure that there are questions available in the children
-       * -- Note that for topics, hasCheckbox will only be true if all children are Exercises,
-       *    so we can call this recursively without worrying about it going too deep
-       */
-      function actuallyHasCheckbox(content) {
-        return content.kind === ContentNodeKinds.EXERCISE
-          ? hasCheckbox(content) && unusedQuestionsCount(content) > 0
-          : hasCheckbox(content) && content.children.results.some(actuallyHasCheckbox);
+      function folderDoesNotHaveTooManyQuestions(content) {
+        return content.kind == ContentNodeKinds.EXERCISE || content.num_assessments < 500;
       }
 
       // Load up the channels
@@ -492,7 +508,7 @@
               const isPracticeQuiz = item =>
                 !selectPracticeQuiz.value || get(item, ['options', 'modality'], false) === 'QUIZ';
               bookmarks.value = data.results ? data.results.filter(isPracticeQuiz) : [];
-            })
+            }),
           );
 
           promises.push(
@@ -513,7 +529,7 @@
                       kind: ContentNodeKinds.CHANNEL,
                       is_leaf: false,
                     };
-                  })
+                  }),
                 ).then(annotatedResources => {
                   // When we don't have a topicId we're setting the value of
                   // useQuizResources.resources to the value of the channels
@@ -522,9 +538,9 @@
                   // that the channels are annotated with their num_assessments
                   setResources(annotatedResources);
                   channels.value = annotatedResources;
-                })
+                }),
               );
-            })
+            }),
           );
         }
         Promise.all(promises).then(() => {
@@ -602,14 +618,17 @@
         return (
           !workingPoolHasChanged.value ||
           workingPoolUnusedQuestions.value < questionCount.value ||
-          questionCount.value > maxQuestions.value ||
-          questionCount.value < 1
+          questionCount.value < 1 ||
+          workingPoolUnusedQuestions.value > maxSectionQuestionOptions.value
         );
       });
 
       return {
-        actuallyHasCheckbox,
+        folderDoesNotHaveTooManyQuestions,
+        displaySectionTitle,
+        hasCheckbox,
         unusedQuestionsCount,
+        activeSection,
         activeSectionIndex,
         activeQuestions,
         addSection,
@@ -636,6 +655,7 @@
         contentPresentInWorkingResourcePool,
         questionCount,
         maxQuestions,
+        maxSectionQuestionOptions,
         MAX_QUESTIONS_PER_QUIZ_SECTION,
         workingPoolUnusedQuestions,
         disableSave,
@@ -644,7 +664,9 @@
         closeConfirmationTitle$,
         changesSavedSuccessfully$,
         sectionSettings$,
-        selectFromBookmarks$,
+        numberOfQuestionsSelected$,
+        tooManyQuestions$,
+        maxNumberOfQuestions$,
         numberOfSelectedBookmarks$,
         questionsUnusedInSection$,
         selectResourcesDescription$,
@@ -660,12 +682,10 @@
         addToWorkingResourcePool,
         removeFromWorkingResourcePool,
         showBookmarks,
-        selectedQuestionsInformation$,
         selectQuiz$,
+        numberOfQuestionsToAdd$,
         selectPracticeQuizLabel$,
         numberOfQuestionsLabel$,
-        maxNumberOfQuestions$,
-        maxNumberOfQuestionsPerSection$,
         addNumberOfQuestions$,
       };
     },
@@ -698,8 +718,8 @@
           },
         };
       },
-      showTopicSizeWarning() {
-        return this.contentList.some(this.showTopicSizeWarningCard);
+      showNumberOfQuestionsWarning() {
+        return this.contentList.some(this.showNumberOfQuestionsWarningCard);
       },
       borderStyle() {
         return `border: 1px solid ${this.$themeTokens.fineLine}`;
@@ -729,21 +749,8 @@
       }
     },
     methods: {
-      cardNoticeContent(content) {
-        if (!this.selectPracticeQuiz && content.kind === ContentNodeKinds.EXERCISE) {
-          return this.questionsUnusedInSection$({
-            count: this.unusedQuestionsCount(content),
-          });
-        } else {
-          return '';
-        }
-      },
-      showTopicSizeWarningCard(content) {
-        return (
-          !this.selectPracticeQuiz &&
-          !this.actuallyHasCheckbox(content) &&
-          content.kind === ContentNodeKinds.TOPIC
-        );
+      showNumberOfQuestionsWarningCard(content) {
+        return !this.selectPracticeQuiz && content.num_assessments > 500;
       },
       /** @public */
       focusFirstEl() {
@@ -805,23 +812,20 @@
       },
       // The message put onto the content's card when listed
       selectionMetadata(content) {
-        if (this.selectPracticeQuiz || content.kind !== ContentNodeKinds.TOPIC) {
+        if (this.selectPracticeQuiz) {
           return;
         }
-        const total = content.num_assessments;
-        const numberOfQuestionsSelected = this.allQuestionsInQuiz.filter(question => {
-          const questionNode = this.allResourceMap[question.exercise_id];
-          for (const ancestor of questionNode.ancestors) {
-            if (ancestor.id === content.id) {
-              return true;
-            }
-          }
-          return false;
-        }).length;
 
-        return this.selectedQuestionsInformation$({
-          count: numberOfQuestionsSelected,
-          total: total,
+        const count = this.unusedQuestionsCount(content);
+
+        if (count === -1) {
+          // If for some reason we're getting a content type that we don't know how to handle
+          // we'll just return nothing to avoid displaying a nonsensical message
+          return;
+        }
+
+        return this.questionsUnusedInSection$({
+          count,
         });
       },
       handleSearchTermChange(searchTerm) {
@@ -862,7 +866,10 @@
     min-height: 141px;
     margin-bottom: 24px;
     border-radius: 2px;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
     transition: box-shadow 0.25s ease;
   }
 
@@ -894,7 +901,10 @@
   }
 
   .bookmark-container:hover {
-    box-shadow: 0 5px 5px -3px #a1a1a1, 0 8px 10px 1px #d1d1d1, 0 3px 14px 2px #d4d4d4;
+    box-shadow:
+      0 5px 5px -3px #a1a1a1,
+      0 8px 10px 1px #d1d1d1,
+      0 3px 14px 2px #d4d4d4;
   }
 
   .text {
@@ -928,19 +938,23 @@
   }
 
   .shadow {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.2), 0 1px 1px 0 rgba(0, 0, 0, 0.14),
+    box-shadow:
+      0 1px 3px 0 rgba(0, 0, 0, 0.2),
+      0 1px 1px 0 rgba(0, 0, 0, 0.14),
       0 2px 1px -1px rgba(0, 0, 0, 0.12);
   }
 
   // Force the leaf nodes not to look like a link
   /deep/ .is-leaf.content-card {
     cursor: default;
-    box-shadow: 0 1px 5px 0 #a1a1a1, 0 2px 2px 0 #e6e6e6, 0 3px 1px -2px #ffffff;
+    box-shadow:
+      0 1px 5px 0 #a1a1a1,
+      0 2px 2px 0 #e6e6e6,
+      0 3px 1px -2px #ffffff;
   }
 
   .number-question {
     display: inline-flex;
-    float: right;
   }
 
   .group-button-border {
@@ -948,6 +962,14 @@
     align-items: center;
     height: 3.5em;
     border: 1px solid;
+  }
+
+  .divider {
+    display: block;
+    min-width: 100%;
+    height: 1px;
+    margin: 24px 0;
+    overflow-y: hidden;
   }
 
 </style>

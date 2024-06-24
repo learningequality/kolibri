@@ -19,7 +19,7 @@ describe('Coach Notification Strings', () => {
     (key, expectedPlural, expectedSingular) => {
       expect(NotificationStrings.$tr(key, { count: 10 })).toEqual(expectedPlural);
       expect(NotificationStrings.$tr(key, { count: 1 })).toEqual(expectedSingular);
-    }
+    },
   );
 
   // Test that the rest of the messages don't need paramaters

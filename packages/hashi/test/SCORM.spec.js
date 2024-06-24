@@ -120,7 +120,7 @@ describe('SCORM hashi shim', () => {
           expect(shim.LMSGetLastError()).toEqual(0);
           expect(shim.LMSGetValue(key)).toEqual('');
           expect(shim.LMSGetLastError()).toEqual('404');
-        }
+        },
       );
       it.each(notImplementedValues)(
         'should set with errors, and get %s with errors for not implemented properties',
@@ -129,7 +129,7 @@ describe('SCORM hashi shim', () => {
           expect(shim.LMSGetLastError()).toEqual('401');
           expect(shim.LMSGetValue(key)).toEqual('');
           expect(shim.LMSGetLastError()).toEqual('401');
-        }
+        },
       );
       it('should read language from the userData', () => {
         const language = 'fr-fr';
@@ -147,7 +147,7 @@ describe('SCORM hashi shim', () => {
       it('should count objectives in an interaction properly', () => {
         shim.LMSSetValue('cmi.interactions.0.id', 'test');
         statuses.map((s, i) =>
-          shim.LMSSetValue('cmi.interactions.0.objectives.' + i + '.id', `id${s}`)
+          shim.LMSSetValue('cmi.interactions.0.objectives.' + i + '.id', `id${s}`),
         );
         expect(shim.LMSGetValue('cmi.interactions.0.objectives._count')).toEqual(statuses.length);
       });

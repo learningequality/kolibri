@@ -15,7 +15,8 @@ const {
   extractContext,
   printAST,
 } = require('./astUtils');
-const { forEachPathInfo, parseCSVDefinitions, writeSourceToFile } = require('./utils');
+const { forEachPathInfo, parseCSVDefinitions } = require('./utils');
+const writeSourceToFile = require('./writeSourceToFile');
 
 // Glob path patterns
 // All JS files
@@ -135,7 +136,7 @@ function modifyCreateTranslatorASTNodes(ast, definitions) {
         const namespace = node.arguments[0].value;
 
         const translatorDefinitions = definitions.filter(o =>
-          o['Identifier'].startsWith(namespace)
+          o['Identifier'].startsWith(namespace),
         );
         if (namespace && node.arguments[1].properties) {
           // Go through all of the properties and update the nodes as needed.
@@ -205,13 +206,13 @@ function processJSFiles(files, definitions) {
     .filter(Boolean);
 }
 
-module.exports = function(pathInfo, ignore, localeDataFolder) {
+module.exports = function (pathInfo, ignore, localeDataFolder) {
   logging.info('Transferring context...');
 
   // An object for storing our updated files.
   const updatedFiles = [];
   const csvDefinitions = parseCSVDefinitions(localeDataFolder).filter(
-    definition => definition['Context'] && extractContext(definition['Context']) !== ''
+    definition => definition['Context'] && extractContext(definition['Context']) !== '',
   );
 
   if (!csvDefinitions.length) {
@@ -228,7 +229,7 @@ module.exports = function(pathInfo, ignore, localeDataFolder) {
     // Get the updated files
     const vueFilesToWrite = processVueFiles(vueFiles, csvDefinitions);
     logging.info(
-      `Parsed ${vueFiles.length} Vue components, added context to ${vueFilesToWrite.length}`
+      `Parsed ${vueFiles.length} Vue components, added context to ${vueFilesToWrite.length}`,
     );
     updatedFiles.push(...vueFilesToWrite);
 

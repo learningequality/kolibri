@@ -1,14 +1,13 @@
 <template>
 
   <FacilityAppBarPage>
-
     <KPageContainer>
       <p>
         <KRouterLink
           v-if="userIsMultiFacilityAdmin"
           :to="{
             name: facilityPageLinks.AllFacilitiesPage.name,
-            params: { subtopicName: 'ManageClassPage' }
+            params: { subtopicName: 'ManageClassPage' },
           }"
           icon="back"
           :text="coreString('changeLearningFacility')"
@@ -36,9 +35,14 @@
         </KGridItem>
       </KGrid>
 
-      <CoreTable :dataLoading="dataLoading" :emptyMessage="$tr('noClassesExist')">
+      <CoreTable
+        :dataLoading="dataLoading"
+        :emptyMessage="$tr('noClassesExist')"
+      >
         <caption class="visuallyhidden">
-          {{ $tr('tableCaption') }}
+          {{
+            $tr('tableCaption')
+          }}
         </caption>
         <template #headers>
           <th>{{ coreString('classNameLabel') }}</th>
@@ -51,7 +55,10 @@
           </th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
             <tr
               v-for="classroom in sortedClassrooms"
               :key="classroom.id"
@@ -105,9 +112,7 @@
         @cancel="closeModal"
         @success="handleCreateSuccess()"
       />
-
     </KPageContainer>
-
   </FacilityAppBarPage>
 
 </template>

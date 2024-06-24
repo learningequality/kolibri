@@ -11,7 +11,6 @@
       class="thumbnail-icon"
       :style="{ color: $themeTokens.annotation }"
     />
-
   </div>
 
 </template>

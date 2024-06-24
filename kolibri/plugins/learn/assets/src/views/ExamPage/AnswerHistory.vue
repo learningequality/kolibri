@@ -31,15 +31,13 @@
             <span>{{ title }}</span>
             <KIcon
               class="chevron-icon"
-              :icon="(isExpanded(index)) ?
-                'chevronUp' : 'chevronRight'"
+              :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
             />
           </KButton>
         </h3>
       </template>
 
       <template #content>
-
         <div
           v-if="isExpanded(index)"
           class="spacing-items"
@@ -53,7 +51,10 @@
           >
           </span>
 
-          <div :aria-label="$tr('jumpToQuestion')" role="navigation">
+          <div
+            :aria-label="jumpToQuestion$()"
+            role="navigation"
+          >
             <ul class="history-list">
               <li
                 v-for="(question, qIndex) in section.questions"
@@ -78,7 +79,8 @@
                     class="dot"
                     :icon="isAnswered(question) ? 'unpublishedResource' : 'unpublishedChange'"
                     :color="
-                      isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled"
+                      isAnswered(question) ? $themeTokens.progress : $themeTokens.textDisabled
+                    "
                   />
                   <div class="text">
                     {{ questionText(qIndex + 1) }}
@@ -97,7 +99,10 @@
 
 <script>
 
-  import { displaySectionTitle } from 'kolibri-common/strings/enhancedQuizManagementStrings';
+  import {
+    enhancedQuizManagementStrings,
+    displaySectionTitle,
+  } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import isEqual from 'lodash/isEqual';
@@ -120,12 +125,15 @@
 
       const { collapse, expand, isExpanded, toggle } = useAccordion(sections);
 
+      const { jumpToQuestion$ } = enhancedQuizManagementStrings;
+
       return {
         displaySectionTitle,
         collapse,
         expand,
         isExpanded,
         toggle,
+        jumpToQuestion$,
       };
     },
     props: {
@@ -159,7 +167,7 @@
     computed: {
       currentSection() {
         return this.sections.find(section =>
-          section.questions.map(q => q.item).includes(this.questionItem)
+          section.questions.map(q => q.item).includes(this.questionItem),
         );
       },
       sectionCompletionMap() {
@@ -213,8 +221,8 @@
       // Expand the section that contains the current question
       this.expand(
         this.sections.findIndex(section =>
-          section.questions.map(q => q.item).includes(this.currentQuestion.item)
-        )
+          section.questions.map(q => q.item).includes(this.currentQuestion.item),
+        ),
       );
     },
     methods: {
@@ -269,11 +277,6 @@
         message: 'Question { num, number, integer}',
         context:
           "In the report section, the 'Answer history' shows the learner if they have answered questions correctly or incorrectly.\n\nOnly translate 'Question'.",
-      },
-      jumpToQuestion: {
-        message: 'Jump to question',
-        context:
-          'A label for the section of the page that contains all questions as clickable links',
       },
     },
   };

@@ -27,7 +27,6 @@
     <p class="description">
       {{ getCommonSyncString('changeLater') }}
     </p>
-
   </OnboardingStepBase>
 
 </template>

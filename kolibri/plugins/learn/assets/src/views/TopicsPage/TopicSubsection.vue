@@ -3,8 +3,11 @@
   <div>
     <!-- header link to folder -->
     <h2>
-      <template v-for="prefixTitle in (topic.prefixTitles || [])">
-        <span :key="prefixTitle" :style="{ color: $themeTokens.annotation }">
+      <template v-for="prefixTitle in topic.prefixTitles || []">
+        <span
+          :key="prefixTitle"
+          :style="{ color: $themeTokens.annotation }"
+        >
           {{ prefixTitle }}
         </span>
         <KIcon
@@ -48,7 +51,11 @@
     >
       {{ coreString('showMoreAction') }}
     </KButton>
-    <KRouterLink v-else-if="topic.viewAll" class="more-after-grid" :to="topic.viewAll">
+    <KRouterLink
+      v-else-if="topic.viewAll"
+      class="more-after-grid"
+      :to="topic.viewAll"
+    >
       {{ coreString('viewAll') }}
     </KRouterLink>
     <KButton

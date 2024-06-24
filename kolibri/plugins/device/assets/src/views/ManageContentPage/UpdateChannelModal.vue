@@ -8,9 +8,12 @@
     @submit="$emit('submit')"
   >
     <p v-if="channelName">
-      {{ $tr('updateChannelExplanationWithName', {
-        channelName: newChannel.name,
-        version: newChannel.version }) }}
+      {{
+        $tr('updateChannelExplanationWithName', {
+          channelName: newChannel.name,
+          version: newChannel.version,
+        })
+      }}
     </p>
     <p v-else>
       {{ $tr('updateChannelExplanation') }}

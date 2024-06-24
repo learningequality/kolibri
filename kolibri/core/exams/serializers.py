@@ -172,12 +172,6 @@ class ExamSerializer(ModelSerializer):
                         code=error_constants.INVALID,
                     )
 
-        if "learners_see_fixed_order" in attrs and is_non_draft_exam:
-            raise ValidationError(
-                "Cannot update learners_see_fixed_order on an Exam object",
-                code=error_constants.INVALID,
-            )
-
         return attrs
 
     def create(self, validated_data):
@@ -273,6 +267,9 @@ class ExamSerializer(ModelSerializer):
                 instance_is_draft = False
             # Update the scalar fields
             instance.title = validated_data.pop("title", instance.title)
+            instance.learners_see_fixed_order = validated_data.pop(
+                "learners_see_fixed_order", instance.learners_see_fixed_order
+            )
             if not instance_is_draft:
                 # Update the non-draft specific fields
                 instance.active = validated_data.pop("active", instance.active)
@@ -285,9 +282,6 @@ class ExamSerializer(ModelSerializer):
                 # as by this point instance_is_draft is False if we are publishing a draft
                 instance.question_sources = validated_data.pop(
                     "question_sources", instance.question_sources
-                )
-                instance.learners_see_fixed_order = validated_data.pop(
-                    "learners_see_fixed_order", instance.learners_see_fixed_order
                 )
 
             # Add/delete any new/removed Assignments

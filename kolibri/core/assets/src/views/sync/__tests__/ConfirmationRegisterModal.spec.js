@@ -105,8 +105,8 @@ describe('ConfirmationRegisterModal', () => {
 
       await waitFor(() =>
         expect(
-          screen.getByText(`Already registered with '${sampleProjectName}'`)
-        ).toBeInTheDocument()
+          screen.getByText(`Already registered with '${sampleProjectName}'`),
+        ).toBeInTheDocument(),
       );
     });
 

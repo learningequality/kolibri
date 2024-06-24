@@ -9,7 +9,6 @@
     :eventOnGoBack="backEvent"
     @continue="handleContinue"
   >
-
     <KRadioButton
       ref="yesRadio"
       v-model="setting"
@@ -27,7 +26,6 @@
     <p class="form">
       {{ $tr('changeLater') }}
     </p>
-
   </OnboardingStepBase>
 
 </template>

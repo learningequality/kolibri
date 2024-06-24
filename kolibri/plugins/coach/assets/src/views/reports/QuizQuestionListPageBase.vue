@@ -1,6 +1,9 @@
 <template>
 
-  <ReportsQuizBaseListPage :activeTabId="QuizzesTabs.DIFFICULT_QUESTIONS" @export="exportCSV">
+  <ReportsQuizBaseListPage
+    :activeTabId="QuizzesTabs.DIFFICULT_QUESTIONS"
+    @export="exportCSV"
+  >
     <KTabsPanel
       :tabsId="QUIZZES_TABS_ID"
       :activeTabId="QuizzesTabs.DIFFICULT_QUESTIONS"
@@ -12,8 +15,14 @@
             <th>{{ coachString('helpNeededLabel') }}</th>
           </template>
           <template #tbody>
-            <transition-group tag="tbody" name="list">
-              <tr v-for="(tableRow, index) in table" :key="tableRow.item + index">
+            <transition-group
+              tag="tbody"
+              name="list"
+            >
+              <tr
+                v-for="(tableRow, index) in table"
+                :key="tableRow.item + index"
+              >
                 <td>
                   <span v-if="$isPrint">{{ tableRow.title }}</span>
                   <KRouterLink
@@ -22,9 +31,7 @@
                     :to="questionLink(tableRow.item)"
                     icon="question"
                   />
-                  <span v-else>
-                    <KIcon icon="question" />{{ tableRow.title }}
-                  </span>
+                  <span v-else> <KIcon icon="question" />{{ tableRow.title }} </span>
                 </td>
                 <td>
                   <LearnerProgressRatio
@@ -95,7 +102,7 @@
           {
             questionId,
             quizId: this.$route.params.quizId,
-          }
+          },
         );
       },
       exportCSV() {
