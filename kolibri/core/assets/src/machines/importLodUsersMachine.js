@@ -135,6 +135,9 @@ export const importLodUsersDefinition = {
       facilitiesOnDeviceCount: (_, event) => {
         return event.value.facilitiesCount;
       },
+      importDeviceId: (_, event) => {
+        return event.value.importDevice.id;
+      },
     }),
     setRemoteUsers: assign({
       remoteUsers: (_, event) => event.value.users,
