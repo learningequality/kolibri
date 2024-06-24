@@ -9,6 +9,7 @@
 
 <script>
 
+  import Lockr from 'lockr';
   import { interpret } from 'xstate';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import { getImportLodUsersMachine } from 'kolibri.machines.importLodUsersMachine';
@@ -63,13 +64,20 @@
         }
       };
 
-      this.service.start();
+      const savedState = Lockr.get('userImportSavedState', null);
+      if (savedState) {
+        synchronizeRouteAndMachine(savedState);
+      }
+
+      this.service.start(savedState);
 
       this.service.onTransition(state => {
         synchronizeRouteAndMachine(state);
+        Lockr.set('userImportSavedState', this.service._state);
       });
     },
     destroyed() {
+      Lockr.set('userImportSavedState', null);
       this.service.stop();
     },
   };
