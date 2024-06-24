@@ -41,12 +41,12 @@
         :isUniqueValidator="!selectedUser ? uniqueUsernameValidator : () => true"
       />
 
-      <KRouterLink
+      <KButton
         v-if="usernameNotUnique"
         :text="$tr('SignInInstead')"
-        :to="SignInRoute"
-        appearance="basic-link"
         class="link"
+        appearance="basic-link"
+        @click="handleSignIn"
       />
 
       <PasswordTextbox
@@ -200,15 +200,6 @@
       usernameNotUnique() {
         return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
       },
-      SignInRoute() {
-        return { name: 'LOD_IMPORT_USER_AUTH' };
-      },
-      usernameNotUnique() {
-        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      SignInRoute() {
-        return { name: 'LOD_IMPORT_USER_AUTH' };
-      },
     },
     watch: {
       selectedUser(user) {
@@ -287,6 +278,9 @@
             this.$refs.passwordTextbox.focus();
           }
         });
+      },
+      handleSignIn() {
+        this.$emit('signInInstead');
       },
     },
     $trs: {
