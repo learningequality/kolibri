@@ -1,5 +1,4 @@
 <template>
-
   <OnboardingStepBase
     dir="auto"
     :title="header"
@@ -77,251 +76,246 @@
       </div>
     </slot>
   </OnboardingStepBase>
-
 </template>
-
 
 <script>
 
-  import every from 'lodash/every';
-  import get from 'lodash/get';
-  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
-  import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
-  import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
-  import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
-  import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
-  import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
-  import OnboardingStepBase from '../OnboardingStepBase';
+    import every from 'lodash/every';
+    import get from 'lodash/get';
+    import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+    import FullNameTextbox from 'kolibri.coreVue.components.FullNameTextbox';
+    import UsernameTextbox from 'kolibri.coreVue.components.UsernameTextbox';
+    import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
+    import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
+    import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
+    import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
+    import OnboardingStepBase from '../OnboardingStepBase';
 
-  export default {
-    name: 'UserCredentialsForm',
-    components: {
-      OnboardingStepBase,
-      FullNameTextbox,
-      UsernameTextbox,
-      PasswordTextbox,
-      PrivacyLinkAndModal,
-    },
-    mixins: [commonCoreStrings, commonSyncElements],
-    inject: ['wizardService'],
-    props: {
-      disabled: {
-        type: Boolean,
-        default: false,
+    export default {
+      name: 'UserCredentialsForm',
+      components: {
+        OnboardingStepBase,
+        FullNameTextbox,
+        UsernameTextbox,
+        PasswordTextbox,
+        PrivacyLinkAndModal,
       },
-      // Pass this as true if you want to handle the continue on your own from a parent component
-      doNotContinue: {
-        type: Boolean,
-        default: false,
+      mixins: [commonCoreStrings, commonSyncElements],
+      inject: ['wizardService'],
+      props: {
+        disabled: {
+          type: Boolean,
+          default: false,
+        },
+        // Pass this as true if you want to handle the continue on your own from a parent component
+        doNotContinue: {
+          type: Boolean,
+          default: false,
+        },
+        step: {
+          type: Number,
+          default: null,
+        },
+        steps: {
+          type: Number,
+          default: null,
+        },
+        footerMessageType: {
+          type: String,
+          default: null,
+        },
+        // A passthrough to the onboarding step base to hide "GO BACK" when needed
+        noBackAction: {
+          type: Boolean,
+          default: false,
+        },
+        uniqueUsernameValidator: {
+          type: Function,
+          default: null,
+        },
+        hidePrivacyLink: {
+          type: Boolean,
+          default: false,
+        },
+        /** Will use learner-focused labels if false -- the data flow is the same in any case **/
+        adminUserLabels: {
+          type: Boolean,
+          default: true,
+        },
+        /**
+         * The user given which will prefill the data for fullName and username
+         */
+        selectedUser: {
+          type: Object,
+          required: false,
+          default: null,
+        },
+        // Pass in errors with .sync modifier
+        errors: {
+          type: Array,
+          required: false,
+          default: () => [],
+        },
       },
-      step: {
-        type: Number,
-        default: null,
-      },
-      steps: {
-        type: Number,
-        default: null,
-      },
-      footerMessageType: {
-        type: String,
-        default: null,
-      },
-      // A passthrough to the onboarding step base to hide "GO BACK" when needed
-      noBackAction: {
-        type: Boolean,
-        default: false,
-      },
-      uniqueUsernameValidator: {
-        type: Function,
-        default: null,
-      },
-      hidePrivacyLink: {
-        type: Boolean,
-        default: false,
-      },
-      /** Will use learner-focused labels if false -- the data flow is the same in any case **/
-      adminUserLabels: {
-        type: Boolean,
-        default: true,
-      },
-      /**
-       * The user given which will prefill the data for fullName and username
-       */
-      selectedUser: {
-        type: Object,
-        required: false,
-        default: null,
-      },
-      // Pass in errors with .sync modifier
-      errors: {
-        type: Array,
-        required: false,
-        default: () => [],
-      },
-    },
-    data() {
-      let user;
-      if (this.selectedUser) {
-        user = this.selectedUser;
-      } else {
-        user = this.$store.state.onboardingData.user;
-      }
-      return {
-        fullName: user.full_name,
-        fullNameValid: false,
-        username: user.username,
-        usernameValid: false,
-        password: '',
-        passwordValid: false,
-        formSubmitted: false,
-        // Property to wrap props.errors and avoid warnings about mutating props
-        caughtErrors: [],
-      };
-    },
-    computed: {
-      header() {
-        return this.adminUserLabels
-          ? this.$tr('adminAccountCreationHeader')
-          : this.$tr('learnerAccountCreationHeader');
-      },
-      description() {
-        return this.adminUserLabels
-          ? this.getCommonSyncString('superAdminPermissionsDescription')
-          : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
-      },
-      selectedFacilityName() {
-        return get(this, 'wizardService.state.context.selectedFacility.name', '');
-      },
-      formIsValid() {
+      data() {
+        let user;
         if (this.selectedUser) {
-          return this.passwordValid;
+          user = this.selectedUser;
         } else {
-          return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
+          user = this.$store.state.onboardingData.user;
         }
-      },
-      usernameNotUnique() {
-        return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
-      },
-      SignInRoute() {
-        return { name: 'LOD_IMPORT_USER_AUTH' };
-      },
-    },
-    watch: {
-      selectedUser(user) {
-        // user will be null unless an existing user is selected
-        if (user) {
-          this.fullName = user.full_name;
-          this.username = user.username;
-        } else {
-          // We should clear the form because this is where the user creates a new superuser
-          this.fullName = '';
-          this.username = '';
-        }
-        // Always clear the password field on change
-        this.$nextTick(() => {
-          this.syncOnboardingData();
-          this.focusOnInvalidField();
-        });
-      },
-      errors() {
-        if (this.errors && this.errors.length) {
-          this.focusOnInvalidField();
-        }
-        this.caughtErrors = this.errors;
-      },
-      caughtErrors() {
-        this.$emit('update:errors', this.caughtErrors);
-      },
-    },
-    mounted() {
-      this.syncOnboardingData();
-    },
-    methods: {
-      syncOnboardingData() {
-        // Set vuex state w/ the form data
-        const payload = {
-          password: this.password,
-          username: this.username,
-          full_name: this.fullName,
+        return {
+          fullName: user.full_name,
+          fullNameValid: false,
+          username: user.username,
+          usernameValid: false,
+          password: '',
+          passwordValid: false,
+          formSubmitted: false,
+          // Property to wrap props.errors and avoid warnings about mutating props
+          caughtErrors: [],
         };
-        this.$store.commit('SET_USER_CREDENTIALS', payload);
       },
-      handleContinue() {
-        // Here we will do some final handoff from Vuex to the XState machine
-        // We syncOnboardingData (to Vuex)
-        // Then we will send the data set in Vuex there into the wizard machine's superuser context
-        // value.
-        // This will ensure that users' selections persist across page reloads as well.
-        this.syncOnboardingData();
-        if (!this.formIsValid) {
-          this.focusOnInvalidField();
-          return;
-        } else {
-          this.$emit('submit');
-
-          if (!this.doNotContinue) {
-            this.wizardService.send({
-              type: 'CONTINUE',
-              value: this.$store.state.onboardingData.user,
-            });
+      computed: {
+        header() {
+          return this.adminUserLabels
+            ? this.$tr('adminAccountCreationHeader')
+            : this.$tr('learnerAccountCreationHeader');
+        },
+        description() {
+          return this.adminUserLabels
+            ? this.getCommonSyncString('superAdminPermissionsDescription')
+            : this.$tr('learnerAccountCreationDescription', { facility: this.selectedFacilityName });
+        },
+        selectedFacilityName() {
+          return get(this, 'wizardService.state.context.selectedFacility.name', '');
+        },
+        formIsValid() {
+          if (this.selectedUser) {
+            return this.passwordValid;
           } else {
-            // still set the onboarding data for the superuser
-            this.wizardService.send({
-              type: 'SET_SUPERUSER',
-              value: this.$store.state.onboardingData.user,
-            });
+            return every([this.usernameValid, this.fullNameValid, this.passwordValid]);
           }
-        }
+        },
+        usernameNotUnique() {
+          return this.caughtErrors.includes(ERROR_CONSTANTS.USERNAME_ALREADY_EXISTS);
+        },
+        SignInRoute() {
+          return { name: 'LOD_IMPORT_USER_AUTH' };
+        },
       },
-      focusOnInvalidField() {
-        this.$nextTick().then(() => {
-          if (!this.fullNameValid) {
-            this.$refs.fullNameTextbox.focus();
-          } else if (!this.usernameValid) {
-            this.$refs.usernameTextbox.focus();
-          } else if (!this.passwordValid) {
-            this.$refs.passwordTextbox.focus();
+      watch: {
+        selectedUser(user) {
+          // user will be null unless an existing user is selected
+          if (user) {
+            this.fullName = user.full_name;
+            this.username = user.username;
+          } else {
+            // We should clear the form because this is where the user creates a new superuser
+            this.fullName = '';
+            this.username = '';
           }
-        });
+          // Always clear the password field on change
+          this.$nextTick(() => {
+            this.syncOnboardingData();
+            this.focusOnInvalidField();
+          });
+        },
+        errors() {
+          if (this.errors && this.errors.length) {
+            this.focusOnInvalidField();
+          }
+          this.caughtErrors = this.errors;
+        },
+        caughtErrors() {
+          this.$emit('update:errors', this.caughtErrors);
+        },
       },
-    },
-    $trs: {
-      adminAccountCreationHeader: {
-        message: 'Create super admin',
-        context:
-          "The title of the 'Create a super admin account' section. A super admin can manage all the content and all other Kolibri users on the device.",
+      mounted() {
+        this.syncOnboardingData();
       },
-      learnerAccountCreationHeader: {
-        message: 'Create your account',
-        context: "The title of the 'Create your account' section.",
-      },
-      learnerAccountCreationDescription: {
-        message: "New account for '{facility}' learning facility",
-        context:
-          'The learner is creating their account for an existing facility and is told what that is',
-      },
-<<<<<<< username-exists-string
-      SignInInstead: {
-        message: 'Sign in instead?',
-        context: 'Text prompting user to sign in with existing username.',
-      },
-=======
-      /* eslint-disable kolibri/vue-no-unused-translations */
-      signInInstead: {
-        message: 'Sign in instead?',
-        context: 'Text prompting user to sign in with existing username.',
-      },
-      /* eslint-enable kolibri/vue-no-unused-translations */
->>>>>>> develop
-    },
-  };
+      methods: {
+        syncOnboardingData() {
+          // Set vuex state w/ the form data
+          const payload = {
+            password: this.password,
+            username: this.username,
+            full_name: this.fullName,
+          };
+          this.$store.commit('SET_USER_CREDENTIALS', payload);
+        },
+        handleContinue() {
+          // Here we will do some final handoff from Vuex to the XState machine
+          // We syncOnboardingData (to Vuex)
+          // Then we will send the data set in Vuex there into the wizard machine's superuser context
+          // value.
+          // This will ensure that users' selections persist across page reloads as well.
+          this.syncOnboardingData();
+          if (!this.formIsValid) {
+            this.focusOnInvalidField();
+            return;
+          } else {
+            this.$emit('submit');
 
+            if (!this.doNotContinue) {
+              this.wizardService.send({
+                type: 'CONTINUE',
+                value: this.$store.state.onboardingData.user,
+              });
+            } else {
+              // still set the onboarding data for the superuser
+              this.wizardService.send({
+                type: 'SET_SUPERUSER',
+                value: this.$store.state.onboardingData.user,
+              });
+            }
+          }
+        },
+        focusOnInvalidField() {
+          this.$nextTick().then(() => {
+            if (!this.fullNameValid) {
+              this.$refs.fullNameTextbox.focus();
+            } else if (!this.usernameValid) {
+              this.$refs.usernameTextbox.focus();
+            } else if (!this.passwordValid) {
+              this.$refs.passwordTextbox.focus();
+            }
+          });
+        },
+      },
+      $trs: {
+        adminAccountCreationHeader: {
+          message: 'Create super admin',
+          context:
+            "The title of the 'Create a super admin account' section. A super admin can manage all the content and all other Kolibri users on the device.",
+        },
+        learnerAccountCreationHeader: {
+          message: 'Create your account',
+          context: "The title of the 'Create your account' section.",
+        },
+        learnerAccountCreationDescription: {
+          message: "New account for '{facility}' learning facility",
+          context:
+            'The learner is creating their account for an existing facility and is told what that is',
+        },
+  <<<<<<< username-exists-string
+        SignInInstead: {
+          message: 'Sign in instead?',
+          context: 'Text prompting user to sign in with existing username.',
+        },
+  =======
+        /* eslint-disable kolibri/vue-no-unused-translations */
+        signInInstead: {
+          message: 'Sign in instead?',
+          context: 'Text prompting user to sign in with existing username.',
+        },
+        /* eslint-enable kolibri/vue-no-unused-translations */
+  >>>>>>> develop
+      },
+    };
 </script>
 
-
 <style lang="scss" scoped>
-
   .reminder {
     display: table;
     max-width: 480px;
@@ -347,5 +341,4 @@
   .link {
     padding-bottom: 15px;
   }
-
 </style>
