@@ -45,7 +45,11 @@
       function handleClosePanel() {
         router.push({
           name: PageNames.EXAM_CREATION_ROOT,
-          params: { ...route.value.params },
+          params: {
+            classId: route.value.params.classId,
+            quizId: route.value.params.quizId,
+            sectionIndex: route.value.params.sectionIndex,
+          },
           query: { ...route.value.query },
         });
       }
