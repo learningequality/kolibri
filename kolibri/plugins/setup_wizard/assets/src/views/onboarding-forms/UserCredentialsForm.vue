@@ -1,4 +1,5 @@
 <template>
+
   <OnboardingStepBase
     dir="auto"
     :title="header"
@@ -76,9 +77,12 @@
       </div>
     </slot>
   </OnboardingStepBase>
+
 </template>
 
+
 <script>
+
   import every from 'lodash/every';
   import get from 'lodash/get';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
@@ -87,7 +91,6 @@
   import PasswordTextbox from 'kolibri.coreVue.components.PasswordTextbox';
   import PrivacyLinkAndModal from 'kolibri.coreVue.components.PrivacyLinkAndModal';
   import commonSyncElements from 'kolibri.coreVue.mixins.commonSyncElements';
-  import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import { ERROR_CONSTANTS } from 'kolibri.coreVue.vuex.constants';
   import OnboardingStepBase from '../OnboardingStepBase';
 
@@ -304,9 +307,12 @@
       },
     },
   };
+
 </script>
 
+
 <style lang="scss" scoped>
+
   .reminder {
     display: table;
     max-width: 480px;
@@ -332,4 +338,5 @@
   .link {
     padding-bottom: 15px;
   }
+
 </style>
