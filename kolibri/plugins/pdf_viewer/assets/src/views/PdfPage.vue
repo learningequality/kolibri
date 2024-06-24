@@ -250,8 +250,8 @@
   // Also defined in index.vue
   $page-margin: 8px;
 
-  @import '../utils/text_layer_builder';
-  @import '../utils/annotation_layer_builder';
+  @import '../utils/text_layer_builder.css';
+  @import '../utils/annotation_layer_builder.css';
 
   .pdf-page {
     position: relative;
