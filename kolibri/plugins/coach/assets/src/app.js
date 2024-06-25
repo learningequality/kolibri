@@ -85,8 +85,7 @@ class CoachToolsModule extends KolibriApp {
           GroupMembersPage.name,
           GroupEnrollPage.name,
           PageNames.HOME_PAGE,
-          PageNames.HomeActivityPage
-
+          PageNames.HomeActivityPage,
         ].includes(to.name)
       ) {
         next();
