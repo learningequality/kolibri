@@ -159,7 +159,7 @@ describe('BrowseResourceMetadata', () => {
           license_description: null,
           license_name: null,
           license_owner: null,
-        }))
+        })),
     );
 
     it('does not show the forBeginners chip when one of LearnerNeeds is FOR_BEGINNERS', () => {

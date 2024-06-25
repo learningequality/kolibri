@@ -41,8 +41,10 @@
 
 
 <style scoped>
-  .item-border{
-    border-bottom:1px solid #DEDEDE ;
-    border-top:1px solid #DEDEDE ;
+
+  .item-border {
+    border-top: 1px solid #dedede;
+    border-bottom: 1px solid #dedede;
   }
+
 </style>

@@ -52,7 +52,6 @@
           </transition-group>
         </DragContainer>
       </template>
-
     </KPageContainer>
   </ImmersivePage>
 

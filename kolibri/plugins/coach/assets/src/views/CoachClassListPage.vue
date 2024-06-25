@@ -1,8 +1,6 @@
 <template>
 
-  <CoachAppBarPage
-    :appBarTitle="appBarTitle"
-  >
+  <CoachAppBarPage :appBarTitle="appBarTitle">
     <KPageContainer>
       <p>
         <KRouterLink
@@ -23,7 +21,11 @@
         />
       </p>
 
-      <CoreTable v-else :dataLoading="dataLoading" :emptyMessage="emptyStateDetails">
+      <CoreTable
+        v-else
+        :dataLoading="dataLoading"
+        :emptyMessage="emptyStateDetails"
+      >
         <template #headers>
           <th>{{ coreString('classNameLabel') }}</th>
           <th>{{ coreString('coachesLabel') }}</th>

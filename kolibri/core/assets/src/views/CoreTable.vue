@@ -46,7 +46,7 @@
               borderBottom: `solid 1px ${this.$themeTokens.fineLine}`,
             },
           },
-          this.selectable ? selectable : {}
+          this.selectable ? selectable : {},
         );
       },
     },

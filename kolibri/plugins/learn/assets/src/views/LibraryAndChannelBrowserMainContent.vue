@@ -53,10 +53,8 @@
     },
 
     setup() {
-      const {
-        genContentLinkBackLinkCurrentPage,
-        genContentLinkKeepCurrentBackLink,
-      } = useContentLink();
+      const { genContentLinkBackLinkCurrentPage, genContentLinkKeepCurrentBackLink } =
+        useContentLink();
       const { windowIsSmall } = useKResponsiveWindow();
       return {
         genContentLinkBackLinkCurrentPage,

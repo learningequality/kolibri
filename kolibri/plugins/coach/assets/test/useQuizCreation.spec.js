@@ -1,36 +1,14 @@
 import Vue from 'vue';
 import { get } from '@vueuse/core';
-import { ChannelResource, ExamResource } from 'kolibri.resources';
+import { ExamResource } from 'kolibri.resources';
 import { objectWithDefaults } from 'kolibri.utils.objectSpecs';
+import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
 import { QuizExercise, QuizQuestion } from '../src/composables/quizCreationSpecs.js';
 import useQuizCreation from '../src/composables/useQuizCreation.js';
 
-const {
-  // Methods
-  updateSection,
-  // replaceSelectedQuestions,
-  addSection,
-  removeSection,
-  setActiveSection,
-  initializeQuiz,
-  updateQuiz,
-  addQuestionToSelection,
-  removeQuestionFromSelection,
-  saveQuiz,
-
-  // Computed
-  channels,
-  quiz,
-  allSections,
-  activeSection,
-  activeQuestions,
-  selectedActiveQuestions,
-  // replacementQuestionPool,
-} = useQuizCreation();
-
-const _channel = { root: 'channel_1', name: 'Channel 1', kind: 'channel', is_leaf: false };
-ChannelResource.fetchCollection = jest.fn(() => Promise.resolve([_channel]));
 ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
+
+const VALID_EXERCISE_ID = 'af26e1b4f3b94f3e8f4f3b4f3e8f4f3a';
 
 /**
  * @param num {number} - The number of questions to create
@@ -39,7 +17,15 @@ ExamResource.saveModel = jest.fn(() => Promise.resolve({}));
 function generateQuestions(num = 0) {
   const qs = [];
   for (let i = 0; i < num; i++) {
-    const question = objectWithDefaults({ question_id: i, counter_in_exercise: i }, QuizQuestion);
+    const question = objectWithDefaults(
+      {
+        question_id: String(i),
+        counter_in_exercise: i,
+        exercise_id: VALID_EXERCISE_ID,
+        item: `${VALID_EXERCISE_ID}:${i}`,
+      },
+      QuizQuestion,
+    );
     qs.push(question);
   }
   return qs;
@@ -54,23 +40,57 @@ function generateExercise(numQuestions) {
   const assessmentmetadata = { assessment_item_ids: assessments.map(q => q.question_id) };
   const exercise = objectWithDefaults(
     {
-      id: 'exercise_1',
-      content_id: 'exercise_1',
+      id: VALID_EXERCISE_ID,
+      content_id: VALID_EXERCISE_ID,
       assessmentmetadata,
-      unique_question_ids: assessments.map(q => `exercise_1:${q.question_id}`),
     },
-    QuizExercise
+    QuizExercise,
   );
   return exercise;
 }
 
 describe('useQuizCreation', () => {
-  describe('Quiz initialization', () => {
-    beforeAll(() => {
-      // Only need this called once in this scope
-      initializeQuiz();
-    });
+  let updateSection,
+    addQuestionsToSectionFromResources,
+    addSection,
+    removeSection,
+    initializeQuiz,
+    updateQuiz,
+    addQuestionToSelection,
+    removeQuestionFromSelection,
+    saveQuiz,
+    quiz,
+    allSections,
+    activeSectionIndex,
+    activeSection,
+    activeQuestions,
+    selectedActiveQuestions;
+  beforeEach(() => {
+    ({
+      // Methods
+      updateSection,
+      addQuestionsToSectionFromResources,
+      // replaceSelectedQuestions,
+      addSection,
+      removeSection,
+      initializeQuiz,
+      updateQuiz,
+      addQuestionToSelection,
+      removeQuestionFromSelection,
+      saveQuiz,
 
+      // Computed
+      quiz,
+      allSections,
+      activeSectionIndex,
+      activeSection,
+      activeQuestions,
+      selectedActiveQuestions,
+      // replacementQuestionPool,
+    } = useQuizCreation());
+    initializeQuiz();
+  });
+  describe('Quiz initialization', () => {
     it('Should create the first section and add it to the quiz', () => {
       expect(get(allSections)).toHaveLength(1);
     });
@@ -85,18 +105,9 @@ describe('useQuizCreation', () => {
       initializeQuiz();
       expect(get(allSections)).toHaveLength(1);
     });
-
-    it('Populates the channels list', () => {
-      expect(get(channels)).toHaveLength(1);
-    });
   });
 
   describe('Quiz management', () => {
-    beforeEach(() => {
-      // Let's get a fresh quiz for each test
-      initializeQuiz();
-    });
-
     describe('Quiz CRUD', () => {
       it('Can save the quiz', () => {
         expect(() => saveQuiz()).not.toThrow();
@@ -122,72 +133,85 @@ describe('useQuizCreation', () => {
       it('Can remove a section from the quiz', () => {
         const addedSection = addSection();
         expect(get(allSections)).toHaveLength(2);
-        removeSection(addedSection.section_id);
+        removeSection(1);
         expect(get(allSections)).toHaveLength(1);
         expect(
-          get(allSections).find(s => s.section_id === addedSection.section_id)
+          get(allSections).find(s => s.section_id === addedSection.section_id),
         ).toBeUndefined();
-      });
-
-      it('Can change the activeSection', () => {
-        const addedSection = addSection();
-        addSection(); // This automatically sets the added section as active, but we won't use it
-        expect(get(activeSection).section_id).not.toEqual(addedSection.section_id);
-        setActiveSection(addedSection.section_id); // Now we set the first added section as active
-        expect(get(activeSection).section_id).toEqual(addedSection.section_id);
       });
 
       it('Can update any section', () => {
         const addedSection = addSection();
         const newTitle = 'New Title';
-        updateSection({ section_id: addedSection.section_id, section_title: newTitle });
+        updateSection({ sectionIndex: 1, section_title: newTitle });
         expect(
-          get(allSections).find(s => s.section_id === addedSection.section_id).section_title
+          get(allSections).find(s => s.section_id === addedSection.section_id).section_title,
         ).toEqual(newTitle);
       });
 
-      it('Will update `questions` to match `question_count` property when it is changed', async () => {
+      it('addQuestionsToSectionFromResources will add the right number of `questions` from a resource pool', async () => {
         // Setup a mock exercise w/ some questions; update the activeSection with their values
         const exercise = generateExercise(20);
-        updateSection({
-          section_id: get(activeSection).section_id,
-          resource_pool: [exercise],
+        addQuestionsToSectionFromResources({
+          sectionIndex: get(activeSectionIndex),
+          resourcePool: [exercise],
+          questionCount: 10,
         });
         await Vue.nextTick();
-        expect(get(activeQuestions)).toHaveLength(get(activeSection).question_count);
-        expect(get(activeQuestions).length).not.toEqual(0);
-        expect(get(activeSection).resource_pool).toHaveLength(1);
+        expect(get(activeQuestions).length).toEqual(10);
 
         // Now let's change the question count and see if the questions array is updated
         const newQuestionCount = 5;
-        updateSection({
-          section_id: get(activeSection).section_id,
-          question_count: newQuestionCount,
+        addQuestionsToSectionFromResources({
+          sectionIndex: get(activeSectionIndex),
+          resourcePool: [exercise],
+          questionCount: newQuestionCount,
         });
         await Vue.nextTick();
-        // Now questions should only be as long as newQuestionCount
-        expect(get(activeQuestions)).toHaveLength(newQuestionCount);
+        // Now questions should only be as long as 10 + newQuestionCount
+        expect(get(activeQuestions)).toHaveLength(10 + newQuestionCount);
 
+        // Should max out at the number of questions in the exercise
+        // even if we try to add more.
         const newQuestionCount2 = 10;
-        updateSection({
-          section_id: get(activeSection).section_id,
-          question_count: newQuestionCount2,
+        addQuestionsToSectionFromResources({
+          sectionIndex: get(activeSectionIndex),
+          resourcePool: [exercise],
+          questionCount: newQuestionCount2,
         });
         await Vue.nextTick();
-        expect(get(activeQuestions)).toHaveLength(newQuestionCount2);
+        expect(get(activeQuestions)).toHaveLength(20);
       });
 
-      it('Throws a TypeError if trying to update a section with a bad section shape', () => {
-        expect(() => updateSection({ section_id: null, title: 1 })).toThrow(TypeError);
+      it('updateSection throws a TypeError if trying to update a section with a bad section shape', () => {
+        expect(() => updateSection({ sectionIndex: null, title: 1 })).toThrow(TypeError);
+      });
+      it('addQuestionsToSectionFromResources throws a TypeError if trying to update a section with more questions than MAX_QUESTIONS_PER_QUIZ_SECTION', () => {
+        const exercise = generateExercise(MAX_QUESTIONS_PER_QUIZ_SECTION + 1);
+        expect(() =>
+          addQuestionsToSectionFromResources({
+            sectionIndex: get(activeSectionIndex),
+            resourcePool: [exercise],
+            questionCount: MAX_QUESTIONS_PER_QUIZ_SECTION + 1,
+          }),
+        ).toThrow(TypeError);
+      });
+      it('updateSection throws a TypeError if questions is not an array', () => {
+        expect(() =>
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: 1 }),
+        ).toThrow(TypeError);
+      });
+      it('updateSection throws a TypeError if questions is not an array of QuizQuestions', () => {
+        expect(() =>
+          updateSection({ sectionIndex: get(activeSectionIndex), questions: [1, 2, 3] }),
+        ).toThrow(TypeError);
       });
     });
 
     describe('Question list (de)selection', () => {
       beforeEach(() => {
-        initializeQuiz();
-        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
-        const { section_id } = get(activeSection);
-        updateSection({ section_id, questions });
+        const questions = generateQuestions(3);
+        updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can add a question to the selected questions', () => {
         const { question_id } = get(activeQuestions)[0];
@@ -212,10 +236,8 @@ describe('useQuizCreation', () => {
 
     describe('Question replacement', () => {
       beforeEach(() => {
-        initializeQuiz();
-        const questions = [1, 2, 3].map(i => objectWithDefaults({ question_id: i }, QuizQuestion));
-        const { section_id } = get(activeSection);
-        updateSection({ section_id, questions });
+        const questions = generateQuestions(3);
+        updateSection({ sectionIndex: get(activeSectionIndex), questions });
       });
       it('Can give a list of questions in the exercise pool but not in the selected questions', () => {});
     });

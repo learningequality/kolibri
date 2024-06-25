@@ -21,7 +21,6 @@
 
       <QuestionListPreview
         :fixedOrder="!quizIsRandomized"
-        :readOnly="true"
         :selectedQuestions="selectedQuestions"
         :selectedExercises="selectedExercises"
       />
@@ -48,10 +47,8 @@
     },
     mixins: [commonCoach],
     setup() {
-      const {
-        randomizedSectionOptionDescription$,
-        fixedSectionOptionDescription$,
-      } = enhancedQuizManagementStrings;
+      const { randomizedSectionOptionDescription$, fixedSectionOptionDescription$ } =
+        enhancedQuizManagementStrings;
       return {
         randomizedSectionOptionDescription$,
         fixedSectionOptionDescription$,

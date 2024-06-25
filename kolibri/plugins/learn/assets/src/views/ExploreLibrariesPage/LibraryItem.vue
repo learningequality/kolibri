@@ -29,7 +29,7 @@
               reference="pinIcon"
               :refs="$refs"
             >
-              {{ (pinIcon === 'pinned') ? $tr('removePin') : $tr('pinTo') }}
+              {{ pinIcon === 'pinned' ? $tr('removePin') : $tr('pinTo') }}
             </KTooltip>
           </h2>
           <p

@@ -126,7 +126,7 @@ const create = context => {
       if (!hasTemplate && unusedVuexProperties.length) {
         utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -151,13 +151,13 @@ const create = context => {
       if (unusedVuexProperties.length) {
         utils.reportUnusedVuexProperties(context, unusedVuexProperties);
       }
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

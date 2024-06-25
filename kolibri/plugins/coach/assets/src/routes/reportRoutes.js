@@ -96,7 +96,7 @@ export default [
       return exerciseRootRedirectHandler(
         params,
         pages.ReportsGroupReportLessonExerciseLearnerPage.name,
-        next
+        next,
       );
     },
     meta: {
@@ -129,7 +129,7 @@ export default [
       return questionRootRedirectHandler(
         params,
         pages.ReportsGroupReportLessonExerciseQuestionPage.name,
-        next
+        next,
       );
     },
   },
@@ -222,7 +222,7 @@ export default [
       return questionRootRedirectHandler(
         params,
         pages.ReportsGroupReportQuizQuestionPage.name,
-        next
+        next,
       );
     },
   },
@@ -242,7 +242,7 @@ export default [
       return exerciseRootRedirectHandler(
         params,
         pages.ReportsLearnerActivityExercisePage.name,
-        next
+        next,
       );
     },
     meta: {
@@ -281,7 +281,7 @@ export default [
       return exerciseRootRedirectHandler(
         params,
         pages.ReportsLearnerReportLessonExercisePage.name,
-        next
+        next,
       );
     },
     meta: {
@@ -361,7 +361,7 @@ export default [
         params,
         pages.ReportsLessonExerciseLearnerPage.name,
         next,
-        query
+        query,
       );
     },
     meta: {
@@ -394,7 +394,7 @@ export default [
       return questionRootRedirectHandler(
         params,
         pages.ReportsLessonExerciseQuestionPage.name,
-        next
+        next,
       );
     },
   },

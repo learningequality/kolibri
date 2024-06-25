@@ -76,7 +76,7 @@ describe('EditDeviceSyncSchedule', () => {
 
         // assertion
         expect(nextSyncDate.toISOString()).toBe(new Date(expected).toISOString());
-      }
+      },
     );
   });
 });

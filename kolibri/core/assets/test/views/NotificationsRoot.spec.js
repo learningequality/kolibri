@@ -24,13 +24,13 @@ function makeWrapper(options = {}) {
   return { wrapper, store, ...options };
 }
 
-describe('NotificationsRoot', function() {
+describe('NotificationsRoot', function () {
   it('smoke test', () => {
     const { wrapper } = makeWrapper();
     expect(wrapper.exists()).toBe(true);
   });
 
-  describe('when loaded', function() {
+  describe('when loaded', function () {
     it('if user is authorized and there is no error, base div for displaying <slot> should be displayed', async () => {
       const { wrapper, store } = makeWrapper();
       store.state.core.loading = false;

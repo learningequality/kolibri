@@ -7,7 +7,7 @@
     :pageTitle="$tr('pageHeader', { className: className })"
   >
     <KPageContainer>
-      <h1>{{ $tr('pageHeader', { className: className }) }} </h1>
+      <h1>{{ $tr('pageHeader', { className: className }) }}</h1>
       <KButton
         :text="$tr('howToTroubleshootModalHeader')"
         appearance="basic-link"
@@ -110,7 +110,7 @@
       StorageNotificationBanner,
     },
     mixins: [commonCoreStrings],
-    data: function() {
+    data: function () {
       return {
         displayTroubleshootModal: false,
         classSyncStatusList: {},

@@ -12,14 +12,21 @@
         <p class="label">
           {{ label }}
         </p>
-        <div v-for="facility in facilityList['enabled']" :key="facility.id" class="facility-name">
+        <div
+          v-for="facility in facilityList['enabled']"
+          :key="facility.id"
+          class="facility-name"
+        >
           <KButton
             appearance="raised-button"
             :primary="false"
             @click="setFacility(facility.id)"
           >
             <template #icon>
-              <KIcon icon="facility" style="margin-right: 16px;" />
+              <KIcon
+                icon="facility"
+                style="margin-right: 16px"
+              />
             </template>
             {{ facility.name }}
           </KButton>
@@ -43,7 +50,10 @@
             appearance="raised-button"
           >
             <template #icon>
-              <KIcon icon="facility" style="margin-right: 16px;" />
+              <KIcon
+                icon="facility"
+                style="margin-right: 16px"
+              />
             </template>
             {{ facility.name }}
           </KButton>
@@ -88,7 +98,7 @@
         if (this.whereToNext.name === ComponentMap.SIGN_UP) {
           const partitionedFacilities = partition(
             this.facilities,
-            f => f.dataset.learner_can_sign_up
+            f => f.dataset.learner_can_sign_up,
           );
           return {
             enabled: partitionedFacilities[0],

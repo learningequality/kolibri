@@ -66,7 +66,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
           expect(wrapper.html()).toContain(
             `Last synced: ${wrapper.vm.$formatRelative('2022-04-21T16:00:00Z', {
               now: wrapper.vm.now,
-            })}`
+            })}`,
           );
         });
 
@@ -93,7 +93,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
           expect(wrapper.html()).toContain(
             `Last synced: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
               now: wrapper.vm.now,
-            })}`
+            })}`,
           );
         });
 
@@ -121,7 +121,7 @@ describe(`FacilityNameAndSyncStatus`, () => {
           expect(wrapper.html()).toContain(
             `Last synced: ${wrapper.vm.$formatRelative('2022-06-25T13:00:00Z', {
               now: wrapper.vm.now,
-            })}`
+            })}`,
           );
         });
 

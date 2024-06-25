@@ -6,7 +6,7 @@
  * @param  {string} path    The path to the resource to GET.
  * @return {Promise}
  */
-export default function(path) {
+export default function (path) {
   return new Promise((resolve, reject) => {
     try {
       const xhr = new window.XMLHttpRequest();
@@ -15,7 +15,7 @@ export default function(path) {
 
       xhr.responseType = 'arraybuffer';
 
-      xhr.onreadystatechange = function() {
+      xhr.onreadystatechange = function () {
         // use `xhr` and not `this`... thanks IE
         if (xhr.readyState === 4) {
           if (xhr.status === 200 || xhr.status === 0) {

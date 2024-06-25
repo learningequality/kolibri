@@ -4,7 +4,10 @@
     :route="homePageLink"
     :appBarTitle="exam.title || ''"
   >
-    <KPageContainer :topMargin="50" class="container">
+    <KPageContainer
+      :topMargin="50"
+      class="container"
+    >
       <KCircularLoader v-if="loading" />
       <div v-else-if="exerciseContentNodes && exerciseContentNodes.length">
         <ExamReport
@@ -29,7 +32,6 @@
         </p>
       </div>
     </KPageContainer>
-
   </ImmersivePage>
 
 </template>

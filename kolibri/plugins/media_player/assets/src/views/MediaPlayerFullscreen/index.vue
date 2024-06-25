@@ -1,6 +1,9 @@
 <template>
 
-  <CoreFullscreen ref="core" @changeFullscreen="handleChangeFullscreen">
+  <CoreFullscreen
+    ref="core"
+    @changeFullscreen="handleChangeFullscreen"
+  >
     <slot></slot>
   </CoreFullscreen>
 

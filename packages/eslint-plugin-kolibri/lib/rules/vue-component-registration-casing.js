@@ -21,7 +21,7 @@ function create(context) {
         p.type === 'Property' &&
         p.key.type === 'Identifier' &&
         p.key.name === 'components' &&
-        p.value.type === 'ObjectExpression'
+        p.value.type === 'ObjectExpression',
     );
 
     if (!node) {

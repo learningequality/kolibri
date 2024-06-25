@@ -3,7 +3,11 @@
   "description": "Coach Plugin for Kolibri",
   "private": true,
   "version": "0.0.1",
+  "workspaces": {
+    "nohoist": ["markdown-it", "markdown-it/**"]
+  },
   "dependencies": {
+    "markdown-it": "14.1.0",
     "truncate-utf8-bytes": "^1.0.2"
   }
 }

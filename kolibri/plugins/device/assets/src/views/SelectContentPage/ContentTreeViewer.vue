@@ -26,13 +26,20 @@
           <th></th>
         </template>
         <template #tbody>
-          <transition-group tag="tbody" name="list">
+          <transition-group
+            tag="tbody"
+            name="list"
+          >
             <ContentNodeRow
               v-for="cNode in showableAnnotatedChildNodes"
               :key="cNode.id"
               :checked="nodeIsChecked(cNode)"
-              :disabled="disabled || disableAll || cNode.disabled ||
-                (cNode.updated_resource && !cNode.available)"
+              :disabled="
+                disabled ||
+                  disableAll ||
+                  cNode.disabled ||
+                  (cNode.updated_resource && !cNode.available)
+              "
               :indeterminate="nodeIsIndeterminate(cNode)"
               :message="cNode.message"
               :node="cNode"
@@ -182,7 +189,7 @@
       },
       annotatedChildNodes() {
         return this.childNodesWithPath.map(n =>
-          annotateNode(n, this.nodesForTransfer, !this.manageMode)
+          annotateNode(n, this.nodesForTransfer, !this.manageMode),
         );
       },
       showableAnnotatedChildNodes() {
@@ -202,7 +209,7 @@
         return annotateNode(
           { ...this.currentTopicNode, path: [...this.path] },
           selections,
-          !this.manageMode
+          !this.manageMode,
         );
       },
     },

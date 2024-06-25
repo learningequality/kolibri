@@ -16,13 +16,22 @@
         :aria-selected="contentIsChecked(content)"
       >
         <KCheckbox
-          v-if="contentHasCheckbox(content)"
+          v-if="contentHasCheckbox(content) && !showRadioButtons"
           class="content-checkbox"
           :label="content.title"
           :showLabel="false"
           :checked="contentIsChecked(content)"
           :indeterminate="contentIsIndeterminate(content)"
           @change="handleCheckboxChange(content, $event)"
+        />
+        <KRadioButton
+          v-else-if="contentHasCheckbox(content) && showRadioButtons"
+          class="content-checkbox"
+          :label="content.title"
+          :showLabel="false"
+          :currentValue="contentIsChecked(content) ? content.id : 'none'"
+          :buttonValue="content.id"
+          @change="handleCheckboxChange(content, true)"
         />
         <!--
           disabled, tabindex, is-leaf class set here to hack making the card not clickable
@@ -32,7 +41,7 @@
           class="content-card"
           :disabled="content.is_leaf"
           :tabindex="content.is_leaf ? -1 : 0"
-          :class="{ 'with-checkbox': needCheckboxes, 'is-leaf': content.is_leaf }"
+          :class="{ 'with-checkbox': needCheckboxes }"
           :title="content.title"
           :thumbnail="content.thumbnail"
           :description="content.description"
@@ -43,7 +52,10 @@
           :isLeaf="content.is_leaf"
         >
           <template #notice>
-            <slot name="notice" :content="content"></slot>
+            <slot
+              name="notice"
+              :content="content"
+            ></slot>
           </template>
         </LessonContentCard>
       </li>
@@ -57,7 +69,7 @@
         @click="$emit('moreresults')"
       />
       <KCircularLoader
-        v-if="viewMoreButtonState === ViewMoreButtonStates.LOADING & loadingMoreState"
+        v-if="(viewMoreButtonState === ViewMoreButtonStates.LOADING) & loadingMoreState"
         :delay="false"
       />
       <!-- TODO introduce messages in next version -->
@@ -136,6 +148,11 @@
       contentHasCheckbox: {
         type: Function, // ContentNode => Boolean
         required: true,
+      },
+      // Boolean to toggle on use of radio buttons instead of checkboxes
+      showRadioButtons: {
+        type: Boolean,
+        default: false,
       },
       // Function that returns a string that appears in the corner of the card
       contentCardMessage: {

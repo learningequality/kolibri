@@ -32,9 +32,7 @@ function makeWrapper({ targetFacility, targetAccount, fullname, username } = {})
 
 const getUsernameTextbox = wrapper => wrapper.find('[data-test="usernameTextbox"]');
 const setUsernameTextboxValue = (wrapper, value) => {
-  getUsernameTextbox(wrapper)
-    .find('input')
-    .setValue(value);
+  getUsernameTextbox(wrapper).find('input').setValue(value);
 };
 const getBackButton = wrapper => wrapper.find('[data-test="backButton"]');
 const getContinueButton = wrapper => wrapper.find('[data-test="continueButton"]');
@@ -73,7 +71,7 @@ describe(`ChangeFacility/MergeAccountDialog`, () => {
     expect(remoteFacilityUsers).toHaveBeenCalledWith(
       'http://localhost/test',
       'id_facility',
-      'other_user'
+      'other_user',
     );
   });
 

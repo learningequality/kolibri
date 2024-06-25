@@ -6,7 +6,6 @@
     :style="cardStyle"
     :class="$computedClass({ ':focus': $coreOutline })"
   >
-
     <div
       v-if="explore"
       class="explore"
@@ -21,7 +20,7 @@
         dir="auto"
         :style="{ borderBottom: `1px solid ${$themeTokens.fineLine}` }"
       >
-        <TextTruncatorCss
+        <KTextTruncator
           :text="title"
           :maxLines="2"
           :showTooltip="true"
@@ -31,7 +30,7 @@
       <KFixedGrid
         numCols="4"
         gutter="16"
-        style="margin: 0 16px;"
+        style="margin: 0 16px"
       >
         <KFixedGridItem span="1">
           <ChannelThumbnail
@@ -43,7 +42,7 @@
           span="3"
           alignment="auto"
         >
-          <TextTruncatorCss
+          <KTextTruncator
             :text="tagline"
             :maxLines="4"
             :showTooltip="false"
@@ -72,7 +71,6 @@
         <KIcon icon="wifi" />
       </div>
     </div>
-
   </router-link>
 
 </template>
@@ -84,7 +82,6 @@
   import { validateLinkObject } from 'kolibri.utils.validators';
   import useKResponsiveWindow from 'kolibri-design-system/lib/composables/useKResponsiveWindow';
   import CoachContentLabel from 'kolibri.coreVue.components.CoachContentLabel';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import ChannelThumbnail from './ChannelThumbnail';
 
   export default {
@@ -92,7 +89,6 @@
     components: {
       ChannelThumbnail,
       CoachContentLabel,
-      TextTruncatorCss,
     },
     setup() {
       const { windowGutter } = useKResponsiveWindow();

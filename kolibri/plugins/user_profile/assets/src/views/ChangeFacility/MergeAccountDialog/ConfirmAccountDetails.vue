@@ -27,7 +27,10 @@
         <th>
           {{ coreString('identifierLabel') }}
         </th>
-        <td dir="auto" data-test="idnumber">
+        <td
+          dir="auto"
+          data-test="idnumber"
+        >
           {{ cleanValue(targetAccount.id_number) }}
         </td>
       </tr>
@@ -35,7 +38,10 @@
         <th>
           {{ coreString('genderLabel') }}
         </th>
-        <td dir="auto" data-test="gender">
+        <td
+          dir="auto"
+          data-test="gender"
+        >
           <GenderDisplayText :gender="targetAccount.gender" />
         </td>
       </tr>
@@ -43,7 +49,10 @@
         <th>
           {{ coreString('birthYearLabel') }}
         </th>
-        <td dir="auto" data-test="birthyear">
+        <td
+          dir="auto"
+          data-test="birthyear"
+        >
           <BirthYearDisplayText :birthYear="targetAccount.birth_year" />
         </td>
       </tr>
@@ -68,7 +77,6 @@
         </KButtonGroup>
       </slot>
     </BottomAppBar>
-
   </div>
 
 </template>

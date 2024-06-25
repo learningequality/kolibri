@@ -23,7 +23,10 @@
         {{ formatNameAndId(facility.name, facility.id) }}
       </p>
       <p>{{ $tr('enterCredentials') }}</p>
-      <p v-if="error && !useAdmin" :style="{ color: $themeTokens.error }">
+      <p
+        v-if="error && !useAdmin"
+        :style="{ color: $themeTokens.error }"
+      >
         {{ coreString('invalidCredentialsError') }}
       </p>
       <KTextbox
@@ -55,13 +58,13 @@
 
       <KModal
         v-if="deviceLimitations"
-        :title="$tr('deviceLimitationsTitle') "
+        :title="$tr('deviceLimitationsTitle')"
         :cancelText="coreString('cancelAction')"
         :submitText="coreString('importAction')"
         @cancel="closeModal"
         @submit="importUser"
       >
-        <p> {{ modalMessage }} </p>
+        <p>{{ modalMessage }}</p>
       </KModal>
 
       <KModal
@@ -72,8 +75,11 @@
         @cancel="closeModal"
         @submit="moveAdmin"
       >
-        <p> {{ adminModalMessage }} </p>
-        <p v-if="error && useAdmin" :style="{ color: $themeTokens.error }">
+        <p>{{ adminModalMessage }}</p>
+        <p
+          v-if="error && useAdmin"
+          :style="{ color: $themeTokens.error }"
+        >
           {{ coreString('invalidCredentialsError') }}
         </p>
         <KTextbox
@@ -93,7 +99,6 @@
         />
       </KModal>
     </div>
-
   </OnboardingStepBase>
 
 </template>
@@ -247,7 +252,7 @@
         this.error = false;
 
         this.useAdmin = true;
-        this.$nextTick(function() {
+        this.$nextTick(function () {
           this.$refs.adminUsernameTextbox.focus();
         });
       },
@@ -322,7 +327,7 @@
             } else if (
               Array.isArray(errorData) &&
               errorData.find(
-                e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS
+                e => get(e, 'metadata.message', null) === ERROR_CONSTANTS.DEVICE_LIMITATIONS,
               )
             ) {
               const error_info = errorData.reduce((info, err) => {

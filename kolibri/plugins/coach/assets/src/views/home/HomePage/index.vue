@@ -1,7 +1,6 @@
 <template>
 
   <CoachAppBarPage>
-
     <KGrid gutter="16">
       <KGridItem>
         <OverviewBlock />

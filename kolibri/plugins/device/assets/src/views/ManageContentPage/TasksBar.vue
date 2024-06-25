@@ -28,7 +28,6 @@
         :to="taskManagerLink"
       />
     </p>
-
   </div>
 
 </template>

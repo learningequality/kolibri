@@ -10,6 +10,6 @@ export default widget => {
       cells,
     },
     null, // cb
-    false // silent
+    false, // silent
   );
 };

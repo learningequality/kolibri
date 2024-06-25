@@ -2,7 +2,6 @@
 
   <!-- eslint-disable max-len -->
   <div>
-
     <p>
       {{ $tr('introduction') }}
     </p>
@@ -48,14 +47,17 @@
     </p>
     <!-- Temporarily remove this functionality for MVP -->
     <p v-if="false">
-      <KCheckbox :label="$tr('labelDelete')" @change="toggleDelete" />
+      <KCheckbox
+        :label="$tr('labelDelete')"
+        @change="toggleDelete"
+      />
     </p>
     <p>
       <KButtonGroup>
         <KButton
           :text="coreString('cancelAction')"
           appearance="raised-button"
-          style="margin-left: 0;"
+          style="margin-left: 0"
           @click="$emit('cancel')"
         />
         <KButton
@@ -72,7 +74,6 @@
       v-if="showInfoModal"
       @cancel="showInfoModal = false"
     />
-
   </div>
   <!-- eslint-enable max-len -->
 

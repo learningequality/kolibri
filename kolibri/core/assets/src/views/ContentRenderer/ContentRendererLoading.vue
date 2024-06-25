@@ -1,8 +1,6 @@
 <template>
 
-  <KCircularLoader
-    :delay="false"
-  />
+  <KCircularLoader :delay="false" />
 
 </template>
 

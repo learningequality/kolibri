@@ -1,6 +1,9 @@
 <template>
 
-  <KIcon v-if="icon" :icon="icon" />
+  <KIcon
+    v-if="icon"
+    :icon="icon"
+  />
 
 </template>
 

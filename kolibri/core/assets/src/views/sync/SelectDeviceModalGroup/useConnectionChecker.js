@@ -33,7 +33,7 @@ function useMemoizeWithExpiry(asyncFunction, options = {}) {
  */
 export default function useConnectionChecker(
   devices,
-  { threshold = 5, interval = 2, concurrency = 3 } = {}
+  { threshold = 5, interval = 2, concurrency = 3 } = {},
 ) {
   const isChecking = ref(false);
 
@@ -81,7 +81,7 @@ export default function useConnectionChecker(
       set(isChecking, false);
     },
     interval * 1000,
-    { immediate: true }
+    { immediate: true },
   );
 
   // Stop polling

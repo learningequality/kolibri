@@ -98,7 +98,7 @@
           span="3"
           alignment="right"
         >
-          <KButtonGroup style="margin-top: 8px;">
+          <KButtonGroup style="margin-top: 8px">
             <KButton
               :text="coreString('cancelAction')"
               appearance="flat-button"
@@ -174,7 +174,7 @@
             id: props.filterByFacilityId,
             learner_can_sign_up: props.filterByFacilityCanSignUp,
             on_my_own_setup: props.filterByOnMyOwnFacility,
-          })
+          }),
         );
       }
 
@@ -193,7 +193,7 @@
 
       const { devices, isDeleting, hasDeleted, deletingFailed, doDelete } = useDeviceDeletion(
         _devices,
-        context
+        context,
       );
 
       const { isChecking, doCheck } = useConnectionChecker(devices);
@@ -279,12 +279,12 @@
           .filter(
             device =>
               device.available &&
-              (device.application === 'kolibri' || this.$route.path === '/content')
+              (device.application === 'kolibri' || this.$route.path === '/content'),
           )
           .map(device => device.id);
       },
       isDeviceAvailable() {
-        return function(deviceId) {
+        return function (deviceId) {
           return this.availableDeviceIds.some(id => id === deviceId);
         };
       },
@@ -295,7 +295,7 @@
             this.fetchFailed ||
             this.isSubmitChecking ||
             !this.isDeviceAvailable(this.selectedDeviceId) ||
-            this.availableDeviceIds.length === 0
+            this.availableDeviceIds.length === 0,
         );
       },
       newDeviceButtonDisabled() {
@@ -311,7 +311,7 @@
           text = this.$tr('deletingFailedText');
         } else {
           const unreachable = this.devices.find(d =>
-            UnreachableConnectionStatuses.includes(d.connection_status)
+            UnreachableConnectionStatuses.includes(d.connection_status),
           );
           if (unreachable) {
             text = this.getCommonSyncString('devicesUnreachable');
@@ -346,10 +346,7 @@
       formatBaseDevice(device) {
         const url = device.base_url;
         if (this.filterLODAvailable) {
-          const version = device.kolibri_version
-            .split('.')
-            .slice(0, 3)
-            .join('.');
+          const version = device.kolibri_version.split('.').slice(0, 3).join('.');
           return `${url}, Kolibri ${version}`;
         } else return url;
       },
@@ -402,7 +399,8 @@
       // once this is done, reinstate the $tr('lodSubHeader') in the template
       // eslint-disable-next-line kolibri/vue-no-unused-translations
       lodSubHeader: {
-        message: 'Select a device with Kolibri version 0.15 to import learner user accounts',
+        message:
+          'Select a device with Kolibri version 0.15 or greater to import learner user accounts',
         context:
           "In the first startup wizard, when you select to 'Import one or more user accounts from an existing facility' option to choose the device you want to sync from.\n\nYou do this in the 'Select device' section which displays a list of devices.",
       },

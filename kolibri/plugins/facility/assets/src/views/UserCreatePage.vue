@@ -1,13 +1,18 @@
 <template>
 
   <ImmersivePage
-    :route="this.$store.getters.facilityPageLinks.UserPage"
+    :route="$store.getters.facilityPageLinks.UserPage"
     :appBarTitle="coreString('usersLabel')"
     :loading="loading"
   >
-    <KPageContainer v-if="!loading" class="narrow-container">
-
-      <form class="form" @submit.prevent="submitForm">
+    <KPageContainer
+      v-if="!loading"
+      class="narrow-container"
+    >
+      <form
+        class="form"
+        @submit.prevent="submitForm"
+      >
         <h1>
           {{ $tr('createNewUserHeader') }}
         </h1>
@@ -48,7 +53,10 @@
             :options="userTypeOptions"
           />
 
-          <fieldset v-if="coachIsSelected" class="coach-selector">
+          <fieldset
+            v-if="coachIsSelected"
+            class="coach-selector"
+          >
             <KRadioButton
               v-model="classCoachIsSelected"
               :disabled="busy"
@@ -87,27 +95,23 @@
             :facilityDatasetExtraFields="facilityConfig.extra_fields"
             :disabled="busy"
           />
-
         </section>
 
         <div class="buttons">
-          <KButtonGroup style="margin-top: 8px;">
+          <KButtonGroup style="margin-top: 8px">
             <KButton
               type="submit"
               :text="coreString('saveAction')"
               :disabled="busy"
-
               :primary="true"
             />
             <KButton
               :text="coreString('cancelAction')"
               :disabled="busy"
-
               @click="goToUserManagementPage()"
             />
           </KButtonGroup>
         </div>
-
       </form>
     </KPageContainer>
   </ImmersivePage>
@@ -226,7 +230,7 @@
       },
       usernameIsUnique(value) {
         return !this.facilityUsers.find(
-          ({ username }) => username.toLowerCase() === value.toLowerCase()
+          ({ username }) => username.toLowerCase() === value.toLowerCase(),
         );
       },
       submitForm() {

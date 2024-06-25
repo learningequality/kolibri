@@ -9,7 +9,7 @@ const eslintPluginVueUtils = require('eslint-plugin-vue/lib/utils');
 const create = context => {
   const scriptVisitor = {
     'ExportDefaultDeclaration > ObjectExpression > Property[key.name=watch] > ObjectExpression > Property[value.type=Literal]'(
-      node
+      node,
     ) {
       context.report({
         node,
@@ -23,7 +23,7 @@ const create = context => {
 
   return Object.assign(
     {},
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

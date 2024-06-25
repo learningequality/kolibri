@@ -1,6 +1,9 @@
 <template>
 
-  <div class="top-bar" :style="{ backgroundColor: $themePalette.grey.v_200 }">
+  <div
+    class="top-bar"
+    :style="{ backgroundColor: $themePalette.grey.v_200 }"
+  >
     <KGrid :style="{ marginTop: '2px', marginLeft: '3px', marginRight: '3px' }">
       <KGridItem
         :layout4="{ span: 1 }"

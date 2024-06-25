@@ -6,10 +6,13 @@
     :style="{ borderTop: `1px solid ${$themeTokens.fineLine}` }"
   >
     <ChannelDetails :channel="channel">
-
       <template #belowname>
         <div class="private-icons">
-          <KTooltip reference="lockicon" :refs="$refs" placement="top">
+          <KTooltip
+            reference="lockicon"
+            :refs="$refs"
+            placement="top"
+          >
             {{ deviceString('unlistedChannelLabel') }}
           </KTooltip>
           <KIcon

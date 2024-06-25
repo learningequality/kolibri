@@ -223,7 +223,7 @@ export default function useSearch(descendant, store, router) {
     // on a string value will give an array of the indexes of a string
     // for an empty string, this array will be empty, meaning that this
     // check still works!
-    Object.values(get(searchTerms)).some(v => Object.keys(v).length)
+    Object.values(get(searchTerms)).some(v => Object.keys(v).length),
   );
 
   function _setAvailableLabels(searchableLabels) {

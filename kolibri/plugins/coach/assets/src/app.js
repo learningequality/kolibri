@@ -60,7 +60,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         !to.params.classId &&
         !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
-          to.name
+          to.name,
         )
       ) {
         this.store.dispatch('coachNotifications/stopPolling');
@@ -97,7 +97,7 @@ class CoachToolsModule extends KolibriApp {
         to.name &&
         to.params.classId &&
         !['CoachClassListPage', 'StatusTestPage', 'CoachPrompts', 'AllFacilitiesPage'].includes(
-          to.name
+          to.name,
         )
       ) {
         promises.push(this.store.dispatch('initClassInfo', to.params.classId));

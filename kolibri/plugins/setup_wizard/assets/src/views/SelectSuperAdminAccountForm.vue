@@ -20,9 +20,11 @@
         {{ coreString('invalidCredentialsError') }}
       </p>
       <p>
-        {{ $tr('chooseAdminPrompt', {
-          facility: facility.name
-        }) }}
+        {{
+          $tr('chooseAdminPrompt', {
+            facility: facility.name,
+          })
+        }}
       </p>
       <KSelect
         v-model="selected"
@@ -132,7 +134,7 @@
             // NOTE: We don't have the facility user ID on hand to disambiguate if
             // a duplicate username is used
             const superuserMatch = this.dropdownOptions.find(
-              ({ label }) => label === this.facility.username
+              ({ label }) => label === this.facility.username,
             );
             if (superuserMatch) {
               this.selected = superuserMatch;

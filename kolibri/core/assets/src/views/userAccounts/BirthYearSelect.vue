@@ -16,7 +16,6 @@
       :tooltipPlacement="tooltipPlacement"
       :iconAriaLabel="$tr('birthyearAriaLabel')"
     />
-
   </div>
 
 </template>

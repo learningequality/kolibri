@@ -102,7 +102,7 @@ class BundleTrackerPlugin {
     fs.mkdirSync(this.outputTrackerDir, { recursive: true, mode: 0o755 });
     fs.writeFileSync(
       this.outputTrackerFile,
-      JSON.stringify(this.contents, null, this.options.indent)
+      JSON.stringify(this.contents, null, this.options.indent),
     );
   }
   /**
@@ -114,10 +114,7 @@ class BundleTrackerPlugin {
     // we set a default value on _setParamsFromCompiler
     return this.options.integrityHashes
       .map(algorithm => {
-        const hash = crypto
-          .createHash(algorithm)
-          .update(content, 'utf8')
-          .digest('base64');
+        const hash = crypto.createHash(algorithm).update(content, 'utf8').digest('base64');
 
         return `${algorithm}-${hash}`;
       })

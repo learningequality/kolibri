@@ -8,7 +8,10 @@
     :style="{ color: $themeTokens.annotation }"
     :class="defaultStyles"
   >
-    <div class="inner" :style="{ borderColor: this.$themeTokens.primary }">
+    <div
+      class="inner"
+      :style="{ borderColor: $themeTokens.primary }"
+    >
       {{ text }}
     </div>
   </router-link>

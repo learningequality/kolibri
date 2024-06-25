@@ -132,7 +132,7 @@
         {},
         {},
         urls.zipContentUrl(zipFile.checksum, zipFile.extension, 'index.html'),
-        zipFile.checksum
+        zipFile.checksum,
       );
     },
     methods: {
@@ -269,7 +269,7 @@
           .then(contentNode => {
             if (contentNode && contentNode.kind === 'topic') {
               router.push(
-                this.genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf)
+                this.genContentLinkBackLinkCurrentPage(contentNode.id, contentNode.is_leaf),
               );
             } else if (contentNode && this.overlayIsOpen == false) {
               // in a custom context, launch overlay

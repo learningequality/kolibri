@@ -1,9 +1,10 @@
 <template>
 
-  <MissingResourceAlert
-    :multiple="multiple"
-  >
-    <template v-if="isLearnerOnlyImport && isSyncing" #syncAlert>
+  <MissingResourceAlert :multiple="multiple">
+    <template
+      v-if="isLearnerOnlyImport && isSyncing"
+      #syncAlert
+    >
       {{ syncMessage }}
     </template>
   </MissingResourceAlert>

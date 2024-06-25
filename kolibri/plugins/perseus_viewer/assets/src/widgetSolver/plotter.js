@@ -4,6 +4,6 @@ export default (widget, rubric) => {
       values: rubric.correct,
     },
     // Add callback to rerender Graphie after setting the state
-    widget.componentDidMount
+    widget.componentDidMount,
   );
 };

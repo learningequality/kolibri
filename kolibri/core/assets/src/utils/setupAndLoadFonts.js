@@ -61,12 +61,12 @@ function loadFullFontsProgressively() {
   // passing the language name to 'load' for its glyphs, not its value per se
   const string = availableLanguages[currentLanguage].lang_name;
   Promise.all([uiNormal.load(string, 20000), uiBold.load(string, 20000)])
-    .then(function() {
+    .then(function () {
       htmlEl.classList.remove(PARTIAL_FONTS);
       htmlEl.classList.add(FULL_FONTS);
       logging.debug(`Loaded full font for '${currentLanguage}'`);
     })
-    .catch(function() {
+    .catch(function () {
       logging.warn(`Could not load full font for '${currentLanguage}'`);
     });
 }

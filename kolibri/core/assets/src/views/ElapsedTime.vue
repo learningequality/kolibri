@@ -1,8 +1,6 @@
 <template>
 
-  <KOptionalText
-    :text="date ? $formatRelative(ceilingDate, { now: now }) : ''"
-  />
+  <KOptionalText :text="date ? $formatRelative(ceilingDate, { now: now }) : ''" />
 
 </template>
 

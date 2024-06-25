@@ -67,13 +67,13 @@ const create = context => {
     },
     eslintPluginVueUtils.executeOnVue(context, obj => {
       definitionNodes = Array.from(
-        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_$TRS]))
+        eslintPluginVueUtils.iterateProperties(obj, new Set([GROUP_$TRS])),
       );
 
       if (!hasTemplate) {
         utils.reportUnusedTranslations(context, definitionNodes, usedStrings);
       }
-    })
+    }),
   );
 
   const templateVisitor = Object.assign(
@@ -91,13 +91,13 @@ const create = context => {
     },
     utils.executeOnRootTemplateEnd(() => {
       utils.reportUnusedTranslations(context, definitionNodes, usedStrings);
-    })
+    }),
   );
 
   return Object.assign(
     {},
     initialize,
-    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor)
+    eslintPluginVueUtils.defineTemplateBodyVisitor(context, templateVisitor, scriptVisitor),
   );
 };
 

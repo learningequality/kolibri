@@ -15,7 +15,10 @@
     </p>
 
     <h1>
-      <KLabeledIcon icon="classes" :label="$store.state.classSummary.name" />
+      <KLabeledIcon
+        icon="classes"
+        :label="$store.state.classSummary.name"
+      />
     </h1>
     <HeaderTable>
       <HeaderTableRow>
@@ -43,7 +46,7 @@
               :text="$tr('viewLearners')"
               appearance="basic-link"
               :to="classLearnersListRoute"
-              style="margin-left: 24px;"
+              style="margin-left: 24px"
             />
           </template>
         </template>

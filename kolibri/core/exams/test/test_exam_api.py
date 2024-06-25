@@ -14,6 +14,7 @@ from kolibri.core.auth.models import Facility
 from kolibri.core.auth.models import FacilityUser
 from kolibri.core.auth.models import LearnerGroup
 from kolibri.core.auth.test.helpers import provision_device
+from kolibri.core.exams.constants import MAX_QUESTIONS_PER_QUIZ_SECTION
 from kolibri.core.logger.models import ContentSummaryLog
 from kolibri.core.logger.models import MasteryLog
 
@@ -72,7 +73,6 @@ class BaseExamTest:
             creator=cls.admin,
             question_sources=[
                 {
-                    "section_id": uuid.uuid4().hex,
                     "section_title": "Test Section Title",
                     "description": "Test descripton for Section",
                     "questions": [
@@ -83,7 +83,6 @@ class BaseExamTest:
                             "counter_in_exercise": 0,
                         }
                     ],
-                    "question_count": 1,
                     "learners_see_fixed_order": False,
                 }
             ],
@@ -108,11 +107,9 @@ class BaseExamTest:
         questions = self.make_basic_questions(3)
         for i in range(1, no_of_sec + 1):
             section = {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
                 "questions": questions,
-                "question_count": len(questions),
                 "learners_see_fixed_order": False,
             }
             sections.append(section)
@@ -369,62 +366,6 @@ class BaseExamTest:
         )
         self.assertEqual(response.status_code, 200)
 
-    def test_quiz_section_with_no_section_id(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "no_section_id"
-        questions = self.make_basic_questions(1)
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "questions": questions,
-                "question_count": 0,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
-    def test_quiz_section_with_invalid_section_id(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "invalid_section_sources"
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_id": "evil ID",
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "question_count": 0,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
-    def test_quiz_section_with_no_question_count(self):
-        self.login_as_admin()
-        exam = self.make_basic_exam()
-        title = "invalid_question_sources"
-        questions = self.make_basic_questions(1)
-        exam["title"] = title
-        exam["question_sources"].append(
-            {
-                "section_id": uuid.uuid4().hex,
-                "section_title": "Test Section Title",
-                "description": "Test descripton for Section",
-                "questions": questions,
-                "learners_see_fixed_order": False,
-            }
-        )
-        response = self.post_new_exam(exam)
-        self.assertEqual(response.status_code, 400)
-        self.assertExamNotExist(title=title)
-
     def test_quiz_section_with_no_question_succeds(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
@@ -432,10 +373,8 @@ class BaseExamTest:
         exam["title"] = title
         exam["question_sources"].append(
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "learners_see_fixed_order": False,
             }
         )
@@ -548,6 +487,22 @@ class BaseExamTest:
         exam_model_instance = self.class_object.objects.get(id=exam_id)
         self.assertEqual(exam_model_instance.question_count, question_count)
 
+    def test_exam_question_max_length(self):
+        self.login_as_admin()
+        exam = self.make_basic_exam()
+        questions = self.make_basic_questions(MAX_QUESTIONS_PER_QUIZ_SECTION + 1)
+        exam["question_sources"][0]["questions"] = questions
+        response = self.post_new_exam(exam)
+        self.assertEqual(response.status_code, 400)
+
+    def test_admin_can_update_learner_sees_fixed_order(self):
+        self.login_as_admin()
+        response = self.patch_updated_exam(
+            self.exam.id, {"learners_see_fixed_order": True}
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertExamExists(id=self.exam.id, learners_see_fixed_order=True)
+
 
 class ExamAPITestCase(BaseExamTest, APITestCase):
     class_object = models.Exam
@@ -631,29 +586,14 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         self.exam.refresh_from_db()
         self.assertEqual(self.exam.question_sources, previous_sections)
 
-    def test_logged_in_admin_exam_update_cannot_update_learners_see_fixed_order(self):
-        self.login_as_admin()
-        previous_learners_see_fixed_order = self.exam.learners_see_fixed_order
-        response = self.patch_updated_exam(
-            self.exam.id,
-            {"learners_see_fixed_order": not previous_learners_see_fixed_order},
-        )
-        self.assertEqual(response.status_code, 400)
-        self.exam.refresh_from_db()
-        self.assertEqual(
-            self.exam.learners_see_fixed_order, previous_learners_see_fixed_order
-        )
-
     def test_logged_in_admin_exam_can_create_and_publish_remove_empty_sections(self):
         self.login_as_admin()
         exam = self.make_basic_exam()
         exam["draft"] = False
         exam["question_sources"].append(
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }
@@ -678,18 +618,14 @@ class ExamAPITestCase(BaseExamTest, APITestCase):
         exam["draft"] = False
         exam["question_sources"] = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             },
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             },
@@ -856,10 +792,8 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         self.login_as_admin()
         self.exam.question_sources = self.make_basic_sections(1) + [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }
@@ -875,10 +809,8 @@ class ExamDraftAPITestCase(BaseExamTest, APITestCase):
         self.login_as_admin()
         self.exam.question_sources = [
             {
-                "section_id": uuid.uuid4().hex,
                 "section_title": "Test Section Title",
                 "description": "Test descripton for Section",
-                "question_count": 0,
                 "questions": [],
                 "learners_see_fixed_order": False,
             }

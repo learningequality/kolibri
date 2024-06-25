@@ -1,7 +1,6 @@
 <template>
 
   <div>
-
     <KButton
       :text="text || coreString('usageAndPrivacyLabel')"
       appearance="basic-link"

@@ -8,7 +8,10 @@
     @cancel="$emit('cancel')"
   >
     <!-- Classroom Selection Form -->
-    <div v-if="stage === Stages.SELECT_CLASSROOM" id="select-classroom">
+    <div
+      v-if="stage === Stages.SELECT_CLASSROOM"
+      id="select-classroom"
+    >
       <KRadioButton
         v-for="classroom in availableClassrooms"
         :key="classroom.id"
@@ -19,7 +22,10 @@
       />
     </div>
     <!-- Learner Group Selection Form -->
-    <div v-else id="select-learnergroup">
+    <div
+      v-else
+      id="select-learnergroup"
+    >
       <p>{{ $tr('destinationExplanation', { classroomName: selectedClassroomName }) }}</p>
       <p>{{ assignmentQuestion }}</p>
       <RecipientSelector
@@ -28,7 +34,7 @@
         :classId="selectedClassroomId"
         :initialAdHocLearners="[]"
         data-test="recipient-selector"
-        @updateLearners="learners => adHocLearners = learners"
+        @updateLearners="learners => (adHocLearners = learners)"
       />
     </div>
   </KModal>
@@ -125,7 +131,7 @@
             'submit',
             this.selectedClassroomId,
             this.selectedCollectionIds,
-            this.adHocLearners
+            this.adHocLearners,
           );
         }
       },

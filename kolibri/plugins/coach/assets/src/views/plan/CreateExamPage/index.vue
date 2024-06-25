@@ -14,9 +14,7 @@
       {{ selectionIsInvalidText }}
     </UiAlert>
 
-    <KPageContainer
-      :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }"
-    >
+    <KPageContainer :style="{ maxWidth: '1000px', margin: '0 auto 2em', paddingTop: '2rem' }">
       <AssignmentDetailsModal
         v-if="quizInitialized"
         ref="detailsModal"
@@ -84,7 +82,6 @@
           />
         </KButtonGroup>
       </BottomAppBar>
-
     </KPageContainer>
 
     <KModal
@@ -98,10 +95,7 @@
       {{ closeConfirmationMessage$() }}
     </KModal>
 
-
-
-    <router-view v-if="quizInitialized" />
-
+    <SectionSidePanel v-if="quizInitialized" />
   </CoachImmersivePage>
 
 </template>
@@ -122,7 +116,8 @@
   import useQuizCreation from '../../../composables/useQuizCreation';
   import AssignmentDetailsModal from '../assignments/AssignmentDetailsModal';
   import useCoreCoach from '../../../composables/useCoreCoach';
-  import CreateQuizSection from './CreateQuizSection.vue';
+  import CreateQuizSection from './CreateQuizSection';
+  import SectionSidePanel from './SectionSidePanel';
 
   export default {
     name: 'CreateExamPage',
@@ -131,19 +126,14 @@
       BottomAppBar,
       CreateQuizSection,
       AssignmentDetailsModal,
+      SectionSidePanel,
     },
     mixins: [commonCoreStrings],
     setup() {
       const closeConfirmationToRoute = ref(null);
       const { classId, groups } = useCoreCoach();
-      const {
-        quizHasChanged,
-        quiz,
-        updateQuiz,
-        saveQuiz,
-        initializeQuiz,
-        allSectionsEmpty,
-      } = useQuizCreation();
+      const { quizHasChanged, quiz, updateQuiz, saveQuiz, initializeQuiz, allSectionsEmpty } =
+        useQuizCreation();
       const showError = ref(false);
       const quizInitialized = ref(false);
 
@@ -264,6 +254,7 @@
                 params: {
                   classId: this.$route.params.classId,
                   quizId: exam.id,
+                  sectionIndex: this.$route.params.sectionIndex,
                 },
               });
             }

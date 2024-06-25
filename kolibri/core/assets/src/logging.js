@@ -23,9 +23,9 @@ class Logger {
 
   setMessagePrefix() {
     var originalFactory = this.logger.methodFactory;
-    this.logger.methodFactory = function(methodName, logLevel, loggerName) {
+    this.logger.methodFactory = function (methodName, logLevel, loggerName) {
       var rawMethod = originalFactory(methodName, logLevel, loggerName);
-      return function(message) {
+      return function (message) {
         rawMethod(`[${methodName.toUpperCase()}: ${loggerName}] ` + message);
       };
     };
@@ -75,7 +75,7 @@ class Logging {
     if (!loggerName) {
       loglevel[methodName](...args);
       Object.keys(this.registeredLoggers).forEach(name =>
-        this.registeredLoggers[name][methodName](...args)
+        this.registeredLoggers[name][methodName](...args),
       );
     } else {
       this.registeredLoggers[loggerName][methodName](...args);

@@ -1,10 +1,8 @@
 <template>
 
-  <AppBarPage
-    :title="coreString('myDownloadsLabel')"
-  >
+  <AppBarPage :title="coreString('myDownloadsLabel')">
     <KPageContainer class="container">
-      <h1> {{ coreString('myDownloadsLabel') }} </h1>
+      <h1>{{ coreString('myDownloadsLabel') }}</h1>
       <KGrid>
         <KGridItem
           :layout8="{ span: 4 }"
@@ -12,18 +10,14 @@
         >
           <table>
             <tr>
-              <th> {{ coreString('totalSizeMyDownloads') }} </th>
-              <td
-                v-if="!loading"
-              >
+              <th>{{ coreString('totalSizeMyDownloads') }}</th>
+              <td v-if="!loading">
                 {{ formattedSize(sizeOfMyDownloads) }}
               </td>
             </tr>
             <tr>
-              <th> {{ coreString('availableStorage') }}</th>
-              <td
-                v-if="!loading"
-              >
+              <th>{{ coreString('availableStorage') }}</th>
+              <td v-if="!loading">
                 {{ formattedSize(availableStorage) }}
               </td>
             </tr>
@@ -116,7 +110,7 @@
       sizeOfMyDownloads() {
         return Object.values(this.downloadRequestMap).reduce(
           (acc, object) => acc + object.metadata.file_size,
-          0
+          0,
         );
       },
     },

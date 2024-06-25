@@ -10,7 +10,11 @@
       @click="id => $emit('click', id)"
     >
       <template #tab="{ tab }">
-        <slot name="tab" :tab="tab" :tabIsVisible="tabIsVisible(tab)"></slot>
+        <slot
+          name="tab"
+          :tab="tab"
+          :tabIsVisible="tabIsVisible(tab)"
+        ></slot>
       </template>
     </KTabsList>
 
@@ -18,10 +22,12 @@
     <!-- This should be within the KTabsList to simplify rendering, but there is no slot.
       The absolute styling isn't as nice as if it were part of the flex container instead, but
       it ought to work -->
-    <div style="position: absolute; right: 0; top: 5px;">
-      <slot name="overflow" :overflowTabs="overflowTabs"></slot>
+    <div style="position: absolute; top: 5px; right: 0">
+      <slot
+        name="overflow"
+        :overflowTabs="overflowTabs"
+      ></slot>
     </div>
-
   </div>
 
 </template>
@@ -84,14 +90,14 @@
         this.overflowTabs =
           this.mounted && this.windowWidth
             ? this.tabs.filter((_, idx) => {
-                const tabRef = this.$refs.tabsWrapper.$el.children[idx];
-                const tabRefTop = tabRef.offsetTop;
+              const tabRef = this.$refs.tabsWrapper.$el.children[idx];
+              const tabRefTop = tabRef.offsetTop;
 
-                const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
-                const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
+              const containerTop = this.$refs.tabsWrapper.$el.offsetTop;
+              const containerBottom = containerTop + this.$refs.tabsWrapper.$el.clientHeight;
 
-                return tabRefTop >= containerBottom;
-              })
+              return tabRefTop >= containerBottom;
+            })
             : [];
       },
       tabIsVisible(tab) {

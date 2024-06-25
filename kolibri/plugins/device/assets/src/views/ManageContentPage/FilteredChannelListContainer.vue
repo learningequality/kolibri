@@ -1,7 +1,6 @@
 <template>
 
   <div :class="{ 'fclc-sm': !windowIsLarge }">
-
     <slot name="header"></slot>
 
     <slot name="abovechannels"></slot>
@@ -17,7 +16,10 @@
             :inline="true"
           />
         </KGridItem>
-        <KGridItem :layout12="{ span: 5 }" class="filter-title">
+        <KGridItem
+          :layout12="{ span: 5 }"
+          class="filter-title"
+        >
           <FilterTextbox
             v-model="titleFilter"
             :placeholder="$tr('titleFilterPlaceholder')"
@@ -26,7 +28,10 @@
         </KGridItem>
       </template>
       <KGridItem :layout12="{ span: 3 }">
-        <p class="count-msg" data-test="available">
+        <p
+          class="count-msg"
+          data-test="available"
+        >
           {{ channelsCountMsg }}
         </p>
       </KGridItem>
@@ -104,12 +109,12 @@
         return differenceBy(this.filteredItems, this.selectedChannels, 'id').length === 0;
       },
       showItem() {
-        return function(channel) {
+        return function (channel) {
           return Boolean(find(this.filteredItems, { id: channel.id }));
         }.bind(this);
       },
       itemIsSelected() {
-        return function(channel) {
+        return function (channel) {
           return Boolean(find(this.selectedChannels, { id: channel.id }));
         }.bind(this);
       },
@@ -166,7 +171,7 @@
         } else {
           this.$emit(
             'update:selectedChannels',
-            this.selectedChannels.filter(({ id }) => id !== channel.id)
+            this.selectedChannels.filter(({ id }) => id !== channel.id),
           );
         }
         this.$emit('update:selected');
@@ -175,12 +180,12 @@
         if (isSelected) {
           this.$emit(
             'update:selectedChannels',
-            unionBy(this.selectedChannels, this.filteredItems, 'id')
+            unionBy(this.selectedChannels, this.filteredItems, 'id'),
           );
         } else {
           this.$emit(
             'update:selectedChannels',
-            differenceBy(this.selectedChannels, this.filteredItems, 'id')
+            differenceBy(this.selectedChannels, this.filteredItems, 'id'),
           );
         }
       },

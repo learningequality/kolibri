@@ -563,5 +563,5 @@ export const wizardMachine = createMachine(
         return context.fullOrLOD === DeviceTypePresets.FULL;
       },
     },
-  }
+  },
 );

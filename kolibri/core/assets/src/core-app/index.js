@@ -49,7 +49,7 @@ setupPluginMediator(coreApp);
 initializeTheme();
 
 // monitor page visibility
-document.addEventListener('visibilitychange', function() {
+document.addEventListener('visibilitychange', function () {
   store.dispatch('setPageVisibility');
 });
 

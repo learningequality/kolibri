@@ -10,7 +10,10 @@
           />
         </h2>
       </KFixedGridItem>
-      <KFixedGridItem :span="1" alignment="right">
+      <KFixedGridItem
+        :span="1"
+        alignment="right"
+      >
         <KRouterLink
           v-if="displayAllClassesLink"
           :text="coreString('viewAll')"

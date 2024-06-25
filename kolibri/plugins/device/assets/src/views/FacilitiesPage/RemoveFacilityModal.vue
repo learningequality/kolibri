@@ -32,7 +32,6 @@
       <p>
         {{ $tr('signInAsOtherAdminExplanation', { facilityName }) }}
       </p>
-
     </template>
   </KModal>
 

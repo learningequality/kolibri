@@ -1,6 +1,9 @@
 <template>
 
-  <div v-show="!$isPrint" class="report-controls">
+  <div
+    v-show="!$isPrint"
+    class="report-controls"
+  >
     <slot></slot>
     <div class="report-controls-buttons">
       <KRouterLink

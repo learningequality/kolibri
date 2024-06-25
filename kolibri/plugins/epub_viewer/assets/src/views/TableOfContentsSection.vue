@@ -4,7 +4,6 @@
     class="toc-list-item"
     :class="{ 'toc-list-item-top-level': depth === 0 }"
   >
-
     <KButton
       :id="sectionId"
       class="toc-list-item-button"

@@ -29,7 +29,7 @@ const COMMON_NAMESPACES = {
 function logKeyError(namespace, key) {
   logging.warn(
     `No string found for '${namespace}.${key}' ` +
-      '(either not defined, or the key was passed as a variable and not a string)'
+      '(either not defined, or the key was passed as a variable and not a string)',
   );
 }
 
@@ -88,7 +88,7 @@ function profileToCSV(profile) {
       csv = [...csv, ...dataRows];
       return csv;
     },
-    []
+    [],
   );
 }
 
@@ -142,7 +142,7 @@ function profileVueScript(profile, ast, pathname, namespace, allMessages) {
   let common = false;
   try {
     traverse(ast, {
-      pre: function(node) {
+      pre: function (node) {
         // The CallExpressions will find all potential $tr and commont$tr calls.
         if (node.type === 'CallExpression') {
           if (node.callee.property) {
@@ -157,7 +157,7 @@ function profileVueScript(profile, ast, pathname, namespace, allMessages) {
               if (isCommonFn(node.callee.property.name)) {
                 key = keyFromArguments(
                   node.arguments,
-                  COMMON_NAMESPACES[node.callee.property.name]
+                  COMMON_NAMESPACES[node.callee.property.name],
                 );
                 common = true;
               }
@@ -197,7 +197,7 @@ function profileVueTemplate(profile, ast, pathname, namespace, allMessages) {
   let common = false;
   try {
     traverse(ast, {
-      pre: function(node) {
+      pre: function (node) {
         // The CallExpressions will find all potential $tr and commont$tr calls.
         // NOTE: This differs from the above - this AST is conveniently slightly
         // different in structure - so there are not `property` objects here.
@@ -247,7 +247,7 @@ function profileJSFile(profile, ast, pathname, allMessages) {
   // Process the AST
   try {
     traverse(ast, {
-      pre: function(node) {
+      pre: function (node) {
         // Seek out any place where a createTranslator() function is called.
         if (node.type === 'VariableDeclarator') {
           if (node.init && node.init.type === 'CallExpression') {
@@ -332,7 +332,7 @@ function getVueTemplateAST(filePath) {
   return parseAST(render);
 }
 
-module.exports = function(pathInfo, ignore, outputFile, verbose) {
+module.exports = function (pathInfo, ignore, outputFile, verbose) {
   const allMessages = {};
   /**
    * An object where "Translation strings" are the keys.
@@ -353,7 +353,7 @@ module.exports = function(pathInfo, ignore, outputFile, verbose) {
         pathData.entry,
         moduleFilePath,
         ignore,
-        verbose
+        verbose,
       );
     } else {
       bundleMessages = getAllMessagesFromFilePath(moduleFilePath, ignore, verbose);

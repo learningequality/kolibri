@@ -3,7 +3,11 @@
   <div class="container">
     <div class="rel">
       <div class="flapping-kolibri">
-        <KLogo size="250" :animate="true" :altText="$tr('kolibriLoading')" />
+        <KLogo
+          size="250"
+          :animate="true"
+          :altText="$tr('kolibriLoading')"
+        />
       </div>
     </div>
   </div>
@@ -27,7 +31,8 @@
 
 
 <style>
-  .rel{
+
+  .rel {
     position: relative;
     width: 100%;
     height: 100%;

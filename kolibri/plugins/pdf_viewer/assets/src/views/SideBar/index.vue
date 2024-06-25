@@ -7,15 +7,17 @@
     }"
   >
     <nav>
-      <div v-if="tabs.filter(t => !t.disabled).length > 1" :style="{ display: 'flex' }">
+      <div
+        v-if="tabs.filter(t => !t.disabled).length > 1"
+        :style="{ display: 'flex' }"
+      >
         <div
           v-for="tab in tabs"
           :key="tab.name"
           :ref="tab.name"
           :style="{
-            background: selectedTab === tab.name ?
-              $themeTokens.annotation :
-              $themeTokens.transparent,
+            background:
+              selectedTab === tab.name ? $themeTokens.annotation : $themeTokens.transparent,
             cursor: 'pointer',
             borderRadius: '2px',
             opacity: tab.disabled ? 0.5 : 1,
@@ -24,7 +26,7 @@
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            width: '100%'
+            width: '100%',
           }"
         >
           <div
@@ -39,9 +41,7 @@
             <KIcon
               :icon="tab.icon"
               :style="{
-                fill: selectedTab === tab.name ?
-                  $themeTokens.textInverted :
-                  $themeTokens.text,
+                fill: selectedTab === tab.name ? $themeTokens.textInverted : $themeTokens.text,
                 height: '24px',
                 width: '24px',
               }"

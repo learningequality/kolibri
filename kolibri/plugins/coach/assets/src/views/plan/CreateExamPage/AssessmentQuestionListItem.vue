@@ -18,8 +18,9 @@
           v-if="!available"
           ref="missing"
           icon="warning"
-          :style=" {
-            fill: $themePalette.yellow.v_1100, float: isRtl ? 'left' : 'right'
+          :style="{
+            fill: $themePalette.yellow.v_1100,
+            float: isRtl ? 'left' : 'right',
           }"
         />
       </span>
@@ -29,7 +30,10 @@
         :isTopic="false"
       />
     </a>
-    <div v-if="draggable" class="handle">
+    <div
+      v-if="draggable"
+      class="handle"
+    >
       <DragSortWidget
         :isFirst="isFirst"
         :isLast="isLast"
@@ -63,10 +67,6 @@
         type: Boolean,
         required: true,
       },
-      questionNumberOfExercise: {
-        type: Number,
-        default: null,
-      },
       isSelected: {
         type: Boolean,
         required: true,
@@ -97,13 +97,7 @@
         if (!this.exerciseName) {
           return this.coreString('resourceNotFoundOnDevice');
         }
-        if (this.questionNumberOfExercise === undefined || this.questionNumberOfExercise === null) {
-          return this.exerciseName;
-        }
-        return this.coachString('nthExerciseName', {
-          name: this.exerciseName,
-          number: this.questionNumberOfExercise,
-        });
+        return this.exerciseName;
       },
       focusRing() {
         return this.$computedClass({ ':focus': this.$coreOutline });

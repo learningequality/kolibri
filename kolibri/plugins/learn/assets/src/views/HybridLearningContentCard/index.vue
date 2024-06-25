@@ -4,12 +4,13 @@
     <router-link
       :to="to"
       class="card card-link"
-      :class="[
-        $computedClass({ ':focus': $coreOutline })
-      ]"
+      :class="[$computedClass({ ':focus': $coreOutline })]"
       :style="{ backgroundColor: $themeTokens.surface }"
     >
-      <div class="header-bar" :style="headerStyles">
+      <div
+        class="header-bar"
+        :style="headerStyles"
+      >
         <div v-if="!contentNode.is_leaf">
           <KIcon
             icon="topic"
@@ -39,9 +40,15 @@
         class="thumbnail"
         :contentNode="contentNode"
       />
-      <div class="text" :style="{ color: $themeTokens.text }">
-        <h3 class="title" dir="auto">
-          <TextTruncatorCss
+      <div
+        class="text"
+        :style="{ color: $themeTokens.text }"
+      >
+        <h3
+          class="title"
+          dir="auto"
+        >
+          <KTextTruncator
             :text="contentNode.title"
             :maxLines="1"
           />
@@ -64,7 +71,6 @@
 <script>
 
   import { validateLinkObject } from 'kolibri.utils.validators';
-  import TextTruncatorCss from 'kolibri.coreVue.components.TextTruncatorCss';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import useChannels from '../../composables/useChannels';
   import LearningActivityLabel from '../LearningActivityLabel';
@@ -75,7 +81,6 @@
     name: 'HybridLearningContentCard',
     components: {
       CardThumbnail,
-      TextTruncatorCss,
       LearningActivityLabel,
     },
     mixins: [commonLearnStrings, commonCoreStrings],

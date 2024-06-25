@@ -1,13 +1,15 @@
 <template>
 
   <CoachAppBarPage>
-
     <KPageContainer>
       <ReportsHeader
         :activeTabId="ReportsTabs.LESSONS"
         :title="$isPrint ? $tr('printLabel', { className }) : null"
       />
-      <p v-if="calcTotalSizeOfVisibleLessons !== null" class="total-size">
+      <p
+        v-if="calcTotalSizeOfVisibleLessons !== null"
+        class="total-size"
+      >
         {{ coachString('totalLessonsSize', { size: calcTotalSizeOfVisibleLessons }) }}
       </p>
 
@@ -22,7 +24,6 @@
             :options="filterOptions"
             :inline="true"
           />
-
         </ReportsControls>
         <CoreTable :emptyMessage="emptyMessage">
           <template #headers>
@@ -220,7 +221,7 @@
           const sum = this.table
             .filter(
               // only include visible lessons
-              lesson => lesson.active
+              lesson => lesson.active,
             )
             .reduce((acc, lesson) => {
               return acc + (lesson.size || 0);

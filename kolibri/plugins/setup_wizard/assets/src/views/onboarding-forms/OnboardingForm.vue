@@ -8,10 +8,16 @@
     <form @submit.prevent="$emit('submit')">
       <fieldset class="onboarding-form-fields">
         <legend class="onboarding-form-legend">
-          <span v-if="hasDescription" class="onboardng-form-description">
+          <span
+            v-if="hasDescription"
+            class="onboardng-form-description"
+          >
             <slot name="description">{{ description }}</slot>
           </span>
-          <span v-else class="visuallyhidden">{{ header }}</span>
+          <span
+            v-else
+            class="visuallyhidden"
+          >{{ header }}</span>
         </legend>
 
         <slot></slot>

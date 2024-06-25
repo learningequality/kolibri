@@ -85,7 +85,7 @@ export default class ZipFile {
         const newFileContents = mapper.replacePaths(replacementFileMap);
         file.obj = strToU8(newFileContents);
         return file;
-      }
+      },
     );
   }
 
@@ -110,7 +110,7 @@ export default class ZipFile {
                 this._extractedFileCache[name] = extractedFile;
                 return extractedFile;
               });
-            })
+            }),
           ).then(extractedFiles => {
             resolve(extractedFiles.concat(alreadyUnzipped));
           });

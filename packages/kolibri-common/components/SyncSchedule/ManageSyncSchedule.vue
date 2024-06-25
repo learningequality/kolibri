@@ -6,10 +6,8 @@
   >
     <KPageContainer>
       <KGrid gutter="48">
-
         <KGridItem>
           <h1>{{ $tr('syncSchedules') }}</h1>
-
         </KGridItem>
 
         <KGridItem>
@@ -34,7 +32,6 @@
             {{ $tr('addDevice') }}
           </KButton>
         </KGridItem>
-
       </KGrid>
 
       <!--      creating the table-->
@@ -52,13 +49,13 @@
               :key="task.id"
             >
               <td>
-                <span>{{ task.deviceName }}<br>
+                <span>{{ task.deviceName }}<br >
                   {{ task.extra_metadata.baseurl }}
                 </span>
               </td>
               <td>
                 <div>
-                  {{ scheduleTime(task.repeat_interval, task.scheduled_datetime ) }}
+                  {{ scheduleTime(task.repeat_interval, task.scheduled_datetime) }}
                 </div>
               </td>
 
@@ -94,14 +91,13 @@
             <tr>
               <td
                 colspan="3"
-                style="text-align:center"
+                style="text-align: center"
               >
                 <b>{{ $tr('NoSync') }}</b>
               </td>
             </tr>
           </tbody>
         </template>
-
       </CoreTable>
       <SyncFacilityModalGroup
         v-if="deviceModal"
@@ -148,7 +144,7 @@
         {
           subset_of_users_device: false,
         },
-        deviceFilter
+        deviceFilter,
       );
       const devicesById = computed(() => {
         return devices.value.reduce(
@@ -163,7 +159,7 @@
               device_name: kdpNameTranslator.$tr('syncToKDP'),
               base_url: '',
             },
-          }
+          },
         );
       });
       return {
@@ -227,7 +223,7 @@
             t =>
               t.facility_id === this.facilityId &&
               t.repeat === null &&
-              (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL)
+              (t.type === TaskTypes.SYNCDATAPORTAL || t.type === TaskTypes.SYNCPEERFULL),
           );
           if (this.isPolling) {
             setTimeout(() => {
@@ -344,18 +340,23 @@
 
 
 <style scoped>
-.separate {
-  margin-bottom: 35px;
-  margin-top: 35px;
-}
-.add-space {
-  margin: 4px;
-}
-.right {
-  position: absolute;
-  right: 50px;
-}
-.loader-size {
-  margin-top: 10px;
-}
+
+  .separate {
+    margin-top: 35px;
+    margin-bottom: 35px;
+  }
+
+  .add-space {
+    margin: 4px;
+  }
+
+  .right {
+    position: absolute;
+    right: 50px;
+  }
+
+  .loader-size {
+    margin-top: 10px;
+  }
+
 </style>

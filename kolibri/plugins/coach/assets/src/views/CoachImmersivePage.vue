@@ -12,11 +12,13 @@
       :loading="loading"
       :appearanceOverrides="appearanceOverrides"
     >
-      <div v-if="!coreLoading" class="coach-main">
+      <div
+        v-if="!coreLoading"
+        class="coach-main"
+      >
         <slot></slot>
       </div>
     </ImmersivePage>
-
   </NotificationsRoot>
 
 </template>

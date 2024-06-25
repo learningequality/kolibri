@@ -1,10 +1,6 @@
 <template>
 
   <div>
-    <p :style="addQuizSectionsStyles">
-      {{ addQuizSections$() }}
-    </p>
-
     <KGrid :style="tabsWrapperStyles">
       <KGridItem
         :layout4="{ span: 2 }"
@@ -15,9 +11,7 @@
           tabsId="quizSectionTabs"
           class="section-tabs"
           :tabs="tabs"
-          :activeTabId="activeSection ?
-            activeSection.section_id :
-            '' "
+          :activeTabId="String(activeSectionIndex)"
           backgroundColor="transparent"
           hoverBackgroundColor="transparent"
           :aria-label="quizSectionsLabel$()"
@@ -27,7 +21,7 @@
             <span
               :ref="tabRefLabel(tab.id)"
               appearance="flat-button"
-              style="display: inline-block;"
+              style="display: inline-block"
               :appearanceOverrides="tabStyles"
             >
               {{ tab.label }}
@@ -57,7 +51,7 @@
       </KGridItem>
 
       <KGridItem
-        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right;"
+        style="position: relative; right: 0; padding: 0 0.5em 0 1em; text-align: right"
         :layout4="{ span: 2 }"
         :layout8="{ span: 3 }"
         :layout12="{ span: 2 }"
@@ -65,24 +59,26 @@
         <KButton
           appearance="flat-button"
           icon="plus"
-          style="height: 3rem; position: relative; right: 0; padding: 0;"
+          style="position: relative; right: 0; height: 3rem; padding: 0"
           @click="handleAddSection"
         >
           {{ addSectionLabel$() }}
         </KButton>
       </KGridItem>
-
     </KGrid>
 
     <KTabsPanel
       v-if="activeSection"
       tabsId="quizSectionTabs"
-      :activeTabId="activeSection ? activeSection.section_id : ''"
+      :activeTabId="String(activeSectionIndex)"
     >
-      <KGrid v-if="!activeQuestions.length" class="questions-list-label-row">
+      <KGrid
+        v-if="!activeQuestions.length"
+        class="questions-list-label-row"
+      >
         <KGridItem
           class="right-side-heading"
-          style="padding: 0.7em 0.75em;"
+          style="padding: 0.7em 0.75em"
         >
           <KButton
             ref="addQuestionsButton"
@@ -106,7 +102,7 @@
       <!-- TODO This should be a separate component like "empty section container" or something -->
       <div
         v-if="!activeQuestions.length"
-        style="text-align: center; padding: 0 0 1em 0; max-width: 350px; margin: 0 auto;"
+        style="max-width: 350px; padding: 0 0 1em; margin: 0 auto; text-align: center"
       >
         <!-- TODO This question mark thing should probably be an SVG for improved a11y -->
         <div
@@ -119,7 +115,7 @@
           >?</span>
         </div>
 
-        <p style="margin-top: 1em; font-weight: bold;">
+        <p style="margin-top: 1em; font-weight: bold">
           {{ noQuestionsInSection$() }}
         </p>
 
@@ -128,8 +124,8 @@
         <KButton
           primary
           icon="plus"
-          style="margin-top: 1em;"
-          @click="openSelectResources(activeSection.section_id)"
+          style="margin-top: 1em"
+          @click="openSelectResources()"
         >
           {{ addQuestionsLabel$() }}
         </KButton>
@@ -144,8 +140,11 @@
             :layout4="{ span: 2 }"
           >
             <h2 :style="{ color: $themeTokens.annotation }">
-              {{ questionList$() }}
+              {{ questionsLabel$() }}
             </h2>
+            <p :style="{ color: $themeTokens.annotation, fontSize: '.75rem' }">
+              {{ numberOfReplacementsAvailable$({ count: replacementQuestionPool.length }) }}
+            </p>
           </KGridItem>
           <KGridItem
             class="right-side-heading"
@@ -197,7 +196,7 @@
             <KIconButton
               icon="refresh"
               :tooltip="replaceAction$()"
-              :disabled="selectedActiveQuestions.length === 0"
+              :disabled="!canReplaceQuestions"
               @click="handleReplaceSelection()"
             />
             <KIconButton
@@ -228,15 +227,13 @@
               >
                 <AccordionItem
                   :id="question.item"
-                  :title="question.title"
-                  :aria-selected="selectedActiveQuestions.includes(
-                    question.item
-                  )"
+                  :title="
+                    displayQuestionTitle(question, activeResourceMap[question.exercise_id].title)
+                  "
+                  :aria-selected="selectedActiveQuestions.includes(question.item)"
                 >
                   <template #heading="{ title }">
-                    <h3
-                      class="accordion-header"
-                    >
+                    <h3 class="accordion-header">
                       <DragHandle>
                         <div>
                           <DragSortWidget
@@ -253,9 +250,7 @@
                       </DragHandle>
                       <KCheckbox
                         style="padding-left: 0.5em"
-                        :checked="selectedActiveQuestions.includes(
-                          question.item
-                        )"
+                        :checked="selectedActiveQuestions.includes(question.item)"
                         @change="() => toggleQuestionInSelection(question.item)"
                       />
                       <KButton
@@ -267,11 +262,10 @@
                         :aria-controls="`question-panel-${question.item}`"
                         @click="toggle(index)"
                       >
-                        <span>{{ title + " " + question.counter_in_exercise }}</span>
+                        <span>{{ title }}</span>
                         <KIcon
-                          style="position: absolute; right:0; top: 0.92em"
-                          :icon="isExpanded(index) ?
-                            'chevronUp' : 'chevronRight'"
+                          style="position: absolute; top: 0.92em; right: 0"
+                          :icon="isExpanded(index) ? 'chevronUp' : 'chevronRight'"
                         />
                       </KButton>
                     </h3>
@@ -279,12 +273,12 @@
                   <template #content>
                     <div
                       v-if="isExpanded(index)"
-                      :id="`question-panel-${question.id}`"
-                      :ref="`question-panel-${question.id}`"
+                      :id="`question-panel-${question.item}`"
+                      :ref="`question-panel-${question.item}`"
                       :style="{ userSelect: dragActive ? 'none!important' : 'text' }"
                     >
                       <ContentRenderer
-                        :ref="`contentRenderer-${question.id}`"
+                        :ref="`contentRenderer-${question.item}`"
                         :kind="activeResourceMap[question.exercise_id].kind"
                         :lang="activeResourceMap[question.exercise_id].lang"
                         :files="activeResourceMap[question.exercise_id].files"
@@ -306,29 +300,19 @@
           </DragContainer>
         </AccordionContainer>
       </div>
-
     </KTabsPanel>
-
-    <NotEnoughResourcesModal
-      v-if="showNotEnoughResourcesModal"
-      :selectedQuestions="selectedActiveQuestions"
-      :availableResources="replacementQuestionPool"
-      @close="showNotEnoughResourcesModal = false"
-      @addResources="redirectToSelectResources"
-    />
     <KModal
       v-if="showDeleteConfirmation"
       :title="deleteSectionLabel$()"
       :submitText="coreString('deleteAction')"
       :cancelText="coreString('cancelAction')"
-      @cancel="handleShowConfirmation"
+      @cancel="showDeleteConfirmation = true"
       @submit="handleConfirmDelete"
     >
       <!-- TODO Use `displaySectionTitle` here once #12274 is merged as that PR
         changes how we handle section indexing, which is needed for displaySectionTitle -->
       {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
     </KModal>
-
   </div>
 
 </template>
@@ -336,18 +320,19 @@
 
 <script>
 
-  import { get } from '@vueuse/core';
   import { ref } from 'kolibri.lib.vueCompositionApi';
   import logging from 'kolibri.lib.logging';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
   import {
     displaySectionTitle,
     enhancedQuizManagementStrings,
+    displayQuestionTitle,
   } from 'kolibri-common/strings/enhancedQuizManagementStrings';
   import DragContainer from 'kolibri.coreVue.components.DragContainer';
   import DragHandle from 'kolibri.coreVue.components.DragHandle';
   import DragSortWidget from 'kolibri.coreVue.components.DragSortWidget';
   import Draggable from 'kolibri.coreVue.components.Draggable';
+  import { MAX_QUESTIONS_PER_QUIZ_SECTION } from 'kolibri.coreVue.vuex.constants';
   import AccordionItem from 'kolibri-common/components/AccordionItem';
   import AccordionContainer from 'kolibri-common/components/AccordionContainer';
   import useAccordion from 'kolibri-common/components/useAccordion';
@@ -355,7 +340,6 @@
   import commonCoach from '../../common';
   import { PageNames } from '../../../constants';
   import TabsWithOverflow from './TabsWithOverflow';
-  import NotEnoughResourcesModal from './NotEnoughResourcesModal';
 
   const logger = logging.getLogger(__filename);
 
@@ -369,26 +353,25 @@
       DragSortWidget,
       DragHandle,
       TabsWithOverflow,
-      NotEnoughResourcesModal,
     },
     mixins: [commonCoreStrings, commonCoach],
     setup() {
       const {
         sectionLabel$,
         selectAllLabel$,
-        addQuizSections$,
         addSectionLabel$,
         quizSectionsLabel$,
         addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
-        updateResources$,
         changesSavedSuccessfully$,
         questionsDeletedNotification$,
         expandAll$,
@@ -404,13 +387,13 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        setActiveSection,
         updateQuiz,
         selectAllQuestions,
         replacementQuestionPool,
         // Computed
         toggleQuestionInSelection,
         allSections,
+        activeSectionIndex,
         activeSection,
         activeResourceMap,
         activeResourcePool,
@@ -429,8 +412,6 @@
         canExpandAll,
       } = useAccordion(activeQuestions);
 
-      // The number we use for the default section title
-      const sectionCreationCount = ref(1);
       const dragActive = ref(false);
 
       return {
@@ -444,22 +425,22 @@
         toggle,
 
         dragActive,
-        sectionCreationCount,
         sectionLabel$,
         expandAll$,
         collapseAll$,
         selectAllLabel$,
-        addQuizSections$,
         quizSectionsLabel$,
         addSectionLabel$,
         addQuestionsLabel$,
+        addMoreQuestionsLabel$,
         noQuestionsInSection$,
         addQuizSectionQuestionsInstructions$,
         editSectionLabel$,
         deleteSectionLabel$,
         questionDeletionConfirmation$,
         replaceAction$,
-        questionList$,
+        questionsLabel$,
+        numberOfReplacementsAvailable$,
         sectionDeletedNotification$,
         deleteConfirmation$,
         changesSavedSuccessfully$,
@@ -473,13 +454,13 @@
         deleteActiveSelectedQuestions,
         addSection,
         removeSection,
-        setActiveSection,
         updateQuiz,
-        updateResources$,
         displaySectionTitle,
+        displayQuestionTitle,
 
         // Computed
         allSections,
+        activeSectionIndex,
         activeSection,
         activeResourceMap,
         activeResourcePool,
@@ -503,12 +484,11 @@
           userSelect: this.dragActive ? 'none!important' : 'text',
         };
       },
-      addQuizSectionsStyles() {
-        return {
-          margin: '0 0 1rem 0',
-          padding: '0 0 1rem 0',
-          borderBottom: `1px solid ${this.$themeTokens.fineLine}`,
-        };
+      canReplaceQuestions() {
+        return (
+          this.selectedActiveQuestions.length > 0 &&
+          this.selectedActiveQuestions.length <= this.replacementQuestionPool.length
+        );
       },
       tabsWrapperStyles() {
         return {
@@ -518,10 +498,11 @@
         };
       },
       tabs() {
-        return get(this.allSections).map((section, index) => {
-          const id = section.section_id;
+        return this.allSections.map((section, index) => {
           const label = this.displaySectionTitle(section, index);
-          return { id, label };
+          // The active index will be coerced to a string,
+          // so make sure to cast the index to a string as well
+          return { id: String(index), label };
         });
       },
       tabStyles() {
@@ -534,6 +515,9 @@
         };
       },
       activeSectionActions() {
+        const addQuestionsLabel = this.activeQuestions.length
+          ? this.addMoreQuestionsLabel$()
+          : this.addQuestionsLabel$();
         return [
           {
             label: this.editSectionLabel$(),
@@ -546,9 +530,10 @@
             id: 'delete',
           },
           {
-            label: this.updateResources$(),
+            label: addQuestionsLabel,
             icon: 'plus',
             id: 'plus',
+            disabled: this.activeQuestions.length >= MAX_QUESTIONS_PER_QUIZ_SECTION,
           },
         ];
       },
@@ -561,55 +546,77 @@
       }
     },
     methods: {
+      getCurrentRouteParams() {
+        return {
+          classId: this.$route.params.classId,
+          quizId: this.$route.params.quizId,
+          sectionIndex: this.$route.params.sectionIndex,
+        };
+      },
+      setActiveSection(sectionIndex = null) {
+        if (sectionIndex === null) {
+          sectionIndex = 0;
+        }
+        if (!this.allSections[sectionIndex]) {
+          throw new Error(`Section with id ${sectionIndex} not found; cannot be set as active.`);
+        }
+        if (sectionIndex !== this.activeSectionIndex) {
+          this.$router.push({
+            ...this.$route,
+            params: { ...this.getCurrentRouteParams(), sectionIndex },
+          });
+        }
+      },
       handleConfirmDelete() {
-        const { section_id, section_title } = this.activeSection;
-        this.removeSection(section_id);
+        const { section_title } = this.activeSection;
+        const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
+        this.setActiveSection(newIndex);
+        this.removeSection(this.activeSectionIndex);
         this.$nextTick(() => {
           this.$store.dispatch(
             'createSnackbar',
             // TODO Use `displaySectionTitle` here once #12274 is merged as that PR
             // changes how we handle section indexing
-            this.sectionDeletedNotification$({ section_title })
+            this.sectionDeletedNotification$({ section_title }),
           );
           this.focusActiveSectionTab();
         });
-        this.handleShowConfirmation();
-      },
-      handleShowConfirmation(section_id = null) {
-        this.showDeleteConfirmation = section_id;
+        this.showDeleteConfirmation = false;
       },
       handleReplaceSelection() {
         if (this.replacementQuestionPool.length < this.selectedActiveQuestions.length) {
           this.showNotEnoughResourcesModal = true;
         } else {
-          const section_id = get(this.activeSection).section_id;
-          const route = this.$router.getRoute(PageNames.QUIZ_REPLACE_QUESTIONS, { section_id });
-          this.$router.push(route);
+          this.$router.push({
+            name: PageNames.QUIZ_REPLACE_QUESTIONS,
+            params: this.getCurrentRouteParams(),
+          });
         }
       },
       handleActiveSectionAction(opt) {
-        const section_id = this.activeSection.section_id;
-        const editRoute = this.$router.getRoute(PageNames.QUIZ_SECTION_EDITOR, { section_id });
-        const resourcesRoute = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, {
-          section_id,
-        });
-        switch (opt.label) {
-          case this.editSectionLabel$():
-            this.$router.push(editRoute);
+        switch (opt.id) {
+          case 'edit':
+            this.$router.push({
+              name: PageNames.QUIZ_SECTION_EDITOR,
+              params: this.getCurrentRouteParams(),
+            });
             break;
-          case this.deleteSectionLabel$():
-            this.handleShowConfirmation(section_id);
+          case 'delete':
+            this.showDeleteConfirmation = true;
             break;
-          case this.updateResources$():
-            this.$router.push(resourcesRoute);
+          case 'plus':
+            this.$router.push({
+              name: PageNames.QUIZ_SELECT_RESOURCES,
+              params: this.getCurrentRouteParams(),
+            });
             break;
         }
       },
-      tabRefLabel(section_id) {
-        return `section-tab-${section_id}`;
+      tabRefLabel(sectionIndex) {
+        return `section-tab-${sectionIndex}`;
       },
       focusActiveSectionTab() {
-        const label = this.tabRefLabel(this.activeSection.section_id);
+        const label = this.tabRefLabel(this.activeSectionIndex);
         const tabRef = this.$refs[label];
 
         // TODO Consider the "Delete section" button on the side panel; maybe we need to await
@@ -621,13 +628,12 @@
             'Tried to focus active tab id: ',
             label,
             ' - but the tab is not in the refs: ',
-            this.$refs
+            this.$refs,
           );
         }
       },
       activeSectionIsHidden(overflow) {
-        const ids = overflow.map(i => i.id);
-        return ids.includes(get(this.activeSection).section_id);
+        return this.allSections.length - overflow.length <= this.activeSectionIndex;
       },
       overflowButtonStyles(overflow) {
         return {
@@ -640,7 +646,7 @@
       },
       handleQuestionOrderChange({ newArray }) {
         const payload = {
-          section_id: get(this.activeSection).section_id,
+          sectionIndex: this.activeSectionIndex,
           questions: newArray,
         };
         this.updateSection(payload);
@@ -648,17 +654,21 @@
         this.dragActive = false;
       },
       handleAddSection() {
-        const newSection = this.addSection();
-        this.setActiveSection(get(newSection).section_id);
-        this.sectionCreationCount++;
+        this.addSection();
+        this.$router.push({
+          name: PageNames.QUIZ_SECTION_EDITOR,
+          params: { sectionIndex: this.allSections.length - 1 },
+        });
       },
       handleDragStart() {
         // Used to mitigate the issue of text being selected while dragging
         this.dragActive = true;
       },
-      openSelectResources(section_id) {
-        const route = this.$router.getRoute(PageNames.QUIZ_SELECT_RESOURCES, { section_id });
-        this.$router.push(route);
+      openSelectResources() {
+        this.$router.push({
+          name: PageNames.QUIZ_SELECT_RESOURCES,
+          params: this.getCurrentRouteParams(),
+        });
       },
       deleteQuestions() {
         const count = this.selectedActiveQuestions.length;
@@ -667,12 +677,8 @@
           'createSnackbar',
           this.questionsDeletedNotification$({
             count,
-          })
+          }),
         );
-      },
-      redirectToSelectResources() {
-        this.showNotEnoughResourcesModal = false;
-        this.openSelectResources(this.activeSection.section_id);
       },
     },
   };
@@ -680,7 +686,7 @@
 </script>
 
 
-<style lang="scss"  scoped>
+<style lang="scss" scoped>
 
   .no-question-layout {
     width: auto;

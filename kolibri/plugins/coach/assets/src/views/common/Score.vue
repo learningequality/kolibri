@@ -4,8 +4,14 @@
     <KEmptyPlaceholder v-if="value === undefined || value === null" />
     <template v-else>{{ $formatNumber(value, { style: 'percent' }) }}</template>
     &nbsp;
-    <span v-if="diff" :style="diffStyle">{{ diffDisplay }}</span>
-    <KEmptyPlaceholder v-else-if="diff === 0" :style="diffStyle" />
+    <span
+      v-if="diff"
+      :style="diffStyle"
+    >{{ diffDisplay }}</span>
+    <KEmptyPlaceholder
+      v-else-if="diff === 0"
+      :style="diffStyle"
+    />
   </span>
 
 </template>

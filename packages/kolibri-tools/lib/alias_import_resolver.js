@@ -21,7 +21,7 @@ function opts(file, config) {
       // path.resolve will handle paths relative to CWD
       basedir: path.dirname(path.resolve(file)),
       packageFilter: packageFilter,
-    }
+    },
   );
 }
 
@@ -38,11 +38,11 @@ function nodeResolver(source, file, config) {
 
 const moduleAliases = {};
 
-exports.addAliases = function(aliases) {
+exports.addAliases = function (aliases) {
   Object.assign(moduleAliases, aliases);
 };
 
-exports.resetAliases = function() {
+exports.resetAliases = function () {
   for (const key in moduleAliases) {
     delete moduleAliases[key];
   }
@@ -50,7 +50,7 @@ exports.resetAliases = function() {
 
 exports.interfaceVersion = 2;
 
-exports.resolve = function(source, file, config) {
+exports.resolve = function (source, file, config) {
   // strip loaders
   var finalBang = source.lastIndexOf('!');
   if (finalBang >= 0) {

@@ -42,11 +42,11 @@ describe(`ChangeFacility/UsernameExists`, () => {
     });
     const line1Paragraph = wrapper.find('[data-test="line1"]');
     expect(line1Paragraph.text()).toEqual(
-      "An account with the username 'test1' already exists in the 'Test Facility' learning facility. You can merge your account and its progress data with this account."
+      "An account with the username 'test1' already exists in the 'Test Facility' learning facility. You can merge your account and its progress data with this account.",
     );
     const line2Paragraph = wrapper.find('[data-test="line2"]');
     expect(line2Paragraph.text()).toEqual(
-      'Alternatively, you can create a new account and all your progress data will be moved to this new account.'
+      'Alternatively, you can create a new account and all your progress data will be moved to this new account.',
     );
   });
   it(`shows the buttons`, () => {

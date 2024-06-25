@@ -52,7 +52,7 @@ async function showResourceSelectionPage(store, params) {
         const ancestorCounts = {};
 
         const resourceAncestors = store.state.lessonSummary.workingResources.map(
-          resource => (cache[resource.contentnode_id] || {}).ancestors || []
+          resource => (cache[resource.contentnode_id] || {}).ancestors || [],
         );
         // store ancestor ids to get their descendants later
         const ancestorIds = new Set();
@@ -69,7 +69,7 @@ async function showResourceSelectionPage(store, params) {
               // total number of descendants
               ancestorCounts[ancestor.id].total = 0;
             }
-          })
+          }),
         );
         ContentNodeResource.fetchDescendants(Array.from(ancestorIds)).then(nodes => {
           nodes.data.forEach(node => {
@@ -249,7 +249,7 @@ export async function showLessonSelectionContentPreview(store, params, query = {
 
         store.commit(
           'lessonSummary/SET_WORKING_RESOURCES',
-          pendingSelections.length ? pendingSelections : preselectedResources
+          pendingSelections.length ? pendingSelections : preselectedResources,
         );
         store.dispatch('notLoading');
       })
@@ -284,7 +284,7 @@ function _prepLessonContentPreview(store, classId, lessonId, contentId) {
     },
     error => {
       return store.dispatch('handleApiError', { error, reloadOnReconnect: true });
-    }
+    },
   );
 }
 

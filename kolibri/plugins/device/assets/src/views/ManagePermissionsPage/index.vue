@@ -1,7 +1,6 @@
 <template>
 
   <DeviceAppBarPage :title="pageTitle">
-
     <KPageContainer class="device-container">
       <div class="description">
         <h1>
@@ -49,7 +48,6 @@
           />
         </template>
       </PaginatedListContainer>
-
     </KPageContainer>
   </DeviceAppBarPage>
 
@@ -160,8 +158,8 @@
             // Check for both kinds of coach roles
             return Boolean(
               user.roles.find(
-                role => role.kind === UserKinds.COACH || role.kind === UserKinds.ASSIGNABLE_COACH
-              )
+                role => role.kind === UserKinds.COACH || role.kind === UserKinds.ASSIGNABLE_COACH,
+              ),
             );
           }
           if (this.userTypeFilter.value === UserKinds.ADMIN) {
@@ -169,8 +167,8 @@
 
             return Boolean(
               user.roles.find(
-                role => role.kind === UserKinds.SUPERUSER || role.kind === UserKinds.ADMIN
-              )
+                role => role.kind === UserKinds.SUPERUSER || role.kind === UserKinds.ADMIN,
+              ),
             );
           }
 

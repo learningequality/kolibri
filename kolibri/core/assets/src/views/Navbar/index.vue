@@ -1,8 +1,6 @@
 <template>
 
-  <nav
-    class="navbar-positioning"
-  >
+  <nav class="navbar-positioning">
     <ul
       ref="items"
       class="items"

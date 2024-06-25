@@ -6,7 +6,10 @@
     :aria-hidden="(!open).toString()"
   >
     <div class="vjs-menu-content">
-      <ul ref="contentEl" role="menu">
+      <ul
+        ref="contentEl"
+        role="menu"
+      >
         <slot></slot>
       </ul>
     </div>
@@ -19,7 +22,7 @@
 
   export default {
     name: 'MediaPlayerMenu',
-    data: function() {
+    data: function () {
       return {
         open: false,
       };

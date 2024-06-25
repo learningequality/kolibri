@@ -1,14 +1,19 @@
 <template>
 
-  <div role="alert" class="app-error">
-
-    <img src="./app-error-bird.png">
+  <div
+    role="alert"
+    class="app-error"
+  >
+    <img src="./app-error-bird.png" >
 
     <h1>
       {{ headerText }}
     </h1>
 
-    <p v-for="paragraph in paragraphTexts" :key="paragraph">
+    <p
+      v-for="paragraph in paragraphTexts"
+      :key="paragraph"
+    >
       {{ paragraph }}
     </p>
 
@@ -38,7 +43,6 @@
         :text="$tr('defaultErrorReportPrompt')"
         @click="revealDetailsModal()"
       />
-
     </p>
 
     <ReportErrorModal
@@ -46,7 +50,6 @@
       :error="error"
       @cancel="hideDetailsModal"
     />
-
   </div>
 
 </template>

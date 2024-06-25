@@ -1,7 +1,10 @@
 <template>
 
   <KEmptyPlaceholder v-if="!items.length" />
-  <div v-else class="items-label">
+  <div
+    v-else
+    class="items-label"
+  >
     <span v-if="items.length === 1">
       {{ items[0] }}
     </span>

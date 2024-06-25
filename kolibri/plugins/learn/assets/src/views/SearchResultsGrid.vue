@@ -3,10 +3,14 @@
   <div v-if="!searchLoading">
     <!-- First section is the results title and the various display buttons  -->
     <!-- for interacting or updating the results   -->
-    <h2 class="results-title" data-test="search-results-title">
-      {{ more ?
-        coreString('uncountedAdditionalResults', { num: results.length }) :
-        $tr('results', { results: results.length })
+    <h2
+      class="results-title"
+      data-test="search-results-title"
+    >
+      {{
+        more
+          ? coreString('uncountedAdditionalResults', { num: results.length })
+          : $tr('results', { results: results.length })
       }}
     </h2>
     <SearchChips
@@ -15,7 +19,7 @@
       @clearSearch="clearSearch"
     />
     <div
-      v-if="!(windowIsSmall) && results.length && !hideCardViewToggle"
+      v-if="!windowIsSmall && results.length && !hideCardViewToggle"
       class="toggle-view-buttons"
       data-test="toggle-view-buttons"
     >
@@ -43,7 +47,7 @@
       data-test="search-results-card-grid"
       :currentCardViewStyle="currentCardViewStyle"
       :gridType="gridType"
-      @openCopiesModal="copies => displayedCopies = copies"
+      @openCopiesModal="copies => (displayedCopies = copies)"
       @toggleInfoPanel="$emit('setSidePanelMetadataContent', $event)"
     />
     <!-- conditionally displayed button if there are additional results -->

@@ -1,6 +1,9 @@
 <template>
 
-  <li class="vjs-menu-item" role="menuitem">
+  <li
+    class="vjs-menu-item"
+    role="menuitem"
+  >
     <KCheckbox
       ref="kCheckbox"
       :label="coreString('transcript')"

@@ -1,8 +1,10 @@
 <template>
 
   <LearnAppBarPage :appBarTitle="learnString('learnLabel')">
-    <div id="main" role="main">
-
+    <div
+      id="main"
+      role="main"
+    >
       <h1>
         {{ $tr('bookmarksHeader') }}
       </h1>
@@ -58,14 +60,18 @@
           v-for="activity in sidePanelContent.learning_activities"
           :key="activity"
           class="side-panel-chips"
-          :class="$computedClass({ '::after': {
-            content: '',
-            flex: 'auto'
-          } })"
+          :class="
+            $computedClass({
+              '::after': {
+                content: '',
+                flex: 'auto',
+              },
+            })
+          "
         >
           <LearningActivityChip
             class="chip"
-            style="margin-left: 8px; margin-bottom: 8px;"
+            style="margin-bottom: 8px; margin-left: 8px"
             :kind="activity"
           />
         </div>

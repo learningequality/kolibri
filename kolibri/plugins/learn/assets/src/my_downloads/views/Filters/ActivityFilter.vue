@@ -84,7 +84,7 @@
       },
       selected() {
         return this.activityTypes.find(
-          activityType => activityType.value === this.activityTypeSelected
+          activityType => activityType.value === this.activityTypeSelected,
         );
       },
       activityTypeSelected: {

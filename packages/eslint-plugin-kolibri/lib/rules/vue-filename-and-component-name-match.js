@@ -17,7 +17,7 @@ function create(context) {
     }
 
     const node = obj.properties.find(
-      item => item.type === 'Property' && item.key.name === 'name' && item.value.type === 'Literal'
+      item => item.type === 'Property' && item.key.name === 'name' && item.value.type === 'Literal',
     );
 
     // Components require a name
