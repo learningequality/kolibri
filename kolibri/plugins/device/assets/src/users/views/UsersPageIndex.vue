@@ -42,9 +42,9 @@
       };
     },
     computed: {
-      ...mapGetters(['isUserLoggedIn']),
+      ...mapGetters(['canManageContent']),
       userIsAuthorized() {
-        return this.isUserLoggedIn;
+        return this.canManageContent;
       },
     },
     created() {

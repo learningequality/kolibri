@@ -359,7 +359,8 @@
           .filter(item => item.section !== NavComponentSections.ACCOUNT)
           .sort(this.compareMenuItems)
           .filter(this.filterByRole)
-          .filter(this.filterByFullFacilityOnly);
+          .filter(this.filterByFullFacilityOnly)
+          .filter(this.filterByLODOnly);
       },
       accountItems() {
         const accountItems = this.navItems
@@ -472,6 +473,9 @@
       },
       filterByFullFacilityOnly(item) {
         return !this.isLearnerOnlyImport || !item.fullFacilityOnly;
+      },
+      filterByLODOnly(item) {
+        return this.isLearnerOnlyImport || !item.lodOnly;
       },
 
       /**
