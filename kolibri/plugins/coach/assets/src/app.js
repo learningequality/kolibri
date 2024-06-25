@@ -13,8 +13,6 @@ import GroupsPage from './views/plan/GroupsPage';
 import GroupMembersPage from './views/plan/GroupMembersPage';
 import GroupEnrollPage from './views/plan/GroupEnrollPage';
 import pages from './views/reports/allReportsPages';
-import HomePage from './views/home/HomePage';
-import HomeActivityPage from './views/home/HomeActivityPage';
 
 class CoachToolsModule extends KolibriApp {
   get stateSetters() {
