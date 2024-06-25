@@ -3,6 +3,7 @@ import { UserKinds } from 'kolibri.coreVue.vuex.constants';
 import { getCurrentInstance, ref, inject, onMounted } from 'kolibri.lib.vueCompositionApi';
 import { TaskResource, FacilityUserResource } from 'kolibri.resources';
 import { TaskStatuses } from 'kolibri.utils.syncTaskUtils';
+import { deviceString } from '../../views/commonDeviceStrings';
 
 const isPooling = ref(false);
 const usersBeingImportedRef = ref([]);
@@ -75,7 +76,10 @@ export default function useUsers() {
         return;
       }
       if (task.status === TaskStatuses.FAILED) {
-        store.dispatch('createSnackbar', 'No se pudo importar el usuario');
+        store.dispatch('createSnackbar', deviceString('importUserError'));
+      }
+      if (task.status === TaskStatuses.COMPLETED) {
+        store.dispatch('createSnackbar', deviceString('importUserSuccess'));
       }
       if ([TaskStatuses.COMPLETED, TaskStatuses.FAILED].includes(task.status)) {
         importUserService.send({

@@ -7,7 +7,7 @@
       placeholder="Search for a user"
       :style="{ marginBottom: '16px', marginLeft: 'auto', display: 'block' }"
     />
-    <ul class="users-list">
+    <ul v-if="filteredUsers.length" class="users-list">
       <li
         v-for="user in filteredUsers"
         :key="user.id"
@@ -63,6 +63,17 @@
         </p>
       </li>
     </ul>
+    <div v-else>
+      <p
+        :style="{
+          color: $themeTokens.textDisabled,
+          textAlign: 'center',
+          marginTop: '32px',
+        }"
+      >
+        {{ coreString('noResultsLabel') }}
+      </p>
+    </div>
   </div>
 
 </template>
@@ -72,12 +83,14 @@
 
   import { UserKinds } from 'kolibri.coreVue.vuex.constants';
   import FilterTextbox from 'kolibri.coreVue.components.FilterTextbox';
+  import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
 
   export default {
     name: 'UsersList',
     components: {
       FilterTextbox,
     },
+    mixins: [commonCoreStrings],
     props: {
       users: {
         type: Array,

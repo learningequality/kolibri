@@ -71,6 +71,14 @@ const deviceStrings = createTranslator('CommonDeviceStrings', {
     message: 'Import user',
     context: 'Label for the import users button and titles.',
   },
+  importUserError: {
+    message: 'Error importing user',
+    context: 'Error message when importing a user fails.',
+  },
+  importUserSuccess: {
+    message: 'Successfully imported user',
+    context: 'Success message when importing a user is successful.',
+  },
 });
 
 /**

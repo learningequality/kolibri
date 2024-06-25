@@ -96,21 +96,25 @@
           using_admin: true,
         };
         this.taskLoading = true;
-        const result = await TaskResource.startTask(params);
+        try {
+          const result = await TaskResource.startTask(params);
+          this.importUserService.send({
+            type: 'ADD_USER_BEING_IMPORTED',
+            value: {
+              id: learner.id,
+              full_name: learner.full_name,
+              username: learner.username,
+              taskId: result.id,
+            },
+          });
+          this.importUserService.send({
+            type: 'RESET_IMPORT',
+          });
+          this.startPollingTasks();
+        } catch (error) {
+          this.$store.dispatch('createSnackbar', this.deviceString('importUserError'));
+        }
         this.taskLoading = false;
-        this.importUserService.send({
-          type: 'ADD_USER_BEING_IMPORTED',
-          value: {
-            id: learner.id,
-            full_name: learner.full_name,
-            username: learner.username,
-            taskId: result.id,
-          },
-        });
-        this.importUserService.send({
-          type: 'RESET_IMPORT',
-        });
-        this.startPollingTasks();
       },
     },
     $trs: {

@@ -1,8 +1,11 @@
 <template>
 
-  <div>
+  <NotificationsRoot
+    :authorized="userIsAuthorized"
+    authorizedRole="admin"
+  >
     <router-view />
-  </div>
+  </NotificationsRoot>
 
 </template>
 
@@ -10,8 +13,10 @@
 <script>
 
   import Lockr from 'lockr';
+  import { mapGetters } from 'vuex';
   import { interpret } from 'xstate';
   import commonCoreStrings from 'kolibri.coreVue.mixins.commonCoreStrings';
+  import NotificationsRoot from 'kolibri.coreVue.components.NotificationsRoot';
   import { getImportLodUsersMachine } from 'kolibri.machines.importLodUsersMachine';
 
   export default {
@@ -20,6 +25,9 @@
       return {
         title: this.coreString('usersLabel'),
       };
+    },
+    components: {
+      NotificationsRoot,
     },
     mixins: [commonCoreStrings],
     data() {
@@ -32,6 +40,12 @@
       return {
         importUserService: this.service,
       };
+    },
+    computed: {
+      ...mapGetters(['isUserLoggedIn']),
+      userIsAuthorized() {
+        return this.isUserLoggedIn;
+      },
     },
     created() {
       const routeNamesMap = {

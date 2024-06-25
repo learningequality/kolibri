@@ -287,6 +287,8 @@
             this.full_name = error_info['full_name'];
             this.roles = error_info['roles'];
             this.deviceLimitations = true;
+          } else {
+            this.$store.dispatch('createSnackbar', this.deviceString('importUserError'));
           }
         }
       },
