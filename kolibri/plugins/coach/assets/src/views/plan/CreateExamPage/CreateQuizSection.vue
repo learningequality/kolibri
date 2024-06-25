@@ -309,9 +309,11 @@
       @cancel="showDeleteConfirmation = true"
       @submit="handleConfirmDelete"
     >
-      <!-- TODO Use `displaySectionTitle` here once #12274 is merged as that PR
-        changes how we handle section indexing, which is needed for displaySectionTitle -->
-      {{ deleteConfirmation$({ section_title: activeSection.section_title }) }}
+      {{
+        deleteConfirmation$({
+          section_title: displaySectionTitle(activeSection, activeSectionIndex),
+        })
+      }}
     </KModal>
   </div>
 
@@ -568,15 +570,16 @@
         }
       },
       handleConfirmDelete() {
-        const { section_title } = this.activeSection;
+        const section_title = displaySectionTitle(
+          this.activeSection.value,
+          this.activeSectionIndex.value,
+        );
         const newIndex = this.activeSectionIndex > 0 ? this.activeSectionIndex - 1 : 0;
         this.setActiveSection(newIndex);
         this.removeSection(this.activeSectionIndex);
         this.$nextTick(() => {
           this.$store.dispatch(
             'createSnackbar',
-            // TODO Use `displaySectionTitle` here once #12274 is merged as that PR
-            // changes how we handle section indexing
             this.sectionDeletedNotification$({ section_title }),
           );
           this.focusActiveSectionTab();
