@@ -14,14 +14,12 @@ import planRoutes from './planRoutes';
 import { classIdParamRequiredGuard } from './utils';
 
 async function showHomePage(toRoute){
-  console.log("Inside showHomePage");
   const initClassInfoPromise = store.dispatch('initClassInfo', toRoute.params.classId);
   const getFacilitiesPromise = store.getters.isSuperuser && store.state.core.facilities.length === 0
     ? store.dispatch('getFacilities').catch(() => {})
     : Promise.resolve();
 
   await Promise.all([initClassInfoPromise, getFacilitiesPromise]);
-  store.dispatch('notLoading');
 }
 
 export default [
