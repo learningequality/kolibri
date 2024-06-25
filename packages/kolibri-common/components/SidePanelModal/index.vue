@@ -24,8 +24,7 @@
             :style="fixedHeaderStyles"
           >
             <div class="header-content">
-              <slot name="header">
-              </slot>
+              <slot name="header"> </slot>
               <KIconButton
                 v-if="closeButtonIconType"
                 :icon="closeButtonIconType"

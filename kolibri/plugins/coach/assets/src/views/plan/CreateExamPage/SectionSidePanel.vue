@@ -64,7 +64,7 @@
           oldRoute.name !== PageNames.EXAM_CREATION_ROOT && // We didn't just get here
           newRoute.name !== PageNames.QUIZ_SECTION_EDITOR && // The new route isn't section editor // One of these is also true...
           (Boolean(newRoute.query.showBookmarks) || // We're viewing bookmarks
-          Boolean(newRoute.params.topic_id) || // We're viewing a topic
+            Boolean(newRoute.params.topic_id) || // We're viewing a topic
             oldRoute.name !== newRoute.name); // We're just not on the same page within the panel
       });
 
