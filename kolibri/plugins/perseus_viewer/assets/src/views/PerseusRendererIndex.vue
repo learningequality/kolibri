@@ -453,7 +453,6 @@
         render(renderStateRootElement, this.$refs.perseus);
       },
       renderNewItem() {
-        this.renderItem();
         // Clear any pending state reset calls
         this.$off('itemRendererUpdated');
         this.$once('itemRendererUpdated', () => {
@@ -466,6 +465,7 @@
           // so we need to ensure that the itemRenderer is available and up to date first.
           this.setAnswer();
         });
+        this.renderItem();
       },
       _resetState(val) {
         if (!val) {
