@@ -7,6 +7,7 @@ from requests.exceptions import Timeout
 
 from kolibri.core.analytics.utils import DEFAULT_SERVER_URL
 from kolibri.core.analytics.utils import ping_once
+from kolibri.core.errorreports.tasks import ping_error_reports
 from kolibri.core.tasks.decorators import register_task
 from kolibri.core.tasks.exceptions import JobRunning
 from kolibri.core.tasks.main import job_storage
@@ -25,6 +26,10 @@ DEFAULT_PING_INTERVAL = 24 * 60
 def _ping(started, server, checkrate):
     try:
         ping_once(started, server=server)
+        try:
+            ping_error_reports.enqueue()
+        except JobRunning:
+            pass
     except ConnectionError:
         logger.warning(
             "Ping failed (could not connect). Trying again in {} minutes.".format(
