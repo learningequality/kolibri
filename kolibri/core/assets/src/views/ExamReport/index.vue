@@ -94,7 +94,7 @@
         :attemptLogs="attemptLogs"
         :selectedQuestionNumber="questionNumber"
         :isSurvey="isSurvey"
-        :sections="sections"
+        :sections="annotatedSections"
         @select="navigateToQuestion"
       />
     </template>
@@ -115,7 +115,7 @@
           :attemptLogs="attemptLogs"
           :selectedQuestionNumber="questionNumber"
           :isSurvey="isSurvey"
-          :sections="sections"
+          :sections="annotatedSections"
           @select="navigateToQuestion"
         />
         <div
@@ -124,7 +124,7 @@
           :class="windowIsSmall ? 'mobile-exercise-container' : ''"
           :style="{ backgroundColor: $themeTokens.surface }"
         >
-          <h3>{{ questionNumberInSectionLabel }}</h3>
+          <h3 v-if="questionNumberInSectionLabel">{{ questionNumberInSectionLabel }}</h3>
 
           <div
             v-if="!isSurvey"
@@ -289,7 +289,7 @@
       sections: {
         type: Array,
         required: false,
-        default: () => [],
+        default: null,
       },
       // An array of questions in the format:
       // {
@@ -353,6 +353,28 @@
       };
     },
     computed: {
+      annotatedSections() {
+        if (!this.sections) {
+          return [
+            {
+              title: this.title,
+              questions: this.questions,
+              startQuestionNumber: 0,
+              endQuestionNumber: this.questions.length - 1,
+            },
+          ];
+        }
+        let startQuestionNumber = 0;
+        return this.sections.map(section => {
+          const annotatedSection = {
+            ...section,
+            startQuestionNumber,
+            endQuestionNumber: startQuestionNumber + section.questions.length - 1,
+          };
+          startQuestionNumber += section.questions.length;
+          return annotatedSection;
+        });
+      },
       questionNumberInSectionLabel() {
         if (!this.sections) {
           return '';

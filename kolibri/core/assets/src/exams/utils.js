@@ -233,8 +233,8 @@ export function getExamReport(examId, tryIndex = 0, questionNumber = 0, interact
         return exam;
       }
 
-      // TODO: Reports will eventually want to have the proper section-specific data to render
-      // the report page - but we are not updating the report UI yet.
+      // We need this array of questions to easily do questionNumber based indexing across
+      // all the sections.
       const questions = exam.question_sources.reduce((qs, sect) => {
         qs = [...qs, ...sect.questions];
         return qs;
