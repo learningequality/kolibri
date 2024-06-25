@@ -757,8 +757,8 @@
         this.$refs.textbox.focus();
       },
       contentLink(content) {
+        const { name, params, query } = this.$route;
         if (!content.is_leaf) {
-          const { name, params } = this.$route;
           // Link folders to their page
           return {
             name,
@@ -768,7 +768,8 @@
             },
           };
         }
-        return {}; // Or this could be how we handle leaf nodes if we wanted them to link somewhere
+        // Just return the current route; router-link will handle the no-op from here
+        return { name, params, query };
       },
       topicsLink(topic_id) {
         return this.contentLink({ id: topic_id });
