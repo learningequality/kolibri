@@ -7,23 +7,23 @@ import { deviceString } from '../../views/commonDeviceStrings';
 
 const isPooling = ref(false);
 const usersBeingImportedRef = ref([]);
+const users = ref([]);
+const loading = ref(true);
+const showCannotRemoveUser = ref(false);
 
 export default function useUsers() {
   const store = getCurrentInstance().proxy.$store;
   const importUserService = inject('importUserService') || {};
-  const users = ref([]);
-  const loading = ref(true);
-  const showCannotRemoveUser = ref(false);
 
-  async function fetchUsers() {
+  async function fetchUsers({ force } = {}) {
     loading.value = true;
     const response = await FacilityUserResource.fetchCollection({
-      force: true,
+      force,
     });
-    users.value = response;
-    users.value.forEach(user => {
+    response.forEach(user => {
       user.kind = UserType(user);
     });
+    users.value = response;
     store.dispatch('notLoading');
     loading.value = false;
   }
@@ -70,7 +70,7 @@ export default function useUsers() {
       tasksMap[task.extra_metadata.user_id] = task;
     });
 
-    usersBeingImported.forEach(user => {
+    usersBeingImported.forEach(async user => {
       const task = tasksMap[user.id];
       if (!task) {
         return;
@@ -87,8 +87,8 @@ export default function useUsers() {
           value: user.id,
         });
         usersBeingImportedRef.value = getUsersBeingImported();
-        fetchUsers();
-        TaskResource.clear(task.id);
+        await TaskResource.clear(task.id);
+        fetchUsers({ force: true });
       }
     });
     setTimeout(() => {
