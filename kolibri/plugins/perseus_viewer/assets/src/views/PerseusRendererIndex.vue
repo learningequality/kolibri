@@ -537,8 +537,20 @@
           answerState = JSON.parse(
             replaceImageUrls(JSON.stringify(answerState), this.perseusFileUrl),
           );
+          const widgetIds = this.itemRenderer.getWidgetIds();
+          // Because of a switch between the input-number and numeric-input widgets
+          // it seems it is possible for us to have a serialized state with keys
+          // that do not correspond to any widgets. We need to sanitize the state
+          // before restoring it.
+          const sanitizedQuestions = {};
+          for (const key of widgetIds) {
+            if (answerState.question[key]) {
+              sanitizedQuestions[key] = answerState.question[key];
+            }
+          }
+          answerState.question = sanitizedQuestions;
           this.itemRenderer.restoreSerializedState(answerState);
-          this.itemRenderer.getWidgetIds().forEach(id => {
+          widgetIds.forEach(id => {
             if (sorterWidgetRegex.test(id)) {
               if (answerState.question[id]) {
                 const sortableComponent =
